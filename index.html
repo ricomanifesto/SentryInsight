@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentryDigest Exploitation Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+        @media (max-width: 767px) {
+            body {
+                padding: 15px;
+            }
+        }
+        #content {
+            padding: 2em;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div id="content" class="markdown-body"></div>
+
+    <script>
+        // Fetch and render the markdown content
+        fetch('index.md')
+            .then(response => response.text())
+            .then(text => {
+                document.getElementById('content').innerHTML = marked.parse(text);
+            })
+            .catch(error => {
+                document.getElementById('content').innerHTML = `
+                    <h1>Error Loading Report</h1>
+                    <p>Unable to load the exploitation report. Please check back later.</p>
+                    <pre>${error}</pre>
+                `;
+            });
+    </script>
+</body>
+</html>
