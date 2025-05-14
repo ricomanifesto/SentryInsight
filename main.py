@@ -1,10 +1,8 @@
-"""SentryDigest Exploitation Report Generator using MCP architecture."""
+"""SentryDigest Exploitation Report Generator using Model Context Protocol."""
 
 import os
 import asyncio
 import logging
-import json
-from datetime import datetime
 
 # Initialize environment variables
 try:
@@ -13,8 +11,8 @@ try:
 except ImportError:
     pass
 
-# Import the MCP workflow
-from mcp_workflow import run_exploitation_analysis
+# Import the Model Context Protocol server
+from mcp_workflow import mcp_app
 
 # Configure logging
 logging.basicConfig(
@@ -27,22 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-async def main():
-    """Main function to run the application using MCP architecture."""
-    logger.info("Starting SentryDigest Exploitation Report Generator with MCP architecture")
-    
-    try:
-        # Run the MCP workflow
-        result = await run_exploitation_analysis()
-        
-        if result.get("status") == "error":
-            logger.error(f"Errors occurred during analysis: {result.get('errors')}")
-        else:
-            logger.info(f"Analysis completed successfully. Report saved.")
-            
-    except Exception as e:
-        logger.error(f"Error in main function: {e}")
-
 if __name__ == "__main__":
-    # Run the main function
-    asyncio.run(main())
+    # Run the MCP server
+    logger.info("Starting SentryDigest MCP Server")
+    mcp_app.run(transport="stdio")  # You can also use "http" for a web server

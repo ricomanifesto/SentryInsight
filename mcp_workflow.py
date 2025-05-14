@@ -1,48 +1,76 @@
-"""MCP (Model-Channel-Protocol) workflow for cybersecurity exploitation analysis."""
+"""MCP (Model Context Protocol) workflow for cybersecurity exploitation analysis."""
 
 import os
 import logging
-from typing import Dict, Any, List, Annotated, TypedDict
 import json
+from typing import Dict, Any, List, Optional
 
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from pydantic import BaseModel, Field
-from langchain_core.messages import HumanMessage, SystemMessage
-from langchain.tools import tool
-from langgraph.graph import StateGraph, START, END
+# Import the MCP server framework
+from mcp.server.fastmcp import FastMCP
 
+# Import existing tools - still useful
 from tools import RSSTools
+from fetch import SentryDigestFetcher
+from entities import extract_cve_ids, extract_cvss_scores
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Initialize FastMCP server
+mcp = FastMCP("sentry-digest-mcp")
+
 # Initialize tools
 rss_tools = RSSTools()
 
-# Define state schema
-class WorkflowState(TypedDict):
-    """State for the MCP workflow."""
-    feed_data: Dict
-    articles: List[Dict]
-    enriched_articles: List[Dict]
-    exploitation_relevant: List[Dict]
-    analysis_result: Dict
-    report: str
-    errors: List[str]
-    status: str
-
-# Define node functions
-async def fetch_feed(state: WorkflowState) -> WorkflowState:
-    """Fetch the RSS feed."""
-    logger.info("Fetching RSS feed")
+def load_config() -> Dict[str, Any]:
+    """Load configuration from JSON file."""
+    config_path = os.path.join(os.path.dirname(__file__), "config.json")
     try:
-        config_path = os.path.join(os.path.dirname(__file__), "config.json")
         with open(config_path, "r") as f:
-            config = json.load(f)
-        
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading config: {e}")
+        return {}
+
+@mcp.tool()
+async def fetch_sentrydigest_feed(feed_url: Optional[str] = None) -> str:
+    """Fetch the SentryDigest RSS feed.
+    
+    Args:
+        feed_url: Optional URL override for the RSS feed
+    """
+    config = load_config()
+    if not feed_url:
         feed_url = config.get("feed_url", "https://ricomanifesto.github.io/SentryDigest/feed.xml")
+    
+    logger.info(f"Fetching SentryDigest feed from {feed_url}")
+    try:
+        feed_data = await rss_tools.fetch_rss_feed(feed_url)
+        article_count = len(feed_data.get("entries", []))
+        
+        # Return a summary of what was fetched
+        return f"Successfully fetched {article_count} articles from SentryDigest feed at {feed_url}"
+    except Exception as e:
+        error_msg = f"Error fetching feed: {str(e)}"
+        logger.error(error_msg)
+        return error_msg
+
+@mcp.tool()
+async def get_latest_articles(feed_url: Optional[str] = None, count: int = 10) -> str:
+    """Get the latest articles from SentryDigest feed.
+    
+    Args:
+        feed_url: Optional URL override for the RSS feed
+        count: Number of articles to return
+    """
+    config = load_config()
+    if not feed_url:
+        feed_url = config.get("feed_url", "https://ricomanifesto.github.io/SentryDigest/feed.xml")
+    
+    logger.info(f"Getting latest {count} articles from {feed_url}")
+    try:
+        # Fetch the feed
         feed_data = await rss_tools.fetch_rss_feed(feed_url)
         
         # Extract articles
@@ -51,361 +79,232 @@ async def fetch_feed(state: WorkflowState) -> WorkflowState:
             article = rss_tools.extract_basic_fields(entry)
             articles.append(article)
         
-        return {
-            **state, 
-            "feed_data": feed_data,
-            "articles": articles,
-            "status": "feed_fetched"
-        }
-    except Exception as e:
-        logger.error(f"Error fetching feed: {e}")
-        return {**state, "errors": state.get("errors", []) + [f"Feed fetch error: {str(e)}"], "status": "error"}
-
-async def enrich_articles(state: WorkflowState) -> WorkflowState:
-    """Enrich articles with full content."""
-    logger.info(f"Enriching {len(state.get('articles', []))} articles with content")
-    try:
-        enriched_articles = []
-        for article in state.get("articles", []):
-            enriched = await rss_tools.enrich_article_content(article)
-            enriched_articles.append(enriched)
-        
-        return {
-            **state, 
-            "enriched_articles": enriched_articles,
-            "status": "articles_enriched"
-        }
-    except Exception as e:
-        logger.error(f"Error enriching articles: {e}")
-        return {**state, "errors": state.get("errors", []) + [f"Enrichment error: {str(e)}"], "status": "error"}
-
-def filter_exploitation_articles(state: WorkflowState) -> WorkflowState:
-    """Filter articles relevant to exploitation."""
-    logger.info("Filtering articles for exploitation content")
-    try:
-        # Initialize AI model
-        config_path = os.path.join(os.path.dirname(__file__), "config.json")
-        with open(config_path, "r") as f:
-            config = json.load(f)
-        
-        model_name = config.get("analysis", {}).get("model", "gpt-4o")
-        temperature = config.get("analysis", {}).get("temperature", 0.1)
-        
-        model = ChatOpenAI(model=model_name, temperature=temperature)
-        
-        # Prepare articles for filtering
-        articles = state.get("enriched_articles", [])
-        
-        # Create a system prompt
-        system_prompt = """
-        You're a cybersecurity expert analyzing news for exploitation information.
-        For each article, determine if it contains information about:
-        1. Zero-day vulnerabilities
-        2. Active exploitation of vulnerabilities
-        3. New attack vectors
-        4. Critical patches
-        5. Threat actor activities specifically related to exploits
-        
-        Respond with YES if the article contains exploitation-related content, or NO if it doesn't.
-        """
-        
-        # Filter articles
-        exploitation_relevant = []
-        for article in articles:
-            title = article.get("title", "")
-            summary = article.get("summary", "")
-            content = article.get("content", "")
-            
-            # Combine title and summary for shorter analysis
-            analysis_text = f"TITLE: {title}\n\nSUMMARY: {summary}"
-            
-            # Create messages
-            messages = [
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=f"Does this article contain information about vulnerability exploitation?\n\n{analysis_text}")
-            ]
-            
-            # Get response
-            response = model.invoke(messages)
-            
-            # If relevant, add to filtered list
-            if "YES" in response.content.upper():
-                exploitation_relevant.append(article)
-        
-        logger.info(f"Filtered {len(exploitation_relevant)} exploitation-relevant articles")
-        
-        return {
-            **state, 
-            "exploitation_relevant": exploitation_relevant,
-            "status": "articles_filtered"
-        }
-    except Exception as e:
-        logger.error(f"Error filtering articles: {e}")
-        return {**state, "errors": state.get("errors", []) + [f"Filtering error: {str(e)}"], "status": "error"}
-
-async def analyze_exploitation(state: WorkflowState) -> WorkflowState:
-    """Perform in-depth exploitation analysis."""
-    logger.info("Analyzing exploitation content")
-    try:
-        # Initialize model
-        config_path = os.path.join(os.path.dirname(__file__), "config.json")
-        with open(config_path, "r") as f:
-            config = json.load(f)
-        
-        model_name = config.get("analysis", {}).get("model", "gpt-4o")
-        temperature = config.get("analysis", {}).get("temperature", 0.1)
-        
-        model = ChatOpenAI(model=model_name, temperature=temperature)
-        
-        # Get relevant articles
-        articles = state.get("exploitation_relevant", [])
+        # Limit to requested count
+        articles = articles[:min(count, len(articles))]
         
         if not articles:
-            return {
-                **state, 
-                "analysis_result": {"message": "No exploitation-relevant articles found"},
-                "status": "no_relevant_articles"
-            }
+            return "No articles found in the feed."
         
-        # Prepare system prompt with specific section headers
-        system_prompt = """
-        You're a cybersecurity expert specialized in vulnerability exploitation. 
-        Analyze the provided cybersecurity news articles and create a comprehensive exploitation report.
+        # Format the articles
+        formatted_articles = []
+        for article in articles:
+            formatted = f"TITLE: {article.get('title', '')}\n"
+            formatted += f"SOURCE: {article.get('source', '')}\n"
+            formatted += f"DATE: {article.get('date', '')}\n"
+            formatted += f"LINK: {article.get('link', '')}\n"
+            formatted += f"SUMMARY: {article.get('summary', '')}\n"
+            formatted_articles.append(formatted)
         
-        Focus especially on:
-        1. Zero-day vulnerabilities being actively exploited
-        2. Recently patched vulnerabilities that were exploited
-        3. New attack vectors and techniques
-        4. Critical vulnerabilities with high impact
-        5. Notable threat actors and their activities
+        return "\n---\n".join(formatted_articles)
+    except Exception as e:
+        error_msg = f"Error fetching articles: {str(e)}"
+        logger.error(error_msg)
+        return error_msg
+
+@mcp.tool()
+async def enrich_article(article_url: str) -> str:
+    """Fetch the full content of an article.
+    
+    Args:
+        article_url: URL of the article to enrich
+    """
+    logger.info(f"Enriching article at {article_url}")
+    try:
+        # Create a basic article dict with the URL
+        article = {"link": article_url}
         
-        Format your report using these EXACT section headers:
-        # Executive Summary
-        (Brief summary of the most critical findings)
+        # Use the existing tool to enrich the article
+        enriched = await rss_tools.enrich_article_content(article)
         
-        # Exploitation Details
-        (Information about active exploits, zero-days, etc.)
+        # Return the enriched content
+        if "content" in enriched and enriched["content"]:
+            return f"Article content from {article_url}:\n\n{enriched['content']}"
+        else:
+            return f"Could not fetch content for {article_url}"
+    except Exception as e:
+        error_msg = f"Error enriching article: {str(e)}"
+        logger.error(error_msg)
+        return error_msg
+
+@mcp.tool()
+async def detect_exploitation_content(text: str) -> str:
+    """Analyze text for exploitation-related content.
+    
+    Args:
+        text: Text content to analyze
+    """
+    logger.info("Analyzing text for exploitation content")
+    try:
+        # Extract CVEs - using existing tools
+        cves = extract_cve_ids(text)
         
-        # Affected Systems
-        (Products, vendors, and systems affected)
+        # Extract CVSS scores
+        cvss_scores = extract_cvss_scores(text)
         
-        # Attack Vectors
-        (How the attacks are carried out, technical details)
-        
-        # Threat Actors
-        (Information about threat actors if available)
-        
-        Be thorough, technical, and precise. This report will be used by security teams to prioritize their response.
-        """
-        
-        # Prepare article data
-        article_data = "\n\n".join([
-            f"TITLE: {article.get('title', '')}\n"
-            f"SOURCE: {article.get('source', '')}\n"
-            f"DATE: {article.get('date', '')}\n"
-            f"SUMMARY: {article.get('summary', '')}"
-            for article in articles
-        ])
-        
-        # Create messages
-        messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=f"Generate an exploitation report based on these cybersecurity news articles:\n\n{article_data}")
+        # Look for exploitation keywords
+        exploitation_keywords = [
+            "exploit", "vulnerability", "zero-day", "0day", "patch", "RCE",
+            "arbitrary code", "authentication bypass", "privilege escalation"
         ]
         
-        # Get response
-        response = model.invoke(messages)
+        found_keywords = []
+        for keyword in exploitation_keywords:
+            if keyword.lower() in text.lower():
+                found_keywords.append(keyword)
         
-        analysis_result = {
-            "exploitation_report": response.content,
-            "analyzed_article_count": len(articles),
-            "sources": list(set(article.get("source", "") for article in articles)),
-        }
+        # Format the results
+        result = "Exploitation Content Analysis:\n\n"
         
-        return {
-            **state, 
-            "analysis_result": analysis_result,
-            "status": "analysis_complete"
-        }
+        if cves:
+            result += f"CVEs detected: {', '.join(cves)}\n\n"
+        else:
+            result += "No CVEs detected.\n\n"
+        
+        if cvss_scores:
+            result += "CVSS Scores:\n"
+            for score in cvss_scores:
+                result += f"- Score: {score.get('score')}, Severity: {score.get('severity')}\n"
+            result += "\n"
+        
+        if found_keywords:
+            result += f"Exploitation keywords detected: {', '.join(found_keywords)}\n\n"
+            result += "This content likely contains exploitation-related information."
+        else:
+            result += "No exploitation keywords detected. This content may not be related to security exploitations."
+        
+        return result
     except Exception as e:
-        logger.error(f"Error analyzing exploitation: {e}")
-        return {**state, "errors": state.get("errors", []) + [f"Analysis error: {str(e)}"], "status": "error"}
+        error_msg = f"Error analyzing text: {str(e)}"
+        logger.error(error_msg)
+        return error_msg
 
-def generate_report(state: WorkflowState) -> WorkflowState:
-    """Generate the final markdown report."""
-    logger.info("Generating final report")
+@mcp.tool()
+async def generate_exploitation_report(articles_json: str) -> str:
+    """Generate an exploitation report from articles.
+    
+    Args:
+        articles_json: JSON string containing articles to analyze
+    """
+    logger.info("Generating exploitation report")
     try:
-        analysis = state.get("analysis_result", {})
-        exploitation_report = analysis.get("exploitation_report", "No exploitation report generated")
+        # Parse the JSON input
+        articles = json.loads(articles_json)
         
-        # Load template if available
+        # Load the report template
         template_path = os.path.join(os.path.dirname(__file__), "templates", "exploitation_report.md")
-        try:
-            with open(template_path, "r") as f:
-                template = f.read()
-        except:
-            template = "# SentryDigest Exploitation Report\n\n{{ exploitation_summary }}"
+        with open(template_path, "r") as f:
+            template = f.read()
         
-        # Extract sections from AI report
-        # We'll use a simple approach: the entire report becomes the exploitation_summary
-        # and we'll extract other sections if they exist using headings as markers
+        # Initialize the AI model
+        from analyze import analyze_exploitation
+        config = load_config()
         
+        # Generate the analysis result
+        analysis_result = await analyze_exploitation(articles, config)
+        
+        # Extract the exploitation report
+        exploitation_report = analysis_result.get("exploitation_report", "No exploitation report generated.")
+        
+        # Parse the report into sections
         sections = {
             "exploitation_summary": exploitation_report,
             "exploitation_details": "",
             "affected_systems": "",
             "attack_vectors": "",
-            "mitigation": "",
             "threat_actors": ""
         }
         
-        # Look for common section headers in the AI output
+        # Look for section headers in the report
         if "# Executive Summary" in exploitation_report:
             parts = exploitation_report.split("# Executive Summary", 1)
-            sections["exploitation_summary"] = "# Executive Summary" + parts[1].split("#", 1)[0]
+            sections["exploitation_summary"] = parts[1].split("#", 1)[0].strip()
         
         if "# Exploitation Details" in exploitation_report or "# Active Exploitation" in exploitation_report:
             marker = "# Exploitation Details" if "# Exploitation Details" in exploitation_report else "# Active Exploitation"
             parts = exploitation_report.split(marker, 1)
-            sections["exploitation_details"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
-            
-        if "# Affected Systems" in exploitation_report or "# Vulnerable Systems" in exploitation_report:
-            marker = "# Affected Systems" if "# Affected Systems" in exploitation_report else "# Vulnerable Systems"
-            parts = exploitation_report.split(marker, 1)
-            sections["affected_systems"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
-            
+            sections["exploitation_details"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
+        
+        if "# Affected Systems" in exploitation_report:
+            parts = exploitation_report.split("# Affected Systems", 1)
+            sections["affected_systems"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
+        
         if "# Attack Vectors" in exploitation_report:
             parts = exploitation_report.split("# Attack Vectors", 1)
-            sections["attack_vectors"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
-            
-        if "# Mitigation" in exploitation_report or "# Recommendations" in exploitation_report:
-            marker = "# Mitigation" if "# Mitigation" in exploitation_report else "# Recommendations"
-            parts = exploitation_report.split(marker, 1)
-            sections["mitigation"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
-            
-        if "# Threat Actor" in exploitation_report:
-            parts = exploitation_report.split("# Threat Actor", 1)
-            sections["threat_actors"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
+            sections["attack_vectors"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
         
-        # Generate report from template by replacing all placeholders
+        if "# Threat Actors" in exploitation_report:
+            parts = exploitation_report.split("# Threat Actors", 1)
+            sections["threat_actors"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
+        
+        # Generate the final report
         report = template
         for key, value in sections.items():
             placeholder = f"{{{{ {key} }}}}"
-            report = report.replace(placeholder, value.strip())
+            report = report.replace(placeholder, value)
         
-        # If no sections were populated, use the full report as exploitation_summary
-        if report.find("{{") != -1:
-            # There are still unpopulated variables
-            report = f"# SentryDigest Exploitation Report\n\n{exploitation_report}"
-        
-        return {
-            **state, 
-            "report": report,
-            "status": "report_generated"
-        }
-    except Exception as e:
-        logger.error(f"Error generating report: {e}")
-        return {**state, "errors": state.get("errors", []) + [f"Report generation error: {str(e)}"], "status": "error"}
-
-def save_report(state: WorkflowState) -> WorkflowState:
-    """Save the report to a file."""
-    logger.info("Saving report to file")
-    try:
-        # Load configuration
-        config_path = os.path.join(os.path.dirname(__file__), "config.json")
-        with open(config_path, "r") as f:
-            config = json.load(f)
-        
+        # Save the report to disk
         output_path = config.get("output_path", "index.md")
-        
-        # Write report to file
         with open(output_path, "w") as f:
-            f.write(state.get("report", "Error generating report"))
+            f.write(report)
         
-        return {
-            **state, 
-            "status": "complete"
-        }
+        return f"Exploitation report generated and saved to {output_path}"
     except Exception as e:
-        logger.error(f"Error saving report: {e}")
-        return {**state, "errors": state.get("errors", []) + [f"Save error: {str(e)}"], "status": "error"}
+        error_msg = f"Error generating report: {str(e)}"
+        logger.error(error_msg)
+        return error_msg
 
-def should_end(state: WorkflowState) -> str:
-    """Determine if workflow should end."""
-    if state.get("status") == "error":
-        return "error"
-    elif state.get("status") == "no_relevant_articles":
-        return "no_articles"
-    elif state.get("status") == "complete":
-        return "success"
-    else:
-        return "continue"
-
-# Create workflow graph
-def create_workflow() -> StateGraph:
-    """Create the MCP workflow graph."""
-    # Initialize workflow
-    workflow = StateGraph(WorkflowState)
+@mcp.tool()
+async def get_exploitation_articles(feed_url: Optional[str] = None, count: int = 30) -> str:
+    """Get articles with exploitation-related content.
     
-    # Define nodes
-    workflow.add_node("fetch_feed", fetch_feed)
-    workflow.add_node("enrich_articles", enrich_articles)
-    workflow.add_node("filter_articles", filter_exploitation_articles)
-    workflow.add_node("analyze_exploitation", analyze_exploitation)
-    workflow.add_node("generate_report", generate_report)
-    workflow.add_node("save_report", save_report)
+    Args:
+        feed_url: Optional URL override for the RSS feed
+        count: Maximum number of articles to return
+    """
+    config = load_config()
+    if not feed_url:
+        feed_url = config.get("feed_url", "https://ricomanifesto.github.io/SentryDigest/feed.xml")
     
-    # Define edges
-    workflow.add_edge(START, "fetch_feed")
-    workflow.add_edge("fetch_feed", "enrich_articles")
-    workflow.add_edge("enrich_articles", "filter_articles")
-    workflow.add_edge("filter_articles", "analyze_exploitation")
-    workflow.add_edge("analyze_exploitation", "generate_report")
-    workflow.add_edge("generate_report", "save_report")
-    workflow.add_edge("save_report", END)
-    
-    # Add conditional edges
-    workflow.add_conditional_edges(
-        "analyze_exploitation",
-        should_end,
-        {
-            "error": END,
-            "no_articles": "generate_report",
-            "continue": "generate_report"
-        }
-    )
-    
-    return workflow
-
-# Export the compiled workflow
-workflow = create_workflow().compile()
-
-async def run_exploitation_analysis():
-    """Run the exploitation analysis workflow."""
-    logger.info("Starting exploitation analysis workflow")
-    
-    # Initialize state
-    initial_state = {
-        "feed_data": {},
-        "articles": [],
-        "enriched_articles": [],
-        "exploitation_relevant": [],
-        "analysis_result": {},
-        "report": "",
-        "errors": [],
-        "status": "started"
-    }
-    
-    # Run the workflow without using MemoryCheckpoint
+    logger.info(f"Getting exploitation articles from {feed_url}")
     try:
-        # Using workflow directly without checkpoint
-        result = await workflow.ainvoke(initial_state)
-        logger.info(f"Workflow completed with status: {result.get('status')}")
-        return result
+        # Initialize the fetcher
+        fetcher = SentryDigestFetcher(feed_url)
+        
+        # Fetch articles
+        all_articles = await fetcher.fetch_articles()
+        
+        # Enrich with content
+        enriched_articles = await fetcher.enrich_article_content(all_articles)
+        
+        # Filter for exploitation content
+        from entities import analyze_article_exploitation
+        
+        exploitation_articles = []
+        for article in enriched_articles:
+            analysis = analyze_article_exploitation(article)
+            if analysis.get("has_exploitation_content", False):
+                exploitation_articles.append(article)
+                if len(exploitation_articles) >= count:
+                    break
+        
+        if not exploitation_articles:
+            return "No exploitation-related articles found."
+        
+        # Format the articles
+        formatted_articles = []
+        for article in exploitation_articles:
+            formatted = f"TITLE: {article.get('title', '')}\n"
+            formatted += f"SOURCE: {article.get('source', '')}\n"
+            formatted += f"LINK: {article.get('link', '')}\n"
+            formatted += f"CVEs: {', '.join(analyze_article_exploitation(article).get('cves', []))}\n"
+            formatted += f"SUMMARY: {article.get('summary', '')}\n"
+            formatted_articles.append(formatted)
+        
+        return "\n---\n".join(formatted_articles)
     except Exception as e:
-        logger.error(f"Workflow error: {e}")
-        return {
-            **initial_state,
-            "errors": [f"Workflow error: {str(e)}"],
-            "status": "error"
-        } 
+        error_msg = f"Error getting exploitation articles: {str(e)}"
+        logger.error(error_msg)
+        return error_msg
+
+# Export the compiled MCP application
+mcp_app = mcp 
