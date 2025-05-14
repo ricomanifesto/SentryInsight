@@ -12,7 +12,7 @@ SentryInsight uses a modern LangGraph-based MCP architecture:
 
 - **Model**: OpenAI's GPT models provide the intelligence for analysis
 - **Channel**: LangGraph workflow orchestrates the data flow between components
-- **Protocol**: Specialized tools handle RSS parsing and content transformation
+- **Protocol**: Specialized MCP tools handle RSS parsing and content transformation
 
 ## Integration with SentryDigest
 
