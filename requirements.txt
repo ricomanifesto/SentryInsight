@@ -1,9 +1,8 @@
-langchain>=0.1.0
-langchain-openai>=0.0.5
-langgraph>=0.0.15
-httpx>=0.24.1
-feedparser>=6.0.10
-pyyaml>=6.0
-python-dotenv>=1.0.0
+httpx
+feedparser
 tiktoken
+langchain>=0.1.0
+langchain-openai
+python-dotenv
+langgraph>=0.0.20
 pydantic>=2.0.0

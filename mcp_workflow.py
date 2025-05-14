@@ -7,11 +7,10 @@ import json
 
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.tools import tool
 from langgraph.graph import StateGraph, START, END
-from langgraph.checkpoint import MemoryCheckpoint
 
 from tools import RSSTools
 
@@ -339,10 +338,10 @@ async def run_exploitation_analysis():
         "status": "started"
     }
     
-    # Run the workflow
+    # Run the workflow without using MemoryCheckpoint
     try:
-        checkpoint = MemoryCheckpoint()
-        result = await workflow.ainvoke(initial_state, checkpoint=checkpoint)
+        # Using workflow directly without checkpoint
+        result = await workflow.ainvoke(initial_state)
         logger.info(f"Workflow completed with status: {result.get('status')}")
         return result
     except Exception as e:
