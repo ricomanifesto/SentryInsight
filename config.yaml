@@ -1,0 +1,16 @@
+# Model configuration
+model:
+  provider: openai
+  name: gpt-4-turbo
+  temperature: 0.2
+
+# Data source
+sentrydigest_url: "https://ricomanifesto.github.io/SentryDigest/feed.xml"
+
+# Output settings
+output_path: "./analysis"
+
+# GitHub Pages settings
+github_pages:
+  enabled: true
+  repo_directory: "./docs"
