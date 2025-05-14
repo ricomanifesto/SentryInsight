@@ -45,6 +45,9 @@ SentryInsight is a sophisticated cybersecurity analysis tool that automatically 
 - Pattern recognition across security articles
 - Natural language report generation
 
+## Integration with SentryDigest
+SentryInsight is designed to work seamlessly with the [SentryDigest](https://github.com/ricomanifesto/SentryDigest) project. When SentryDigest updates its feed, it automatically triggers SentryInsight to generate a new analysis.
+
 ## 🚀 Setup
 
 1. Clone the repository:
