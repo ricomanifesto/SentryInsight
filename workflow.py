@@ -1,13 +1,13 @@
 from typing import Dict, Any, TypedDict, List, Callable, Awaitable
 from langgraph.graph import START, END, StateGraph
-import yaml
 import logging
 import asyncio
 import os
+import json
 from datetime import datetime
 from pathlib import Path
 
-from fetch import SentryDigestFetcher
+from rss_mcp import fetch_rss_feed, enrich_rss_articles  # Import the MCP tools
 from analyze import filter_exploitation_articles, analyze_exploitation
 from publish import publish_to_github_pages
 
@@ -24,36 +24,65 @@ class ExploitationAnalysisState(TypedDict):
     status: str
 
 # Load configuration
-def load_config(config_path: str = "config.yaml") -> Dict[str, Any]:
-    """Load configuration from YAML file"""
+def load_config(config_path: str = "config.json") -> Dict[str, Any]:
+    """Load configuration from JSON file"""
     try:
         with open(config_path, "r") as f:
-            return yaml.safe_load(f)
+            return json.load(f)
     except Exception as e:
         logger.error(f"Failed to load configuration: {e}")
         return {}
 
 # Define the workflow steps
 async def fetch_articles(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
-    """Fetch articles from SentryDigest"""
-    logger.info("Starting article fetching")
+    """Fetch articles from SentryDigest using MCP RSS tools"""
+    logger.info("Starting article fetching with MCP")
     
     config = state["config"]
-    rss_feed_url = config.get("sentrydigest_url", "")
+    rss_feed_url = config.get("feed_url", "")
     
     if not rss_feed_url:
         logger.error("RSS feed URL not configured")
         state["status"] = "failed"
         return state
     
-    fetcher = SentryDigestFetcher(rss_feed_url)
-    articles = await fetcher.fetch_articles()
+    # Use the MCP RSS tool to fetch the feed
+    feed_data = await fetch_rss_feed(rss_feed_url)
     
-    # Enrich articles with content if available
-    articles = await fetcher.enrich_article_content(articles)
+    if "error" in feed_data:
+        logger.error(f"Error in RSS feed: {feed_data['error']}")
+        state["status"] = "failed"
+        return state
+    
+    # Extract articles from feed data
+    articles = []
+    for entry in feed_data.get("entries", []):
+        # Basic article extraction
+        article = {
+            "title": entry.get("title", ""),
+            "link": entry.get("link", ""),
+            "summary": entry.get("description", ""),
+            "published": entry.get("published", ""),
+            "source": entry.get("source", {}).get("title", "Unknown Source"),
+            "date": entry.get("published_parsed", datetime.now().strftime("%Y-%m-%d")),
+        }
+        articles.append(article)
     
     state["articles"] = articles
-    logger.info(f"Fetched and enriched {len(articles)} articles")
+    logger.info(f"Fetched {len(articles)} articles")
+    
+    return state
+
+async def enrich_articles(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
+    """Enrich articles with full content using MCP RSS tools"""
+    logger.info("Enriching articles with MCP")
+    
+    articles = state["articles"]
+    
+    # Use the MCP RSS tool to enrich articles
+    enriched_articles = await enrich_rss_articles(articles)
+    
+    state["articles"] = enriched_articles
     
     return state
 
@@ -91,12 +120,80 @@ async def analyze_articles(state: ExploitationAnalysisState) -> ExploitationAnal
     logger.info("Completed article analysis")
     return state
 
-async def publish_results(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
-    """Publish results to GitHub Pages"""
-    logger.info("Starting results publishing")
+async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
+    """Generate the exploitation report"""
+    logger.info("Generating exploitation report")
     
     analysis_results = state["analysis_results"]
     config = state["config"]
+    
+    if not analysis_results:
+        logger.warning("No analysis results to generate report")
+        state["status"] = "completed_with_warnings"
+        return state
+    
+    # Extract the exploitation report
+    exploitation_report = analysis_results.get("exploitation_report", "# No Exploitation Report Generated")
+    
+    # Load template if available
+    template_path = os.path.join(os.path.dirname(__file__), "templates", "exploitation_report.md")
+    try:
+        with open(template_path, "r") as f:
+            template = f.read()
+    except:
+        template = "# Exploitation Report\n\n{{ exploitation_summary }}\n\n## Active Exploitation Details\n\n{{ exploitation_details }}\n\n## Affected Systems and Products\n\n{{ affected_systems }}\n\n## Attack Vectors and Techniques\n\n{{ attack_vectors }}\n\n## Threat Actor Activities\n\n{{ threat_actors }}"
+    
+    # Process the report into sections for the template
+    sections = {
+        "exploitation_summary": exploitation_report,
+        "exploitation_details": "",
+        "affected_systems": "",
+        "attack_vectors": "",
+        "threat_actors": ""
+    }
+    
+    # Look for section headers in the report
+    if "# Executive Summary" in exploitation_report:
+        parts = exploitation_report.split("# Executive Summary", 1)
+        sections["exploitation_summary"] = parts[1].split("#", 1)[0].strip()
+    
+    if "# Exploitation Details" in exploitation_report or "# Active Exploitation" in exploitation_report:
+        marker = "# Exploitation Details" if "# Exploitation Details" in exploitation_report else "# Active Exploitation"
+        parts = exploitation_report.split(marker, 1)
+        sections["exploitation_details"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
+    
+    if "# Affected Systems" in exploitation_report:
+        parts = exploitation_report.split("# Affected Systems", 1)
+        sections["affected_systems"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
+    
+    if "# Attack Vectors" in exploitation_report:
+        parts = exploitation_report.split("# Attack Vectors", 1)
+        sections["attack_vectors"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
+    
+    if "# Threat Actors" in exploitation_report:
+        parts = exploitation_report.split("# Threat Actors", 1)
+        sections["threat_actors"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
+    
+    # Fill in the template
+    report = template
+    for key, value in sections.items():
+        placeholder = f"{{{{ {key} }}}}"
+        report = report.replace(placeholder, value)
+    
+    # Save the report
+    output_path = config.get("output_path", "index.md")
+    with open(output_path, "w") as f:
+        f.write(report)
+    
+    state["report_path"] = output_path
+    return state
+
+async def publish_results(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
+    """Publish results to GitHub Pages or local file"""
+    logger.info("Publishing results")
+    
+    config = state["config"]
+    analysis_results = state["analysis_results"]
     
     if not analysis_results:
         logger.warning("No analysis results to publish")
@@ -118,20 +215,18 @@ async def publish_results(state: ExploitationAnalysisState) -> ExploitationAnaly
             state["status"] = "completed_with_warnings"
     else:
         logger.info("GitHub Pages publishing is disabled")
-        
-        # Create output directory if it doesn't exist
-        output_path = config.get("output_path", "./analysis")
-        os.makedirs(output_path, exist_ok=True)
-        
-        # Write report to file
-        report_path = os.path.join(output_path, f"exploitation-report-{analysis_results.get('date', datetime.now().strftime('%Y-%m-%d'))}.md")
-        with open(report_path, "w") as f:
-            f.write(analysis_results.get("exploitation_report", "# No Report Generated"))
-            
-        logger.info(f"Analysis report saved to {report_path}")
         state["status"] = "completed"
     
     return state
+
+def should_end(state: ExploitationAnalysisState) -> str:
+    """Determine if workflow should end."""
+    if state.get("status") == "failed":
+        return "error"
+    elif not state.get("filtered_articles"):
+        return "no_articles"
+    else:
+        return "continue"
 
 # Define workflow graph
 def create_exploitation_analysis_graph() -> StateGraph:
@@ -140,16 +235,31 @@ def create_exploitation_analysis_graph() -> StateGraph:
     
     # Add nodes
     workflow.add_node("fetch_articles", fetch_articles)
+    workflow.add_node("enrich_articles", enrich_articles)
     workflow.add_node("filter_articles", filter_articles)
     workflow.add_node("analyze_articles", analyze_articles)
+    workflow.add_node("generate_report", generate_report)
     workflow.add_node("publish_results", publish_results)
     
     # Define edges
     workflow.add_edge(START, "fetch_articles")
-    workflow.add_edge("fetch_articles", "filter_articles")
+    workflow.add_edge("fetch_articles", "enrich_articles")
+    workflow.add_edge("enrich_articles", "filter_articles")
     workflow.add_edge("filter_articles", "analyze_articles")
-    workflow.add_edge("analyze_articles", "publish_results")
+    workflow.add_edge("analyze_articles", "generate_report")
+    workflow.add_edge("generate_report", "publish_results")
     workflow.add_edge("publish_results", END)
+    
+    # Add conditional edges
+    workflow.add_conditional_edges(
+        "filter_articles",
+        should_end,
+        {
+            "error": END,
+            "no_articles": "generate_report",
+            "continue": "analyze_articles"
+        }
+    )
     
     # Compile the graph
     return workflow.compile()
