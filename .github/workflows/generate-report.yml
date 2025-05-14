@@ -1,0 +1,43 @@
+name: Generate Exploitation Report
+
+on:
+  # Run when triggered by SentryDigest repository
+  repository_dispatch:
+    types: [sentrydigest-updated]
+  
+  # Schedule backup run (in case webhook fails)
+  schedule:
+    - cron: '30 */12 * * *'  # Run every 12 hours, offset by 30 minutes
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install httpx feedparser tiktoken langchain langchain-openai
+      
+      - name: Generate exploitation report
+        run: python main.py
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      
+      - name: Commit and push updated report
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add index.md
+          git commit -m "Update exploitation report [automated]" || echo "No changes to commit"
+          git push
