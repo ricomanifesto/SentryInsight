@@ -4,7 +4,7 @@
 
 SentryInsight is a sophisticated cybersecurity analysis tool that automatically monitors, analyzes, and reports on active exploitation threats from security RSS feeds. The system leverages AI to identify critical vulnerabilities, exploitation patterns, and threat actor activities.
 
-![SentryInsight](https://img.shields.io/badge/Security-Analysis-blue)
+[![Latest Exploitation Report](https://img.shields.io/badge/View-Latest%20Report-blue)](https://ricomanifesto.github.io/SentryInsight/)
 
 ## 🔍 Key Features
 
@@ -18,31 +18,6 @@ SentryInsight is a sophisticated cybersecurity analysis tool that automatically 
   - Attack vectors and techniques
   - Threat actor activities
 - **Seamless Publication**: Outputs reports in Markdown format for easy sharing
-
-## 🏗️ Architecture
-
-SentryInsight employs a hybrid architecture that combines the strengths of multiple AI technologies:
-
-┌─────────────────────────────────────────────────────────────┐
-│                      LangGraph Workflow                     │
-├─────────┬─────────┬────────────┬────────────┬──────────────┤
-│ Fetch   │ Enrich  │ Filter     │ Analyze    │ Generate     │
-│ Articles│ Articles│ Exploitation│ Exploitation│ & Publish   │
-└────┬────┴────┬────┴─────┬──────┴─────┬──────┴──────────────┘
-     │         │          │            │
-     ▼         ▼          │            ▼
-┌──────────────────────┐  │   ┌─────────────────────────┐
-│    MCP RSS Tools     │  │   │    LangChain + OpenAI   │
-│  (Feed Processing)   │  │   │   (Content Analysis)    │
-└──────────────────────┘  │   └─────────────────────────┘
-                          │
-                          ▼
-                 ┌─────────────────────┐
-                 │  Entity Extraction  │
-                 │    & Filtering      │
-                 └─────────────────────┘
-
-
 
 ## 🛠️ Technologies
 
