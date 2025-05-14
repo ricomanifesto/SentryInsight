@@ -13,9 +13,6 @@ __pycache__/
 # Logs
 *.log
 
-# Generated output
-index.md
-
 # OS files
 .DS_Store
 Thumbs.db
