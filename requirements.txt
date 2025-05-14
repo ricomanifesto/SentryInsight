@@ -6,3 +6,4 @@ langchain-openai
 python-dotenv
 langgraph>=0.0.20
 pydantic>=2.0.0
+mcp-python>=0.1.0
