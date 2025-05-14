@@ -23,3 +23,5 @@ SentryInsight is designed to work seamlessly with the [SentryDigest](https://git
 MIT
 
 ---
+
+*SentryInsight: Advanced cybersecurity intelligence through AI-driven MCP architecture*
