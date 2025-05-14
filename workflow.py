@@ -1,10 +1,11 @@
-from typing import Dict, Any, TypedDict
+from typing import Dict, Any, TypedDict, List, Callable, Awaitable
 from langgraph.graph import START, END, StateGraph
 import yaml
 import logging
 import asyncio
 import os
 from datetime import datetime
+from pathlib import Path
 
 from fetch import SentryDigestFetcher
 from analyze import filter_exploitation_articles, analyze_exploitation
@@ -29,108 +30,129 @@ def load_config(config_path: str = "config.yaml") -> Dict[str, Any]:
         with open(config_path, "r") as f:
             return yaml.safe_load(f)
     except Exception as e:
-        logger.error(f"Error loading configuration: {e}")
+        logger.error(f"Failed to load configuration: {e}")
         return {}
 
-# Node functions
+# Define the workflow steps
 async def fetch_articles(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
     """Fetch articles from SentryDigest"""
     logger.info("Starting article fetching")
     
     config = state["config"]
-    rss_url = config.get("sentrydigest_url", "")
+    rss_feed_url = config.get("sentrydigest_url", "")
     
-    # Initialize fetcher
-    fetcher = SentryDigestFetcher(rss_url)
+    if not rss_feed_url:
+        logger.error("RSS feed URL not configured")
+        state["status"] = "failed"
+        return state
     
-    # Fetch articles
+    fetcher = SentryDigestFetcher(rss_feed_url)
     articles = await fetcher.fetch_articles()
     
-    # Enrich articles with content
-    enriched_articles = await fetcher.enrich_article_content(articles)
+    # Enrich articles with content if available
+    articles = await fetcher.enrich_article_content(articles)
     
-    logger.info(f"Fetched and enriched {len(enriched_articles)} articles")
+    state["articles"] = articles
+    logger.info(f"Fetched and enriched {len(articles)} articles")
     
-    return {
-        **state,
-        "articles": enriched_articles,
-        "status": "articles_fetched"
-    }
+    return state
 
 async def filter_articles(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
     """Filter articles for exploitation content"""
     logger.info("Starting article filtering")
     
     articles = state["articles"]
+    filtered = filter_exploitation_articles(articles)
     
-    # Filter articles
-    filtered_articles = await filter_exploitation_articles(articles)
+    state["filtered_articles"] = filtered
     
-    logger.info(f"Filtered {len(articles)} articles to {len(filtered_articles)} exploitation-related articles")
-    
-    return {
-        **state,
-        "filtered_articles": filtered_articles,
-        "status": "articles_filtered"
-    }
+    return state
 
 async def analyze_articles(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
-    """Analyze exploitation articles"""
-    logger.info("Starting exploitation analysis")
+    """Analyze articles for exploitation content"""
+    logger.info("Starting article analysis")
     
     filtered_articles = state["filtered_articles"]
     config = state["config"]
-    model_config = config.get("model", {})
     
-    # Analyze articles
-    analysis_results = await analyze_exploitation(filtered_articles, model_config)
+    if not filtered_articles:
+        logger.warning("No exploitation-related articles found to analyze")
+        state["analysis_results"] = {
+            "exploitation_report": "# No Exploitation Content Found\n\nNo articles with exploitation-related content were found in the current dataset.",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "analyzed_article_count": 0
+        }
+        return state
     
-    logger.info("Completed exploitation analysis")
+    # Analyze the filtered articles
+    analysis_results = await analyze_exploitation(filtered_articles, config)
+    state["analysis_results"] = analysis_results
     
-    return {
-        **state,
-        "analysis_results": analysis_results,
-        "status": "analysis_complete"
-    }
+    logger.info("Completed article analysis")
+    return state
 
 async def publish_results(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
-    """Publish analysis results"""
+    """Publish results to GitHub Pages"""
     logger.info("Starting results publishing")
     
     analysis_results = state["analysis_results"]
     config = state["config"]
+    
+    if not analysis_results:
+        logger.warning("No analysis results to publish")
+        state["status"] = "completed_with_warnings"
+        return state
+    
+    # Get GitHub Pages config
     github_pages_config = config.get("github_pages", {})
     
-    # Publish results
-    success = await publish_to_github_pages(analysis_results, github_pages_config)
+    # Publish to GitHub Pages if enabled
+    if github_pages_config.get("enabled", False):
+        success = await publish_to_github_pages(analysis_results, github_pages_config)
+        
+        if success:
+            logger.info("Successfully published to GitHub Pages")
+            state["status"] = "completed"
+        else:
+            logger.warning("Failed to publish to GitHub Pages")
+            state["status"] = "completed_with_warnings"
+    else:
+        logger.info("GitHub Pages publishing is disabled")
+        
+        # Create output directory if it doesn't exist
+        output_path = config.get("output_path", "./analysis")
+        os.makedirs(output_path, exist_ok=True)
+        
+        # Write report to file
+        report_path = os.path.join(output_path, f"exploitation-report-{analysis_results.get('date', datetime.now().strftime('%Y-%m-%d'))}.md")
+        with open(report_path, "w") as f:
+            f.write(analysis_results.get("exploitation_report", "# No Report Generated"))
+            
+        logger.info(f"Analysis report saved to {report_path}")
+        state["status"] = "completed"
     
-    logger.info(f"Publishing {'succeeded' if success else 'failed'}")
-    
-    return {
-        **state,
-        "status": "published" if success else "publish_failed"
-    }
+    return state
 
-# Create the graph
-def create_exploitation_analysis_graph():
-    """Create the workflow graph for exploitation analysis"""
-    builder = StateGraph(ExploitationAnalysisState)
+# Define workflow graph
+def create_exploitation_analysis_graph() -> StateGraph:
+    """Create the exploitation analysis workflow graph"""
+    workflow = StateGraph(ExploitationAnalysisState)
     
     # Add nodes
-    builder.add_node("fetch_articles", fetch_articles)
-    builder.add_node("filter_articles", filter_articles)
-    builder.add_node("analyze_articles", analyze_articles)
-    builder.add_node("publish_results", publish_results)
+    workflow.add_node("fetch_articles", fetch_articles)
+    workflow.add_node("filter_articles", filter_articles)
+    workflow.add_node("analyze_articles", analyze_articles)
+    workflow.add_node("publish_results", publish_results)
     
-    # Add edges
-    builder.add_edge(START, "fetch_articles")
-    builder.add_edge("fetch_articles", "filter_articles")
-    builder.add_edge("filter_articles", "analyze_articles")
-    builder.add_edge("analyze_articles", "publish_results")
-    builder.add_edge("publish_results", END)
+    # Define edges
+    workflow.add_edge(START, "fetch_articles")
+    workflow.add_edge("fetch_articles", "filter_articles")
+    workflow.add_edge("filter_articles", "analyze_articles")
+    workflow.add_edge("analyze_articles", "publish_results")
+    workflow.add_edge("publish_results", END)
     
     # Compile the graph
-    return builder.compile()
+    return workflow.compile()
 
 # Main function to run the workflow
 async def run_exploitation_analysis():
@@ -158,17 +180,12 @@ async def run_exploitation_analysis():
     
     # Run the graph
     try:
-        async for event in graph.astream_events(initial_state):
-            state = event.data
-            current_node = state.get("current_node", "")
-            if current_node:
-                logger.info(f"Completed node: {current_node}")
+        final_state = await graph.ainvoke(initial_state)
+        logger.info("Workflow completed successfully")
+        return final_state
     except Exception as e:
         logger.error(f"Error during workflow execution: {e}")
         return None
-    
-    logger.info("Exploitation analysis workflow completed successfully")
-    return state
 
 # For direct execution
 if __name__ == "__main__":

@@ -1,0 +1,30 @@
+{
+    "feed_url": "https://ricomanifesto.github.io/SentryDigest/feed.xml",
+    "output_path": "index.md",
+    "analysis": {
+        "model": "gpt-4o",
+        "temperature": 0.1,
+        "max_tokens": 4000,
+        "analysis_focus": [
+            "zero-day vulnerabilities",
+            "active exploitation",
+            "patch releases",
+            "critical vulnerabilities",
+            "threat actor activities"
+        ]
+    },
+    "report": {
+        "include_date": true,
+        "include_source_links": true,
+        "format": "markdown"
+    },
+    "fetch": {
+        "timeout": 30,
+        "max_retries": 3,
+        "content_extraction": "full"
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "sentry_digest.log"
+    }
+}

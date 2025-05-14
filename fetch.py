@@ -1,91 +1,122 @@
+import logging
+import asyncio
+import re
+import html
+from typing import List, Dict, Any
 import httpx
 import feedparser
-import logging
-from typing import List, Dict, Any
 from datetime import datetime
+from urllib.parse import urlparse
 
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class SentryDigestFetcher:
     """
-    RSS feed fetcher for SentryDigest, focused on exploitation content
+    Class for fetching articles from SentryDigest RSS feed
     """
     
-    def __init__(self, rss_feed_url: str):
-        """Initialize with the URL of the SentryDigest RSS feed"""
-        self.rss_feed_url = rss_feed_url
-        logger.info(f"Initialized SentryDigestFetcher with RSS feed URL: {rss_feed_url}")
+    def __init__(self, feed_url: str):
+        """
+        Initialize the fetcher with the feed URL
         
+        Args:
+            feed_url: URL of the SentryDigest RSS feed
+        """
+        self.feed_url = feed_url
+        self.client = httpx.AsyncClient(follow_redirects=True, timeout=30.0)
+    
     async def fetch_articles(self) -> List[Dict[str, Any]]:
         """
-        Extract articles from the SentryDigest RSS feed
+        Fetch articles from SentryDigest RSS feed
         
         Returns:
-            List of article dictionaries with title, link, source, published date, and description
+            List of articles with basic metadata
         """
-        logger.info(f"Fetching articles from RSS feed: {self.rss_feed_url}")
+        logger.info(f"Fetching articles from {self.feed_url}")
         
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(self.rss_feed_url, timeout=30.0)
-                response.raise_for_status()
-                feed_content = response.text
-                
-                # Parse the RSS feed
-                feed = feedparser.parse(feed_content)
-                
-                if not feed.entries:
-                    logger.warning("No entries found in the RSS feed")
-                    return []
-                
-                # Convert feedparser entries to our format
-                articles = []
-                for entry in feed.entries:
-                    article = {
-                        "title": entry.get("title", ""),
-                        "link": entry.get("link", ""),
-                        "published": entry.get("published", ""),
-                        "summary": entry.get("summary", ""),
-                        "content": entry.get("content", [{}])[0].get("value", "") if "content" in entry else "",
-                        "source": "SentryDigest"
-                    }
-                    articles.append(article)
-                
-                logger.info(f"Successfully fetched {len(articles)} articles")
-                return articles
-                
+            # Fetch the feed
+            response = await self.client.get(self.feed_url)
+            response.raise_for_status()
+            
+            # Use feedparser to parse the feed
+            feed = feedparser.parse(response.text)
+            
+            # Extract articles
+            articles = []
+            for entry in feed.entries:
+                # Basic article info
+                article = {
+                    "title": entry.title,
+                    "link": entry.link,
+                    "summary": entry.description,
+                    "published": entry.get("published", ""),
+                    "source": entry.get("dc_source", "Unknown Source"),
+                    "date": entry.get("dc_date", datetime.now().strftime("%Y-%m-%d")),
+                    "content": entry.get("content", ""),
+                }
+                articles.append(article)
+            
+            logger.info(f"Extracted {len(articles)} articles from feed")
+            return articles
+            
         except Exception as e:
             logger.error(f"Error fetching articles: {e}")
-            return []
+            raise
     
     async def enrich_article_content(self, articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Enriches articles with full content if available by fetching the article URLs
+        Enrich articles with full content
         
         Args:
             articles: List of article dictionaries
             
         Returns:
-            Enriched article dictionaries
+            Enriched list of articles with full content
         """
-        logger.info(f"Enriching content for {len(articles)} articles")
+        logger.info(f"Enriching {len(articles)} articles with content")
         
+        # List to store enriched articles
         enriched_articles = []
-        async with httpx.AsyncClient() as client:
-            for article in articles:
-                try:
-                    # Only fetch if we don't already have content
-                    if not article.get("content") and article.get("link"):
-                        logger.info(f"Fetching content for: {article['title']}")
-                        response = await client.get(article["link"], timeout=30.0)
-                        if response.status_code == 200:
-                            # Just use the HTML as the content for now - we'll let the AI extract what it needs
-                            article["content"] = response.text
-                            logger.info(f"Successfully enriched content for: {article['title']}")
-                except Exception as e:
-                    logger.warning(f"Failed to enrich article {article.get('title', 'Unknown')}: {e}")
-                
+        
+        # Process each article
+        for article in articles:
+            logger.info(f"Enriching article: {article.get('title', '')}")
+            
+            # Skip if the article already has content
+            if "content" in article and article["content"]:
                 enriched_articles.append(article)
-                
+                continue
+            
+            # Combine title and summary for basic content
+            full_content = article.get("title", "") + "\n"
+            
+            # Add summary if available
+            if "summary" in article and article["summary"]:
+                full_content += article["summary"] + "\n"
+            
+            # Use async fetch for full article content
+            try:
+                timeout = httpx.Timeout(10.0, connect=5.0)
+                async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+                    logger.info(f"Fetching full content for: {article.get('link', '')}")
+                    response = await client.get(article.get("link", ""))
+                    
+                    if response.status_code == 200:
+                        # Add full article content
+                        article["content"] = full_content + "\n\n" + response.text
+                    else:
+                        # Use what we have if we can't fetch the full article
+                        logger.warning(f"Could not fetch full content: {response.status_code}")
+                        article["content"] = full_content
+            except Exception as e:
+                logger.warning(f"Error fetching full content: {e}")
+                # Fall back to summary if error occurs
+                article["content"] = full_content
+            
+            enriched_articles.append(article)
+        
+        logger.info(f"Enriched {len(enriched_articles)} articles with content")
         return enriched_articles
