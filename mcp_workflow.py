@@ -167,7 +167,7 @@ async def analyze_exploitation(state: WorkflowState) -> WorkflowState:
                 "status": "no_relevant_articles"
             }
         
-        # Prepare system prompt
+        # Prepare system prompt with specific section headers
         system_prompt = """
         You're a cybersecurity expert specialized in vulnerability exploitation. 
         Analyze the provided cybersecurity news articles and create a comprehensive exploitation report.
@@ -179,12 +179,21 @@ async def analyze_exploitation(state: WorkflowState) -> WorkflowState:
         4. Critical vulnerabilities with high impact
         5. Notable threat actors and their activities
         
-        Your report should include:
-        - An executive summary of the most critical exploits
-        - Details of affected systems and products
-        - Technical information about attack vectors
-        - Mitigation recommendations
-        - Threat actor attribution where possible
+        Format your report using these EXACT section headers:
+        # Executive Summary
+        (Brief summary of the most critical findings)
+        
+        # Exploitation Details
+        (Information about active exploits, zero-days, etc.)
+        
+        # Affected Systems
+        (Products, vendors, and systems affected)
+        
+        # Attack Vectors
+        (How the attacks are carried out, technical details)
+        
+        # Threat Actors
+        (Information about threat actors if available)
         
         Be thorough, technical, and precise. This report will be used by security teams to prioritize their response.
         """
@@ -235,10 +244,59 @@ def generate_report(state: WorkflowState) -> WorkflowState:
             with open(template_path, "r") as f:
                 template = f.read()
         except:
-            template = "# SentryDigest Exploitation Report\n\n{{ exploitation_report }}"
+            template = "# SentryDigest Exploitation Report\n\n{{ exploitation_summary }}"
         
-        # Generate report from template
-        report = template.replace("{{ exploitation_report }}", exploitation_report)
+        # Extract sections from AI report
+        # We'll use a simple approach: the entire report becomes the exploitation_summary
+        # and we'll extract other sections if they exist using headings as markers
+        
+        sections = {
+            "exploitation_summary": exploitation_report,
+            "exploitation_details": "",
+            "affected_systems": "",
+            "attack_vectors": "",
+            "mitigation": "",
+            "threat_actors": ""
+        }
+        
+        # Look for common section headers in the AI output
+        if "# Executive Summary" in exploitation_report:
+            parts = exploitation_report.split("# Executive Summary", 1)
+            sections["exploitation_summary"] = "# Executive Summary" + parts[1].split("#", 1)[0]
+        
+        if "# Exploitation Details" in exploitation_report or "# Active Exploitation" in exploitation_report:
+            marker = "# Exploitation Details" if "# Exploitation Details" in exploitation_report else "# Active Exploitation"
+            parts = exploitation_report.split(marker, 1)
+            sections["exploitation_details"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
+            
+        if "# Affected Systems" in exploitation_report or "# Vulnerable Systems" in exploitation_report:
+            marker = "# Affected Systems" if "# Affected Systems" in exploitation_report else "# Vulnerable Systems"
+            parts = exploitation_report.split(marker, 1)
+            sections["affected_systems"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
+            
+        if "# Attack Vectors" in exploitation_report:
+            parts = exploitation_report.split("# Attack Vectors", 1)
+            sections["attack_vectors"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
+            
+        if "# Mitigation" in exploitation_report or "# Recommendations" in exploitation_report:
+            marker = "# Mitigation" if "# Mitigation" in exploitation_report else "# Recommendations"
+            parts = exploitation_report.split(marker, 1)
+            sections["mitigation"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
+            
+        if "# Threat Actor" in exploitation_report:
+            parts = exploitation_report.split("# Threat Actor", 1)
+            sections["threat_actors"] = parts[1].split("#", 1)[0] if len(parts) > 1 else ""
+        
+        # Generate report from template by replacing all placeholders
+        report = template
+        for key, value in sections.items():
+            placeholder = f"{{{{ {key} }}}}"
+            report = report.replace(placeholder, value.strip())
+        
+        # If no sections were populated, use the full report as exploitation_summary
+        if report.find("{{") != -1:
+            # There are still unpopulated variables
+            report = f"# SentryDigest Exploitation Report\n\n{exploitation_report}"
         
         return {
             **state, 
