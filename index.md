@@ -1,37 +1,87 @@
 # Exploitation Report
 
-# Executive Summary
-Recent cybersecurity reports highlight several critical vulnerabilities and zero-day exploits affecting major systems and software. Notably, Fortinet's FortiVoice systems and SAP NetWeaver servers have been targeted by zero-day vulnerabilities, while Ivanti's Endpoint Manager Mobile (EPMM) and Microsoft's Windows systems have also been exploited. Additionally, a new Intel CPU flaw poses a significant risk by leaking sensitive data. Threat actors, including China-linked APTs, have been actively exploiting these vulnerabilities, emphasizing the urgent need for patching and enhanced security measures.
+# Comprehensive Exploitation Report - May 2025
+
+## Summary of Critical Exploitation Activity
+
+This report provides an analysis of recent exploitation activities, focusing on zero-day vulnerabilities, recently patched vulnerabilities that were exploited, new attack vectors, and notable threat actors. The report highlights vulnerabilities affecting major software and systems, including Microsoft products, Fortinet, SAP, and Intel CPUs, among others.
+
+## Exploited Vulnerabilities
+
+### Zero-Day Vulnerabilities
+
+1. **CVE-2025-32756** - Fortinet FortiVoice Systems
+   - **Description**: A critical remote code execution (RCE) vulnerability exploited as a zero-day.
+   - **Impact**: Allows attackers to execute arbitrary code on vulnerable systems.
+   - **Affected Systems**: Fortinet FortiVoice enterprise phone systems.
+   - **Mitigation**: Apply the latest security patches released by Fortinet.
+
+2. **CVE-2025-31324** - SAP NetWeaver
+   - **Description**: A critical vulnerability exploited by China-linked APTs to breach critical systems.
+   - **Impact**: Compromise of critical infrastructure networks.
+   - **Affected Systems**: SAP NetWeaver servers.
+   - **Mitigation**: Implement SAP's security updates immediately.
+
+3. **Windows Zero-Day** - Browser-Led RCE
+   - **Description**: A zero-day vulnerability in Windows exploited for remote code execution via browsers.
+   - **Impact**: Allows attackers to execute code remotely.
+   - **Affected Systems**: Windows operating systems.
+   - **Mitigation**: Apply Microsoft's May 2025 Patch Tuesday updates.
+
+### Recently Patched Vulnerabilities
+
+1. **Azure DevOps Server** - CVSS 10 Bug
+   - **Description**: A critical vulnerability with a CVSS score of 10 impacting Azure DevOps Server.
+   - **Impact**: Potential for complete system compromise.
+   - **Affected Systems**: Azure DevOps Server.
+   - **Mitigation**: Apply the latest patches from Microsoft.
+
+2. **Ivanti EPMM Vulnerabilities**
+   - **Description**: Two vulnerabilities in Ivanti Endpoint Manager Mobile (EPMM) exploited for remote code execution.
+   - **Impact**: Allows attackers to chain vulnerabilities for RCE.
+   - **Affected Systems**: Ivanti EPMM software.
+   - **Mitigation**: Update to the latest version as per Ivanti's advisories.
+
+3. **Intel CPU Flaws** - Branch Privilege Injection
+   - **Description**: A flaw in Intel CPUs allowing data leakage from privileged memory.
+   - **Impact**: Potential exposure of sensitive data.
+   - **Affected Systems**: All modern Intel CPUs.
+   - **Mitigation**: Apply firmware updates and patches from Intel.
+
+### New Attack Vectors and Techniques
+
+- **Earth Ammit Campaigns**: Targeting drone supply chains via ERP systems in Taiwan and South Korea.
+- **Horabot Malware**: Distributed via invoice-themed phishing emails targeting Latin American countries.
+- **Malicious PyPI Package**: A package posing as a Solana tool, stealing source code upon download.
+
+### Notable Threat Actors
+
+- **Earth Ammit**: Engaged in cyber espionage targeting military and satellite sectors.
+- **China-Linked APTs**: Exploiting SAP vulnerabilities to target critical infrastructure.
+- **Konni (Opal Sleet, TA406)**: North Korean group targeting Ukrainian government entities.
+
+## Recommendations for Mitigation
+
+1. **Patch Management**: Regularly apply security patches from vendors like Microsoft, Fortinet, SAP, and Intel.
+2. **Network Segmentation**: Isolate critical systems to limit the impact of potential breaches.
+3. **Phishing Awareness**: Educate employees about phishing threats and implement email filtering solutions.
+4. **Endpoint Protection**: Deploy advanced endpoint protection solutions to detect and mitigate malware.
+5. **Regular Audits**: Conduct regular security audits and vulnerability assessments to identify and remediate weaknesses.
+
+By staying informed and proactive, organizations can better protect themselves against the evolving threat landscape.
 
 ## Active Exploitation Details
 
-- **CVE-2025-32756**: A zero-day remote code execution (RCE) vulnerability in Fortinet's FortiVoice systems has been actively exploited. Fortinet has released patches to mitigate this critical flaw.
-- **SAP NetWeaver Zero-Day**: A second zero-day vulnerability in SAP NetWeaver servers has been exploited in recent attacks, with patches now available.
-- **Ivanti EPMM Vulnerabilities**: Two vulnerabilities in Ivanti's Endpoint Manager Mobile software have been chained to achieve RCE in targeted attacks. Patches have been issued.
-- **Windows Zero-Day**: Multiple zero-day vulnerabilities in Windows, including a browser-led RCE, have been addressed in Microsoft's May 2025 Patch Tuesday.
-- **Intel CPU Flaw**: The "Branch Privilege Injection" flaw in Intel CPUs allows attackers to leak sensitive data from privileged memory, posing a significant threat to system security.
+
 
 ## Affected Systems and Products
 
-- **Fortinet FortiVoice**: Enterprise phone systems affected by CVE-2025-32756.
-- **SAP NetWeaver**: Servers targeted by zero-day vulnerabilities.
-- **Ivanti EPMM**: Endpoint Manager Mobile software vulnerable to chained RCE attacks.
-- **Microsoft Windows**: Multiple zero-day vulnerabilities affecting various Windows systems.
-- **Intel CPUs**: All modern Intel processors vulnerable to the "Branch Privilege Injection" flaw.
+
 
 ## Attack Vectors and Techniques
 
-- **Fortinet FortiVoice**: Exploitation of RCE vulnerability via network access to FortiVoice systems.
-- **SAP NetWeaver**: Targeted attacks leveraging zero-day vulnerabilities to breach critical infrastructure.
-- **Ivanti EPMM**: Chained vulnerabilities allowing remote code execution through crafted network requests.
-- **Windows Systems**: Exploitation of zero-day vulnerabilities through browser-based attacks and other vectors.
-- **Intel CPUs**: Exploitation of CPU flaw to leak data from privileged memory regions.
+
 
 ## Threat Actor Activities
 
-s
-- **China-Linked APTs**: Actively exploiting SAP NetWeaver vulnerabilities to target critical infrastructure worldwide.
-- **Tidrone**: A Chinese actor targeting Taiwanese drone manufacturers and supply chains, focusing on military and satellite sectors.
-- **Malicious PyPI Package**: Cybercriminals distributing a malicious package on PyPI, posing as a Solana tool to steal source code.
-
-Security teams are advised to prioritize patching these vulnerabilities and monitor for any signs of exploitation within their networks. Enhanced security measures and threat intelligence should be employed to mitigate the risks posed by these critical vulnerabilities and active threat actors. 
+ 
