@@ -135,28 +135,9 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
     # Extract the exploitation report
     exploitation_report = analysis_results.get("exploitation_report", "# No Exploitation Report Generated")
     
-    # Load template if available
-    template_path = os.path.join(os.path.dirname(__file__), "templates", "exploitation_report.md")
-    try:
-        with open(template_path, "r") as f:
-            template = f.read()
-    except:
-        template = "# Exploitation Report\n\n{{ exploitation_summary }}\n\n## Active Exploitation Details\n\n{{ exploitation_details }}\n\n## Affected Systems and Products\n\n{{ affected_systems }}\n\n## Attack Vectors and Techniques\n\n{{ attack_vectors }}\n\n## Threat Actor Activities\n\n{{ threat_actors }}"
-    
     # Since the exploitation_report already contains the full formatted report,
-    # we should use it directly without trying to split it into sections
-    # that may not exist. Simply replace the exploitation_summary placeholder
-    # with the full report and remove empty section placeholders.
-    
-    report = template.replace("{{ exploitation_summary }}", exploitation_report)
-    
-    # Remove any remaining placeholder sections that would be empty
-    import re
-    # Remove lines that only contain placeholder patterns and following empty lines
-    report = re.sub(r'^## [^{]*\n\n\{\{[^}]+\}\}\n*', '', report, flags=re.MULTILINE)
-    
-    # Clean up any remaining placeholders by removing them entirely
-    report = re.sub(r'\{\{[^}]+\}\}', '', report)
+    # we should use it directly instead of the template
+    report = exploitation_report
     
     # Save the report
     output_path = config.get("output_path", "index.md")
