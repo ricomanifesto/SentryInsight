@@ -1,71 +1,99 @@
 # Exploitation Report
 
-# Comprehensive Exploitation Report - May 2025
+# Comprehensive Exploitation Report
 
 ## Summary of Critical Exploitation Activity
 
-This report provides an overview of the most critical exploitation activities as of May 2025, focusing on zero-day vulnerabilities, recently patched vulnerabilities that were exploited, new attack vectors, and notable threat actors. The report highlights vulnerabilities affecting major software and systems, including Microsoft products, Fortinet, SAP, and Intel CPUs, among others.
+This report provides an analysis of recent cybersecurity threats and vulnerabilities based on the latest security articles. The focus is on zero-day vulnerabilities, recently patched vulnerabilities that were exploited, new attack vectors, and notable threat actors. The report also includes recommendations for mitigation.
 
-## Exploited Vulnerabilities
+## Detailed Analysis
 
-### Zero-Day Vulnerabilities
+### 1. Qualcomm Security Flaws
 
-1. **CVE-2025-32756** - Fortinet FortiVoice Systems
-   - **Description**: A critical remote code execution (RCE) vulnerability exploited as a zero-day.
-   - **Impact**: Allows attackers to execute arbitrary code on vulnerable systems.
-   - **Affected Systems**: Fortinet FortiVoice enterprise phone systems.
-   - **Mitigation**: Apply the latest security patches released by Fortinet.
+- **Description**: Qualcomm has patched three critical security vulnerabilities that were actively exploited. These vulnerabilities affect various Qualcomm components used in numerous devices.
+- **CVE IDs**: Not specified in the article.
+- **Affected Systems**: Devices using Qualcomm components.
+- **Impact**: High, as these vulnerabilities could allow attackers to execute arbitrary code or escalate privileges.
+- **Mitigation**: Device manufacturers must apply the critical updates to their products to ensure protection.
 
-2. **CVE-2025-31324** - SAP NetWeaver
-   - **Description**: A critical security flaw exploited by China-linked APTs to breach critical systems.
-   - **Impact**: Compromises critical infrastructure networks.
-   - **Affected Systems**: SAP NetWeaver servers.
-   - **Mitigation**: Implement SAP's security updates immediately.
+### 2. HPE StoreOnce Authentication Bypass
 
-3. **Windows Zero-Day Bug** - Browser-Led RCE
-   - **Description**: Exploited in the wild, allowing remote code execution via browsers.
-   - **Impact**: High risk of system compromise.
-   - **Affected Systems**: Windows operating systems.
-   - **Mitigation**: Apply Microsoft's May 2025 Patch Tuesday updates.
+- **Description**: Hewlett Packard Enterprise (HPE) has released patches for eight vulnerabilities in its StoreOnce data backup and deduplication solution, including a critical authentication bypass flaw.
+- **CVE IDs**: Not specified in the article.
+- **Affected Systems**: HPE StoreOnce systems.
+- **Impact**: High, as the authentication bypass could allow unauthorized access to sensitive data.
+- **Mitigation**: Apply the latest security patches provided by HPE.
 
-### Recently Patched Vulnerabilities
+### 3. Chaos RAT Malware
 
-1. **Microsoft May 2025 Patch Tuesday**
-   - **Description**: Fixed 78 vulnerabilities, including five zero-days actively exploited.
-   - **Impact**: Various impacts including remote code execution and privilege escalation.
-   - **Affected Systems**: Windows and related Microsoft products.
-   - **Mitigation**: Ensure all systems are updated with the latest patches.
+- **Description**: A new variant of the Chaos RAT malware is targeting Windows and Linux systems through fake network tool downloads.
+- **CVE IDs**: Not applicable (malware-based attack).
+- **Affected Systems**: Windows and Linux systems.
+- **Impact**: High, as the RAT provides attackers with remote access to compromised systems.
+- **Mitigation**: Avoid downloading software from untrusted sources and use reputable antivirus solutions.
 
-2. **Ivanti EPMM Vulnerabilities**
-   - **Description**: Two vulnerabilities exploited for remote code execution.
-   - **Impact**: Allows attackers to execute arbitrary code.
-   - **Affected Systems**: Ivanti Endpoint Manager Mobile (EPMM) software.
-   - **Mitigation**: Apply Ivanti's security updates.
+### 4. Malicious Open-Source Packages
 
-3. **Intel CPU Flaws**
-   - **Description**: "Branch Privilege Injection" flaw leaks sensitive data from privileged memory.
-   - **Impact**: Potential data leakage from operating system kernel memory.
-   - **Affected Systems**: All modern Intel CPUs.
-   - **Mitigation**: Apply firmware updates and follow Intel's security guidance.
+- **Description**: Malicious packages have been discovered in npm, PyPI, and Ruby repositories, targeting cryptocurrency wallets and codebases.
+- **CVE IDs**: Not specified in the article.
+- **Affected Systems**: Systems using affected npm, PyPI, and Ruby packages.
+- **Impact**: High, as these packages can drain cryptocurrency wallets and erase codebases.
+- **Mitigation**: Regularly audit dependencies and use tools to detect malicious packages.
 
-### New Attack Vectors and Techniques
+### 5. Kerberos AS-REP Roasting Attacks
 
-- **Earth Ammit Campaigns**: Targeting drone supply chains via ERP systems in Taiwan and South Korea.
-- **Horabot Malware**: Distributed via invoice-themed phishing emails targeting Latin American countries.
-- **Malicious PyPI Package**: Posing as a Solana tool, stealing source code from developers.
+- **Description**: Attackers are exploiting weak spots in Active Directory through AS-REP roasting attacks, targeting weak passwords.
+- **CVE IDs**: Not specified in the article.
+- **Affected Systems**: Systems using Active Directory with weak password policies.
+- **Impact**: High, as attackers can crack passwords and gain unauthorized access.
+- **Mitigation**: Implement strong password policies and monitor for unusual authentication attempts.
 
-### Notable Threat Actors
+### 6. Device Code Phishing
 
-- **Earth Ammit**: Engaged in cyber espionage targeting military and satellite sectors.
-- **China-Linked APTs**: Exploiting SAP vulnerabilities to target critical infrastructure.
-- **Konni (Opal Sleet, TA406)**: North Korean group targeting Ukrainian government entities.
+- **Description**: Hackers are exploiting trusted authentication flows to bypass multi-factor authentication (MFA) and gain access to corporate networks.
+- **CVE IDs**: Not applicable (phishing-based attack).
+- **Affected Systems**: Systems using MFA for authentication.
+- **Impact**: High, as attackers can gain unauthorized access to sensitive data.
+- **Mitigation**: Educate users about phishing tactics and implement additional security measures for authentication.
+
+### 7. Replay Attacks on Deepfake Detection
+
+- **Description**: Researchers have demonstrated that replaying deepfake audio with natural acoustics can bypass detection models.
+- **CVE IDs**: Not applicable (research-based finding).
+- **Affected Systems**: Systems using deepfake detection models.
+- **Impact**: Medium, as this technique can undermine the reliability of deepfake detection.
+- **Mitigation**: Enhance detection models to account for replay attacks and improve acoustic analysis.
+
+### 8. Vishing Group UNC6040
+
+- **Description**: Google has exposed a vishing group targeting Salesforce with fake data loader apps to breach organizations.
+- **CVE IDs**: Not applicable (social engineering-based attack).
+- **Affected Systems**: Salesforce instances.
+- **Impact**: High, as attackers can exfiltrate sensitive data.
+- **Mitigation**: Educate employees about vishing threats and implement strict access controls.
 
 ## Recommendations for Mitigation
 
-1. **Patch Management**: Regularly apply security patches from vendors, especially for critical and zero-day vulnerabilities.
-2. **Network Segmentation**: Isolate critical systems to limit the impact of potential breaches.
-3. **Security Training**: Conduct regular training for employees to recognize phishing attempts and other social engineering tactics.
-4. **Endpoint Protection**: Deploy advanced endpoint protection solutions to detect and respond to threats.
-5. **Vulnerability Management**: Continuously monitor and assess systems for vulnerabilities and apply mitigations promptly.
+1. **Patch Management**: Ensure all systems and applications are up-to-date with the latest security patches.
+2. **User Education**: Conduct regular training sessions to educate users about phishing, vishing, and other social engineering attacks.
+3. **Strong Authentication**: Implement strong password policies and multi-factor authentication to protect against unauthorized access.
+4. **Network Security**: Use firewalls, intrusion detection systems, and antivirus solutions to protect against malware and unauthorized access.
+5. **Supply Chain Security**: Regularly audit and monitor third-party dependencies and open-source packages for vulnerabilities.
 
 By following these recommendations and staying informed about the latest threats, organizations can significantly reduce their risk of exploitation and enhance their overall security posture.
+
+## Active Exploitation Details
+
+
+
+## Affected Systems and Products
+
+
+
+## Attack Vectors and Techniques
+
+
+
+## Threat Actor Activities
+
+ 
