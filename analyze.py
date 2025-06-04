@@ -133,27 +133,51 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
     prompt = f"""
 You're a cybersecurity expert specializing in vulnerability and exploitation analysis. Analyze the following security news articles to generate a comprehensive report on active exploitation.
 
-Generate a report following this EXACT structure:
+Generate a report following this EXACT structure with professional markdown formatting:
 
 # Exploitation Report
 
-[Summary of the most critical exploitation activity, including all CVE IDs mentioned in the articles]
+[Write a comprehensive summary paragraph of the most critical exploitation activity. Only mention CVE IDs if they are explicitly provided in the articles. Do not mention when CVE IDs are missing or unavailable.]
 
 ## Active Exploitation Details
 
-[Detailed information about each vulnerability being actively exploited, including CVE IDs, attack methods, and impact]
+[For each actively exploited vulnerability, create a well-formatted subsection:
+
+### Vulnerability Name
+- **Description**: Detailed description of the vulnerability
+- **Impact**: What attackers can achieve
+- **Status**: Current exploitation status and patch availability
+- **CVE ID**: [Only include this line if a CVE ID is mentioned in the articles]
+]
 
 ## Affected Systems and Products
 
-[List of systems, software, and products that are affected by the exploited vulnerabilities]
+[Create a well-formatted bullet list:
+- **Product/System Name**: Specific details about affected versions or components
+- **Platform**: Description of affected platforms or environments
+]
 
 ## Attack Vectors and Techniques
 
-[Description of the specific attack methods, techniques, and vectors being used]
+[Use clear formatting for attack methods:
+- **Technique Name**: Description of how the attack works
+- **Vector**: Specific attack vector details
+]
 
 ## Threat Actor Activities
 
-[Information about threat actors, groups, and campaigns mentioned in the articles]
+[Organize threat actor information clearly:
+- **Actor/Group**: Activities and targeting details
+- **Campaign**: Operation descriptions and impacts
+]
+
+Formatting requirements:
+- Use proper markdown with **bold** for emphasis
+- Create clear bullet points with good spacing
+- Use ### for subsections within main sections
+- Write professional, well-structured content
+- Only mention CVE IDs when they are actually provided in the source articles
+- Do NOT mention missing or unavailable CVE information
 
 Focus specifically on:
 - Zero-day vulnerabilities being actively exploited
@@ -166,7 +190,7 @@ Here are the articles:
 
 {''.join(all_article_summaries)}
 
-Generate the report following the exact structure above. Be comprehensive - don't miss ANY exploited vulnerabilities mentioned in the articles.
+Generate a well-formatted exploitation report following the structure above. Be comprehensive but only include CVE IDs when they are explicitly mentioned in the articles.
 """
     
     # Estimate token count for logging
