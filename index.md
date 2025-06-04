@@ -69,19 +69,3 @@ This report provides an overview of the most critical exploitation activities as
 5. **Vulnerability Management**: Continuously monitor and assess systems for vulnerabilities and apply mitigations promptly.
 
 By following these recommendations and staying informed about the latest threats, organizations can significantly reduce their risk of exploitation and enhance their overall security posture.
-
-## Active Exploitation Details
-
-
-
-## Affected Systems and Products
-
-
-
-## Attack Vectors and Techniques
-
-
-
-## Threat Actor Activities
-
- 

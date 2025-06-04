@@ -143,42 +143,20 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
     except:
         template = "# Exploitation Report\n\n{{ exploitation_summary }}\n\n## Active Exploitation Details\n\n{{ exploitation_details }}\n\n## Affected Systems and Products\n\n{{ affected_systems }}\n\n## Attack Vectors and Techniques\n\n{{ attack_vectors }}\n\n## Threat Actor Activities\n\n{{ threat_actors }}"
     
-    # Process the report into sections for the template
-    sections = {
-        "exploitation_summary": exploitation_report,
-        "exploitation_details": "",
-        "affected_systems": "",
-        "attack_vectors": "",
-        "threat_actors": ""
-    }
+    # Since the exploitation_report already contains the full formatted report,
+    # we should use it directly without trying to split it into sections
+    # that may not exist. Simply replace the exploitation_summary placeholder
+    # with the full report and remove empty section placeholders.
     
-    # Look for section headers in the report
-    if "# Executive Summary" in exploitation_report:
-        parts = exploitation_report.split("# Executive Summary", 1)
-        sections["exploitation_summary"] = parts[1].split("#", 1)[0].strip()
+    report = template.replace("{{ exploitation_summary }}", exploitation_report)
     
-    if "# Exploitation Details" in exploitation_report or "# Active Exploitation" in exploitation_report:
-        marker = "# Exploitation Details" if "# Exploitation Details" in exploitation_report else "# Active Exploitation"
-        parts = exploitation_report.split(marker, 1)
-        sections["exploitation_details"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
+    # Remove any remaining placeholder sections that would be empty
+    import re
+    # Remove lines that only contain placeholder patterns and following empty lines
+    report = re.sub(r'^## [^{]*\n\n\{\{[^}]+\}\}\n*', '', report, flags=re.MULTILINE)
     
-    if "# Affected Systems" in exploitation_report:
-        parts = exploitation_report.split("# Affected Systems", 1)
-        sections["affected_systems"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
-    
-    if "# Attack Vectors" in exploitation_report:
-        parts = exploitation_report.split("# Attack Vectors", 1)
-        sections["attack_vectors"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
-    
-    if "# Threat Actors" in exploitation_report:
-        parts = exploitation_report.split("# Threat Actors", 1)
-        sections["threat_actors"] = parts[1].split("#", 1)[0].strip() if len(parts) > 1 else ""
-    
-    # Fill in the template
-    report = template
-    for key, value in sections.items():
-        placeholder = f"{{{{ {key} }}}}"
-        report = report.replace(placeholder, value)
+    # Clean up any remaining placeholders by removing them entirely
+    report = re.sub(r'\{\{[^}]+\}\}', '', report)
     
     # Save the report
     output_path = config.get("output_path", "index.md")
