@@ -114,12 +114,6 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
         # Get article content or summary
         content = article.get("content", article.get("summary", "No content available"))
         
-        # Extract CVEs from content using regex
-        import re
-        cve_matches = re.findall(r'CVE-\d{4}-\d+', content, re.IGNORECASE)
-        for cve in cve_matches:
-            all_cves.add(cve.upper())
-        
         # Create summary
         summary = f"**{title}** (Source: {source})\n\nURL: {link}\n\n{content[:500]}...\n\n"
         all_article_summaries.append(summary)
@@ -136,8 +130,6 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
                 all_attack_vectors.add(vector)
     
     # Create a comprehensive prompt for exploitation analysis
-    cve_note = f"\n\nNote: The following CVE IDs were found in the articles and should be included in your analysis: {', '.join(sorted(all_cves))}" if all_cves else ""
-    
     prompt = f"""
 You're a cybersecurity expert specializing in vulnerability and exploitation analysis. Analyze the following security news articles to generate a comprehensive report on active exploitation.
 
@@ -153,7 +145,7 @@ The report should be comprehensive and detailed, including:
 2. All CVE IDs mentioned in the articles
 3. Detailed information about each significant vulnerability or exploit
 4. Affected systems and software
-5. Recommendations for mitigation{cve_note}
+5. Recommendations for mitigation
 
 Here are the articles:
 
