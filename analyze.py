@@ -114,22 +114,11 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
         # Get article content or summary
         content = article.get("content", article.get("summary", "No content available"))
         
-        # Extract CVEs from content using regex
-        import re
-        cve_matches = re.findall(r'CVE-\d{4}-\d+', content, re.IGNORECASE)
-        for cve in cve_matches:
-            all_cves.add(cve.upper())
-        
-        # Create summary with more content for better analysis (increase from 500 to 2000 chars)
-        content_preview = content[:2000] + "..." if len(content) > 2000 else content
-        
-        # Add CVE information to summary if found
-        cve_info = f"\nCVEs mentioned: {', '.join(cve_matches)}" if cve_matches else ""
-        
-        summary = f"**{title}** (Source: {source})\n\nURL: {link}{cve_info}\n\n{content_preview}\n\n"
+        # Create summary
+        summary = f"**{title}** (Source: {source})\n\nURL: {link}\n\n{content[:500]}...\n\n"
         all_article_summaries.append(summary)
         
-        # Extract CVEs and affected systems from article metadata (if available)
+        # Extract CVEs and affected systems
         if "cves" in article:
             for cve in article.get("cves", []):
                 all_cves.add(cve)
@@ -141,8 +130,6 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
                 all_attack_vectors.add(vector)
     
     # Create a comprehensive prompt for exploitation analysis
-    cve_list = f"\n\nCVEs identified in articles: {', '.join(sorted(all_cves))}" if all_cves else "\n\nNo CVEs automatically extracted from articles."
-    
     prompt = f"""
 You're a cybersecurity expert specializing in vulnerability and exploitation analysis. Analyze the following security news articles to generate a comprehensive report on active exploitation.
 
@@ -155,21 +142,17 @@ Focus specifically on:
 
 The report should be comprehensive and detailed, including:
 1. A clear summary of the most critical exploitation activity
-2. ALL CVE IDs mentioned in the articles (pay special attention to the CVEs listed below)
-3. Detailed information about each significant vulnerability or exploit with specific mitigation steps
+2. All CVE IDs mentioned in the articles
+3. Detailed information about each significant vulnerability or exploit
 4. Affected systems and software
-
-Do NOT include a generic "Recommendations for Mitigation" section at the end, as specific mitigation advice should be included with each vulnerability.
-
-{cve_list}
+5. Recommendations for mitigation
 
 Here are the articles:
 
 {''.join(all_article_summaries)}
 
 Generate a detailed exploitation report in markdown format that covers all actively exploited vulnerabilities.
-Be comprehensive - don't miss ANY exploited vulnerabilities or CVE IDs mentioned in the articles.
-Make sure to include ALL CVE IDs that appear in the content, even if they're mentioned briefly.
+Be comprehensive - don't miss ANY exploited vulnerabilities mentioned in the articles.
 """
     
     # Estimate token count for logging
