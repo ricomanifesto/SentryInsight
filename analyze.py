@@ -133,6 +133,28 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
     prompt = f"""
 You're a cybersecurity expert specializing in vulnerability and exploitation analysis. Analyze the following security news articles to generate a comprehensive report on active exploitation.
 
+Generate a report following this EXACT structure:
+
+# Exploitation Report
+
+[Summary of the most critical exploitation activity, including all CVE IDs mentioned in the articles]
+
+## Active Exploitation Details
+
+[Detailed information about each vulnerability being actively exploited, including CVE IDs, attack methods, and impact]
+
+## Affected Systems and Products
+
+[List of systems, software, and products that are affected by the exploited vulnerabilities]
+
+## Attack Vectors and Techniques
+
+[Description of the specific attack methods, techniques, and vectors being used]
+
+## Threat Actor Activities
+
+[Information about threat actors, groups, and campaigns mentioned in the articles]
+
 Focus specifically on:
 - Zero-day vulnerabilities being actively exploited
 - Recently patched vulnerabilities that were exploited
@@ -140,19 +162,11 @@ Focus specifically on:
 - Critical vulnerabilities with high impact
 - Notable threat actors and their activities
 
-The report should be comprehensive and detailed, including:
-1. A clear summary of the most critical exploitation activity
-2. All CVE IDs mentioned in the articles
-3. Detailed information about each significant vulnerability or exploit
-4. Affected systems and software
-5. Recommendations for mitigation
-
 Here are the articles:
 
 {''.join(all_article_summaries)}
 
-Generate a detailed exploitation report in markdown format that covers all actively exploited vulnerabilities.
-Be comprehensive - don't miss ANY exploited vulnerabilities mentioned in the articles.
+Generate the report following the exact structure above. Be comprehensive - don't miss ANY exploited vulnerabilities mentioned in the articles.
 """
     
     # Estimate token count for logging
