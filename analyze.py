@@ -86,11 +86,18 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
             "error": "No API key"
         }
     
-    model = ChatOpenAI(
-        api_key=api_key,
-        model=model_name,
-        temperature=temperature
-    )
+    # o1 models don't support temperature parameter
+    if model_name.startswith("o1"):
+        model = ChatOpenAI(
+            api_key=api_key,
+            model=model_name
+        )
+    else:
+        model = ChatOpenAI(
+            api_key=api_key,
+            model=model_name,
+            temperature=temperature
+        )
     
     # Prepare all article summaries
     all_article_summaries = []
@@ -154,10 +161,16 @@ Be comprehensive - don't miss ANY exploited vulnerabilities mentioned in the art
     
     # Call the AI model
     try:
-        messages = [
-            SystemMessage(content="You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild."),
-            HumanMessage(content=prompt)
-        ]
+        # o1 models work better with just the user message
+        if model_name.startswith("o1"):
+            messages = [
+                HumanMessage(content=f"You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild.\n\n{prompt}")
+            ]
+        else:
+            messages = [
+                SystemMessage(content="You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild."),
+                HumanMessage(content=prompt)
+            ]
         
         response = await model.ainvoke(messages)
         

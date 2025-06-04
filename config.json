@@ -2,8 +2,7 @@
     "feed_url": "https://ricomanifesto.github.io/SentryDigest/feed.xml",
     "output_path": "index.md",
     "analysis": {
-        "model": "gpt-4o",
-        "temperature": 0.1,
+        "model": "o1",
         "max_tokens": 4000,
         "analysis_focus": [
             "zero-day vulnerabilities",
