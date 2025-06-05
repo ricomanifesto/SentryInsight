@@ -1,53 +1,55 @@
 # Exploitation Report
 
-Recent cyber incidents highlight multiple active exploitation campaigns affecting critical infrastructure, telecommunications, and widely used software. Attacks focus on newly discovered vulnerabilities in Cisco Identity Services Engine (ISE), older flaws in Cisco’s Customer Collaboration Platform (CCP), actively exploited Qualcomm security flaws, and large-scale compromises of Asus routers. These threats underscore the importance of rapid patch deployment, continuous monitoring, and robust threat intelligence sharing.
+Organizations worldwide are grappling with multiple active exploitation campaigns targeting both enterprise software and consumer devices. Recent security disclosures point to critical flaws in ConnectWise ScreenConnect, Asus routers, Cisco Identity Services Engine (ISE) and Customer Collaboration Platform (CCP), as well as Qualcomm-based devices. Attackers have leveraged these vulnerabilities to achieve unauthorized access, create botnets, and perform other malicious activities, underscoring an urgent need for patching and enhanced security measures.
 
 ## Active Exploitation Details
 
-### Cisco ISE Auth Bypass Flaw
-- **Description**: A critical authentication bypass issue in Cisco Identity Services Engine (ISE) that allows attackers to gain unauthorized access without valid credentials.  
-- **Impact**: Successful exploitation grants control over network access policies, potentially allowing lateral movement and broader network compromise.  
-- **Status**: Cisco has released patches to address this flaw, and exploitation attempts have been observed in the wild.
+### ConnectWise ScreenConnect Flaw
+- **Description**: A vulnerability in the ConnectWise ScreenConnect remote support software that allows attackers to gain unauthorized access.  
+- **Impact**: Potential remote takeover of customer endpoints.  
+- **Status**: Actively exploited; a patch has been issued by ConnectWise.
 
-### Cisco ISE and CCP Vulnerabilities with Public Exploit Code
-- **Description**: Multiple vulnerabilities in both Cisco ISE and Customer Collaboration Platform (CCP) are being publicly exploited, enabling unauthenticated or low-privileged attackers to escalate privileges or execute arbitrary code.  
-- **Impact**: Attackers can potentially compromise entire customer collaboration workflows, intercept sensitive interactions, or alter system configurations.  
-- **Status**: Cisco has issued patches and advisories; active exploitation is ongoing.
+### Asus Router Vulnerabilities
+- **Description**: Flaws in Asus routers that have enabled cybercriminals to compromise thousands of devices, leveraging them in botnet operations.  
+- **Impact**: Attackers can hijack routers to launch further attacks, steal data, or conduct malicious traffic.  
+- **Status**: Confirmed active exploitation, though official patching guidance may vary by router model.
+
+### Cisco ISE Auth Bypass Flaw
+- **Description**: A critical authentication bypass issue impacting Cisco Identity Services Engine (ISE) deployments in cloud environments.  
+- **Impact**: Allows unauthenticated attackers to carry out malicious actions on ISE-managed networks.  
+- **Status**: Exploit code is publicly available; Cisco has released patches.
+
+### Cisco CCP Vulnerabilities
+- **Description**: Multiple flaws in the Customer Collaboration Platform (CCP) used by Cisco for customer engagement, exposing the solution to remote attacks.  
+- **Impact**: Attackers can execute unauthorized actions, potentially compromising enterprise communication systems.  
+- **Status**: Public exploit code is available; security updates have been issued by Cisco.
 
 ### Qualcomm Exploited Security Flaws
-- **Description**: Three critical flaws in Qualcomm chipsets and related software have been exploited in the wild before manufacturers could integrate and distribute patches.  
-- **Impact**: Attackers can leverage these flaws for privilege escalation, data exfiltration, or remote code execution on devices powered by vulnerable Qualcomm components.  
-- **Status**: Qualcomm has released fixes, but because device manufacturers must still apply them, impacted products remain exposed until firmware updates roll out.
-
-### Asus Router Exploits
-- **Description**: Adversaries have compromised thousands of Asus routers, repurposing them into botnets. The exploits target router misconfigurations or unpatched firmware.  
-- **Impact**: Infected routers can be hijacked for distributed denial-of-service attacks, cryptojacking, or further intrusion into home and enterprise networks.  
-- **Status**: Asus has released guidance and updates, but many users remain unpatched or unaware, allowing the botnets to persist.
+- **Description**: Three high-severity vulnerabilities in Qualcomm chipsets that have been exploited in the wild.  
+- **Impact**: Potential for privilege escalation, code execution, or device compromise.  
+- **Status**: Qualcomm has released patches, but the fixes must be applied by device manufacturers before users receive them.
 
 ## Affected Systems and Products
 
-- **Cisco Identity Services Engine (ISE)**: Affected by an authentication bypass flaw and other vulnerabilities.  
-- **Cisco Customer Collaboration Platform (CCP)**: Subject to public exploit code targeting known security weak points.  
-- **Qualcomm-based Devices**: Various smartphones and IoT hardware with unpatched Qualcomm security flaws.  
-- **Asus Routers**: Older or unpatched firmware versions vulnerable to unauthorized access and botnet recruitment.
+- **ConnectWise ScreenConnect**: Remote support software commonly used by MSPs and IT teams.  
+- **Asus Routers**: Various consumer and small-business router models.  
+- **Cisco Identity Services Engine (ISE)**: Deployed on public cloud platforms such as AWS, Azure, and OCI.  
+- **Cisco Customer Collaboration Platform (CCP)**: Cloud-based collaboration and customer engagement solution.  
+- **Qualcomm-Based Devices**: Smartphones and IoT devices utilizing Qualcomm chipsets.
 
 ## Attack Vectors and Techniques
 
-- **Voice Phishing (Vishing)**: Leveraging social engineering calls to extract credentials or trick organizations into installing malicious tools.  
-- **Malicious Application Installation**: Disguising harmful executables as legitimate software (e.g., fake Salesforce plug-ins or fake network utilities).  
-- **Botnet Deployment**: Exploiting router vulnerabilities to join compromised devices into large-scale botnets.  
-- **Ransomware and Data Extortion**: Gaining unauthorized network access to encrypt data or steal sensitive information for leverage.  
-- **Supply Chain Attacks**: Publishing tampered packages (e.g., RubyGems) to steal data from unsuspecting developers or users.  
-- **Device Code Phishing**: Exploiting single sign-on flows or device authentication prompts to capture credentials and bypass MFA.
+- **Remote Exploit/Service Compromise**: Attackers leverage unpatched flaws (e.g., in ScreenConnect, Cisco ISE/CCP) to gain unauthorized access or bypass authentication.  
+- **Botnet Infiltration**: Asus routers are compromised en masse and added to malicious botnets.  
+- **Privilege Escalation**: Exploitation of Qualcomm flaws for elevated permissions and deeper system access.
 
 ## Threat Actor Activities
 
-- **BladedFeline (Iran-Linked)**: Targeting Iraqi and Kurdish government officials, remaining undetected in some networks for extended periods.  
-- **ViLE Gang**: Conducting extortion schemes, including breaching federal law enforcement portals.  
-- **Interlock Ransomware Group**: Claiming responsibility for a breach on Kettering Health, leaking stolen data.  
-- **Play Ransomware**: Compromised around 900 organizations worldwide, including critical industries.  
-- **BidenCash Carding Marketplace**: Involved in illicit credit card data sales, with multiple domains seized by law enforcement.  
-- **UNC6040 (Vishing Crew)**: Impersonating Salesforce loaders to steal data from corporate platforms.  
-- **ShinyHunters (Impersonation)**: Conducting social engineering attacks to exfiltrate data from Salesforce accounts.  
-- **Cryptomining Hacker**: Breached 5,000 hosting accounts to mine cryptocurrency illegally, causing substantial financial losses.  
-- **Nation-State Operations**: Ukraine’s GUR claims to have hacked Russian aviation firm Tupolev, and other intelligence-led disruptions aim at hostile infrastructure.
+- **Bitter APT**: Continues to evolve tactics, focusing on intelligence gathering.  
+- **BladedFeline (Iran-Linked)**: Conducting cyber-espionage against Iraqi and Kurdish targets using custom malware.  
+- **UNC6040**: Employs voice phishing (vishing) campaigns to target Salesforce data.  
+- **Interlock Ransomware**: Claims responsibility for healthcare breaches, leaking stolen information.  
+- **Play Ransomware**: Breached hundreds of global organizations, including critical infrastructure.  
+- **BidenCash**: Dark web carding marketplace targeted by law enforcement in a coordinated domain seizure.  
+- **ViLE Gang**: Engaged in extortion after breaching law enforcement portals.  
+- **RedLine**: Infostealer malware linked to state-sponsored threat actors.  
