@@ -1,53 +1,78 @@
 # Exploitation Report
 
-Recent security updates highlight several actively exploited vulnerabilities in popular software and critical infrastructure. Cisco patched multiple flaws in its Identity Services Engine (ISE) and Customer Collaboration Platform (CCP) solutions, Qualcomm addressed three actively exploited security issues, thousands of ASUS routers were hijacked to form a botnet, and Google released an emergency Chrome update to fix a zero-day exploited in the wild. Threat actors continue to employ techniques like ransomware attacks, vishing operations, and malicious supply-chain packages targeting open-source ecosystems.
+Recent security articles highlight ongoing exploitation of critical vulnerabilities, with attackers leveraging public exploit code, social engineering, and malicious packages to penetrate enterprise networks. Cisco has addressed serious flaws in its Identity Services Engine and Customer Collaboration Platform, while Qualcomm has patched three security flaws that malicious actors have already exploited in the wild. Threat groups continue to innovate their tactics with ransomware, vishing campaigns, supply chain attacks on open-source repositories, and phishing techniques targeting corporate authentication flows.
 
 ## Active Exploitation Details
 
-### Cisco Identity Services Engine (ISE) and Customer Collaboration Platform (CCP) Flaws
-- **Description**: Multiple vulnerabilities exist in Cisco’s ISE and CCP solutions, with public exploit code available. Attackers can leverage these flaws to bypass security restrictions or execute malicious code on the underlying systems.  
-- **Impact**: Successful exploitation could allow privilege escalation within a corporate network, control over identity services, and unauthorized access to customer engagement data.  
-- **Status**: Cisco has released patches; exploitation code is public, indicating threat actors may be actively targeting unpatched systems.
-
+### Cisco Identity Services Engine and Customer Collaboration Platform Vulnerabilities
+- **Description**: Multiple vulnerabilities in Cisco’s Identity Services Engine (ISE) and Customer Collaboration Platform (CCP) that can be exploited using publicly available code. Attackers can potentially gain escalated privileges or unauthorized access.  
+- **Impact**: Unauthenticated remote access, enabling lateral movement and compromise of sensitive data.  
+- **Status**: Cisco has released patches to address these vulnerabilities.  
+ 
 ### Qualcomm Exploited Security Flaws
-- **Description**: Three security flaws in Qualcomm chipsets have been exploited in the wild, affecting numerous devices that rely on Qualcomm hardware. These flaws allow attackers to potentially gain elevated privileges or exfiltrate sensitive data.  
-- **Impact**: Compromise of mobile devices at the chipset level, leading to unauthorized data access or device manipulation.  
-- **Status**: Qualcomm has issued fixes for these flaws, but devices remain at risk if manufacturers and users have not applied the necessary updates.
-
-### ASUS Router Exploitation
-- **Description**: Cybercriminals have compromised thousands of ASUS routers, repurposing them for a botnet. Attackers appear to be leveraging router misconfigurations or undisclosed exploits to gain remote control.  
-- **Impact**: Hijacked routers can be used in distributed denial-of-service (DDoS) attacks, data interception, or as an entry point into home and corporate networks.  
-- **Status**: Active exploitation has been observed in the wild, and ASUS users are urged to apply the latest firmware and secure their devices.
-
-### New Chrome Zero-Day
-- **Description**: Google discovered a high-severity zero-day vulnerability in Chrome that attackers are using to compromise targets. The flaw permits malicious code execution or system takeover when users visit specially crafted websites.  
-- **Impact**: Full browser or potential system compromise, data theft, and the ability for attackers to monitor user activity.  
-- **Status**: Google released an emergency out-of-band patch; exploitation has been observed in the wild, indicating immediate update is essential.
+- **Description**: Three critical flaws in Qualcomm components used in various devices have been actively exploited to compromise systems, potentially granting attackers full control.  
+- **Impact**: Device takeover, data exfiltration, and possible hardware-level compromise.  
+- **Status**: Qualcomm has issued fixes, but end users remain at risk until device manufacturers apply the updates.  
 
 ## Affected Systems and Products
-- **Cisco ISE and CCP**: Vulnerable versions that have not yet applied the latest Cisco patches  
-- **Qualcomm-based Devices**: Mobile phones and IoT devices using unpatched Qualcomm chipsets  
-- **ASUS Routers**: Various models found to be compromised into botnets  
-- **Google Chrome**: Versions prior to the emergency out-of-band update  
+
+- **Cisco Identity Services Engine (ISE) and Customer Collaboration Platform (CCP)**: Vulnerable deployments prior to the patched versions  
+- **Qualcomm-based Devices**: Smartphones and other hardware reliant on Qualcomm chipsets or components  
+- **Asus Routers**: Multiple models compromised as part of emerging botnet operations  
+- **HPE StoreOnce**: Subject to recently addressed vulnerabilities that could allow authentication bypass  
+- **Salesforce Implementations**: Potentially targeted by vishing and credential-harvesting campaigns  
+- **Ruby/PyPI/npm Package Users**: At risk from malicious supply chain packages designed to exfiltrate sensitive data  
+- **Android Devices**: Impacted by emerging malware such as “Crocodilus” targeting users globally  
+- **Kerberos-Based Environments**: Prone to AS-REP roasting attacks if best practices and strong passwords are not enforced  
 
 ## Attack Vectors and Techniques
-- **Router Exploitation**: Attackers compromise home and small-business routers through outdated firmware or misconfiguration  
-- **Publicly Available Exploit Code**: Malicious actors leverage published proof-of-concept exploits for Cisco products  
-- **Zero-Day Browser Vulnerability**: Drive-by downloads and malicious websites target unpatched Chrome installations  
-- **Social Engineering and Vishing**: Campaigns impersonate legitimate services to harvest credentials (UNC6040 targeting Salesforce)  
-- **Supply Chain Attacks**: Malicious packages in PyPI, npm, and Ruby repositories install backdoors or steal data  
-- **Kerberos AS-REP Roasting**: Attackers exploit missing Kerberos protections to crack user credentials  
-- **Multi-Stage PowerShell Infection**: Fake DocuSign or Gitcode sites trick users into running malicious scripts for RAT deployment  
-- **Malicious Mobile Apps**: Android Trojans like Crocodilus exploit banking and crypto wallets  
+
+- **Malicious Open-Source Packages**: Attackers upload trojanized libraries to PyPI, npm, and RubyGems to exfiltrate data or compromise systems.  
+  • **Vector**: Users install the packages believing them to be legitimate, enabling backdoors and malware execution.
+
+- **Device Code Phishing**: Exploits trusted authentication flows (e.g., Microsoft Teams, IoT logins) to bypass MFA by tricking users into providing codes.  
+  • **Vector**: Malicious links or prompts lure users into entering their authentication codes, granting attackers unauthorized access.
+
+- **Vishing (Voice Phishing) Campaigns**: Threat actors impersonate legitimate services (e.g., Salesforce, financial institutions) to steal user credentials or data.  
+  • **Vector**: Phone calls or voice messages urging victims to install malicious apps or provide personal information.
+
+- **Replay Attacks on Deepfake Detection**: Criminals re-record deepfake audio or video to bypass AI detection systems.  
+  • **Vector**: Authentic acoustic environment recordings that confuse standard deepfake detection models.
+
+- **Kerberos AS-REP Roasting**: Exploits weak encryption or misconfigurations in Kerberos, allowing attackers to crack hashes offline.  
+  • **Vector**: An attacker requests a Kerberos ticket for accounts marked “Do not require pre-authentication,” then brute-forces the returned hashed credentials.
+
+- **Chaos RAT Deployment**: Uses fake network tool installers on Windows and Linux to deliver a remote access trojan.  
+  • **Vector**: Users tricked into downloading disguised software that executes malicious payloads.
+
+- **Botnet Infiltration of Routers**: Threat actors compromise routers (e.g., Asus models) to build large-scale botnets.  
+  • **Vector**: Exploitation of insecure configurations or outdated firmware to gain persistent control over the device.
+
+- **Backdoored GitHub Code**: Attackers insert hidden backdoors into commonly sought-after exploits, bots, or game cheats on GitHub, targeting other hackers or curious users.  
+  • **Vector**: Cloned source code with malicious modifications that execute remote commands upon installation.
 
 ## Threat Actor Activities
-- **Play Ransomware Gang**: Breached hundreds of organizations worldwide, including critical infrastructure  
-- **Hacker Mining Crypto on Hosting Accounts**: Illegally accessed thousands of hosting environments for crypto-mining  
-- **UNC6040 (Vishing Group)**: Conducts voice-phishing to compromise Salesforce data  
-- **ShinyHunters (Claimed)**: Engages in data extortion campaigns targeting enterprise Salesforce instances  
-- **Scattered Spider**: Executes help desk scams to infiltrate corporate accounts and escalate privileges  
-- **Malicious Open-Source Package Actors**: Embed coin-stealing scripts and backdoors in popular development repositories  
-- **Hacker Targeting Gamers and Researchers on GitHub**: Hides backdoors in exploit and cheat tools  
-- **Chaos RAT Operators**: Disseminate fake network tool downloads to compromise Windows and Linux systems  
 
-*******************************************************************************
+- **Actor/Group**: UNC6040  
+  - **Campaign**: Vishing attacks targeting Salesforce apps, tricking users into installing fake data loaders to exfiltrate information.
+
+- **Actor/Group**: Play Ransomware  
+  - **Campaign**: Large-scale ransomware attacks breaching approximately 900 victims worldwide, including critical service providers.
+
+- **Actor/Group**: Hacker Targeting 5,000 Hosting Accounts  
+  - **Campaign**: Illegally accessed hosting accounts to mine cryptocurrency, causing millions in damages.
+
+- **Actor/Group**: ShinyHunters (Impersonators)  
+  - **Campaign**: Purporting to be “ShinyHunters” to extort data from organizations’ Salesforce instances via social engineering.
+
+- **Actor/Group**: Developer of Malicious Supply Chain Packages  
+  - **Campaign**: Creating trojanized libraries on npm, PyPI, and RubyGems to compromise user systems and steal crypto, credentials, or source code.
+
+- **Actor/Group**: “Crocodilus” Malware Operators  
+  - **Campaign**: Targeting Android devices to steal personal data, initially in Turkey and now expanding globally.
+
+- **Actor/Group**: Ukrainian GUR Offensive  
+  - **Campaign**: Claimed hack of Tupolev, a major Russian aerospace and defense entity, potentially disrupting strategic bomber development.
+
+- **Actor/Group**: Botnet Operators Compromising Asus Routers  
+  - **Campaign**: Seizing control of thousands of consumer routers, possibly building a botnet for future large-scale attacks.
