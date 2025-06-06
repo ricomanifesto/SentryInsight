@@ -1,61 +1,54 @@
 # Exploitation Report
 
-Recent security intelligence highlights two critical vulnerabilities under active exploitation: one affecting Roundcube webmail and another targeting ConnectWise ScreenConnect deployments. Attackers are leveraging these flaws to gain unauthorized access and, in some cases, achieve remote code execution. Alongside these vulnerabilities, multiple threat actors and malware campaigns continue to expand their tactics, targeting a range of industries and government organizations worldwide.
+Recent security developments highlight critical vulnerabilities and active exploitation scenarios affecting both enterprise and consumer environments. Malicious actors are capitalizing on flaws in widely used platforms, including Roundcube webmail and Cisco’s Identity Services Engine, to launch high-impact attacks. Additionally, exposures in ConnectWise ScreenConnect and various Asus router deployments underscore ongoing risks to infrastructure. At the same time, sophisticated threat groups remain active, employing advanced malware such as PathWiper and BADBOX 2.0 to compromise critical targets, staging destructive campaigns, and exfiltrating confidential data.
 
 ## Active Exploitation Details
 
-### Roundcube Remote Code Execution Vulnerability
-- **Description**: A critical flaw in the Roundcube webmail platform that allows attackers to execute arbitrary code remotely when exploited. Attackers have publicly disclosed technical details and are actively offering exploit kits for purchase.
-- **Impact**: Successful exploitation grants full control of the underlying server, enabling data theft, lateral movement, or deployment of additional malware.
-- **Status**: Actively exploited in the wild, with patches and updates available from the Roundcube project.
-- **CVE ID**: CVE-2025-49113
+### Roundcube Webmail RCE Vulnerability
+- **Description**: A critical remote code execution flaw in the Roundcube open-source webmail platform that allows threat actors to execute arbitrary code on compromised servers.  
+- **Impact**: Full server compromise and unauthorized access to sensitive email data.  
+- **Status**: Actively exploited in the wild, with ongoing attacks observed. Patches are available from Roundcube maintainers.  
+- **CVE ID**: CVE-2025-49113  
+
+### Cisco Identity Services Engine (ISE) Credential Vulnerability
+- **Description**: A high-severity static credential vulnerability in Cisco ISE running on public cloud platforms (AWS, Azure, Oracle Cloud), leading to shared login credentials across different deployments.  
+- **Impact**: Potential remote takeover of Cisco ISE instances, compromise of network policies, and lateral movement within enterprise environments.  
+- **Status**: Cisco has issued patches and advisories to mitigate the flaw. Exploitation attempts continue to be reported.
 
 ### ConnectWise ScreenConnect Flaw
-- **Description**: An undisclosed vulnerability in ConnectWise’s remote support and management software (“ScreenConnect”) that attackers have leveraged in ongoing campaigns. ConnectWise issued a patch but has not fully disclosed the technical details.
-- **Impact**: Allows threat actors to gain unauthorized access to managed endpoints, potentially leading to system compromise and data exfiltration.
-- **Status**: Confirmed in active attacks; security updates are available from ConnectWise.
+- **Description**: A vulnerability in ConnectWise ScreenConnect (renamed from Control) that attackers have used to gain unauthorized access to managed systems.  
+- **Impact**: Remote code or administrative access on systems administered via ScreenConnect, enabling data theft, ransomware deployment, or persistent footholds.  
+- **Status**: A patch has been released by ConnectWise, though details remain limited. Reports indicate active exploitation by unknown operators.
+
+### Asus Router Exploit
+- **Description**: Large-scale compromise of Asus routers, forming a botnet of home and small-business devices for malicious operations.  
+- **Impact**: Attackers can leverage compromised routers to mask malicious traffic, perform DDoS attacks, or exfiltrate sensitive data.  
+- **Status**: Ongoing exploitation campaigns suggest significant exposure, with router owners advised to update firmware and secure configurations.
 
 ## Affected Systems and Products
-
-- **Roundcube Webmail**: Deployments running the vulnerable version allowing remote code execution exploits  
-  • Platform: Typically self-hosted Linux/UNIX servers or shared hosting environments
-
-- **ConnectWise ScreenConnect**: Remote support and management installations where the unpatched flaw can be used to hijack remote sessions  
-  • Platform: Windows-based remote management software, potentially expanded to multi-OS environments
+- **Roundcube Webmail**: All unpatched instances susceptible to remote code execution  
+- **Cisco Identity Services Engine (ISE)**: Deployments on AWS, Azure, and Oracle Cloud  
+- **ConnectWise ScreenConnect**: On-premises and cloud-based installations  
+- **Asus Routers**: Various consumer and small-business router models with inadequate patching or misconfigurations  
 
 ## Attack Vectors and Techniques
-
-- **Remote Code Execution via Webmail**: Attackers send maliciously crafted requests or payloads targeting Roundcube’s vulnerable components  
-  • Vector: Exploitation through publicly facing Roundcube instances
-
-- **Unauthorized Remote Access in Remote Management Tools**: Threat actors exploit weaknesses in ConnectWise ScreenConnect to gain privileged access  
-  • Vector: Use of unpatched installations and potentially stolen admin credentials
+- **Remote Code Execution (RCE)**: Exploitation of Roundcube webmail vulnerabilities to run arbitrary code  
+- **Static Credential Exploit**: Utilizing default or hard-coded credentials in Cisco ISE to gain access  
+- **Unauthorized Remote Access**: Targeting ConnectWise ScreenConnect installations via unknown exploit chain  
+- **Router Compromise**: Infiltrating Asus devices to form botnets used for proxying malicious traffic  
 
 ## Threat Actor Activities
+- **Actor/Group**: Bitter APT  
+  - **Campaign**: Expanding geographic targets with evolving tactics, focusing on intelligence gathering consistent with national interests  
 
-- **Bitter APT**: Continues to evolve, expanding geographic targets while pursuing espionage campaigns  
-  • Campaign: Intelligence gathering aimed at government agencies across multiple regions
+- **Actor/Group**: BladedFeline (Iran-linked)  
+  - **Campaign**: Long-term stealthy intrusion in Iraqi and Kurdish networks, deploying Whisper and Spearal malware  
 
-- **BladedFeline (Iran-Linked)**: Maintains extended presence in compromised networks for espionage and data theft  
-  • Campaign: Targeting Iraqi and Kurdish entities using Whisper and Spearal malware
+- **Actor/Group**: Unidentified Operators (PathWiper)  
+  - **Campaign**: Destructive data wiping attacks in Ukrainian critical infrastructure  
 
-- **BADBOX 2.0 Malware Operators**: Infecting consumer Android devices to build large-scale proxy botnets  
-  • Campaign: More than a million devices co-opted and leveraged for malicious activities
+- **Actor/Group**: Unidentified Operators (BADBOX 2.0)  
+  - **Campaign**: Large-scale Android malware infections compromising millions of consumer devices  
 
-- **PathWiper Attackers**: Launched disruptive cyberattacks on critical Ukrainian infrastructure  
-  • Campaign: Destructive wiper malware campaigns to degrade operational capacity
-
-- **Backdoored Malware Syndicates**: Luring inexperienced cybercriminals with trojanized tools on GitHub  
-  • Campaign: Distributing malicious “how-to” kits that secretly provide access back to the malware authors
-
-- **BidenCash Carding Marketplace**: DoJ led takedown of domains and funds linked to illicit carding operations  
-  • Campaign: Global law enforcement collaboration shutting down stolen credit card sales
-
-- **ViLE Gang**: Indicted for breaching a federal law enforcement portal and extorting victims  
-  • Campaign: Exploited system flaws to gain access to restricted data and demanded ransoms
-
-- **Interlock Ransomware**: Claims credit for compromising healthcare provider Kettering Health  
-  • Campaign: Data exfiltration and extortion, threatening public exposure of stolen information
-
-- **RedLine Infostealer Operators**: Facing $10M reward bounties for information on state-sponsored hackers using the malware  
-  • Campaign: Credential theft across various platforms, aiming for large-scale financial and espionage gains
+- **Actor/Group**: ViLE Gang  
+  - **Campaign**: Breached a federal law enforcement portal for extortion and unauthorized data access  
