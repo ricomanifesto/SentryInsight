@@ -1,39 +1,44 @@
 # Exploitation Report
 
-Recent threat activity underscores the critical risk posed by multiple actively exploited vulnerabilities, including high-impact Fortinet authentication bypass flaws leveraged by Qilin ransomware operators, an actively exploited remote code execution bug (CVE-2025-49113) targeting Roundcube webmail, and a serious ConnectWise ScreenConnect flaw used in real-world attacks. Organizations using these products are advised to update systems promptly and bolster monitoring to mitigate the risk of compromise.
+Recent security intel reveals heightened malicious activity targeting critical infrastructures, enterprise networks, and consumer devices. Attackers are actively leveraging severe Fortinet flaws to deploy ransomware, while new campaigns featuring destructive wipers (PathWiper), advanced botnets (BADBOX 2.0), and specialized macOS stealers (Atomic) demonstrate an evolving threat landscape. High-impact breaches in the healthcare and financial sectors also underscore the continued risk posed by ransomware actors.
 
 ## Active Exploitation Details
 
-### Fortinet Authentication Bypass Vulnerabilities
-- **Description**: Flaws in Fortinet security appliances that allow attackers to bypass authentication and potentially execute arbitrary code.  
-- **Impact**: Attackers can gain full control of affected systems, enabling data theft, ransomware deployment, and disruption of critical operations.  
+### Critical Fortinet Flaws
+- **Description**: Authentication bypass vulnerabilities enabling unauthorized remote access and malicious code execution on Fortinet devices. Attackers have specifically targeted these flaws to compromise systems.  
+- **Impact**: Enables ransomware deployment, data theft, and potential network-wide intrusion.  
 - **Status**: Actively exploited by the Qilin ransomware operation; patches are available from Fortinet.  
 
-### Roundcube Remote Code Execution
-- **Description**: A critical vulnerability in Roundcube webmail allowing remote attackers to execute malicious code on compromised servers.  
-- **Impact**: Successful exploitation provides attackers with the ability to take over the webmail installation, steal sensitive emails, or deploy further malware.  
-- **Status**: Actively exploited in the wild and being sold on underground forums; a patch has been released.  
-- **CVE ID**: CVE-2025-49113  
-
-### ConnectWise ScreenConnect Flaw
-- **Description**: An undisclosed software flaw in ConnectWise ScreenConnect that attackers have used to compromise remote support sessions.  
-- **Impact**: Threat actors can gain unauthorized remote access to systems, potentially leading to data breaches, ransomware attacks, or further pivots into internal networks.  
-- **Status**: Under active exploitation; ConnectWise has issued patches to address the vulnerability.  
-
 ## Affected Systems and Products
-
-- **Fortinet Security Appliances**: Older firmware releases with authentication bypass issues  
-- **Roundcube Webmail**: Vulnerable versions prone to remote code execution (CVE-2025-49113)  
-- **ConnectWise ScreenConnect**: Unpatched or outdated instances susceptible to intrusion  
+- **Fortinet Security Appliances**: Affected versions prone to authentication bypass.  
+- **Android-Based IoT Devices**: Targeted by BADBOX 2.0 botnet in residential networks.  
+- **Apple macOS Systems**: Exploited by the Atomic macOS Stealer via social engineering.  
+- **Healthcare Networks**: Compromised by ransomware (e.g., Interlock) leading to data breaches.  
+- **Financial/Tax Resolution Firm Systems**: Attacked by Chaos ransomware, causing data leakage.  
+- **Ukrainian Critical Infrastructure**: Disrupted by PathWiper’s destructive payload.  
 
 ## Attack Vectors and Techniques
-
-- **Authentication Bypass**: Exploits weaknesses in credential validation to gain unauthorized access  
-- **Remote Code Execution**: Injects and runs malicious commands on servers through vulnerable code pathways  
-- **Hijacked Remote Support**: Takes advantage of flaws in remote connectivity to control systems undetected  
+- **Fortinet Authentication Bypass**: Attackers gain unauthorized access through unpatched security appliances.  
+- **Social Engineering (ClickFix Tactic)**: Deceives Apple users into downloading the Atomic macOS Stealer.  
+- **Android Botnet Trojan**: BADBOX 2.0 spreads through malicious apps, phishing, and unsecured devices.  
+- **Ransomware Attacks**: Qilin, Chaos, and Interlock leverage vulnerabilities or phishing for initial infiltration.  
+- **Destructive Data Wiper**: PathWiper used to disable operations in targeted Ukrainian facilities.  
 
 ## Threat Actor Activities
+- **Actor/Group**: BADBOX 2.0 Operators  
+  - **Campaign**: Maintains a widespread botnet of home-network Android devices for malicious proxy use.  
 
-- **Qilin Ransomware Group**: Actively leveraging Fortinet flaws to launch ransomware attacks targeting business and critical infrastructure  
-- **Unknown Roundcube Exploit Actors**: Selling and using CVE-2025-49113 for unauthorized server access and data exfiltration  
-- **ConnectWise Attackers**: Abusing ScreenConnect vulnerabilities to infiltrate remote support channels for deeper network compromise  
+- **Actor/Group**: Qilin Ransomware  
+  - **Campaign**: Exploits Fortinet flaws to bypass authentication, deploy ransomware, and exfiltrate sensitive data.  
+
+- **Actor/Group**: Chaos Ransomware  
+  - **Campaign**: Targeted Optima Tax Relief, encrypting data and leaking stolen information.  
+
+- **Actor/Group**: Interlock Ransomware  
+  - **Campaign**: Breached Kettering Health; exfiltrated and encrypted healthcare records.  
+
+- **Actor/Group**: Atomic macOS Stealer  
+  - **Campaign**: Uses the ClickFix social engineering hook to infect Apple devices and capture credentials.  
+
+- **Actor/Group**: PathWiper Operators  
+  - **Campaign**: Deployed a destructive wiper against critical infrastructure in Ukraine, causing operational outages.  
