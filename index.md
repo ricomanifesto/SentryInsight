@@ -1,54 +1,58 @@
 # Exploitation Report
 
-A surge in malicious activity has been observed across several fronts, including a botnet-driven command injection attack on TBK DVR devices, an expansive supply chain compromise in npm and PyPI packages, and an uptick in sophisticated phishing tactics leveraging ClickFix. Meanwhile, ransomware groups are exploiting critical Fortinet flaws and continuing to compromise organizations worldwide, underscoring the urgent need for vigilant patching, threat monitoring, and robust supply chain defenses.
+A surge of cyber threats has emerged across multiple platforms, with attackers targeting DVR devices, open-source software repositories, and critical infrastructure. Notable campaigns include a Mirai botnet variant exploiting command injection in TBK DVR devices, widespread malware infiltrations in npm and PyPI, malicious npm packages acting as data wipers, and ransomware groups taking advantage of critical Fortinet flaws. These exploits emphasize the ongoing need for vigilant patching, supply chain security, and proactive threat hunting.
 
 ## Active Exploitation Details
 
-### TBK DVR Command Injection
-- **Description**: A command injection flaw in TBK DVR-4104 and DVR-4216 devices used by a new Mirai botnet variant to gain unauthorized access.  
-- **Impact**: Attackers can remotely compromise DVR hardware, enlist devices into a botnet, and potentially pivot into broader networks.  
-- **Status**: Exploited in the wild with active botnet campaigns. No detailed patch information was provided; administrators are advised to apply any available firmware updates or vendor mitigations.
+### Command Injection in TBK DVR Devices
+- **Description**: A Mirai malware variant uses a command injection flaw in TBK DVR-4104 and DVR-4216 devices, allowing attackers to run arbitrary code and add the devices to a botnet.  
+- **Impact**: Compromised DVRs can be hijacked for large-scale DDoS attacks and additional malicious activities.  
+- **Status**: Actively exploited, with no specific patch details publicly disclosed.  
 
-### Malicious npm and PyPI Supply Chain Attack
-- **Description**: Attackers introduced malware into popular GlueStack packages in both npm and PyPI repositories, infecting projects at build time.  
-- **Impact**: Threat actors can steal credentials, exfiltrate sensitive data, or gain remote access through injected code.  
-- **Status**: The malicious packages have been identified and removed, but users who installed them remain at risk if they have not updated or mitigated.
+### Supply Chain Malware in npm and PyPI
+- **Description**: Threat actors introduced malicious code into multiple popular packages in both the npm and PyPI ecosystems, infecting unsuspecting users’ projects.  
+- **Impact**: Attackers can execute remote commands, install backdoors, and potentially steal sensitive data from infected systems.  
+- **Status**: Several packages have been taken down or updated; users are advised to review dependencies and apply updated releases.  
 
 ### Malicious Browser Extensions
-- **Description**: A campaign targeting Chromium-based browsers with extensions that siphon user data. The operation has infected hundreds of users across Latin America since early 2025.  
-- **Impact**: Unauthorized data collection, credential theft, and potential for account takeover.  
-- **Status**: Active distribution through social engineering, with no official patches; users must remove suspicious extensions and disable auto-install.
+- **Description**: A malicious extension campaign targeting Chromium-based browsers infected over 700 users in Latin America, secretly siphoning data.  
+- **Impact**: Stolen credentials, surveillance of user activity, and potential lateral movement across additional platforms.  
+- **Status**: Ongoing; users are encouraged to remove untrusted extensions and apply security best practices.  
 
-### Malicious npm Packages Data Wiper
-- **Description**: Two malicious npm packages posing as utility libraries were discovered wiping project directories after installation.  
-- **Impact**: Destructive file deletion results in immediate data loss and project corruption.  
-- **Status**: Packages have been removed from the npm registry; developers who installed these packages are urged to restore from backups and verify code integrity.
+### Gluestack npm Package Attack
+- **Description**: Over a dozen popular Gluestack packages in npm were altered to include malicious code, acting as a remote access trojan (RAT).  
+- **Impact**: Threat actors gain unauthorized control over infected systems, enabling data theft and execution of further attacks.  
+- **Status**: Compromised packages have been taken down or cleaned; users must audit dependencies and update to safe versions.  
 
-### Critical Fortinet Flaws
-- **Description**: Qilin ransomware actors are exploiting critical authentication bypass vulnerabilities in Fortinet devices to gain privileged access.  
-- **Impact**: The flaws enable remote code execution and quick lateral movement, allowing ransomware deployment across enterprise environments.  
-- **Status**: Exploited by ransomware groups in active campaigns; Fortinet users should apply vendor-released updates and secure perimeter defenses.
+### Malicious npm Packages as Data Wipers
+- **Description**: Two recently identified npm packages posing as utilities instead serve as destructive wipers, deleting project directories.  
+- **Impact**: Loss of critical application data and potential disruption of the development lifecycle.  
+- **Status**: Packages have been removed; developers should verify installed modules and maintain version control backups.  
+
+### Critical Fortinet Flaws Exploited by Qilin Ransomware
+- **Description**: Qilin ransomware operators are leveraging unpatched security flaws on Fortinet devices, bypassing authentication and executing code remotely.  
+- **Impact**: Full compromise of network appliances, enabling ransomware encryption of systems across the targeted organization.  
+- **Status**: Actively exploited; Fortinet has released updates, and organizations must apply patches or mitigations immediately.  
 
 ## Affected Systems and Products
-
-- **TBK DVR-4104 and DVR-4216**: Vulnerable to command injection hijacks.  
-- **Gluestack Packages (npm/PyPI)**: Compromised for remote access malware injection in build environments.  
-- **Chromium-Based Web Browsers**: Susceptible to malicious browser extensions stealing user data.  
-- **npm JavaScript Libraries**: Two destructive packages that wipe project directories upon installation.  
-- **Fortinet Security Appliances**: Targeted by ransomware operators for unauthorized network access.
+- **TBK DVR-4104 and DVR-4216**: Vulnerable to command injection, exploited by Mirai.  
+- **npm Packages**: Various malicious or compromised modules posing as legitimate libraries.  
+- **PyPI Packages**: Multiple infected Python packages harboring backdoors and malware.  
+- **Fortinet Appliances**: Affected by critical flaws used by Qilin ransomware.  
+- **Chromium-Based Browsers**: Targeted by malicious extensions stealing user data.  
 
 ## Attack Vectors and Techniques
-
-- **Command Injection**: Injecting system commands into vulnerable DVR firmware to compromise devices remotely.  
-- **Supply Chain Infiltration**: Injecting malicious code into trusted package repositories (npm/PyPI) to distribute malware at scale.  
-- **Browser Extension Exploits**: Tricking users into installing harmful add-ons that harvest credentials and personal data.  
-- **Data-Wiping Package Installation**: Masquerading as legitimate utilities to erase files and directories.  
-- **Ransomware Exploitation**: Leveraging authentication bypass in network devices to execute payloads and encrypt enterprise systems.
+- **Command Injection**: Exploiting insecure input handling in DVR devices to run arbitrary code.  
+- **Supply Chain Attacks**: Inserting malicious code into popular open-source repositories (npm, PyPI) to compromise downstream users.  
+- **Malicious Extensions**: Luring browser users into installing fraudulent add-ons that collect sensitive information.  
+- **Remote Access Trojan (RAT)**: Gluestack package compromise granting full attacker control over infected systems.  
+- **Data Wiping**: Npm modules that delete critical files, causing disruption to development processes.  
+- **Ransomware Deployment**: Targeted exploitation of unpatched Fortinet devices for unauthorized encryption of enterprise networks.  
 
 ## Threat Actor Activities
-
-- **Mirai Botnet Operators**: Expanding the botnet via DVR command injection to launch large-scale DDoS attacks.  
-- **Supply Chain Attackers**: Compromising software distribution channels for npm and PyPI to embed remote access trojans and wipe functionality.  
-- **Malicious Extension Developers**: Targeting Latin American users with data-exfiltrating browser plugins.  
-- **Qilin Ransomware Group**: Exploiting Fortinet vulnerabilities to deploy ransomware attacks on corporate networks.  
-- **Other Botnet and Malware Operators**: Employing destructive or data-stealing tactics, including data wipers and sophisticated phishing campaigns.  
+- **Mirai Botnet Operators**: Expanding infection to vulnerable TBK DVRs for large-scale DDoS campaigns.  
+- **Supply Chain Attackers**: Compromising npm and PyPI packages to deliver backdoors and data-wiping malware.  
+- **Malicious Extension Campaign**: Focused spying operation targeting Latin American Chrome-based browser users.  
+- **Qilin Ransomware Group**: Leveraging Fortinet flaws to breach victims, encrypt data, and extort organizations.  
+- **PathWiper Actors**: Deploying wiper malware to disrupt Ukrainian critical infrastructure.  
+- **ClickFix Phishers**: Using sophisticated social engineering to spread malware, including an Atomic macOS Stealer variant.  
