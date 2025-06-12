@@ -1,6 +1,6 @@
 # Error Generating Exploitation Report
 
-An error occurred during analysis: Error code: 404 - {'error': {'message': 'Your organization must be verified to use the model `o3`. Please go to: https://platform.openai.com/settings/organization/general and click on Verify Organization. If you just verified, it can take up to 15 minutes for access to propagate.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}
+An error occurred during analysis: Error code: 400 - {'error': {'message': "Unsupported value: 'temperature' does not support 0.1 with this model. Only the default (1) value is supported.", 'type': 'invalid_request_error', 'param': 'temperature', 'code': 'unsupported_value'}}
 
 ## Partial Data
 
