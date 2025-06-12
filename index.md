@@ -1,81 +1,90 @@
 # Exploitation Report
 
-Over the past week, threat hunters observed a surge in high-impact exploitation activity spanning Microsoft Windows, Microsoft 365 Copilot, and identity-management infrastructure.  The most serious developments include a zero-day remote-code-execution flaw in Windows WebDAV that Stealth Falcon has weaponized against Middle-Eastern defense and government organizations, a newly disclosed zero-click “EchoLeak” vulnerability that can silently extract sensitive content from Microsoft 365 Copilot, and an actively abused Secure Boot bypass leveraged by bootkit malware.  Parallel brute-force campaigns are hammering Microsoft Entra ID and Apache Tomcat portals, while ransomware and infostealer crews continue to mix open-source and living-off-the-land tools for post-exploitation.  Organizations should prioritize patching, deploy compensating controls, and harden external authentication surfaces immediately.
+Recent investigations reveal a sharp uptick in sophisticated, real-world exploitation of zero-day and recently disclosed vulnerabilities. The most critical activity involves Paragon’s Graphite spyware weaponizing an undisclosed Apple iOS zero-click flaw against European journalists, and the Stealth Falcon APT actively abusing a Windows WebDAV remote-code-execution (RCE) zero-day to deliver malware to government and defense targets in the Middle East and North Africa. In parallel, bootkit operators continue to leverage a Secure Boot bypass to persist at the firmware layer, while large-scale password-spraying and brute-force campaigns hammer Microsoft Entra ID and Apache Tomcat instances. These attacks illustrate well-resourced adversaries combining zero-day exploitation, living-off-the-land tools, and credential-based intrusion techniques to gain covert access across mobile, cloud, and on-prem environments.
 
 ## Active Exploitation Details
 
-### Windows WebDAV Remote-Code-Execution Zero-Day
-- **Description**: A previously unknown flaw in the WebDAV service of Windows allows crafted requests to trigger remote code execution with SYSTEM privileges.  
-- **Impact**: Full takeover of the target host, enabling malware deployment, persistence, and lateral movement.  
-- **Status**: Actively exploited in the wild since March 2025 by Stealth Falcon; no official patch released at publication time, mitigations limited to disabling WebDAV or blocking affected ports.  
+### iOS Zero-Click Vulnerability Leveraged by Graphite Spyware
+- **Description**: A previously unknown flaw in Apple iOS enables remote code execution on targeted devices without user interaction (zero-click). Paragon’s Graphite platform delivers the exploit via malicious iMessage payloads, silently installing full-featured surveillance tooling.  
+- **Impact**: Complete device compromise, microphone and camera activation, file exfiltration, real-time tracking, and encrypted communications interception.  
+- **Status**: Confirmed in-the-wild exploitation against at least two European journalists. Apple has issued mitigations in recent iOS security updates.
 
-### EchoLeak Zero-Click Data-Exfiltration Vulnerability (Microsoft 365 Copilot)
-- **Description**: “EchoLeak” abuses the Copilot context-sharing mechanism to siphon conversation data without any end-user interaction.  Malicious prompts or messages silently trigger the leak.  
-- **Impact**: Disclosure of privileged corporate data processed by Copilot—including emails, documents, and chat history—potentially leading to espionage or compliance violations.  
-- **Status**: Newly uncovered zero-click flaw; proof-of-concept code demonstrated, no patch yet available.  Microsoft is investigating and recommends restricting Copilot access until remediated.  
+### Windows WebDAV Remote Code Execution Zero-Day
+- **Description**: A flaw in Microsoft’s Web-Distributed Authoring and Versioning (WebDAV) service allows remote attackers to craft malicious requests that execute arbitrary code in the context of the Windows Client/Server Runtime, bypassing standard user privileges.  
+- **Impact**: Initial access and malware deployment on fully patched Windows 10/11 and Server systems; facilitates follow-on credential theft and lateral movement.  
+- **Status**: Actively exploited since March 2025 by the Stealth Falcon APT; Microsoft has not yet issued a comprehensive patch, workarounds focus on disabling WebClient service and blocking outbound WebDAV traffic.
 
-### Windows Secure Boot Bypass Exploited by Bootkit Malware
-- **Description**: A boot-time vulnerability in Windows Boot Manager permits unsigned or maliciously signed EFI components to load, undermining Secure Boot protections.  
-- **Impact**: Attackers install persistent bootkits that survive OS reinstalls, disable security tools, and provide deep system control.  
-- **Status**: Actively exploited by in-the-wild malware; Microsoft has shipped an emergency update and updated revocation lists.  Systems must apply the patch and enable the new Secure Boot policy.  
+### UEFI Secure Boot Bypass Exploited by Bootkit Malware
+- **Description**: A vulnerability in Windows’ Secure Boot implementation permits threat actors to load a maliciously signed bootloader during system start-up, subverting early-boot protections.  
+- **Impact**: Persistent, kernel-level control resistant to OS reinstallation; enables deployment of advanced bootkits (e.g., BlackLotus variants) that disable security products and decrypt BitLocker volumes.  
+- **Status**: In-the-wild exploitation continues; Microsoft released an out-of-band patch and updated revocation lists, but full remediation requires firmware and OS updates plus policy enforcement.
 
 ## Affected Systems and Products
 
-- **Microsoft Windows (WebDAV Service)**  
-  - **Platform**: Windows 10/11 and Windows Server versions with WebDAV enabled.
+- **Apple iPhone/iPad (iOS 16/17 prior to latest Rapid Security Response)**  
+  - **Platform**: iOS mobile devices targeted via iMessage.
 
-- **Microsoft 365 Copilot**  
-  - **Platform**: Cloud-based Microsoft 365 tenants using Copilot AI assistance.
+- **Microsoft Windows 10/11 & Windows Server (WebDAV enabled)**  
+  - **Platform**: Desktop and server systems; all architectures with WebClient service active.
 
-- **Windows Boot Manager / Secure Boot**  
-  - **Platform**: All Secure-Boot-capable Windows PCs and servers prior to the latest emergency update.
+- **Windows PCs with Secure Boot enabled but not yet updated with latest revocation list**  
+  - **Platform**: Consumer and enterprise Windows devices, including Windows 11 24H2.
 
-- **Microsoft Entra ID (formerly Azure AD)**  
-  - **Platform**: Cloud identity platform targeted by large-scale password-spraying.
+- **Microsoft Entra ID (formerly Azure AD) tenant accounts**  
+  - **Platform**: Cloud identity platform affected by password-spraying attacks.
 
-- **Apache Tomcat Manager**  
-  - **Platform**: Internet-exposed Tomcat servers with default or weak credentials.
+- **Apache Tomcat 9.x/10.x with exposed Manager interface**  
+  - **Platform**: On-prem and cloud-hosted Java application servers.
+
+- **GitLab Community & Enterprise Editions < 17.x (pre-patch)**  
+  - **Platform**: Self-hosted DevSecOps platforms vulnerable to newly patched auth bypass flaws.
 
 ## Attack Vectors and Techniques
 
-- **Password Spraying Against Entra ID**  
-  - **Vector**: TeamFiltration framework automates low-and-slow authentication attempts against over 80,000 accounts, evading lockout thresholds.
+- **Zero-Click iMessage Exploit Chain**  
+  - **Vector**: Malformed iMessage attachment triggers memory corruption, downloading Graphite payloads with no user interaction.
 
-- **WebDAV Zero-Day Exploitation**  
-  - **Vector**: Malicious documents or network requests trigger RCE through vulnerable WebDAV parsing.
+- **Malicious WebDAV Request RCE**  
+  - **Vector**: Weaponized .url or .lnk files force the OS to reach out to attacker-controlled WebDAV share, leading to arbitrary code execution.
 
-- **Zero-Click AI Data Exfiltration (EchoLeak)**  
-  - **Vector**: Crafted Copilot prompt embedded in emails or Teams chats automatically releases contextual data.
+- **Secure Boot Bootloader Substitution**  
+  - **Vector**: Adversaries load a rogue, signed bootloader during startup, establishing boot-level persistence before the OS trust chain initializes.
 
-- **Secure Boot Bypass / Bootkit Implantation**  
-  - **Vector**: Malicious EFI loader sidesteps signature checks, installing a persistent bootkit before the OS initializes.
+- **Password-Spraying with TeamFiltration**  
+  - **Vector**: High-volume authentication attempts against Microsoft Entra ID using common and default passwords, throttling evasion via distributed IP pools.
 
-- **Brute-Force Attacks on Apache Tomcat**  
-  - **Vector**: Distributed botnet enumerates default credentials against /manager/html endpoints from hundreds of IP addresses.
+- **Tomcat Manager Brute-Force**  
+  - **Vector**: Automated credential stuffing against `/manager/html` endpoints from hundreds of rotating IP addresses.
 
-- **Ultrasonic Smartwatch Exfiltration (SmartAttack)**  
-  - **Vector**: Compromised workstation’s speaker emits inaudible ultrasonic signals captured by nearby smartwatches to steal data from air-gapped systems.
+- **LLM Guardrail Evasion – TokenBreak**  
+  - **Vector**: Single-character perturbations bypass large-language-model moderation filters to produce disallowed content.
+
+- **Smartwatch “SmartAttack” Ultrasonic Exfiltration**  
+  - **Vector**: Air-gapped PCs modulate data into ultrasonic signals decoded by nearby wearable devices.
 
 ## Threat Actor Activities
 
-- **Stealth Falcon**  
-  - **Campaign**: Leveraging the WebDAV zero-day to deploy custom backdoors and credential-dumping tools against defense ministries in Turkey, Qatar, Egypt, and Jordan.  
+- **Stealth Falcon (APT)**  
+  - **Campaign**: WebDAV zero-day exploitation since March 2025 targeting defense and government entities in Turkey, Qatar, Egypt, and Jordan; drops bespoke backdoors and credential harvesters.
 
-- **TeamFiltration Operators**  
-  - **Campaign**: Global account-takeover operation targeting Microsoft Entra ID tenants across multiple verticals; aims to harvest email and SharePoint data post-compromise.  
+- **Unattributed Operator Using Paragon Graphite**  
+  - **Campaign**: Surveillance operation against European investigative journalists, leveraging iOS zero-click chain for prolonged monitoring.
 
-- **Former Black Basta Affiliates**  
-  - **Campaign**: 2025 phishing wave using Microsoft Teams lures and Python automation to maintain persistent presence and stage ransomware.  
+- **Bootkit Operators / BlackLotus Lineage**  
+  - **Campaign**: Ongoing deployment of Secure Boot-bypass malware for espionage and credential theft across unpatched Windows fleets.
+
+- **Unknown Cluster (TeamFiltration Abuse)**  
+  - **Campaign**: Global Microsoft Entra ID credential-based attacks against 80,000+ accounts across hundreds of organizations; objective appears to be cloud account takeover.
 
 - **Fog Ransomware Group**  
-  - **Campaign**: Combines open-source pentest utilities with legitimate employee-monitoring software (Syteca) to escalate privileges and exfiltrate files before encryption.  
+  - **Campaign**: Uses Syteca employee-monitoring software, PsExec, and open-source tools for encryption operations; no novel CVE exploitation observed but highlights living-off-the-land methodology.
 
-- **Unidentified Botnet (Tomcat Brute-Force)**  
-  - **Campaign**: Large-scale distributed authentication attacks on Apache Tomcat management panels; objective likely web-shell deployment for later monetization.  
+- **Former Black Basta Affiliates**  
+  - **Campaign**: 2025 intrusions leveraging Microsoft Teams phishing and custom Python scripts for foothold and lateral movement in North-American manufacturing firms.
 
-- **Global Infostealer Networks (Operation Secure)**  
-  - **Campaign**: Recently disrupted infrastructure previously used for phishing, BEC, and credential theft; 117 C2 servers seized and 32 suspects arrested.  
+- **Distributed Tomcat Brute-Force Botnet**  
+  - **Campaign**: Mass scanning and credential stuffing aimed at deploying webshells for crypto-mining and lateral movement.
 
 ---
 
-Organizations should immediately deploy Microsoft’s Secure Boot update, disable or restrict WebDAV where possible, audit Copilot usage, enforce strong MFA across Entra ID, and harden exposed Tomcat interfaces to reduce current threat exposure.
+**Note**: Organizations should apply vendor patches immediately, disable unused services (e.g., WebDAV), enforce multi-factor authentication across cloud identities, and monitor for anomalous bootloader modifications and unsolicited iMessage traffic to mitigate current exploitation waves.
