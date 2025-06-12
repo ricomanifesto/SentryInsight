@@ -86,8 +86,8 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
             "error": "No API key"
         }
     
-    # o1 models don't support temperature parameter
-    if model_name.startswith("o1"):
+    # o1 and o3 models don't support temperature parameter
+    if model_name.startswith("o1") or model_name.startswith("o3"):
         model = ChatOpenAI(
             api_key=api_key,
             model=model_name
@@ -199,8 +199,8 @@ Generate a well-formatted exploitation report following the structure above. Be 
     
     # Call the AI model
     try:
-        # o1 models work better with just the user message
-        if model_name.startswith("o1"):
+        # o1 and o3 models work better with just the user message
+        if model_name.startswith("o1") or model_name.startswith("o3"):
             messages = [
                 HumanMessage(content=f"You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild.\n\n{prompt}")
             ]
