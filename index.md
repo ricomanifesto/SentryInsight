@@ -1,57 +1,62 @@
 # Exploitation Report
 
-Recent intelligence highlights a surge in targeted exploitation of high-impact vulnerabilities across Microsoft Windows and open-source security tooling. Most notably, an APT group (“Stealth Falcon”) is weaponizing a previously unknown Windows WebDAV remote-code-execution flaw to compromise Middle-Eastern government networks, while Mirai botnet operators have pivoted to an authentication bypass in the Wazuh security platform to conscript new devices. In parallel, bootkit operators continue to abuse Microsoft’s Secure Boot bypass to deploy BlackLotus malware, demonstrating that even fully patched endpoints can be subverted if firmware protections are not enforced. The breadth of affected products—ranging from core operating-system components to defensive security platforms—underscores the critical need for rapid patching, rigorous hardening, and continuous threat-hunting.
+Over the last week threat hunters observed a sharp rise in real-world exploitation of critical vulnerabilities across Microsoft, open-source security tooling, and AI productivity platforms. The most urgent activity involves Stealth Falcon’s weaponization of an unpatched Windows WebDAV remote code-execution flaw, Mirai botnet operators mass-exploiting a newly disclosed Wazuh platform weakness hours after public release, and the discovery of “EchoLeak,” the first documented zero-click data-exfiltration technique targeting Microsoft 365 Copilot. In parallel, active Secure Boot bypass attacks leveraging a bootkit-related flaw continue despite Microsoft’s recent out-of-band patch. Organizations should prioritize mitigations, monitoring, and patch deployment for the vulnerabilities detailed below.
 
 ## Active Exploitation Details
 
 ### Windows WebDAV Remote Code Execution Zero-Day
-- **Description**: A flaw in the WebDAV service allows specially crafted requests to trigger remote code execution with SYSTEM privileges on Windows endpoints. The vulnerability requires no prior authentication when WebDAV is exposed via IIS or other HTTP listeners.  
-- **Impact**: Complete takeover of targeted hosts, malware implantation, lateral movement, and data exfiltration.  
-- **Status**: Actively exploited in the wild since March 2025 by the “Stealth Falcon” APT. Microsoft is preparing a patch; temporary mitigations involve disabling the WebClient service or blocking WebDAV traffic.  
+- **Description**: A logic flaw in the Windows WebDAV service allows a malicious server to trigger arbitrary code execution on a client system when the victim accesses a crafted WebDAV share.
+- **Impact**: Full compromise of Windows endpoints, malware deployment, and lateral movement inside the victim network.
+- **Status**: Actively exploited in the wild by Stealth Falcon since March 2025; Microsoft has not yet issued a permanent fix but mitigations are circulating.
 
-### Windows Secure Boot Bypass Used by BlackLotus Bootkit
-- **Description**: A logic flaw in Secure Boot policy validation enables attackers with administrative privileges to install malicious bootloaders that execute before the OS kernel.  
-- **Impact**: Persistence at the EFI level, evasion of OS-level security controls, and ability to load arbitrary kernel drivers or disable EDR solutions.  
-- **Status**: Patched by Microsoft, but exploitation remains widespread as BlackLotus operators target un-patched or misconfigured systems.  
-- **CVE ID**: CVE-2023-24932  
+### EchoLeak Zero-Click AI Data-Exfiltration Vulnerability (Microsoft 365 Copilot)  
+- **Description**: “EchoLeak” abuses the Copilot context window to inject malicious prompts that silently force the AI assistant to stream sensitive tenant data to an attacker-controlled channel—no user interaction required.
+- **Impact**: Leakage of emails, documents, Teams chats, and SharePoint content; potential compliance violations and intellectual-property loss.
+- **Status**: Proof-of-concept code publicly demonstrated; Microsoft is investigating and has issued interim guidance but no formal patch is available.
 
-### Wazuh API Authentication Bypass (Mirai Campaign)
-- **Description**: Improper session validation inside the Wazuh RESTful API permits unauthenticated remote attackers to create administrative accounts and execute arbitrary commands on managed endpoints.  
-- **Impact**: Remote code execution, installation of Mirai variants, and enrollment of servers and IoT devices into DDoS botnets.  
-- **Status**: Exploited within hours of disclosure by multiple Mirai botnet crews. A patch is available from Wazuh; administrators should upgrade immediately and rotate API credentials.  
+### Wazuh Security Platform Injection Flaw Exploited by Mirai Botnets  
+- **Description**: An input-validation weakness in the Wazuh API permits unauthenticated command injection via crafted HTTP requests, granting remote shell access.
+- **Impact**: Attackers enlist vulnerable servers into Mirai-based DDoS botnets or deploy additional malware.
+- **Status**: Patch released by Wazuh; exploitation observed within 24 hours of disclosure as two distinct Mirai campaigns scan and compromise exposed hosts.
+
+### Windows Secure Boot Bypass Used for Bootkit Deployment  
+- **Description**: A Secure Boot security feature bypass enables threat actors to load a maliciously signed bootloader during the boot sequence, establishing a persistent bootkit.
+- **Impact**: Root-level persistence, evasion of EDR/AV, and the ability to tamper with operating-system security controls before they start.
+- **Status**: Exploited in the wild; Microsoft shipped an emergency patch and accompanying revocation list. Administrators must deploy the update and enable revocation to be fully protected.
+- **CVE ID**: CVE-2023-24932
 
 ## Affected Systems and Products
 
-- **Microsoft Windows (Client & Server)**  
-  - Versions exposing WebDAV services or running vulnerable Secure Boot policy (most Windows 10/11 and Server 2019/2022 builds)  
-  - Platform: On-premises, cloud-hosted VMs, hybrid AD environments  
-
-- **Wazuh Security Platform**  
-  - Versions prior to the fixed release (as per vendor advisory) running the vulnerable REST API component  
-  - Platform: Linux-based Wazuh managers, on-premises or cloud deployments  
+- **Windows Client & Server**: All supported versions vulnerable to the WebDAV RCE zero-day  
+- **Microsoft 365 Copilot**: Tenant-wide exposure across Windows, macOS, and web clients  
+- **Wazuh (open-source SIEM/EDR)**: Versions prior to the latest hotfix across Linux deployments  
+- **Windows PCs with Secure Boot enabled**: Systems lacking the May 2025 Secure Boot patch and revocation list  
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day WebDAV Exploit**  
-  - **Vector**: Malicious HTTP PROPFIND/SEARCH requests sent to exposed WebDAV endpoints  
-  - **Technique**: Crafted payload triggers buffer overflow leading to SYSTEM-level shell  
-
-- **Secure Boot Policy Tampering**  
-  - **Vector**: Delivery of signed, malicious bootloader via phishing or privilege-escalation chain  
-  - **Technique**: Replacement of legitimate EFI files to bypass boot verification and load BlackLotus  
-
-- **Wazuh API Takeover**  
-  - **Vector**: Direct HTTPS requests to the Wazuh REST API using forged session tokens  
-  - **Technique**: Creation of rogue admin users followed by remote command execution to deploy Mirai binaries  
+- **Malicious WebDAV Share**: Spear-phishing emails or watering-hole sites lure targets into mounting attacker-controlled WebDAV paths that execute code automatically.
+- **Zero-Click Prompt Injection**: Crafted system prompts sent through collaborative documents or Teams chats trigger EchoLeak without user awareness.
+- **Automated API Exploit Scanning**: Mirai operators mass-scan IPv4 space for vulnerable Wazuh endpoints and deliver command-injection payloads.
+- **Bootloader Signature Forgery**: Attackers sign rogue bootloaders that bypass legacy Secure Boot policies to implant bootkits.
+- **Brute-Force Credential Stuffing**: 295 coordinated IPs attempt to force Apache Tomcat Manager passwords, emphasizing the need for MFA and network filtering.
 
 ## Threat Actor Activities
 
-- **Stealth Falcon (Nation-State APT)**  
-  - **Campaign**: Targeted defense and government entities in Turkey, Qatar, Egypt, and Jordan with spear-phishing that redirects victims to WebDAV exploits. Post-exploitation toolset includes custom backdoors and credential-dumping utilities.  
+- **Stealth Falcon (APT)**  
+  - Targeting defense and government networks in Turkey, Qatar, Egypt, and Jordan  
+  - Delivers malicious links triggering the Windows WebDAV zero-day to establish implants
 
-- **Mirai Botnet Operators (Multiple Crews)**  
-  - **Campaign**: Automated scanning for vulnerable Wazuh instances, immediate infection with modified Mirai payloads, and use of newly compromised nodes for high-volume DDoS attacks against gaming and financial services.  
+- **Mirai Botnet Operators**  
+  - Running two separate campaigns to compromise Wazuh servers for DDoS horsepower  
+  - Rapid weaponization demonstrates shrinking vulnerability-to-exploit timelines
 
-- **BlackLotus Affiliate Networks**  
-  - **Campaign**: Ongoing distribution of BlackLotus bootkit through malvertising and cracked-software installers, focusing on consumer and SMB sectors where Secure Boot is disabled or outdated.  
+- **Former Black Basta Affiliates**  
+  - Using Microsoft Teams phishing and Python loaders to maintain footholds for ransomware deployment; leverage Secure Boot bypass to harden persistence
 
+- **GreyNoise-Observed Cluster**  
+  - 295 distinct IP addresses coordinating brute-force attacks on Apache Tomcat Manager interfaces worldwide
+
+- **Fog Ransomware Group**  
+  - Combines legitimate monitoring software (Syteca) with open-source pentest tools to evade detection during lateral movement and data staging
+
+Organizations should apply the referenced patches immediately, harden exposed services, and monitor for the listed tactics to reduce risk from ongoing exploitation campaigns.
