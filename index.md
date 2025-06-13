@@ -1,50 +1,77 @@
 # Exploitation Report
 
-Over the past week researchers have confirmed two high-impact, in-the-wild exploit chains: a zero-click attack on Apple iOS devices that installs Paragon’s Graphite spyware, and an active Secure Boot bypass used by the BlackLotus bootkit to gain pre-OS persistence on Windows systems (CVE-2023-24932). At the same time, a massive traffic-distribution operation dubbed VexTrio is leveraging already-patched WordPress plugin flaws to turn legitimate sites into malware launch pads. Collectively, these campaigns demonstrate continued attacker focus on stealthy initial access—ranging from password-less mobile compromises to tampering with firmware-level trust anchors—underscoring the urgency of rapid patching and layered defenses.
+Over the last week researchers observed a sharp rise in zero-click and authentication-bypass exploits that require no user interaction and provide attackers with immediate, high-value access. Two headline-grabbing flaws dominate: “EchoLeak,” a newly disclosed Microsoft 365 Copilot weakness that silently exfiltrates tenant data, and a still-unnamed iOS zero-click chain abused by Paragon’s Graphite spyware against European journalists. At the same time, enterprise software is being hammered — Trend Micro shipped out-of-band fixes for pre-authentication remote-code-execution bugs already weaponized in the wild, while GitLab hurried to close an account-takeover gap that researchers proved can be exploited to hijack CI/CD pipelines. Finally, continuing password-spray and malvertising campaigns show that threat actors are pairing these vulnerabilities with creative tradecraft to maximize impact across cloud, mobile, and on-prem environments.
 
 ## Active Exploitation Details
 
-### Apple iOS Zero-Click Messaging Exploit (Graphite Spyware)
-- **Description**: An unnamed iMessage-based zero-click vulnerability allows malicious push notifications to silently trigger code execution and install the commercial Graphite surveillance platform on targeted iPhones. The exploit bypasses Apple’s BlastDoor sandbox and does not require user interaction.  
-- **Impact**: Full device compromise enabling microphone/camera activation, file exfiltration, and near–real-time location tracking of victims (investigative journalists in Europe).  
-- **Status**: Confirmed active exploitation. Apple has issued emergency patches; users must update to the latest iOS release to mitigate.  
- 
-### Windows Secure Boot Bypass Exploited by BlackLotus Bootkit
-- **Description**: The BlackLotus UEFI bootkit abuses a Secure Boot policy vulnerability that lets attackers load a maliciously signed boot loader, defeating OS-level security controls and Endpoint Detection & Response (EDR) tools.  
-- **Impact**: Pre-OS persistence, kernel-level privileges, evasion of antivirus and BitLocker protections, and ability to disable security features before Windows starts.  
-- **Status**: Actively exploited in the wild. Microsoft has published firmware and OS updates that revoke vulnerable boot loaders and require administrator-initiated re-enrollment of Secure Boot keys.  
-- **CVE ID**: CVE-2023-24932  
+### EchoLeak Zero-Click Copilot Data Exfiltration
+- **Description**: A zero-click prompt-injection flaw in Microsoft 365 Copilot that lets an attacker embed specially crafted HTML/JavaScript which forces Copilot to replay private chat or document content to a remote endpoint.
+- **Impact**: Complete theft of sensitive tenant data (emails, Teams chats, SharePoint files) without end-user interaction; bypasses Microsoft’s content-moderation safeguards.
+- **Status**: Publicly disclosed with proof-of-concept; Microsoft issued server-side mitigations but a definitive patch is still pending.
 
-### WordPress Plugin Vulnerabilities Leveraged by VexTrio TDS
-- **Description**: VexTrio and affiliated traffic-distribution services compromise WordPress sites by exploiting a collection of previously disclosed plugin flaws. Compromised sites inject malicious JavaScript that redirects visitors through multilayer cloaking infrastructure to scams, phishing pages, or malware.  
-- **Impact**: Large-scale drive-by infections, affiliate fraud, SEO poisoning, and monetization through pay-per-install schemes across a global victim base.  
-- **Status**: Ongoing mass exploitation; plugin patches exist but many site owners remain unpatched, providing a steady stream of vulnerable targets.  
+### Graphite Spyware iOS Zero-Click Exploit
+- **Description**: An exploit chain delivered via iMessage that installs Paragon’s “Graphite” spyware on fully patched iPhones with no user action, leveraging undocumented iOS vulnerabilities to gain kernel-level access.
+- **Impact**: Total compromise of device, including microphone, camera, keychain, and messaging data; persistence through reboots.
+- **Status**: Actively used in the wild against journalists; Apple has released emergency security updates for supported iOS versions.
+
+### Trend Micro Apex Central & Endpoint Encryption Pre-Auth RCE / Auth Bypass
+- **Description**: Multiple web-console flaws allowing unauthenticated attackers to upload malicious files or bypass login checks, culminating in remote code execution under SYSTEM on Windows deployments or root on Linux appliances.
+- **Impact**: Full takeover of security-management infrastructure, leading to lateral movement and tampering with endpoint-protection policies.
+- **Status**: Exploits spotted in honeypots before the patch release; Trend Micro pushed critical updates and urges immediate installation.
+
+### GitLab Account-Takeover & Pipeline Injection Flaws
+- **Description**: Missing authentication checks on specific API endpoints permit attackers to reset passwords or inject jobs into CI/CD pipelines, effectively hijacking user accounts and artifact repositories.
+- **Impact**: Source-code theft, supply-chain poisoning, and privilege escalation within self-hosted and GitLab-SaaS environments.
+- **Status**: Fixed in GitLab 17.x, 16.11.x, and 16.10.x; exploitation observed in targeted attacks against DevOps teams.
+
+### Windows Secure-Boot Bypass Used by Bootkit Malware
+- **Description**: A vulnerability in Windows bootloader signature validation enables maliciously signed bootloaders to execute, allowing attackers to install stealth bootkits that survive OS reinstalls.
+- **Impact**: Kernel-mode persistence, EDR evasion, and full system compromise.
+- **Status**: Microsoft released an emergency Windows 11 24H2 update; active exploitation reported by incident-response teams investigating recent ransomware intrusions.
 
 ## Affected Systems and Products
 
-- **Apple iPhone / iPad (iOS & iPadOS)**: Devices running vulnerable pre-patch versions targeted via iMessage zero-click chain  
-- **Microsoft Windows (all Secure Boot-enabled editions)**: Systems with unpatched Secure Boot policy and outdated revocation lists susceptible to BlackLotus infection  
-- **WordPress Websites**: Installations running outdated or misconfigured plugins exploited by VexTrio (specific plugin versions vary across sites)
+- **Microsoft 365 Copilot**: All tenants using Copilot across Microsoft 365 services  
+  **Platform**: Cloud (Microsoft SaaS)  
+- **Apple iPhone / iPad**: iOS/iPadOS 15 – 17 prior to latest Rapid Security Response  
+  **Platform**: Mobile (iOS)  
+- **Trend Micro Apex Central**: On-prem versions 2019 HF6 and below, SaaS build prior to June 2025  
+  **Platform**: Windows & Linux server appliances  
+- **Trend Micro Endpoint Encryption PolicyServer**: Versions before 3.1.0 Build 2540  
+  **Platform**: Windows Server  
+- **GitLab Community & Enterprise Edition**: 17.0.0 and earlier, 16.11.3 and earlier, 16.10.6 and earlier  
+  **Platform**: Linux (self-hosted) & GitLab-SaaS  
+- **Microsoft Windows**: Windows 11 24H2 (all editions prior to KB5039703)  
+  **Platform**: Desktop & Server (UEFI Secure Boot)  
 
 ## Attack Vectors and Techniques
 
-- **Zero-Click Messaging Exploit**  
-  - **Vector**: Maliciously crafted iMessage payload delivered to target phone numbers; no user interaction required.  
-
-- **Secure Boot Policy Subversion**  
-  - **Vector**: Tampered boot loader signed with a compromised or leaked certificate loaded during system start-up, bypassing Secure Boot validation.  
-
-- **Mass WordPress Site Takeover & Traffic Distribution**  
-  - **Vector**: Automated scanning for vulnerable plugins → remote code execution → injection of redirect scripts → cascade of TDS hops ending in malware or scams.  
+- **Zero-Click Prompt Injection**  
+  - **Vector**: Malicious HTML/JavaScript embedded in emails or documents triggers Copilot to send data to attacker-controlled domains.
+- **iMessage Zero-Click Exploit Chain**  
+  - **Vector**: Specially crafted multimedia messages exploiting memory-corruption in CoreGraphics and kernel privilege-escalation bugs.
+- **Pre-Authentication RCE via File Upload**  
+  - **Vector**: Direct HTTP POST to Trend Micro management console with a crafted archive that is automatically unpacked and executed.
+- **Authentication Bypass API Abuse**  
+  - **Vector**: Manipulation of GitLab password reset and project-import endpoints lacking token validation.
+- **Secure-Boot Bypass Bootkit**  
+  - **Vector**: Replacement of legitimate bootloader with a maliciously signed binary that passes signature checks.
+- **Password-Spraying with TeamFiltration**  
+  - **Vector**: Slow-rate authentication attempts against Microsoft Entra ID leveraging open-source tooling to evade lockout thresholds.
+- **Malvertising via Fake CAPTCHA**  
+  - **Vector**: Ad-network iframes masquerading as CAPTCHA challenges inject click-jacking and tracking scripts to distribute disinformation.
 
 ## Threat Actor Activities
 
-- **Paragon-linked Operators**  
-  - **Campaign**: Deployment of Graphite spyware against investigative journalists; believed to be state-aligned or mercenary surveillance activity.  
-
-- **BlackLotus Operators**  
-  - **Campaign**: Monetized bootkit infections for ransomware deployment, credential theft, and long-term persistence across both consumer and enterprise Windows fleets.  
-
-- **VexTrio & Affiliates (Help TDS, Disposable TDS)**  
-  - **Campaign**: Global traffic-brokerage network weaponizing tens of thousands of compromised WordPress sites to funnel users to fraudulent content, phishing kits, and malware payloads.  
-
+- **Kremlin-Linked Disinformation Operators**  
+  - **Campaign**: Use of fake CAPTCHA malvertising to bypass social-media moderation and disseminate propaganda across ad exchanges.
+- **Paragon-Backed Operators (Graphite Spyware)**  
+  - **Campaign**: Highly targeted surveillance of investigative journalists in Europe via iOS zero-click exploits.
+- **Unidentified Cloud Threat Actors (EchoLeak)**  
+  - **Campaign**: Early testing and small-scale data-harvesting against Microsoft 365 tenants, focusing on legal and financial firms.
+- **Former Black Basta Affiliates**  
+  - **Campaign**: Email-bombing and Microsoft Teams phishing for initial access, followed by ransomware deployment.
+- **Fog Ransomware Group**  
+  - **Campaign**: Leverages Syteca employee-monitoring software plus open-source tooling to move laterally and exfiltrate data before encryption.
+- **TeamFiltration Operators**  
+  - **Campaign**: Global password-spray attacks against 80,000+ Microsoft Entra ID accounts across 800 organizations, aiming for cloud account takeover.
