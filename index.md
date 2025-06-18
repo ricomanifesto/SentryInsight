@@ -1,56 +1,66 @@
 # Exploitation Report
 
-During the past week, security researchers and government agencies reported active exploitation of three high-impact vulnerabilities. Attackers are leveraging a zero-day in Google Chrome to implant a bespoke backdoor, weaponising a Linux Kernel OverlayFS flaw for immediate root access on major distributions, and chaining multiple weaknesses in Sitecore Experience Platform to obtain unauthenticated remote code execution. The campaigns demonstrate a blend of web-based drive-by compromise, post-exploitation privilege escalation, and direct server takeover, underscoring the urgent need for rapid patching and layered defences across desktop, server, and CMS environments.
+During the last 48 hours, threat actors have been observed actively exploiting a privilege-escalation flaw in the Linux kernel’s OverlayFS subsystem and a now-patched Google Chrome zero-day to gain elevated privileges and deploy the “Trinper” backdoor. The Linux bug is already listed in CISA’s Known Exploited Vulnerabilities (KEV) catalog, indicating widespread, in-the-wild abuse across major distributions. Meanwhile, a group tracked as “TaxOff” weaponized CVE-2025-2783 in Chrome to deliver malware through drive-by downloads. Concurrently, multiple campaigns are abusing Cloudflare Tunnels, weaponized GitHub repositories, and malicious Minecraft mods, illustrating a surge in living-off-the-land and supply-chain techniques that bypass traditional perimeter defenses.
 
 ## Active Exploitation Details
 
-### Google Chrome Zero-Day – Type-Confusion in V8
-- **Description**: A memory-safety error in the V8 JavaScript engine allows crafted webpages to trigger type confusion, leading to arbitrary code execution in the browser context.  
-- **Impact**: Enables attackers to escape the renderer sandbox, deploy the “Trinper” backdoor, and gain persistent access to victim systems.  
-- **Status**: Exploited in the wild by the “TaxOff” threat actor; Google has issued an emergency stable-channel update.  
+### Linux OverlayFS Privilege-Escalation Vulnerability
+- **Description**: A flaw in the OverlayFS subsystem allows unprivileged local users to override security checks when mounting overlay filesystems, enabling the execution of arbitrary code with kernel-level permissions.  
+- **Impact**: Successful exploitation grants full root privileges, enabling complete system takeover, credential dumping, lateral movement, and persistence.  
+- **Status**: Confirmed active exploitation in the wild; CISA added the bug to its KEV catalog. Linux vendors have released patches and back-ported fixes.  
+<!-- No CVE line because the article did not explicitly list one -->
+
+### Google Chrome Skia Rendering Engine Vulnerability
+- **Description**: An integer-handling issue in Chrome’s Skia graphics component that permits remote code execution when a user visits a maliciously crafted webpage.  
+- **Impact**: Attackers can achieve sandbox escape and execute arbitrary code on the host, facilitating the installation of the “Trinper” backdoor.  
+- **Status**: Exploited as a zero-day by the TaxOff threat actor in mid-March 2025; Google has issued an emergency update across all channels.  
 - **CVE ID**: CVE-2025-2783  
-
-### Linux Kernel OverlayFS Privilege Escalation Vulnerability
-- **Description**: A flaw in the OverlayFS subsystem mishandles permission validation when mounting user-controlled overlays, permitting unauthorized copying of set-uid binaries.  
-- **Impact**: Local attackers can elevate from any unprivileged account to full root, facilitating complete takeover after an initial foothold (e.g., via phishing or web shell).  
-- **Status**: Confirmed active exploitation; proof-of-concept code is publicly available. Patches have been released upstream and back-ported by major distributions.  
-
-### Sitecore Experience Platform Hard-coded Password & RCE Chain
-- **Description**: A series of vulnerabilities beginning with a hard-coded password value (“b”) in a backend component allow unauthenticated login, privilege escalation within the CMS, and subsequent remote code execution on the host server.  
-- **Impact**: Attackers can run arbitrary commands, implant web shells, pivot laterally, and exfiltrate sensitive customer data managed by Sitecore XP.  
-- **Status**: Exploits observed in the wild. Sitecore has published remediation guidance and updated builds; mitigation requires password rotation and application patching.  
 
 ## Affected Systems and Products
 
-- **Google Chrome (Desktop & Android)**  
-  - **Platform**: Windows, macOS, Linux, ChromeOS prior to the latest stable-channel patch  
-
-- **Linux Distributions with OverlayFS (Kernel versions prior to upstream fix)**  
-  - **Platform**: Ubuntu, Debian, Fedora, RHEL, SUSE, and derivatives running vulnerable kernels  
-
-- **Sitecore Experience Platform (XP)**  
-  - **Platform**: Windows Server and IIS deployments of Sitecore XP across multiple 8.x, 9.x, and early 10.x releases  
+- **Linux Kernel (OverlayFS subsystem)**
+  - **Platform**: Major Linux distributions including Ubuntu, Debian, Red Hat, Fedora, and SUSE running vulnerable kernel versions prior to vendor patches.
+  
+- **Google Chrome (pre-patch versions)**
+  - **Platform**: Windows, macOS, and Linux desktop environments running builds prior to the security update that addresses CVE-2025-2783.
 
 ## Attack Vectors and Techniques
 
-- **Drive-By Compromise via Malicious Website**  
-  - **Vector**: TaxOff hosts weaponised webpages that trigger CVE-2025-2783 to silently deploy the Trinper backdoor.  
+- **Drive-By Download Exploitation**
+  - **Vector**: Malicious websites leveraging CVE-2025-2783 to compromise unpatched Chrome browsers.
 
-- **Local Privilege Escalation – OverlayFS Abuse**  
-  - **Vector**: Post-compromise scripts mount crafted overlay filesystems, copy set-uid binaries, and instantaneously obtain root on Linux hosts.  
+- **Local Privilege Escalation**
+  - **Vector**: Post-exploitation use of the OverlayFS vulnerability to escalate from user to root on Linux hosts.
 
-- **Unauthenticated CMS RCE Chain**  
-  - **Vector**: Public-facing Sitecore servers are probed for the hard-coded “b” password, followed by API misuse and file upload to achieve full server execution.  
+- **Cloudflare Tunnel Abuse**
+  - **Vector**: Phishing emails containing attachments that resolve to attacker-controlled Cloudflare Tunnel subdomains hosting RAT payloads.
+
+- **Weaponized GitHub Repositories**
+  - **Vector**: “Water Curse” implants malicious code in cloned/open-source projects distributed via 76 hijacked GitHub accounts.
+
+- **Malicious Minecraft Mods Distribution**
+  - **Vector**: “Stargazers” lures gamers to install trojanized Java mods that siphon credentials and session tokens.
+
+- **ChainLink Phishing**
+  - **Vector**: Chained redirects using trusted SaaS (Google Drive, Dropbox) to evade email filtering and steal browser-session cookies.
+
+- **.lnk Shortcut In-Memory Execution**
+  - **Vector**: “Serpentine#Cloud” delivers weaponized Windows shortcut files that execute payloads directly in memory, bypassing disk-based detection.
 
 ## Threat Actor Activities
 
-- **TaxOff**  
-  - **Campaign**: Exploits Chrome zero-day to deliver the Trinper backdoor, focusing on high-value corporate targets and government entities for espionage and persistent access.  
+- **TaxOff**
+  - **Campaign**: Exploited CVE-2025-2783 in Chrome to deliver the Trinper backdoor targeting unspecified organizations via malicious websites.
 
-- **Unattributed Actors Targeting Linux OverlayFS**  
-  - **Campaign**: Blend of cyber-crime and possible APT usage; exploits integrated into commodity post-exploitation toolkits to escalate privileges after initial breach.  
+- **Water Curse**
+  - **Campaign**: Utilizes 76 compromised GitHub accounts to stage multi-stage malware, focusing on data exfiltration and follow-on access sales.
 
-- **Sitecore RCE Operators (Unidentified)**  
-  - **Campaign**: Mass-scanning of internet-exposed Sitecore instances, followed by data theft and installation of web shells for future monetisation or intrusion staging.  
+- **Stargazers Ghost Network**
+  - **Campaign**: Distributes fake Minecraft mods/cheats, infecting over 1,500 players with infostealers on Windows systems.
 
-**Key Takeaway:** Organisations should apply the latest Chrome update immediately, push vendor kernels or distribution back-ports that remediate the OverlayFS flaw, and harden/patch Sitecore deployments without delay. Continuous monitoring for privilege-escalation binaries, unusual outbound traffic, and CMS authentication anomalies remains paramount.
+- **Serpentine#Cloud**
+  - **Campaign**: Conducts stealthy attacks using Cloudflare Tunnels, .lnk files, and living-off-the-land binaries (LOLBins) for in-memory payload execution.
+
+- **HoldingHands**
+  - **Campaign**: Runs information-stealing operations against Taiwanese businesses and government entities with multiple custom malware strains.
+
