@@ -1,83 +1,87 @@
 # Exploitation Report
 
-During the last news cycle, threat activity focused on supply-chain abuse, mobile-malware innovation, record-setting denial-of-service attacks, and highly coordinated intrusions led by well-known adversaries. Attackers are actively weaponizing malicious GitHub repositories to compromise developers, abusing virtualization features on Android to circumvent banking-app protections, and leveraging protocol weaknesses to launch the largest DDoS event ever observed. Concurrently, groups such as Scattered Spider, Lazarus, Salt Typhoon, and Qilin RaaS continue to demonstrate sophisticated tradecraft against retail, telecom, insurance, and cryptocurrency targets. The incidents below highlight the breadth of exploitation across cloud, mobile, and developer ecosystems.
+During the last week, defenders observed a diverse set of active exploitation campaigns ranging from protocol-level denial-of-service attacks to highly targeted intrusions against retail, telecom, and cryptocurrency organizations. The most damaging activity centred on the 7.3 Tbps HTTP/2 “Rapid Reset” denial-of-service event, large-scale supply-chain poisoning on GitHub, aggressive social-engineering intrusions by Scattered Spider, and the continued abuse of Android virtualization and overlay mechanisms by mobile-banking trojans. Multiple nation-state and financially motivated actors—including Lazarus, Salt Typhoon, Qilin, and Scattered Spider—were linked to these operations.
 
 ## Active Exploitation Details
 
-### Malicious Copycat GitHub Repositories
-- **Description**: Threat actors uploaded dozens of look-alike repositories that impersonate popular open-source projects. The repos embed back-doored code or dependency-confusion packages that execute on developer workstations at build time.  
-- **Impact**: Compromised developer environments, unauthorized access to corporate code bases, potential insertion of malware into downstream software releases.  
-- **Status**: Repositories remain under takedown; GitHub is actively removing reported projects while new ones continue to appear. No vendor patch—developers must verify source integrity.  
+### HTTP/2 Rapid Reset Protocol Abuse
+- **Description**: Attackers exploit a weakness in the HTTP/2 protocol that allows them to flood servers with a high rate of stream-reset frames (“Rapid Reset”). The stateless nature of the resets forces back-end infrastructure to allocate resources repeatedly, leading to amplification.  
+- **Impact**: Enabled the largest recorded DDoS attack (7.3 Tbps, 37.4 TB in 45 seconds) against a hosting provider; could knock large Internet properties offline.  
+- **Status**: Actively exploited in the wild. Mitigations and rate-limiting rules have been deployed by Cloudflare and other CDN/WAF vendors; no protocol-level patch is yet standardized.  
 
-### Trojanized GitHub Repositories Campaign Targeting Gamers and Developers
-- **Description**: Over 200 weaponized repositories advertise Python-based “hacking tools” that instead drop multi-stage stealers and remote-access Trojans.  
-- **Impact**: Credential theft, lateral movement into gaming and developer communities, possible supply-chain propagation into corporate environments.  
-- **Status**: Campaign is ongoing; security researchers are publishing IoCs, but the repos rotate rapidly.  
+### GitHub Repository Impersonation & Trojanization
+- **Description**: Threat actors uploaded more than 200 malicious copy-cat repositories posing as popular hacking tools or game mods. The projects contained obfuscated malware loaders that execute on developer workstations.  
+- **Impact**: Developer workstations become initial footholds for wider supply-chain compromise, credential theft, and token exfiltration.  
+- **Status**: Repositories are being discovered and removed, but new ones continue to appear. GitHub users must manually validate repository provenance.  
 
-### Android Virtualization Hijack (Godfather Malware)
-- **Description**: The latest Godfather variant spins up isolated virtual environments on infected devices, allowing the malware to launch banking apps in a sandbox it fully controls, intercepting UI events and network traffic.  
-- **Impact**: Real-time theft of banking credentials and funds, bypass of traditional Android permission prompts, potential spread via SMS phishing.  
-- **Status**: Active in the wild; no OS-level patch, but banks are issuing app updates with enhanced device-integrity checks.  
+### Android Virtualization & Overlay Abuse
+- **Description**: Mobile malware families “Godfather” and “AntiDot” create isolated virtual environments and deceptive overlays on Android devices. This bypasses traditional sandboxing and grants malware full accessibility service privileges.  
+- **Impact**: Theft of authentication codes, NFC-based transaction hijacking, and fraudulent wire transfers directly from infected devices.  
+- **Status**: Active campaigns observed across 3,775 devices in 273 separate waves. Google Play Protect updates are rolling out, but sideloading channels remain at risk.  
 
-### AntiDot Android Overlay & NFC Exploit
-- **Description**: AntiDot employs dynamic overlays, virtualization fraud, and near-field communication abuse to trick users into authorizing fraudulent transactions.  
-- **Impact**: Unauthorized payments, data exfiltration of MFA tokens, compromise of nearly 3,800 devices across 273 campaigns.  
-- **Status**: Still active; mobile-security vendors are pushing signature updates and advising users to disable NFC when not needed.  
-
-### HTTP/2 Rapid Reset DDoS Abuse
-- **Description**: Attackers exploited the “Rapid Reset” weakness in the HTTP/2 protocol to generate a 7.3 Tbps flood against a hosting provider, overwhelming edge infrastructure within seconds.  
-- **Impact**: Service disruption, collateral downtime for hosted customers, significant mitigation costs.  
-- **Status**: Mitigated by Cloudflare’s autonomous DDoS protection. Protocol-level hardening and rate-limiting rules are being rolled out by major CDN and cloud vendors.  
-
-### Identity & MFA Bypass in Scattered Spider Retail Intrusions
-- **Description**: The group used sophisticated social-engineering, SIM-swap tactics, and help-desk phishing to obtain valid credentials and bypass MFA, allowing initial access into Marks & Spencer and Co-op networks.  
-- **Impact**: Up to $592 million in damages, data theft, business interruption across combined retail operations.  
-- **Status**: Intrusion contained; organizations implemented additional identity-verification steps and hardware-based phishing-resistant MFA.  
-
-### Salt Typhoon Cloud Intrusion Technique
-- **Description**: Salt Typhoon leveraged undisclosed cloud misconfigurations and credential compromise to access Viasat internal environments, continuing a pattern of espionage-motivated cloud attacks.  
-- **Impact**: Potential reconnaissance of satellite-communication assets and customer data exposure.  
-- **Status**: Investigation ongoing; Viasat reports no operational impact but is hardening IAM policies and sharing indicators with government partners.  
+### MFA Fatigue & Help-Desk Social Engineering (Scattered Spider)
+- **Description**: The crew leverages repeated MFA push requests, convincing employees to approve logins, or calls help-desks impersonating staff to reset credentials. Once inside, they enumerate cloud privileges and deploy ransomware or exfiltrate data.  
+- **Impact**: Combined attack on Marks & Spencer and Co-op caused up to $592 million in damages; insurance sector (Aflac) also breached, exposing personal data.  
+- **Status**: Ongoing. Victims are tightening identity governance and adding phishing-resistant MFA—but the actor remains highly active.  
 
 ## Affected Systems and Products
 
-- **GitHub Platform**: Developers cloning impersonated or trojanized repositories (Windows, macOS, Linux).  
-- **Android Devices**: Banking and payment applications on Android 11–14 affected by Godfather and AntiDot malware techniques.  
-- **Retail Networks (Marks & Spencer, Co-op)**: Windows and cloud-based identity services exploited via MFA bypass.  
-- **Viasat Corporate Cloud**: SaaS and IaaS instances across Azure and AWS affected by Salt Typhoon intrusion.  
-- **Hosting Provider (Unnamed)**: Edge infrastructure supporting HTTP/2 traffic targeted in 7.3 Tbps DDoS attack.  
-- **Global Developer Supply Chain**: CI/CD pipelines and build systems consuming public open-source code.  
+- **Global Hosting Provider (undisclosed)**  
+  - **Platform**: Public-facing HTTP/2 web services protected by Cloudflare  
+
+- **GitHub**  
+  - **Platform**: Open-source repositories; developers using Git, npm, pip, and direct `git clone` workflows  
+
+- **Android Smartphones (Godfather & AntiDot campaigns)**  
+  - **Platform**: Android 9–14; devices permitting sideloading or third-party app stores  
+
+- **Marks & Spencer & Co-op Retail Networks**  
+  - **Platform**: Azure AD, Okta, VPN gateways, and on-prem Windows/VMware infrastructure  
+
+- **Aflac Insurance Environment**  
+  - **Platform**: Cloud SaaS (email, identity providers) and internal claims systems  
+
+- **Viasat Satellite & Telecom Infrastructure**  
+  - **Platform**: Hybrid on-prem / cloud environment targeted by Salt Typhoon  
+
+- **BitoPro Cryptocurrency Exchange**  
+  - **Platform**: Web, mobile trading APIs, and backend wallets targeted by Lazarus  
 
 ## Attack Vectors and Techniques
 
-- **Supply-Chain Repository Poisoning**: Upload of malicious look-alike repos to lure developers into executing back-doored code.  
-- **Dependency Confusion**: Publishing higher-version packages that override internal libraries during automated builds.  
-- **Virtualization Abuse (Android)**: Creating hidden VMs to run hijacked apps with full attacker visibility.  
-- **Overlay Attacks (Android)**: Superimposing fake login screens over legitimate banking apps to harvest credentials.  
-- **HTTP/2 Rapid Reset Flooding**: Exploiting protocol design to amplify DDoS traffic with minimal resources.  
-- **SIM-Swap & Help-Desk Social Engineering**: Gaining control of victim phone numbers and resetting MFA tokens.  
-- **Cloud Credential Abuse**: Leveraging stolen access keys and misconfigurations to pivot inside SaaS/IaaS environments.  
+- **HTTP/2 Stream Reset Flooding**  
+  - **Vector**: Large botnets send crafted RST_STREAM frames at scale, over-consuming server resources.  
+
+- **Supply-Chain Poisoning via GitHub**  
+  - **Vector**: Malicious forks masquerade as legitimate repos; `setup.py` or `package.json` executes malware during build/install.  
+
+- **Android Virtualization Hijack**  
+  - **Vector**: Malware initiates a hidden virtual device instance, injects overlays that mimic banking apps, then intercepts credentials and NFC payments.  
+
+- **MFA Push Bombing / Help-Desk Impersonation**  
+  - **Vector**: Attackers repeatedly trigger MFA requests, or call IT support to reset accounts after harvesting employee PII.  
+
+- **Hot-Wallet Credential Theft**  
+  - **Vector**: Lazarus compromises exchange backend servers to drain wallets within minutes.  
 
 ## Threat Actor Activities
 
 - **Scattered Spider**  
-  - **Campaign**: Combined retail attack on Marks & Spencer and Co-op; leveraged identity compromise and MFA bypass, causing extensive financial losses.  
-
-- **Lazarus Group**  
-  - **Campaign**: $11 million cryptocurrency theft from BitoPro exchange using multi-stage intrusion and money-laundering infrastructure.  
+  - **Campaign**: Coordinated retail and insurance breaches using MFA fatigue, SIM-swapping, and cloud privilege escalation.  
 
 - **Salt Typhoon**  
-  - **Campaign**: Cloud-focused espionage operation breaching Viasat; aligns with prior activity against Microsoft cloud tenants.  
+  - **Campaign**: Espionage operation against Viasat; living-off-the-land techniques and covert data collection with minimal disruption.  
 
-- **Qilin Ransomware-as-a-Service**  
-  - **Campaign**: Added “Call a Lawyer” extortion feature, providing legal guidance to affiliates to intensify ransom pressure on victims.  
+- **Lazarus Group**  
+  - **Campaign**: $11 million theft from BitoPro; rapid transfer to mixing services to launder funds.  
 
-- **Unattributed Supply-Chain Actors**  
-  - **Campaign**: Deployment of dozens of malicious copycat and trojanized GitHub repositories targeting developers and gamers for credential theft.  
+- **Qilin RaaS**  
+  - **Campaign**: Introduced “Call Lawyer” extortion feature, offering legal coaching to pressure victims, observed in recent ransomware notes.  
 
-- **Cloudflare-Observed Botnet Operators**  
-  - **Campaign**: Orchestrated record 7.3 Tbps DDoS leveraging HTTP/2 Rapid Reset against a hosting provider, demonstrating unprecedented amplification capability.  
+- **Unknown Actors behind GitHub Trojanization**  
+  - **Campaign**: At least 200 fake repos targeting gamers, security researchers, and Python developers to build a foothold in CI/CD pipelines.  
 
----
+- **Botnet Operators (HTTP/2 Rapid Reset)**  
+  - **Campaign**: Short-burst, high-bandwidth DDoS attacks testing provider thresholds; likely for-hire service.  
 
-Organizations should prioritize repository provenance checks, adopt phishing-resistant MFA, harden HTTP/2 configurations, and enhance mobile-endpoint monitoring to mitigate the threats outlined above.
+**Bold** vigilance and rapid patching or mitigation remain essential as these exploited weaknesses continue to evolve.
