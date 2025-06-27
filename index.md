@@ -1,92 +1,100 @@
 # Exploitation Report
 
-A surge in critical infrastructure-grade exploits is occurring across firmware, networking, and security platforms.  Most urgent is the ongoing weaponization of a maximum-severity flaw in AMI MegaRAC BMC firmware that allows unauthenticated attackers to seize or permanently brick servers.  CISA has confirmed in-the-wild use of this bug and simultaneously added two other actively exploited issues—one in D-Link DIR-859 routers and another in Fortinet FortiOS—to its Known Exploited Vulnerabilities (KEV) catalog.  Attackers are pairing these exploits with innovative tradecraft, such as abusing Microsoft 365 “Direct Send” to bypass mail filters and the dramatic 517 % rise in “ClickFix/FileFix” CAPTCHA-themed social-engineering lures.  Nation-state actors (Iran’s APT35/Charming Kitten), financially motivated groups (Scattered Spider), and hacktivists (Cyber Fattah) are all leveraging the new capabilities, underscoring an increasingly volatile threat landscape.
+During the past week defenders observed a marked resurgence in mass scanning and active exploitation of several high-impact vulnerabilities. Progress MOVEit Transfer instances are again being probed at scale, Cisco’s Identity Services Engine (ISE) faces in-the-wild remote-code-execution attempts only days after patches shipped, and CISA’s addition of flaws in AMI MegaRAC, Fortinet FortiOS, and D-Link routers to the Known Exploited Vulnerabilities (KEV) catalog confirms that threat actors are weaponising these weaknesses in real-world attacks. Concurrently, ransomware crews (e.g., CLOP) and financially-motivated groups (e.g., Scattered Spider) continue to leverage these and other vectors to steal data and gain persistence, while state-sponsored adversaries such as Iran’s APT35 intensify spear-phishing operations using AI-generated lures.  
 
 ## Active Exploitation Details
 
-### AMI MegaRAC BMC Firmware Vulnerability
-- **Description**: A maximum-severity flaw in AMI’s MegaRAC Baseboard Management Controller firmware enables unauthenticated remote code execution over the management interface.
-- **Impact**: Complete server takeover, deployment of malicious payloads, or permanent “bricking” of hardware through firmware corruption.
-- **Status**: Confirmed active exploitation; CISA has added the bug to the KEV catalog.  Firmware patches have been issued to OEMs for downstream distribution.
+### Progress MOVEit Transfer SQL-Injection Chain
+- **Description**: A chain of SQL-injection flaws in the MOVEit Transfer secure-file-transfer product allows unauthenticated attackers to access the back-end database and upload arbitrary web shells.  
+- **Impact**: Full system compromise, data theft of any files moved through the platform, pivoting into internal networks, and large-scale extortion.  
+- **Status**: GreyNoise reports a new spike in automated scanning beginning 27 May 2025; exploits are publicly available and patches were released by Progress.  
+- **CVE ID**: CVE-2023-34362, CVE-2023-35036, CVE-2023-35708  
 
-### D-Link DIR-859 Router Remote Code Execution
-- **Description**: A vulnerability in the DIR-859’s web management interface lets remote attackers execute arbitrary commands with root privileges.
-- **Impact**: Full device compromise leading to traffic hijacking, botnet enrollment, or lateral movement into internal networks.
-- **Status**: Actively exploited in the wild; listed in CISA KEV.  D-Link has released end-of-life mitigation guidance but no comprehensive firmware update.
+### Cisco ISE / ISE-PIC Remote-Code-Execution Vulnerabilities
+- **Description**: Input-validation flaws in the web-based management interface of Cisco Identity Services Engine (ISE) and Passive Identity Connector (ISE-PIC) enable crafted network requests to execute OS commands with root privileges.  
+- **Impact**: Unauthenticated remote attackers can gain full root access, create rogue network-access policies, harvest credentials, and disable security controls.  
+- **Status**: Actively exploited according to Cisco’s advisory; fixed versions are available and admins are urged to upgrade immediately.  
+- **CVE ID**: CVE-2025-20302, CVE-2025-20303  
 
-### Fortinet FortiOS Authentication Bypass / Command Injection
-- **Description**: A flaw in FortiOS allows remote, unauthenticated attackers to bypass authentication mechanisms and inject system commands.
-- **Impact**: Administrative control of affected firewalls, VPN interception, and the deployment of malware inside protected networks.
-- **Status**: Actively exploited according to CISA KEV.  Fortinet has published patched firmware versions and urges immediate upgrade.
+### AMI MegaRAC BMC Vulnerability
+- **Description**: A flaw in the MegaRAC Baseboard Management Controller firmware permits remote execution of arbitrary code over the management network.  
+- **Impact**: Attackers can overwrite firmware, implant persistent backdoors at the hardware layer, or perform remote wipe/brick operations on servers.  
+- **Status**: Added to CISA KEV, indicating confirmed exploitation; firmware updates have been published by OEM vendors.  
+- **CVE ID**: CVE-2022-40258  
 
-### Brother / Fujifilm / Toshiba / Konica Minolta Printer Default-Password Exposure
-- **Description**: 742 printer models share an algorithmically predictable default administrator password that can be derived remotely from the device’s serial number.
-- **Impact**: Remote takeover of print devices, use as internal pivots, data exfiltration via print queues, or participation in DDoS botnets.
-- **Status**: Publicly disclosed; exploitation observed in the wild on internet-exposed printers.  Vendors have issued advisories recommending password changes and firmware updates.
+### D-Link DIR-859 Router Command-Injection
+- **Description**: Improper sanitisation of HTTP parameters in the router’s web UI leads to command injection.  
+- **Impact**: Remote takeover of consumer or SOHO routers, enabling traffic interception or botnet enlistment.  
+- **Status**: Listed in CISA KEV as exploited; firmware is end-of-life and no official patch exists, making mitigation reliant on device replacement.  
+- **CVE ID**: CVE-2021-45382  
+
+### Fortinet FortiOS Path-Traversal / RCE
+- **Description**: A path-traversal flaw in FortiOS SSL-VPN allows arbitrary file creation followed by code execution.  
+- **Impact**: Obtaining VPN credentials, lateral movement, and potential full takeover of perimeter firewalls.  
+- **Status**: Exploitation observed in the wild; Fortinet issued patches and IPS signatures.  
+- **CVE ID**: CVE-2023-27997  
+
+### Brother & Other Printer Default-Password Exposure
+- **Description**: 689 Brother printer models (plus Fujifilm, Toshiba, Konica Minolta) ship with deterministic default admin passwords derivable from the device’s MAC address.  
+- **Impact**: Remote attackers can achieve administrative access, alter firmware, and use printers as staging points for internal attacks.  
+- **Status**: Public disclosure prompted active reconnaissance on Shodan; mitigations include immediate credential change and firmware update.  
 
 ### Microsoft 365 “Direct Send” Abuse
-- **Description**: Attackers exploit the built-in “Direct Send” SMTP relay feature to distribute phishing e-mails that appear to originate from legitimate internal users.
-- **Impact**: Credential theft, MFA fatigue attacks, and initial foothold for business-e-mail-compromise operations.
-- **Status**: Ongoing, large-scale campaign; Microsoft has provided mitigations such as connector restrictions and advanced hunting queries.
-
-### ClickFix / FileFix Social-Engineering Method
-- **Description**: A phishing technique that poses fake CAPTCHA or file-repair prompts (“ClickFix” and the newer “FileFix”) to manipulate users into granting access tokens or downloading malware.
-- **Impact**: 517 % increase in successful initial access attempts, leading to ransomware deployment or data theft.
-- **Status**: Active; no software patch—requires user-awareness training and advanced e-mail filtering.
+- **Description**: Attackers leverage the “Direct Send” feature in Microsoft 365 to relay phishing e-mails as if they originate from internal addresses, bypassing SPF/DKIM checks.  
+- **Impact**: Credential theft, session hijacking, and downstream BEC (Business Email Compromise).  
+- **Status**: Ongoing campaign; Microsoft recommends conditional-access hardening and transport-rule restrictions.  
 
 ## Affected Systems and Products
 
-- **AMI MegaRAC BMC Firmware**: Multiple server OEMs using MegaRAC (data center and cloud platforms)  
-- **D-Link DIR-859**: All hardware revisions, firmware ≤ latest EOL version  
-- **Fortinet FortiOS**: Specific branches 7.x and 6.x (per Fortinet advisory)  
-- **Brother, Fujifilm, Toshiba, Konica Minolta Printers**: 689 Brother + 53 multi-vendor models listed in vendor advisory  
-- **Microsoft 365 Tenants**: Any tenant with SMTP “Direct Send” enabled via Exchange Online  
-- **End-User Workstations & Browsers**: Victims of ClickFix/FileFix social-engineering lures (platform-agnostic)
+- **Progress MOVEit Transfer**: All versions prior to the June 2023 and subsequent cumulative security hotfixes  
+- **Cisco Identity Services Engine / ISE-PIC**: 3.0, 3.1, 3.2, and 3.3 releases prior to patched builds  
+- **AMI MegaRAC BMC**: Multiple server OEM implementations across x86 and ARM platforms  
+- **D-Link DIR-859**: Firmware v1.06 and earlier (end-of-support)  
+- **Fortinet FortiOS**: 7.2.x < 7.2.5 and 7.0.x < 7.0.12 (SSL-VPN enabled)  
+- **Brother Printers**: HL-, MFC-, and DCP- series (see vendor advisory for full list)  
+- **Microsoft 365 Tenants**: Organisations that allow “Direct Send” via Exchange Online  
 
 ## Attack Vectors and Techniques
 
-- **Out-of-Band BMC Access**  
-  - Vector: IPMI/Redfish ports exposed to management VLAN or internet  
-  - Technique: Unauthenticated RCE against MegaRAC firmware
+- **SQL Injection to Web-Shell Upload**  
+  Vector: Crafted HTTP POST requests to /api/v1/users in MOVEit portals.  
 
-- **Router Web-UI Exploitation**  
-  - Vector: HTTP/HTTPS management interface on DIR-859  
-  - Technique: Command injection through crafted POST requests
+- **Unauthenticated Command Injection (HTTP POST)**  
+  Vector: Malformed JSON payloads against Cisco ISE REST endpoints.  
 
-- **Firewall Authentication Bypass**  
-  - Vector: Exposed FortiGate SSL-VPN or admin ports  
-  - Technique: Crafted requests skipping session validation and injecting shell commands
+- **Out-of-Band BMC Exploitation**  
+  Vector: TCP/UDP access to IPMI/Redfish services on MegaRAC controllers.  
 
-- **Predictable Default Credentials**  
-  - Vector: Printer web configuration pages  
-  - Technique: Deriving admin password from serial enumeration and logging in remotely
+- **Router Web UI Command Injection**  
+  Vector: GET requests with shell metacharacters in the “cmd” parameter on DIR-859.  
 
-- **SMTP “Direct Send” Phishing**  
-  - Vector: Exchange Online SMTP relay  
-  - Technique: Spoofed internal sender without DKIM/DMARC checks
+- **SSL-VPN Path Traversal**  
+  Vector: HTTPS requests containing “../../..” sequences against FortiOS /remote/fgt_lang parameter.  
 
-- **CAPTCHA-Themed Lures (ClickFix/FileFix)**  
-  - Vector: HTML e-mails or compromised websites  
-  - Technique: Fake CAPTCHA → OAuth token theft or malicious executable download
+- **Default Credential Enumeration**  
+  Vector: MAC-based password generation for Brother printer admin login over port 80/443.  
+
+- **Email Spoofing via Direct Send**  
+  Vector: Authenticated SMTP submission (port 25) from compromised M365 accounts, bypassing outbound protections.  
 
 ## Threat Actor Activities
 
-- **Cyber Fattah (Hacktivist)**  
-  - Campaign: Data-leak operation against Saudi Games, leveraging credential theft and doxing tactics amid regional tensions.
+- **CLOP Ransomware**  
+  Campaign: Renewed exploitation of MOVEit Transfer; large-scale data theft and double-extortion against retail and finance.  
 
-- **APT35 / Charming Kitten (Iran)**  
-  - Campaign: AI-assisted spear-phishing targeting Israeli tech and cybersecurity experts; uses tailored lures and cloud-hosted malware.
+- **Scattered Spider (UNC3944/Octo Tempest)**  
+  Campaign: Pivot from retail to U.S. insurance firms, leveraging SIM-swapping, social engineering, and cloud-token theft for initial access.  
 
-- **Scattered Spider (UNC3944)**  
-  - Campaign: Shift from retail to U.S. insurance sector; employs SIM-swapping, MFA bypass, and living-off-the-land post-exploitation.
+- **OneClik Operators**  
+  Campaign: Targeting global energy companies with malicious Microsoft ClickOnce installers and Golang backdoors; post-exploitation privilege escalation on domain controllers.  
 
-- **IntelBroker (Arrested Actor)**  
-  - Activities: Orchestrated high-profile breaches and data sales valued at ~$25 M; leveraged forum presence to distribute stolen data.
+- **APT35 / Charming Kitten**  
+  Campaign: AI-generated spear-phishing against Israeli journalists and cybersecurity experts to deploy browser-based credential stealers.  
 
-- **African Financial-Sector Intrusion Set**  
-  - Campaign: Uses open-source offensive tools (Quasar, Sliver, Cobalt Strike) for persistent attacks on banks across Africa.
+- **Cyber Fattah Hacktivists**  
+  Campaign: Exfiltrated and publicly leaked Saudi Games event data in retaliation for regional geopolitical tensions.  
 
-- **Unknown Printer Botnet Operators**  
-  - Campaign: Mass scanning and compromise of printers with predictable default passwords for DDoS and spam relay.
+- **Unknown Financial Threat Cluster**  
+  Campaign: Utilised open-source remote-access frameworks (MeshAgent, Metasploit) to compromise African financial institutions, focusing on SWIFT workstations and core banking servers.  
 
-**Bold NOTE**: Immediate patching and network-segmentation controls are recommended for all affected firmware and network devices, and defenders should refine e-mail security policies to counter the growing abuse of legitimate cloud features.
+## End of Report
