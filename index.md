@@ -1,76 +1,79 @@
 # Exploitation Report
 
-During the last week, defender telemetry and government advisories show a marked rise in successful attacks that bypass traditional perimeter controls by targeting infrastructure firmware and edge devices.  The most critical activity centers on the ongoing exploitation of an American Megatrends (AMI) MegaRAC Baseboard Management Controller (BMC) flaw that lets unauthenticated attackers hijack and even brick servers.  CISA simultaneously added three vulnerabilities – in AMI MegaRAC, legacy D-Link DIR-859 home routers, and Fortinet FortiOS – to its Known Exploited Vulnerabilities (KEV) catalogue, confirming they are being abused in the wild.  These server- and network-level compromises are being paired with novel social-engineering vectors such as Microsoft 365 “Direct Send” abuse and the rapidly growing “ClickFix/FileFix” CAPTCHA-bait tactic, illustrating the broadening attack surface defenders must now monitor.
+During this reporting period, the most critical exploitation activity involves remote code-execution flaws in widely deployed infrastructure components. A maximum-severity vulnerability in AMI’s MegaRAC Baseboard Management Controller (BMC) firmware is being weaponized to hijack and permanently disable servers, while separate in-the-wild attacks are leveraging unpatched flaws in D-Link DIR-859 routers and Fortinet FortiOS. These issues provide unauthenticated attackers with root-level access, drive-by implants, or complete denial-of-service capabilities, placing data-center hardware, branch networks, and VPN gateways at immediate risk. The U.S. Cybersecurity and Infrastructure Security Agency (CISA) has added all three vulnerabilities to its Known Exploited Vulnerabilities (KEV) catalog, underscoring their active exploitation and urging accelerated patching.
 
 ## Active Exploitation Details
 
-### AMI MegaRAC BMC Firmware Vulnerability
-- **Description**: A maximum-severity flaw in AMI’s MegaRAC Baseboard Management Controller firmware allows remote, unauthenticated access to the BMC via management interfaces (IPMI/Redfish), enabling arbitrary code execution and firmware overwrite.  
-- **Impact**: Full remote takeover of server hardware, installation of persistent malware, or permanent denial-of-service by bricking the motherboard.  
-- **Status**: CISA reports confirmed, widespread exploitation; AMI has issued fixes to OEMs, but patch adoption remains slow across data centers.  
-
+### AMI MegaRAC BMC Remote Code Execution
+- **Description**: A maximum-severity flaw in AMI’s MegaRAC BMC firmware allows remote, unauthenticated attackers to execute arbitrary code as the BMC super-user over the management interface. Successful exploitation grants full server control, enabling firmware overwrites or “bricking” of hardware.
+- **Impact**: Complete takeover of server out-of-band management, potential permanent denial of service, credential theft, lateral movement into production networks.
+- **Status**: Confirmed active exploitation; CISA placed the bug in the KEV catalog. Firmware updates have been released by impacted OEMs, but patch adoption remains low.
+  
 ### D-Link DIR-859 Router Command Injection
-- **Description**: An unauthenticated command-injection vulnerability in the web-management interface permits attackers to run shell commands by sending specially crafted HTTP requests.  
-- **Impact**: Complete router compromise leading to traffic redirection, network eavesdropping, or enlistment in botnets.  
-- **Status**: Listed in CISA KEV as actively exploited.  Product is end-of-life; no vendor patch is expected, so mitigation requires device replacement or isolation.  
+- **Description**: A command-injection vulnerability in the DIR-859 wireless router’s web interface lets remote attackers run shell commands with elevated privileges through crafted HTTP requests.
+- **Impact**: Remote code execution, network pivoting, installation of botnet malware, and interception of traffic.
+- **Status**: Added to CISA’s KEV list due to observed exploitation in the wild. D-Link no longer provides security updates for this end-of-life model, leaving many devices unpatched.
 
-### Fortinet FortiOS Edge Device Vulnerability
-- **Description**: A high-severity flaw in FortiOS (commonly exposed through SSL VPN) lets remote attackers bypass authentication and execute arbitrary code or commands on FortiGate appliances.  
-- **Impact**: Firewall takeover, network infiltration, lateral movement, and data exfiltration.  
-- **Status**: Active exploitation confirmed by CISA; Fortinet has shipped patched firmware versions and urges immediate upgrade.  
+### Fortinet FortiOS SSL-VPN Heap Overflow
+- **Description**: A heap-based buffer-overflow flaw in FortiOS SSL-VPN portals can be triggered by specially crafted requests, leading to arbitrary code execution or device crash.
+- **Impact**: Full compromise of FortiGate firewalls, unauthorized access to internal networks, data exfiltration, or denial of service.
+- **Status**: Exploitation detected and tracked by CISA. Fortinet has issued patched firmware; organizations are urged to upgrade immediately.
 
 ## Affected Systems and Products
 
-- **AMI MegaRAC BMC**: Multiple server OEMs (Dell EMC, HPE, Lenovo, Supermicro, Gigabyte) shipping MegaRAC-based firmware across x86 and ARM servers.  
-- **D-Link DIR-859 Router**: All hardware revisions; firmware is no longer maintained.  
-- **Fortinet FortiOS**: Impacted 7.x and 6.x branches on FortiGate, FortiProxy, and FortiSwitchManager appliances prior to vendor-specified fixed builds.
+- **AMI MegaRAC BMC firmware**  
+  - **Platform**: Server motherboards and blade systems across major OEMs (Dell EMC iDRAC, HPE iLO variants, Lenovo XClarity, etc.) running vulnerable MegaRAC versions.
+
+- **D-Link DIR-859 Wireless AC1750 Router**  
+  - **Platform**: SOHO/SMB networking equipment, firmware still in circulation despite end-of-life status.
+
+- **Fortinet FortiGate appliances running FortiOS (SSL-VPN enabled)**  
+  - **Platform**: Enterprise firewalls and secure SD-WAN devices; vulnerable across multiple FortiOS 7.x and 6.x branches prior to vendor-supplied hotfixes.
 
 ## Attack Vectors and Techniques
 
-- **BMC Network Exploitation**  
-  - **Vector**: Direct IPMI/Redfish access over management networks or exposed public IPs.  
-  - **Technique**: Unauthenticated API calls to trigger arbitrary firmware reads/writes and command execution.  
+- **Out-of-Band Management Exploitation**  
+  - **Vector**: Direct access to BMC management ports (e.g., Redfish/IPMI over TCP 623 or 443) to deliver malicious payloads exploiting the MegaRAC bug.
 
-- **HTTP Command Injection on Routers**  
-  - **Vector**: WAN-facing web interface for DIR-859.  
-  - **Technique**: Crafted GET/POST parameters injecting system commands executed with root privileges.  
+- **HTTP Command Injection**  
+  - **Vector**: Crafted GET/POST requests to `/command.php` and similar endpoints on DIR-859 web UI, embedding shell metacharacters to gain root access.
 
-- **SSL VPN Device Exploit**  
-  - **Vector**: Internet-exposed FortiGate SSL VPN portal.  
-  - **Technique**: Malformed requests that bypass authentication checks, followed by payload upload for root shell access.  
+- **Malicious SSL-VPN Requests**  
+  - **Vector**: Specially crafted packets to FortiOS SSL-VPN portal triggering heap overflow before authentication.
 
-- **Microsoft 365 “Direct Send” Phishing Abuse**  
-  - **Vector**: Direct Send feature allows SMTP relay from tenant IPs.  
-  - **Technique**: Threat actors send phishing emails appearing as internal users, bypassing SPF/DKIM inspection.  
+- **Authenticode Stuffing on ScreenConnect Installers**  
+  - **Vector**: Tampering with installer’s digital-signature padding to embed malicious payloads while maintaining a valid signature, enabling stealthy remote-access malware delivery.
 
-- **ClickFix/FileFix CAPTCHA Social Engineering**  
-  - **Vector**: Malicious websites mimicking CAPTCHA verification.  
-  - **Technique**: Fake CAPTCHA forces victim to download “FileFix/ClickFix” loaders that install backdoors.  517 % jump in observed campaigns H2 2024 → H1 2025.  
+- **ClickFix/ FileFix Social Engineering**  
+  - **Vector**: Fake CAPTCHA “ClickFix” pages convincing users to download trojanized documents that sideload backdoors.
 
-- **Authenticode Signature Stuffing**  
-  - **Vector**: Modified ConnectWise ScreenConnect installers signed with legitimate certificates.  
-  - **Technique**: Attackers embed malicious payloads inside untouched Authenticode signature sections, maintaining valid digital signatures.  
+- **Microsoft 365 “Direct Send” Phishing**  
+  - **Vector**: Abuse of the SMTP “Direct Send” feature to push credential-harvesting emails appearing as internal traffic, bypassing filtering.
 
 ## Threat Actor Activities
 
-- **Unknown Infrastructure Intrusion Sets**  
-  - **Campaign**: Mass scanning and exploitation of AMI MegaRAC BMCs to obtain persistent, hardware-level access across hosting providers and enterprises.  
+- **IntelBroker**  
+  - **Campaign**: Widespread data-theft operations targeting multinational corporations and government entities; sales of stolen data on dark-web forums resulted in estimated $25 million in damages.
 
-- **Botnet Operators & IoT Malware Authors**  
-  - **Campaign**: Leveraging DIR-859 command injection to conscript abandoned home routers into DDoS botnets and residential proxy networks.  
+- **Scattered Spider (a.k.a. UNC3944/Octo Tempest)**  
+  - **Campaign**: Shifted focus from retail to U.S. insurance firms, employing SIM-swapping, OctoBot social engineering, and help-desk MFA bypass to breach cloud and on-prem networks.
 
-- **Multiple APT & Cyber-criminal Groups**  
-  - **Campaign**: Chaining FortiOS exploits with social-engineering footholds to infiltrate corporate networks, especially in finance and insurance sectors.  
+- **APT35 / Charming Kitten (Iran)**  
+  - **Campaign**: AI-powered spear-phishing against Israeli tech and cybersecurity experts, using fabricated job offers and malicious OneDrive links to deploy bespoke malware.
 
-- **Scattered Spider**  
-  - **Activities**: Continues sophisticated multi-factor authentication bypass and SIM-swap techniques while expanding targeting from retail to U.S. insurance firms.  
+- **Unknown Threat Actors Exploiting MegaRAC**  
+  - **Activities**: Targeting data-center and cloud-service providers’ BMC interfaces to gain persistent access and, in some cases, render hardware inoperable.
 
-- **Iran-Linked APT35 / Charming Kitten**  
-  - **Activities**: AI-assisted spear-phishing against Israeli cybersecurity experts; uses generative-text lures but currently no new CVEs abused.  
+- **Financial-Sector Intrusions in Africa**  
+  - **Actor/Group**: Unnamed criminal syndicate leveraging open-source tools (Sliver, Mythic, Cobalt Strike) to exfiltrate SWIFT credentials and customer data since July 2023.
 
-- **IntelBroker (Individual Criminal Actor)**  
-  - **Activities**: Charged for data-theft campaigns exploiting weakly secured APIs and misconfigurations across multiple organizations, causing $25 million in damages.  
+- **OneClik Campaign Operators**  
+  - **Activities**: Compromising energy-sector organizations via Microsoft ClickOnce and AWS S3-hosted stagers, followed by deployment of custom Golang backdoors.
 
----
+- **Former WSU Student (Individual Actor)**  
+  - **Campaign**: Local privilege abuse within university systems to obtain discounted parking and exfiltrate personal data of students and staff.
 
-Security teams should prioritize firmware-level visibility, accelerate patch cycles for edge devices, and harden email and web controls against evolving social-engineering techniques that now accompany device exploits.
+- **Freelance “Pen-Tester” Turned Hacker**  
+  - **Activities**: Gained unauthorized access to multiple corporate networks to advertise paid “security services,” leading to federal charges.
+
+## End of Report
