@@ -7,9 +7,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from rss_mcp import fetch_rss_feed, enrich_rss_articles  # Import the MCP tools
-from analyze import filter_exploitation_articles, analyze_exploitation
-from publish import publish_to_github_pages
+from ..services.rss_mcp import fetch_rss_feed, enrich_rss_articles  # Import the MCP tools
+from .analyze import filter_exploitation_articles, analyze_exploitation
+from ..services.publish import publish_to_github_pages
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -24,7 +24,7 @@ class ExploitationAnalysisState(TypedDict):
     status: str
 
 # Load configuration
-def load_config(config_path: str = "config.json") -> Dict[str, Any]:
+def load_config(config_path: str = "config/config.json") -> Dict[str, Any]:
     """Load configuration from JSON file"""
     try:
         with open(config_path, "r") as f:

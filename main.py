@@ -15,10 +15,10 @@ except ImportError:
     pass
 
 # Import the LangGraph workflow
-from workflow import run_exploitation_analysis
+from src.core.workflow import run_exploitation_analysis
 
 # Import MCP server for RSS operations
-from rss_mcp import mcp_app
+from src.services.rss_mcp import mcp_app
 
 # Configure logging
 logging.basicConfig(

@@ -1,99 +1,41 @@
 # SentryInsight
 
-## Automated Cybersecurity Exploitation Intelligence
-
-SentryInsight is a sophisticated cybersecurity analysis tool that automatically monitors, analyzes, and reports on active exploitation threats from security RSS feeds. The system leverages AI to identify critical vulnerabilities, exploitation patterns, and threat actor activities.
+Automated cybersecurity threat intelligence that monitors RSS feeds and generates exploitation reports using AI analysis.
 
 [![Latest Exploitation Report](https://img.shields.io/badge/View-Latest%20Report-blue)](https://ricomanifesto.github.io/SentryInsight/)
 
-## 🔍 Key Features
+## Features
 
-- **Automatic Feed Monitoring**: Continuously fetches security news from RSS feeds
-- **Exploitation Detection**: Identifies articles with exploitation-related content
-- **CVE Detection**: Extracts and correlates mentioned CVEs
-- **Comprehensive Reports**: Generates structured intelligence reports with:
-  - Executive summaries
-  - Active exploitation details
-  - Affected systems and products
-  - Attack vectors and techniques
-  - Threat actor activities
-- **Seamless Publication**: Outputs reports in Markdown format for easy sharing
+- Monitors security RSS feeds for exploitation content
+- Extracts and correlates CVE mentions
+- Generates reports with executive summaries, affected systems, attack vectors, and threat actor activities
+- Integrates with [SentryDigest](https://github.com/ricomanifesto/SentryDigest) for automated analysis triggers
 
-## 🛠️ Technologies
+## Architecture
 
-### LangGraph
-- Provides structured workflow orchestration
-- Manages state throughout the analysis pipeline
-- Handles conditional logic and process flow
-- Creates a deterministic analysis sequence
+**LangGraph**: Orchestrates workflow state and conditional logic  
+**Model Context Protocol (MCP)**: Standardized RSS feed interface  
+**LangChain**: AI model integration and text processing  
+**OpenAI GPT**: Content analysis and report generation
 
-### Model Context Protocol (MCP)
-- Standardized interface for RSS feed operations
-- Type-safe tool definitions with rich documentation
-- Streamlined communications between components
-- Modern, protocol-based tool architecture
+## Setup
 
-### LangChain
-- AI model integration and prompt engineering
-- Text processing and transformation
-- Model output parsing and structuring
-- Chain-of-thought reasoning implementation
-
-### OpenAI / GPT Models
-- Content analysis and vulnerability detection
-- Security intelligence synthesis
-- Pattern recognition across security articles
-- Natural language report generation
-
-## Integration with SentryDigest
-SentryInsight is designed to work seamlessly with the [SentryDigest](https://github.com/ricomanifesto/SentryDigest) project. When SentryDigest updates its feed, it automatically triggers SentryInsight to generate a new analysis.
-
-## 🚀 Setup
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/SentryInsight.git
-   cd SentryInsight
-   ```
-
-2. Install dependencies:
+1. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Set up environment variables:
+2. Add OpenAI API key:
    ```bash
-   # Create a .env file with your OpenAI API key
    echo "OPENAI_API_KEY=your-api-key-here" > .env
    ```
 
-4. Configure the tool:
-   ```bash
-   # Review and edit config.json to set your preferences
-   # - RSS feed sources
-   # - Output paths
-   # - Analysis parameters
-   ```
+3. Configure feeds and output paths in `config/config.json`
 
-## 📊 Usage
+## Usage
 
-Run the main workflow:
 ```bash
 python main.py
 ```
 
-This will:
-1. Fetch the latest security articles from configured RSS feeds
-2. Enrich articles with full content
-3. Filter for exploitation-relevant information
-4. Generate a comprehensive exploitation report
-5. Save the report to the configured output location
-
-## 🔄 Workflow Stages
-
-1. **Feed Fetching**: RSS feeds are retrieved using MCP tools
-2. **Content Enrichment**: Articles are expanded with full content
-3. **Exploitation Filtering**: Articles are filtered for security relevance
-4. **Intelligence Analysis**: OpenAI analyzes content for exploitation details
-5. **Report Generation**: Findings are compiled into a structured report
-6. **Publication**: Reports are saved as Markdown files
+Fetches articles, filters for exploitation content, analyzes threats, and saves reports to `docs/reports/index.md`.
