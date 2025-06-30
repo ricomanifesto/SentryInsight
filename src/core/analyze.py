@@ -18,7 +18,7 @@ tokenizer = tiktoken.get_encoding("cl100k_base")
 
 def load_template() -> str:
     """Load the report template"""
-    template_path = os.path.join(os.path.dirname(__file__), "templates", "exploitation_report.md")
+    template_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "templates", "exploitation_report.md")
     try:
         with open(template_path, "r") as f:
             return f.read()

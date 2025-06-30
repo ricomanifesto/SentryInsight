@@ -4,7 +4,7 @@ import logging
 from typing import Dict, Any, List, Optional
 
 from mcp.server.fastmcp import FastMCP
-from tools import RSSTools
+from ..core.tools import RSSTools
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
