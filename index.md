@@ -1,89 +1,71 @@
 # Exploitation Report
 
-The past week saw a sharp uptick in real-world exploitation against end-user applications and developer tooling. The most critical activity centers on Google Chrome’s newly patched zero-day (CVE-2025-6554) that adversaries are weaponizing for remote code execution, alongside a Windows “FileFix” technique that bypasses Mark-of-the-Web (MoTW) protections to launch JScript without warnings. Threat actors are also abusing DLL sideloading to deploy Gh0stRAT in a Taiwan-focused campaign, exploiting a remote-execution flaw in Anthropic’s Model Context Protocol (MCP) Inspector project, and taking advantage of weak extension-verification logic in multiple IDEs (VS Code, IntelliJ, and others) to ship malicious add-ons. Collectively, these exploits enable initial access, privilege escalation, and persistent footholds across both enterprise and developer environments.
+Over the past week, threat activity has centered on critical client-side attack surfaces—most notably web browsers and Windows desktop workflows. Google patched a new Chrome zero-day (CVE-2025-6554) that was already being weaponized in the wild, while a novel “FileFix” technique is actively bypassing Windows Mark-of-the-Web (MoTW) protections to execute JScript payloads. Concurrently, the China-linked “Silver Fox” group is abusing DLL sideloading in a targeted Taiwanese campaign to deliver a customized Gh0stRAT variant, and a rogue Firefox add-on dubbed “FoxyWallet” is siphoning credentials after evading Mozilla’s security vetting. These exploits collectively highlight continued attacker focus on endpoint compromise through socially-engineered payload delivery, browser zero-days, and trust-abuse of signed/verified components.
 
 ## Active Exploitation Details
 
-### Google Chrome Skia Rendering Engine Type Confusion
-- **Description**: Memory-safety issue in Chrome’s Skia graphics library that allows out-of-bounds memory manipulation leading to arbitrary code execution in the browser context.  
-- **Impact**: Full remote code execution in the context of the logged-in user; can be chained with sandbox escapes for complete workstation compromise.  
-- **Status**: Actively exploited in the wild; Google released emergency updates for Windows, macOS, and Linux stable channels.  
-- **CVE ID**: CVE-2025-6554  
+### Google Chrome V8 Out-of-Bounds Write
+- **Description**: Memory corruption flaw in the V8 JavaScript engine enabling arbitrary code execution when processing crafted HTML/JS.
+- **Impact**: Full takeover of the victim’s browsing session, potential remote code execution at the browser or underlying OS level.
+- **Status**: Exploits observed in the wild; Google released emergency updates for all channels.
+- **CVE ID**: CVE-2025-6554
 
 ### Windows “FileFix” Mark-of-the-Web Bypass
-- **Description**: Abuse of how Windows handles “Save Page As” HTML files. Attackers embed JScript inside a locally saved HTML container; Windows fails to preserve the MoTW ADS flag, preventing SmartScreen and script-execution prompts.  
-- **Impact**: Silent execution of malicious scripts, leading to malware installation or further payload delivery without user warnings.  
-- **Status**: Exploit observed in the wild; no official patch yet, defensive mitigations involve Group Policy adjustments and blocking .js/.hta execution from untrusted paths.  
+- **Description**: Attackers save malicious webpages locally, leveraging the `filefix://` scheme to load external JScript without inheriting the MoTW security marker.
+- **Impact**: Silent execution of scripts that would normally be blocked or trigger SmartScreen warnings, leading to malware installation or further exploitation.
+- **Status**: Technique actively used in phishing campaigns; no dedicated patch yet—mitigations rely on hardening attachment handling policies.
 
-### Anthropic MCP Inspector Remote Code Execution
-- **Description**: Critical flaw in the Model Context Protocol (MCP) Inspector that lets crafted requests escape the sandbox and run arbitrary commands on a developer’s machine.  
-- **Impact**: Remote takeover of development workstations, exfiltration of source code, insertion of malicious code into AI workflows.  
-- **Status**: Publicly disclosed with proof-of-concept; active exploitation reported by security researchers. Patch/update available in latest GitHub release.  
+### DLL Sideloading in Silver Fox DeepSeek Campaign
+- **Description**: Legitimate installers (masquerading as DeepSeek LLM setup files) load a tampered DLL that, in turn, launches a Gh0stRAT variant.
+- **Impact**: Stealthy remote control of compromised Windows hosts, data exfiltration, and persistent access.
+- **Status**: Ongoing targeted exploitation against Taiwanese entities; defenders must remove vulnerable binaries or enforce application-control policies.
 
-### IDE Extension Verification Weakness
-- **Description**: Logic flaw in Visual Studio Code, Visual Studio, IntelliJ IDEA, and Cursor that allows attackers to masquerade malicious extensions as “verified,” bypassing marketplace trust checks.  
-- **Impact**: Installation of backdoored extensions granting code-execution within the IDE, credential theft, and supply-chain insertion.  
-- **Status**: Exploits observed in the wild targeting developer environments; vendors are working on enhanced signature validation.  
-
-### DLL Sideloading in Silver Fox / DeepSeek Campaign
-- **Description**: Threat actors embed a malicious DLL alongside a legitimate application installer (e.g., DeepSeek LLM installer). When executed, the legitimate binary sideloads the DLL, launching a variant of Gh0stRAT.  
-- **Impact**: Stealthy remote administration, screen capture, keylogging, and data exfiltration on targeted Taiwanese systems.  
-- **Status**: Ongoing campaign; no vendor patch (abuses legitimate side-loading behavior). Endpoint detection and application whitelisting recommended.  
+### “FoxyWallet” Malicious Firefox Extension
+- **Description**: Trojanized WebExtension posing as a cryptocurrency wallet; abuses extension APIs to harvest browsing data, credentials, and clipboard contents.
+- **Impact**: Account takeover, theft of cryptocurrency assets, and broader credential compromise.
+- **Status**: Extension observed in live attacks and subsequently removed from the Mozilla Add-ons store; users must manually verify removal.
 
 ## Affected Systems and Products
 
-- **Google Chrome (Stable ≤ 125.x)**  
-  - **Platform**: Windows, macOS, Linux, ChromeOS
+- **Google Chrome (≤ latest unpatched builds prior to July 2025)**  
+  **Platform**: Windows, macOS, Linux, Android, ChromeOS
 
-- **Microsoft Windows (10/11 & Server builds)**  
-  - **Platform**: Local workstation environments where users save web pages and execute JScript
+- **Microsoft Windows 10 & 11 (all builds)**  
+  **Platform**: Desktop environments where users save and open HTML files
 
-- **Anthropic MCP Inspector (pre-patched GitHub releases)**  
-  - **Platform**: Developer machines running the open-source project on Windows, macOS, and Linux
+- **Legitimate DeepSeek Installer Packages & Associated DLLs**  
+  **Platform**: Windows endpoints in Taiwanese organizations
 
-- **Visual Studio Code, Visual Studio, IntelliJ IDEA, Cursor (all current marketplace versions)**  
-  - **Platform**: Cross-platform developer IDE environments
-
-- **DeepSeek LLM Installer bundle (used in Taiwanese organizations)**  
-  - **Platform**: Windows endpoints where the trojanized installer is executed
+- **Mozilla Firefox with “FoxyWallet” Add-on Installed**  
+  **Platform**: Windows, macOS, Linux
 
 ## Attack Vectors and Techniques
 
-- **Drive-By Browser Exploit**  
-  - **Vector**: Malicious or compromised websites trigger CVE-2025-6554 in Chrome, leading to RCE without user interaction.
+- **Browser Zero-Day Exploitation**  
+  **Vector**: Drive-by download or malicious site triggering V8 memory corruption (CVE-2025-6554)
 
-- **Local HTML “FileFix” Exploit**  
-  - **Vector**: Phishing emails deliver zipped HTML/JScript bundles; users extract and open the HTML file, which bypasses MoTW and auto-executes scripts.
-
-- **Malicious IDE Extension Injection**  
-  - **Vector**: Attackers upload spoofed “verified” extensions to public marketplaces or deliver them through spear-phishing, abusing the verification bypass to gain developer trust.
+- **Mark-of-the-Web Evasion (“FileFix”)**  
+  **Vector**: Phishing email delivers zipped/saved HTML that references external JScript via `filefix://` URI
 
 - **DLL Sideloading**  
-  - **Vector**: Legitimate-looking DeepSeek installer drops both EXE and malicious DLL in same directory; Windows Loader prioritizes local DLL, launching Gh0stRAT.
+  **Vector**: Victim executes a trojanized installer that loads a malicious DLL located in the same directory
 
-- **Supply-Chain RCE in MCP Inspector**  
-  - **Vector**: Crafted network requests or manipulated model context files exploit the Inspector service running locally on developers’ machines.
+- **Malicious Browser Extension Abuse**  
+  **Vector**: Users persuaded to install “FoxyWallet,” which is then automatically updated with spying code
 
 ## Threat Actor Activities
 
 - **Silver Fox**  
-  - **Campaign**: Targeting Taiwanese entities with DeepSeek-themed lures, leveraging DLL sideloading to deploy Gh0stRAT for long-term espionage.
+  **Campaign**: Targets Taiwanese entities with DeepSeek-themed lures; delivers Gh0stRAT through DLL sideloading; objectives include espionage and persistent access.
 
-- **Unknown Chrome Exploit Operators**  
-  - **Campaign**: Weaponizing CVE-2025-6554 in drive-by attacks against global user base; likely crimeware and state-sponsored clusters.
+- **Unknown Chrome Zero-Day Operators**  
+  **Campaign**: Drive-by exploitation of CVE-2025-6554 against undisclosed high-value targets; likely financially motivated or espionage-focused.
 
-- **Unattributed Actors (FileFix Technique)**  
-  - **Campaign**: Mass-phishing waves distributing HTML/JScript bundles that evade MoTW, aiming for initial access and info-stealers.
+- **Scattered Spider (Mentioned in Qantas Incident)**  
+  **Campaign**: Broader aviation-sector intrusions; no specific vulnerability exploitation disclosed but part of same threat landscape.
 
-- **TA829 / UNK_GreenSec**  
-  - **Campaign**: Sharing infrastructure for RomCom RAT and TransferLoader deliveries; employing malicious IDE extensions as one of several infection vectors.
+- **Unidentified Threat Actor Behind “FoxyWallet”**  
+  **Campaign**: Credential harvesting and crypto theft through rogue Firefox extension distributed via phishing and third-party sites.
 
-- **Scattered Spider**  
-  - **Campaign**: Continued intrusions in aviation sector (Qantas disclosure); social-engineering and SIM-swap tactics noted, although no specific CVE exploitation detailed.
-
-- **North Korean IT Worker Operations**  
-  - **Campaign**: Infiltration of tech firms to monetize access and exfiltrate intellectual property, occasionally leveraging public IDE extension flaws for persistence.
-
----
-
-Stay vigilant, apply the latest Chrome updates immediately, audit developer extensions, and harden script-execution policies to mitigate the highlighted threats.
+- **FileFix Phishers**  
+  **Campaign**: Mass-mail distribution of weaponized HTML archives to bypass MoTW and execute JScript payloads leading to commodity malware drops.
