@@ -1,49 +1,42 @@
 # Exploitation Report
 
-A coordinated wave of attacks is actively targeting Ivanti Connect Secure / Policy Secure VPN and Neurons for ZTA appliances through multiple zero-day flaws in the Configuration Service (CSA) component. French government agencies, telecom providers, media, finance, and transport organizations have already been compromised, while a China-nexus Initial Access Broker is systematically exploiting the same bugs, even “self-patching” victims’ gateways to lock out competitors. These intrusions grant remote code execution, implant persistent web shells, and enable full network take-over. Urgent patching or interim mitigations are critical.
+A coordinated wave of attacks is leveraging multiple zero-day vulnerabilities in Ivanti Connect Secure (ICS) and Policy Secure gateway appliances, providing Chinese-linked adversaries and an identified initial-access broker with full device takeover, credential harvesting, and sustained network footholds across French government agencies, telecom firms, media, finance, and transport sectors. Attackers are chaining an authentication-bypass flaw with a remote command-execution flaw, quickly moving to implant web shells, harvest session cookies, and even “self-patch” appliances to lock out competing threat actors while maintaining persistence. Emergency mitigations and vendor hotfixes are available, but widespread scanning and exploitation continue in the wild.
 
 ## Active Exploitation Details
 
-### Ivanti CSA Zero-Day Vulnerabilities
-- **Description**: A chain of previously unknown flaws in the Configuration Service Authentication (CSA) module of Ivanti Connect Secure, Ivanti Policy Secure, and Ivanti Neurons for Zero Trust Access allows unauthenticated attackers to gain device-level access and execute arbitrary commands.
-- **Impact**:  
-  • Remote code execution on VPN gateways  
-  • Credential harvesting and session hijacking  
-  • Lateral movement into internal networks  
-  • Deployment of web shells and backdoors
-- **Status**:  
-  • Actively exploited in the wild by state-sponsored and criminal actors  
-  • Vendor has issued patches and mitigation guidance; systems remain widely unpatched in many environments
-- **CVE ID**: *Not provided in the referenced articles*
+### Ivanti Connect Secure / Policy Secure Authentication-Bypass Zero-Day
+- **Description**: A flaw in the authentication logic of ICS and Policy Secure gateways allows remote, unauthenticated attackers to craft specially crafted HTTP requests that bypass login controls and gain administrative access.  
+- **Impact**: Full administrative access to the VPN appliance, exposure of configuration files, credential theft, session hijacking, and lateral movement into internal networks.  
+- **Status**: Actively exploited by Chinese state-aligned actors and an initial-access broker. Ivanti has released emergency hotfixes and mitigation guidance; patching is strongly urged.  
+
+### Ivanti Connect Secure / Policy Secure Command-Injection Zero-Day
+- **Description**: Post-authentication command-injection vulnerability that lets attackers execute arbitrary commands on the underlying OS once an initial foothold is obtained (often via the authentication-bypass flaw).  
+- **Impact**: Remote code execution as root on the appliance, installation of web shells, creation of backdoor accounts, and deployment of custom patches that prevent other adversaries from exploiting the same flaw.  
+- **Status**: Confirmed in-the-wild exploitation. Ivanti has issued hotfixes; administrators must apply patches or implement the vendor-supplied XML mitigation file immediately.  
 
 ## Affected Systems and Products
 
-- **Ivanti Connect Secure**: All supported versions prior to the out-of-band July 2025 patches  
-- **Ivanti Policy Secure**: Gateway builds using the vulnerable CSA component  
-- **Ivanti Neurons for ZTA**: Appliances running the affected CSA module  
-- **Platform**: Network-edge VPN and ZTA appliances deployed across on-premises, hybrid, and cloud infrastructures
+- **Ivanti Connect Secure (formerly Pulse Secure VPN)**: All supported hardware and virtual appliances prior to the July 2025 emergency hotfix build.  
+- **Ivanti Policy Secure**: All versions sharing the vulnerable code base with ICS.  
+- **Government and Critical Infrastructure Networks (France)**: Agencies in governmental, telecom, finance, media, and transport sectors confirmed compromised.  
+- **Enterprise Environments Worldwide**: Any organization exposing vulnerable ICS/Policy Secure gateways to the Internet.  
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Remote Exploit**  
-  • Vector: Direct HTTPS requests to the CSA API endpoints on vulnerable Ivanti gateways  
-  • Technique: Crafted requests trigger logic flaws and command injection to obtain root-level shell access  
+- **Chained Zero-Day Exploitation**  
+  - **Vector**: Remote attackers send crafted HTTP/HTTPS requests to public-facing VPN portals, first triggering the authentication-bypass flaw and then the command-injection to gain root shell access.  
 
-- **Self-Patching for Turf Control**  
-  • Vector: After initial compromise, attackers upload modified CSA binaries or configuration files  
-  • Technique: The adversary patches the zero-day on the victim appliance, blocking other threat actors while maintaining their own persistence  
+- **Web-Shell Implantation & Session Hijacking**  
+  - **Vector**: After code execution, attackers deploy bespoke web shells in appliance file systems and harvest active VPN session cookies to pivot inside networks without valid credentials.  
 
-- **Web-Shell Deployment & Persistence**  
-  • Vector: File upload or config manipulation via CSA access  
-  • Technique: Deploy lightweight web shells that survive reboots and firmware upgrades, enabling long-term foothold  
+- **Self-Patching / Turf-Control**  
+  - **Vector**: An initial-access broker exploits the zero-days, then installs unofficial patches to close the same vulnerabilities, effectively monopolizing access and blocking rival threat actors and incident responders.  
 
 ## Threat Actor Activities
 
-- **Actor/Group**: China-nexus intrusion set (uncategorized)  
-  • **Campaign**: Targeted French government, telecom, media, finance, and transport entities  
-  • **Activities**: Leveraged Ivanti zero-days for initial compromise, installed backdoors, exfiltrated sensitive data, and pivoted laterally
+- **Actor/Group**: Unnamed China-nexus Advanced Persistent Threat  
+  - **Campaign**: Targeted French government and critical infrastructure networks, using ICS zero-days for initial compromise, followed by data exfiltration and persistent access.  
 
-- **Actor/Group**: Unnamed Initial Access Broker (IAB)  
-  • **Campaign**: “Self-Patch” operation for exclusive access  
-  • **Activities**: Mass-exploitation of the same Ivanti flaws, followed by on-the-fly patching of victim appliances to prevent other intruders, then selling privileged access on criminal marketplaces
+- **Actor/Group**: Unidentified Initial Access Broker (IAB)  
+  - **Campaign**: Mass-exploitation of global ICS deployments, harvesting credentials and selling footholds on dark-web marketplaces; observed “self-patching” appliances post-intrusion to retain exclusive control.
 
