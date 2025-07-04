@@ -1,51 +1,46 @@
 # Exploitation Report
 
-A wave of coordinated intrusions is leveraging two previously unknown vulnerabilities in Ivanti Connect Secure and Policy Secure VPN appliances. The zero-days are being chained to gain unauthenticated access and execute system-level commands, which in turn enables attackers to pivot deeper into government, telecommunications, finance, media, and transport networks across France and other regions. Separate investigations confirm that a China-nexus initial-access broker is not only exploiting the flaws to install backdoors but also “self-patching” the devices to shut out competing threat groups, underscoring both the criticality and sophistication of the ongoing exploitation.
+During the past week, the most consequential exploitation activity revolves around two zero-day vulnerabilities in Ivanti Connect Secure Appliance (CSA) that are being weaponized by Chinese state-aligned actors against multiple French government and telecom targets. Parallel investigations revealed that an initial-access broker (likely China-nexus) is also abusing these same flaws, even self-patching compromised appliances to retain exclusive foothold. Separately, four Chromium zero-days—previously observed in real-world attacks against Google Chrome—remain exploitable through Grafana’s widely-deployed Image Renderer plug-in until administrators apply the latest emergency update. These vulnerabilities enable attackers to execute arbitrary code, steal credentials, and pivot deeper into enterprise environments, underscoring the urgency of rapid patching and robust network monitoring.
 
 ## Active Exploitation Details
 
-### Ivanti Connect Secure / Policy Secure Authentication Bypass Zero-Day
-- **Description**: A flaw in the web authentication flow allows remote attackers to craft requests that completely sidestep login controls, providing administrative-level access to the VPN appliance.  
-- **Impact**: Unauthenticated attackers can extract configuration data, harvest credentials, and establish persistent footholds that grant wide lateral movement inside corporate and government networks.  
-- **Status**: Actively exploited in multiple campaigns; Ivanti has released interim mitigations and subsequently pushed a full security update.  
-- **CVE ID**: *not provided in source*  
+### Ivanti Connect Secure Appliance Zero-Day Chain
+- **Description**: A pair of unpatched flaws in Ivanti CSA allow remote, unauthenticated attackers to chain an authentication-bypass with a command-injection bug, achieving full control of the VPN gateway.  
+- **Impact**: Attackers can run arbitrary commands, implant webshells, harvest credentials, and pivot into internal networks to exfiltrate sensitive data.  
+- **Status**: Confirmed active exploitation by Chinese threat actors and by an initial-access broker who post-compromise “self-patches” the devices to block competitors. Ivanti has released interim mitigations; a permanent fix is pending.
 
-### Ivanti Connect Secure / Policy Secure Command Injection Zero-Day
-- **Description**: Following authentication bypass, adversaries leverage a second vulnerability that permits direct command injection in the underlying operating system, resulting in arbitrary code execution as root.  
-- **Impact**: Complete compromise of the appliance, installation of web shells, credential dumping, and the ability to push malware into downstream environments.  
-- **Status**: Confirmed in-the-wild exploitation alongside the authentication bypass; a vendor patch is now available, and emergency signatures have been issued by multiple security vendors.  
-- **CVE ID**: *not provided in source*  
+### Grafana Image Renderer Plug-in – Embedded Chromium Zero-Days
+- **Description**: The Image Renderer plug-in bundles an outdated Chromium engine containing four distinct zero-day vulnerabilities that have been exploited in the wild against Chrome users (use-after-free and type-confusion flaws).  
+- **Impact**: Successful exploitation enables remote code execution in the context of the Grafana service, potentially leading to lateral movement and full-stack compromise of monitoring infrastructure.  
+- **Status**: Grafana Labs issued critical updates for both the Image Renderer plug-in and the Synthetic Monitoring Agent. Exploitation has been observed in the broader Chromium ecosystem; organizations must patch immediately to remove the vulnerable engine.
 
 ## Affected Systems and Products
 
-- **Ivanti Connect Secure (formerly Pulse Secure) VPN Appliances**  
-  - **Platform**: Hardware and virtual VPN gateways running all supported 22.x and earlier 21.x firmware versions prior to the out-of-band patch.
+- **Ivanti Connect Secure Appliance (CSA)**: All supported firmware versions prior to the forthcoming security release  
+  - **Platform**: Physical and virtual VPN gateways deployed in enterprise and government networks  
 
-- **Ivanti Policy Secure Gateways & Ivanti Neurons for ZTA**  
-  - **Platform**: On-premises policy-enforcement appliances and corresponding virtual images that share the same vulnerable code base as Connect Secure.
+- **Grafana Image Renderer Plug-in**: Versions shipping with the vulnerable embedded Chromium builds (pre-patch)  
+  - **Platform**: Linux and Windows servers running Grafana OSS or Enterprise; also affects Grafana Cloud users with self-hosted renderers  
 
 ## Attack Vectors and Techniques
 
-- **Auth-Bypass + Command-Injection Chain**  
-  - **Vector**: Unauthenticated HTTPS requests to crafted endpoints trigger the bypass, followed by POST requests delivering OS commands in subsequent parameters.
+- **VPN Appliance Exploitation**  
+  - **Vector**: Direct interaction with Ivanti CSA web interface over HTTPS; attackers chain authentication bypass and command injection without valid credentials.  
 
-- **Self-Patching (Turf Control)**  
-  - **Vector**: After gaining root, the threat actor modifies vulnerable binaries and configuration files to close the holes they exploited, preventing other attackers from entering and hindering defenders’ forensic efforts.
+- **Self-Patching Post-Exploitation**  
+  - **Vector**: After compromising Ivanti appliances, the threat actor uploads modified binaries that patch the vulnerabilities locally, preventing other attackers from exploiting the same zero-days.  
 
-- **Credential & Configuration Exfiltration**  
-  - **Vector**: Using built-in system utilities, attackers export VPN configuration archives that contain plaintext passwords, certificates, and session data.
-
-- **Web-Shell Deployment**  
-  - **Vector**: Injected commands write custom CGI scripts or dropper binaries to persistent directories, providing long-term remote command execution.
+- **Embedded Browser Engine RCE**  
+  - **Vector**: Crafted requests rendered by Grafana’s Image Renderer force vulnerable Chromium code paths, triggering use-after-free or type-confusion bugs that yield remote code execution.
 
 ## Threat Actor Activities
 
-- **Actor/Group**: Unnamed China-linked APT (initial access broker)  
-  - **Campaign**: Exploits Ivanti zero-days to gain foothold, immediately patches the devices to monopolize access, and then sells or leverages that access for follow-on intrusions.
+- **Actor/Group**: Suspected Chinese state-aligned operators  
+  - **Campaign**: Coordinated attacks against French government, telecommunications, finance, media, and transport sectors exploiting Ivanti CSA zero-days to gain persistent access and conduct reconnaissance.
 
-- **Actor/Group**: Chinese State-Backed Operators (separate operation)  
-  - **Campaign**: Targeted French governmental, telecom, media, finance, and transport sectors; deployed custom malware and conducted extensive data collection through the compromised VPN appliances.
+- **Actor/Group**: Unnamed China-nexus Initial-Access Broker (IAB)  
+  - **Campaign**: Mass exploitation of Ivanti appliances for resale of network access. The IAB uniquely “self-patches” infected devices—blocking rival intrusion attempts and solidifying its turf.
 
-- **Actor/Group**: Secondary Opportunistic Threat Actors** (blocked by self-patching)  
-  - **Campaign**: Attempts to leverage the same Ivanti flaws were detected but thwarted due to the broker’s turf-control modifications, illustrating active competition among adversaries.
+- **Actor/Group**: Opportunistic cybercriminals leveraging legacy Chromium zero-days  
+  - **Campaign**: Targeting Grafana installations exposed to the Internet in order to execute malware, harvest credentials, and expand into monitoring environments often rich with infrastructure secrets.
 
