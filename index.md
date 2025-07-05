@@ -1,37 +1,42 @@
-# Exploitation Report  
+# Exploitation Report
 
-A wave of zero-day exploitation is targeting widely-deployed enterprise infrastructure.  An emergent threat actor tracked as NightEagle is actively abusing an unpatched Microsoft Exchange Server flaw to gain a persistent foothold inside Chinese military and technology networks, while separate China-nexus operators are chaining two Ivanti Connect Secure Appliance (CSA) zero-days to breach French government, telecom, finance, and transport organizations.  Both exploit sets deliver full remote code execution, facilitate credential theft, and enable long-term espionage.  Security teams should prioritize defensive monitoring on public-facing Exchange and Ivanti gateways, implement vendor mitigations immediately, and hunt for post-compromise activity across email, VPN, and identity infrastructure.  
+Recent threat-intelligence disclosures highlight two concurrent zero-day campaigns of exceptional severity.  NightEagle (APT-Q-95) is leveraging an unpatched Microsoft Exchange Server flaw to compromise mail servers inside Chinese military and technology organizations, while a separate China-nexus cluster is abusing two fresh Ivanti Connect Secure Appliance (CSA) vulnerabilities against French government, telecom, media, finance, and transport networks.  Both operations enable full remote code execution, credential theft, and long-term persistence, emphasizing the ongoing risk posed by internet-facing infrastructure that cannot be patched immediately.
 
-## Active Exploitation Details  
+## Active Exploitation Details
 
-### Microsoft Exchange Server Zero-day Vulnerability  
-- **Description**: A previously undocumented flaw in Microsoft Exchange that allows authenticated or low-authenticated attackers to execute arbitrary code on the underlying Windows host.  Exploitation bypasses existing mitigation guidance and directly targets on-premises Outlook Web Access (OWA) endpoints.  
-- **Impact**: Remote code execution, email exfiltration, lateral movement, and possible domain compromise.  
-- **Status**: Being exploited in the wild as a true zero-day; Microsoft has not yet released a patch.  
+### Microsoft Exchange Server Zero-Day (NightEagle Campaign)
+- **Description**: A previously unknown vulnerability in Microsoft Exchange Server that allows remote, unauthenticated attackers to execute code by abusing the server’s web services component.  
+- **Impact**: Full system compromise, lateral movement into Windows domains, email exfiltration, and potential deployment of additional malware.  
+- **Status**: Confirmed in-the-wild exploitation; Microsoft has not yet issued a patch or mitigation guidance at the time of reporting.  
 
-### Ivanti Connect Secure Appliance (CSA) Zero-days – Authentication Bypass & Command Injection  
-- **Description**: A chained pair of critical vulnerabilities in Ivanti CSA that first allows an unauthenticated attacker to bypass authentication controls and then perform command injection within the underlying operating system.  
-- **Impact**: Full device takeover, credential harvesting, network tunneling, and deployment of additional malware or web-shells.  
-- **Status**: Actively exploited against multiple French government and commercial entities; Ivanti has issued emergency mitigations and security updates but widespread patching remains incomplete.  
+### Ivanti Connect Secure Appliance Zero-Days
+- **Description**: Two distinct vulnerabilities in Ivanti CSA (and related Policy Secure / NZA products) enabling remote code execution and device takeover when specially crafted HTTPS requests are sent to the VPN gateway.  
+- **Impact**: Theft of VPN credentials, session hijacking, installation of web-shells, and pivoting into protected internal networks.  
+- **Status**: Actively exploited; Ivanti has released temporary mitigations and urges customers to apply forthcoming firmware updates as soon as available.  
 
-## Affected Systems and Products  
+## Affected Systems and Products
 
-- **Microsoft Exchange Server**: All supported on-premises versions; particularly internet-facing OWA services.  
-- **Ivanti Connect Secure Appliance (CSA) / Policy Secure**: Gateway versions prior to the emergency hotfix release; devices often exposed directly to the internet for VPN access.  
+- **Microsoft Exchange Server**: Internet-facing on-premise deployments across all supported versions (2019, 2016, 2013)  
+  - **Platform**: Windows Server environments in enterprise and governmental data centers  
 
-## Attack Vectors and Techniques  
+- **Ivanti Connect Secure / Policy Secure / Neurons for Zero Trust Access**: Appliances running default or out-of-date firmware versions  
+  - **Platform**: Hardened Linux-based VPN gateways used in government, telecom, finance, media, and transportation sectors  
 
-- **Server-Side Exploitation of Email Gateway**  
-  - **Vector**: Direct HTTP/S requests against Outlook Web Access endpoints to trigger Exchange zero-day code execution.  
-- **Chained Auth Bypass → Command Injection on VPN Gateway**  
-  - **Vector**: Unauthenticated attacker exploits Ivanti CSA web interface, gains elevated shell, and installs persistence implants.  
-- **Web-Shell Deployment & Credential Dumping**  
-  - **Vector**: Post-exploitation technique observed on both Exchange and Ivanti appliances to maintain long-term access and pivot internally.  
+## Attack Vectors and Techniques
 
-## Threat Actor Activities  
+- **Server-Side Request Forgery & Authentication Bypass (Exchange)**  
+  - **Vector**: Crafted HTTP/HTTPS requests to `/owa/` and related endpoints bypass authentication controls, allowing arbitrary PowerShell or operating-system commands.  
+
+- **Malicious HTTPS Configuration Payload (Ivanti CSA)**  
+  - **Vector**: Custom SSL request chains exploit input-validation flaws in device web management, injecting system commands and dropping web-shells.  
+
+- **Credential Dumping & Privilege Escalation (Post-Exploit)**  
+  - **Vector**: Use of built-in tooling (eg, `ntdsutil`, LSASS memory scraping) once initial foothold is achieved, followed by lateral movement via SMB and WMI.  
+
+## Threat Actor Activities
 
 - **Actor/Group**: NightEagle (aka APT-Q-95)  
-  - **Campaign**: Targeting Chinese military and technology sectors via Exchange zero-day; focused on intelligence gathering and lateral movement using bespoke backdoors.  
+  - **Campaign**: Targets Chinese military R&D institutes and high-tech firms; observed deploying custom backdoors and exfiltrating sensitive engineering documents via compromised Exchange servers.  
 
-- **Actor/Group**: Unnamed China-nexus operators & Initial Access Broker  
-  - **Campaign**: Exploiting Ivanti CSA zero-days to compromise French government, telecommunications, media, finance, and transport organizations.  Observed “self-patching” devices post-intrusion to monopolize access and block rival attackers.
+- **Actor/Group**: Unnamed China-nexus threat cluster (linked to prior state-sponsored activity)  
+  - **Campaign**: Multi-sector intrusions in France using Ivanti zero-days; objectives include long-term espionage, collection of government communications, and reconnaissance within telecom infrastructure.
