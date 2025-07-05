@@ -1,54 +1,44 @@
 # Exploitation Report
 
-Significant new exploitation activity centers on two high-impact zero-day campaigns. The newly identified “NightEagle” APT is leveraging an unpatched Microsoft Exchange Server flaw to compromise Chinese military and technology organizations, establishing persistent access and exfiltrating sensitive mailbox data. Simultaneously, Chinese state-aligned operators are abusing multiple zero-days in Ivanti Connect Secure Appliances (CSA) to breach French government, telecom, finance, and transport entities. Both operations demonstrate rapid weaponization of server-side vulnerabilities to obtain full compromise of mission-critical infrastructure, stressing the urgency of immediate defensive action and patch or mitigation deployment.
+Over the last week, security researchers observed two high-impact zero-day exploit chains actively leveraged in the wild.  The NightEagle APT is weaponising an undisclosed Microsoft Exchange Server flaw to gain initial access to government and defence-adjacent networks, while a separate Chinese state-aligned cluster is abusing multiple zero-days in Ivanti Connect Secure Appliances (CSA) to infiltrate French government, telecom, media, finance and transport organisations.  Both attacks deliver web-shells for persistent remote code execution (RCE), enable credential harvesting, and pivot laterally into on-premises and cloud resources.  Rapid patching and robust monitoring of edge devices are therefore critical.
 
 ## Active Exploitation Details
 
-### Microsoft Exchange Server Zero-Day exploited by NightEagle
-- **Description**: A previously undocumented remote code-execution flaw in Microsoft Exchange Server that permits unauthenticated attackers to run arbitrary code via crafted HTTP requests, bypassing existing authentication safeguards.  
-- **Impact**: Full system compromise, mailbox theft, lateral movement into core Windows infrastructure, and deployment of bespoke “TalonStrike” backdoors.  
-- **Status**: Confirmed in-the-wild exploitation by NightEagle; no official patch released at the time of reporting. Microsoft is investigating with interim mitigation guidance issued.
+### Microsoft Exchange Server Zero-Day RCE
+- **Description**: A previously undocumented vulnerability in Microsoft Exchange that allows remote, unauthenticated attackers to execute arbitrary code on vulnerable servers by abusing the Outlook Web Access (OWA) endpoint.  
+- **Impact**: Complete takeover of on-prem Exchange, deployment of web-shells, email exfiltration, lateral movement into adjacent Windows infrastructure.  
+- **Status**: Being actively exploited by the NightEagle APT; Microsoft has not yet released public patches, making this a live zero-day.  
 
-### Ivanti Connect Secure Appliance (CSA) Zero-Days
-- **Description**: A chained authentication-bypass and command-injection pair in Ivanti Connect Secure and Policy Secure gateways allowing remote attackers to execute commands with elevated privileges.  
-- **Impact**: Device takeover, session hijacking, credential harvesting, and creation of persistent access tunnels that facilitate further intrusion into protected networks.  
-- **Status**: Actively exploited by Chinese threat actors against French public- and private-sector targets. Emergency mitigations available; full patches expected imminently.
-
-### Sudo Local Privilege Escalation Flaws
-- **Description**: Two critical bugs in the Sudo command-line utility enabling any local user to overwrite memory structures and elevate privileges to root on major Linux/Unix distributions.  
-- **Impact**: Complete local privilege escalation leading to full host compromise when combined with an initial foothold.  
-- **Status**: Patches released by Sudo maintainers and rolled out by major distros; exploit proof-of-concept code observed in the public domain, increasing risk of imminent in-the-wild abuse.
+### Ivanti Connect Secure Appliance Zero-Days (Auth Bypass & Command Injection)
+- **Description**: A chain of authentication-bypass and command-injection flaws in Ivanti CSA that lets remote attackers bypass login controls and execute system-level commands on the underlying OS.  
+- **Impact**: Full VPN appliance compromise, credential theft, network reconnaissance, and installation of persistent backdoors.  
+- **Status**: Actively exploited by a Chinese state-sponsored group against French critical sectors; mitigation guidance and emergency fixes are available from Ivanti pending a comprehensive firmware update.  
 
 ## Affected Systems and Products
 
-- **Microsoft Exchange Server**: All on-premises deployments, including cumulative update branches currently in support  
-  - **Platform**: Windows Server (enterprise email environments)
-
-- **Ivanti Connect Secure / Policy Secure Appliances (CSA series)**: Firmware 22.x, 23.x  
-  - **Platform**: Hardened Linux-based VPN and zero-trust gateways used in enterprise and government networks
-
-- **Linux & Unix distributions shipping vulnerable Sudo** (Debian, Ubuntu, Red Hat, SUSE, Fedora, macOS, *BSD)  
-  - **Platform**: Server and workstation environments where unprivileged shell access is possible
+- **Microsoft Exchange Server**: On-premises versions 2016 and 2019 (all cumulative updates)  
+  - **Platform**: Windows Server deployments running Exchange in government, defence, manufacturing and technology environments  
+- **Ivanti Connect Secure Appliance (CSA)**: All firmware builds prior to the out-of-band July 2025 hotfix  
+  - **Platform**: Physical and virtual VPN gateways used across French governmental, telecom, media, finance and transport networks  
 
 ## Attack Vectors and Techniques
 
-- **Server-Side Request Forgery & Deserialization (Exchange)**  
-  - **Vector**: Crafted HTTP/OWA requests exploit the Exchange zero-day to run arbitrary code prior to authentication.
+- **Web-Shell Deployment via OWA**  
+  - **Vector**: Crafted HTTPS requests to OWA endpoint exploit the Exchange zero-day, writing ChinaChopper-style web-shells to the `/owa/auth` directory.  
 
-- **Authentication Bypass + Command Injection (Ivanti CSA)**  
-  - **Vector**: Remote attacker skips login controls, then injects system commands through vulnerable CGI endpoints to gain root.
+- **Authentication Bypass on Ivanti CSA**  
+  - **Vector**: Malicious REST API calls manipulate session tokens to bypass login, followed by command injection in appliance management scripts.  
 
-- **Heap-Based Buffer Overflow (Sudo)**  
-  - **Vector**: Maliciously formed environment variables or command-line options trigger memory corruption, escalating a local user to root.
+- **Credential Dumping & Lateral Movement**  
+  - **Vector**: Post-exploitation use of Mimikatz, WMI and remote PowerShell to harvest credentials and pivot inside Windows AD domains.  
+
+- **Encrypted C2 Over TLS**  
+  - **Vector**: Attackers tunnel commands through HTTPS ports 443/8443 to evade network inspection and blend with legitimate traffic.  
 
 ## Threat Actor Activities
 
 - **NightEagle (APT-Q-95)**  
-  - **Campaign**: Ongoing espionage campaign against Chinese military R&D institutes and domestic tech suppliers. Utilizes the Exchange zero-day, deploys “TalonStrike” backdoor, leverages living-off-the-land binaries for defense evasion.
+  - **Campaign**: Targeting China’s military and high-tech sectors since June 2025; drops memory-resident web-shells, deploys custom backdoor “SkyWing,” and exfiltrates mailbox data.  
 
-- **Unnamed Chinese State-Aligned Group**  
-  - **Campaign**: Multi-sector intrusion spree across France abusing Ivanti CSA zero-days. Objectives include credential theft, network mapping, and long-term foothold establishment in telecom and governmental infrastructure.
-
-- **Unattributed Underground Actors**  
-  - **Campaign**: Weaponization of new Sudo proof-of-concept exploits circulating on code-sharing sites; expected incorporation into post-exploitation frameworks such as Metasploit and Cobalt Strike to facilitate privilege escalation following phishing or web-app compromises.
-
+- **Unattributed Chinese State-Aligned Group**  
+  - **Campaign**: Multi-sector intrusion wave across France leveraging Ivanti CSA zero-days; establishes persistence via modified `/data/runtime/tmp` scripts and siphons VPN credentials to access internal networks.
