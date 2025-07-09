@@ -1,81 +1,119 @@
 # Exploitation Report
 
-During the past week, multiple high-impact vulnerabilities moved from disclosure to active exploitation, significantly elevating risk for enterprise networks and consumer devices alike. The most critical events include the weaponization of a new “CitrixBleed 2” flaw in NetScaler appliances (CVE-2025-5777), an unpatched zero-day in Microsoft SQL Server that is already being abused in the wild, and IoT weaknesses leveraged by the emerging RondoDox botnet to conscript DVRs and industrial routers. At the same time, CISA expanded its Known Exploited Vulnerabilities (KEV) catalog with four additional bugs under active attack, underscoring a diverse threat landscape that stretches from core data-center services to developer tools and mobile platforms.
+Over the past week, security researchers and vendors reported an unusually dense wave of active exploitation spanning enterprise infrastructure, developer tooling, and consumer mobile platforms. Public proof-of-concept (PoC) code is now circulating for the critical CitrixBleed 2 flaw (CVE-2025-5777) in Citrix NetScaler ADC/Gateway, while Microsoft’s July Patch Tuesday disclosed an in-the-wild SQL Server zero-day that attackers are chaining with privilege-escalation techniques for full database takeover. Supply-chain attacks continue to surge: a malicious pull-request against the Ethcode VS Code extension delivered remote code execution to thousands of developers, and threat actors weaponised the Shellter red-team framework to push Lumma and SectopRAT stealers. On the IoT front, the new RondoDox botnet is exploiting long-standing weaknesses in TBK DVRs and Four-Faith industrial routers to amass DDoS firepower. Mobile users are also under fire: a novel “TapTrap” tap-jacking technique bypasses Android’s permission model, and the Anatsa banking trojan again breached Google Play. These concurrent campaigns underscore the need for immediate patching, vigilant supply-chain hygiene, and updated mobile defences.
 
 ## Active Exploitation Details
 
-### CitrixBleed 2 NetScaler Gateway/ADC Information-Disclosure
-- **Description**: Critical request-smuggling flaw in Citrix NetScaler Gateway and Application Delivery Controller allowing unauthenticated attackers to extract session tokens and perform subsequent session hijacking.  
-- **Impact**: Enables credential theft, lateral movement, and potential full network compromise. Public PoCs streamline mass exploitation.  
-- **Status**: Proof-of-concept exploit released; Citrix has issued patches and urges immediate upgrades.  
-- **CVE ID**: CVE-2025-5777
+### Citrix NetScaler “CitrixBleed 2”
+- **Description**: Memory-handling flaw in HTTP request processing of NetScaler ADC and Gateway appliances that leaks session tokens and permits remote code execution.  
+- **Impact**: Allows unauthenticated attackers to hijack valid sessions, pivot inside VPN environments, and run arbitrary commands.  
+- **Status**: PoC exploits are publicly available; active scanning observed. Citrix has issued patched firmware.  
+- **CVE ID**: CVE-2025-5777  
 
 ### Microsoft SQL Server Zero-Day
-- **Description**: Privilege-escalation vulnerability in Microsoft SQL Server disclosed during July 2025 Patch Tuesday. Exploitation allows execution of arbitrary code under SQL Server service context.  
-- **Impact**: Attackers can pivot from database layer to underlying OS, exfiltrate data, and deploy additional payloads.  
-- **Status**: Microsoft released security updates; exploitation observed prior to patch availability (zero-day).
+- **Description**: Privilege-escalation bug in SQL Server allowing low-privileged database users to execute code in the context of the service account.  
+- **Impact**: Full database compromise, lateral movement to the underlying Windows host, and potential domain takeover in mixed-mode deployments.  
+- **Status**: Actively exploited prior to July Patch Tuesday; Microsoft released fixes across all supported SQL Server branches.  
 
-### RondoDox Botnet Exploits TBK DVR & Four-Faith Router Flaws
-- **Description**: Combination of authentication-bypass and command-injection weaknesses in TBK digital video recorders and Four-Faith industrial cellular routers.  
-- **Impact**: Devices are enslaved into a DDoS botnet capable of high-bandwidth attacks.  
-- **Status**: Exploits circulating in botnet tooling; no vendor fixes referenced in reporting.
+### OpenSSH “regreSSHion” Remote Code Execution
+- **Description**: Signal-handling race condition re-introduced in recent OpenSSH releases enabling unauthenticated remote code execution on glibc-based Linux systems.  
+- **Impact**: Remote root shell with no valid credentials required.  
+- **Status**: Added to CISA KEV; exploitation observed in the wild. Patches available from OpenSSH 9.8p2 onward.  
 
-### Four Newly Added KEV Vulnerabilities
-- **Description**: A set of critical flaws added by CISA to the Known Exploited Vulnerabilities catalog indicating verified in-the-wild abuse. Specifics span network appliances and widely used software.  
-- **Impact**: Varies by product but includes code execution and privilege escalation.  
-- **Status**: Exploitation confirmed; agencies must remediate by deadlines imposed by CISA.
+### Ethcode VS Code Extension Supply-Chain Compromise
+- **Description**: Threat actor pushed a malicious pull-request that introduced obfuscated JavaScript, granting arbitrary command execution when the extension activates.  
+- **Impact**: Over-the-air compromise of developer workstations, credential theft, and downstream poisoning of smart-contract code.  
+- **Status**: Exploit merged and shipped to ~6,000 users before takedown; patched version released, but manual cleansing required.  
 
-### Ethcode VS Code Extension Supply-Chain Weakness
-- **Description**: Maintainer account compromise (or equivalent) allowed attackers to push a malicious pull request to the Ethcode extension, slipping backdoored updates to developers.  
-- **Impact**: Remote code execution within developer environments, potential theft of cryptocurrency-related secrets.  
-- **Status**: Malicious version taken down; users instructed to verify extension integrity.
+### TBK DVR Default-Cred & Four-Faith Router Command-Injection (RondoDox)
+- **Description**: Combination of hard-coded/blank credentials in TBK digital video recorders and a command-injection flaw in Four-Faith industrial routers.  
+- **Impact**: Devices are conscripted into the RondoDox botnet to launch high-volume DDoS attacks.  
+- **Status**: Ongoing abuse; no vendor patches for many affected models, only mitigations (network isolation, credential change).  
+
+### Android “TapTrap” Tap-Jacking Technique
+- **Description**: Leverages invisible UI overlays and animation timing to trick users into granting permissions or executing destructive actions.  
+- **Impact**: Silent installation of malware with Accessibility, SMS, and screen-capture privileges; potential for account takeover and data theft.  
+- **Status**: Technique observed in active malware samples; Google is reviewing additional mitigations beyond existing overlay protections.  
+
+### Shellter-Based Malware Re-Packing
+- **Description**: Attackers use leaked enterprise license of the Shellter red-team tool to re-pack Lumma Stealer, Arechclient2, and Rhadamanthys with advanced AV/EDR evasion.  
+- **Impact**: Credential harvesting, system information exfiltration, and foothold for follow-on ransomware.  
+- **Status**: Active campaigns distributing re-packed binaries via phishing and cracked-software sites; no vendor patch (tool misuse).  
+
+### CISA KEV – Newly Added Critical Flaws
+- **Description**: Four distinct vulnerabilities across network, cloud, and application-layer technologies confirmed exploited and now mandated for federal remediation.  
+- **Impact**: Ranges from remote code execution to authentication bypass.  
+- **Status**: Active exploitation; vendors have issued security updates which federal agencies must apply within prescribed deadlines.  
 
 ## Affected Systems and Products
 
-- **Citrix NetScaler Gateway / ADC**: All firmware builds prior to vendor’s July 2025 hotfix  
-  - **Platform**: On-prem and cloud-hosted network appliances  
-- **Microsoft SQL Server**: Supported editions affected prior to July 2025 cumulative security update  
-  - **Platform**: Windows Server environments hosting SQL Server workloads  
-- **TBK DVRs**: Specific NVR/DVR lines used in physical security deployments  
-  - **Platform**: Embedded Linux-based IoT devices  
-- **Four-Faith Industrial Routers**: F-NBxx/F-R4xxx series  
-  - **Platform**: Arm-based cellular gateways in OT and SCADA networks  
-- **Visual Studio Code Ethcode Extension**: Versions pulled from the VS Code marketplace prior to clean rebuild  
-  - **Platform**: Cross-platform developer workstations (Windows, macOS, Linux)  
-- **Multiple Products Listed by CISA KEV**: (e.g., enterprise VPN, browser component, IoT firmware)  
-  - **Platform**: Broad; agencies advised to consult KEV list for specifics  
+- **Citrix NetScaler ADC/Gateway**: Appliance builds prior to patched firmware 14.1-12.35 and 13.1-55.19  
+  - **Platform**: On-prem and cloud-hosted NetScaler VPN gateways  
+- **Microsoft SQL Server**: 2017, 2019, 2022, and Azure-managed instances pre-July 2025 cumulative patches  
+  - **Platform**: Windows Server / Azure SQL  
+- **OpenSSH (glibc variants)**: Versions 8.5p1 – 9.8p1 on major Linux distributions  
+  - **Platform**: Linux servers and embedded systems  
+- **VS Code Ethcode Extension**: Versions 0.0.24 – 0.0.27 (compromised builds)  
+  - **Platform**: Windows, macOS, Linux developer workstations  
+- **TBK DVR**: TBK Vision H.264 series with factory/default credentials enabled  
+  - **Platform**: Physical DVR appliances exposed to the Internet  
+- **Four-Faith Industrial Routers**: F-G100 & F-N200 lines running vulnerable firmware (pre-Feb 2024)  
+  - **Platform**: ARM-based Linux IoT routers  
+- **Android devices (all brands)** running OS 12 – 14 without enhanced overlay restrictions  
+  - **Platform**: Mobile handsets and tablets  
+- **Endpoints receiving Shellter-packed malware**: Windows 10/11, limited Linux build support  
+  - **Platform**: Desktop and server environments  
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated HTTP Request-Smuggling**  
-  - **Vector**: Crafted requests to vulnerable Citrix NetScaler endpoints               
+- **Session Token Leakage (CitrixBleed 2)**  
+  - **Vector**: Crafted HTTP/2 requests exploit improper bounds checking to dump memory containing session IDs.  
 
-- **Database Privilege Escalation via SQL Server Engine**  
-  - **Vector**: Malicious T-SQL or extended stored procedures exploiting zero-day  
+- **T-SQL Privilege Chain (SQL Server Zero-Day)**  
+  - **Vector**: Malicious stored procedure triggers improper memory access, escalating to sysadmin privileges.  
 
-- **Botnet Device Enrollment via Default Credentials & Command Injection**  
-  - **Vector**: Internet-wide scanning for TBK/Four-Faith devices on known ports
+- **Race-Condition Exploitation (OpenSSH regreSSHion)**  
+  - **Vector**: Flood of authentication requests manipulates SIGALRM timing to execute attacker-controlled code.  
 
-- **Malicious Pull Request / Extension Hijack**  
-  - **Vector**: Compromised GitHub workflow updates pushed to Ethcode users
+- **Malicious Pull-Request Injection (Ethcode)**  
+  - **Vector**: Supply-chain compromise via GitHub PR introducing auto-executed JavaScript payload.  
 
-- **Mass Exploit Automation Using Published PoCs**  
-  - **Vector**: Script-based exploitation frameworks weaponizing newly disclosed flaws
+- **Default-Credential Telnet Bruteforce (TBK DVR)**  
+  - **Vector**: Automated scanners log in with “admin/123456” then download bot client.  
+
+- **Command-Injection Over HTTP (Four-Faith Router)**  
+  - **Vector**: Unauthenticated POST to /boaform/admin/formPing with shell metacharacters.  
+
+- **Tap-Jacking UI Overlay (TapTrap)**  
+  - **Vector**: Transparent View overlay timed to match system permission dialogs, hijacking user taps.  
+
+- **Shellter Re-Packing & NTFS ADS Loading**  
+  - **Vector**: Malware implanted into legitimate PE files, delivered via phishing, executed from Alternate Data Streams.  
 
 ## Threat Actor Activities
 
-- **Unidentified Crimeware Operators (CitrixBleed 2)**  
-  - **Campaign**: Rapid adoption of PoC to steal active sessions across enterprises; focus on remote access gateways.
+- **DragonForce Ransomware**  
+  - **Campaign**: Social-engineering compromise of M&S leading to network-wide encryption; leveraged stolen credentials over VPN.  
 
-- **Unknown Actor(s) Exploiting MSSQL Zero-Day**  
-  - **Campaign**: Targeted intrusions against data-rich environments prior to Microsoft patch release.
+- **Silk Typhoon (China)**
+  - **Activity**: Suspected member arrested in Milan; group linked to long-running cyber-espionage targeting US entities.  
 
-- **RondoDox Botnet Maintainers**  
-  - **Campaign**: Ongoing DDoS-for-hire service leveraging compromised DVRs and routers; observed infrastructure growth.
+- **RondoDox Botnet Operators**  
+  - **Campaign**: Mass exploitation of DVRs/routers to build DDoS botnet; primarily targets telecom and gaming providers.  
 
-- **CISA-Flagged Actors**  
-  - **Campaign**: Diverse; exploitation of four newly cataloged KEV flaws against U.S. federal and critical-infrastructure networks.
+- **Shellter-Malware Operators**  
+  - **Campaign**: Distributing Lumma, Arechclient2, Rhadamanthys via warez sites and spam; focus on credential theft at scale.  
 
-- **Supply-Chain Adversary in Ethcode Incident**  
-  - **Campaign**: Aimed at blockchain developers; weaponized VS Code extension to implant backdoors and steal cryptocurrency keys.
+- **TAG-140**  
+  - **Campaign**: “ClickFix-style” phishing against Indian government, delivering BroaderAspect .NET loader and secondary payloads.  
 
+- **DPRK ‘NimDoor’ Group**  
+  - **Campaign**: macOS malware laced into fake Zoom invitations on Telegram, targeting Web3/crypto employees.  
+
+- **Bert Ransomware**  
+  - **Campaign**: Cross-platform Go-based strain using aggressive multithreading to encrypt Windows & Linux servers.  
+
+- **Anatsa Banking Trojan Actors**  
+  - **Campaign**: Malicious “PDF Reader” app on Google Play (>50 k installs) steals credentials from major US banks.  
+
+## End of Report
