@@ -1,64 +1,47 @@
 # Exploitation Report
 
-Active exploitation continues to surge across enterprise-grade collaboration platforms and web infrastructure. The most critical development is an ongoing campaign that leverages an unpatched Microsoft Exchange zero-day to gain footholds inside Chinese networks—a rare case of a North-American aligned APT striking East. Simultaneously, the “Gold Melody” initial-access broker is abusing exposed ASP.NET machine keys to sell privileged access on underground markets. Researchers also disclosed a container-escape flaw in NVIDIA’s Container Toolkit that provides direct breakout from Kubernetes pods, and a newly-discovered ServiceNow logic flaw that lets insiders enumerate otherwise-restricted data. Together these issues underscore the breadth of modern attack surfaces—from email gateways to DevOps pipelines and SaaS back-ends.
+A cluster of new and ongoing attacks highlights how quickly threat actors pivot from novel zero-days to misconfiguration abuse and supply-chain tampering. The most pressing activity observed over the last week includes a still-unpatched Microsoft Exchange zero-day weaponized by a North-American APT against Chinese entities, large-scale abuse of leaked ASP.NET machine keys by the Gold Melody initial-access broker, and a surge in developer-focused macOS infections delivered through a trojanized copy of the Termius SSH client carrying the ZuRu malware family. Collectively, these operations enable remote code execution, full application take-over, and wide-ranging data exfiltration across on-premises, cloud, and endpoint environments.
 
 ## Active Exploitation Details
 
-### Microsoft Exchange Zero-Day Vulnerability
-- **Description**: Previously unknown server-side flaw in Microsoft Exchange abused via specially crafted requests against exposed Outlook Web Services.
-- **Impact**: Enables remote code execution (RCE) and post-exploitation mail-box theft, lateral movement, and persistent access.
-- **Status**: Actively exploited by a North-American APT; Microsoft has not yet released a patch or mitigation guidance.
-  
-### Exposed ASP.NET Machine Key Exploit (Gold Melody Campaign)
-- **Description**: Attackers harvest publicly leaked `machineKey` values from misconfigured ASP.NET applications, allowing them to forge authentication cookies and decrypt ViewState data.
-- **Impact**: Full authentication bypass, privilege escalation to web-server context, and subsequent sale of network access.
-- **Status**: Ongoing exploitation by the Gold Melody initial-access broker; mitigation requires rotating keys and auditing repositories.
+### Microsoft Exchange Zero-Day
+- **Description**: An undisclosed vulnerability in Microsoft Exchange Server that allows unauthenticated remote code execution and mailbox access.  
+- **Impact**: Attackers can implant web shells, steal email, move laterally, and establish persistent footholds inside victim networks.  
+- **Status**: Confirmed in-the-wild exploitation by a North-American APT; no official patch released at publication time.  
+ 
+### Leaked ASP.NET Machine-Key Abuse
+- **Description**: Gold Melody leverages publicly exposed `machineKey` values to forge authentication cookies and ViewState data, granting administrative sessions in ASP.NET applications.  
+- **Impact**: Full takeover of web applications, credential theft, and resale of enterprise access on underground markets.  
+- **Status**: Actively exploited; mitigation requires immediate rotation of machine keys and hardening of configuration management.  
 
-### NVIDIA Container Toolkit Container-Escape Flaw
-- **Description**: A bug in the NVIDIA Container Runtime permits containers with GPU access to mount host paths and interact with device files, breaking the container isolation boundary.
-- **Impact**: Host-level code execution from a compromised pod, cross-tenant data exposure in multi-user AI clusters.
-- **Status**: Proof-of-concept exploit demonstrated; no official patch yet, but configuration hardening and SELinux/AppArmor profiles reduce risk.
-
-### ServiceNow “Count(er) Strike” Enumeration Flaw
-- **Description**: Logic flaw allows low-privileged users to abuse the `COUNT()` function to infer the presence and content of restricted database rows.
-- **Impact**: Unauthorized disclosure of sensitive records such as incident tickets, employee PII, and financial data.
-- **Status**: Vendor rolling out fixes; exploitation feasible with simple API calls and already observed during red-team exercises.
+### Trojanized Termius macOS App (ZuRu Malware)
+- **Description**: A supply-chain attack where a maliciously modified Termius installer sideloads the ZuRu backdoor, bypassing Gatekeeper notarization checks through ad-hoc code-signing.  
+- **Impact**: Exfiltration of SSH keys, source code, cloud credentials, and system telemetry from developer workstations.  
+- **Status**: Campaign ongoing; no vendor patch required—organizations must validate installer integrity and enforce notarization restrictions.  
 
 ## Affected Systems and Products
 
-- **Microsoft Exchange Server**: All on-prem versions currently supported; internet-facing Outlook Web Services.
-- **ASP.NET Web Applications**: Sites that store `machineKey` values in public repos or default configurations.
-- **NVIDIA Container Toolkit / nvidia-docker**: GPU-enabled Kubernetes and Docker environments on Linux hosts.
-- **ServiceNow SaaS Instances**: All customer instances prior to the vendor’s July 2025 hotfix.
+- **Microsoft Exchange Server 2016 / 2019**  
+  - **Platform**: On-premises Windows Server deployments  
+- **ASP.NET Web Applications**  
+  - **Platform**: Windows IIS; applications using static `machineKey` settings exposed via repos or misconfiguration  
+- **Termius SSH Client (macOS Trojanized Build)**  
+  - **Platform**: macOS 13 and 14 systems used by software engineers and DevOps staff  
 
 ## Attack Vectors and Techniques
 
-- **Server-Side Request Forgery & Deserialization**  
-  - **Vector**: Malformed OWA/OAB requests trigger Exchange zero-day, leading to arbitrary file write and RCE.
-
-- **Authentication Cookie Forgery**  
-  - **Vector**: Stolen `machineKey` lets attackers sign ASP.NET forms authentication cookies, bypassing login entirely.
-
-- **Container Escape via Device File Manipulation**  
-  - **Vector**: Crafted container image accesses `/dev/nvidia*` to mount host volume and execute binaries on the underlying node.
-
-- **Blind Enumeration Through Aggregate Functions**  
-  - **Vector**: Repeated `COUNT()` queries with filtered predicates reveal row existence and, by binary search, underlying values in ServiceNow tables.
+- **Zero-Day Remote Code Execution**  
+  - **Vector**: Crafted HTTPS requests to Microsoft Exchange endpoints resulting in web-shell deployment.  
+- **Machine-Key Forgery**  
+  - **Vector**: Downloading leaked `machineKey` values from public repos, then generating valid authentication cookies/ViewState to bypass login.  
+- **Supply-Chain Trojanization**  
+  - **Vector**: Hosting a repackaged Termius installer on developer forums; installer invokes a malicious payload signed with an ad-hoc certificate, evading Gatekeeper.  
 
 ## Threat Actor Activities
 
-- **North-American APT (Unnamed)**
-  - **Campaign**: Targeting Chinese government and defense organizations with Exchange zero-day, exfiltrating mailbox contents and deploying web shells for persistence.
-
-- **Gold Melody Initial-Access Broker**
-  - **Campaign**: Harvesting leaked ASP.NET machine keys from public code repositories, breaching corporate portals, and auctioning access on dark markets.
-
-- **DoNot APT**
-  - **Campaign**: Spear-phishing European foreign ministries, delivering “LoptikMod” malware post-access; leverages misconfigurations rather than new CVEs.
-
-- **Andariel (North Korea)**
-  - **Campaign**: Revenue-generation through fraudulent “remote IT worker” placements; associated malware uses commodity loaders once foothold gained.
-
-- **SatanLock Ransomware Group**
-  - **Campaign**: Preparing mass data-leak release following purported shutdown; known to weaponize public PoCs quickly, likely to adopt NVIDIA escape if left unpatched.
-
+- **North-American APT**  
+  - **Campaign**: Targeted Chinese government and research networks using the Exchange zero-day; objectives include intelligence collection and email exfiltration.  
+- **Gold Melody (Initial Access Broker)**  
+  - **Campaign**: Mass-scanning for exposed ASP.NET machine keys, followed by unauthorized access sales to ransomware affiliates.  
+- **ZuRu Malware Operators**  
+  - **Campaign**: Focusing on software developers and DevSecOps professionals; aims to harvest credentials and proprietary code for later monetization or espionage.
