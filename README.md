@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.png" alt="SentryInsight Logo" width="500"/>
+  <img src="assets/logo.png" alt="SentryInsight Logo" width="400"/>
 </div>
 
 # SentryInsight
