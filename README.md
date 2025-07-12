@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/logo.png" alt="SentryInsight Logo" width="200"/>
+</div>
+
 # SentryInsight
 
 Automated cybersecurity threat intelligence that monitors RSS feeds and generates exploitation reports using AI analysis.
