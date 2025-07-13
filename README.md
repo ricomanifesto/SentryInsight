@@ -1,5 +1,6 @@
+# SentryInsight
+
 <div align="center">
-  <h1>SentryInsight</h1>
   <img src="assets/logo.png" alt="SentryInsight Logo" width="400"/>
 </div>
 
