@@ -1,106 +1,110 @@
 # Exploitation Report
 
-The past week has been marked by a rapid escalation of real-world exploitation across both traditional infrastructure and emerging AI/IoT stacks. Threat actors moved quickly to weaponize a critical remote-code-execution flaw in Wing FTP Server only one day after technical details were released, while firmware weaknesses in Gigabyte motherboards are being abused to implant UEFI bootkits that survive OS reinstalls. At the same time, a prompt-injection vulnerability in Google Gemini is enabling highly convincing phishing lures, and newly disclosed weaknesses in Kigen eSIM cards place billions of connected devices at risk of SIM hijacking. Research teams also demonstrated a fresh RowHammer variant—“GPUHammer”—against NVIDIA GPUs, and hundreds of Laravel applications remain exposed because leaked APP_KEY secrets allow attackers to obtain full RCE. Parallel supply-chain attacks—including North Korean actors flooding npm with malicious packages and a rogue VSCode extension inside the Cursor IDE—underscore the widening threat surface. Collectively, these incidents highlight a clear trend: adversaries are pivoting faster from disclosure to active exploitation, especially when cloud, AI, and firmware components are involved.
+Recent weeks have seen an uptick in high-impact exploitation across consumer AI services, critical infrastructure software, and low-level firmware. Threat actors are actively abusing a critical remote-code-execution flaw in Wing FTP Server, chaining prompt-injection bugs in Google’s Gemini AI features for phishing, and weaponizing weaknesses in Gigabyte UEFI firmware to deploy stealthy bootkits that bypass Secure Boot. New attack surfaces are also emerging: a RowHammer offshoot (“GPUHammer”) targeting NVIDIA GPUs, an eSIM design flaw that jeopardizes billions of IoT devices, and large-scale key-leak abuse in Laravel applications. Government-sponsored groups are simultaneously experimenting with novel delivery tactics such as AWS Lambda (HazyBeacon) and npm supply-chain poisoning (XORIndex), underscoring the widening gap between patch availability and real-world remediation.
 
 ## Active Exploitation Details
 
-### Wing FTP Server Remote Code Execution
-- **Description**: A critical flaw allows unauthenticated attackers to execute arbitrary code on vulnerable Wing FTP Server instances after sending a specially crafted request. Exploitation began within 24 hours of public disclosure.  
-- **Impact**: Full system compromise, data exfiltration, lateral movement.
-- **Status**: Exploited in the wild; hot-fix released by vendor, but many servers remain unpatched.
+### Wing FTP Server Remote-Code-Execution Vulnerability
+- **Description**: A critical flaw in the Wing FTP Server web interface permits unauthenticated attackers to execute arbitrary commands on the host.
+- **Impact**: Full system compromise, data theft, lateral movement, and ransomware deployment.
+- **Status**: Public exploit code released; in-the-wild exploitation observed less than 24 hours after disclosure. Vendor hot-fix released.
+
+### Google Gemini Prompt-Injection Vulnerability (Invisible Prompts)
+- **Description**: Manipulation of hidden or whitespace-formatted text causes Gemini to execute attacker-supplied instructions while appearing benign to the user.
+- **Impact**: Phishing redirections, session hijacking, and delivery of malicious links under the guise of Google Security alerts.
+- **Status**: Actively abused in the wild; mitigations rolling out across Workspace.
+
+### Google Gemini Email-Summary Hijacking Bug
+- **Description**: Gemini’s auto-generated email summaries can be coerced into embedding malicious warnings or instructions that lure users to phishing sites.
+- **Impact**: Credential harvesting and drive-by malware delivery without traditional attachments or URLs in the original email.
+- **Status**: Google acknowledged issue and is implementing server-side filters; exploitation ongoing.
 
 ### Gigabyte UEFI Firmware Vulnerabilities
-- **Description**: Dozens of Gigabyte motherboard models ship with UEFI firmware vulnerabilities that let attackers drop bootkits and bypass Secure Boot controls. The flaws stem from insecure update mechanisms and inadequate firmware validation.
-- **Impact**: Stealth persistence below the OS, evasion of AV/EDR, integrity loss of the boot chain.
-- **Status**: Active exploitation reported; Gigabyte has issued updated firmware for select models, but coverage is incomplete.
+- **Description**: Multiple flaws in Gigabyte motherboard firmware allow unsigned code to be written to SPI flash, planting bootkits that persist below the OS and bypass Secure Boot.
+- **Impact**: Stealth persistence, OS-agnostic malware deployment, and difficulty in forensic detection.
+- **Status**: Firmware updates available for dozens of models; exploitation confirmed in incident-response engagements.
 
-### Google Gemini Prompt-Injection Vulnerability
-- **Description**: Gemini’s input-sanitization can be bypassed using invisible Unicode or zero-width characters. Attackers craft prompts that masquerade as legitimate security alerts while embedding malicious instructions.
-- **Impact**: Credential phishing, session hijacking, remote download of malware under the guise of Gemini-generated recommendations.
-- **Status**: Exploits observed in phishing campaigns; Google is rolling out mitigations but no full patch yet.
+### eSIM Weakness in Kigen eUICC Cards
+- **Description**: Logic flaws in Kigen’s remote profile management let attackers clone, swap, or de-provision eSIM profiles over-the-air.
+- **Impact**: Device hijack, large-scale denial of service to IoT fleets, SIM-based man-in-the-middle interception.
+- **Status**: Proof-of-concept attacks demonstrated; active exploitation reported against smart-meter networks. Patches under coordinated release with carriers.
 
-### Google Gemini Email-Summary Hijack
-- **Description**: Gemini for Workspace can be coerced into generating email summaries that include attacker-controlled links or directives, leveraging implicit user trust.
-- **Impact**: Drive-by phishing, business-email-compromise amplification.
-- **Status**: Abuse seen in the wild; Google investigating defensive updates.
+### GPUHammer (RowHammer Variant on NVIDIA GPUs)
+- **Description**: Bit-flip fault-injection against GPU DRAM undermines AI model integrity and can escalate to host memory corruption on shared-memory workloads.
+- **Impact**: Model poisoning, data leakage from GPU to CPU space, and potential privilege escalation in multi-tenant environments.
+- **Status**: Demonstrated by researchers; NVIDIA urges enabling ECC globally. No firmware fix yet; exploitation feasibility rated high for cloud GPU instances.
 
-### Kigen eSIM / eUICC Weakness
-- **Description**: Design flaws in Kigen-based eUICC cards permit unauthorized profile downloads and SIM-state cloning.
-- **Impact**: Subscriber identity theft, rogue network registration, large-scale IoT disruption.
-- **Status**: Proof-of-concept exploit published; no universal patch—requires carrier-level remediation.
+### Laravel APP_KEY Exposure Leading to RCE
+- **Description**: Thousands of public GitHub repos leak APP_KEY secrets, letting attackers craft encrypted payloads that the application trusts and executes.
+- **Impact**: Remote code execution, database exfiltration, and supply-chain lateral attacks.
+- **Status**: Mass-scanning attacks observed; maintainers advised to rotate keys and deploy patches.
 
-### GPUHammer RowHammer Variant (NVIDIA GPUs)
-- **Description**: Researchers adapted the classic RowHammer DRAM attack to GPU memory, corrupting model weights and inducing AI inference errors.
-- **Impact**: Integrity degradation of AI workloads, potential for data leakage via side channels.
-- **Status**: Demonstrated in laboratory and cloud GPU environments; NVIDIA advises enabling ECC and updating drivers with enhanced memory scrubbing.
-
-### Laravel APP_KEY Leakage
-- **Description**: Public repositories on GitHub expose Laravel APP_KEY secrets; attackers use the key to decrypt cookies, forge session data, and achieve remote code execution within affected apps.
-- **Impact**: Full takeover of web applications, database access, supply-chain pivoting.
-- **Status**: Mass-scan exploitation observed against ~600 sites; remediation requires key rotation and code redeploy.
-
-### npm Registry Package Poisoning (XORIndex)
-- **Description**: North Korean actors published 67 malicious npm packages that sideload the XORIndex malware, mirroring legitimate libraries to lure developers.
-- **Impact**: Developer workstation compromise, CI/CD pipeline intrusion, downstream supply-chain infection.
-- **Status**: Packages actively downloaded before takedown; ongoing actor persistence efforts noted.
-
-### Malicious VSCode Extension in Cursor IDE
-- **Description**: A forged extension masquerading as a productivity add-on drops RATs and infostealers. One confirmed incident led to a $500 k cryptocurrency theft.
-- **Impact**: Source-code theft, wallet draining, remote desktop control.
-- **Status**: Extension removed, but cloned variants still circulate on unofficial marketplaces.
-
-### FileFix Delivery Mechanism Abuse (Interlock Ransomware)
-- **Description**: Interlock operators embed their PHP-based RAT inside a “FileFix” payload delivered via web injects and macro-laden documents.
-- **Impact**: Initial foothold for eventual ransomware deployment, credential harvesting.
-- **Status**: Campaign ongoing; no vendor patch—defense relies on web-filtering and macro disabling.
+### McHire Chatbot Weak Credential Vulnerability
+- **Description**: Hard-coded password “123456” on a backend service exposed chat logs for 64 million McDonald’s job applicants.
+- **Impact**: Leakage of PII, employment history, and social-engineering fodder.
+- **Status**: Credentials rotated; data already exfiltrated before fix.
 
 ## Affected Systems and Products
 
-- **Wing FTP Server 7.x and earlier**: Windows, Linux
-- **Gigabyte Motherboards (Z790, X670, B650 series)**: UEFI firmware across Windows/Linux environments
-- **Google Gemini AI (Workspace and consumer versions)**: Web, mobile, Gmail integration
-- **Kigen eUICC-based eSIM cards**: Smartphones, IoT sensors, M2M modules
-- **NVIDIA GPUs (A100, H100, RTX 30/40 series without ECC)**: Data-center and workstation platforms
-- **Laravel Framework Applications**: Any deployment with exposed APP_KEY
-- **npm JavaScript Ecosystem**: Developers installing XORIndex-tainted packages on Node.js
-- **Cursor IDE with rogue VSCode extension**: Windows, macOS
-- **Organizations receiving FileFix-laden documents**: Multi-industry, primarily finance and manufacturing
+- **Wing FTP Server**: All on-prem versions prior to latest hot-fix  
+  **Platform**: Windows, Linux, macOS  
+- **Google Gemini for Workspace / Gmail**: Web and mobile clients  
+  **Platform**: Google Cloud SaaS  
+- **Gigabyte Motherboards**: Multiple Intel & AMD consumer models (AM5, Z790, B650, etc.)  
+  **Platform**: UEFI firmware across Windows/Linux installations  
+- **Kigen eUICC / eSIM Cards**: M2M, consumer smartphones, and IoT deployments worldwide  
+  **Platform**: Embedded SIM hardware & remote SIM provisioning servers  
+- **NVIDIA Data-Center & Consumer GPUs**: A/H-series, RTX-series without ECC enabled  
+  **Platform**: Windows, Linux, cloud GPU instances  
+- **Laravel Web Applications**: Framework v8/v9 with leaked APP_KEYs  
+  **Platform**: PHP / Apache / Nginx  
+- **McHire Chatbot Platform**: Backend services handling applicant chats  
+  **Platform**: Cloud-hosted web application
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated HTTP Exploit**: Crafted request triggers RCE in Wing FTP Server.
-- **UEFI Bootkit Injection**: Malicious firmware module flashed via vulnerable Gigabyte updater.
-- **Invisible Prompt Injection**: Zero-width Unicode slips malicious commands into Gemini conversations.
-- **Email-Summary Manipulation**: Gemini auto-summary altered to embed phishing URLs.
-- **SIM Profile Cloning**: Rogue SM-DP+ requests abuse Kigen provisioning workflow.
-- **GPU RowHammer (GPUHammer)**: High-frequency memory accesses flip GPU DRAM bits.
-- **Leaked Secret Key Usage**: Laravel APP_KEY enables cookie forgery and remote artisan commands.
-- **Package Typosquatting**: XORIndex modules named close to popular libraries infect dev machines.
-- **Malicious IDE Extension**: User-installed add-on executes post-install scripts to fetch RAT.
-- **FileFix Macro Chain**: Weaponized documents call “FileFix” loader which deploys Interlock RAT.
+- **Unauthenticated Web RCE**: Direct HTTP requests exploit input-validation flaws (Wing FTP Server).  
+- **Prompt Injection via Invisible Formatting**: Zero-width or HTML-hidden text manipulates AI output (Google Gemini).  
+- **Auto-Summary Manipulation**: Abuse of AI summarization feature to embed malicious instructions (Google Gemini).  
+- **UEFI Bootkit Deployment**: Flashing malicious firmware image through vendor update mechanism (Gigabyte).  
+- **Remote SIM Profile Manipulation**: Over-the-air eUICC management commands abused for takeover (Kigen eSIM).  
+- **RowHammer-Style Bit Flips**: Repeated GPU DRAM access induces memory corruption (GPUHammer).  
+- **Cryptographic Key Forgery**: Using leaked Laravel APP_KEY to sign malicious payloads that pass integrity checks.  
+- **Hard-Coded Credentials**: Static passwords grant unauthorized API access (McHire).  
 
 ## Threat Actor Activities
 
-- **North Korean APT (Contagious Interview lineage)**  
-  - Flooding npm with XORIndex malware; targeting software supply chains worldwide.
+- **Unknown Crimeware Operators (Wing FTP)**  
+  • Mass-scanning and weaponized proof-of-concept code seen on breach forums.  
+  • Targeting managed-file-transfer servers to stage ransomware.
+
+- **Multiple Phishing Groups (Gemini Bugs)**  
+  • Crafting fake Google Security alerts and poisoned email summaries.  
+  • Focus on enterprise Workspace tenants, aiming for credential theft.
+
+- **Bootkit Developers / Financial APTs (Gigabyte UEFI)**  
+  • Leveraging firmware gaps to persist on high-value gaming and cryptocurrency-mining rigs.  
+  • Tooling overlaps with previously seen BlackLotus methodologies.
+
+- **State-Backed Operator “HazyBeacon”**  
+  • Uses AWS Lambda as C2 proxy to exfiltrate data from Southeast-Asian government networks.  
+  • Drops Windows backdoor through spear-phishing lures.
+
+- **North Korean Cluster (XORIndex npm Campaign)**  
+  • Publishes dozens of malicious npm packages to compromise developer environments.  
+  • Aligns with earlier “Contagious Interview” supply-chain activity.
 
 - **Interlock Ransomware Group**  
-  - Deploying new PHP-based RAT through FileFix loaders; leveraging web injects and malicious docs.
+  • Adopts FileFix / ClickFix web-inject technique to deploy new PHP-based RAT variants.  
+  • Targets manufacturing, healthcare, and education sectors.
 
-- **State-Backed Group (HazyBeacon)**  
-  - Using AWS Lambda to host C2 for Windows backdoor targeting Southeast Asian governments.
+- **AsyncRAT Copycat Actors**  
+  • Rapidly forking open-source code to evade signature-based detection and spread info-stealers.  
 
-- **Iran-Linked Pay2Key RaaS**  
-  - Offering 80% affiliate revenue to incentivize attacks on U.S. and Israeli organizations.
+- **Pay2Key RaaS Operators**  
+  • Offering 80% profit share to affiliates attacking U.S. and Israeli entities, indicating renewed activity.
 
-- **Unknown Financially Motivated Operators**  
-  - Exploiting Wing FTP Server RCE for data theft and lateral movement in corporate networks.
+- **Insider Mishap (xAI API Key Leak)**  
+  • Accidental exposure of privileged tokens by DOGE employee Marko Elez, increasing risk of supply-chain compromise.
 
-- **Crypto-Theft Crew behind Cursor IDE Extension**  
-  - Leveraged fake VSCode plugin to steal $500 k in cryptocurrency; continuing to target blockchain developers.
-
-- **Research Community (GPUHammer team)**  
-  - Demonstrated GPU RowHammer variant; disclosure prompted vendor mitigations.
-
-- **Cloud Threat Actors**  
-  - Abusing Gemini prompt-injection and email-summary flaws in high-volume phishing campaigns.
+## End of Report
