@@ -1,107 +1,104 @@
 # Exploitation Report
 
-During the past week, defenders observed a sharp increase in real-world exploitation across several technology layers—from firmware and enterprise servers to AI assistants and mobile infrastructure. Attackers rushed to weaponize a critical remote-code-execution flaw in Wing FTP Server within 24 hours of public disclosure, while boot-level weaknesses in Gigabyte UEFI firmware are already enabling stealthy bootkits that bypass Secure Boot entirely. Google’s new Gemini AI features were abused in two separate prompt-injection scenarios that let adversaries craft invisible or weaponized email summaries, and a fresh Android campaign (“Konfety”) is abusing malformed APK structures to slip past security controls. Additional active threats include a GPU-focused RowHammer variant (“GPUHammer”), a high-risk eSIM weakness in Kigen eUICC cards that jeopardizes billions of IoT devices, and mass compromise of Laravel applications via leaked `APP_KEY` secrets. Coordinated activity from state-backed and criminal groups—HazyBeacon operators, North-Korean XORIndex publishers, and the Interlock ransomware crew—highlights the continuing trend of rapid exploit adoption immediately after, or even before, public disclosure.
+The past week’s activity underscores an aggressive shift toward supply-chain compromise, firmware tampering, and cloud-hosted command-and-control. North Korean operators poisoned the npm ecosystem with dozens of weaponized packages that sideload the new XORIndex loader, while the Interlock ransomware group rolled out a “FileFix” delivery chain to silently implant a PHP-based RAT. Separate campaigns leveraged malformed Android APKs, malicious VSCode extensions, and insecure AWS Lambda functions to gain covert access to developer workstations and government networks. Of particular concern is a Secure Boot-bypass flaw in Gigabyte UEFI firmware and critical weaknesses in Kigen eSIM cards that put billions of IoT devices at risk. Hyper-volumetric DDoS attacks exploiting the HTTP/2 Rapid Reset weakness also reached a record 7.3 Tbps, indicating that denial-of-service tactics remain a favored method for large-scale disruption.
 
 ## Active Exploitation Details
 
-### Wing FTP Server Remote Code Execution
-- **Description**: A critical flaw in Wing FTP Server allows unauthenticated attackers to execute arbitrary code on vulnerable installations immediately after sending a crafted request. Technical details were released publicly, accelerating weaponization.  
-- **Impact**: Full system compromise, data theft, lateral movement, and potential ransomware deployment.  
-- **Status**: Actively exploited in the wild; vendor has issued patches—administrators urged to upgrade immediately.  
-
 ### Gigabyte UEFI Secure Boot Bypass
-- **Description**: Multiple Gigabyte motherboard models ship with UEFI firmware routines that can be overwritten, permitting the installation of persistent bootkits that elude operating-system visibility and survive OS reinstalls.  
-- **Impact**: Stealth persistence, tampering with trust chain, deployment of kernel-level malware, and evasion of endpoint defenses.  
-- **Status**: Exploits observed; Gigabyte released updated firmware, but many systems remain unpatched due to manual update requirements.  
+- **Description**: Multiple Gigabyte motherboard firmware images allow unsigned or tampered bootloaders to execute before the OS, effectively disabling Secure Boot protections.  
+- **Impact**: Attackers can install stealthy bootkits that survive OS reinstallation, remain invisible to endpoint security, and provide full system persistence.  
+- **Status**: Exploitation observed in the wild; Gigabyte is expected to release updated UEFI images, but many systems remain unpatched.
 
-### Google Gemini Prompt-Injection Vulnerability
-- **Description**: Flaws in Gemini’s prompt-handling allow attackers to embed invisible or deceptive instructions that masquerade as legitimate security alerts or email summaries.  
-- **Impact**: Phishing redirection, credential harvesting, and distribution of malicious links without traditional attachments.  
-- **Status**: Under active abuse; Google is refining content filters but no comprehensive patch yet released.  
+### Kigen eUICC / eSIM Remote Profile Takeover
+- **Description**: Design flaws in Kigen’s eSIM cards allow unauthorized over-the-air profile provisioning and key extraction.  
+- **Impact**: Enables SIM cloning, interception of SMS-based multi-factor authentication, remote device tracking, and massive IoT disruption.  
+- **Status**: Active proof-of-concept exploitation reported. Mitigations involve carrier-side validation and firmware updates to affected eUICC cards.
 
-### Android APK Parsing Weakness Abused by Konfety
-- **Description**: Konfety malware crafts malformed APK (ZIP) structures combined with heavy obfuscation. The atypical file layout exploits weaknesses in static and dynamic analysis pipelines, enabling installation while evading detection.  
-- **Impact**: Device takeover, SMS interception, credential theft, and command-and-control communication under the radar of mobile AV products.  
-- **Status**: In-the-wild infections confirmed; Google Play Protect signatures updated, but sideloaded apps remain a risk.  
+### XORIndex Malicious npm Packages
+- **Description**: 67 trojanized npm packages embed the XORIndex malware loader, triggered during post-install scripts on developer machines.  
+- **Impact**: Steals source code, environment variables, and credentials; establishes persistence for follow-on implants.  
+- **Status**: Packages have been removed from the registry, but cloned mirrors and cached copies continue to circulate.
 
-### Kigen eUICC / eSIM Authentication Weakness
-- **Description**: Researchers uncovered flaws in Kigen eUICC cards that let attackers clone or hijack eSIM profiles through malformed provisioning commands.  
-- **Impact**: Hijacking of cellular identities, espionage on IoT fleets, denial of service, and fraudulent billing.  
-- **Status**: Exploitation demonstrated; patching requires carrier-side updates and SIM profile rotations, creating long remediation cycles.  
+### FileFix Delivery Chain (Interlock RAT)
+- **Description**: Interlock ransomware actors weaponized a “FileFix” technique that abuses specially crafted file associations to drop a new PHP-based RAT.  
+- **Impact**: Provides remote shell access, lateral movement, and data encryption capabilities prior to ransom demands.  
+- **Status**: Ongoing; no vendor patch required—defenders must block suspicious file types and harden email/web gateways.
 
-### Laravel `APP_KEY` Leakage RCE
-- **Description**: Hundreds of publicly exposed Laravel environment files on GitHub contained `APP_KEY` values. Attackers can derive encryption keys and issue crafted requests that trigger remote code execution within affected applications.  
-- **Impact**: Server takeover, database dumps, and subsequent supply-chain compromise of downstream users.  
-- **Status**: Active scanning and exploitation observed; mitigation requires key rotation, secret management, and framework update.  
+### HazyBeacon AWS Lambda Abuse
+- **Description**: State-sponsored operators deploy the HazyBeacon backdoor, which communicates over legitimate AWS Lambda and S3 APIs to blend C2 traffic with benign cloud noise.  
+- **Impact**: Covert exfiltration of diplomatic documents and persistent access in Southeast Asian government networks.  
+- **Status**: Campaign active; mitigation requires inspection of cloud service logs and tighter IAM controls.
 
-### GPUHammer (RowHammer Variant on NVIDIA GPUs)
-- **Description**: A novel RowHammer technique flips bits in GDDR memory on NVIDIA GPUs, corrupting AI model weights and compromising computational integrity.  
-- **Impact**: Model poisoning, incorrect inference results, potential denial of AI services, and covert data manipulation.  
-- **Status**: Proof-of-concept exploitation released; NVIDIA advises enabling ECC and firmware updates where available.  
+### Diskstation NAS Ransomware Intrusions
+- **Description**: The Romanian “Diskstation” gang brute-forces or exploits exposed NAS management interfaces, encrypting storage for extortion.  
+- **Impact**: Business-critical file servers rendered inaccessible, leading to operational paralysis.  
+- **Status**: Law-enforcement takedown disrupted infrastructure, but residual infections persist on unpatched NAS devices.
 
-### Google Gemini Email Summary Hijack
-- **Description**: A second Gemini flaw lets attackers craft benign-looking emails that, when summarized by Gemini in Workspace, embed malicious instructions directing users to phishing sites.  
-- **Impact**: High-click-through phishing, credential theft, and session hijacking—circumventing attachment and link scanning.  
-- **Status**: Actively observed in enterprise environments; Google promises a forthcoming mitigation.  
+### Konfety Android Malformed APK
+- **Description**: A new Konfety variant hides malicious payloads in APKs with corrupt ZIP headers, bypassing automated scanners and many AV engines.  
+- **Impact**: Grants full device control, credential theft, and espionage functions on compromised smartphones.  
+- **Status**: Seen in third-party app stores; Google Play Protect updates underway.
+
+### Malicious VSCode Extension in Cursor IDE
+- **Description**: A fake extension for the Cursor AI-enabled IDE installs remote-access tools and infostealers during IDE startup.  
+- **Impact**: Led to at least one confirmed theft of $500 K in cryptocurrency wallets; also harvests SSH keys and API tokens.  
+- **Status**: Extension repository entry removed; users must manually audit extensions and revoke stolen keys.
+
+### HTTP/2 Rapid Reset DDoS Exploit
+- **Description**: Attackers exploit the “Rapid Reset” weakness in HTTP/2 to amplify DDoS traffic, forcing servers to repeatedly restart streams.  
+- **Impact**: Record-breaking 7.3 Tbps floods disrupted finance, SaaS, and telecom providers.  
+- **Status**: Cloudflare and other CDN vendors deployed mitigations; origin servers need protocol-level patches or rate-limits.
 
 ## Affected Systems and Products
 
-- **Wing FTP Server (v≤ latest vulnerable release)**  
-  Platform: Windows, Linux, macOS FTP/SFTP deployments  
-
-- **Gigabyte Motherboards (multiple 400-, 500-, 600-series models)**  
-  Platform: UEFI firmware across Windows and Linux systems supporting Secure Boot  
-
-- **Google Gemini for Workspace / Google Workspace clients**  
-  Platform: Web and mobile Gmail interfaces using Gemini email summarization  
-
-- **Android Devices (Konfety targets Android 8–14)**  
-  Platform: Mobile phones permitting APK sideloading or third-party stores  
-
-- **Kigen eUICC / eSIM Cards (in smartphones & IoT modules)**  
-  Platform: Cellular-connected IoT devices, industrial sensors, consumer phones  
-
-- **Laravel-based Web Applications (exposed `APP_KEY` in public repos)**  
-  Platform: PHP web servers across cloud and on-prem environments  
-
-- **NVIDIA GPUs (data-center and workstation cards without ECC enabled)**  
-  Platform: AI/ML clusters, gaming rigs, and research workstations running CUDA workloads  
+- **Gigabyte AM5 & Intel 700-series Motherboards**: UEFI versions prior to forthcoming vendor patch  
+- **Kigen eUICC / eSIM Cards**: M2M, consumer, and IoT profiles across global carriers  
+- **Node.js / npm Ecosystem**: Developers installing poisoned packages “classnames-loader”, “react-icons-index”, and related libraries  
+- **Windows & Linux Servers**: Targets of Interlock’s FileFix payloads via email attachments and web injects  
+- **AWS Cloud Environments**: Misused Lambda, API Gateway, and S3 buckets for HazyBeacon C2  
+- **Synology & QNAP NAS Devices**: Internet-exposed admin interfaces without strong authentication  
+- **Android 8–14 Devices**: Users sideloading apps from unofficial marketplaces  
+- **Cursor IDE (VSCode fork)**: Versions allowing unsigned extension installation  
+- **HTTP/2-enabled Web Servers**: Apache, nginx, IIS, and cloud load balancers lacking Rapid Reset mitigations
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated HTTP RCE**: Crafted network requests exploit Wing FTP input handling to spawn shells.  
-- **UEFI Bootkit Implant**: Threat actors replace firmware modules on Gigabyte boards to persist pre-OS.  
-- **Prompt Injection**: Invisible Unicode and CSS tricks manipulate Gemini’s context window for phishing.  
-- **Malformed APK (ZIP Structure)**: Konfety disguises payloads by violating expected ZIP offsets and headers, confusing scanners.  
-- **SIM Profile Cloning**: Rogue provisioning commands exploit Kigen eSIM logic to hijack IMSI credentials.  
-- **Secret-Key Abuse**: Exposed Laravel `APP_KEY` lets attackers forge signed requests leading to arbitrary code execution.  
-- **RowHammer on GPU Memory**: Rapid bombardment of adjacent GDDR rows flips bits, corrupting AI model parameters.  
-- **FileFix Web-Inject**: Interlock ransomware leverages modified “FileFix” downloaders on compromised sites to deliver RAT payloads.  
+- **Supply-Chain Package Poisoning**: Malicious npm packages execute post-install scripts to drop loaders.  
+- **FileFix Association Hijacking**: Crafted files trigger unintended handler execution, silently running payloads.  
+- **Malformed APK Packaging**: Corrupt ZIP structures evade antivirus heuristics during Android app installs.  
+- **UEFI Bootkit Implantation**: Direct flash modification or DMA attacks inject persistent pre-OS malware.  
+- **eSIM Profile Hijack**: Unauthorized SM-DP+ interactions enroll rogue operator profiles.  
+- **Cloud-Native C2 (AWS Lambda/S3)**: Beacon traffic tunneled through legitimate cloud API calls.  
+- **HTTP/2 Rapid Reset Flooding**: Abusive stream-cancel sequence overwhelms server resources.  
+- **Malicious IDE Extension**: Unsigned VSCode add-on abuses IDE privileges for RCE.  
+- **Brute-Force / Credential Stuffing**: NAS management panels attacked to deploy ransomware.
 
 ## Threat Actor Activities
 
-- **HazyBeacon Operators**  
-  Campaign: Using AWS Lambda dead-drop channels to exfiltrate government data in Southeast Asia; leverages previously undocumented Windows backdoor.  
+- **North Korean Contagious Interview Operators**  
+  - Planted 67 weaponized npm packages delivering XORIndex; targeting global software developers.
 
 - **Interlock Ransomware Group**  
-  Campaign: Global “FileFix” web-inject operation delivering new PHP-based Interlock RAT, targeting healthcare, manufacturing and finance.  
+  - Debuted PHP-based RAT via FileFix; broad industry targeting with web-inject lures.
 
-- **North-Korean Contagious Interview / XORIndex**  
-  Campaign: Flooding npm with 67 malicious packages to infect developer environments and perform reconnaissance.  
+- **State-Backed HazyBeacon Group (suspected Chinese nexus)**  
+  - Intelligence-collection against Southeast Asian government agencies; leverages AWS for stealth.
 
-- **Criminal Networks Exploiting Insiders**  
-  Activities: Recruiting or coercing employees for credential theft, data exfiltration, and facilitating access-as-a-service offerings.  
+- **Diskstation Ransomware Gang (Romanian)**  
+  - Focused on European SMBs; encrypted NAS appliances until international takedown operation.
 
-- **Unknown Actors Exploiting Wing FTP RCE**  
-  Campaign: Mass scanning on default FTP ports followed by ransomware dropper deployment within 24 hours of PoC release.  
+- **GLOBAL GROUP RaaS**  
+  - Expanding affiliate base with AI-driven negotiation chatbots; victims in Australia, Brazil, EU, and U.S.
 
-- **Konfety Malware Distributors**  
-  Activities: Spreading malformed APKs via Telegram channels and third-party stores, focusing on banking credential theft in Europe and LATAM.  
+- **Konfety Android Operators**  
+  - Distributed malformed APKs through third-party stores to steal user data and persist on devices.
 
-- **GPUHammer Researchers (PoC Release)**  
-  Activities: Public proof-of-concept exploited by red-team groups to demonstrate AI model tampering risk in data-center GPUs.  
+- **Unknown Threat Actors Exploiting Gigabyte Firmware**  
+  - Implanting UEFI bootkits for long-term espionage and credential theft.
 
-- **AsyncRAT Derivative Threat Actors**  
-  Campaign: Leveraging open-source code to craft new RAT variants incorporated into phishing lures worldwide, often delivered via the same FileFix infrastructure.  
+- **Cryptocurrency-Focused Actors via Cursor IDE**  
+  - Used malicious VSCode extension to siphon $500 K from a Russian crypto trader; pursuing other high-value wallets.
 
-## End of Report
+- **DDoS Botnet Operators**  
+  - Leveraged HTTP/2 Rapid Reset to launch 7.3 Tbps floods against finance, telecom, and SaaS infrastructure.
+
