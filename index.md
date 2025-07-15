@@ -1,147 +1,103 @@
 # Exploitation Report
 
-The past week has seen a sharp rise in real-world exploitation targeting both traditional software stacks and emerging technologies. Attackers are weaponising newly disclosed remote-code-execution flaws in Wing FTP Server and Fortinet FortiWeb, abusing supply-chain weaknesses to backdoor widely-used developer tools, and taking advantage of design flaws in AI assistants, Bluetooth implementations, UEFI firmware, and eSIM chipsets. Ransomware operators—most notably the Interlock and Pay2Key groups—are actively integrating these techniques into multi-stage campaigns that provide deep, persistent access and monetisation opportunities.
+During the past week, threat actors have accelerated the weaponization of multiple high-impact vulnerabilities across enterprise, cloud, and consumer technologies. The most critical activity centers on (1) a pre-authentication SQL-injection flaw in Fortinet FortiWeb that is already being mass-scanned, (2) a remote-code-execution bug in Wing FTP Server that moved from public disclosure to in-the-wild exploitation in less than 24 hours, and (3) prompt-injection weaknesses in Google Gemini that enable convincing phishing lures directly inside Workspace. Simultaneously, firmware weaknesses in Gigabyte motherboards are facilitating stealthy bootkits, while supply-chain attacks against WordPress Gravity Forms, the OpenVSX extension marketplace, and the Cursor IDE demonstrate the growing attacker focus on development ecosystems. Ransomware operators—most visibly Interlock—continue to innovate with “FileFix/ClickFix” loaders that abuse legitimate web assets to drop updated RAT payloads. Collectively, these developments highlight the need for rapid patching, strict supply-chain controls, and continuous monitoring for anomalous web-injection and UEFI activity.
 
 ## Active Exploitation Details
 
-### Wing FTP Server Remote-Code-Execution Vulnerability  
-- **Description**: A critical bug in the Wing FTP Server web interface lets unauthenticated attackers execute arbitrary commands on the underlying host.  
-- **Impact**: Full system compromise, lateral movement, ransomware deployment, or data theft.  
-- **Status**: Public exploit code available; in-the-wild exploitation observed within 24 hours of disclosure.  
-- **CVE ID**: —  
+### Fortinet FortiWeb Pre-Authentication SQL Injection
+- **Description**: A critical SQL-injection flaw in the FortiWeb web-application-firewall interface allows an unauthenticated network attacker to issue arbitrary database commands that lead to full remote-code execution.
+- **Impact**: Complete takeover of FortiWeb appliances, lateral movement into protected network segments, and potential tampering with WAF rules to mask further attacks.
+- **Status**: Proof-of-concept exploits are public and in use; Fortinet has issued patches and advisories urging immediate upgrade.
+- **CVE ID**: CVE-2025-25257
 
-### Fortinet FortiWeb Pre-Auth SQLi to RCE  
-- **Description**: A SQL-injection flaw in the FortiWeb management interface allows an unauthenticated attacker to run arbitrary database commands that lead to remote code execution.  
-- **Impact**: Takeover of FortiWeb appliances, pivoting into protected network segments, WAF rule tampering.  
-- **Status**: Patched by vendor; proof-of-concept exploits released and scanning activity rising.  
-- **CVE ID**: CVE-2025-25257  
+### Wing FTP Server Remote-Code-Execution Vulnerability
+- **Description**: A newly disclosed flaw in Wing FTP Server permits attackers to execute arbitrary code with server privileges via crafted network requests.
+- **Impact**: Full compromise of file-transfer infrastructure, data theft, and staging points for wider network intrusions.
+- **Status**: Exploitation observed one day after disclosure; vendor patches available, but many servers remain unpatched.
 
-### Gigabyte UEFI Secure-Boot Bypass  
-- **Description**: Multiple Gigabyte motherboard models ship with UEFI firmware that can be modified at boot time, enabling the installation of stealth bootkits invisible to the operating system.  
-- **Impact**: Persistent malware that survives OS re-installation, credential theft, long-term espionage.  
-- **Status**: Exploitation detailed by researchers; firmware fixes in progress, no universal patch yet.  
+### Google Gemini Prompt-Injection Weakness
+- **Description**: Gemini for Workspace can be coerced via hidden or “invisible” prompts that appear as legitimate Google Security notices, forcing the AI to insert malicious instructions or phishing links into generated email summaries.
+- **Impact**: Highly believable spear-phishing inside Gmail threads, potential credential harvesting, and wider Business Email Compromise (BEC).
+- **Status**: Actively abused in the wild; Google is rolling out mitigations but no comprehensive fix is yet confirmed.
 
-### “PerfektBlue” One-Click Bluetooth RCE Chain  
-- **Description**: A chained vulnerability in Bluetooth stacks used by automotive infotainment units and various IoT/industrial devices enables remote code execution after a single malicious packet.  
-- **Impact**: Remote takeover of 350 million vehicles and more than 1 billion devices, possibility of physical safety risks.  
-- **Status**: Attack demonstrated; vendors coordinating patches, no comprehensive fix released.  
+### Gigabyte UEFI Secure-Boot Bypass
+- **Description**: Multiple Gigabyte motherboard firmware images expose unsigned update mechanisms and insecure flash utilities, allowing attackers to implant persistent bootkits that survive OS re-installs.
+- **Impact**: Stealthy, long-term compromise at the firmware level, invisible to most endpoint security controls.
+- **Status**: Exploits reported in the wild; Gigabyte has released updated firmware for many—but not all—affected models.
 
-### Google Gemini Invisible Prompt-Injection Bug  
-- **Description**: Gemini’s rendering layer fails to sanitise zero-width characters, allowing attackers to hide malicious prompts that masquerade as legitimate Google Security alerts.  
-- **Impact**: Phishing, credential harvesting, unauthorised actions executed by users who believe the prompt is trustworthy.  
-- **Status**: Actively abused in the wild; Google engineering team working on mitigation.  
+### “FileFix/ClickFix” Loader Abuse (Interlock Campaign)
+- **Description**: Interlock ransomware operators leverage a downloader dubbed FileFix (a variant of ClickFix) to inject malicious PHP-based Interlock RAT payloads through compromised, legitimate websites.
+- **Impact**: Remote access, data exfiltration, and ransomware deployment in manufacturing, legal, and healthcare environments.
+- **Status**: Ongoing campaign; no patch (misuse of legitimate file-conversion features). Mitigation requires hardened web-application controls and threat-intel-driven blocking.
 
-### Google Gemini Email-Summary Hijack  
-- **Description**: Attackers manipulate Gemini for Workspace summaries to embed links or instructions that redirect users to phishing sites—no attachment required.  
-- **Impact**: Email-based social engineering leading to account takeover or malware delivery.  
-- **Status**: Exploitation observed; mitigation guidance released to workspace admins.  
+### WordPress Gravity Forms Supply-Chain Backdoor
+- **Description**: Attackers compromised the developer’s distribution site and replaced manual-install ZIP packages with backdoored versions of the Gravity Forms plugin.
+- **Impact**: Arbitrary code execution on WordPress sites, credential theft, and potential site defacement.
+- **Status**: Malicious files removed, but any sites updated during the compromise window remain infected.
 
-### Interlock RAT “FileFix” / Web-Inject Delivery Exploit  
-- **Description**: Interlock ransomware operators compromise legitimate sites, injecting a PHP-based loader dubbed FileFix that drops a new Interlock RAT variant on visitors.  
-- **Impact**: Backdoor access, staging for ransomware encryption, data exfiltration across multiple industries.  
-- **Status**: Campaign active; no vendor patch applicable—requires web-server hardening and takedowns.  
+### OpenVSX Extension Marketplace Zero-Day
+- **Description**: A previously unknown flaw in the OpenVSX registry allowed attackers to hijack extension ownership, enabling a stealth supply-chain attack against Cursor and Windsurf IDE users.
+- **Impact**: Arbitrary code execution on millions of developer machines, leading to sensitive source-code theft.
+- **Status**: Patched; incident responders advise auditing all extensions obtained prior to the fix.
 
-### Kigen eSIM / eUICC Privilege-Escalation Vulnerability  
-- **Description**: Logical flaws in Kigen eUICC cards allow rogue profiles to be provisioned, enabling SIM cloning and network impersonation.  
-- **Impact**: Hijacking of cellular connectivity, interception of SMS-based MFA, large-scale IoT fleet manipulation.  
-- **Status**: Exploit technique published; patches being distributed via carrier profile updates.  
+### Laravel APP_KEY Exposure
+- **Description**: Hundreds of Laravel applications on GitHub leaked their APP_KEY environment variable, enabling attackers to generate valid session cookies and execute arbitrary PHP code.
+- **Impact**: Full application compromise, database theft, and potential cloud-resource abuse.
+- **Status**: Active exploitation confirmed; remediation requires key rotation and code-base sanitization.
 
-### GPUHammer – RowHammer Variant on NVIDIA GDDR6 GPUs  
-- **Description**: Researchers adapted classic RowHammer to GPU GDDR6 memory, corrupting adjacent rows and degrading AI model integrity.  
-- **Impact**: Model poisoning, denial-of-service in GPU-accelerated workloads, potential privilege escalation.  
-- **Status**: Proof-of-concept released; NVIDIA advises enabling ECC and driver mitigations.  
+### Malicious VSCode Extension in Cursor IDE
+- **Description**: A Trojanized VSCode extension distributed via the Cursor AI IDE loaded RATs and infostealers, leading to a recorded $500 K cryptocurrency theft.
+- **Impact**: Credential harvesting, crypto-wallet draining, and broader system compromise.
+- **Status**: Extension removed; victims must revoke exposed tokens and rebuild compromised systems.
 
-### Laravel APP_KEY Remote Code Execution  
-- **Description**: Hundreds of Laravel projects leaked their APP_KEY secrets on GitHub, enabling attackers to unserialise malicious payloads and achieve RCE.  
-- **Impact**: Complete takeover of exposed web applications, credential theft, lateral movement into cloud environments.  
-- **Status**: Active mass-exploitation; admins urged to rotate keys and audit Git history.  
+### Kigen eUICC eSIM Vulnerability
+- **Description**: Logic flaws in Kigen’s eUICC SIM cards allow remote attackers to manipulate profile download and management procedures over cellular networks.
+- **Impact**: SIM-level takeover of billions of IoT devices, enabling intercept, tracking, or denial-of-service attacks.
+- **Status**: Researchers disclosed proof-of-concept and notified vendors; patch timelines remain unclear.
 
-### OpenVSX Extension Repository Zero-Day  
-- **Description**: A privilege-escalation flaw in the OpenVSX marketplace allowed attackers to overwrite legitimate VSCode extensions, distributing malicious updates to Cursor and Windsurf IDE users.  
-- **Impact**: Supply-chain compromise of millions of developer workstations.  
-- **Status**: Patched; incident response indicates attempted exploitation prior to fix.  
-
-### Malicious VSCode Extension in Cursor IDE  
-- **Description**: A fake extension sideloaded RATs and infostealers, leading to losses of $500 K in cryptocurrency in one confirmed case.  
-- **Impact**: Credential and wallet theft, remote access, codebase exfiltration.  
-- **Status**: Active; extension removed from marketplace, but sideload installers still circulating.  
-
-### WordPress Gravity Forms Supply-Chain Backdoor  
-- **Description**: The developer’s website was breached and manual installer packages of Gravity Forms were trojanised with a PHP backdoor.  
-- **Impact**: Remote code execution on WordPress sites, data theft, SEO spam.  
-- **Status**: Malicious packages discovered; clean installers re-issued, users urged to verify hashes.  
+### “PerfektBlue” One-Click Bluetooth RCE Chain
+- **Description**: A multi-stage exploit targeting Bluetooth stack drivers enables remote code execution on automotive infotainment units and embedded devices after a single pairing prompt.
+- **Impact**: Unauthorized control over vehicle systems and industrial / medical devices, posing safety risks.
+- **Status**: Demonstrated in the lab; no patches yet issued by major OEMs, making field exploitation plausible.
 
 ## Affected Systems and Products
 
-- **Wing FTP Server**: All supported OS versions; vulnerable builds prior to latest hot-fix  
-- **Fortinet FortiWeb**: Physical and virtual appliances before FortiWeb 7.4.1 / 7.0.8  
-- **Gigabyte Motherboards (UEFI)**: Dozens of Intel & AMD models across Z-, B- and X-series chipsets  
-- **Automotive Infotainment Units**: Mercedes, Škoda, Volkswagen models using affected Bluetooth stacks  
-- **Google Gemini (Workspace & Mobile)**: All instances prior to server-side patch  
-- **Web Servers Hosting FileFix Scripts**: Sites compromised by Interlock operators  
-- **Kigen eUICC Cards**: Billions of IoT/smartphone devices using vulnerable firmware versions  
-- **NVIDIA GPUs**: GDDR6-equipped cards (RTX 30/40 series, select professional lines)  
-- **Laravel Applications**: Projects with APP_KEY values leaked publicly on GitHub  
-- **OpenVSX Marketplace**: Cursor, Windsurf, and other IDEs sourcing extensions pre-patch  
-- **VSCode/Cursor IDE Users**: Systems where the rogue extension was installed  
-- **WordPress Sites**: Deployments that installed Gravity Forms manually between breach window  
+- **Fortinet FortiWeb**: All versions prior to vendor-released fixed builds; hardware and virtual appliances  
+- **Wing FTP Server**: Windows, Linux, and macOS builds prior to latest hot-fix  
+- **Google Gemini for Workspace**: Web and mobile Workspace environments leveraging Gemini email summarization  
+- **Gigabyte Motherboards**: Dozens of Intel/AMD models using vulnerable UEFI firmware revisions  
+- **WordPress Gravity Forms Plugin**: Manual installers downloaded during the compromise window  
+- **OpenVSX Marketplace**: Cursor and Windsurf IDE extensions prior to registry patch  
+- **Laravel Web Applications**: Projects exposing APP_KEYs in public Git repositories  
+- **VSCode / Cursor IDE**: Systems that installed the malicious “AI” extension variant  
+- **Kigen eUICC eSIM Cards**: Billions of IoT devices and smartphones using affected firmware  
+- **Automotive Infotainment (Mercedes, Škoda, Volkswagen)**: Vehicles with unpatched Bluetooth stacks susceptible to PerfektBlue  
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Web Interface Exploit**  
-  - **Vector**: Direct HTTP(S) requests exploiting input validation flaws (Wing FTP, FortiWeb).  
-
-- **Boot-Time Firmware Injection**  
-  - **Vector**: Malicious UEFI image update flashing on Gigabyte motherboards.  
-
-- **One-Click Bluetooth RCE (“PerfektBlue”)**  
-  - **Vector**: Malformed Bluetooth Low Energy packet triggers heap corruption.  
-
-- **Prompt Injection**  
-  - **Vector**: Zero-width characters embedded in Gemini prompts and email summaries.  
-
-- **Weaponised PHP Loader (FileFix)**  
-  - **Vector**: Compromised legitimate websites inject auto-executing PHP payloads.  
-
-- **eSIM Profile Hijacking**  
-  - **Vector**: Over-the-air provisioning abuse of Kigen eUICC management commands.  
-
-- **RowHammer on GDDR6 (“GPUHammer”)**  
-  - **Vector**: High-frequency memory row accesses to flip adjacent bits on GPUs.  
-
-- **GitHub Secret Leakage**  
-  - **Vector**: Public commits containing Laravel APP_KEYs enabling serializer attacks.  
-
-- **Supply-Chain Extension Takeover**  
-  - **Vector**: OpenVSX privilege abuse to publish malicious versions of popular extensions.  
-
-- **Trojanised Installer Packages**  
-  - **Vector**: Compromised vendor site served backdoored Gravity Forms zip files.  
+- **Pre-Auth SQL Injection**: Malformed HTTP requests inject SQL commands into FortiWeb management endpoints.  
+- **Crafted FTP Requests**: Specially formatted commands to Wing FTP Server trigger unsafe memory operations leading to RCE.  
+- **Invisible Prompt Injection**: Hidden HTML/CSS tokens force Gemini to produce malicious email content.  
+- **UEFI Firmware Implantation**: Attackers leverage unsigned update utilities to flash malicious images on Gigabyte boards.  
+- **FileFix Web-Injection**: Compromised websites serve manipulated file-conversion pages that sideload Interlock RAT.  
+- **Supply-Chain Package Swap**: Adversaries replace legitimate plugin/extension packages (Gravity Forms, OpenVSX, VSCode) with backdoored builds.  
+- **Leaked APP_KEY Exploitation**: Attackers generate forged cookies to gain code execution in Laravel apps.  
+- **Bluetooth L2CAP Exploit Chain**: PerfektBlue abuses buffer-management flaws to achieve one-click code execution over BLE.  
+- **eSIM Profile Manipulation**: Remote over-the-air commands modify eUICC profiles to hijack cellular identities.  
 
 ## Threat Actor Activities
 
 - **Interlock Ransomware Group**  
-  - **Campaign**: Web-inject & FileFix distribution of new PHP-based Interlock RAT targeting healthcare, manufacturing, and finance sectors.  
-
-- **Pay2Key Ransomware (Iran-linked)**  
-  - **Campaign**: Relaunched RaaS platform with 80 % affiliate payout to incentivise attacks on U.S. and Israeli organisations.  
-
-- **Unknown Wing FTP Exploitation Cluster**  
-  - **Campaign**: Mass internet scanning, rapid weaponisation of public exploit to establish footholds for future ransomware.  
-
-- **Adversaries Leveraging Gemini Bugs**  
-  - **Campaign**: Phishing operations impersonating Google Security to harvest credentials and MFA tokens.  
-
-- **Cursor IDE Extension Threat Actor (“CLIPPERNOVA” tentative)**  
-  - **Campaign**: Supply-chain intrusion leading to cryptocurrency wallet thefts from developer endpoints.  
-
-- **Supply-Chain Actor Behind Gravity Forms Backdoor**  
-  - **Campaign**: Attempted widescale compromise of WordPress sites for SEO spam and skimmer deployment.  
-
-- **Researchers Demonstrating GPUHammer & PerfektBlue**  
-  - **Campaign**: Security-community proof-of-concepts highlighting the need for ECC and Bluetooth stack hardening; no confirmed criminal exploitation yet but risk is high.  
+  - **Campaign**: Web-inject/FileFix attacks dropping a new PHP-based Interlock RAT across legal, healthcare, and manufacturing sectors.  
+- **Unknown FTP Threat Cluster**  
+  - **Campaign**: Mass scanning and exploitation of Wing FTP Server RCE within 24 hours of disclosure.  
+- **Unattributed Actors Leveraging Gemini Bugs**  
+  - **Campaign**: Phishing operations embedding malicious instructions in AI-generated Gmail summaries to harvest credentials.  
+- **Firmware Bootkit Operators**  
+  - **Campaign**: Deployment of stealth UEFI implants on Gigabyte motherboards to maintain persistence in enterprise environments.  
+- **Supply-Chain Intruders (Gravity Forms / OpenVSX)**  
+  - **Campaign**: Compromise of developer infrastructure to insert backdoors in widely used plugins and IDE extensions.  
+- **Crypto-Theft Group via VSCode Extension**  
+  - **Campaign**: Remote-access and infostealer deployment through malicious Cursor IDE extension, resulting in $500 K loss.  
 
 ---
-
-**Prepared by:** Threat-Hunting & Exploitation Analysis Team  
-**Date:** 14 June 2025
