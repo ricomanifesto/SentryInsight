@@ -1,104 +1,83 @@
 # Exploitation Report
 
-The past week’s activity underscores an aggressive shift toward supply-chain compromise, firmware tampering, and cloud-hosted command-and-control. North Korean operators poisoned the npm ecosystem with dozens of weaponized packages that sideload the new XORIndex loader, while the Interlock ransomware group rolled out a “FileFix” delivery chain to silently implant a PHP-based RAT. Separate campaigns leveraged malformed Android APKs, malicious VSCode extensions, and insecure AWS Lambda functions to gain covert access to developer workstations and government networks. Of particular concern is a Secure Boot-bypass flaw in Gigabyte UEFI firmware and critical weaknesses in Kigen eSIM cards that put billions of IoT devices at risk. Hyper-volumetric DDoS attacks exploiting the HTTP/2 Rapid Reset weakness also reached a record 7.3 Tbps, indicating that denial-of-service tactics remain a favored method for large-scale disruption.
+Recent reporting highlights a diverse set of active exploitation campaigns ranging from firmware-level attacks on Gigabyte motherboards to novel prompt-injection flaws in Google Gemini. Threat actors are abusing default credentials, poisoned software-supply-chain artifacts, and Secure-Boot bypasses to gain persistence, steal data, and deploy ransomware. Particularly notable are North Korean operators seeding 67 malicious npm packages with the XORIndex loader, the “Diskstation” ransomware crew exploiting NAS devices across Europe, and wide-scale deployment of Interlock’s new “FileFix” technique for RAT delivery. Defensive teams should prioritise firmware patching, AI-prompt hardening, supply-chain integrity monitoring, and credential hygiene to counter these currently observed attacks.
 
 ## Active Exploitation Details
 
-### Gigabyte UEFI Secure Boot Bypass
-- **Description**: Multiple Gigabyte motherboard firmware images allow unsigned or tampered bootloaders to execute before the OS, effectively disabling Secure Boot protections.  
-- **Impact**: Attackers can install stealthy bootkits that survive OS reinstallation, remain invisible to endpoint security, and provide full system persistence.  
-- **Status**: Exploitation observed in the wild; Gigabyte is expected to release updated UEFI images, but many systems remain unpatched.
+### Gigabyte UEFI Secure Boot Bypass Vulnerabilities
+- **Description**: Multiple security issues in Gigabyte motherboard UEFI firmware allow the installation of bootkit malware that executes before the operating system and persists across re-installation, effectively bypassing Secure Boot protections.  
+- **Impact**: Full device compromise with kernel-level persistence, invisibility to OS-level security tools, and ability to implant additional payloads.  
+- **Status**: Actively exploited in the wild to deploy stealth bootkits; firmware updates are being released by Gigabyte, but many systems remain unpatched.
 
-### Kigen eUICC / eSIM Remote Profile Takeover
-- **Description**: Design flaws in Kigen’s eSIM cards allow unauthorized over-the-air profile provisioning and key extraction.  
-- **Impact**: Enables SIM cloning, interception of SMS-based multi-factor authentication, remote device tracking, and massive IoT disruption.  
-- **Status**: Active proof-of-concept exploitation reported. Mitigations involve carrier-side validation and firmware updates to affected eUICC cards.
+### Google Gemini Prompt-Injection Flaw
+- **Description**: An input-validation weakness lets attackers craft “invisible” or obfuscated prompts masquerading as legitimate Google Security alerts, hijacking Gemini’s response logic.  
+- **Impact**: Users can be socially engineered into divulging credentials or executing malicious actions while believing they are following genuine security guidance.  
+- **Status**: Exploitation observed in phishing-style campaigns. Mitigations are rolling out on Google’s side, but no client-side patch is available yet.
 
-### XORIndex Malicious npm Packages
-- **Description**: 67 trojanized npm packages embed the XORIndex malware loader, triggered during post-install scripts on developer machines.  
-- **Impact**: Steals source code, environment variables, and credentials; establishes persistence for follow-on implants.  
-- **Status**: Packages have been removed from the registry, but cloned mirrors and cached copies continue to circulate.
+### McDonald’s McHire Default-Credential Exposure
+- **Description**: The McHire recruiting platform was left running with its factory-default administrator credentials, exposing backend resources and approximately 64 million job-applicant records.  
+- **Impact**: Unauthorised attackers could access or exfiltrate large volumes of personally identifiable information (PII) and potentially inject malicious code into the application workflow.  
+- **Status**: Credentials have now been reset and the instance hardened, but data theft already occurred.
 
-### FileFix Delivery Chain (Interlock RAT)
-- **Description**: Interlock ransomware actors weaponized a “FileFix” technique that abuses specially crafted file associations to drop a new PHP-based RAT.  
-- **Impact**: Provides remote shell access, lateral movement, and data encryption capabilities prior to ransom demands.  
-- **Status**: Ongoing; no vendor patch required—defenders must block suspicious file types and harden email/web gateways.
+### XORIndex Supply-Chain Attack on npm
+- **Description**: North Korean threat actors published 67 malicious npm packages that install a new loader dubbed “XORIndex” during package installation.  
+- **Impact**: Developer workstations become initial footholds, enabling remote command execution, credential theft, and subsequent lateral movement into corporate environments.  
+- **Status**: Packages have been removed, but clones and forks continue to appear; downstream projects that pulled the packages remain at risk.
 
-### HazyBeacon AWS Lambda Abuse
-- **Description**: State-sponsored operators deploy the HazyBeacon backdoor, which communicates over legitimate AWS Lambda and S3 APIs to blend C2 traffic with benign cloud noise.  
-- **Impact**: Covert exfiltration of diplomatic documents and persistent access in Southeast Asian government networks.  
-- **Status**: Campaign active; mitigation requires inspection of cloud service logs and tighter IAM controls.
+### “Diskstation” NAS Exploitation
+- **Description**: A Romanian ransomware group targeted network-attached storage (NAS) devices, abusing exposed services and unpatched firmware flaws to deploy a custom ransomware strain.  
+- **Impact**: Encrypted corporate backups and production file shares, causing significant business disruption.  
+- **Status**: International law-enforcement operation dismantled core infrastructure, but victims must still remediate vulnerable NAS installations.
 
-### Diskstation NAS Ransomware Intrusions
-- **Description**: The Romanian “Diskstation” gang brute-forces or exploits exposed NAS management interfaces, encrypting storage for extortion.  
-- **Impact**: Business-critical file servers rendered inaccessible, leading to operational paralysis.  
-- **Status**: Law-enforcement takedown disrupted infrastructure, but residual infections persist on unpatched NAS devices.
-
-### Konfety Android Malformed APK
-- **Description**: A new Konfety variant hides malicious payloads in APKs with corrupt ZIP headers, bypassing automated scanners and many AV engines.  
-- **Impact**: Grants full device control, credential theft, and espionage functions on compromised smartphones.  
-- **Status**: Seen in third-party app stores; Google Play Protect updates underway.
-
-### Malicious VSCode Extension in Cursor IDE
-- **Description**: A fake extension for the Cursor AI-enabled IDE installs remote-access tools and infostealers during IDE startup.  
-- **Impact**: Led to at least one confirmed theft of $500 K in cryptocurrency wallets; also harvests SSH keys and API tokens.  
-- **Status**: Extension repository entry removed; users must manually audit extensions and revoke stolen keys.
-
-### HTTP/2 Rapid Reset DDoS Exploit
-- **Description**: Attackers exploit the “Rapid Reset” weakness in HTTP/2 to amplify DDoS traffic, forcing servers to repeatedly restart streams.  
-- **Impact**: Record-breaking 7.3 Tbps floods disrupted finance, SaaS, and telecom providers.  
-- **Status**: Cloudflare and other CDN vendors deployed mitigations; origin servers need protocol-level patches or rate-limits.
+### Interlock “FileFix” Delivery Mechanism
+- **Description**: The Interlock ransomware group weaponised a new technique named “FileFix,” leveraging manipulated download prompts and legitimate web injections to drop a PHP-based variant of its bespoke RAT.  
+- **Impact**: Remote access, data theft, and follow-on ransomware deployment against multiple industry sectors.  
+- **Status**: Campaigns are ongoing; no vendor patches apply, but hardening download controls and web-application firewalls reduces exposure.
 
 ## Affected Systems and Products
 
-- **Gigabyte AM5 & Intel 700-series Motherboards**: UEFI versions prior to forthcoming vendor patch  
-- **Kigen eUICC / eSIM Cards**: M2M, consumer, and IoT profiles across global carriers  
-- **Node.js / npm Ecosystem**: Developers installing poisoned packages “classnames-loader”, “react-icons-index”, and related libraries  
-- **Windows & Linux Servers**: Targets of Interlock’s FileFix payloads via email attachments and web injects  
-- **AWS Cloud Environments**: Misused Lambda, API Gateway, and S3 buckets for HazyBeacon C2  
-- **Synology & QNAP NAS Devices**: Internet-exposed admin interfaces without strong authentication  
-- **Android 8–14 Devices**: Users sideloading apps from unofficial marketplaces  
-- **Cursor IDE (VSCode fork)**: Versions allowing unsigned extension installation  
-- **HTTP/2-enabled Web Servers**: Apache, nginx, IIS, and cloud load balancers lacking Rapid Reset mitigations
+- **Gigabyte Motherboards**: Numerous Intel and AMD consumer- and enterprise-grade boards running vulnerable UEFI firmware versions  
+  - **Platform**: Windows and Linux systems relying on affected firmware  
+- **Google Gemini AI Assistant**: Gemini integrations across Gmail, Google Chat, and web/mobile clients  
+  - **Platform**: Web browsers, Android, iOS  
+- **McHire Recruiting Platform (McDonald’s)**: Cloud-hosted hiring application instances with unchanged default credentials  
+  - **Platform**: Public-facing web application  
+- **npm Ecosystem**: Projects that included any of the 67 malicious packages (cross-platform JavaScript/Node.js environments)  
+  - **Platform**: Developer workstations (Windows, macOS, Linux) and CI/CD pipelines  
+- **Synology and Other NAS Devices**: DiskStation Manager (DSM) versions lacking recent security updates or exposing management services to the Internet  
+  - **Platform**: Network-attached storage appliances  
+- **Enterprise Web Servers Hosting “FileFix” Payloads**: Legitimate sites compromised to serve malicious PHP-based Interlock RAT installers  
+  - **Platform**: Apache/Nginx on Linux and Windows IIS servers
 
 ## Attack Vectors and Techniques
 
-- **Supply-Chain Package Poisoning**: Malicious npm packages execute post-install scripts to drop loaders.  
-- **FileFix Association Hijacking**: Crafted files trigger unintended handler execution, silently running payloads.  
-- **Malformed APK Packaging**: Corrupt ZIP structures evade antivirus heuristics during Android app installs.  
-- **UEFI Bootkit Implantation**: Direct flash modification or DMA attacks inject persistent pre-OS malware.  
-- **eSIM Profile Hijack**: Unauthorized SM-DP+ interactions enroll rogue operator profiles.  
-- **Cloud-Native C2 (AWS Lambda/S3)**: Beacon traffic tunneled through legitimate cloud API calls.  
-- **HTTP/2 Rapid Reset Flooding**: Abusive stream-cancel sequence overwhelms server resources.  
-- **Malicious IDE Extension**: Unsigned VSCode add-on abuses IDE privileges for RCE.  
-- **Brute-Force / Credential Stuffing**: NAS management panels attacked to deploy ransomware.
+- **UEFI Bootkit Implantation**  
+  - **Vector**: Direct firmware flashing or exploitation of insecure update mechanisms to write malicious code into the SPI flash region.  
+- **Invisible Prompt Injection**  
+  - **Vector**: Special Unicode characters, styling tricks, or hidden-text segments embedded in emails/chats to alter Gemini instructions.  
+- **Default-Credential Abuse**  
+  - **Vector**: Automated scanning for internet-reachable services (e.g., McHire) using factory usernames/passwords.  
+- **Supply-Chain Poisoning (npm)**  
+  - **Vector**: Publishing typosquatted or dependency-confused packages that execute post-install scripts.  
+- **Ransomware via Exposed NAS Services**  
+  - **Vector**: Brute-forcing weak NAS credentials or exploiting outdated DSM vulnerabilities over SMB/SSH/WebDAV.  
+- **FileFix Drive-By Download**  
+  - **Vector**: Injected JavaScript on compromised sites presents a deceptive “file fixer” prompt, tricking users into executing a RAT installer.
 
 ## Threat Actor Activities
 
-- **North Korean Contagious Interview Operators**  
-  - Planted 67 weaponized npm packages delivering XORIndex; targeting global software developers.
+- **North Korean Operators (XORIndex Campaign)**  
+  - **Campaign**: Continual seeding of malicious npm packages targeting developers in tech and crypto sectors to establish footholds for espionage.  
+
+- **“Diskstation” Ransomware Gang**  
+  - **Campaign**: Targeted small-to-medium businesses in Italy’s Lombardy region, encrypting NAS-hosted data; infrastructure seized by law enforcement, but variant may resurface.  
 
 - **Interlock Ransomware Group**  
-  - Debuted PHP-based RAT via FileFix; broad industry targeting with web-inject lures.
+  - **Campaign**: Widespread FileFix-based web-inject operation distributing new PHP Interlock RAT; observed across manufacturing, healthcare, and finance verticals.  
 
-- **State-Backed HazyBeacon Group (suspected Chinese nexus)**  
-  - Intelligence-collection against Southeast Asian government agencies; leverages AWS for stealth.
+- **Unknown State-Backed APT (HazyBeacon)**  
+  - **Campaign**: Espionage against Southeast Asian government entities using AWS Lambda for covert C2; leverages cloud service abuse rather than specific software flaws.  
 
-- **Diskstation Ransomware Gang (Romanian)**  
-  - Focused on European SMBs; encrypted NAS appliances until international takedown operation.
-
-- **GLOBAL GROUP RaaS**  
-  - Expanding affiliate base with AI-driven negotiation chatbots; victims in Australia, Brazil, EU, and U.S.
-
-- **Konfety Android Operators**  
-  - Distributed malformed APKs through third-party stores to steal user data and persist on devices.
-
-- **Unknown Threat Actors Exploiting Gigabyte Firmware**  
-  - Implanting UEFI bootkits for long-term espionage and credential theft.
-
-- **Cryptocurrency-Focused Actors via Cursor IDE**  
-  - Used malicious VSCode extension to siphon $500 K from a Russian crypto trader; pursuing other high-value wallets.
-
-- **DDoS Botnet Operators**  
-  - Leveraged HTTP/2 Rapid Reset to launch 7.3 Tbps floods against finance, telecom, and SaaS infrastructure.
+- **Miscellaneous Cybercriminals**  
+  - **Campaign**: Opportunistic exploitation of McHire default credentials and Gigabyte firmware weaknesses for data theft and stealth persistence, respectively.
 
