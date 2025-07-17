@@ -1,50 +1,53 @@
 # Exploitation Report
 
-An ongoing wave of intrusions is leveraging a previously unknown zero-day in SonicWall Secure Mobile Access (SMA) appliances to deploy a custom rootkit dubbed **“OVERSTEP.”**  The flaw is being exploited against fully patched – but end-of-life – SMA 100-series devices, providing attackers with persistent, pre-boot control, credential theft, and subsequent ransomware deployment.  Concurrently, the upgraded **Matanbuchus 3.0** loader is being pushed through social-engineering lures in Microsoft Teams chats, streamlining ransomware delivery and evading EDR solutions.  Taken together, the activity highlights a heightened threat to remote-access infrastructure and collaboration platforms that many organizations still regard as “trusted” entry points.
+Recent threat-hunting investigations highlight a critical exploitation wave against fully-patched SonicWall appliances, where an undisclosed zero-day is delivering the new “Overstep” backdoor in support of ransomware operations believed to be tied to the Abyss group. Concurrently, cyber-criminal operators have rolled out Matanbuchus 3.0, a heavily re-tooled malware loader now propagated through Microsoft Teams chats and enriched with EDR-evasion and DNS-tunneled C2, markedly increasing the success rate of targeted ransomware intrusions. While Oracle has rushed emergency fixes for a critical flaw in its Cloud Code Editor service, no public evidence of in-the-wild abuse is yet available; nonetheless, defenders should apply patches immediately due to the vulnerability’s trivial exploitation path.
 
 ## Active Exploitation Details
 
-### SonicWall Secure Mobile Access Zero-Day (OVERSTEP Campaign)
-- **Description**: Unknown pre-authentication flaw in SonicWall SMA 100-series appliances lets attackers gain root access and implant the OVERSTEP boot-level rootkit, which tampers with the `/sbin/init` process and multiple system libraries to guarantee execution before the operating system fully loads.  
-- **Impact**: Full device takeover, credential harvesting (including LDAP and local admin hashes), complete network entry, and the ability to stage further payloads such as ransomware.  
-- **Status**: Actively exploited in the wild against fully patched but legacy (end-of-support) devices; no vendor patch is currently available.  Mitigations are limited to device isolation, replacement with supported hardware, and complete re-imaging.  
+### SonicWall Zero-Day Leading to “Overstep” Backdoor
+- **Description**: An unknown vulnerability in fully up-to-date SonicWall next-generation firewalls and Secure Remote Access (SRA) appliances is being leveraged to gain privileged access and deploy the custom “Overstep” backdoor.  
+- **Impact**: Remote code execution on the appliance, network persistence, lateral movement, and eventual ransomware deployment.  
+- **Status**: Confirmed in-the-wild exploitation; no public patch. SonicWall has issued temporary hardening steps while the root-cause analysis continues.
 
 ### Microsoft Teams Abuse Delivering Matanbuchus 3.0 Loader
-- **Description**: Threat actors initiate targeted Microsoft Teams chats that persuade recipients to execute a malicious archive or shortcut.  The lure drops Matanbuchus 3.0, a loader with new DNS-based C2, built-in EDR process discovery, and file-less execution upgrades.  
-- **Impact**: Initial foothold on user workstations, lateral movement, and simplified deployment of ransomware or additional post-exploitation frameworks.  
-- **Status**: Ongoing campaigns observed; no underlying Microsoft Teams vulnerability is required, so no patch applies.  Protection hinges on conditional access, attachment filtering, and user awareness.  
+- **Description**: Attackers drop weaponized archive files in Microsoft Teams chats, abusing native file-sharing to sidestep secure-email gateways and perimeter defenses. The payload installs Matanbuchus 3.0, which features encrypted DNS-based command-and-control, EDR process discovery, and reflective PE injection.  
+- **Impact**: Initial access, payload staging, and seamless handoff to ransomware frameworks or data-stealers.  
+- **Status**: Actively observed in multiple targeted enterprise intrusions. No vulnerability patch required (misuse of legitimate functionality); mitigations focus on Teams security policies and attachment controls.
 
 ## Affected Systems and Products
 
-- **SonicWall SMA 100-Series Appliances**  
-  - Affected Versions: SMA 200, 210, 400, 410 (end-of-life but widely deployed)  
-  - Platform: Hardened Linux-based firmware used for SSL-VPN and secure remote access  
+- **SonicWall Next-Generation Firewalls & SRA Appliances**  
+  - **Platform**: Physical and virtual devices running the latest firmware streams; exploitation reported across enterprise and MSP environments.  
 
-- **Microsoft Teams (Desktop and Web)**  
-  - Platform: Windows & macOS endpoints connected to Microsoft 365 tenants  
-  - Component: Chat and file-sharing functionality abused for malware delivery  
+- **Microsoft Teams (Desktop and Web clients)**  
+  - **Platform**: Microsoft 365 tenants with default file-sharing permissions; all operating systems hosting Teams.  
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Remote Code Execution on VPN Gateway**  
-  - Vector: Unidentified flaw reachable via the SMA web interface enables unauthenticated compromise, followed by rootkit installation in the device boot chain.  
+- **Zero-Day Appliance Exploit**  
+  - **Vector**: Direct exploitation of an as-yet-unidentified flaw reachable over HTTPS management or VPN services on SonicWall gear, followed by Overstep backdoor deployment.
 
-- **Boot-Level Rootkit (OVERSTEP)**  
-  - Technique: Modifies critical startup files (`/sbin/init`, `/usr/lib/...`) so malicious libraries load before the OS, ensuring persistence and disabling security controls.  
+- **Malicious Teams File Drop**  
+  - **Vector**: Social-engineering of individual users or Teams channels to accept and open weaponized ZIPs/CABs, launching the Matanbuchus 3.0 installer.
 
-- **Phishing via Collaboration Platform**  
-  - Vector: Social-engineering messages in Microsoft Teams deliver malicious ZIP/LNK files; execution launches the Matanbuchus 3.0 loader without raising traditional email-security alarms.  
+- **DNS-Tunneled C2 (Matanbuchus 3.0)**  
+  - **Technique**: Encodes beacon traffic within TXT queries to attacker-controlled domains, blending exfiltration into normal DNS noise.
 
-- **DNS-Based Command-and-Control**  
-  - Technique: Matanbuchus 3.0 beacons and retrieves payloads over DNS queries to avoid HTTP inspection and blend with normal traffic.  
+- **EDR-Awareness & Process Injection (Matanbuchus 3.0)**  
+  - **Technique**: Scans for >15 common EDR/AV processes; if present, switches to memory-only reflective DLL injection to evade user-mode hooks.
 
 ## Threat Actor Activities
 
-- **Unnamed Threat Actor Linked to Abyss Ransomware**  
-  - Campaign: Exploiting SonicWall zero-day to implant OVERSTEP, harvest credentials, and stage ransomware operations against enterprises relying on outdated SMA appliances.  
-  - Targeting: Organizations using SMA 100-series for remote workforce connectivity.  
+- **Abyss Ransomware-Linked Actor**  
+  - **Campaign**: Exploiting SonicWall zero-day to install Overstep, harvest domain credentials, and stage double-extortion ransomware payloads against manufacturing and healthcare victims.
 
-- **Matanbuchus 3.0 Operators**  
-  - Campaign: Spear-phishing via Microsoft Teams to distribute enhanced loader that automatically profiles endpoints, disables security tooling, and hands off control to ransomware affiliates.  
-  - Targeting: Technology, legal, and manufacturing firms with high reliance on Teams collaboration.  
+- **Matanbuchus 3.0 Operator (“BelialDemon” Affiliate Service)**  
+  - **Campaign**: Loader offered as malware-as-a-service (MaaS) to multiple criminal crews; current wave targets professional-services and technology firms via Teams spear-phishing, aiming to monetize access through ransomware partnerships.
 
+- **ShinyHunters**  
+  - **Campaign**: Credited with the intrusion that exposed customer data across multiple Louis Vuitton regions; while specific vulnerabilities remain unconfirmed, stolen credentials and dark-web resale activity are ongoing.
+
+- **LockBit-Styled Supply-Chain Actor**  
+  - **Campaign**: Breach of UK retailer Co-op leading to personal data theft of 6.5 million members, with signs of ransomware-enabled extortion after lateral movement through third-party systems.
+
+Defenders are urged to apply SonicWall interim mitigations, harden Teams file-sharing policies (e.g., disable external file exchange, enforce Safe Attachments), and expedite Oracle Cloud Infrastructure patch deployments to stay ahead of current exploitation trends.
