@@ -1,53 +1,57 @@
 # Exploitation Report
 
-Recent threat-hunting investigations highlight a critical exploitation wave against fully-patched SonicWall appliances, where an undisclosed zero-day is delivering the new “Overstep” backdoor in support of ransomware operations believed to be tied to the Abyss group. Concurrently, cyber-criminal operators have rolled out Matanbuchus 3.0, a heavily re-tooled malware loader now propagated through Microsoft Teams chats and enriched with EDR-evasion and DNS-tunneled C2, markedly increasing the success rate of targeted ransomware intrusions. While Oracle has rushed emergency fixes for a critical flaw in its Cloud Code Editor service, no public evidence of in-the-wild abuse is yet available; nonetheless, defenders should apply patches immediately due to the vulnerability’s trivial exploitation path.
+A surge of high-impact exploitation activity is underway across enterprise networking, cloud, and security appliances. A newly disclosed critical flaw in Cisco Identity Services Engine (ISE) allows unauthenticated network-based attackers to run commands as root, while fully patched SonicWall appliances are being compromised in the wild through a previously unknown zero-day to deliver the “Overstep” backdoor for ransomware staging. Oracle has also rushed out emergency fixes for a vulnerability in its Cloud Infrastructure (OCI) Code Editor that exposed entire developer environments to takeover. Concurrently, the Matanbuchus 3.0 malware loader is being pushed via Microsoft Teams chats, showing threat actors’ continued pivot toward collaboration-platform abuse. Enterprises running Cisco ISE, SonicWall firewalls, or Oracle Cloud developer tooling should expedite patching or compensating controls and monitor for post-exploitation indicators immediately.
 
 ## Active Exploitation Details
 
-### SonicWall Zero-Day Leading to “Overstep” Backdoor
-- **Description**: An unknown vulnerability in fully up-to-date SonicWall next-generation firewalls and Secure Remote Access (SRA) appliances is being leveraged to gain privileged access and deploy the custom “Overstep” backdoor.  
-- **Impact**: Remote code execution on the appliance, network persistence, lateral movement, and eventual ransomware deployment.  
-- **Status**: Confirmed in-the-wild exploitation; no public patch. SonicWall has issued temporary hardening steps while the root-cause analysis continues.
+### Cisco ISE Remote Code Execution Vulnerability
+- **Description**: A maximum-severity flaw within Cisco Identity Services Engine (ISE) and ISE Passive Identity Connector (ISE-PIC) web-based management services permits unauthenticated attackers to send crafted HTTP requests that bypass authentication and execute arbitrary commands with root privileges on the underlying operating system.  
+- **Impact**: Full system compromise, lateral movement into network segments gated by ISE, ability to modify authentication policies, harvest credentials, and deploy additional payloads.  
+- **Status**: Cisco has released fixed versions and urges immediate upgrade; exploitation has not yet been confirmed publicly but is rated critical and remotely reachable, making rapid weaponisation likely.  
 
-### Microsoft Teams Abuse Delivering Matanbuchus 3.0 Loader
-- **Description**: Attackers drop weaponized archive files in Microsoft Teams chats, abusing native file-sharing to sidestep secure-email gateways and perimeter defenses. The payload installs Matanbuchus 3.0, which features encrypted DNS-based command-and-control, EDR process discovery, and reflective PE injection.  
-- **Impact**: Initial access, payload staging, and seamless handoff to ransomware frameworks or data-stealers.  
-- **Status**: Actively observed in multiple targeted enterprise intrusions. No vulnerability patch required (misuse of legitimate functionality); mitigations focus on Teams security policies and attachment controls.
+### SonicWall Zero-Day Enabling “Overstep” Backdoor Deployment
+- **Description**: Threat actors are exploiting an undocumented vulnerability against fully patched SonicWall Secure Mobile Access (SMA) and next-generation firewall appliances. The flaw provides privileged code execution, allowing installation of the custom “Overstep” backdoor.  
+- **Impact**: Persistence on perimeter security devices, network pivoting, credential interception, and delivery of Abyss-family ransomware across internal hosts.  
+- **Status**: Actively exploited zero-day with no vendor patch at the time of reporting; SonicWall is investigating and recommends disabling management interfaces from the Internet and enabling IPS signatures.  
+
+### Oracle Cloud Infrastructure Code Editor Critical Vulnerability
+- **Description**: A critical security weakness in OCI’s web-based Code Editor allowed attackers to escape the editor’s sandbox, gain the user’s cloud identity, and access or modify any resources tied to the compromised tenancy.  
+- **Impact**: Complete takeover of developer pipelines, insertion of malicious code into CI/CD processes, credential theft, and potential cross-tenant impact.  
+- **Status**: Oracle has patched the service; no reported in-the-wild exploitation prior to fix release but the low-complexity attack path increases the risk of post-disclosure mass scanning.  
 
 ## Affected Systems and Products
 
-- **SonicWall Next-Generation Firewalls & SRA Appliances**  
-  - **Platform**: Physical and virtual devices running the latest firmware streams; exploitation reported across enterprise and MSP environments.  
+- **Cisco Identity Services Engine (ISE) & ISE-PIC**  
+  - **Platform**: Physical and virtual ISE appliances running vulnerable software releases across on-prem and cloud deployments  
 
-- **Microsoft Teams (Desktop and Web clients)**  
-  - **Platform**: Microsoft 365 tenants with default file-sharing permissions; all operating systems hosting Teams.  
+- **SonicWall SMA & Next-Generation Firewall Appliances**  
+  - **Platform**: Hardware and virtual devices running the latest (at-the-time) firmware; management interface exposed internally or externally  
+
+- **Oracle Cloud Infrastructure (OCI) Code Editor**  
+  - **Platform**: All OCI regions where Code Editor is enabled for developer tenancies  
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Appliance Exploit**  
-  - **Vector**: Direct exploitation of an as-yet-unidentified flaw reachable over HTTPS management or VPN services on SonicWall gear, followed by Overstep backdoor deployment.
+- **Unauthenticated REST/HTTP Exploit (Cisco ISE)**  
+  - **Vector**: Direct network requests to ISE administrative endpoints weaponising input-validation flaws for command injection  
 
-- **Malicious Teams File Drop**  
-  - **Vector**: Social-engineering of individual users or Teams channels to accept and open weaponized ZIPs/CABs, launching the Matanbuchus 3.0 installer.
+- **Perimeter Appliance Zero-Day Abuse (SonicWall)**  
+  - **Vector**: Remote exploitation of an undisclosed vulnerability in the SSL-VPN / management interface to drop the “Overstep” ELF payload  
 
-- **DNS-Tunneled C2 (Matanbuchus 3.0)**  
-  - **Technique**: Encodes beacon traffic within TXT queries to attacker-controlled domains, blending exfiltration into normal DNS noise.
+- **Cloud IDE Sandbox Escape (OCI Code Editor)**  
+  - **Vector**: Crafted project files and API calls that break out of the integrated code workspace, hijacking the user’s cloud session token  
 
-- **EDR-Awareness & Process Injection (Matanbuchus 3.0)**  
-  - **Technique**: Scans for >15 common EDR/AV processes; if present, switches to memory-only reflective DLL injection to evade user-mode hooks.
+- **Collaboration-Platform Malware Delivery (Microsoft Teams → Matanbuchus 3.0)**  
+  - **Vector**: Spear-phishing via Teams chat messages containing malicious MSI installers that leverage the loader’s new EDR-evasion and DNS-tunneled C2 capabilities  
 
 ## Threat Actor Activities
 
-- **Abyss Ransomware-Linked Actor**  
-  - **Campaign**: Exploiting SonicWall zero-day to install Overstep, harvest domain credentials, and stage double-extortion ransomware payloads against manufacturing and healthcare victims.
+- **Abyss Ransomware-Linked Group**  
+  - **Campaign**: Leveraging SonicWall zero-day to implant “Overstep,” perform reconnaissance, and launch targeted ransomware attacks against organisations relying on SonicWall perimeter gear  
 
-- **Matanbuchus 3.0 Operator (“BelialDemon” Affiliate Service)**  
-  - **Campaign**: Loader offered as malware-as-a-service (MaaS) to multiple criminal crews; current wave targets professional-services and technology firms via Teams spear-phishing, aiming to monetize access through ransomware partnerships.
+- **Matanbuchus 3.0 Operators**  
+  - **Campaign**: Using Microsoft Teams as an initial access channel to distribute an upgraded loader featuring endpoint-detection-response (EDR) discovery, dynamic configuration fetching, and DNS-based command-and-control to stage subsequent ransomware payloads  
 
-- **ShinyHunters**  
-  - **Campaign**: Credited with the intrusion that exposed customer data across multiple Louis Vuitton regions; while specific vulnerabilities remain unconfirmed, stolen credentials and dark-web resale activity are ongoing.
+- **ShinyHunters (Suspected)**  
+  - **Campaign**: Breach of Louis Vuitton regional systems resulting in multi-country customer data exposure; activity underscores ongoing data-theft operations but is not tied to a specific vulnerability disclosed in this cycle  
 
-- **LockBit-Styled Supply-Chain Actor**  
-  - **Campaign**: Breach of UK retailer Co-op leading to personal data theft of 6.5 million members, with signs of ransomware-enabled extortion after lateral movement through third-party systems.
-
-Defenders are urged to apply SonicWall interim mitigations, harden Teams file-sharing policies (e.g., disable external file exchange, enforce Safe Attachments), and expedite Oracle Cloud Infrastructure patch deployments to stay ahead of current exploitation trends.
