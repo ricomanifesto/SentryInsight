@@ -1,65 +1,63 @@
 # Exploitation Report
 
-During the last week, multiple high-impact vulnerabilities moved directly from disclosure to active exploitation. The most critical events center on Citrix NetScaler appliances, where “CitrixBleed 2” (CVE-2025-5777) was weaponised in the wild almost two weeks before proof-of-concept code became public, enabling unauthenticated memory disclosure and session hijacking against internet-facing gateways. VMware simultaneously shipped emergency patches for four ESXi/Workstation/Fusion zero-days that researchers exploited during the Pwn2Own Berlin contest, demonstrating reliable guest-to-host escapes and code execution. While Cisco released fixes for a CVSS 10 flaw in Identity Services Engine, no in-the-wild exploitation has yet been observed, making CitrixBleed 2 and the newly patched VMware issues the most pressing threats. Parallel campaigns abusing Microsoft Teams voice calls to drop the Matanbuchus loader, Salt Typhoon’s extended National Guard intrusion, and Google’s legal action against the BadBox 2.0 Android botnet further illustrate the current threat landscape.
+The most critical exploitation activity this week centers on the continued weaponization of enterprise-grade infrastructure vulnerabilities. Attackers are actively abusing the “CitrixBleed 2” flaw (CVE-2025-5777) in NetScaler ADC/Gateway appliances and began doing so weeks before public proof-of-concept code appeared. Simultaneously, VMware rushed out emergency patches for four ESXi, Workstation, and Fusion zero-day bugs after they were successfully exploited at the Pwn2Own Berlin contest. Cisco also disclosed a maximum-severity pre-authentication flaw (CVE-2025-20337) in Identity Services Engine (ISE) that could grant root access. These high-impact weaknesses are being folded into broader intrusion campaigns by Chinese state-sponsored groups targeting Taiwan’s semiconductor sector and U.S. military networks, while cyber-criminal operators leverage novel delivery techniques—including Microsoft Teams voice-call lures and GitHub-hosted payloads—to distribute malware such as Matanbuchus, Amadey, and the AI-assisted “LameHug.”
 
 ## Active Exploitation Details
 
-### CitrixBleed 2 – Citrix NetScaler ADC/Gateway Memory Disclosure
-- **Description**: An unauthenticated flaw allowing attackers to read adjacent memory from vulnerable NetScaler ADC and Gateway processes, exposing valid session tokens, cookies, and credentials.
-- **Impact**: Enables session hijacking, lateral movement into internal Citrix VDI environments, and potential full network compromise without needing valid accounts.
-- **Status**: Actively exploited in the wild since at least two weeks before public PoCs. Citrix has released patches and strongly urges immediate upgrade or mitigation.
-- **CVE ID**: CVE-2025-5777
+### CitrixBleed 2 (NetScaler ADC/Gateway)
+- **Description**: Memory-handling flaw in the NetScaler AAA component that allows unauthenticated attackers to leak session tokens and other sensitive data via crafted HTTP requests.  
+- **Impact**: Enables credential theft, session hijacking, and ultimately full administrative takeover of Citrix appliances, leading to lateral movement across corporate networks.  
+- **Status**: Actively exploited in the wild at least two weeks before public PoCs; patches and mitigations are available from Citrix.  
+- **CVE ID**: CVE-2025-5777  
 
-### VMware ESXi / Workstation / Fusion Zero-Days (Pwn2Own Berlin 2025)
-- **Description**: A collection of four distinct vulnerabilities demonstrated at Pwn2Own allowing guest virtual machines to execute code on the host or escape the hypervisor boundary. Flaws include out-of-bounds writes and logic errors in device emulation components.
-- **Impact**: Full host compromise from a malicious or compromised guest, potential pivot to other infrastructure managed by the hypervisor.
-- **Status**: Zero-day status at the contest; VMware subsequently released security updates for ESXi, Workstation, Fusion, and Tools. No evidence of malicious in-the-wild exploitation yet, but public knowledge significantly raises risk.
+### VMware ESXi / Workstation / Fusion Zero-Days
+- **Description**: Four distinct vulnerabilities demonstrated during Pwn2Own Berlin that allow guest-to-host escapes, code execution, and privilege escalation across VMware hypervisor products.  
+- **Impact**: Attackers achieving a VM escape can run arbitrary code on the host, access other guest workloads, and compromise cloud or on-prem virtual environments.  
+- **Status**: Exploited as zero-days by researchers; VMware released urgent security updates that fully address all four flaws.  
+
+### Cisco ISE Pre-Auth Command Execution
+- **Description**: Input-validation weakness in the web-based interface of Cisco Identity Services Engine (ISE) and ISE-PIC permitting unauthenticated file uploads and arbitrary command execution.  
+- **Impact**: Remote attackers can gain root privileges, implant backdoors, and pivot into protected network segments managed by ISE.  
+- **Status**: No confirmed exploitation yet, but public disclosure and “CVSS 10” rating make rapid exploitation likely; patches are available from Cisco.  
+- **CVE ID**: CVE-2025-20337  
 
 ## Affected Systems and Products
 
-- **Citrix NetScaler ADC & Gateway**: 14.1 before 14.1-20.18; 13.1 before 13.1-51.19; 13.0 before 13.0-92.21; 12.1 (eol) – appliance and VPX platforms
-  - **Platform**: On-prem appliances, cloud instances, and managed service deployments
-- **VMware ESXi**: 8.x, 7.x branches prior to the May 2025 patch set  
-  - **Platform**: Bare-metal hypervisors running on x86-64 servers
-- **VMware Workstation Pro / Player**: 17.x before 17.5.2  
-  - **Platform**: Windows and Linux desktop virtualization hosts
-- **VMware Fusion / Fusion Pro**: 13.x before 13.5.2  
-  - **Platform**: macOS virtualization hosts
+- **Citrix NetScaler ADC & Gateway**: All supported versions prior to the fixed builds released in July 2025  
+  - **Platform**: On-prem or cloud-hosted NetScaler deployments (VPX, MPX, SDX)  
+- **VMware ESXi**: 8.x, 7.x, and 6.7 hypervisors before July 2025 patches  
+  - **Platform**: Bare-metal hypervisor in data-center and cloud environments  
+- **VMware Workstation & Fusion**: Consumer and Pro editions for Windows, Linux, and macOS prior to build-numbers issued July 2025  
+  - **Platform**: Desktop virtualization platforms  
+- **Cisco Identity Services Engine (ISE) / ISE-PIC**: 3.x and 2.x trains up to, but excluding, fixed versions 3.3.0.443 & 2.7.0.919  
+  - **Platform**: Dedicated ISE appliances and virtual machines managing network access control  
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Memory Scraping (CitrixBleed 2)**  
-  - **Vector**: Crafted HTTP/HTTPS requests to the device management interface leak sensitive memory regions containing active session tokens.
-
-- **Guest-to-Host Hypervisor Escape (VMware Zero-Days)**  
-  - **Vector**: Malicious code inside a VM issues specially crafted instructions or triggers device emulation bugs leading to arbitrary code execution on the host.
-
-- **Social Engineering via Teams Voice Calls**  
-  - **Vector**: Fake IT help-desk calls through Microsoft Teams urge victims to disable security controls and download a malicious “support tool” that sideloads the Matanbuchus malware loader.
-
-- **Public Repository Malware Hosting**  
-  - **Vector**: Attackers store Amadey payloads and stealers in GitHub repositories, abusing trust in GitHub domains to bypass network filters.
+- **Session Token Leakage (CitrixBleed 2)**  
+  - **Vector**: Malformed HTTP GET/POST requests to the /oauth/idp/profile endpoint leak memory containing valid session cookies.  
+- **Guest-to-Host Escape (VMware Zero-Days)**  
+  - **Vector**: Exploitation of virtual device emulation flaws from within a malicious VM to execute code on the hypervisor.  
+- **Pre-Auth File Upload (Cisco ISE)**  
+  - **Vector**: Crafted HTTPS multipart/form-data requests allow placement of executable files into the web root, followed by direct invocation.  
+- **Teams Voice-Call Social Engineering**  
+  - **Vector**: Attackers impersonate IT staff in unsolicited Microsoft Teams voice calls, dropping malicious ZIPs that sideload the Matanbuchus loader.  
+- **GitHub-Hosted Payload Delivery**  
+  - **Vector**: Public GitHub repos host Amadey loaders and Raccoon-style stealers, downloaded via PowerShell one-liners to bypass email/web filters.  
+- **LLM-Generated Commands (LameHug)**  
+  - **Vector**: Malware queries an embedded large language model to dynamically craft PowerShell and WMI commands for data exfiltration, complicating static detection.  
 
 ## Threat Actor Activities
 
-- **Unknown Actors (CitrixBleed 2)**  
-  - **Campaign**: Mass scanning and exploitation of exposed NetScaler gateways for credential theft and persistence. Activity predates vendor acknowledgement.
-
-- **Security Researchers @ Pwn2Own**  
-  - **Campaign**: Controlled exploitation of VMware zero-days earning contest points and cash awards; details now responsibly disclosed and patched.
-
-- **Matanbuchus Operators**  
-  - **Campaign**: Phishing via Microsoft Teams calls targeting corporate employees; objective is initial loader deployment leading to Cobalt Strike or ransomware affiliates.
-
 - **Salt Typhoon (Chinese State-Sponsored)**  
-  - **Campaign**: Nine-month stealth intrusion into a U.S. National Guard network to exfiltrate configuration data, leveraging stolen credentials and living-off-the-land techniques.
-
-- **BadBox 2.0 Operators**  
-  - **Campaign**: Large-scale Android supply-chain infection (10 million devices) for ad-fraud; Google filed civil suit and is moving for takedown and domain seizure.
-
-- **GitHub/Amadey Campaign Actors**  
-  - **Campaign**: Use of public repositories for payload staging, distributing stealers to global victims while evading traditional web filtering.
-
----
-
-**Remain vigilant**: prioritise patching Citrix NetScaler appliances and VMware virtualisation products, monitor Teams traffic for unsolicited voice calls, and enforce egress controls to GitHub and other public code-hosting services.
+  - **Campaign**: Nine-month clandestine presence in U.S. Army National Guard network, exfiltrating configuration files—likely initial access via vulnerable edge device.  
+- **Multiple PRC APTs (Unnamed in report)**  
+  - **Campaign**: Coordinated attacks on Taiwan’s semiconductor industry employing spear-phishing, supply-chain infiltration, and exploitation of edge services.  
+- **Unidentified Crimeware Group (CitrixBleed 2)**  
+  - **Campaign**: Mass scanning and compromise of Internet-exposed NetScaler appliances to harvest tokens and deploy ransomware-as-a-service payloads.  
+- **Matanbuchus Operators**  
+  - **Campaign**: Using Microsoft Teams voice lures to distribute loader that fetches Cobalt Strike beacons.  
+- **Amadey MaaS Operators**  
+  - **Campaign**: Leveraging GitHub to host rotating payloads, increasing resilience against takedowns and content filtering.  
+- **BadBox 2.0 Botnet Controllers**  
+  - **Campaign**: Infected 10 million Android devices via malicious firmware supply chain; currently facing Google civil action to disrupt C2 and ad-fraud infrastructure.  
