@@ -1,65 +1,76 @@
 # Exploitation Report
 
-Over the last week, defenders observed a sharp rise in active exploitation across enterprise software, authentication flows, and open-source supply chains. A zero-day in CrushFTP (CVE-2025-54309) is being mass-exploited to seize administrative control of file-sharing servers, while two never-before-seen Ivanti Connect Secure flaws are enabling in-memory Cobalt Strike beacons via the new “MDifyLoader” malware. Concurrently, the “PoisonSeed” campaign is abusing WebAuthn’s cross-device sign-in feature to downgrade FIDO2 hardware key workflows, effectively nullifying phishing-resistant MFA. Attackers also hijacked popular npm linter packages and several Arch Linux AUR packages, weaponizing the open-source ecosystem to deliver malware. Finally, almost 2,000 MCP servers were found exposed with no authentication, underscoring persistent misconfiguration risks. Collectively, these events highlight an aggressive threat landscape targeting both infrastructure software and the human layer of defense.
+During the last news cycle, several high-impact attacks were observed in the wild. The most critical activity involves the zero-day (CVE-2025-54309) in CrushFTP that grants unauthenticated administrative control of file-transfer servers and is already being weaponised against public-facing instances. Parallel campaigns show innovative trade-craft: “PoisonSeed” defeats FIDO2 hardware keys by abusing WebAuthn’s cross-device feature; a phishing-enabled account takeover on the npm registry converted widely-used eslint packages into malware droppers; and new Ivanti Connect Secure zero-days are being chained to deploy the in-memory “MDifyLoader” and embedded Cobalt Strike beacons. Linux supply-chain risks remain a theme – malicious Arch Linux AUR packages were found installing Chaos RAT. Collectively, these incidents underscore an elevated threat level across authentication workflows, software-supply chains, and edge-exposed appliances.
 
 ## Active Exploitation Details
 
-### CrushFTP Web Interface Authentication Bypass
-- **Description**: A logic flaw in the CrushFTP web interface allows remote, unauthenticated attackers to bypass login controls and obtain full administrative privileges.  
-- **Impact**: Complete takeover of the file-sharing server, exfiltration of stored data, and deployment of additional malware or ransomware.  
-- **Status**: Confirmed in-the-wild exploitation; vendor has released patched builds and mitigation guidance.  
+### CrushFTP Administrative Access Zero-Day  
+- **Description**: Logic flaw in the web management interface allows remote adversaries to bypass authentication and obtain full administrative rights.  
+- **Impact**: Complete server takeover, exfiltration or modification of all hosted files, lateral movement into internal networks.  
+- **Status**: Actively exploited in the wild; vendor has issued fixed versions (10.7.1 / 11.2 or later) along with mitigations.  
 - **CVE ID**: CVE-2025-54309  
 
-### Ivanti Connect Secure Zero-Day Chain
-- **Description**: Two previously unknown vulnerabilities in Ivanti Connect Secure / Policy Secure gateways are being chained to execute “MDifyLoader,” which in turn injects Cobalt Strike into memory. Attacks occur pre-authentication over HTTPS.  
-- **Impact**: Remote code execution, establishment of persistent backdoors, and lateral movement into internal networks.  
-- **Status**: Actively exploited; Ivanti has shipped emergency patches and recommends immediate upgrade or appliance isolation.  
+### “PoisonSeed” FIDO2 MFA Downgrade Attack  
+- **Description**: Phishing framework that leverages WebAuthn’s cross-device sign-in capability. Victims scan a QR code and unknowingly approve a fraudulent push, downgrading from FIDO2 security-key authentication to weaker app-based approval controlled by the attacker.  
+- **Impact**: Account compromise even when FIDO2 hardware keys are mandated; enables session hijacking and subsequent business-email compromise.  
+- **Status**: Ongoing campaign; no software patch required, but mitigations rely on user education and disabling cross-device WebAuthn where feasible.  
 
-### FIDO2 MFA Downgrade via WebAuthn Cross-Device Flow (PoisonSeed)
-- **Description**: PoisonSeed phishers present a QR code that triggers WebAuthn’s cross-device sign-in, coercing victims to approve a secondary (non-FIDO2) push notification. This downgrades authentication strength and bypasses hardware security keys.  
-- **Impact**: Full account compromise despite FIDO2 enrollment, enabling email, cloud, or SaaS takeover.  
-- **Status**: Ongoing campaign; no vendor patch—users must scrutinize unexpected cross-device prompts and enforce strict FIDO2-only policies.  
+### Hijack of eslint-config-prettier & eslint-plugin-prettier (npm)  
+- **Description**: Threat actors phished maintainers, stole credentials, and published trojanised package updates. Malicious post-install scripts download secondary payloads that profile hosts and deploy malware.  
+- **Impact**: Supply-chain exposure for thousands of downstream JavaScript projects; potential remote-code execution during development or CI builds.  
+- **Status**: Malicious versions yanked from npm; maintainers restored control and published clean releases.  
 
-### npm Linter Package Account Takeover
-- **Description**: Threat actors phished maintainers of “eslint-config-prettier” and “eslint-plugin-prettier,” publishing tainted versions that download and execute malware during post-install scripts.  
-- **Impact**: Developers and CI pipelines integrating the packages suffer credential theft and workstation compromise.  
-- **Status**: Malicious versions were detected and yanked; clean releases re-published. Users must audit dependency trees and reinstall trusted versions.  
+### Malicious Arch Linux AUR Packages Installing Chaos RAT  
+- **Description**: Three newly-submitted AUR packages embedded obfuscated installation routines that retrieved and executed the Chaos remote-access trojan.  
+- **Impact**: Full remote access to affected Linux workstations and servers, credential theft, lateral movement.  
+- **Status**: Packages removed from AUR; users must manually audit and purge compromised hosts.  
 
-### Malicious Arch Linux AUR Packages Delivering Chaos RAT
-- **Description**: Three newly-submitted Arch User Repository packages masqueraded as legitimate utilities but silently installed the CHAOS remote access trojan.  
-- **Impact**: Remote control of infected Linux hosts, data theft, and potential participation in botnets.  
-- **Status**: Packages removed from AUR; impacted users advised to rebuild systems from trusted sources.  
-
-### Unauthenticated MCP Server Exposure
-- **Description**: MCP (agentic AI orchestration) servers default to optional authentication; approximately 2,000 instances were found publicly accessible with no controls in place.  
-- **Impact**: Anyone on the internet can issue commands, manipulate AI agents, exfiltrate data, or weaponize compute resources.  
-- **Status**: Exploitation confirmed in the wild; administrators must enable authentication and restrict network access immediately.  
+### Ivanti Connect Secure / Policy Secure Zero-Days (MDifyLoader Dropper)  
+- **Description**: Unpatched flaws in the VPN gateway allow unauthenticated attackers to write files and trigger command execution, planting the MDifyLoader malware that subsequently injects an in-memory Cobalt Strike beacon.  
+- **Impact**: Network perimeter breach, persistent foothold, data exfiltration, and potential ransomware staging.  
+- **Status**: Exploits observed in the wild; Ivanti engineering work-arounds released with full patches pending.  
 
 ## Affected Systems and Products
 
-- **CrushFTP**: Versions prior to the vendor’s latest hotfix; all OS platforms  
-- **Ivanti Connect Secure / Policy Secure**: All supported firmware builds prior to emergency patches; physical and virtual appliances  
-- **WebAuthn Cross-Device Sign-In**: Chrome, Edge, and other browsers supporting the feature on Windows, macOS, Linux, Android, iOS  
-- **eslint-config-prettier & eslint-plugin-prettier (npm)**: Compromised releases published 2025-07-XX  
-- **Arch Linux AUR Packages (3 malicious entries)**: All Linux distributions installing from AUR  
-- **MCP Servers**: Self-hosted agentic AI infrastructures where authentication remains disabled  
+- **CrushFTP Server**: Versions prior to 10.7.1 / 11.2 on Windows, Linux, macOS  
+- **FIDO2 / WebAuthn Workflows**: All major browsers supporting cross-device sign-in on desktop and mobile platforms  
+- **eslint-config-prettier & eslint-plugin-prettier (npm)**: Compromised releases pushed on the npm registry (now deprecated)  
+- **Arch Linux**: Systems that built and installed the withdrawn AUR packages (all x86_64 distributions)  
+- **Ivanti Connect Secure & Policy Secure Gateways**: All unpatched versions exposed to the internet  
 
 ## Attack Vectors and Techniques
 
-- **Authentication Downgrade Phishing**: QR-code–based social engineering forces users into weaker MFA flows.  
-- **Pre-Auth Remote Code Execution**: Direct exploitation of web interfaces (CrushFTP, Ivanti) without valid credentials.  
-- **Supply-Chain Package Poisoning**: Hijacked maintainer accounts publish malicious updates (npm, AUR).  
-- **In-Memory Beacon Injection**: MDifyLoader decrypts and runs Cobalt Strike payloads entirely in RAM to evade disk forensics.  
-- **Unauthenticated API Abuse**: Open MCP endpoints allow arbitrary command execution and configuration changes.  
+- **WebAuthn Cross-Device Abuse**  
+  - **Vector**: QR-code phishing downgrades FIDO2 to weaker approval flow, bypassing hardware-key enforcement.  
+
+- **Package-Repository Account Takeover**  
+  - **Vector**: Spear-phishing of npm maintainers → credential theft → malicious package uploads containing post-install malware droppers.  
+
+- **Supply-Chain Poisoning (AUR)**  
+  - **Vector**: Submission of new AUR packages with hidden curl | bash routines fetching Chaos RAT.  
+
+- **Unauthenticated Web Management Exploit**  
+  - **Vector**: Crafted HTTP requests against CrushFTP’s web interface exploit authentication bypass logic.  
+
+- **Gateway RCE Chain (Ivanti)**  
+  - **Vector**: Combination of file-write and command-injection zero-days enabling deployment of MDifyLoader and in-memory Cobalt Strike.  
 
 ## Threat Actor Activities
 
-- **PoisonSeed**: Conducting large-scale phishing aimed at enterprise users with FIDO2 keys; targets include corporate email and cloud portals.  
-- **Unknown Supply-Chain Actor**: Hijacked popular npm linter libraries; goal appears to be broad malware distribution to developer environments.  
-- **Chaos RAT Operators**: Leveraged Arch Linux AUR to infiltrate Linux users and build a cross-platform botnet.  
-- **Unattributed CrushFTP Exploiters**: Rapid mass-scanning and exploitation of vulnerable servers globally, likely for data theft and ransomware staging.  
-- **MDifyLoader Group**: Using Ivanti zero-days to implant Cobalt Strike in government and enterprise networks across multiple regions.  
-- **APT28 (Fancy Bear)**: Running “Authentic Antics” malware to harvest Microsoft 365 credentials, primarily against UK entities, leveraging spear-phishing and malicious OAuth apps.  
-- **Opportunistic MCP Abusers**: Grey-hat and criminal actors enumerating and commandeering unsecured MCP servers for AI-enabled tasks and resource hijacking.  
+- **PoisonSeed Operators**  
+  - **Campaign**: Targeting enterprise Office 365 tenants; focuses on bypassing FIDO2 MFA through QR-code lures and real-time session hijacking.  
 
-**End of Report**
+- **Unknown npm Phishing Group**  
+  - **Campaign**: Compromised eslint* packages; infrastructure delivers information-stealers and remote shells to developer environments.  
+
+- **APT28 (Fancy Bear)**  
+  - **Campaign**: “Authentic Antics” malware stealing Microsoft 365 credentials; observed alongside credential-harvesting infrastructure though no new CVE exploitation reported.  
+
+- **Unattributed Actors Exploiting CrushFTP**  
+  - **Campaign**: Mass-scanning of public CrushFTP servers; post-exploitation leads to data exfiltration and creation of rogue admin accounts.  
+
+- **Ivanti Zero-Day Actors (linked to MDifyLoader)**  
+  - **Campaign**: Highly targeted intrusions against government and telecom networks; focus on stealthy in-memory implants and beaconing to C2 servers via parent-child HTTP header spoofing.  
+
+- **Chaos RAT Distributors on AUR**  
+  - **Campaign**: Opportunistic compromise of Arch Linux users; indicators suggest financially-motivated group repurposing previously leaked RAT source code.
