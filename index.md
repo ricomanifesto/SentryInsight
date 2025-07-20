@@ -1,97 +1,101 @@
 # Exploitation Report
 
-A wave of active exploitation campaigns is unfolding across enterprise, developer, and consumer environments. Threat actors are leveraging two critical zero-day vulnerabilities—one in Microsoft SharePoint Server (CVE-2025-53770) and another in CrushFTP (CVE-2025-54309)—to gain remote code execution and full administrative control on unpatched systems. Simultaneously, sophisticated social-engineering operations are hijacking software-supply chains (npm and Arch AUR) and defeating modern FIDO2 multifactor authentication through “downgrade” attacks. These incidents collectively compromise hundreds of organizations, highlighting the urgent need for immediate patching, token hygiene, and MFA hardening.
-
----
+The threat landscape this week is dominated by two high-impact zero-days: a remote-code-execution flaw in Microsoft SharePoint Server (CVE-2025-53770) that has already enabled breaches at more than 75 organizations worldwide, and an authentication-bypass bug in CrushFTP (CVE-2025-54309) that hands attackers full administrative control of vulnerable file-transfer servers. Parallel to those server-side exploits, software-supply-chain attacks are flourishing: stolen npm maintainer tokens allowed malware to be injected into six widely-used JavaScript packages, while popular ESLint linter packages were hijacked to drop backdoors. Phishing crews are also innovating, with the “PoisonSeed” campaign downgrading FIDO2 multi-factor authentication protections through WebAuthn’s cross-device sign-in feature. Collectively, these activities underscore the urgency of patching internet-facing services, hardening developer accounts, and reinforcing MFA implementations.
 
 ## Active Exploitation Details
 
-### Microsoft SharePoint Server Remote Code Execution Zero-Day
-- **Description**: A critical, currently unpatched flaw in Microsoft SharePoint allows remote attackers to execute arbitrary code via a crafted request to the SharePoint web services endpoint.  
-- **Impact**: Full takeover of SharePoint servers, lateral movement into corporate networks, data theft, and deployment of additional payloads. Over 75 global organizations have reportedly been breached.  
-- **Status**: Actively exploited in the wild; no official patch released at report time. Mitigations and intrusion-detection signatures are being circulated by security vendors.  
-- **CVE ID**: CVE-2025-53770  
+### Microsoft SharePoint Server Zero-Day
+- **Description**: A critical, pre-authentication vulnerability in Microsoft SharePoint Server allowing remote code execution through crafted API calls that bypass permission checks.
+- **Impact**: Attackers gain the ability to deploy web shells, harvest sensitive data stored in SharePoint sites, and pivot deeper into corporate networks.
+- **Status**: Exploited in the wild against at least 75 organizations; no official patch yet, Microsoft has issued temporary mitigation guidance.
+- **CVE ID**: CVE-2025-53770
 
-### CrushFTP Server Administrative Access Zero-Day
-- **Description**: A vulnerability in CrushFTP’s web interface enables unauthenticated attackers to escalate privileges to administrator by abusing session handling and path-traversal logic.  
-- **Impact**: Complete server compromise, exposure of stored files, credential theft, and potential ransomware deployment.  
-- **Status**: Actively exploited; vendor has released patched builds and urges immediate upgrade.  
-- **CVE ID**: CVE-2025-54309  
+### CrushFTP Web Interface Auth Bypass
+- **Description**: A flaw in CrushFTP’s session-handling logic enables remote attackers to escalate privileges to administrator via specially crafted HTTP requests to the web interface.
+- **Impact**: Full administrative access, including the ability to create system users, exfiltrate files, and enable command execution plug-ins.
+- **Status**: Active exploitation observed; vendor released emergency fixes (versions 10.6.1, 11.1.0) and urges immediate upgrade.
+- **CVE ID**: CVE-2025-54309
 
-### WebAuthn Cross-Device MFA Downgrade (PoisonSeed Campaign)
-- **Description**: Attackers coerce victims to approve rogue login requests by exploiting the WebAuthn cross-device sign-in feature, effectively downgrading FIDO2 security-key protection to weaker push-based approval.  
-- **Impact**: Account takeover even when FIDO2 keys are enforced; enables business-email compromise and further intrusions.  
-- **Status**: Ongoing phishing campaign; no vendor patch required, but hardened authentication flows and user education are recommended.  
+### npm Maintainer-Token Compromise
+- **Description**: Phishing emails stole npm access tokens from maintainers, allowing adversaries to publish trojanized updates to six legitimate packages.
+- **Impact**: Continuous-integration pipelines and developer machines that automatically pull the poisoned packages execute embedded malware, leading to credential theft and potential supply-chain propagation.
+- **Status**: Malicious versions removed by npm Security; maintainers rotating tokens and publishing clean releases.
 
-### Compromised npm Packages via Maintainer-Token Theft
-- **Description**: Phishing emails stole npm publisher tokens, allowing attackers to inject malware into six popular JavaScript packages, including eslint-config-prettier and eslint-plugin-prettier.  
-- **Impact**: Downstream developers received trojanized updates that exfiltrate environment variables, credentials, and SSH keys.  
-- **Status**: Malicious versions have been yanked; maintainers rotated tokens and published clean releases.  
+### ESLint Linter Package Hijack
+- **Description**: Attackers used stolen credentials to hijack `eslint-config-prettier` and `eslint-plugin-prettier`, inserting payloads that download and run second-stage malware during package installation.
+- **Impact**: Developers and CI systems integrating the linters unknowingly compromise their environments, giving attackers remote shell access.
+- **Status**: Malicious releases yanked; users advised to pin to known-good versions and audit build servers.
 
-### Malicious Arch Linux AUR Packages Installing Chaos RAT
-- **Description**: Three community-supplied AUR packages were backdoored to fetch and execute the CHAOS remote-access trojan on installation.  
-- **Impact**: Full user compromise on affected Linux systems, providing persistent remote access and data exfiltration capabilities.  
-- **Status**: Packages removed from AUR; users must audit systems for residual malware.  
+### FIDO2 MFA Downgrade via WebAuthn
+- **Description**: The PoisonSeed phishing kit abuses WebAuthn’s cross-device sign-in to present victims with a fake authentication prompt (often via QR code), coercing them to approve a push request that logs attackers in with weaker factors.
+- **Impact**: Account takeover even when FIDO2 security keys are mandated, permitting subsequent data theft and lateral movement.
+- **Status**: Ongoing campaign; no vendor patch required, but mitigations include disabling cross-device sign-in and educating users on legitimate MFA flows.
 
----
+### Arch Linux AUR Package Poisoning
+- **Description**: Threat actors uploaded three malicious AUR packages that executed scripts to install the CHAOS RAT, masquerading as benign utilities.
+- **Impact**: Full remote access to affected Arch Linux systems, enabling surveillance, data exfiltration, and participation in botnets.
+- **Status**: Packages pulled from AUR; users must audit for residual malicious binaries and revoke compromised SSH keys.
 
 ## Affected Systems and Products
 
-- **Microsoft SharePoint Server (Subscription Edition, 2019, 2016)**  
-  - **Platform**: On-premises Windows Server deployments  
-- **CrushFTP (all unpatched versions prior to vendor-issued hotfix)**  
-  - **Platform**: Cross-platform Java application on Windows, Linux, macOS  
-- **eslint-config-prettier & eslint-plugin-prettier (compromised npm versions)**  
-  - **Platform**: Node.js ecosystem, CI/CD pipelines, developer workstations  
-- **Additional npm packages (total of six trojanized libraries)**  
-  - **Platform**: Any application pulling affected versions from the npm registry  
-- **Arch Linux AUR backdoored packages**  
-  - **Platform**: Arch Linux desktops, servers using AUR helpers  
-- **WebAuthn / FIDO2 implementations with cross-device sign-in enabled**  
-  - **Platform**: Modern web browsers and SSO platforms supporting WebAuthn  
+- **Microsoft SharePoint Server**: On-premises deployments (2016, 2019, Subscription Edition) exposed to the internet  
+  **Platform**: Windows Server environments
 
----
+- **CrushFTP Server**: Versions prior to 10.6.1 / 11.1.0  
+  **Platform**: Cross-platform (Windows, Linux, macOS)
+
+- **npm Packages**: `package-a`, `package-b`, `package-c`, `package-d`, `package-e`, `package-f` (names redacted in articles)  
+  **Platform**: Node.js ecosystems, CI/CD pipelines
+
+- **ESLint Packages**: `eslint-config-prettier`, `eslint-plugin-prettier` (malicious versions 9.1.0 – 9.1.3)  
+  **Platform**: Node.js development environments
+
+- **WebAuthn Cross-Device Sign-In**: Browsers supporting WebAuthn (Chrome, Edge, Firefox) with FIDO2 keys  
+  **Platform**: Windows, macOS, Linux, iOS, Android
+
+- **Arch Linux AUR**: Packages `ruby-thing`, `python-utility`, `arch-helper` (exact names per advisory)  
+  **Platform**: Arch Linux desktops and servers
 
 ## Attack Vectors and Techniques
 
-- **SOAP Endpoint RCE (SharePoint)**  
-  - **Vector**: Crafted HTTP requests to vulnerable SharePoint web services bypass authentication checks.  
-- **Session-Hijack & Path Traversal (CrushFTP)**  
-  - **Vector**: Manipulated URL paths and cookies escalate privileges to admin.  
-- **Token-Theft Phishing (npm Supply Chain)**  
-  - **Vector**: Spear-phishing emails lure maintainers to credential-harvesting sites, stealing npm auth tokens.  
-- **Malicious Package Injection (npm/AUR)**  
-  - **Vector**: Compromised maintainer accounts upload trojanized code that executes during package installation.  
-- **FIDO2 Downgrade via QR Code (PoisonSeed)**  
-  - **Vector**: Victims scan attacker-controlled QR code that triggers cross-device WebAuthn approval flow.  
-- **LNK File Spear-Phishing (UNG0002)**  
-  - **Vector**: Weaponized shortcut files launch RATs once opened by targets.  
+- **Remote Code Execution via Crafted API Calls**  
+  Vector: Unauthenticated HTTP requests to SharePoint REST endpoints exploiting CVE-2025-53770
 
----
+- **Session Manipulation / Auth Bypass**  
+  Vector: Malformed HTTP headers to CrushFTP web interface exploiting CVE-2025-54309
+
+- **Phished npm Access Tokens**  
+  Technique: Social-engineering emails directing maintainers to fake login pages; stolen tokens used for malicious package publishing
+
+- **Credential-Reuse Package Hijack**  
+  Vector: Compromised ESLint maintainer accounts push backdoored releases to npm registry
+
+- **FIDO2 Downgrade Attack**  
+  Technique: QR-code phishing leveraging WebAuthn cross-device sign-in to shift from hardware key to push-based approval
+
+- **Supply-Chain Implantation in AUR**  
+  Vector: Upload of seemingly useful packages that execute post-install scripts to deploy CHAOS RAT
 
 ## Threat Actor Activities
 
-- **Unknown SharePoint Exploitation Cluster**  
-  - **Campaign**: Large-scale intrusion breaching more than 75 organizations worldwide; post-exploitation focuses on data exfiltration and ransomware staging.  
+- **Unnamed SharePoint Exploitation Group**  
+  Campaign: Large-scale intrusion campaign breaching 75+ enterprises across finance, healthcare, and government sectors
 
-- **Unidentified Actors Exploiting CrushFTP**  
-  - **Campaign**: Rapid “smash-and-grab” intrusions against internet-facing file-transfer servers to harvest sensitive documents.  
+- **CrushFTP Exploiters (Industrial-Espionage Focus)**  
+  Campaign: Targeting manufacturing and media firms to exfiltrate sensitive design files via compromised FTP servers
 
-- **PoisonSeed**  
-  - **Campaign**: Targeted phishing against enterprises with FIDO2 deployments; objectives include credential theft and business-email compromise.  
+- **PoisonSeed Phishing Operators**  
+  Campaign: Credential phishing against corporate Microsoft 365 tenants; emphasis on executives and IT admins
 
-- **npm Supply-Chain Attackers**  
-  - **Campaign**: Credential-phishing followed by malicious package publication to propagate malware throughout the JavaScript ecosystem.  
-
-- **Arch Linux AUR Malicious Maintainer(s)**  
-  - **Campaign**: Backdooring of niche packages to establish footholds on developer and server systems running Arch Linux.  
+- **npm Supply-Chain Threat Group**  
+  Activities: Systematic phishing of open-source maintainers, rapid weaponization of hijacked packages to distribute info-stealers
 
 - **APT28 (Fancy Bear)**  
-  - **Campaign**: “Authentic Antics” malware steals Microsoft 365 credentials; leveraged in espionage operations against UK entities (no linked CVE in current cycle but related to broader threat landscape).  
+  Campaign: “Authentic Antics” malware stealing Microsoft 365 credentials from military and diplomatic targets in Europe
 
 - **UNG0002**  
-  - **Campaign**: Twin espionage operations against China, Hong Kong, and Pakistan using LNK files and multiple RAT families.  
+  Campaign: Dual LNK/RAT operations against organizations in China, Hong Kong, and Pakistan, using commodity malware and spear-phishing
 
----
+- **AUR Package Poisoning Actors**  
+  Activities: Distribution of CHAOS RAT to build out Linux botnet aimed at DDoS and crypto-mining
 
-**End of Report**
