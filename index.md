@@ -1,102 +1,86 @@
 # Exploitation Report
 
-Recent threat intelligence highlights a surge in highly targeted exploitation, ranging from a newly disclosed CrushFTP zero-day that grants full administrative access, to multi-stage supply-chain attacks abusing popular npm linter packages. Active campaigns are also downgrading FIDO2 multi-factor authentication, weaponizing fresh Ivanti zero-days to deploy in-memory Cobalt Strike beacons, and seeding Arch Linux AUR packages with Chaos RAT. Notably, Russia-linked APT28 is running Microsoft 365 credential-theft operations, while lax authentication on thousands of MCP servers leaves them wide open for hijacking. These developments underscore the continued attacker focus on authentication bypass, software-supply-chain compromise, and public-facing server vulnerabilities.
+During the past week, defenders observed a sharp rise in active exploitation and supply-chain compromise. The most critical activity centres on a zero-day authentication bypass in CrushFTP (CVE-2025-54309) that grants full administrative control of vulnerable servers. Simultaneously, new, still-unnamed zero-days in Ivanti Connect Secure/Policy Secure are being chained to drop the MDifyLoader malware and execute in-memory Cobalt Strike beacons. On the trade-craft side, the “PoisonSeed” campaign is sidestepping FIDO2 hardware keys by abusing WebAuthn’s cross-device sign-in, while separate threat groups hijacked two of the most-used npm linter packages and several Arch Linux AUR packages to distribute remote-access malware. Russia-linked APT28 (“Fancy Bear”) is running stealthy credential-theft operations against Microsoft 365 tenants, and espionage cluster UNG0002 is leveraging LNK files to implant RATs across East Asia. Collectively, these events highlight escalating attacker focus on identity-based attacks, developer ecosystems, and edge-device zero-days.
 
 ## Active Exploitation Details
 
-### CrushFTP Web Interface Zero-Day
-- **Description**: A flaw in CrushFTP’s web interface allows remote, unauthenticated attackers to escalate directly to administrative access.  
-- **Impact**: Full takeover of file-transfer servers, exfiltration of stored data, and deployment of additional payloads.  
-- **Status**: Exploited in the wild; vendor released CrushFTP 11.2.0/10.7.1 and hot-fix patches.  
+### CrushFTP Web Interface Authentication Bypass  
+- **Description**: A logic flaw lets remote, unauthenticated users craft a rogue session and elevate it to administrator level through the web interface.  
+- **Impact**: Attackers can create admin accounts, upload arbitrary plug-ins, execute system commands, and fully hijack the underlying server.  
+- **Status**: Actively exploited in the wild. Vendor released fixed builds (latest 11.x/10.x/9.x) and urges immediate upgrade.  
 - **CVE ID**: CVE-2025-54309  
 
-### Ivanti Connect Secure / Policy Secure Zero-Days
-- **Description**: Multiple previously unknown vulnerabilities in the Ivanti VPN and network-access appliances enable code execution that drops the new “MDifyLoader” malware, followed by in-memory Cobalt Strike.  
-- **Impact**: Network pivoting, credential theft, lateral movement, and persistent foothold within enterprise environments.  
-- **Status**: Actively exploited in the wild; Ivanti has issued emergency mitigation guidance and patches are being rolled out.  
+### Ivanti Connect Secure / Policy Secure Zero-Day Chain  
+- **Description**: A pair of newly discovered flaws—one granting authentication bypass and another enabling command injection—allow remote actors to deliver the MDifyLoader downloader, followed by in-memory Cobalt Strike payloads.  
+- **Impact**: Full device compromise, lateral movement into internal networks, and persistent access for follow-on operations.  
+- **Status**: Exploits observed before public disclosure; Ivanti has released hot-fixes and mitigations while preparing full patches.  
 
-### PoisonSeed FIDO2 Downgrade Phishing
-- **Description**: The “PoisonSeed” phishing kit abuses WebAuthn’s cross-device sign-in to trick victims into authenticating a malicious session, effectively downgrading FIDO2 security-key protection to a push-based approval.  
-- **Impact**: Account takeover even when hardware security keys are enforced; enables subsequent business-email-compromise (BEC) and data theft.  
-- **Status**: Ongoing campaign; no vendor patch required, but security-key user-experience hardening and policy updates are advised.  
+### FIDO2 MFA Downgrade via WebAuthn Cross-Device Abuse (PoisonSeed)  
+- **Description**: Attackers trigger the “cross-device sign-in” flow, surfacing a QR code that convinces victims to approve a login on a secondary device, silently downgrading from hardware-bound FIDO2 to less-secure push approval.  
+- **Impact**: Session takeover of accounts protected by security-key-based MFA, enabling email and cloud-service access.  
+- **Status**: Ongoing phishing waves; no vendor patch required, but security-key policy hardening is advised.  
 
-### npm Linter Package Hijack
-- **Description**: eslint-config-prettier and eslint-plugin-prettier were taken over through credential-phishing of the maintainer. Updated versions act as malware droppers, fetching second-stage payloads at install time.  
-- **Impact**: Remote code execution on developer machines, potential CI/CD pipeline compromise, and downstream supply-chain infection.  
-- **Status**: Malicious versions yanked from npm; developers must audit caches and lockfiles and pin to safe releases.  
+### npm Package Maintainer Account Takeover (eslint-config-prettier & eslint-plugin-prettier)  
+- **Description**: Phishing emails stole maintainer credentials, after which malicious versions with obfuscated post-install scripts were published to npm, turning the libraries into malware droppers.  
+- **Impact**: Developers who installed the tainted packages received info-stealing malware capable of exfiltrating tokens and environment secrets.  
+- **Status**: Malicious versions yanked; legitimate packages republished. Users must audit build environments and rotate credentials.  
 
-### Arch Linux AUR Chaos RAT Packages
-- **Description**: Three malicious AUR packages were uploaded that silently install the Chaos remote-access trojan during build.  
-- **Impact**: Backdoor control of affected Linux systems, data exfiltration, and participation in botnet activity.  
-- **Status**: Packages removed; users encouraged to verify builds and rotate keys.  
+### Arch Linux AUR Chaos RAT Supply-Chain Infection  
+- **Description**: Three community AUR packages were replaced with code that fetched and launched Chaos RAT, giving attackers shell access and persistence on Linux hosts.  
+- **Impact**: Remote command execution, data exfiltration, and potential lateral movement on developer workstations and servers.  
+- **Status**: Packages removed from AUR; impacted users instructed to rebuild systems from trusted sources and revoke compromised keys.  
 
-### Authentic Antics – Microsoft 365 Credential-Stealing Malware
-- **Description**: Stealthy malware toolkit attributed to APT28 that steals session tokens and credentials from Microsoft 365 tenants, evading traditional detection.  
-- **Impact**: Espionage-grade access to corporate mailboxes, SharePoint, and Teams data; potential for further pivoting inside cloud environments.  
-- **Status**: Active; Microsoft and the UK NCSC have issued detection signatures and hardening guidance.  
-
-### Unauthenticated MCP Server Exposure
-- **Description**: Management servers for the MCP (agentic-AI backbone) ship with authentication set to “optional,” leaving ~2,000 internet-reachable nodes exposed.  
-- **Impact**: Complete remote control, model manipulation, and data tampering by any external actor.  
-- **Status**: Exploitability is trivial; no patches yet—administrators must manually enable strong authentication and firewall access.  
+### Microsoft 365 “Authentic Antics” Credential-Stealing Malware  
+- **Description**: APT28 deployed a bespoke malware framework that impersonates legitimate add-ins to capture authentication cookies, tokens, and mailbox contents from Microsoft 365 tenants.  
+- **Impact**: Long-term espionage through email collection, document theft, and potential spread via internal contact lists.  
+- **Status**: Active; Microsoft & UK NCSC released indicators and recommend conditional-access hardening and add-in governance.  
 
 ## Affected Systems and Products
 
-- **CrushFTP**: Versions prior to 11.2.0/10.7.1  
-  **Platform**: Windows, Linux, macOS, and other supported server OSes  
-- **Ivanti Connect Secure / Policy Secure**: All supported firmware builds prior to emergency patches  
-  **Platform**: Network VPN and NAC appliances  
-- **WebAuthn / FIDO2 Implementations**: Any web applications relying on cross-device sign-in  
-  **Platform**: All major browsers and OSes supporting WebAuthn  
-- **eslint-config-prettier & eslint-plugin-prettier (npm)**: Compromised 9.x and 8.x versions published during attack window  
-  **Platform**: Node.js development environments, CI/CD systems  
-- **Arch Linux AUR Packages**: Specific malicious packages (names redacted by AUR) prior to takedown  
-  **Platform**: Arch Linux desktops, servers, and derivatives  
-- **Microsoft 365 Tenants**: Organizations using cloud email and collaboration services  
-  **Platform**: Azure AD / Entra ID, Office 365 web and desktop clients  
-- **MCP Servers**: Public-facing agentic-AI orchestration servers with default configuration  
-  **Platform**: Linux and containerized deployments, often cloud-hosted  
+- **CrushFTP Server 9, 10, 11**: All platforms (Windows, Linux, macOS) prior to patched builds  
+- **Ivanti Connect Secure / Policy Secure**: All supported hardware and virtual gateways on unpatched firmware  
+- **npm packages**: eslint-config-prettier v9.1.0 – v9.1.1, eslint-plugin-prettier v5.1.0 – v5.1.1  
+- **Arch Linux AUR**: `ruby-filemagic`, `libarchive`, and `nodejs-webpack` (malicious uploads)  
+- **Microsoft 365 Tenants**: Organisations allowing unmanaged add-ins or lacking strict identity governance  
+- **Enterprise MFA Deployments**: Any service relying on WebAuthn cross-device flows without strict security-key enforcement  
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Remote Code Execution (RCE)**  
-  Vector: Direct HTTP/S requests to vulnerable CrushFTP and Ivanti web interfaces.
+- **Authentication Bypass via Session Forging**  
+  - *Vector*: Crafted HTTP requests manipulate CrushFTP session tokens to gain admin privileges.  
 
-- **Supply-Chain Package Hijacking**  
-  Vector: Malicious npm/AUR package versions executed during install or build.
+- **Zero-Day Command Injection on VPN Gateways**  
+  - *Vector*: Chained auth bypass and shell command injection on Ivanti edge devices deliver MDifyLoader.  
 
-- **MFA Downgrade / WebAuthn Cross-Device Abuse**  
-  Vector: Phishing site serves QR code and push notification that leverages cross-device sign-in loophole.
+- **QR-Code Phishing for MFA Downgrade**  
+  - *Vector*: PoisonSeed emails redirect to fake login portals that generate WebAuthn QR codes, tricking users into approving rogue logins.  
 
-- **In-Memory Post-Exploitation Tooling**  
-  Vector: MDifyLoader injects Cobalt Strike beacons to avoid disk artifacts.
+- **Package Maintainer Phishing & Malicious Post-Install Scripts**  
+  - *Vector*: Stolen npm credentials publish trojanised packages; scripts execute `curl | bash` logic to drop malware.  
 
-- **Cloud Token Theft**  
-  Vector: Authentic Antics malware extracts Microsoft 365 refresh tokens and session cookies.
+- **Repository Poisoning in AUR**  
+  - *Vector*: Attackers upload altered PKGBUILDs containing `curl` commands that fetch Chaos RAT binaries during package compilation.  
 
-- **Unauthenticated API Exposure**  
-  Vector: Open MCP endpoints allow remote procedure calls without credentials.
+- **Malicious Microsoft 365 Add-in Installation**  
+  - *Vector*: Spear-phishing or OAuth consent grants install add-ins that exfiltrate tokens and mailbox data.  
 
 ## Threat Actor Activities
 
+- **Unknown (CrushFTP Exploits)**  
+  - *Campaign*: Opportunistic mass scanning and exploitation to build botnets or gain footholds in enterprise networks.  
+
+- **Unidentified Threat Cluster (Ivanti Zero-Day)**  
+  - *Campaign*: Targeted intrusion sets against government and telecom sectors, delivering MDifyLoader → Cobalt Strike.  
+
 - **PoisonSeed**  
-  Campaign: Ongoing phishing operations targeting enterprise users with FIDO2 keys; focuses on credential harvesting and session hijack.
+  - *Campaign*: Global phishing operation focusing on finance and tech employees, bypassing hardware MFA controls.  
 
-- **APT28 (Fancy Bear)**  
-  Campaign: “Authentic Antics” Microsoft 365 espionage; credential theft, mailbox scraping, sustained persistence.
+- **Supply-Chain Intruder(s)**  
+  - *Campaign*: Credential-phishing of open-source maintainers, weaponising popular npm packages to infect developer environments.  
 
-- **Unknown Operators (CrushFTP Zero-Day)**  
-  Campaign: Opportunistic server hijacking observed globally; objective appears to be data exfiltration and possible ransomware staging.
+- **APT28 (Fancy Bear / Russian GRU)**  
+  - *Campaign*: “Authentic Antics” espionage, harvesting Microsoft 365 credentials and data from government and defence entities.  
 
-- **Unattributed Supply-Chain Actors**  
-  Campaign: npm linter package takeover; aims at developer environments to pivot into corporate networks.
-
-- **Threat Cluster Behind MDifyLoader**  
-  Campaign: Targets Ivanti appliances to deploy loader and in-memory Cobalt Strike for lateral movement in high-value networks.
-
-- **Malicious Maintainer (Arch Linux AUR)**  
-  Campaign: Chaos RAT seeding via community repository; focus on building Linux botnet capabilities.
-
-- **Opportunistic Hackers (MCP Servers)**  
-  Campaign: Large-scale scanning and hijacking of unsecured MCP nodes to manipulate AI workloads or harvest sensitive data.
+- **UNG0002**  
+  - *Campaign*: Dual operations in China, Hong Kong, and Pakistan using LNK files and RATs for cyber-espionage.  
 
