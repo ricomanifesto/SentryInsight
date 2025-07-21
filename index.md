@@ -1,68 +1,65 @@
 # Exploitation Report
 
-A surge of zero-day exploitation activity is underway across enterprise collaboration and file-transfer infrastructure. Attackers are weaponizing two unpatched Microsoft SharePoint vulnerabilities (CVE-2025-53770, CVE-2025-53771) and a newly disclosed CrushFTP flaw (CVE-2025-54309) to gain remote code execution and full administrative control of servers. The SharePoint zero-days have already compromised more than 85 on-prem instances and breached data on at least 75 organizations, while the CrushFTP weakness is being leveraged to escape the virtual file-system sandbox and download sensitive configuration files containing credentials. In parallel, threat actors are innovating in supply-chain and social-engineering vectors: EncryptHub is luring Web3 developers with fake AI platforms, npm and Arch Linux repositories were hijacked to drop malware, and the “PoisonSeed” campaign sidesteps FIDO2 authentication by abusing WebAuthn’s cross-device sign-in feature. Russian APT28 continues credential-stealing operations against Microsoft 365 tenants. The combined activity underscores an urgent need for virtual patching, MFA hardening, and rigorous supply-chain security.
+During the past week, security researchers observed multiple, large-scale exploitation waves against business-critical collaboration and file-transfer platforms. Two unpatched zero-day vulnerabilities—CVE-2025-53770/CVE-2025-53771 in Microsoft SharePoint Server and CVE-2025-54309 in CrushFTP—are being weaponized to gain remote code execution and full administrative control of on-prem environments. More than 75 organizations have already had SharePoint servers breached, while opportunistic attackers are scanning the Internet for vulnerable CrushFTP instances only hours after proof-of-concept details leaked. Concurrently, supply-chain attacks continue to plague developer ecosystems, with npm and Arch Linux AUR repositories hijacked to distribute information-stealers and RATs. Threat actors such as EncryptHub and APT28 are actively leveraging these vectors, demonstrating an ongoing pivot toward developer-focused social-engineering and MFA-bypass techniques.
 
 ## Active Exploitation Details
 
-### Microsoft SharePoint Server Remote Code Execution Zero-Day  
-- **Description**: A critical flaw in the SharePoint workflow service allows unauthenticated attackers to craft specially-formed HTTP requests that trigger arbitrary code execution under the SharePoint service account.  
-- **Impact**: Full takeover of SharePoint servers, lateral movement inside corporate networks, data exfiltration, and potential deployment of web-shells or ransomware.  
-- **Status**: Actively exploited since 18 July 2025; no official patch or mitigations beyond IIS request blocking rules.  
+### Microsoft SharePoint Server Remote Code Execution Zero-Days
+- **Description**: Two independent flaws allow authenticated users with basic permissions to upload malicious ASPX pages via “Add Web Part Page” and other API endpoints, bypassing validation controls and triggering server-side execution.  
+- **Impact**: Attackers can run arbitrary commands under the SharePoint service account, implant web shells, harvest credentials, and move laterally inside corporate networks.  
+- **Status**: Actively exploited since 18 July; Microsoft has not yet released official patches. Temporary mitigations involve disabling page creation and restricting Designer/Owner roles.  
 - **CVE ID**: CVE-2025-53770  
-
-### Microsoft SharePoint Server Privilege-Escalation / RCE Zero-Day  
-- **Description**: Companion vulnerability to the above, enabling privilege escalation and reliable code execution when chained with CVE-2025-53770.  
-- **Impact**: Elevates attacker privileges to install persistence mechanisms and execute system-level commands.  
-- **Status**: Actively exploited in the same campaign; no vendor fix released.  
 - **CVE ID**: CVE-2025-53771  
 
-### CrushFTP Administrative Access Zero-Day  
-- **Description**: A server-side logic flaw lets remote attackers escape the CrushFTP Virtual File System (VFS) sandbox, read arbitrary files—including ‘users.conf’—and hijack authenticated admin sessions through stolen session cookies.  
-- **Impact**: Complete administrative control, file exfiltration, credential theft, and potential deployment of additional malware.  
-- **Status**: Under active exploitation; vendor has issued out-of-band hot-fix builds while a full update is being finalized.  
+### CrushFTP Administrative Bypass Zero-Day (Path Traversal)
+- **Description**: A path-traversal flaw in the web interface lets remote, unauthenticated users read arbitrary system files—including the main configuration XML—which stores encrypted admin credentials that can be trivially decrypted.  
+- **Impact**: Full administrative takeover of the CrushFTP instance, enabling file exfiltration, command execution, and potential pivoting to internal systems.  
+- **Status**: Exploits observed in the wild; vendor released emergency hot-fix builds and urged immediate upgrade.  
 - **CVE ID**: CVE-2025-54309  
 
 ## Affected Systems and Products
 
-- **Microsoft SharePoint Server 2016 / 2019 / Subscription Edition**  
-  - **Platform**: On-prem Windows Server deployments exposed to the Internet  
-
-- **CrushFTP Server versions prior to the July 2025 hot-fix release**  
-  - **Platform**: Cross-platform (Windows, Linux, macOS) systems with the web interface enabled  
+- **Microsoft SharePoint Server**: 2019, 2022, and Subscription Edition (on-prem deployments exposed to the Internet)  
+- **CrushFTP**: All versions prior to the emergency patched build (10.x/11.x) released 24 July 2025  
+- **npm Ecosystem**: Compromised packages “eslint-config-prettier,” “eslint-plugin-prettier,” and four additional libraries updated on 21 July  
+- **Arch Linux AUR**: Malicious packages pulled on 23 July that installed Chaos RAT  
+- **Aruba Instant On Access Points**: Models AP11-AP25 contain hard-coded credentials (no confirmed exploitation yet)  
+- **Web3 Development Environments**: Targets using fake “AI code-assistant” sites operated by EncryptHub  
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated HTTP RCE (SharePoint)**  
-  - **Vector**: Crafted HTTP/S POST requests exploiting workflow processing endpoints to run arbitrary commands.  
+- **Malicious ASPX Upload (SharePoint RCE)**  
+  - **Vector**: Authenticated POST requests to page-creation endpoints; payload executes under IIS worker process.  
 
-- **VFS Sandbox Escape (CrushFTP)**  
-  - **Vector**: Malicious path traversal combined with session hijacking to reach configuration files and admin functions.  
+- **Path Traversal & Config Theft (CrushFTP)**  
+  - **Vector**: Crafted HTTP GET request with ../../ traversal to “/users/MainUsers/Main.xml”, followed by credential decryption.  
 
-- **Supply-Chain Token Hijack (npm)**  
-  - **Vector**: Phishing emails stole maintainer tokens; modified eslint-config-prettier & eslint-plugin-prettier packages to drop malware.  
+- **Supply-Chain Package Hijacking (npm)**  
+  - **Vector**: Phished maintainer tokens used to push trojanized package updates containing preinstall scripts that fetch Windows executables.  
 
-- **AUR Package Poisoning (Arch Linux)**  
-  - **Vector**: Malicious packages (“chaotic-aur-helper” et al.) uploaded to Arch User Repository, installing Chaos RAT.  
+- **Malicious AUR Packages (Arch Linux)**  
+  - **Vector**: Typosquatted packages executing install scripts to drop Chaos RAT binary.  
 
-- **Cross-Device WebAuthn Downgrade (PoisonSeed)**  
-  - **Vector**: Victims scan a QR code, approving login via a secondary device, bypassing FIDO2 hardware-key enforcement.  
+- **FIDO2 MFA Downgrade (PoisonSeed)**  
+  - **Vector**: Abuse of WebAuthn cross-device sign-in to present push notifications that trick users into approving attacker sessions.  
 
-- **Fake AI Platform Malware Delivery (EncryptHub)**  
-  - **Vector**: Impersonation of AI development services to trick Web3 developers into downloading “Fickle Stealer.”  
+- **Fake AI Platform Lures (EncryptHub)**  
+  - **Vector**: Water-holed websites and Discord channels offering “AI smart-contract assistant” downloads that bundle Fickle Stealer.  
 
 ## Threat Actor Activities
 
-- **EncryptHub / LARVA-208 (Water Gamayun)**  
-  - **Campaign**: Fake AI platforms targeting Web3 developers; drops Fickle Stealer for crypto-wallet and browser-credential theft.  
+- **EncryptHub (aka LARVA-208 / Water Gamayun)**  
+  - **Campaign**: Targets Web3 developers via fake AI tools; delivers Fickle Stealer to siphon cryptocurrency wallets, browser cookies, and SSH keys.  
 
-- **Unknown Actor(s) exploiting SharePoint Zero-Days**  
-  - **Campaign**: Large-scale mass scanning and breach of over 75 organizations, deploying web-shells and staging data exfiltration.  
+- **Unattributed SharePoint Exploitation Cluster**  
+  - **Campaign**: Mass scanning and exploitation of CVE-2025-53770/53771; at least 75 companies compromised, with web shells observed under “/Style Library/”.  
 
-- **Unknown Actor(s) exploiting CrushFTP**  
-  - **Campaign**: Targeted intrusions against file-transfer servers in technology and healthcare sectors to steal sensitive data.  
+- **CrushFTP Zero-Day Operators**  
+  - **Campaign**: Rapid opportunistic attacks against Internet-facing CrushFTP; observed exfiltration of sensitive archives followed by ransomware deployment.  
 
 - **PoisonSeed**  
-  - **Campaign**: Phishing operations that bypass FIDO2 MFA by leveraging WebAuthn cross-device flows; focuses on financial services employees.  
+  - **Campaign**: Spear-phishing targeting enterprise Office 365 tenants; downgrades FIDO2 MFA to weaker push approvals, facilitating business-email compromise.  
 
 - **APT28 (Fancy Bear)**  
-  - **Campaign**: “Authentic Antics” malware steals Microsoft 365 credentials; activity linked to Russian GRU for espionage objectives.
+  - **Campaign**: “Authentic Antics” malware steals Microsoft 365 credentials from government and defense contractors; leverages custom OAuth abuse for persistence.  
+
