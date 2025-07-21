@@ -1,100 +1,107 @@
 # Exploitation Report
 
-Multiple critical vulnerabilities are under active exploitation, with Microsoft SharePoint zero-days (CVE-2025-53770, CVE-2025-53771) leading the charge in widespread compromise campaigns attributed to the “ToolShell” threat actor. At the same time, attackers are hijacking more than 1,000 publicly-exposed CrushFTP servers via CVE-2025-54309, abusing hard-coded credentials in HPE Aruba “Instant On” access points, and weaponizing new techniques to bypass FIDO2 security keys in high-profile phishing waves. Supply-chain abuse continues through npm package hijacking, while thousands of websites are silently monetized through revived browser-based cryptojacking tactics. Organizations should prioritize patching, disable unnecessary exposure of management interfaces, and harden authentication workflows immediately.
-
-## Active Exploitation Details
-
-### Microsoft SharePoint Server Remote Code Execution Zero-Days  
-- **Description**: Logic flaw in SharePoint’s web services layer allows unauthenticated attackers to upload arbitrary files and execute them with SharePoint service privileges.  
-- **Impact**: Full remote code execution, lateral movement into Microsoft 365 and on-prem hybrid environments, data theft, and installation of webshells (“ToolShell”).  
-- **Status**: Actively exploited since 18 July; emergency out-of-band patches released by Microsoft.  
-- **CVE ID**: CVE-2025-53770  
-- **CVE ID**: CVE-2025-53771  
-
-### CrushFTP Administrative Interface Authentication Bypass  
-- **Description**: Flaw in session validation within CrushFTP’s web interface lets remote attackers escalate to administrator privileges over HTTP/S.  
-- **Impact**: Hijack of file-transfer servers, data exfiltration, and deployment of ransomware via built-in scripting.  
-- **Status**: Active exploitation in the wild; vendor patch available, but >1,000 servers remain unpatched.  
-- **CVE ID**: CVE-2025-54309  
-
-### HPE Aruba “Instant On” Access Point Hard-Coded Credentials  
-- **Description**: Devices ship with undocumented static username/password that grants full administrative web access.  
-- **Impact**: Network takeover, pivoting into corporate LAN/WLAN, rogue firmware uploads, and man-in-the-middle attacks.  
-- **Status**: Exploitation observed in the wild; HPE has issued firmware updates and a hardening guide.  
-
-### Google Chrome In-Browser Code Execution Exploit  
-- **Description**: Type-confusion flaw in V8 JavaScript engine triggered via crafted webpages, enabling sandbox escape.  
-- **Impact**: Remote code execution in user context, subsequent malware installation.  
-- **Status**: Exploit seen in watering-hole campaigns; Google has released a stable-channel update.  
-
-### NVIDIA Nsight Compute Toolkit RCE  
-- **Description**: Unsafe deserialization in remote profiling component allows attackers to run arbitrary code on developer workstations.  
-- **Impact**: Compromise of systems used for AI/ML workloads, credential theft, and supply-chain poisoning of CUDA projects.  
-- **Status**: Weaponized proof-of-concept circulating on offensive forums; patches available from NVIDIA.  
-
-## Affected Systems and Products
-
-- **Microsoft SharePoint Server 2019 / Subscription Edition**  
-  - **Platform**: Windows Server, on-prem & hybrid deployments  
-
-- **CrushFTP 10.x and early 11.x builds (before vendor hotfix)**  
-  - **Platform**: Windows, Linux, macOS, Solaris  
-
-- **HPE Aruba Instant On AP11, AP12, AP15, AP17, AP22 (all firmware prior to July 2025)**  
-  - **Platform**: Hardware Wi-Fi access points, SMB networks  
-
-- **Google Chrome < 127.0.6535.78 (Stable channel)**  
-  - **Platform**: Windows, macOS, Linux, Android  
-
-- **NVIDIA Nsight Compute CLI Toolkit prior to 2025.3.1**  
-  - **Platform**: Developer workstations running Windows & Linux  
-
-## Attack Vectors and Techniques
-
-- **Web Service File Upload Abuse (SharePoint)**  
-  - **Vector**: Crafted SOAP/REST requests upload ASPX payloads leading to RCE.  
-
-- **Unauthenticated Web Interface Hijack (CrushFTP)**  
-  - **Vector**: Direct HTTP POST to /WebInterface/login.html bypasses token check.  
-
-- **Static Credential Reuse (HPE Aruba)**  
-  - **Vector**: Automated scanning for exposed AP web GUIs, login with hard-coded creds.  
-
-- **Type-Confusion Drive-By (Chrome)**  
-  - **Vector**: Malicious JavaScript triggers memory corruption when victim visits compromised site.  
-
-- **Cross-Device FIDO2 Downgrade (PoisonSeed)**  
-  - **Vector**: QR-code phishing lures victims into approving logins on secondary device, circumventing hardware keys.  
-
-- **Browser-Based Cryptojacking**  
-  - **Vector**: Injected obfuscated JavaScript over WebSocket channels mines Monero on visitor machines.  
-
-- **npm Supply-Chain Poisoning**  
-  - **Vector**: Stolen maintainer tokens used to push trojanized updates (eslint-config-prettier, eslint-plugin-prettier).  
-
-## Threat Actor Activities
-
-- **ToolShell / UNCxxxx**  
-  - **Campaign**: Mass scanning & exploitation of SharePoint CVE-2025-53770/53771; deployment of webshells and lateral movement scripts.  
-
-- **Unknown CrushFTP Cluster**  
-  - **Campaign**: Automated takeover of exposed CrushFTP servers to steal corporate archives and plant ransomware loaders.  
-
-- **PoisonSeed**  
-  - **Campaign**: Global phishing operation targeting tech and banking staff, leveraging QR phishing to bypass FIDO2 MFA protections.  
-
-- **World Leaks Extortion Group**  
-  - **Campaign**: Breach of Dell’s product-demo lab, theft of test data, ongoing ransom demands under new branding.  
-
-- **EncryptHub (aka LARVA-208 / Water Gamayun)**  
-  - **Campaign**: Fake AI SaaS portals lure Web3 developers; drops “Fickle Stealer” for crypto-wallet and credential theft.  
-
-- **Cryptojacking Collective (Unattributed)**  
-  - **Campaign**: Compromised 3,500 legitimate sites to inject stealth miners, focusing on news & e-commerce domains.  
-
-- **npm Phishing Actors (Unattributed)**  
-  - **Campaign**: Targeted phishing of open-source maintainers to hijack popular linter packages as malware droppers.  
+During the past week, defenders observed a surge of high-impact exploits targeting enterprise collaboration platforms, managed file-transfer solutions, and network infrastructure. The most critical activity centers on two Microsoft SharePoint remote-code-execution (RCE) zero-days now weaponized by the “ToolShell” threat actor, a critical CrushFTP authentication-bypass flaw leveraged to hijack more than 1,000 servers, and hard-coded credentials in HPE Aruba Instant On access points that are already being abused for unauthorized administrative access. Additional in-the-wild exploits include an unpatched Google Chrome renderer flaw, an NVIDIA developer-toolkit RCE, and sophisticated phishing tactics that degrade FIDO2 protections. Concerted attacks by groups such as ToolShell, PoisonSeed, EncryptHub, and World Leaks emphasize the need for immediate patching, configuration hardening, and vigilant monitoring.
 
 ---
 
-Organizations should treat all highlighted vulnerabilities as priority-one, apply available patches or mitigations without delay, and monitor for the described adversary TTPs across endpoint, network, and cloud telemetry.
+## Active Exploitation Details
+
+### Microsoft SharePoint Server RCE Zero-Days
+- **Description**: Two independent vulnerabilities allow unauthenticated attackers to craft malicious API/SOAP requests that trigger remote code execution on SharePoint servers.
+- **Impact**: Full takeover of SharePoint sites, lateral movement, data exfiltration, and deployment of web shells.
+- **Status**: Actively exploited since 18 July; emergency patches released, but many environments remain unpatched.
+- **CVE ID**: CVE-2025-53770  
+- **CVE ID**: CVE-2025-53771  
+
+### CrushFTP Authentication Bypass / Admin Hijack
+- **Description**: Logic flaw enables path traversal and session fixation, letting remote attackers create or hijack administrative sessions on CrushFTP’s web interface.
+- **Impact**: Complete administrative control of the file-transfer server, file theft, configuration tampering, and deployment of ransomware payloads.
+- **Status**: Exploitation observed against >1,000 Internet-facing servers; vendor hotfixes available.
+- **CVE ID**: CVE-2025-54309  
+
+### HPE Aruba Instant On Access Point Hard-Coded Credentials
+- **Description**: Devices ship with embedded, undocumented username/password pairs that bypass normal authentication on the web management portal.
+- **Impact**: Remote attackers gain root-level administrative access, allowing network pivoting, traffic snooping, and firmware manipulation.
+- **Status**: Exploits reported in the wild; HPE has issued firmware updates and mitigation guidance.
+
+### Google Chrome In-the-Wild Zero-Day Exploit
+- **Description**: Memory-safety issue in the Blink/Skia rendering pipeline permits arbitrary code execution when victims visit a booby-trapped website.
+- **Impact**: Sandbox escape leading to full browser and potential OS compromise.
+- **Status**: Google pushed an emergency stable-channel update; exploitation detected before patch release.
+
+### NVIDIA Toolkit Remote Code Execution
+- **Description**: Insecure library loading in NVIDIA’s developer toolkit (used for CUDA and AI workflows) allows execution of attacker-controlled DLLs on launch.
+- **Impact**: Local privilege escalation or remote RCE when toolkits are launched from network shares, enabling supply-chain style attacks in DevOps pipelines.
+- **Status**: Exploit PoCs circulating; vendor update available.
+
+### FIDO2 / WebAuthn Downgrade Abuse (PoisonSeed)
+- **Description**: Social-engineering technique that forces cross-device sign-ins, tricking users into approving push requests on their phone that actually authenticate attackers on separate desktops.
+- **Impact**: Successful bypass of hardware-based FIDO2 MFA, leading to account takeover even when security keys are deployed.
+- **Status**: Active phishing campaign; no vendor patch (protocol abuse), mitigations rely on user training and stricter sign-in policies.
+
+---
+
+## Affected Systems and Products
+
+- **Microsoft SharePoint Server 2016, 2019, Subscription Edition**  
+  - **Platform**: Windows Server installations in on-prem and hybrid environments  
+
+- **CrushFTP versions 10.x and 11.x prior to vendor hotfix**  
+  - **Platform**: Windows, Linux, macOS, and other Java-capable OSes  
+
+- **HPE Aruba Instant On AP11/12/15/17 and related firmware lines**  
+  - **Platform**: Wireless access points in SMB and branch office deployments  
+
+- **Google Chrome < 118.0.5993.70 (Stable Channel)**  
+  - **Platform**: Windows, macOS, Linux desktop browsers  
+
+- **NVIDIA CUDA/Developer Toolkit 12.x (pre-patch)**  
+  - **Platform**: Windows and Linux development workstations and CI/CD servers  
+
+- **Any FIDO2-enabled web application using WebAuthn cross-device sign-in**  
+  - **Platform**: Cloud services, identity providers, and SaaS portals  
+
+---
+
+## Attack Vectors and Techniques
+
+- **Malicious SharePoint API Calls**  
+  - **Vector**: Crafted SOAP/API requests bypass input validation to execute commands under SharePoint service account.  
+
+- **Session Fixation & Path Traversal (CrushFTP)**  
+  - **Vector**: Attacker uploads crafted `.desktop` files or manipulates URL paths to hijack admin sessions.  
+
+- **Hard-Coded Credential Abuse (Aruba Instant On)**  
+  - **Vector**: Remote HTTP(S) login with embedded default credentials “admin/<hidden>” for full control.  
+
+- **Drive-By Browser Exploit (Chrome)**  
+  - **Vector**: Malicious JavaScript & WebAssembly trigger UAF memory corruption, followed by sandbox escape.  
+
+- **DLL Search-Order Hijacking (NVIDIA Toolkit)**  
+  - **Vector**: Planting rogue DLLs in writable directories referenced by toolkit binaries.  
+
+- **QR Phishing / Cross-Device WebAuthn Downgrade (PoisonSeed)**  
+  - **Vector**: Victim scans QR code, unknowingly approves authentication request for attacker’s session.  
+
+---
+
+## Threat Actor Activities
+
+- **ToolShell**  
+  - **Campaign**: Mass exploitation of SharePoint RCE zero-days to deploy web shells and exfiltrate corporate data from at least 85 organizations worldwide.  
+
+- **PoisonSeed**  
+  - **Campaign**: Ongoing phishing waves targeting enterprise email users; focuses on defeating FIDO2 MFA by abusing cross-device sign-in flows.  
+
+- **EncryptHub (aka LARVA-208 / Water Gamayun)**  
+  - **Campaign**: Fake AI-platform lures distributed to Web3 developers, dropping “Fickle Stealer” malware for credential and wallet theft.  
+
+- **World Leaks Extortion Group**  
+  - **Campaign**: Breached Dell’s product-demo lab, weaponizing stolen credentials; leveraging data for double-extortion.  
+
+- **Unknown Actors (CrushFTP)**  
+  - **Campaign**: Automated scanning of Internet-exposed CrushFTP instances, immediate admin hijack and deployment of ransomware loaders.  
+
+---
+
+**End of Report**
