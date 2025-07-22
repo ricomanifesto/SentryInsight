@@ -1,49 +1,35 @@
 # Exploitation Report
 
-Recent intelligence shows a sharp uptick in real-world exploitation of enterprise collaboration software and targeted cyber-espionage.  A critical Microsoft SharePoint zero-day is being weaponized to steal authentication keys and maintain long-term footholds in victims’ networks, while China-backed APT41 has expanded its operations into Africa by chaining an undisclosed web-application vulnerability with sophisticated post-exploitation tooling.  Together, these campaigns highlight an urgent need for rapid patch deployment, continuous monitoring of cloud and on-prem collaboration suites, and heightened vigilance against state-sponsored actors pivoting into new geographic regions.
+A critical zero-day vulnerability chain in Microsoft SharePoint is currently being weaponized in the wild by state-sponsored and financially motivated threat actors. First observed on 7 July 2025 and still unpatched at the time of reporting, the flaw allows attackers to execute the “ToolShell” implant, exfiltrate authentication keys, and maintain long-term persistence in on-premises and cloud-connected SharePoint environments. Chinese nation-state operators are leading the campaigns, while Check Point Research and Microsoft telemetry confirm broad, automated probing of Internet-exposed SharePoint servers across multiple sectors worldwide.
 
 ## Active Exploitation Details
 
-### Microsoft SharePoint Zero-Day (July 2025)
-- **Description**: A previously unknown flaw in Microsoft SharePoint allows remote, unauthenticated attackers to craft specially formed requests that bypass normal authentication checks, steal signing keys, and execute arbitrary code under the SharePoint service context.  
-- **Impact**: Attackers gain the ability to extract OAuth and SAML tokens, create backdoors for persistent access, move laterally across Microsoft 365 workloads, and exfiltrate sensitive data hosted in SharePoint document libraries.  
-- **Status**: Confirmed in-the-wild exploitation since 7 July 2025.  Microsoft has issued interim mitigations, with a full security update expected in the next Patch Tuesday release.  
-
-### Unnamed Web-Application Zero-Day Leveraged by APT41
-- **Description**: APT41 compromised an African IT services provider through an undisclosed vulnerability in a perimeter web service.  The flaw enabled direct server compromise and deployment of custom web shells followed by precision credential harvesting.  
-- **Impact**: Full takeover of the provider’s network, theft of internal project data, and establishment of covert C2 channels for ongoing espionage on downstream government clients.  
-- **Status**: Actively exploited; no vendor patch has been announced.  Network defenders are relying on signature-based detections for the group’s bespoke malware loader and web-shell naming conventions.  
-
-### ExpressVPN Windows Client RDP Tunnel-Bypass Flaw
-- **Description**: A logic error in the Windows client routing table caused Remote Desktop Protocol traffic to exit the physical interface instead of the encrypted VPN tunnel, revealing users’ real IP addresses.  
-- **Impact**: Adversaries monitoring RDP gateways could correlate VPN users with their true locations, de-anonymize sessions, or launch targeted intrusion attempts.  
-- **Status**: Patched in the latest ExpressVPN Windows release.  No confirmed malicious exploitation, but proof-of-concept testing shows the leak is easily reproducible.  
+### Microsoft SharePoint Zero-Day “ToolShell” Vulnerability Chain  
+- **Description**: A chain of previously unknown vulnerabilities in Microsoft SharePoint that enables unauthenticated attackers to upload a malicious file, trigger server-side code execution, and deploy the post-exploitation framework “ToolShell.”  
+- **Impact**: Full remote code execution on the SharePoint server; credential theft (including Azure AD application keys), establishment of reverse shells, lateral movement into adjoining Windows infrastructure, and long-term persistence through scheduled tasks and modified service binaries.  
+- **Status**: Confirmed active exploitation since 7 July 2025. Microsoft has not yet issued a security update; mitigations involve removing public exposure, enforcing strict upload filters, and applying least-privilege configurations.  
 
 ## Affected Systems and Products
 
-- **Microsoft SharePoint Server**: On-prem deployments (2019, Subscription Edition) exposed to the Internet  
-- **Microsoft 365 Tenants**: Hybrid environments federating on-prem SharePoint with cloud services  
-- **Unnamed Custom Web Portal**: Public-facing application managed by the targeted African IT services firm  
-- **Windows endpoints running ExpressVPN**: Versions prior to the most recent client update  
+- **Microsoft SharePoint Server 2016 / 2019 / Subscription Edition**  
+  - **Platform**: On-premises Windows Server deployments and hybrid cloud environments integrated with Azure AD  
+- **SharePoint-connected Windows Server hosts** (Domain controllers, file servers used for lateral movement)  
+  - **Platform**: Windows Server 2019, 2022  
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated RCE via Crafted SharePoint Requests**  
-  - **Vector**: Malicious HTTP payloads to a vulnerable SharePoint API endpoint bypass authentication and trigger code execution.  
-
-- **Web-Shell Deployment & Living-off-the-Land (APT41)**  
-  - **Vector**: Upload of obfuscated ASPX web shells, followed by PowerShell and WMI for lateral movement.  
-
-- **VPN Tunnel Bypass (Information Disclosure)**  
-  - **Vector**: Manipulation of Windows routing tables during RDP session handshake causes traffic to circumvent the VPN tunnel.  
+- **Unauthenticated File Upload RCE**  
+  - **Vector**: Crafted HTTP POST requests to a vulnerable SharePoint endpoint allow the upload of weaponized ASPX pages, which are then executed to run arbitrary PowerShell.  
+- **ToolShell Post-Exploitation Framework**  
+  - **Vector**: PowerShell-based implant establishes reverse HTTPS beacons, conducts credential harvesting, and registers scheduled tasks for persistence.  
+- **Credential & Key Theft**  
+  - **Vector**: Extracts Azure AD application keys and on-premises service accounts to facilitate cloud pivoting and long-term tenant access.  
 
 ## Threat Actor Activities
 
-- **Actor/Group**: APT41 (a.k.a. Winnti, Barium)  
-  - **Campaign**: Targeted intrusion against an African IT services provider; used a zero-day in a web service, deployed custom loaders, and exfiltrated sensitive regional government data.  
+- **Actor/Group**: Suspected Chinese state-sponsored cluster (overlaps with APT41 infrastructure)  
+  - **Campaign**: Mass exploitation of SharePoint servers to deploy ToolShell, targeting government, defense, and manufacturing organizations on several continents, including newly observed activity in Africa.  
 
-- **Actor/Group**: Unattributed threat clusters abusing SharePoint zero-day  
-  - **Campaign**: Global opportunistic attacks focusing on organizations with externally exposed SharePoint; objectives include credential theft, long-term persistence, and reconnaissance inside Microsoft 365 environments.  
+- **Actor/Group**: Financially motivated crimeware operators (unattributed)  
+  - **Campaign**: Opportunistic scanning of Internet-facing SharePoint portals, dropping crypto-mining payloads and infostealers after successful RCE.  
 
-- **Actor/Group**: Security researchers / proof-of-concept testers  
-  - **Campaign**: Validated ExpressVPN RDP leak to demonstrate deanonymization risks; no public evidence of weaponization by criminal or state actors yet.
