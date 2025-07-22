@@ -1,45 +1,34 @@
 # Exploitation Report
 
-A surge of hostile activity is currently centered on Microsoft SharePoint. Security vendors and Microsoft confirm that a zero-day flaw nicknamed “ToolShell” is being mass-exploited to gain initial footholds in U.S. government agencies and private organizations worldwide. Attackers are weaponizing the vulnerability to upload web shells, execute arbitrary code, and pivot deeper into victim networks. Microsoft issued an out-of-band fix, but large numbers of Internet-facing servers remain unpatched, keeping the threat level high. Separately, a privacy-impacting bug in ExpressVPN’s Windows client was patched after it leaked users’ real IP addresses during Remote Desktop sessions.
+During the last 24 hours, the security community’s attention has been dominated by an emergency out-of-band update from Microsoft that closes a SharePoint Server zero-day being abused in the wild. Attackers are chaining the flaw with the “ToolShell” post-exploitation framework to obtain remote code execution and persistent, covert control of government and enterprise environments. Simultaneously, several campaigns from state-aligned actors (APT41 and MOIS-linked operators) continue to leverage bespoke malware, but no additional CVE-tracked vulnerabilities were explicitly cited in the coverage. The SharePoint issue therefore represents the most critical exploitation activity currently observed.
 
 ## Active Exploitation Details
 
-### Microsoft SharePoint “ToolShell” Remote Code Execution
-- **Description**: A flaw in SharePoint Server allows a remote, unauthenticated attacker to upload and execute arbitrary files (“ToolShell” payloads) by sending specially crafted HTTP requests to vulnerable endpoints. Successful exploitation results in full compromise of the underlying Windows host.  
-- **Impact**: Remote code execution, installation of persistent web shells, lateral movement, data theft, and potential full domain takeover.  
-- **Status**: Actively exploited in the wild; Microsoft released an emergency security update on July 20 2025. All on-premises SharePoint deployments should patch immediately or remove external exposure.  
+### Microsoft SharePoint ‘ToolShell’ Remote Code Execution
+- **Description**: A zero-day vulnerability in on-premises SharePoint Server that allows unauthenticated attackers to upload and execute arbitrary files, subsequently deploying the PowerShell-based “ToolShell” backdoor.  
+- **Impact**: Full remote code execution under the SharePoint service account, lateral movement within Windows domains, theft of sensitive data, and installation of additional malware implants.  
+- **Status**: Actively exploited in the wild against U.S. government entities and private organizations. Microsoft released an emergency fix on 20 July 2025; administrators must apply the patch immediately and review systems for ToolShell artifacts.  
 - **CVE ID**: CVE-2025-53770  
 
-### ExpressVPN Windows Client RDP Traffic Leak
-- **Description**: A routing flaw in ExpressVPN’s Windows application caused Remote Desktop Protocol (RDP) traffic to bypass the encrypted VPN tunnel, revealing the user’s true IP address to remote systems.  
-- **Impact**: Loss of anonymity, exposure of the user’s physical location, and increased susceptibility to targeted attacks or network reconnaissance.  
-- **Status**: Patch released; users must update to the latest Windows client version. No confirmed in-the-wild exploitation, but the bug created real-world exposure windows.  
-
 ## Affected Systems and Products
-
-- **Microsoft SharePoint Server 2019 & SharePoint Server Subscription Edition**  
-  - **Platform**: On-premises Windows Server installations exposed to the Internet  
-
-- **ExpressVPN Windows Client (pre-patch builds prior to June 2025)**  
-  - **Platform**: Windows 10/11 endpoints using RDP while connected to ExpressVPN  
+- **Microsoft SharePoint Server (on-premises)**  
+  - **Platform**: Windows Server installations running any unpatched build of SharePoint 2019, 2022, and Subscription Edition deployed in self-hosted or hybrid environments.
 
 ## Attack Vectors and Techniques
-
-- **Malicious HTTP Payload Upload (SharePoint)**  
-  - **Vector**: Crafted HTTP requests exploit the “ToolShell” flaw to upload web shells and execute PowerShell commands remotely.  
-
-- **VPN Tunnel Bypass via RDP (ExpressVPN)**  
-  - **Vector**: RDP traffic exits the local interface instead of the VPN adapter, leaking source IP information to the RDP server.  
+- **Weaponized File Upload**  
+  - **Vector**: Crafted HTTP POST requests to `/_layouts/15/upload.aspx` (or similar endpoints) bypass authentication controls and plant malicious DLL or ASPX payloads.
+- **ToolShell Implant Deployment**  
+  - **Vector**: Attackers execute embedded PowerShell to establish a reverse HTTPS channel, enabling command execution, data exfiltration, and credential harvesting.
+- **Lateral Movement via SMB & WinRM**  
+  - **Vector**: After initial foothold, ToolShell issues Kerberos-backed requests to pivot across domain-joined hosts.
 
 ## Threat Actor Activities
+- **Unknown (SharePoint Zero-Day Operators)**  
+  - **Campaign**: Ongoing intrusion set targeting U.S. government agencies and multiple private-sector networks to gain persistent access via CVE-2025-53770.  
+- **APT41 (China-linked)**  
+  - **Campaign**: Targeted espionage against African government IT infrastructure using hard-coded internal hostnames and tailored malware loaders (no CVE-listed exploits referenced in the articles).  
+- **MOIS-Linked Operators (Iran)**  
+  - **Campaign**: Distribution of “DCHSpy” Android spyware disguised as VPN applications to surveil dissidents (technique leverages social engineering rather than disclosed CVEs).  
+- **NoName057(16) (Russia-aligned)**  
+  - **Campaign**: DDoS-for-hire operations disrupted by Europol; seven arrest warrants issued, temporarily fracturing the collective’s infrastructure.
 
-- **Unknown Nation-State Operators**  
-  - **Campaign**: Leveraging CVE-2025-53770 to breach U.S. government departments and commercial enterprises; post-exploitation activities include credential dumping and data exfiltration.  
-
-- **APT41 (China-Linked)**  
-  - **Campaign**: Ongoing espionage against African government IT services using hard-coded internal hostnames and stealthy implants (no new CVE identified, but activity coincides with broader exploitation of unpatched enterprise apps).  
-
-- **NoName057(16)**  
-  - **Campaign**: DDoS operations disrupted by recent Europol sting; group’s infrastructure and membership fractured, reducing immediate threat but potentially spawning splinter cells.  
-
-**Bold patching action and continuous monitoring of SharePoint servers remain the highest priority to mitigate the current wave of zero-day exploitation.**
