@@ -1,53 +1,71 @@
-# Exploitation Report  
+# Exploitation Report
 
-The most critical activity observed this cycle involves two high-impact enterprise-grade products—Cisco Identity Services Engine (ISE) and Microsoft SharePoint. Both platforms are under active attack through separate vulnerability sets that allow unauthenticated remote code execution, immediate privilege escalation to **root/SYSTEM**, and long-term persistence inside corporate networks. The Cisco flaws have now moved from “patch available” to “in-the-wild exploitation,” while the SharePoint zero-day chain is being weaponized by state-sponsored actors for credential theft, key exfiltration, and lateral movement. Together, these campaigns threaten identity infrastructure and collaboration hubs that sit at the core of many organizations’ security models.
+Security telemetry collected over the last week shows a sharp uptick in high-impact exploitation of enterprise software exposed to the Internet.  The most critical activity involves weaponisation of three recently patched remote-code-execution flaws in Cisco Identity Services Engine (ISE), now confirmed to be giving unauthenticated attackers ROOT access on network-access-control appliances.  In parallel, Microsoft has attributed ongoing intrusions against on-premises SharePoint Server to multiple Chinese state-aligned actors who are chaining still-unpatched SharePoint vulnerabilities for web-shell deployment and lateral movement.  While not exploiting a code defect, the new “Coyote” banking malware deserves mention for abusing Windows’ UI Automation framework in novel ways to harvest banking credentials.  Ransomware operators behind “Interlock” are also escalating double-extortion campaigns, frequently leveraging the above vulnerabilities for initial access before exfiltration and encryption.  Immediate patching, segmentation, and continuous monitoring are strongly advised.
 
-## Active Exploitation Details  
+## Active Exploitation Details
 
-### Cisco ISE Unauthenticated RCE Chain  
-- **Description**: A trio of critical flaws in Cisco Identity Services Engine (ISE) and ISE Passive Identity Connector allow remote, unauthenticated attackers to upload malicious files and execute arbitrary commands with **root** privileges via the web-based administrative interface.  
-- **Impact**: Complete takeover of the ISE appliance, manipulation of network-access policies, credential theft, and deployment of additional malware or backdoors across the identity infrastructure.  
-- **Status**: Patches released by Cisco; active exploitation confirmed by Cisco, BleepingComputer, and The Hacker News. Proof-of-concept exploits are circulating in public repositories and underground forums.  
+### Cisco Identity Services Engine (ISE) Remote-Code-Execution Vulnerabilities
+- **Description**: A set of three critical flaws in the web-based administrative interface of Cisco ISE and ISE Passive Identity Connector allow unauthenticated attackers to send crafted requests that trigger deserialisation issues, resulting in full remote code execution as the root user.  
+- **Impact**: Complete compromise of the NAC appliance, credential theft, pivoting to internal networks, manipulation of network-access policies.  
+- **Status**: Patches were released by Cisco in the most recent ISE maintenance update; Cisco and multiple CERTs now confirm in-the-wild exploitation against unpatched systems.  
 
-### Microsoft SharePoint Zero-Day Vulnerability Chain  
-- **Description**: A previously unknown exploit chain targeting on-premises SharePoint Server leverages specially crafted HTTP requests and malicious application packages (“ToolShell” toolset) to bypass authentication, achieve remote code execution, and drop persistent web shells.  
-- **Impact**: Theft of authentication keys, creation of covert admin accounts, persistent access for network reconnaissance, and staging of additional malware (e.g., credential-stealing implants).  
-- **Status**: Still **zero-day**—no vendor patch released at publication time. Microsoft has issued temporary mitigation guidance; exploitation traced back to at least 7 July 2025.  
+### Microsoft SharePoint Server Vulnerabilities
+- **Description**: Multiple security flaws in Internet-facing SharePoint Server instances permit attackers to bypass authentication, upload malicious ASPX web shells, and achieve arbitrary code execution within the SharePoint application pool.  
+- **Impact**: Initial foothold on corporate networks, privilege escalation, data exfiltration, and persistent command-and-control.  
+- **Status**: Updates are available via Microsoft’s security channel.  Exploitation is active and attributed to at least three distinct Chinese APT groups.  
 
-## Affected Systems and Products  
+### Windows UI Automation Abuse by “Coyote” Banking Trojan
+- **Description**: The latest Coyote variant hooks into the Microsoft UI Automation accessibility framework to detect when users browse specific banking or cryptocurrency sites, allowing screen content capture and credential theft without requiring browser exploits.  
+- **Impact**: Real-time theft of online-banking credentials, cryptocurrency wallet information, and session tokens.  
+- **Status**: No patch required (abuses legitimate OS feature).  Mitigations revolve around EDR detection of suspicious UI Automation calls and hardening of browser processes.  
 
-- **Cisco Identity Services Engine (ISE)**: All 3.x and 3.2 releases prior to the latest hotfixes; includes ISE-PIC modules.  
-- **Cisco ISE Passive Identity Connector (ISE-PIC)**: Versions aligned with vulnerable ISE builds.  
-- **Microsoft SharePoint Server 2016 / 2019 / Subscription Edition (on-prem)**: All builds without the yet-to-be-released security update; cloud-hosted SharePoint Online is not affected.  
+### Interlock Ransomware Operational Technique
+- **Description**: Interlock operators employ a double-extortion model, exploiting publicly exposed services (including Cisco ISE devices and unpatched VPN gateways) to gain access, exfiltrate sensitive data, and then encrypt on-premises infrastructure.  
+- **Impact**: Business disruption, financial loss, public data leaks, and regulatory exposure.  
+- **Status**: Active; no vendor patch (tactic).  Mitigation requires patching entry-point vulnerabilities and enforcing strong credential hygiene.  
 
-## Attack Vectors and Techniques  
+## Affected Systems and Products
 
-- **Unauthenticated Web-UI Exploit (Cisco ISE)**  
-  - **Vector**: Direct HTTP(S) requests to the ISE management interface inject malicious payloads that are executed by the underlying root container.  
+- **Cisco Identity Services Engine (ISE) & ISE Passive Identity Connector**  
+  - Platform: Hardware or VM appliances running ISE 3.x (all builds prior to latest hotfix)
 
-- **Malicious SharePoint Package Deployment (SharePoint Zero-Day)**  
-  - **Vector**: Upload of a specially crafted SharePoint application (.wsp) or API call that triggers the vulnerability chain; culminates with a dropped web shell and “ToolShell” backdoor.  
+- **Microsoft SharePoint Server 2016, 2019, and Subscription Edition (on-premises)**  
+  - Platform: Windows Server deployments exposed to the Internet
 
-- **Persistent Web Shell Implantation**  
-  - **Vector**: Post-exploitation, attackers plant ASPX or DLL web shells to maintain access even after partial remediation.  
+- **Windows 10/11 Endpoints**  
+  - Platform: Any system where users run Chromium-based or Firefox browsers (targeted by Coyote malware’s UI Automation abuse)
 
-- **Credential & Key Exfiltration**  
-  - **Vector**: Memory-scraping and key-dumping utilities executed under SYSTEM/root following successful RCE, enabling lateral movement and cloud pivoting.  
+- **Corporate Networks & Critical Infrastructure Organisations**  
+  - Platform: Multi-OS environments reached via Interlock ransomware campaigns
 
-## Threat Actor Activities  
+## Attack Vectors and Techniques
 
-- **Unnamed Crimeware Operators (Cisco ISE Campaign)**  
-  - **Campaign**: Mass scanning of port-exposed ISE appliances, rapid weaponization of public PoCs, and resale of obtained root shells in illicit marketplaces.  
+- **Unauthenticated HTTP/HTTPS RCE**  
+  - Vector: Crafted REST or SOAP requests to Cisco ISE management interface trigger deserialisation vulnerabilities.
 
-- **Chinese State-Sponsored Group (SharePoint Campaign)**  
-  - **Campaign**: Strategic espionage wave leveraging the SharePoint zero-day since early July 2025. Focus on technology, defense, and governmental verticals; objectives include credential harvesting and long-term foothold establishment.  
+- **SharePoint Web-Shell Upload**  
+  - Vector: Abuse of SharePoint API endpoints to upload malicious ASPX files, followed by command execution.
 
-- **APT41 (Observation from Africa)**  
-  - **Campaign**: Parallel operations reported by Dark Reading show APT41 expanding into African targets, reaffirming the group’s willingness to exploit freshly disclosed enterprise vulnerabilities to achieve espionage goals.  
+- **UI Automation Framework Hijacking**  
+  - Vector: Malware injects into browser processes and uses accessibility APIs to scrape window text and images.
 
-- **Criminal Cluster Using AllaKore RAT & Hijack Loader**  
-  - **Campaign**: Ongoing attacks in Mexico use phishing and loader malware, often deploying onto systems weakened by unpatched enterprise software, demonstrating the commoditization of post-exploit toolchains.  
+- **Double-Extortion Ransomware Lifecycle**  
+  - Vector: Initial exploitation of edge devices → privilege escalation → bulk data exfiltration → file encryption → ransom demand.
 
----  
+## Threat Actor Activities
 
-Stay vigilant by prioritizing patches for Cisco ISE, applying Microsoft’s interim SharePoint mitigations, and monitoring for web-shell artifacts and suspicious administrative activity.
+- **Linen Typhoon, Violet Typhoon, and a third unnamed Chinese APT**  
+  - Campaign: Coordinated exploitation of SharePoint Server to establish long-term footholds in government, defence, and manufacturing networks.  
+  - Activities: Web-shell deployment, credential dumping, selective data exfiltration.
+
+- **Interlock Ransomware Operators**  
+  - Campaign: Surge in attacks on U.S. and EU critical-infrastructure entities; leveraging Cisco ISE and VPN device flaws for entry, followed by double extortion.  
+  - Activities: Data theft, encryption, ransom negotiations, threat of public data release.
+
+- **Financially Motivated Actors Distributing Coyote**  
+  - Campaign: Targeted phishing against banking customers worldwide; leveraging loader malware that deploys the new UI-Automation-enabled Coyote variant.  
+  - Activities: Credential harvesting, real-time session hijacking, cryptocurrency theft.
+
+- **Unattributed Actors Exploiting Cisco ISE**  
+  - Campaign: Opportunistic scanning of Internet-facing ISE appliances; goal appears to be initial network access for resale on underground markets.  
+
