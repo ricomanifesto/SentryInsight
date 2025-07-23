@@ -1,47 +1,57 @@
 # Exploitation Report
 
-Over the past week defenders have observed a surge of real-world attacks focused on enterprise infrastructure software and collaboration platforms.  Three critical remote-code-execution flaws in Cisco Identity Services Engine (ISE) are now under active exploitation, giving unauthenticated attackers root-level access to network-access-control appliances.  At the same time, multiple zero-day and recently patched SharePoint Server bugs are being weaponised by at least three China-nexus state actors, allowing them to implant web-shells, steal credentials, and pivot deeper into victim environments.  The renewed activity of the Lumma infostealer, the emergence of the Coyote banking trojan’s new UI-Automation abuse technique, and an escalating Interlock ransomware campaign round out a threat landscape that is increasingly exploiting management interfaces and living-off-the-land features.
+Ongoing, in-the-wild exploitation of two critical Microsoft SharePoint Server flaws (CVE-2025-49704 and CVE-2025-49706) dominates the current threat landscape. U.S. CISA has issued an emergency directive placing both bugs on its Known Exploited Vulnerabilities catalog after Microsoft and independent researchers confirmed successful compromises of Internet-facing SharePoint servers. Microsoft has attributed the activity to multiple Chinese nation-state operators (Linen Typhoon, Violet Typhoon, and an additional unnamed group), while Dark Reading notes a wider “feeding frenzy” among criminal actors now weaponizing the same bugs. Concurrently, financially-motivated malware crews—including the resurging Lumma infostealer gang and operators of the Coyote banking trojan—are leveraging novel abuse of Windows features (e.g., UI Automation) for post-exploit data theft, and Interlock ransomware affiliates continue to intensify double-extortion operations. Rapid patching and immediate threat-hunting on SharePoint estates are therefore paramount.
 
 ## Active Exploitation Details
 
-### Cisco ISE Remote Code Execution Chain
-- **Description**: A trio of command-injection flaws in the web-based administrative and pxGrid portals of Cisco Identity Services Engine allow specially crafted HTTP requests to execute arbitrary commands with root privileges on the underlying operating system.  
-- **Impact**: Full takeover of the ISE appliance, lateral movement, credential theft, and the ability to disable network-access-control policies.  
-- **Status**: Actively exploited in the wild; patches and fixed releases are available from Cisco.  
-- **CVE ID**: CVE-2024-20355, CVE-2024-20356, CVE-2024-20357  
+### Microsoft SharePoint Server Remote Code Execution – CVE-2025-49704
+- **Description**: A remote code execution flaw in on-premises Microsoft SharePoint Server allowing unauthenticated attackers to execute arbitrary code by sending crafted requests to vulnerable endpoints.
+- **Impact**: Full compromise of SharePoint sites, lateral movement into connected networks, and potential data exfiltration or deployment of ransomware.
+- **Status**: Actively exploited in the wild; emergency patches released by Microsoft and mandated by CISA.
+- **CVE ID**: CVE-2025-49704
 
-### Microsoft SharePoint Server Remote Code Execution & Privilege Escalation Bugs
-- **Description**: Multiple vulnerabilities in on-premises SharePoint Server enable authenticated attackers (or unauthenticated attackers chaining SSRF) to upload malicious DLLs or craft SOAP/REST requests that result in remote code execution under the SharePoint service account.  
-- **Impact**: Deployment of web-shells, data exfiltration from document libraries, domain credential harvesting, and establishment of long-term persistence.  
-- **Status**: Exploits observed since early July; Microsoft has shipped security updates and IOCs.  
-*(No CVE IDs were provided in the source articles.)*
+### Microsoft SharePoint Server Privilege Escalation – CVE-2025-49706
+- **Description**: A privilege-escalation vulnerability enabling authenticated low-privilege users (or code running under compromised service accounts) to obtain SYSTEM-level permissions on SharePoint hosts.
+- **Impact**: Elevation to administrative control, facilitating deployment of additional payloads or disabling security controls after initial RCE.
+- **Status**: Confirmed live exploitation alongside CVE-2025-49704; fixes available from Microsoft and required under CISA’s KEV mandate.
+- **CVE ID**: CVE-2025-49706
+
+### Windows UI Automation Framework Abuse
+- **Description**: Coyote banking-trojan operators abuse Microsoft’s legitimate UI Automation accessibility interface to programmatically detect when victims visit banking or cryptocurrency sites, bypassing traditional DOM-based detection.
+- **Impact**: Targeted credential harvesting and session hijacking without relying on browser exploits, reducing detection by security tools.
+- **Status**: Observed in active campaigns; no patch (abuse of legitimate feature). Mitigations include hardening application whitelisting and behavioral monitoring.
 
 ## Affected Systems and Products
 
-- **Cisco Identity Services Engine (ISE) 3.2, 3.1, 3.0**  
-  - **Platform**: Virtual and hardware appliances running the administrative or pxGrid portals  
-- **Microsoft SharePoint Server 2019, 2016, Subscription Edition (on-premises)**  
-  - **Platform**: Windows Server deployments exposed to the Internet or internal users  
+- **Microsoft SharePoint Server 2019/2016/Subscription Edition**  
+  - **Platform**: On-premises Windows Server installations exposed to the Internet  
+- **Microsoft Windows (all supported desktop & server builds)**  
+  - **Platform**: UI Automation abuse affects any Windows environment where the trojan executes  
+- **Enterprise endpoints running unpatched Microsoft Office ecosystems**  
+  - **Platform**: Targeted for subsequent lateral movement after initial SharePoint compromise  
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Web Portal Exploitation**  
-  - **Vector**: Adversaries send crafted HTTP POST requests to ISE `/admin/` and `/pxgrid/` endpoints to trigger command injection.  
-- **Authenticated SharePoint DLL Upload / SOAP RCE**  
-  - **Vector**: Compromised user accounts upload malicious DLLs or craft SOAP requests exploiting SharePoint deserialisation issues, leading to code execution.  
-- **Living-off-the-Land Automation Abuse**  
-  - **Vector**: The Coyote banking trojan leverages Microsoft UI Automation to monitor browser windows and extract credentials without triggering conventional detection.  
-- **Infostealer Malvertising & Loader Services**  
-  - **Vector**: Lumma operators resume malvertising campaigns that drop loader stubs, which in turn deliver updated Lumma payloads designed to siphon browser-stored secrets.  
+- **Crafted SharePoint HTTP Request RCE**  
+  - **Vector**: Unauthenticated call to vulnerable SharePoint API endpoint triggers deserialization leading to code execution.  
+- **Privilege Escalation via SharePoint Service Misconfiguration**  
+  - **Vector**: Malicious payload leverages CVE-2025-49706 to move from service context to SYSTEM.  
+- **Living-off-the-Land Abuse of UI Automation**  
+  - **Vector**: Malware invokes UIA APIs to enumerate window titles and DOM elements, stealing credentials when banking portals are detected.  
+- **Post-Exploit Malware Deployment**  
+  - **Vector**: Threat actors drop Lumma or Coyote loaders, then exfiltrate data or deploy Interlock ransomware for double-extortion.  
 
 ## Threat Actor Activities
 
-- **Linen Typhoon, Violet Typhoon, and an unnamed third China-nexus group**  
-  - **Campaign**: Coordinated exploitation of SharePoint zero-days to gain initial access to government and defence-industrial targets.  Post-compromise activity includes web-shell deployment and Active Directory reconnaissance.  
-- **Interlock Ransomware Operators**  
-  - **Campaign**: Double-extortion attacks against SMB and critical-infrastructure entities using phishing for access, followed by rapid data exfiltration and encryption.  CISA/FBI note increasing volume and higher ransom demands.  
-- **Lumma Infostealer Crew**  
-  - **Campaign**: Service revival after infrastructure takedown; new C2 domains and loader infrastructure observed in malvertising chains targeting Chrome and Edge users.  
-- **Coyote Banking-Trojan Developers**  
-  - **Campaign**: Expansion into cryptocurrency-exchange credential theft; adoption of UI-Automation abuse significantly lowers detection rates on fully-patched Windows 11 hosts.  
-
+- **Linen Typhoon (China)**  
+  - **Campaign**: Coordinated exploitation of SharePoint servers since 7 July 2025 for espionage and credential theft.  
+- **Violet Typhoon (China)**  
+  - **Campaign**: Parallel operations focusing on governmental and defense contractors’ SharePoint sites, implanting custom web-shells.  
+- **Third Chinese Nation-State Group (unnamed)**  
+  - **Campaign**: Observed by Dark Reading scanning for the same SharePoint endpoints, expanding target scope to education and manufacturing.  
+- **Lumma Infostealer Operators**  
+  - **Campaign**: Reconstituted infrastructure after May takedown; pivoting off compromised SharePoint machines to mass-exfiltrate browser tokens.  
+- **Coyote Banking-Trojan Operators**  
+  - **Campaign**: New variant integrates UI Automation spying, primarily targeting Latin-American financial institutions.  
+- **Interlock Ransomware Affiliates**  
+  - **Campaign**: Surge in double-extortion incidents, leveraging credentials obtained via SharePoint breaches or infostealer logs to gain initial foothold.
