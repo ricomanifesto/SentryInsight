@@ -1,72 +1,95 @@
 # Exploitation Report
 
-Ongoing attacks are leveraging multiple enterprise-grade vulnerabilities, headlined by two distinct Microsoft SharePoint zero-days that adversaries are chaining for remote code execution and data theft. One of the flaws remains unpatched, forcing defenders to rely on temporary mitigations while Microsoft races to deliver a fix. Concurrently, threat actors are weaponizing two newly disclosed SysAid ITSM vulnerabilities to hijack privileged administrator sessions inside corporate help-desk environments, and a revamped “Coyote” banking trojan is abusing the Windows UI Automation framework to harvest credentials without triggering traditional security controls. The intersection of these exploits underscores an elevated risk to organizations running exposed collaboration platforms, IT service software, or unmanaged Windows endpoints.
+A surge of real-world exploitation is centered on Microsoft SharePoint zero-days, supply-chain abuse in the JavaScript ecosystem, and opportunistic attacks on web-application and container infrastructures. Government networks – including the U.S. National Nuclear Security Administration – were breached via an unpatched SharePoint vulnerability chain, while threat actor “Mimo” pivoted from Craft CMS to Magento and exposed Docker APIs to deploy cryptominers and proxyware. Simultaneously, the compromise of the hugely popular NPM package `is` highlights the growing risk of developer-focused supply-chain attacks. These campaigns illustrate a broad spectrum of attack surfaces: on-prem collaboration platforms, e-commerce software, container orchestration, and development pipelines.
 
 ## Active Exploitation Details
 
-### Microsoft SharePoint Zero-Day #1 (Patched)
-- **Description**: A remote code execution flaw in SharePoint Server enabling attackers to upload a specially crafted file that is executed in the context of the SharePoint service account.  
-- **Impact**: Full server compromise, lateral movement into Microsoft 365 and on-prem AD environments, and exfiltration of stored SharePoint data.  
-- **Status**: Confirmed in-the-wild exploitation; Microsoft has issued a security update.  
-- **CVE ID**: CVE-2025-XXXXX   <!-- include only if article provided; remove if none -> we'll omit due to unknown -->
+### Microsoft SharePoint Server Zero-Day Chain  
+- **Description**: A pair of previously unknown SharePoint Server vulnerabilities being chained for initial access and privilege escalation. Attackers weaponize specially crafted HTTP requests to execute code or elevate privileges within SharePoint farms.  
+- **Impact**: Full takeover of SharePoint sites, lateral movement into internal networks, and exfiltration of sensitive government data (confirmed breach of the National Nuclear Security Administration).  
+- **Status**: At least one flaw has been patched; another remains under investigation with mitigations issued. Exploitation is ongoing in the wild.
 
-### Microsoft SharePoint Zero-Day #2 (Unresolved)
-- **Description**: A privilege-escalation vulnerability allowing authenticated users to gain SYSTEM-level privileges on SharePoint servers.  
-- **Impact**: Attackers chaining with RCE achieve complete takeover of SharePoint farms, enabling persistence and deployment of web shells.  
-- **Status**: Active exploitation reported; no permanent patch released. Microsoft advises disabling vulnerable components and tightening firewall rules.  
+### Magento CMS Remote-Code Execution (RCE) Exploit – “Mimo” Campaign  
+- **Description**: Web-template and deserialization flaws in Magento CMS allow unauthenticated attackers to execute arbitrary PHP code. The “Mimo” threat actor uses automated scanners to identify outdated Magento instances.  
+- **Impact**: Deployment of XMRig-based cryptominers, installation of proxyware for bandwidth resale, and footholds for additional payloads.  
+- **Status**: Active exploitation; official patches exist but many Internet-facing stores remain unpatched.
 
-### SysAid ITSM Authentication-Bypass & Path-Traversal Flaws
-- **Description**: Two separate weaknesses in SysAid’s on-prem IT service management platform—one bypasses authentication controls, the other allows path traversal leading to arbitrary file upload.  
-- **Impact**: Unauthenticated attackers can create or hijack administrator accounts, execute malicious code, and pivot to internal assets handled by the help-desk system.  
-- **Status**: CISA confirms active exploitation; vendor patches available in latest SysAid release.  
+### Docker API Exposure / Misconfiguration Abuse  
+- **Description**: Unauthenticated or weakly authenticated Docker Engine APIs exposed to the Internet let attackers create rogue containers. “Mimo” spins up privileged containers that mount the host filesystem.  
+- **Impact**: Host compromise, resource hijacking for cryptocurrency mining, proxy network enrollment, and possibility of lateral movement to neighboring hosts.  
+- **Status**: No vendor patch required; remediation involves hardening (binding to localhost, enabling TLS, access-controls).
 
-### Windows UI Automation Abuse (Coyote Malware)
-- **Description**: The Coyote banking trojan leverages Microsoft’s UI Automation (UIA) accessibility interface to invisibly interact with banking windows, capture credentials, and manipulate transactions.  
-- **Impact**: Stealthy theft of banking usernames, passwords, and MFA tokens; bypass of browser-based anti-fraud extensions.  
-- **Status**: In-the-wild deployment of new Coyote variant; no vendor patch (abuses legitimate OS functionality). Defenders must rely on behavior-based detection.  
+### Compromised NPM Package `is` (Supply-Chain Backdoor)  
+- **Description**: The legitimate NPM package `is` (≈2.8 million weekly downloads) was hijacked and updated with malicious post-install scripts that download and execute obfuscated binaries.  
+- **Impact**: Remote code execution on developer workstations, CI/CD servers, and production Node.js environments, granting attackers full device access and potential credential theft.  
+- **Status**: Malicious versions were removed; developers must audit dependency trees and force-upgrade to a clean release.
+
+### Craft CMS Exploitation (Legacy, Still Observed)  
+- **Description**: Legacy template-injection flaws in Craft CMS continue to be scanned and exploited by the same “Mimo” actor now focusing on Magento.  
+- **Impact**: Website defacement, cryptominer deployment, data theft.  
+- **Status**: Patches available; exploitation persists against unmaintained sites.
+
+### Kerberoasting Weakness in Active Directory  
+- **Description**: Abuse of Kerberos service ticket encryption (RC4-HMAC) lets attackers request Service Principal Name (SPN) tickets and crack them offline to recover plaintext service-account passwords.  
+- **Impact**: Lateral movement and privilege escalation inside Windows domains without generating noisy on-host alerts.  
+- **Status**: Enduring technique; mitigations (AES-only tickets, strong passwords) recommended.
+
+### Help-Desk Identity Verification Bypass (Clorox Breach)  
+- **Description**: Attackers socially engineered Cognizant’s help desk into resetting a Clorox employee’s credentials without proper identity validation.  
+- **Impact**: Initial foothold that led to a $380 million business disruption.  
+- **Status**: No software patch; procedural controls and MFA enforcement required.
 
 ## Affected Systems and Products
 
-- **Microsoft SharePoint Server 2019 / Subscription Edition**  
-  - **Platform**: On-prem Windows Server deployments exposed to the Internet or internal users.  
+- **Microsoft SharePoint Server 2016 / 2019 / Subscription Edition**  
+  Platform: On-prem Windows Server environments, including federal networks.
 
-- **SysAid ITSM (on-prem editions prior to latest security release)**  
-  - **Platform**: Windows-based and Linux-based servers hosting the SysAid service.  
+- **Adobe Magento Open Source & Adobe Commerce (out-of-date instances)**  
+  Platform: Linux/Unix web servers running PHP.
 
-- **Windows 10 & 11 endpoints (all builds)**  
-  - **Platform**: Any workstation where users can be lured to run the Coyote trojan; exploitation occurs post-infection via UI Automation.  
+- **Docker Engine & Docker Desktop with exposed REST API (TCP 2375/2376)**  
+  Platform: Linux, Windows, Cloud VMs.
+
+- **Craft CMS versions prior to latest security release**  
+  Platform: PHP-based CMS on Linux.
+
+- **NPM package `is` (compromised versions)**  
+  Platform: Node.js ecosystems – developer workstations, CI/CD, production servers.
+
+- **Active Directory domains using RC4-encrypted Kerberos tickets and weak SPN passwords**  
+  Platform: Windows Server.
 
 ## Attack Vectors and Techniques
 
-- **Malicious File Upload (SharePoint RCE)**  
-  - **Vector**: Crafted SharePoint package uploaded through the web interface triggers server-side code execution.  
+- **Zero-Day Exploitation (SharePoint)**  
+  Vector: Malicious HTTP requests to vulnerable SharePoint endpoints chain RCE and privilege escalation.
 
-- **Privilege Escalation via Service Account Manipulation (SharePoint)**  
-  - **Vector**: Abuse of vulnerable SharePoint component to escalate from authenticated user to SYSTEM.  
+- **Web-Application RCE (Magento / Craft CMS)**  
+  Vector: Unsanitized template injection and deserialization payloads delivered via public URL parameters.
 
-- **Unauthenticated REST/API Calls (SysAid)**  
-  - **Vector**: Attacker sends specially formed API requests to create admin accounts, bypassing login checks.  
+- **Container API Hijacking (Docker)**  
+  Vector: Unauthenticated calls to exposed Docker APIs to create privileged containers running cryptominers.
 
-- **Arbitrary File Upload & Path Traversal (SysAid)**  
-  - **Vector**: Crafted paths allow dropping web shells outside the intended upload directory.  
-
-- **UI Automation Hijacking (Coyote)**  
-  - **Vector**: Malware hooks UIA event listeners to scrape credentials and issue hidden UI commands.  
+- **Supply-Chain Poisoning (NPM)**  
+  Vector: Malicious post-install scripts executed automatically during `npm install`.
 
 - **Kerberoasting**  
-  - **Vector**: Attackers request service tickets for vulnerable SPNs, then brute-force encrypted blobs offline to recover service account passwords, facilitating lateral movement.  
+  Vector: LDAP enumeration of SPNs followed by offline cracking of service tickets.
+
+- **Social Engineering / Help-Desk Impersonation**  
+  Vector: Telephone or chat requests persuading support staff to reset credentials without MFA or secondary verification.
 
 ## Threat Actor Activities
 
-- **Multiple Chinese Nation-State Groups**  
-  - **Campaign**: Coordinated exploitation of both SharePoint zero-days to breach Western government and defense contractors, followed by data exfiltration and credential harvesting.  
+- **Unknown Nation-State Actors (attributed to Chinese groups by Microsoft)**  
+  Campaign: Targeted exploitation of SharePoint zero-days; confirmed intrusion into U.S. critical infrastructure (NNSA).
 
-- **Unidentified Threat Actors Exploiting SysAid**  
-  - **Campaign**: Post-compromise deployment of web shells on help-desk servers, enabling ransomware staging and privilege escalation within enterprise networks.  
+- **“Mimo” Threat Actor**  
+  Campaign: Mass-scanning Magento sites and misconfigured Docker hosts; deployment of XMRig miners and proxyware since pivoting from Craft CMS.
 
-- **Coyote Malware Operators (Financially Motivated)**  
-  - **Campaign**: Targeting Latin American and European online-banking customers; leveraging UI Automation to bypass anti-fraud controls and perform fraudulent transfers.  
+- **Unidentified Supply-Chain Actor(s)**  
+  Campaign: Compromised NPM package `is`, distributing backdoor malware through trusted open-source channels.
 
-- **Red-Team & Pen-Test Imitators**  
-  - **Campaign**: Surge in Kerberoasting usage observed in recent penetration tests, mirroring real-world tactics for privilege escalation inside Active Directory domains.  
+- **Unidentified Actors in Clorox Intrusion**  
+  Campaign: Social-engineering Cognizant help desk, leading to major ransomware/business-disruption at Clorox.
 
