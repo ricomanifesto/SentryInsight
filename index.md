@@ -1,49 +1,60 @@
 # Exploitation Report
 
-Recent reporting highlights a significant surge in exploitation activity against enterprise collaboration and network-access infrastructure. Chinese state-sponsored groups are chaining newly disclosed Microsoft SharePoint Server vulnerabilities to obtain initial footholds in corporate environments, while threat actors are simultaneously leveraging three critical remote-code-execution flaws in Cisco Identity Services Engine (ISE) to disable network-access controls and pivot deeper into victim networks. Both exploit campaigns are confirmed active in the wild, with vendors having issued patches that organizations must deploy immediately to reduce risk.
+State-sponsored and financially motivated adversaries are concentrating on freshly disclosed server-side vulnerabilities that provide reliable remote code execution paths into enterprise environments. The most impactful activity involves three Chinese nation-state groups chaining multiple, newly published Microsoft SharePoint Server flaws to gain persistent access to public-facing collaboration sites. Simultaneously, attackers are weaponising three critical remote-code-execution bugs in Cisco Identity Services Engine (ISE) only weeks after patches were issued, indicating rapid exploit development and poor organisational patch cadence. These exploits are now feeding data-exfiltration malware, credential-harvesting campaigns, and double-extortion ransomware operations.
 
 ## Active Exploitation Details
 
-### Microsoft SharePoint Server Vulnerabilities
-- **Description**: A set of newly revealed bugs in on-premises SharePoint Server that allow unauthenticated attackers to bypass authentication, upload malicious files, and ultimately execute arbitrary code under the SharePoint service account.  
-- **Impact**: Full compromise of the SharePoint farm, credential theft, web-shell deployment, lateral movement, and persistent access to sensitive corporate data and intellectual property.  
-- **Status**: Actively exploited by at least three China-based nation-state groups; security updates have been released by Microsoft and should be applied urgently.  
+### Microsoft SharePoint Server Post-Authentication RCE Chain
+- **Description**: A set of newly disclosed SharePoint Server vulnerabilities that allow authenticated users (or those with stolen session cookies) to upload malicious payloads, trigger server-side deserialization, and execute arbitrary code with SYSTEM-level privileges.  
+- **Impact**: Full takeover of on-premises SharePoint farms, lateral movement into connected Windows domains, and theft of sensitive documents stored in SharePoint libraries.  
+- **Status**: Actively exploited in the wild by multiple Chinese nation-state actors; security updates are available from Microsoft but many internet-facing instances remain unpatched.
 
-### Cisco Identity Services Engine (ISE) Critical RCE Flaws
-- **Description**: Three maximum-severity vulnerabilities in Cisco ISE that enable remote, unauthenticated attackers to execute commands with root privileges via crafted web or CLI requests.  
-- **Impact**: Complete takeover of the ISE appliance, ability to modify or disable network-access policies, harvest user credentials, and pivot into protected segments of the enterprise network.  
-- **Status**: Cisco issued patches and public advisories; exploitation has been confirmed in active attacks targeting both enterprise and critical-infrastructure environments.  
+### Cisco Identity Services Engine (ISE) Remote Code Execution Vulnerabilities
+- **Description**: Three independent but related flaws in Cisco ISE’s web-based administrative interface permit unauthenticated attackers to send specially crafted HTTPS requests that bypass input validation and invoke underlying operating-system commands.  
+- **Impact**: Remote execution of arbitrary code as root on the network-access-control appliance, enabling attackers to disable authentication policies, create rogue network devices, or pivot deeper into corporate networks.  
+- **Status**: Patches were released in the latest Cisco ISE maintenance train; proof-of-concept exploits are public and confirmed active exploitation has been observed by Cisco Talos.
+
+### SharePoint ViewState Deserialization Zero-Day (in use prior to patch release)
+- **Description**: A zero-day flaw involving unsafe ViewState handling that allowed remote attackers to inject serialized objects and achieve code execution without valid credentials under certain configuration scenarios.  
+- **Impact**: Deployment of web shells, credential dumping, and establishment of resilient command-and-control channels on government and critical-infrastructure SharePoint portals.  
+- **Status**: Now patched, but exploitation began at least two weeks before disclosure according to Microsoft telemetry.
 
 ## Affected Systems and Products
 
-- **Microsoft SharePoint Server (2016, 2019, Subscription Edition)**  
-  - **Platform**: Windows Server installations running on-premises or in self-hosted cloud IaaS
-
-- **Cisco Identity Services Engine (ISE) ≤ 3.x prior to current fixed releases**  
-  - **Platform**: Dedicated physical and virtual appliances (Linux-based underlying OS)
+- **Microsoft SharePoint Server (on-premises)**: Versions 2019, 2016, and older still under extended support; internet-facing deployments hit hardest.  
+- **Cisco Identity Services Engine (ISE)**: All 3.x and 4.x releases prior to the July 2025 fixed builds; appliances and virtual ISE nodes are affected.  
 
 ## Attack Vectors and Techniques
 
-- **Web-Shell Deployment via SharePoint HTTP Requests**  
-  - **Vector**: Malicious HTTP POST requests to vulnerable SharePoint endpoints that bypass authentication checks, allowing file upload and code execution.
+- **Deserialization RCE via ViewState**  
+  - **Vector**: Upload or injection of malicious ViewState payloads into SharePoint pages, triggering .NET object deserialization.  
 
-- **Remote Command Injection on Cisco ISE**  
-  - **Vector**: Specially crafted REST or CLI packets sent to the ISE administrative interface, triggering root-level command execution without valid credentials.
+- **Malicious HTTPS Request Injection**  
+  - **Vector**: Crafted REST or SOAP requests sent to Cisco ISE’s administrative API endpoint to bypass authentication checks and execute shell commands.  
 
-- **Credential Harvesting & Lateral Movement**  
-  - **Vector**: Post-exploitation use of harvested NTLM hashes (SharePoint) or TACACS/RADIUS secrets (ISE) to move laterally and escalate privileges.
+- **Credential Stuffing & Cookie Replay**  
+  - **Vector**: Stolen session cookies harvested by Lumma and Coyote infostealers reused to obtain authenticated contexts for SharePoint exploitation.  
+
+- **Web Shell Deployment**  
+  - **Vector**: Post-exploitation placement of China Chopper–style ASPX web shells in SharePoint _layouts_ directories for persistent remote management.  
+
+- **Double-Extortion Ransomware Loading (Interlock)**  
+  - **Vector**: Follow-on from Cisco ISE compromise to push ransomware binaries to NAC-controlled segments, encrypt data, and exfiltrate backups.  
 
 ## Threat Actor Activities
 
-- **Linen Typhoon, Violet Typhoon, and a third unnamed China-based group**  
-  - **Campaign**: Coordinated exploitation of vulnerable SharePoint servers since early July; objectives include espionage, intellectual-property theft, and establishing long-term persistence.
+- **Linen Typhoon (China)**  
+  - **Campaign**: Coordinated exploitation of new SharePoint flaws starting 7 July 2025 to gain footholds in defence-industrial-base organisations.  
 
-- **Unattributed Crimeware Operators**  
-  - **Campaign**: Opportunistic scanning for vulnerable Cisco ISE instances, followed by double-extortion ransomware or data-theft operations against compromised organizations.
+- **Violet Typhoon (China)**  
+  - **Campaign**: Parallel targeting of European and Middle-Eastern government SharePoint portals, focusing on diplomatic document theft.  
 
-- **Interlock Ransomware Operators**  
-  - **Campaign**: Leveraging compromised network-access devices—including newly exploited ISE appliances—to deploy ransomware payloads and exfiltrate sensitive data for extortion.
+- **Unnamed Third Chinese Group**  
+  - **Campaign**: Opportunistic scanning and exploitation of unpatched SharePoint instances worldwide, rapidly deploying web shells for resale on underground markets.  
 
----
+- **Interlock Ransomware Crew**  
+  - **Activities**: Leveraging Cisco ISE compromises and other VPN exposures to run double-extortion attacks against healthcare and manufacturing sectors.  
 
-Organizations running the affected software should prioritize patch deployment, validate that exposed management interfaces are properly segmented, and perform immediate compromise assessments for signs of web shells, unauthorized administrative sessions, or unexpected policy changes.
+- **Lumma Infostealer Operators**  
+  - **Activities**: Resumed large-scale credential theft after infrastructure takedown; stolen data is facilitating authenticated SharePoint intrusions.  
+
