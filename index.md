@@ -1,63 +1,70 @@
 # Exploitation Report
 
-Recent reporting highlights a surge in targeted exploitation of enterprise software and developer platforms. The most severe activity centers on a critical SAP NetWeaver flaw (CVE-2025-31324) that attackers are actively abusing to gain initial access and deploy the new “Auto-Color” Linux malware inside a U.S. chemicals firm. In parallel, researchers disclosed — and confirmed real-world abuse of — an authentication bypass in the rapidly growing Base44 “vibe-coding” platform, which exposed every private application hosted on the service until it was patched. While large-scale ransomware, supply-chain and phishing campaigns (Gunra, PyPI, choicejacking) continue to expand their tooling, the SAP and Base44 intrusions demonstrate how quickly adversaries weaponize newly revealed server-side weaknesses to obtain code-execution and persistent access across heterogeneous environments.
+Recent reporting highlights a surge in targeted exploitation of enterprise software platforms. The most critical events include mass, automated attacks against un-patched Microsoft SharePoint servers across multiple African organizations, an in-the-wild exploitation of a freshly patched SAP NetWeaver flaw (CVE-2025-31324) that enabled the delivery of new Linux “Auto-Color” malware, and a critical access-bypass issue in the popular Base44 “vibe coding” platform. These campaigns show that attackers are moving quickly—often within days of vendor advisories—to weaponize high-impact vulnerabilities for initial access, espionage, and ransomware deployment.
 
 ## Active Exploitation Details
 
-### SAP NetWeaver Remote Code Execution
-- **Description**: A critical flaw in SAP NetWeaver AS (Java) lets remote, unauthenticated attackers execute arbitrary OS commands via crafted requests that abuse a vulnerable component in the platform’s HTTP interface.  
-- **Impact**: Full system compromise, deployment of malware, lateral movement across SAP landscape and connected networks.  
-- **Status**: Actively exploited in the wild against a U.S. chemicals company; SAP has issued patches and customers are urged to apply them immediately.  
+### SAP NetWeaver Application Server Java Deserialization Vulnerability  
+- **Description**: A critical flaw in SAP NetWeaver AS Java that allows adversaries to send crafted HTTP requests resulting in unsafe deserialization and remote code execution on the underlying Linux host.  
+- **Impact**: Full system compromise leading to deployment of the “Auto-Color” backdoor, persistence, and lateral movement inside corporate environments.  
+- **Status**: Exploited in April 2025 against a U.S. chemicals company; patches are available and should be applied immediately.  
 - **CVE ID**: CVE-2025-31324  
 
-### Base44 Authentication/Access Bypass
-- **Description**: A logic flaw in the authorization layer of the Base44 AI-powered coding platform enables attackers to bypass project-level permissions and retrieve or modify any private application or repository.  
-- **Impact**: Theft of proprietary source code, insertion of malicious commits, exposure of API keys and secrets, potential for downstream supply-chain attacks.  
-- **Status**: Exploitation confirmed by researchers prior to coordinated disclosure; vendor has rolled out an emergency patch and rotated internal credentials.  
+### Microsoft SharePoint On-Premises Remote Code Execution Chain  
+- **Description**: A set of long-standing SharePoint server vulnerabilities that enable pre-authentication code execution and arbitrary file upload when servers remain unpatched or misconfigured.  
+- **Impact**: Attackers gain initial foothold, exfiltrate sensitive treasury documents, and stage credential theft that cascades to Active Directory compromise.  
+- **Status**: Actively exploited in a mass campaign impacting government and private entities in South Africa and neighboring countries; security updates are available but adoption is low.  
 
-### Mobile “Choicejacking” Attack
-- **Description**: A social-engineering technique that overlays deceptive permission prompts over legitimate Android/iOS dialogs, tricking users into granting elevated privileges (e.g., screen-sharing, VPN, or notification access).  
-- **Impact**: Attackers gain persistent surveillance capabilities, credential interception, or the ability to reroute network traffic.  
-- **Status**: Observed in multiple live phishing campaigns; platform vendors have issued best-practice guidance but no universal patch exists.  
+### Base44 Vibe Coding Platform Access-Bypass Flaw  
+- **Description**: A critical logic vulnerability in Base44’s AI-driven coding platform that lets unauthenticated users enumerate and access otherwise private applications and source code repositories.  
+- **Impact**: Exposure of proprietary code, intellectual property theft, and the possibility of supply-chain poisoning by injecting malicious code into private projects.  
+- **Status**: Patched by the vendor after responsible disclosure; evidence indicates opportunistic exploitation before the fix was released.  
+
+### Gunra Ransomware Linux Variant Initial-Access Weakness  
+- **Description**: The newly ported Gunra ransomware leverages publicly facing Linux services with weak authentication or unpatched flaws to execute a multithreaded encryption routine.  
+- **Impact**: Rapid encryption of Linux servers and attached NFS shares, disrupting production workloads and backup repositories.  
+- **Status**: Observed in the wild; no vendor patch required—mitigation centers on hardening exposed services and closing known vulnerabilities used for initial entry.  
 
 ## Affected Systems and Products
 
-- **SAP NetWeaver Application Server (Java 7.50, 7.51, 7.52)**  
-  - **Platform**: On-premises and cloud-hosted SAP landscapes (Windows, Linux, UNIX)  
-- **Base44 Vibe-Coding Platform (Cloud SaaS — all tenants prior to hot-fix 2025-07-12)**  
-  - **Platform**: Multi-tenant web service accessed via browser and CI/CD pipelines  
-- **Android & iOS Mobile Devices**  
-  - **Platform**: All modern releases susceptible to overlay-based “choicejacking” when accessibility or screen-overlay permissions are abused  
+- **SAP NetWeaver AS Java (7.x)**: All unsupported or pre-patch versions  
+  - **Platform**: Linux (x86_64) enterprise servers  
+
+- **Microsoft SharePoint Server (2019, 2016, 2013)**: On-premises deployments lacking latest cumulative updates  
+  - **Platform**: Windows Server environments, often integrated with Active Directory  
+
+- **Base44 Vibe Coding Platform (Cloud SaaS)**: Instances prior to July 2025 hot-fix release  
+  - **Platform**: Multi-tenant cloud; developer CI/CD pipelines  
+
+- **Linux Servers running SSH, Web or Database Services**: Targets of the new Gunra ransomware build  
+  - **Platform**: Ubuntu, RHEL, Debian, SUSE, and derivatives in data-center and cloud VMs  
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution via HTTP Request Smuggling (SAP NetWeaver)**  
-  - **Vector**: Crafted HTTP payloads targeting a vulnerable servlet/controller to execute OS commands.  
+- **HTTP Deserialization RCE (SAP)**  
+  - **Vector**: Crafted HTTP/S requests to NetWeaver’s `/ctc/` endpoints trigger unsafe deserialization, spawning a reverse shell.  
 
-- **Authentication Logic Flaw Exploitation (Base44)**  
-  - **Vector**: Manipulated session tokens and project-ID parameters to skip authorization checks and pull private repos.  
+- **Pre-Auth SharePoint File Upload / RCE**  
+  - **Vector**: Automated scanning for vulnerable `/Layouts/Upload.aspx` and SOAP API routes followed by malicious DLL upload and execution.  
 
-- **Overlay-Based Social Engineering (“Choicejacking”)**  
-  - **Vector**: Malicious apps or web views draw transparent layers over legitimate dialogs, capturing taps meant for security prompts.  
+- **Access-Control Logic Bypass (Base44)**  
+  - **Vector**: Manipulated session tokens in API calls circumvent tenant-scoping checks, exposing private repositories.  
 
-- **Malware Deployment – Auto-Color Loader**  
-  - **Vector**: Post-exploitation script that retrieves and executes ELF binaries on compromised Linux hosts.  
+- **Ransomware Dropper via Weak SSH Credentials (Gunra)**  
+  - **Vector**: Brute-forced or default SSH keys grant shell access; bash script installs XOR-encoded ELF payload that launches multithreaded encryptor.  
 
 ## Threat Actor Activities
 
-- **Unknown APT / Crimeware Group (SAP Exploitation)**  
-  - **Campaign**: Compromised a U.S. chemicals firm by chaining CVE-2025-31324 with Auto-Color malware; objectives appear to be espionage and long-term persistence.  
+- **Unnamed SAP Campaign Operator**  
+  - **Campaign**: Compromised a U.S. chemicals firm in April 2025 to deploy Auto-Color backdoor, focusing on proprietary formula theft.  
+
+- **SharePoint Mass-Exploitation Cluster**  
+  - **Actor/Group**: Likely financially motivated cyber-criminal crew leveraging automated tooling; targeting South African treasury and private sector for large-scale data exfiltration and ransomware staging.  
+
+- **Copycat Groups Post-Scattered Spider Arrests**  
+  - **Campaign**: Imitating Scattered Spider’s cloud-focused TTPs, these actors are probing SaaS platforms like Base44 for access-control weaknesses to steal source code and credentials.  
 
 - **Gunra Ransomware Operators**  
-  - **Campaign**: Released a Linux variant with multithreaded encryption, signaling intent to expand beyond Windows environments; initial access obtained through conventional intrusion methods (phishing, brute-forced services).  
+  - **Campaign**: Expanding from Windows to Linux, leveraging cross-platform Golang payloads; observed targeting manufacturing and technology firms for double-extortion attacks.  
 
-- **Base44 “Proof-of-Concept” Abusers**  
-  - **Campaign**: Opportunistic actors enumerated and cloned private applications across multiple organizations before the emergency patch; no ransomware observed yet, but code-theft and backdoor planting are likely.  
-
-- **Phishing Group Targeting PyPI Maintainers**  
-  - **Campaign**: Sends fake verification emails redirecting developers to look-alike domains that steal PyPI credentials, enabling malicious package uploads.  
-
-- **Mobile Threat Actors Leveraging Choicejacking**  
-  - **Campaign**: Distribute trojanized apps through third-party stores and smishing links, primarily targeting travelers and remote workers demanding fast VPN access.  
-
-**Bold** defensive action is required: prioritize patching SAP NetWeaver instances, validate Base44 tenant security, harden mobile device policies against overlay attacks, and monitor for unusual outbound connections from CI/CD and developer endpoints.
+**Bold** mitigation guidance: prioritize patching SAP NetWeaver (CVE-2025-31324) and Microsoft SharePoint, review Base44 tenant permissions, enforce MFA on SSH, and monitor for unknown ELF binaries to counter the emergent threat landscape.
