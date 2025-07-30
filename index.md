@@ -1,70 +1,66 @@
 # Exploitation Report
 
-Recent reporting highlights a surge in targeted exploitation of enterprise software platforms. The most critical events include mass, automated attacks against un-patched Microsoft SharePoint servers across multiple African organizations, an in-the-wild exploitation of a freshly patched SAP NetWeaver flaw (CVE-2025-31324) that enabled the delivery of new Linux “Auto-Color” malware, and a critical access-bypass issue in the popular Base44 “vibe coding” platform. These campaigns show that attackers are moving quickly—often within days of vendor advisories—to weaponize high-impact vulnerabilities for initial access, espionage, and ransomware deployment.
+Over the past week defenders observed a surge of real-world exploitation activity targeting enterprise collaboration platforms, browsers, and business-critical ERP systems. Attackers are chaining newly discovered zero-days with long-patched but still-unfixed server flaws to gain initial footholds, deploy custom malware such as the “Auto-Color” backdoor, and exfiltrate sensitive data. The most consequential activity centers on a WebKit vulnerability that was first weaponised against Google Chrome and has now forced emergency patches across Apple’s Safari ecosystem; simultaneous mass compromise campaigns are abusing Microsoft SharePoint servers throughout Africa, while a critical SAP NetWeaver weakness is being leveraged to breach Linux hosts in chemical-sector environments. State-aligned groups including Silk Typhoon continue to innovate, filing patents for bespoke cyber-espionage tooling, and financially motivated groups such as Scattered Spider copycats are maintaining operational pressure despite recent arrests.
 
 ## Active Exploitation Details
 
-### SAP NetWeaver Application Server Java Deserialization Vulnerability  
-- **Description**: A critical flaw in SAP NetWeaver AS Java that allows adversaries to send crafted HTTP requests resulting in unsafe deserialization and remote code execution on the underlying Linux host.  
-- **Impact**: Full system compromise leading to deployment of the “Auto-Color” backdoor, persistence, and lateral movement inside corporate environments.  
-- **Status**: Exploited in April 2025 against a U.S. chemicals company; patches are available and should be applied immediately.  
-- **CVE ID**: CVE-2025-31324  
+### Safari / Chrome WebKit Zero-Day
+- **Description**: A memory-safety flaw in the WebKit engine that allows a malicious webpage to execute arbitrary code in the context of the browser. Initially discovered in active attacks against Google Chrome, the same vulnerability impacts Safari across macOS, iOS, and iPadOS.
+- **Impact**: Full browser sandbox escape leading to remote code execution, potential installation of spyware, and session hijacking.
+- **Status**: Confirmed in-the-wild exploitation; Apple released out-of-band patches for Safari and the underlying WebKit framework. Google previously issued a Chrome fix.
 
-### Microsoft SharePoint On-Premises Remote Code Execution Chain  
-- **Description**: A set of long-standing SharePoint server vulnerabilities that enable pre-authentication code execution and arbitrary file upload when servers remain unpatched or misconfigured.  
-- **Impact**: Attackers gain initial foothold, exfiltrate sensitive treasury documents, and stage credential theft that cascades to Active Directory compromise.  
-- **Status**: Actively exploited in a mass campaign impacting government and private entities in South Africa and neighboring countries; security updates are available but adoption is low.  
+### Microsoft SharePoint Remote Code Execution Campaign
+- **Description**: Attackers are exploiting one or more RCE flaws in on-premises Microsoft SharePoint Server, enabling arbitrary file upload and execution via vulnerable API endpoints.
+- **Impact**: System-level compromise of SharePoint hosts, lateral movement into Windows domains, credential harvesting, and data theft affecting government and private entities.
+- **Status**: Mass exploitation observed across multiple African nations; patches have been available for months but remain unapplied in many environments.
 
-### Base44 Vibe Coding Platform Access-Bypass Flaw  
-- **Description**: A critical logic vulnerability in Base44’s AI-driven coding platform that lets unauthenticated users enumerate and access otherwise private applications and source code repositories.  
-- **Impact**: Exposure of proprietary code, intellectual property theft, and the possibility of supply-chain poisoning by injecting malicious code into private projects.  
-- **Status**: Patched by the vendor after responsible disclosure; evidence indicates opportunistic exploitation before the fix was released.  
+### SAP NetWeaver Critical Flaw (“Auto-Color” Intrusion)
+- **Description**: A critical vulnerability in SAP NetWeaver Application Server that allows unauthenticated attackers to craft specially formatted HTTP requests and achieve remote code execution.
+- **Impact**: Initial access to Linux-based SAP landscapes followed by deployment of the Auto-Color backdoor, enabling persistent espionage, command execution, and data exfiltration.
+- **Status**: Flaw is now patched by SAP; exploitation confirmed in April 2025 against a U.S. chemicals company.
 
-### Gunra Ransomware Linux Variant Initial-Access Weakness  
-- **Description**: The newly ported Gunra ransomware leverages publicly facing Linux services with weak authentication or unpatched flaws to execute a multithreaded encryption routine.  
-- **Impact**: Rapid encryption of Linux servers and attached NFS shares, disrupting production workloads and backup repositories.  
-- **Status**: Observed in the wild; no vendor patch required—mitigation centers on hardening exposed services and closing known vulnerabilities used for initial entry.  
+### Silk Typhoon (Hafnium) Exploit Portfolio
+- **Description**: Research links more than 15 Chinese corporate patents to tooling that weaponises server-side vulnerabilities—including email, VPN, and cloud collaboration zero-days—previously used by the Silk Typhoon APT.
+- **Impact**: Development of proprietary implants and privilege-escalation exploits facilitating long-term espionage against Western defense, healthcare, and tech targets.
+- **Status**: Tooling continues to evolve; no public patches because several techniques rely on undisclosed vulnerabilities.
 
 ## Affected Systems and Products
 
-- **SAP NetWeaver AS Java (7.x)**: All unsupported or pre-patch versions  
-  - **Platform**: Linux (x86_64) enterprise servers  
-
-- **Microsoft SharePoint Server (2019, 2016, 2013)**: On-premises deployments lacking latest cumulative updates  
-  - **Platform**: Windows Server environments, often integrated with Active Directory  
-
-- **Base44 Vibe Coding Platform (Cloud SaaS)**: Instances prior to July 2025 hot-fix release  
-  - **Platform**: Multi-tenant cloud; developer CI/CD pipelines  
-
-- **Linux Servers running SSH, Web or Database Services**: Targets of the new Gunra ransomware build  
-  - **Platform**: Ubuntu, RHEL, Debian, SUSE, and derivatives in data-center and cloud VMs  
+- **Apple Safari / WebKit**: macOS Sonoma & Ventura, iOS/iPadOS 18.x, visionOS  
+- **Google Chrome**: Stable channel prior to latest emergency release on Windows, macOS, Linux  
+- **Microsoft SharePoint Server**: On-premises 2019 and earlier, including out-of-support builds frequently seen in government networks  
+- **SAP NetWeaver Application Server (ABAP/Java)**: Versions prior to July 2025 security update; predominantly Linux deployments  
+- **Enterprise Windows Domains**: Secondary victims following SharePoint compromise  
+- **Linux Servers in Chemical, Manufacturing Sectors**: Hosts running vulnerable SAP stacks breached to install Auto-Color malware  
 
 ## Attack Vectors and Techniques
 
-- **HTTP Deserialization RCE (SAP)**  
-  - **Vector**: Crafted HTTP/S requests to NetWeaver’s `/ctc/` endpoints trigger unsafe deserialization, spawning a reverse shell.  
+- **Drive-By Browser Exploit**  
+  - **Vector**: User visits malicious or compromised website leveraging WebKit memory corruption to run attacker code.
 
-- **Pre-Auth SharePoint File Upload / RCE**  
-  - **Vector**: Automated scanning for vulnerable `/Layouts/Upload.aspx` and SOAP API routes followed by malicious DLL upload and execution.  
+- **Server-Side RCE via SharePoint APIs**  
+  - **Vector**: Crafted SOAP / REST requests upload web shells or DLLs, leading to code execution under SharePoint service account.
 
-- **Access-Control Logic Bypass (Base44)**  
-  - **Vector**: Manipulated session tokens in API calls circumvent tenant-scoping checks, exposing private repositories.  
+- **SAP HTTP Request Smuggling / Deserialization**  
+  - **Vector**: Unauthenticated HTTP payload bypasses authentication controls in SAP NetWeaver, spawning a remote OS shell.
 
-- **Ransomware Dropper via Weak SSH Credentials (Gunra)**  
-  - **Vector**: Brute-forced or default SSH keys grant shell access; bash script installs XOR-encoded ELF payload that launches multithreaded encryptor.  
+- **Malware Deployment – Auto-Color Backdoor**  
+  - **Vector**: Post-exploitation script fetches ELF implant from attacker CDN, achieving persistence via systemd service.
+
+- **Patent-Derived Exploit Kits (Silk Typhoon)**  
+  - **Vector**: APT builds exploits for undisclosed flaws in email servers and cloud interfaces, distributed through spear-phishing and supply-chain attacks.
 
 ## Threat Actor Activities
 
-- **Unnamed SAP Campaign Operator**  
-  - **Campaign**: Compromised a U.S. chemicals firm in April 2025 to deploy Auto-Color backdoor, focusing on proprietary formula theft.  
+- **Silk Typhoon (Hafnium)**  
+  - **Campaign**: Continuous cyber-espionage against defense and tech firms; new patents suggest upcoming exploitation of novel zero-days and stealthy data exfiltration tools.
 
-- **SharePoint Mass-Exploitation Cluster**  
-  - **Actor/Group**: Likely financially motivated cyber-criminal crew leveraging automated tooling; targeting South African treasury and private sector for large-scale data exfiltration and ransomware staging.  
+- **Unknown SharePoint Exploitation Cluster**  
+  - **Campaign**: Mass scanning and automated exploitation of unpatched SharePoint servers across South Africa and neighboring regions, including the National Treasury.
 
-- **Copycat Groups Post-Scattered Spider Arrests**  
-  - **Campaign**: Imitating Scattered Spider’s cloud-focused TTPs, these actors are probing SaaS platforms like Base44 for access-control weaknesses to steal source code and credentials.  
+- **Auto-Color Operators**  
+  - **Campaign**: Targeted intrusion on a U.S. chemicals company using SAP NetWeaver exploit; objectives include intellectual-property theft and long-term persistence.
 
-- **Gunra Ransomware Operators**  
-  - **Campaign**: Expanding from Windows to Linux, leveraging cross-platform Golang payloads; observed targeting manufacturing and technology firms for double-extortion attacks.  
+- **Scattered Spider Copycats**  
+  - **Campaign**: Despite core member arrests, derivative crews continue phishing and SIM-swap techniques to infiltrate cloud environments, though overall activity has temporarily dipped.
 
-**Bold** mitigation guidance: prioritize patching SAP NetWeaver (CVE-2025-31324) and Microsoft SharePoint, review Base44 tenant permissions, enforce MFA on SSH, and monitor for unknown ELF binaries to counter the emergent threat landscape.
