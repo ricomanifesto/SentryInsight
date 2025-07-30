@@ -1,39 +1,75 @@
 # Exploitation Report
 
-Recent reporting highlights a significant spike in in-the-wild exploitation of SAP NetWeaver systems. Attackers are abusing a critical input-validation flaw to gain remote code execution on exposed application servers, then deploying the newly observed “Auto-Color” Linux malware to establish persistence inside enterprise networks. A confirmed incident against a U.S.-based chemicals manufacturer underscores the operational impact of this campaign and the urgency of applying available security patches and hardening public-facing SAP landscapes.
+The most urgent exploitation activity observed in the recent news cycle is the active abuse of a critical SAP NetWeaver vulnerability (CVE-2025-31324) to gain pre-authentication remote code execution and implant the newly identified “Auto-Color” Linux malware inside a U.S.-based chemicals company. This single flaw enables full compromise of SAP application servers, a cornerstone of many enterprise resource-planning environments, and is being weaponized in real-world attacks. At the same time, ransomware operators behind the “Gunra” family have introduced a Linux variant, broadening their cross-platform reach, while supply-chain phishing against PyPI maintainers and disruptive cyber-operations hitting municipal and transportation sectors (Saint Paul, Aeroflot, Orange) highlight a rapidly evolving threat landscape.
 
 ## Active Exploitation Details
 
-### SAP NetWeaver Input-Validation Flaw
-- **Description**: A critical vulnerability in SAP NetWeaver Application Server Java allows unauthenticated attackers to conduct crafted HTTP requests that bypass security controls and execute arbitrary commands on the underlying host.  
-- **Impact**: Successful exploitation grants full system compromise, enabling malware deployment, data theft, and lateral movement across connected SAP and non-SAP workloads.  
-- **Status**: Confirmed active exploitation in the wild. SAP has released patches; exploitation attempts are continuing against unpatched systems.  
+### SAP NetWeaver Pre-Auth Remote Code Execution
+- **Description**: A directory-traversal and file-write flaw in SAP NetWeaver Application Server ABAP that allows unauthenticated attackers to upload malicious files and execute arbitrary code on the underlying host.  
+- **Impact**: Full system takeover of SAP servers, lateral movement across enterprise networks, and deployment of custom malware (“Auto-Color”) that establishes persistence and exfiltrates data.  
+- **Status**: Confirmed in-the-wild exploitation; SAP has issued security patches and customers are urged to apply them immediately.  
 - **CVE ID**: CVE-2025-31324  
 
 ## Affected Systems and Products
-- **SAP NetWeaver AS Java**: Instances running vulnerable versions prior to SAP’s April 2025 security update  
-  - **Platform**: Primarily Linux deployments hosting business-critical ERP, CRM, SRM, and custom Java applications  
-- **Victim Environment Noted in Reporting**: U.S. chemicals company with externally reachable SAP portal  
-  - **Platform**: Hybrid on-premises data center with Linux hosts  
+
+- **SAP NetWeaver Application Server ABAP (AS ABAP)**  
+  • Affected Versions: All releases prior to the vendor patch for CVE-2025-31324  
+  • Platform: Linux/UNIX and Windows hosts running SAP NetWeaver
+
+- **Enterprise Linux Servers**  
+  • Impacted as secondary targets when Auto-Color backdoor is deployed  
+  • Platform: Ubuntu, Red Hat, SUSE, and other common server distributions
+
+- **Endpoints Targeted by Gunra Ransomware**  
+  • Versions: Windows 10/11, Windows Server 2016-2022, plus new ELF binaries for major Linux distros  
+  • Platform: Cross-platform (Windows & Linux) environments
+
+- **PyPI Maintainers & Users**  
+  • Scope: Developers receiving fake “account verification” emails  
+  • Platform: Any OS accessing the Python Package Index
+
+- **Municipal & Critical Infrastructure Networks**  
+  • City of Saint Paul, Minnesota (government IT and public-safety systems)  
+  • Platform: Mixed Windows/Linux environments
+
+- **Transportation & Telecom Operators**  
+  • Aeroflot airline reservation & flight-operation systems  
+  • Orange telecom administrative network  
+  • Platform: Highly heterogeneous enterprise stacks
 
 ## Attack Vectors and Techniques
-- **HTTP Exploit Chain**: Attackers send specially crafted HTTP requests to exposed NetWeaver endpoints, triggering the input-validation flaw and achieving remote code execution.  
-- **Malware Drop (Auto-Color)**: Post-exploitation payload that installs as a daemon on Linux, provides reverse shell access, and facilitates credential harvesting and network reconnaissance.  
-- **Living-off-the-Land (LotL)**: Use of native SAP Java processes and standard Linux tooling to evade detection and blend with legitimate administrative activity.  
+
+- **SAP HTTP Directory Traversal (CVE-2025-31324)**  
+  • Vector: Crafted HTTP requests to vulnerable NetWeaver endpoints write a malicious file to the application directory, then trigger execution.  
+
+- **Malware Deployment – “Auto-Color”**  
+  • Technique: Post-exploitation payload delivered via the compromised SAP server writes an ELF binary that opens a reverse shell and schedules persistence via cron.
+
+- **Cross-Platform Ransomware (Gunra Linux Variant)**  
+  • Technique: Multithreaded encryption routine compiled for ELF; actors pivot from initial Windows foothold to encrypt NFS-mounted Linux shares.
+
+- **Supply-Chain Phishing Against PyPI**  
+  • Vector: Look-alike domains (e.g., “pyp1[.]org”) and spoofed “verification” emails harvest credentials, redirecting victims to malicious package repositories.
+
+- **Credential Compromise & Lateral Movement in Municipal Networks**  
+  • Technique: Undisclosed exploit or stolen credentials used to disable critical city services, followed by ransomware-style encryption and data exfiltration.
 
 ## Threat Actor Activities
-- **Unnamed SAP-Focused Intrusion Set**  
-  - **Campaign**: Targeted compromise of industrial sector organizations in the United States. Attackers exploit CVE-2025-31324, deploy Auto-Color malware, and exfiltrate intellectual property related to chemical formulations.  
 
-- **Chaos Ransomware Operation**  
-  - **Campaign**: Newly re-branded ransomware-as-a-service (RaaS) offering “Chaos” demands ~$300 K payments from U.S. victims; FBI recently seized 23 BTC (~$2.4 M) linked to the group. No specific CVEs cited, but activity demonstrates ongoing monetization efforts following the BlackSuit takedown.  
+- **Unknown Threat Actors Exploiting SAP NetWeaver**  
+  • Campaign: Single-stage intrusion delivering Auto-Color malware to a U.S. chemicals firm; focuses on intellectual-property theft and backdoor persistence.
 
-- **PyPI Phishing Actors**  
-  - **Campaign**: Ongoing credential-harvesting campaign leveraging fake verification emails and a look-alike domain to hijack developer accounts and poison Python packages. Focuses on social-engineering vectors rather than exploiting a CVE-listed vulnerability.  
+- **Gunra Ransomware Group**  
+  • Activities: Released a Linux build, enabling encryption of mixed-OS environments; observed targeting midsize organizations with multithreaded payloads.
 
-- **Aeroflot & Orange Incidents**  
-  - **Campaigns**: Service-disruption and intrusion events respectively; technical details on exploited vulnerabilities are not disclosed, but both illustrate the sustained targeting of transportation and telecom sectors.
+- **Phishing Group Targeting PyPI Developers**  
+  • Campaign: Ongoing credential-harvesting operation using fake verification emails; aims to poison the software-supply chain with malicious Python packages.
 
----
+- **Saint Paul Cyberattack Actors**  
+  • Activities: Disrupted municipal services, prompting activation of the National Guard; methods point to sophisticated ransomware or wiper operations.
 
-**Security teams should prioritize patching SAP NetWeaver instances, validate that external interfaces are minimized, and monitor for the Auto-Color malware indicators provided in vendor advisories.**
+- **Aeroflot Incident Actors**  
+  • Activities: Caused cancellation of 60+ flights and extensive delays; attackers penetrated operational IT systems, indicating high operational-technology (OT) awareness.
+
+- **Orange Telecom Attackers**  
+  • Activities: Breached internal system; early containment reported, but investigation ongoing to determine scope and data exfiltration.
