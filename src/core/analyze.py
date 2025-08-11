@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 from datetime import datetime
 
 import tiktoken
-from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain.schema import HumanMessage, SystemMessage
 
 # Configure logging
@@ -74,30 +74,25 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
     template = load_template()
     
     # Initialize the AI model
-    api_key = os.getenv("OPENAI_API_KEY")
-    model_name = config.get("analysis", {}).get("model", "gpt-4o")
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    model_name = config.get("analysis", {}).get("model", "claude-sonnet-4-20250514")
     temperature = config.get("analysis", {}).get("temperature", 0.1)
+    max_tokens = config.get("analysis", {}).get("max_tokens", 4000)
     
     if not api_key:
-        logger.error("No OpenAI API key provided")
+        logger.error("No Anthropic API key provided")
         return {
-            "exploitation_report": "# Error: No OpenAI API Key\n\nPlease set the OPENAI_API_KEY environment variable.",
+            "exploitation_report": "# Error: No Anthropic API Key\n\nPlease set the ANTHROPIC_API_KEY environment variable.",
             "date": datetime.now().strftime("%Y-%m-%d"),
             "error": "No API key"
         }
     
-    # o1 and o3 models don't support temperature parameter
-    if model_name.startswith("o1") or model_name.startswith("o3"):
-        model = ChatOpenAI(
-            api_key=api_key,
-            model=model_name
-        )
-    else:
-        model = ChatOpenAI(
-            api_key=api_key,
-            model=model_name,
-            temperature=temperature
-        )
+    model = ChatAnthropic(
+        api_key=api_key,
+        model=model_name,
+        temperature=temperature,
+        max_tokens=max_tokens
+    )
     
     # Prepare all article summaries
     all_article_summaries = []
@@ -199,16 +194,10 @@ Generate a well-formatted exploitation report following the structure above. Be 
     
     # Call the AI model
     try:
-        # o1 and o3 models work better with just the user message
-        if model_name.startswith("o1") or model_name.startswith("o3"):
-            messages = [
-                HumanMessage(content=f"You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild.\n\n{prompt}")
-            ]
-        else:
-            messages = [
-                SystemMessage(content="You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild."),
-                HumanMessage(content=prompt)
-            ]
+        messages = [
+            SystemMessage(content="You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild."),
+            HumanMessage(content=prompt)
+        ]
         
         response = await model.ainvoke(messages)
         
