@@ -1,39 +1,37 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-value systems across various sectors. The most significant threat involves active exploitation of a critical Citrix NetScaler vulnerability (CVE-2025-6543) that has been used to breach critical organizations in the Netherlands. Additionally, a WinRAR zero-day vulnerability (CVE-2025-8088) has been exploited by the Russian RomCom hacking group to deliver malware through path traversal attacks. Ransomware operations continue to pose substantial threats, with the Interlock ransomware gang successfully compromising Saint Paul's municipal systems, while law enforcement has disrupted BlackSuit ransomware infrastructure. The cybercrime landscape shows concerning collaboration patterns, with ShinyHunters adopting tactics similar to the notorious Scattered Spider group, indicating potential coordination between major threat actors.
+Critical exploitation activity is currently targeting Citrix NetScaler devices with over 3,300 systems remaining vulnerable to the CitrixBleed 2 vulnerability nearly two months after patches were released. The Dutch National Cyber Security Centre has confirmed active exploitation of this critical flaw in critical sectors, allowing attackers to bypass authentication by hijacking user sessions. Additionally, a new cyber-espionage group called "Curly COMrades" has emerged, targeting government organizations in Georgia and Moldova using sophisticated COM hijacking techniques and custom backdoor malware for persistent access.
 
 ## Active Exploitation Details
 
-### Citrix NetScaler Critical Vulnerability
-- **Description**: A critical security flaw in Citrix NetScaler ADC products that allows attackers to breach organizational networks
-- **Impact**: Successful exploitation enables attackers to compromise critical infrastructure and gain unauthorized access to sensitive systems
-- **Status**: Actively exploited in the wild against critical organizations in the Netherlands
+### CitrixBleed 2 Vulnerability
+- **Description**: Critical authentication bypass vulnerability in Citrix NetScaler ADC products that allows attackers to hijack user sessions
+- **Impact**: Complete authentication bypass, unauthorized access to protected systems and data
+- **Status**: Patches available but over 3,300 devices remain unpatched; actively exploited in critical sectors
 - **CVE ID**: CVE-2025-6543
 
-### WinRAR Path Traversal Zero-Day
-- **Description**: A path traversal vulnerability in WinRAR that allows malicious archive files to execute arbitrary code on victim systems
-- **Impact**: Enables malware deployment and system compromise through specially crafted archive files
-- **Status**: Exploited in zero-day attacks by RomCom threat group before patches were available
-- **CVE ID**: CVE-2025-8088
+### NGEN COM Hijacking Vulnerability
+- **Description**: COM hijacking technique exploiting the .NET Native Image Generator (NGEN) to maintain persistence through seemingly inactive scheduled tasks
+- **Impact**: Long-term persistent access to compromised systems, stealth backdoor deployment
+- **Status**: Actively exploited by Curly COMrades APT group in targeted espionage campaigns
 
 ## Affected Systems and Products
 
-- **Citrix NetScaler ADC**: Critical infrastructure systems in Netherlands organizations, particularly affecting government and essential services sectors
-- **WinRAR Software**: Windows systems running vulnerable versions of the popular archive utility, targeted through malicious archive files
-- **Saint Paul Municipal Systems**: City government infrastructure compromised by Interlock ransomware, disrupting public services
-- **BlackSuit Ransomware Infrastructure**: Servers and domains used by the ransomware operation, now disrupted by law enforcement
+- **Citrix NetScaler ADC**: Over 3,300 unpatched devices worldwide vulnerable to session hijacking attacks
+- **Government Organizations**: Entities in Georgia and Moldova targeted by custom malware campaigns
+- **Critical Infrastructure**: Dutch NCSC reports exploitation in critical sectors including government and essential services
+- **Windows Systems**: Targeted by COM hijacking attacks using NGEN scheduled task manipulation
 
 ## Attack Vectors and Techniques
 
-- **Network Appliance Exploitation**: Attackers targeting internet-facing Citrix NetScaler devices to gain initial access to critical networks
-- **Malicious Archive Files**: RomCom group distributing weaponized archive files that exploit WinRAR path traversal vulnerability
-- **Ransomware Deployment**: Interlock gang using established attack chains to encrypt municipal systems and demand ransom payments
-- **Infrastructure Coordination**: ShinyHunters adopting Scattered Spider tactics, suggesting shared methodologies and potential collaboration
+- **Session Hijacking**: Exploitation of NetScaler authentication bypass to steal and reuse legitimate user sessions
+- **COM Hijacking**: Abuse of .NET Native Image Generator to create persistent backdoors through scheduled tasks
+- **Custom Malware Deployment**: Use of specialized backdoor tools designed for long-term access and data exfiltration
+- **Targeted Espionage**: Focused attacks on government and critical infrastructure organizations
 
 ## Threat Actor Activities
 
-- **RomCom Group**: Russian-linked threat actor conducting zero-day exploitation campaigns using WinRAR vulnerability to distribute malware payloads
-- **Interlock Ransomware Gang**: Successfully compromised Saint Paul municipal systems in July, demonstrating capability to target government infrastructure
-- **ShinyHunters**: Evolving tactics to mirror those of Scattered Spider, indicating potential collaboration or shared resources between major cybercrime groups
-- **BlackSuit (Royal) Ransomware**: Operations significantly disrupted by international law enforcement action, with servers seized and over $1 million in assets confiscated
-- **Kimsuky APT**: North Korean state-sponsored group reportedly suffered a data breach, with their operational data allegedly stolen by opposing hackers
+- **Curly COMrades**: New APT group conducting cyber-espionage campaigns against government entities in Georgia and Moldova using custom backdoor malware and COM hijacking techniques for persistent access
+- **Unknown Threat Actors**: Actively exploiting CitrixBleed 2 vulnerability across critical sectors, with confirmed attacks reported by Dutch cybersecurity authorities
+- **RansomHub**: Claimed responsibility for attack on Manpower staffing agency affecting nearly 145,000 individuals
+- **Interlock Ransomware Gang**: Confirmed as responsible for cyberattack on Saint Paul, Minnesota that disrupted city systems and services in July
