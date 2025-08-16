@@ -1,36 +1,51 @@
 # Exploitation Report
 
-Based on the provided security articles, there is limited information about active vulnerability exploitation. The most significant security concern identified is a critical remote code execution vulnerability in Cisco's Secure Firewall Management Center (FMC) software affecting the RADIUS subsystem, which has received a maximum severity rating. Additionally, Plex has issued urgent security updates for a recently patched vulnerability, though specific technical details were not provided in the source material. The articles also highlight ongoing ransomware activities and nation-state attacks targeting critical infrastructure, including water systems in Norway and Poland attributed to Russian actors.
+Critical security vulnerabilities are currently being exploited across multiple sectors, with the most severe being a maximum severity remote code execution flaw in Cisco's Firewall Management Center. Simultaneously, advanced persistent threat actors are conducting sophisticated campaigns targeting Taiwan's web infrastructure, while ransomware groups are deploying EDR-bypassing techniques and targeting telecommunications companies. Nation-state actors are also escalating attacks against critical water infrastructure systems in Europe, demonstrating the expanding scope of cyber threats across both enterprise and critical infrastructure environments.
 
 ## Active Exploitation Details
 
-### Cisco Secure Firewall Management Center RADIUS Vulnerability
-- **Description**: Critical remote code execution vulnerability in the RADIUS subsystem of Cisco's Secure Firewall Management Center (FMC) software
-- **Impact**: Attackers can achieve remote code execution on affected systems
-- **Status**: Critical severity warning issued by Cisco, patch status not specified in source material
+### Cisco Firewall Management Center RADIUS Vulnerability
+- **Description**: Critical remote code execution vulnerability in the RADIUS subsystem of Cisco Secure Firewall Management Center (FMC) software
+- **Impact**: Attackers can achieve remote code execution with maximum severity impact (level 10 vulnerability)
+- **Status**: Patch available from Cisco; no mitigation or workaround exists, requiring immediate patching
 
-### Plex Media Server Security Vulnerability
-- **Description**: Recently patched security vulnerability in Plex media servers requiring urgent user updates
-- **Impact**: Specific impact details not provided in source material
-- **Status**: Patched, users urged to update immediately
+### Taiwan Web Server Infrastructure Attacks
+- **Description**: Chinese-speaking APT actor UAT-7237 targeting web infrastructure entities using customized open-source hacking tools
+- **Impact**: Establishment of long-term persistent access to critical web infrastructure
+- **Status**: Active ongoing campaign with customized toolsets being deployed
+
+### Crypto24 Ransomware EDR Bypass
+- **Description**: Advanced ransomware variant capable of bypassing endpoint detection and response (EDR) systems
+- **Impact**: Complete system encryption while evading security controls, representing a dangerous escalation in ransomware capabilities
+- **Status**: Active deployment with demonstrated deep technical knowledge and skills
+
+### WarLock Ransomware Attack on Telecommunications
+- **Description**: Ransomware attack targeting UK-based telecommunications company Colt Technology Services
+- **Impact**: Multi-day outage of hosting and porting services, with stolen data being offered for sale
+- **Status**: Active incident with ongoing operational disruptions
 
 ## Affected Systems and Products
 
-- **Cisco Secure Firewall Management Center**: RADIUS subsystem component affected by critical RCE vulnerability
-- **Plex Media Servers**: Unspecified versions requiring immediate security updates
-- **Water and Wastewater Systems**: Critical infrastructure targeted in Norway and Poland
-- **Colt Technology Services**: UK telecommunications company experiencing multi-day outage from cyberattack
+- **Cisco Secure Firewall Management Center**: RADIUS subsystem vulnerability affecting FMC software
+- **Taiwan Web Infrastructure**: Web servers and infrastructure entities targeted by APT campaigns
+- **Endpoint Detection and Response Systems**: Multiple EDR solutions bypassed by Crypto24 ransomware
+- **Colt Technology Services**: UK telecommunications infrastructure including hosting and porting services
+- **Water and Wastewater Systems**: Critical infrastructure in Norway and Poland under active attack
+- **Brokerage Services**: Financial platforms targeted by mobile phishing campaigns
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution**: Critical vulnerability in Cisco FMC RADIUS subsystem enables remote code execution
-- **Ransomware Operations**: WarLock ransomware group claiming responsibility for Colt Telecom attack with data theft and sale
-- **Customized Open-Source Tools**: UAT-7237 threat actor using modified open-source hacking tools against Taiwan web infrastructure
-- **Critical Infrastructure Targeting**: Nation-state actors focusing on water and wastewater systems as attack vectors
+- **Remote Code Execution**: Exploitation of RADIUS subsystem vulnerabilities in network security appliances
+- **Customized Open-Source Tools**: APT actors modifying publicly available hacking tools for targeted campaigns
+- **EDR Evasion**: Advanced techniques to bypass endpoint security solutions during ransomware deployment
+- **Mobile Phishing Kits**: Sophisticated phishing campaigns targeting brokerage accounts through mobile platforms
+- **Ramp and Dump Schemes**: Converting stolen financial data into mobile wallets for rapid monetization
+- **Infrastructure Targeting**: Direct attacks against critical water and telecommunications infrastructure
 
 ## Threat Actor Activities
 
-- **UAT-7237**: Chinese-speaking advanced persistent threat actor targeting web infrastructure entities in Taiwan using customized versions of open-source tools to establish long-term access
-- **WarLock Ransomware Group**: Claimed responsibility for Colt Technology Services attack, causing multi-day service outages and offering stolen data for sale
-- **Russian Nation-State Actors**: Attributed to attacks on water systems in Norway and Poland, demonstrating continued focus on critical infrastructure targeting
-- **Ransomware Ecosystem**: Continued use of cryptocurrency exchanges like Garantex and Grinex for money laundering operations, with over $100 million in ransomware-linked transactions leading to U.S. sanctions
+- **UAT-7237**: Chinese-speaking APT group conducting sustained campaigns against Taiwan web infrastructure using customized toolsets
+- **Crypto24 Ransomware Group**: Cybercriminals demonstrating advanced technical capabilities with EDR-bypassing ransomware variants
+- **WarLock Ransomware**: Group responsible for telecommunications sector attacks with data exfiltration and extortion operations
+- **Russian Nation-State Actors**: Attributed attacks against water systems in Norway and Poland, expanding critical infrastructure targeting
+- **Mobile Phishing Groups**: Cybercriminal organizations shifting focus from traditional card fraud to brokerage account targeting through sophisticated mobile-based attack platforms
