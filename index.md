@@ -1,6 +1,6 @@
 # Exploitation Report
 
-Based on the analyzed security articles, several critical vulnerabilities are currently being actively exploited in the wild. The most significant threats include a critical authentication bypass vulnerability in FortiWeb web application firewalls, ongoing exploitation of a patched Microsoft Windows vulnerability by Russian threat actors, and the emergence of new ransomware variants capable of bypassing endpoint detection and response systems. Additionally, mobile phishing campaigns are targeting financial services with sophisticated attack techniques, while banking trojans continue to evolve with exposed infrastructure revealing operational weaknesses.
+Based on the analyzed security articles, several critical vulnerabilities are currently being actively exploited in the wild. The most significant threats include a critical authentication bypass vulnerability in FortiWeb web application firewalls, exploitation of a patched Microsoft Windows vulnerability by Russian threat actors, and the emergence of new ransomware variants with advanced EDR evasion capabilities. Additionally, the complete source code leak of ERMAC 3.0 banking trojan has exposed sophisticated Android malware infrastructure, while Cisco has issued urgent patches for a critical vulnerability in their Firewall Management Center with no available workarounds.
 
 ## Active Exploitation Details
 
@@ -15,29 +15,27 @@ Based on the analyzed security articles, several critical vulnerabilities are cu
 - **Status**: Actively exploited by Russian threat group EncryptHub despite patches being available
 
 ### Cisco Firewall Management Center Critical Vulnerability
-- **Description**: A level 10 critical security vulnerability affecting Cisco Firewall Management Center with no available mitigations or workarounds
-- **Impact**: Critical system compromise with maximum severity rating
+- **Description**: A critical security hole in Cisco's Firewall Management Center with maximum severity rating
+- **Impact**: Complete system compromise with no available mitigations or workarounds
 - **Status**: Recently patched by Cisco with urgent recommendations for immediate deployment
 
 ## Affected Systems and Products
 
 - **FortiWeb Web Application Firewall**: All versions vulnerable to authentication bypass attacks
-- **Microsoft Windows**: Systems running unpatched versions susceptible to MSC EvilTwin exploitation
+- **Microsoft Windows**: Multiple versions affected by MSC EvilTwin vulnerability
 - **Cisco Firewall Management Center**: Critical vulnerability requiring immediate patching
-- **Android Mobile Devices**: Targeted by ERMAC 3.0 banking trojan with exposed infrastructure
-- **Brokerage and Financial Services**: Mobile phishing campaigns targeting customer accounts
+- **Android Devices**: Targeted by ERMAC 3.0 banking trojan with exposed source code infrastructure
 
 ## Attack Vectors and Techniques
 
 - **Authentication Bypass**: Direct exploitation of FortiWeb systems to gain unauthorized access
-- **Malware Deployment**: Use of patched Windows vulnerabilities to install Fickle Stealer malware
-- **EDR Evasion**: Crypto24 ransomware employing advanced techniques to bypass endpoint detection systems
-- **Mobile Phishing**: Sophisticated phishing kits targeting brokerage accounts through mobile platforms
-- **Ramp and Dump Schemes**: Converting stolen financial data into mobile wallet cashouts
+- **Malware Deployment**: Use of patched Windows vulnerabilities to deliver Fickle Stealer malware
+- **EDR Evasion**: Advanced techniques employed by Crypto24 ransomware to bypass endpoint detection and response systems
+- **Banking Trojan Operations**: Sophisticated Android malware infrastructure exposed through source code leaks
 
 ## Threat Actor Activities
 
-- **EncryptHub (Russian Group)**: Continuing exploitation of patched Microsoft Windows vulnerabilities to deploy Fickle Stealer malware, demonstrating persistent targeting of Windows environments
-- **Crypto24 Ransomware Operators**: Deploying advanced ransomware variants with deep technical knowledge to bypass EDR solutions, representing a dangerous escalation in ransomware capabilities
-- **Mobile Phishing Groups**: Shifting focus from traditional card fraud to targeting brokerage services with sophisticated phishing kits and mobile wallet conversion techniques
-- **ERMAC Banking Trojan Operators**: Android banking trojan infrastructure exposed through source code leak, revealing operational security weaknesses in cybercriminal operations
+- **EncryptHub (Russian Group)**: Actively exploiting patched Microsoft Windows vulnerabilities to deploy Fickle Stealer malware, demonstrating persistence in targeting known vulnerabilities
+- **Crypto24 Ransomware Operators**: Deploying advanced ransomware with sophisticated EDR bypass capabilities, representing a dangerous escalation in technical skills and attack methodologies
+- **ERMAC Banking Trojan Operators**: Android banking trojan infrastructure fully exposed through source code leak, revealing operational security weaknesses but maintaining active threat presence
+- **Zeppelin Ransomware Network**: U.S. authorities have seized $2.8 million in cryptocurrency from alleged operator Ianis Aleksandrovich Antropenko, indicating ongoing law enforcement actions against ransomware operations
