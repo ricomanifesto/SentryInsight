@@ -1,33 +1,41 @@
 # Exploitation Report
 
-Based on the provided security articles, there is limited active exploitation activity reported. The most significant security concern involves a FortiWeb web application firewall vulnerability that allows complete authentication bypass, with a security researcher preparing to release a proof-of-concept exploit. Additionally, Workday disclosed a data breach resulting from a social engineering attack targeting their third-party CRM platform, and the ERMAC 3.0 Android banking trojan source code has been leaked, exposing the malware's complete infrastructure.
+Based on the analyzed security articles, the current threat landscape shows several critical exploitation activities requiring immediate attention. The most significant concerns include supply chain attacks targeting software repositories, authentication bypass vulnerabilities in enterprise security appliances, and social engineering attacks against major enterprise platforms. Malicious actors are actively exploiting dependencies in PyPI and npm package repositories to establish persistent access, while a critical authentication bypass vulnerability in FortiWeb web application firewalls poses immediate risk to organizations. Additionally, social engineering attacks have successfully compromised third-party CRM platforms, affecting major HR service providers like Workday.
 
 ## Active Exploitation Details
 
-### FortiWeb Authentication Bypass Vulnerability
-- **Description**: A critical vulnerability in FortiWeb web application firewall that allows remote attackers to completely bypass authentication mechanisms
-- **Impact**: Attackers can gain unauthorized access to protected web applications and potentially compromise entire network security perimeters
-- **Status**: Researcher has released partial proof-of-concept exploit and plans to release full exploit code
+### Supply Chain Attacks via Malicious Packages
+- **Description**: Cybersecurity researchers have discovered malicious packages in the Python Package Index (PyPI) repository that introduce malicious behavior through dependencies, allowing attackers to establish persistent access to target systems
+- **Impact**: Attackers can gain persistent access to systems that install the compromised packages, potentially leading to data theft, system compromise, and lateral movement within networks
+- **Status**: Active exploitation ongoing through malicious packages distributed via PyPI and npm repositories
 
-### Workday Data Breach via Social Engineering
-- **Description**: Social engineering attack targeting Workday's third-party customer relationship management (CRM) platform
-- **Impact**: Unauthorized access to customer data and potential exposure of sensitive HR information
-- **Status**: Breach disclosed by Workday, investigation ongoing
+### FortiWeb Authentication Bypass Vulnerability
+- **Description**: A critical vulnerability in FortiWeb web application firewall allows remote attackers to completely bypass authentication mechanisms
+- **Impact**: Complete authentication bypass enables attackers to gain unauthorized access to protected web applications and potentially compromise entire network segments
+- **Status**: Proof of concept exploit has been partially released by security researcher, with full exploit expected to be made public
+
+### Social Engineering Attacks on CRM Platforms
+- **Description**: Sophisticated social engineering attacks targeting third-party customer relationship management (CRM) platforms used by major enterprises
+- **Impact**: Successful attacks result in data breaches affecting customer information and sensitive business data
+- **Status**: Active attacks confirmed with successful breach of Workday's third-party CRM platform
 
 ## Affected Systems and Products
 
-- **FortiWeb Web Application Firewall**: All versions affected by the authentication bypass vulnerability
-- **Workday CRM Platform**: Third-party customer relationship management system compromised through social engineering
-- **Android Devices**: Targeted by ERMAC 3.0 banking trojan with leaked source code potentially enabling widespread deployment
+- **FortiWeb Web Application Firewall**: Critical authentication bypass vulnerability affecting enterprise security infrastructure
+- **Python Package Index (PyPI)**: Malicious packages distributed through official repository affecting Python development environments
+- **npm Package Repository**: Supply chain attacks targeting Node.js development ecosystems
+- **Salesforce CRM Platform**: Third-party CRM systems used by major enterprises including HR giant Workday
+- **Windows Update Systems**: Installation failures affecting Windows 11 and Windows Server 2025 when using WUSA from network shares
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Remote exploitation of FortiWeb firewall allowing complete security control circumvention
-- **Social Engineering**: Targeted attacks against third-party service providers to gain access to customer data
-- **Banking Trojan Distribution**: ERMAC 3.0 source code leak enables threat actors to deploy customized Android malware campaigns
+- **Dependency Confusion**: Attackers exploiting package management systems to distribute malicious code through legitimate-appearing packages
+- **Social Engineering**: Sophisticated attacks targeting employees with access to third-party platforms and services
+- **Authentication Bypass**: Direct exploitation of security appliance vulnerabilities to gain unauthorized access
+- **Supply Chain Infiltration**: Compromising software distribution channels to reach multiple downstream targets
 
 ## Threat Actor Activities
 
-- **ERMAC Banking Trojan Operators**: Infrastructure exposed through source code leak revealing operational security weaknesses and complete malware architecture
-- **Social Engineering Groups**: Actively targeting enterprise service providers like Workday's CRM systems to access customer databases
-- **Security Researchers**: Responsible disclosure of FortiWeb vulnerability with planned exploit release to demonstrate impact
+- **Supply Chain Attackers**: Actively distributing malicious packages through PyPI and npm repositories, targeting developers and organizations using these platforms for software development
+- **Enterprise-Focused Groups**: Conducting sophisticated social engineering campaigns against major corporations, successfully compromising third-party service providers to access sensitive customer data
+- **Ransomware Operators**: Zeppelin ransomware group activities resulted in U.S. authorities seizing $2.8 million in cryptocurrency from alleged operator Ianis Aleksandrovich Antropenko, indicating ongoing law enforcement actions against ransomware infrastructure
