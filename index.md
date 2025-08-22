@@ -1,45 +1,45 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical security incidents involving insider threats, ransomware operations, and newly discovered vulnerability chains. Most notably, Commvault has disclosed four pre-authentication vulnerabilities that can be chained together to achieve remote code execution, representing a significant risk to enterprise backup infrastructure. Meanwhile, the Warlock ransomware group continues active operations against telecommunications providers, and the Scattered Spider collective faces legal consequences for their high-profile cyberattacks. Additionally, emerging attack vectors targeting AI systems and electric vehicle charging infrastructure highlight the expanding attack surface in modern technology environments.
+The current threat landscape reveals several critical security concerns across multiple domains. Most notably, Commvault systems face severe pre-authentication vulnerabilities that could enable remote code execution attacks, while AI-powered systems like Perplexity's Comet browser are susceptible to prompt injection attacks that could expose user data. Additionally, threat actors continue to leverage legitimate infrastructure for malicious purposes, with the Scattered Spider collective facing legal consequences for their high-profile cyberattacks, and ransomware groups like Warlock actively targeting telecommunications companies.
 
 ## Active Exploitation Details
 
-### Commvault Pre-Authentication Vulnerability Chain
-- **Description**: Four security vulnerabilities in Commvault that can be chained together to achieve remote code execution without authentication
-- **Impact**: Attackers can execute arbitrary code remotely on vulnerable Commvault instances, potentially compromising entire backup infrastructure
+### Commvault Pre-Authentication Vulnerabilities
+- **Description**: Four security gaps in Commvault systems that can be chained together to achieve remote code execution without authentication
+- **Impact**: Attackers can execute arbitrary code remotely on vulnerable Commvault instances, potentially leading to complete system compromise
 - **Status**: Commvault has released security updates to address these vulnerabilities
 
-### Insider Threat Kill Switch Malware
-- **Description**: Custom malware deployed by a software developer containing a kill switch mechanism that locked out employees when the perpetrator's account was disabled
-- **Impact**: Complete system lockout and disruption of business operations on Windows networks
-- **Status**: Legal action completed with four-year prison sentence for the perpetrator
+### Perplexity Comet AI Browser Prompt Injection
+- **Description**: Vulnerability in Perplexity's Comet AI browser that allows attackers to inject malicious commands through prompt manipulation
+- **Impact**: Attackers can potentially gain access to users' personal data by embedding malicious commands within legitimate prompts
+- **Status**: Actively exploitable vulnerability identified by Brave security researchers
 
 ### ChatGPT Downgrade Attack
-- **Description**: Attack technique using brief, plain prompts to force ChatGPT to query older, less secure models
-- **Impact**: Bypasses security controls in newer GPT models, potentially enabling malicious use cases
-- **Status**: Active attack vector that undermines GPT-5 security measures
+- **Description**: Attack technique that uses brief, plain clues in prompts to force ChatGPT to query older, less secure models
+- **Impact**: Attackers can bypass security measures in newer GPT models by forcing the system to use older versions with weaker protections
+- **Status**: Currently exploitable attack vector that undermines GPT-5 security measures
 
 ## Affected Systems and Products
 
-- **Commvault Backup Systems**: Multiple versions affected by pre-authentication vulnerability chains
-- **Windows Networks**: Targeted by insider threat malware with kill switch functionality
-- **ChatGPT/OpenAI Systems**: Vulnerable to downgrade attacks affecting model security
-- **Electric Vehicle Charging Infrastructure**: ISO 15118 standard implementations pose cyber risks
+- **Commvault Systems**: Multiple versions affected by pre-authentication exploit chains enabling remote code execution
+- **Perplexity Comet AI Browser**: Vulnerable to prompt injection attacks that could expose user data
+- **OpenAI ChatGPT**: Susceptible to downgrade attacks that bypass newer security features
+- **EV Smart Charging Infrastructure**: ISO 15118 standard implementations pose potential cyber-risks for vehicle-to-grid communications
 - **Colt Technology Services**: Customer data compromised in ransomware attack
-- **Video Game Anti-Cheat Systems**: Identified as potential cybersecurity research targets
+- **Windows Networks**: Targeted by insider threats using custom malware with kill switches
 
 ## Attack Vectors and Techniques
 
-- **Pre-Authentication Exploit Chaining**: Multiple vulnerabilities combined to achieve remote code execution without credentials
-- **Insider Threat Kill Switches**: Malicious code embedded in legitimate systems to enable sabotage
-- **AI Model Downgrading**: Prompt manipulation to force AI systems to use less secure legacy models
-- **Ransomware Data Auctions**: Stolen data being sold through underground marketplaces
-- **VPS Infrastructure Abuse**: Legitimate virtual private server services exploited for stealth and speed in attacks
-- **Social Engineering**: Continued use of sophisticated social engineering tactics by organized groups
+- **Pre-Authentication Exploit Chaining**: Multiple vulnerabilities combined to achieve remote code execution without authentication credentials
+- **Prompt Injection**: Malicious commands embedded within legitimate AI prompts to manipulate system behavior
+- **Model Downgrade Attacks**: Forcing AI systems to use older, less secure models through carefully crafted prompts
+- **VPS Infrastructure Abuse**: Threat actors leveraging legitimate virtual private server services for stealth and speed in malicious operations
+- **Insider Sabotage**: Custom malware deployment with kill switches to disrupt former employer operations
+- **Ransomware Data Auctions**: Stolen data being actively auctioned by ransomware groups
 
 ## Threat Actor Activities
 
-- **Warlock Ransomware Group**: Actively conducting ransomware operations against telecommunications companies, confirmed data theft from Colt Technology Services with files being auctioned
-- **Scattered Spider Collective**: High-profile cybercriminal group with members facing legal consequences, including a 20-year-old member sentenced to a decade in prison for cyberattacks
-- **Insider Threats**: Individual actors leveraging privileged access to deploy destructive malware with kill switch capabilities
-- **VPS-Abusing Threat Actors**: Criminal groups exploiting legitimate virtual private server infrastructure to establish attack platforms quickly and quietly
+- **Scattered Spider Collective**: High-profile cyberattack group with member Noah Michael Urban sentenced to 10 years in prison for various cybercrimes
+- **Warlock Ransomware Gang**: Actively auctioning stolen customer data from Colt Technology Services telecommunications company
+- **Insider Threats**: Software developer sentenced to 4 years for creating kill switches and sabotaging ex-employer's Windows network systems
+- **VPS Abusers**: Threat actors increasingly using legitimate virtual private server infrastructure to establish malicious operations quickly and quietly
