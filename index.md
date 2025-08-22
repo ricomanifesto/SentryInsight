@@ -1,45 +1,44 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical security concerns across multiple domains. Most notably, Commvault systems face severe pre-authentication vulnerabilities that could enable remote code execution attacks, while AI-powered systems like Perplexity's Comet browser are susceptible to prompt injection attacks that could expose user data. Additionally, threat actors continue to leverage legitimate infrastructure for malicious purposes, with the Scattered Spider collective facing legal consequences for their high-profile cyberattacks, and ransomware groups like Warlock actively targeting telecommunications companies.
+Based on the analyzed security articles, several critical cybersecurity incidents and vulnerabilities have emerged, highlighting ongoing threats to enterprise systems and emerging technologies. The most significant activities include insider threat cases involving malicious code deployment, ransomware operations targeting telecommunications infrastructure, AI system vulnerabilities through prompt injection attacks, and emerging risks in electric vehicle charging infrastructure. Notable threat actor activities include Scattered Spider collective operations and Warlock ransomware campaigns targeting critical business services.
 
 ## Active Exploitation Details
 
-### Commvault Pre-Authentication Vulnerabilities
-- **Description**: Four security gaps in Commvault systems that can be chained together to achieve remote code execution without authentication
-- **Impact**: Attackers can execute arbitrary code remotely on vulnerable Commvault instances
-- **Status**: Updates have been released by Commvault to address these vulnerabilities
+### Kill Switch Malware Deployment
+- **Description**: A former software developer created and deployed custom malware with kill switch functionality on his ex-employer's Windows network systems
+- **Impact**: Complete system lockout when the developer's account was disabled, causing significant operational disruption
+- **Status**: Perpetrator sentenced to four years in prison; incident resolved but highlights insider threat risks
 
-### Perplexity Comet AI Browser Prompt Injection
-- **Description**: Vulnerability in Perplexity's Comet AI browser that allows attackers to inject malicious commands through prompt manipulation
-- **Impact**: Attackers can potentially gain access to users' personal data by embedding malicious commands within legitimate prompts
-- **Status**: Actively exploitable vulnerability identified by Brave security researchers
+### Prompt Injection Attacks on AI Systems
+- **Description**: Attackers can use brief, plain text prompts to manipulate ChatGPT and similar AI systems, forcing them to query older, less secure models
+- **Impact**: Bypassing security controls and potentially accessing sensitive data through AI model downgrade attacks
+- **Status**: Actively exploitable vulnerability in current AI systems
 
-### ChatGPT Downgrade Attack
-- **Description**: Attack technique that uses brief, plain clues in prompts to force ChatGPT to query older, less secure models
-- **Impact**: Undermines GPT-5 security measures by forcing the system to use older models with weaker security controls
-- **Status**: Currently exploitable attack vector affecting ChatGPT systems
+### Perplexity Comet AI Browser Vulnerabilities
+- **Description**: Security flaws in Perplexity's Comet AI browser allow attackers to inject malicious commands through prompt manipulation
+- **Impact**: Potential unauthorized access to personal user data and system compromise
+- **Status**: Vulnerability disclosed by Brave security researchers; exploitation possible
 
 ## Affected Systems and Products
 
-- **Commvault Systems**: Multiple versions affected by pre-authentication exploit chains
-- **Perplexity Comet AI Browser**: AI-powered browser vulnerable to prompt injection attacks
-- **ChatGPT/OpenAI Systems**: Susceptible to downgrade attacks that bypass newer security measures
-- **Colt Technology Services**: UK telecommunications company affected by Warlock ransomware
-- **EV Smart Charging Infrastructure**: ISO 15118 standard implementations pose cyber risks
-- **Virtual Private Server (VPS) Infrastructure**: Legitimate VPS services being abused by threat actors
+- **Windows Network Infrastructure**: Corporate environments vulnerable to insider threats and malicious code deployment
+- **ChatGPT and AI Language Models**: Susceptible to downgrade attacks through prompt manipulation techniques
+- **Perplexity Comet AI Browser**: Exposed to prompt injection attacks that could compromise user data
+- **Electric Vehicle Charging Systems**: ISO 15118 standard implementations pose potential cyber-risks for smart charging infrastructure
+- **Colt Technology Services**: UK telecommunications company affected by data theft and ransomware operations
+- **Video Game Anti-Cheat Systems**: Gaming platforms present cybersecurity risks and attack vectors
 
 ## Attack Vectors and Techniques
 
-- **Pre-Authentication Exploit Chaining**: Multiple vulnerabilities combined to achieve remote code execution without authentication
-- **Prompt Injection**: Malicious commands embedded within AI system prompts to manipulate behavior
-- **AI Model Downgrade**: Forcing AI systems to use older, less secure models through prompt manipulation
-- **Ransomware Operations**: Data theft and auction tactics employed by ransomware groups
-- **VPS Infrastructure Abuse**: Legitimate virtual private server services exploited for malicious infrastructure
-- **Insider Threats**: Custom malware and kill switches deployed by malicious insiders
+- **Insider Threat Exploitation**: Malicious employees deploying kill switches and sabotage code on corporate networks
+- **Prompt Injection**: Manipulation of AI systems through carefully crafted text inputs to bypass security controls
+- **Ransomware Operations**: Data theft followed by file auctions and extortion attempts
+- **AI Model Downgrading**: Forcing modern AI systems to use older, less secure model versions through prompt manipulation
+- **VPS Infrastructure Abuse**: Threat actors leveraging legitimate virtual private server services for stealth operations
 
 ## Threat Actor Activities
 
-- **Scattered Spider Collective**: High-profile cybercriminal group with member Noah Michael Urban sentenced to 10 years in prison for cyberattacks
-- **Warlock Ransomware Gang**: Actively targeting telecommunications companies, confirmed data theft from Colt Technology Services with files being auctioned
-- **Malicious Insiders**: Software developer sentenced to 4 years for creating kill switches and sabotaging ex-employer's Windows network systems
-- **VPS Abusers**: Threat actors leveraging legitimate virtual private server infrastructure for stealth operations and rapid deployment of malicious services
+- **Scattered Spider Collective**: Member Noah Michael Urban sentenced to decade in prison for high-profile cyberattacks targeting major organizations
+- **Warlock Ransomware Gang**: Actively conducting data theft operations against telecommunications companies, auctioning stolen customer documentation
+- **Insider Threats**: Chinese national developer case demonstrates ongoing risks from malicious employees with system access
+- **VPS-Based Attackers**: Threat actors increasingly abusing legitimate virtual private server infrastructure for rapid, stealthy attack deployment
