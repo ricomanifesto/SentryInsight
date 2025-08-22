@@ -1,45 +1,51 @@
 # Exploitation Report
 
-Current cybersecurity threats are dominated by sophisticated espionage campaigns, insider threats, and ransomware operations targeting critical infrastructure and healthcare organizations. Chinese state-sponsored groups including Murky Panda, Genesis, and Glacial Panda are actively exploiting cloud and telecommunications infrastructure through trusted relationship abuse. Meanwhile, insider threats continue to pose significant risks, as demonstrated by a former developer who deployed kill-switch malware against his previous employer. Ransomware groups remain highly active, with recent attacks against major healthcare provider DaVita affecting nearly 2.7 million individuals and telecommunications company Colt Technology Services experiencing data theft by the Warlock ransomware gang.
+Current cybersecurity threats are dominated by sophisticated nation-state actors and insider threats targeting critical infrastructure and enterprise systems. Chinese espionage groups including Murky Panda, Genesis, and Glacial Panda are actively exploiting cloud and telecommunications environments through trusted relationship abuse. Meanwhile, insider threats continue to pose significant risks, as demonstrated by a recent case where a former developer deployed custom kill-switch malware against his previous employer. Ransomware operations remain highly active, with groups like Warlock targeting telecommunications companies and healthcare organizations, while the Scattered Spider collective continues to conduct high-profile cyberattacks despite law enforcement actions.
 
 ## Active Exploitation Details
 
-### Cloud Infrastructure Exploitation by Chinese APT Groups
-- **Description**: Chinese cyber espionage groups Murky Panda, Genesis, and Glacial Panda are conducting sophisticated attacks against cloud and telecommunications infrastructure by abusing trusted relationships
-- **Impact**: Unauthorized access to sensitive cloud environments and telecommunications networks, enabling long-term espionage operations
-- **Status**: Ongoing active exploitation campaigns targeting cloud service providers and telecom companies
+### Cloud and Telecom Infrastructure Exploitation
+- **Description**: Chinese nation-state actors are conducting sophisticated espionage campaigns targeting cloud environments and telecommunications infrastructure through abuse of trusted relationships
+- **Impact**: Unauthorized access to sensitive communications data, potential compromise of critical infrastructure, and long-term persistent access for intelligence gathering
+- **Status**: Ongoing active exploitation by multiple Chinese APT groups
 
-### Kill-Switch Malware Deployment
-- **Description**: Custom malware with embedded kill-switch functionality designed to sabotage employer networks and lock out legitimate users
+### Custom Kill-Switch Malware
+- **Description**: Insider threat involving deployment of custom malware with kill-switch functionality designed to sabotage employer systems when specific conditions are met
 - **Impact**: Complete system lockout, business disruption, and potential data destruction when triggered
-- **Status**: Case resolved with perpetrator sentenced to four years in prison, but technique demonstrates ongoing insider threat risks
+- **Status**: Legal prosecution completed with 4-year prison sentence, highlighting ongoing insider threat risks
 
-### Ransomware Operations Against Healthcare and Telecommunications
-- **Description**: Active ransomware campaigns targeting critical infrastructure including healthcare providers and telecommunications companies
-- **Impact**: Data theft affecting millions of individuals, operational disruption, and potential service outages
-- **Status**: Ongoing threat with recent successful attacks against DaVita (2.7 million affected) and Colt Technology Services
+### Ransomware Operations
+- **Description**: Active ransomware campaigns targeting healthcare and telecommunications sectors with data theft and auction tactics
+- **Impact**: Data exfiltration affecting millions of individuals, business disruption, and financial extortion through public data auctions
+- **Status**: Ongoing operations with confirmed data theft from major organizations
+
+### AI Browser Security Vulnerabilities
+- **Description**: Prompt injection attacks targeting AI-powered browsers that can expose user data through malicious command injection
+- **Impact**: Unauthorized access to personal data, potential system compromise through crafted prompts
+- **Status**: Vulnerability disclosed, mitigation measures recommended
 
 ## Affected Systems and Products
 
-- **Cloud Infrastructure**: Cloud service providers and their customer environments targeted through trusted relationship abuse
-- **Telecommunications Networks**: Telecom infrastructure and customer data systems compromised by state-sponsored actors
-- **Healthcare Systems**: Electronic health records and patient management systems at major healthcare providers
-- **Windows Networks**: Corporate Windows environments vulnerable to custom malware with kill-switch capabilities
-- **EV Charging Infrastructure**: Smart charging systems using ISO 15118 standard potentially vulnerable to cyber attacks
+- **Cloud Infrastructure**: Multi-cloud environments targeted by Chinese APT groups for espionage operations
+- **Telecommunications Systems**: Critical telecom infrastructure compromised for intelligence gathering and persistent access
+- **Healthcare Networks**: DaVita dialysis systems affected by ransomware with 2.7 million patient records compromised
+- **Enterprise Windows Networks**: Corporate systems targeted by insider threats using custom malware with kill-switch capabilities
+- **AI-Powered Browsers**: Perplexity's Comet AI browser vulnerable to prompt injection attacks
+- **Electric Vehicle Charging Infrastructure**: ISO 15118 standard implementations pose potential cyber-risks for smart charging systems
 
 ## Attack Vectors and Techniques
 
-- **Trusted Relationship Abuse**: Exploitation of legitimate business relationships and access privileges to gain unauthorized access to cloud environments
-- **Insider Threat Exploitation**: Malicious code deployment by authorized personnel with legitimate system access
-- **Ransomware Deployment**: Data encryption and theft operations followed by extortion demands and public data auctions
-- **Kill-Switch Activation**: Triggered malware designed to cause maximum disruption when specific conditions are met
-- **Prompt Injection Attacks**: Manipulation of AI systems through malicious prompts to bypass security controls
+- **Trusted Relationship Abuse**: Exploitation of legitimate cloud service relationships to gain unauthorized access to target environments
+- **Insider Threat Deployment**: Use of privileged access to deploy custom malware with time-delayed or condition-based activation
+- **Ransomware with Data Auction**: Double extortion tactics combining encryption with public auction of stolen data
+- **Prompt Injection**: Manipulation of AI system inputs to execute unauthorized commands and access sensitive data
+- **Social Engineering**: Sophisticated phishing and manipulation techniques used by groups like Scattered Spider
+- **Custom Malware Development**: Creation of bespoke tools designed to evade detection and maintain persistence
 
 ## Threat Actor Activities
 
-- **Murky Panda**: Chinese state-sponsored group conducting cloud and telecommunications espionage through trusted relationship exploitation
-- **Genesis Group**: Chinese APT actor involved in coordinated espionage campaigns targeting critical infrastructure
-- **Glacial Panda**: Chinese cyber espionage group participating in multi-vector attacks against cloud and telecom sectors
-- **Warlock Ransomware Gang**: Active ransomware operation conducting data theft and public auction of stolen files from telecommunications companies
-- **Scattered Spider Collective**: Cybercriminal group with member recently sentenced to decade in prison for high-profile attacks
-- **Noah Michael Urban**: Individual Scattered Spider member sentenced for participation in major cyberattack campaigns
+- **Murky Panda**: Chinese APT group conducting cloud and telecommunications espionage operations with focus on trusted relationship exploitation
+- **Genesis and Glacial Panda**: Additional Chinese nation-state actors involved in coordinated espionage campaigns targeting critical infrastructure
+- **Warlock Ransomware Group**: Active ransomware operation conducting data theft and public auction activities against telecommunications companies
+- **Scattered Spider Collective**: Cybercriminal group conducting high-profile attacks despite recent arrests and prosecutions of members
+- **Insider Threats**: Disgruntled employees leveraging privileged access to deploy destructive malware against former employers
