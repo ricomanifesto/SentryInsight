@@ -1,46 +1,53 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical exploitation activities targeting diverse platforms and systems. Most notably, Apple has patched a zero-day vulnerability that was actively exploited in sophisticated attacks against targeted individuals, potentially indicating nation-state or spyware operations. Chinese state-sponsored groups continue aggressive campaigns, with Murky Panda (Silk Typhoon) exploiting cloud trust relationships to compromise downstream customers in North America. Additionally, multiple threat actors are leveraging known vulnerabilities in GeoServer systems and employing novel attack vectors including malicious Linux .desktop files and RAR filename exploits to evade detection.
+Current cybersecurity threat landscape reveals significant exploitation activity across multiple attack vectors, with threat actors leveraging both known vulnerabilities and novel techniques. Notable campaigns include Chinese state-sponsored groups exploiting cloud trust relationships to compromise downstream customers, malicious Go modules masquerading as legitimate SSH tools to steal credentials, and sophisticated Linux malware campaigns using deceptive filenames to evade detection. Pakistani APT groups are actively targeting government entities with new Linux-based attack methods, while Mac users face emerging infostealer threats through fake troubleshooting guides.
 
 ## Active Exploitation Details
 
-### Apple Zero-Day Vulnerability
-- **Description**: A critical zero-day flaw in Apple systems that was actively exploited in the wild
-- **Impact**: Enables sophisticated attacks against targeted individuals, potentially allowing unauthorized system access and data compromise
-- **Status**: Patched by Apple following discovery of active exploitation
-- **CVE ID**: CVE-2025-43300
-
 ### GeoServer Vulnerabilities
-- **Description**: Known security vulnerabilities in GeoServer systems being actively exploited by cybercriminals
-- **Impact**: Allows attackers to compromise GeoServer installations and leverage them for various malicious activities
-- **Status**: Multiple campaigns observed exploiting these known vulnerabilities
+- **Description**: Multiple security vulnerabilities in GeoServer being actively exploited by cybercriminals
+- **Impact**: Attackers can compromise GeoServer instances and use them for various malicious activities including launching further attacks
+- **Status**: Known vulnerabilities being actively exploited in the wild
 
-### ReVault Control Board Flaw
-- **Description**: A critical vulnerability in Dell laptop control boards that connect peripheral devices
-- **Impact**: Enables malicious access down to the firmware level on the device chip, allowing complete system domination
-- **Status**: Exposed millions of Dell laptops to potential compromise
+### Redis Server Exposures
+- **Description**: Exposed Redis servers being targeted and compromised by multiple threat actor campaigns
+- **Impact**: Unauthorized access to Redis databases, potential data theft, and use of compromised servers for malicious activities
+- **Status**: Ongoing exploitation of misconfigured and exposed Redis instances
+
+### ReVault Control Board Vulnerability
+- **Description**: Critical flaw in Dell laptop control boards that connect peripheral devices
+- **Impact**: Malicious access extending down to firmware level on the device chip, potentially allowing complete system compromise
+- **Status**: Vulnerability exposed millions of Dell laptops to potential malicious domination
+
+### Cloud Trust Relationship Exploitation
+- **Description**: Exploitation of trusted relationships in cloud environments by state-sponsored actors
+- **Impact**: Initial access to networks and data of downstream customers through compromised cloud service providers
+- **Status**: Active exploitation by Chinese APT groups targeting North American organizations
 
 ## Affected Systems and Products
 
-- **Apple Devices**: Systems vulnerable to the zero-day exploit used in targeted attacks
-- **Dell Laptops**: Millions of devices with ReVault control board vulnerabilities
-- **GeoServer Installations**: Web-based geographic information systems under active exploitation
-- **Redis Servers**: Exposed servers being leveraged for malicious activities
-- **Linux Systems**: Targeted through malicious .desktop files and RAR filename exploits
-- **Mac Devices**: Targeted by new Shamos infostealer malware
-- **Cloud Environments**: North American organizations compromised through trusted cloud relationships
+- **Dell Laptops**: Millions of commonly used Dell laptops affected by ReVault control board vulnerability
+- **GeoServer Instances**: GeoServer installations worldwide being targeted for exploitation
+- **Redis Servers**: Exposed and misconfigured Redis database servers
+- **Cloud Environments**: North American organizations using cloud services with trusted relationships
+- **Linux Systems**: Government and defense entities in India targeted with .desktop file attacks
+- **Mac Devices**: macOS systems targeted by new Shamos infostealer malware
+- **SSH Infrastructure**: Systems using SSH targeted by malicious Go modules posing as brute-force tools
 
 ## Attack Vectors and Techniques
 
-- **Cloud Trust Exploitation**: Murky Panda leverages trusted relationships in cloud environments to gain initial access to downstream customers
-- **Malicious .desktop Files**: APT36 uses Linux .desktop files to load malware in attacks against government and defense entities
-- **ClickFix Attacks**: Fake Mac troubleshooting guides trick users into installing Shamos infostealer
-- **Phishing with RAR Exploits**: Novel attack chains use malicious RAR filenames to deliver VShell backdoor while evading antivirus detection
-- **Supply Chain Compromise**: Attackers exploit cloud supply chains to reach multiple downstream targets
+- **Malicious Go Modules**: Fake SSH brute-force tools containing credential exfiltration functionality via Telegram bots
+- **Linux .desktop Files**: APT36 using Linux desktop files to load malware in targeted attacks
+- **ClickFix Attacks**: Fake Mac troubleshooting guides tricking users into installing Shamos infostealer
+- **Phishing Emails**: Delivery mechanism for Linux malware using malicious RAR filenames to evade antivirus detection
+- **Cloud Supply Chain**: Exploitation of trusted cloud relationships to access downstream customer networks
+- **RAR Filename Manipulation**: Novel technique using malicious RAR filenames to deliver VShell backdoor while evading detection
 
 ## Threat Actor Activities
 
-- **Murky Panda (Silk Typhoon)**: Chinese state-sponsored group conducting deep cloud penetration attacks against North American organizations, deploying uncommon malware and compromising supply chains
-- **APT36**: Pakistani cyberspies targeting government and defense entities in India using Linux .desktop file attacks
-- **Various Cybercriminal Groups**: Multiple actors exploiting GeoServer vulnerabilities and Redis servers for botnet operations beyond traditional methods
-- **Unknown Sophisticated Actors**: Responsible for the Apple zero-day exploitation targeting specific individuals, suggesting possible nation-state or commercial spyware operations
+- **Murky Panda (Silk Typhoon)**: Chinese state-sponsored group exploiting cloud trust relationships to target North American organizations, deploying uncommon malware deep in cloud environments
+- **APT36**: Pakistani cyberspies conducting new attacks against Indian government and defense entities using Linux .desktop files for malware installation
+- **PolarEdge Campaign**: Cybercrime operation pushing activities beyond traditional botnets, exploiting GeoServer vulnerabilities
+- **Gayfemboy Campaign**: Another cybercrime operation targeting exposed Redis servers and known vulnerabilities
+- **VShell Operators**: Threat actors using novel Linux malware delivery chains with phishing emails and malicious RAR filenames
+- **Shamos Operators**: Attackers targeting Mac users with new infostealer malware through fake troubleshooting guides
