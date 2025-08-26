@@ -1,52 +1,58 @@
 # Exploitation Report
 
-Current threat intelligence reveals several critical exploitation activities across multiple attack vectors. A significant surge in coordinated scanning activity is targeting Microsoft RDP authentication servers, with nearly 2,000 IP addresses conducting reconnaissance operations. Meanwhile, threat actors are leveraging sophisticated AI-based attacks to steal user data through malicious prompts hidden in downscaled images processed by AI systems. Critical vulnerabilities are being actively exploited, including a dangerous security flaw in Apple devices that may have already been exploited in sophisticated targeted attacks, and a critical Docker container escape vulnerability with a CVSS score of 9.3. Additionally, multiple data breaches have impacted millions of users, including attacks on Salesforce infrastructure affecting major insurance providers, and widespread malware distribution through Google Play Store applications.
+Current threat activity reveals a concerning landscape of active exploitation targeting critical infrastructure and enterprise systems. The most significant developments include a critical Docker container escape vulnerability with a CVSS score of 9.3, coordinated scanning campaigns against Microsoft RDP authentication servers involving nearly 2,000 IP addresses, and sophisticated attacks against Iranian maritime infrastructure. Additionally, threat actors are leveraging AI systems for novel attack vectors, including malicious prompt injection through downscaled images and ClickFix attacks that manipulate AI-generated content summaries. Data breaches continue to impact major organizations, with Farmers Insurance suffering a breach affecting 1.1 million customers through Salesforce attacks, while French retailer Auchan experienced exposure of hundreds of thousands of customer loyalty accounts.
 
 ## Active Exploitation Details
 
-### Apple Device Security Flaw
-- **Description**: A dangerous security vulnerability affecting iPhone, iPad, and Mac devices that Apple warns requires immediate patching
-- **Impact**: The flaw enables extremely sophisticated attacks targeting specific individuals and may have already been exploited in the wild
-- **Status**: Apple has released security updates to address the vulnerability and strongly recommends immediate installation
-
 ### Docker Container Escape Vulnerability
-- **Description**: Critical security flaw in Docker Desktop for Windows and macOS that allows attackers to break out of container confines
-- **Impact**: Successful exploitation enables container escape, potentially allowing attackers to access the host system
-- **Status**: Docker has released fixes to address the vulnerability
+- **Description**: Critical security flaw affecting Docker Desktop app for Windows and macOS that allows attackers to break out of container confines
+- **Impact**: Container escape leading to potential host system compromise
+- **Status**: Patches released by Docker
 - **CVE ID**: CVE-2025-9074
 
-### AI System Data Theft Attack
-- **Description**: Novel attack method that injects malicious prompts into images processed by AI systems before delivery to large language models
-- **Impact**: Enables theft of user data through manipulation of AI-generated content and responses
-- **Status**: Newly discovered attack technique requiring defensive measures in AI systems
+### Apple Security Vulnerability
+- **Description**: Dangerous security flaw affecting iPhone, iPad, and Mac devices that Apple warns might have already been exploited
+- **Impact**: Sophisticated targeted attacks against specific individuals
+- **Status**: Security updates available, Apple recommends immediate patching
 
-### ClickFix AI Summary Manipulation
-- **Description**: Attack technique that tricks AI-generated content summaries into pushing malware to users
-- **Impact**: Victims are more likely to follow malicious instructions because they appear to originate from trusted AI-generated summaries
-- **Status**: Active exploitation technique targeting AI summary systems
+### Microsoft RDP Authentication Servers
+- **Description**: Coordinated scanning activity targeting Microsoft Remote Desktop Web Access and RDP authentication infrastructure
+- **Impact**: Reconnaissance for potential brute force attacks and unauthorized access
+- **Status**: Active scanning campaign involving 1,971 IP addresses
+
+### AI System Prompt Injection
+- **Description**: Novel attack method that injects malicious prompts in downscaled images processed by AI systems before delivery to large language models
+- **Impact**: Data theft through manipulation of AI processing workflows
+- **Status**: Proof-of-concept demonstrated by researchers
+
+### ClickFix AI Manipulation
+- **Description**: Attack technique that tricks AI-generated content summaries into pushing malware by making malicious instructions appear to come from legitimate AI sources
+- **Impact**: Increased likelihood of victim compliance due to perceived AI legitimacy
+- **Status**: Active attack vector being exploited
 
 ## Affected Systems and Products
 
-- **Microsoft Remote Desktop Services**: RDP Web Access and authentication servers experiencing coordinated scanning from nearly 2,000 IP addresses
-- **Apple Devices**: iPhone, iPad, and Mac systems affected by critical security vulnerability requiring immediate updates
-- **Docker Desktop**: Windows and macOS versions vulnerable to container escape attacks
-- **AI Systems**: Large language models and AI processing systems vulnerable to prompt injection through image manipulation
-- **Salesforce Infrastructure**: Platform compromised leading to downstream customer data breaches
-- **Google Play Store**: 77 malicious Android applications with over 19 million combined downloads
-- **Auchan Retail Systems**: French retailer's loyalty account database compromised affecting hundreds of thousands of customers
+- **Docker Desktop**: Windows and macOS versions affected by container escape vulnerability
+- **Apple Devices**: iPhone, iPad, and Mac systems requiring immediate security updates
+- **Microsoft RDP Services**: Remote Desktop Web Access and RDP authentication servers under coordinated scanning
+- **AI Language Models**: Large language models vulnerable to prompt injection through image processing
+- **Salesforce Platform**: Targeted in widespread attacks affecting multiple organizations
+- **Android Applications**: 77 malicious apps with 19 million downloads removed from Google Play
+- **Iranian Maritime Systems**: Cargo ships and oil tankers belonging to sanctioned companies
 
 ## Attack Vectors and Techniques
 
-- **RDP Reconnaissance**: Coordinated scanning campaigns targeting Microsoft RDP authentication infrastructure for vulnerability discovery
-- **AI Prompt Injection**: Malicious prompts hidden in downscaled images to manipulate AI system responses and steal data
-- **Container Escape**: Exploitation of Docker Desktop vulnerabilities to break out of containerized environments
-- **Supply Chain Attacks**: Compromise of Salesforce infrastructure leading to downstream customer data exposure
-- **Mobile Malware Distribution**: Distribution of malicious applications through official app stores with millions of downloads
-- **Social Engineering via AI**: Manipulation of AI-generated summaries to deliver malware while appearing trustworthy
+- **Container Escape**: Exploitation of Docker Desktop vulnerabilities to break containment
+- **Coordinated Network Scanning**: Large-scale reconnaissance using nearly 2,000 IP addresses targeting RDP infrastructure
+- **AI Prompt Injection**: Embedding malicious instructions in downscaled images processed by AI systems
+- **ClickFix Social Engineering**: Manipulating AI-generated summaries to deliver malware with increased trust
+- **Captive Portal Hijacking**: UNC6384 using hijacked captive portals with valid certificates for PlugX deployment
+- **Mobile Malware Distribution**: Malicious Android applications distributed through official Google Play store
 
 ## Threat Actor Activities
 
 - **UNC6384**: China-nexus threat actor conducting sophisticated attacks against diplomats in Southeast Asia using PlugX malware, captive portal hijacks, and valid certificates to advance Beijing's strategic interests
-- **Lab-Dookhtegan**: Claimed responsibility for major attack on over 60 Iranian cargo ships and oil tankers belonging to companies on US sanctions lists, successfully disrupting maritime communications
-- **Unknown Actors**: Coordinating large-scale RDP scanning operations using nearly 2,000 IP addresses to probe Microsoft authentication servers
-- **Mobile Malware Operators**: Distributing 77 different malicious Android applications through Google Play Store, achieving over 19 million total installations before detection and removal
+- **Lab-Dookhtegen**: Claims responsibility for major attack on over 60 Iranian cargo ships and oil tankers, successfully knocking out communications systems
+- **Mobile Malware Operators**: Distributed 77 malicious Android applications achieving over 19 million downloads before detection and removal
+- **Salesforce Attackers**: Conducted widespread attacks against Salesforce platform affecting multiple organizations including Farmers Insurance with 1.1 million customer records compromised
+- **RDP Scanning Campaign**: Coordinated effort involving nearly 2,000 IP addresses systematically probing Microsoft RDP authentication infrastructure
