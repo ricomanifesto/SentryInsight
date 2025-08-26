@@ -1,54 +1,51 @@
 # Exploitation Report
 
-Current cybersecurity intelligence reveals several critical exploitation activities across multiple platforms and systems. The most significant threats include active exploitation of vulnerabilities in Citrix Session Recording and Git systems, which have been added to CISA's Known Exploited Vulnerabilities catalog. Additionally, a critical container escape vulnerability in Docker Desktop poses severe risks to containerized environments. Threat actors are leveraging sophisticated attack vectors including coordinated RDP scanning campaigns, AI-based data theft techniques, and advanced phishing operations using malware loaders. Notable activities include UNC6384's targeted attacks against diplomatic entities and widespread malicious Android applications affecting millions of users.
+Current threat activity reveals several critical exploitation campaigns targeting enterprise infrastructure and mobile platforms. CISA has added three actively exploited vulnerabilities affecting Citrix Session Recording and Git to its Known Exploited Vulnerabilities catalog, indicating ongoing attacks against these systems. Meanwhile, the HOOK Android banking trojan has evolved to include ransomware capabilities with 107 remote commands, demonstrating the increasing sophistication of mobile malware. Additionally, coordinated scanning campaigns are targeting Microsoft RDP authentication servers, while threat actors are leveraging AI systems for novel attack vectors and exploiting Salesforce platforms to breach major organizations.
 
 ## Active Exploitation Details
 
 ### Citrix Session Recording Vulnerabilities
 - **Description**: Security flaws in Citrix Session Recording systems that are being actively exploited in the wild
-- **Impact**: Attackers can potentially gain unauthorized access to session recording data and compromise enterprise environments
-- **Status**: Added to CISA's Known Exploited Vulnerabilities (KEV) catalog, indicating active exploitation
+- **Impact**: Attackers can potentially gain unauthorized access to session recording infrastructure and sensitive recorded data
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, indicating active exploitation
 
 ### Git Vulnerabilities
 - **Description**: Security vulnerabilities affecting Git version control systems
-- **Impact**: Could allow attackers to compromise source code repositories and development environments
-- **Status**: Added to CISA's KEV catalog due to confirmed active exploitation
+- **Impact**: Could allow attackers to compromise source code repositories and development infrastructure
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, confirming active exploitation
 
-### Docker Desktop Container Escape Vulnerability
-- **Description**: Critical security flaw in Docker Desktop for Windows and macOS that allows container escape
-- **Impact**: Attackers can break out of container isolation and potentially gain access to the host system
-- **Status**: Patched by Docker with critical severity rating
-- **CVE ID**: CVE-2025-9074
+### Apple Security Flaw
+- **Description**: A dangerous security vulnerability affecting iPhone, iPad, and Mac devices
+- **Impact**: Apple warns the flaw might have already been exploited in "extremely sophisticated attacks" targeting specific individuals
+- **Status**: Patches available, but exploitation may have already occurred in targeted attacks
 
-### Apple Device Security Flaw
-- **Description**: Dangerous security vulnerability affecting iPhone, iPad, and Mac devices
-- **Impact**: May have already been exploited in extremely sophisticated attacks targeting specific individuals
-- **Status**: Apple has released security updates to address the vulnerability
+### Salesforce Platform Exploitation
+- **Description**: Widespread attacks targeting Salesforce platforms affecting multiple organizations
+- **Impact**: Data breaches affecting over 1.1 million customers at Farmers Insurance alone
+- **Status**: Active exploitation resulting in confirmed data breaches
 
 ## Affected Systems and Products
 
-- **Citrix Session Recording**: Enterprise session recording and monitoring systems
-- **Git Version Control**: Source code management and version control systems
-- **Docker Desktop**: Container platform for Windows and macOS environments
-- **Apple Devices**: iPhone, iPad, and Mac systems across multiple versions
-- **Android Devices**: Mobile devices running Android OS, particularly those with malicious apps installed
-- **Microsoft RDP**: Remote Desktop Protocol authentication servers and web access systems
-- **Salesforce Platform**: Cloud-based CRM and business application platform
-- **AI Systems**: Large language models and AI processing systems vulnerable to prompt injection
+- **Citrix Session Recording**: Session recording infrastructure and related components
+- **Git Systems**: Version control systems and repositories
+- **Apple Devices**: iPhone, iPad, and Mac systems requiring immediate updates
+- **Microsoft RDP**: Remote Desktop Web Access and RDP Web Authentication servers
+- **Salesforce Platforms**: Customer relationship management and data storage systems
+- **Android Devices**: Mobile devices targeted by HOOK banking trojan variants
+- **AI Systems**: Large language models vulnerable to prompt injection attacks
 
 ## Attack Vectors and Techniques
 
-- **Container Escape**: Exploitation of Docker Desktop vulnerabilities to break container isolation
-- **Coordinated Network Scanning**: Large-scale scanning campaigns targeting Microsoft RDP authentication servers using nearly 2,000 IP addresses
-- **AI Prompt Injection**: Novel attack technique hiding malicious prompts in downscaled images processed by AI systems
-- **Captive Portal Hijacking**: UNC6384 threat group using compromised captive portals with valid certificates
-- **Phishing with Malware Loaders**: Campaigns using fake voicemail emails and UpCrypter loader to deliver RAT payloads
-- **Mobile Malware Distribution**: Malicious Android applications distributed through Google Play Store
+- **Coordinated Network Scanning**: Nearly 1,971 IP addresses conducting coordinated scans against Microsoft RDP authentication servers
+- **Banking Trojan Evolution**: HOOK Android trojan now features ransomware-style overlay screens and expanded to 107 remote commands
+- **AI Prompt Injection**: Novel attacks hiding malicious prompts in downscaled images processed by AI systems before delivery to language models
+- **Captive Portal Hijacking**: UNC6384 threat group using captive portal compromises with valid certificates for initial access
+- **ClickFix Social Engineering**: Attacks tricking AI-generated content summaries into pushing malware to unsuspecting users
 
 ## Threat Actor Activities
 
-- **UNC6384**: China-nexus threat actor conducting targeted attacks against diplomats in Southeast Asia and other global entities using PlugX malware, captive portal hijacks, and valid certificates to advance Beijing's strategic interests
-- **Android Malware Operators**: Cybercriminals distributing 77 malicious Android applications through Google Play Store, achieving over 19 million downloads before removal
-- **RDP Scanning Groups**: Coordinated threat actors conducting large-scale scanning operations against Microsoft Remote Desktop services
-- **Phishing Campaign Operators**: Attackers using sophisticated phishing techniques with UpCrypter malware loader in fake voicemail and purchase order campaigns
-- **Salesforce Attackers**: Threat actors responsible for widespread Salesforce platform attacks affecting multiple organizations including Farmers Insurance with 1.1 million customer records compromised
+- **UNC6384 (China-nexus)**: Targeting diplomats in Southeast Asia and global entities using PlugX malware via captive portal hijacks and valid certificates to advance Beijing's strategic interests
+- **HOOK Operators**: Android banking trojan developers adding ransomware capabilities and expanding command functionality to 107 remote commands
+- **Lab-Dookhtegen**: Claims responsibility for major attacks on over 60 Iranian cargo ships and oil tankers, disrupting maritime communications
+- **RDP Scanning Campaign**: Coordinated effort involving nearly 2,000 IP addresses systematically probing Microsoft Remote Desktop infrastructure
+- **Salesforce Attackers**: Threat actors conducting widespread attacks against Salesforce platforms, resulting in multiple organizational breaches
