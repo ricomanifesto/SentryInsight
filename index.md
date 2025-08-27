@@ -1,48 +1,49 @@
 # Exploitation Report
 
-Critical zero-day exploitation activity is currently targeting Citrix NetScaler infrastructure, with CVE-2025-7775 being actively exploited in the wild as a remote code execution vulnerability. This represents a significant threat to enterprise networks relying on NetScaler ADC and Gateway technologies. Additionally, sophisticated threat actors are conducting targeted campaigns against diplomatic entities through network infrastructure hijacking, while coordinated scanning activities against Microsoft Remote Desktop Services suggest potential preparation for future exploitation campaigns. The cybersecurity landscape is further complicated by data breaches affecting over one million insurance customers and supply chain attacks targeting OAuth tokens for lateral movement into customer environments.
+Critical zero-day exploitation activity is currently targeting Citrix NetScaler infrastructure, with CVE-2025-7775 being actively exploited in the wild as a remote code execution vulnerability. This represents a significant threat to enterprise networks relying on NetScaler ADC and Gateway technologies. Additionally, threat actors are conducting sophisticated supply chain attacks through OAuth token theft, targeting sales automation platforms to pivot into customer environments. State-sponsored groups are also leveraging network infrastructure hijacking techniques to target diplomatic entities, while coordinated scanning campaigns against Remote Desktop Services suggest potential preparation for future exploitation activities.
 
 ## Active Exploitation Details
 
 ### Citrix NetScaler Remote Code Execution Vulnerability
 - **Description**: Critical remote code execution flaw in NetScaler ADC and NetScaler Gateway that allows attackers to execute arbitrary code on vulnerable systems
-- **Impact**: Complete system compromise, potential network lateral movement, and unauthorized access to sensitive enterprise resources
+- **Impact**: Complete system compromise, potential lateral movement within enterprise networks, and unauthorized access to sensitive network infrastructure
 - **Status**: Actively exploited as zero-day, patches now available from Citrix
 - **CVE ID**: CVE-2025-7775
 
-### Network Captive Portal Hijacking
-- **Description**: State-sponsored attackers are hijacking web traffic through compromised network captive portals to redirect users to malware-serving websites
-- **Impact**: Malware deployment, credential theft, and unauthorized access to diplomatic communications and sensitive government data
-- **Status**: Active campaign targeting diplomatic entities
+### Salesloft OAuth Token Theft
+- **Description**: Breach of sales automation platform Salesloft targeting OAuth and refresh tokens from Drift chat agent integration with Salesforce
+- **Impact**: Attackers can pivot to customer environments and exfiltrate sensitive data from connected Salesforce instances
+- **Status**: Active breach with ongoing data exfiltration activities
 
-### Microsoft Remote Desktop Services Vulnerability
-- **Description**: Coordinated scanning waves targeting Microsoft RDP services suggest the existence of a new, undisclosed vulnerability
-- **Impact**: Potential remote access and system compromise if vulnerability is confirmed and exploited
-- **Status**: Under investigation, massive coordinated scanning activity detected
+### Hook Android Trojan Ransomware Evolution
+- **Description**: Enhanced version of Hook Android Trojan now delivering ransomware-style attacks with smartphone takeover capabilities
+- **Impact**: Complete device compromise, user activity monitoring, and ransomware deployment on Android devices
+- **Status**: Actively distributed through GitHub repositories
 
 ## Affected Systems and Products
 
 - **Citrix NetScaler ADC**: All versions affected by the critical RCE vulnerability
 - **Citrix NetScaler Gateway**: All versions vulnerable to remote code execution attacks
-- **Network Infrastructure**: Captive portals and network access points being compromised for traffic redirection
-- **Microsoft Remote Desktop Services**: Experiencing unprecedented scanning activity indicating potential vulnerability
-- **Salesloft Platform**: Breached to steal OAuth and refresh tokens for Salesforce integration
-- **Farmers Insurance Systems**: Over 1.1 million customer records compromised in data breach
-- **Nevada State Government**: IT systems disrupted by cyberattack forcing office closures
-- **Data I/O Corporation**: Affected by ransomware attack causing operational outages
+- **Salesloft Platform**: Sales automation platform compromised for OAuth token theft
+- **Salesforce Integrations**: Connected instances vulnerable through stolen OAuth tokens
+- **Android Devices**: Smartphones targeted by evolved Hook Trojan malware
+- **Microsoft Remote Desktop Services**: Under coordinated scanning attacks suggesting vulnerability research
+- **Nevada State IT Systems**: Government infrastructure disrupted by cyberattack
+- **Farmers Insurance Systems**: 1.1 million customer records compromised in data breach
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched NetScaler vulnerabilities for immediate system access
-- **Traffic Redirection**: Hijacking legitimate network traffic through compromised captive portals to serve malware
-- **OAuth Token Theft**: Stealing authentication tokens from breached platforms to pivot into customer environments
-- **Coordinated Scanning**: Massive scanning campaigns against RDP services to identify vulnerable targets
-- **Supply Chain Attacks**: Compromising third-party platforms to access downstream customer data and systems
-- **Ransomware Deployment**: Traditional ransomware attacks causing operational disruptions and data encryption
+- **Zero-Day Exploitation**: Direct exploitation of unpatched Citrix NetScaler vulnerabilities for initial access
+- **OAuth Token Hijacking**: Theft of authentication tokens to bypass security controls and access integrated systems
+- **Supply Chain Compromise**: Targeting third-party integrations to pivot into customer environments
+- **Network Traffic Hijacking**: Manipulation of captive portals to redirect traffic to malicious infrastructure
+- **Coordinated Scanning**: Large-scale reconnaissance against Remote Desktop Services to identify potential targets
+- **Mobile Malware Distribution**: Use of legitimate platforms like GitHub to distribute Android Trojans
+- **Ransomware Deployment**: Evolution of banking Trojans to include ransomware capabilities
 
 ## Threat Actor Activities
 
-- **Silk Typhoon (Mustang Panda)**: Conducting sophisticated campaigns targeting diplomatic entities through network infrastructure compromise and traffic hijacking techniques
-- **Unknown State-Sponsored Groups**: Actively exploiting Citrix NetScaler zero-day vulnerabilities in targeted attacks against enterprise infrastructure
-- **Coordinated Scanning Groups**: Conducting massive reconnaissance operations against Microsoft RDP services, potentially preparing for large-scale exploitation campaigns
-- **Ransomware Operators**: Continuing attacks against corporate targets including technology companies and government entities, causing significant operational disruptions
+- **Silk Typhoon (Mustang Panda)**: State-sponsored group targeting diplomats through network captive portal hijacking and traffic redirection to malware-serving websites
+- **Unknown Ransomware Groups**: Targeting critical infrastructure including Nevada state government systems and private sector entities like Data I/O
+- **Mobile Malware Operators**: Distributing evolved Hook Trojan through GitHub repositories with enhanced ransomware and device takeover capabilities
+- **Coordinated Scanning Campaigns**: Large-scale reconnaissance operations against Microsoft RDP services suggesting organized threat actor preparation for future attacks
