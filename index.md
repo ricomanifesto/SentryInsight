@@ -1,49 +1,48 @@
 # Exploitation Report
 
-The current threat landscape reveals a concerning shift toward AI-powered attacks and sophisticated cloud-based exploitation campaigns. Multiple threat actors are leveraging artificial intelligence to automate reconnaissance, credential harvesting, and data encryption operations. Notable activities include Storm-0501's evolution from traditional ransomware to cloud-focused attacks targeting Azure environments, the emergence of PromptLock as the first AI-powered ransomware, and active exploitation of FreePBX zero-day vulnerabilities. State-sponsored groups continue to target critical infrastructure, with Chinese APT groups hijacking captive portals for espionage and conducting widespread supply chain attacks affecting hundreds of organizations globally.
+The cybersecurity landscape is experiencing significant exploitation activity across multiple vectors, with threat actors increasingly leveraging AI technologies and targeting cloud infrastructure. Most notably, FreePBX servers are under active attack through a zero-day vulnerability affecting systems with exposed Administrator Control Panels. Meanwhile, sophisticated threat actors like Storm-0501 have evolved their operations to focus on cloud-based attacks, exploiting Entra ID to conduct data exfiltration and deletion in hybrid cloud environments. The emergence of AI-powered ransomware variants like PromptLock demonstrates the evolution of malware capabilities, while state-sponsored groups continue to exploit network infrastructure for espionage purposes.
 
 ## Active Exploitation Details
 
 ### FreePBX Zero-Day Vulnerability
-- **Description**: An actively exploited zero-day vulnerability affecting FreePBX systems with the Administrator Control Panel (ACP) exposed to the internet
-- **Impact**: Allows attackers to compromise FreePBX servers and gain unauthorized access to telecommunications infrastructure
-- **Status**: Emergency fix has been released by the Sangoma FreePBX Security Team; active exploitation ongoing
+- **Description**: A zero-day vulnerability in FreePBX systems that allows attackers to compromise servers with exposed Administrator Control Panel (ACP) interfaces
+- **Impact**: Complete system compromise of FreePBX servers exposed to the internet
+- **Status**: Actively exploited in the wild; emergency fix has been released by Sangoma FreePBX Security Team
 
-### PromptLock AI-Powered Ransomware
-- **Description**: First AI-powered ransomware using Lua scripts to automate data theft and encryption across multiple operating systems
-- **Impact**: Cross-platform data encryption and theft affecting Windows, macOS, and Linux systems
-- **Status**: Experimental ransomware currently in active development and deployment
+### Storm-0501 Cloud Infrastructure Attacks
+- **Description**: Advanced persistent threat actor exploiting Entra ID authentication systems to conduct hybrid cloud attacks
+- **Impact**: Data exfiltration, data deletion, and extortion attacks targeting Azure cloud environments
+- **Status**: Active campaign with evolved tactics focusing on cloud-based encryption and data theft
 
-### Anthropic Claude Code Service Abuse
-- **Description**: Threat actors abusing Anthropic's Claude Code service to automate data extortion campaigns
-- **Impact**: Unprecedented automation of reconnaissance, intrusions, and credential harvesting operations
-- **Status**: Active abuse reported by Anthropic with automated attack campaigns ongoing
+### Captive Portal Hijacking
+- **Description**: Mustang Panda APT group hijacking Google Chrome browsers during network connection attempts
+- **Impact**: Browser redirection to phishing sites for credential harvesting and espionage
+- **Status**: Active campaign targeting Asian diplomatic personnel
 
 ## Affected Systems and Products
 
-- **FreePBX Systems**: Telecommunications servers with Administrator Control Panel exposed to internet
-- **Azure Cloud Environments**: Microsoft Azure infrastructure targeted by Storm-0501 for data exfiltration and deletion
-- **Entra ID Systems**: Microsoft identity management systems compromised for hybrid cloud attacks
-- **Salesforce Platforms**: Customer data accessed through compromised OAuth tokens via third-party Salesloft Drift application
-- **Swedish Municipal Systems**: Over 200 municipalities affected through Miljödata IT systems supplier compromise
-- **Nevada State Agencies**: Multiple state government systems shut down following cyberattack
-- **Multi-Platform Systems**: Windows, macOS, and Linux systems targeted by AI-powered ransomware
+- **FreePBX Systems**: Servers with Administrator Control Panel exposed to internet
+- **Microsoft Azure/Entra ID**: Hybrid cloud environments and identity management systems
+- **Google Chrome Browsers**: Users connecting to new networks via captive portals
+- **Salesforce Environments**: Systems compromised through third-party OAuth applications
+- **Anthropic Claude AI**: Service abused for automated reconnaissance and credential harvesting
+- **Swedish Municipal IT Systems**: Miljödata supplier systems affecting 200+ municipalities
+- **Nevada State Government**: Multiple state agency systems and services
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active exploitation of unpatched FreePBX vulnerabilities through internet-exposed control panels
-- **AI-Automated Attacks**: Use of artificial intelligence for automated reconnaissance, credential harvesting, and data encryption
-- **Cloud Infrastructure Targeting**: Direct attacks on cloud environments for data exfiltration and deletion rather than traditional endpoint encryption
-- **OAuth Token Compromise**: Exploitation of third-party application OAuth tokens to access cloud-based customer data
-- **Captive Portal Hijacking**: Redirection of Google Chrome browsers to phishing sites when connecting to new networks
-- **Supply Chain Attacks**: Targeting IT service providers to impact hundreds of downstream organizations
-- **Hybrid Cloud Exploitation**: Leveraging compromised on-premises systems to access cloud environments
+- **Zero-Day Exploitation**: Direct exploitation of unpatched FreePBX vulnerabilities
+- **OAuth Token Compromise**: Abuse of third-party application tokens for unauthorized access
+- **AI-Powered Automation**: Use of Claude AI service for reconnaissance, intrusion, and credential harvesting
+- **Browser Hijacking**: Interception and redirection of browser traffic through compromised captive portals
+- **Cloud Identity Exploitation**: Abuse of Entra ID systems for lateral movement and data access
+- **Ransomware-as-a-Service**: AI-enhanced encryption and data theft using PromptLock malware
 
 ## Threat Actor Activities
 
-- **Storm-0501**: Evolved operations from traditional ransomware to cloud-focused attacks, targeting Azure environments for data exfiltration and deletion using compromised Entra ID credentials
-- **Mustang Panda APT**: Chinese state-sponsored group hijacking captive portals to redirect Chrome browsers to phishing sites targeting Asian diplomats
-- **UNC6395**: Conducted widespread data theft through compromised OAuth tokens from Salesloft Drift third-party application affecting Salesforce customers
-- **Salt Typhoon**: Chinese state-sponsored group linked to global hacking campaigns affecting telecommunications infrastructure across multiple countries
-- **ZipLine Campaign**: Sophisticated phishing operation targeting dozens of organizations across multiple industry sectors using reverse social engineering tactics
-- **PromptLock Operators**: Threat researchers discovered operators deploying the first AI-powered ransomware across multiple operating systems
+- **Storm-0501**: Evolved from traditional ransomware to cloud-focused data exfiltration and extortion campaigns targeting hybrid environments
+- **Mustang Panda APT**: State-sponsored group conducting espionage operations against Asian diplomatic targets through captive portal hijacking
+- **UNC6395**: Engaged in widespread data theft through compromised Salesforce OAuth tokens via Salesloft Drift application
+- **PromptLock Operators**: Experimental ransomware group deploying AI-powered malware across Windows, macOS, and Linux systems
+- **ZipLine Campaign**: Sophisticated phishing operation targeting multiple industry sectors with reverse-engineered victim engagement tactics
+- **Unknown Threat Actor**: Conducting automated data extortion campaigns using Anthropic AI services at unprecedented scale
