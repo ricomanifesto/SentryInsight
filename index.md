@@ -1,46 +1,52 @@
 # Exploitation Report
 
-Based on the analyzed security articles, several significant cybersecurity incidents and exploitation activities have been identified. The most critical concerns include the Salesloft OAuth breach that has expanded beyond Salesforce to impact Google Workspace accounts, the emergence of TamperedChef malware targeting users through fake PDF editors, a major data breach affecting over 4 million TransUnion customers, and sophisticated supply chain attacks targeting developers. Additionally, Chinese nation-state actors continue to operate extensive espionage systems targeting network devices globally, while ransomware groups like Akira and Cl0p maintain high levels of activity.
+Critical exploitation activity is currently targeting multiple enterprise systems with several zero-day vulnerabilities and authentication bypass flaws being actively exploited. The most significant threats include a zero-day vulnerability in FreePBX systems that impacts exposed administrator control panels, an authentication bypass flaw in Passwordstate password management software, and a sophisticated supply chain attack using AI-powered stealer malware that has compromised over 1,000 developers. Additionally, a major OAuth breach affecting Salesloft integrations has expanded beyond Salesforce to impact Google Workspace accounts, while Chinese nation-state actors continue operating a global espionage system targeting network infrastructure.
 
 ## Active Exploitation Details
 
-### Salesloft OAuth Token Breach
-- **Description**: Attackers compromised OAuth tokens from Salesloft Drift, initially targeting Salesforce instances but now confirmed to impact Google Workspace accounts as well
-- **Impact**: Unauthorized access to email accounts and potentially other integrated services across multiple platforms
-- **Status**: Active breach with ongoing investigation; Google has confirmed the scope extends beyond initial Salesforce targeting
+### FreePBX Zero-Day Vulnerability
+- **Description**: A zero-day vulnerability in Sangoma FreePBX systems that allows attackers to compromise systems with exposed administrator control panels (ACP)
+- **Impact**: Complete system compromise of FreePBX servers exposed to the internet
+- **Status**: Actively exploited in the wild; emergency patch now available from Sangoma FreePBX Security Team
 
-### TamperedChef Information Stealer
-- **Description**: New malware campaign using malvertising to direct victims to fraudulent websites disguised as PDF editors
-- **Impact**: Theft of user credentials, cookies, and sensitive information from infected systems
-- **Status**: Active distribution through malicious advertising networks
+### Passwordstate Authentication Bypass
+- **Description**: Authentication bypass vulnerability in Click Studios' Passwordstate enterprise password management solution affecting the Emergency Access Page
+- **Impact**: Unauthorized access to password management systems, potentially exposing stored credentials
+- **Status**: Patched by Click Studios with security updates released
 
 ### AI-Powered Supply Chain Attack
-- **Description**: Sophisticated attack targeting over 1,000 developers, causing massive data leakage within hours
-- **Impact**: Exposure of developer secrets, credentials, and potentially source code or proprietary information
-- **Status**: Recently discovered attack representing one of the most sophisticated supply chain compromises to date
+- **Description**: Sophisticated supply chain attack using AI-powered stealer malware targeting developers
+- **Impact**: Massive data exfiltration affecting over 1,000 developers, with secrets and sensitive data leaked to the web within hours
+- **Status**: Active campaign with ongoing data exposure
+
+### Salesloft OAuth Token Breach
+- **Description**: OAuth token compromise affecting Salesloft Drift integrations, extending beyond initial Salesforce targeting
+- **Impact**: Unauthorized access to Google Workspace email accounts and other integrated services
+- **Status**: Ongoing breach with expanded scope beyond initial assessment
 
 ## Affected Systems and Products
 
-- **Salesloft Drift**: OAuth integration platform affecting connected Salesforce and Google Workspace accounts
-- **Google Workspace**: Email accounts accessed through compromised OAuth tokens
-- **Salesforce**: Initial target of the OAuth token compromise
-- **TransUnion**: Credit reporting systems affecting 4+ million customer records
-- **PDF Editor Applications**: Fake applications used as delivery mechanism for TamperedChef malware
-- **Network Devices**: Global infrastructure targeted by Chinese espionage operations
-- **ChromeOS Devices**: Authentication failures affecting Clever and ClassLink account access
+- **FreePBX Systems**: Sangoma FreePBX installations with administrator control panels exposed to the internet
+- **Passwordstate**: Click Studios enterprise password management solution, specifically the Emergency Access Page component
+- **Google Workspace**: Email accounts accessed through compromised Salesloft OAuth tokens
+- **Salesforce**: Initial target of Salesloft OAuth breach
+- **Developer Environments**: Over 1,000 developers affected by AI-powered stealer malware
+- **Network Infrastructure**: Various network devices targeted by Chinese nation-state espionage operations
+- **TransUnion Systems**: Credit reporting infrastructure compromised affecting 4+ million customers
 
 ## Attack Vectors and Techniques
 
-- **OAuth Token Compromise**: Exploitation of authentication tokens to gain unauthorized access to multiple integrated services
-- **Malvertising**: Use of malicious advertisements to redirect users to fraudulent websites hosting malware
-- **Social Engineering**: Disguising malware as legitimate PDF editing software to trick users into installation
-- **Supply Chain Infiltration**: Targeting developer environments to compromise software development processes
-- **Network Device Exploitation**: Chinese actors targeting infrastructure devices for espionage purposes
+- **Zero-Day Exploitation**: Direct targeting of unpatched FreePBX systems through exposed administrator interfaces
+- **Authentication Bypass**: Circumventing security controls in password management emergency access features
+- **OAuth Token Theft**: Compromising authentication tokens to gain persistent access to integrated cloud services
+- **Supply Chain Infiltration**: Using AI-enhanced malware to target developer environments and extract sensitive data
+- **Malvertising Campaigns**: TamperedChef malware distributed through fake PDF editor advertisements
+- **Network Device Targeting**: Chinese actors exploiting network infrastructure for espionage purposes
 
 ## Threat Actor Activities
 
-- **Chinese Nation-State Actors**: Operating extensive global espionage systems targeting network infrastructure devices across multiple countries
-- **Cybercriminal Groups**: Deploying TamperedChef malware through coordinated malvertising campaigns
-- **Ransomware Operations**: Akira and Cl0p groups identified as among the most active ransomware-as-a-service operators
-- **North Korean IT Workers**: Continued sanctions targeting individuals and companies associated with fraudulent IT worker schemes
-- **Supply Chain Attackers**: Sophisticated actors targeting developer communities with AI-enhanced attack techniques
+- **Chinese Nation-State Groups**: Operating extensive global espionage system targeting network devices and infrastructure across multiple countries
+- **Cybercriminal Organizations**: Deploying TamperedChef information stealer through sophisticated malvertising campaigns targeting users seeking PDF editing tools
+- **Supply Chain Attackers**: Conducting AI-powered attacks against developer communities to steal secrets and sensitive data
+- **OAuth Exploitation Groups**: Targeting Salesloft integrations to gain unauthorized access to enterprise cloud services
+- **Ransomware Groups**: Akira and Cl0p identified as most active ransomware-as-a-service operations, with increasing use of AI in their campaigns
