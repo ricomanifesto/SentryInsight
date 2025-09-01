@@ -1,6 +1,6 @@
 # Exploitation Report
 
-Based on the analyzed security articles, several critical vulnerabilities are currently being exploited in the wild. The most significant threats include a zero-day vulnerability in WhatsApp's iOS and macOS applications that has been actively exploited in targeted attacks, multiple security flaws in the Sitecore Experience Platform that could lead to remote code execution, and the distribution of TamperedChef infostealer through fraudulent PDF editing applications. Additionally, threat actors are leveraging legitimate forensic tools like Velociraptor to establish command and control channels using Visual Studio Code for tunneling operations.
+Based on the analyzed security articles, several critical vulnerabilities are currently being exploited in the wild. The most significant threats include a zero-day vulnerability in WhatsApp's iOS and macOS applications that has been actively exploited in targeted attacks, multiple security flaws in the Sitecore Experience Platform that enable remote code execution, and the distribution of TamperedChef infostealer through fraudulent PDF editing applications. Additionally, threat actors are leveraging legitimate forensic tools like Velociraptor to establish command and control channels through Visual Studio Code tunneling.
 
 ## Active Exploitation Details
 
@@ -10,32 +10,32 @@ Based on the analyzed security articles, several critical vulnerabilities are cu
 - **Status**: Actively exploited in targeted zero-day attacks; emergency patch released by WhatsApp
 
 ### Sitecore Experience Platform Vulnerabilities
-- **Description**: Three newly disclosed security vulnerabilities in the Sitecore Experience Platform forming an exploit chain
-- **Impact**: Attackers can achieve information disclosure and remote code execution through cache poisoning techniques
-- **Status**: Vulnerabilities disclosed by researchers; exploitation potential confirmed
+- **Description**: Three newly disclosed security vulnerabilities in the Sitecore Experience Platform that can be chained together for maximum impact
+- **Impact**: Enables information disclosure and remote code execution through cache poisoning attack vectors
+- **Status**: Exploit chain identified linking cache poisoning to remote code execution capabilities
 
 ### TamperedChef Infostealer Campaign
 - **Description**: Malicious information-stealing malware distributed through convincing fake PDF editing applications
 - **Impact**: Steals sensitive user information and credentials from infected systems
-- **Status**: Active distribution campaign using multiple websites promoted through Google advertisements
+- **Status**: Actively distributed through multiple websites promoted via Google advertisements
 
 ## Affected Systems and Products
 
-- **WhatsApp iOS and macOS Applications**: Messaging clients on Apple devices vulnerable to zero-click exploitation
-- **Sitecore Experience Platform**: Web content management system affected by cache poisoning and remote code execution vulnerabilities
-- **Windows Systems**: Targeted by TamperedChef infostealer through fraudulent PDF editor downloads
-- **Velociraptor Deployments**: Open-source endpoint monitoring and digital forensic tool being abused for malicious purposes
+- **WhatsApp iOS/macOS Applications**: Messaging clients on Apple platforms vulnerable to zero-click exploitation
+- **Sitecore Experience Platform**: Web content management platform affected by multiple chained vulnerabilities
+- **Windows Systems**: Targeted by TamperedChef infostealer through fraudulent software distribution
+- **Velociraptor Deployments**: Open-source forensic tool being abused for malicious command and control operations
 
 ## Attack Vectors and Techniques
 
-- **Zero-Click Exploitation**: WhatsApp vulnerability allows compromise without user interaction
-- **Cache Poisoning Chain**: Sitecore vulnerabilities exploited through cache manipulation leading to remote code execution
-- **Malvertising Campaign**: Google ads promoting fake PDF editing software to distribute TamperedChef malware
-- **Living-off-the-Land Techniques**: Abuse of legitimate Velociraptor forensic tool for command and control operations
-- **Visual Studio Code Tunneling**: Using legitimate development tools for covert communication channels
+- **Zero-Click Exploitation**: WhatsApp vulnerability requires no user interaction for successful compromise
+- **Cache Poisoning to RCE Chain**: Sitecore vulnerabilities can be exploited in sequence to achieve remote code execution
+- **Malvertising Campaign**: Google ads promoting fake PDF editors to distribute TamperedChef malware
+- **Living-off-the-Land Techniques**: Abuse of legitimate Velociraptor forensic tool for C2 tunneling through Visual Studio Code
+- **Social Engineering**: Convincing fake software applications used to trick users into installing malware
 
 ## Threat Actor Activities
 
-- **Targeted Zero-Day Operators**: Unknown threat actors conducting sophisticated zero-click attacks against WhatsApp users on iOS and macOS platforms
-- **TamperedChef Campaign Operators**: Cybercriminals using multiple fraudulent websites and Google advertising to distribute information-stealing malware through convincing PDF editor applications
-- **Advanced Persistent Threat Groups**: Sophisticated actors deploying Velociraptor forensic tools and leveraging Visual Studio Code for establishing persistent command and control infrastructure
+- **Targeted Zero-Day Operators**: Unknown threat actors conducting targeted attacks against WhatsApp users on iOS and macOS platforms
+- **TamperedChef Distributors**: Cybercriminals operating sophisticated malvertising campaigns to distribute infostealer malware through fake PDF editing software
+- **Advanced Persistent Threat Groups**: Sophisticated actors leveraging legitimate forensic tools like Velociraptor to establish persistent command and control infrastructure while evading detection
