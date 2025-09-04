@@ -1,40 +1,46 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical exploitation activities targeting diverse platforms and systems. Most notably, Google has addressed two actively exploited Android vulnerabilities in their September 2025 security update, highlighting ongoing zero-day exploitation against mobile devices. Threat actors are increasingly leveraging AI-powered tools like HexStrike-AI to rapidly exploit newly disclosed n-day vulnerabilities, significantly reducing the time between vulnerability disclosure and active exploitation. Additionally, state-sponsored groups continue their sophisticated campaigns, with Russia's APT28 deploying the NotDoor malware to target Microsoft Outlook for covert data exfiltration, while threat actors are abusing X's Grok AI platform to bypass security restrictions and spread malicious content.
+Current threat activity reveals several critical exploitation campaigns targeting diverse systems and platforms. Iranian state-sponsored actors are conducting extensive phishing operations against diplomatic and governmental targets across six continents, while Russian APT28 has deployed new malware specifically targeting Microsoft Outlook for covert data exfiltration. Threat actors are increasingly leveraging AI-powered tools like HexStrike-AI to rapidly exploit newly disclosed vulnerabilities, and malicious actors are abusing legitimate platforms including X's Grok AI and npm packages to distribute malware. Google has addressed two actively exploited Android vulnerabilities in their September security update, highlighting ongoing mobile platform targeting.
 
 ## Active Exploitation Details
 
-### Android Zero-Day Vulnerabilities
-- **Description**: Two critical vulnerabilities in Android systems that were being actively exploited in the wild before patches were available
-- **Impact**: Attackers could potentially gain unauthorized access to Android devices, execute arbitrary code, or escalate privileges
-- **Status**: Patched in Google's September 2025 security update addressing 84 total vulnerabilities
+### Android Security Vulnerabilities
+- **Description**: Two critical vulnerabilities in Android devices that were being actively exploited in the wild
+- **Impact**: Attackers could potentially gain unauthorized access to Android devices and compromise user data
+- **Status**: Patched in Google's September 2025 security update as part of 84 total vulnerabilities addressed
 
 ### N-Day Vulnerabilities via HexStrike-AI
-- **Description**: Recently disclosed vulnerabilities being rapidly exploited using an AI-powered offensive security framework
-- **Impact**: Automated exploitation of newly patched vulnerabilities before organizations can apply updates
-- **Status**: Active exploitation ongoing with AI-assisted rapid weaponization of disclosed flaws
+- **Description**: Newly disclosed vulnerabilities being rapidly exploited using an AI-powered offensive security framework
+- **Impact**: Accelerated exploitation of recently patched vulnerabilities before organizations can deploy updates
+- **Status**: Active exploitation ongoing with AI-assisted attack automation
+
+### Microsoft Outlook Targeting
+- **Description**: Russian APT28 deploying 'NotDoor' malware specifically designed to abuse Microsoft Outlook
+- **Impact**: Covert data exfiltration from compromised email systems
+- **Status**: Active campaign by state-sponsored threat actors
 
 ## Affected Systems and Products
 
-- **Android Devices**: All Android devices vulnerable to the two actively exploited flaws before September 2025 security update
+- **Android Devices**: Multiple versions affected by two actively exploited vulnerabilities, patched in September 2025 update
 - **Microsoft Outlook**: Targeted by APT28's NotDoor malware for data exfiltration operations
-- **X Platform (formerly Twitter)**: Grok AI assistant being abused to bypass link posting restrictions
-- **npm Registry**: Malicious packages targeting Ethereum smart contracts and crypto developers
-- **Compromised Routers**: Internet-connected routers remaining compromised for years without detection
-- **Salesforce CRM Systems**: Third-party systems compromised leading to Workiva data breach
+- **X Platform (formerly Twitter)**: Grok AI assistant being abused to bypass link posting restrictions for malicious advertising
+- **npm Registry**: Malicious packages targeting cryptocurrency developers through Ethereum smart contract exploitation
+- **Salesforce CRM Systems**: Third-party breach affecting Workiva customers through compromised customer relationship management system
+- **Router Infrastructure**: Compromised routers remaining undetected on the internet for extended periods
 
 ## Attack Vectors and Techniques
 
-- **AI-Powered Exploitation**: HexStrike-AI framework enabling rapid weaponization of n-day vulnerabilities
-- **Social Engineering via AI**: Abuse of Grok AI to spread malicious links while bypassing platform restrictions
-- **Supply Chain Attacks**: Malicious npm packages targeting cryptocurrency developers through smart contract exploitation
-- **Email-Based Backdoors**: NotDoor malware leveraging Microsoft Outlook for covert communication and data theft
-- **Third-Party System Compromise**: Attackers targeting CRM systems to access customer data from multiple organizations
+- **Phishing Campaigns**: Iran MOIS conducting large-scale operations using over 100 hijacked email accounts targeting embassies and international organizations
+- **AI-Powered Exploitation**: HexStrike-AI framework enabling rapid exploitation of n-day vulnerabilities with automated attack capabilities
+- **Platform Abuse**: Legitimate services like X's Grok AI being manipulated to distribute malicious links and bypass security restrictions
+- **Supply Chain Attacks**: Malicious npm packages targeting cryptocurrency developers through smart contract manipulation
+- **Email System Compromise**: APT28 using NotDoor backdoor for persistent access and data theft from Outlook environments
+- **DDoS Attacks**: Massive 11.5Tbps distributed denial-of-service attacks requiring advanced mitigation
 
 ## Threat Actor Activities
 
-- **APT28 (Fancy Bear)**: Russian state-sponsored group deploying NotDoor malware to target Microsoft Outlook for data exfiltration operations
-- **North Korean IT Workers**: Continued success of scam operations targeting Asia-Pacific nations, prompting coordinated response from Japan and South Korea
+- **Iran MOIS (Homeland Justice APT)**: Conducting extensive espionage operations against 50+ embassies, ministries, and international organizations across six continents using compromised email accounts
+- **Russian APT28 (Fancy Bear)**: Deploying NotDoor malware to target Microsoft Outlook systems for covert data exfiltration operations
+- **North Korean IT Workers**: Continued success of fraudulent IT worker schemes targeting Asia-Pacific organizations, prompting coordinated response from Japan and South Korea
 - **Russian FSB Officers**: Three officers targeted by $10 million U.S. bounty for cyberattacks against critical infrastructure
-- **Cryptocurrency Threat Actors**: Deploying malicious npm packages that exploit Ethereum smart contracts to target crypto developers
-- **Generic Threat Actors**: Leveraging AI tools and platform abuse techniques to enhance attack capabilities and bypass security measures
+- **Cryptocurrency-Focused Attackers**: Targeting developers through malicious npm packages that exploit Ethereum smart contracts for financial theft
