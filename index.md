@@ -1,40 +1,48 @@
 # Exploitation Report
 
-Critical exploitation activity is currently centered around AI-powered attack tools and zero-day vulnerabilities targeting mobile platforms. Threat actors are leveraging the new HexStrike-AI framework to rapidly exploit newly disclosed n-day vulnerabilities, with documented cases showing exploitation of Citrix flaws within just one week of public disclosure. Additionally, sophisticated zero-click attacks are targeting iPhone users through WhatsApp vulnerabilities combined with Apple zero-day exploits, potentially delivering spyware payloads. Google has addressed two actively exploited Android vulnerabilities in their September 2025 security update, highlighting ongoing mobile platform targeting.
+Based on the analyzed security articles, several critical exploitation activities are currently underway. The most significant threats include Russia's APT28 group deploying the 'NotDoor' malware to target Microsoft Outlook for covert data exfiltration, and the emergence of HexStrike-AI, a new AI-powered offensive security framework being used by hackers to rapidly exploit newly disclosed n-day vulnerabilities. Additionally, Google has addressed two actively exploited Android vulnerabilities in their September 2025 security update, highlighting ongoing mobile security concerns. The persistence of compromised routers on the internet for extended periods and various data breaches affecting major organizations further underscore the current threat landscape.
 
 ## Active Exploitation Details
 
-### HexStrike-AI Powered N-Day Exploits
-- **Description**: AI-powered offensive security framework being used by threat actors to rapidly exploit newly disclosed vulnerabilities
-- **Impact**: Enables rapid weaponization of n-day flaws, significantly reducing the time between vulnerability disclosure and active exploitation
-- **Status**: Currently being used in real attacks with documented exploitation of Citrix flaws within one week of disclosure
+### NotDoor Malware Campaign
+- **Description**: Russia's APT28 (Fancy Bear) is deploying a new backdoor malware called 'NotDoor' specifically targeting Microsoft Outlook
+- **Impact**: Enables covert data exfiltration from compromised Outlook installations
+- **Status**: Currently active campaign by state-sponsored threat actors
 
-### WhatsApp Zero-Click iPhone Attacks
-- **Description**: Sophisticated zero-click attack chain targeting iPhone users through WhatsApp vulnerabilities combined with Apple zero-day exploits
-- **Impact**: Enables remote code execution and potential spyware installation without user interaction
-- **Status**: Actively targeting specific groups of iPhone users with spyware delivery capabilities
+### Android Zero-Day Vulnerabilities
+- **Description**: Two actively exploited vulnerabilities in Android systems addressed in Google's September 2025 security update
+- **Impact**: Unknown specific impact, but actively exploited in the wild
+- **Status**: Patched in September 2025 security update, part of 84 total vulnerabilities addressed
 
-### Android Security Vulnerabilities
-- **Description**: Two actively exploited vulnerabilities in Android systems addressed in September 2025 security update
-- **Impact**: Allows attackers to compromise Android devices through various attack vectors
-- **Status**: Patches available in September 2025 Android security update addressing 84 total vulnerabilities
+### HexStrike-AI Exploitation Framework
+- **Description**: New AI-powered offensive security framework being used to rapidly exploit newly disclosed n-day vulnerabilities
+- **Impact**: Accelerates the exploitation of recently patched vulnerabilities before organizations can apply updates
+- **Status**: Actively being used by hackers in real-world attacks
+
+### Long-Term Router Compromises
+- **Description**: Compromised routers remaining on the internet for years without detection or remediation
+- **Impact**: Persistent unauthorized access to network infrastructure and potential data interception
+- **Status**: Ongoing issue with asset owners unaware of compromises for extended periods
 
 ## Affected Systems and Products
 
-- **Citrix Systems**: Specific vulnerabilities being exploited within one week of disclosure using HexStrike-AI
-- **iPhone Devices**: Targeted by zero-click attacks through WhatsApp application vulnerabilities
-- **Android Devices**: Multiple versions affected by two actively exploited vulnerabilities, patches available in September 2025 update
-- **WhatsApp Application**: Serving as attack vector for sophisticated zero-click iPhone exploitation
+- **Microsoft Outlook**: Targeted by APT28's NotDoor malware for data exfiltration
+- **Android Devices**: Two actively exploited vulnerabilities affecting various Android versions
+- **Network Routers**: Multiple router models remaining compromised for years without detection
+- **Salesforce CRM Systems**: Third-party system breach affecting Workiva customers
+- **Children's IoT Devices**: Apitor Technology robot toys exposing children's geolocation data
 
 ## Attack Vectors and Techniques
 
-- **AI-Powered Exploitation**: HexStrike-AI framework enabling rapid development and deployment of exploits for newly disclosed vulnerabilities
-- **Zero-Click Attacks**: Sophisticated attack chains requiring no user interaction to compromise iPhone devices through WhatsApp
-- **N-Day Exploitation**: Rapid weaponization of recently disclosed vulnerabilities, particularly targeting Citrix infrastructure
-- **Mobile Platform Targeting**: Coordinated attacks against both Android and iOS platforms through different vulnerability classes
+- **Email Client Exploitation**: APT28 abusing Microsoft Outlook for covert data exfiltration operations
+- **AI-Powered Exploitation**: HexStrike-AI framework enabling rapid exploitation of n-day vulnerabilities
+- **Third-Party System Compromise**: Attackers targeting CRM systems to access customer data
+- **IoT Device Exploitation**: Unauthorized collection of children's geolocation data through connected toys
+- **Persistent Infrastructure Compromise**: Long-term router compromises going undetected
 
 ## Threat Actor Activities
 
-- **HexStrike-AI Users**: Threat actors leveraging AI-powered tools to accelerate exploit development and deployment timelines
-- **Mobile Spyware Operators**: Sophisticated actors conducting targeted zero-click attacks against specific iPhone user groups for spyware delivery
-- **Android Exploit Campaigns**: Active exploitation of Android vulnerabilities requiring immediate patching through September 2025 security updates
+- **APT28 (Fancy Bear)**: Russian state-sponsored group actively deploying NotDoor malware against Microsoft Outlook users for intelligence gathering operations
+- **Russian FSB Officers**: Three officers targeted by $10 million U.S. bounty for cyberattacks against critical infrastructure
+- **Cybercriminal Groups**: Utilizing HexStrike-AI framework to accelerate exploitation of newly disclosed vulnerabilities
+- **Streameast Operators**: Large-scale pirated sports streaming network disrupted by international law enforcement cooperation
