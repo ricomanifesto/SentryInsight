@@ -1,44 +1,47 @@
 # Exploitation Report
 
-Current threat activity reveals several critical security incidents affecting major organizations and infrastructure. TP-Link routers face active exploitation through an unpatched zero-day vulnerability, while CISA has issued warnings about other router flaws being exploited in the wild. Multiple high-profile data breaches have impacted millions of users, including PowerSchool's breach affecting 62 million students and Chess.com's compromise through a third-party file transfer application. Additionally, cybercriminals are exploiting X's Grok AI system to bypass advertising protections and distribute malware to millions of users, while a supply-chain attack targeting Salesloft Drift customers continues to impact numerous organizations.
+Based on the analyzed security articles, several critical exploitation activities are currently underway. Most notably, threat actors have been actively exploiting a zero-day vulnerability in legacy Sitecore deployments to deploy WeepSteel reconnaissance malware. Additionally, TP-Link has confirmed an unpatched zero-day vulnerability affecting multiple router models, while CISA has warned that other router flaws are being exploited in attacks. Russian state-sponsored group APT28 has deployed a new Microsoft Outlook backdoor called NotDoor in targeted campaigns against NATO countries, and the GhostRedirector threat cluster has compromised at least 65 Windows servers using sophisticated backdoor techniques.
 
 ## Active Exploitation Details
 
-### TP-Link Router Zero-Day Vulnerability
-- **Description**: An unpatched zero-day vulnerability affecting multiple TP-Link router models that allows unauthorized access and control
-- **Impact**: Attackers can gain complete control over affected routers, potentially intercepting network traffic, establishing persistent access, and using compromised devices for further attacks
-- **Status**: Currently unpatched and actively being exploited in the wild
+### Sitecore Zero-Day Vulnerability
+- **Description**: An unpatched zero-day vulnerability affecting legacy Sitecore deployments
+- **Impact**: Allows threat actors to deploy WeepSteel reconnaissance malware for data collection and system reconnaissance
+- **Status**: Currently being exploited in the wild, patch status unknown
 
-### TP-Link Router Additional Vulnerabilities
-- **Description**: Multiple previously disclosed vulnerabilities in TP-Link router firmware that CISA has confirmed are being exploited
-- **Impact**: Remote code execution, unauthorized network access, and potential use of compromised devices in botnet operations
-- **Status**: Active exploitation confirmed by CISA warnings
+### TP-Link Router Zero-Day
+- **Description**: An unpatched zero-day vulnerability impacting multiple TP-Link router models
+- **Impact**: Enables unauthorized access and potential network compromise
+- **Status**: Confirmed by TP-Link as unpatched, actively being exploited according to CISA warnings
 
-### X Grok AI Exploitation
-- **Description**: Cybercriminals are exploiting X's Grok AI system to bypass the platform's malvertising protections
-- **Impact**: Widespread distribution of malicious links and malware to millions of users through circumvented security controls
-- **Status**: Ongoing exploitation affecting millions of users
+### NotDoor Outlook Backdoor
+- **Description**: A sophisticated Microsoft Outlook backdoor deployed by Russian APT28 group
+- **Impact**: Provides persistent access to corporate email systems and enables data exfiltration
+- **Status**: Active deployment in targeted campaigns against NATO country organizations
 
 ## Affected Systems and Products
 
-- **TP-Link Routers**: Multiple router models affected by zero-day and previously disclosed vulnerabilities
-- **X Platform**: Grok AI system being exploited to bypass advertising security protections
-- **PowerSchool**: Education software platform compromised, affecting 62 million students and 880,000 Texans
-- **Chess.com**: Gaming platform breached through third-party file transfer application
-- **Salesloft Drift**: Supply-chain attack affecting multiple high-profile customer organizations
-- **Bridgestone**: Manufacturing operations impacted by cyberattack affecting North American facilities
+- **Sitecore CMS**: Legacy deployments vulnerable to zero-day exploitation
+- **TP-Link Routers**: Multiple router models affected by unpatched zero-day vulnerability
+- **Microsoft Outlook**: Targeted by NotDoor backdoor in corporate environments
+- **Windows Servers**: At least 65 servers compromised by GhostRedirector cluster, primarily in Brazil
+- **PowerSchool Systems**: Education software platform suffered massive breach affecting 62 million students
+- **Chess.com Platform**: Compromised via third-party file transfer application
+- **Salesloft Drift**: Supply chain attack affecting multiple high-profile customers
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Attackers leveraging unpatched TP-Link router vulnerabilities for initial access
-- **Supply-Chain Attacks**: Compromise of Salesloft Drift affecting downstream customers
-- **Third-Party Application Compromise**: Breach of file transfer applications used by Chess.com
-- **AI System Abuse**: Exploitation of X's Grok AI to bypass security protections and distribute malware
-- **Malvertising Bypass**: Use of AI systems to circumvent platform advertising security measures
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in Sitecore and TP-Link systems
+- **Backdoor Deployment**: Installation of WeepSteel malware and NotDoor Outlook backdoors for persistent access
+- **Supply Chain Attacks**: Compromise of third-party services affecting downstream customers
+- **Phishing-as-a-Service**: Global enterprise using cloaking techniques on public cloud infrastructure
+- **IIS Module Injection**: GhostRedirector using Gamshen IIS module and Rungan backdoor for server compromise
+- **File Transfer Exploitation**: Unauthorized access through compromised file transfer applications
 
 ## Threat Actor Activities
 
-- **Router-Focused Attackers**: Groups actively exploiting TP-Link vulnerabilities for network infiltration and botnet expansion
-- **Supply-Chain Threat Actors**: Sophisticated groups targeting software providers to reach multiple downstream victims simultaneously
-- **Malvertising Criminals**: Cybercriminals adapting techniques to exploit AI systems for large-scale malware distribution
-- **Ransomware Groups**: Potential involvement in Bridgestone manufacturing facility attacks, though specific attribution remains under investigation
+- **APT28 (Russian State-Sponsored)**: Deploying NotDoor Outlook backdoor against companies in NATO countries across multiple sectors
+- **GhostRedirector Cluster**: Previously undocumented threat group compromising Windows servers primarily in Brazil using sophisticated backdoor techniques
+- **Phishing-as-a-Service Operators**: Running undetected operations on Google and Cloudflare infrastructure for over 3 years using advanced cloaking methods
+- **Chinese Data Collection**: Czech cyber agency NÚKIB warning about products and software sending user data back to China
+- **WeepSteel Operators**: Exploiting Sitecore zero-day to deploy reconnaissance malware for intelligence gathering
