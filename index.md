@@ -1,44 +1,43 @@
 # Exploitation Report
 
-Critical zero-day exploitation activity has been identified targeting Sitecore content management systems, with threat actors deploying WeepSteel reconnaissance malware and backdoors through ViewState deserialization attacks. Additionally, Russian state-sponsored group APT28 has been actively deploying the NotDoor Outlook backdoor against NATO country organizations, while the GhostRedirector threat cluster has compromised at least 65 Windows servers using sophisticated IIS modules and backdoors. These activities represent significant ongoing threats to enterprise infrastructure and government entities.
+Critical exploitation activity is currently centered around several high-impact vulnerabilities and sophisticated attack campaigns. Most notably, threat actors have been actively exploiting a zero-day vulnerability in legacy Sitecore deployments to deploy WeepSteel reconnaissance malware and backdoors. This vulnerability represents a significant threat to organizations using Sitecore content management systems. Additionally, Russian state-sponsored group APT28 has been conducting targeted attacks against NATO countries using a new Microsoft Outlook backdoor called "NotDoor," demonstrating the ongoing sophistication of nation-state threat actors. The threat landscape also includes innovative phishing campaigns leveraging SVG files and ViewState attacks, as well as a large-scale phishing-as-a-service operation running undetected on major cloud platforms for over three years.
 
 ## Active Exploitation Details
 
 ### Sitecore Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability in legacy Sitecore deployments that allows threat actors to exploit exposed ASP.NET machine keys for remote injection and deserialization attacks
+- **Description**: A zero-day vulnerability in legacy Sitecore content management system deployments that allows threat actors to gain unauthorized access and deploy malicious payloads
 - **Impact**: Attackers can deploy WeepSteel reconnaissance malware and establish persistent backdoors on compromised systems
-- **Status**: Actively exploited in the wild, represents the latest example of ViewState weaponization
+- **Status**: Actively exploited in the wild, represents the latest example of threat actors weaponizing exposed ASP.NET machine keys for remote injection and deserialization attacks
 
-### NotDoor Outlook Backdoor
-- **Description**: A sophisticated Microsoft Outlook backdoor developed and deployed by Russian APT28 group targeting organizations in NATO countries
-- **Impact**: Provides persistent access to corporate email systems and enables data exfiltration from multiple business sectors
-- **Status**: Active campaign targeting companies across different sectors in NATO member states
+### Microsoft Outlook Backdoor (NotDoor)
+- **Description**: A sophisticated backdoor targeting Microsoft Outlook deployed by Russian APT28 group
+- **Impact**: Enables persistent access to corporate email systems and sensitive communications in targeted organizations
+- **Status**: Active deployment against multiple companies across different sectors in NATO countries
 
-### Windows Server Compromise via Rungan Backdoor
-- **Description**: GhostRedirector threat cluster exploiting Windows servers using the Rungan backdoor in combination with the Gamshen IIS module
-- **Impact**: Complete server compromise allowing for malicious redirections and search engine manipulation for gambling site promotion
-- **Status**: At least 65 Windows servers confirmed compromised, primarily located in Brazil
+### SVG-Based Phishing Campaign
+- **Description**: Malicious campaign leveraging Scalable Vector Graphics (SVG) files to deploy Base64-encoded phishing pages
+- **Impact**: Bypasses traditional security detection mechanisms by using legitimate file formats for malicious purposes
+- **Status**: 44 undetected SVG files identified by VirusTotal, impersonating Colombian judicial system
 
 ## Affected Systems and Products
 
-- **Sitecore CMS**: Legacy deployments vulnerable to ViewState deserialization attacks through exposed ASP.NET machine keys
-- **Microsoft Outlook**: Corporate email systems targeted by APT28's NotDoor backdoor across NATO countries
-- **Windows Servers**: At least 65 servers compromised by GhostRedirector, primarily running IIS web services
-- **PowerSchool Education Platform**: 62 million students affected by data breach, including 880,000 Texas residents
-- **Chess.com Platform**: User data compromised through third-party file transfer application breach
-- **Bridgestone Americas**: Manufacturing operations disrupted by confirmed cyberattack
+- **Sitecore Content Management Systems**: Legacy deployments vulnerable to zero-day exploitation and ViewState attacks
+- **Microsoft Outlook**: Targeted by NotDoor backdoor in corporate environments across NATO countries
+- **ASP.NET Applications**: Systems with exposed machine keys vulnerable to remote injection and deserialization attacks
+- **Google and Cloudflare Infrastructure**: Hosting phishing-as-a-service operations for over 3 years
+- **Web Browsers**: Targeted by SVG-based phishing campaigns and search engine manipulation attacks
 
 ## Attack Vectors and Techniques
 
-- **ViewState Deserialization**: Exploitation of exposed ASP.NET machine keys to achieve remote code execution and malware deployment
-- **Email System Backdoors**: APT28 utilizing NotDoor to maintain persistent access to corporate Outlook environments
-- **IIS Module Injection**: GhostRedirector deploying malicious Gamshen IIS modules to manipulate web traffic and boost gambling site rankings
-- **Third-Party Application Compromise**: Attackers targeting file transfer applications to gain access to primary platforms
-- **Search Engine Manipulation**: Injection of malicious links to artificially boost search rankings for target gambling sites
+- **ViewState Exploitation**: Weaponization of exposed ASP.NET machine keys for remote code injection and deserialization attacks
+- **SVG File Abuse**: Using legitimate Scalable Vector Graphics files to host Base64-encoded phishing content that evades detection
+- **Email Backdoor Deployment**: Installation of persistent backdoors in Microsoft Outlook for long-term access to corporate communications
+- **Search Engine Manipulation**: Malicious IIS module injection to artificially boost gambling site rankings in search results
+- **Cloud Infrastructure Abuse**: Leveraging legitimate cloud services from Google and Cloudflare to host phishing operations while avoiding detection
 
 ## Threat Actor Activities
 
-- **APT28 (Russian State-Sponsored)**: Conducting targeted campaigns against NATO country organizations using the NotDoor Outlook backdoor across multiple business sectors
-- **GhostRedirector**: Previously undocumented threat cluster focusing on Windows server compromise for search engine manipulation and gambling site promotion, with primary activity in Brazil
-- **Sitecore Attackers**: Unidentified threat actors exploiting zero-day vulnerabilities to deploy WeepSteel reconnaissance malware and establish persistent access to content management systems
-- **Phishing-as-a-Service Operations**: Global enterprise operating undetected on Google and Cloudflare infrastructure for over three years using advanced cloaking techniques
+- **APT28 (Russian State-Sponsored)**: Conducting targeted attacks against NATO countries using NotDoor Outlook backdoor, focusing on multiple companies across different sectors
+- **GhostRedirector**: Chinese threat actor group using malicious IIS modules to inject links and manipulate Google search rankings for gambling sites
+- **Colombian Judicial System Impersonators**: Threat actors conducting phishing campaigns using SVG files to impersonate legitimate government institutions
+- **Phishing-as-a-Service Operators**: Global enterprise running undetected phishing operations on major cloud platforms for over three years using advanced cloaking techniques
