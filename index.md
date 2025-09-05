@@ -1,45 +1,35 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting enterprise systems with multiple zero-day vulnerabilities being actively exploited in the wild. The most significant threat involves a command injection vulnerability in SAP S/4HANA ERP software (CVE-2025-42957) that is being actively exploited by threat actors. Additionally, a zero-day vulnerability in legacy Sitecore deployments is being weaponized to deploy WeepSteel reconnaissance malware and backdoors. These attacks demonstrate sophisticated threat actor capabilities, with campaigns leveraging advanced techniques including SVG-based phishing, ViewState exploitation, and cloud infrastructure abuse to evade detection while maintaining persistent access to compromised systems.
+Critical exploitation activity is currently targeting enterprise systems with particular focus on SAP S/4HANA environments and emerging malware campaigns. The most significant threat involves active exploitation of a critical command injection vulnerability in SAP S/4HANA systems (CVE-2025-42957), which allows attackers to execute arbitrary commands on vulnerable servers. Additionally, threat actors are expanding their operations with new malware variants including CastleRAT, while sophisticated phishing campaigns are leveraging SVG files to bypass security detection. A newly discovered Sitecore zero-day vulnerability is also being weaponized for ViewState-based attacks, highlighting the continued evolution of web application exploitation techniques.
 
 ## Active Exploitation Details
 
 ### SAP S/4HANA Command Injection Vulnerability
-- **Description**: A critical command injection vulnerability affecting SAP S/4HANA Enterprise Resource Planning (ERP) software
-- **Impact**: Allows attackers to execute arbitrary commands on affected systems, potentially leading to complete system compromise
-- **Status**: Currently being actively exploited in the wild
+- **Description**: A critical command injection vulnerability affecting SAP S/4HANA Enterprise Resource Planning (ERP) software that allows remote code execution
+- **Impact**: Attackers can execute arbitrary commands on vulnerable SAP servers, potentially leading to complete system compromise and data breach
+- **Status**: Currently being exploited in the wild against exposed servers
 - **CVE ID**: CVE-2025-42957
 
 ### Sitecore Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability in legacy Sitecore deployments being exploited through ViewState attacks
-- **Impact**: Enables threat actors to deploy WeepSteel reconnaissance malware and establish backdoors for persistent access
-- **Status**: Active exploitation ongoing with weaponized ASP.NET machine keys for remote injection and deserialization attacks
-
-### SVG-Based Phishing Campaign
-- **Description**: Malware campaign leveraging Scalable Vector Graphics (SVG) files to deploy Base64-encoded phishing pages
-- **Impact**: Bypasses traditional security detection mechanisms while impersonating legitimate organizations like the Colombian judicial system
-- **Status**: 44 undetected SVG files identified by VirusTotal, indicating active campaign
+- **Description**: A zero-day vulnerability in Sitecore content management systems that enables ViewState-based attacks through exposed ASP.NET machine keys
+- **Impact**: Remote injection and deserialization attacks leading to potential system compromise
+- **Status**: Active exploitation reported with weaponization of ASP.NET machine keys
 
 ## Affected Systems and Products
 
-- **SAP S/4HANA**: Enterprise Resource Planning software vulnerable to command injection attacks
-- **Legacy Sitecore Deployments**: Content management systems susceptible to ViewState exploitation and backdoor deployment
-- **ASP.NET Applications**: Systems with exposed machine keys vulnerable to remote injection and deserialization attacks
-- **Web Applications**: Sites using SVG file processing vulnerable to phishing payload delivery
-- **Cloud Infrastructure**: Google and Cloudflare services being abused by phishing-as-a-service operations
+- **SAP S/4HANA**: Enterprise Resource Planning software systems with exposed servers at highest risk
+- **Sitecore CMS**: Content management systems with exposed ASP.NET machine keys vulnerable to ViewState attacks
+- **ASP.NET Applications**: Web applications with improperly configured machine keys susceptible to deserialization attacks
 
 ## Attack Vectors and Techniques
 
-- **Command Injection**: Direct exploitation of input validation flaws in SAP S/4HANA systems
-- **ViewState Exploitation**: Weaponization of exposed ASP.NET machine keys for remote code execution
-- **SVG File Abuse**: Using Scalable Vector Graphics files to embed and deliver Base64-encoded phishing content
-- **Cloud Infrastructure Abuse**: Leveraging legitimate cloud services to host and distribute malicious content while evading detection
-- **Cloaking Techniques**: Advanced evasion methods used by phishing-as-a-service operations to remain undetected for extended periods
+- **Command Injection**: Direct exploitation of input validation flaws in SAP S/4HANA to execute system commands
+- **ViewState Manipulation**: Weaponization of exposed ASP.NET machine keys for remote injection and deserialization attacks
+- **SVG-Based Phishing**: Use of Scalable Vector Graphics files containing Base64-encoded phishing pages to evade detection
+- **Malware-as-a-Service**: Deployment of CastleRAT remote access trojans through CastleLoader framework
 
 ## Threat Actor Activities
 
-- **WeepSteel Operators**: Deploying reconnaissance malware through Sitecore zero-day exploitation to establish persistent backdoors
-- **GhostRedirector**: Chinese threat actor using malicious IIS modules to inject links and artificially boost search engine rankings for gambling sites
-- **Colombian Judicial Impersonators**: Threat actors conducting targeted phishing campaigns using SVG files to impersonate government institutions
-- **Phishing-as-a-Service Enterprise**: Global operation running undetected on major cloud platforms for over 3 years, providing phishing infrastructure to multiple threat actors
-- **ViewState Exploitation Groups**: Threat actors specifically targeting ASP.NET applications with exposed machine keys for remote injection attacks
+- **TAG-150**: Expanding CastleLoader malware operations with development of CastleRAT remote access trojan available in both Python and C variants, operating as malware-as-a-service framework
+- **Colombian Judicial System Impersonators**: Conducting phishing campaigns using SVG files with Base64-encoded content to target victims while evading traditional security detection mechanisms
+- **Enterprise-Focused Attackers**: Actively targeting SAP S/4HANA installations and Sitecore deployments for initial access and system compromise
