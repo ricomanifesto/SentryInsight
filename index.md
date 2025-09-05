@@ -1,46 +1,46 @@
 # Exploitation Report
 
-Current threat activity reveals several critical exploitation campaigns targeting enterprise systems and consumer platforms. The most significant development involves a zero-day vulnerability in Sitecore content management systems being actively exploited to deploy WeepSteel reconnaissance malware and backdoors. Additionally, Russian state-sponsored group APT28 has deployed a new Microsoft Outlook backdoor called "NotDoor" against NATO country organizations, while threat actors are leveraging SVG files and ASP.NET ViewState vulnerabilities for sophisticated phishing campaigns. A new Chinese threat group "GhostRedirector" is manipulating search engine rankings through malicious IIS modules, and a global phishing-as-a-service operation has been operating undetected on major cloud platforms for over three years.
+Critical exploitation activity has been identified across multiple enterprise systems, with threat actors actively targeting zero-day vulnerabilities and leveraging sophisticated attack techniques. The most significant threats include active exploitation of SAP S/4HANA systems through command injection vulnerabilities, zero-day attacks against Sitecore deployments resulting in backdoor installations, and large-scale phishing operations utilizing advanced cloaking techniques on major cloud platforms. Additionally, threat actors are weaponizing ASP.NET ViewState vulnerabilities and employing novel attack vectors including malicious SVG files for phishing campaigns.
 
 ## Active Exploitation Details
 
+### SAP S/4HANA Command Injection Vulnerability
+- **Description**: Critical command injection vulnerability affecting SAP S/4HANA Enterprise Resource Planning (ERP) software
+- **Impact**: Allows attackers to execute arbitrary commands on affected systems, potentially leading to complete system compromise
+- **Status**: Currently under active exploitation in the wild
+- **CVE ID**: CVE-2025-42957
+
 ### Sitecore Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability in legacy Sitecore content management system deployments that allows remote code execution through exposed ASP.NET machine keys
-- **Impact**: Attackers can deploy backdoors, reconnaissance malware (WeepSteel), and perform remote injection and deserialization attacks
-- **Status**: Actively exploited in the wild, represents the latest example of ViewState-based attacks
+- **Description**: Zero-day vulnerability in legacy Sitecore deployments enabling remote code execution
+- **Impact**: Threat actors can deploy backdoors and reconnaissance malware, specifically WeepSteel malware
+- **Status**: Actively exploited by threat actors to compromise systems and establish persistent access
 
-### NotDoor Outlook Backdoor
-- **Description**: A sophisticated Microsoft Outlook backdoor developed and deployed by Russian APT28 group
-- **Impact**: Provides persistent access to corporate email systems and enables data exfiltration from targeted organizations
-- **Status**: Active deployment against multiple companies in NATO countries across different sectors
-
-### SVG-Based Phishing Campaign
-- **Description**: Malware campaign leveraging Scalable Vector Graphics (SVG) files containing Base64-encoded phishing pages
-- **Impact**: Bypasses traditional security detection with 44 undetected SVG files impersonating Colombian judicial system
-- **Status**: Active campaign with files remaining undetected by security solutions
+### ASP.NET ViewState Exploitation
+- **Description**: Vulnerability involving exposed ASP.NET machine keys that enable remote injection attacks
+- **Impact**: Enables remote injection and deserialization attacks against web applications
+- **Status**: Being weaponized by threat actors for system compromise
 
 ## Affected Systems and Products
 
-- **Sitecore CMS**: Legacy deployments with exposed ASP.NET machine keys vulnerable to ViewState attacks
-- **Microsoft Outlook**: Corporate installations targeted by APT28's NotDoor backdoor
-- **ASP.NET Applications**: Systems with exposed machine keys susceptible to deserialization attacks
-- **Web Browsers**: Users targeted by SVG-based phishing campaigns impersonating government entities
-- **IIS Web Servers**: Compromised with malicious modules for search engine manipulation
-- **Google Cloud Platform**: Hosting infrastructure for undetected phishing-as-a-service operations
-- **Cloudflare Services**: Leveraged by global phishing empire using cloaking techniques
+- **SAP S/4HANA**: Enterprise Resource Planning software systems vulnerable to command injection attacks
+- **Sitecore**: Legacy deployments of the content management system affected by zero-day exploitation
+- **ASP.NET Applications**: Web applications with exposed machine keys vulnerable to ViewState attacks
+- **Google Cloud Infrastructure**: Hosting malicious phishing operations and gambling site promotion campaigns
+- **Cloudflare Services**: Infrastructure being leveraged for undetected phishing-as-a-service operations
 
 ## Attack Vectors and Techniques
 
-- **ViewState Exploitation**: Weaponizing exposed ASP.NET machine keys for remote injection and deserialization attacks
-- **Email System Compromise**: Deploying backdoors directly into Microsoft Outlook for persistent access
-- **SVG File Abuse**: Using scalable vector graphics files to deliver Base64-encoded phishing content
-- **Search Engine Manipulation**: Injecting malicious links through compromised IIS modules to boost gambling site rankings
-- **Cloud Infrastructure Abuse**: Operating phishing-as-a-service platforms on legitimate cloud providers
-- **Cloaking Techniques**: Employing sophisticated methods to avoid detection while running on public cloud infrastructure
+- **Command Injection**: Direct exploitation of SAP S/4HANA systems through malicious command execution
+- **Zero-Day Exploitation**: Targeting unpatched Sitecore vulnerabilities to deploy backdoors
+- **Malicious SVG Files**: Using Scalable Vector Graphics files containing Base64-encoded phishing pages to evade detection
+- **ViewState Deserialization**: Exploiting ASP.NET machine key exposure for remote code execution
+- **SEO Poisoning**: Injecting malicious IIS modules to artificially boost search engine rankings for gambling sites
+- **Phishing-as-a-Service**: Operating large-scale phishing infrastructure using advanced cloaking techniques
 
 ## Threat Actor Activities
 
-- **APT28 (Russian State-Sponsored)**: Actively deploying NotDoor Outlook backdoors against NATO country organizations across multiple sectors, demonstrating continued focus on intelligence gathering operations
-- **GhostRedirector (Chinese Group)**: New threat actor manipulating Google search rankings using malicious IIS modules to artificially boost gambling websites
-- **Colombian Judicial Impersonators**: Threat actors conducting targeted phishing campaigns using SVG files to impersonate government judicial systems
-- **Global Phishing-as-a-Service Operators**: Sophisticated criminal enterprise operating undetected on Google and Cloudflare infrastructure for over three years, providing phishing services at scale
+- **GhostRedirector**: Chinese threat actor group using malicious IIS modules to boost gambling site rankings through search engine manipulation
+- **WeepSteel Operators**: Threat actors deploying reconnaissance malware through Sitecore zero-day exploitation
+- **Colombian Judicial Impersonators**: Cybercriminals conducting phishing campaigns targeting Colombian judicial system users with malicious SVG files
+- **Global Phishing Enterprise**: Large-scale phishing-as-a-service operation running undetected on Google and Cloudflare infrastructure for over three years
+- **Chinese State-Affiliated Groups**: Actors involved in systematic data collection from users through compromised products and software
