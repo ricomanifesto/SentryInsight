@@ -1,35 +1,40 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting enterprise systems with particular focus on SAP S/4HANA environments and emerging malware campaigns. The most significant threat involves active exploitation of a critical command injection vulnerability in SAP S/4HANA systems (CVE-2025-42957), which allows attackers to execute arbitrary commands on vulnerable servers. Additionally, threat actors are expanding their operations with new malware variants including CastleRAT, while sophisticated phishing campaigns are leveraging SVG files to bypass security detection. A newly discovered Sitecore zero-day vulnerability is also being weaponized for ViewState-based attacks, highlighting the continued evolution of web application exploitation techniques.
+Based on the analyzed security articles, several critical vulnerabilities are currently under active exploitation, posing significant risks to organizations worldwide. The most concerning developments include CISA's emergency directive regarding a critical Sitecore vulnerability being actively exploited against federal agencies, a maximum severity Argo CD API flaw that exposes repository credentials, and ongoing attacks targeting SAP S/4HANA systems through code injection vulnerabilities. Additionally, threat actors continue to expand their malware operations with new variants like CastleRAT, while data breaches at financial services firms highlight the persistent threat landscape facing organizations across multiple sectors.
 
 ## Active Exploitation Details
 
-### SAP S/4HANA Command Injection Vulnerability
-- **Description**: A critical command injection vulnerability affecting SAP S/4HANA Enterprise Resource Planning (ERP) software that allows remote code execution
-- **Impact**: Attackers can execute arbitrary commands on vulnerable SAP servers, potentially leading to complete system compromise and data breach
-- **Status**: Currently being exploited in the wild against exposed servers
-- **CVE ID**: CVE-2025-42957
+### Critical Sitecore Vulnerability
+- **Description**: A critical security flaw in Sitecore instances that has prompted CISA to issue an emergency directive
+- **Impact**: Active exploitation allowing attackers to compromise federal civilian executive branch agencies
+- **Status**: Under active exploitation; CISA has ordered immediate patching by September 25, 2025
 
-### Sitecore Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability in Sitecore content management systems that enables ViewState-based attacks through exposed ASP.NET machine keys
-- **Impact**: Remote injection and deserialization attacks leading to potential system compromise
-- **Status**: Active exploitation reported with weaponization of ASP.NET machine keys
+### SAP S/4HANA Code Injection Vulnerability
+- **Description**: A critical code injection vulnerability affecting SAP S/4HANA systems
+- **Impact**: Attackers can breach exposed servers and potentially gain unauthorized access to enterprise systems
+- **Status**: Currently being exploited in the wild against exposed SAP servers
+
+### Argo CD API Vulnerability
+- **Description**: A maximum severity vulnerability in Argo CD that allows API tokens with low project-level permissions to access sensitive endpoints
+- **Impact**: Unauthorized retrieval of all repository credentials associated with projects, potentially exposing source code and deployment secrets
+- **Status**: Critical vulnerability requiring immediate attention
 
 ## Affected Systems and Products
 
-- **SAP S/4HANA**: Enterprise Resource Planning software systems with exposed servers at highest risk
-- **Sitecore CMS**: Content management systems with exposed ASP.NET machine keys vulnerable to ViewState attacks
-- **ASP.NET Applications**: Web applications with improperly configured machine keys susceptible to deserialization attacks
+- **Sitecore Instances**: Federal civilian executive branch agencies and other organizations using Sitecore content management systems
+- **SAP S/4HANA**: Enterprise resource planning systems exposed to internet-facing attacks
+- **Argo CD**: Continuous deployment platforms using GitOps workflows and API token authentication
+- **Wealthsimple Platform**: Canadian online investment management service affected by data breach
 
 ## Attack Vectors and Techniques
 
-- **Command Injection**: Direct exploitation of input validation flaws in SAP S/4HANA to execute system commands
-- **ViewState Manipulation**: Weaponization of exposed ASP.NET machine keys for remote injection and deserialization attacks
-- **SVG-Based Phishing**: Use of Scalable Vector Graphics files containing Base64-encoded phishing pages to evade detection
-- **Malware-as-a-Service**: Deployment of CastleRAT remote access trojans through CastleLoader framework
+- **Web Application Exploitation**: Attackers targeting critical vulnerabilities in content management and enterprise systems
+- **API Token Abuse**: Exploitation of insufficient permission validation in Argo CD API endpoints
+- **Code Injection**: Direct injection attacks against SAP S/4HANA systems to gain unauthorized access
+- **Data Exfiltration**: Unauthorized access to customer personal data through compromised financial services platforms
 
 ## Threat Actor Activities
 
-- **TAG-150**: Expanding CastleLoader malware operations with development of CastleRAT remote access trojan available in both Python and C variants, operating as malware-as-a-service framework
-- **Colombian Judicial System Impersonators**: Conducting phishing campaigns using SVG files with Base64-encoded content to target victims while evading traditional security detection mechanisms
-- **Enterprise-Focused Attackers**: Actively targeting SAP S/4HANA installations and Sitecore deployments for initial access and system compromise
+- **TAG-150**: Threat actor expanding malware operations with development of CastleRAT remote access trojan, available in both Python and C variants, building upon their existing CastleLoader malware-as-a-service framework
+- **Unknown Attackers**: Multiple threat groups actively exploiting Sitecore vulnerabilities against federal agencies and targeting SAP enterprise systems
+- **Financial Sector Threats**: Attackers successfully breaching financial services platforms to steal customer personal information
