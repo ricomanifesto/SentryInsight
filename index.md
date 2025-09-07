@@ -1,40 +1,51 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently under active exploitation across multiple platforms and sectors. The most severe threats include a critical SAP S/4HANA vulnerability that allows complete system compromise with minimal effort, and a Sitecore vulnerability that has prompted CISA to issue emergency patching orders for federal agencies. Additionally, sophisticated supply chain attacks are targeting developers through malicious NPM packages, while threat actors are conducting targeted phishing campaigns against energy infrastructure and leveraging AI-powered malware for large-scale account compromises.
+Current threat landscape analysis reveals several critical exploitation activities targeting diverse systems and platforms. The most significant threats include a critical SAP S/4HANA vulnerability (CVE-2025-42957) under active attack that can lead to complete system compromise, sophisticated supply chain attacks targeting GitHub and NPM ecosystems affecting thousands of accounts, and targeted phishing campaigns using novel techniques. These attacks demonstrate advanced threat actor capabilities ranging from AI-powered malware to state-sponsored operations targeting critical infrastructure sectors.
 
 ## Active Exploitation Details
 
 ### SAP S/4HANA Critical Vulnerability
-- **Description**: A critical vulnerability in SAP S/4HANA systems that allows attackers to achieve complete system compromise
-- **Impact**: Complete compromise of the SAP system and host operating system with minimal exploitation effort required
-- **Status**: Currently under active attack, patches available and deployment urgently recommended
+- **Description**: Critical vulnerability in SAP S/4HANA systems that allows attackers to compromise enterprise systems with minimal effort
+- **Impact**: Complete compromise of the SAP system and host operating system, potentially affecting critical business operations
+- **Status**: Currently under active exploitation with patches available
 - **CVE ID**: CVE-2025-42957
 
-### Sitecore Security Vulnerability
-- **Description**: A critical security flaw in Sitecore content management systems that has come under active exploitation
-- **Impact**: Unauthorized access and potential system compromise of Sitecore instances
-- **Status**: Under active exploitation, CISA has mandated federal agencies patch by September 25, 2025
+### SVG-Based Phishing Campaign
+- **Description**: Hidden malware phishing campaign embedded within SVG files that creates convincing portals impersonating Colombia's judicial system
+- **Impact**: Malware delivery through sophisticated social engineering targeting government and judicial sector users
+- **Status**: Active campaign discovered by VirusTotal with ongoing distribution
+
+### NPM Supply Chain Attack (s1ngularity)
+- **Description**: AI-powered malware campaign targeting NPM package ecosystem affecting GitHub accounts and repositories
+- **Impact**: Massive data breach exposing account tokens and repository secrets from 2,180 GitHub accounts
+- **Status**: Investigation ongoing with significant fallout from compromised developer accounts
+
+### Malicious NPM Packages Targeting Ethereum Developers
+- **Description**: Four malicious packages discovered in NPM registry masquerading as legitimate Flashbots tools
+- **Impact**: Theft of cryptocurrency wallet credentials and private keys from Ethereum developers
+- **Status**: Active threat with packages potentially still accessible through NPM registry
 
 ## Affected Systems and Products
 
-- **SAP S/4HANA**: Enterprise resource planning systems vulnerable to complete compromise
-- **Sitecore CMS**: Content management systems used by federal agencies and enterprises
-- **GitHub Repositories**: Over 2,180 accounts compromised in the "s1ngularity" supply chain attack
-- **NPM Package Registry**: Malicious packages targeting Ethereum developers and cryptocurrency wallets
-- **SVG Files**: Used as vectors for phishing campaigns impersonating Colombia's judicial system
-- **Kazakhstan Energy Sector**: Infrastructure targeted by Russian-origin threat actors
+- **SAP S/4HANA**: Enterprise resource planning systems across multiple industries
+- **GitHub Platform**: Developer accounts and repositories with exposed tokens and secrets
+- **NPM Package Registry**: JavaScript/Node.js development ecosystem with malicious packages
+- **SVG File Processing Systems**: Applications and browsers processing scalable vector graphics files
+- **Ethereum Development Tools**: Cryptocurrency wallet applications and development environments
+- **Kazakhstan Energy Sector**: Critical infrastructure systems targeted by state-sponsored actors
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Malicious NPM packages masquerading as legitimate Flashbots tools to steal cryptocurrency wallet credentials
-- **AI-Powered Malware**: Sophisticated malware used in the "s1ngularity" attack that compromised thousands of GitHub accounts and leaked repository secrets
-- **SVG-Based Phishing**: Hidden malware campaigns embedded in SVG files creating convincing portals that impersonate government systems
-- **Spear Phishing**: Targeted email campaigns against energy sector organizations using convincing social engineering tactics
-- **Package Impersonation**: Malicious packages designed to steal Ethereum wallet keys from developers
+- **Supply Chain Poisoning**: Injection of malicious code into legitimate software distribution channels including NPM packages
+- **Social Engineering**: Sophisticated phishing campaigns using government impersonation and trusted brand mimicry
+- **File Format Exploitation**: Abuse of SVG files to hide malicious content and bypass security controls
+- **AI-Enhanced Attacks**: Use of artificial intelligence to improve attack effectiveness and scale
+- **Credential Harvesting**: Targeted theft of authentication tokens, API keys, and cryptocurrency wallet credentials
+- **Spear Phishing**: Targeted email campaigns against specific sectors and organizations
 
 ## Threat Actor Activities
 
-- **Noisy Bear**: Russian-origin threat group conducting Operation BarrelFire, specifically targeting Kazakhstan's energy sector through sophisticated phishing campaigns
-- **TAG-150**: Secretive malware-as-a-service group operating without dark web advertising, developing and distributing the novel CastleRAT malware
-- **s1ngularity Campaign Actors**: Threat actors behind the massive GitHub supply chain attack that compromised over 2,180 accounts and leaked sensitive repository data and access tokens
-- **Cryptocurrency Threat Actors**: Groups creating malicious NPM packages that impersonate legitimate blockchain development tools to steal wallet credentials from Ethereum developers
+- **Noisy Bear**: Russian-origin threat group conducting Operation BarrelFire targeting Kazakhstan's energy sector through sophisticated phishing campaigns
+- **TAG-150**: Secretive malware-as-a-service group operating CastleRAT without traditional dark web advertising, maintaining low profile while running successful criminal operations
+- **Unknown APT Groups**: Multiple unattributed actors conducting supply chain attacks against developer communities and critical infrastructure
+- **Cryptocurrency Threat Actors**: Specialized groups targeting blockchain developers and cryptocurrency ecosystem participants through package impersonation attacks
