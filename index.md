@@ -1,51 +1,57 @@
 # Exploitation Report
 
-Current threat landscape analysis reveals several critical exploitation activities targeting enterprise systems and developer environments. The most significant active exploitation involves a critical SAP S/4HANA vulnerability (CVE-2025-42957) that requires minimal effort to exploit and can result in complete system compromise. Additionally, sophisticated supply chain attacks are targeting the NPM ecosystem, with the "s1ngularity" campaign compromising over 2,180 GitHub accounts and malicious packages impersonating legitimate cryptocurrency tools. Threat actors are also leveraging advanced techniques including SVG-based phishing campaigns and AI-powered malware to evade detection systems.
+Current threat activity reveals several critical exploitation campaigns targeting enterprise systems and supply chain infrastructure. The most significant active exploitation involves a critical SAP S/4HANA vulnerability (CVE-2025-42957) that requires minimal effort to exploit and can result in complete system compromise. Additionally, sophisticated supply chain attacks are targeting developer ecosystems through malicious NPM packages and AI-powered GitHub account compromises, while threat actors are leveraging legitimate services like iCloud Calendar and SVG files to bypass security controls and deliver malware payloads.
 
 ## Active Exploitation Details
 
-### SAP S/4HANA Critical Vulnerability
-- **Description**: Critical vulnerability in SAP S/4HANA systems allowing attackers to achieve complete system compromise
+### Critical SAP S/4HANA Vulnerability
+- **Description**: A critical vulnerability in SAP S/4HANA systems that allows attackers to achieve complete system compromise
 - **Impact**: Complete compromise of the SAP system and host operating system with minimal exploitation effort required
-- **Status**: Currently under active attack, patches available and should be applied immediately
+- **Status**: Currently under active attack, patches available and immediate patching recommended
 - **CVE ID**: CVE-2025-42957
 
-### NPM Supply Chain Attack - "s1ngularity" Campaign
-- **Description**: AI-powered malware campaign targeting NPM package ecosystem through compromised packages
-- **Impact**: Massive credential theft affecting 2,180 GitHub accounts with leaked account tokens and repository secrets
-- **Status**: Active exploitation with widespread impact on developer environments
+### iCloud Calendar Phishing Abuse
+- **Description**: Attackers are exploiting iCloud Calendar invite functionality to send phishing emails directly from Apple's email servers
+- **Impact**: Bypass spam filters and increase credibility of phishing campaigns by appearing to originate from trusted Apple infrastructure
+- **Status**: Active exploitation ongoing, leveraging legitimate Apple services for malicious purposes
+
+### SVG File Malware Campaign
+- **Description**: Hidden phishing campaign embedded within SVG files that create convincing portals impersonating Colombia's judicial system
+- **Impact**: Delivery of malware through seemingly legitimate document files that bypass traditional security scanning
+- **Status**: Active campaign discovered by VirusTotal, targeting users with judicial system impersonation
+
+### AI-Powered GitHub Supply Chain Attack
+- **Description**: The "s1ngularity" NPM supply chain attack compromised thousands of GitHub accounts using AI-powered malware
+- **Impact**: Massive data breach affecting 2,180 GitHub accounts with leaked account tokens and repository secrets
+- **Status**: Investigation complete, significant fallout with thousands of compromised credentials
 
 ### Malicious NPM Packages Targeting Ethereum Developers
-- **Description**: Four malicious packages discovered in NPM registry masquerading as legitimate Flashbots tools
-- **Impact**: Theft of cryptocurrency wallet credentials and private keys from Ethereum developers
-- **Status**: Active threat with packages designed to steal sensitive cryptocurrency data
-
-### SVG-Based Phishing Campaign
-- **Description**: Sophisticated phishing campaign using SVG files to create convincing portals impersonating Colombia's judicial system
-- **Impact**: Malware delivery through deceptive judicial system portals
-- **Status**: Active campaign discovered by VirusTotal with ongoing malware distribution
+- **Description**: Four malicious packages discovered in NPM registry impersonating Flashbots to steal cryptocurrency wallet credentials
+- **Impact**: Theft of Ethereum wallet keys and cryptocurrency credentials from developers
+- **Status**: Active threat targeting cryptocurrency development community
 
 ## Affected Systems and Products
 
-- **SAP S/4HANA**: Critical vulnerability affecting enterprise resource planning systems
-- **NPM Package Registry**: Supply chain compromise affecting JavaScript/Node.js development environments
-- **GitHub Repositories**: Over 2,180 accounts compromised with leaked credentials and secrets
-- **Ethereum Development Tools**: Cryptocurrency wallet applications and developer tools targeted
-- **Web Browsers**: SVG file processing capabilities exploited for phishing campaigns
-- **Kazakhstan Energy Sector**: Targeted by BarrelFire phishing campaign operations
+- **SAP S/4HANA**: Critical enterprise resource planning systems requiring immediate patching
+- **Apple iCloud Calendar**: Legitimate service being abused for phishing email delivery
+- **GitHub Repositories**: 2,180 accounts compromised in supply chain attack with leaked tokens and secrets
+- **NPM Package Registry**: Malicious packages targeting Ethereum developers and cryptocurrency wallets
+- **SVG File Processing Systems**: Applications processing SVG files vulnerable to embedded malware campaigns
+- **Colombia Judicial System**: Government portals being impersonated in targeted phishing campaigns
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Malicious packages injected into NPM registry to target developers
-- **AI-Powered Malware**: Advanced malware using artificial intelligence for enhanced evasion
-- **SVG File Exploitation**: Using Scalable Vector Graphics files to hide malicious phishing content
-- **Credential Harvesting**: Systematic theft of authentication tokens and repository secrets
-- **Cryptocurrency Wallet Targeting**: Specialized malware designed to steal private keys and wallet credentials
-- **Phishing Portal Impersonation**: Creating convincing replicas of government judicial systems
+- **Calendar Invite Abuse**: Leveraging legitimate iCloud Calendar functionality to send phishing emails from trusted Apple servers
+- **Supply Chain Poisoning**: Injecting malicious code into NPM packages and compromising developer repositories
+- **File Format Exploitation**: Embedding malware within SVG files to bypass security scanning mechanisms
+- **AI-Enhanced Attacks**: Using artificial intelligence to scale and automate GitHub account compromise operations
+- **Service Impersonation**: Creating convincing replicas of government and financial services to steal credentials
+- **Cryptocurrency Targeting**: Specifically designed attacks to steal wallet keys and cryptocurrency assets from developers
 
 ## Threat Actor Activities
 
-- **Noisy Bear**: Russian-origin threat actor conducting Operation BarrelFire targeting Kazakhstan's energy sector through sophisticated phishing campaigns
-- **s1ngularity Campaign Operators**: Threat actors behind the massive NPM supply chain attack affecting thousands of GitHub accounts with AI-powered malware deployment
-- **Cryptocurrency-Focused Attackers**: Specialized threat actors creating fake Flashbots packages to target Ethereum developers and steal wallet credentials
-- **TAG-150 MaaS Group**: Secretive malware-as-a-service operation developing novel CastleRAT malware without traditional dark web advertising
+- **Noisy Bear**: Russian-origin threat group conducting Operation BarrelFire targeting Kazakhstan's energy sector with phishing campaigns
+- **TAG-150**: Secretive malware-as-a-service group developing novel CastleRAT malware without traditional dark web advertising
+- **s1ngularity Campaign Operators**: Sophisticated actors behind AI-powered GitHub supply chain attacks affecting thousands of accounts
+- **SVG Malware Campaign**: Unknown threat actors targeting Colombian judicial system users with embedded malware in document files
+- **Cryptocurrency Thieves**: Attackers specifically targeting Ethereum developers through malicious NPM packages impersonating legitimate tools
