@@ -1,50 +1,47 @@
 # Exploitation Report
 
-Based on the provided security articles, there is limited information about active vulnerability exploitation. The most significant security concerns identified include sophisticated phishing campaigns targeting critical infrastructure and supply chain attacks affecting developer ecosystems. A Russian-linked threat actor known as Noisy Bear is conducting targeted phishing operations against Kazakhstan's energy sector through Operation BarrelFire, while cybercriminals are exploiting trusted platforms like Apple's iCloud Calendar and GitHub's npm registry to distribute malware and steal credentials. Additionally, a large-scale AI-powered supply chain attack called "s1ngularity" has compromised thousands of GitHub accounts and exposed sensitive repository secrets.
+Based on the provided security articles, there is limited information about active vulnerability exploitation. The most significant security concerns identified include sophisticated phishing campaigns targeting specific sectors, supply chain attacks affecting thousands of developer accounts, and emerging social engineering tactics that bypass traditional security measures. Notable activities include the "s1ngularity" NPM supply chain attack that compromised 2,180 GitHub accounts, malicious NPM packages targeting Ethereum developers, and advanced phishing campaigns using legitimate services like iCloud Calendar and SVG files to evade detection.
 
 ## Active Exploitation Details
 
-### iCloud Calendar Phishing Abuse
-- **Description**: Attackers are exploiting iCloud Calendar's invitation system to send phishing emails that appear to originate from Apple's legitimate email servers
-- **Impact**: Bypasses spam filters and increases likelihood of successful phishing attacks by leveraging Apple's trusted domain reputation
-- **Status**: Ongoing campaign using callback phishing techniques disguised as purchase notifications
+### s1ngularity NPM Supply Chain Attack
+- **Description**: AI-powered malware campaign that targeted the NPM package ecosystem through malicious packages
+- **Impact**: Compromised 2,180 GitHub accounts, leaked thousands of account tokens and repository secrets
+- **Status**: Investigation ongoing, massive fallout discovered with widespread credential theft
 
-### SVG-Based Malware Campaign
-- **Description**: Hidden phishing campaign embedded within SVG files that create convincing portals impersonating Colombia's judicial system
-- **Impact**: Delivers malware through seemingly legitimate file formats that can evade traditional security detection
-- **Status**: Active campaign discovered by VirusTotal targeting Colombian users
+### Malicious NPM Packages Targeting Ethereum Developers
+- **Description**: Four malicious packages discovered in the NPM registry impersonating Flashbots services
+- **Impact**: Designed to steal cryptocurrency wallet credentials and private keys from Ethereum developers
+- **Status**: Packages identified and likely removed from registry
 
-### npm Package Supply Chain Attack
-- **Description**: Four malicious packages uploaded to npm registry impersonating legitimate Flashbots tools
-- **Impact**: Steals Ethereum wallet credentials and private keys from cryptocurrency developers
-- **Status**: Active threat targeting blockchain developers through typosquatting and social engineering
+### iCloud Calendar Phishing Campaign
+- **Description**: Abuse of iCloud Calendar invitation system to send phishing emails directly from Apple's servers
+- **Impact**: Bypasses spam filters by originating from legitimate Apple infrastructure, increases success rate of phishing attempts
+- **Status**: Active campaign using callback phishing disguised as purchase notifications
 
-### s1ngularity AI-Powered Attack
-- **Description**: Large-scale supply chain attack leveraging AI capabilities to compromise developer accounts and repositories
-- **Impact**: Compromised 2,180 GitHub accounts, leaked account tokens and repository secrets
-- **Status**: Investigation ongoing, massive fallout with thousands of exposed credentials
+### SVG-Based Phishing Campaign
+- **Description**: Hidden malware phishing campaign embedded within SVG files targeting Colombia's judicial system
+- **Impact**: Creates convincing portals impersonating official government systems to deliver malware
+- **Status**: Discovered by VirusTotal, campaign actively targeting Colombian institutions
 
 ## Affected Systems and Products
 
-- **Apple iCloud Calendar**: Email invitation system being abused for phishing campaigns
-- **GitHub Platform**: 2,180 accounts compromised in s1ngularity attack, repository secrets exposed
-- **npm Registry**: Malicious packages targeting Ethereum developers and cryptocurrency wallets
-- **SVG File Format**: Used as attack vector for malware distribution in judicial system impersonation
-- **Kazakhstan Energy Sector**: Critical infrastructure targeted by Russian-linked threat actors
-- **Colombian Judicial System**: Government portals being impersonated in phishing campaigns
+- **NPM Package Registry**: Compromised packages affecting Node.js developers and Ethereum development community
+- **GitHub Accounts**: 2,180 accounts compromised with leaked tokens and repository secrets
+- **Apple iCloud Calendar**: Service being abused to send phishing emails from legitimate Apple servers
+- **Ethereum Wallets**: Cryptocurrency wallets targeted for credential theft through malicious packages
+- **Colombian Judicial System**: Government portals being impersonated in SVG-based phishing attacks
 
 ## Attack Vectors and Techniques
 
-- **Calendar Invitation Abuse**: Exploiting trusted email systems to bypass spam filters and security controls
-- **Supply Chain Poisoning**: Uploading malicious packages to legitimate software repositories
-- **Typosquatting**: Creating packages with names similar to legitimate tools to trick developers
-- **SVG File Exploitation**: Embedding malicious content in scalable vector graphics files
-- **AI-Enhanced Attacks**: Using artificial intelligence to scale and optimize malicious campaigns
-- **Social Engineering**: Impersonating legitimate organizations and government entities
+- **Supply Chain Poisoning**: Malicious packages inserted into legitimate software repositories to compromise downstream users
+- **Service Abuse**: Legitimate cloud services like iCloud Calendar exploited to send phishing emails from trusted sources
+- **File Format Exploitation**: SVG files used as carriers for hidden phishing campaigns and malware delivery
+- **Social Engineering**: Advanced callback phishing techniques disguised as legitimate purchase notifications
+- **Credential Harvesting**: Targeted theft of cryptocurrency wallet keys and developer account credentials
 
 ## Threat Actor Activities
 
-- **Noisy Bear**: Russian-origin threat group conducting Operation BarrelFire against Kazakhstan's energy sector through sophisticated phishing campaigns
-- **Cryptocurrency Threat Actors**: Targeting Ethereum developers with malicious npm packages designed to steal wallet credentials and private keys
-- **s1ngularity Campaign Operators**: Conducting large-scale AI-powered attacks against GitHub users and repositories, resulting in massive credential exposure
-- **Colombian Judicial Impersonators**: Creating fake government portals embedded in SVG files to distribute malware to Colombian users
+- **Noisy Bear**: Russian-origin threat actor conducting Operation BarrelFire targeting Kazakhstan's energy sector through phishing campaigns
+- **Unknown Cryptocurrency Threat Actors**: Groups targeting Ethereum developers through malicious NPM packages impersonating legitimate Flashbots services
+- **s1ngularity Campaign Operators**: Sophisticated actors using AI-powered techniques to conduct large-scale supply chain attacks against developer communities
