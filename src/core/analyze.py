@@ -76,7 +76,6 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
     # Initialize the AI model
     api_key = os.getenv("ANTHROPIC_API_KEY")
     model_name = config.get("analysis", {}).get("model", "claude-sonnet-4-20250514")
-    temperature = config.get("analysis", {}).get("temperature", 0.1)
     max_tokens = config.get("analysis", {}).get("max_tokens", 4000)
     
     if not api_key:
