@@ -1,50 +1,43 @@
 # Exploitation Report
 
-The current threat landscape reveals multiple active exploitation campaigns targeting critical enterprise infrastructure and developer ecosystems. Most notably, threat actors are conducting sophisticated phishing operations targeting Microsoft 365 environments using advanced techniques like Axios abuse and 2FA bypass kits. A major supply chain compromise affected 20 popular npm packages with 2 billion weekly downloads after a maintainer's account was compromised through phishing. Additionally, new Android malware variants are emerging with enhanced banking fraud capabilities, while cryptojacking campaigns continue to exploit misconfigured Docker APIs through TOR networks. Several critical vulnerabilities in enterprise software, including maximum severity flaws in SAP NetWeaver, are being actively addressed by vendors.
+Based on the current security landscape, critical vulnerability exploitation activity centers around several high-severity flaws requiring immediate attention. Microsoft's September 2025 Patch Tuesday addressed 81 vulnerabilities including two publicly disclosed zero-day vulnerabilities that pose significant risk. Adobe has patched a critical SessionReaper vulnerability in its Magento eCommerce platform that researchers describe as one of the most severe flaws in the platform. Additionally, SAP has fixed multiple critical vulnerabilities in NetWeaver, including a maximum severity command execution flaw. Advanced phishing campaigns are leveraging sophisticated tools and techniques, including the Salty2FA phishing kit and Axios HTTP client abuse, to target Microsoft 365 environments and compromise developer accounts with access to critical infrastructure.
 
 ## Active Exploitation Details
 
-### Microsoft 365 Phishing Campaign
-- **Description**: Advanced phishing attacks leveraging HTTP client tools like Axios in conjunction with Microsoft's Direct Send feature to create highly efficient attack pipelines
-- **Impact**: Threat actors can bypass 2FA protections and gain unauthorized access to Microsoft 365 environments
-- **Status**: Active exploitation with Salty 2FA kits being used to circumvent multi-factor authentication
+### Microsoft Zero-Day Vulnerabilities
+- **Description**: Two publicly disclosed zero-day vulnerabilities patched in Microsoft's September 2025 Patch Tuesday
+- **Impact**: Active exploitation in the wild with potential for system compromise
+- **Status**: Patches available as of September 2025 Patch Tuesday
 
-### npm Supply Chain Attack
-- **Description**: Compromise of 20 popular npm packages affecting 2 billion weekly downloads through a maintainer account takeover
-- **Impact**: Potential code injection and malicious payload distribution across countless downstream applications and systems
-- **Status**: Active compromise following successful phishing attack against maintainer Josh Junon (Qix)
+### Adobe Magento SessionReaper Vulnerability
+- **Description**: Critical vulnerability in Adobe Commerce and Magento Open Source platforms
+- **Impact**: Severe security compromise of eCommerce platforms
+- **Status**: Patch available from Adobe
+- **CVE ID**: CVE-2025-54236
 
-### SAP NetWeaver Command Execution Vulnerability
-- **Description**: Maximum severity command execution flaw in SAP NetWeaver software solution
-- **Impact**: Remote code execution capabilities allowing attackers to execute arbitrary commands on affected systems
-- **Status**: Recently patched by SAP as part of 21 vulnerability fixes, including three critical severity issues
-
-### RatOn Android Malware
-- **Description**: Sophisticated Android malware that evolved from basic NFC relay attack tool to full remote access trojan with Automated Transfer System capabilities
-- **Impact**: Banking fraud through NFC relay attacks and comprehensive device compromise with remote access capabilities
-- **Status**: Active in the wild with enhanced fraud capabilities
+### SAP NetWeaver Command Execution Flaw
+- **Description**: Maximum severity vulnerability allowing command execution in SAP NetWeaver software solution
+- **Impact**: Remote command execution with potential for complete system compromise
+- **Status**: Fixed in latest SAP security updates
 
 ## Affected Systems and Products
 
-- **Microsoft 365**: Exchange Online and Microsoft Teams environments targeted by phishing campaigns
-- **npm Ecosystem**: 20 compromised packages affecting 2 billion weekly downloads and countless downstream applications
-- **SAP NetWeaver**: Enterprise software solution with maximum severity command execution vulnerability
-- **Android Devices**: Mobile platforms targeted by RatOn malware for banking fraud and remote access
-- **Docker APIs**: Misconfigured Docker APIs being exploited for cryptojacking operations
-- **Microsoft Exchange Online**: Anti-spam service causing legitimate URL blocking and email quarantine
+- **Microsoft Windows**: Multiple versions affected by September 2025 Patch Tuesday vulnerabilities
+- **Adobe Commerce/Magento**: Both Commerce and Magento Open Source platforms vulnerable to SessionReaper
+- **SAP NetWeaver**: Command execution vulnerability in core enterprise software
+- **Microsoft 365**: Targeted by advanced phishing campaigns using Axios and Salty2FA tools
+- **NPM Package Repository**: Developers targeted by 2FA phishing attacks endangering billions of downloads
 
 ## Attack Vectors and Techniques
 
-- **Phishing with 2FA Bypass**: Advanced phishing campaigns using Salty 2FA kits to circumvent multi-factor authentication protections
-- **HTTP Client Abuse**: Exploitation of legitimate tools like Axios combined with Microsoft Direct Send for attack pipeline creation
-- **Supply Chain Compromise**: Targeting of package maintainers through phishing to compromise widely-used software repositories
-- **NFC Relay Attacks**: Android malware leveraging Near Field Communication for banking fraud operations
-- **TOR-Based Cryptojacking**: Use of TOR networks to obfuscate cryptojacking operations targeting misconfigured Docker APIs
-- **Social Engineering**: Sophisticated phishing targeting developers and maintainers of critical software packages
+- **Salty2FA Phishing Kit**: Enterprise-level phishing toolkit with advanced features targeting Microsoft 365 environments
+- **Axios HTTP Client Abuse**: Threat actors leveraging legitimate HTTP client tools combined with Microsoft Direct Send for phishing pipelines
+- **2FA Bypass Attacks**: Sophisticated phishing targeting two-factor authentication mechanisms
+- **Supply Chain Attacks**: NPM package maintainers targeted to compromise software distribution channels
 
 ## Threat Actor Activities
 
-- **Microsoft 365 Phishing Groups**: Conducting highly efficient phishing campaigns targeting enterprise Microsoft 365 environments with advanced 2FA bypass techniques
-- **Supply Chain Attackers**: Successfully compromised maintainer accounts to inject malicious code into popular npm packages with massive reach
-- **Android Banking Fraudsters**: Deploying RatOn malware with enhanced NFC relay capabilities for automated banking fraud operations
-- **Cryptojacking Operators**: Expanding TOR-based cryptojacking campaigns targeting misconfigured Docker APIs across cloud infrastructure
+- **BlackDB Cybercrime Marketplace**: Kosovo national Liridon Masurica pleaded guilty to running the BlackDB.cc marketplace active since 2018
+- **Ransomware Operations**: Ukrainian national Volodymyr Viktorovich Tymoshchuk charged for administering LockerGoga, MegaCortex, and Nefilim ransomware operations
+- **Advanced Phishing Groups**: Coordinated campaigns using enterprise-level tools and techniques to compromise Microsoft 365 environments
+- **Developer-Targeted Attacks**: Threat actors specifically targeting software maintainers and developers with access to critical infrastructure and package repositories
