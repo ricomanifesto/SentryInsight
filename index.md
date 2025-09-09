@@ -1,52 +1,57 @@
 # Exploitation Report
 
-Based on the analyzed security articles, several critical exploitation activities are currently underway, including sophisticated supply chain attacks targeting developer infrastructure and ongoing cyber espionage campaigns. The most significant threats include the GhostAction GitHub supply chain attack that compromised over 3,000 secrets, a massive JavaScript package compromise affecting billions of weekly downloads, and the continued activities of the Salt Typhoon threat group with newly discovered infrastructure dating back to 2020. Additionally, multiple data breaches have been reported across various platforms, while threat actors are deploying advanced malware tools designed to evade security detection systems.
+The cybersecurity landscape is currently experiencing significant supply chain attacks targeting popular development platforms and packages. Most notably, a sophisticated campaign has compromised 20 popular npm packages with over 2 billion weekly downloads through a phishing attack against maintainer Josh Junon. Additionally, multiple organizations including Plex, Salesloft, and Lovesac have suffered data breaches, while threat actors are conducting widespread reconnaissance against Cisco ASA devices and leveraging advanced malware like MostereRAT to evade security tools.
 
 ## Active Exploitation Details
 
-### GhostAction GitHub Supply Chain Attack
-- **Description**: A sophisticated supply chain attack targeting GitHub repositories that successfully compromised developer secrets and authentication tokens
-- **Impact**: Attackers gained access to 3,325 secrets including PyPI, npm, DockerHub, GitHub tokens, Cloudflare, and AWS keys, potentially enabling widespread secondary attacks
-- **Status**: Attack has been identified and is being actively investigated; affected organizations are being notified
+### npm Package Supply Chain Attack
+- **Description**: A phishing attack compromised maintainer Josh Junon's account, leading to the injection of malicious code into 20 popular npm packages
+- **Impact**: Attackers can steal cryptocurrency and potentially execute arbitrary code on systems using these packages
+- **Status**: Packages were briefly compromised with malicious software designed to steal crypto assets
 
-### JavaScript Package Compromise
-- **Description**: At least 18 popular JavaScript code packages were compromised with malicious software designed to steal cryptocurrency
-- **Impact**: These packages are collectively downloaded more than two billion times each week, creating massive potential for widespread compromise
-- **Status**: The compromised packages were briefly active before being detected and remediated
+### Plex Data Breach
+- **Description**: Media streaming platform suffered a data breach where attackers accessed customer authentication data from databases
+- **Impact**: Customer authentication credentials were stolen, requiring password resets
+- **Status**: Plex is warning customers to reset passwords following the breach
 
 ### Salesloft GitHub Account Compromise
-- **Description**: A breach initiated through GitHub account compromise that escalated into a massive supply chain attack
-- **Impact**: Led to the compromise of hundreds of Salesforce instances through stolen OAuth tokens, affecting multiple organizations
-- **Status**: Breach has been contained but investigation into full impact continues
+- **Description**: Breach occurred through GitHub account compromise leading to a massive supply chain attack
+- **Impact**: Hundreds of Salesforce instances were compromised through stolen OAuth tokens
+- **Status**: Active breach with widespread impact on connected Salesforce environments
+
+### GhostAction GitHub Supply Chain Attack
+- **Description**: New supply chain attack targeting GitHub repositories and associated secrets
+- **Impact**: 3,325 secrets stolen including PyPI, npm, DockerHub, GitHub tokens, Cloudflare, and AWS keys
+- **Status**: Active campaign with significant credential theft
 
 ### MostereRAT Malware Campaign
 - **Description**: Sophisticated malware designed to blend in with legitimate processes while blocking security tools
-- **Impact**: Enables threat actors to maintain long-term, persistent access on Windows systems while evading detection
-- **Status**: Active campaign with ongoing deployment against Windows environments
+- **Impact**: Provides persistent access on Windows systems while evading endpoint detection and response (EDR) tools
+- **Status**: Active threat actor campaign using EDR-killing capabilities
 
 ## Affected Systems and Products
 
-- **Plex Media Platform**: Customer authentication data compromised in recent data breach
-- **GitHub Repositories**: Thousands of repositories affected by supply chain attacks targeting developer secrets
-- **JavaScript/npm Ecosystem**: Popular packages with billions of weekly downloads compromised
-- **Salesforce Instances**: Hundreds of instances compromised through OAuth token theft
-- **Cisco ASA Devices**: Large-scale network scans detected targeting these security appliances
+- **npm Packages**: 20 popular JavaScript packages with 2+ billion weekly downloads compromised
+- **Plex Platform**: Customer authentication databases breached
+- **Salesloft**: GitHub repositories and connected Salesforce instances affected
+- **GitHub Repositories**: Targeted in GhostAction campaign for secret extraction
+- **Cisco ASA Devices**: Subject to increased network scanning activity
 - **Windows Systems**: Targeted by MostereRAT malware for persistent access
-- **Lovesac Customer Database**: Personal data exposed in ransomware attack
+- **Lovesac**: Customer data exposed in ransomware attack
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Attackers compromising legitimate software packages and repositories to distribute malware
-- **OAuth Token Theft**: Stealing authentication tokens to gain unauthorized access to cloud services
-- **EDR Evasion**: Advanced malware designed to disable and bypass endpoint detection and response systems
-- **Network Reconnaissance**: Large-scale scanning operations targeting specific device types and vulnerabilities
-- **Social Engineering**: Targeting developers and maintainers of popular code repositories
-- **Credential Harvesting**: Systematic collection of authentication data from compromised databases
+- **Phishing Attacks**: Used to compromise maintainer accounts for supply chain attacks
+- **Supply Chain Compromise**: Malicious code injection into popular software packages
+- **GitHub Account Takeover**: Leveraged to access repositories and steal OAuth tokens
+- **Network Reconnaissance**: Large-scale scanning of Cisco ASA devices
+- **EDR Evasion**: MostereRAT uses sophisticated techniques to bypass security tools
+- **Ransomware Operations**: Targeting furniture retailers and other businesses
 
 ## Threat Actor Activities
 
-- **Salt Typhoon (UNC4841)**: China-linked threat group with newly discovered infrastructure dating back to May 2020, indicating long-term cyber espionage operations
-- **Unknown JavaScript Attackers**: Sophisticated group targeting popular JavaScript packages for cryptocurrency theft
-- **GitHub Supply Chain Attackers**: Organized campaign targeting developer infrastructure to steal secrets and authentication tokens
-- **MostereRAT Operators**: Advanced persistent threat actors deploying sophisticated EDR-killing malware for long-term access
-- **Ransomware Groups**: Multiple groups targeting various organizations including furniture retailers and media platforms
+- **Salt Typhoon/UNC4841**: China-linked threat actors with 45 previously unreported domains dating back to May 2020, indicating long-term cyber espionage operations
+- **npm Package Attackers**: Conducted targeted phishing against package maintainers to compromise supply chain
+- **MostereRAT Operators**: Deploying sophisticated malware for persistent Windows system access
+- **GhostAction Campaign**: Systematic targeting of GitHub repositories to extract sensitive credentials and tokens
+- **Cisco ASA Scanners**: Conducting widespread reconnaissance that may indicate preparation for future exploitation
