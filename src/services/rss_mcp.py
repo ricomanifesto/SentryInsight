@@ -1,5 +1,6 @@
 """MCP RSS feed parser for SentryDigest."""
 
+import asyncio
 import logging
 from typing import Dict, Any, List, Optional
 
@@ -38,16 +39,23 @@ async def enrich_rss_articles(articles: List[Dict[str, Any]]) -> List[Dict[str, 
     Args:
         articles: List of article dictionaries to enrich
     """
-    logger.info(f"Enriching {len(articles)} articles")
+    logger.info(f"Enriching {len(articles)} articles concurrently")
     try:
-        enriched_articles = []
-        for article in articles:
-            enriched = await rss_tools.enrich_article_content(article)
-            enriched_articles.append(enriched)
-        return enriched_articles
+        enrichment_tasks = [rss_tools.enrich_article_content(article) for article in articles]
+        enriched_articles = await asyncio.gather(*enrichment_tasks, return_exceptions=True)
+        
+        result_articles = []
+        for i, result in enumerate(enriched_articles):
+            if isinstance(result, Exception):
+                logger.error(f"Error enriching article {i}: {result}")
+                result_articles.append(articles[i])
+            else:
+                result_articles.append(result)
+        
+        return result_articles
     except Exception as e:
         logger.error(f"Error enriching articles: {e}")
         return articles  # Return original articles if enrichment fails
 
 # Export the MCP application
-mcp_app = rss_mcp 
+mcp_app = rss_mcp  

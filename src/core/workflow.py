@@ -22,6 +22,7 @@ class ExploitationAnalysisState(TypedDict):
     analysis_results: Dict[str, Any]
     config: Dict[str, Any]
     status: str
+    report_path: str
 
 # Load configuration
 def load_config(config_path: str = "config/config.json") -> Dict[str, Any]:
