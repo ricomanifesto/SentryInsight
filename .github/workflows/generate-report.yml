@@ -34,7 +34,7 @@ jobs:
       - name: Generate exploitation report
         run: python main.py
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       
       - name: Commit and push updated report
         run: |
