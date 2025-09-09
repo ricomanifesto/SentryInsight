@@ -90,7 +90,6 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
     model = ChatAnthropic(
         api_key=api_key,
         model=model_name,
-        temperature=temperature,
         max_tokens=max_tokens
     )
     

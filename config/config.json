@@ -4,7 +4,7 @@
     "analysis": {
         "model": "claude-sonnet-4-20250514",
         "max_tokens": 4000,
-        "temperature": 0.1,
+        "temperature": 1,
         "analysis_focus": [
             "zero-day vulnerabilities",
             "active exploitation",
