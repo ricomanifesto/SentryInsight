@@ -1,56 +1,48 @@
 # Exploitation Report
 
-The current threat landscape reveals multiple active exploitation campaigns targeting diverse platforms and attack vectors. Most concerning are sophisticated phishing operations leveraging Microsoft 365 infrastructure abuse, supply chain attacks compromising popular npm packages with billions of weekly downloads, advanced Android malware campaigns with banking fraud capabilities, and the exploitation of critical SAP NetWeaver vulnerabilities. Threat actors are increasingly utilizing legitimate tools and services to bypass security controls, while mobile malware has evolved to incorporate NFC relay attacks and automated transfer system fraud. Additionally, cryptojacking attacks are expanding through misconfigured Docker APIs via TOR networks, demonstrating the persistent threat to cloud infrastructure.
+Recent cybersecurity developments reveal significant exploitation activities across multiple platforms and services. The most critical incidents include sophisticated phishing campaigns targeting Microsoft 365 environments utilizing advanced 2FA bypass techniques and HTTP client tools, a major supply chain attack compromising 20 popular npm packages with over 2 billion weekly downloads, and the emergence of advanced Android malware with NFC relay capabilities. Additionally, critical vulnerabilities in SAP NetWeaver and Microsoft Exchange Online services are creating substantial attack surfaces for threat actors seeking to compromise enterprise environments.
 
 ## Active Exploitation Details
 
+### Microsoft 365 Phishing Campaign via Axios Abuse
+- **Description**: Threat actors are exploiting HTTP client tools like Axios in conjunction with Microsoft's Direct Send feature to create highly efficient phishing attack pipelines targeting Microsoft 365 environments
+- **Impact**: Attackers can bypass traditional email security measures and conduct advanced phishing attacks with improved success rates
+- **Status**: Actively being exploited in ongoing campaigns with enhanced evasion techniques
+
+### Salty 2FA Kit Exploitation
+- **Description**: Advanced phishing kits specifically designed to bypass two-factor authentication mechanisms are being deployed in sophisticated social engineering attacks
+- **Impact**: Complete compromise of protected accounts despite 2FA protections, leading to unauthorized access to sensitive systems and data
+- **Status**: Actively exploited in targeted campaigns against developers and high-value targets
+
+### npm Supply Chain Compromise
+- **Description**: A coordinated supply chain attack compromised 20 popular npm packages following a successful phishing attack against maintainer Josh Junon's account
+- **Impact**: Over 2 billion weekly downloads potentially affected, creating massive potential for downstream compromise across the JavaScript ecosystem
+- **Status**: Packages have been compromised and malicious code distributed to downstream users
+
 ### SAP NetWeaver Command Execution Vulnerability
-- **Description**: A critical command execution flaw in SAP NetWeaver software solution that has been assigned maximum severity rating
-- **Impact**: Attackers can execute arbitrary commands on affected SAP systems, potentially leading to complete system compromise
-- **Status**: Patched by SAP as part of their latest security update addressing 21 vulnerabilities, including three critical severity issues
-
-### Microsoft 365 Phishing via Axios Abuse
-- **Description**: Advanced phishing campaigns abusing HTTP client tools like Axios in conjunction with Microsoft's Direct Send feature
-- **Impact**: Highly efficient attack pipeline enabling credential theft and 2FA bypass through sophisticated phishing kits
-- **Status**: Active exploitation observed in ongoing campaigns targeting Microsoft 365 users
-
-### npm Package Supply Chain Compromise
-- **Description**: Software supply chain attack targeting npm packages with over 2 billion weekly downloads after maintainer account compromise
-- **Impact**: Potential code injection into applications using compromised packages, affecting millions of downstream users
-- **Status**: 20 popular npm packages compromised following successful phishing attack against maintainer Josh Junon
-
-### RatOn Android Banking Malware
-- **Description**: Sophisticated Android malware evolved from basic NFC relay tool to full-featured remote access trojan with Automated Transfer System (ATS) banking fraud capabilities
-- **Impact**: Banking credential theft, NFC relay attacks for payment fraud, and remote device control
-- **Status**: Actively distributed and evolving with enhanced fraud capabilities
-
-### Docker API Cryptojacking Campaign
-- **Description**: TOR-based cryptojacking attacks targeting misconfigured Docker APIs for unauthorized cryptocurrency mining
-- **Impact**: Unauthorized resource consumption, potential lateral movement, and infrastructure compromise
-- **Status**: Active campaign with expanding variants discovered by security researchers
+- **Description**: Critical severity command execution flaw in SAP NetWeaver software solution allowing arbitrary command execution
+- **Impact**: Complete system compromise and potential lateral movement within enterprise environments
+- **Status**: Recently patched by SAP as part of 21 vulnerability fixes, including three critical severity issues
 
 ## Affected Systems and Products
 
-- **SAP NetWeaver**: Critical severity vulnerabilities affecting the enterprise software solution
-- **Microsoft 365 Services**: Exchange Online and Microsoft Teams affected by phishing campaigns and anti-spam service bugs
-- **npm Package Registry**: 20 popular packages with 2 billion weekly downloads compromised
-- **Android Devices**: Mobile devices targeted by RatOn malware with banking and NFC fraud capabilities
-- **Docker Environments**: Misconfigured Docker APIs vulnerable to cryptojacking attacks
-- **Windows 11**: File Explorer experiencing anti-spam service issues blocking legitimate URLs
+- **Microsoft 365 Services**: Exchange Online and Microsoft Teams environments experiencing URL blocking and email quarantine issues
+- **npm Ecosystem**: 20 popular packages with 2 billion weekly downloads compromised in supply chain attack
+- **SAP NetWeaver**: Critical command execution vulnerabilities affecting enterprise installations
+- **Android Devices**: RatOn malware targeting banking applications with NFC relay capabilities
+- **Docker APIs**: Misconfigured Docker installations being exploited for TOR-based cryptojacking operations
 
 ## Attack Vectors and Techniques
 
-- **Phishing with 2FA Bypass**: Advanced phishing kits incorporating "Salty 2FA" techniques to bypass multi-factor authentication
-- **HTTP Client Abuse**: Legitimate tools like Axios leveraged to create efficient attack pipelines
-- **Supply Chain Compromise**: Targeted phishing against package maintainers to compromise widely-used software libraries
-- **NFC Relay Attacks**: Mobile malware utilizing Near Field Communication for payment fraud
-- **TOR Network Abuse**: Cryptojacking operations leveraging anonymization networks for persistence
-- **Direct Send Feature Abuse**: Microsoft's email service features exploited for phishing distribution
-- **Automated Transfer Systems**: Banking malware incorporating ATS fraud capabilities for financial theft
+- **Phishing Pipeline**: Combination of Axios HTTP client tools and Microsoft Direct Send to create efficient phishing attack chains
+- **2FA Bypass**: Sophisticated kits designed to circumvent two-factor authentication protections through social engineering
+- **Supply Chain Poisoning**: Compromise of maintainer accounts to inject malicious code into widely-used software packages
+- **NFC Relay Attacks**: Android malware utilizing Near Field Communication relay techniques for banking fraud
+- **Cryptojacking via TOR**: Exploitation of misconfigured Docker APIs to deploy cryptocurrency mining operations through TOR networks
 
 ## Threat Actor Activities
 
-- **Microsoft 365 Phishing Groups**: Sophisticated campaigns targeting enterprise users with advanced 2FA bypass techniques and legitimate service abuse
-- **Mobile Banking Fraudsters**: Android malware operators evolving RatOn malware with enhanced NFC relay and automated banking fraud capabilities
-- **Supply Chain Attackers**: Threat actors successfully compromising high-value npm package maintainers through targeted phishing to affect billions of downloads
-- **Cryptojacking Operations**: TOR-based mining groups expanding attacks through misconfigured Docker environments with persistent infrastructure abuse
+- **Microsoft 365 Phishing Groups**: Conducting advanced campaigns using novel combination of legitimate tools and Microsoft services for evasion
+- **Supply Chain Attackers**: Successfully compromised high-profile npm maintainer accounts to distribute malicious packages at scale
+- **RatOn Operators**: Deploying sophisticated Android banking malware with remote access trojan capabilities and automated transfer system fraud features
+- **Cryptojacking Campaigns**: Expanding operations through Docker API exploitation using TOR network infrastructure for anonymity and persistence
