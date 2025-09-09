@@ -26,5 +26,9 @@
     "logging": {
         "level": "INFO",
         "file": "sentry_digest.log"
+    },
+    "github_pages": {
+        "enabled": true,
+        "repo_directory": "./docs"
     }
 }

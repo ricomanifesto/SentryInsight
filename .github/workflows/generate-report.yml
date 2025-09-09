@@ -34,9 +34,16 @@ jobs:
       - name: Generate exploitation report
         run: python main.py
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       
-      - name: Commit and push updated report
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          enable_jekyll: true
+      
+      - name: Commit and push updated report (backup)
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
