@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 from datetime import datetime
 
 import tiktoken
-from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, SystemMessage
 
 # Configure logging
@@ -74,20 +74,20 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
     template = load_template()
     
     # Initialize the AI model
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    model_name = config.get("analysis", {}).get("model", "claude-sonnet-4-20250514")
+    api_key = os.getenv("OPENAI_API_KEY")
+    model_name = config.get("analysis", {}).get("model", "gpt-5")
     temperature = config.get("analysis", {}).get("temperature", 0.1)
     max_tokens = config.get("analysis", {}).get("max_tokens", 4000)
     
     if not api_key:
-        logger.error("No Anthropic API key provided")
+        logger.error("No OpenAI API key provided")
         return {
-            "exploitation_report": "# Error: No Anthropic API Key\n\nPlease set the ANTHROPIC_API_KEY environment variable.",
+            "exploitation_report": "# Error: No OpenAI API Key\n\nPlease set the OPENAI_API_KEY environment variable.",
             "date": datetime.now().strftime("%Y-%m-%d"),
             "error": "No API key"
         }
     
-    model = ChatAnthropic(
+    model = ChatOpenAI(
         api_key=api_key,
         model=model_name,
         temperature=temperature,

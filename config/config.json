@@ -2,7 +2,7 @@
     "feed_url": "https://ricomanifesto.github.io/SentryDigest/feed.xml",
     "output_path": "index.md",
     "analysis": {
-        "model": "claude-sonnet-4-20250514",
+        "model": "gpt-5",
         "max_tokens": 4000,
         "temperature": 0.1,
         "analysis_focus": [
