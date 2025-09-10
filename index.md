@@ -1,44 +1,52 @@
 # Exploitation Report
 
-The security landscape shows significant threat activity across multiple fronts, with Microsoft's September 2025 Patch Tuesday addressing critical vulnerabilities including two zero-day exploits. Supply chain attacks continue to pose major risks, exemplified by a massive NPM compromise affecting over 2 billion weekly downloads of popular packages. Cybercriminal infrastructure remains active with exposed Docker APIs being leveraged for botnet development and major ransomware operations facing legal consequences. While no specific CVE identifiers were provided in the source materials, the volume of vulnerabilities and active exploitation underscores the persistent threat environment facing organizations.
+Several critical vulnerabilities are currently under active exploitation or have recently been patched following observed attacks. The most significant threats include a critical Adobe Commerce flaw enabling customer account takeover, multiple SAP NetWeaver vulnerabilities with maximum CVSS scores that allow code execution, and two zero-day vulnerabilities in Microsoft's September 2025 Patch Tuesday release. Additionally, threat actors are actively targeting exposed Docker APIs and conducting sophisticated supply chain attacks through compromised NPM packages affecting billions of weekly downloads.
 
 ## Active Exploitation Details
 
+### Adobe Commerce Customer Account Takeover Vulnerability
+- **Description**: A critical security flaw in Adobe Commerce and Magento Open Source platforms that allows attackers to take control of customer accounts
+- **Impact**: Complete customer account compromise, potential access to personal and financial information
+- **Status**: Actively exploitable, Adobe has issued warnings
+- **CVE ID**: CVE-2025-54236
+
+### SAP NetWeaver Critical Code Execution Flaws
+- **Description**: Three critical vulnerabilities in SAP NetWeaver that could result in remote code execution and arbitrary file upload capabilities
+- **Impact**: Complete system compromise, unauthorized code execution, and file system access
+- **Status**: Security updates released by SAP
+- **CVSS Score**: Up to 10.0 (maximum severity)
+
 ### Microsoft Zero-Day Vulnerabilities
-- **Description**: Two publicly disclosed zero-day vulnerabilities were included in Microsoft's September 2025 security updates, part of a broader patch addressing 81 total flaws
-- **Impact**: Zero-day vulnerabilities represent immediate exploitation risks as they were publicly known before patches became available
-- **Status**: Patches now available through Microsoft's September 2025 Patch Tuesday release
+- **Description**: Two publicly disclosed zero-day vulnerabilities included in Microsoft's September 2025 Patch Tuesday
+- **Impact**: Various security implications depending on specific vulnerabilities
+- **Status**: Patches available as of September 2025 Patch Tuesday
 
-### Microsoft Elevation of Privilege Vulnerabilities
-- **Description**: Nearly half of the vulnerabilities disclosed in Microsoft's September update enable escalation of privileges, including one publicly known bug
-- **Impact**: Attackers can gain elevated system access, potentially leading to full system compromise
-- **Status**: Patches available but exploitation risk remains high due to the nature of privilege escalation attacks
-
-### NPM Supply Chain Compromise
-- **Description**: Threat actors phished credentials for the Qix NPM account and published poisoned versions of 18 popular open-source packages
-- **Impact**: Massive potential impact affecting over 2 billion weekly downloads, enabling widespread supply chain attacks
-- **Status**: Attack discovered and contained, but demonstrates ongoing supply chain vulnerability risks
+### SAP S/4HANA Previously Exploited Flaws
+- **Description**: Multiple security flaws in SAP S/4HANA that were previously exploited in the wild
+- **Impact**: System compromise and unauthorized access
+- **Status**: Security patches now available
 
 ## Affected Systems and Products
 
-- **Microsoft Windows Systems**: All Windows operating systems affected by 81 vulnerabilities in September 2025 patch cycle
-- **Windows 10**: Specific updates KB5065429 addressing 14 fixes including UAC prompts and performance issues
-- **Windows 11**: Updates KB5065426 and KB5065431 for versions 24H2 and 23H2 addressing security vulnerabilities
-- **NPM Package Ecosystem**: 18 popular open-source packages compromised affecting JavaScript/Node.js development environments
-- **Docker API Endpoints**: Exposed Docker APIs being actively targeted for malicious container deployment
+- **Adobe Commerce**: All versions of Adobe Commerce and Magento Open Source platforms
+- **SAP NetWeaver**: Multiple versions affected by critical code execution vulnerabilities
+- **SAP S/4HANA**: Systems previously targeted by threat actors
+- **Microsoft Windows**: 81 vulnerabilities addressed in September 2025 Patch Tuesday, affecting Windows 10 and 11
+- **Docker APIs**: Exposed Docker API endpoints being actively targeted
+- **NPM Packages**: 18 popular open source packages with over 2 billion weekly downloads compromised
 
 ## Attack Vectors and Techniques
 
-- **Account Takeover**: Phishing attacks against developer accounts to compromise supply chain components
-- **Exposed API Exploitation**: Targeting misconfigured Docker APIs for unauthorized container deployment and potential botnet creation
-- **Tor Network Obfuscation**: Threat actors using Tor networks to hide malicious activities in Docker API attacks
-- **Privilege Escalation**: Exploitation of elevation of privilege vulnerabilities to gain higher system access
-- **Supply Chain Injection**: Poisoning legitimate software packages to distribute malware through trusted channels
+- **Account Takeover**: Exploitation of Adobe Commerce vulnerability to gain unauthorized access to customer accounts
+- **Remote Code Execution**: SAP NetWeaver vulnerabilities allowing attackers to execute arbitrary code
+- **File Upload Attacks**: Arbitrary file upload capabilities through SAP vulnerabilities
+- **API Exploitation**: Targeting exposed Docker APIs for malicious container deployment
+- **Supply Chain Poisoning**: Compromising popular NPM packages through phished developer accounts
+- **Tor Network Obfuscation**: Threat actors using Tor to hide their activities in Docker API attacks
 
 ## Threat Actor Activities
 
-- **NPM Supply Chain Attackers**: Sophisticated campaign targeting popular JavaScript packages through credential phishing, affecting billions of downloads
-- **Docker API Threat Group**: Updated malicious tooling targeting exposed Docker APIs with enhanced dangerous functionality for potential botnet operations
-- **Ransomware Operations**: Continued activity from groups like LockerGoga, MegaCortex, and Nefilim, though facing increased law enforcement pressure
-- **Southeast Asian Scam Networks**: Large-scale cyber fraud operations that stole over $10 billion from Americans, now facing U.S. Treasury sanctions
-- **BlackDB Marketplace Operator**: Kosovo national Liridon Masurica pleaded guilty to running the BlackDB.cc cybercrime marketplace active since 2018
+- **Docker API Attackers**: Updated malicious tooling with enhanced functionality that could establish complex botnets, using Tor network for anonymization
+- **NPM Supply Chain Attackers**: Phished Qix's NPM account credentials to publish poisoned versions of 18 popular open source packages, affecting over 2 billion weekly downloads
+- **Southeast Asian Scam Networks**: Large-scale cybercrime operations that stole over $10 billion from Americans, now facing increased financial sanctions from the US government
+- **SAP-Targeting Groups**: Previously exploited S/4HANA systems before patches were available
