@@ -1,50 +1,49 @@
 # Exploitation Report
 
-Current security reports reveal several critical exploitation activities targeting enterprise environments and consumer platforms. Microsoft's September 2025 Patch Tuesday addressed 81 vulnerabilities including two actively exploited zero-day vulnerabilities that pose immediate threats to Windows systems. Meanwhile, Adobe has disclosed a critical vulnerability CVE-2025-54236 in its Magento eCommerce platform, dubbed "SessionReaper," which researchers describe as one of the most severe flaws in the platform's history. Additionally, a massive supply chain attack has compromised NPM packages with over 2 billion weekly downloads, while threat actors continue to exploit exposed Docker APIs through sophisticated botnets operating behind Tor networks.
+Based on the provided security articles, current exploitation activity centers primarily around Microsoft's September 2025 Patch Tuesday release, which addressed 81 vulnerabilities including two zero-day vulnerabilities that were publicly disclosed. Additionally, significant cybercriminal activities have been documented involving major supply chain attacks against NPM packages, ransomware operations, and large-scale cybercrime marketplaces. The threat landscape also includes ongoing attacks against exposed Docker APIs and substantial sanctions against Southeast Asian cyber scam networks that have stolen over $10 billion from Americans.
 
 ## Active Exploitation Details
 
-### Microsoft Windows Zero-Day Vulnerabilities
-- **Description**: Two publicly disclosed zero-day vulnerabilities affecting Windows systems that are being actively exploited in the wild
-- **Impact**: These vulnerabilities allow attackers to compromise Windows systems with potential for privilege escalation, remote code execution, or system compromise
-- **Status**: Patched in Microsoft's September 2025 Patch Tuesday security updates
+### Microsoft Zero-Day Vulnerabilities
+- **Description**: Two publicly disclosed zero-day vulnerabilities were included in Microsoft's September 2025 Patch Tuesday release
+- **Impact**: Attackers could exploit these vulnerabilities before patches were available, potentially allowing for system compromise and unauthorized access
+- **Status**: Patches released as part of Microsoft's September 2025 security update addressing 81 total flaws
 
-### Adobe SessionReaper Vulnerability
-- **Description**: Critical vulnerability in Adobe Commerce and Magento Open Source platforms described as one of the most severe flaws in the platform's history
-- **Impact**: Exploitation could lead to complete compromise of eCommerce platforms, potentially affecting customer data and business operations
-- **Status**: Recently patched by Adobe
-- **CVE ID**: CVE-2025-54236
+### Escalation of Privilege Vulnerabilities
+- **Description**: Nearly half of the vulnerabilities disclosed in Microsoft's September security update enable escalation of privileges, including one publicly known bug
+- **Impact**: Attackers can elevate their access permissions within compromised systems, potentially gaining administrative control
+- **Status**: Patches available through Microsoft's September 2025 security updates
 
 ### NPM Supply Chain Attack
-- **Description**: Large-scale supply chain attack targeting NPM packages through compromised developer accounts
-- **Impact**: Attackers gained access to publish poisoned versions of 18 popular open-source packages accounting for more than 2 billion weekly downloads
-- **Status**: Active threat requiring immediate package verification and updates
+- **Description**: Threat actors compromised the NPM account of developer "Qix" through phishing, then published poisoned versions of 18 popular open-source packages
+- **Impact**: Affected packages account for more than 2 billion weekly downloads, creating massive potential for widespread compromise of applications using these packages
+- **Status**: Attack has been contained but demonstrated the significant risk to software supply chains
 
 ### Docker API Exploitation
-- **Description**: Threat actors targeting exposed Docker APIs with updated malicious tooling and enhanced functionality
-- **Impact**: Compromised Docker environments could serve as foundation for complex botnets and infrastructure hijacking
-- **Status**: Ongoing exploitation with attackers using Tor networks to hide their activities
+- **Description**: Threat actors are actively targeting exposed Docker APIs with updated malicious tooling that includes more dangerous functionality
+- **Impact**: Could establish complex botnets and compromise containerized environments
+- **Status**: Ongoing attacks with attackers using Tor networks to hide their activities
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows 10 and Windows 11 systems vulnerable to two zero-day exploits
-- **Adobe Commerce/Magento**: eCommerce platforms running vulnerable versions prior to security patches
-- **NPM Ecosystem**: JavaScript developers and applications using compromised NPM packages
-- **Docker Environments**: Exposed Docker API endpoints accessible from internet
-- **Third-Party Platforms**: Qantas customers affected by third-party platform breach
+- **Microsoft Windows Operating Systems**: Windows 10 and Windows 11 versions affected by 81 vulnerabilities in September 2025 Patch Tuesday
+- **Microsoft Software Products**: Various Microsoft applications and services covered in the security update
+- **NPM Package Ecosystem**: 18 popular open-source packages with over 2 billion weekly downloads compromised
+- **Docker Environments**: Systems with exposed Docker APIs vulnerable to botnet deployment and compromise
+- **Third-party Platforms**: Qantas customers affected through compromise of third-party platform used by the airline
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched Windows vulnerabilities for system compromise
-- **Supply Chain Poisoning**: Compromising developer accounts to inject malicious code into trusted packages
-- **API Exploitation**: Targeting misconfigured Docker APIs for container and infrastructure compromise
-- **Tor Network Obfuscation**: Using Tor networks to hide malicious traffic and command and control communications
-- **Third-Party Platform Compromise**: Exploiting vulnerabilities in partner platforms to access customer data
+- **Phishing Attacks**: Used to compromise developer accounts, specifically targeting NPM package maintainers
+- **Supply Chain Poisoning**: Injection of malicious code into legitimate software packages distributed through NPM
+- **API Exploitation**: Direct targeting of exposed Docker APIs to deploy malicious payloads
+- **Privilege Escalation**: Exploitation of elevation of privilege vulnerabilities to gain higher system access
+- **Tor Network Obfuscation**: Use of Tor networks to hide attacker infrastructure and maintain anonymity
 
 ## Threat Actor Activities
 
-- **NPM Package Attackers**: Sophisticated threat actors who phished developer credentials to compromise the Qix NPM account and poison 18 popular packages
-- **Docker API Exploiters**: Advanced persistent actors developing botnet infrastructure through exposed Docker APIs while maintaining anonymity via Tor
-- **Southeast Asian Scam Networks**: Large-scale cyber scam operations sanctioned by U.S. Treasury for stealing over $10 billion from Americans
-- **Ransomware Administrators**: Ukrainian national Volodymyr Viktorovich Tymoshchuk charged for administering LockerGoga, MegaCortex, and Nefilim ransomware operations
-- **BlackDB Marketplace Operator**: Kosovo national Liridon Masurica operating cybercrime marketplace BlackDB.cc since 2018
+- **Southeast Asian Cyber Scam Networks**: Operations that stole over $10 billion from Americans, now subject to U.S. Treasury sanctions
+- **NPM Supply Chain Attackers**: Sophisticated threat actors capable of compromising developer accounts and poisoning widely-used software packages
+- **Docker API Threat Actors**: Groups developing advanced botnet infrastructure through exploitation of containerized environments
+- **Ransomware Operations**: Ukrainian national Volodymyr Viktorovich Tymoshchuk charged for administering LockerGoga, MegaCortex, and Nefilim ransomware operations
+- **BlackDB Cybercrime Marketplace**: Kosovo national Liridon Masurica pleaded guilty to operating this cybercrime marketplace active since 2018
