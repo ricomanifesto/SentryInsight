@@ -1,53 +1,56 @@
 # Exploitation Report
 
-Current threat intelligence reveals significant exploitation activity across multiple attack vectors, with ransomware groups actively targeting enterprise infrastructure, state-sponsored actors conducting sophisticated espionage campaigns, and supply chain attacks affecting widespread cloud environments. The most critical activity includes Akira ransomware operators exploiting SonicWall SSL VPN vulnerabilities for initial access, Chinese APT groups deploying advanced fileless malware against military targets, and a massive NPM supply chain compromise impacting approximately 10% of all cloud environments. Additionally, threat actors are leveraging legitimate remote management tools and conducting sophisticated social engineering campaigns through malicious browser extensions and spear-phishing operations.
+Current exploitation activity reveals several critical security threats across enterprise and consumer environments. The most significant concerns include active exploitation of SonicWall SSL VPN vulnerabilities by Akira ransomware operators, a new VMScape attack targeting CPU-level security on virtualized systems, and sophisticated malvertising campaigns distributing malicious browser extensions. Additionally, threat actors are leveraging legitimate remote management tools like ConnectWise ScreenConnect for credential theft, while the NPM ecosystem suffered its largest supply-chain attack to date, affecting approximately 10% of all cloud environments.
 
 ## Active Exploitation Details
 
+### VMScape Attack
+- **Description**: A new Spectre-like attack that allows malicious virtual machines to break guest-host isolation and leak cryptographic keys from QEMU hypervisor processes
+- **Impact**: Attackers can extract sensitive cryptographic material from hypervisor processes, compromising virtualized environment security
+- **Status**: Newly disclosed vulnerability affecting modern virtualization environments
+
 ### SonicWall SSL VPN Vulnerabilities
-- **Description**: Critical vulnerabilities and misconfigurations in SonicWall SSL VPN devices being actively exploited for initial network access
-- **Impact**: Allows threat actors to gain unauthorized access to corporate networks and deploy ransomware payloads
-- **Status**: Actively exploited by Akira ransomware group with observed spike in intrusions
+- **Description**: Security flaws and misconfigurations in SonicWall SSL VPN devices being actively exploited for initial access
+- **Impact**: Enables threat actors to gain unauthorized network access and deploy ransomware
+- **Status**: Currently being exploited in the wild by Akira ransomware group
 
-### ConnectWise ScreenConnect Abuse
-- **Description**: Legitimate Remote Monitoring and Management (RMM) software being exploited to deliver malicious payloads
-- **Impact**: Enables delivery of AsyncRAT malware for credential theft and cryptocurrency stealing operations
-- **Status**: Active campaign leveraging the platform as a delivery mechanism for fleshless loaders
+### Malicious Browser Extensions Campaign
+- **Description**: Fake Madgicx Plus and SocialMetrics browser extensions distributed through malvertising and fake websites
+- **Impact**: Hijacking of Meta Business accounts and theft of sensitive user data
+- **Status**: Active campaign targeting business users through deceptive advertising
 
-### NPM Supply Chain Compromise
-- **Description**: Massive supply chain attack targeting the NPM ecosystem affecting JavaScript package repositories
-- **Impact**: Compromised approximately 10% of all cloud environments, though attackers reportedly made minimal profit
-- **Status**: Described as the largest supply-chain compromise in NPM history
+### ConnectWise ScreenConnect Exploitation
+- **Description**: Abuse of legitimate Remote Monitoring and Management software to deliver AsyncRAT malware
+- **Impact**: Credential theft, cryptocurrency theft, and system compromise through legitimate administrative tools
+- **Status**: Ongoing campaign using legitimate RMM software as attack vector
 
-### EggStreme Fileless Malware Framework
-- **Description**: Previously undocumented fileless malware framework deployed by Chinese APT groups
-- **Impact**: Enables persistent access to military systems without leaving traditional file-based indicators
-- **Status**: Successfully used to compromise Philippines-based military company systems
+### NPM Supply Chain Attack
+- **Description**: The largest supply-chain compromise in NPM ecosystem history affecting JavaScript package management
+- **Impact**: Compromised approximately 10% of all cloud environments through malicious package distribution
+- **Status**: Attack concluded with minimal financial gain for attackers, but widespread infrastructure impact
 
 ## Affected Systems and Products
 
-- **SonicWall SSL VPN Devices**: SSL VPN appliances with known vulnerabilities and misconfigurations
-- **ConnectWise ScreenConnect**: Remote Monitoring and Management software platforms
-- **NPM Package Repository**: JavaScript package management ecosystem and dependent cloud environments
-- **Meta Business Accounts**: Facebook/Meta business account management systems targeted through malicious browser extensions
-- **Philippine Military Systems**: Defense contractor networks and military infrastructure
-- **Kazakhstan Oil & Gas Infrastructure**: Largest oil company systems targeted through compromised employee email accounts
+- **SonicWall SSL VPN Devices**: Various models experiencing active exploitation by ransomware groups
+- **AMD and Intel CPUs**: Modern processors vulnerable to VMScape attacks in virtualized environments
+- **QEMU Hypervisors**: Hypervisor processes susceptible to cryptographic key extraction
+- **Meta Business Accounts**: Targeted through malicious browser extensions masquerading as legitimate tools
+- **ConnectWise ScreenConnect**: Legitimate RMM software being abused for malware delivery
+- **NPM Ecosystem**: JavaScript package management system affected by massive supply-chain compromise
+- **Chrome Browser Extensions**: Users installing fake productivity extensions at risk
 
 ## Attack Vectors and Techniques
 
-- **VPN Exploitation**: Direct exploitation of SonicWall SSL VPN vulnerabilities combined with misconfigurations for network access
-- **Supply Chain Infiltration**: Large-scale compromise of NPM package repositories to affect downstream cloud environments
-- **Living-off-the-Land**: Abuse of legitimate RMM tools like ConnectWise ScreenConnect to blend malicious activity with normal operations
-- **Fileless Malware Deployment**: Use of memory-resident malware frameworks to avoid detection by traditional file-based security controls
-- **Social Engineering**: Deployment of fake browser extensions (Madgicx Plus and SocialMetrics) through malicious advertising campaigns
-- **Email Compromise**: Use of compromised employee email accounts for initial access and lateral movement
-- **Spear-Phishing**: Targeted email campaigns with threat actors impersonating legitimate entities like US lawmakers
+- **Virtualization Exploitation**: VMScape leverages Spectre-like techniques to breach hypervisor isolation boundaries
+- **VPN Infrastructure Targeting**: Exploitation of network appliance vulnerabilities for initial access
+- **Malvertising Campaigns**: Distribution of malicious browser extensions through deceptive advertising
+- **Living-off-the-Land**: Abuse of legitimate administrative tools like ScreenConnect for malicious purposes
+- **Supply Chain Poisoning**: Injection of malicious code into trusted software distribution channels
+- **Social Engineering**: Use of fake websites and misleading extension descriptions to trick users
 
 ## Threat Actor Activities
 
-- **Akira Ransomware Group**: Continued targeting of SonicWall devices for initial access with observed spike in intrusion attempts
-- **Chinese APT Groups**: Deployment of EggStreme fileless malware against Philippine military targets and suspected impersonation of US congressional representatives
-- **Russian APT Operations**: Targeting of Kazakhstan's largest oil company through compromised employee email accounts, though the company claims it was a penetration test
-- **Supply Chain Attackers**: Orchestrated the largest NPM ecosystem compromise in history affecting 10% of cloud environments
-- **Cybercriminal Networks**: Distribution of AsyncRAT malware through legitimate RMM platforms for credential and cryptocurrency theft
-- **Malvertising Campaigns**: Distribution of fake browser extensions designed to hijack Meta Business accounts through malicious advertising networks
+- **Akira Ransomware Group**: Actively exploiting SonicWall devices for network infiltration and ransomware deployment
+- **AsyncRAT Operators**: Leveraging ConnectWise ScreenConnect to distribute remote access trojans for credential and cryptocurrency theft
+- **NPM Supply Chain Attackers**: Conducted the largest package repository compromise in NPM history, though with limited financial success
+- **Malvertising Threat Actors**: Running sophisticated campaigns targeting business users with fake browser extensions to compromise Meta Business accounts
