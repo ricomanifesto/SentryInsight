@@ -1,56 +1,64 @@
 # Exploitation Report
 
-Multiple significant exploitation campaigns are currently active, with threat actors leveraging SonicWall SSL VPN vulnerabilities, browser extension malware, and sophisticated APT operations. The Akira ransomware group continues to exploit SonicWall devices for initial access, while malicious browser extensions are hijacking Meta business accounts. Chinese APT groups are deploying advanced fileless malware against military targets and conducting spear-phishing campaigns impersonating US officials. Additionally, a massive NPM supply-chain attack has impacted approximately 10% of cloud environments, though attackers reportedly made minimal profit from the compromise.
+Current threat activity reveals several critical exploitation campaigns targeting enterprise infrastructure and consumer applications. The most significant threats include Akira ransomware group's active exploitation of SonicWall SSL VPN vulnerabilities and misconfigurations, Chinese APT groups deploying advanced fileless malware frameworks against military targets, and sophisticated browser extension hijacking campaigns targeting Meta Business accounts. Additional concerns include AsyncRAT malware leveraging legitimate remote management tools, massive NPM supply chain attacks affecting cloud environments, and code execution vulnerabilities in AI development tools. These exploitation activities demonstrate adversaries' focus on infrastructure access, credential theft, and supply chain compromise.
 
 ## Active Exploitation Details
 
 ### SonicWall SSL VPN Vulnerabilities
-- **Description**: Critical vulnerabilities and misconfigurations in SonicWall SSL VPN devices are being actively exploited
-- **Impact**: Allows threat actors to gain initial access to corporate networks for ransomware deployment
+- **Description**: Critical vulnerabilities and misconfigurations in SonicWall SSL VPN devices that provide initial access vectors
+- **Impact**: Allows threat actors to gain unauthorized access to corporate networks and deploy ransomware
 - **Status**: Actively exploited by Akira ransomware group with observed spike in intrusions
 
-### Fake Browser Extensions Campaign
-- **Description**: Malicious browser extensions masquerading as legitimate Madgicx Plus and SocialMetrics tools
-- **Impact**: Hijacking of Meta Business accounts and theft of sensitive data
-- **Status**: Active malvertising campaign using fake websites and malicious ads for distribution
-
-### ConnectWise ScreenConnect Exploitation
-- **Description**: Legitimate Remote Monitoring and Management (RMM) software being leveraged maliciously
-- **Impact**: Deployment of AsyncRAT malware for credential theft and cryptocurrency stealing
-- **Status**: Active campaign using fleshless loader techniques
-
-### EggStreme Fileless Malware
+### EggStreme Fileless Malware Framework
 - **Description**: Previously undocumented fileless malware framework deployed by Chinese APT groups
-- **Impact**: Compromise of Philippines-based military company systems
-- **Status**: Active deployment against military targets
+- **Impact**: Enables persistent access to military and government systems while evading detection
+- **Status**: Active deployment against Philippines-based military companies
 
-### NPM Supply-Chain Attack
-- **Description**: Largest supply-chain compromise in NPM ecosystem history
-- **Impact**: Affected approximately 10% of all cloud environments
-- **Status**: Recently discovered massive compromise with limited attacker profit
+### Malicious Browser Extensions Campaign
+- **Description**: Fake Madgicx Plus and SocialMetrics browser extensions distributed through malvertising
+- **Impact**: Hijacking of Meta Business accounts and theft of sensitive user data
+- **Status**: Active campaign using malicious ads and fake websites for distribution
+
+### ConnectWise ScreenConnect Abuse
+- **Description**: Legitimate Remote Monitoring and Management software being exploited to deliver AsyncRAT malware
+- **Impact**: Credential theft, cryptocurrency stealing, and deployment of fleshless loader malware
+- **Status**: Active campaign leveraging legitimate RMM tools for malicious purposes
+
+### NPM Supply Chain Compromise
+- **Description**: Massive supply-chain attack affecting approximately 10% of all cloud environments
+- **Impact**: Widespread compromise of JavaScript package ecosystem and cloud infrastructure
+- **Status**: Attack completed but with limited financial success for attackers
+
+### Cursor AI Editor Code Execution
+- **Description**: Weakness in Cursor code editor that allows automatic execution of malicious code when repositories are opened
+- **Impact**: Developers exposed to risk of automatic malicious task execution
+- **Status**: Vulnerability allows "autorun" of malicious code from repositories
 
 ## Affected Systems and Products
 
-- **SonicWall SSL VPN Devices**: All versions with known vulnerabilities and misconfigurations
-- **Meta Business Accounts**: Targeted through malicious browser extensions
-- **ConnectWise ScreenConnect**: RMM software being abused for malware delivery
-- **NPM Ecosystem**: JavaScript package manager affecting cloud environments
-- **Philippine Military Systems**: Compromised by Chinese APT operations
-- **Browser Extensions**: Chrome and other browsers targeted by fake extensions
+- **SonicWall SSL VPN Devices**: Multiple models and configurations being actively targeted
+- **ConnectWise ScreenConnect**: Legitimate RMM software being abused for malware delivery
+- **Meta Business Accounts**: Targeted through fake browser extensions for account hijacking
+- **NPM Ecosystem**: JavaScript package manager affecting cloud environments globally
+- **Philippine Military Systems**: Targeted by Chinese APT using fileless malware
+- **Cursor AI Editor**: Development environment exposed to code execution risks
+- **Browser Extensions**: Chrome and other browsers targeted through malicious extension campaigns
 
 ## Attack Vectors and Techniques
 
-- **VPN Exploitation**: Direct exploitation of SonicWall SSL VPN flaws for initial access
-- **Malvertising**: Distribution of fake browser extensions through malicious advertisements
-- **Social Engineering**: Impersonation of legitimate software tools and US lawmakers
-- **Supply-Chain Compromise**: Injection of malicious code into NPM packages
-- **Fileless Malware**: Memory-resident malware deployment avoiding disk-based detection
-- **Spear-Phishing**: Targeted email campaigns impersonating government officials
+- **SSL VPN Exploitation**: Direct targeting of VPN infrastructure vulnerabilities and misconfigurations
+- **Fileless Malware**: Memory-resident malware techniques to avoid detection
+- **Malvertising**: Malicious advertising campaigns to distribute fake browser extensions
+- **Supply Chain Attacks**: Compromise of software distribution channels and package managers
+- **Living-off-the-Land**: Abuse of legitimate administrative tools for malicious purposes
+- **Social Engineering**: Fake websites and applications to trick users into installing malware
+- **Code Repository Poisoning**: Malicious code embedded in development repositories
 
 ## Threat Actor Activities
 
-- **Akira Ransomware Group**: Continued targeting of SonicWall devices with spike in intrusion activity
-- **Chinese APT Groups**: Deployment of EggStreme malware against Philippine military targets and spear-phishing campaigns impersonating US Congressman John Moolenaar
-- **Russian APT Groups**: Compromise of Kazakhstan's largest oil company using employee email accounts
-- **Malvertising Operators**: Distribution of fake browser extensions targeting Meta business accounts
-- **Supply-Chain Attackers**: Massive NPM ecosystem compromise affecting cloud environments globally
+- **Akira Ransomware Group**: Continued targeting of SonicWall devices for initial network access and ransomware deployment
+- **Chinese APT Groups**: Advanced persistent threat operations against Philippine military using sophisticated fileless malware frameworks
+- **Cryptocurrency Thieves**: AsyncRAT campaigns specifically targeting cryptocurrency wallets and credentials
+- **Supply Chain Attackers**: Large-scale NPM ecosystem compromise affecting cloud environments worldwide
+- **Browser Extension Threat Actors**: Malvertising campaigns targeting Meta Business account credentials
+- **Russian APT**: Suspected involvement in attacks against Kazakhstan's largest oil company using compromised employee email accounts
