@@ -1,51 +1,56 @@
 # Exploitation Report
 
-Based on the security articles analyzed, several critical exploitation activities and security incidents are currently impacting organizations across multiple sectors. The most significant threats include a massive NPM supply-chain attack affecting 10% of all cloud environments, Chinese APT groups deploying fileless malware against Philippine military systems, sophisticated social engineering attacks resulting in $380M in damages, and critical vulnerabilities in development tools that allow automatic code execution. Additional concerns include insider threats in educational environments, large-scale DDoS attacks reaching 1.5 billion packets per second, and data breaches at major automotive companies.
+Multiple significant exploitation campaigns are currently active, with threat actors leveraging SonicWall SSL VPN vulnerabilities, browser extension malware, and sophisticated APT operations. The Akira ransomware group continues to exploit SonicWall devices for initial access, while malicious browser extensions are hijacking Meta business accounts. Chinese APT groups are deploying advanced fileless malware against military targets and conducting spear-phishing campaigns impersonating US officials. Additionally, a massive NPM supply-chain attack has impacted approximately 10% of cloud environments, though attackers reportedly made minimal profit from the compromise.
 
 ## Active Exploitation Details
 
+### SonicWall SSL VPN Vulnerabilities
+- **Description**: Critical vulnerabilities and misconfigurations in SonicWall SSL VPN devices are being actively exploited
+- **Impact**: Allows threat actors to gain initial access to corporate networks for ransomware deployment
+- **Status**: Actively exploited by Akira ransomware group with observed spike in intrusions
+
+### Fake Browser Extensions Campaign
+- **Description**: Malicious browser extensions masquerading as legitimate Madgicx Plus and SocialMetrics tools
+- **Impact**: Hijacking of Meta Business accounts and theft of sensitive data
+- **Status**: Active malvertising campaign using fake websites and malicious ads for distribution
+
+### ConnectWise ScreenConnect Exploitation
+- **Description**: Legitimate Remote Monitoring and Management (RMM) software being leveraged maliciously
+- **Impact**: Deployment of AsyncRAT malware for credential theft and cryptocurrency stealing
+- **Status**: Active campaign using fleshless loader techniques
+
+### EggStreme Fileless Malware
+- **Description**: Previously undocumented fileless malware framework deployed by Chinese APT groups
+- **Impact**: Compromise of Philippines-based military company systems
+- **Status**: Active deployment against military targets
+
 ### NPM Supply-Chain Attack
-- **Description**: The largest supply-chain compromise in NPM ecosystem history, impacting approximately 10% of all cloud environments through malicious packages in the Node.js package manager
-- **Impact**: Widespread compromise of cloud environments and potential access to sensitive application data and infrastructure
-- **Status**: Attack has been contained but attackers made little profit from the massive campaign
-
-### EggStreme Fileless Malware Framework
-- **Description**: Previously undocumented fileless malware framework deployed by Chinese APT groups targeting military and defense organizations
-- **Impact**: Complete system compromise with persistent access while evading traditional detection mechanisms
-- **Status**: Actively used in targeted attacks against Philippine military systems
-
-### Cursor AI Code Editor Vulnerability
-- **Description**: Weakness in the Cursor code editor that allows malicious repositories to automatically execute code when opened by developers
-- **Impact**: Automatic execution of malicious code on developer workstations, potentially leading to supply-chain attacks
-- **Status**: Vulnerability allows "autorun" of malicious code through repository manipulation
-
-### Claude AI Data Exposure Risk
-- **Description**: New document creation and editing features in Claude AI that can be exploited by hackers to access sensitive user data
-- **Impact**: Potential exposure of confidential documents, spreadsheets, and other sensitive files processed through the AI system
-- **Status**: Anthropic has acknowledged the risk and issued warnings to users
+- **Description**: Largest supply-chain compromise in NPM ecosystem history
+- **Impact**: Affected approximately 10% of all cloud environments
+- **Status**: Recently discovered massive compromise with limited attacker profit
 
 ## Affected Systems and Products
 
-- **NPM Ecosystem**: Node.js package manager and associated cloud environments globally
-- **Cursor Code Editor**: Development environments using the AI-powered code editor
-- **Claude AI Platform**: Document processing and editing features in Anthropic's AI system
-- **Philippine Military Systems**: Government and military infrastructure targeted by Chinese APT groups
-- **Jaguar Land Rover Systems**: Corporate infrastructure compromised in recent cyberattack
-- **Educational Institutions**: Student-accessible systems and networks across the education sector
+- **SonicWall SSL VPN Devices**: All versions with known vulnerabilities and misconfigurations
+- **Meta Business Accounts**: Targeted through malicious browser extensions
+- **ConnectWise ScreenConnect**: RMM software being abused for malware delivery
+- **NPM Ecosystem**: JavaScript package manager affecting cloud environments
+- **Philippine Military Systems**: Compromised by Chinese APT operations
+- **Browser Extensions**: Chrome and other browsers targeted by fake extensions
 
 ## Attack Vectors and Techniques
 
-- **Supply-Chain Compromise**: Injection of malicious code into widely-used NPM packages to achieve broad distribution
-- **Fileless Malware Deployment**: Use of memory-resident malware that avoids disk-based detection mechanisms
-- **Social Engineering**: Sophisticated phone-based attacks targeting help desk personnel to bypass authentication controls
-- **Repository Manipulation**: Exploitation of code editor features to achieve automatic code execution
-- **Spear-Phishing**: Targeted email attacks using impersonation of government officials
-- **AI Feature Exploitation**: Abuse of document processing capabilities to extract sensitive information
+- **VPN Exploitation**: Direct exploitation of SonicWall SSL VPN flaws for initial access
+- **Malvertising**: Distribution of fake browser extensions through malicious advertisements
+- **Social Engineering**: Impersonation of legitimate software tools and US lawmakers
+- **Supply-Chain Compromise**: Injection of malicious code into NPM packages
+- **Fileless Malware**: Memory-resident malware deployment avoiding disk-based detection
+- **Spear-Phishing**: Targeted email campaigns impersonating government officials
 
 ## Threat Actor Activities
 
-- **Chinese APT Groups**: Conducting targeted campaigns against Philippine military organizations using advanced fileless malware and impersonating US lawmakers in spear-phishing operations
-- **Scattered Spider**: Executing sophisticated social engineering attacks against corporate help desks, resulting in multi-million dollar damages through password reset manipulation
-- **NPM Supply-Chain Attackers**: Conducting the largest known supply-chain attack in NPM history, though with limited financial success
-- **Educational Insider Threats**: Students posing internal security risks through unauthorized access and system manipulation
-- **DDoS Attack Groups**: Launching massive denial-of-service attacks reaching 1.5 billion packets per second against European DDoS mitigation providers
+- **Akira Ransomware Group**: Continued targeting of SonicWall devices with spike in intrusion activity
+- **Chinese APT Groups**: Deployment of EggStreme malware against Philippine military targets and spear-phishing campaigns impersonating US Congressman John Moolenaar
+- **Russian APT Groups**: Compromise of Kazakhstan's largest oil company using employee email accounts
+- **Malvertising Operators**: Distribution of fake browser extensions targeting Meta business accounts
+- **Supply-Chain Attackers**: Massive NPM ecosystem compromise affecting cloud environments globally
