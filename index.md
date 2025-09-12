@@ -1,51 +1,47 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity is currently impacting multiple sectors, with ransomware operators leveraging sophisticated techniques to bypass security controls. Notable active exploitation includes CVE-2024-7344 being exploited by HybridPetya ransomware to bypass UEFI Secure Boot protections, CVE-2025-5086 in DELMIA Apriso Manufacturing Operations Management software being actively exploited in the wild, and a Samsung zero-day vulnerability reported by WhatsApp that was being exploited in targeted attacks. Additional concerns include the Gentlemen ransomware family weaponizing vulnerable drivers to disable security solutions, and security flaws in AI-powered development tools that could enable silent code execution.
+Critical security threats are actively targeting users across multiple platforms and sectors. A significant zero-day vulnerability in Samsung Android devices has been exploited in targeted attacks, while advanced ransomware is bypassing fundamental security measures like UEFI Secure Boot. Additionally, a critical remote code execution vulnerability in industrial manufacturing systems is under active exploitation, and sophisticated spyware campaigns continue targeting high-profile users. These incidents highlight the evolving threat landscape where attackers are successfully circumventing modern security protections and exploiting both known and unknown vulnerabilities.
 
 ## Active Exploitation Details
 
-### HybridPetya Ransomware UEFI Bypass
-- **Description**: A new ransomware strain that combines characteristics of the notorious Petya/NotPetya malware with advanced UEFI bypass capabilities
-- **Impact**: Can circumvent UEFI Secure Boot protections, allowing for low-level system compromise and encryption
-- **Status**: Actively exploiting systems in the wild
+### Samsung Android Zero-Day Vulnerability
+- **Description**: A critical security vulnerability in Samsung Android devices that has been exploited in zero-day attacks
+- **Impact**: Attackers can compromise Android devices through targeted exploitation
+- **Status**: Samsung has released monthly security updates that include a fix for this actively exploited vulnerability
+- **CVE ID**: CVE-2025-21043
+
+### Dassault DELMIA Apriso Remote Code Execution
+- **Description**: A critical remote code execution flaw in DELMIA Apriso, a manufacturing operations management (MOM) application
+- **Impact**: Attackers can execute arbitrary code remotely on affected manufacturing systems
+- **Status**: CISA has issued warnings about active exploitation in the wild
+
+### HybridPetya UEFI Secure Boot Bypass
+- **Description**: A new ransomware strain that exploits a vulnerability to bypass UEFI Secure Boot protections and install malicious applications on the EFI System Partition
+- **Impact**: Complete system compromise, encryption of data, and persistence at the firmware level
+- **Status**: Active ransomware campaigns utilizing this technique have been discovered
 - **CVE ID**: CVE-2024-7344
-
-### DELMIA Apriso Manufacturing Vulnerability
-- **Description**: Critical security flaw in Dassault Systèmes DELMIA Apriso Manufacturing Operations Management software
-- **Impact**: Allows attackers to compromise manufacturing and industrial control systems
-- **Status**: Actively exploited in the wild, CISA has issued official warning
-- **CVE ID**: CVE-2025-5086
-
-### Samsung Android Zero-Day
-- **Description**: Remote code execution vulnerability affecting Samsung Android devices
-- **Impact**: Enables attackers to execute arbitrary code remotely on targeted devices
-- **Status**: Was being actively exploited before Samsung released patches, reported by WhatsApp security team
-
-### Cursor AI Code Editor Vulnerability
-- **Description**: Security weakness in the AI-powered code editor that enables silent code execution
-- **Impact**: Maliciously crafted repositories can trigger code execution when opened in the editor
-- **Status**: Vulnerability disclosed, affects developers using the platform
 
 ## Affected Systems and Products
 
-- **Dassault Systèmes DELMIA Apriso**: Manufacturing Operations Management software used in industrial environments
-- **Samsung Android Devices**: Various Samsung smartphone and tablet models running Android
-- **UEFI-Enabled Systems**: Computers and servers with UEFI Secure Boot implementations vulnerable to CVE-2024-7344
-- **Cursor AI Code Editor**: AI-powered development environment used by software developers
-- **Solar-Powered Highway Infrastructure**: Transportation department devices with undocumented radio components
-- **Systems with ThrottleStop.sys Driver**: Windows systems vulnerable to driver abuse by Gentlemen ransomware
+- **Samsung Android Devices**: Various Samsung Android models affected by the zero-day vulnerability
+- **DELMIA Apriso**: Manufacturing operations management applications in industrial environments
+- **UEFI Systems**: Computers with UEFI firmware vulnerable to Secure Boot bypass techniques
+- **Apple iOS Devices**: French users targeted in ongoing spyware campaigns
+- **Windows 11 23H2**: Home and Pro editions approaching end of support, creating potential security risks
+- **Solar-Powered Infrastructure**: Highway infrastructure devices with undocumented radio capabilities
 
 ## Attack Vectors and Techniques
 
-- **UEFI Secure Boot Bypass**: HybridPetya exploits CVE-2024-7344 to circumvent boot-level security protections
-- **Vulnerable Driver Abuse**: Gentlemen ransomware weaponizes the ThrottleStop.sys driver to disable antivirus and EDR systems
-- **Malicious Repository Exploitation**: Cursor AI vulnerability triggered through specially crafted code repositories
-- **Remote Code Execution**: Samsung vulnerability allows attackers to execute code remotely on Android devices
-- **Manufacturing System Compromise**: DELMIA Apriso vulnerability enables attacks on industrial control systems
+- **Zero-Day Exploitation**: Direct exploitation of previously unknown vulnerabilities in Samsung Android devices
+- **Remote Code Execution**: Network-based attacks against manufacturing management systems
+- **UEFI Firmware Manipulation**: Advanced ransomware bypassing Secure Boot protections through firmware-level exploitation
+- **Spyware Deployment**: Targeted campaigns against specific user groups using sophisticated surveillance tools
+- **Infrastructure Compromise**: Potential risks from undocumented communication capabilities in critical infrastructure
 
 ## Threat Actor Activities
 
-- **HybridPetya Operators**: Deploying advanced ransomware with UEFI bypass capabilities to evade security controls
-- **Gentlemen Ransomware Group**: Utilizing vulnerable driver abuse techniques to disable endpoint security solutions before encryption
-- **Samsung Device Attackers**: Conducting targeted zero-day attacks against Samsung Android users, detected by WhatsApp security team
-- **Industrial System Attackers**: Actively exploiting manufacturing software vulnerabilities to compromise operational technology environments
+- **Mobile Device Attackers**: Conducting zero-day attacks against Samsung Android users with targeted exploitation campaigns
+- **Industrial System Attackers**: Actively exploiting manufacturing operations management systems for unauthorized access and potential operational disruption
+- **Ransomware Operators**: Deploying HybridPetya ransomware with advanced UEFI bypass capabilities for maximum system compromise and persistence
+- **State-Sponsored Groups**: Conducting sophisticated spyware campaigns targeting French users through multiple waves of attacks in 2025
+- **Infrastructure Threat Actors**: Potential exploitation of undocumented radio capabilities in solar-powered highway infrastructure devices
