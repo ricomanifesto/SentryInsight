@@ -1,36 +1,37 @@
 # Exploitation Report
 
-Analysis of the provided security articles reveals limited active exploitation activity, with most content focusing on product updates, hardware reviews, and general cybersecurity awareness rather than specific vulnerability exploitation. The most significant security concern identified is the Phoenix attack, which represents a new variant of Rowhammer attacks that successfully bypasses existing DDR5 memory protections. Additionally, Microsoft has acknowledged several Windows compatibility issues that could impact system security, and researchers have demonstrated a new "Lies-in-the-Loop" attack against AI coding agents that could enable supply chain compromises.
+The current threat landscape reveals several critical security concerns affecting enterprise and consumer systems. Most notably, a new Phoenix attack has successfully bypassed modern DDR5 memory defenses, demonstrating advanced memory manipulation techniques that could enable privilege escalation and system compromise. Additionally, insider threats continue to pose significant risks, as evidenced by a FinWise Bank breach affecting 689,000 customers through unauthorized access by a former employee. The security community is also grappling with browser-based attacks that are experiencing unprecedented growth, targeting users through their web browsers with increasingly sophisticated techniques.
 
 ## Active Exploitation Details
 
 ### Phoenix Rowhammer Attack
-- **Description**: A new variant of Rowhammer attacks specifically designed to bypass the latest protection mechanisms implemented in DDR5 memory chips from SK Hynix
-- **Impact**: Attackers can potentially gain unauthorized memory access and execute privilege escalation attacks by exploiting memory cell disturbance in DDR5 RAM
-- **Status**: Currently a proof-of-concept demonstrated by academic researchers; no reports of active exploitation in the wild
+- **Description**: A sophisticated variant of Rowhammer attacks specifically designed to bypass the latest protection mechanisms implemented in DDR5 memory chips from SK Hynix
+- **Impact**: Attackers can potentially achieve privilege escalation, memory corruption, and system compromise by manipulating memory cells through repeated access patterns
+- **Status**: Currently a proof-of-concept attack demonstrated by academic researchers; no widespread exploitation reported yet
 
-### Lies-in-the-Loop AI Attack
-- **Description**: A deception-based attack targeting AI-assisted coding tools where researchers successfully manipulated Anthropic's AI coding agent through deliberate misinformation
-- **Impact**: Could lead to supply chain attacks by convincing AI coding assistants to generate malicious code or engage in dangerous behaviors
-- **Status**: Demonstrated in research environment; potential for real-world exploitation exists
+### Browser-Based Attack Vectors
+- **Description**: Multiple attack techniques targeting users through web browsers, showing unprecedented growth in recent years
+- **Impact**: Enables various forms of compromise including credential theft, malware delivery, and unauthorized access to sensitive data
+- **Status**: Actively being exploited across multiple attack vectors with increasing sophistication
 
 ## Affected Systems and Products
 
-- **DDR5 Memory Systems**: SK Hynix DDR5 memory chips vulnerable to Phoenix Rowhammer attacks
-- **Windows 11 Systems**: Audio compatibility issues with Bluetooth devices in Windows 11 24H2 update
-- **Windows SMB Shares**: Connection problems to SMBv1 shares caused by September 2025 security updates
-- **AI Coding Tools**: Anthropic's AI-assisted coding agents susceptible to deception-based manipulation
-- **Microsoft Exchange**: Exchange 2016 and 2019 servers reaching end of support, creating potential security exposure
+- **DDR5 Memory**: SK Hynix DDR5 memory chips vulnerable to Phoenix Rowhammer attacks despite built-in protection mechanisms
+- **Microsoft Exchange**: Exchange 2016 and 2019 servers reaching end of support in 30 days, creating potential security exposure
+- **Windows Systems**: SMBv1 shares experiencing connection issues following September 2025 security updates
+- **Web Browsers**: All major browsers potentially affected by the rising wave of browser-based attacks
+- **FinWise Bank Systems**: Customer data systems compromised through insider access
 
 ## Attack Vectors and Techniques
 
-- **Memory Exploitation**: Phoenix attack leverages advanced Rowhammer techniques to bypass DDR5 protection mechanisms through precise memory cell manipulation
-- **Social Engineering Against AI**: Lies-in-the-Loop technique uses deliberate misinformation to manipulate AI decision-making processes
-- **Legacy Protocol Exploitation**: Potential security risks from continued use of deprecated SMBv1 protocol
-- **Browser-Based Attacks**: Multiple attack vectors targeting web browsers, though specific techniques not detailed in the source material
+- **Memory Manipulation**: Phoenix attack uses advanced techniques to bypass DDR5 memory protection mechanisms through precise timing and access patterns
+- **Insider Threats**: Former employees accessing sensitive systems after employment termination, highlighting access control vulnerabilities
+- **Browser Exploitation**: Six distinct browser-based attack methods being actively deployed against users
+- **SMB Protocol Exploitation**: Potential attack surface created by broken SMBv1 share connections following Windows updates
 
 ## Threat Actor Activities
 
-- **Academic Researchers**: Demonstrated Phoenix Rowhammer attack capabilities against DDR5 memory systems
-- **Security Researchers**: Successfully executed Lies-in-the-Loop attacks against AI coding agents to highlight potential supply chain risks
-- **General Threat Landscape**: Articles reference increasing browser-based attacks and bootkit malware activity, though specific actor attribution was not provided in the source material
+- **Academic Researchers**: Demonstrated Phoenix Rowhammer attack capabilities against DDR5 memory defenses, raising concerns about real-world exploitation potential
+- **Insider Actors**: Former FinWise Bank employee conducted unauthorized access to customer data systems, affecting 689,000 American First Finance customers
+- **Browser-Based Attackers**: Increasing activity from threat actors focusing on browser-based attack vectors with growing sophistication and frequency
+- **Supply Chain Threats**: Continued focus on bootkit malware and AI-powered attacks as part of broader supply chain compromise efforts
