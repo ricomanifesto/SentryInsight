@@ -1,51 +1,51 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical security incidents targeting key infrastructure and enterprise systems. Ransomware operations continue to impact critical healthcare supply chains, while sophisticated threat actors are exploiting authentication systems and deploying advanced malware through multiple attack vectors. Notable activities include KillSec ransomware targeting Brazilian healthcare providers, fraudulent access to Google's law enforcement portal, and Mustang Panda's deployment of USB worms and backdoors targeting Thailand-based systems. Additionally, new attack techniques like the Phoenix attack are bypassing modern memory protections in DDR5 systems, while insider threats and social engineering attacks against cloud platforms demonstrate the evolving nature of cybersecurity challenges.
+The security landscape reveals several concerning exploitation activities, with threat actors actively targeting healthcare infrastructure, cloud platforms, and enterprise systems. Notable incidents include the KillSec ransomware group successfully breaching a Brazilian healthcare software provider and compromising sensitive patient data. Additionally, sophisticated threat actors have created fraudulent accounts in Google's Law Enforcement Request System, while Chinese-aligned Mustang Panda has deployed advanced malware including the SnakeDisk USB worm and updated TONESHELL backdoor variants. The FBI has issued warnings about coordinated attacks against Salesforce customers by threat groups UNC6040 and UNC6395, and researchers have demonstrated new memory-based attacks that bypass modern DDR5 security protections.
 
 ## Active Exploitation Details
 
-### Google Law Enforcement Request System Breach
-- **Description**: Hackers successfully created fraudulent accounts in Google's Law Enforcement Request System (LERS), a platform used by law enforcement agencies to submit official data requests
-- **Impact**: Unauthorized access to sensitive law enforcement data request systems, potentially compromising ongoing investigations and exposing request methodologies
-- **Status**: Confirmed by Google, incident under investigation
+### KillSec Ransomware Attack
+- **Description**: Ransomware attack targeting Brazilian healthcare technology infrastructure
+- **Impact**: Breach of healthcare technology supply chain with theft of sensitive patient data
+- **Status**: Active ongoing investigation, compromised healthcare software provider systems
 
-### KillSec Ransomware Healthcare Attack
-- **Description**: Ransomware attack targeting a Brazilian healthcare software provider, described as a "major element" of the healthcare technology supply chain
-- **Impact**: Breach of sensitive patient data and potential disruption to healthcare services across multiple facilities dependent on the compromised provider
-- **Status**: Active incident with data exfiltration confirmed
+### Google Law Enforcement Portal Compromise
+- **Description**: Creation of fraudulent accounts within Google's Law Enforcement Request System (LERS)
+- **Impact**: Potential unauthorized access to user data through abuse of legitimate law enforcement channels
+- **Status**: Confirmed by Google, fraudulent account identified and addressed
 
-### Phoenix Attack on DDR5 Memory
-- **Description**: New variant of Rowhammer attacks that bypass the latest protection mechanisms specifically targeting SK Hynix DDR5 memory chips
-- **Impact**: Memory corruption attacks that can potentially lead to privilege escalation and system compromise by exploiting hardware-level vulnerabilities
-- **Status**: Proof-of-concept demonstrated by academic researchers, real-world exploitation potential confirmed
+### Mustang Panda Malware Campaign
+- **Description**: Advanced persistent threat campaign using updated TONESHELL backdoor and new SnakeDisk USB worm
+- **Impact**: Lateral movement through USB propagation and persistent backdoor access on Thai IP addresses
+- **Status**: Active campaign with newly documented malware variants
 
-### Mustang Panda SnakeDisk USB Worm Campaign
-- **Description**: China-aligned threat actor deploying updated TONESHELL backdoor and new SnakeDisk USB worm targeting Thailand-based IP addresses
-- **Impact**: Network propagation through USB devices and deployment of Yokai backdoor for persistent access and data exfiltration
-- **Status**: Active campaign with updated malware variants detected
+### Phoenix Rowhammer Attack
+- **Description**: New variant of Rowhammer attacks targeting DDR5 memory systems
+- **Impact**: Bypasses latest memory protection mechanisms on SK Hynix DDR5 chips
+- **Status**: Academic proof-of-concept demonstrated, affects current DDR5 implementations
 
 ## Affected Systems and Products
 
-- **Google Law Enforcement Request System (LERS)**: Authentication and access control systems compromised
-- **Brazilian Healthcare Software Provider**: Core healthcare technology infrastructure affecting multiple downstream clients
+- **Brazilian Healthcare Software**: Major healthcare technology provider compromised by KillSec ransomware
+- **Google LERS Platform**: Law enforcement data request system targeted by fraudulent account creation
+- **Salesforce Customers**: Multiple organizations targeted by coordinated threat actor campaigns
 - **DDR5 Memory Systems**: SK Hynix DDR5 memory chips vulnerable to Phoenix Rowhammer attacks
-- **Thailand-based Networks**: Systems targeted by Mustang Panda's SnakeDisk worm propagation
-- **Salesforce Platform**: Multiple customers targeted by UNC6040 and UNC6395 threat actors
-- **FinWise Bank Systems**: Internal systems accessed by former employee affecting 689,000 customers
-- **Microsoft Exchange 2016/2019**: End-of-support systems at increased risk of exploitation
+- **FinWise Bank Systems**: Corporate customer data accessed through insider threat
+- **Thai Network Infrastructure**: Systems targeted by Mustang Panda USB worm propagation
 
 ## Attack Vectors and Techniques
 
-- **Fraudulent Account Creation**: Social engineering and credential manipulation to gain unauthorized access to legitimate platforms
-- **Supply Chain Compromise**: Targeting healthcare technology providers to impact multiple downstream organizations
-- **USB Worm Propagation**: Physical device-based malware distribution through SnakeDisk worm
-- **Memory Exploitation**: Hardware-level attacks using Phoenix technique to bypass DDR5 protections
-- **Insider Threats**: Former employees accessing sensitive systems after employment termination
-- **Ransomware Deployment**: KillSec ransomware used for data encryption and exfiltration
+- **Ransomware Deployment**: KillSec group targeting healthcare supply chain infrastructure
+- **Social Engineering**: Fraudulent law enforcement account creation for data access
+- **USB Worm Propagation**: SnakeDisk malware spreading through removable media
+- **Memory Exploitation**: Phoenix attack bypassing DDR5 Rowhammer protections
+- **Insider Threats**: Former employee unauthorized access to sensitive financial data
+- **Cloud Platform Targeting**: Coordinated attacks against Salesforce customer environments
 
 ## Threat Actor Activities
 
-- **Mustang Panda**: China-aligned group deploying SnakeDisk USB worm and updated TONESHELL backdoor, specifically targeting Thailand-based IP addresses with Yokai backdoor payloads
-- **UNC6040 and UNC6395**: Threat actors identified by FBI as targeting Salesforce customers through coordinated attacks, operating both separately and in tandem
-- **KillSec Ransomware Group**: Active ransomware operation targeting healthcare supply chain infrastructure in Brazil, focusing on data exfiltration and encryption
-- **Unknown Threat Actor**: Sophisticated group capable of creating fraudulent accounts in Google's law enforcement systems, demonstrating advanced social engineering capabilities
+- **KillSec Ransomware Group**: Actively targeting healthcare technology providers in Brazil with focus on patient data theft
+- **Unknown Threat Actors**: Sophisticated actors creating fraudulent law enforcement accounts to abuse legitimate data request systems
+- **Mustang Panda (Chinese APT)**: Deploying updated malware toolkit including TONESHELL backdoor and SnakeDisk USB worm against Thai infrastructure
+- **UNC6040 and UNC6395**: FBI-identified threat groups conducting coordinated campaigns against Salesforce customers, operating both separately and in collaboration
+- **Insider Threats**: Former FinWise Bank employee conducting unauthorized data access affecting 689,000 American First Finance customers
