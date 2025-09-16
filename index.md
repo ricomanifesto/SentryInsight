@@ -1,49 +1,59 @@
 # Exploitation Report
 
-Critical exploitation activity has emerged across multiple attack vectors, with Apple backporting fixes for an actively exploited vulnerability with a CVSS score of 8.8 being used in sophisticated spyware campaigns. Simultaneously, threat actors are conducting large-scale supply chain attacks affecting over 40 npm packages to steal credentials, while advanced memory-based attacks are bypassing DDR5 protections in just over 100 seconds. Notable threat actor campaigns include Mustang Panda deploying USB worms targeting Thailand infrastructure and multiple groups targeting Salesforce customers with sophisticated attack techniques.
+Current threat intelligence reveals several critical exploitation activities affecting enterprise and consumer systems. The most significant activity includes a sophisticated spyware attack exploiting a recently patched Apple vulnerability (CVE-2025-43300) that has prompted emergency security updates across multiple iOS versions. Additionally, a massive ad fraud operation called SlopAds has compromised 224 Android applications with 38 million downloads, while a self-replicating worm has infected over 187 JavaScript packages in the NPM repository. New social engineering campaigns are leveraging FileFix variants to deploy StealC information stealer malware, and researchers have demonstrated a novel Phoenix RowHammer attack that bypasses DDR5 memory protections in under two minutes.
 
 ## Active Exploitation Details
 
-### Apple Out-of-Bounds Vulnerability
-- **Description**: A critical out-of-bounds vulnerability in Apple systems that has been actively exploited in sophisticated spyware attacks
-- **Impact**: Enables attackers to conduct advanced spyware operations with high severity impact
-- **Status**: Apple has backported fixes to address active exploitation
+### Apple iOS/iPadOS Out-of-Bounds Write Vulnerability
+- **Description**: An out-of-bounds write vulnerability in Apple's iOS and iPadOS systems that allows attackers to execute arbitrary code with elevated privileges
+- **Impact**: Attackers can gain complete system control and deploy sophisticated spyware on targeted devices
+- **Status**: Actively exploited in extremely sophisticated attacks; Apple has backported patches to older devices
 - **CVE ID**: CVE-2025-43300
 
-### npm Supply Chain Compromise
-- **Description**: Malicious code injection affecting over 40 npm packages across multiple maintainers using bundle.js for credential theft
-- **Impact**: Allows attackers to steal developer credentials and potentially compromise downstream applications
-- **Status**: Active exploitation targeting the npm registry ecosystem
+### SlopAds Android Ad Fraud Campaign
+- **Description**: Massive ad fraud and click fraud operation targeting Android users through malicious applications
+- **Impact**: Generates 2.3 billion fraudulent daily ad bids while potentially compromising user devices and data
+- **Status**: Actively ongoing across 228 countries and territories with 38 million affected downloads
 
-### Phoenix RowHammer Memory Attack
-- **Description**: Advanced RowHammer variant targeting DDR5 memory chips from SK Hynix, bypassing built-in protection mechanisms
-- **Impact**: Can achieve memory corruption and potential privilege escalation in 109 seconds
-- **Status**: Proof-of-concept demonstrated against advanced DDR5 protections
+### NPM Repository Worm Infection
+- **Description**: Self-replicating malware that spreads through JavaScript packages in the NPM repository
+- **Impact**: Steals developer credentials and publishes sensitive secrets on public platforms
+- **Status**: At least 187 code packages confirmed infected and spreading
+
+### FileFix Social Engineering Campaign
+- **Description**: New variant of FileFix social engineering attacks using steganography to hide malicious payloads
+- **Impact**: Delivers StealC information stealer malware through fake Meta account suspension warnings
+- **Status**: Active campaign targeting users through multilingual phishing sites
+
+### Phoenix RowHammer Attack
+- **Description**: Advanced memory exploitation technique targeting DDR5 memory chips with enhanced protections
+- **Impact**: Bypasses modern memory security measures to potentially achieve privilege escalation
+- **Status**: Proof-of-concept demonstrated against SK Hynix DDR5 memory in 109 seconds
 
 ## Affected Systems and Products
 
-- **Apple Devices**: Systems vulnerable to CVE-2025-43300 requiring backported security updates
-- **npm Registry**: Over 40 compromised packages affecting multiple maintainers and downstream dependencies
-- **DDR5 Memory**: SK Hynix DDR5 memory chips vulnerable to Phoenix RowHammer attacks
-- **Google Law Enforcement Portal**: Fraudulent account creation in Law Enforcement Request System (LERS)
-- **Salesforce Platform**: Multiple threat actors targeting customer environments
-- **FinWise Bank**: Corporate customer data exposed through insider breach affecting 689,000 customers
-- **Brazilian Healthcare Software**: Major healthcare technology supply chain element compromised by KillSec ransomware
+- **Apple iOS/iPadOS**: Older iPhone and iPad models now receiving backported security updates
+- **Android Applications**: 224 compromised apps across Google Play Store with global distribution
+- **NPM JavaScript Packages**: 187+ infected packages affecting Node.js developers and applications
+- **SK Hynix DDR5 Memory**: Specific memory modules vulnerable to Phoenix RowHammer attacks
+- **Web Browsers**: Target of FileFix campaigns using steganographic techniques
+- **Jaguar Land Rover Systems**: Production systems affected by recent cyberattack causing extended shutdowns
 
 ## Attack Vectors and Techniques
 
-- **Spyware Deployment**: Sophisticated spyware campaigns exploiting Apple vulnerabilities for advanced persistent access
-- **Supply Chain Poisoning**: Injection of malicious bundle.js code into npm packages for credential harvesting
-- **Memory Corruption**: Advanced RowHammer techniques bypassing DDR5 hardware protections in under two minutes
-- **USB Worm Propagation**: SnakeDisk USB worm deployment for lateral movement and backdoor installation
-- **Portal Impersonation**: Creation of fraudulent law enforcement accounts to bypass security controls
-- **Insider Threats**: Former employee access to sensitive customer data after employment termination
-- **Ransomware Operations**: Healthcare sector targeting with patient data exfiltration
+- **Spyware Deployment**: Exploitation of iOS vulnerabilities for sophisticated surveillance operations
+- **Ad Fraud Networks**: Malicious Android applications generating fraudulent advertising revenue
+- **Supply Chain Attacks**: Compromise of software repositories to distribute malicious code
+- **Social Engineering**: FileFix campaigns impersonating legitimate service notifications
+- **Steganography**: Hiding malicious payloads within seemingly innocent image files
+- **Memory Exploitation**: Advanced RowHammer techniques bypassing hardware-level protections
+- **Self-Replication**: Worm propagation through developer package dependencies
 
 ## Threat Actor Activities
 
-- **Mustang Panda**: China-aligned group deploying updated TONESHELL backdoor and SnakeDisk USB worm targeting Thailand IP addresses
-- **UNC6040 and UNC6395**: Two distinct threat actors targeting Salesforce customers both separately and in coordinated tandem operations
-- **KillSec Ransomware Group**: Targeting Brazilian healthcare software providers with patient data theft and encryption
-- **npm Package Compromisers**: Unknown actors conducting widespread supply chain attacks across multiple package maintainers
-- **Law Enforcement Portal Fraudsters**: Sophisticated actors creating fraudulent accounts in Google's law enforcement request system
+- **SlopAds Operators**: Large-scale ad fraud operation targeting mobile advertising ecosystems across 228 countries
+- **Spyware Campaign**: Sophisticated threat actors conducting targeted surveillance using zero-day exploits
+- **NPM Worm Authors**: Attackers focused on compromising software supply chains and stealing developer credentials
+- **FileFix Campaign Groups**: Social engineering specialists targeting users with fake account suspension warnings
+- **Phoenix Research Team**: Academic researchers from ETH Zürich and Google demonstrating memory attack capabilities
+- **Yurei Ransomware Group**: Emerging Moroccan cybercrime group using modified Prince-Ransomware binary with recovery flaws
