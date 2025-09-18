@@ -17,10 +17,10 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 
 ## Architecture
 
-**LangGraph**: Orchestrates workflow state and conditional logic  
-**Model Context Protocol (MCP)**: Standardized RSS feed interface  
-**LangChain**: AI model integration and text processing  
-**OpenAI GPT**: Content analysis and report generation
+**LangGraph**: Orchestrates workflow state and conditional logic
+**FastMCP**: Code organization with decorators for RSS tools
+**LangChain**: AI model integration and text processing
+**Anthropic Claude**: Content analysis and report generation
 
 ## Setup
 
@@ -29,9 +29,9 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
    pip install -r requirements.txt
    ```
 
-2. Add OpenAI API key:
+2. Add Anthropic API key:
    ```bash
-   echo "OPENAI_API_KEY=your-api-key-here" > .env
+   echo "ANTHROPIC_API_KEY=your-api-key-here" > .env
    ```
 
 3. Configure feeds and output paths in `config/config.json`
@@ -42,4 +42,4 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 python main.py
 ```
 
-Fetches articles, filters for exploitation content, analyzes threats, and saves reports to `docs/reports/index.md`.
+Fetches articles, filters for exploitation content, analyzes threats, and saves reports to `index.md`.
