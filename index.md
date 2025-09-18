@@ -1,44 +1,49 @@
 # Exploitation Report
 
-The current threat landscape reveals several significant security incidents involving major data breaches, sophisticated phishing operations, and evolving attack techniques. Critical exploitation activity includes the ShinyHunters extortion group's massive breach affecting 1.5 billion Salesforce records through compromised OAuth tokens, and the disruption of the RaccoonO365 Phishing-as-a-Service operation that facilitated widespread credential theft. Additionally, TA558 threat actors have been observed using AI-generated scripts to deploy Venom RAT in targeted attacks against Brazil's hotel sector, while the evolution of ClickFix malware demonstrates increasingly sophisticated social engineering techniques.
+Critical exploitation activity is currently focused on several high-impact vulnerabilities across major platforms. Google has patched its sixth Chrome zero-day vulnerability of the year, **CVE-2025-10585**, which affects the V8 JavaScript engine and has been actively exploited in the wild. WatchGuard has disclosed a critical remote code execution vulnerability in their Firebox firewalls that requires immediate patching. Additionally, the ShinyHunters extortion group has executed a massive data breach affecting Salesforce customers, claiming to have stolen 1.5 billion records from 760 companies through compromised OAuth tokens. Threat actor TA558 continues targeting hospitality sectors with AI-generated scripts deploying the Venom RAT, while several major organizations including SonicWall and Insight Partners have reported significant security breaches affecting thousands of users.
 
 ## Active Exploitation Details
 
-### Salesloft Drift OAuth Token Compromise
-- **Description**: ShinyHunters extortion group exploited compromised Salesloft Drift OAuth tokens to gain unauthorized access to Salesforce instances
-- **Impact**: Attackers claim to have stolen over 1.5 billion Salesforce records from 760 companies, representing a massive data breach affecting customer relationship management systems
-- **Status**: Active exploitation reported, with ShinyHunters claiming successful data exfiltration
+### Chrome V8 Engine Zero-Day
+- **Description**: A vulnerability in Google Chrome's V8 JavaScript engine that allows remote code execution
+- **Impact**: Attackers can execute arbitrary code on victim systems through malicious web content
+- **Status**: Actively exploited in the wild; emergency security updates released by Google
+- **CVE ID**: CVE-2025-10585
 
-### RaccoonO365 Phishing-as-a-Service Operation
-- **Description**: Large-scale phishing service that enabled cybercriminals to steal Microsoft 365 credentials through sophisticated phishing campaigns
-- **Impact**: Facilitated theft of thousands of Microsoft 365 credentials across multiple organizations, providing attackers with unauthorized access to corporate email and cloud services
-- **Status**: Disrupted by joint Microsoft and Cloudflare operation
+### WatchGuard Firebox Remote Code Execution
+- **Description**: A critical vulnerability in WatchGuard's Firebox firewall systems allowing remote code execution
+- **Impact**: Complete system compromise and potential network infiltration
+- **Status**: Security updates released; immediate patching required
 
-### MySonicWall Account Breach
-- **Description**: Security breach affecting MySonicWall customer accounts, exposing firewall configuration backup files
-- **Impact**: Potential exposure of sensitive network configuration data and security settings
-- **Status**: SonicWall has advised customers to reset their credentials as a precautionary measure
+### Salesforce OAuth Token Compromise
+- **Description**: Exploitation of compromised Salesloft Drift OAuth tokens to access Salesforce customer data
+- **Impact**: Massive data breach affecting 760 companies with 1.5 billion records stolen
+- **Status**: Ongoing investigation; ShinyHunters claiming responsibility
+
+### SonicWall MySonicWall Platform Breach
+- **Description**: Security breach exposing firewall configuration backup files and customer credentials
+- **Impact**: Exposure of sensitive network configurations and authentication credentials
+- **Status**: SonicWall advising customers to reset all credentials immediately
 
 ## Affected Systems and Products
 
-- **Salesforce Platforms**: Customer relationship management systems accessed through compromised Drift OAuth tokens affecting 760 companies
-- **Microsoft 365 Services**: Email and cloud productivity platforms targeted by RaccoonO365 phishing campaigns
-- **SonicWall MySonicWall**: Customer account portal and firewall configuration backup systems
-- **Hotel Industry Systems**: Hospitality sector networks in Brazil targeted by TA558 with Venom RAT deployments
-- **Insight Partners Infrastructure**: Venture capital firm systems compromised in ransomware attack
+- **Google Chrome**: All versions prior to the latest security update containing V8 engine patches
+- **WatchGuard Firebox Firewalls**: Multiple firewall models requiring immediate security updates
+- **Salesforce Environments**: Organizations using Salesloft Drift integration with OAuth tokens
+- **SonicWall MySonicWall Platform**: Customer accounts with stored firewall configuration backups
+- **Hotel Management Systems**: Brazilian and Spanish-speaking market hospitality infrastructure targeted by TA558
 
 ## Attack Vectors and Techniques
 
-- **OAuth Token Exploitation**: Compromise of Salesloft Drift OAuth tokens to gain unauthorized access to connected Salesforce instances
-- **Phishing-as-a-Service**: RaccoonO365 platform providing turnkey phishing capabilities to cybercriminals targeting Microsoft 365 credentials
-- **AI-Generated Scripts**: TA558 using artificial intelligence to create malicious scripts for Venom RAT deployment
-- **ClickFix Evolution**: Social engineering attacks using fake CAPTCHAs, File Explorer tricks, and MSI lures to distribute MetaStealer malware
-- **Ransomware Deployment**: Traditional ransomware attacks targeting high-value financial services organizations
+- **Browser-Based Exploitation**: Malicious websites leveraging Chrome V8 engine vulnerabilities for code execution
+- **OAuth Token Abuse**: Compromised authentication tokens used to access cloud-based customer data
+- **AI-Generated Scripts**: Machine learning-generated malicious scripts used to evade detection systems
+- **Phishing-as-a-Service**: RaccoonO365 platform providing turnkey phishing capabilities to lower-skill attackers
+- **Remote Access Trojan Deployment**: Venom RAT distribution through sophisticated social engineering campaigns
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Extortion group claiming massive Salesforce data theft through OAuth token compromise, targeting enterprise customer data across multiple industries
-- **TA558**: Threat actor conducting targeted campaigns against Brazil's hotel sector using AI-generated scripts to deploy Venom RAT for persistent access
-- **RaccoonO365 Operators**: Cybercriminal organization providing phishing services to enable Microsoft 365 credential theft before disruption by law enforcement
-- **Scattered Lapsus$ Hunters**: Group announcing cessation of hacking activities, though security researchers indicate continued suspicious activity
-- **Insight Partners Attackers**: Ransomware operators targeting venture capital firm infrastructure, affecting thousands of individuals' personal information
+- **ShinyHunters Group**: Executed large-scale data extraction from Salesforce environments, claiming 1.5 billion records stolen across 760 companies
+- **TA558**: Actively targeting Brazilian hotels and Spanish-speaking hospitality markets using AI-generated attack scripts and deploying Venom RAT payloads
+- **RaccoonO365 Operators**: Phishing-as-a-service platform disrupted by Microsoft, previously enabling widespread credential harvesting campaigns
+- **Scattered Lapsus$ Hunters**: Announced cessation of hacking activities, though security researchers indicate continued suspicious activity
