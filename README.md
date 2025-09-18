@@ -17,10 +17,10 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 
 ## Architecture
 
-**LangGraph**: Orchestrates workflow state and conditional logic
-**FastMCP**: Code organization with decorators for RSS tools
-**LangChain**: AI model integration and text processing
-**Anthropic Claude**: Content analysis and report generation
+- **LangGraph**: Orchestrates workflow state and conditional logic
+- **FastMCP**: Code organization with decorators for RSS tools
+- **LangChain**: AI model integration and text processing
+- **Anthropic Claude**: Content analysis and report generation
 
 ## Setup
 
