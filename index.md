@@ -1,49 +1,57 @@
 # Exploitation Report
 
-The cybersecurity landscape shows concerning activity with multiple threat actors targeting critical infrastructure and enterprise systems. The most significant developments include the arrest of teenagers linked to the Transport for London cyberattack by the Scattered Spider group, active exploitation of WatchGuard Firebox firewalls through a critical remote code execution vulnerability, and sophisticated supply chain attacks targeting Python developers through malicious PyPI packages. Additionally, security breaches at major vendors like SonicWall highlight the ongoing risks to enterprise backup systems, while advanced malware operations demonstrate the evolution of proxy botnets and ransomware delivery mechanisms.
+Several critical exploitation activities are currently threatening enterprise environments, with the most significant being a Chrome zero-day vulnerability actively exploited in the wild. Google has patched CVE-2025-10585, a type confusion vulnerability in the V8 JavaScript engine that poses threats to millions of users. Additionally, threat actors have compromised SonicWall's MySonicWall service, exposing firewall configuration backup files for a subset of customers. The SystemBC proxy botnet continues to exploit vulnerable commercial VPS systems to maintain extensive proxy networks, while various threat actors are leveraging sophisticated social engineering techniques and malicious packages to deploy remote access trojans and credential theft tools.
 
 ## Active Exploitation Details
 
-### WatchGuard Firebox Firewall Remote Code Execution
-- **Description**: A critical vulnerability affecting WatchGuard Firebox firewalls that allows remote code execution
-- **Impact**: Attackers can achieve complete system compromise and execute arbitrary code on affected firewall systems
-- **Status**: Security updates have been released by WatchGuard to address the vulnerability
+### Chrome V8 Type Confusion Zero-Day
+- **Description**: A type confusion vulnerability in Google Chrome's V8 JavaScript engine that allows attackers to potentially execute arbitrary code
+- **Impact**: Remote code execution on victim systems, potentially leading to full system compromise
+- **Status**: Actively exploited in the wild; patches released by Google
+- **CVE ID**: CVE-2025-10585
 
-### SilentSync RAT Distribution
-- **Description**: A remote access trojan delivered through two malicious packages in the Python Package Index (PyPI) repository
-- **Impact**: Provides attackers with persistent remote access to compromised Windows systems running Python environments
-- **Status**: Actively targeting Python developers through supply chain compromise
+### SonicWall MySonicWall Service Breach
+- **Description**: Unauthorized access to SonicWall's cloud backup service exposing firewall configuration files
+- **Impact**: Exposure of sensitive firewall configurations and potential credential theft affecting fewer than 5% of the install base
+- **Status**: Breach confirmed; SonicWall urging password resets and credential changes
 
-### SystemBC Proxy Botnet
-- **Description**: Malware operators targeting vulnerable commercial virtual private servers to create proxy networks
-- **Impact**: Creates a highway for malicious traffic routing, enabling other cybercriminal activities
-- **Status**: Currently maintaining an average of 1,500 active bots daily
+### SystemBC Proxy Botnet Operations
+- **Description**: Ongoing exploitation of vulnerable commercial VPS systems to create proxy infrastructure
+- **Impact**: Compromised VPS systems converted into proxy nodes for malicious traffic routing
+- **Status**: Active botnet maintaining approximately 1,500 bots daily
 
-### CountLoader Malware Operations
-- **Description**: A multi-version malware loader being utilized by Russian ransomware gangs
-- **Impact**: Delivers post-exploitation tools including Cobalt Strike and enables broader ransomware operations
-- **Status**: Active deployment in Russian cybercriminal operations
+### WatchGuard Firebox Critical Vulnerability
+- **Description**: Remote code execution vulnerability in WatchGuard Firebox firewalls
+- **Impact**: Potential for remote attackers to execute arbitrary code on affected firewall systems
+- **Status**: Security updates released by WatchGuard
 
 ## Affected Systems and Products
 
-- **WatchGuard Firebox Firewalls**: All models affected by critical remote code execution vulnerability
-- **Python Package Index (PyPI)**: Two malicious packages targeting Python developers with SilentSync RAT
-- **Commercial VPS Systems**: Vulnerable virtual private servers being compromised for proxy botnet operations
-- **SonicWall MySonicWall Accounts**: Cloud backup breach affecting under 5% of customers with exposed firewall configuration files
-- **Transport for London Systems**: Infrastructure compromised in August 2024 cyberattack
-- **Windows Systems**: Targeted by SilentSync RAT and CountLoader malware operations
+- **Google Chrome**: All versions prior to the latest security update containing the V8 engine fix
+- **SonicWall MySonicWall Service**: Cloud backup service affecting fewer than 5% of customers
+- **Commercial VPS Systems**: Various vulnerable VPS platforms targeted by SystemBC operators
+- **WatchGuard Firebox Firewalls**: Multiple firewall models requiring security updates
+- **Python Package Index (PyPI)**: Two malicious packages delivering SilentSync RAT
+- **Microsoft 365 Environments**: Targeted by various phishing and credential theft campaigns
+- **Salesforce/Drift Platforms**: Compromised OAuth tokens leading to data exposure claims
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Malicious PyPI packages targeting Python developers through legitimate package repositories
-- **VPS Exploitation**: Systematic targeting of vulnerable commercial virtual private servers for botnet recruitment
-- **Firewall Exploitation**: Remote code execution attacks against network security appliances
-- **Cloud Service Breach**: Compromise of backup systems and customer configuration data
-- **Social Engineering**: Scattered Spider group's known tactics in targeting critical infrastructure
+- **Zero-Day Web Browser Exploitation**: Leveraging CVE-2025-10585 in Chrome's V8 engine for code execution
+- **Cloud Service Compromise**: Direct breach of SonicWall's MySonicWall backup infrastructure
+- **VPS Infrastructure Hijacking**: SystemBC malware targeting vulnerable commercial VPS systems
+- **Supply Chain Attacks**: Malicious PyPI packages targeting Python developers with SilentSync RAT
+- **Spear Phishing Campaigns**: TA415 using VS Code Remote Tunnels against U.S. economic policy experts
+- **OAuth Token Abuse**: ShinyHunters claiming exploitation of compromised Salesloft Drift tokens
+- **ClickFix Evolution**: Advanced social engineering using fake CAPTCHAs and File Explorer tricks
+- **AI-Generated Malicious Scripts**: TA558 using AI-generated scripts to deploy Venom RAT
 
 ## Threat Actor Activities
 
-- **Scattered Spider Group**: Linked to Transport for London cyberattack with two teenage members arrested in the UK
-- **Russian Ransomware Gangs**: Utilizing CountLoader malware for delivering post-exploitation tools and ransomware payloads
-- **SystemBC Operators**: Maintaining large-scale proxy botnet operations targeting commercial VPS infrastructure
-- **Supply Chain Attackers**: Targeting Python development community through malicious package distribution on PyPI
+- **TA415 (Chinese APT)**: Conducting spear-phishing campaigns against U.S. government, think tanks, and academic organizations using VS Code Remote Tunnels for persistence
+- **TA558**: Targeting hotels in Brazil and Spanish-speaking markets using AI-generated scripts to deploy Venom RAT
+- **ShinyHunters**: Claiming theft of 1.5 billion Salesforce records from 760 companies through compromised OAuth tokens
+- **Scattered Spider**: Two teenagers linked to the group arrested in connection with Transport for London cyberattack
+- **SystemBC Operators**: Maintaining persistent proxy botnet infrastructure through VPS exploitation
+- **Russian Ransomware Gangs**: Utilizing CountLoader malware to deliver post-exploitation tools like Cobalt Strike
+- **RaccoonO365 PhaaS**: Large-scale phishing-as-a-service operation disrupted by Microsoft and Cloudflare
