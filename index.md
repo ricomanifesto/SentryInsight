@@ -1,51 +1,52 @@
 # Exploitation Report
 
-Current threat landscape reveals significant active exploitation targeting multiple critical systems and platforms. Two high-severity Ivanti EPMM vulnerabilities are being actively exploited with custom malware strains discovered in organizational networks. Google has patched its sixth Chrome zero-day vulnerability exploited in attacks this year, specifically **CVE-2025-10585** affecting the V8 JavaScript engine. Threat actors are leveraging sophisticated techniques including AI-generated scripts for malware deployment, collaborative operations between Russian APT groups, and large-scale supply chain attacks. Notable incidents include data breaches affecting major platforms and the compromise of cloud backup systems, highlighting the expanding attack surface across enterprise environments.
+Critical exploitation activity is currently underway across multiple platforms, with the most significant threats involving Google Chrome zero-day attacks, Ivanti Enterprise Mobile Management vulnerabilities, and sophisticated supply chain attacks targeting development environments. Two malware strains are actively exploiting recently disclosed Ivanti EPMM vulnerabilities, while attackers are leveraging a Chrome V8 engine vulnerability to threaten millions of users. Additionally, threat actors are conducting advanced supply chain attacks through compromised PyPI packages and stolen OAuth tokens, demonstrating the evolving sophistication of modern cyber campaigns.
 
 ## Active Exploitation Details
 
-### Ivanti EPMM Vulnerabilities
-- **Description**: Two critical vulnerabilities in Ivanti Endpoint Manager Mobile (EPMM) are being actively exploited by threat actors who have developed custom malware strains
-- **Impact**: Attackers can deploy specialized malware within compromised organizational networks, enabling persistent access and data exfiltration
-- **Status**: CISA has released detailed analysis of discovered malware strains following active exploitation in unnamed organizations
-- **CVE ID**: CVE-2025-4427 and CVE-2025-4428
-
-### Chrome V8 Zero-Day Vulnerability
-- **Description**: High-severity vulnerability in Chrome's V8 JavaScript engine that allows remote code execution
-- **Impact**: Attackers can execute arbitrary code on victim systems running vulnerable Chrome browsers, potentially compromising millions of users
-- **Status**: Google has released emergency security updates; this represents the sixth Chrome zero-day exploited in attacks this year
+### Chrome V8 Engine Zero-Day Vulnerability
+- **Description**: A zero-day vulnerability in Google Chrome's V8 JavaScript engine that allows attackers to execute arbitrary code
+- **Impact**: Remote code execution affecting millions of Chrome users worldwide
+- **Status**: Actively exploited in the wild, emergency security updates released by Google
 - **CVE ID**: CVE-2025-10585
 
-### WatchGuard Firebox Critical Vulnerability
-- **Description**: Remote code execution vulnerability affecting WatchGuard Firebox firewalls
-- **Impact**: Attackers can potentially gain administrative access to network security infrastructure
-- **Status**: WatchGuard has released security updates to address the vulnerability
+### Ivanti EPMM Authentication Bypass Vulnerabilities
+- **Description**: Two critical vulnerabilities in Ivanti Enterprise Mobile Management that allow authentication bypass and remote code execution
+- **Impact**: Complete system compromise, unauthorized access to enterprise mobile management infrastructure
+- **Status**: Actively exploited by two distinct malware strains identified by CISA
+- **CVE ID**: CVE-2025-4427, CVE-2025-4428
+
+### WatchGuard Firebox Remote Code Execution
+- **Description**: Critical vulnerability in WatchGuard Firebox firewalls enabling remote code execution
+- **Impact**: Complete firewall compromise, potential network infiltration
+- **Status**: Security updates released, vulnerability disclosed as critical severity
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Enterprise mobile device management systems vulnerable to custom malware deployment
-- **Google Chrome**: Web browsers running vulnerable versions of V8 JavaScript engine affecting millions of users
-- **WatchGuard Firebox Firewalls**: Network security appliances vulnerable to remote code execution
-- **SonicWall MySonicWall Service**: Cloud backup service compromising firewall configuration files for under 5% of customer base
-- **PyPI Package Repository**: Python package index targeted in GhostAction supply chain attack with token theft
-- **Salesforce Platform**: Claims of 1.5 billion records stolen from 760 companies via compromised Drift OAuth tokens
-- **Transport for London Systems**: Public transportation infrastructure targeted in August 2024 cyberattack
+- **Google Chrome**: All versions prior to the latest security update, affecting millions of users globally through V8 engine vulnerability
+- **Ivanti Enterprise Mobile Management (EPMM)**: Enterprise mobile management platforms vulnerable to authentication bypass attacks
+- **WatchGuard Firebox Firewalls**: Network security appliances at risk of remote code execution
+- **PyPI Repository**: Python Package Index compromised by malicious packages targeting developers
+- **SonicWall MySonicWall Service**: Cloud backup service breached, affecting under 5% of customer base
+- **Salesforce/Drift Integration**: Over 1.5 billion records allegedly compromised through OAuth token abuse
+- **Commercial VPS Systems**: Virtual private servers targeted by SystemBC proxy botnet operations
 
 ## Attack Vectors and Techniques
 
-- **AI-Generated Malicious Scripts**: TA558 threat actor using artificially generated scripts to deploy Venom RAT targeting Brazilian hotels
-- **Supply Chain Compromise**: GhostAction attack targeting PyPI tokens and malicious packages like SilentSync RAT delivered via fake Python packages
-- **OAuth Token Abuse**: Exploitation of compromised Salesloft Drift OAuth tokens to access Salesforce data
-- **Multi-Stage Malware Deployment**: CountLoader malware serving as delivery mechanism for Cobalt Strike and other post-exploitation tools
-- **Proxy Botnet Operations**: SystemBC malware converting infected VPS systems into proxy infrastructure for malicious traffic routing
-- **Collaborative APT Operations**: Russian groups Gamaredon and Turla working together to deploy Kazuar backdoor against Ukrainian targets
-- **Phishing-as-a-Service**: RaccoonO365 PhaaS platform disrupted by Microsoft, targeting Microsoft 365 environments
+- **Zero-Day Browser Exploitation**: Leveraging unpatched Chrome V8 engine vulnerabilities for remote code execution
+- **Supply Chain Attacks**: Malicious PyPI packages delivering SilentSync RAT to Python developers
+- **OAuth Token Abuse**: Compromised Salesloft Drift tokens used to access Salesforce data at scale
+- **Proxy Botnet Operations**: SystemBC malware converting compromised VPS systems into proxy infrastructure
+- **AI-Generated Attack Scripts**: TA558 using artificial intelligence to generate malicious scripts for Venom RAT deployment
+- **Phishing-as-a-Service**: RaccoonO365 platform providing turnkey phishing capabilities before disruption
+- **Configuration File Exfiltration**: Direct access to firewall backup configurations through cloud service breaches
 
 ## Threat Actor Activities
 
-- **TA558**: Targeting hotels in Brazil and Spanish-speaking markets using AI-generated scripts to deploy Venom RAT and other remote access trojans
-- **Russian APT Groups (Gamaredon & Turla)**: Collaborative operations deploying Kazuar backdoor specifically targeting Ukrainian entities
-- **Scattered Spider**: Two teenagers arrested in UK connection with August 2024 Transport for London cyberattack, highlighting youth involvement in major cybercriminal operations
-- **ShinyHunters**: Extortion group claiming theft of 1.5 billion Salesforce records through exploitation of compromised OAuth tokens
-- **SystemBC Operators**: Maintaining average of 1,500 proxy bots daily by targeting vulnerable commercial VPS systems
-- **CountLoader Operators**: Russian ransomware gangs using new malware loader for post-exploitation tool delivery including Cobalt Strike
+- **Gamaredon and Turla Collaboration**: Russian state-sponsored groups jointly deploying Kazuar backdoor against Ukrainian targets
+- **Scattered Spider**: Teen members arrested in connection with Transport for London cyberattack, demonstrating group's continued operations
+- **TA558**: Brazilian hotel industry targeted using AI-generated scripts to deploy Venom RAT across Latin American markets
+- **ShinyHunters**: Extortion group claiming massive Salesforce data theft affecting 760 companies through OAuth token compromise
+- **SystemBC Operators**: Maintaining average of 1,500 compromised VPS systems daily for proxy botnet infrastructure
+- **Russian Ransomware Gangs**: Utilizing new CountLoader malware to deliver Cobalt Strike and other post-exploitation tools
+- **GhostAction Campaign**: Supply chain attackers targeting GitHub Actions and PyPI repository infrastructure
