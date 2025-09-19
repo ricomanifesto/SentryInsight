@@ -1,44 +1,51 @@
 # Exploitation Report
 
-Critical zero-day exploitation activity has escalated with Google patching CVE-2025-10585, an actively exploited Chrome vulnerability affecting the V8 JavaScript engine. Simultaneously, CISA has issued urgent warnings about malware strains targeting Ivanti EPMM vulnerabilities CVE-2025-4427 and CVE-2025-4428. Threat actors continue to exploit enterprise infrastructure through sophisticated campaigns, including Russian groups collaborating on backdoor deployments and the emergence of new malware loaders targeting ransomware operations. The threat landscape is further complicated by supply chain attacks targeting developer ecosystems and credential theft operations affecting major cloud services.
+Critical security incidents are unfolding across multiple fronts, with active exploitation targeting enterprise infrastructure and cloud services. The most severe threats include CVE-2025-4427 and CVE-2025-4428 in Ivanti EPMM systems, which are being actively exploited by malware strains discovered by CISA. Additionally, Fortra's GoAnywhere MFT platform faces a maximum severity command injection vulnerability requiring immediate patching. Russian state-sponsored groups are intensifying operations through collaborative campaigns, while proxy botnets like SystemBC are compromising thousands of VPS systems daily. Supply chain attacks continue to plague the Python ecosystem, and enterprise security breaches are exposing critical infrastructure data.
 
 ## Active Exploitation Details
 
-### Chrome V8 JavaScript Engine Zero-Day
-- **Description**: A critical vulnerability in Chrome's V8 JavaScript engine that allows remote code execution
-- **Impact**: Attackers can execute arbitrary code on victim systems through malicious web pages, potentially leading to full system compromise
-- **Status**: Actively exploited in the wild; Google has released emergency security updates
-- **CVE ID**: CVE-2025-10585
-
 ### Ivanti EPMM Vulnerabilities
-- **Description**: Two critical vulnerabilities in Ivanti Endpoint Manager Mobile (EPMM) being targeted by malware strains
-- **Impact**: Allows threat actors to deploy malware on compromised networks and maintain persistent access
-- **Status**: CISA has detected malware actively exploiting these vulnerabilities in enterprise environments
-- **CVE ID**: CVE-2025-4427, CVE-2025-4428
+- **Description**: Two critical vulnerabilities in Ivanti Endpoint Manager Mobile (EPMM) systems are being actively exploited by malware operators
+- **Impact**: Allows attackers to compromise enterprise mobile device management infrastructure and deploy malicious payloads
+- **Status**: Active exploitation detected by CISA with specific malware strains identified in victim networks
+- **CVE ID**: CVE-2025-4427 and CVE-2025-4428
+
+### GoAnywhere MFT License Servlet Flaw
+- **Description**: Maximum severity command injection vulnerability in Fortra's GoAnywhere Managed File Transfer License Servlet component
+- **Impact**: Enables arbitrary command execution on affected systems, potentially leading to complete system compromise
+- **Status**: Critical patch released by Fortra with CVSS score of 10.0
+- **CVE ID**: Information provided in articles but specific CVE not fully displayed
+
+### WatchGuard Firebox Remote Code Execution
+- **Description**: Critical vulnerability affecting WatchGuard Firebox firewall systems allowing remote code execution
+- **Impact**: Attackers can execute arbitrary code remotely on network security appliances
+- **Status**: Security updates released by WatchGuard to address the vulnerability
 
 ## Affected Systems and Products
 
-- **Google Chrome**: V8 JavaScript engine vulnerability affects millions of users across all platforms
-- **Ivanti EPMM**: Enterprise mobile device management systems compromised by targeted malware campaigns
-- **SonicWall MySonicWall**: Cloud backup service breached, exposing firewall configuration files for under 5% of customer base
-- **WatchGuard Firebox**: Critical remote code execution vulnerability requiring immediate security updates
-- **PyPI Repository**: Python package index targeted in GhostAction supply chain attack with token theft
-- **Salesforce/Drift**: Over 1.5 billion records allegedly stolen through compromised OAuth tokens
+- **Ivanti EPMM**: Enterprise mobile device management systems actively compromised by malware
+- **Fortra GoAnywhere MFT**: Managed file transfer systems with License Servlet component vulnerability
+- **WatchGuard Firebox**: Network firewall appliances requiring immediate security updates
+- **SonicWall MySonicWall**: Cloud backup service breached, exposing firewall configuration files for under 5% of customers
+- **Python PyPI Repository**: Supply chain compromise through malicious packages delivering SilentSync RAT
+- **VPS Infrastructure**: Commercial virtual private servers targeted by SystemBC malware for proxy operations
+- **Transport for London**: Critical infrastructure targeted by Scattered Spider group in August 2024
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Web Exploitation**: Attackers leveraging Chrome V8 vulnerability through malicious websites to execute code remotely
-- **Supply Chain Attacks**: Malicious PyPI packages delivering SilentSync RAT to Python developers through legitimate package repositories
-- **OAuth Token Abuse**: ShinyHunters group exploiting compromised Salesloft Drift tokens to access Salesforce data at massive scale
-- **AI-Generated Social Engineering**: TA558 using artificial intelligence to create convincing phishing scripts for hotel industry targeting
-- **Proxy Botnet Operations**: SystemBC malware converting infected VPS systems into proxy networks for malicious traffic routing
-- **Collaborative APT Operations**: Russian groups Gamaredon and Turla working together to deploy Kazuar backdoor in Ukraine
+- **Command Injection**: Exploitation of GoAnywhere MFT License Servlet for arbitrary command execution
+- **Remote Code Execution**: Direct exploitation of WatchGuard Firebox vulnerabilities for system compromise
+- **Supply Chain Poisoning**: Malicious PyPI packages targeting Python developers with SilentSync RAT
+- **Proxy Botnet Operations**: SystemBC malware converting compromised VPS systems into traffic relay infrastructure
+- **Phishing-as-a-Service**: Lighthouse and Lucid platforms operating 17,500+ phishing domains across 74 countries
+- **Social Engineering**: Scattered Spider group using advanced techniques against critical infrastructure
+- **Cloud Service Exploitation**: Breach of SonicWall's cloud backup infrastructure
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Claimed theft of 1.5 billion Salesforce records from 760 companies using compromised OAuth credentials
-- **Gamaredon & Turla**: Russian APT groups collaborating to target Ukrainian entities with Kazuar backdoor deployments
-- **Scattered Spider**: Two teenagers arrested in UK connection to August 2024 Transport for London cyberattack
-- **TA558**: Targeting Brazilian and Spanish-speaking hotel markets with AI-generated phishing campaigns delivering Venom RAT
-- **Russian Ransomware Operators**: Deploying new CountLoader malware to deliver post-exploitation tools including Cobalt Strike
-- **SystemBC Operators**: Maintaining average of 1,500 infected VPS systems daily for proxy botnet operations
+- **Gamaredon and Turla Collaboration**: Russian state-sponsored groups working together to deploy Kazuar backdoor against Ukrainian entities
+- **Scattered Spider**: Teen hackers arrested in UK for Transport for London cyberattack, demonstrating sophisticated capabilities against critical infrastructure
+- **Charming Kitten Subgroup**: Iranian state APT conducting highly bespoke attacks against telecommunications and satellite companies
+- **Russian Ransomware Operations**: CountLoader malware being used to deliver post-exploitation tools like Cobalt Strike and Advanced IP Scanner
+- **SystemBC Operators**: Maintaining average of 1,500 daily compromised VPS systems across 80 C2 servers for proxy services
+- **PhaaS Operators**: Lighthouse and Lucid services targeting 316 brands globally with industrialized phishing operations
