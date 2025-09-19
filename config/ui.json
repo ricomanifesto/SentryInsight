@@ -1,0 +1,13 @@
+{
+  "severity": {
+    "critical": ["critical", "rce", "remote code", "0day", "0-day", "zero-day"],
+    "high": ["phishing", "supply chain", "banking trojan", "android malware", "lpe", "privilege escalation"],
+    "medium": ["cryptojacking", "docker", "misconfig", "bruteforce"]
+  },
+  "status": {
+    "active": ["active", "exploited", "in the wild"],
+    "patched": ["patched", "fixed", "updates released"],
+    "monitor": ["monitor", "investigating", "scanning"]
+  }
+}
+

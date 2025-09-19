@@ -253,8 +253,12 @@
 
         /* Ensure all text is readable */
         .markdown-body p, .markdown-body li {
-            color: var(--text-primary) !important;
+            color: var(--text-primary);
         }
+        .markdown-body a { color: var(--info-blue); text-decoration: underline; }
+        body.dark .markdown-body a { color: #93c5fd; }
+        .markdown-body code, .markdown-body pre { background: #f1f5f9; border: 1px solid var(--border-color); border-radius: 6px; }
+        body.dark .markdown-body code, body.dark .markdown-body pre { background: #0b1220; color: #e5e7eb; border-color: #1f2937; }
 
         /* Executive Summary */
         .exec { border: 1px solid var(--border-color); background: #fff; border-radius: 12px; padding: 12px 16px; margin: 8px 0 16px; }
@@ -284,7 +288,11 @@
         }
 
         /* Dark mode */
-        body.dark { background: linear-gradient(135deg, #0b1220 0%, #0f172a 100%); }
+        body.dark { background: linear-gradient(135deg, #0b1220 0%, #0f172a 100%);
+            --text-primary: #e5e7eb;
+            --text-secondary: #cbd5e1;
+            --border-color: #1f2937;
+        }
         body.dark header.topbar { background: rgba(15, 23, 42, 0.7); border-bottom-color: #1f2937; }
         body.dark #content, body.dark aside#toc { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .btn { background: #111827; color: #e5e7eb; border-color: #1f2937; }
@@ -389,6 +397,10 @@
         const preferDark = localStorage.getItem('sentryinsight:theme') === 'dark' || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         if (preferDark) document.body.classList.add('dark');
 
+        // Optional UI config for easier customization
+        let UI_CONF = null;
+        const configPromise = fetch('config/ui.json').then(r => r.ok ? r.json() : null).then(j => { UI_CONF = j; }).catch(() => null);
+
         function slugify(text) {
             return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').substring(0, 80);
         }
@@ -434,11 +446,15 @@
             // Headings heuristics
             contentEl.querySelectorAll('h3').forEach(h3 => {
                 const text = h3.textContent.toLowerCase();
-                if (/(critical|rce|remote code|0day|0-day|zero-day)/.test(text)) {
+                const sev = UI_CONF && UI_CONF.severity;
+                const reCrit = sev ? new RegExp(`(${(sev.critical||[]).join('|')})`, 'i') : /(critical|rce|remote code|0day|0-day|zero-day)/i;
+                const reHigh = sev ? new RegExp(`(${(sev.high||[]).join('|')})`, 'i') : /(phishing|supply chain|banking trojan|android malware|lpe|privilege escalation)/i;
+                const reMed  = sev ? new RegExp(`(${(sev.medium||[]).join('|')})`, 'i') : /(cryptojacking|docker|misconfig|bruteforce)/i;
+                if (reCrit.test(text)) {
                     const b = document.createElement('span'); b.className = 'severity-critical'; b.textContent = 'Critical'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
-                } else if (/(phishing|supply chain|banking trojan|android malware|lpe|privilege escalation)/.test(text)) {
+                } else if (reHigh.test(text)) {
                     const b = document.createElement('span'); b.className = 'severity-high'; b.textContent = 'High'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
-                } else if (/(cryptojacking|docker|misconfig|bruteforce)/.test(text)) {
+                } else if (reMed.test(text)) {
                     const b = document.createElement('span'); b.className = 'severity-medium'; b.textContent = 'Medium'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
                 }
                 const m = h3.textContent.match(/(CVE-\d{4}-\d{4,7})/i);
@@ -472,8 +488,11 @@
                 });
                 if (!statusText) return;
                 let cls = '', label = '';
-                if (/active|exploited|in the wild/.test(statusText)) { cls = 'status-active'; label = 'Active'; }
-                else if (/patched|fixed|updates released/.test(statusText)) { cls = 'status-patched'; label = 'Patched'; }
+                const st = UI_CONF && UI_CONF.status;
+                const reActive = st ? new RegExp(`(${(st.active||[]).join('|')})`, 'i') : /active|exploited|in the wild/i;
+                const rePatched = st ? new RegExp(`(${(st.patched||[]).join('|')})`, 'i') : /patched|fixed|updates released/i;
+                if (reActive.test(statusText)) { cls = 'status-active'; label = 'Active'; }
+                else if (rePatched.test(statusText)) { cls = 'status-patched'; label = 'Patched'; }
                 else { cls = 'status-monitor'; label = 'Monitor'; }
                 const b = document.createElement('span'); b.className = `status-badge ${cls}`; b.textContent = label; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
             });
@@ -585,11 +604,12 @@
             URL.revokeObjectURL(url);
         }
 
-        // Fetch and render the markdown content
+        // Fetch and render the markdown content (after UI config)
         let markdownCache = '';
-        fetch('index.md')
-            .then(response => response.text())
-            .then(text => {
+        Promise.all([configPromise])
+          .then(() => fetch('index.md'))
+          .then(response => response.text())
+          .then(text => {
                 markdownCache = text;
                 let html = marked.parse(text);
                 contentEl.innerHTML = html;
@@ -615,10 +635,9 @@
                 addStatusBadges();
                 buildTOC();
                 computeSummary();
-                // Try to parse date from the markdown frontmatter or first heading line if present
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 setMeta(m ? m[1] : '');
-            })
+          })
             .catch(error => {
                 contentEl.innerHTML = `
                     <h1>Error Loading Report</h1>
