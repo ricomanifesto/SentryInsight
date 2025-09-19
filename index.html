@@ -72,6 +72,8 @@
         .spacer { flex: 1; }
 
         .toolbar { display: flex; gap: 8px; align-items: center; }
+        .search { position: relative; }
+        .search input { border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; width: 220px; }
         .btn {
             display: inline-flex;
             align-items: center;
@@ -287,6 +289,7 @@
         body.dark header.topbar { background: rgba(15, 23, 42, 0.7); border-bottom-color: #1f2937; }
         body.dark #content, body.dark aside#toc { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .btn { background: #111827; color: #e5e7eb; border-color: #1f2937; }
+        body.dark .search input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
         body.dark .btn.primary { background: #b91c1c; border-color: #7f1d1d; }
         body.dark .search input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
         body.dark #toc a:hover { background: #0b1220; }
@@ -310,6 +313,11 @@
         .toast { position: fixed; right: 16px; bottom: 16px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 8px; opacity: 0; transform: translateY(8px); transition: all .2s ease; z-index: 100; }
         .toast.show { opacity: 1; transform: translateY(0); }
         @media (max-width: 767px) { .summary { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+        /* Sidebar summary layout */
+        aside .summary { grid-template-columns: 1fr; margin-top: 12px; }
+        /* TOC active */
+        #toc a.active { background: #e2e8f0; color: var(--text-primary); font-weight: 600; }
+        body.dark #toc a.active { background: #0b1220; }
         @media print {
             header.topbar, aside#toc { display: none !important; }
             body { background: #fff !important; }
@@ -322,6 +330,8 @@
         }
         body.dark .card { background: #111827; border-color: #1f2937; }
         body.dark .chip { background: #0b1220; border-color: #1f2937; color: #cbd5e1; }
+        .chip.chip-critical { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+        .chip.chip-patch { background: #dcfce7; border-color: #bbf7d0; color: #166534; }
     </style>
 </head>
 <body>
@@ -336,6 +346,7 @@
             </div>
             <div class="spacer"></div>
             <div class="toolbar">
+                <div class="search"><input id="search" type="search" placeholder="Filter sections…" aria-label="Filter sections"/></div>
                 <button id="toggle-dark" class="btn" title="Toggle dark mode">🌗 Theme</button>
             </div>
         </header>
@@ -344,11 +355,11 @@
             <aside id="toc">
                 <h4>On this page</h4>
                 <nav id="toc-list"></nav>
+                <div id="summary" class="summary"></div>
             </aside>
             <main>
                 <div class="meta" id="meta"></div>
                 <div id="exec" class="exec"></div>
-                <div id="summary" class="summary"></div>
                 <div id="content" class="markdown-body"></div>
             </main>
         </div>
@@ -361,6 +372,7 @@
         const summaryEl = document.getElementById('summary');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const execEl = document.getElementById('exec');
+        const searchInput = document.getElementById('search');
 
         // Initial UI state
         contentEl.innerHTML = '<div class="loading">Loading exploitation report...</div>';
@@ -398,6 +410,28 @@
                 frag.appendChild(a);
             });
             tocEl.appendChild(frag);
+            // Smooth scroll
+            tocEl.querySelectorAll('a').forEach(a => {
+                a.addEventListener('click', (e) => {
+                    const href = a.getAttribute('href');
+                    const target = contentEl.querySelector(href);
+                    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+                });
+            });
+            // Scroll spy active state
+            const map = new Map();
+            tocEl.querySelectorAll('a').forEach(a => map.set(a.getAttribute('href')?.slice(1), a));
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    const id = entry.target.id;
+                    const link = map.get(id);
+                    if (!link) return;
+                    tocEl.querySelectorAll('a').forEach(x => x.classList.remove('active'));
+                    link.classList.add('active');
+                });
+            }, { rootMargin: '0px 0px -70% 0px', threshold: 0.1 });
+            contentEl.querySelectorAll('h3').forEach(h => observer.observe(h));
         }
 
         function classifyDetailBlocks() {
@@ -436,6 +470,38 @@
                     h3.appendChild(a);
                 }
             });
+        }
+
+        // Enhance tags within the Active Exploitation Details section
+        function enhanceActiveExploitationTags() {
+            const activeH2 = Array.from(contentEl.querySelectorAll('h2')).find(h => /active exploitation details/i.test(h.textContent));
+            if (!activeH2) return;
+            let el = activeH2.nextElementSibling;
+            while (el && el.tagName !== 'H2') {
+                if (el.classList && el.classList.contains('section-collapsible')) {
+                    const h3 = el.querySelector('h3');
+                    const body = el.querySelector('.section-body') || el;
+                    const text = body.textContent.toLowerCase();
+                    // Add Critical badge/chip if description mentions critical
+                    const hasCritBadge = h3.querySelector('.severity-critical');
+                    if (/\bcritical\b/.test(text) && !hasCritBadge) {
+                        const b = document.createElement('span'); b.className = 'severity-critical'; b.textContent = 'Critical';
+                        h3.appendChild(document.createTextNode(' '));
+                        h3.appendChild(b);
+                        const c = document.createElement('span'); c.className = 'chip chip-critical'; c.textContent = 'Critical';
+                        h3.appendChild(document.createTextNode(' '));
+                        h3.appendChild(c);
+                    }
+                    // Add Patch chip if status/description suggests updates/patching
+                    const hasPatch = Array.from(h3.querySelectorAll('.chip')).some(ch => /patch/i.test(ch.textContent));
+                    if (/(patch|patched|update|updated|fix|fixed|security update)/i.test(text) && !hasPatch) {
+                        const p = document.createElement('span'); p.className = 'chip chip-patch'; p.textContent = 'Patch';
+                        h3.appendChild(document.createTextNode(' '));
+                        h3.appendChild(p);
+                    }
+                }
+                el = el.nextElementSibling;
+            }
         }
 
         function linkifyCVEs() {
@@ -532,10 +598,7 @@
             }
 
             const html = `
-                <div class="card"><h5>Sections</h5><div class="value">${sections}</div></div>
-                <div class="card"><h5>Active Exploits</h5><div class="value">${activeCount}</div></div>
                 <div class="card"><h5>CVEs Mentioned</h5><div class="value">${uniqueCVEs.length}</div><div class="chips">${uniqueCVEs.slice(0,6).map(c => `<a class="chip" href="https://nvd.nist.gov/vuln/detail/${c}" target="_blank" rel="noopener">${c}</a>`).join('')}</div></div>
-                <div class="card"><h5>Affected Products</h5><div class="value">${products}</div></div>
             `;
             summaryEl.innerHTML = html;
         }
@@ -554,6 +617,7 @@
                 if (e.target && ['input','textarea'].includes((e.target.tagName||'').toLowerCase())) return;
                 const k = e.key.toLowerCase();
                 if (k === 't') { toggleDarkEl.click(); }
+                if (k === 'f') { searchInput?.focus(); e.preventDefault(); }
             });
         }
 
@@ -594,6 +658,7 @@
                 linkifyCVEs();
                 makeCollapsible();
                 addStatusBadges();
+                enhanceActiveExploitationTags();
                 buildTOC();
                 computeSummary();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
@@ -613,6 +678,9 @@
             const mode = document.body.classList.contains('dark') ? 'dark' : 'light';
             localStorage.setItem('sentryinsight:theme', mode);
         });
+
+        // Search binding
+        if (searchInput) searchInput.addEventListener('input', e => applySearchFilter(e.target.value));
 
                 wireShortcuts();
 wireShortcuts();
