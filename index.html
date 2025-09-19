@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SentryDigest Exploitation Report</title>
+    <title>SentryInsight Exploitation Report</title>
     <link rel="icon" type="image/png" href="/SentryInsight/assets/logo.png">
     <link rel="shortcut icon" type="image/png" href="/SentryInsight/assets/logo.png">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -14,35 +14,128 @@
             --warning-orange: #ea580c;
             --success-green: #16a34a;
             --info-blue: #2563eb;
-            --dark-bg: #1f2937;
+            --dark-bg: #0b1220;
+            --dark-elev: #111827;
             --light-bg: #f8fafc;
             --border-color: #e2e8f0;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --muted: #94a3b8;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             line-height: 1.6;
             color: var(--text-primary);
-            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             min-height: 100vh;
         }
 
         @media (max-width: 767px) {
             body {
-                padding: 15px;
+                padding: 0;
             }
         }
 
+        /* App frame */
+        .app {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header.topbar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(248, 250, 252, 0.8);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+        .brand img { width: 28px; height: 28px; border-radius: 6px; }
+        .brand .title { color: var(--text-primary); }
+        .brand .subtitle { color: var(--muted); font-weight: 500; font-size: 0.9rem; }
+
+        .spacer { flex: 1; }
+
+        .toolbar { display: flex; gap: 8px; align-items: center; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-primary);
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+        .btn.primary { background: var(--primary-red); color: #fff; border-color: #b91c1c; }
+        .btn.ghost { background: transparent; }
+
+        .search {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search input {
+            padding: 8px 12px 8px 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            min-width: 220px;
+            outline: none;
+        }
+        .search .icon { position: absolute; left: 8px; color: var(--muted); font-size: 14px; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 20px;
+            align-items: start;
+            margin-top: 16px;
+        }
+        @media (max-width: 960px) {
+            .layout { grid-template-columns: 1fr; }
+            aside#toc { position: static; }
+        }
+
+        aside#toc {
+            position: sticky;
+            top: 68px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            max-height: calc(100vh - 100px);
+            overflow: auto;
+        }
+        aside#toc.hidden { display: none; }
+        #toc h4 { margin: 6px 8px 8px; color: var(--text-secondary); }
+        #toc a { color: var(--text-secondary); text-decoration: none; display: block; padding: 4px 8px; border-radius: 6px; }
+        #toc a:hover { background: #f1f5f9; color: var(--text-primary); }
+        #toc .lvl-2 { font-weight: 600; }
+        #toc .lvl-3 { padding-left: 16px; font-size: 0.95rem; }
+
         #content {
             background: white;
-            padding: 2.5em;
+            padding: 2.0em;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             border: 1px solid var(--border-color);
         }
 
@@ -65,9 +158,7 @@
             position: relative;
         }
 
-        .markdown-body h2:before {
-            content: "";
-        }
+        .markdown-body h2 { scroll-margin-top: 80px; }
 
         .markdown-body h3 {
             color: var(--warning-orange);
@@ -76,6 +167,29 @@
             border-radius: 6px;
             border-left: 4px solid var(--warning-orange);
             margin-top: 1.5rem;
+            scroll-margin-top: 80px;
+            cursor: pointer;
+        }
+
+        .section-collapsible .section-body { display: none; }
+        .section-collapsible.open .section-body { display: block; }
+        .section-collapsible .toggle { float: right; color: var(--muted); font-weight: 600; font-size: 0.85rem; }
+
+        .heading-anchor {
+            opacity: 0;
+            margin-left: 6px;
+            text-decoration: none;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .markdown-body h2:hover .heading-anchor,
+        .markdown-body h3:hover .heading-anchor { opacity: 1; }
+
+        .meta {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: -12px;
+            margin-bottom: 16px;
         }
 
         /* Severity badges */
@@ -124,29 +238,28 @@
             color: var(--primary-red);
         }
 
-        /* Attack vector styling */
-        .markdown-body ul li:has(strong:contains("Description")),
-        .markdown-body ul li:has(strong:contains("Impact")),
-        .markdown-body ul li:has(strong:contains("Status")) {
-            background: white;
+        /* Detail blocks added via JS */
+        .detail-block {
+            background: #ffffff;
             padding: 0.75rem;
-            border-radius: 4px;
+            border-radius: 6px;
             margin: 0.5rem 0;
             border-left: 4px solid var(--info-blue);
-            color: var(--text-primary);
         }
-
-        /* Threat actor highlights */
-        .markdown-body li:contains("Threat Actor") {
-            background: rgba(220, 38, 38, 0.05);
-            border-left-color: var(--primary-red);
-            color: var(--text-primary);
+        .threat-actor {
+            background: rgba(220, 38, 38, 0.06);
+            border-left: 4px solid var(--primary-red);
         }
 
         /* Ensure all text is readable */
         .markdown-body p, .markdown-body li {
             color: var(--text-primary) !important;
         }
+
+        /* Executive Summary */
+        .exec { border: 1px solid var(--border-color); background: #fff; border-radius: 12px; padding: 12px 16px; margin: 8px 0 16px; }
+        .exec h4 { margin: 0 0 6px; color: var(--text-secondary); }
+        .exec p { margin: 0; }
 
         /* Add loading animation */
         .loading {
@@ -169,45 +282,483 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Dark mode */
+        body.dark { background: linear-gradient(135deg, #0b1220 0%, #0f172a 100%); }
+        body.dark header.topbar { background: rgba(15, 23, 42, 0.7); border-bottom-color: #1f2937; }
+        body.dark #content, body.dark aside#toc { background: var(--dark-elev); border-color: #1f2937; }
+        body.dark .btn { background: #111827; color: #e5e7eb; border-color: #1f2937; }
+        body.dark .btn.primary { background: #b91c1c; border-color: #7f1d1d; }
+        body.dark .search input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
+        body.dark #toc a:hover { background: #0b1220; }
+        body.dark .markdown-body { color: #e5e7eb; }
+        body.dark .markdown-body h2 { color: #fca5a5; border-bottom-color: #7f1d1d; }
+        body.dark .markdown-body h3 { color: #fb923c; background: rgba(251, 146, 60, 0.08); }
+        body.dark .detail-block { background: #0b1220; }
+    </style>
+    <style>
+        /* Additions: summary, status badges, toast, print */
+        .summary { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin: 8px 0 16px; }
+        .card { border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; background: #fff; }
+        .card h5 { margin: 0 0 6px; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
+        .card .value { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+        .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+        .chip { border: 1px solid var(--border-color); background: #fafafa; border-radius: 999px; padding: 2px 8px; font-size: 0.82rem; }
+        .status-badge { margin-left: 6px; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; color: #fff; }
+        .status-active { background: #dc2626; }
+        .status-patched { background: #16a34a; }
+        .status-monitor { background: #2563eb; }
+        .toast { position: fixed; right: 16px; bottom: 16px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 8px; opacity: 0; transform: translateY(8px); transition: all .2s ease; z-index: 100; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        @media (max-width: 767px) { .summary { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+        @media print {
+            header.topbar, aside#toc { display: none !important; }
+            body { background: #fff !important; }
+            .app { padding: 0; }
+            #content { box-shadow: none; border: none; }
+            h1 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h2 { page-break-before: avoid; }
+            .section-collapsible .section-body { display: block !important; }
+            .section-collapsible { break-inside: avoid; page-break-inside: avoid; }
+        }
+        body.dark .card { background: #111827; border-color: #1f2937; }
+        body.dark .chip { background: #0b1220; border-color: #1f2937; color: #cbd5e1; }
     </style>
 </head>
 <body>
-    <div id="content" class="markdown-body"></div>
+    <div class="app">
+        <header class="topbar">
+            <div class="brand">
+                <img src="/SentryInsight/assets/logo.png" alt="SentryInsight" />
+                <div>
+                    <div class="title">SentryInsight</div>
+                    <div class="subtitle">Exploitation Intelligence Report</div>
+                </div>
+            </div>
+            <div class="spacer"></div>
+            <div class="search" title="Filter sections (⌘/Ctrl+K)">
+                <span class="icon">🔎</span>
+                <input id="search" type="search" placeholder="Filter by CVE, keyword, actor..." />
+            </div>
+            <div class="toolbar">
+                <button id="toggle-dark" class="btn" title="Toggle dark mode">🌗 Theme</button>
+                <button id="expand-all" class="btn" title="Expand all sections">⤢ Expand</button>
+                <button id="collapse-all" class="btn" title="Collapse all sections">⤡ Collapse</button>
+                <button id="toggle-toc" class="btn" title="Show/Hide table of contents">☰ TOC</button>
+                <button id="refresh" class="btn" title="Refresh report">↻ Refresh</button>
+                <button id="download-md" class="btn" title="Download markdown">⬇︎ MD</button>
+                <button id="download-html" class="btn" title="Download standalone HTML">⬇︎ HTML</button>
+                <button id="download-json" class="btn" title="Download JSON export">⬇︎ JSON</button>
+                <button id="print" class="btn" title="Print or Save as PDF">🖨︎ Print</button>
+            </div>
+        </header>
+
+        <div class="layout">
+            <aside id="toc">
+                <h4>On this page</h4>
+                <nav id="toc-list"></nav>
+            </aside>
+            <main>
+                <div class="meta" id="meta"></div>
+                <div id="exec" class="exec"></div>
+                <div id="summary" class="summary"></div>
+                <div id="content" class="markdown-body"></div>
+            </main>
+        </div>
+    </div>
 
     <script>
+        const contentEl = document.getElementById('content');
+        const tocEl = document.getElementById('toc-list');
+        const metaEl = document.getElementById('meta');
+        const summaryEl = document.getElementById('summary');
+        const searchEl = document.getElementById('search');
+        const toggleDarkEl = document.getElementById('toggle-dark');
+        const expandAllEl = document.getElementById('expand-all');
+        const collapseAllEl = document.getElementById('collapse-all');
+        const downloadMdEl = document.getElementById('download-md');
+        const downloadHtmlEl = document.getElementById('download-html');
+        const downloadJsonEl = document.getElementById('download-json');
+        const printEl = document.getElementById('print');
+        const toggleTocEl = document.getElementById('toggle-toc');
+        const refreshEl = document.getElementById('refresh');
+        const execEl = document.getElementById('exec');
+
+        // Initial UI state
+        contentEl.innerHTML = '<div class="loading">Loading exploitation report...</div>';
+        const preferDark = localStorage.getItem('sentryinsight:theme') === 'dark' || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (preferDark) document.body.classList.add('dark');
+
+        function slugify(text) {
+            return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').substring(0, 80);
+        }
+
+        function addHeadingAnchors() {
+            const headings = contentEl.querySelectorAll('h2, h3');
+            headings.forEach(h => {
+                if (!h.id) h.id = slugify(h.textContent);
+                const a = document.createElement('a');
+                a.href = `#${h.id}`;
+                a.className = 'heading-anchor';
+                a.textContent = '#';
+                h.appendChild(a);
+            });
+        }
+
+        function buildTOC() {
+            tocEl.innerHTML = '';
+            const frag = document.createDocumentFragment();
+            contentEl.querySelectorAll('h2, h3').forEach(h => {
+                const a = document.createElement('a');
+                a.href = `#${h.id}`;
+                a.textContent = h.textContent.replace(/#/g, '').trim();
+                a.className = h.tagName === 'H2' ? 'lvl-2' : 'lvl-3';
+                frag.appendChild(a);
+            });
+            tocEl.appendChild(frag);
+        }
+
+        function classifyDetailBlocks() {
+            contentEl.querySelectorAll('li').forEach(li => {
+                const strong = li.querySelector('strong');
+                if (!strong) return;
+                const label = strong.textContent.trim().toLowerCase();
+                if (['description', 'impact', 'status', 'mitigation', 'references', 'cve id', 'cve'].some(k => label.startsWith(k))) {
+                    li.classList.add('detail-block');
+                }
+                if (label.includes('threat actor')) li.classList.add('threat-actor');
+            });
+        }
+
+        function addSeverityBadges() {
+            // Headings heuristics
+            contentEl.querySelectorAll('h3').forEach(h3 => {
+                const text = h3.textContent.toLowerCase();
+                if (/(critical|rce|remote code|0day|0-day|zero-day)/.test(text)) {
+                    const b = document.createElement('span'); b.className = 'severity-critical'; b.textContent = 'Critical'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
+                } else if (/(phishing|supply chain|banking trojan|android malware|lpe|privilege escalation)/.test(text)) {
+                    const b = document.createElement('span'); b.className = 'severity-high'; b.textContent = 'High'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
+                } else if (/(cryptojacking|docker|misconfig|bruteforce)/.test(text)) {
+                    const b = document.createElement('span'); b.className = 'severity-medium'; b.textContent = 'Medium'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
+                }
+                const m = h3.textContent.match(/(CVE-\d{4}-\d{4,7})/i);
+                if (m) {
+                    const a = document.createElement('a'); a.href = `https://nvd.nist.gov/vuln/detail/${m[1]}`; a.target = '_blank'; a.rel = 'noopener';
+                    const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = m[1];
+                    a.appendChild(chip);
+                    h3.appendChild(document.createTextNode(' '));
+                    h3.appendChild(a);
+                }
+            });
+        }
+
+        function linkifyCVEs() {
+            const re = /CVE-\d{4}-\d{4,7}/g;
+            contentEl.querySelectorAll('p, li').forEach(el => {
+                el.innerHTML = el.innerHTML.replace(re, (m) => `<a href="https://nvd.nist.gov/vuln/detail/${m}" target="_blank" rel="noopener">${m}</a>`);
+            });
+        }
+
+        function addStatusBadges() {
+            contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
+                const h3 = sec.querySelector('h3');
+                if (!h3) return;
+                let statusText = '';
+                sec.querySelectorAll('li').forEach(li => {
+                    const s = li.querySelector('strong');
+                    if (!s) return;
+                    const key = s.textContent.trim().toLowerCase();
+                    if (key.startsWith('status')) statusText = li.textContent.toLowerCase();
+                });
+                if (!statusText) return;
+                let cls = '', label = '';
+                if (/active|exploited|in the wild/.test(statusText)) { cls = 'status-active'; label = 'Active'; }
+                else if (/patched|fixed|updates released/.test(statusText)) { cls = 'status-patched'; label = 'Patched'; }
+                else { cls = 'status-monitor'; label = 'Monitor'; }
+                const b = document.createElement('span'); b.className = `status-badge ${cls}`; b.textContent = label; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
+            });
+        }
+
+        function makeCollapsible() {
+            // Wrap sections such that each h3 controls its following siblings until next h3/h2
+            const nodes = Array.from(contentEl.children);
+            for (let i = 0; i < nodes.length; i++) {
+                const n = nodes[i];
+                if (n.tagName === 'H3') {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'section-collapsible open';
+                    const toggle = document.createElement('span');
+                    toggle.className = 'toggle';
+                    toggle.textContent = '▼';
+                    n.appendChild(toggle);
+                    const body = document.createElement('div');
+                    body.className = 'section-body';
+                    // Move following siblings into body until next H3 or H2
+                    let j = i + 1;
+                    while (j < nodes.length && !['H3','H2'].includes(nodes[j].tagName)) {
+                        body.appendChild(nodes[j]);
+                        nodes.splice(j, 1);
+                    }
+                    n.after(wrap);
+                    wrap.appendChild(n);
+                    wrap.appendChild(body);
+                }
+            }
+            contentEl.addEventListener('click', (e) => {
+                const h3 = e.target.closest('h3');
+                if (!h3) return;
+                const container = h3.parentElement;
+                if (!container.classList.contains('section-collapsible')) return;
+                container.classList.toggle('open');
+                const t = h3.querySelector('.toggle');
+                if (t) t.textContent = container.classList.contains('open') ? '▼' : '▶';
+            });
+        }
+
+        function setMeta(dateStr) {
+            const d = new Date();
+            const now = d.toLocaleString();
+            metaEl.textContent = `Last updated: ${dateStr || now}`;
+        }
+
+        function computeSummary() {
+            const cveMatches = markdownCache.match(/CVE-\d{4}-\d{4,7}/g) || [];
+            const uniqueCVEs = Array.from(new Set(cveMatches));
+            const sections = contentEl.querySelectorAll('h3').length;
+            let activeCount = 0;
+            contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
+                const txt = sec.textContent.toLowerCase();
+                if (/(status).*?(active|exploited|in the wild)/.test(txt)) activeCount++;
+            });
+            // Count products from the Affected Systems and Products section
+            let products = 0;
+            const h2s = Array.from(contentEl.querySelectorAll('h2'));
+            const target = h2s.find(h => /affected systems? and products/i.test(h.textContent));
+            if (target) {
+                let el = target.nextElementSibling;
+                while (el && el.tagName !== 'H2') {
+                    if (el.tagName === 'UL') products += el.querySelectorAll('li').length;
+                    el = el.nextElementSibling;
+                }
+            }
+
+            const html = `
+                <div class="card"><h5>Sections</h5><div class="value">${sections}</div></div>
+                <div class="card"><h5>Active Exploits</h5><div class="value">${activeCount}</div></div>
+                <div class="card"><h5>CVEs Mentioned</h5><div class="value">${uniqueCVEs.length}</div><div class="chips">${uniqueCVEs.slice(0,6).map(c => `<a class="chip" href="https://nvd.nist.gov/vuln/detail/${c}" target="_blank" rel="noopener">${c}</a>`).join('')}</div></div>
+                <div class="card"><h5>Affected Products</h5><div class="value">${products}</div></div>
+            `;
+            summaryEl.innerHTML = html;
+        }
+
+        function applySearchFilter(q) {
+            const query = q.trim().toLowerCase();
+            const sections = contentEl.querySelectorAll('.section-collapsible');
+            sections.forEach(sec => {
+                const text = sec.textContent.toLowerCase();
+                sec.style.display = query && !text.includes(query) ? 'none' : '';
+            });
+        }
+
+        function wireShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+                const typing = tag === 'input' || tag === 'textarea';
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                    e.preventDefault();
+                    searchEl.focus();
+                    return;
+                }
+                if (typing) return;
+                const k = e.key.toLowerCase();
+                if (k === 't') { toggleDarkEl.click(); }
+                if (k === 'e') { expandAllEl.click(); }
+                if (k === 'c') { collapseAllEl.click(); }
+            });
+        }
+
+        function download(filename, content, type='text/plain') {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename; a.click();
+            URL.revokeObjectURL(url);
+        }
+
         // Fetch and render the markdown content
-        document.getElementById('content').innerHTML = '<div class="loading">Loading exploitation report...</div>';
-        
+        let markdownCache = '';
         fetch('index.md')
             .then(response => response.text())
             .then(text => {
+                markdownCache = text;
                 let html = marked.parse(text);
-                
-                // Add severity badges to vulnerability titles
-                html = html.replace(/(### .*(?:Critical|SAP|Command|Execution).*)/g, '$1 <span class="severity-critical">Critical</span>');
-                html = html.replace(/(### .*(?:Phishing|Supply Chain|Banking|Android).*)/g, function(match, p1) {
-                    if (!match.includes('severity-critical')) {
-                        return p1 + ' <span class="severity-high">High</span>';
+                contentEl.innerHTML = html;
+
+                // Extract executive summary (first paragraph after H1)
+                execEl.innerHTML = '';
+                const h1 = contentEl.querySelector('h1');
+                if (h1) {
+                    let next = h1.nextElementSibling;
+                    if (next && next.tagName === 'P') {
+                        execEl.innerHTML = `<h4>Executive Summary</h4>`;
+                        execEl.appendChild(next.cloneNode(true));
+                        next.remove();
                     }
-                    return match;
-                });
-                html = html.replace(/(### .*(?:Cryptojacking|Docker).*)/g, function(match, p1) {
-                    if (!match.includes('severity-critical') && !match.includes('severity-high')) {
-                        return p1 + ' <span class="severity-medium">Medium</span>';
-                    }
-                    return match;
-                });
-                
-                
-                document.getElementById('content').innerHTML = html;
+                }
+
+                // Post-processing
+                addHeadingAnchors();
+                addSeverityBadges();
+                classifyDetailBlocks();
+                linkifyCVEs();
+                makeCollapsible();
+                addStatusBadges();
+                buildTOC();
+                computeSummary();
+                // Try to parse date from the markdown frontmatter or first heading line if present
+                const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
+                setMeta(m ? m[1] : '');
             })
             .catch(error => {
-                document.getElementById('content').innerHTML = `
+                contentEl.innerHTML = `
                     <h1>Error Loading Report</h1>
                     <p>Unable to load the exploitation report. Please check back later.</p>
                     <pre>${error}</pre>
                 `;
             });
+
+        // Controls
+        toggleDarkEl.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const mode = document.body.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('sentryinsight:theme', mode);
+        });
+
+        expandAllEl.addEventListener('click', () => {
+            contentEl.querySelectorAll('.section-collapsible').forEach(c => {
+                c.classList.add('open');
+                const t = c.querySelector('.toggle'); if (t) t.textContent = '▼';
+            });
+        });
+        collapseAllEl.addEventListener('click', () => {
+            contentEl.querySelectorAll('.section-collapsible').forEach(c => {
+                c.classList.remove('open');
+                const t = c.querySelector('.toggle'); if (t) t.textContent = '▶';
+            });
+        });
+
+        downloadMdEl.addEventListener('click', () => download('exploitation-report.md', markdownCache));
+        downloadHtmlEl.addEventListener('click', () => {
+            const doc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>SentryInsight Exploitation Report</title>`+
+                `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css"></head>`+
+                `<body><article class="markdown-body" style="max-width:900px;margin:40px auto;padding:20px;border:1px solid #e5e7eb;border-radius:10px;">${contentEl.innerHTML}</article></body></html>`;
+            download('exploitation-report.html', doc, 'text/html');
+        });
+        printEl.addEventListener('click', () => window.print());
+        if (typeof toggleTocEl !== 'undefined' && toggleTocEl) {
+            toggleTocEl.addEventListener('click', () => {
+                const toc = document.getElementById('toc');
+                if (toc) toc.classList.toggle('hidden');
+            });
+        }
+        if (typeof downloadJsonEl !== 'undefined' && downloadJsonEl) {
+            downloadJsonEl.addEventListener('click', () => {
+                const data = [];
+                contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
+                    const h3 = sec.querySelector('h3');
+                    const title = h3 ? h3.childNodes[0].textContent.trim() : '';
+                    const details = { title };
+                    sec.querySelectorAll('li').forEach(li => {
+                        const s = li.querySelector('strong');
+                        if (!s) return;
+                        const key = s.textContent.replace(/:$/,'').trim().toLowerCase();
+                        const val = li.textContent.replace(/^\s*[^:]+:\s*/i, '').trim();
+                        if (key.startsWith('description')) details.description = val;
+                        else if (key.startsWith('impact')) details.impact = val;
+                        else if (key.startsWith('status')) details.status = val;
+                        else if (key.startsWith('mitigation')) details.mitigation = val;
+                        else if (key.startsWith('cve')) details.cve = val;
+                        else if (key.startsWith('references')) details.references = val;
+                    });
+                    details.cves = Array.from(new Set((sec.textContent.match(/CVE-\d{4}-\d{4,7}/g) || [])));
+                    const sevEl = h3 && h3.querySelector('.severity-critical, .severity-high, .severity-medium');
+                    if (sevEl) details.severity = sevEl.textContent.trim();
+                    const statEl = h3 && h3.querySelector('.status-badge');
+                    if (statEl) details.status_label = statEl.textContent.trim();
+                    data.push(details);
+                });
+                download('exploitation-report.json', JSON.stringify({ sections: data }, null, 2), 'application/json');
+            });
+        }
+        if (typeof refreshEl !== 'undefined' && refreshEl) {
+            refreshEl.addEventListener('click', () => {
+                contentEl.innerHTML = '<div class="loading">Refreshing…</div>';
+                fetch('index.md')
+                  .then(r => r.text())
+                  .then(text => {
+                      let html = marked.parse(text);
+                      contentEl.innerHTML = html;
+                      execEl.innerHTML = '';
+                      const h1 = contentEl.querySelector('h1');
+                      if (h1) {
+                          let next = h1.nextElementSibling;
+                          if (next && next.tagName === 'P') {
+                              execEl.innerHTML = `<h4>Executive Summary</h4>`;
+                              execEl.appendChild(next.cloneNode(true));
+                              next.remove();
+                          }
+                      }
+                      addHeadingAnchors();
+                      addSeverityBadges();
+                      classifyDetailBlocks();
+                      linkifyCVEs();
+                      makeCollapsible();
+                      addStatusBadges();
+                      buildTOC();
+                      computeSummary();
+                      showToast('Report refreshed');
+                  });
+            });
+        }
+
+        function clearHighlights() { contentEl.querySelectorAll('mark.__hl').forEach(m => { const t = document.createTextNode(m.textContent); m.replaceWith(t); }); }
+        function highlight(query) {
+            clearHighlights();
+            if (!query) return;
+            const re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig');
+            contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
+                sec.querySelectorAll('p, li, h3').forEach(el => {
+                    el.childNodes.forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            const span = document.createElement('span');
+                            span.innerHTML = node.textContent.replace(re, m => `<mark class=\"__hl\">${m}</mark>`);
+                            if (span.innerHTML !== node.textContent) node.replaceWith(span);
+                        }
+                    });
+                });
+            });
+        }
+
+        searchEl.addEventListener('input', (e) => { applySearchFilter(e.target.value); highlight(e.target.value.trim()); });
+        wireShortcuts();
+
+        // Copy heading link via anchor click
+        contentEl.addEventListener('click', (e) => {
+            const a = e.target.closest('a.heading-anchor');
+            if (!a) return;
+            e.preventDefault();
+            const url = `${location.origin}${location.pathname}${a.getAttribute('href')}`;
+            navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard'));
+        });
+
+        // Expand for print
+        window.addEventListener('beforeprint', () => {
+            contentEl.querySelectorAll('.section-collapsible').forEach(c => c.classList.add('open'));
+        });
+
+        // Toast helper
+        const toast = document.createElement('div'); toast.className = 'toast'; document.body.appendChild(toast);
+        function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
     </script>
 </body>
 </html>
