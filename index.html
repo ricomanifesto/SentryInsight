@@ -88,19 +88,7 @@
         .btn.primary { background: var(--primary-red); color: #fff; border-color: #b91c1c; }
         .btn.ghost { background: transparent; }
 
-        .search {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .search input {
-            padding: 8px 12px 8px 32px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            min-width: 220px;
-            outline: none;
-        }
-        .search .icon { position: absolute; left: 8px; color: var(--muted); font-size: 14px; }
+        /* compact toolbar (only theme toggle now) */
 
         .layout {
             display: grid;
@@ -261,9 +249,12 @@
         body.dark .markdown-body code, body.dark .markdown-body pre { background: #0b1220; color: #e5e7eb; border-color: #1f2937; }
 
         /* Executive Summary */
-        .exec { border: 1px solid var(--border-color); background: #fff; border-radius: 12px; padding: 12px 16px; margin: 8px 0 16px; }
+        .exec { border: 1px solid var(--border-color); background: #ffffff; border-radius: 12px; padding: 12px 16px; margin: 8px 0 16px; }
         .exec h4 { margin: 0 0 6px; color: var(--text-secondary); }
-        .exec p { margin: 0; }
+        .exec p { margin: 0; color: var(--text-primary); }
+        body.dark .exec { background: var(--dark-elev); border-color: #1f2937; }
+        body.dark .exec h4 { color: #cbd5e1; }
+        body.dark .exec p { color: #e5e7eb; }
 
         /* Add loading animation */
         .loading {
@@ -344,20 +335,8 @@
                 </div>
             </div>
             <div class="spacer"></div>
-            <div class="search" title="Filter sections (⌘/Ctrl+K)">
-                <span class="icon">🔎</span>
-                <input id="search" type="search" placeholder="Filter by CVE, keyword, actor..." />
-            </div>
             <div class="toolbar">
                 <button id="toggle-dark" class="btn" title="Toggle dark mode">🌗 Theme</button>
-                <button id="expand-all" class="btn" title="Expand all sections">⤢ Expand</button>
-                <button id="collapse-all" class="btn" title="Collapse all sections">⤡ Collapse</button>
-                <button id="toggle-toc" class="btn" title="Show/Hide table of contents">☰ TOC</button>
-                <button id="refresh" class="btn" title="Refresh report">↻ Refresh</button>
-                <button id="download-md" class="btn" title="Download markdown">⬇︎ MD</button>
-                <button id="download-html" class="btn" title="Download standalone HTML">⬇︎ HTML</button>
-                <button id="download-json" class="btn" title="Download JSON export">⬇︎ JSON</button>
-                <button id="print" class="btn" title="Print or Save as PDF">🖨︎ Print</button>
             </div>
         </header>
 
@@ -380,16 +359,7 @@
         const tocEl = document.getElementById('toc-list');
         const metaEl = document.getElementById('meta');
         const summaryEl = document.getElementById('summary');
-        const searchEl = document.getElementById('search');
         const toggleDarkEl = document.getElementById('toggle-dark');
-        const expandAllEl = document.getElementById('expand-all');
-        const collapseAllEl = document.getElementById('collapse-all');
-        const downloadMdEl = document.getElementById('download-md');
-        const downloadHtmlEl = document.getElementById('download-html');
-        const downloadJsonEl = document.getElementById('download-json');
-        const printEl = document.getElementById('print');
-        const toggleTocEl = document.getElementById('toggle-toc');
-        const refreshEl = document.getElementById('refresh');
         const execEl = document.getElementById('exec');
 
         // Initial UI state
@@ -581,18 +551,9 @@
 
         function wireShortcuts() {
             document.addEventListener('keydown', (e) => {
-                const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
-                const typing = tag === 'input' || tag === 'textarea';
-                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-                    e.preventDefault();
-                    searchEl.focus();
-                    return;
-                }
-                if (typing) return;
+                if (e.target && ['input','textarea'].includes((e.target.tagName||'').toLowerCase())) return;
                 const k = e.key.toLowerCase();
                 if (k === 't') { toggleDarkEl.click(); }
-                if (k === 'e') { expandAllEl.click(); }
-                if (k === 'c') { collapseAllEl.click(); }
             });
         }
 
@@ -653,113 +614,8 @@
             localStorage.setItem('sentryinsight:theme', mode);
         });
 
-        expandAllEl.addEventListener('click', () => {
-            contentEl.querySelectorAll('.section-collapsible').forEach(c => {
-                c.classList.add('open');
-                const t = c.querySelector('.toggle'); if (t) t.textContent = '▼';
-            });
-        });
-        collapseAllEl.addEventListener('click', () => {
-            contentEl.querySelectorAll('.section-collapsible').forEach(c => {
-                c.classList.remove('open');
-                const t = c.querySelector('.toggle'); if (t) t.textContent = '▶';
-            });
-        });
-
-        downloadMdEl.addEventListener('click', () => download('exploitation-report.md', markdownCache));
-        downloadHtmlEl.addEventListener('click', () => {
-            const doc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>SentryInsight Exploitation Report</title>`+
-                `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css"></head>`+
-                `<body><article class="markdown-body" style="max-width:900px;margin:40px auto;padding:20px;border:1px solid #e5e7eb;border-radius:10px;">${contentEl.innerHTML}</article></body></html>`;
-            download('exploitation-report.html', doc, 'text/html');
-        });
-        printEl.addEventListener('click', () => window.print());
-        if (typeof toggleTocEl !== 'undefined' && toggleTocEl) {
-            toggleTocEl.addEventListener('click', () => {
-                const toc = document.getElementById('toc');
-                if (toc) toc.classList.toggle('hidden');
-            });
-        }
-        if (typeof downloadJsonEl !== 'undefined' && downloadJsonEl) {
-            downloadJsonEl.addEventListener('click', () => {
-                const data = [];
-                contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
-                    const h3 = sec.querySelector('h3');
-                    const title = h3 ? h3.childNodes[0].textContent.trim() : '';
-                    const details = { title };
-                    sec.querySelectorAll('li').forEach(li => {
-                        const s = li.querySelector('strong');
-                        if (!s) return;
-                        const key = s.textContent.replace(/:$/,'').trim().toLowerCase();
-                        const val = li.textContent.replace(/^\s*[^:]+:\s*/i, '').trim();
-                        if (key.startsWith('description')) details.description = val;
-                        else if (key.startsWith('impact')) details.impact = val;
-                        else if (key.startsWith('status')) details.status = val;
-                        else if (key.startsWith('mitigation')) details.mitigation = val;
-                        else if (key.startsWith('cve')) details.cve = val;
-                        else if (key.startsWith('references')) details.references = val;
-                    });
-                    details.cves = Array.from(new Set((sec.textContent.match(/CVE-\d{4}-\d{4,7}/g) || [])));
-                    const sevEl = h3 && h3.querySelector('.severity-critical, .severity-high, .severity-medium');
-                    if (sevEl) details.severity = sevEl.textContent.trim();
-                    const statEl = h3 && h3.querySelector('.status-badge');
-                    if (statEl) details.status_label = statEl.textContent.trim();
-                    data.push(details);
-                });
-                download('exploitation-report.json', JSON.stringify({ sections: data }, null, 2), 'application/json');
-            });
-        }
-        if (typeof refreshEl !== 'undefined' && refreshEl) {
-            refreshEl.addEventListener('click', () => {
-                contentEl.innerHTML = '<div class="loading">Refreshing…</div>';
-                fetch('index.md')
-                  .then(r => r.text())
-                  .then(text => {
-                      let html = marked.parse(text);
-                      contentEl.innerHTML = html;
-                      execEl.innerHTML = '';
-                      const h1 = contentEl.querySelector('h1');
-                      if (h1) {
-                          let next = h1.nextElementSibling;
-                          if (next && next.tagName === 'P') {
-                              execEl.innerHTML = `<h4>Executive Summary</h4>`;
-                              execEl.appendChild(next.cloneNode(true));
-                              next.remove();
-                          }
-                      }
-                      addHeadingAnchors();
-                      addSeverityBadges();
-                      classifyDetailBlocks();
-                      linkifyCVEs();
-                      makeCollapsible();
-                      addStatusBadges();
-                      buildTOC();
-                      computeSummary();
-                      showToast('Report refreshed');
-                  });
-            });
-        }
-
-        function clearHighlights() { contentEl.querySelectorAll('mark.__hl').forEach(m => { const t = document.createTextNode(m.textContent); m.replaceWith(t); }); }
-        function highlight(query) {
-            clearHighlights();
-            if (!query) return;
-            const re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig');
-            contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
-                sec.querySelectorAll('p, li, h3').forEach(el => {
-                    el.childNodes.forEach(node => {
-                        if (node.nodeType === Node.TEXT_NODE) {
-                            const span = document.createElement('span');
-                            span.innerHTML = node.textContent.replace(re, m => `<mark class=\"__hl\">${m}</mark>`);
-                            if (span.innerHTML !== node.textContent) node.replaceWith(span);
-                        }
-                    });
-                });
-            });
-        }
-
-        searchEl.addEventListener('input', (e) => { applySearchFilter(e.target.value); highlight(e.target.value.trim()); });
-        wireShortcuts();
+                wireShortcuts();
+wireShortcuts();
 
         // Copy heading link via anchor click
         contentEl.addEventListener('click', (e) => {
