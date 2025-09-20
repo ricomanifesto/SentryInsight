@@ -1,48 +1,51 @@
 # Exploitation Report
 
-Several critical vulnerabilities are currently being exploited in the wild, with the most severe being a maximum severity command injection flaw in Fortra GoAnywhere MFT and active exploitation of Ivanti Endpoint Manager Mobile vulnerabilities. Iranian state-sponsored threat actors are conducting sophisticated attacks against telecommunications companies, while SystemBC malware operators maintain a large-scale proxy botnet compromising approximately 1,500 VPS systems daily. Additionally, threat actors have successfully breached SonicWall's cloud infrastructure, exposing firewall configuration backup files.
+Critical vulnerabilities are being actively exploited across multiple platforms, with the most severe being a maximum severity command injection flaw in Fortra GoAnywhere MFT (CVE-2025-10035) and vulnerabilities in Ivanti Endpoint Manager Mobile (CVE-2025-4427 and CVE-2025-4428). Nation-state actors, particularly Iranian groups, are conducting sophisticated campaigns targeting telecommunications and satellite companies, while malware operations like SystemBC are powering extensive proxy networks. Additionally, new attack vectors including ShadowLeak attacks against ChatGPT and widespread phishing-as-a-service operations are expanding the threat landscape.
 
 ## Active Exploitation Details
 
 ### Fortra GoAnywhere MFT Command Injection Vulnerability
-- **Description**: A maximum severity vulnerability in GoAnywhere MFT's License Servlet that allows command injection attacks through exploitation of the License Servlet component
-- **Impact**: Attackers can execute arbitrary commands on affected systems, potentially leading to complete system compromise
-- **Status**: Critical patch available; exploitation highly dependent on whether systems are exposed to the Internet
+- **Description**: A maximum severity vulnerability in GoAnywhere MFT's License Servlet that allows command injection attacks
+- **Impact**: Enables attackers to execute arbitrary commands on vulnerable systems
+- **Status**: Critical patch available; exploitation highly dependent on Internet exposure
 - **CVE ID**: CVE-2025-10035
 
-### Ivanti Endpoint Manager Mobile (EPMM) Vulnerabilities
-- **Description**: Multiple vulnerabilities in Ivanti EPMM systems that are being actively exploited by threat actors deploying specialized malware
-- **Impact**: Complete system compromise with deployment of custom malware strains for persistent access and data exfiltration
-- **Status**: Active exploitation with CISA releasing detailed malware analysis
-- **CVE ID**: CVE-2025-4427, CVE-2025-4428
+### Ivanti EPMM Vulnerabilities
+- **Description**: Two vulnerabilities in Ivanti Endpoint Manager Mobile that are being actively exploited with custom malware
+- **Impact**: Allows deployment of specialized malware strains for persistent access and lateral movement
+- **Status**: Active exploitation detected by CISA with custom malware deployment
+- **CVE ID**: CVE-2025-4427 and CVE-2025-4428
 
-### ChatGPT ShadowLeak Attack
-- **Description**: A novel attack technique that exploits OpenAI's ChatGPT infrastructure to invisibly exfiltrate company emails and sensitive data
-- **Impact**: Complete data exfiltration through AI infrastructure, leaving no trace on enterprise systems
-- **Status**: Active exploitation technique allowing invisible data theft through AI platforms
+### ShadowLeak ChatGPT Attack
+- **Description**: A novel attack technique that exploits loopholes in ChatGPT to exfiltrate company data through OpenAI's infrastructure
+- **Impact**: Enables invisible data theft without leaving traces on enterprise systems
+- **Status**: Active exploitation technique identified
 
 ## Affected Systems and Products
 
-- **Fortra GoAnywhere MFT**: License Servlet component vulnerable to command injection attacks
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management systems compromised with custom malware
-- **OpenAI ChatGPT**: AI platform exploited for invisible data exfiltration through ShadowLeak technique
-- **SonicWall MySonicWall**: Cloud backup service breached exposing firewall configuration files
-- **VPS Systems**: Commercial virtual private servers infected by SystemBC malware for proxy operations
-- **European Telecommunications Companies**: 11 organizations with 34 devices compromised by Iranian actors
+- **Fortra GoAnywhere MFT**: License Servlet component vulnerable to command injection
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Multiple vulnerabilities being exploited with custom malware
+- **OpenAI ChatGPT**: Vulnerable to ShadowLeak data exfiltration attacks
+- **Commercial VPS Systems**: Targeted by SystemBC malware for proxy network creation
+- **Telecommunications Infrastructure**: Targeted by Iranian APT groups across European companies
+- **SonicWall MySonicWall Service**: Breached with firewall configuration backup files exposed
+- **Transport for London Systems**: Compromised in August 2024 attack by Scattered Spider group
 
 ## Attack Vectors and Techniques
 
 - **Command Injection**: Exploitation of GoAnywhere MFT License Servlet for arbitrary command execution
-- **Social Engineering**: LinkedIn job lures used by UNC1549 to target telecommunications employees
-- **AI Infrastructure Abuse**: ShadowLeak technique leveraging ChatGPT for invisible data exfiltration
-- **Malware Deployment**: Custom malware strains deployed on compromised Ivanti EPMM systems
-- **Proxy Network Operations**: SystemBC malware converting infected VPS systems into proxy infrastructure
-- **Cloud Service Breach**: Direct compromise of SonicWall's cloud backup infrastructure
+- **LinkedIn Social Engineering**: UNC1549 using fake job lures to target telecommunications employees
+- **MINIBIKE Malware**: Custom malware deployed by Iranian actors for persistent access
+- **Proxy Network Creation**: SystemBC malware converting infected VPS systems into proxy infrastructure
+- **Phishing-as-a-Service (PhaaS)**: Large-scale operations using 17,500+ domains targeting 316 brands across 74 countries
+- **Data Exfiltration via AI**: ShadowLeak technique using OpenAI infrastructure for invisible data theft
+- **Fake FBI Portals**: Cybercriminals impersonating FBI's Internet Crime Complaint Center for malicious activities
 
 ## Threat Actor Activities
 
-- **UNC1549 (Iranian State APT)**: Conducting highly sophisticated campaigns against European telecommunications companies using LinkedIn recruitment lures and MINIBIKE malware, successfully infiltrating 34 devices across 11 organizations
-- **Gamaredon and Turla Collaboration**: Russian hacking groups working together to deploy Kazuar backdoor against Ukrainian entities in unprecedented collaboration
-- **Scattered Spider**: Teen members arrested in UK for August 2024 Transport for London cyber attack, demonstrating continued activity of this prominent ransomware affiliate group
-- **SystemBC Operators**: Maintaining large-scale proxy botnet with approximately 1,500 daily VPS victims across 80 command and control servers for REM Proxy network operations
-- **Phishing-as-a-Service Groups**: Lighthouse and Lucid PhaaS operations targeting 316 brands across 74 countries with over 17,500 malicious domains
+- **UNC1549 (Iranian APT)**: Successfully infiltrated 34 devices across 11 European telecommunications companies using LinkedIn job lures and MINIBIKE malware
+- **Gamaredon and Turla**: Russian hacking groups collaborating to deploy Kazuar backdoor against Ukrainian entities
+- **Scattered Spider**: Teen members arrested in connection with Transport for London cyberattack in August 2024
+- **SystemBC Operators**: Maintaining average of 1,500 daily VPS victims across 80 C2 servers for REM Proxy network
+- **Lighthouse and Lucid PhaaS**: Operating massive phishing infrastructure targeting global brands
+- **Charming Kitten Subgroup**: Conducting sophisticated bespoke cyberattacks against telecommunications and satellite companies
