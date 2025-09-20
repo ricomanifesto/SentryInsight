@@ -40,7 +40,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          # Force add index.md even if it's in .gitignore
-          git add -f index.md
+          # Add all generated artifacts (including docs/)
+          git add -A
           git commit -m "Update exploitation report [automated]" || echo "No changes to commit"
           git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git

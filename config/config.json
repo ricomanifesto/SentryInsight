@@ -18,6 +18,10 @@
         "include_source_links": true,
         "format": "markdown"
     },
+    "github_pages": {
+        "enabled": true,
+        "repo_directory": "docs"
+    },
     "fetch": {
         "timeout": 30,
         "max_retries": 3,
