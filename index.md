@@ -1,56 +1,51 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical exploitation campaigns targeting high-value systems across multiple sectors. Most notably, threat actors are actively exploiting vulnerabilities in Fortra GoAnywhere MFT systems, with CVE-2025-10035 receiving a maximum severity score of 10.0 CVSS for command injection attacks. Iranian state-sponsored groups continue aggressive campaigns against telecommunications companies, while multiple malware families are leveraging AI capabilities for enhanced attacks. Additionally, CISA has identified active exploitation of Ivanti EPMM vulnerabilities with custom malware deployment, and a zero-click flaw in OpenAI's ChatGPT Deep Research agent poses significant data exfiltration risks.
+Multiple critical vulnerabilities are currently being actively exploited in the wild, with several zero-day flaws and newly disclosed vulnerabilities posing significant threats to organizations. The most severe activity includes active exploitation of Ivanti EPMM vulnerabilities CVE-2025-4427 and CVE-2025-4428 with custom malware deployment, a maximum severity command injection flaw in Fortra GoAnywhere MFT (CVE-2025-10035), and a sophisticated zero-click vulnerability in OpenAI's ChatGPT Deep Research agent dubbed "ShadowLeak." Additionally, Iranian state-sponsored threat actors are conducting highly targeted campaigns against telecommunications companies, while widespread malware campaigns are targeting macOS users and leveraging AI-powered capabilities for enhanced attack effectiveness.
 
 ## Active Exploitation Details
 
+### ShadowLeak Zero-Click Flaw in OpenAI ChatGPT Deep Research Agent
+- **Description**: A zero-click vulnerability in OpenAI's ChatGPT Deep Research agent that allows attackers to leak sensitive Gmail inbox data through a single crafted email without user interaction
+- **Impact**: Enables data exfiltration of company information via OpenAI's infrastructure, leaving no trace on enterprise systems
+- **Status**: Actively exploitable, allows invisible email theft
+
 ### Fortra GoAnywhere MFT Command Injection Vulnerability
-- **Description**: A maximum severity vulnerability in GoAnywhere MFT's License Servlet allows attackers to execute arbitrary commands on affected systems
-- **Impact**: Complete system compromise through command injection, enabling unauthorized access and control of managed file transfer systems
-- **Status**: Critical patch available, active exploitation potential high for internet-exposed systems
+- **Description**: A maximum severity vulnerability in GoAnywhere MFT's License Servlet that enables command injection attacks
+- **Impact**: Allows execution of arbitrary commands on affected systems
+- **Status**: Critical patch available, highly dependent on Internet exposure
 - **CVE ID**: CVE-2025-10035
 
-### Ivanti EPMM Vulnerabilities
-- **Description**: Multiple vulnerabilities in Ivanti Endpoint Manager Mobile (EPMM) systems being exploited with custom malware deployment
-- **Impact**: Device compromise and persistent access through specialized malware kits designed for mobile endpoint management systems
-- **Status**: Active exploitation confirmed by CISA with detailed malware analysis published
+### Ivanti EPMM Vulnerabilities with Active Malware Deployment
+- **Description**: Two vulnerabilities in Ivanti Endpoint Manager Mobile being exploited with custom malware deployment
+- **Impact**: Complete system compromise with persistent malware installation
+- **Status**: Active exploitation with CISA-documented malware kits
 - **CVE ID**: CVE-2025-4427, CVE-2025-4428
-
-### ShadowLeak Zero-Click ChatGPT Vulnerability
-- **Description**: A zero-click flaw in OpenAI ChatGPT's Deep Research agent allowing Gmail data exfiltration through crafted emails
-- **Impact**: Sensitive email data can be leaked without user interaction, potentially exposing corporate communications and confidential information
-- **Status**: Newly disclosed vulnerability with proof-of-concept demonstration, patch status unclear
-
-### SonicWall MySonicWall Service Breach
-- **Description**: Unauthorized access to SonicWall's MySonicWall service exposing firewall backup configuration files
-- **Impact**: Exposure of network security configurations affecting fewer than 5% of the install base, potentially revealing network topology and security settings
-- **Status**: Active breach disclosed by vendor, containment measures implemented
 
 ## Affected Systems and Products
 
-- **Fortra GoAnywhere MFT**: License Servlet component vulnerable to command injection attacks, particularly systems with internet exposure
-- **Ivanti EPMM**: Mobile endpoint management systems compromised through targeted malware campaigns
-- **OpenAI ChatGPT**: Deep Research agent functionality vulnerable to data exfiltration attacks
-- **SonicWall Firewalls**: Backup configuration data exposed through MySonicWall service compromise
-- **macOS Systems**: Targeted by Atomic Infostealer through fake GitHub repositories and malicious software packages
-- **Telecommunications Infrastructure**: European telecom companies infiltrated across 34 devices in 11 organizations
-- **Windows Systems**: Infected with AI-powered MalTerminal malware and SystemBC proxy network components
+- **Fortra GoAnywhere MFT**: License Servlet component vulnerable to command injection
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Multiple vulnerabilities with active malware campaigns
+- **OpenAI ChatGPT**: Deep Research agent vulnerable to zero-click data exfiltration
+- **Apple macOS**: Targeted by Atomic Infostealer through fake GitHub repositories
+- **European Telecommunications Infrastructure**: 34 devices across 11 organizations compromised
+- **Gmail Services**: Data accessible through ChatGPT vulnerability exploitation
+- **Steam Platform**: 32-bit Windows support ending January 2026 (security consideration)
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering via LinkedIn**: Iran-linked UNC1549 group using fake job offers to target telecommunications employees
-- **Fake Repository Distribution**: Malicious GitHub repositories distributing Atomic Infostealer to macOS users
-- **Zero-Click Email Exploitation**: Crafted emails triggering automatic data exfiltration through ChatGPT Deep Research agent
-- **Command Injection**: Direct system compromise through vulnerable web interfaces in file transfer systems
-- **AI-Enhanced Malware**: GPT-4-powered MalTerminal creating dynamic ransomware and reverse shell capabilities
-- **Proxy Network Infrastructure**: SystemBC malware powering REM Proxy with 1,500 daily victims across 80 command and control servers
-- **Phishing-as-a-Service**: Lighthouse and Lucid platforms managing over 17,500 phishing domains targeting 316 brands globally
+- **Social Engineering via LinkedIn**: UNC1549 using fake job offers to target telecommunications employees
+- **Fake GitHub Repositories**: Malware distribution disguised as legitimate software for macOS users
+- **Zero-Click Email Exploitation**: ShadowLeak attack requiring only crafted email delivery
+- **AI-Powered Malware**: MalTerminal leveraging GPT-4 capabilities for ransomware and reverse shell creation
+- **Phishing-as-a-Service (PhaaS)**: Lighthouse and Lucid platforms hosting 17,500 phishing domains
+- **SystemBC Proxy Network**: REM Proxy botnet with 1,500 daily VPS victims across 80 C2 servers
+- **Command Injection**: Direct exploitation of web application vulnerabilities for system access
 
 ## Threat Actor Activities
 
-- **UNC1549 (Iran-nexus)**: Sophisticated espionage campaign targeting European telecommunications companies using MINIBIKE malware and LinkedIn social engineering, successfully compromising 34 devices across 11 organizations
-- **Gamaredon and Turla**: Russian state-sponsored groups collaborating to deploy Kazuar backdoor against Ukrainian entities, demonstrating unprecedented cooperation between APT groups
-- **Scattered Spider**: Teen hackers linked to August 2024 Transport for London cyber attack, with two members arrested in the UK
-- **SystemBC Operators**: Managing extensive proxy network infrastructure with daily victim counts exceeding 1,500 systems
-- **Atomic Infostealer Campaign**: Large-scale information theft operation targeting macOS users through fake software repositories
-- **REM Proxy Network**: Criminal infrastructure leveraging SystemBC malware to provide proxy services to cybercriminals
+- **UNC1549 (Iran-nexus)**: Successfully infiltrated 34 devices across 11 European telecommunications companies using LinkedIn job lures and MINIBIKE malware
+- **Gamaredon and Turla Collaboration**: Russian hacking groups working together to deploy Kazuar backdoor against Ukrainian entities
+- **Scattered Spider**: Two teen members arrested in connection with August 2024 Transport for London cyber attack
+- **Unknown Threat Actors**: Deploying Atomic Infostealer via fake LastPass-themed repositories targeting macOS users
+- **Cybercriminal Groups**: Operating fake FBI Internet Crime Complaint Center websites for malicious activities
+- **PhaaS Operators**: Managing Lighthouse and Lucid services targeting 316 brands across 74 countries
