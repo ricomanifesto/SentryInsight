@@ -20,7 +20,7 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 - **LangGraph**: Orchestrates workflow state and conditional logic
 - **FastMCP**: Code organization with decorators for RSS tools
 - **LangChain**: AI model integration and text processing
-- **OpenAI GPT‑5**: Content analysis and report generation
+- **Anthropic Claude**: Content analysis and report generation
 
 ## Setup
 
@@ -29,9 +29,9 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
    pip install -r requirements.txt
    ```
 
-2. Add OpenAI API key:
+2. Add Anthropic API key:
    ```bash
-   echo "OPENAI_API_KEY=your-api-key-here" > .env
+   echo "ANTHROPIC_API_KEY=your-api-key-here" > .env
    ```
 
 3. Configure feeds and output paths in `config/config.json`

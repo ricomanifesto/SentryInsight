@@ -34,13 +34,13 @@ jobs:
       - name: Generate exploitation report
         run: python main.py
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       
       - name: Commit and push updated report
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          # Add all generated artifacts (including docs/)
-          git add -A
+          # Force add index.md even if it's in .gitignore
+          git add -f index.md
           git commit -m "Update exploitation report [automated]" || echo "No changes to commit"
           git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git

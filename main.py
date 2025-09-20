@@ -14,7 +14,7 @@ try:
 except ImportError:
     pass
 
-# OpenAI API key should be set via environment variable OPENAI_API_KEY
+# Anthropic API key should be set via environment variable ANTHROPIC_API_KEY
 
 # Import the LangGraph workflow
 from src.core.workflow import run_exploitation_analysis
