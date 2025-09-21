@@ -1,47 +1,56 @@
 # Exploitation Report
 
-This report reveals several critical security vulnerabilities currently under active exploitation, with particular focus on high-severity command injection flaws and advanced malware campaigns. The most pressing threat is the maximum severity vulnerability in Fortra GoAnywhere MFT's License Servlet enabling command injection attacks, alongside sophisticated malware strains targeting Ivanti endpoint management systems. Additional concerns include zero-click vulnerabilities in AI systems, advanced persistent threat campaigns targeting telecommunications infrastructure, and the emergence of AI-powered malware capabilities that represent a new frontier in cybersecurity threats.
+Critical vulnerabilities are currently being exploited across multiple platforms, with the most severe being a maximum severity command injection flaw in Fortra GoAnywhere MFT's License Servlet (CVE-2025-10035) that allows arbitrary command execution. Additionally, threat actors are actively exploiting Ivanti EPMM vulnerabilities (CVE-2025-4427 and CVE-2025-4428) with sophisticated malware campaigns, while Iranian state-sponsored groups are conducting highly targeted attacks against telecommunications companies. A concerning zero-click vulnerability in OpenAI ChatGPT's Deep Research agent enables data exfiltration through crafted emails, and AI-powered malware is emerging with LLM capabilities for dynamic attack generation.
 
 ## Active Exploitation Details
 
 ### Fortra GoAnywhere MFT Command Injection Vulnerability
-- **Description**: Maximum severity vulnerability in GoAnywhere MFT's License Servlet that allows attackers to execute arbitrary commands on affected systems
-- **Impact**: Full system compromise through remote command execution capabilities
-- **Status**: Critical security updates released by Fortra; exploitation highly dependent on internet exposure
+- **Description**: A maximum severity vulnerability in GoAnywhere MFT's License Servlet that allows command injection attacks
+- **Impact**: Attackers can execute arbitrary commands on vulnerable systems
+- **Status**: Critical patches have been released by Fortra; exploitation highly dependent on internet exposure
 - **CVE ID**: CVE-2025-10035
 
-### Ivanti EPMM Vulnerability Exploitation
-- **Description**: Multiple vulnerabilities in Ivanti Endpoint Manager Mobile being actively exploited in the wild with custom malware deployment
-- **Impact**: Complete device compromise and deployment of sophisticated malware kits for persistent access
-- **Status**: Active exploitation confirmed by CISA with detailed malware analysis published
-- **CVE ID**: CVE-2025-4427 and CVE-2025-4428
+### Ivanti EPMM Authentication Bypass Vulnerabilities
+- **Description**: Multiple vulnerabilities in Ivanti Endpoint Manager Mobile being actively exploited with custom malware kits
+- **Impact**: Complete system compromise with deployment of sophisticated malware strains
+- **Status**: Active exploitation confirmed by CISA with malware analysis published
+- **CVE ID**: CVE-2025-4427, CVE-2025-4428
 
-### ShadowLeak Zero-Click ChatGPT Vulnerability
-- **Description**: Zero-click flaw in OpenAI ChatGPT's Deep Research agent that enables data exfiltration through crafted emails
-- **Impact**: Unauthorized access to sensitive Gmail inbox data without user interaction
-- **Status**: Newly discovered vulnerability allowing invisible data theft through AI infrastructure
+### ShadowLeak Zero-Click Vulnerability
+- **Description**: A zero-click flaw in OpenAI ChatGPT's Deep Research agent that allows data exfiltration through crafted emails
+- **Impact**: Attackers can leak sensitive Gmail inbox data without user interaction
+- **Status**: Actively exploitable vulnerability requiring only a single crafted email
+
+### MalTerminal AI-Powered Malware
+- **Description**: First known malware incorporating Large Language Model capabilities for dynamic attack generation
+- **Impact**: Can create ransomware and reverse shells on-demand using GPT-4 integration
+- **Status**: Active in the wild representing new evolution in malware sophistication
 
 ## Affected Systems and Products
 
-- **Fortra GoAnywhere MFT**: License Servlet component with maximum severity command injection vulnerability
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Enterprise mobile device management systems compromised through multiple attack vectors
-- **OpenAI ChatGPT Deep Research Agent**: AI-powered research tool vulnerable to zero-click data exfiltration
-- **macOS Systems**: Targeted by Atomic Infostealer malware distributed through fake GitHub repositories
-- **European Telecommunications Infrastructure**: 34 devices across 11 telecom organizations compromised by Iranian threat actors
+- **Fortra GoAnywhere MFT**: License Servlet component vulnerable to command injection attacks
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Multiple authentication bypass vulnerabilities with active exploitation
+- **OpenAI ChatGPT**: Deep Research agent susceptible to zero-click data exfiltration
+- **macOS Systems**: Targeted by Atomic Infostealer through fake GitHub repositories
+- **Windows Systems**: Affected by MalTerminal AI-powered malware
+- **Telecommunications Infrastructure**: European telecom companies compromised by UNC1549 operations
+- **Microsoft Azure Entra ID**: Critical IAM vulnerability (patched prior to disclosure)
 
 ## Attack Vectors and Techniques
 
-- **Command Injection**: Exploitation of input validation flaws to execute arbitrary system commands
-- **Zero-Click Exploitation**: Attack methodology requiring no user interaction to compromise systems
-- **Social Engineering via LinkedIn**: Professional networking platform used to deliver malware through fake job opportunities
-- **Fake Repository Distribution**: Malicious code distributed through counterfeit GitHub repositories mimicking legitimate software
-- **AI-Powered Malware Generation**: Use of GPT-4 capabilities to dynamically create ransomware and reverse shells
-- **Email-Based Data Exfiltration**: Crafted emails triggering automated data leakage through AI research agents
+- **Command Injection**: Exploitation of GoAnywhere MFT License Servlet for arbitrary command execution
+- **Zero-Click Email Attacks**: ShadowLeak technique using crafted emails to trigger ChatGPT data exfiltration
+- **Social Engineering**: LinkedIn job lures used by UNC1549 to deploy MINIBIKE malware
+- **Repository Poisoning**: Fake GitHub repositories distributing Atomic Infostealer on macOS
+- **AI-Enhanced Malware**: LLM integration for dynamic payload generation and attack adaptation
+- **Proxy Network Abuse**: SystemBC malware powering REM Proxy with 1,500 daily victims across 80 C2 servers
+- **Phishing-as-a-Service**: Lighthouse and Lucid platforms managing 17,500 domains targeting 316 brands
 
 ## Threat Actor Activities
 
-- **UNC1549 (Iranian APT)**: Sophisticated campaign targeting European telecommunications companies using LinkedIn job lures and MINIBIKE malware, successfully compromising 34 devices across 11 organizations
-- **Gamaredon and Turla Collaboration**: Russian state-sponsored groups working together to deploy Kazuar backdoor against Ukrainian entities
-- **Scattered Spider**: Teen hackers linked to August 2024 Transport for London cyber attack, with two members arrested in the UK
-- **SystemBC Operators**: Managing REM Proxy network powered by SystemBC malware, controlling approximately 1,500 daily VPS victims across 80 command and control servers
-- **Lighthouse and Lucid PhaaS**: Phishing-as-a-Service operation targeting 316 brands across 74 countries using over 17,500 malicious domains
+- **UNC1549**: Iranian-nexus group successfully compromised 34 devices across 11 European telecommunications companies using LinkedIn job lures and MINIBIKE malware
+- **Gamaredon and Turla**: Russian state groups collaborating to deploy Kazuar backdoor against Ukrainian entities
+- **Scattered Spider**: Teen members arrested in connection with August 2024 Transport for London cyber attack
+- **Charming Kitten Subgroup**: Conducting highly bespoke attacks against telecommunications and satellite companies with unprecedented customization
+- **Criminal Networks**: TradeOgre cryptocurrency exchange dismantled with $40 million in seized criminal proceeds
+- **PhaaS Operators**: Lighthouse and Lucid services facilitating attacks across 74 countries targeting major global brands
