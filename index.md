@@ -1,56 +1,58 @@
 # Exploitation Report
 
-The current threat landscape reveals multiple critical vulnerabilities actively exploited in the wild, with significant focus on enterprise infrastructure and cloud services. Most notably, attackers are leveraging zero-day vulnerabilities in OpenAI ChatGPT's Deep Research agent through the ShadowLeak attack, and exploiting a maximum-severity command injection flaw in Fortra GoAnywhere MFT systems. Nation-state actors, particularly from North Korea and Iran, continue sophisticated campaigns targeting telecommunications and cryptocurrency sectors through social engineering and malware deployment. Additionally, threat actors are exploiting recently patched Ivanti EPMM vulnerabilities with custom malware kits, while a critical Microsoft Entra ID flaw that could have enabled complete tenant hijacking has been addressed before active exploitation.
+The current threat landscape reveals multiple critical exploitation activities targeting enterprise infrastructure and cloud services. A maximum severity vulnerability in Fortra GoAnywhere MFT's License Servlet poses immediate risks through command injection attacks, while threat actors are actively exploiting Ivanti EPMM vulnerabilities to deploy specialized malware kits. Additionally, a zero-click flaw in OpenAI's ChatGPT Deep Research agent enables Gmail data exfiltration, and North Korean actors continue leveraging social engineering campaigns to distribute BeaverTail malware through cryptocurrency job scams. Iranian state-sponsored groups have demonstrated sophisticated targeting of telecommunications companies across Europe, successfully compromising 34 devices across 11 organizations.
 
 ## Active Exploitation Details
 
-### ShadowLeak Zero-Click Flaw in OpenAI ChatGPT Deep Research Agent
-- **Description**: Zero-click vulnerability in OpenAI ChatGPT's Deep Research agent that enables attackers to exfiltrate sensitive Gmail inbox data through a single crafted email
-- **Impact**: Complete Gmail data theft without user interaction, data exfiltration via OpenAI's infrastructure leaving no trace on enterprise systems
-- **Status**: Currently exploitable with proof-of-concept demonstrated
-
-### Fortra GoAnywhere MFT Command Injection Vulnerability
-- **Description**: Maximum severity command injection flaw in GoAnywhere MFT's License Servlet component
-- **Impact**: Arbitrary command execution on affected systems, complete system compromise
-- **Status**: Patches released by Fortra, exploitation highly dependent on internet exposure
+### GoAnywhere MFT License Servlet Command Injection
+- **Description**: A maximum severity vulnerability in Fortra GoAnywhere MFT's License Servlet that allows command injection attacks
+- **Impact**: Enables arbitrary command execution on affected systems
+- **Status**: Critical patch released by Fortra, immediate patching required
 - **CVE ID**: CVE-2025-10035
 
-### Ivanti EPMM Vulnerabilities with Active Malware Deployment
-- **Description**: Vulnerabilities in Ivanti Endpoint Manager Mobile being exploited with custom malware kits
-- **Impact**: Complete device compromise, persistent malware installation, enterprise network infiltration
-- **Status**: Active exploitation observed by CISA with detailed malware analysis published
-- **CVE ID**: CVE-2025-4427, CVE-2025-4428
+### Ivanti EPMM Vulnerabilities
+- **Description**: Two vulnerabilities in Ivanti Endpoint Manager Mobile being actively exploited to deploy malware
+- **Impact**: Allows threat actors to compromise enterprise mobile device management systems and deploy persistent malware
+- **Status**: Actively exploited with CISA documenting deployed malware kits
+- **CVE ID**: CVE-2025-4427 and CVE-2025-4428
 
-### Microsoft Entra ID Tenant Hijacking Flaw
-- **Description**: Critical combination of legacy components that could allow complete access to any Microsoft Entra ID tenant globally
-- **Impact**: Complete organizational tenant takeover, access to all enterprise Microsoft services and data
-- **Status**: Patched by Microsoft prior to public disclosure, no active exploitation reported
+### ShadowLeak Zero-Click Gmail Exploitation
+- **Description**: A zero-click vulnerability in OpenAI ChatGPT's Deep Research agent that enables Gmail data exfiltration
+- **Impact**: Allows attackers to steal sensitive Gmail inbox data through a single crafted email without user interaction
+- **Status**: Disclosed vulnerability with potential for invisible data exfiltration
+
+### Microsoft Entra ID Tenant Hijacking
+- **Description**: A critical combination of legacy components in Microsoft Entra ID that could allow complete tenant access
+- **Impact**: Complete hijacking of any company's Microsoft Entra ID tenant worldwide
+- **Status**: Vulnerability was fixed prior to disclosure
 
 ## Affected Systems and Products
 
-- **Fortra GoAnywhere MFT**: License Servlet component vulnerable to command injection attacks
-- **Microsoft Entra ID**: Legacy component combination affecting all global tenants
+- **Fortra GoAnywhere MFT**: License Servlet component vulnerable to command injection
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management platform targeted by malware deployment
 - **OpenAI ChatGPT**: Deep Research agent vulnerable to zero-click data exfiltration
-- **Ivanti EPMM**: Endpoint Manager Mobile systems compromised with custom malware
-- **Apple macOS**: Systems targeted by Atomic Infostealer through fake GitHub repositories
-- **Telecommunications Infrastructure**: European telecom companies targeted by Iran-linked UNC1549 group
-- **Cryptocurrency Platforms**: TradeOgre exchange dismantled, multiple crypto job scam operations
+- **Microsoft Entra ID**: Identity and access management service with tenant hijacking vulnerability
+- **Apple macOS**: Targeted by Atomic Infostealer through fake GitHub repositories
+- **European Telecommunications Companies**: 34 devices across 11 organizations compromised by Iranian actors
+- **Gmail Accounts**: Vulnerable to data exfiltration through ChatGPT integration
+- **Cryptocurrency Platforms**: Targeted by North Korean social engineering campaigns
 
 ## Attack Vectors and Techniques
 
-- **ClickFix-Style Lures**: DPRK hackers using fake fix instructions to deliver BeaverTail malware in cryptocurrency job scams
-- **Fake GitHub Repositories**: LastPass warns of widespread campaign distributing Atomic Infostealer through malicious macOS programs
-- **LinkedIn Job Lures**: UNC1549 group using professional networking to target telecommunications employees with MINIBIKE malware
-- **Zero-Click Email Attacks**: ShadowLeak technique requiring only a single crafted email to exfiltrate Gmail data
-- **GPT-4 Powered Malware**: MalTerminal malware incorporating Large Language Model capabilities for dynamic attack generation
-- **Phishing-as-a-Service**: Lighthouse and Lucid platforms managing over 17,500 phishing domains targeting 316 brands globally
-- **Synthetic Identity Fraud**: Rising financial sector targeting through fabricated identities, potentially causing $3.3 billion in damages
+- **Command Injection**: Exploitation of GoAnywhere MFT License Servlet for arbitrary command execution
+- **Zero-Click Exploitation**: Gmail data theft through crafted emails targeting ChatGPT integration
+- **Social Engineering**: LinkedIn job lures used by Iranian UNC1549 group to target telecommunications
+- **Fake Repository Distribution**: macOS users targeted through malicious GitHub repositories masquerading as legitimate software
+- **ClickFix Lures**: DPRK actors using fake error messages to deliver BeaverTail malware
+- **Tenant Takeover**: Legacy component exploitation for complete Entra ID tenant control
+- **Cryptocurrency Job Scams**: North Korean campaigns targeting crypto industry professionals
+- **Malware Kit Deployment**: Sophisticated malware installation following Ivanti EPMM compromise
 
 ## Threat Actor Activities
 
-- **DPRK-linked Groups**: Conducting sophisticated cryptocurrency job scams using ClickFix lures and BeaverTail malware to target crypto industry professionals
-- **UNC1549 (Iran-nexus)**: Successfully infiltrated 34 devices across 11 European telecommunications organizations using LinkedIn job lures and MINIBIKE malware
-- **Gamaredon and Turla Collaboration**: Russian state groups coordinating attacks against Ukrainian entities using Kazuar backdoor deployment
-- **Scattered Spider**: Two teenage members arrested in U.K. for connection to August 2024 Transport for London cyber attack
-- **SystemBC Operators**: Managing REM Proxy network with approximately 1,500 daily VPS victims across 80 command and control servers
-- **PhaaS Operators**: Lighthouse and Lucid services facilitating global phishing campaigns across 74 countries with sophisticated infrastructure
+- **UNC1549 (Iranian APT)**: Successfully infiltrated 34 devices across 11 European telecommunications companies using LinkedIn job lures and MINIBIKE malware
+- **DPRK Hackers**: Deploying BeaverTail malware through ClickFix-style lures in cryptocurrency job scams targeting industry professionals
+- **Gamaredon and Turla**: Russian hacking groups collaborating to deploy Kazuar backdoor against Ukrainian entities
+- **Scattered Spider**: Teen members arrested in connection with August 2024 Transport for London cyber attack
+- **SystemBC Operators**: Powering REM Proxy network with approximately 1,500 daily VPS victims across 80 command and control servers
+- **PhaaS Groups**: Lighthouse and Lucid phishing-as-a-service operations targeting 316 brands across 74 countries with over 17,500 phishing domains
