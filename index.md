@@ -1,55 +1,56 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing a surge of critical exploitation activity, with several maximum-severity vulnerabilities and sophisticated attack campaigns posing significant risks to organizations worldwide. Most concerning is the critical command injection flaw in Fortra's GoAnywhere MFT platform that received a CVSS score of 10.0, alongside a recently patched Microsoft Entra ID vulnerability that could have enabled global administrator impersonation across any tenant. Meanwhile, state-sponsored threat actors continue to deploy advanced malware campaigns, including North Korean groups leveraging ClickFix techniques and Iranian APT groups targeting telecommunications infrastructure with custom malware toolkits.
+Current exploitation activity reveals several critical security incidents across major platforms and services. A critical vulnerability in Microsoft Entra ID enabled complete tenant hijacking and Global Administrator impersonation across organizations worldwide, while a maximum severity command injection flaw in Fortra GoAnywhere MFT poses significant risks to exposed systems. Sophisticated threat actors continue leveraging social engineering tactics, with DPRK-linked groups deploying ClickFix lures for cryptocurrency theft, Iranian UNC1549 targeting telecommunications through LinkedIn job scams, and widespread malware campaigns targeting macOS users through fake GitHub repositories. Additionally, a zero-click vulnerability in OpenAI's ChatGPT Deep Research agent enables silent data exfiltration from Gmail accounts.
 
 ## Active Exploitation Details
 
-### Fortra GoAnywhere MFT Command Injection Vulnerability
-- **Description**: A maximum severity command injection vulnerability affecting GoAnywhere Managed File Transfer software's License Servlet component
-- **Impact**: Remote code execution allowing attackers to execute arbitrary commands on affected systems
-- **Status**: Critical patch released by Fortra, immediate patching required
+### Microsoft Entra ID Token Validation Vulnerability
+- **Description**: Critical token validation failure in Microsoft Entra ID (previously Azure Active Directory) that allowed attackers to impersonate any user across any tenant
+- **Impact**: Complete tenant hijacking, Global Administrator impersonation, and unauthorized access to organizational resources
+- **Status**: Patched by Microsoft
+
+### Fortra GoAnywhere MFT Command Injection
+- **Description**: Maximum severity vulnerability in GoAnywhere Managed File Transfer software enabling arbitrary command execution
+- **Impact**: Remote code execution and system compromise
+- **Status**: Critical patch available, exploitation highly dependent on Internet exposure
 - **CVE ID**: CVE-2025-10035
 
-### Microsoft Entra ID Token Validation Flaw
-- **Description**: A critical token validation failure in Microsoft Entra ID (formerly Azure Active Directory) involving legacy components
-- **Impact**: Complete access to any Microsoft Entra ID tenant worldwide, enabling impersonation of Global Administrators and any user accounts
-- **Status**: Patched by Microsoft prior to public disclosure
+### ShadowLeak ChatGPT Zero-Click Vulnerability
+- **Description**: Zero-click flaw in OpenAI ChatGPT's Deep Research agent allowing Gmail data exfiltration
+- **Impact**: Silent theft of sensitive email data with a single crafted email, leaving no trace on enterprise systems
+- **Status**: Active exploitation possible through OpenAI's infrastructure
 
-### ShadowLeak Zero-Click ChatGPT Vulnerability
-- **Description**: A zero-click flaw in OpenAI ChatGPT's Deep Research agent that enables data exfiltration through crafted email attacks
-- **Impact**: Sensitive Gmail inbox data theft with no user interaction required, leaving no trace on enterprise systems
-- **Status**: Disclosed vulnerability affecting ChatGPT's Deep Research functionality
-
-### Ivanti EPMM Exploitation Campaign
-- **Description**: Active exploitation of vulnerabilities in Ivanti Endpoint Manager Mobile (EPMM) with custom malware deployment
-- **Impact**: Complete compromise of mobile device management infrastructure
-- **Status**: CISA has published detailed analysis of malware kits used in ongoing attacks
+### Windows Error Reporting EDR Bypass
+- **Description**: New evasion technique using Windows Error Reporting (WER) system to suspend security software from user mode
+- **Impact**: Complete bypass of endpoint detection and response solutions
+- **Status**: Proof-of-concept tool "EDR-Freeze" available
 
 ## Affected Systems and Products
 
-- **Fortra GoAnywhere MFT**: License Servlet component vulnerable to command injection attacks
-- **Microsoft Entra ID**: All tenants globally were potentially vulnerable to admin impersonation
-- **OpenAI ChatGPT**: Deep Research agent susceptible to zero-click data exfiltration
-- **Ivanti EPMM**: Mobile endpoint management platforms targeted with custom malware kits
-- **Steam Platform**: Verified games used as malware delivery mechanism (BlockBlasters game)
-- **Apple macOS**: Targeted by Atomic Infostealer through fake GitHub repositories
-- **Telecommunications Infrastructure**: European telecom companies compromised by Iranian APT groups
+- **Microsoft Entra ID**: All tenants globally were potentially vulnerable to hijacking
+- **Fortra GoAnywhere MFT**: Managed File Transfer software with Internet-exposed instances at highest risk
+- **OpenAI ChatGPT**: Deep Research agent functionality vulnerable to data exfiltration
+- **Windows Systems**: All versions susceptible to WER-based EDR bypass technique
+- **macOS Systems**: Targeted by widespread infostealer campaigns through fake GitHub repositories
+- **Steam Platform**: Verified games used as malware distribution vectors
+- **Salesforce Platform**: Third-party compromises affecting major clients like Stellantis
+- **Airport Check-in Systems**: EU airports disrupted by third-party software provider attacks
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Lures**: North Korean threat actors using fake error messages to deliver BeaverTail malware
-- **Fake GitHub Repositories**: Distribution of Atomic Infostealer targeting macOS users through malicious software packages
-- **LinkedIn Job Scams**: Iranian UNC1549 group using professional networking for initial compromise
-- **Malicious Steam Games**: Verified gaming platform exploited to distribute cryptocurrency wallet draining malware
-- **AI-Powered Malware**: MalTerminal malware integrating GPT-4 capabilities for dynamic attack generation
-- **Phishing-as-a-Service**: Lighthouse and Lucid platforms managing 17,500 domains targeting 316 brands across 74 countries
-- **Fake FBI Portals**: Cybercriminals impersonating official crime reporting websites
+- **ClickFix Social Engineering**: DPRK actors using fake error prompts to deliver BeaverTail and InvisLoader malware
+- **LinkedIn Job Lures**: UNC1549 targeting telecommunications employees with fake recruitment offers
+- **Fake GitHub Repositories**: macOS users targeted with malicious software impersonating legitimate tools
+- **Phishing-as-a-Service**: Lighthouse and Lucid platforms operating 17,500+ phishing domains across 316 brands
+- **Fraudulent Game Distribution**: Malware delivery through verified Steam games stealing cryptocurrency wallets
+- **AI-Powered Malware**: MalTerminal leveraging GPT-4 capabilities for dynamic malware generation
+- **Multi-Channel Phishing**: Attackers expanding beyond email to social media, chat apps, and malicious advertisements
 
 ## Threat Actor Activities
 
-- **North Korean DPRK Groups**: Conducting cryptocurrency-focused job scam campaigns using ClickFix techniques and BeaverTail malware delivery
-- **Iranian UNC1549**: Sophisticated espionage campaign against European telecommunications, successfully compromising 34 devices across 11 organizations using MINIBIKE malware
-- **Charming Kitten Subgroups**: Highly targeted attacks against telecommunications and satellite companies with custom toolkits
-- **SystemBC Operators**: Managing REM Proxy network with 1,500 daily VPS victims across 80 command and control servers
-- **PhaaS Operators**: Large-scale phishing infrastructure targeting hundreds of global brands through Lighthouse and Lucid services
-- **Cryptocurrency Thieves**: Exploiting gaming platforms and donation systems to steal digital assets, including $32,000 from cancer treatment fundraising
+- **DPRK-Linked Groups**: Cryptocurrency-focused campaigns using ClickFix techniques and BeaverTail malware in job recruitment scams
+- **UNC1549 (Iran-Nexus)**: Cyber espionage campaign targeting 11 European telecommunications companies, compromising 34 devices using MINIBIKE malware
+- **ComicForm Group**: Previously undocumented threat actor conducting phishing campaigns against Belarus, Kazakhstan, and Russia since April 2025
+- **SectorJ149**: Deploying Formbook malware in coordinated Eurasian cyberattacks
+- **SystemBC Operators**: Managing REM Proxy network with 1,500 daily VPS victims across 80 command-and-control servers
+- **Atomic Infostealer Campaign**: Large-scale macOS targeting through fake password manager and software repositories
