@@ -1,58 +1,58 @@
 # Exploitation Report
 
-Critical security vulnerabilities are being actively exploited across multiple platforms, with SolarWinds Web Help Desk facing a severe remote code execution flaw (CVE-2025-26399), while SonicWall SMA100 devices are being targeted with rootkit malware. Threat actors are leveraging sophisticated attack vectors including SEO poisoning campaigns, malicious GitHub repositories, and supply chain attacks targeting npm packages and macOS systems. Notable activities include DPRK-linked hackers deploying BeaverTail malware through ClickFix techniques, Chinese threat actors spreading BadIIS malware via SEO poisoning, and widespread campaigns targeting cryptocurrency and password management applications.
+Current threat activity reveals a concerning landscape of active exploitation targeting critical infrastructure and enterprise systems. State-sponsored actors are exploiting vulnerabilities in email security gateways, federal agencies are experiencing breaches through unpatched GeoServer instances, and threat actors are leveraging misconfigured cloud infrastructure for large-scale attacks. Meanwhile, supply chain attacks continue to proliferate through compromised npm packages and SEO poisoning campaigns, while critical vulnerabilities in SolarWinds Web Help Desk require immediate attention. The emergence of new evasion techniques and sophisticated malware delivery methods highlights the evolving threat landscape facing organizations worldwide.
 
 ## Active Exploitation Details
 
-### SolarWinds Web Help Desk Remote Code Execution Vulnerability
-- **Description**: A critical vulnerability in SolarWinds Web Help Desk software that allows attackers to execute arbitrary commands on susceptible systems without authentication
-- **Impact**: Complete system compromise through remote code execution without requiring authentication credentials
-- **Status**: Third patch released by SolarWinds; hotfix available for remediation
+### Libraesva Email Security Gateway Vulnerability
+- **Description**: Critical vulnerability in Libraesva's Email Security Gateway solution being actively exploited by threat actors
+- **Impact**: Allows unauthorized access to email security infrastructure, potentially compromising organizational email communications and security controls
+- **Status**: Emergency patch released by Libraesva to address the actively exploited vulnerability
+
+### GeoServer Vulnerability
+- **Description**: Unpatched vulnerability in GeoServer geographic information system software
+- **Impact**: Enables network compromise and unauthorized access to federal systems
+- **Status**: Successfully exploited to breach unnamed U.S. federal civilian executive branch (FCEB) agency network
+
+### SolarWinds Web Help Desk Remote Code Execution
+- **Description**: Critical vulnerability in SolarWinds Web Help Desk software allowing remote code execution without authentication
+- **Impact**: Attackers can execute arbitrary commands on susceptible systems, potentially leading to full system compromise
+- **Status**: Third hotfix released; ongoing patching efforts required
 - **CVE ID**: CVE-2025-26399
 
-### SonicWall SMA100 Rootkit Malware
-- **Description**: Active deployment of rootkit malware targeting SonicWall SMA 100 series devices through sophisticated attacks
-- **Impact**: Persistent backdoor access and system compromise with deep-level system integration
-- **Status**: SonicWall has released firmware update specifically designed to remove the rootkit malware
-
-### Microsoft Entra ID Token Validation Flaw
-- **Description**: Critical token validation failure in Microsoft Entra ID allowing impersonation of any user including Global Administrators across any tenant
-- **Impact**: Complete administrative access to any Microsoft tenant, enabling data theft and system manipulation
-- **Status**: Microsoft has patched the vulnerability
-
-### American Archive of Public Broadcasting Access Control Bypass
-- **Description**: Long-standing vulnerability allowing unauthorized downloading of protected and private media content
-- **Impact**: Exposure of restricted media content and potential intellectual property theft
-- **Status**: Quietly patched this month after years of exposure
+### SonicWall SMA100 Series Rootkit Deployment
+- **Description**: Vulnerability in SonicWall SMA 100 series devices being exploited to deploy rootkit malware
+- **Impact**: Persistent backdoor access to network infrastructure and potential lateral movement capabilities
+- **Status**: Firmware update released to remove deployed rootkit malware
 
 ## Affected Systems and Products
 
-- **SolarWinds Web Help Desk**: All versions prior to the latest hotfix release
-- **SonicWall SMA 100 Series**: Network security appliances targeted with rootkit deployment
-- **Microsoft Entra ID**: All tenants using the identity management service
-- **AWS Docker Containers**: Misconfigured containers exploited by ShadowV2 botnet
-- **npm Ecosystem**: Package repository targeted with supply chain attacks including the malicious 'fezbox' package
-- **macOS Systems**: Targeted through fake password managers and GitHub repositories distributing Atomic infostealer
-- **Airport Check-in Systems**: European airports affected by ransomware targeting check-in and boarding systems
-- **Stellantis Salesforce Platform**: Customer data compromised through third-party service provider breach
+- **Libraesva Email Security Gateway**: Email security infrastructure systems
+- **GeoServer**: Geographic information system software used by federal agencies
+- **SolarWinds Web Help Desk**: IT service desk and ticketing systems
+- **SonicWall SMA 100 Series**: Secure Mobile Access appliances and network security devices
+- **AWS Docker Containers**: Misconfigured cloud container environments
+- **npm Ecosystem**: Node.js package management and JavaScript development environments
+- **GitHub Repositories**: Source code repositories and development platforms
+- **European Airport Systems**: Check-in and boarding systems across major airports
+- **Stellantis Customer Systems**: Automotive manufacturer customer data platforms via Salesforce
 
 ## Attack Vectors and Techniques
 
-- **SEO Poisoning**: BadIIS malware campaign using search engine manipulation to redirect traffic and plant web shells
-- **Malicious GitHub Repositories**: Fake repositories distributing password manager imposters and other malware to macOS users
-- **ClickFix Techniques**: DPRK hackers using deceptive user interaction methods to deliver BeaverTail and InvisibleFerret malware
-- **QR Code Obfuscation**: npm package 'fezbox' using QR codes to hide second-stage cookie-stealing payloads
-- **Supply Chain Attacks**: Multiple attacks targeting npm ecosystem requiring GitHub to mandate 2FA and access tokens
-- **Docker Container Exploitation**: ShadowV2 botnet exploiting misconfigured AWS containers for DDoS-for-hire services
-- **EDR Evasion**: New EDR-Freeze tool using Windows Error Reporting system to suspend security software from user mode
-- **Ransomware**: European airport disruptions caused by attacks on check-in and boarding systems
+- **SEO Poisoning**: Large-scale campaigns using compromised legitimate websites to deliver malicious content and redirect traffic
+- **Supply Chain Attacks**: Malicious npm packages using QR codes to hide second-stage payloads for cookie theft
+- **Container Exploitation**: ShadowV2 botnet targeting misconfigured AWS Docker containers for DDoS-for-hire services
+- **Phishing Campaigns**: Sophisticated email-based attacks delivering FormBook malware to Eurasian organizations
+- **Web Shell Deployment**: BadIIS malware using compromised web servers to plant persistent access mechanisms
+- **EDR Evasion**: New EDR-Freeze tool leveraging Windows Error Reporting system to suspend security software
+- **Third-Party Platform Compromise**: Attacks targeting service providers to access downstream customer data
 
 ## Threat Actor Activities
 
-- **DPRK-linked Groups**: Conducting cryptocurrency job scams using ClickFix techniques to deliver BeaverTail malware and target crypto industry professionals
-- **Chinese-speaking Actors**: Operating BadIIS malware campaigns with SEO poisoning to compromise IIS servers and redirect web traffic
-- **ComicForm Group**: Previously undocumented threat actor targeting organizations in Belarus, Kazakhstan, and Russia with Formbook malware since April 2025
-- **SectorJ149**: Collaborating with ComicForm in Eurasian cyberattacks deploying Formbook malware
-- **Nimbus Manticore**: Iran-linked hackers expanding operations to target European organizations with improved malware variants
-- **Cryptocurrency Fraud Ring**: European law enforcement dismantled operation responsible for €100 million in losses from over 100 victims
-- **ShadowV2 Operators**: Running DDoS-for-hire service through compromised AWS Docker containers
+- **State-Sponsored Actors**: Actively exploiting Libraesva Email Security Gateway vulnerabilities for intelligence gathering and persistent access
+- **Chinese-Speaking Threat Actor**: Operating "Operation Rewrite" SEO poisoning campaign using BadIIS malware for financial gain and web traffic manipulation
+- **ComicForm Group**: Previously undocumented hacking group conducting phishing campaigns against Belarus, Kazakhstan, and Russia since April 2025
+- **SectorJ149**: Deploying FormBook malware in coordinated attacks against Eurasian targets
+- **Nimbus Manticore**: Iran-linked group targeting European organizations with improved malware variants outside their typical focus areas
+- **Ransomware Groups**: Disrupting critical infrastructure including European airport systems through targeted attacks on service providers
+- **Cybercriminal Networks**: Operating €100 million cryptocurrency investment fraud schemes spanning 23 countries with over 100 victims
