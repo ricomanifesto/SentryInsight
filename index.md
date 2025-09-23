@@ -1,60 +1,74 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing a surge of sophisticated attacks targeting multiple platforms and systems. Critical vulnerabilities are being actively exploited across enterprise environments, including a maximum-severity command injection flaw in Fortra GoAnywhere (CVE-2025-10035), a critical Microsoft Entra ID token validation vulnerability enabling global administrator impersonation, and a zero-click Gmail data leakage flaw in OpenAI's ChatGPT Deep Research agent called ShadowLeak. Threat actors are leveraging advanced techniques including AI-powered malware, supply chain attacks through npm packages, SEO poisoning campaigns, and sophisticated phishing operations targeting macOS users through fake GitHub repositories.
+The current threat landscape reveals a concerning array of active exploitation campaigns targeting critical infrastructure, enterprise systems, and end-users. Most notably, researchers have identified a zero-click vulnerability in OpenAI ChatGPT's Deep Research agent that can leak Gmail data, a maximum-severity command injection flaw in Fortra GoAnywhere systems, and a critical Microsoft Entra ID vulnerability enabling global admin impersonation. Additionally, multiple supply chain attacks are targeting the npm ecosystem and macOS users through sophisticated campaigns involving fake repositories and malicious packages. Ransomware operations continue to disrupt critical services, with European airports experiencing significant operational disruptions due to third-party provider compromises.
 
 ## Active Exploitation Details
 
-### Fortra GoAnywhere Command Injection Vulnerability
+### ShadowLeak Zero-Click Gmail Data Leak
+- **Description**: A zero-click vulnerability in OpenAI ChatGPT's Deep Research agent that allows attackers to leak sensitive Gmail inbox data through a single crafted email
+- **Impact**: Unauthorized access to Gmail data without user interaction
+- **Status**: Currently disclosed, exploitation possible with crafted emails
+
+### Fortra GoAnywhere Command Injection
 - **Description**: A maximum-severity command injection vulnerability in Fortra GoAnywhere systems
-- **Impact**: Allows remote attackers to execute arbitrary commands on affected systems
-- **Status**: Patch available, exploitation highly dependent on internet exposure
+- **Impact**: Remote command execution capabilities for attackers
+- **Status**: Actively exploitable, patch available
 - **CVE ID**: CVE-2025-10035
 
-### Microsoft Entra ID Token Validation Flaw
-- **Description**: Critical token validation failure in Microsoft Entra ID that affects legacy components across all tenants
-- **Impact**: Enables attackers to impersonate any user, including Global Administrators, across any Microsoft tenant worldwide
+### Microsoft Entra ID Token Validation Failure
+- **Description**: Critical token validation failure in Microsoft Entra ID allowing impersonation of any user including Global Administrators across any tenant
+- **Impact**: Complete tenant takeover capabilities across all Microsoft customers
 - **Status**: Patched by Microsoft
 
-### ShadowLeak Zero-Click Gmail Data Exposure
-- **Description**: Zero-click vulnerability in OpenAI ChatGPT's Deep Research agent
-- **Impact**: Allows attackers to leak sensitive Gmail inbox data through a single crafted email without user interaction
-- **Status**: Disclosed vulnerability affecting ChatGPT users
+### BadIIS Malware Campaign
+- **Description**: SEO poisoning campaign deploying BadIIS malware through compromised websites
+- **Impact**: Traffic redirection, web shell deployment, and persistent access to infected systems
+- **Status**: Active exploitation through search engine manipulation
 
-### American Archive of Public Broadcasting Access Control Bypass
-- **Description**: Vulnerability allowing unauthorized access to protected and private media content
-- **Impact**: Exposed restricted media files for years before discovery
-- **Status**: Quietly patched this month
+### npm Package Supply Chain Attacks
+- **Description**: Multiple malicious packages including 'fezbox' using QR codes to hide second-stage payloads for cookie theft
+- **Impact**: Browser cookie theft and potential system compromise
+- **Status**: Ongoing campaign targeting npm ecosystem
+
+### Atomic Infostealer macOS Campaign
+- **Description**: Large-scale campaign using fake GitHub repositories to distribute Atomic infostealer targeting Mac users
+- **Impact**: Credential theft and system information harvesting
+- **Status**: Active widespread campaign
+
+### BeaverTail Malware via ClickFix
+- **Description**: North Korean threat actors using ClickFix-style lures to deliver BeaverTail and InvisibleFerret malware in crypto job scams
+- **Impact**: Information theft and persistent system access
+- **Status**: Active targeting of cryptocurrency industry
 
 ## Affected Systems and Products
 
-- **Fortra GoAnywhere**: File transfer systems exposed to the internet are at highest risk
-- **Microsoft Entra ID**: All Microsoft tenant environments globally affected by token validation flaw
-- **OpenAI ChatGPT**: Deep Research agent functionality vulnerable to Gmail data extraction
-- **npm Ecosystem**: Package repository targeted by supply chain attacks and malicious packages
-- **macOS Systems**: Targeted by fake password managers and infostealers through GitHub repositories
-- **European Airport Systems**: Check-in and boarding systems disrupted by ransomware attacks
-- **Steam Gaming Platform**: Verified games weaponized to steal cryptocurrency wallets
-- **Windows Systems**: EDR and security software vulnerable to suspension via Windows Error Reporting
-- **IIS Web Servers**: Targeted by BadIIS malware for traffic redirection and web shell deployment
+- **Microsoft Entra ID (Azure Active Directory)**: All tenants potentially affected by token validation vulnerability
+- **Fortra GoAnywhere**: Systems exposed to internet at highest risk for command injection
+- **OpenAI ChatGPT Deep Research Agent**: Gmail integration vulnerable to data leakage
+- **npm Ecosystem**: Multiple malicious packages targeting Node.js developers
+- **macOS Systems**: Targeted by fake password managers and development tools via GitHub
+- **European Airport Systems**: Check-in and boarding systems disrupted by ransomware
+- **IIS Web Servers**: Targeted by BadIIS malware campaign
+- **Steam Gaming Platform**: Verified game used for cryptocurrency theft
+- **Salesforce Platform**: Third-party breach affecting Stellantis customer data
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Malicious npm packages using QR codes to hide second-stage payloads and cookie-stealing malware
-- **SEO Poisoning**: Large-scale campaigns using fake GitHub repositories to deliver Atomic infostealers and BadIIS malware
-- **ClickFix Techniques**: DPRK hackers using fake job postings to deliver BeaverTail malware in cryptocurrency industry targeting
-- **AI-Powered Malware**: GPT-4-enabled MalTerminal capable of generating ransomware and reverse shells dynamically
-- **EDR Evasion**: New EDR-Freeze tool exploiting Windows Error Reporting to suspend security software from user mode
-- **Social Engineering**: Multi-channel phishing campaigns moving beyond email to social media, chat applications, and malicious advertisements
-- **Token Impersonation**: Exploitation of legacy authentication components to bypass modern security controls
-- **Fraudulent Repositories**: Fake GitHub pages distributing malware disguised as legitimate software tools
+- **SEO Poisoning**: Manipulating search engine results to deliver malware through compromised websites
+- **Supply Chain Attacks**: Compromising legitimate software repositories and package managers
+- **Social Engineering**: Fake job offers in cryptocurrency industry and impersonating popular software
+- **ClickFix Lures**: Deceptive user interface elements designed to trick users into malicious actions
+- **QR Code Obfuscation**: Using QR codes to hide malicious payloads in npm packages
+- **Fake GitHub Repositories**: Creating convincing replicas of legitimate software projects
+- **Third-Party Provider Exploitation**: Targeting service providers to reach multiple downstream customers
+- **Zero-Click Exploits**: Vulnerabilities requiring no user interaction for successful exploitation
 
 ## Threat Actor Activities
 
-- **Chinese-Speaking Actors**: Deploying BadIIS malware through SEO poisoning campaigns targeting IIS servers for traffic redirection and web shell installation
-- **DPRK/North Korean Groups**: Conducting sophisticated cryptocurrency job scams using ClickFix lures to deliver BeaverTail and InvisibleFerret malware
-- **Iran-Linked Nimbus Manticore**: Targeting European organizations with improved malware variants outside their typical focus areas
-- **ComicForm Group**: Previously undocumented threat actor conducting phishing campaigns against organizations in Belarus, Kazakhstan, and Russia since April 2025
-- **SectorJ149**: Deploying Formbook malware in coordinated Eurasian cyberattacks alongside ComicForm operations
-- **Ransomware Operators**: Targeting critical infrastructure including European airport systems, causing significant operational disruptions
-- **Supply Chain Attackers**: Compromising npm packages and GitHub repositories to distribute various malware families including cookie stealers and infostealers
-- **macOS-Focused Threat Actors**: Running large-scale campaigns distributing fake password managers and development tools through fraudulent GitHub repositories
+- **Chinese-Speaking Actors**: Conducting BadIIS malware campaigns using SEO poisoning techniques
+- **North Korean (DPRK) Groups**: Deploying BeaverTail malware through cryptocurrency job scams and ClickFix techniques
+- **ComicForm Group**: Previously undocumented threat actor targeting organizations in Belarus, Kazakhstan, and Russia with Formbook malware
+- **SectorJ149**: Collaborating with ComicForm in Eurasian cyberattack campaigns
+- **Iran-Linked "Nimbus Manticore"**: Targeting European entities with improved malware variants
+- **Supply Chain Attackers**: Multiple actors targeting npm ecosystem with various malicious packages
+- **macOS-Focused Criminals**: Large-scale campaigns distributing Atomic infostealer through fake repositories
