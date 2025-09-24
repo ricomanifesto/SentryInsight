@@ -1,57 +1,65 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity across multiple attack vectors. Critical vulnerabilities are being actively exploited in enterprise systems, with state-sponsored actors targeting government agencies through GeoServer instances and Libraesva Email Security Gateway solutions. Supply chain attacks are escalating through npm package compromises and malicious GitHub repositories, while infrastructure-level attacks are leveraging misconfigured Docker containers and exposed services. Notable activity includes Chinese-speaking threat actors conducting large-scale SEO poisoning campaigns, Iranian groups deploying new malware variants in Europe, and cybercriminals operating sophisticated DDoS-for-hire services using cloud resources.
+The current threat landscape reveals several critical exploitation campaigns targeting diverse infrastructure components. State-sponsored actors are actively exploiting vulnerabilities in email security gateways and enterprise software, while cybercriminals continue to leverage misconfigurations in cloud services and open-source utilities. Most concerning are the active exploitations of Pandoc utility for AWS credential theft, Libraesva Email Security Gateway by state actors, and the widespread abuse of misconfigured Docker containers for botnet operations. Federal agencies have also fallen victim to GeoServer exploits, highlighting the persistent threat to government infrastructure.
 
 ## Active Exploitation Details
 
-### GeoServer Vulnerability
-- **Description**: An unpatched vulnerability in GeoServer instances that allowed attackers to compromise federal agency networks
-- **Impact**: Complete network compromise of a U.S. federal civilian executive branch agency
-- **Status**: Actively exploited in the wild, patches available but not applied in compromised instance
+### Pandoc Vulnerability Exploitation
+- **Description**: A security flaw in the Linux utility Pandoc that enables attackers to infiltrate Amazon Web Services environments
+- **Impact**: Attackers can target AWS Instance Metadata Service (IMDS) and steal EC2 IAM credentials, potentially leading to full cloud environment compromise
+- **Status**: Currently being exploited in the wild by threat actors
+- **CVE ID**: CVE-2025-51591
 
 ### Libraesva Email Security Gateway Vulnerability
-- **Description**: A security flaw in Libraesva's Email Security Gateway solution that has been exploited by state-sponsored threat actors
-- **Impact**: Email infrastructure compromise allowing potential data theft and lateral movement
-- **Status**: Emergency fix released, actively exploited by state hackers
+- **Description**: A critical security flaw in Libraesva's Email Security Gateway (ESG) solution that allows unauthorized access
+- **Impact**: State-sponsored threat actors can compromise email security infrastructure and potentially access sensitive communications
+- **Status**: Actively exploited by state-sponsored hackers; emergency security update has been released
+- **CVE ID**: Not specified in source materials
 
-### SolarWinds Web Help Desk RCE Vulnerability
-- **Description**: Critical remote code execution vulnerability allowing unauthenticated attackers to execute arbitrary commands
-- **Impact**: Complete system compromise without authentication requirements
-- **Status**: Third patch released, indicating ongoing exploitation attempts
+### GeoServer Vulnerability
+- **Description**: An unpatched vulnerability in GeoServer instances that allows network compromise
+- **Impact**: Complete network breach of federal agency systems, enabling lateral movement and data exfiltration
+- **Status**: Successfully exploited against U.S. federal civilian executive branch agency; patch available but not applied in compromised instance
+- **CVE ID**: Not specified in source materials
+
+### SolarWinds Web Help Desk Remote Code Execution
+- **Description**: Critical vulnerability in SolarWinds Web Help Desk software allowing remote code execution without authentication
+- **Impact**: Attackers can execute arbitrary commands on susceptible systems, potentially leading to full system compromise
+- **Status**: Third patch released; vulnerability requires immediate attention due to RCE potential
 - **CVE ID**: CVE-2025-26399
 
 ### Supermicro BMC Firmware Vulnerabilities
-- **Description**: Two security flaws in Baseboard Management Controller firmware that allow bypassing Root of Trust security mechanisms
-- **Impact**: Malicious firmware deployment that evades critical security protections
-- **Status**: Recently disclosed with potential for exploitation
+- **Description**: Two security vulnerabilities in Supermicro Baseboard Management Controller (BMC) firmware affecting root of trust security
+- **Impact**: Malicious firmware can evade security controls and maintain persistent access to server infrastructure
+- **Status**: Vulnerabilities disclosed; patches likely available from vendor
+- **CVE ID**: Not specified in source materials
 
 ## Affected Systems and Products
 
-- **SolarWinds Web Help Desk**: Critical RCE vulnerability requiring immediate patching
-- **Libraesva Email Security Gateway**: Emergency patches deployed for state-actor exploited vulnerability
-- **GeoServer**: Federal agency compromised through unpatched instance
-- **Supermicro BMC Firmware**: Root of Trust bypass vulnerabilities disclosed
-- **SonicWall SMA 100 Series**: Rootkit malware deployment targeting these devices
-- **NPM Ecosystem**: Multiple malicious packages including 'fezbox' with QR code-based payload delivery
-- **Docker Containers**: Misconfigured AWS instances being exploited for botnet operations
-- **GitHub Repositories**: Fake repositories distributing Mac malware through SEO poisoning
-- **European Airport Systems**: Check-in and boarding systems targeted by ransomware
+- **Pandoc**: Linux utility used for document conversion, affecting AWS environments when exploited
+- **Libraesva Email Security Gateway**: Enterprise email security solutions across multiple organizations
+- **GeoServer**: Open-source server for geospatial data, particularly in federal agency implementations
+- **SolarWinds Web Help Desk**: IT service management software used by enterprises
+- **Supermicro BMC Firmware**: Server management controllers across data center infrastructure
+- **Docker Containers**: Misconfigured AWS Docker instances being exploited for botnet operations
+- **npm Ecosystem**: JavaScript package repository being targeted through malicious packages
+- **SonicWall SMA 100 Series**: Secure remote access appliances affected by rootkit malware
 
 ## Attack Vectors and Techniques
 
-- **SEO Poisoning**: Large-scale campaigns redirecting search traffic to malicious sites and delivering malware
-- **Supply Chain Attacks**: Malicious npm packages using innovative techniques like QR codes for payload delivery
-- **Docker Exploitation**: Misconfigured containers being recruited into DDoS botnets
-- **GitHub Pages Abuse**: Fake repositories hosting malware targeting Mac users
-- **Firmware-Level Attacks**: BMC exploitation to bypass hardware security mechanisms
-- **Web Shell Deployment**: BadIIS malware planting persistent backdoors via compromised web servers
-- **Ransomware Attacks**: Critical infrastructure targeting causing operational disruptions
+- **Cloud Metadata Service Exploitation**: Targeting AWS IMDS through Pandoc vulnerability to steal IAM credentials
+- **SEO Poisoning**: Using search engine optimization manipulation to redirect traffic and deliver malware payloads
+- **Supply Chain Attacks**: Compromising npm packages with malicious code, including innovative QR code-based payload delivery
+- **Container Misconfiguration Abuse**: Exploiting improperly configured Docker daemons for botnet recruitment
+- **Web Shell Deployment**: Installing persistent backdoors through compromised web servers
+- **Authentication Bypass**: Exploiting vulnerabilities that allow unauthenticated remote code execution
+- **Firmware Manipulation**: Bypassing root of trust security mechanisms in server management controllers
 
 ## Threat Actor Activities
 
-- **Chinese-Speaking Actors**: Conducting "Operation Rewrite" SEO poisoning campaign using BadIIS malware to redirect traffic and deploy web shells on compromised servers
-- **State-Sponsored Groups**: Actively exploiting Libraesva Email Security Gateway vulnerabilities for strategic intelligence gathering
-- **Iranian-Linked "Nimbus Manticore"**: Expanding operations into Europe with improved malware variants targeting new geographic regions
-- **ShadowV2 Botnet Operators**: Running DDoS-for-hire service using compromised AWS Docker containers with legitimate cloud-native tools for detection evasion
-- **Mac-Targeting Groups**: Large-scale campaigns using fake GitHub repositories and SEO poisoning to deliver Atomic infostealers to macOS users
-- **Ransomware Groups**: Targeting critical infrastructure including European airport systems causing significant operational disruptions
+- **State-Sponsored Groups**: Actively targeting email security infrastructure through Libraesva ESG vulnerabilities, focusing on intelligence gathering and persistent access
+- **Chinese-Speaking Actors**: Conducting Operation Rewrite SEO poisoning campaign using BadIIS malware to compromise legitimate web servers for financial gain
+- **ShadowV2 Botnet Operators**: Operating DDoS-for-hire service by exploiting misconfigured AWS Docker containers to build distributed attack infrastructure
+- **Federal Agency Attackers**: Successfully breached U.S. government systems through unpatched GeoServer vulnerabilities, demonstrating targeted government focus
+- **npm Package Poisoners**: Deploying sophisticated supply chain attacks using QR codes and other evasion techniques to steal browser cookies and credentials
+- **Iranian-Linked Groups**: Nimbus Manticore expanding operations to target European infrastructure with improved malware variants
