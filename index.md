@@ -1,67 +1,58 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-value systems across cloud infrastructure, enterprise security solutions, and government networks. State-sponsored threat actors are actively exploiting vulnerabilities in Libraesva Email Security Gateway solutions and GeoServer instances to breach federal agencies. Meanwhile, cybercriminals are leveraging CVE-2025-51591 in Pandoc to target AWS cloud environments and steal EC2 IAM credentials. The ShadowV2 botnet is exploiting misconfigured Docker containers for DDoS-for-hire services, while Scattered Spider continues large-scale ransomware operations generating over $115 million in proceeds. Additional threats include SEO poisoning campaigns using BadIIS malware, supply chain attacks through npm packages, and newly discovered vulnerabilities in Supermicro BMC firmware that could bypass root of trust security mechanisms.
+Multiple critical vulnerabilities are being actively exploited in the wild, with several high-impact campaigns targeting enterprise systems. Most concerning are the ongoing attacks against SonicWall SMA devices by the UNC6148 threat group using the OVERSTEP backdoor, state-sponsored exploitation of Libraesva Email Security Gateway systems, and the discovery of active exploitation of Pandoc CVE-2025-51591 to target AWS cloud infrastructure. Additionally, suspected Chinese threat actors continue leveraging the BRICKSTORM backdoor for long-term persistence in espionage operations against U.S. organizations, while CISA has confirmed that federal agencies were compromised through unpatched GeoServer instances.
 
 ## Active Exploitation Details
 
-### Pandoc Command Line Utility Vulnerability
-- **Description**: A vulnerability in the Pandoc Linux utility that allows attackers to target AWS Instance Metadata Service (IMDS)
-- **Impact**: Enables theft of EC2 IAM credentials and potential cloud infrastructure compromise
-- **Status**: Actively exploited in the wild as discovered by Wiz security researchers
+### Pandoc Server-Side Request Forgery
+- **Description**: A vulnerability in the Pandoc document conversion utility allowing server-side request forgery attacks
+- **Impact**: Attackers can access AWS Instance Metadata Service (IMDS) and steal EC2 IAM credentials from cloud environments
+- **Status**: Active exploitation detected by Wiz security researchers targeting AWS infrastructure
 - **CVE ID**: CVE-2025-51591
 
-### Libraesva Email Security Gateway Vulnerability
-- **Description**: A security flaw in Libraesva's Email Security Gateway (ESG) solution being exploited by state-sponsored actors
-- **Impact**: Allows unauthorized access to email security infrastructure
-- **Status**: Emergency patch released by Libraesva following active exploitation reports
-- **CVE ID**: Not specified in the articles
+### Libraesva Email Security Gateway Authentication Bypass
+- **Description**: A critical authentication bypass vulnerability in Libraesva's Email Security Gateway solution
+- **Impact**: Complete system compromise allowing unauthorized access to email security infrastructure
+- **Status**: Active exploitation by state-sponsored threat actors, emergency patch released
+- **CVE ID**: Not specified in articles
 
-### GeoServer Vulnerability
-- **Description**: An unpatched vulnerability in GeoServer instances used to breach federal agency networks
-- **Impact**: Enables network compromise and lateral movement within government systems
-- **Status**: CISA confirmed exploitation against unnamed U.S. federal civilian executive branch agency
-- **CVE ID**: Not specified in the articles
+### SonicWall SMA Device Compromise
+- **Description**: Ongoing attacks against SonicWall Secure Mobile Access (SMA) devices using custom backdoor malware
+- **Impact**: Installation of OVERSTEP backdoor enabling system control, credential theft, and persistent access
+- **Status**: Active campaign by UNC6148 threat group with hidden malware deployment
 
-### SolarWinds Web Help Desk RCE Vulnerability
-- **Description**: Critical remote code execution vulnerability in SolarWinds Web Help Desk software
-- **Impact**: Allows attackers to execute arbitrary commands on susceptible systems without authentication
-- **Status**: Third patch released, indicating ongoing exploitation attempts
-- **CVE ID**: CVE-2025-26399
-
-### Supermicro BMC Firmware Vulnerabilities
-- **Description**: Two security vulnerabilities in Supermicro Baseboard Management Controller firmware
-- **Impact**: Enables attackers to bypass critical security mechanisms and evade root of trust protections
-- **Status**: Recently disclosed by cybersecurity researchers, exploitation potential confirmed
-- **CVE ID**: Not specified in the articles
+### GeoServer Remote Code Execution
+- **Description**: Unpatched vulnerability in GeoServer allowing remote code execution
+- **Impact**: Complete network compromise of federal agency systems
+- **Status**: Successfully exploited against U.S. federal civilian executive branch agency, confirmed by CISA
 
 ## Affected Systems and Products
 
-- **AWS EC2 Instances**: Systems running Pandoc utility vulnerable to credential theft
-- **Libraesva Email Security Gateway**: All ESG solution deployments prior to emergency patch
-- **GeoServer**: Unpatched instances in federal government networks
-- **SolarWinds Web Help Desk**: All versions prior to latest hotfix release
-- **Supermicro BMC Firmware**: Baseboard Management Controller systems with vulnerable firmware
-- **Docker Containers**: Misconfigured AWS Docker deployments targeted by ShadowV2 botnet
-- **NPM Ecosystem**: JavaScript packages and dependencies vulnerable to supply chain attacks
-- **IIS Web Servers**: Compromised servers used in BadIIS malware SEO poisoning campaigns
-- **SonicWall SMA 100 Series**: Devices infected with rootkit malware requiring firmware updates
+- **Pandoc Document Converter**: Linux utility used in cloud environments, particularly AWS EC2 instances
+- **Libraesva Email Security Gateway**: Enterprise email security solutions across various versions
+- **SonicWall SMA Devices**: Secure Mobile Access appliances used for remote connectivity
+- **GeoServer**: Open-source geospatial data sharing platform used by government agencies
+- **Wondershare RepairIt**: Consumer software with data exposure vulnerabilities affecting user privacy and AI models
+- **Supermicro BMC Firmware**: Baseboard Management Controller systems with Root of Trust bypass issues
+- **Docker Daemons**: Exposed Docker instances being weaponized for DDoS botnet operations
 
 ## Attack Vectors and Techniques
 
-- **Cloud Metadata Service Exploitation**: Targeting AWS IMDS through Pandoc vulnerability to steal IAM credentials
-- **SEO Poisoning**: Using compromised legitimate web servers to deliver malicious content and redirect traffic
-- **Supply Chain Attacks**: Injecting malicious code into npm packages, including QR code-based payload delivery
-- **Container Misconfiguration Exploitation**: Leveraging exposed Docker daemons for botnet recruitment
-- **Email Security Gateway Compromise**: State-sponsored actors targeting enterprise email security infrastructure
-- **Social Engineering**: Scattered Spider group using sophisticated social engineering for initial access
-- **Ransomware Operations**: Large-scale ransomware deployments generating millions in illicit proceeds
-- **Web Shell Deployment**: Planting persistent backdoors through BadIIS malware on compromised servers
+- **Server-Side Request Forgery**: Pandoc vulnerability exploitation to access cloud metadata services
+- **Backdoor Deployment**: Installation of OVERSTEP and BRICKSTORM malware for persistent access
+- **Authentication Bypass**: Exploitation of Libraesva gateway vulnerabilities by state actors
+- **Remote Code Execution**: GeoServer exploitation enabling full system compromise
+- **Social Engineering**: GitHub notification abuse for Y Combinator phishing campaigns
+- **Supply Chain Attacks**: NPM ecosystem compromises and malicious package distribution
+- **Credential Stuffing**: PyPI phishing attacks targeting developer credentials
+- **Payment Skimming**: Advanced iframe overlay techniques bypassing checkout security
 
 ## Threat Actor Activities
 
-- **State-Sponsored Groups**: Actively exploiting Libraesva ESG and GeoServer vulnerabilities to target government and enterprise networks
-- **Scattered Spider**: 19-year-old U.K. national Thalha Jubair and associates responsible for $115 million in ransomware proceeds through sophisticated social engineering campaigns
-- **Chinese-Speaking Threat Actors**: Conducting Operation Rewrite SEO poisoning campaign using BadIIS malware to compromise legitimate web servers for financial gain
-- **ShadowV2 Botnet Operators**: Running DDoS-for-hire service by exploiting misconfigured AWS Docker containers for distributed denial-of-service attacks
-- **Supply Chain Attackers**: Targeting npm ecosystem with malicious packages, including innovative QR code-based payload delivery mechanisms
-- **Cryptocurrency Fraud Networks**: European law enforcement dismantled ring responsible for €100 million in investment fraud across 23 countries
+- **UNC6148**: Conducting ongoing SonicWall SMA attacks using OVERSTEP backdoor for system control and credential theft
+- **UNC5221**: Chinese-nexus espionage group using BRICKSTORM backdoor for long-term persistence against U.S. legal and technology sectors
+- **State-Sponsored Actors**: Actively exploiting Libraesva Email Security Gateway vulnerabilities for unauthorized access
+- **Scattered Spider**: Cybercrime group with members charged for $115 million in ransomware operations
+- **RTX Ransomware Operators**: Causing widespread European airport disruptions with recent UK arrest
+- **Cryptocurrency Fraud Ring**: International operation stealing over €100 million from victims across 23 countries
+- **YiBackdoor Operators**: Deploying new malware variant with code overlaps to IcedID and Latrodectus
