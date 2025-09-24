@@ -1,62 +1,57 @@
 # Exploitation Report
 
-Critical exploitation activity is surging across multiple vectors, with state-sponsored actors actively exploiting vulnerabilities in enterprise infrastructure and supply chain components. The most significant developments include active exploitation of Libraesva Email Security Gateway by state-sponsored hackers, a federal agency breach through unpatched GeoServer instances, and the deployment of SonicWall SMA 100 series rootkit malware. Meanwhile, threat actors are leveraging sophisticated techniques including SEO poisoning campaigns, supply chain attacks through compromised npm packages, and the abuse of legitimate cloud infrastructure for malicious operations.
+The cybersecurity landscape is experiencing significant exploitation activity across multiple attack vectors. Critical vulnerabilities are being actively exploited in enterprise systems, with state-sponsored actors targeting government agencies through GeoServer instances and Libraesva Email Security Gateway solutions. Supply chain attacks are escalating through npm package compromises and malicious GitHub repositories, while infrastructure-level attacks are leveraging misconfigured Docker containers and exposed services. Notable activity includes Chinese-speaking threat actors conducting large-scale SEO poisoning campaigns, Iranian groups deploying new malware variants in Europe, and cybercriminals operating sophisticated DDoS-for-hire services using cloud resources.
 
 ## Active Exploitation Details
 
+### GeoServer Vulnerability
+- **Description**: An unpatched vulnerability in GeoServer instances that allowed attackers to compromise federal agency networks
+- **Impact**: Complete network compromise of a U.S. federal civilian executive branch agency
+- **Status**: Actively exploited in the wild, patches available but not applied in compromised instance
+
 ### Libraesva Email Security Gateway Vulnerability
-- **Description**: A critical vulnerability in Libraesva's Email Security Gateway solution that allows unauthorized access to email security systems
-- **Impact**: Complete compromise of email security infrastructure, potential access to sensitive communications and email metadata
-- **Status**: Emergency patch released by Libraesva; actively exploited by state-sponsored threat actors
+- **Description**: A security flaw in Libraesva's Email Security Gateway solution that has been exploited by state-sponsored threat actors
+- **Impact**: Email infrastructure compromise allowing potential data theft and lateral movement
+- **Status**: Emergency fix released, actively exploited by state hackers
 
-### GeoServer Remote Code Execution Vulnerability
-- **Description**: An unpatched vulnerability in GeoServer instances allowing remote code execution without authentication
-- **Impact**: Complete system compromise, lateral movement within federal networks, data exfiltration capabilities
-- **Status**: Confirmed exploitation against U.S. federal civilian executive branch agency; patch available but not applied in compromised instance
-
-### SolarWinds Web Help Desk Remote Code Execution
-- **Description**: Critical vulnerability allowing remote code execution without authentication in Web Help Desk software
-- **Impact**: Complete system compromise, arbitrary command execution on susceptible systems
-- **Status**: Third hotfix released; vulnerability requires immediate patching
+### SolarWinds Web Help Desk RCE Vulnerability
+- **Description**: Critical remote code execution vulnerability allowing unauthenticated attackers to execute arbitrary commands
+- **Impact**: Complete system compromise without authentication requirements
+- **Status**: Third patch released, indicating ongoing exploitation attempts
 - **CVE ID**: CVE-2025-26399
 
-### SonicWall SMA 100 Series Rootkit Deployment
-- **Description**: Rootkit malware specifically targeting SonicWall SMA 100 series devices through exploitation of undisclosed vulnerabilities
-- **Impact**: Persistent access, traffic interception, potential network pivot point for further attacks
-- **Status**: Active deployment confirmed; firmware update released to remove malware
-
-### Supermicro BMC Security Bypass Vulnerabilities
-- **Description**: Two security vulnerabilities in Supermicro Baseboard Management Controller firmware that allow bypass of Root of Trust security mechanisms
-- **Impact**: Malicious firmware installation, hardware-level persistence, complete system control
-- **Status**: Vulnerabilities disclosed; patch status unclear
+### Supermicro BMC Firmware Vulnerabilities
+- **Description**: Two security flaws in Baseboard Management Controller firmware that allow bypassing Root of Trust security mechanisms
+- **Impact**: Malicious firmware deployment that evades critical security protections
+- **Status**: Recently disclosed with potential for exploitation
 
 ## Affected Systems and Products
 
-- **Libraesva Email Security Gateway**: All versions prior to emergency patch
-- **GeoServer**: Unpatched instances vulnerable to remote code execution
-- **SolarWinds Web Help Desk**: All versions prior to latest hotfix containing CVE-2025-26399 fix
-- **SonicWall SMA 100 Series**: Devices compromised with rootkit malware
-- **Supermicro BMC Firmware**: Systems with vulnerable firmware versions
-- **AWS Docker Containers**: Misconfigured containers exploited by ShadowV2 botnet
-- **NPM Ecosystem**: Packages compromised with malicious code including 'fezbox' package
-- **GitHub Pages**: Fake repositories hosting Mac malware
-- **European Airport Systems**: Check-in and boarding systems affected by ransomware
+- **SolarWinds Web Help Desk**: Critical RCE vulnerability requiring immediate patching
+- **Libraesva Email Security Gateway**: Emergency patches deployed for state-actor exploited vulnerability
+- **GeoServer**: Federal agency compromised through unpatched instance
+- **Supermicro BMC Firmware**: Root of Trust bypass vulnerabilities disclosed
+- **SonicWall SMA 100 Series**: Rootkit malware deployment targeting these devices
+- **NPM Ecosystem**: Multiple malicious packages including 'fezbox' with QR code-based payload delivery
+- **Docker Containers**: Misconfigured AWS instances being exploited for botnet operations
+- **GitHub Repositories**: Fake repositories distributing Mac malware through SEO poisoning
+- **European Airport Systems**: Check-in and boarding systems targeted by ransomware
 
 ## Attack Vectors and Techniques
 
-- **SEO Poisoning**: BadIIS malware campaign using compromised websites and search engine manipulation to redirect traffic and deploy web shells
-- **Supply Chain Attacks**: Compromised npm packages using innovative techniques like QR codes to fetch second-stage payloads
-- **Container Exploitation**: ShadowV2 botnet leveraging misconfigured AWS Docker containers for DDoS-for-hire services
-- **Social Engineering**: Fake GitHub repositories masquerading as legitimate software to deliver Atomic infostealers
-- **Firmware Manipulation**: Direct exploitation of BMC vulnerabilities to bypass hardware security mechanisms
-- **Infrastructure Abuse**: Legitimate cloud-native tools used to evade detection in botnet operations
+- **SEO Poisoning**: Large-scale campaigns redirecting search traffic to malicious sites and delivering malware
+- **Supply Chain Attacks**: Malicious npm packages using innovative techniques like QR codes for payload delivery
+- **Docker Exploitation**: Misconfigured containers being recruited into DDoS botnets
+- **GitHub Pages Abuse**: Fake repositories hosting malware targeting Mac users
+- **Firmware-Level Attacks**: BMC exploitation to bypass hardware security mechanisms
+- **Web Shell Deployment**: BadIIS malware planting persistent backdoors via compromised web servers
+- **Ransomware Attacks**: Critical infrastructure targeting causing operational disruptions
 
 ## Threat Actor Activities
 
-- **State-Sponsored Hackers**: Active exploitation of Libraesva Email Security Gateway and federal agency infrastructure via GeoServer vulnerabilities
-- **Chinese-Speaking Threat Actor**: Operation Rewrite SEO poisoning campaign using BadIIS malware to compromise legitimate web servers for financial gain
-- **Iranian-Linked Group "Nimbus Manticore"**: Targeting European entities with improved malware variants and expanded geographic focus
-- **ShadowV2 Botnet Operators**: Operating DDoS-for-hire service using compromised AWS infrastructure and cloud-native tools for evasion
-- **Mac-Targeting Attackers**: Large-scale SEO poisoning campaign delivering Atomic infostealers through fake GitHub repositories
-- **Ransomware Groups**: Successful attacks against European airport infrastructure causing operational disruptions
-- **NPM Package Attackers**: Sophisticated supply chain attacks using innovative techniques like QR code-based payload delivery
+- **Chinese-Speaking Actors**: Conducting "Operation Rewrite" SEO poisoning campaign using BadIIS malware to redirect traffic and deploy web shells on compromised servers
+- **State-Sponsored Groups**: Actively exploiting Libraesva Email Security Gateway vulnerabilities for strategic intelligence gathering
+- **Iranian-Linked "Nimbus Manticore"**: Expanding operations into Europe with improved malware variants targeting new geographic regions
+- **ShadowV2 Botnet Operators**: Running DDoS-for-hire service using compromised AWS Docker containers with legitimate cloud-native tools for detection evasion
+- **Mac-Targeting Groups**: Large-scale campaigns using fake GitHub repositories and SEO poisoning to deliver Atomic infostealers to macOS users
+- **Ransomware Groups**: Targeting critical infrastructure including European airport systems causing significant operational disruptions
