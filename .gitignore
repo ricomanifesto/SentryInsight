@@ -16,3 +16,6 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Private notes (do not commit)
+docs/notes/
