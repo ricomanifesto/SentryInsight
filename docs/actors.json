@@ -1,10 +1,11 @@
 {
-  "UNC2165": "https://www.virustotal.com/gui/collection/threat-actor--42fe71c9-78dc-5b3b-8a30-22178ed9cbe7",
-  "UNC5518": "https://www.virustotal.com/gui/collection/threat-actor--1c9f1fc0-b34a-53d4-9cc4-c0669f8068cb",
-  "FIN6": "https://www.virustotal.com/gui/collection/threat-actor--bae65c78-4797-570f-a09d-7ed41c83e85c",
-  "Scattered Spider": "https://www.virustotal.com/gui/collection/threat-actor--8824cd44-bc42-581b-8261-22425265609e",
-  "North Korean APT": "https://www.virustotal.com/gui/collection/threat-actor--50cd027f-df14-40b2-aa22-bf5de5061163",
-  "RedNovember": "https://www.virustotal.com/gui/search/%22RedNovember%22",
+  "UNC6258/UNC6259": "https://www.virustotal.com/gui/collection/threat-actor--50175e60-dc72-5de9-aa9f-c3e9beb04b5d",
   "UNC5221": "https://www.virustotal.com/gui/collection/threat-actor--b797832d-0411-5574-b7cf-c51b22e08423",
-  "UNC1543": "https://www.virustotal.com/gui/collection/threat-actor--4d3763e2-59dc-5f7f-be84-5acf076d3e4b"
+  "RedNovember": "https://www.virustotal.com/gui/search/%22RedNovember%22",
+  "North Korean APT": "https://www.virustotal.com/gui/collection/threat-actor--50cd027f-df14-40b2-aa22-bf5de5061163",
+  "Scattered Spider": "https://www.virustotal.com/gui/collection/threat-actor--8824cd44-bc42-581b-8261-22425265609e",
+  "Vane Viper": "https://www.virustotal.com/gui/search/%22Vane%20Viper%22",
+  "Russian State Actors": "https://www.virustotal.com/gui/search/%22Russian%20State%20Actors%22",
+  "UNC6258": "https://www.virustotal.com/gui/collection/threat-actor--50175e60-dc72-5de9-aa9f-c3e9beb04b5d",
+  "UNC6259": "https://www.virustotal.com/gui/collection/threat-actor--3ff7cf6d-2983-56d7-ac95-c3072997ce38"
 }
