@@ -35,12 +35,23 @@ jobs:
         run: python main.py
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Pass VT Intelligence API key under multiple common env names
+          VT_API_KEY: ${{ secrets.VT_API_KEY }}
+          VIRUSTOTAL_API_KEY: ${{ secrets.VIRUSTOTAL_API_KEY }}
+          VT_INTELLIGENCE_API_KEY: ${{ secrets.VT_INTELLIGENCE_API_KEY }}
+          GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
       
-      - name: Commit and push updated report
+      - name: Commit and push updated report and actors mapping
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          # Force add index.md even if it's in .gitignore
-          git add -f index.md
+          # Force add report + actors mappings
+          git add -f index.md || true
+          git add -f actors.json || true
+          if [ -d docs ]; then
+            git add -f docs/actors.json || true
+            # Optional: include docs/index.md if future publish writes it
+            if [ -f docs/index.md ]; then git add -f docs/index.md || true; fi
+          fi
           git commit -m "Update exploitation report [automated]" || echo "No changes to commit"
           git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git
