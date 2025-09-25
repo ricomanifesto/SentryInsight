@@ -1,58 +1,66 @@
 # Exploitation Report
 
-Current exploitation activity reveals critical zero-day vulnerabilities being actively targeted by threat actors across multiple platforms. Cisco has confirmed active exploitation of a high-severity zero-day in IOS and IOS XE software, while attackers are leveraging CVE-2025-51591 in Pandoc to target AWS infrastructure and steal IAM credentials. State-sponsored threat actors are exploiting a Libraesva Email Security Gateway vulnerability, and sophisticated groups like UNC5221 continue using the BRICKSTORM backdoor for long-term persistence operations against U.S. organizations. Additional vulnerabilities in Supermicro BMC firmware and OnePlus OxygenOS further expand the attack surface for malicious actors.
+The current threat landscape reveals a surge in critical zero-day exploitation and advanced persistent threats targeting government agencies, cloud infrastructure, and enterprise systems. Federal agencies have fallen victim to sophisticated attacks exploiting recently disclosed vulnerabilities in geospatial systems, while zero-day vulnerabilities in network infrastructure continue to be actively exploited. Chinese state-sponsored groups have intensified their targeting of U.S. organizations using advanced backdoor malware for long-term persistence operations. Additionally, ransomware groups are exploiting enterprise management systems, and supply chain attacks through package repositories are becoming increasingly sophisticated with novel obfuscation techniques.
 
 ## Active Exploitation Details
 
-### Cisco IOS Zero-Day Vulnerability
-- **Description**: A high-severity zero-day vulnerability affecting Cisco IOS and IOS XE Software
-- **Impact**: Allows attackers to exploit network infrastructure devices running Cisco's operating systems
-- **Status**: Currently being exploited in active attacks; Cisco has released security updates to address the vulnerability
+### GeoServer Critical Vulnerability
+- **Description**: Critical vulnerability in GeoServer geospatial software exploited by threat actors
+- **Impact**: Complete system compromise allowing unauthorized access to federal agency networks
+- **Status**: Actively exploited in the wild, used to breach a large federal civilian executive branch (FCEB) agency less than two weeks after disclosure
+- **CVE ID**: CVE-2024-36401
 
-### Pandoc Server-Side Request Forgery
-- **Description**: A vulnerability in the Pandoc Linux utility that enables server-side request forgery attacks
-- **Impact**: Attackers can infiltrate Amazon Web Services infrastructure, target AWS Instance Metadata Service (IMDS), and steal EC2 IAM credentials
-- **Status**: Active in-the-wild exploitation confirmed by cloud security researchers
+### Cisco IOS Zero-Day Vulnerability
+- **Description**: High-severity zero-day vulnerability in Cisco IOS and IOS XE Software currently under active exploitation
+- **Impact**: Network infrastructure compromise with potential for lateral movement and persistent access
+- **Status**: Zero-day vulnerability with ongoing exploitation, security updates recently released by Cisco
+
+### Pandoc Vulnerability
+- **Description**: Security flaw in Pandoc Linux utility being exploited to target cloud infrastructure
+- **Impact**: AWS IMDS infiltration and EC2 IAM credential theft, enabling cloud environment compromise
+- **Status**: In-the-wild exploitation confirmed targeting Amazon Web Services environments
 - **CVE ID**: CVE-2025-51591
 
 ### Libraesva Email Security Gateway Vulnerability
-- **Description**: A security flaw in Libraesva's Email Security Gateway (ESG) solution
-- **Impact**: Enables unauthorized access and compromise of email security infrastructure
-- **Status**: Actively exploited by state-sponsored threat actors; security update released by Libraesva
+- **Description**: Vulnerability in Libraesva Email Security Gateway solution exploited by state-sponsored actors
+- **Impact**: Email security bypass and potential network infiltration through compromised email gateways
+- **Status**: Actively exploited by state-sponsored threat actors, security update released
 
-### Supermicro BMC Firmware Vulnerabilities
-- **Description**: Two vulnerabilities affecting Supermicro Baseboard Management Controller (BMC) firmware
-- **Impact**: Allow attackers to update systems with maliciously crafted firmware images, creating persistent backdoors in hardware infrastructure
-- **Status**: Newly discovered vulnerabilities with potential for widespread impact
-
-### OnePlus OxygenOS SMS Access Flaw
-- **Description**: A vulnerability in multiple OnePlus OxygenOS versions affecting SMS data access controls
-- **Impact**: Allows any installed application to access SMS data and metadata without requiring permissions or user interaction
-- **Status**: Currently unpatched vulnerability affecting OnePlus mobile devices
+### SonicWall SMA Vulnerability
+- **Description**: Ongoing exploitation of SonicWall Secure Mobile Access devices by UNC6148 threat group
+- **Impact**: Installation of OVERSTEP backdoor enabling system control, credential theft, and covert operations
+- **Status**: Active exploitation campaign with persistent backdoor deployment
 
 ## Affected Systems and Products
 
-- **Cisco IOS and IOS XE Software**: Network infrastructure devices running affected operating system versions
-- **Pandoc Utility**: Linux systems utilizing the Pandoc document converter, particularly in AWS environments
-- **Libraesva Email Security Gateway**: Organizations using ESG solutions for email security
-- **Supermicro Hardware**: Systems with vulnerable BMC firmware implementations
-- **OnePlus Devices**: Multiple OxygenOS versions across OnePlus smartphone lineup
-- **Amazon Web Services**: EC2 instances and IAM credential systems targeted through Pandoc exploitation
+- **GeoServer**: Geospatial software used by federal agencies and organizations handling geographic data
+- **Cisco IOS/IOS XE**: Network infrastructure devices including routers and switches across enterprise environments
+- **Pandoc**: Linux utility commonly used in cloud environments, particularly AWS EC2 instances
+- **Libraesva ESG**: Email Security Gateway solutions protecting organizational email infrastructure
+- **SonicWall SMA**: Secure Mobile Access devices providing VPN and remote access capabilities
+- **Supermicro BMC**: Baseboard Management Controller firmware in server hardware
+- **OnePlus OxygenOS**: Mobile operating system across multiple OnePlus device models
+- **Wondershare RepairIt**: File repair software with exposed user data and AI models
+- **NPM Package Registry**: JavaScript package ecosystem targeted through supply chain attacks
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct targeting of unpatched vulnerabilities in critical network infrastructure
-- **Server-Side Request Forgery**: Leveraging Pandoc vulnerability to make unauthorized requests to AWS IMDS
-- **Firmware Manipulation**: Crafting malicious firmware images to establish persistent hardware-level backdoors
-- **Privilege Escalation**: Exploiting SMS access controls to gain unauthorized data access on mobile devices
-- **Cloud Infrastructure Targeting**: Sophisticated attacks against cloud service providers and their metadata services
-- **Supply Chain Compromise**: Using legitimate cloud-native tools and infrastructure for malicious purposes
+- **Zero-Day Exploitation**: Immediate exploitation of undisclosed vulnerabilities in network infrastructure
+- **Supply Chain Attacks**: Malicious NPM packages using steganographic QR codes for payload delivery
+- **Cloud Infrastructure Targeting**: AWS IMDS exploitation for credential harvesting and lateral movement
+- **Backdoor Installation**: Persistent OVERSTEP and BRICKSTORM backdoors for long-term access
+- **Phishing Campaigns**: GitHub notification abuse and fake Y Combinator invitations for credential theft
+- **Ransomware Deployment**: RTX ransomware causing airport disruptions and infrastructure impacts
+- **BMC Firmware Exploitation**: Persistent backdoor creation through malicious firmware updates
+- **Mobile App Exploitation**: Unauthorized SMS access through vulnerable mobile applications
 
 ## Threat Actor Activities
 
-- **State-Sponsored Groups**: Actively exploiting Libraesva Email Security Gateway vulnerabilities for espionage and intelligence gathering operations
-- **UNC5221 (China-Nexus)**: Deploying BRICKSTORM backdoor malware for long-term persistence against U.S. legal services, SaaS providers, and technology sectors
-- **UNC6148**: Installing OVERSTEP backdoor in SonicWall SMA devices to maintain system control and credential theft capabilities
-- **RedNovember (Chinese APT)**: Targeting global government and private sector organizations using Pantegana and Cobalt Strike tools across multiple continents
-- **Scattered Spider Members**: Recent law enforcement activities with arrests of key members, though group operations continue despite claimed shutdown
-- **Cloud-Focused Attackers**: Leveraging Pandoc CVE-2025-51591 for AWS infrastructure compromise and credential harvesting operations
+- **UNC6148**: Deploying OVERSTEP backdoors in SonicWall SMA attacks with advanced evasion techniques
+- **UNC5221**: Using BRICKSTORM backdoor to infiltrate U.S. legal and technology sectors with persistent access
+- **RedNovember (Chinese APT)**: Global government targeting using Pantegana and Cobalt Strike toolsets
+- **Scattered Spider**: Cybercrime group responsible for $115M in ransoms before recent member arrests
+- **State-Sponsored Groups**: Exploiting email security gateways and conducting advanced persistent threat operations
+- **Russian Actors**: Disinformation campaigns targeting Moldovan elections alongside cyber operations
+- **Supply Chain Attackers**: Sophisticated NPM package poisoning with steganographic obfuscation techniques
+- **Ransomware Operators**: RTX ransomware causing widespread European airport disruptions
