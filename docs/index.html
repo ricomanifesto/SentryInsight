@@ -577,6 +577,29 @@
             const result = {};
             if (!md) return result;
             const names = new Set();
+            // If lines follow "ACTOR: ...", pick ALL-CAPS tokens from RHS
+            const secMatch = md.match(/^##\s+Threat Actor Activities\s*$/im);
+            let scope = md;
+            if (secMatch) {
+                const start = secMatch.index + secMatch[0].length;
+                const rest = md.slice(start);
+                const nextH2 = rest.search(/^##\s+/m);
+                scope = nextH2 >= 0 ? rest.slice(0, nextH2) : rest;
+            }
+            scope.split(/\n+/).forEach(line => {
+                const idx = line.indexOf(':');
+                if (idx <= 0) return;
+                const lhs = line.slice(0, idx).trim();
+                if (!/^(APT|TA|UNC|FIN)\d+$/i.test(lhs)) return;
+                const rhs = line.slice(idx+1);
+                const reCaps = /\b([A-Z][A-Z0-9._-]{3,})\b/g;
+                let m;
+                while ((m = reCaps.exec(rhs)) !== null) {
+                    const tok = m[1];
+                    if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL)$/.test(tok)) continue;
+                    names.add(tok);
+                }
+            });
             const quoteRe = /["“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})["“”']/g;
             let mq;
             while ((mq = quoteRe.exec(md)) !== null) names.add(mq[1].trim());

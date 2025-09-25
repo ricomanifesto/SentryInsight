@@ -567,7 +567,7 @@
                 if (!drop.test(norm)) names.add(norm);
             }
             Array.from(names).forEach(n => {
-                const q = encodeURIComponent('collection_type:threat-actor name:"' + n + '"');
+                const q = encodeURIComponent('"' + n + '"');
                 result[n] = `https://www.virustotal.com/gui/search/${q}`;
             });
             return result;
@@ -576,18 +576,53 @@
         function deriveMalwareFromMarkdown(md) {
             const result = {};
             if (!md) return result;
+            // Focus on Threat Actor Activities section
+            const secRe = /^##\s+Threat Actor Activities\s*$/im;
+            let scope = md;
+            const mx = md.match(secRe);
+            if (mx) {
+                const start = mx.index + mx[0].length;
+                const rest = md.slice(start);
+                const nextH2 = rest.search(/^##\s+/m);
+                scope = nextH2 >= 0 ? rest.slice(0, nextH2) : rest;
+            }
             const names = new Set();
+            // Colon-structured lines: ACTOR: ... MALWARE ...
+            scope.split(/\n+/).forEach(line => {
+                const idx = line.indexOf(':');
+                if (idx <= 0) return;
+                const lhs = line.slice(0, idx).trim();
+                if (!/^(APT|TA|UNC|FIN)\d+$/i.test(lhs)) return;
+                const rhs = line.slice(idx+1);
+                const reCaps = /\b([A-Z][A-Z0-9._-]{3,})\b/g;
+                let m;
+                while ((m = reCaps.exec(rhs)) !== null) {
+                    const tok = m[1];
+                    if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL)$/.test(tok)) continue;
+                    names.add(tok);
+                }
+            });
             const quoteRe = /["“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})["“”']/g;
             let mq;
-            while ((mq = quoteRe.exec(md)) !== null) names.add(mq[1].trim());
+            while ((mq = quoteRe.exec(scope)) !== null) {
+                const name = mq[1].trim();
+                // accept only if nearby malware context
+                const ws = Math.max(0, mq.index - 60), we = Math.min(scope.length, mq.index + 60);
+                const win = scope.slice(ws, we).toLowerCase();
+                if (/(malware|ransom|trojan|loader|backdoor|stealer|rat|worm|spy|spyware|banker|botnet)/.test(win))
+                    names.add(name);
+            }
             const suf = /(Bot|Loader|RAT|Stealer|Worm|Backdoor|Trojan|Spy|Spyware|Banker|Locker|Ransom|Ransomware)\b/i;
             const wordRe = /\b([A-Z][A-Za-z0-9]*(?:[A-Z][A-Za-z0-9]+)*[A-Za-z0-9]{2,})\b/g;
             let mw;
-            while ((mw = wordRe.exec(md)) !== null) {
+            while ((mw = wordRe.exec(scope)) !== null) {
                 const w = mw[0];
                 if (suf.test(w)) names.add(w);
             }
+            // Filter out short acronyms (e.g., ASA)
+            const drops = /^(HTTP|HTTPS|TLS|SSL|VPN|DNS|ASA|IOS|IIS|SSH|RDP|SFTP|FTP|SMTP|SQL|XML|JSON)$/i;
             Array.from(names).forEach(n => {
+                if ((n.toUpperCase() === n && n.length <= 3) || drops.test(n)) return;
                 const q = encodeURIComponent('"' + n + '"');
                 result[n] = `https://www.virustotal.com/gui/search/${q}`;
             });
@@ -601,10 +636,8 @@
             names.sort((a,b) => b.length - a.length);
             const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
             contentEl.querySelectorAll('p, li').forEach(el => {
-                // Skip if already has VT links for this element
-                if (el.innerHTML.includes('virustotal.com')) return;
                 el.innerHTML = el.innerHTML.replace(re, (m) => {
-                    const url = ACTORS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('collection_type:threat-actor name:"' + m + '"')}`;
+                    const url = ACTORS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
                     return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
                 });
             });
@@ -616,7 +649,6 @@
             names.sort((a,b) => b.length - a.length);
             const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
             contentEl.querySelectorAll('p, li').forEach(el => {
-                if (el.innerHTML.includes('virustotal.com')) return;
                 el.innerHTML = el.innerHTML.replace(re, (m) => {
                     const url = MALWARE_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
                     return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;

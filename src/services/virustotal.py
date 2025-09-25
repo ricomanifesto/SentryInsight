@@ -205,25 +205,61 @@ def extract_malware_families_from_markdown(md: str) -> List[str]:
         'Sodinokibi','Clop','LockBit','BlackCat','ALPHV','BlackBasta','Hive','DarkSide','Maze','NetWalker','Phoenix',
         'CobaltStrike','PlugX','Gh0st','Mirai','Qbot'
     }
+    # Focus extraction to Threat Actor Activities section if present
+    section_re = re.compile(r"^##\s+Threat Actor Activities\s*$", re.IGNORECASE | re.MULTILINE)
+    msec = section_re.search(md)
+    scope = md
+    if msec:
+        start = msec.end()
+        next_h2 = re.search(r"^##\s+", md[start:], re.MULTILINE)
+        scope = md[start: start + next_h2.start()] if next_h2 else md[start:]
+
     for s in seeds:
-        if re.search(rf"\b{s}\b", md, re.IGNORECASE):
+        if re.search(rf"\b{s}\b", scope, re.IGNORECASE):
             families.append(s)
-    for m in re.finditer(r"[\"“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})[\"“”']", md):
-        families.append(m.group(1).strip())
+
+    # Heuristic: lines like "UNC2165: ... FAKEUPDATES ... COLORFAKE.V2 ..."
+    # Treat ALL-CAPS tokens (post-colon) as malware names; ignore the actor prefix.
+    for line in scope.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if ':' not in line:
+            continue
+        lhs, rhs = line.split(':', 1)
+        if not re.match(r"^(?:APT|TA|UNC|FIN)\d+\b", lhs.strip(), flags=re.IGNORECASE):
+            continue
+        rhs = rhs.strip()
+        # Collect ALLCAPS tokens (len >= 4) allowing digits, dot, underscore, hyphen
+        for mm in re.finditer(r"\b([A-Z][A-Z0-9._-]{3,})\b", rhs):
+            tok = mm.group(1)
+            # Skip very common non-malware words even if caps
+            if tok in {"IOC","IETF","HTTP","HTTPS","TLS","SSL","VPN","DNS","AAD","MFA","SQL"}:
+                continue
+            families.append(tok)
+
+    # Only include quoted names that are accompanied by malware context words nearby
+    for qm in re.finditer(r"[\"“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})[\"“”']", scope):
+        name = qm.group(1).strip()
+        window_start = max(0, qm.start()-60)
+        window_end = min(len(scope), qm.end()+60)
+        window = scope[window_start:window_end].lower()
+        if re.search(r"malware|ransom|trojan|loader|backdoor|stealer|rat|worm|spy|spyware|banker|botnet", window):
+            families.append(name)
+
     suffixes = r"bot|loader|rat|stealer|worm|backdoor|trojan|spy|spyware|banker|locker|ransom|ransomware"
-    for m in re.finditer(rf"\b([A-Z][A-Za-z0-9]*(?:[A-Z][A-Za-z0-9]+)*)(?:({suffixes}))\b", md, re.IGNORECASE):
-        families.append(m.group(0))
-    for m in re.finditer(r"\b([A-Z][A-Za-z0-9\-]{2,20})\s*\(([^)]+)\)", md):
-        families.append(m.group(1).strip())
-        alias = m.group(2).strip()
-        if 2 <= len(alias) <= 30:
-            families.append(alias)
+    for mm in re.finditer(rf"\b([A-Z][A-Za-z0-9]*(?:[A-Z][A-Za-z0-9]+)*)(?:({suffixes}))\b", scope, re.IGNORECASE):
+        families.append(mm.group(0))
+
+    # Do not pull aliases in parentheses for malware (too noisy in actor sections)
+
+    # Deduplicate and filter out common non-malware acronyms
     seen = set()
     result: List[str] = []
-    drops = re.compile(r"^(?:HTTP|HTTPS|Windows|Linux|Mac|Android|Cisco|Microsoft)$", re.IGNORECASE)
+    drops = re.compile(r"^(?:HTTP|HTTPS|TLS|SSL|VPN|DNS|ASA|IOS|IIS|SSH|RDP|SFTP|FTP|SMTP|SQL|XML|JSON|Windows|Linux|Mac|Android|Cisco|Microsoft|NetScaler|MOVEit|downloader|loader|stealer|backdoor|ransomware|trojan|spyware|worm|botnet|bot)$", re.IGNORECASE)
     for f in families:
         n = f.strip().strip("\"'")
-        if not n or drops.match(n):
+        if not n or drops.match(n) or (n.isupper() and len(n) <= 3):
             continue
         if n not in seen:
             seen.add(n)
