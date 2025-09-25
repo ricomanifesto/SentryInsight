@@ -1,58 +1,60 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities in Cisco networking infrastructure are being actively exploited in the wild, prompting emergency directives from CISA to federal agencies. Simultaneously, multiple threat actors including North Korean groups, Chinese espionage clusters, and financially motivated cybercriminals are conducting sophisticated campaigns targeting organizations across various sectors. These activities span from supply chain attacks through malicious packages to social engineering campaigns using fake job postings and browser updates, while established groups like Scattered Spider continue to cause significant financial damage despite recent law enforcement actions.
+Critical zero-day vulnerabilities in Cisco networking infrastructure are being actively exploited by attackers, with CISA issuing emergency directives for federal agencies to patch affected systems. Multiple threat actors continue aggressive campaigns targeting organizations through fake update schemes, supply chain attacks, and social engineering tactics. Notable activities include North Korean hackers deploying new backdoors against cryptocurrency developers, Chinese espionage groups infiltrating government systems globally, and financially motivated actors leveraging sophisticated distribution channels to deploy malware payloads.
 
 ## Active Exploitation Details
 
 ### Cisco ASA Firewall Zero-Day Vulnerabilities
-- **Description**: Two zero-day vulnerabilities affecting Cisco ASA (Adaptive Security Appliance) firewall software that are being actively exploited in attacks
-- **Impact**: Attackers can exploit these flaws to compromise firewall security and potentially gain unauthorized access to protected networks
-- **Status**: Active exploitation confirmed; CISA has issued emergency directive ordering federal agencies to patch immediately
+- **Description**: Two zero-day vulnerabilities affecting Cisco ASA (Adaptive Security Appliance) firewall software that allow attackers to compromise network security infrastructure
+- **Impact**: Complete compromise of firewall security controls, potential network infiltration and lateral movement
+- **Status**: Actively exploited in the wild, patches available, CISA emergency directive issued for federal agencies
 
-### Cisco IOS/IOS XE SNMP Vulnerability  
-- **Description**: High-severity security flaw in Cisco IOS Software and IOS XE Software affecting SNMP functionality
-- **Impact**: Remote attackers can execute arbitrary code or trigger denial-of-service conditions
-- **Status**: Currently being exploited in attacks; security updates released by Cisco
+### Cisco IOS/IOS XE SNMP Vulnerability
+- **Description**: High-severity security flaw in Cisco IOS Software and IOS XE Software affecting SNMP (Simple Network Management Protocol) implementation
+- **Impact**: Remote code execution or denial-of-service conditions on network devices
+- **Status**: Currently being exploited in attacks, security updates released
 
-### Critical GeoServer Vulnerability
-- **Description**: Critical vulnerability in GeoServer that was exploited by threat actors to breach a federal agency
-- **Impact**: Complete compromise of affected systems and unauthorized access to sensitive government data
-- **Status**: Exploited less than two weeks after initial disclosure to breach large federal civilian executive branch agency
+### GeoServer Critical Vulnerability
+- **Description**: Critical flaw in GeoServer geospatial software that enables remote exploitation
+- **Impact**: Complete system compromise and unauthorized access to federal agency networks
+- **Status**: Exploited within two weeks of disclosure to breach a large federal civilian executive branch agency
 - **CVE ID**: CVE-2024-36401
 
-### Salesforce Agentforce ForcedLeak Bug
-- **Description**: Critical flaw in Salesforce Agentforce platform that allows AI prompt injection attacks
-- **Impact**: Attackers can potentially exfiltrate sensitive CRM data through manipulated AI agent interactions
-- **Status**: Recently patched by Salesforce following security researcher disclosure
+### Salesforce Agentforce ForcedLeak Vulnerability
+- **Description**: Critical flaw in Salesforce Agentforce AI platform enabling data exfiltration through prompt injection attacks
+- **Impact**: Exposure of sensitive CRM data through malicious AI prompt manipulation
+- **Status**: Patched by Salesforce
+
+### OnePlus OxygenOS SMS Access Vulnerability
+- **Description**: Vulnerability in multiple OnePlus OxygenOS versions allowing unauthorized SMS access
+- **Impact**: Any installed app can access SMS data and metadata without permissions or user interaction
+- **Status**: Currently unpatched
 
 ## Affected Systems and Products
 
-- **Cisco ASA Firewalls**: Multiple versions affected by zero-day vulnerabilities requiring immediate patching
-- **Cisco IOS/IOS XE Software**: SNMP functionality compromised across affected versions
-- **GeoServer**: Geospatial server software used by federal agencies
-- **Salesforce Agentforce**: AI agent building platform vulnerable to prompt injection
-- **Supermicro BMC Firmware**: Baseboard Management Controller vulnerabilities allowing persistent backdoors
-- **OnePlus OxygenOS**: Multiple versions allowing unauthorized SMS access
-- **Rust Crate Repository**: Malicious packages targeting cryptocurrency developers
-- **Windows Systems**: Targeted by various malware campaigns and social engineering attacks
+- **Cisco ASA Firewalls**: Multiple versions of Adaptive Security Appliance firewall software
+- **Cisco IOS/IOS XE Devices**: Network routers and switches running affected software versions
+- **GeoServer**: Geospatial data server software used by federal agencies
+- **Salesforce Agentforce**: AI agent building platform
+- **OnePlus Smartphones**: Multiple OxygenOS versions affected
+- **Supermicro BMC**: Baseboard Management Controller firmware enabling persistent backdoors
+- **Rust Crates Repository**: Malicious packages on Crates.io targeting cryptocurrency developers
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in critical infrastructure
-- **Supply Chain Attacks**: Malicious packages in legitimate software repositories (Rust crates)
-- **Social Engineering**: Fake browser updates, job posting lures, and ClickFix techniques
+- **Drive-By Downloads**: FAKEUPDATES campaigns using SEO poisoning and fake browser update notifications
+- **Social Engineering**: Job posting spoofing and ClickFix techniques to deliver malicious payloads
+- **Supply Chain Attacks**: Malicious packages in software repositories stealing cryptocurrency wallet keys
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in network infrastructure
 - **AI Prompt Injection**: Manipulation of AI systems to extract sensitive data
-- **Drive-By Downloads**: FAKEUPDATES campaigns delivering multiple malware payloads
-- **Firmware Manipulation**: BMC vulnerabilities enabling persistent backdoor installation
-- **SNMP-Based Attacks**: Remote code execution through network management protocols
+- **Firmware Manipulation**: Creation of persistent backdoors through BMC vulnerabilities
 
 ## Threat Actor Activities
 
-- **UNC2165**: Resumed operations after dormancy, leveraging SEO poisoning and FAKEUPDATES to deliver COLORFAKE.V2 and MYTHIC payloads
-- **UNC5518**: Distributing FAKETREFF JavaScript downloader using fake error messages and ClickFix social engineering since April 2024
-- **FIN6**: Ongoing campaign since December 2022 targeting corporate recruiters through spoofed job postings to distribute BULLZLINK and SQUIDSLEEP payloads
-- **Scattered Spider**: Caused $107 million in losses to Co-operative Group in recent attack; teen member recently surrendered to authorities
-- **North Korean APT**: Contagious Interview campaign using new AkdoorTea backdoor, TsunamiKit, and other tools to target cryptocurrency developers globally
-- **RedNovember (Chinese APT)**: Targeting global government and private sector organizations across multiple continents using Pantegana and Cobalt Strike
-- **UNC5221 (Chinese APT)**: Using BRICKSTORM backdoor to infiltrate U.S. legal services, SaaS providers, and technology sectors
-- **Russian Disinformation Groups**: Conducting information warfare campaigns targeting Moldovan elections
+- **UNC2165**: Resumed operations using FAKEUPDATES distribution channels, deploying COLORFAKE.V2 dropper and MYTHIC payloads via UNC1543 infrastructure
+- **UNC5518**: Evolved FAKETREFF JavaScript downloader campaigns with enhanced obfuscation and multi-stage deployment techniques
+- **FIN6**: Ongoing campaign since December 2022 targeting corporate recruiters through spoofed job postings, distributing BULLZLINK and SQUIDSLEEP payloads
+- **Scattered Spider**: Major ransomware operations resulting in $107 million losses for Co-operative Group UK, with recent arrests of teen members
+- **North Korean APT**: Contagious Interview campaign deploying AkdoorTea backdoor alongside TsunamiKit against cryptocurrency developers
+- **RedNovember (Chinese APT)**: Global espionage operations targeting governments across multiple continents using Pantegana and Cobalt Strike
+- **UNC5221 (China-nexus)**: BRICKSTORM backdoor deployment against U.S. legal services, SaaS providers, and technology sectors
