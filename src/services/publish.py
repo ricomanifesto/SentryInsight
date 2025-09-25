@@ -70,7 +70,15 @@ async def publish_to_github_pages(
         # Best-effort: generate actors.json in the docs directory for UI linking
         try:
             from .virustotal import build_actors_mapping, write_actors_json
+            # Try env first, then config file fallback
             vt_api_key = os.getenv("VT_API_KEY") or os.getenv("VIRUSTOTAL_API_KEY")
+            if not vt_api_key:
+                try:
+                    import json as _json
+                    cfg = _json.loads((Path('config')/ 'config.json').read_text(encoding='utf-8'))
+                    vt_api_key = (cfg.get('virustotal') or {}).get('api_key')
+                except Exception:
+                    vt_api_key = None
             actors_map = build_actors_mapping(exploitation_report, vt_api_key)
             write_actors_json(actors_map, repo_path)
             logger.info("Successfully generated docs/actors.json")

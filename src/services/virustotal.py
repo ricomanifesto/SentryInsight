@@ -74,6 +74,14 @@ def extract_threat_actors_from_markdown(md: str) -> List[str]:
         if a not in seen:
             seen.add(a)
             unique.append(a)
+    # Also scan the entire document for tags like APT/TA/UNC/FIN if the section misses some
+    addl = []
+    for mm in re.finditer(r"\b(?:APT|TA|UNC|FIN)[ -]?\d{1,4}\b", md, flags=re.IGNORECASE):
+        addl.append(mm.group(0).upper().replace(' ', '').replace('-', ''))
+    for a in addl:
+        if a not in seen:
+            seen.add(a)
+            unique.append(a)
     return unique
 
 

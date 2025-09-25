@@ -147,7 +147,8 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
     # Build actors.json alongside the report (best-effort)
     try:
         from ..services.virustotal import build_actors_mapping, write_actors_json
-        vt_api_key = os.getenv("VT_API_KEY") or os.getenv("VIRUSTOTAL_API_KEY")
+        vt_api_key = os.getenv("VT_API_KEY") or os.getenv("VIRUSTOTAL_API_KEY") or \
+                     (config.get("virustotal", {}) if isinstance(config, dict) else {}).get("api_key")
         actors_map = build_actors_mapping(report, vt_api_key)
         out_dir = Path(os.path.dirname(output_path) or ".")
         write_actors_json(actors_map, out_dir)
