@@ -566,7 +566,10 @@
                 const norm = mt[0].toUpperCase().replace(/\s|-/, '');
                 if (!drop.test(norm)) names.add(norm);
             }
+            const drops = /^(HTTP|HTTPS|TLS|SSL|VPN|DNS|ASA|IOS|IIS|SSH|RDP|SFTP|FTP|SMTP|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/i;
             Array.from(names).forEach(n => {
+                if (/^(APT|TA|UNC|FIN)\d+$/i.test(n)) return;
+                if ((n.toUpperCase() === n && n.length <= 3) || drops.test(n)) return;
                 const q = encodeURIComponent('"' + n + '"');
                 result[n] = `https://www.virustotal.com/gui/search/${q}`;
             });
