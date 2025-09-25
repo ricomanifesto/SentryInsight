@@ -69,7 +69,7 @@ async def publish_to_github_pages(
 
         # Best-effort: generate actors.json in the docs directory for UI linking
         try:
-            from .virustotal import build_actors_mapping, write_actors_json
+            from .virustotal import build_actors_mapping, write_actors_json, build_malware_mapping, write_malware_json
             # Try env first, then config file fallback
             vt_api_key = os.getenv("VT_API_KEY") or os.getenv("VIRUSTOTAL_API_KEY")
             if not vt_api_key:
@@ -81,7 +81,9 @@ async def publish_to_github_pages(
                     vt_api_key = None
             actors_map = build_actors_mapping(exploitation_report, vt_api_key)
             write_actors_json(actors_map, repo_path)
-            logger.info("Successfully generated docs/actors.json")
+            malware_map = build_malware_mapping(exploitation_report, vt_api_key)
+            write_malware_json(malware_map, repo_path)
+            logger.info("Successfully generated docs/actors.json and docs/malware.json")
         except Exception as e:
             logger.warning(f"Unable to generate actors.json for GitHub Pages: {e}")
         

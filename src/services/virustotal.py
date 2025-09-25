@@ -180,7 +180,7 @@ def build_actors_mapping(md: str, api_key: Optional[str]) -> Dict[str, str]:
             mapping[n] = resolve_actor_to_vt_url(n, api_key)
         except Exception:
             # Ensure we still provide a usable search link on unexpected errors
-            q = urllib.parse.quote(f'collection_type:threat-actor name:"{n}"', safe="")
+            q = urllib.parse.quote(f'"{n}"', safe="")
             mapping[n] = f"https://www.virustotal.com/gui/search/{q}"
     return mapping
 
@@ -193,6 +193,99 @@ def write_actors_json(mapping: Dict[str, str], out_dir: Path) -> None:
             json.dump(mapping, f, indent=2, ensure_ascii=False)
     except Exception:
         # Non-fatal; UI will fall back to zero-actors state
+        pass
+
+# -------- Malware Families --------
+
+def extract_malware_families_from_markdown(md: str) -> List[str]:
+    families: List[str] = []
+    seeds = {
+        'Emotet','TrickBot','QakBot','IcedID','BazarLoader','Bumblebee','FormBook','AgentTesla','Vidar','RedLine',
+        'Raccoon','SmokeLoader','LokiBot','ZLoader','Dridex','Kronos','GootLoader','Gootkit','Conti','Ryuk','REvil',
+        'Sodinokibi','Clop','LockBit','BlackCat','ALPHV','BlackBasta','Hive','DarkSide','Maze','NetWalker','Phoenix',
+        'CobaltStrike','PlugX','Gh0st','Mirai','Qbot'
+    }
+    for s in seeds:
+        if re.search(rf"\b{s}\b", md, re.IGNORECASE):
+            families.append(s)
+    for m in re.finditer(r"[\"“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})[\"“”']", md):
+        families.append(m.group(1).strip())
+    suffixes = r"bot|loader|rat|stealer|worm|backdoor|trojan|spy|spyware|banker|locker|ransom|ransomware"
+    for m in re.finditer(rf"\b([A-Z][A-Za-z0-9]*(?:[A-Z][A-Za-z0-9]+)*)(?:({suffixes}))\b", md, re.IGNORECASE):
+        families.append(m.group(0))
+    for m in re.finditer(r"\b([A-Z][A-Za-z0-9\-]{2,20})\s*\(([^)]+)\)", md):
+        families.append(m.group(1).strip())
+        alias = m.group(2).strip()
+        if 2 <= len(alias) <= 30:
+            families.append(alias)
+    seen = set()
+    result: List[str] = []
+    drops = re.compile(r"^(?:HTTP|HTTPS|Windows|Linux|Mac|Android|Cisco|Microsoft)$", re.IGNORECASE)
+    for f in families:
+        n = f.strip().strip("\"'")
+        if not n or drops.match(n):
+            continue
+        if n not in seen:
+            seen.add(n)
+            result.append(n)
+    return result
+
+
+def resolve_malware_to_vt_collection_id(name: str, api_key: Optional[str]) -> Optional[str]:
+    if not api_key:
+        api_key = _get_vt_key_from_env_or_config()
+        if not api_key:
+            return None
+    base = "https://www.virustotal.com/api/v3/collections?filter="
+    filters = [
+        f"collection_type:malware-family name:\"{name}\"",
+        f"collection_type:malware name:\"{name}\"",
+        f"collection_type:malware-family {name}",
+        f"collection_type:malware {name}",
+    ]
+    for f in filters:
+        url = base + urllib.parse.quote(f, safe="") + "&order=relevance-"
+        data = _vt_request(url, api_key)
+        if not data or "data" not in data:
+            continue
+        for item in data.get("data", []) or []:
+            cid = item.get("id") or ""
+            attrs = item.get("attributes", {}) or {}
+            ctype = attrs.get("collection_type") or ""
+            if isinstance(cid, str) and (cid.startswith("malware-family--") or cid.startswith("malware--")):
+                return cid
+            if isinstance(ctype, str) and ctype in ("malware-family","malware","malware_family") and isinstance(cid, str) and cid:
+                return cid
+    return None
+
+
+def resolve_malware_to_vt_url(name: str, api_key: Optional[str]) -> str:
+    cid = resolve_malware_to_vt_collection_id(name, api_key)
+    if cid:
+        return f"https://www.virustotal.com/gui/collection/{cid}"
+    q = urllib.parse.quote(f'"{name}"', safe="")
+    return f"https://www.virustotal.com/gui/search/{q}"
+
+
+def build_malware_mapping(md: str, api_key: Optional[str]) -> Dict[str, str]:
+    names = extract_malware_families_from_markdown(md)
+    mapping: Dict[str, str] = {}
+    for n in names:
+        try:
+            mapping[n] = resolve_malware_to_vt_url(n, api_key)
+        except Exception:
+            q = urllib.parse.quote(f'"{n}"', safe="")
+            mapping[n] = f"https://www.virustotal.com/gui/search/{q}"
+    return mapping
+
+
+def write_malware_json(mapping: Dict[str, str], out_dir: Path) -> None:
+    try:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / "malware.json"
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(mapping, f, indent=2, ensure_ascii=False)
+    except Exception:
         pass
 def _load_aliases() -> Dict[str, str]:
     """Load optional actor aliases from config/actors_aliases.json and merge with built-ins."""

@@ -41,15 +41,17 @@ jobs:
           VT_INTELLIGENCE_API_KEY: ${{ secrets.VT_INTELLIGENCE_API_KEY }}
           GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
       
-      - name: Commit and push updated report and actors mapping
+      - name: Commit and push updated report and mappings
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           # Force add report + actors mappings
           git add -f index.md || true
           git add -f actors.json || true
+          git add -f malware.json || true
           if [ -d docs ]; then
             git add -f docs/actors.json || true
+            git add -f docs/malware.json || true
             # Optional: include docs/index.md if future publish writes it
             if [ -f docs/index.md ]; then git add -f docs/index.md || true; fi
           fi

@@ -146,17 +146,21 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
 
     # Build actors.json alongside the report (best-effort)
     try:
-        from ..services.virustotal import build_actors_mapping, write_actors_json
+        from ..services.virustotal import build_actors_mapping, write_actors_json, build_malware_mapping, write_malware_json
         vt_api_key = os.getenv("VT_API_KEY") or os.getenv("VIRUSTOTAL_API_KEY") or \
                      (config.get("virustotal", {}) if isinstance(config, dict) else {}).get("api_key")
         actors_map = build_actors_mapping(report, vt_api_key)
         out_dir = Path(os.path.dirname(output_path) or ".")
         write_actors_json(actors_map, out_dir)
+        # Malware mapping
+        malware_map = build_malware_mapping(report, vt_api_key)
+        write_malware_json(malware_map, out_dir)
         # Also write to docs/ if it exists (for GitHub Pages sites)
         docs_dir = Path("docs")
         if docs_dir.exists():
             write_actors_json(actors_map, docs_dir)
-        logger.info("Wrote actors.json next to report and docs/")
+            write_malware_json(malware_map, docs_dir)
+        logger.info("Wrote actors.json and malware.json next to report and docs/")
     except Exception as e:
         logger.warning(f"Failed to generate actors.json: {e}")
     

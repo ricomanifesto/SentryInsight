@@ -514,6 +514,15 @@
               .catch(() => { ACTORS_MAP = {}; });
         }
 
+        // Load malware mapping generated during publish (malware.json)
+        let MALWARE_MAP = {};
+        function loadMalware() {
+            return fetch('malware.json?v=' + Date.now())
+              .then(r => r.ok ? r.json() : {})
+              .then(j => { MALWARE_MAP = j || {}; })
+              .catch(() => { MALWARE_MAP = {}; });
+        }
+
         function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
         function deriveActorsFromMarkdown(md) {
@@ -564,6 +573,27 @@
             return result;
         }
 
+        function deriveMalwareFromMarkdown(md) {
+            const result = {};
+            if (!md) return result;
+            const names = new Set();
+            const quoteRe = /["“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})["“”']/g;
+            let mq;
+            while ((mq = quoteRe.exec(md)) !== null) names.add(mq[1].trim());
+            const suf = /(Bot|Loader|RAT|Stealer|Worm|Backdoor|Trojan|Spy|Spyware|Banker|Locker|Ransom|Ransomware)\b/i;
+            const wordRe = /\b([A-Z][A-Za-z0-9]*(?:[A-Z][A-Za-z0-9]+)*[A-Za-z0-9]{2,})\b/g;
+            let mw;
+            while ((mw = wordRe.exec(md)) !== null) {
+                const w = mw[0];
+                if (suf.test(w)) names.add(w);
+            }
+            Array.from(names).forEach(n => {
+                const q = encodeURIComponent('"' + n + '"');
+                result[n] = `https://www.virustotal.com/gui/search/${q}`;
+            });
+            return result;
+        }
+
         function linkifyThreatActors() {
             const names = Object.keys(ACTORS_MAP || {});
             if (!names.length) return;
@@ -575,6 +605,20 @@
                 if (el.innerHTML.includes('virustotal.com')) return;
                 el.innerHTML = el.innerHTML.replace(re, (m) => {
                     const url = ACTORS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
+                    return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
+                });
+            });
+        }
+
+        function linkifyMalware() {
+            const names = Object.keys(MALWARE_MAP || {});
+            if (!names.length) return;
+            names.sort((a,b) => b.length - a.length);
+            const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
+            contentEl.querySelectorAll('p, li').forEach(el => {
+                if (el.innerHTML.includes('virustotal.com')) return;
+                el.innerHTML = el.innerHTML.replace(re, (m) => {
+                    const url = MALWARE_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
                     return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
                 });
             });
@@ -721,11 +765,14 @@
                 addStatusBadges();
                 enhanceActiveExploitationTags();
                 buildTOC();
-                // Load actors, merge with derived set, linkify and compute summary
-                loadActors().then(() => {
-                    const derived = deriveActorsFromMarkdown(markdownCache);
-                    ACTORS_MAP = Object.assign({}, derived, ACTORS_MAP || {});
+                // Load actors and malware, merge with derived sets, linkify and compute summary
+                Promise.all([loadActors(), loadMalware()]).then(() => {
+                    const derivedActors = deriveActorsFromMarkdown(markdownCache);
+                    ACTORS_MAP = Object.assign({}, derivedActors, ACTORS_MAP || {});
+                    const derivedMal = deriveMalwareFromMarkdown(markdownCache);
+                    MALWARE_MAP = Object.assign({}, derivedMal, MALWARE_MAP || {});
                     linkifyThreatActors();
+                    linkifyMalware();
                     computeSummary();
                 });
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
