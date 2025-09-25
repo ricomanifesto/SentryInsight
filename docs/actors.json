@@ -3,7 +3,8 @@
   "UNC5518": "https://www.virustotal.com/gui/collection/threat-actor--1c9f1fc0-b34a-53d4-9cc4-c0669f8068cb",
   "FIN6": "https://www.virustotal.com/gui/collection/threat-actor--bae65c78-4797-570f-a09d-7ed41c83e85c",
   "Scattered Spider": "https://www.virustotal.com/gui/collection/threat-actor--8824cd44-bc42-581b-8261-22425265609e",
-  "North Korean Groups": "https://www.virustotal.com/gui/search/collection_type%3Athreat-actor%20name%3A%22North%20Korean%20Groups%22",
+  "North Korean APT": "https://www.virustotal.com/gui/collection/threat-actor--50cd027f-df14-40b2-aa22-bf5de5061163",
+  "RedNovember": "https://www.virustotal.com/gui/search/%22RedNovember%22",
   "UNC5221": "https://www.virustotal.com/gui/collection/threat-actor--b797832d-0411-5574-b7cf-c51b22e08423",
-  "RedNovember": "https://www.virustotal.com/gui/search/collection_type%3Athreat-actor%20name%3A%22RedNovember%22"
+  "Russian Disinformation Groups": "https://www.virustotal.com/gui/collection/threat-actor--e6c0f218-f881-5755-aa0e-07f2b26f9ec6"
 }
