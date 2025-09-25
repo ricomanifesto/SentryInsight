@@ -151,7 +151,11 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
         actors_map = build_actors_mapping(report, vt_api_key)
         out_dir = Path(os.path.dirname(output_path) or ".")
         write_actors_json(actors_map, out_dir)
-        logger.info("Wrote actors.json next to report")
+        # Also write to docs/ if it exists (for GitHub Pages sites)
+        docs_dir = Path("docs")
+        if docs_dir.exists():
+            write_actors_json(actors_map, docs_dir)
+        logger.info("Wrote actors.json next to report and docs/")
     except Exception as e:
         logger.warning(f"Failed to generate actors.json: {e}")
     
