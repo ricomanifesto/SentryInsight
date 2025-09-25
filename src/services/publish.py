@@ -66,6 +66,16 @@ async def publish_to_github_pages(
                 f.write("theme: jekyll-theme-cayman\n")
                 f.write("title: SentryInsight\n")
                 f.write("description: Exploitation Intelligence Reports\n")
+
+        # Best-effort: generate actors.json in the docs directory for UI linking
+        try:
+            from .virustotal import build_actors_mapping, write_actors_json
+            vt_api_key = os.getenv("VT_API_KEY") or os.getenv("VIRUSTOTAL_API_KEY")
+            actors_map = build_actors_mapping(exploitation_report, vt_api_key)
+            write_actors_json(actors_map, repo_path)
+            logger.info("Successfully generated docs/actors.json")
+        except Exception as e:
+            logger.warning(f"Unable to generate actors.json for GitHub Pages: {e}")
         
         logger.info(f"Successfully published to GitHub Pages directory: {repo_dir}")
         return True

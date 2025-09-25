@@ -505,6 +505,33 @@
             });
         }
 
+        // Load actors mapping generated during publish (actors.json)
+        let ACTORS_MAP = {};
+        function loadActors() {
+            return fetch('actors.json?v=' + Date.now())
+              .then(r => r.ok ? r.json() : {})
+              .then(j => { ACTORS_MAP = j || {}; })
+              .catch(() => { ACTORS_MAP = {}; });
+        }
+
+        function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+        function linkifyThreatActors() {
+            const names = Object.keys(ACTORS_MAP || {});
+            if (!names.length) return;
+            // Sort by length to avoid partial matches (e.g., APT2 vs APT29)
+            names.sort((a,b) => b.length - a.length);
+            const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
+            contentEl.querySelectorAll('p, li').forEach(el => {
+                // Skip if already has VT links for this element
+                if (el.innerHTML.includes('virustotal.com')) return;
+                el.innerHTML = el.innerHTML.replace(re, (m) => {
+                    const url = ACTORS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('collection_type:threat-actor name:"' + m + '"')}`;
+                    return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
+                });
+            });
+        }
+
         function addStatusBadges() {
             contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
                 const h3 = sec.querySelector('h3');
@@ -573,6 +600,7 @@
         function computeSummary() {
             const cveMatches = markdownCache.match(/CVE-\d{4}-\d{4,7}/g) || [];
             const uniqueCVEs = Array.from(new Set(cveMatches));
+            const actorNames = Object.keys(ACTORS_MAP || {});
             const sections = contentEl.querySelectorAll('h3').length;
             let activeCount = 0;
             contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
@@ -593,6 +621,7 @@
 
             const html = `
                 <div class="card"><h5>CVEs Mentioned</h5><div class="value">${uniqueCVEs.length}</div><div class="chips">${uniqueCVEs.slice(0,6).map(c => `<a class="chip" href="https://nvd.nist.gov/vuln/detail/${c}" target="_blank" rel="noopener">${c}</a>`).join('')}</div></div>
+                <div class="card"><h5>Threat Actors</h5><div class="value">${actorNames.length}</div><div class="chips">${actorNames.slice(0,6).map(a => `<a class="chip" href="${(ACTORS_MAP[a]||`https://www.virustotal.com/gui/search/${encodeURIComponent('collection_type:threat-actor name:"' + a + '"')}`)}" target="_blank" rel="noopener">${a}</a>`).join('')}</div></div>
             `;
             summaryEl.innerHTML = html;
         }
@@ -644,7 +673,8 @@
                 addStatusBadges();
                 enhanceActiveExploitationTags();
                 buildTOC();
-                computeSummary();
+                // Load actors, then linkify and compute summary including actors
+                loadActors().then(() => { linkifyThreatActors(); computeSummary(); });
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 setMeta(m ? m[1] : '');
           })

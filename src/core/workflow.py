@@ -143,6 +143,17 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
     output_path = config.get("output_path", "index.md")
     with open(output_path, "w") as f:
         f.write(report)
+
+    # Build actors.json alongside the report (best-effort)
+    try:
+        from ..services.virustotal import build_actors_mapping, write_actors_json
+        vt_api_key = os.getenv("VT_API_KEY") or os.getenv("VIRUSTOTAL_API_KEY")
+        actors_map = build_actors_mapping(report, vt_api_key)
+        out_dir = Path(os.path.dirname(output_path) or ".")
+        write_actors_json(actors_map, out_dir)
+        logger.info("Wrote actors.json next to report")
+    except Exception as e:
+        logger.warning(f"Failed to generate actors.json: {e}")
     
     state["report_path"] = output_path
     return state
