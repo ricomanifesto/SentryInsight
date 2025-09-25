@@ -103,13 +103,16 @@ def resolve_actor_to_vt_collection_id(actor: str, api_key: Optional[str]) -> Opt
     with filter collection_type:threat-actor. Requires Google TI privileges.
     """
     if not api_key:
-        return None
+        api_key = _get_vt_key_from_env_or_config()
+        if not api_key:
+            return None
 
     base = "https://www.virustotal.com/api/v3/collections?filter="
     filters = [
         f"collection_type:threat-actor name:\"{actor}\"",
         f"collection_type:threat-actor {actor}",  # open search term
     ]
+    tried = set()
     for f in filters:
         url = base + urllib.parse.quote(f, safe="") + "&order=relevance-"
         data = _vt_request(url, api_key)
@@ -124,6 +127,28 @@ def resolve_actor_to_vt_collection_id(actor: str, api_key: Optional[str]) -> Opt
                 return cid
             if isinstance(ctype, str) and ctype == "threat-actor" and isinstance(cid, str) and cid:
                 return cid
+        tried.add(f)
+    # Try alias if available
+    alias = _resolve_alias(actor)
+    if alias and alias != actor:
+        for f in [
+            f"collection_type:threat-actor name:\"{alias}\"",
+            f"collection_type:threat-actor {alias}",
+        ]:
+            if f in tried:
+                continue
+            url = base + urllib.parse.quote(f, safe="") + "&order=relevance-"
+            data = _vt_request(url, api_key)
+            if not data or "data" not in data:
+                continue
+            for item in data.get("data", []) or []:
+                cid = item.get("id") or ""
+                attrs = item.get("attributes", {}) or {}
+                ctype = attrs.get("collection_type") or ""
+                if isinstance(cid, str) and cid.startswith("threat-actor--"):
+                    return cid
+                if isinstance(ctype, str) and ctype == "threat-actor" and isinstance(cid, str) and cid:
+                    return cid
     return None
 
 
@@ -136,7 +161,10 @@ def resolve_actor_to_vt_url(actor: str, api_key: Optional[str]) -> str:
     if cid:
         return f"https://www.virustotal.com/gui/collection/{cid}"
     # Fallback: link to collections filtered for threat-actor by name in GUI search
-    q = urllib.parse.quote(f'collection_type:threat-actor name:"{actor}"', safe="")
+    # If alias exists, prefer searching the alias name
+    alias = _resolve_alias(actor)
+    search_name = alias or actor
+    q = urllib.parse.quote(f'collection_type:threat-actor name:"{search_name}"', safe="")
     return f"https://www.virustotal.com/gui/search/{q}"
 
 
@@ -166,3 +194,50 @@ def write_actors_json(mapping: Dict[str, str], out_dir: Path) -> None:
     except Exception:
         # Non-fatal; UI will fall back to zero-actors state
         pass
+def _load_aliases() -> Dict[str, str]:
+    """Load optional actor aliases from config/actors_aliases.json and merge with built-ins."""
+    builtins = {
+        # Common mappings seen in industry reporting
+        "UNC2165": "Scattered Spider",
+        "OCTO TEMPEST": "Scattered Spider",
+        "LAPSUS$": "Lapsus$",
+        "COZY BEAR": "APT29",
+        "NOBELIUM": "APT29",
+        "CLOP": "TA505",  # often associated; keep if helpful
+    }
+    path = Path('config') / 'actors_aliases.json'
+    try:
+        if path.exists():
+            data = json.loads(path.read_text(encoding='utf-8'))
+            for k, v in (data or {}).items():
+                if isinstance(k, str) and isinstance(v, str) and k.strip() and v.strip():
+                    builtins[k.strip().upper()] = v.strip()
+    except Exception:
+        pass
+    return builtins
+
+
+ALIASES = _load_aliases()
+
+
+def _resolve_alias(name: str) -> Optional[str]:
+    if not name:
+        return None
+    return ALIASES.get(name.strip().upper())
+
+
+def _get_vt_key_from_env_or_config() -> Optional[str]:
+    # Check common env var names
+    for var in ("VT_API_KEY", "VIRUSTOTAL_API_KEY", "VT_INTELLIGENCE_API_KEY", "GOOGLE_TI_API_KEY"):
+        val = os.getenv(var)
+        if val:
+            return val
+    # Fallback to config/config.json
+    try:
+        cfg = json.loads((Path('config')/ 'config.json').read_text(encoding='utf-8'))
+        vt = (cfg.get('virustotal') or {}).get('api_key')
+        if vt:
+            return vt
+    except Exception:
+        pass
+    return None
