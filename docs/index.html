@@ -558,7 +558,7 @@
                 if (!drop.test(norm)) names.add(norm);
             }
             Array.from(names).forEach(n => {
-                const q = encodeURIComponent('collection_type:threat-actor name:"' + n + '"');
+                const q = encodeURIComponent('"' + n + '"');
                 result[n] = `https://www.virustotal.com/gui/search/${q}`;
             });
             return result;
@@ -574,7 +574,7 @@
                 // Skip if already has VT links for this element
                 if (el.innerHTML.includes('virustotal.com')) return;
                 el.innerHTML = el.innerHTML.replace(re, (m) => {
-                    const url = ACTORS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('collection_type:threat-actor name:"' + m + '"')}`;
+                    const url = ACTORS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
                     return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
                 });
             });

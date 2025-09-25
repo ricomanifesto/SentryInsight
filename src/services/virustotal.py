@@ -160,11 +160,11 @@ def resolve_actor_to_vt_url(actor: str, api_key: Optional[str]) -> str:
     cid = resolve_actor_to_vt_collection_id(actor, api_key)
     if cid:
         return f"https://www.virustotal.com/gui/collection/{cid}"
-    # Fallback: link to collections filtered for threat-actor by name in GUI search
+    # Fallback: link to GUI search for the quoted name only (broader results)
     # If alias exists, prefer searching the alias name
     alias = _resolve_alias(actor)
     search_name = alias or actor
-    q = urllib.parse.quote(f'collection_type:threat-actor name:"{search_name}"', safe="")
+    q = urllib.parse.quote(f'"{search_name}"', safe="")
     return f"https://www.virustotal.com/gui/search/{q}"
 
 
