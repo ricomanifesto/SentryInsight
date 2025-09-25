@@ -721,11 +721,10 @@
                 addStatusBadges();
                 enhanceActiveExploitationTags();
                 buildTOC();
-                // Load actors, then linkify and compute summary including actors
+                // Load actors, merge with derived set, linkify and compute summary
                 loadActors().then(() => {
-                    if (!Object.keys(ACTORS_MAP).length) {
-                        ACTORS_MAP = deriveActorsFromMarkdown(markdownCache);
-                    }
+                    const derived = deriveActorsFromMarkdown(markdownCache);
+                    ACTORS_MAP = Object.assign({}, derived, ACTORS_MAP || {});
                     linkifyThreatActors();
                     computeSummary();
                 });
