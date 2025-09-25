@@ -516,6 +516,54 @@
 
         function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
+        function deriveActorsFromMarkdown(md) {
+            const result = {};
+            if (!md) return result;
+            // Focus on Threat Actor Activities section if present
+            const secRe = /^##\s+Threat Actor Activities\s*$/im;
+            let secText = md;
+            const m = md.match(secRe);
+            if (m) {
+                const start = m.index + m[0].length;
+                const rest = md.slice(start);
+                const nextH2 = rest.search(/^##\s+/m);
+                secText = nextH2 >= 0 ? rest.slice(0, nextH2) : rest;
+            }
+            const names = new Set();
+            const drop = /(unattributed|cluster|clusters|campaigns?)/i;
+            // Bold list item names
+            const boldRe = /^-\s*\*\*([^*]+)\*\*/gm;
+            let mb;
+            while ((mb = boldRe.exec(secText)) !== null) {
+                let raw = mb[1].trim();
+                raw = raw.replace(/\s*\(.*\)$/, '').trim();
+                raw.split(/\s*&\s*/).forEach(p => {
+                    const name = p.trim();
+                    if (!name || drop.test(name)) return;
+                    names.add(name);
+                });
+            }
+            // Code names in quotes
+            const quoteRe = /["“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-\s]{1,40})["“”']/g;
+            let mq;
+            while ((mq = quoteRe.exec(secText)) !== null) {
+                const name = mq[1].trim();
+                if (!drop.test(name)) names.add(name);
+            }
+            // Common prefixes
+            const tagRe = /\b(?:APT|TA|UNC|FIN)[ -]?\d{1,4}\b/gi;
+            let mt;
+            while ((mt = tagRe.exec(secText)) !== null) {
+                const norm = mt[0].toUpperCase().replace(/\s|-/, '');
+                if (!drop.test(norm)) names.add(norm);
+            }
+            Array.from(names).forEach(n => {
+                const q = encodeURIComponent('collection_type:threat-actor name:"' + n + '"');
+                result[n] = `https://www.virustotal.com/gui/search/${q}`;
+            });
+            return result;
+        }
+
         function linkifyThreatActors() {
             const names = Object.keys(ACTORS_MAP || {});
             if (!names.length) return;
@@ -674,7 +722,13 @@
                 enhanceActiveExploitationTags();
                 buildTOC();
                 // Load actors, then linkify and compute summary including actors
-                loadActors().then(() => { linkifyThreatActors(); computeSummary(); });
+                loadActors().then(() => {
+                    if (!Object.keys(ACTORS_MAP).length) {
+                        ACTORS_MAP = deriveActorsFromMarkdown(markdownCache);
+                    }
+                    linkifyThreatActors();
+                    computeSummary();
+                });
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 setMeta(m ? m[1] : '');
           })
