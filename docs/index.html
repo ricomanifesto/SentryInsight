@@ -624,8 +624,6 @@
             names.sort((a,b) => b.length - a.length);
             const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
             contentEl.querySelectorAll('p, li').forEach(el => {
-                // Skip if already has VT links for this element
-                if (el.innerHTML.includes('virustotal.com')) return;
                 el.innerHTML = el.innerHTML.replace(re, (m) => {
                     const url = ACTORS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
                     return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
@@ -639,7 +637,6 @@
             names.sort((a,b) => b.length - a.length);
             const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
             contentEl.querySelectorAll('p, li').forEach(el => {
-                if (el.innerHTML.includes('virustotal.com')) return;
                 el.innerHTML = el.innerHTML.replace(re, (m) => {
                     const url = MALWARE_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
                     return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
