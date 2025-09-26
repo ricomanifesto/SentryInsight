@@ -640,6 +640,23 @@ function deriveMalwareFromMarkdown(md) {
                 const w = mw[0];
                 if (suf.test(w)) names.add(w);
             }
+            // ALL-CAPS tokens across entire document (len>=5), skip actor tags and common acronyms
+            const capsGlobalRe = /\b([A-Z][A-Z0-9._-]{4,})\b/g;
+            let mg;
+            while ((mg = capsGlobalRe.exec(md)) !== null) {
+                const t = mg[1];
+                if (/^(APT|TA|UNC|FIN)\d+$/i.test(t)) continue;
+                if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/i.test(t)) continue;
+                names.add(t);
+            }
+            // TitleCase (CamelCase) tokens anywhere (two or more capitalized segments), skip common vendors/platforms
+            const camelRe = /\b([A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)+)\b/g;
+            let mcam;
+            while ((mcam = camelRe.exec(md)) !== null) {
+                const t = mcam[1];
+                if (/^(Windows|Linux|Android|Cisco|Microsoft|NetScaler|GitHub|Google|Apple)$/i.test(t)) continue;
+                names.add(t);
+            }
             // ALL-CAPS tokens anywhere in TA section (len>=5), excluding actor tags and common acronyms
             const capsRe = /\b([A-Z][A-Z0-9._-]{4,})\b/g;
             let mc;

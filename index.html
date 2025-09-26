@@ -637,6 +637,14 @@
                 if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/.test(t)) continue;
                 names.add(t);
             }
+            // TitleCase (CamelCase) tokens anywhere (two or more capitalized segments)
+            const camelRe = /\b([A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)+)\b/g;
+            let mcam;
+            while ((mcam = camelRe.exec(md)) !== null) {
+                const t = mcam[1];
+                if (/^(Windows|Linux|Android|Cisco|Microsoft|NetScaler|GitHub|Google|Apple)$/i.test(t)) continue;
+                names.add(t);
+            }
             // Filter out short acronyms (e.g., ASA)
             const drops = /^(HTTP|HTTPS|TLS|SSL|VPN|DNS|ASA|IOS|IIS|SSH|RDP|SFTP|FTP|SMTP|SQL|XML|JSON)$/i;
             Array.from(names).forEach(n => {

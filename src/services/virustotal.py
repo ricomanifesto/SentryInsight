@@ -257,6 +257,15 @@ def extract_malware_families_from_markdown(md: str) -> List[str]:
             continue
         families.append(tok)
 
+    # Treat TitleCase (CamelCase) tokens as potential malware (two or more capitalized segments)
+    camel_re = re.compile(r"\b([A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)+)\b")
+    for m in camel_re.finditer(md):
+        tok = m.group(1)
+        # Skip obvious non-malware vendor/platform words
+        if re.match(r"^(Windows|Linux|Android|Cisco|Microsoft|NetScaler|GitHub|Google|Apple)$", tok, flags=re.IGNORECASE):
+            continue
+        families.append(tok)
+
     # Only include quoted names that are accompanied by malware context words nearby
     for qm in re.finditer(r"[\"“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})[\"“”']", scope):
         name = qm.group(1).strip()
