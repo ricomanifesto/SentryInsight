@@ -613,6 +613,15 @@
                 const w = mw[0];
                 if (suf.test(w)) names.add(w);
             }
+            // ALL-CAPS tokens anywhere in TA section (len>=5), excluding actor tags and common acronyms
+            const capsRe = /\b([A-Z][A-Z0-9._-]{4,})\b/g;
+            let mc;
+            while ((mc = capsRe.exec(scope)) !== null) {
+                const t = mc[1];
+                if (/^(APT|TA|UNC|FIN)\d+$/i.test(t)) continue;
+                if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/i.test(t)) continue;
+                names.add(t);
+            }
             Array.from(names).forEach(n => {
                 const q = encodeURIComponent('"' + n + '"');
                 result[n] = `https://www.virustotal.com/gui/search/${q}`;

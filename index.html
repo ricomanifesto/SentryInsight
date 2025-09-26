@@ -628,6 +628,15 @@
                 if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/.test(t)) continue;
                 names.add(t);
             }
+            // ALL-CAPS tokens across the entire document
+            const capsGlobalRe = /\b([A-Z][A-Z0-9._-]{4,})\b/g;
+            let mg;
+            while ((mg = capsGlobalRe.exec(md)) !== null) {
+                const t = mg[1];
+                if (/^(APT|TA|UNC|FIN)\d+$/i.test(t)) continue;
+                if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/.test(t)) continue;
+                names.add(t);
+            }
             // Filter out short acronyms (e.g., ASA)
             const drops = /^(HTTP|HTTPS|TLS|SSL|VPN|DNS|ASA|IOS|IIS|SSH|RDP|SFTP|FTP|SMTP|SQL|XML|JSON)$/i;
             Array.from(names).forEach(n => {
