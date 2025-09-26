@@ -1,8 +1,8 @@
 {
   "UNC5221": "https://www.virustotal.com/gui/collection/threat-actor--b797832d-0411-5574-b7cf-c51b22e08423",
+  "RedNovember": "https://www.virustotal.com/gui/search/%22RedNovember%22",
   "North Korean APT": "https://www.virustotal.com/gui/collection/threat-actor--50cd027f-df14-40b2-aa22-bf5de5061163",
-  "Chinese RedNovember Group": "https://www.virustotal.com/gui/search/%22Chinese%20RedNovember%20Group%22",
   "Scattered Spider": "https://www.virustotal.com/gui/collection/threat-actor--8824cd44-bc42-581b-8261-22425265609e",
   "Vane Viper": "https://www.virustotal.com/gui/search/%22Vane%20Viper%22",
-  "Supply Chain Attackers": "https://www.virustotal.com/gui/search/%22Supply%20Chain%20Attackers%22"
+  "Unknown APT Groups": "https://www.virustotal.com/gui/search/%22Unknown%20APT%20Groups%22"
 }

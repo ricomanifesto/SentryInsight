@@ -1,66 +1,55 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently facing several critical zero-day exploitations and active threat campaigns. Most notably, Cisco ASA firewalls are under active zero-day attack, prompting CISA to issue an emergency directive for federal agencies. Chinese APT groups are deploying sophisticated backdoors on edge devices, while North Korean hackers continue targeting cryptocurrency developers with new malware variants. Supply chain attacks are proliferating across package repositories, with malicious npm and Rust packages stealing sensitive data. Additionally, a federal agency breach through a GeoServer vulnerability highlights the ongoing exploitation of recently disclosed flaws.
+Multiple critical zero-day vulnerabilities are currently under active exploitation, with Cisco firewall systems facing the most severe immediate threat. CISA has issued emergency directives regarding two zero-day flaws in Cisco ASA and FTD firewall products that are being actively exploited in the wild. Additionally, threat actors are exploiting a critical GeoServer vulnerability to breach federal agencies, while sophisticated supply chain attacks target developers through malicious packages in npm and Rust ecosystems. Chinese APT groups continue aggressive campaigns against global organizations using advanced backdoors on network edge devices, and North Korean hackers are deploying new malware to target cryptocurrency developers worldwide.
 
 ## Active Exploitation Details
 
-### Cisco ASA Firewall Zero-Day Vulnerabilities
-- **Description**: Two zero-day vulnerabilities affecting Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Cisco Secure Firewall Threat Defense (FTD) VPN web servers
-- **Impact**: Attackers can exploit these flaws to compromise firewall systems and potentially gain network access
-- **Status**: Actively exploited in the wild; CISA issued emergency directive for federal agencies to patch immediately
+### Cisco ASA and FTD Firewall Zero-Days
+- **Description**: Two critical zero-day vulnerabilities affecting Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Cisco Secure Firewall Threat Defense (FTD) VPN web servers
+- **Impact**: Attackers can gain unauthorized access to firewall systems and potentially compromise entire network infrastructures
+- **Status**: Actively exploited in the wild; CISA has issued emergency directive ordering federal agencies to patch immediately; patches available from Cisco
 
 ### Cisco IOS SNMP Vulnerability
-- **Description**: High-severity security flaw in IOS Software and IOS XE Software related to SNMP functionality
-- **Impact**: Remote attackers can execute arbitrary code or trigger denial-of-service conditions
+- **Description**: High-severity flaw in Cisco IOS Software and IOS XE Software affecting SNMP functionality
+- **Impact**: Remote code execution or denial-of-service conditions on network infrastructure devices
 - **Status**: Actively exploited; patches available
 
-### GeoServer Critical Vulnerability
-- **Description**: Critical vulnerability in GeoServer geospatial software
-- **Impact**: Complete system compromise allowing unauthorized access to federal systems
-- **Status**: Exploited less than two weeks after initial disclosure; used to breach large federal civilian executive branch agency
+### GeoServer Critical Flaw
+- **Description**: Critical vulnerability in GeoServer geospatial software used by government agencies
+- **Impact**: Complete system compromise and unauthorized access to sensitive government data
+- **Status**: Exploited within two weeks of disclosure to breach a large federal civilian executive branch agency
 - **CVE ID**: CVE-2024-36401
 
-### Salesforce Agentforce ForcedLeak Vulnerability
-- **Description**: Critical flaw in Salesforce Agentforce AI platform allowing prompt injection attacks
-- **Impact**: Attackers can potentially exfiltrate CRM data through AI prompt manipulation
-- **Status**: Recently patched by Salesforce
-
-### Supermicro BMC Firmware Vulnerabilities
-- **Description**: Two vulnerabilities in Supermicro Baseboard Management Controller (BMC) firmware
-- **Impact**: Attackers can create persistent backdoors by updating systems with maliciously crafted firmware images
-- **Status**: Recently disclosed; affects hardware-level security
-
-### Wondershare RepairIt Critical Flaws
-- **Description**: Two security flaws in Wondershare RepairIt software
-- **Impact**: Exposure of private user data and potential AI model tampering
-- **Status**: Recently disclosed vulnerabilities
+### Salesforce Agentforce AI Prompt Injection
+- **Description**: Critical "ForcedLeak" vulnerability in Salesforce Agentforce AI platform allowing data exfiltration through prompt injection attacks
+- **Impact**: Unauthorized access to sensitive CRM data through AI prompt manipulation
+- **Status**: Patched by Salesforce; proof-of-concept demonstrated by security researchers
 
 ## Affected Systems and Products
 
-- **Cisco ASA Firewalls**: Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Cisco Secure Firewall Threat Defense (FTD)
-- **Cisco Network Equipment**: IOS Software and IOS XE Software with SNMP functionality
-- **GeoServer**: Geospatial software used by federal agencies
-- **Salesforce Agentforce**: AI agent platform for CRM systems
-- **Supermicro Hardware**: Systems with Baseboard Management Controller (BMC) firmware
-- **Edge Devices**: Network appliances that cannot run traditional EDR agents
-- **Package Repositories**: npm registry (postmark-mcp package) and Rust Crates.io (fast_log impersonation packages)
-- **Wondershare RepairIt**: File repair software exposing user data and AI models
+- **Cisco ASA/FTD Firewalls**: VPN web servers in enterprise network security appliances
+- **Cisco IOS/IOS XE**: Network infrastructure devices running affected software versions
+- **GeoServer**: Geospatial data servers used by federal agencies and organizations
+- **Salesforce Agentforce**: AI agent platform for customer relationship management
+- **Supermicro BMC**: Baseboard Management Controller firmware in server hardware
+- **npm Package Registry**: Malicious postmark-mcp package targeting email communications
+- **Rust Crates.io**: Malicious packages fast_log and fats_log targeting cryptocurrency developers
+- **Network Edge Devices**: Appliances targeted by Chinese APT groups that cannot run traditional EDR agents
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Cisco ASA firewalls and IOS devices
-- **Supply Chain Poisoning**: Malicious packages deployed to npm and Crates.io repositories with credential theft capabilities
-- **AI Prompt Injection**: Manipulation of Salesforce AI agents through crafted prompts to extract CRM data
-- **Firmware Backdoors**: Installation of persistent backdoors through malicious BMC firmware updates
-- **Social Engineering**: North Korean hackers using fake job interviews to deploy AkdoorTea backdoor
-- **Network Device Compromise**: Chinese APT groups targeting edge devices with BRICKSTORM backdoors
-- **DNS Infrastructure Abuse**: Vane Viper generating 1 trillion DNS queries for malware distribution and ad fraud
+- **Zero-Day Exploitation**: Immediate weaponization of unpatched vulnerabilities in critical infrastructure
+- **Supply Chain Attacks**: Malicious packages in npm and Rust repositories targeting developers
+- **AI Prompt Injection**: Manipulation of AI systems to extract sensitive data through crafted prompts
+- **Network Device Compromise**: Targeting edge devices and BMC firmware for persistent access
+- **Social Engineering**: North Korean actors using fake job interviews to deploy malware
+- **DNS Manipulation**: Vane Viper generating over 1 trillion DNS queries for malware and ad fraud operations
 
 ## Threat Actor Activities
 
-- **UNC5221 (Chinese APT)**: Deploying BRICKSTORM backdoors on edge devices, targeting U.S. legal and technology sectors with focus on network appliances that cannot run traditional EDR
-- **North Korean APT**: Using AkdoorTea backdoor in Contagious Interview campaigns targeting cryptocurrency developers globally, along with TsunamiKit tools
-- **Chinese RedNovember Group**: Conducting cyber espionage against global governments using Pantegana and Cobalt Strike, targeting organizations across Africa, Asia, North America, South America, and Oceania
-- **Scattered Spider**: Responsible for $107 million loss to Co-operative Group in the U.K.; recent claims of group shutdown following teen member surrender
-- **Vane Viper**: Operating global malware and ad fraud network through shell companies, generating massive DNS query volumes for malicious infrastructure
-- **Supply Chain Attackers**: Deploying malicious packages across multiple repositories (npm, Crates.io) to steal cryptocurrency wallet keys and email communications
+- **UNC5221 (Chinese APT)**: Deploying BRICKSTORM backdoors on network edge devices targeting U.S. legal, technology, and SaaS sectors
+- **RedNovember (Chinese APT)**: Global espionage campaign using Pantegana and Cobalt Strike against government and private sector organizations across multiple continents
+- **North Korean APT**: Contagious Interview campaign deploying AkdoorTea backdoor, TsunamiKit, and other tools to target cryptocurrency developers worldwide
+- **Scattered Spider**: Despite claims of shutdown, the group caused $107 million in losses to UK Co-operative Group; teen member recently surrendered to authorities
+- **Vane Viper**: Operating massive malware and ad fraud network through shell companies and generating enormous DNS query volumes
+- **Unknown APT Groups**: Actively exploiting Cisco zero-days and GeoServer vulnerabilities for network infiltration and data theft
