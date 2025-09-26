@@ -1,8 +1,8 @@
 {
   "Nation-State Actors": "https://www.virustotal.com/gui/search/%22Nation-State%20Actors%22",
   "UNC5221": "https://www.virustotal.com/gui/collection/threat-actor--b797832d-0411-5574-b7cf-c51b22e08423",
+  "North Korean Groups": "https://www.virustotal.com/gui/collection/threat-actor--d23d86cc-d1f0-5564-97cb-7ed38398f5fd",
   "Scattered Spider": "https://www.virustotal.com/gui/collection/threat-actor--8824cd44-bc42-581b-8261-22425265609e",
-  "North Korean Hackers": "https://www.virustotal.com/gui/collection/threat-actor--d23d86cc-d1f0-5564-97cb-7ed38398f5fd",
   "Vane Viper": "https://www.virustotal.com/gui/search/%22Vane%20Viper%22",
   "Supply Chain Attackers": "https://www.virustotal.com/gui/search/%22Supply%20Chain%20Attackers%22"
 }
