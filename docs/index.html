@@ -522,6 +522,14 @@
               .then(j => { MALWARE_MAP = j || {}; })
               .catch(() => { MALWARE_MAP = {}; });
         }
+        // Load campaigns mapping generated during publish (campaigns.json)
+        let CAMPAIGNS_MAP = {};
+        function loadCampaigns() {
+            return fetch('campaigns.json?v=' + Date.now())
+              .then(r => r.ok ? r.json() : {})
+              .then(j => { CAMPAIGNS_MAP = j || {}; })
+              .catch(() => { CAMPAIGNS_MAP = {}; });
+        }
 
         function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
@@ -576,7 +584,7 @@
             return result;
         }
 
-        function deriveMalwareFromMarkdown(md) {
+function deriveMalwareFromMarkdown(md) {
             const result = {};
             if (!md) return result;
             const names = new Set();
@@ -588,7 +596,26 @@
                 const rest = md.slice(start);
                 const nextH2 = rest.search(/^##\s+/m);
                 scope = nextH2 >= 0 ? rest.slice(0, nextH2) : rest;
-            }
+}
+
+        function deriveCampaignsFromMarkdown(md) {
+            const result = {};
+            if (!md) return result;
+            const names = new Set();
+            // Quoted names, allowing up to 3 adjectives (e.g., "ArcaneDoor" nation-state campaign)
+            const q = /["“”']([^"“”']{3,60})["“”']\s+(?:[A-Za-z-]+\s+){0,3}(?:operation|campaign)s?/gi;
+            let m;
+            while ((m = q.exec(md)) !== null) names.add(m[1].trim());
+            const t = /\b([A-Z][A-Za-z0-9][A-Za-z0-9_.\-]{1,60})\b\s+(?:operation|campaign)s?/g;
+            while ((m = t.exec(md)) !== null) names.add(m[1].trim());
+            const drops = /^(campaign|operation|operations|targeting|activity|activities)$/i;
+            Array.from(names).forEach(n => {
+                if (drops.test(n)) return;
+                const q = encodeURIComponent('"' + n + '"');
+                result[n] = `https://www.virustotal.com/gui/search/${q}`;
+            });
+            return result;
+        }
             scope.split(/\n+/).forEach(line => {
                 const idx = line.indexOf(':');
                 if (idx <= 0) return;
@@ -651,6 +678,18 @@
             contentEl.querySelectorAll('p, li').forEach(el => {
                 el.innerHTML = el.innerHTML.replace(re, (m) => {
                     const url = MALWARE_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
+                    return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
+                });
+            });
+        }
+        function linkifyCampaigns() {
+            const names = Object.keys(CAMPAIGNS_MAP || {});
+            if (!names.length) return;
+            names.sort((a,b) => b.length - a.length);
+            const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
+            contentEl.querySelectorAll('p, li').forEach(el => {
+                el.innerHTML = el.innerHTML.replace(re, (m) => {
+                    const url = CAMPAIGNS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
                     return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
                 });
             });
@@ -773,14 +812,17 @@
                 addStatusBadges();
                 enhanceActiveExploitationTags();
                 buildTOC();
-                // Load actors and malware, merge with derived sets, linkify and compute summary
-                Promise.all([loadActors(), loadMalware()]).then(() => {
+                // Load actors, malware, campaigns; merge with derived sets, linkify and compute summary
+                Promise.all([loadActors(), loadMalware(), loadCampaigns()]).then(() => {
                     const derivedActors = deriveActorsFromMarkdown(markdownCache);
                     ACTORS_MAP = Object.assign({}, derivedActors, ACTORS_MAP || {});
                     const derivedMal = deriveMalwareFromMarkdown(markdownCache);
                     MALWARE_MAP = Object.assign({}, derivedMal, MALWARE_MAP || {});
+                    const derivedCamp = deriveCampaignsFromMarkdown(markdownCache);
+                    CAMPAIGNS_MAP = Object.assign({}, derivedCamp, CAMPAIGNS_MAP || {});
                     linkifyThreatActors();
                     linkifyMalware();
+                    linkifyCampaigns();
                     computeSummary();
                 });
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);

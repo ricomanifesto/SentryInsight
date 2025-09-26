@@ -342,6 +342,86 @@ def write_malware_json(mapping: Dict[str, str], out_dir: Path) -> None:
             json.dump(mapping, f, indent=2, ensure_ascii=False)
     except Exception:
         pass
+
+# -------- Campaigns --------
+
+def extract_campaigns_from_markdown(md: str) -> List[str]:
+    names: List[str] = []
+    # Quoted names followed (optionally) by up to 3 adjectives, then campaign/operation
+    for m in re.finditer(r'["“”\']([^"“”\']{3,60})["“”\']\s+(?:[A-Za-z-]+\s+){0,3}(?:operation|campaign)s?', md, flags=re.IGNORECASE):
+        n = m.group(1).strip()
+        if 2 <= len(n) <= 60:
+            names.append(n)
+    # TitleCase/ALLCAPS token before the word campaign
+    for m in re.finditer(r'\b([A-Z][A-Za-z0-9][A-Za-z0-9_.\-]{1,60})\b\s+(?:operation|campaign)s?', md):
+        names.append(m.group(1).strip())
+    # Dedup with basic drops
+    drops = {"campaign","operation","operations","targeting","activity","activities"}
+    seen = set(); out: List[str] = []
+    for n in names:
+        nn = n.strip().strip('"\'"'')
+        if not nn or nn.lower() in drops:
+            continue
+        if nn not in seen:
+            seen.add(nn)
+            out.append(nn)
+    return out
+
+
+def resolve_campaign_to_vt_collection_id(name: str, api_key: Optional[str]) -> Optional[str]:
+    if not api_key:
+        api_key = _get_vt_key_from_env_or_config()
+        if not api_key:
+            return None
+    base = "https://www.virustotal.com/api/v3/collections?filter="
+    filters = [
+        f"collection_type:campaign name:\"{name}\"",
+        f"collection_type:campaign {name}",
+    ]
+    for f in filters:
+        url = base + urllib.parse.quote(f, safe="") + "&order=relevance-"
+        data = _vt_request(url, api_key)
+        if not data or "data" not in data:
+            continue
+        for item in data.get("data", []) or []:
+            cid = item.get("id") or ""
+            attrs = item.get("attributes", {}) or {}
+            ctype = attrs.get("collection_type") or ""
+            if isinstance(cid, str) and cid.startswith("campaign--"):
+                return cid
+            if isinstance(ctype, str) and ctype == "campaign" and isinstance(cid, str) and cid:
+                return cid
+    return None
+
+
+def resolve_campaign_to_vt_url(name: str, api_key: Optional[str]) -> str:
+    cid = resolve_campaign_to_vt_collection_id(name, api_key)
+    if cid:
+        return f"https://www.virustotal.com/gui/collection/{cid}"
+    q = urllib.parse.quote(f'"{name}"', safe="")
+    return f"https://www.virustotal.com/gui/search/{q}"
+
+
+def build_campaigns_mapping(md: str, api_key: Optional[str]) -> Dict[str, str]:
+    names = extract_campaigns_from_markdown(md)
+    mapping: Dict[str, str] = {}
+    for n in names:
+        try:
+            mapping[n] = resolve_campaign_to_vt_url(n, api_key)
+        except Exception:
+            q = urllib.parse.quote(f'"{n}"', safe="")
+            mapping[n] = f"https://www.virustotal.com/gui/search/{q}"
+    return mapping
+
+
+def write_campaigns_json(mapping: Dict[str, str], out_dir: Path) -> None:
+    try:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / "campaigns.json"
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(mapping, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
 def _load_aliases() -> Dict[str, str]:
     """Load optional actor aliases from config/actors_aliases.json and merge with built-ins."""
     builtins = {
