@@ -745,7 +745,7 @@
 
             const html = `
                 <div class="card"><h5>CVEs Mentioned</h5><div class="value">${uniqueCVEs.length}</div><div class="chips">${uniqueCVEs.slice(0,6).map(c => `<a class="chip" href="https://nvd.nist.gov/vuln/detail/${c}" target="_blank" rel="noopener">${c}</a>`).join('')}</div></div>
-                <div class="card"><h5>Threat Actors</h5><div class="value">${actorNames.length}</div><div class="chips">${actorNames.slice(0,6).map(a => `<a class="chip" href="${(ACTORS_MAP[a]||`https://www.virustotal.com/gui/search/${encodeURIComponent('collection_type:threat-actor name:"' + a + '"')}`)}" target="_blank" rel="noopener">${a}</a>`).join('')}</div></div>
+                <div class="card"><h5>Threat Landscape Mentioned</h5><div class="value">${actorNames.length}</div><div class="chips">${actorNames.slice(0,6).map(a => `<a class="chip" href="${(ACTORS_MAP[a]||`https://www.virustotal.com/gui/search/${encodeURIComponent('collection_type:threat-actor name:"' + a + '"')}`)}" target="_blank" rel="noopener">${a}</a>`).join('')}</div></div>
             `;
             summaryEl.innerHTML = html;
         }
