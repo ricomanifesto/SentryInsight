@@ -238,6 +238,16 @@ def extract_malware_families_from_markdown(md: str) -> List[str]:
                 continue
             families.append(tok)
 
+    # Also capture ALL-CAPS tokens anywhere in the TA section (len>=5), excluding actor tags and generics
+    cap_re = re.compile(r"\b([A-Z][A-Z0-9._-]{4,})\b")
+    for m in cap_re.finditer(scope):
+        tok = m.group(1)
+        if re.match(r"^(?:APT|TA|UNC|FIN)\d+$", tok, flags=re.IGNORECASE):
+            continue
+        if tok.upper() in {"IOC","IETF","HTTP","HTTPS","TLS","SSL","VPN","DNS","AAD","MFA","SQL"}:
+            continue
+        families.append(tok)
+
     # Only include quoted names that are accompanied by malware context words nearby
     for qm in re.finditer(r"[\"“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})[\"“”']", scope):
         name = qm.group(1).strip()
