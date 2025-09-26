@@ -1,62 +1,52 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently under active exploitation, with Cisco firewall devices facing the most severe threat. Cisco ASA and FTD firewalls are being targeted by nation-state actors deploying sophisticated malware including RayInitiator and LINE VIPER backdoors. Additionally, a CVSS 10 vulnerability in Fortra GoAnywhere was exploited as a zero-day before public disclosure, while federal agencies have been compromised through a critical GeoServer flaw. The threat landscape also includes new macOS malware variants, supply chain attacks targeting developers, and AI-focused exploitation techniques.
+Critical zero-day vulnerabilities are currently under active exploitation across multiple enterprise security platforms, with the most severe activity targeting Cisco ASA firewalls and Fortra GoAnywhere MFT systems. CVE-2025-10035, a maximum severity vulnerability in GoAnywhere MFT, has been exploited as a zero-day allowing remote command injection without authentication. Meanwhile, threat actors have deployed sophisticated malware campaigns including new variants of XCSSET targeting macOS developers and nation-state groups leveraging backdoors on network edge devices. The exploitation landscape is further complicated by supply chain attacks targeting developer ecosystems through malicious npm packages and Rust crates designed to steal sensitive credentials.
 
 ## Active Exploitation Details
 
+### Fortra GoAnywhere MFT Zero-Day Vulnerability
+- **Description**: A maximum severity vulnerability allowing remote command injection without authentication in Fortra's GoAnywhere Managed File Transfer software
+- **Impact**: Attackers can execute arbitrary commands remotely without requiring authentication credentials
+- **Status**: Actively exploited as zero-day approximately one week before public disclosure; patch now available
+- **CVE ID**: CVE-2025-10035
+
 ### Cisco ASA Firewall Zero-Day Vulnerabilities
-- **Description**: Two critical zero-day vulnerabilities affecting the VPN web server of Cisco Secure Firewall ASA Software and Cisco Secure Firewall Threat Defense (FTD) Software
-- **Impact**: Complete system compromise allowing deployment of advanced backdoors including RayInitiator and LINE VIPER malware
-- **Status**: Actively exploited by nation-state actors; CISA has issued an emergency directive requiring federal agencies to patch immediately
+- **Description**: Two security flaws impacting the VPN web server of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Cisco Secure Firewall Threat Defense (FTD) Software
+- **Impact**: Enables deployment of RayInitiator and LINE VIPER malware on compromised firewall systems
+- **Status**: Actively exploited in zero-day attacks; CISA has issued emergency directive for federal agencies to patch immediately
 
-### Fortra GoAnywhere Critical Vulnerability
-- **Description**: A maximum severity CVSS 10 flaw in Fortra GoAnywhere Managed File Transfer (MFT) software
-- **Impact**: Complete system compromise with credible evidence of active exploitation
-- **Status**: Was exploited as a zero-day approximately one week before public disclosure; patches now available
+### Salesforce Agentforce AI Prompt Injection Flaw
+- **Description**: Critical vulnerability in Salesforce Agentforce AI platform allowing indirect prompt injection attacks dubbed "ForcedLeak"
+- **Impact**: Enables attackers to exfiltrate sensitive CRM data through manipulation of AI agent responses
+- **Status**: Patched by Salesforce following responsible disclosure
 
-### Cisco SNMP Vulnerability in IOS Software
-- **Description**: High-severity security flaw in IOS Software and IOS XE Software affecting SNMP functionality
-- **Impact**: Allows remote attackers to execute arbitrary code or trigger denial-of-service conditions
-- **Status**: Actively exploited in the wild; patches available
-
-### GeoServer Critical Vulnerability
-- **Description**: Critical vulnerability in GeoServer geospatial software
-- **Impact**: Led to successful breach of a large federal civilian executive branch (FCEB) agency
-- **Status**: Exploited less than two weeks after initial disclosure
-- **CVE ID**: CVE-2024-36401
-
-### Salesforce ForcedLeak AI Vulnerability
-- **Description**: Critical flaw in Salesforce Agentforce platform allowing indirect prompt injection attacks against AI agents
-- **Impact**: Enables attackers to exfiltrate sensitive CRM data through AI prompt manipulation
-- **Status**: Recently patched by Salesforce after researcher disclosure
+### XCSSET macOS Malware Variant
+- **Description**: Updated version of known macOS malware targeting Apple developers, particularly those using Xcode
+- **Impact**: Enhanced browser targeting capabilities, clipboard manipulation, and improved persistence mechanisms
+- **Status**: Detected in limited attacks with new features including Firefox targeting
 
 ## Affected Systems and Products
 
-- **Cisco Secure Firewall ASA Software**: All versions running VPN web server functionality
-- **Cisco Secure Firewall Threat Defense (FTD) Software**: All versions with VPN capabilities
-- **Cisco IOS Software and IOS XE Software**: Devices with SNMP functionality enabled
-- **Fortra GoAnywhere MFT**: All versions prior to security update
-- **GeoServer**: Federal agencies using geospatial software platforms
-- **Salesforce Agentforce**: AI agent platforms with insufficient security controls
-- **macOS Systems**: Devices targeted by new XCSSET malware variants
-- **Supermicro BMC Firmware**: Baseboard Management Controller systems
-- **Developer Environments**: Rust Crates.io, npm packages, and Xcode development environments
+- **Fortra GoAnywhere MFT**: All versions prior to latest security update vulnerable to remote command injection
+- **Cisco ASA Firewalls**: Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Threat Defense (FTD) Software
+- **macOS Systems**: Xcode developers and users of Firefox browsers targeted by XCSSET variant
+- **Salesforce Agentforce**: AI agent platform vulnerable to prompt injection attacks
+- **npm Ecosystem**: Unofficial postmark-mcp package containing malicious code for email exfiltration
+- **Rust Crates.io**: Two malicious packages with nearly 8,500 downloads targeting cryptocurrency wallet keys
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Nation-state actors leveraging unknown vulnerabilities before patches are available
-- **Supply Chain Attacks**: Malicious packages in Rust Crates.io and npm repositories targeting cryptocurrency wallet keys
-- **AI Prompt Injection**: ForcedLeak technique exploiting autonomous AI agents to leak sensitive data
-- **Backdoor Deployment**: Persistent malware installation including RayInitiator, LINE VIPER, and Brickstorm backdoors
-- **Browser Extension Manipulation**: XCSSET malware targeting Firefox with clipboard manipulation and persistence modules
-- **DNS Infrastructure Abuse**: Vane Viper generating 1 trillion DNS queries to power malware and ad fraud networks
-- **BMC Firmware Attacks**: Exploitation of Supermicro baseboard management controllers for persistent access
+- **Zero-Day Exploitation**: Attackers exploiting unpatched vulnerabilities before public disclosure, particularly in enterprise security appliances
+- **Supply Chain Poisoning**: Malicious packages distributed through legitimate software repositories to steal developer credentials and sensitive data
+- **Prompt Injection**: Manipulation of AI systems through crafted inputs to bypass security controls and extract confidential information
+- **ClickFix-Style Attacks**: Social engineering techniques used by COLDRIVER group to deliver lightweight malware families
+- **Browser-Based Attacks**: Enhanced targeting of web browsers, particularly Firefox, for credential theft and persistence
 
 ## Threat Actor Activities
 
-- **Nation-State Groups**: Active exploitation of Cisco zero-days linked to previous ArcaneDoor campaign operators
-- **UNC5221 (Chinese APT)**: Deploying Brickstorm backdoors on edge devices that cannot run traditional EDR agents
-- **North Korean Actors**: Using AkdoorTea backdoor and TsunamiKit in Contagious Interview campaign targeting crypto developers
-- **Scattered Spider**: Continued operations despite claimed shutdown, with financial losses exceeding $107 million reported by Co-op
-- **Vane Viper**: Operating global malware and ad fraud network through shell companies and opaque ownership structures
-- **Teen Hackers**: 17-year-old suspect in Vegas casino cyberattacks released to parents' custody
+- **COLDRIVER (Russian APT)**: Conducting ClickFix-style attacks to deliver new lightweight malware families as part of Russia-focused cyber operations
+- **UNC5221 (Chinese APT)**: Deploying "Brickstorm" backdoors on network edge devices that cannot run traditional EDR agents
+- **Scattered Spider**: Responsible for cyberattack against Co-op Group resulting in £80 million ($107 million) operating profit loss
+- **North Korean Actors**: Using new AkdoorTea backdoor along with TsunamiKit in Contagious Interview campaign targeting global cryptocurrency developers
+- **Nation-State Actors**: Exploiting Cisco firewall zero-days as part of broader "ArcaneDoor" campaign targeting critical infrastructure
+- **Vane Viper**: Operating global malware and ad fraud network generating 1 trillion DNS queries through complex shell company structures
