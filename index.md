@@ -1,57 +1,50 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are being actively exploited across multiple platforms, with the most severe being a maximum severity flaw in Fortra's GoAnywhere MFT (CVE-2025-10035) that allows remote command injection without authentication. Cisco firewalls are under widespread attack through multiple zero-day vulnerabilities, with threat actors deploying sophisticated malware including RayInitiator and LINE VIPER. Chinese APT groups are conducting extensive campaigns targeting Asian telecommunications infrastructure and edge devices, while multiple malware families including XCSSET, PlugX, and Oyster are being distributed through various attack vectors. Supply chain attacks have impacted major manufacturers, with ransomware groups successfully compromising supplier networks and stealing sensitive employee data.
+Critical zero-day vulnerabilities are actively being exploited across multiple high-profile platforms, with threat actors targeting Cisco firewall infrastructure, Fortra's GoAnywhere MFT systems, and leveraging sophisticated malware campaigns. The most severe threats include CVE-2025-10035 (CVSS 10.0) in GoAnywhere MFT being exploited as a zero-day, and multiple Cisco ASA firewall vulnerabilities that prompted CISA to issue an Emergency Directive. Nation-state actors, particularly China-linked groups, are deploying advanced backdoors and conducting supply chain attacks while using legitimate code-signing certificates to evade detection.
 
 ## Active Exploitation Details
 
-### GoAnywhere MFT Remote Code Execution
-- **Description**: Maximum severity vulnerability in Fortra's GoAnywhere Managed File Transfer software allowing attackers to inject commands remotely without authentication
-- **Impact**: Complete system compromise, unauthorized access to file transfer systems, potential data exfiltration
-- **Status**: Actively exploited as zero-day for approximately one week before public disclosure, patches available
+### GoAnywhere MFT Zero-Day Vulnerability
+- **Description**: Maximum severity vulnerability in Fortra's GoAnywhere Managed File Transfer software that allows remote command injection without authentication
+- **Impact**: Attackers can execute arbitrary commands remotely on affected systems without any authentication requirements
+- **Status**: Actively exploited as zero-day approximately one week before public disclosure; patches now available
 - **CVE ID**: CVE-2025-10035
 
-### Cisco ASA/FTD Zero-Day Vulnerabilities
-- **Description**: Multiple security flaws impacting the VPN web server of Cisco Secure Firewall ASA and FTD software, exploited by nation-state actors
-- **Impact**: Deployment of RayInitiator and LINE VIPER malware, network device compromise, persistent backdoor access
-- **Status**: Actively exploited zero-days, CISA Emergency Mitigation Directive issued, patches available
+### Cisco ASA Firewall Zero-Day Vulnerabilities
+- **Description**: Multiple security flaws impacting the VPN web server of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Cisco Secure Firewall Threat Defense (FTD) Software
+- **Impact**: Nation-state actors deploying RayInitiator and LINE VIPER malware through these vulnerabilities
+- **Status**: Actively exploited by threat actors; CISA issued Emergency Directive for immediate patching
 
-### XCSSET macOS Malware
-- **Description**: Updated variant of Apple macOS malware targeting Xcode developers with enhanced browser targeting capabilities
-- **Impact**: Browser manipulation, cryptocurrency wallet hijacking through clipper functionality, persistent system access
-- **Status**: Limited active attacks detected, enhanced variant with new persistence mechanisms
-
-### Salesforce ForcedLeak AI Vulnerability
-- **Description**: Critical flaw in Salesforce Agentforce platform allowing indirect prompt injection attacks against AI agents
-- **Impact**: Exposure of sensitive CRM data, unauthorized data exfiltration through AI agent manipulation
-- **Status**: Patched after disclosure, proof-of-concept demonstrations conducted
+### XCSSET macOS Malware Variant
+- **Description**: Updated version of known Apple macOS malware targeting Xcode developers with enhanced browser targeting capabilities
+- **Impact**: Cryptocurrency clipboard manipulation, enhanced persistence mechanisms, and expanded browser targeting including Firefox
+- **Status**: Actively deployed in limited attacks with new clipper and persistence modules
 
 ## Affected Systems and Products
 
-- **Fortra GoAnywhere MFT**: Managed file transfer software vulnerable to remote command injection
-- **Cisco ASA/FTD Firewalls**: Secure Firewall devices with VPN web server vulnerabilities
-- **Apple macOS**: Systems running Xcode development environment targeted by XCSSET
+- **Fortra GoAnywhere MFT**: All versions prior to latest security update
+- **Cisco ASA and FTD Firewalls**: Millions of devices affected by VPN web server vulnerabilities
+- **Apple macOS Systems**: Xcode development environments targeted by XCSSET variant
+- **Microsoft Teams**: Windows systems targeted through fake installer campaigns
 - **Salesforce Agentforce**: AI agent platform vulnerable to prompt injection attacks
-- **Microsoft Teams**: Legitimate software impersonated in malvertising campaigns
-- **Network Edge Devices**: Appliances targeted by Brickstorm backdoor deployments
-- **npm Packages**: Malicious packages mimicking legitimate Postmark MCP library
+- **Network Edge Devices**: Various appliances targeted by Brickstorm backdoor deployments
+- **Ukrainian Government Systems**: Targeted by CountLoader and PureRAT phishing campaigns
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Nation-state actors exploiting unpatched vulnerabilities in network infrastructure
-- **Malvertising Campaigns**: SEO poisoning and search advertisements promoting fake software installers
-- **Supply Chain Attacks**: Ransomware groups targeting third-party suppliers to access primary victims
-- **Phishing Campaigns**: Ukrainian government impersonation to distribute CountLoader and stealer malware
-- **Package Repository Poisoning**: Malicious npm packages designed to steal email communications
-- **Code-Signing Certificate Abuse**: Iranian threat actors using legitimate SSL.com certificates to sign malware
-- **ClickFix-Style Attacks**: Social engineering techniques to trick users into executing malicious code
-- **Browser Extension Sideloading**: Malicious extensions installed outside official browser stores
+- **Malvertising Campaigns**: SEO poisoning and search engine advertisements promoting fake Microsoft Teams installers distributing Oyster backdoor
+- **Supply Chain Attacks**: Compromised npm packages like unofficial 'postmark-mcp' silently exfiltrating email communications
+- **Phishing Operations**: Ukrainian government impersonation campaigns delivering CountLoader, Amatera Stealer, and PureMiner
+- **Code-Signing Certificate Abuse**: Iranian threat groups using legitimate SSL.com certificates to sign malware and evade detection
+- **ClickFix-Style Attacks**: COLDRIVER APT group deploying BO Team and Bearlyfy malware families
+- **AI Prompt Injection**: ForcedLeak attacks against Salesforce AI agents to extract sensitive CRM data
+- **DNS Infrastructure Abuse**: Vane Viper generating 1 trillion DNS queries for global malware and ad fraud operations
 
 ## Threat Actor Activities
 
-- **COLDRIVER (Russian APT)**: Conducting ClickFix-style attacks deploying BO Team and Bearlyfy malware families
-- **UNC5221 (Chinese APT)**: Compromising edge devices with Brickstorm backdoors, targeting network appliances without EDR capabilities
-- **China-Linked Groups**: Targeting Asian telecommunications and ASEAN networks with PlugX and Bookworm malware variants
-- **Charming Kitten/Subtle Snail (Iranian)**: Using legitimate code-signing certificates from SSL.com to deploy signed malware
-- **Vane Viper**: Operating global malware and ad fraud network generating over 1 trillion DNS queries
-- **Scattered Spider**: Responsible for $107 million loss at UK Co-operative Group through cyberattack
-- **Dutch Teenagers**: Arrested for attempting to spy on Europol using hacking devices for Russian intelligence
+- **China-linked APT Groups**: PlugX and Bookworm malware campaigns targeting Asian telecom and ASEAN networks; UNC5221 deploying Brickstorm backdoors on network appliances
+- **COLDRIVER (Russian APT)**: Fresh ClickFix-style attacks delivering lightweight malware families for espionage operations
+- **Iranian State Hackers**: Charming Kitten APT offshoot Subtle Snail using legitimate code-signing certificates for malware distribution
+- **Vane Viper**: Operating massive DNS-based infrastructure supporting global malware distribution and ad fraud networks through shell companies
+- **Nation-State Actors**: Exploiting Cisco firewall vulnerabilities to deploy RayInitiator and LINE VIPER malware for persistent access
+- **Dutch Teenagers**: Arrested for attempting to spy on Europol using hacking devices in coordination with Russian interests
