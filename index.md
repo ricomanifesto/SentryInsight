@@ -1,57 +1,58 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are being actively exploited across multiple enterprise platforms, with the most severe threats targeting Cisco ASA firewalls and Fortra GoAnywhere MFT systems. Nation-state actors, particularly China-linked groups, are leveraging these vulnerabilities to deploy sophisticated malware including RayInitiator, LINE VIPER, and Brickstorm backdoors. The exploitation landscape is further complicated by AI-driven phishing campaigns using LLM-generated code to evade security controls, while ransomware groups continue to breach MFA-protected systems through novel techniques.
+Critical zero-day vulnerabilities are being actively exploited across multiple platforms, with particularly severe impacts on network infrastructure and managed file transfer systems. The most concerning activity involves a maximum severity vulnerability (CVE-2025-10035) in Fortra's GoAnywhere MFT that allows remote command injection without authentication, which has been exploited in the wild for at least a week before public disclosure. Additionally, Cisco's network infrastructure faces multiple zero-day exploits targeting ASA firewalls and other devices, with threat actors deploying sophisticated malware including RayInitiator and LINE VIPER. The threat landscape is further complicated by AI-driven attacks, supply chain compromises, and ransomware operations that are successfully bypassing multi-factor authentication protections.
 
 ## Active Exploitation Details
 
-### Cisco ASA Firewall Zero-Day Vulnerabilities
-- **Description**: Critical zero-day flaws in Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Cisco Secure Firewall Threat Defense (FTD) Software affecting VPN web servers
-- **Impact**: Remote code execution and deployment of advanced persistent threat malware including RayInitiator and LINE VIPER
-- **Status**: Actively exploited by nation-state actors, CISA Emergency Mitigation Directive issued
-- **CVE ID**: CVE-2025-20149 and CVE-2025-20150
-
-### Fortra GoAnywhere MFT Critical Flaw
-- **Description**: Maximum severity vulnerability in Fortra's GoAnywhere Managed File Transfer software allowing command injection
-- **Impact**: Remote command execution without authentication, complete system compromise
-- **Status**: Zero-day exploitation confirmed one week before public disclosure
+### Fortra GoAnywhere MFT Command Injection
+- **Description**: A maximum severity vulnerability allowing remote command injection without authentication in Fortra's GoAnywhere Managed File Transfer software
+- **Impact**: Complete system compromise with ability to execute arbitrary commands remotely
+- **Status**: Actively exploited as zero-day for approximately one week before public disclosure, patches now available
 - **CVE ID**: CVE-2025-10035
 
-### Cisco IOS Zero-Day Vulnerabilities
-- **Description**: Multiple actively exploited zero-day bugs targeting Cisco IOS systems and network infrastructure
-- **Impact**: Device compromise and potential network infiltration by APT groups
-- **Status**: Part of coordinated "ArcaneDoor" campaign by nation-state actors
+### Cisco ASA Firewall Zero-Day Vulnerabilities
+- **Description**: Multiple security flaws affecting the VPN web server of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Cisco Secure Firewall Threat Defense (FTD) Software
+- **Impact**: Complete device compromise enabling deployment of advanced persistent malware including RayInitiator and LINE VIPER backdoors
+- **Status**: Actively exploited by nation-state actors, CISA has issued Emergency Mitigation Directive requiring immediate patching
 
-### XCSSET macOS Malware
-- **Description**: Updated variant of XCSSET malware specifically targeting Firefox browsers on macOS systems
-- **Impact**: Cryptocurrency clipboard manipulation and persistent system compromise
-- **Status**: Limited attacks observed with enhanced stealth capabilities
+### Cisco Network Infrastructure Zero-Days
+- **Description**: Four actively exploited zero-day vulnerabilities affecting millions of Cisco devices including firewalls and IOS systems
+- **Impact**: Full device control, backdoor installation, and network persistence for espionage operations
+- **Status**: Under active exploitation by nation-state actors, particularly the group behind the "ArcaneDoor" campaign
+
+### SonicWall SSL VPN MFA Bypass
+- **Description**: Vulnerability allowing Akira ransomware operators to bypass multi-factor authentication on SonicWall SSL VPN accounts
+- **Impact**: Complete network access despite MFA protections, leading to ransomware deployment and data encryption
+- **Status**: Ongoing active exploitation by Akira ransomware group
 
 ## Affected Systems and Products
 
-- **Cisco ASA Firewalls**: All versions running VPN web server components vulnerable to zero-day exploitation
-- **Fortra GoAnywhere MFT**: All versions prior to latest patches susceptible to unauthenticated command injection
-- **SonicWall SSL VPN**: Devices targeted by Akira ransomware despite MFA protection enabled
-- **Microsoft Teams**: Fake installers distributing Oyster backdoor malware through search engine manipulation
-- **Network Edge Devices**: Various appliances targeted by Chinese APT groups for Brickstorm backdoor deployment
-- **macOS Firefox**: Browsers targeted by enhanced XCSSET malware variant
-- **Postmark-MCP Package**: First malicious Model Context Protocol server discovered in supply chain attacks
+- **Fortra GoAnywhere MFT**: Managed File Transfer software allowing unauthenticated remote command execution
+- **Cisco ASA Firewalls**: Adaptive Security Appliance devices with compromised VPN web servers
+- **Cisco FTD Software**: Secure Firewall Threat Defense systems vulnerable to zero-day exploitation
+- **Cisco IOS Systems**: Multiple network devices across millions of installations
+- **SonicWall SSL VPN**: VPN appliances with MFA bypass vulnerabilities
+- **Microsoft Teams**: Legitimate software impersonated in malvertising campaigns delivering Oyster backdoor
+- **macOS Firefox**: Targeted by updated XCSSET malware variants
+- **Network Edge Devices**: Compromised by Chinese APT groups deploying Brickstorm backdoors
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Nation-state actors leveraging unpatched vulnerabilities in critical infrastructure
-- **AI-Generated Phishing**: LLM-crafted SVG files designed to bypass email security systems
-- **MFA Bypass Techniques**: Akira ransomware successfully circumventing OTP multi-factor authentication
-- **SEO Poisoning**: Malicious actors using search engine optimization to promote fake software installers
-- **ClickFix-Style Attacks**: COLDRIVER APT group using social engineering to deliver BO Team and Bearlyfy malware
-- **Supply Chain Infiltration**: Malicious packages targeting AI development environments through Model Context Protocol
-- **Certificate Abuse**: Iranian state hackers using legitimate SSL.com certificates to sign malware
+- **Zero-Day Exploitation**: Direct targeting of unpatched vulnerabilities in critical network infrastructure
+- **MFA Bypass**: Advanced techniques to circumvent one-time password protections on VPN systems
+- **AI-Generated Obfuscation**: Use of large language models to create sophisticated SVG-based phishing payloads
+- **Supply Chain Attacks**: Compromise of third-party suppliers affecting major manufacturers like Volvo
+- **Malvertising Campaigns**: SEO poisoning and search engine advertisements distributing fake software installers
+- **ClickFix Attacks**: Social engineering techniques tricking users into executing malicious code
+- **Certificate Abuse**: Misuse of legitimate SSL.com code-signing certificates by Iranian state actors
+- **Model Context Protocol Exploitation**: First known malicious MCP server targeting email credentials
 
 ## Threat Actor Activities
 
-- **Chinese APT Groups**: UNC5221 deploying Brickstorm backdoors on edge devices, PlugX and Bookworm malware targeting Asian telecommunications
-- **COLDRIVER (Russian APT)**: Fresh campaign delivering lightweight malware families through ClickFix techniques
-- **Akira Ransomware Group**: Sophisticated operations breaching MFA-protected SonicWall VPN accounts
-- **Iranian State Hackers**: Charming Kitten APT offshoot Subtle Snail using legitimate code-signing certificates for malware distribution
-- **Dutch Teenagers**: State-sponsored espionage attempts targeting Europol infrastructure for Russian intelligence
-- **Ukrainian Government Impersonators**: Phishing campaigns distributing CountLoader, Amatera Stealer, and PureMiner malware
-- **Nation-State ArcaneDoor Campaign**: Coordinated attacks exploiting multiple Cisco zero-days affecting millions of devices
+- **Nation-State Actors**: Exploiting Cisco zero-days and deploying advanced persistent threats like ArcaneDoor for long-term espionage
+- **Chinese APT Groups**: UNC5221 compromising edge devices with Brickstorm backdoors, PlugX campaigns targeting Asian telecommunications
+- **Akira Ransomware**: Successfully bypassing MFA protections on SonicWall VPN systems for network compromise
+- **Iranian Charming Kitten/Subtle Snail**: Using legitimate code-signing certificates to deploy signed malware
+- **COLDRIVER (Russian APT)**: Deploying lightweight malware families including BO Team and Bearlyfy through ClickFix campaigns
+- **Ukrainian Government Impersonators**: Phishing campaigns delivering CountLoader, Amatera Stealer, and PureMiner
+- **Dutch Teenagers**: Arrested for attempting to spy on Europol using hacking devices on behalf of Russia
