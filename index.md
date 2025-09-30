@@ -1,50 +1,50 @@
 # Exploitation Report
 
-Current threat landscape shows significant active exploitation targeting critical infrastructure and enterprise systems. Multiple zero-day vulnerabilities are being exploited in the wild, with particular focus on network security devices and managed file transfer solutions. Nation-state actors and ransomware groups are leveraging sophisticated attack vectors, including AI-powered phishing campaigns and supply chain compromises. The most concerning developments include active exploitation of Cisco firewall zero-days for malware deployment, Fortra GoAnywhere critical vulnerabilities being exploited before public disclosure, and ongoing Akira ransomware campaigns bypassing multi-factor authentication protections.
+Critical exploitation activity is currently targeting enterprise infrastructure through multiple vectors, with ransomware groups leading sophisticated campaigns against VPN solutions, supply chain attacks affecting major manufacturers, and nation-state actors deploying zero-day exploits. The Akira ransomware group is actively breaching SonicWall VPN devices despite multi-factor authentication protections, while threat actors have exploited a zero-day vulnerability in Fortra GoAnywhere with a maximum severity score. Additionally, Cisco ASA firewall zero-day exploits are being used to deploy advanced malware, and AI-powered phishing campaigns are successfully bypassing email security systems through obfuscated SVG files.
 
 ## Active Exploitation Details
 
-### Cisco ASA Firewall Zero-Day Vulnerabilities
-- **Description**: Multiple zero-day vulnerabilities in Cisco ASA firewalls are being actively exploited by threat actors to deploy malware
-- **Impact**: Attackers can deploy RayInitiator and LINE VIPER malware, gaining persistent access to network infrastructure
-- **Status**: Four actively exploited zero-day vulnerabilities recently disclosed by Cisco, affecting millions of devices
+### Fortra GoAnywhere Zero-Day Vulnerability
+- **Description**: A maximum severity vulnerability in Fortra GoAnywhere Managed File Transfer software that was exploited in the wild
+- **Impact**: Complete system compromise allowing unauthorized access to file transfer systems
+- **Status**: Actively exploited as zero-day approximately one week before public disclosure; patches now available
+- **CVE ID**: CVSS 10 severity rating (specific CVE not provided in articles)
 
-### Fortra GoAnywhere Managed File Transfer Critical Flaw
-- **Description**: A critical vulnerability with CVSS score of 10 in Fortra GoAnywhere MFT software
-- **Impact**: Complete system compromise allowing unauthorized access to managed file transfer systems
-- **Status**: Exploited as zero-day one week before public disclosure, with credible evidence of active exploitation
+### Cisco ASA Firewall Zero-Day Exploits
+- **Description**: Recently disclosed security flaws in Cisco ASA firewalls being exploited as zero-day attacks
+- **Impact**: Deployment of RayInitiator and LINE VIPER malware, providing persistent access to network infrastructure
+- **Status**: Actively exploited in zero-day attacks; UK NCSC confirmed exploitation
 
-### SonicWall SSL VPN Authentication Bypass
-- **Description**: Vulnerability allowing Akira ransomware operators to bypass multi-factor authentication on SonicWall VPN devices
-- **Impact**: Unauthorized access to corporate networks despite MFA protection being enabled
-- **Status**: Ongoing active exploitation by Akira ransomware group
+### SonicWall VPN Vulnerability
+- **Description**: Security flaw in SonicWall SSL VPN devices discovered last year, now being actively exploited by Akira ransomware
+- **Impact**: Unauthorized access to corporate networks even when MFA is enabled, leading to ransomware deployment
+- **Status**: Active exploitation ongoing in broad ransomware campaign
 
 ## Affected Systems and Products
 
-- **Cisco ASA Firewalls**: Millions of devices affected by multiple zero-day vulnerabilities
-- **Cisco IOS Systems**: Additional vulnerabilities targeting IOS-based network infrastructure
-- **Fortra GoAnywhere MFT**: Critical vulnerability in managed file transfer software
-- **SonicWall SSL VPN**: Devices vulnerable to authentication bypass attacks
-- **Microsoft Teams**: Fake installers being used to distribute Oyster backdoor malware
-- **AI Software Tools**: Legitimate AI applications being weaponized to deliver EvilAI malware
-- **macOS Systems**: XCSSET malware variant targeting Firefox browsers on Apple systems
+- **Fortra GoAnywhere MFT**: Managed file transfer software with maximum severity vulnerability
+- **Cisco ASA Firewalls**: Network security devices targeted in zero-day attacks
+- **SonicWall SSL VPN Devices**: VPN appliances vulnerable to authentication bypass
+- **Microsoft Teams**: Targeted through fake installers distributing Oyster backdoor malware
+- **macOS Systems**: New XCSSET variant targeting Firefox browsers with clipper and persistence modules
+- **Windows Systems**: Multiple malware campaigns including EvilAI masquerading as AI tools
 
 ## Attack Vectors and Techniques
 
-- **AI-Powered Phishing**: Large Language Models being used to craft sophisticated SVG-based phishing attacks that bypass email security
-- **Fileless Phishing**: Scalable Vector Graphics (SVG) files used to deploy Amatera Stealer and PureMiner without traditional file-based detection
-- **ClickFix Social Engineering**: COLDRIVER APT group deploying BO Team and Bearlyfy malware through fake error message prompts
-- **SEO Poisoning**: Malicious Microsoft Teams installers promoted through search engine optimization and malvertising
-- **Supply Chain Compromise**: Multiple vehicle manufacturers affected through third-party supplier attacks
-- **Code Signing Abuse**: Iranian state hackers using legitimate SSL.com certificates to sign malware
-- **MCP Server Exploitation**: First malicious Model Context Protocol server discovered stealing emails through rogue packages
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in enterprise infrastructure
+- **VPN Authentication Bypass**: Circumventing MFA protections on SonicWall devices for ransomware deployment
+- **AI-Powered Phishing**: Large language models generating obfuscated SVG files to bypass email security
+- **Supply Chain Attacks**: Targeting third-party suppliers to access major manufacturers like Volvo and JLR
+- **Malvertising Campaigns**: SEO poisoning and search advertisements distributing fake software installers
+- **ClickFix-Style Attacks**: Social engineering techniques to deliver lightweight malware families
+- **Code Signing Certificate Abuse**: Iranian threat actors using legitimate SSL.com certificates to sign malware
 
 ## Threat Actor Activities
 
-- **Nation-State Actors**: Multiple groups exploiting Cisco zero-days, with previous attribution to "ArcaneDoor" campaign operators
-- **COLDRIVER APT**: Russian advanced persistent threat group conducting ClickFix-style attacks with new lightweight malware families
-- **Akira Ransomware**: Actively breaching MFA-protected VPN accounts and continuing operations against enterprise targets
-- **Chinese APT Groups**: PlugX and Bookworm malware campaigns targeting Asian telecommunications and ASEAN networks
-- **Iranian State Hackers**: Charming Kitten APT offshoot Subtle Snail deploying code-signed malware
-- **Medusa Ransomware**: Attempting to recruit insider threats within media organizations
-- **Ukrainian Government Impersonators**: Phishing campaigns distributing CountLoader and PureRAT malware
+- **Akira Ransomware Group**: Conducting broad campaigns against SonicWall VPN customers, successfully bypassing MFA protections
+- **Iranian State Actors (Charming Kitten/Subtle Snail)**: Using legitimate code-signing certificates from SSL.com to deploy malware
+- **COLDRIVER (Russian APT)**: Deploying BO Team and Bearlyfy malware families through ClickFix-style attacks
+- **China-Linked Groups**: Distributing PlugX and Bookworm malware targeting Asian telecommunications and ASEAN networks
+- **Ukrainian Government Impersonators**: Delivering CountLoader, Amatera Stealer, and PureMiner through phishing campaigns
+- **Medusa Ransomware Gang**: Attempting to recruit BBC reporter as insider threat for media giant infiltration
+- **Supply Chain Attackers**: Multiple campaigns targeting automotive manufacturers including JLR, Volvo, and Asahi Group Holdings
