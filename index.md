@@ -1,77 +1,68 @@
 # Exploitation Report
 
-Critical vulnerabilities are being actively exploited across multiple platforms, with particularly concerning developments in hardware security bypass techniques and widespread exploitation of network infrastructure. Researchers have demonstrated sophisticated attacks against Intel SGX and cloud confidential computing protections using hardware-based methods, while threat actors are actively compromising industrial routers for SMS-based phishing campaigns and exploiting Cisco firewall vulnerabilities affecting nearly 50,000 devices. New banking trojans and nation-state malware campaigns are targeting critical infrastructure and financial institutions, while identity management systems face significant security flaws that could enable application impersonation and privilege escalation.
+Recent security analysis reveals a diverse landscape of active exploitation targeting critical enterprise infrastructure and consumer applications. Key exploitation activities include ransomware attacks on dealership software providers affecting 766,000 customers, a new Android banking trojan called Klopatra infecting over 3,000 devices across Europe through VNC remote access capabilities, and sophisticated attacks against Milesight industrial cellular routers being exploited for SMS phishing campaigns. Hardware-level vulnerabilities are also being exploited, with researchers demonstrating attacks against Intel SGX security features and cloud processor protections. Additionally, China-linked APT groups have been actively exploiting VMware vulnerabilities for nearly a year, while nation-state actors continue deploying advanced backdoors like CABINETRAT through targeted campaigns.
 
 ## Active Exploitation Details
 
-### Cisco ASA and FTD Firewall Vulnerabilities
-- **Description**: Two vulnerabilities in Cisco Adaptive Security Appliance (ASA) and Firewall Threat Defense (FTD) appliances are being actively exploited by hackers
-- **Impact**: Attackers can compromise network security appliances and gain unauthorized access to protected networks
-- **Status**: Actively exploited with approximately 50,000 devices exposed on the public web remaining vulnerable
-
-### WireTap Attack on Intel SGX
-- **Description**: Hardware-based attack using a DDR4 memory-bus interposer to extract ECDSA keys from Intel Software Guard eXtensions (SGX)
-- **Impact**: Complete compromise of SGX security guarantees, allowing extraction of cryptographic keys and sensitive data from supposedly secure enclaves
-- **Status**: Proof-of-concept demonstrated by academic researchers
-
-### Battering RAM Attack on Cloud Security
-- **Description**: A $50 hardware attack that breaks through Intel and AMD processor technologies designed to protect encrypted data in memory during cloud computing
-- **Impact**: Bypasses confidential computing protections, allowing attackers to access encrypted data stored in memory
-- **Status**: Demonstrated attack method affecting modern cloud security implementations
-
-### Milesight Router Exploitation for SMS Phishing
-- **Description**: Unknown threat actors are compromising Milesight industrial cellular routers to conduct SMS-based phishing campaigns
-- **Impact**: Enables large-scale smishing attacks using legitimate network infrastructure to bypass security controls
-- **Status**: Ongoing campaign targeting European users since at least February 2022
+### Milesight Industrial Cellular Router Exploitation
+- **Description**: Unknown threat actors are actively exploiting vulnerabilities in Milesight industrial cellular routers to send SMS messages as part of smishing campaigns
+- **Impact**: Attackers can send fraudulent SMS messages through compromised routers, targeting users with phishing content
+- **Status**: Ongoing exploitation since at least February 2022, primarily affecting European users
 
 ### VMware Privilege Escalation Vulnerability
-- **Description**: A seemingly benign privilege escalation flaw in VMware software that has been exploited by China-linked attackers
-- **Impact**: Allows attackers to gain elevated privileges within virtualized environments
-- **Status**: Exploited for nearly a year before discovery and patching
+- **Description**: China-linked attackers have been exploiting a privilege escalation vulnerability in VMware and other software platforms
+- **Impact**: Allows attackers to escalate privileges and gain elevated access to compromised systems
+- **Status**: Actively exploited for nearly a year before discovery and patching
 
-### Western Digital My Cloud Command Injection
-- **Description**: Critical vulnerability in WD My Cloud NAS models allowing remote command injection
-- **Impact**: Attackers can execute arbitrary system commands remotely on affected network-attached storage devices
-- **Status**: Critical severity vulnerability with firmware updates released
+### Intel SGX Security Bypass
+- **Description**: Researchers demonstrated the WireTap attack that extracts Intel SGX ECDSA keys through DDR4 memory-bus interposition
+- **Impact**: Compromises the security guarantees of Intel's Software Guard Extensions, potentially exposing encrypted data
+- **Status**: Proof-of-concept demonstrated, affects Intel SGX implementations
+
+### Battering RAM Attack on Cloud Processors
+- **Description**: Academic researchers developed a $50 hardware attack that bypasses latest defenses on Intel and AMD cloud processors
+- **Impact**: Breaks confidential computing protections, potentially exposing encrypted data in cloud environments
+- **Status**: Successfully demonstrated attack method affecting modern processor security features
+
+### OneLogin Identity Management Vulnerability
+- **Description**: High-severity security flaw in One Identity OneLogin IAM solution allows exploitation through API keys
+- **Impact**: Attackers can steal OpenID Connect (OIDC) secrets and impersonate applications
+- **Status**: Security flaw disclosed and requires patching
 
 ### Red Hat OpenShift AI Infrastructure Takeover
-- **Description**: Severe security flaw in Red Hat OpenShift AI service enabling privilege escalation
-- **Impact**: Complete infrastructure takeover under certain conditions in hybrid cloud environments
-- **Status**: Disclosed vulnerability affecting OpenShift AI deployments
-
-### OneLogin OIDC Security Flaw
-- **Description**: High-severity vulnerability in One Identity OneLogin IAM solution affecting OpenID Connect implementations
-- **Impact**: Exposure of sensitive OIDC secrets and potential application impersonation capabilities
-- **Status**: Disclosed vulnerability in identity and access management platform
+- **Description**: Severe security flaw allows attackers to escalate privileges in Red Hat OpenShift AI service
+- **Impact**: Complete infrastructure takeover possible under certain conditions
+- **Status**: Critical vulnerability disclosed, affects hybrid cloud environments
 
 ## Affected Systems and Products
 
-- **Cisco ASA/FTD Firewalls**: Approximately 50,000 devices exposed on public internet remain vulnerable to active exploitation
-- **Intel SGX Processors**: All Intel processors with Software Guard eXtensions affected by WireTap hardware attack
-- **Intel/AMD Cloud Processors**: Modern processors using confidential computing technologies vulnerable to Battering RAM attack
-- **Milesight Industrial Routers**: Cellular router models being exploited for SMS phishing campaigns
-- **VMware Virtualization Products**: Multiple VMware software products affected by privilege escalation vulnerability
-- **Western Digital My Cloud**: Multiple NAS models vulnerable to remote command injection
-- **Red Hat OpenShift AI**: AI service deployments in hybrid cloud environments at risk
-- **OneLogin IAM Platform**: Identity and Access Management solution with OIDC implementation flaws
-- **Android Devices**: Over 3,000 devices infected with Klopatra banking trojan, primarily in Spain and Italy
+- **Motility Software Solutions**: Dealership management software (DMS) affected by ransomware attack
+- **Adobe Analytics**: Customer tracking data leaked between tenant instances due to ingestion bug
+- **Microsoft Outlook Classic**: Email client experiencing crash-on-launch issues requiring support intervention
+- **Android Devices**: Over 3,000 devices infected with Klopatra banking trojan across Spain and Italy
+- **Milesight Routers**: Industrial cellular routers compromised for SMS phishing campaigns
+- **Intel SGX Systems**: Processors with Software Guard Extensions vulnerable to WireTap attack
+- **VMware Environments**: Various VMware products affected by privilege escalation exploits
+- **Cloud Infrastructure**: Intel and AMD processors in cloud environments vulnerable to Battering RAM attack
+- **OneLogin IAM**: Identity and Access Management solution with API key vulnerability
+- **Red Hat OpenShift AI**: Hybrid cloud AI platform susceptible to privilege escalation
 
 ## Attack Vectors and Techniques
 
-- **Hardware Memory-Bus Interception**: Physical interposer devices targeting DDR4 memory buses to extract cryptographic keys
-- **SMS-based Phishing (Smishing)**: Compromised industrial routers used to send legitimate-appearing SMS messages for credential theft
-- **Banking Trojan with Hidden VNC**: Klopatra malware uses concealed VNC functionality to remotely control infected smartphones
-- **Fileless Backdoor Execution**: IIServerCore backdoor executes entirely in memory to evade detection systems
-- **PDF-based Phishing**: MatrixPDF toolkit converts ordinary PDFs into interactive lures that bypass email security
-- **XLL Add-in Malware**: CABINETRAT backdoor distributed through Excel add-in files via Signal messaging platform
-- **Remote Command Injection**: Direct exploitation of web interfaces in network-attached storage devices
-- **Privilege Escalation**: Exploitation of virtualization software flaws to gain elevated system access
+- **Ransomware Deployment**: Direct attacks on software providers to access customer databases and systems
+- **VNC Remote Access**: Klopatra trojan uses hidden VNC connections to provide hands-on device control to attackers
+- **SMS Phishing Campaigns**: Exploitation of compromised routers to send fraudulent messages to mobile users
+- **Hardware Interposition**: Physical attacks using DDR4 memory-bus interposers to extract encryption keys
+- **API Key Exploitation**: Abuse of legitimate API access to steal authentication secrets and impersonate applications
+- **XLL Add-ins Distribution**: CABINETRAT backdoor spread through malicious Excel add-ins via compressed archives
+- **Privilege Escalation**: Systematic exploitation of elevation vulnerabilities in enterprise software platforms
+- **Memory-based Attacks**: Hardware-level exploitation targeting processor security features and encrypted memory
 
 ## Threat Actor Activities
 
-- **China-linked APT Groups**: Multiple sophisticated campaigns targeting government and telecommunications infrastructure across Africa, Middle East, and Asia
-- **Phantom Taurus**: New China-aligned nation-state actor using advanced stealth malware including fileless backdoors against government targets
-- **Unknown European SMS Threat Actors**: Ongoing smishing campaign leveraging compromised industrial routers since February 2022
-- **Banking Trojan Operators**: Klopatra malware campaign primarily targeting Spanish and Italian users with over 3,000 infections
-- **Ukrainian-targeted Attackers**: CABINETRAT backdoor campaign observed in September 2025 using Signal messaging for malware distribution
-- **Academic Researchers**: Multiple university teams demonstrating critical hardware-based attacks against modern security technologies
+- **China-linked APT Groups**: Actively exploiting VMware vulnerabilities for nearly a year, demonstrating persistence and advanced capabilities against enterprise targets
+- **Unknown European Actors**: Operating Milesight router exploitation campaign since February 2022, focusing on SMS-based phishing across European countries
+- **Ransomware Operators**: Targeting software service providers like Motility to maximize impact across customer bases, affecting hundreds of thousands of users
+- **Klopatra Campaign**: Banking trojan operators targeting over 3,000 Android devices primarily in Spain and Italy through disguised IPTV and VPN applications
+- **CABINETRAT Operators**: Conducting targeted attacks in Ukraine using backdoor malware distributed through compressed archives containing XLL add-ins
+- **Phantom Taurus APT**: New China-linked group demonstrating deep Windows environment knowledge with advanced fileless backdoors like IIServerCore that execute in memory
