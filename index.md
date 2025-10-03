@@ -1,55 +1,57 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical security incidents and active exploitation campaigns. Key highlights include a significant breach at Red Hat's GitLab instance by the Crimson Collective claiming theft of 28,000 repositories, ongoing Confucius APT group campaigns targeting Pakistan with new malware variants, and multiple Android spyware operations impersonating legitimate messaging applications. Additionally, a remote code execution vulnerability in DrayTek Vigor routers poses immediate risks to network infrastructure, while malicious PyPI packages and Oracle extortion campaigns demonstrate the expanding attack surface across software supply chains and enterprise systems.
+The current threat landscape reveals several critical exploitation activities across multiple platforms and technologies. Key concerns include active phishing campaigns targeting mobile platforms, remote code execution vulnerabilities in networking hardware, sophisticated spyware operations targeting specific geographic regions, and major data breaches affecting enterprise systems. Notable threat actors including Confucius APT and Cl0p ransomware group continue to evolve their tactics, with particular emphasis on supply chain attacks and social engineering vectors. The security community is also addressing novel attack techniques such as hardware-based attacks on secure enclaves and malicious package distributions through software repositories.
 
 ## Active Exploitation Details
 
-### Red Hat GitLab Instance Breach
-- **Description**: A comprehensive security breach affecting Red Hat's private GitLab repositories, with attackers claiming to have compromised internal development systems
-- **Impact**: Theft of approximately 570GB of compressed data across 28,000 internal development repositories, potentially exposing source code and sensitive development information
-- **Status**: Red Hat has confirmed the security incident and initiated remediation steps; investigation ongoing
+### DrayTek Vigor Router Remote Code Execution Vulnerability
+- **Description**: A security vulnerability in several DrayTek Vigor router models that allows remote, unauthenticated attackers to execute arbitrary code
+- **Impact**: Attackers can gain complete control over affected routers without authentication, potentially compromising entire network infrastructure
+- **Status**: Advisory released by DrayTek warning about the vulnerability
 
-### DrayTek Vigor Router Remote Code Execution
-- **Description**: A critical security vulnerability affecting multiple DrayTek Vigor router models that allows remote, unauthenticated attackers to execute arbitrary code
-- **Impact**: Complete system compromise allowing attackers to perform unauthorized actions on affected network infrastructure
-- **Status**: Advisory released by DrayTek; organizations should apply patches immediately
+### SVG-Based Email Attacks
+- **Description**: Malicious inline SVG images embedded in emails being used to conduct attacks through Microsoft Outlook
+- **Impact**: Attackers can execute malicious code or conduct phishing attacks through specially crafted SVG content
+- **Status**: Microsoft has implemented countermeasures to stop displaying risky inline SVG images in Outlook for Web and new Outlook for Windows
 
-### Malicious PyPI Package - soopsocks
-- **Description**: A malicious Python package masquerading as a SOCKS5 proxy service while actually functioning as an information stealer
-- **Impact**: Successfully infected 2,653 systems before detection and takedown, stealing sensitive information from compromised environments
-- **Status**: Package has been removed from PyPI repository
+### Intel SGX ECDSA Key Extraction via WireTap Attack
+- **Description**: A hardware-based attack that uses DDR4 memory-bus interposer to extract cryptographic keys from Intel's Software Guard eXtensions (SGX)
+- **Impact**: Compromises the security guarantees of Intel SGX, allowing attackers to extract sensitive cryptographic material
+- **Status**: Academic research demonstrating successful key extraction from secure enclaves
 
-### Android Spyware Campaigns (ProSpy and ToSpy)
-- **Description**: Two sophisticated spyware campaigns targeting Android users by impersonating legitimate messaging applications Signal and ToTok
-- **Impact**: Theft of sensitive personal data including messages, contacts, and device information from users in the UAE
-- **Status**: Actively targeting users; fake applications distributed outside official app stores
+### Oracle E-Business Suite Data Theft
+- **Description**: Extortion campaign targeting Oracle E-Business Suite systems with claims of sensitive data theft
+- **Impact**: Potential exposure of critical business data and intellectual property
+- **Status**: Active extortion campaign being tracked by Mandiant and Google
 
 ## Affected Systems and Products
 
-- **DrayTek Vigor Routers**: Multiple router models vulnerable to remote code execution attacks
-- **Red Hat GitLab Instance**: Private repositories containing internal development code and sensitive information
-- **PyPI Repository**: Python package ecosystem compromised with malicious soopsocks package
-- **Android Devices**: Mobile devices in UAE targeted by ProSpy and ToSpy spyware campaigns
-- **Signal and ToTok Users**: Messaging app users targeted through impersonation attacks
-- **Oracle E-Business Suite**: Enterprise systems targeted in new extortion campaigns
-- **Microsoft Outlook**: Email clients affected by SVG image attack vectors and various bugs
-- **Adobe Analytics**: Customer tracking data exposed due to ingestion bugs
+- **DrayTek Vigor Routers**: Multiple router models vulnerable to remote code execution
+- **Microsoft Outlook**: Web version and new Windows client affected by SVG-based attacks
+- **Intel SGX Systems**: Processors with Software Guard eXtensions vulnerable to WireTap attacks
+- **Oracle E-Business Suite**: Enterprise systems targeted in extortion campaigns
+- **Red Hat GitLab Instance**: Compromised with 28,000 private repositories allegedly breached
+- **Android Devices**: Over 3,000 devices infected with Klopatra banking trojan across Europe
+- **PyPI Repository**: Python package repository compromised with malicious soopsocks package affecting 2,653 systems
+- **Adobe Analytics**: Multi-tenant data leakage affecting customer tracking information
+- **Motility Software Solutions**: Dealership management software breach impacting 766,000 customers
 
 ## Attack Vectors and Techniques
 
-- **Repository Compromise**: Direct breach of development infrastructure to steal source code and sensitive data
-- **Package Repository Poisoning**: Injection of malicious packages into legitimate software repositories
-- **Mobile Application Impersonation**: Creation of fake applications mimicking popular messaging services
-- **Social Engineering**: Targeting service desks and help desk operations as new attack vectors
-- **SVG Image Exploitation**: Use of inline SVG images in email attacks through Microsoft Outlook
-- **VNC Remote Access**: Android malware utilizing VNC for hands-on device access and control
-- **Phishing Evolution**: Shift from email-based to mobile-focused phishing campaigns using SMS, voice, and QR codes
+- **Email-Based SVG Attacks**: Malicious SVG images embedded in email content to bypass security controls
+- **Hardware Interception**: DDR4 memory-bus interposer devices used to extract cryptographic keys
+- **Social Engineering**: Service desk impersonation and help desk targeting for credential theft
+- **Mobile Phishing**: SMS, voice, and QR-code phishing campaigns targeting mobile users
+- **Malicious Package Distribution**: Supply chain attacks through compromised software repositories
+- **VNC Remote Access**: Android malware using VNC protocols for hands-on device access
+- **Fake Application Impersonation**: Spyware disguised as legitimate messaging applications
 
 ## Threat Actor Activities
 
-- **Crimson Collective**: Claimed responsibility for Red Hat GitLab breach, demanding ransom for stolen repository data
-- **Confucius APT Group**: Evolved tactics targeting Pakistan with new malware families including WooperStealer and Anondoor backdoors
-- **Cl0p Ransomware Group**: Potentially linked to new Oracle E-Business Suite extortion campaigns targeting multiple organizations
-- **ShinyHunters (UNC6040)**: Continued social engineering attacks against Salesforce environments using sophisticated tactics
-- **Unknown Actors**: Operating ProSpy and ToSpy Android spyware campaigns specifically targeting UAE users
-- **Klopatra Operators**: Deploying Android banking trojans disguised as IPTV and VPN applications across Europe
+- **Confucius APT**: Conducting phishing campaigns against Pakistani targets using WooperStealer and Anondoor malware, evolving from data theft to backdoor deployment
+- **Cl0p Ransomware Group**: Linked to Oracle E-Business Suite extortion campaigns and continuing operations
+- **Crimson Collective**: Extortion group claiming theft of 570GB of data from Red Hat GitLab repositories
+- **ShinyHunters (UNC6040)**: Social engineering attacks targeting Salesforce systems through advanced tactics
+- **ProSpy and ToSpy Operators**: Android spyware campaigns targeting UAE users through fake Signal and ToTok applications
+- **Klopatra Operators**: Banking trojan distribution across Europe disguised as IPTV and VPN applications
+- **soopsocks Package Maintainer**: Malicious PyPI package distribution affecting thousands of systems
