@@ -1,60 +1,60 @@
 # Exploitation Report
 
-The current threat landscape reveals significant exploitation activity across multiple attack vectors, with threat actors targeting everything from enterprise applications to consumer messaging platforms. Notable campaigns include the Clop ransomware gang exploiting Oracle E-Business Suite vulnerabilities patched in July 2025, active exploitation of a Meteobridge weather station vulnerability (CVE-2025-4008) flagged by CISA, and widespread data breaches affecting major corporations including Salesforce, Jaguar Land Rover, and Red Hat. Emerging threats include sophisticated malware campaigns like SORVEPOTEL targeting WhatsApp users in Brazil, Rhadamanthys stealer evolution with advanced evasion techniques, and nation-state activities involving Chinese threat actors conducting SEO fraud alongside data theft operations.
+Current threat activity reveals significant exploitation campaigns targeting enterprise environments, with particular focus on DNS infrastructure and web applications. The Clop ransomware gang has been actively exploiting Oracle E-Business Suite vulnerabilities patched in July 2025, while CISA has flagged CVE-2025-4008 affecting Smartbedded Meteobridge as actively exploited in the wild. Multiple threat actors including Scattered Lapsus$, ShinyHunters, and nation-state groups are conducting sophisticated attacks against high-value targets across various sectors.
 
 ## Active Exploitation Details
 
-### Oracle E-Business Suite Vulnerabilities
-- **Description**: Security flaws in Oracle's E-Business Suite that enable unauthorized access and data extraction
-- **Impact**: Allows attackers to access sensitive business data and conduct extortion campaigns
-- **Status**: Vulnerabilities were patched in July 2025, but exploitation continues by Clop ransomware gang
-- **CVE ID**: Not specified in source material
-
-### Meteobridge Weather Station Vulnerability
-- **Description**: High-severity security flaw affecting Smartbedded Meteobridge weather monitoring systems
-- **Impact**: Enables remote exploitation and potential system compromise
-- **Status**: Actively exploited in the wild, flagged by CISA as a Known Exploited Vulnerability
+### Smartbedded Meteobridge Vulnerability
+- **Description**: A high-severity security flaw affecting Smartbedded Meteobridge systems
+- **Impact**: Remote compromise of Meteobridge devices, potentially allowing attackers to access weather station data and network infrastructure
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2025-4008
 
-### DrayTek Vigor Router Remote Code Execution
-- **Description**: Security vulnerability in several DrayTek Vigor router models allowing remote code execution
-- **Impact**: Unauthenticated remote actors can perform arbitrary code execution on affected devices
-- **Status**: Advisory released by DrayTek, exploitation status in wild unclear
+### Oracle E-Business Suite Vulnerabilities
+- **Description**: Security flaws in Oracle's E-Business Suite platform that were addressed in July 2025 patches
+- **Impact**: Remote code execution and unauthorized access to enterprise business applications and sensitive data
+- **Status**: Actively exploited by Clop ransomware gang in ongoing extortion campaigns
+- **Status**: Patches available since July 2025, but exploitation continues
 
-### SORVEPOTEL WhatsApp Malware
-- **Description**: Self-propagating malware spreading through WhatsApp messaging platform
-- **Impact**: Spreads automatically through compromised accounts, weaponizing user trust
-- **Status**: Active campaign targeting Brazilian users
+### DrayTek Vigor Router Remote Code Execution
+- **Description**: Security vulnerability in several DrayTek Vigor router models allowing remote, unauthenticated code execution
+- **Impact**: Complete compromise of network infrastructure, potential for lateral movement and network-wide attacks
+- **Status**: Advisory released, exploitation risk remains high for unpatched devices
+
+### CometJacking Attack Vector
+- **Description**: Novel attack technique exploiting URL parameters in Perplexity's Comet AI browser
+- **Impact**: Unauthorized access to sensitive data from connected services including email and calendars
+- **Status**: Active proof-of-concept demonstrated, affects AI browser implementations
 
 ## Affected Systems and Products
 
-- **Oracle E-Business Suite**: Enterprise business applications vulnerable to Clop extortion attacks
-- **Smartbedded Meteobridge**: Weather monitoring systems with actively exploited vulnerabilities
-- **DrayTek Vigor Routers**: Multiple router models affected by remote code execution vulnerability
-- **WhatsApp**: Messaging platform being weaponized for malware distribution via SORVEPOTEL
-- **Salesforce**: Customer data compromised in breach affecting 39 organizations
-- **Red Hat GitLab**: Private repositories compromised with 28,000 repositories claimed affected
-- **Jaguar Land Rover**: Automotive manufacturer suffering ongoing ransomware impacts
-- **Asahi**: Japanese beer manufacturer hit by ransomware causing factory shutdowns
-- **Renault and Dacia**: UK customers affected by data breach at third-party provider
+- **Oracle E-Business Suite**: Enterprise business applications vulnerable to Clop exploitation campaigns
+- **Smartbedded Meteobridge**: Weather monitoring devices actively targeted by threat actors
+- **DrayTek Vigor Routers**: Multiple router models vulnerable to remote code execution attacks
+- **Perplexity Comet Browser**: AI browser vulnerable to CometJacking parameter injection attacks
+- **Salesforce Environments**: 39 organizations compromised in coordinated breach campaign
+- **Red Hat GitLab Repositories**: 28,000 private repositories allegedly compromised
+- **Renault and Dacia UK**: Customer data exposed through third-party provider breach
+- **Asahi Group**: Manufacturing operations disrupted by ransomware attack
+- **Jaguar Land Rover**: Ongoing cybersecurity incidents affecting business operations
 
 ## Attack Vectors and Techniques
 
-- **DNS-Powered Malware Distribution**: Detour Dog threat actor operating malware factory for Strela Stealer distribution
-- **PNG Steganography**: Rhadamanthys stealer using image files to hide malicious payloads
-- **Device Fingerprinting**: Enhanced evasion techniques implemented in Rhadamanthys stealer updates
-- **SEO Poisoning**: UAT-8099 Chinese threat actor hijacking legitimate websites for search engine manipulation
-- **WhatsApp Self-Propagation**: SORVEPOTEL malware automatically spreading through messaging contacts
-- **CometJacking Attack**: URL parameter exploitation in Perplexity's Comet AI browser to steal sensitive data
-- **Phishing Evolution**: Shift from email-based attacks to mobile platforms including SMS, voice, and QR codes
+- **DNS Infrastructure Manipulation**: Detour Dog threat actor operating DNS-powered malware distribution factory for Strela Stealer
+- **PNG Steganography**: Rhadamanthys Stealer evolved to use image-based payload delivery and device fingerprinting
+- **WhatsApp Malware Propagation**: SORVEPOTEL self-spreading malware targeting Brazilian users through messaging platform
+- **SEO Poisoning**: UAT-8099 Chinese threat actor hijacking reputable websites for search engine fraud and data theft
+- **Phishing Campaigns**: Confucius group deploying WooperStealer and Anondoor malware against Pakistani targets
+- **URL Parameter Injection**: CometJacking technique exploiting AI browser functionality for data exfiltration
+- **SVG Image Attacks**: Microsoft blocking inline SVG images in Outlook due to ongoing exploitation attempts
 
 ## Threat Actor Activities
 
-- **Clop Ransomware Gang**: Actively exploiting Oracle E-Business Suite vulnerabilities for extortion campaigns
-- **ShinyHunters/Scattered Lapsus$**: Operating data leak sites to extort 39 Salesforce breach victims with October 10 deadline
-- **Detour Dog**: Running DNS-powered malware distribution infrastructure for Strela Stealer campaigns
-- **UAT-8099**: Chinese-language threat actor conducting dual-purpose operations combining SEO fraud with organizational data theft
-- **Confucius APT**: Targeting Pakistan with new WooperStealer and Anondoor malware in phishing campaigns
-- **Cavalry Werewolf**: Attacking Russian government agencies using FoalShell and StallionRAT malware, showing overlaps with YoroTrooper group
-- **Pro-Russian Espionage**: Dutch authorities arrested two teenagers for alleged espionage activities as part of broader Russian hybrid attacks against Europe
-- **Rhadamanthys Operators**: Continuously evolving stealer capabilities and advertising additional tools including Elysium Proxy Bot and Crypt Service
+- **Clop Ransomware Gang**: Actively exploiting Oracle E-Business Suite vulnerabilities in coordinated extortion campaigns targeting enterprise environments
+- **Scattered Lapsus$**: Reemerged with Salesforce-focused leak site threatening data publication by October 10th deadline
+- **ShinyHunters**: Launched dedicated data leak site to extort 39 companies impacted by Salesforce breaches, publicly leaking data samples
+- **Detour Dog**: Operating sophisticated DNS-powered malware distribution infrastructure specifically for Strela Stealer campaigns
+- **UAT-8099**: Chinese-language threat actor conducting multi-stage attacks including web server infection, SEO spam injection, and organizational data theft
+- **Confucius Group**: Decade-long APT campaign targeting Pakistan with new WooperStealer and Anondoor malware families
+- **Cavalry Werewolf**: Threat actor with YoroTrooper overlaps targeting Russian public sector using FoalShell and StallionRAT malware
+- **Pro-Russian Operatives**: Dutch authorities arrested two teenagers conducting espionage activities as part of broader Russian hybrid attack campaigns against European targets
