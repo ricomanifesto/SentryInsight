@@ -1,47 +1,50 @@
 # Exploitation Report
 
-Current threat activity reveals a concerning landscape of active exploitations targeting critical infrastructure and enterprise systems. The Cybersecurity and Infrastructure Security Agency (CISA) has flagged a high-severity vulnerability in Smartbedded Meteobridge systems as actively exploited, while threat actors are conducting massive reconnaissance campaigns against Palo Alto Networks login portals with scanning activity surging by nearly 500% in a single day. Meanwhile, sophisticated attack vectors are emerging, including CometJacking attacks targeting AI browsers and the proliferation of advanced malware families like Strela Stealer and Rhadamanthys with enhanced steganographic capabilities. Multiple threat groups including Scattered Lapsus$, ShinyHunters, and emerging actors like Detour Dog are conducting high-impact campaigns against major organizations including Salesforce customers, Discord users, and automotive manufacturers.
+Current security landscape reveals significant exploitation activity targeting enterprise infrastructure and consumer applications. CISA has flagged a critical vulnerability in Smartbedded Meteobridge devices (CVE-2025-4008) as actively exploited in the wild. Multiple attack campaigns are underway, including sophisticated reconnaissance efforts against Palo Alto Networks login portals showing a 500% spike in scanning activity, and novel attacks like CometJacking that exploit AI browser functionality. Threat actors including Scattered Lapsus$, ShinyHunters, and Detour Dog are actively conducting data theft operations, while new malware variants like SORVEPOTEL are spreading through messaging platforms and Rhadamanthys stealer continues evolving its capabilities.
 
 ## Active Exploitation Details
 
-### Meteobridge Weather Station Vulnerability
-- **Description**: High-severity security flaw affecting Smartbedded Meteobridge weather monitoring devices that allows attackers to compromise these systems
-- **Impact**: Unauthorized access to weather monitoring infrastructure and potential lateral movement into connected networks
-- **Status**: Actively exploited in the wild and added to CISA's Known Exploited Vulnerabilities catalog
+### Meteobridge Command Injection Vulnerability
+- **Description**: High-severity security flaw affecting Smartbedded Meteobridge weather monitoring devices that allows remote code execution
+- **Impact**: Attackers can execute arbitrary commands on affected devices, potentially gaining full system control
+- **Status**: Actively exploited in the wild, flagged by CISA for immediate patching
 - **CVE ID**: CVE-2025-4008
 
-### CometJacking Attack Against AI Browsers
-- **Description**: Novel attack vector that exploits URL parameters to embed malicious prompts within seemingly innocuous links targeting Perplexity's Comet AI browser
-- **Impact**: Allows attackers to steal sensitive data from connected services including email accounts and calendar systems through manipulated AI browser instructions
-- **Status**: Newly disclosed attack technique with active proof-of-concept demonstrations
+### CometJacking Attack Against Perplexity's Comet Browser
+- **Description**: Novel attack technique that embeds malicious prompts within seemingly innocuous links to trick Comet AI browser into executing unauthorized actions
+- **Impact**: Attackers can access sensitive data from connected services including email, calendars, and other integrated platforms
+- **Status**: Newly disclosed attack method targeting AI browser functionality
+
+### Palo Alto Networks Portal Reconnaissance
+- **Description**: Massive surge in suspicious scanning activity targeting Palo Alto Networks login portals indicating coordinated reconnaissance efforts
+- **Impact**: Potential precursor to credential stuffing attacks or exploitation attempts against network security infrastructure
+- **Status**: Active scanning campaigns with 500% increase in activity observed
 
 ## Affected Systems and Products
 
-- **Smartbedded Meteobridge**: Weather monitoring devices and stations vulnerable to remote exploitation
-- **Perplexity Comet AI Browser**: Susceptible to prompt injection attacks via malicious URL parameters
-- **Palo Alto Networks Login Portals**: Experiencing massive reconnaissance scanning from suspicious IP addresses
-- **Salesforce Platform**: Multiple customer organizations compromised with data being leaked on extortion sites
-- **Discord Platform**: Third-party customer service provider breach affecting user support tickets and payment data
-- **WhatsApp Messaging**: Brazilian users targeted by self-spreading SORVEPOTEL malware
-- **Renault and Dacia UK**: Customer data compromised through third-party provider breach
-- **Asahi Beer Operations**: Factory shutdowns due to confirmed ransomware attack
-- **Jaguar Land Rover**: Ongoing cyberattack impacts demonstrating incomplete breach remediation
+- **Smartbedded Meteobridge**: Weather monitoring devices vulnerable to command injection attacks
+- **Perplexity Comet Browser**: AI-powered browser susceptible to prompt injection attacks through malicious URLs
+- **Palo Alto Networks Login Portals**: Enterprise security appliance interfaces under active reconnaissance
+- **Salesforce Instances**: Multiple organizations affected by data theft campaigns conducted by cybercriminal groups
+- **Discord Support Systems**: Third-party customer service provider compromised leading to data exposure
+- **WhatsApp Messaging Platform**: Used as vector for SORVEPOTEL malware distribution targeting Brazilian users
+- **Renault and Dacia UK Systems**: Customer data compromised through third-party provider breach
 
 ## Attack Vectors and Techniques
 
-- **DNS-Powered Malware Distribution**: Detour Dog threat actor utilizing DNS infrastructure to distribute Strela Stealer malware campaigns
-- **PNG Steganography Payloads**: Rhadamanthys stealer updated with device fingerprinting and steganographic payload delivery through PNG images
-- **WhatsApp Social Engineering**: SORVEPOTEL malware leveraging trusted messaging platform for self-propagation among Brazilian users
-- **AI Browser Prompt Injection**: CometJacking technique using malicious URL parameters to manipulate AI browser behavior for data theft
-- **Third-Party Supply Chain**: Multiple breaches affecting Discord, Renault, and Dacia through compromised service providers
-- **Login Portal Reconnaissance**: Massive scanning campaigns against Palo Alto Networks authentication systems
+- **Command Injection**: Remote exploitation of Meteobridge devices through web interface vulnerabilities
+- **Prompt Injection**: Malicious URL parameters used to manipulate AI browser behavior for data exfiltration
+- **Credential Scanning**: Automated reconnaissance against enterprise login portals for authentication bypass attempts
+- **DNS-Powered Malware Distribution**: Detour Dog using DNS infrastructure to deliver Strela Stealer payloads
+- **PNG Steganography**: Rhadamanthys stealer hiding malicious payloads within image files for evasion
+- **Social Engineering via Messaging**: SORVEPOTEL malware spreading through trusted WhatsApp communications
+- **SEO Poisoning**: UAT-8099 hijacking legitimate websites for search engine manipulation and data theft
 
 ## Threat Actor Activities
 
-- **Scattered Lapsus$**: Cybercriminal collective reemerged with new Salesforce leak site threatening to publish stolen customer data with October 10 deadline
-- **ShinyHunters**: Launched comprehensive data leak site targeting 39 Salesforce breach victims with public extortion campaign
-- **Detour Dog**: DNS-powered threat actor orchestrating Strela Stealer distribution campaigns through compromised infrastructure
-- **UAT-8099**: Chinese-language threat actor conducting multi-faceted operations including website hijacking, SEO fraud, and data theft
-- **Cavalry Werewolf**: Advanced persistent threat targeting Russian public sector agencies with FoalShell and StallionRAT malware families
-- **YoroTrooper-affiliated Actor**: Conducting targeted espionage operations against Russian government entities with sophisticated malware arsenals
-- **Dutch-Arrested Teens**: Two teenagers detained for alleged pro-Russian espionage activities as part of broader hybrid attack patterns against European infrastructure
+- **Scattered Lapsus$ (ShinyHunters)**: Relaunched operations with new data leak site targeting 39 Salesforce breach victims, threatening data publication with October 10 deadline
+- **Detour Dog**: Operating DNS-powered malware distribution infrastructure to deliver Strela Stealer information theft campaigns
+- **UAT-8099**: Chinese-language threat actor conducting multi-stage attacks including web server infection, SEO spam injection, and organizational data theft
+- **Cavalry Werewolf Campaign**: Targeting Russian public sector agencies with FoalShell and StallionRAT malware, showing operational overlaps with YoroTrooper group
+- **Rhadamanthys Operators**: Enhanced stealer capabilities with device fingerprinting and steganographic payload delivery, expanding service offerings with proxy bots and crypting services
+- **SORVEPOTEL Campaign**: Self-propagating malware targeting Brazilian users through WhatsApp social engineering tactics
