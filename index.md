@@ -1,56 +1,62 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are being actively exploited across multiple enterprise platforms, with the Clop ransomware gang leading a significant campaign against Oracle E-Business Suite customers using CVE-2025-61882. The Medusa ransomware group has also been exploiting CVE-2025-10035 in Fortra GoAnywhere software, while a 13-year-old Redis vulnerability poses maximum severity risks to cloud infrastructure. These attacks demonstrate sophisticated threat actors' ability to weaponize both newly discovered and legacy vulnerabilities for data theft and ransomware deployment.
+Current threat landscape reveals active exploitation of critical zero-day vulnerabilities and recently disclosed security flaws. The Clop ransomware gang has been exploiting an Oracle E-Business Suite zero-day since early August for data theft operations, while the Storm-1175 threat group is actively leveraging a maximum severity GoAnywhere vulnerability to deploy Medusa ransomware. Additionally, a 13-year-old Redis vulnerability with a perfect CVSS 10.0 score poses significant risks to cloud infrastructure, and threat actors are exploiting a Zimbra zero-day using sophisticated social engineering tactics. These exploitation activities represent immediate threats requiring urgent attention from security teams.
 
 ## Active Exploitation Details
 
-### Oracle E-Business Suite Zero-Day
-- **Description**: Critical vulnerability in Oracle E-Business Suite allowing unauthorized access and data theft
-- **Impact**: Enables threat actors to steal sensitive customer data and potentially deploy ransomware payloads
-- **Status**: Actively exploited by Clop ransomware gang since early August 2025; patch status unclear
+### Oracle E-Business Suite Zero-Day Vulnerability
+- **Description**: Critical zero-day vulnerability in Oracle E-Business Suite being actively exploited by the Clop ransomware gang for data theft operations
+- **Impact**: Enables unauthorized access to sensitive business data and systems, facilitating large-scale data exfiltration campaigns
+- **Status**: Under active exploitation since early August 2024, recently patched by Oracle
 - **CVE ID**: CVE-2025-61882
 
-### Fortra GoAnywhere Critical Vulnerability
-- **Description**: Maximum severity flaw in GoAnywhere MFT (Managed File Transfer) software enabling remote code execution
-- **Impact**: Allows attackers to deploy ransomware and gain unauthorized system access
-- **Status**: Actively exploited by Storm-1175 threat group in Medusa ransomware attacks
+### GoAnywhere MFT Critical Vulnerability
+- **Description**: Maximum severity vulnerability in Fortra GoAnywhere managed file transfer software being exploited to deploy ransomware
+- **Impact**: Allows threat actors to achieve remote code execution and deploy ransomware payloads, specifically Medusa ransomware
+- **Status**: Under active exploitation by Storm-1175 group for nearly a month in ransomware campaigns
 - **CVE ID**: CVE-2025-10035
 
-### Redis Remote Code Execution Flaw
-- **Description**: 13-year-old maximum severity vulnerability in Redis in-memory database software allowing remote code execution
-- **Impact**: Full host takeover and complete system compromise under certain circumstances
-- **Status**: Over 300,000 instances currently exposed; CVSS score of 10.0
+### Redis Remote Code Execution Vulnerability
+- **Description**: 13-year-old vulnerability in Redis in-memory database software with maximum CVSS 10.0 severity score
+- **Impact**: Enables remote code execution leading to full host takeover in cloud environments
+- **Status**: Over 300,000 instances currently exposed, patch available
+- **CVE ID**: CVE-2025-61882
 
-### Zimbra Zero-Day Exploitation
-- **Description**: Zero-day vulnerability in Zimbra email platform exploited via ICS (Internet Calendar Scheduling) functionality
-- **Impact**: Enables targeted attacks against military and government organizations
-- **Status**: Actively exploited by threat actors impersonating official entities
+### Zimbra Zero-Day Email Exploitation
+- **Description**: Zero-day vulnerability in Zimbra email platform being exploited through malicious ICS (Internet Calendar Scheduling) files
+- **Impact**: Allows attackers to compromise email systems and conduct targeted attacks against military and government organizations
+- **Status**: Active exploitation observed with sophisticated social engineering campaigns targeting Brazil's military
+
+### Figma MCP Server Vulnerability
+- **Description**: Critical vulnerability in the figma-developer-mcp Model Context Protocol server
+- **Impact**: Enables remote code execution through the popular development tool
+- **Status**: Now patched, details disclosed to facilitate remediation efforts
 
 ## Affected Systems and Products
 
-- **Oracle E-Business Suite**: Enterprise resource planning software used by major corporations
-- **Fortra GoAnywhere MFT**: Managed file transfer solutions widely deployed in enterprise environments
-- **Redis Database**: In-memory data structure store used extensively in cloud deployments
+- **Oracle E-Business Suite**: Enterprise resource planning software used by organizations globally
+- **Fortra GoAnywhere MFT**: Managed file transfer solutions used for secure data exchange
+- **Redis Database**: In-memory data structure store used extensively in cloud applications and microservices
 - **Zimbra Email Platform**: Enterprise email and collaboration software
-- **Salesforce CRM**: Customer relationship management platform targeted in voice phishing attacks
-- **Asahi Brewery Systems**: Industrial control systems affected by ransomware
-- **DraftKings Platform**: Sports betting platform compromised via credential stuffing
+- **Figma Developer Tools**: Model Context Protocol servers used in development workflows
+- **Cloud Infrastructure**: Over 300,000 Redis instances exposed across various cloud platforms
+- **Enterprise Networks**: Organizations using affected Oracle, GoAnywhere, and Zimbra deployments
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Threat actors leveraging previously unknown vulnerabilities in enterprise software
-- **Voice Phishing (Vishing)**: ShinyHunters group using social engineering to steal Salesforce credentials
-- **Credential Stuffing**: Automated attacks using previously compromised credentials against multiple platforms
-- **Ransomware Deployment**: Direct exploitation of vulnerabilities to deploy malicious payloads
-- **Data Theft Campaigns**: Systematic exfiltration of sensitive customer and business data
-- **Social Engineering**: BatShadow group targeting job seekers with Go-based malware
-- **ASCII Smuggling**: Novel attack technique against AI systems like Google Gemini
+- **Zero-Day Exploitation**: Active exploitation of previously unknown vulnerabilities in Oracle EBS and Zimbra platforms
+- **Social Engineering via ICS Files**: Sophisticated attacks using malicious calendar invitation files to exploit Zimbra systems
+- **Ransomware Deployment**: Direct exploitation of GoAnywhere vulnerabilities to install Medusa ransomware
+- **Data Exfiltration**: Systematic theft of sensitive business data through Oracle EBS compromises
+- **Cloud Infrastructure Targeting**: Mass exploitation attempts against exposed Redis instances in cloud environments
+- **Supply Chain Attacks**: Targeting of widely-used development tools like Figma MCP servers
+- **Credential-Based Attacks**: Exploitation requiring private keys and authenticated access in some scenarios
 
 ## Threat Actor Activities
 
-- **Clop Ransomware Gang**: Conducting widespread data theft attacks against Oracle customers using zero-day vulnerability since August 2025
-- **Storm-1175 (Medusa)**: Exploiting GoAnywhere vulnerability to deploy ransomware in enterprise environments
-- **ShinyHunters**: Conducting broad corporate extortion campaigns after stealing over one billion records from Salesforce customers
-- **BatShadow Group**: Vietnamese threat actor using "Vampire Bot" malware to target job seekers and digital marketing professionals
-- **North Korean APT Groups**: Stealing over $2 billion in cryptocurrency assets throughout 2025, marking record annual totals
-- **Russian, North Korean, and Chinese State Actors**: Misusing OpenAI's ChatGPT for malware development and cyberattack facilitation
+- **Clop Ransomware Gang**: Conducting systematic data theft operations against Oracle E-Business Suite customers since early August, demonstrating sophisticated zero-day exploitation capabilities
+- **Storm-1175 Group**: Microsoft-tracked threat actor actively exploiting GoAnywhere vulnerabilities to deploy Medusa ransomware in targeted campaigns
+- **Graceful Spider**: CrowdStrike-tracked actor attributed with moderate confidence to Oracle EBS exploitation activities
+- **BatShadow Group**: Vietnamese threat actor using social engineering tactics against job seekers to deliver Go-based 'Vampire Bot' malware
+- **State-Sponsored Actors**: Multiple nation-state groups from Russia, North Korea, and China misusing AI tools like ChatGPT for malware development and cyber operations
+- **Libyan Navy Impersonators**: Threat actors impersonating official entities to target military organizations using Zimbra zero-day exploits
