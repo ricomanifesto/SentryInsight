@@ -1,59 +1,56 @@
 # Exploitation Report
 
-Current threat activity reveals a surge in sophisticated attacks targeting cloud infrastructures, WordPress platforms, and enterprise services. Critical vulnerabilities are being actively exploited across multiple sectors, with threat actors leveraging authentication bypasses, token theft, and social engineering techniques. Notably, the Service Finder WordPress theme vulnerability is under active exploitation, allowing unauthorized administrative access. Russian-backed groups are weaponizing AI for enhanced phishing campaigns, while major ransomware cartels are forming strategic alliances to amplify their impact. The emergence of novel attack techniques like cache smuggling and the weaponization of legitimate tools demonstrates the evolving threat landscape.
+The current threat landscape reveals significant active exploitation across multiple attack vectors, with particular emphasis on widespread botnet operations, WordPress vulnerabilities, and sophisticated malware campaigns. The RondoDox botnet stands out as a major threat, actively targeting 56 different vulnerabilities across more than 30 distinct device types worldwide. Critical WordPress vulnerabilities are being actively exploited, including authentication bypass flaws in the Service Finder theme. Meanwhile, advanced persistent threat actors continue to evolve their tactics, with China-aligned groups deploying sophisticated malware like GOVERSHELL and weaponizing legitimate tools such as the Nezha monitoring platform.
 
 ## Active Exploitation Details
 
-### Service Finder WordPress Theme Authentication Bypass
-- **Description**: Critical security flaw in the Service Finder WordPress theme that allows complete authentication bypass
-- **Impact**: Threat actors can gain unauthorized access to any account, including administrator accounts, enabling complete site takeover
-- **Status**: Actively exploited in the wild, patch available
+### RondoDox Botnet Multi-Vulnerability Campaign
+- **Description**: A large-scale botnet operation actively exploiting 56 different n-day vulnerabilities across more than 30 distinct device types, including vulnerabilities first disclosed during Pwn2Own competitions
+- **Impact**: Enables attackers to compromise a wide variety of networked devices and systems for botnet recruitment
+- **Status**: Currently active with ongoing worldwide attacks targeting multiple vulnerability classes
 
-### WordPress Site Injection Campaign
-- **Description**: Malicious JavaScript injections targeting WordPress sites to redirect users to malicious destinations
-- **Impact**: Site visitors are redirected to sketchy sites as part of ClickFix phishing attacks, compromising user credentials and data
-- **Status**: Ongoing campaign affecting multiple WordPress installations
+### WordPress Service Finder Theme Authentication Bypass
+- **Description**: Critical security flaw in the Service Finder WordPress theme that allows authentication bypass to gain unauthorized access to any account
+- **Impact**: Complete compromise of WordPress sites including administrator account takeover
+- **Status**: Actively being exploited by threat actors
+
+### WordPress Sites JavaScript Injection Campaign
+- **Description**: Malicious JavaScript injections targeting WordPress sites to redirect users to malicious destinations as part of next-generation ClickFix phishing attacks
+- **Impact**: Site visitors redirected to phishing sites and potentially malicious payloads
+- **Status**: Active campaign compromising WordPress installations
 
 ### Figma MCP Server Remote Code Execution
-- **Description**: Severe vulnerability in the figma-developer-mcp Model Context Protocol server that enables remote code execution
-- **Impact**: Attackers can achieve code execution on target systems through agentic AI compromise vectors
-- **Status**: Patched, but organizations must update immediately
+- **Description**: Vulnerability in the Framelink Figma MCP Server that enables agentic AI compromise leading to remote code execution
+- **Impact**: Remote code execution on affected systems with agentic AI integrations
+- **Status**: Patch available, organizations urged to update immediately
 - **CVE ID**: CVE-2025-53967
-
-### Nezha Tool Weaponization
-- **Description**: Legitimate open-source monitoring tool Nezha being weaponized by Chinese threat actors
-- **Impact**: Delivers Gh0st RAT malware to targets, providing persistent remote access and control
-- **Status**: Active campaign leveraging legitimate tool for malicious purposes
 
 ## Affected Systems and Products
 
-- **Service Finder WordPress Theme**: All versions prior to the recent security update
-- **WordPress Sites**: Vulnerable to JavaScript injection campaigns affecting site integrity and visitor security
-- **Figma MCP Servers**: Organizations using figma-developer-mcp Model Context Protocol servers
-- **AWS Cloud Instances**: Targeted by Crimson Collective for data theft and extortion
-- **Discord Zendesk Systems**: Alleged breach affecting 5.5 million users with government ID exposure
-- **Microsoft 365 Services**: Azure Front Door CDN outages affecting Teams and Exchange Online
-- **Asahi Brewery Systems**: Ransomware attack causing operational disruptions and beer shortages
-- **Salesforce Customer Environments**: Widespread data theft attacks affecting multiple customers
+- **WordPress Sites**: Service Finder theme and general WordPress installations targeted for authentication bypass and JavaScript injection
+- **Multiple Device Types**: Over 30 distinct device categories targeted by RondoDox botnet including various IoT and network devices
+- **Figma MCP Servers**: Third-party Framelink integration vulnerable to RCE attacks
+- **Android Devices**: Russian users targeted by ClayRat spyware through fake WhatsApp and TikTok applications
+- **SonicWall Cloud Services**: All cloud backup customers affected by firewall configuration theft
+- **AWS Cloud Instances**: Targeted by Crimson Collective for data theft operations
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Direct exploitation of WordPress theme vulnerabilities for administrative access
-- **Cache Smuggling**: FileFix attack variant using cache smuggling to secretly download malicious ZIP archives
-- **Token Theft**: OAuth and API token compromise leading to SaaS environment breaches
-- **Voice Phishing**: ShinyHunters using vishing attacks to compromise Salesforce customer data
-- **JavaScript Injection**: Malicious code insertion into WordPress sites for traffic redirection
-- **Social Engineering**: Fake job postings targeting influencers with Tesla and Red Bull impersonation
-- **AI-Enhanced Phishing**: Russian actors using artificial intelligence to improve phishing campaign effectiveness
-- **Legitimate Tool Abuse**: Weaponizing open-source Nezha monitoring tool for malware delivery
+- **Botnet Recruitment**: Mass exploitation of 56 different vulnerabilities across diverse device types for botnet expansion
+- **Social Engineering**: ClayRat distribution through fake popular applications and Telegram channels
+- **Cache Smuggling**: FileFix attack variant uses cache smuggling to bypass security software detection
+- **Spear Phishing**: UTA0388 campaigns targeting multiple regions with Go-based implants
+- **Cloud Infrastructure Compromise**: Direct targeting of AWS environments for data exfiltration
+- **Authentication Bypass**: Direct exploitation of WordPress theme vulnerabilities
+- **JavaScript Injection**: Malicious code injection into compromised WordPress sites
 
 ## Threat Actor Activities
 
-- **Crimson Collective**: Targeting AWS cloud environments for data theft and extortion, recently breached Red Hat Consulting GitLab instance
-- **TwoNet**: Pro-Russian hacktivist group pivoting from DDoS attacks to critical infrastructure targeting
-- **ShinyHunters**: Conducting broad corporate extortion spree after stealing over billion records from Salesforce customers
-- **BatShadow**: Vietnamese cybercrime group deploying Vampire Bot malware targeting job hunters
-- **Chinese APT Groups**: Weaponizing Nezha tool and leveraging ChatGPT for malware development
-- **Russian State Actors**: Implementing AI-enhanced cyber operations against Ukraine with improved phishing techniques
-- **LockBit, Qilin, DragonForce Alliance**: Three major ransomware groups forming strategic cartel to share resources and attack information
-- **Scattered Lapsus$ Collaborators**: Partnering with Crimson Collective for expanded attack capabilities
+- **RondoDox Operators**: Conducting worldwide attacks targeting 56 vulnerabilities across 30+ device types in large-scale botnet operations
+- **UTA0388 (China-aligned)**: Operating spear-phishing campaigns across North America, Asia, and Europe delivering GOVERSHELL and HealthKick malware variants
+- **ClayRat Campaign**: Targeting Russian Android users through sophisticated fake application distribution networks
+- **Crimson Collective**: Actively compromising AWS cloud instances for data theft and extortion, recently targeting Red Hat Consulting GitLab instance
+- **Chinese APT Groups**: Weaponizing legitimate Nezha monitoring tool to deliver Gh0st RAT malware in new attack waves
+- **WordPress Attackers**: Multiple groups exploiting WordPress vulnerabilities for authentication bypass and malicious JavaScript injection
+- **Ransomware Cartel**: LockBit, Qilin, and DragonForce forming collaborative partnership to share attack information and resources
+- **TwoNet Hacktivists**: Pro-Russian group pivoting from DDoS attacks to critical infrastructure targeting
