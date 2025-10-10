@@ -1,55 +1,62 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple platforms and systems across the cybersecurity landscape. The RondoDox botnet is conducting large-scale attacks against 56 n-day vulnerabilities across more than 30 device types, exploiting previously disclosed flaws from Pwn2Own competitions. Simultaneously, threat actors are actively exploiting a critical authentication bypass vulnerability in the WordPress Service Finder theme, enabling unauthorized access to administrator accounts. Additional concerning activities include the ClayRat Android spyware campaign targeting users through fake popular applications, ransomware operations leveraging legitimate DFIR tools like Velociraptor, and the SonicWall cloud backup service breach affecting all customers using the service.
+Current cybersecurity threats showcase a concerning landscape of active exploitation activities across multiple attack vectors. The most critical concerns include active exploitation of WordPress themes enabling authentication bypass, massive botnet operations targeting 56 known vulnerabilities across 30+ device types, and sophisticated spyware campaigns targeting mobile users through social engineering. Enterprise environments face significant risks from ransomware groups weaponizing legitimate forensic tools, while supply chain attacks affect millions through compromised backup services and AI-powered social engineering campaigns.
 
 ## Active Exploitation Details
 
-### RondoDox Botnet Mass Exploitation
-- **Description**: Large-scale botnet targeting 56 different n-day vulnerabilities across more than 30 distinct device types, including flaws initially disclosed during Pwn2Own hacking competitions
-- **Impact**: Worldwide compromise of vulnerable devices and systems through automated exploitation of known vulnerabilities
-- **Status**: Currently active with ongoing exploitation campaigns
+### Service Finder WordPress Theme Authentication Bypass
+- **Description**: Critical security flaw in the Service Finder WordPress theme that allows threat actors to bypass authentication mechanisms
+- **Impact**: Attackers can gain unauthorized access to any account, including administrator accounts, leading to complete site compromise
+- **Status**: Currently being actively exploited by threat actors
 
-### WordPress Service Finder Theme Authentication Bypass
-- **Description**: Critical security flaw in the Service Finder WordPress theme allowing attackers to bypass authentication mechanisms
-- **Impact**: Unauthorized access to any account including administrator accounts on affected WordPress installations
-- **Status**: Actively being exploited by threat actors
+### RondoDox Botnet Multi-Vulnerability Campaign
+- **Description**: Large-scale botnet operation targeting 56 different vulnerabilities across more than 30 distinct device types, including vulnerabilities first disclosed during Pwn2Own competitions
+- **Impact**: Worldwide attacks enabling device compromise and botnet recruitment across diverse hardware platforms
+- **Status**: Active exploitation campaign ongoing globally
+
+### WordPress Sites JavaScript Injection Campaign
+- **Description**: Malicious JavaScript injections targeting WordPress sites to redirect users to malicious destinations as part of ClickFix phishing attacks
+- **Impact**: Site visitors redirected to sketchy sites for credential harvesting and malware distribution
+- **Status**: Active campaign targeting WordPress installations
+
+### Figma MCP Server Remote Code Execution
+- **Description**: Security vulnerability in Framelink Figma MCP Server that enables agentic AI compromise
+- **Impact**: Remote code execution capabilities that can compromise organizational systems
+- **Status**: Patch available - immediate patching required
 - **CVE ID**: CVE-2025-53967
-
-### ClayRat Android Spyware Campaign
-- **Description**: Rapidly evolving Android spyware campaign using fake applications that mimic popular services like WhatsApp, Google Photos, TikTok, and YouTube
-- **Impact**: Complete device compromise with spyware capabilities including data theft and surveillance
-- **Status**: Active targeting of users primarily in Russia through Telegram channels and phishing websites
-
-### Velociraptor DFIR Tool Abuse
-- **Description**: Threat actors weaponizing the legitimate Velociraptor digital forensics and incident response tool in ransomware attacks
-- **Impact**: Deployment of LockBit and Babuk ransomware using trusted security tools to evade detection
-- **Status**: Currently being used in active ransomware campaigns
 
 ## Affected Systems and Products
 
-- **WordPress Sites**: Service Finder theme installations vulnerable to authentication bypass
-- **Android Devices**: Targeted by ClayRat spyware through malicious app installations
-- **Multiple IoT and Network Devices**: Over 30 device types targeted by RondoDx botnet exploitation
-- **SonicWall Customers**: All users of SonicWall's cloud backup service affected by data breach
-- **Enterprise Networks**: Systems vulnerable to Velociraptor-based ransomware attacks
-- **Figma Integrations**: Organizations using Framelink Figma MCP Server vulnerable to remote code execution
-- **Discord Users**: 5.5 million users potentially affected by claimed Zendesk support system breach
+- **Android Devices**: ClayRat spyware targeting through fake WhatsApp, TikTok, YouTube, and Google Photos applications
+- **WordPress Sites**: Service Finder theme and general WordPress installations under active attack
+- **SonicWall Cloud Backup**: All customers using cloud backup service affected by firewall configuration theft
+- **GitHub Copilot**: Vulnerable to CamoLeak AI attack for data exfiltration
+- **University Systems**: HR departments targeted by Storm-2657 in payroll diversion attacks
+- **Discord**: Claimed breach affecting 5.5 million users through Zendesk support system
+- **Figma MCP Server**: Third-party integration vulnerable to agentic AI compromise
+- **30+ Device Types**: Various hardware platforms targeted by RondoDox botnet
+- **Asahi Brewery**: Japanese beer manufacturer compromised by Qilin ransomware
 
 ## Attack Vectors and Techniques
 
-- **Mass Vulnerability Scanning**: RondoDox botnet systematically targeting known n-day vulnerabilities across diverse device types
-- **Social Engineering**: ClayRat campaign using fake popular applications distributed through Telegram and phishing sites
-- **Living-off-the-Land**: Ransomware operators abusing legitimate DFIR tools like Velociraptor to bypass security controls
-- **Cache Smuggling**: FileFix attack variant using cache smuggling techniques to secretly download malicious ZIP archives while evading security software
-- **ClickFix Phishing**: WordPress sites compromised with malicious JavaScript injections to redirect users to fraudulent sites
-- **AI-Enhanced Attacks**: Russian threat actors incorporating artificial intelligence into cyber operations against Ukraine
+- **Social Engineering**: ClayRat spyware distributed through fake popular application lookalikes via Telegram channels and phishing websites
+- **AI-Powered Attacks**: CamoLeak technique exploiting GitHub Copilot for code and secrets exfiltration
+- **Payroll Diversion**: Storm-2657 targeting university HR employees to hijack salary payments
+- **Tool Abuse**: Velociraptor DFIR tool weaponized for LockBit and Babuk ransomware deployment
+- **Cache Smuggling**: FileFix attack variant using cache smuggling to bypass security software detection
+- **Spear-Phishing**: UTA0388 campaigns targeting North America, Asia, and Europe with Go-based implants
+- **Supply Chain**: Compromise of backup services affecting all SonicWall cloud backup customers
+- **JavaScript Injection**: WordPress sites compromised for malicious redirections in ClickFix campaigns
 
 ## Threat Actor Activities
 
-- **Storm-2657**: Conducting "payroll pirate" attacks targeting university HR employees in the United States to hijack salary payments since March 2025
-- **UTA0388**: China-aligned threat actor conducting spear-phishing campaigns across North America, Asia, and Europe to deliver GOVERSHELL Go-based implant
-- **TwoNet**: Pro-Russian hacktivist group evolving from DDoS attacks to targeting critical infrastructure systems
-- **Crimson Collective**: Recently breached Red Hat Consulting's GitLab instance and has formed partnerships with the notorious Lapsus$ cybercriminal collective
-- **LockBit, Qilin & DragonForce**: Three major ransomware groups forming a collaborative "cartel" to share attack information and resources following the release of LockBit 5.0
-- **Qilin Ransomware**: Claimed responsibility for attacking Japanese beer maker Asahi and leaked company data on dark web extortion sites
-- **BatShadow**: Vietnam-based cybercrime group behind the Vampire Bot malware campaign targeting job hunters
+- **Storm-2657**: Cybercrime gang conducting "payroll pirate" attacks against US universities since March 2025, targeting HR employees for salary payment hijacking
+- **UTA0388**: China-aligned threat actor conducting spear-phishing campaigns across multiple regions, deploying HealthKick to GOVERSHELL evolution malware
+- **ClayRat Operators**: Android spyware campaign targeting Russian users through social engineering and app impersonation
+- **RondoDox Botnet**: Large-scale operation targeting 56 vulnerabilities worldwide across diverse device ecosystems
+- **TwoNet**: Pro-Russian hacktivist group evolved from DDoS attacks to critical infrastructure targeting
+- **Qilin Ransomware**: Claims responsibility for Asahi brewery attack with data leakage threats
+- **LockBit, Qilin & DragonForce**: Ransomware cartel formation sharing attack information and resources
+- **Crimson Collective**: Red Hat hackers collaborating with Scattered Lapsus$ collective after GitLab breach
+- **BatShadow**: Vietnam-based cybercrime group operating Vampire Bot malware targeting job hunters
+- **Chaos Ransomware**: Enhanced C++ variant with encryption, wiper, and cryptocurrency-stealing capabilities
