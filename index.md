@@ -1,63 +1,65 @@
 # Exploitation Report
 
-The current threat landscape reveals a concerning escalation in active exploitation activities, with several critical zero-day vulnerabilities being leveraged by sophisticated threat actors. Most notably, CL0P-linked hackers have exploited a zero-day vulnerability in Oracle's E-Business Suite software since August 2025, impacting dozens of organizations worldwide. Additionally, the RondoDox botnet is conducting large-scale attacks targeting 56 n-day vulnerabilities across more than 30 device types, while threat actors are actively exploiting authentication bypass flaws in WordPress themes and conducting widespread spyware campaigns targeting Android users through social engineering techniques.
+Critical vulnerabilities are under active exploitation across multiple platforms, with threat actors leveraging zero-day flaws and unpatched vulnerabilities to compromise enterprise systems. Notable incidents include active exploitation of Fortra GoAnywhere MFT systems through CVE-2025-10035, zero-day attacks on Gladinet CentreStack and TrioFox products, and large-scale compromise of Oracle E-Business Suite installations. The CL0P ransomware group has exploited Oracle software flaws to breach dozens of organizations, while the RondoDox botnet is actively targeting 56 known vulnerabilities across 30+ device types. Additional threats include malicious npm packages used for credential harvesting, Android spyware campaigns, and authentication bypass vulnerabilities in WordPress themes.
 
 ## Active Exploitation Details
 
-### Oracle E-Business Suite Zero-Day Exploitation
-- **Description**: A zero-day security flaw in Oracle's E-Business Suite (EBS) software has been actively exploited by CL0P-linked hackers since August 9, 2025
-- **Impact**: Dozens of organizations have been compromised, allowing attackers to gain unauthorized access to enterprise systems and potentially exfiltrate sensitive data
-- **Status**: Active exploitation ongoing since August 2025, affecting multiple organizations globally
+### Fortra GoAnywhere MFT Vulnerability
+- **Description**: Critical security flaw in GoAnywhere Managed File Transfer software that has been actively exploited in the wild
+- **Impact**: Unauthorized access to file transfer systems and potential data exfiltration
+- **Status**: Under active investigation by Fortra with timeline of exploitation revealed
+- **CVE ID**: CVE-2025-10035
+
+### Gladinet CentreStack and TrioFox Zero-Day
+- **Description**: Unpatched security flaw affecting Gladinet CentreStack and TrioFox products, allowing Local File Inclusion (LFI) to Remote Code Execution (RCE) escalation
+- **Impact**: Full system compromise and remote code execution capabilities
+- **Status**: Zero-day vulnerability under active exploitation with no patch available
+
+### Oracle E-Business Suite Zero-Day
+- **Description**: Zero-day security flaw in Oracle's E-Business Suite (EBS) software exploited since August 9, 2025
+- **Impact**: Complete system compromise affecting dozens of organizations globally
+- **Status**: Active exploitation by CL0P-linked threat actors
 
 ### WordPress Service Finder Theme Authentication Bypass
-- **Description**: A critical security flaw in the Service Finder WordPress theme allows attackers to bypass authentication mechanisms
-- **Impact**: Threat actors can gain unauthorized access to any account, including administrator accounts, providing complete control over WordPress installations
-- **Status**: Currently being actively exploited by threat actors
+- **Description**: Critical security flaw allowing authentication bypass in WordPress Service Finder theme
+- **Impact**: Unauthorized access to any account including administrator privileges
+- **Status**: Under active exploitation by threat actors
 
-### RondoDox Botnet N-Day Exploitation
-- **Description**: A large-scale botnet targeting 56 known vulnerabilities across more than 30 distinct device types, including flaws first disclosed during Pwn2Own hacking competitions
-- **Impact**: Worldwide attacks compromising various devices and systems to build an extensive botnet infrastructure
-- **Status**: Active exploitation campaign targeting multiple n-day vulnerabilities simultaneously
-
-### Framelink Figma MCP Server Vulnerability
-- **Description**: A vulnerability in a third-party option for connecting Figma to agentic AI systems
-- **Impact**: Can lead to remote code execution (RCE) and potential compromise of organizations using agentic AI
-- **Status**: Patch available, organizations advised to update immediately
-- **CVE ID**: CVE-2025-53967
+### RondoDox Botnet Multi-Vulnerability Campaign
+- **Description**: Large-scale botnet targeting 56 vulnerabilities across more than 30 distinct device types, including flaws from Pwn2Own competitions
+- **Impact**: Device compromise and botnet recruitment for various malicious activities
+- **Status**: Active worldwide attacks targeting known vulnerabilities
 
 ## Affected Systems and Products
 
-- **Oracle E-Business Suite**: Enterprise resource planning software affected by zero-day exploitation
-- **WordPress Service Finder Theme**: WordPress theme vulnerable to authentication bypass attacks
-- **Various IoT and Network Devices**: Over 30 distinct device types targeted by RondoDox botnet
-- **Android Mobile Devices**: Targeted by ClayRat spyware through fake applications
-- **SonicWall Cloud Backup Service**: All customers using cloud backup service affected by data breach
-- **Figma Integration Systems**: Organizations using Framelink MCP server for AI integration
-- **Microsoft Teams and Communication Platforms**: Targeted in social engineering campaigns
-- **University HR and Payroll Systems**: Specifically targeted in "payroll pirate" attacks
+- **Fortra GoAnywhere MFT**: Managed file transfer systems across enterprise environments
+- **Gladinet CentreStack**: Cloud storage and file sharing platforms
+- **TrioFox**: File access and sharing solutions
+- **Oracle E-Business Suite**: Enterprise resource planning software installations
+- **WordPress Service Finder Theme**: Website content management systems
+- **npm Registry**: JavaScript package management ecosystem with 175 malicious packages
+- **Android Devices**: Mobile platforms targeted by ClayRat spyware through fake app distribution
+- **SonicWall Firewalls**: All customers using cloud backup services affected by data breach
+- **Multiple Device Types**: 30+ distinct devices targeted by RondoDox botnet
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unknown vulnerabilities in Oracle EBS software
-- **Social Engineering via Fake Applications**: ClayRat spyware distributed through fake WhatsApp, TikTok, YouTube, and Google Photos applications
-- **Mass Vulnerability Scanning**: RondoDox botnet systematically targeting 56 different vulnerability types
-- **Authentication Bypass**: Direct circumvention of WordPress authentication mechanisms
-- **Spear-Phishing Campaigns**: UTA0388 conducting targeted phishing to deliver GOVERSHELL implants
-- **Cache Smuggling**: FileFix attack variant using cache smuggling to evade security software detection
-- **Legitimate Tool Abuse**: Threat actors weaponizing Velociraptor DFIR tool in ransomware attacks
-- **Token Theft**: Exploitation of OAuth and API tokens for SaaS breaches
-- **AI-Enhanced Attacks**: Russian hackers incorporating artificial intelligence in cyber operations against Ukraine
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise software
+- **Supply Chain Attacks**: Distribution of 175 malicious npm packages with 26,000+ downloads for credential harvesting
+- **Social Engineering**: ClayRat spyware distributed through fake popular apps like WhatsApp, TikTok, and YouTube
+- **Authentication Bypass**: Direct circumvention of login mechanisms in WordPress themes
+- **Phishing Campaigns**: Spear-phishing operations delivering Go-based implants and espionage malware
+- **Botnet Recruitment**: Mass exploitation of known vulnerabilities for device compromise and control
+- **Legitimate Tool Abuse**: Usage of Velociraptor DFIR tool in ransomware deployment operations
+- **University Targeting**: "Payroll pirate" attacks specifically targeting HR employees in educational institutions
 
 ## Threat Actor Activities
 
-- **CL0P-Linked Hackers**: Conducting zero-day exploitation of Oracle EBS since August 2025, targeting dozens of organizations
-- **RondoDox Operators**: Running large-scale botnet operations targeting 56 vulnerabilities across global infrastructure
-- **UTA0388 (China-aligned)**: Conducting spear-phishing campaigns across North America, Asia, and Europe to deploy GOVERSHELL implants
-- **Storm-2657**: Targeting university employees in "payroll pirate" attacks since March 2025 to hijack salary payments
-- **ClayRat Campaign**: Rapidly evolving Android spyware operation targeting Russian users through Telegram channels and phishing websites
-- **ShinyHunters Group**: Operating BreachForums portal (now seized by FBI) for corporate data leaks and extortion
-- **TwoNet Hacktivist Group**: Pro-Russian group pivoting from DDoS attacks to critical infrastructure targeting
-- **Crimson Collective**: Recently breached Red Hat Consulting's GitLab instance and partnered with Scattered Lapsus$
-- **Ransomware Cartel**: LockBit, Qilin, and DragonForce collaborating to share attack information and resources
-- **BatShadow (Vietnam-based)**: Operating Vampire Bot malware campaigns targeting job hunters
-- **Russian State Actors**: Incorporating AI tools in cyber operations against Ukrainian targets
+- **CL0P Ransomware Group**: Actively exploiting Oracle E-Business Suite zero-day since August 2025, compromising dozens of organizations
+- **UTA0388**: China-aligned threat actor conducting spear-phishing campaigns across North America, Asia, and Europe using GOVERSHELL malware
+- **Storm-2657**: Cybercrime gang targeting university employees in payroll hijacking attacks since March 2025
+- **RondoDox Operators**: Large-scale botnet operation targeting 56 vulnerabilities across global infrastructure
+- **ClayRat Campaign**: Android spyware operation targeting Russian users through Telegram channels and phishing websites
+- **ShinyHunters/BreachForums**: Data extortion operations until FBI takedown of their portal used for corporate data leaks
+- **TwoNet Hacktivists**: Pro-Russian group pivoting from DDoS attacks to critical infrastructure targeting
+- **BatShadow Group**: Vietnam-based cybercrime operation behind Vampire Bot malware targeting job seekers
