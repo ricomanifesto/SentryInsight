@@ -1,56 +1,52 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical zero-day vulnerabilities under active exploitation, with threat actors targeting enterprise file sharing systems, Oracle business applications, and consumer edge devices. The most severe activity involves CVE-2025-11371 affecting Gladinet CentreStack and Triofox products, which allows local attackers to access system files without authentication. Additionally, CL0P-linked hackers have been exploiting an Oracle E-Business Suite zero-day since August 2025, impacting dozens of organizations. The RondoDox botnet continues its aggressive "exploit shotgun" campaign against consumer edge devices, while sophisticated threat groups like Storm-2603 and Storm-2657 are leveraging legitimate tools for ransomware deployment and payroll theft operations.
+Critical zero-day vulnerabilities are currently being exploited in the wild, with threat actors targeting enterprise file sharing systems and Oracle business applications. Most concerning is the active exploitation of CVE-2025-11371 in Gladinet CentreStack and TrioFox products, allowing local attackers to access system files without authentication. Additionally, CL0P-linked hackers have been exploiting an Oracle E-Business Suite zero-day since August 2025, potentially impacting dozens of organizations. Meanwhile, multiple threat groups are leveraging legitimate security tools like Velociraptor for persistent access in ransomware campaigns, and sophisticated botnet operations like RondoDox and Aisuru are compromising consumer edge devices and IoT infrastructure at scale.
 
 ## Active Exploitation Details
 
-### Gladinet Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability in Gladinet CentreStack and Triofox file sharing products that allows local file inclusion (LFI) leading to remote code execution (RCE)
-- **Impact**: Allows local attackers to access system files without authentication, potentially leading to complete system compromise
-- **Status**: Currently being actively exploited in the wild, unpatched
+### Gladinet CentreStack and TrioFox Zero-Day
+- **Description**: Local file inclusion vulnerability that allows attackers to access system files without authentication, with demonstrated escalation to remote code execution
+- **Impact**: Complete system compromise through unauthorized file access and potential RCE capabilities
+- **Status**: Actively exploited in the wild, currently unpatched
 - **CVE ID**: CVE-2025-11371
 
 ### Oracle E-Business Suite Zero-Day
-- **Description**: A critical security flaw in Oracle's E-Business Suite (EBS) software being exploited by CL0P-linked threat actors
-- **Impact**: Enables unauthorized access to enterprise business applications and data exfiltration
-- **Status**: Active exploitation detected since August 9, 2025, affecting dozens of organizations
-- **CVE ID**: CVE-2025-10035
+- **Description**: Security flaw in Oracle's E-Business Suite software being exploited by CL0P-linked threat actors
+- **Impact**: Data breach affecting dozens of organizations since exploitation began
+- **Status**: Active exploitation ongoing since August 9, 2025
 
-### GoAnywhere MFT Critical Vulnerability
-- **Description**: A critical security flaw in Fortra's GoAnywhere Managed File Transfer solution
-- **Impact**: Enables attackers to compromise file transfer operations and potentially access sensitive data
-- **Status**: Actively exploited, full investigation timeline released by Fortra
+### GoAnywhere MFT Critical Flaw
+- **Description**: Critical security vulnerability in Fortra's GoAnywhere Managed File Transfer platform
+- **Impact**: Potential system compromise and data exfiltration through managed file transfer systems
+- **Status**: Under active exploitation with full timeline investigation completed
 - **CVE ID**: CVE-2025-10035
 
 ## Affected Systems and Products
 
-- **Gladinet CentreStack and Triofox**: File sharing and synchronization products vulnerable to authentication bypass
-- **Oracle E-Business Suite (EBS)**: Enterprise resource planning software targeted by CL0P-linked actors
-- **GoAnywhere Managed File Transfer**: Fortra's file transfer solution experiencing active exploitation
-- **Consumer Edge Devices**: Various IoT and network devices targeted by RondoDox botnet
-- **Node.js Applications**: Single Executable Application (SEA) feature abused for malware distribution
-- **npm Registry**: 175 malicious packages with 26,000 downloads used in credential phishing
-- **Android Devices**: ClayRat spyware targeting mobile users through fake popular apps
-- **SonicWall Firewall Systems**: 100% of cloud backup configurations compromised
+- **Gladinet CentreStack and TrioFox**: File sharing and collaboration platforms vulnerable to local file inclusion attacks
+- **Oracle E-Business Suite**: Enterprise resource planning software affected by zero-day exploitation
+- **Fortra GoAnywhere MFT**: Managed file transfer solutions experiencing active attacks
+- **Consumer Edge Devices**: Routers, IoT devices, and network equipment targeted by RondoDox botnet operations
+- **IoT Infrastructure**: Internet-connected devices on major US ISPs including AT&T, Comcast, and Verizon compromised by Aisuru botnet
+- **Node.js Applications**: Systems using Single Executable Application feature targeted by Stealit malware campaign
+- **SonicWall Cloud Backup**: 100% of firewall configuration backups compromised in recent breach
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Attackers leveraging unpatched vulnerabilities in enterprise software for initial access
-- **Local File Inclusion (LFI) to RCE**: Escalating file inclusion vulnerabilities to achieve remote code execution
-- **Exploit Shotgun Approach**: RondoDx botnet using hit-and-run tactics against multiple edge device vulnerabilities
-- **Legitimate Tool Abuse**: Storm-2603 group using Velociraptor DFIR tool for persistent access and ransomware deployment
-- **Node.js SEA Abuse**: Stealit malware campaign leveraging Single Executable Application feature for payload distribution
-- **Supply Chain Compromise**: Malicious npm packages used for credential harvesting operations
-- **Social Engineering**: ClayRat spyware masquerading as legitimate popular applications
-- **HR System Targeting**: Payroll pirate attacks focusing on university HR employees and SaaS account hijacking
+- **Zero-Day Exploitation**: Direct targeting of unpatched vulnerabilities in enterprise software systems
+- **Tool Abuse**: Legitimate DFIR tools like Velociraptor weaponized for persistent access and ransomware deployment
+- **Supply Chain Compromise**: 175 malicious npm packages with 26,000 downloads used for credential phishing
+- **Social Engineering**: Android spyware ClayRat disguised as popular applications like WhatsApp, TikTok, and YouTube
+- **Botnet Operations**: Shotgun-style exploitation of consumer edge devices for DDoS and persistent access
+- **AI Tool Manipulation**: CamoLeak attacks targeting GitHub Copilot for data exfiltration
+- **Payroll Hijacking**: HR system compromise for salary payment diversion attacks
 
 ## Threat Actor Activities
 
-- **CL0P-Linked Actors**: Actively exploiting Oracle E-Business Suite zero-day since August 2025, targeting multiple organizations for data theft and extortion
-- **Storm-2603 (Chinese APT)**: Using Velociraptor DFIR tool to maintain persistent access and deploy LockBit and Babuk ransomware in enterprise environments
-- **Storm-2657 (Payroll Pirates)**: Conducting sophisticated social engineering campaigns against university HR employees to redirect salary payments since March 2025
-- **ShinyHunters Group**: Operating BreachForums portal for corporate data leaking and Salesforce extortion until FBI takedown
-- **RondoDox Operators**: Deploying widespread botnet attacks against consumer edge devices using automated exploitation techniques
-- **Stealit Campaign**: Distributing malware through fake game and VPN installers using Node.js exploitation techniques
-- **npm Package Attackers**: Publishing 175 malicious packages for large-scale credential harvesting operations
-- **ClayRat Developers**: Creating Android spyware campaigns targeting users through fake versions of popular applications
+- **CL0P Ransomware Group**: Actively exploiting Oracle E-Business Suite zero-day affecting dozens of organizations since August 2025
+- **Storm-2603**: Chinese threat group using Velociraptor DFIR tools in LockBit and Babuk ransomware attacks for persistent network access
+- **Storm-2657**: "Payroll Pirates" targeting university HR employees in the United States to hijack salary payments since March 2025
+- **ShinyHunters Group**: Operating BreachForums portal for Salesforce extortion until FBI takedown of all domains
+- **RondoDox Operators**: Running hit-and-run exploitation campaigns against consumer edge devices worldwide using shotgun approach
+- **Aisuru Botnet**: Orchestrating record-breaking DDoS attacks primarily from compromised IoT devices on US ISPs
+- **Stealit Campaign**: Distributing malware through game and VPN installers using Node.js Single Executable Application features
