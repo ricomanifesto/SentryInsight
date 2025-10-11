@@ -1,57 +1,56 @@
 # Exploitation Report
 
-Current cybersecurity landscape reveals several critical active exploitation campaigns targeting enterprise infrastructure and file-sharing systems. The most significant threats include zero-day exploitation of Gladinet CentreStack and TrioFox products (CVE-2025-11371), widespread compromise of SonicWall SSL VPN devices affecting over 100 accounts, and Oracle E-Business Suite zero-day exploitation by CL0P-linked threat actors. Additionally, threat actors are weaponizing legitimate DFIR tools like Velociraptor for ransomware deployment, while the massive Aisuru botnet is launching record-breaking DDoS attacks using compromised IoT devices.
+Current threat landscape analysis reveals several critical active exploitation campaigns targeting enterprise infrastructure and software products. The most significant concerns include zero-day exploitation of Gladinet CentreStack and TrioFox file sharing software, widespread compromise of SonicWall VPN devices affecting over 100 customer accounts, and sophisticated abuse of legitimate security tools like Velociraptor DFIR by Chinese threat actors in ransomware operations. Additionally, CL0P-linked hackers have exploited Oracle E-Business Suite vulnerabilities to breach dozens of organizations, while various botnets including RondoDox and Aisuru are conducting large-scale exploitation campaigns against edge devices and IoT infrastructure.
 
 ## Active Exploitation Details
 
 ### Gladinet CentreStack and TrioFox Zero-Day Vulnerability
-- **Description**: Local file inclusion (LFI) vulnerability that escalates to remote code execution (RCE), allowing attackers to access system files without authentication
-- **Impact**: Complete system compromise, unauthorized access to sensitive files, potential for lateral movement within networks
-- **Status**: Actively exploited in the wild, currently unpatched
+- **Description**: Local file inclusion vulnerability that can be escalated to remote code execution, allowing attackers to access system files without authentication
+- **Impact**: Unauthorized access to sensitive system files and potential complete system compromise
+- **Status**: Actively exploited zero-day vulnerability with no patch currently available
 - **CVE ID**: CVE-2025-11371
 
-### Fortra GoAnywhere Managed File Transfer Critical Flaw
-- **Description**: Critical security vulnerability in GoAnywhere MFT that has undergone active exploitation
-- **Impact**: Potential unauthorized access to managed file transfer systems and sensitive data
-- **Status**: Exploitation detected and patched following investigation
-- **CVE ID**: CVE-2025-10035
+### SonicWall SSL VPN Device Compromise
+- **Description**: Widespread compromise of SonicWall SSL VPN infrastructure enabling unauthorized access to multiple customer environments
+- **Impact**: Authentication bypass allowing threat actors to access over 100 customer accounts and environments
+- **Status**: Active exploitation campaign with widespread impact across multiple organizations
 
 ### Oracle E-Business Suite Zero-Day Exploitation
-- **Description**: Zero-day vulnerability in Oracle's E-Business Suite software that has been actively exploited since August 9, 2025
-- **Impact**: Organizational breaches affecting dozens of entities, potential data theft and system compromise
-- **Status**: Active exploitation by CL0P-linked hackers, patch status unclear
+- **Description**: Zero-day vulnerability in Oracle's E-Business Suite software that has been exploited since August 9, 2025
+- **Impact**: Complete organizational compromise with dozens of entities affected
+- **Status**: Active exploitation by CL0P-linked threat actors with significant organizational impact
 
-### SonicWall SSL VPN Widespread Compromise
-- **Description**: Authentication bypass or credential compromise affecting SonicWall SSL VPN devices
-- **Impact**: Unauthorized network access, potential lateral movement, compromise of multiple customer environments
-- **Status**: Actively exploited across more than 100 accounts, widespread campaign detected
+### Fortra GoAnywhere MFT Vulnerability
+- **Description**: Critical security flaw in GoAnywhere Managed File Transfer software
+- **Impact**: Unauthorized access to managed file transfer systems and potential data exfiltration
+- **Status**: Previously exploited vulnerability with detailed timeline of exploitation now disclosed
+- **CVE ID**: CVE-2025-10035
 
 ## Affected Systems and Products
 
-- **Gladinet CentreStack and TrioFox**: File sharing and collaboration platforms vulnerable to LFI/RCE attacks
-- **SonicWall SSL VPN Devices**: Network security appliances compromised for unauthorized access
-- **Oracle E-Business Suite**: Enterprise resource planning software targeted in zero-day attacks
-- **Fortra GoAnywhere MFT**: Managed file transfer solutions affected by critical vulnerability
-- **Consumer Edge Devices**: Targeted by RondoDox botnet using exploit shotgun approach
-- **IoT Devices on US ISPs**: Compromised devices on AT&T, Comcast, and Verizon networks used in DDoS attacks
-- **npm Registry Packages**: 175 malicious packages with 26,000 downloads used for credential harvesting
+- **SonicWall SSL VPN Devices**: Over 100 customer environments compromised with ongoing authentication bypass attacks
+- **Gladinet CentreStack and TrioFox**: File sharing and collaboration platforms vulnerable to zero-day local file inclusion attacks
+- **Oracle E-Business Suite**: Enterprise resource planning software targeted in zero-day campaign affecting dozens of organizations
+- **Fortra GoAnywhere MFT**: Managed file transfer software previously exploited with detailed attack timeline revealed
+- **Consumer Edge Devices**: IoT devices and edge infrastructure targeted by RondoDox botnet exploitation campaigns
+- **US ISP Networks**: AT&T, Comcast, and Verizon networks affected by Aisuru botnet leveraging compromised IoT devices
+- **Velociraptor DFIR Tool**: Legitimate digital forensics tool weaponized for persistent network access
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise software
-- **VPN Compromise**: Authentication bypass techniques targeting SSL VPN infrastructure
-- **DFIR Tool Weaponization**: Abuse of Velociraptor digital forensics tool for persistent access and ransomware deployment
-- **Supply Chain Attacks**: Malicious npm packages distributing credential harvesting malware
-- **Social Engineering**: Targeting HR employees for payroll redirection attacks
-- **Botnet DDoS**: Massive distributed denial of service attacks using compromised IoT devices
-- **Malware Distribution**: Stealit malware leveraging Node.js Single Executable Application feature through game and VPN installers
+- **Zero-Day Exploitation**: Multiple zero-day vulnerabilities actively exploited including Oracle EBS and Gladinet products
+- **VPN Infrastructure Compromise**: Authentication bypass techniques targeting SonicWall SSL VPN devices for widespread network access
+- **DFIR Tool Weaponization**: Abuse of legitimate Velociraptor forensics tool for persistent access and lateral movement
+- **Payroll Diversion Attacks**: HR SaaS account hijacking to redirect employee salary payments to attacker-controlled accounts
+- **Botnet Exploitation**: Shotgun approach to exploiting edge device vulnerabilities for DDoS and compromise operations
+- **Supply Chain Targeting**: Malicious npm packages (175 packages with 26,000 downloads) used for credential harvesting
+- **Social Engineering**: Android spyware campaigns using fake popular app interfaces to target mobile users
 
 ## Threat Actor Activities
 
-- **Storm-2603 (CL-CRI-1040)**: Chinese threat group weaponizing Velociraptor DFIR tool in LockBit and Babuk ransomware attacks
-- **Storm-2657**: "Payroll pirates" targeting university HR employees to hijack salary payments since March 2025
-- **CL0P-linked Hackers**: Exploiting Oracle E-Business Suite zero-day affecting dozens of organizations since August 2025
-- **ShinyHunters Group**: Operating BreachForums for data extortion, recently disrupted by FBI takedown
-- **RondoDox Botnet Operators**: Running exploit shotgun campaigns against consumer edge devices worldwide
-- **Aisuru Botnet**: Orchestrating record-breaking DDoS attacks using compromised US ISP-hosted IoT devices
-- **Unknown Threat Actors**: Conducting widespread SonicWall VPN compromise affecting 100+ accounts and actively exploiting Gladinet/TrioFox zero-day
+- **Storm-2603 (CL-CRI-1040)**: Chinese threat group weaponizing Velociraptor DFIR tool in LockBit and Babuk ransomware attacks for persistent network access
+- **Storm-2657**: Cybercrime gang conducting "payroll pirate" attacks targeting university HR employees to hijack salary payments since March 2025
+- **CL0P-Linked Actors**: Ransomware group exploiting Oracle E-Business Suite zero-day vulnerability affecting dozens of organizations since August 2025
+- **ShinyHunters Group**: Operators of BreachForums portal used for Salesforce extortion before FBI takedown, with ongoing extortion threats remaining active
+- **RondoDox Botnet Operators**: Conducting widespread exploitation campaigns using shotgun approach against consumer edge devices globally
+- **Aisuru Botnet**: Operating world's largest DDoS botnet primarily using compromised IoT devices on US ISP networks for record-breaking attacks
