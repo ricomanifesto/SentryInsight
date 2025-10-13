@@ -1,55 +1,55 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently experiencing significant exploitation activity across multiple critical vulnerabilities. Most notably, Oracle E-Business Suite has been targeted through a zero-day vulnerability that allows unauthenticated remote attackers to access sensitive data, leading to confirmed breaches including Harvard University. Additionally, the RondoDox botnet is conducting widespread "exploit shotgun" campaigns targeting over 50 vulnerabilities across 30+ vendors, while threat actors are exploiting a zero-day in Gladinet file sharing software. The situation is further complicated by widespread SonicWall VPN compromises affecting over 100 accounts and the weaponization of legitimate security tools like Velociraptor for ransomware attacks.
+Current threat landscapes reveal several critical exploitation campaigns targeting enterprise infrastructure and applications. Notable activities include widespread attacks against RDP services by a massive botnet spanning over 100,000 IP addresses, active exploitation of Oracle E-Business Suite vulnerabilities requiring emergency patches, and a zero-day attack against Gladinet file sharing software. The RondoDox botnet has significantly expanded its operations to weaponize over 50 vulnerabilities across more than 30 vendors, while threat actors continue to compromise SonicWall VPN accounts using stolen credentials in large-scale campaigns. Additionally, sophisticated ransomware groups are leveraging legitimate incident response tools like Velociraptor as backdoors, and attackers are exploiting Microsoft Edge's Internet Explorer mode as an unauthorized access vector.
 
 ## Active Exploitation Details
 
-### Oracle E-Business Suite Zero-Day Vulnerability
-- **Description**: A critical security flaw in Oracle's E-Business Suite that allows unauthorized access to sensitive data without authentication
-- **Impact**: Remote unauthenticated attackers can access and compromise sensitive organizational data, leading to data breaches and potential ransomware attacks
-- **Status**: Oracle has issued emergency patches over the weekend; actively exploited in the wild with confirmed victims including Harvard University
-
-### Gladinet CentreStack and Triofox Zero-Day
-- **Description**: A zero-day vulnerability in Gladinet file sharing software that allows local attackers to access system files without authentication
-- **Impact**: Unauthorized access to system files and potential data exfiltration
-- **Status**: Currently being actively exploited; no patch information provided
+### Oracle E-Business Suite Vulnerability
+- **Description**: A critical vulnerability in Oracle E-Business Suite that allows unauthorized access to sensitive data without authentication
+- **Impact**: Remote unauthenticated attackers can exploit this flaw to access sensitive business data
+- **Status**: Oracle issued an emergency security update over the weekend to address this vulnerability
 - **CVE ID**: CVE-2025-11371
 
-### RondoDox Botnet Multi-Vendor Exploitation
-- **Description**: A comprehensive "exploit shotgun" campaign targeting vulnerabilities across multiple vendors and products
-- **Impact**: Widespread botnet recruitment and system compromise across diverse infrastructure
-- **Status**: Active campaign exploiting over 50 flaws across 30+ vendors
+### Gladinet Zero-Day Vulnerability
+- **Description**: A zero-day vulnerability in Gladinet CentreStack and Triofox file sharing products
+- **Impact**: Local attackers can access system files without authentication
+- **Status**: Currently being actively exploited in the wild
+- **CVE ID**: CVE-2025-11371
 
-### SonicWall SSL VPN Compromise
-- **Description**: Widespread authentication bypass allowing threat actors to access multiple customer environments through compromised VPN devices
-- **Impact**: Unauthorized network access and potential lateral movement across customer infrastructure
-- **Status**: Over 100 accounts confirmed compromised; ongoing investigation
+### Microsoft Edge Internet Explorer Mode Abuse
+- **Description**: Threat actors are exploiting the backward compatibility feature in Microsoft Edge's IE mode
+- **Impact**: Attackers can use this legacy feature as an unauthorized backdoor
+- **Status**: Microsoft has revamped IE mode after receiving credible reports of abuse in August 2025
+
+### RondoDox Botnet Multi-Vendor Exploits
+- **Description**: Malware campaigns distributing RondoDox botnet targeting vulnerabilities across multiple vendors
+- **Impact**: Mass exploitation of over 50 flaws across 30+ vendors in consumer edge devices
+- **Status**: Actively exploiting vulnerabilities in a "shotgun" approach for maximum impact
 
 ## Affected Systems and Products
 
-- **Oracle E-Business Suite**: All versions affected by the zero-day vulnerability requiring emergency patching
-- **Gladinet CentreStack and Triofox**: File sharing software products vulnerable to local privilege escalation
-- **SonicWall SSL VPN Devices**: Multiple customer environments compromised through authentication bypass
-- **Consumer Edge Devices**: Over 30 vendors targeted by RondoDox botnet exploitation campaigns
-- **Microsoft Internet Explorer Mode**: Legacy compatibility feature in Edge browser exploited as backdoor mechanism
-- **IoT Devices**: Compromised devices on major US ISPs including AT&T, Comcast, and Verizon used in DDoS attacks
+- **Oracle E-Business Suite**: Enterprise business applications vulnerable to remote unauthenticated attacks
+- **Gladinet CentreStack and Triofox**: File sharing software products with active zero-day exploitation
+- **SonicWall SSL VPN**: Over 100 accounts compromised through credential-based attacks
+- **Microsoft Edge**: Internet Explorer mode feature being abused as backdoor access
+- **Remote Desktop Protocol (RDP)**: Services across the United States targeted by massive botnet
+- **Consumer Edge Devices**: Multiple vendors affected by RondoDox botnet exploitation campaigns
+- **Velociraptor DFIR Tool**: Open-source incident response tool weaponized for ransomware attacks
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Remote Exploitation**: Oracle E-Business Suite attacks allowing direct access without credentials
-- **Local Privilege Escalation**: Gladinet zero-day enabling system file access without authentication
-- **VPN Authentication Bypass**: SonicWall devices compromised to provide persistent network access
-- **Legitimate Tool Weaponization**: Velociraptor DFIR tool abused for ransomware deployment and persistence
-- **Legacy Feature Exploitation**: Internet Explorer mode in Edge browser used as backdoor mechanism
-- **Botnet Recruitment**: Mass exploitation campaigns using automated tools to compromise edge devices
-- **GitHub Infrastructure Abuse**: Astaroth banking trojan using GitHub repositories for command and control resilience
+- **Credential-Based Attacks**: Threat actors using stolen, valid credentials to compromise SonicWall VPN accounts
+- **Botnet Operations**: Massive multi-country botnet leveraging over 100,000 IP addresses for RDP targeting
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in file sharing software
+- **Tool Weaponization**: Legitimate DFIR tools like Velociraptor repurposed as persistent backdoors
+- **Legacy Feature Abuse**: Exploitation of backward compatibility features in modern browsers
+- **Mass Vulnerability Scanning**: RondoDox employing "exploit shotgun" approach across multiple vendors
 
 ## Threat Actor Activities
 
-- **Clop Ransomware Gang**: Actively exploiting Oracle zero-day vulnerability with Harvard University listed on their leak site
-- **Storm-2603 (CL-CRI-1040)**: Chinese threat group weaponizing Velociraptor DFIR tool for LockBit ransomware attacks and persistent network access
-- **RondoDox Operators**: Conducting widespread botnet campaigns with "exploit shotgun" approach across multiple vendor ecosystems
-- **Astaroth Banking Trojan Operators**: Leveraging GitHub infrastructure for command and control resilience following previous takedowns
-- **GXC Team Cybercrime Syndicate**: Brazilian-led operation dismantled by Spanish authorities with leader "GoogleXcoder" arrested
-- **ShinyHunters**: Extortion group targeting Salesforce customers before federal takedown of their operations site
-- **Unknown Advanced Threat Actors**: Exploiting Internet Explorer mode in Edge browser as backdoor mechanism, prompting Microsoft security enhancements
+- **Storm-2603 (CL-CRI-1040)**: Chinese threat group abusing Velociraptor DFIR tool in LockBit ransomware attacks for persistent network access
+- **Clop Ransomware Gang**: Listed Harvard University on data leak site following alleged Oracle zero-day exploitation
+- **GXC Team**: Cybercrime syndicate dismantled by Spanish authorities, with leader "GoogleXcoder" arrested
+- **ShinyHunters**: Extortion site shut down by federal authorities, though threats against Salesforce victims remain active
+- **RondoDox Operators**: Conducting widespread campaigns across consumer edge devices using automated exploitation techniques
+- **Multi-Country Botnet**: Coordinated RDP targeting campaign spanning international infrastructure
