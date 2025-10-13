@@ -1,61 +1,58 @@
 # Exploitation Report
 
-Current security incidents reveal a concerning landscape of active exploitation activities, with threat actors leveraging zero-day vulnerabilities, abusing legitimate security tools, and conducting widespread compromise campaigns. The most critical concerns include active exploitation of CVE-2025-11371 in Gladinet file sharing software allowing unauthorized system access, widespread SonicWall SSL VPN compromises affecting over 100 customer accounts, and the active exploitation of CVE-2025-10035 in Fortra's GoAnywhere MFT platform. Additionally, threat actors are weaponizing legitimate security tools like Velociraptor for ransomware operations and employing sophisticated botnets for record-breaking DDoS attacks against U.S. infrastructure.
+Current cybersecurity landscape reveals multiple critical zero-day vulnerabilities under active exploitation, including CVE-2025-11371 in Gladinet file sharing software and CVE-2025-10035 in Fortra's GoAnywhere MFT platform. Threat actors are demonstrating sophisticated techniques by weaponizing legitimate tools like Velociraptor DFIR software for ransomware operations, while widespread SonicWall VPN compromises affect over 100 accounts across multiple organizations. Additional campaigns leverage GitHub infrastructure for banking trojan operations and Discord channels for backdoor command and control, highlighting the evolution of attack methodologies targeting enterprise environments.
 
 ## Active Exploitation Details
 
 ### Gladinet CentreStack and TrioFox Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability allowing local attackers to access system files without authentication, with exploitation escalating from Local File Inclusion (LFI) to Remote Code Execution (RCE)
-- **Impact**: Unauthorized access to sensitive system files and potential full system compromise
-- **Status**: Actively exploited in the wild, currently unpatched
+- **Description**: A zero-day vulnerability allowing local attackers to access system files without authentication, escalating from Local File Inclusion (LFI) to Remote Code Execution (RCE)
+- **Impact**: Unauthorized access to sensitive system files and potential remote code execution capabilities
+- **Status**: Currently unpatched with active in-the-wild exploitation detected
 - **CVE ID**: CVE-2025-11371
 
 ### Fortra GoAnywhere MFT Critical Vulnerability
-- **Description**: A critical security flaw in GoAnywhere Managed File Transfer platform under active exploitation
-- **Impact**: Potential unauthorized access to file transfer systems and sensitive data
-- **Status**: Actively exploited, with complete investigation timeline revealed by vendor
+- **Description**: Critical security flaw in GoAnywhere Managed File Transfer platform under active exploitation
+- **Impact**: Complete compromise of file transfer systems and potential data exfiltration
+- **Status**: Active exploitation confirmed, patch timeline investigation completed
 - **CVE ID**: CVE-2025-10035
 
-### Oracle E-Business Suite Unauthorized Access Bug
-- **Description**: A fresh security flaw allowing unauthorized access to sensitive data without login credentials
-- **Impact**: Direct access to sensitive business data and systems
-- **Status**: Security alert issued by Oracle, patch status unclear
+### SonicWall SSL VPN Compromise
+- **Description**: Widespread compromise of SonicWall SSL VPN devices allowing unauthorized access to customer environments
+- **Impact**: Threat actors authenticating into multiple accounts across over 100 affected organizations
+- **Status**: Active compromise affecting multiple customer environments
 
-### SonicWall SSL VPN Widespread Compromise
-- **Description**: Large-scale compromise of SonicWall SSL VPN devices enabling access to multiple customer environments
-- **Impact**: Unauthorized access to corporate networks and potential lateral movement
-- **Status**: Over 100 customer accounts compromised, ongoing investigation
+### RondoDox Botnet Edge Device Exploitation
+- **Description**: Botnet taking a "shotgun approach" to exploiting vulnerabilities in consumer edge devices globally
+- **Impact**: Large-scale compromise of consumer networking equipment for botnet operations
+- **Status**: Active exploitation using hit-and-run tactics
 
 ## Affected Systems and Products
 
-- **Gladinet CentreStack and TrioFox**: File sharing and synchronization platforms with zero-day vulnerability
-- **Fortra GoAnywhere MFT**: Managed file transfer solutions experiencing active exploitation
-- **Oracle E-Business Suite**: Enterprise business applications with unauthorized access vulnerability
-- **SonicWall SSL VPN**: Network security appliances with widespread authentication compromise
-- **Node.js Applications**: Single Executable Applications feature abused by Stealit malware
-- **npm Registry**: 175 malicious packages with 26,000 downloads targeting credential harvesting
-- **Consumer Edge Devices**: Various IoT devices compromised by RondoDx botnet exploitation
-- **U.S. ISP Infrastructure**: AT&T, Comcast, and Verizon networks affected by Aisuru botnet DDoS attacks
+- **Gladinet CentreStack and TrioFox**: File sharing and collaboration platforms vulnerable to authentication bypass
+- **Fortra GoAnywhere MFT**: Managed file transfer solutions compromised through critical vulnerability
+- **SonicWall SSL VPN Devices**: Enterprise VPN infrastructure across multiple organizations
+- **Oracle E-Business Suite**: Enterprise resource planning systems vulnerable to unauthorized data access
+- **Consumer Edge Devices**: Routers, IoT devices, and networking equipment targeted by RondoDox botnet
+- **Internet-of-Things (IoT) Devices**: Compromised devices on major US ISPs including AT&T, Comcast, and Verizon
+- **npm Package Registry**: 175 malicious packages with over 26,000 downloads for credential harvesting
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities for system access
-- **Legitimate Tool Abuse**: Weaponization of Velociraptor DFIR tool for ransomware operations
-- **Social Engineering**: Fake inflation refund SMS campaigns targeting New York residents
-- **Supply Chain Attacks**: Malicious npm packages disguised as legitimate software libraries
-- **GitHub Infrastructure Abuse**: Astaroth banking trojan using GitHub for resilient command and control
-- **Discord C2 Communications**: ChaosBot malware leveraging Discord channels for victim control
-- **VPN Authentication Bypass**: Compromise of SSL VPN authentication mechanisms
-- **Payroll Diversion**: Storm-2657 hijacking HR SaaS accounts to redirect salary payments
+- **GitHub Infrastructure Abuse**: Astaroth banking trojan using GitHub repositories as operational backbone for resilience
+- **Discord C2 Communications**: ChaosBot backdoor leveraging Discord channels for command and control operations
+- **Legitimate Tool Weaponization**: Velociraptor DFIR tool abused by Storm-2603 for LockBit ransomware attacks
+- **Supply Chain Attacks**: Malicious npm packages disguised as legitimate software for credential phishing
+- **Social Engineering**: Fake "Inflation Refund" SMS campaigns targeting New York residents
+- **Node.js SEA Exploitation**: Stealit malware abusing Node.js Single Executable Application feature
+- **DDoS Infrastructure**: Aisuru botnet conducting record-breaking distributed denial of service attacks
+- **Authentication Bypass**: Zero-day vulnerabilities allowing unauthorized system access
 
 ## Threat Actor Activities
 
-- **Storm-2603 (CL-CRI-1040)**: Abusing Velociraptor tool in LockBit ransomware campaigns for persistent access
-- **Storm-2657**: "Payroll Pirates" targeting HR SaaS platforms to divert employee salary payments
-- **GXC Team**: Dismantled cybercrime syndicate led by "GoogleXcoder," 25-year-old Brazilian arrested
-- **ShinyHunters**: Salesforce extortion operations disrupted by FBI takedown of BreachForums portal
-- **Astaroth Operators**: Banking trojan campaign using GitHub infrastructure for operational resilience
-- **ChaosBot Developers**: Rust-based backdoor utilizing Discord for command and control operations
-- **Stealit Campaign**: Node.js SEA feature abuse for malware distribution via game and VPN installers
-- **RondoDx Botnet**: "Exploit shotgun" approach targeting consumer edge device vulnerabilities
-- **Aisuru Botnet**: Record-breaking DDoS attacks leveraging compromised IoT devices on U.S. ISPs
+- **Storm-2603 (CL-CRI-1040)**: Chinese threat group weaponizing Velociraptor DFIR tool for LockBit ransomware operations and persistent network access
+- **Storm-2657 "Payroll Pirates"**: Threat actor hijacking HR SaaS accounts to redirect employee salary payments to attacker-controlled accounts
+- **GXC Team**: Brazilian-led cybercrime syndicate dismantled by Spanish authorities, with 25-year-old leader "GoogleXcoder" arrested
+- **ShinyHunters**: Cybercrime group operating BreachForums portal for Salesforce data extortion before FBI takedown
+- **Astaroth Operators**: Banking trojan campaign using GitHub for infrastructure resilience after previous takedowns
+- **ChaosBot Developers**: Rust-based backdoor creators using Discord for covert command and control operations
+- **Aisuru Botnet Operators**: Large-scale DDoS operation compromising IoT devices across major US internet service providers
