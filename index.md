@@ -1,52 +1,58 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently under active exploitation across multiple enterprise platforms, with threat actors targeting Oracle E-Business Suite (CVE-2025-10035), Gladinet file sharing software (CVE-2025-11371), and SonicWall SSL VPN devices. CL0P-linked hackers have successfully breached dozens of organizations through Oracle software flaws since August 2025, while widespread SonicWall VPN compromises have impacted over 100 accounts. Additionally, sophisticated threat actors are weaponizing legitimate security tools like Velociraptor DFIR software for ransomware attacks and deploying new Android spyware campaigns alongside large-scale malicious npm package operations.
+The cybersecurity landscape is experiencing significant active exploitation activity, with multiple critical vulnerabilities being exploited in the wild. Most notably, threat actors are actively exploiting zero-day vulnerabilities in Oracle E-Business Suite and Gladinet file sharing software, with the Oracle flaw being linked to CL0P ransomware operations affecting dozens of organizations. Additional concerning developments include widespread SonicWall VPN compromises affecting over 100 accounts, the abuse of legitimate DFIR tools like Velociraptor in ransomware attacks, and sophisticated malware campaigns targeting consumers through fake applications and social engineering tactics.
 
 ## Active Exploitation Details
 
 ### Oracle E-Business Suite Zero-Day Vulnerability
-- **Description**: Critical security flaw in Oracle's E-Business Suite software that allows unauthorized access to sensitive data without authentication
-- **Impact**: Complete unauthorized access to enterprise data and systems; dozens of organizations have been breached since August 9, 2025
-- **Status**: Under active exploitation by CL0P-linked threat actors; Oracle has issued security alerts
-- **CVE ID**: CVE-2025-10035
+- **Description**: A zero-day security flaw in Oracle's E-Business Suite (EBS) software that allows unauthorized access to sensitive data without authentication
+- **Impact**: Attackers can access sensitive corporate data and have successfully breached dozens of organizations since exploitation began
+- **Status**: Under active exploitation since August 9, 2025, with Oracle issuing a security alert
+- **CVE ID**: Not specified in available information
 
-### Gladinet CentreStack and TrioFox Zero-Day
-- **Description**: Local file inclusion vulnerability that can be escalated to remote code execution, allowing attackers to access system files without authentication
-- **Impact**: Complete system compromise with ability to execute arbitrary code and access sensitive files
-- **Status**: Active in-the-wild exploitation detected; currently unpatched zero-day vulnerability
+### Gladinet CentreStack and TrioFox Zero-Day Vulnerability
+- **Description**: A zero-day vulnerability allowing local file inclusion (LFI) to remote code execution (RCE) attacks in Gladinet file sharing software
+- **Impact**: Local attackers can access system files without authentication and potentially achieve remote code execution
+- **Status**: Active in-the-wild exploitation detected, currently unpatched
 - **CVE ID**: CVE-2025-11371
 
-### SonicWall SSL VPN Mass Compromise
-- **Description**: Widespread authentication bypass affecting SonicWall SSL VPN devices across multiple customer environments
-- **Impact**: Unauthorized network access, lateral movement capabilities, and potential data exfiltration
-- **Status**: Active exploitation with over 100 accounts compromised; threat actors authenticating into multiple customer environments
+### Fortra GoAnywhere Managed File Transfer Vulnerability
+- **Description**: A critical security flaw in GoAnywhere Managed File Transfer (MFT) software
+- **Impact**: Allows attackers to compromise file transfer systems and access managed data
+- **Status**: Previously exploited, with Fortra releasing detailed timeline of exploitation and remediation
+- **CVE ID**: CVE-2025-10035
+
+### SonicWall SSL VPN Compromise
+- **Description**: Widespread compromise of SonicWall SSL VPN devices through authentication bypass
+- **Impact**: Threat actors are gaining authenticated access to multiple customer environments
+- **Status**: Over 100 accounts confirmed compromised across multiple customer environments
 
 ## Affected Systems and Products
 
-- **Oracle E-Business Suite**: Enterprise resource planning software used by large organizations worldwide
-- **Gladinet CentreStack and TrioFox**: File sharing and cloud storage solutions for enterprise environments
-- **SonicWall SSL VPN devices**: Network security appliances providing remote access capabilities
-- **Android mobile devices**: Targeted by ClayRat spyware masquerading as legitimate applications
-- **Node.js applications**: Exploited through Single Executable Application feature for malware distribution
-- **npm package ecosystem**: 175 malicious packages with 26,000 downloads used for credential harvesting
-- **Consumer IoT devices**: Compromised for DDoS botnet operations on major US ISPs
+- **Oracle E-Business Suite**: Enterprise resource planning software affected by zero-day vulnerability enabling unauthorized data access
+- **Gladinet CentreStack and TrioFox**: File sharing and collaboration platforms vulnerable to local file inclusion attacks
+- **Fortra GoAnywhere MFT**: Managed file transfer solution with critical vulnerability allowing system compromise
+- **SonicWall SSL VPN**: Network security appliances experiencing widespread authentication bypasses
+- **Node.js Applications**: Single Executable Application (SEA) feature being abused for malware distribution
+- **npm Registry**: 175 malicious packages with 26,000 downloads targeting credential harvesting
+- **Android Devices**: ClayRat spyware targeting users through fake popular applications
 
 ## Attack Vectors and Techniques
 
-- **Zero-day exploitation**: Direct targeting of unpatched vulnerabilities in enterprise software
-- **Authentication bypass**: Circumventing login mechanisms in VPN and enterprise applications  
-- **Local file inclusion to RCE escalation**: Converting file access vulnerabilities to full system compromise
-- **Supply chain attacks**: Distribution of malicious npm packages and compromised software installers
-- **Social engineering**: Fake mobile applications and phishing campaigns targeting credentials
-- **Legitimate tool abuse**: Weaponizing Velociraptor DFIR tool for persistent network access
-- **Botnet operations**: Large-scale DDoS attacks using compromised IoT devices
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in Oracle EBS and Gladinet software
+- **Authentication Bypass**: SonicWall VPN devices compromised through authentication mechanisms
+- **Legitimate Tool Abuse**: Velociraptor DFIR tool weaponized for persistent access in ransomware operations
+- **Social Engineering**: Fake "Inflation Refund" SMS campaigns targeting New York residents
+- **Supply Chain Attacks**: Malicious npm packages disguised as legitimate development tools
+- **Application Masquerading**: Android malware posing as popular apps like WhatsApp, TikTok, and YouTube
+- **Payroll Diversion**: HR SaaS account hijacking to redirect employee salary payments
 
 ## Threat Actor Activities
 
-- **CL0P-linked hackers**: Actively exploiting Oracle E-Business Suite zero-day to breach dozens of organizations since August 2025
-- **Storm-2603 (CL-CRI-1040)**: Chinese threat group abusing Velociraptor incident response tool in LockBit ransomware campaigns
-- **Storm-2657**: "Payroll Pirates" hijacking HR SaaS accounts to divert employee salary payments to attacker-controlled accounts
-- **GXC Team cybercrime syndicate**: Brazilian-led operation dismantled by Spanish authorities, with leader "GoogleXcoder" arrested
-- **ShinyHunters group**: Operating BreachForums portal for data extortion before FBI takedown; continuing Salesforce extortion activities
-- **Aisuru botnet operators**: Conducting record-breaking DDoS attacks against US ISPs using compromised IoT devices
-- **RondoDox botnet**: Taking "shotgun approach" to exploiting vulnerabilities in consumer edge devices globally
+- **CL0P Ransomware Group**: Linked to Oracle E-Business Suite zero-day exploitation affecting dozens of organizations since August 2025
+- **Storm-2603**: Chinese threat group abusing Velociraptor DFIR tool in LockBit ransomware attacks for persistent network access
+- **Storm-2657**: "Payroll Pirates" targeting HR SaaS platforms to hijack employee accounts and divert salary payments
+- **GXC Team**: Cybercrime syndicate dismantled by Spanish authorities, with leader "GoogleXcoder" arrested
+- **ShinyHunters**: Cybercriminal group operating BreachForums portal for Salesforce extortion before FBI takedown
+- **RondoDox Botnet**: Operating "exploit shotgun" approach targeting consumer edge devices globally
+- **Aisuru Botnet**: Launching record-breaking DDoS attacks primarily from compromised IoT devices on US ISPs
