@@ -1,49 +1,47 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently experiencing significant exploitation activity across multiple vectors, with zero-day vulnerabilities in critical systems being actively targeted by threat actors. Most notably, hackers are exploiting zero-day flaws in Microsoft's Chakra JavaScript engine within Internet Explorer mode, prompting Microsoft to implement access restrictions. Oracle's E-Business Suite faces active exploitation through a recently disclosed zero-day vulnerability that allows unauthorized remote access without authentication. Additionally, the RondoDox botnet has emerged as a major threat, weaponizing over 50 vulnerabilities across 30+ vendors in a shotgun-style exploitation approach. Widespread credential-based attacks are also occurring, with over 100 SonicWall SSL VPN accounts compromised using stolen valid credentials, while massive botnets target RDP services across the United States.
+The current threat landscape reveals several critical exploitation activities targeting enterprise systems and infrastructure. Zero-day vulnerabilities in Microsoft Edge's Internet Explorer mode and Oracle E-Business Suite are being actively exploited by threat actors to gain unauthorized system access. The Chakra JavaScript engine exploitation in Edge browsers has prompted Microsoft to implement emergency security restrictions. Additionally, widespread botnet operations are leveraging over 50 vulnerabilities across 30+ vendors, while credential-based attacks against VPN infrastructure and RDP services continue to pose significant risks to organizational security.
 
 ## Active Exploitation Details
 
-### Microsoft Chakra JavaScript Engine Zero-Day
-- **Description**: Zero-day vulnerabilities in Microsoft's Chakra JavaScript engine within Internet Explorer mode of Edge browser
-- **Impact**: Attackers can gain access to target devices by leveraging these flaws as a backdoor mechanism
-- **Status**: Actively exploited in the wild; Microsoft has implemented access restrictions to IE mode as mitigation
+### Microsoft Edge Internet Explorer Mode Zero-Day
+- **Description**: Zero-day vulnerability in the Chakra JavaScript engine within Microsoft Edge's Internet Explorer mode
+- **Impact**: Allows attackers to gain unauthorized access to target devices and establish persistent backdoors
+- **Status**: Microsoft has implemented emergency security restrictions on IE mode access in Edge browser
 
-### Oracle E-Business Suite Zero-Day Vulnerability
-- **Description**: A security flaw in Oracle E-Business Suite that allows unauthorized access to sensitive data
-- **Impact**: Remote attackers can access sensitive data without authentication, leading to potential data breaches
-- **Status**: Actively exploited; Oracle has issued an emergency security patch over the weekend
+### Oracle E-Business Suite Vulnerability
+- **Description**: Critical security flaw in Oracle E-Business Suite allowing remote exploitation by unauthenticated attackers
+- **Impact**: Enables unauthorized access to sensitive data and system compromise without authentication
+- **Status**: Oracle issued emergency security patch over the weekend
 
-### RondoDox Botnet Multi-Vendor Exploitation
-- **Description**: Malware campaign exploiting over 50 vulnerabilities across more than 30 vendors in consumer edge devices
-- **Impact**: Botnet operators can compromise various network devices and systems using a "shotgun" approach to exploitation
-- **Status**: Ongoing active exploitation targeting edge devices worldwide
+### RondoDox Botnet Exploitation Campaign
+- **Description**: Large-scale botnet operation exploiting over 50 vulnerabilities across more than 30 vendors
+- **Impact**: Mass compromise of edge devices and consumer infrastructure through "exploit shotgun" approach
+- **Status**: Active ongoing campaign targeting multiple vendor products simultaneously
 
 ## Affected Systems and Products
 
-- **Microsoft Edge Browser**: Internet Explorer mode functionality specifically targeted through Chakra engine vulnerabilities
-- **Oracle E-Business Suite**: All versions vulnerable to the newly disclosed zero-day flaw
-- **SonicWall SSL VPN Devices**: Over 100 accounts compromised through credential-based attacks
-- **Remote Desktop Protocol (RDP) Services**: Targeted by large-scale botnet from over 100,000 IP addresses
-- **Consumer Edge Devices**: Various network devices from 30+ vendors targeted by RondoDox botnet
-- **Internet-of-Things (IoT) Devices**: Compromised devices on major U.S. ISPs including AT&T, Comcast, and Verizon used in DDoS attacks
+- **Microsoft Edge**: Internet Explorer mode functionality compromised through Chakra JavaScript engine exploitation
+- **Oracle E-Business Suite**: Critical vulnerability allowing unauthenticated remote access to sensitive data
+- **SonicWall SSL VPN**: Over 100 accounts compromised using stolen valid credentials
+- **Remote Desktop Protocol (RDP) Services**: Targeted by massive multi-country botnet from 100,000+ IP addresses
+- **Consumer Edge Devices**: Over 30 vendors affected by RondoDox botnet exploitation campaign
+- **IoT Devices**: Compromised devices on major US ISPs including AT&T, Comcast, and Verizon powering DDoS attacks
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Chakra JavaScript engine and Oracle E-Business Suite
-- **Credential Stuffing**: Use of stolen valid credentials to compromise SonicWall VPN accounts
-- **Brute Force Attacks**: Large-scale botnet targeting RDP services across the United States
-- **Shotgun Exploitation**: RondoDox botnet's approach of exploiting multiple vulnerabilities simultaneously across diverse vendor products
-- **Tool Abuse**: Legitimate DFIR tool Velociraptor being weaponized by threat actors for ransomware attacks
-- **Infrastructure Abuse**: GitHub repositories used by Astaroth banking trojan for operational resilience
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in widely-used enterprise software
+- **Credential-Based Attacks**: Use of stolen valid credentials to compromise VPN and remote access infrastructure
+- **Mass Vulnerability Exploitation**: Shotgun approach targeting multiple vulnerabilities across diverse vendor ecosystems
+- **Legitimate Tool Abuse**: Weaponization of Velociraptor DFIR tool for persistence in ransomware attacks
+- **GitHub Infrastructure Abuse**: Astaroth banking trojan using GitHub repositories for command and control resilience
+- **Discord C2 Communications**: ChaosBot malware leveraging Discord channels for victim control
 
 ## Threat Actor Activities
 
-- **Unknown Threat Actors**: Actively exploiting Microsoft Chakra engine zero-days, prompting emergency mitigation measures
-- **Clop Ransomware Gang**: Exploiting Oracle zero-day vulnerability, with Harvard University listed as a victim on their leak site
-- **Storm-2603 (CL-CRI-1040)**: Chinese threat group abusing Velociraptor DFIR tool in LockBit ransomware operations
-- **RondoDox Operators**: Conducting widespread exploitation campaigns targeting consumer edge devices globally
-- **Astaroth Banking Trojan Operators**: Using GitHub as operational backbone to maintain persistence after infrastructure takedowns
-- **Multi-Country Botnet Operators**: Coordinating attacks against U.S. RDP services from over 100,000 IP addresses
-- **GXC Team Cybercrime Syndicate**: Recently dismantled by Spanish authorities, with leader "GoogleXcoder" arrested
-- **ShinyHunters Group**: Extortion operations disrupted by federal authorities, though threats against Salesforce victims remain active
+- **Storm-2603 (CL-CRI-1040)**: Chinese threat group abusing Velociraptor DFIR tools in LockBit ransomware campaigns
+- **Clop Ransomware Gang**: Exploiting Oracle zero-day vulnerabilities, with Harvard University among recent victims
+- **RondoDox Operators**: Conducting widespread botnet operations targeting edge devices across multiple vendors
+- **GXC Team Syndicate**: Spanish authorities dismantled this cybercrime group and arrested its Brazilian leader "GoogleXcoder"
+- **ShinyHunters**: Federal authorities shut down their Salesforce extortion site, though threats against victims remain active
+- **Astaroth Banking Trojan Operators**: Leveraging GitHub infrastructure for resilient command and control operations
