@@ -1,60 +1,64 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-value systems across enterprises and individuals. Microsoft has restricted Internet Explorer mode in Edge browser following credible reports of zero-day exploits targeting the Chakra JavaScript engine. Oracle issued emergency patches for E-Business Suite vulnerabilities being actively exploited for unauthorized data access. AMD's SEV-SNP confidential computing has been compromised through the RMPocalypse attack, while Android devices face a novel Pixnapping side-channel attack stealing 2FA codes. The RondoDox botnet has expanded to weaponize over 50 vulnerabilities across 30+ vendors, and widespread credential-based attacks are compromising SonicWall VPN accounts. Meanwhile, threat actors are leveraging legitimate tools like Velociraptor in LockBit ransomware operations and using Discord as command-and-control infrastructure.
+Current cybersecurity activity reveals several critical zero-day exploits and active vulnerability campaigns targeting organizations worldwide. Microsoft has restricted Internet Explorer mode in Edge browser after discovering hackers are exploiting zero-day vulnerabilities in the Chakra JavaScript engine to gain unauthorized access to target systems. Meanwhile, threat actors are actively exploiting a newly disclosed Oracle E-Business Suite vulnerability that allows unauthorized access to sensitive data without authentication. Additional concerning activity includes the RondoDox botnet campaign weaponizing over 50 vulnerabilities across 30+ vendors, Chinese state hackers maintaining year-long persistence through ArcGIS exploitation, and a new Android side-channel attack called Pixnapping that enables theft of 2FA codes without requiring permissions.
 
 ## Active Exploitation Details
 
-### Microsoft Edge Internet Explorer Mode Zero-Day
-- **Description**: Zero-day vulnerabilities in the Chakra JavaScript engine within Internet Explorer mode in Microsoft Edge browser
-- **Impact**: Attackers can gain unauthorized access to target devices and potentially execute malicious code
-- **Status**: Microsoft has implemented restrictions on IE mode access after receiving credible exploitation reports in August 2025
+### Chakra JavaScript Engine Zero-Day
+- **Description**: Zero-day vulnerabilities in Microsoft's Chakra JavaScript engine used in Internet Explorer mode within Edge browser
+- **Impact**: Allows hackers to gain unauthorized access to target devices and systems
+- **Status**: Microsoft has restricted access to IE mode after receiving credible reports of active exploitation in August 2025
 
 ### Oracle E-Business Suite Vulnerability
-- **Description**: Security flaw in Oracle E-Business Suite allowing remote exploitation without authentication
-- **Impact**: Unauthorized access to sensitive data and potential full system compromise
-- **Status**: Oracle issued emergency security patch over the weekend; vulnerability being actively exploited
+- **Description**: Security flaw in Oracle's E-Business Suite that allows unauthorized access to sensitive data
+- **Impact**: Attackers can access sensitive organizational data without authentication
+- **Status**: Oracle issued emergency security update over the weekend to patch the vulnerability
 
-### RMPocalypse AMD SEV-SNP Attack
-- **Description**: Single 8-byte write vulnerability that undermines AMD's Secure Encrypted Virtualization with Secure Nested Paging (SEV-SNP) confidential computing guarantees
-- **Impact**: Complete compromise of confidential computing protections, allowing attackers to access encrypted virtual machine data
+### RMPocalypse AMD SEV-SNP Flaw
+- **Description**: Security vulnerability that undermines confidential computing guarantees in AMD's Secure Encrypted Virtualization with Secure Nested Paging
+- **Impact**: Single 8-byte write can shatter confidential computing protections
 - **Status**: AMD has released fixes to address the vulnerability
 
 ### Pixnapping Android Side-Channel Attack
-- **Description**: Side-channel attack targeting Android devices from Google and Samsung that exploits visual inference techniques
-- **Impact**: Covert theft of two-factor authentication codes, Google Maps timelines, and other sensitive information without requiring app permissions
-- **Status**: Newly discovered vulnerability affecting current Android devices
+- **Description**: Side-channel attack affecting Android devices from Google and Samsung
+- **Impact**: Allows covert theft of two-factor authentication codes, Google Maps timelines, and other sensitive data without requiring permissions
+- **Status**: Newly discovered vulnerability with ongoing research
 
-### Oracle Zero-Day Exploited by Clop Ransomware
-- **Description**: Recently disclosed zero-day vulnerability in Oracle systems being exploited in targeted attacks
-- **Impact**: Data exfiltration and potential ransomware deployment
-- **Status**: Active exploitation by Clop ransomware gang, with Harvard University among confirmed victims
+### Framework UEFI Secure Boot Bypass
+- **Description**: Signed UEFI shell components in Framework laptops that can bypass Secure Boot protections
+- **Impact**: Could allow attackers to compromise boot integrity and bypass security controls
+- **Status**: Affects around 200,000 Linux Framework systems
 
 ## Affected Systems and Products
 
-- **Microsoft Edge Browser**: Internet Explorer mode functionality compromised through Chakra JavaScript engine vulnerabilities
-- **Oracle E-Business Suite**: Multiple versions affected by authentication bypass vulnerability
-- **AMD Processors**: SEV-SNP enabled processors vulnerable to RMPocalypse attack
-- **Android Devices**: Google and Samsung Android devices susceptible to Pixnapping attack
-- **SonicWall SSL VPN**: Over 100 accounts compromised through credential-based attacks
-- **Various Network Devices**: 50+ vulnerabilities across 30+ vendors being exploited by RondoDox botnet
-- **Velociraptor DFIR Tool**: Legitimate forensics tool being weaponized for ransomware attacks
+- **Microsoft Edge Browser**: Internet Explorer mode functionality compromised by Chakra engine exploits
+- **Oracle E-Business Suite**: Enterprise business applications vulnerable to unauthorized data access
+- **AMD Processors**: SEV-SNP confidential computing features affected by RMPocalypse
+- **Android Devices**: Google and Samsung devices vulnerable to Pixnapping side-channel attacks
+- **Framework Laptops**: Approximately 200,000 Linux systems with Secure Boot bypass risk
+- **ArcGIS Geo-Mapping Tool**: Components weaponized as web shells for persistent access
+- **SonicWall SSL VPN**: Over 100 accounts compromised using stolen credentials
+- **npm, PyPI, and RubyGems**: Malicious packages across multiple software ecosystems
+- **Windows 10**: End of support status creates ongoing vulnerability exposure
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Microsoft Edge and Oracle systems
-- **Side-Channel Attacks**: Visual inference techniques used in Pixnapping to steal sensitive data without permissions
-- **Credential Stuffing**: Widespread use of stolen valid credentials to compromise SonicWall VPN accounts
-- **Supply Chain Compromise**: Malicious packages in npm, PyPI, and RubyGems repositories sending data to Discord channels
-- **Legitimate Tool Abuse**: Weaponization of Velociraptor DFIR tool for malicious reconnaissance and data collection
-- **Discord C2**: Use of Discord channels as command-and-control infrastructure for multiple malware families
-- **GitHub Infrastructure Abuse**: Astaroth banking trojan using GitHub repositories for operational resilience
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in Chakra JavaScript engine
+- **Web Shell Deployment**: Chinese hackers converting ArcGIS components into persistent backdoors
+- **Credential Stuffing**: Large-scale attacks against SonicWall VPN services using stolen credentials
+- **Supply Chain Attacks**: Malicious packages in software repositories using Discord for command and control
+- **Botnet Operations**: RondoDox leveraging 50+ vulnerabilities across multiple vendors simultaneously
+- **Side-Channel Attacks**: Pixnapping technique bypassing Android permission models
+- **Phishing Campaigns**: TA585 threat actor delivering MonsterV2 malware through email campaigns
+- **RDP Brute Force**: Multi-country botnet targeting Remote Desktop Protocol services from 100,000+ IP addresses
 
 ## Threat Actor Activities
 
-- **Clop Ransomware Gang**: Actively exploiting Oracle zero-day vulnerabilities to breach high-profile targets including Harvard University
-- **Storm-2603 (CL-CRI-1040)**: Orchestrating LockBit ransomware attacks using weaponized Velociraptor DFIR tools
-- **TA585**: Delivering MonsterV2 malware through sophisticated phishing campaigns with multi-stage attack chains
-- **RondoDox Operators**: Expanding botnet operations to exploit vulnerabilities across 30+ vendors in "exploit shopping spree" fashion
-- **GXC Team**: Dismantled cybercrime syndicate led by Brazilian actor "GoogleXcoder" specializing in various cyber criminal activities
-- **Multi-National Botnet**: Large-scale credential-based attacks targeting RDP services in the United States from 100,000+ IP addresses
-- **Discord-Based Threat Actors**: Multiple groups leveraging Discord infrastructure for C2 communications and data exfiltration across different malware families
+- **Chinese State Hackers**: Maintained undetected access for over one year using weaponized ArcGIS geo-mapping components as web shells
+- **TA585 Threat Actor**: Conducting phishing campaigns to deliver MonsterV2 off-the-shelf malware with advanced capabilities
+- **Clop Ransomware Gang**: Listed Harvard University on leak site following exploitation of Oracle zero-day vulnerability
+- **RondoDox Operators**: Running extensive botnet campaign exploiting vulnerabilities across 30+ vendors in "exploit shopping mall" approach
+- **Unknown Threat Actors**: Actively exploiting Internet Explorer mode zero-days, prompting Microsoft's emergency restrictions
+- **Multi-National Botnet**: Coordinating attacks against US RDP services from over 100,000 IP addresses across multiple countries
+- **Astaroth Banking Trojan Group**: Using GitHub infrastructure to maintain operations resilience after takedowns
+- **ChaosBot Operators**: Deploying Rust-based backdoor using Discord channels for command and control communications
