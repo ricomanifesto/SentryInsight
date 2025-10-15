@@ -1,57 +1,65 @@
 # Exploitation Report
 
-The October 2025 security landscape is dominated by Microsoft's massive Patch Tuesday release addressing 172-183 security flaws, including six actively exploited zero-day vulnerabilities. Critical exploitation activity spans multiple platforms, with Windows systems facing unprecedented risks from zero-days affecting every version ever shipped, while industrial control systems, Android devices, and enterprise software face targeted attacks. Notable threat actors including Chinese state-sponsored groups and the TigerJack cryptocurrency-stealing operation continue sophisticated campaigns, while new attack techniques like Pixnapping demonstrate evolving methods to bypass security controls and steal sensitive authentication data.
+Critical exploitation activity is currently dominated by Microsoft's massive October 2025 Patch Tuesday update addressing 172 security flaws, including six zero-day vulnerabilities with three already being actively exploited in the wild. This represents one of the largest patch releases from Microsoft, affecting every version of Windows ever shipped. Simultaneously, threat actors are exploiting vulnerabilities in enterprise software including ICTBroadcast servers through cookie-based exploits, SAP NetWeaver systems allowing server takeover without authentication, and Oracle E-Business Suite systems. The exploitation landscape is further complicated by novel attack techniques like the Pixnapping side-channel attack targeting Android devices and sophisticated supply chain attacks through malicious VSCode extensions and package repositories.
 
 ## Active Exploitation Details
 
 ### Windows Zero-Day Vulnerabilities
-- **Description**: Multiple zero-day vulnerabilities in Windows systems are under active exploitation, with one affecting every version of Windows ever shipped
-- **Impact**: Complete system compromise, privilege escalation, and unauthorized access across all Windows environments
-- **Status**: Patches released in October 2025 Patch Tuesday update
+- **Description**: Three zero-day vulnerabilities in Windows operating systems are being actively exploited by attackers
+- **Impact**: Complete system compromise, privilege escalation, and remote code execution
+- **Status**: Patches released in Microsoft's October 2025 Patch Tuesday update
 
-### ICTBroadcast Cookie Exploitation
-- **Description**: Critical security flaw in ICTBroadcast autodialer software from ICT Innovations being exploited through malicious cookie manipulation
-- **Impact**: Remote shell access and complete server compromise
-- **Status**: Under active exploitation in the wild
+### ICTBroadcast Cookie Exploit
+- **Description**: Critical security flaw in ICTBroadcast autodialer software allowing remote access through cookie manipulation
+- **Impact**: Remote shell access and full system compromise of ICTBroadcast servers
+- **Status**: Currently being actively exploited in the wild
 
-### Oracle E-Business Suite Zero-Day
-- **Description**: Zero-day vulnerability in Oracle E-Business Suite that was being actively exploited to breach servers
+### Oracle E-Business Suite Vulnerability
+- **Description**: Zero-day vulnerability in Oracle E-Business Suite that was leaked by ShinyHunters group
 - **Impact**: Server compromise and unauthorized access to enterprise systems
-- **Status**: Silently patched by Oracle after public exploit leak by ShinyHunters
+- **Status**: Silently patched by Oracle after active exploitation
 - **CVE ID**: CVE-2025-61884
 
-### SAP NetWeaver Command Execution
-- **Description**: Maximum-severity vulnerability in SAP NetWeaver AS Java allowing arbitrary command execution without authentication
+### SAP NetWeaver Authentication Bypass
+- **Description**: Maximum-severity vulnerability allowing arbitrary command execution without authentication
 - **Impact**: Complete server takeover without requiring login credentials
 - **Status**: Security fixes released by SAP with additional hardening measures
 
+### ArcGIS Server Backdoor
+- **Description**: Chinese threat actors compromised ArcGIS geospatial mapping servers and converted them into persistent backdoors
+- **Impact**: Long-term persistent access and data exfiltration from compromised organizations
+- **Status**: Active campaign lasting over a year before detection
+
 ## Affected Systems and Products
 
-- **Windows Systems**: All versions of Windows operating systems, including Windows 10 (end of support) and Windows 11
-- **Red Lion Sixnet RTUs**: Industrial control systems with two CVSS 10.0 rated vulnerabilities
-- **ICTBroadcast**: Autodialer software from ICT Innovations
-- **Oracle E-Business Suite**: Enterprise resource planning systems
-- **SAP NetWeaver AS Java**: Enterprise application server platforms
-- **Android Devices**: Google and Samsung Android devices vulnerable to Pixnapping attacks
-- **ArcGIS Servers**: Geospatial mapping software systems
-- **VSCode Extensions**: Malicious extensions on OpenVSX registry
-- **Framework Laptops**: Nearly 200,000 Linux Framework systems with Secure Boot bypass risks
+- **Microsoft Windows**: All versions ever shipped affected by zero-day vulnerabilities
+- **ICTBroadcast**: Autodialer software from ICT Innovations vulnerable to cookie-based attacks
+- **Oracle E-Business Suite**: Enterprise application servers compromised through leaked exploit
+- **SAP NetWeaver AS Java**: Application servers allowing unauthenticated command execution
+- **Red Lion Sixnet RTU**: Industrial remote terminal units with CVSS 10.0 vulnerabilities
+- **ArcGIS Server**: Geospatial mapping software compromised by Chinese APT groups
+- **Android Devices**: Google and Samsung devices vulnerable to Pixnapping side-channel attacks
+- **VSCode/OpenVSX**: Development environments targeted by malicious extensions
+- **Framework Laptops**: Nearly 200,000 Linux systems vulnerable to Secure Boot bypass
+- **AMD SEV-SNP**: Confidential computing systems affected by RMPocalypse vulnerability
 
 ## Attack Vectors and Techniques
 
-- **Pixnapping Attack**: Novel side-channel attack on Android devices that steals sensitive data pixel-by-pixel without requiring permissions
-- **Cookie Exploitation**: Malicious cookie manipulation to gain remote shell access on ICTBroadcast servers
-- **ArcGIS Web Shell**: Chinese hackers converting legitimate ArcGIS server components into persistent backdoors
-- **Synced Passkey Bypass**: Methods to circumvent synced passkey security implementations
-- **Malicious Package Distribution**: Supply chain attacks through npm, PyPI, and RubyGems packages using Discord as command-and-control
-- **VSCode Extension Abuse**: Cryptocurrency-stealing malicious extensions targeting developers
-- **Secure Boot Bypass**: Exploitation of signed UEFI shell components to bypass Secure Boot protections
+- **Cookie Manipulation**: Exploitation of cookie handling vulnerabilities in web applications for remote access
+- **Authentication Bypass**: Circumventing login mechanisms to gain unauthorized system access
+- **Zero-Day Exploitation**: Leveraging previously unknown vulnerabilities before patches are available
+- **Supply Chain Attacks**: Malicious packages in npm, PyPI, and RubyGems repositories targeting developers
+- **Side-Channel Attacks**: Pixnapping technique stealing sensitive data pixel-by-pixel without permissions
+- **Web Shell Deployment**: Converting legitimate software components into persistent backdoors
+- **Discord C2 Channels**: Using Discord as command-and-control infrastructure for data exfiltration
+- **Phishing Campaigns**: Social engineering attacks delivering MonsterV2 malware and other threats
+- **UEFI Component Abuse**: Exploiting signed boot components to bypass Secure Boot protections
 
 ## Threat Actor Activities
 
-- **Flax Typhoon (Chinese APT)**: Compromised ArcGIS servers for over a year, maintaining persistent backdoor access through modified geospatial mapping software
-- **TigerJack**: Cryptocurrency-stealing operation targeting developers through malicious VSCode extensions on Microsoft marketplace and OpenVSX registry
-- **TA585**: Previously undocumented threat actor delivering MonsterV2 malware through sophisticated phishing campaigns
-- **ShinyHunters**: Leaked proof-of-concept exploit for Oracle E-Business Suite zero-day vulnerability, forcing Oracle to implement silent patches
-- **Chinese State Actors**: Long-term persistence campaigns targeting critical infrastructure and enterprise systems through legitimate software manipulation
-- **Prince Group**: Criminal organization behind $15 billion cryptocurrency theft through "pig butchering" schemes, with assets seized by U.S. Department of Justice
+- **Chinese APT Groups (Flax Typhoon)**: Long-term persistence campaigns targeting ArcGIS servers for over a year with sophisticated backdoor techniques
+- **TigerJack**: Cryptocurrency-focused threat actor targeting developers through malicious VSCode extensions on multiple platforms
+- **TA585**: Previously undocumented threat actor conducting phishing campaigns to deliver MonsterV2 malware
+- **ShinyHunters**: Cybercriminal group publicly leaking zero-day exploits for Oracle systems after successful breaches
+- **Unknown Attackers**: Multiple threat actors exploiting Windows zero-days, ICTBroadcast servers, and SAP NetWeaver systems
+- **Supply Chain Attackers**: Coordinated efforts to compromise developer environments through malicious packages across multiple programming language ecosystems
