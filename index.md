@@ -1,66 +1,66 @@
 # Exploitation Report
 
-Critical exploitation activity continues to emerge across multiple platforms, with several significant zero-day vulnerabilities being actively exploited in the wild. Microsoft addressed six zero-day vulnerabilities in their October 2025 Patch Tuesday update, while Oracle silently patched a zero-day exploit (CVE-2025-61884) that was actively used to breach servers and had its proof-of-concept publicly leaked by the ShinyHunters group. Chinese state-sponsored hackers have demonstrated sophisticated persistence techniques by weaponizing ArcGIS geo-mapping tools as backdoors for over a year, while a new Android side-channel attack called "Pixnapping" enables malicious apps to steal sensitive data including 2FA codes without requiring any permissions. Microsoft has also restricted Internet Explorer mode in Edge browser after receiving credible reports of hackers exploiting zero-day vulnerabilities in the Chakra JavaScript engine.
+Microsoft's October 2025 Patch Tuesday represents a critical security milestone, addressing 172 vulnerabilities including six zero-day exploits that are currently being actively exploited in the wild. This massive security update coincides with Windows 10 reaching end-of-support, leaving unpatched systems exposed to ongoing attacks. Simultaneously, threat actors continue to leverage novel attack vectors including the Pixnapping side-channel attack on Android devices, malicious VSCode extensions targeting developers' cryptocurrency wallets, and sophisticated supply chain attacks through compromised package repositories. State-sponsored groups, particularly Chinese APT actors, have demonstrated advanced persistence techniques by weaponizing legitimate infrastructure tools like ArcGIS servers for long-term access.
 
 ## Active Exploitation Details
 
-### Microsoft Zero-Day Vulnerabilities
-- **Description**: Six zero-day vulnerabilities identified and patched in Microsoft's October 2025 Patch Tuesday update
-- **Impact**: Active exploitation allowing attackers to compromise systems before patches were available
-- **Status**: Patches available as of October 2025 Patch Tuesday release
+### Microsoft Windows Zero-Day Vulnerabilities
+- **Description**: Six zero-day vulnerabilities in Microsoft Windows systems are being actively exploited by threat actors
+- **Impact**: Attackers can achieve various levels of system compromise, privilege escalation, and unauthorized access
+- **Status**: Patches released in October 2025 Patch Tuesday update addressing all six zero-days
 
-### Oracle E-Business Suite Zero-Day
-- **Description**: Vulnerability in Oracle E-Business Suite that was actively exploited to breach servers
-- **Impact**: Server compromise and unauthorized access to Oracle E-Business Suite systems
-- **Status**: Silently patched by Oracle after active exploitation was discovered
+### Oracle E-Business Suite Vulnerability
+- **Description**: Critical vulnerability in Oracle E-Business Suite that was actively exploited to breach servers
+- **Impact**: Server compromise and unauthorized access to sensitive business data
+- **Status**: Oracle has silently patched the vulnerability after public exploit disclosure
 - **CVE ID**: CVE-2025-61884
 
-### Internet Explorer Mode Zero-Days
-- **Description**: Zero-day exploits targeting the Chakra JavaScript engine in Internet Explorer mode within Microsoft Edge browser
-- **Impact**: Remote code execution and system compromise through legacy browser functionality
-- **Status**: Microsoft has restricted access to IE mode after receiving credible exploitation reports
+### RMPocalypse AMD SEV-SNP Vulnerability
+- **Description**: Security flaw that can be exploited through a single 8-byte write to undermine confidential computing guarantees
+- **Impact**: Complete breakdown of AMD's Secure Encrypted Virtualization with Secure Nested Paging (SEV-SNP) protections
+- **Status**: AMD has released fixes to address the vulnerability
 
-### ArcGIS Server Backdoor Exploitation
-- **Description**: Chinese threat actors exploited ArcGIS geo-mapping systems to establish persistent backdoors
-- **Impact**: Long-term persistence and continued access to compromised infrastructure for over a year
-- **Status**: Ongoing campaign with established backdoors in target environments
+### Pixnapping Android Side-Channel Attack
+- **Description**: Novel side-channel attack targeting Android devices that steals sensitive data pixel-by-pixel without requiring permissions
+- **Impact**: Theft of two-factor authentication codes, Google Maps timelines, and other sensitive information from apps including Gmail, Google Accounts, Google Authenticator, Signal, and Venmo
+- **Status**: Affects Google and Samsung Android devices, proof-of-concept exploit available
 
-### Pixnapping Side-Channel Attack
-- **Description**: Novel Android side-channel attack that steals sensitive data by capturing pixels from other applications
-- **Impact**: Theft of 2FA codes, Google Maps data, and sensitive information from Gmail, Google Authenticator, Signal, and Venmo without requiring app permissions
-- **Status**: Proof-of-concept demonstrated; affects Android devices from Google and Samsung
-
-### RMPocalypse AMD Vulnerability
-- **Description**: Security flaw affecting AMD's SEV-SNP confidential computing that can be exploited with a single 8-byte write
-- **Impact**: Undermines confidential computing guarantees and security protections
-- **Status**: Patches released by AMD to address the vulnerability
+### Framework Laptop Secure Boot Bypass
+- **Description**: Vulnerability in signed UEFI shell components on Framework laptops running Linux
+- **Impact**: Bypass of Secure Boot protections, potentially allowing malicious code execution during boot process
+- **Status**: Affects approximately 200,000 Linux Framework systems
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows 10 (final patch released), Windows 11, and Microsoft Edge IE mode functionality
-- **Oracle E-Business Suite**: Systems vulnerable to server compromise through the patched zero-day
-- **Android Devices**: Google and Samsung Android devices vulnerable to Pixnapping attacks
-- **ArcGIS Server**: Geo-mapping systems used as backdoors by Chinese threat actors
-- **AMD Processors**: Systems using AMD SEV-SNP confidential computing affected by RMPocalypse
-- **Framework Laptops**: Nearly 200,000 Linux Framework systems with Secure Boot bypass risks
-- **Package Repositories**: npm, PyPI, and RubyGems ecosystems containing malicious packages
+- **Microsoft Windows**: All Windows operating systems affected by 172 vulnerabilities including six actively exploited zero-days
+- **Microsoft Windows 10**: End-of-support reached, no longer receiving security patches for new vulnerabilities
+- **Microsoft Windows 11**: Security updates available through KB5066835 and KB5066793 cumulative updates
+- **Microsoft Exchange Server**: Exchange 2016 and 2019 have reached end-of-support status
+- **Oracle E-Business Suite**: Systems compromised through actively exploited vulnerability
+- **AMD Processors**: SEV-SNP confidential computing features affected by RMPocalypse vulnerability
+- **Android Devices**: Google and Samsung devices vulnerable to Pixnapping attack
+- **Framework Laptops**: Nearly 200,000 Linux-based systems with Secure Boot bypass risk
+- **ArcGIS Server**: Geospatial mapping software compromised and weaponized as backdoor
+- **VSCode Extensions**: Malicious extensions on Microsoft VSCode marketplace and OpenVSX registry
+- **Package Repositories**: npm, PyPI, and RubyGems ecosystems hosting malicious packages
 
 ## Attack Vectors and Techniques
 
-- **Side-Channel Attacks**: Pixnapping technique steals data by capturing screen pixels without requiring permissions
-- **Web Shell Deployment**: Chinese actors converted ArcGIS components into persistent web shells for backdoor access
-- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in Microsoft and Oracle products
-- **Supply Chain Attacks**: Malicious packages in software repositories using Discord as command-and-control infrastructure
-- **Legacy System Abuse**: Exploitation of Internet Explorer mode functionality as an attack vector
-- **Social Engineering**: TA585 threat actor using phishing campaigns to deliver MonsterV2 malware
-- **Infrastructure Abuse**: GitHub and Discord platforms used for malware command-and-control operations
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Microsoft Windows systems
+- **Supply Chain Attacks**: Malicious packages distributed through legitimate software repositories targeting developers
+- **Side-Channel Attacks**: Pixnapping technique extracting sensitive data through pixel analysis without permissions
+- **Web Shell Deployment**: Conversion of legitimate ArcGIS server components into persistent backdoors
+- **Social Engineering**: Phishing campaigns delivering MonsterV2 malware and other threats
+- **Cryptocurrency Theft**: Targeted attacks on developer environments to steal cryptocurrency wallets
+- **Command and Control**: Use of Discord channels for data exfiltration and remote control
+- **Privilege Escalation**: Exploitation of high-severity bugs for elevated system access
 
 ## Threat Actor Activities
 
-- **Chinese State Actors**: Demonstrated year-long persistence through ArcGIS server compromise, establishing sophisticated backdoor access to target infrastructure
-- **ShinyHunters Group**: Publicly leaked proof-of-concept exploit for Oracle E-Business Suite zero-day vulnerability
-- **TA585 Threat Actor**: Conducting phishing campaigns to deliver MonsterV2 off-the-shelf malware to targets
-- **RondoDox Botnet Operators**: Expanded targeting to exploit over 50 vulnerabilities across more than 30 vendors in an "exploit shop" approach
-- **Prince Group**: Cryptocurrency fraud operation that stole billions through "pig butchering" schemes, resulting in $15 billion seizure by U.S. authorities
-- **Astaroth Banking Trojan**: Operators using GitHub as infrastructure backbone to maintain resilience after takedowns
-- **ChaosBot Operators**: Deploying new Rust-based backdoor using Discord channels for command and control
+- **Chinese APT Groups (Flax Typhoon)**: Compromised ArcGIS servers for over a year, maintaining persistent access through modified geospatial mapping software
+- **TigerJack**: Continuously targeting developers through malicious VSCode extensions designed to steal cryptocurrency
+- **TA585**: Delivering MonsterV2 malware through sophisticated phishing campaigns
+- **ShinyHunters**: Publicly leaked proof-of-concept exploit for Oracle E-Business Suite vulnerability
+- **RondoDox Botnet Operators**: Weaponizing over 50 vulnerabilities across 30+ vendors in expanded targeting campaigns
+- **Prince Group**: Criminal organization conducting "pig butchering" cryptocurrency fraud schemes resulting in $15 billion in seized assets
+- **State-Sponsored Actors**: Targeting critical infrastructure through unmonitored "back-office clutter" data exploitation
