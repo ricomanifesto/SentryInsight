@@ -1,66 +1,60 @@
 # Exploitation Report
 
-Critical exploitation activity is currently dominated by several maximum-severity vulnerabilities actively being exploited in the wild. CISA has flagged a perfect 10.0 CVSS score Adobe Experience Manager flaw that attackers are actively exploiting to execute code on unpatched systems. Additionally, two new Windows zero-day vulnerabilities are under active exploitation, with one affecting every version of Windows ever shipped. The threat landscape is further complicated by sophisticated attack campaigns including North Korean hackers using blockchain-based malware hiding techniques, Chinese threat groups infiltrating Russian networks, and ransomware operations targeting major institutions through Oracle zero-day attacks. Supply chain risks are also emerging with over 100 VS Code extensions exposing developers to hidden threats, while industrial control systems face critical risks from newly disclosed remote terminal unit vulnerabilities.
+Critical zero-day and actively exploited vulnerabilities are posing significant threats across enterprise environments. Most notably, attackers are exploiting CVE-2025-11371, a local file inclusion vulnerability in Gladinet CentreStack business solutions, which has been leveraged as a zero-day since late 2024. Additionally, CISA has added a maximum-severity Adobe Experience Manager vulnerability to its Known Exploited Vulnerabilities catalog, indicating active exploitation in the wild. Nation-state actors continue to demonstrate sophisticated attack capabilities, with Chinese threat groups employing AI-optimized attack chains and novel techniques like EtherHiding to hide malware in blockchain smart contracts. The threat landscape is further complicated by supply chain attacks targeting VS Code extensions and the emergence of advanced Linux rootkits using eBPF technology.
 
 ## Active Exploitation Details
 
-### Adobe Experience Manager Vulnerability
-- **Description**: Maximum-severity vulnerability in Adobe Experience Manager with a perfect 10.0 CVSS score
-- **Impact**: Allows attackers to execute arbitrary code on unpatched systems
-- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities (KEV) catalog
+### Gladinet CentreStack Zero-Day Vulnerability
+- **Description**: Local file inclusion vulnerability in Gladinet's CentreStack business file-sharing solution
+- **Impact**: Allows threat actors to access and potentially exfiltrate sensitive files from affected systems
+- **Status**: Actively exploited as zero-day since late 2024; security updates now available
+- **CVE ID**: CVE-2025-11371
 
-### Windows Zero-Day Vulnerabilities
-- **Description**: Two new zero-day vulnerabilities affecting Windows systems, with one impacting every version of Windows ever shipped
-- **Impact**: Active exploitation allowing unauthorized system access and control
-- **Status**: Microsoft released fixes for these vulnerabilities as part of addressing 183 security flaws
+### Adobe Experience Manager Critical Flaw
+- **Description**: Maximum-severity vulnerability in Adobe Experience Manager with a perfect CVSS score of 10.0
+- **Impact**: Enables attackers to execute arbitrary code on unpatched systems
+- **Status**: Actively exploited in attacks; added to CISA's Known Exploited Vulnerabilities catalog
+- **CVE ID**: Not specified in articles
+
+### Oracle Zero-Day Attack
+- **Description**: Zero-day vulnerability affecting Oracle systems used in enterprise environments
+- **Impact**: Data exfiltration and system compromise; specifically impacted Harvard University
+- **Status**: Actively exploited by Clop ransomware group in broader campaign against Oracle customers
+- **CVE ID**: Not specified in articles
 
 ### Cisco IOS Software SNMP Vulnerability
-- **Description**: Security flaw in Cisco IOS Software and IOS XE Software exploited in "Zero Disco" attacks
+- **Description**: Security flaw impacting Cisco IOS Software and IOS XE Software related to SNMP functionality
 - **Impact**: Allows deployment of Linux rootkits on older systems
-- **Status**: Recently disclosed and actively exploited to compromise network infrastructure
-
-### ICTBroadcast Cookie Exploit
-- **Description**: Critical security flaw in ICTBroadcast autodialer software from ICT Innovations
-- **Impact**: Remote shell access through cookie exploitation
-- **Status**: Under active exploitation in the wild
-
-### Oracle Zero-Day Vulnerability
-- **Description**: Zero-day vulnerability in Oracle systems exploited by Clop ransomware group
-- **Impact**: Data theft and system compromise affecting major institutions
-- **Status**: Actively exploited in targeted attacks against Oracle customers
-
-### F5 BIG-IP Vulnerabilities
-- **Description**: Multiple security vulnerabilities in F5 BIG-IP systems, with details stolen during a nation-state breach
-- **Impact**: Potential system compromise and unauthorized access
-- **Status**: Patches released for vulnerabilities exposed through the breach
+- **Status**: Recently disclosed and exploited in "Zero Disco" campaign attacks
+- **CVE ID**: Not specified in articles
 
 ## Affected Systems and Products
 
-- **Adobe Experience Manager**: Critical vulnerability requiring immediate patching
-- **Windows Systems**: All versions affected by at least one zero-day vulnerability
-- **Cisco IOS/IOS XE**: Network devices vulnerable to SNMP-based attacks
-- **ICTBroadcast**: Autodialer software systems exposed to cookie-based exploits
-- **Oracle Systems**: Various Oracle products targeted in zero-day attacks
-- **F5 BIG-IP**: Network infrastructure devices compromised in nation-state attack
-- **Red Lion Sixnet RTUs**: Industrial control systems with two CVSS 10.0 vulnerabilities
-- **VS Code Extensions**: Over 100 extensions with leaked access tokens
-- **Windows Server 2025**: Active Directory issues from September security updates
+- **Gladinet CentreStack**: Business file-sharing and collaboration solution
+- **Adobe Experience Manager**: Enterprise content management platform
+- **Oracle Systems**: Various Oracle products used by enterprise customers
+- **Cisco IOS/IOS XE**: Network infrastructure devices running affected software versions
+- **Microsoft Teams**: Targeted by Rhysida ransomware through malicious installers
+- **WordPress Sites**: Used as infrastructure for blockchain-based malware distribution
+- **Visual Studio Code Extensions**: Over 100 extensions with exposed access tokens
+- **F5 BIG-IP**: Network security and application delivery systems
 
 ## Attack Vectors and Techniques
 
-- **EtherHiding Technique**: North Korean hackers hiding malware on blockchain networks for stealth and resilience
-- **Cookie Exploitation**: Remote shell access through manipulated authentication cookies
-- **SNMP Protocol Abuse**: Exploiting network management protocols to deploy rootkits
-- **Zero-Day Exploitation**: Targeting unpatched vulnerabilities in widely-used software
-- **Supply Chain Attacks**: Compromising development tools and extensions
-- **Social Engineering**: Fake breach notifications targeting password manager users
-- **Nation-State Intrusion**: Advanced persistent threats targeting critical infrastructure
+- **EtherHiding**: North Korean hackers hiding malware inside blockchain smart contracts for stealth and resilience
+- **Blockchain Smart Contract Abuse**: UNC5142 threat group using smart contracts to distribute information stealers like Atomic (AMOS) and Lumma
+- **AI-Optimized Attack Chains**: Chinese hackers testing enhanced attack methodologies in Taiwan
+- **Certificate-Based Attacks**: Rhysida ransomware using over 200 certificates to sign malicious Teams installers
+- **eBPF Rootkit Technology**: LinkPro Linux rootkit using extended Berkeley Packet Filter to hide presence and activate via magic TCP packets
+- **Supply Chain Attacks**: VS Code extension publishers exposing access tokens that could allow malicious updates
+- **Social Engineering**: Fake LastPass and Bitwarden breach notifications leading to PC compromises
 
 ## Threat Actor Activities
 
-- **North Korean Hackers**: Employing EtherHiding tactics for cryptocurrency theft and espionage using blockchain-based malware delivery
-- **Clop Ransomware Group**: Exploiting Oracle zero-day vulnerabilities to steal data from major institutions including Harvard University
-- **Chinese Threat Group Jewelbug**: Five-month infiltration of Russian IT service providers, expanding operations beyond Southeast Asia
-- **Mysterious Elephant**: Cyber-espionage group using sophisticated custom tools to target government and diplomatic entities in South Asia
-- **Nation-State Actors**: Breaching F5 systems and stealing BIG-IP source code and vulnerability information
-- **Phishing Campaigns**: Targeting LastPass and Bitwarden users with fake breach notifications leading to system hijacks
+- **Chinese State-Sponsored Groups**: Testing AI-enhanced attack capabilities in Taiwan; Jewelbug group infiltrating Russian IT networks for extended periods
+- **North Korean Hackers**: Employing EtherHiding technique for cryptocurrency theft and espionage operations
+- **UNC5142**: Financially motivated group abusing blockchain infrastructure to distribute information-stealing malware
+- **Rhysida Ransomware**: Targeting Microsoft Teams users with certificate-signed malicious installers
+- **Clop Ransomware Group**: Exploiting Oracle zero-day vulnerabilities in campaign against multiple organizations including Harvard University
+- **Nation-State Actors**: Compromising F5 BIG-IP environments and stealing source code and vulnerability information
+- **Mysterious Elephant**: Cyber-espionage group targeting government and diplomatic entities in South Asia with custom sophisticated tools
