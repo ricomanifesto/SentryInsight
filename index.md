@@ -1,63 +1,72 @@
 # Exploitation Report
 
-The cybersecurity landscape has seen intense exploitation activity with multiple zero-day vulnerabilities and nation-state campaigns targeting critical infrastructure. F5 disclosed a significant breach where nation-state actors stole undisclosed BIG-IP vulnerabilities and source code, highlighting the severity of supply chain compromises. Microsoft's October 2025 Patch Tuesday addressed 172 security holes including three actively exploited zero-days, with one affecting every Windows version ever shipped. Chinese threat actors have been particularly active, with groups like Flax Typhoon compromising ArcGIS servers for persistent backdoor access and Jewelbug infiltrating Russian IT networks. Additionally, the Clop ransomware group exploited Oracle zero-days to breach Harvard University, while ICTBroadcast servers face active exploitation through cookie-based attacks.
+Critical exploitation activity is currently targeting multiple high-value systems, with several zero-day vulnerabilities and actively exploited flaws demanding immediate attention. Adobe Experience Manager faces a perfect 10.0 CVSS score vulnerability that CISA has flagged as actively exploited, while Microsoft's October 2025 Patch Tuesday addresses 172-183 security holes including three zero-day vulnerabilities already under active exploitation in the wild. Nation-state actors have breached F5's systems, stealing undisclosed BIG-IP vulnerabilities and source code, while the Clop ransomware group exploited Oracle zero-day vulnerabilities to breach Harvard University. Industrial control systems face severe risks from Red Lion RTU vulnerabilities, and attackers are actively exploiting SAP NetWeaver and ICTBroadcast servers for remote access.
 
 ## Active Exploitation Details
 
-### Windows Zero-Day Vulnerabilities
-- **Description**: Three zero-day vulnerabilities in Microsoft Windows systems are being actively exploited in the wild
-- **Impact**: One vulnerability affects every Windows version ever shipped, allowing attackers to compromise systems across all Windows environments
-- **Status**: Patches released in Microsoft's October 2025 Patch Tuesday update addressing 172 security holes
+### Adobe Experience Manager Critical Vulnerability
+- **Description**: Critical security flaw impacting Adobe Experience Manager with a perfect CVSS score of 10.0
+- **Impact**: Complete system compromise and unauthorized access to enterprise content management systems
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
 
-### F5 BIG-IP Zero-Day Vulnerabilities
-- **Description**: Nation-state actors breached F5's systems and stole undisclosed BIG-IP security vulnerabilities along with source code
-- **Impact**: Attackers gained access to previously unknown vulnerabilities and proprietary source code, potentially enabling widespread exploitation of BIG-IP systems
-- **Status**: F5 has released security updates to address the stolen vulnerabilities detected on August 9, 2025
+### Microsoft Windows Zero-Day Vulnerabilities
+- **Description**: Three zero-day vulnerabilities in Windows systems, with one affecting every version of Windows ever shipped
+- **Impact**: Full system compromise, privilege escalation, and remote code execution
+- **Status**: Actively exploited in the wild, patches released in October 2025 Patch Tuesday update
 
-### Oracle Zero-Day Exploits
-- **Description**: Zero-day vulnerabilities in Oracle systems exploited by the Clop ransomware group
-- **Impact**: Successful breach of Harvard University systems and data theft as part of a broader campaign against Oracle customers
-- **Status**: Active exploitation ongoing with Harvard University confirming the breach
+### Oracle Zero-Day Vulnerability
+- **Description**: Zero-day vulnerability in Oracle systems exploited by the Clop ransomware group
+- **Impact**: Data theft and ransomware deployment against Oracle customers
+- **Status**: Actively exploited, used in targeted attacks against educational institutions including Harvard University
+
+### F5 BIG-IP Undisclosed Vulnerabilities
+- **Description**: Multiple undisclosed security vulnerabilities in F5 BIG-IP systems stolen by nation-state actors
+- **Impact**: Potential remote code execution and system compromise of network infrastructure
+- **Status**: Vulnerabilities stolen in breach, patches released by F5
+
+### Red Lion Sixnet RTU Vulnerabilities
+- **Description**: Two critical vulnerabilities in Red Lion Sixnet remote terminal unit products with CVSS scores of 10.0
+- **Impact**: Full industrial control system takeover and code execution with elevated privileges
+- **Status**: Disclosed vulnerabilities with potential for exploitation in industrial environments
+
+### SAP NetWeaver AS Java Vulnerability
+- **Description**: Maximum-severity vulnerability in SAP NetWeaver AS Java allowing server takeover without authentication
+- **Impact**: Arbitrary command execution and complete server compromise
+- **Status**: Security fixes released, potential for active exploitation
 
 ### ICTBroadcast Cookie Exploitation
-- **Description**: Critical security flaw in ICTBroadcast autodialer software from ICT Innovations being actively exploited via cookie manipulation
-- **Impact**: Attackers can gain remote shell access to compromised servers
-- **Status**: Active exploitation detected in the wild
-
-### SAP NetWeaver Command Execution Vulnerability
-- **Description**: Maximum-severity vulnerability in SAP NetWeaver AS Java allowing arbitrary command execution
-- **Impact**: Attackers can take over servers without requiring login credentials
-- **Status**: SAP has released security fixes with additional hardening measures
+- **Description**: Critical security flaw in ICTBroadcast autodialer software enabling cookie-based exploitation
+- **Impact**: Remote shell access and complete system compromise
+- **Status**: Actively exploited in the wild for remote access
 
 ## Affected Systems and Products
 
-- **F5 BIG-IP Systems**: All versions potentially affected by stolen zero-day vulnerabilities and compromised source code
-- **Microsoft Windows**: All versions ever shipped affected by at least one of the actively exploited zero-days
-- **Oracle Systems**: Multiple Oracle customers targeted, including educational institutions like Harvard University
-- **ICTBroadcast**: Autodialer software from ICT Innovations vulnerable to cookie-based attacks
-- **SAP NetWeaver AS Java**: Enterprise application platform vulnerable to unauthenticated command execution
-- **ArcGIS Servers**: Geospatial mapping software compromised by Chinese threat actors for backdoor access
-- **VS Code Extensions**: Over 100 Visual Studio Code extensions exposed developers to supply chain risks through leaked access tokens
-- **Red Lion Sixnet RTUs**: Industrial control systems with two critical CVSS 10.0 vulnerabilities
-- **Android Devices**: Vulnerable to Pixnapping attacks that can steal 2FA codes and sensitive data pixel-by-pixel
+- **Adobe Experience Manager**: Enterprise content management systems with perfect 10.0 CVSS vulnerability
+- **Microsoft Windows**: All versions ever shipped affected by one zero-day vulnerability
+- **Oracle Systems**: Various Oracle products targeted by Clop ransomware group
+- **F5 BIG-IP**: Network infrastructure systems with stolen vulnerability information
+- **Red Lion Sixnet RTUs**: Industrial control system remote terminal units
+- **SAP NetWeaver AS Java**: Enterprise application servers vulnerable to unauthenticated takeover
+- **ICTBroadcast**: Autodialer software systems under active exploitation
+- **Visual Studio Code Extensions**: Over 100 extensions exposed developers to supply chain risks
+- **Android Devices**: Vulnerable to Pixnapping attacks targeting 2FA codes
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Nation-state actors leveraging previously unknown vulnerabilities in critical infrastructure components
-- **Supply Chain Compromise**: Theft of source code and undisclosed vulnerabilities to enable future attacks
-- **Cookie Manipulation**: Exploitation of authentication mechanisms in web applications to gain remote access
-- **Ransomware Operations**: Clop group using zero-day exploits for data theft and extortion campaigns
-- **Backdoor Installation**: Long-term persistence through compromised legitimate software like ArcGIS servers
-- **Social Engineering**: Fake breach notifications targeting password manager users to distribute malware
-- **Pixnapping Attack**: Novel side-channel attack stealing sensitive data pixel-by-pixel from Android applications
-- **Extension Poisoning**: Malicious VS Code extensions designed to steal cryptocurrency and sensitive developer data
+- **Zero-Day Exploitation**: Multiple zero-day vulnerabilities actively exploited across Windows, Oracle, and other platforms
+- **Cookie-Based Exploitation**: ICTBroadcast servers compromised through cookie manipulation for remote shell access
+- **Supply Chain Attacks**: VS Code extensions leaked access tokens enabling malicious updates
+- **Pixnapping Attack**: Side-channel attack on Android devices stealing sensitive data pixel-by-pixel
+- **Source Code Theft**: Nation-state actors stealing vulnerability information and source code from F5
+- **Phishing Campaigns**: Fake breach alerts targeting LastPass and Bitwarden users for PC hijacking
+- **Industrial System Targeting**: Critical vulnerabilities in industrial control systems enabling full takeover
 
 ## Threat Actor Activities
 
-- **Nation-State Actors**: Sophisticated breach of F5 systems to steal BIG-IP vulnerabilities and source code for future exploitation campaigns
-- **Clop Ransomware Group**: Active exploitation of Oracle zero-days targeting educational institutions and other Oracle customers for data theft operations
-- **Mysterious Elephant**: Cyber-espionage group using sophisticated custom tools to target government and diplomatic entities in South Asia since early 2025
-- **Chinese APT Flax Typhoon**: Compromised ArcGIS servers to create persistent backdoors, modifying widely-used geospatial mapping software for stealth access
-- **Chinese APT Jewelbug**: Five-month infiltration of Russian IT service provider, marking expansion beyond traditional Southeast Asian targets
-- **TigerJack**: Threat actor consistently targeting developers with malicious VSCode extensions on multiple platforms to steal cryptocurrency
-- **PowerSchool Attacker**: Matthew D. Lane sentenced to four years in prison for December 2024 cyberattack resulting in massive data exposure
+- **Clop Ransomware Group**: Exploiting Oracle zero-day vulnerabilities to breach high-profile targets including Harvard University
+- **Nation-State Actors**: Breaching F5 systems to steal BIG-IP source code and undisclosed vulnerabilities
+- **Chinese Threat Group 'Jewelbug'**: Five-month infiltration of Russian IT service provider, expanding operations beyond Southeast Asia
+- **Flax Typhoon (Chinese APT)**: Compromising ArcGIS geospatial mapping servers as backdoors for stealth access
+- **Mysterious Elephant**: Cyber-espionage group using sophisticated custom tools to target government and diplomatic entities in South Asia
+- **TigerJack**: Targeting developers with malicious VSCode extensions to steal cryptocurrency and sensitive data
+- **PowerSchool Attacker**: 19-year-old sentenced to four years for massive cyberattack resulting in data breach
