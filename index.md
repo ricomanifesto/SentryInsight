@@ -1,50 +1,63 @@
 # Exploitation Report
 
-Critical exploitation activity has surged across multiple fronts, with threat actors actively leveraging both zero-day vulnerabilities and recently patched flaws. The most severe incidents include active exploitation of a maximum-severity Adobe Experience Manager vulnerability (CVE-2024-45138) added to CISA's Known Exploited Vulnerabilities catalog, and a zero-day local file inclusion vulnerability in Gladinet's CentreStack business solution (CVE-2025-11371) that has been exploited since late 2024. Additionally, cybercriminals are exploiting a recently patched Cisco SNMP vulnerability (CVE-2025-20352) to deploy Linux rootkits on networking infrastructure, while North Korean threat actors have been observed using innovative blockchain-based attack techniques to distribute malware and steal cryptocurrency.
+A critical wave of exploitation activity has emerged across multiple platforms, with attackers actively leveraging zero-day vulnerabilities, recently patched flaws, and authentication weaknesses. Notable incidents include the exploitation of CVE-2025-20352 in Cisco networking devices to deploy rootkits, CVE-2025-11371 in Gladinet CentreStack as a zero-day since late 2024, and a maximum-severity Adobe Experience Manager vulnerability being actively exploited in the wild. Threat actors are also abusing Zendesk's authentication weaknesses for email bombing campaigns and leveraging blockchain technology to hide malware distribution. North Korean hackers have been observed using sophisticated techniques like EtherHiding to conceal malware within blockchain smart contracts, while the Rhysida ransomware group has been using fraudulent certificates to sign malicious Teams installers.
 
 ## Active Exploitation Details
 
-### Adobe Experience Manager Remote Code Execution
-- **Description**: A maximum-severity vulnerability in Adobe Experience Manager that allows remote code execution on unpatched systems
-- **Impact**: Attackers can execute arbitrary code on vulnerable Adobe Experience Manager installations, potentially leading to complete system compromise
-- **Status**: Currently being actively exploited in attacks; CISA has added it to the Known Exploited Vulnerabilities catalog
-- **CVE ID**: CVE-2024-45138
+### Cisco SNMP Remote Code Execution Vulnerability
+- **Description**: A remote code execution vulnerability in Cisco networking devices that allows attackers to deploy rootkits on switches and target unprotected Linux systems
+- **Impact**: Full compromise of network infrastructure and deployment of persistent rootkits
+- **Status**: Recently patched but actively exploited in "Zero Disco" attack campaigns
+- **CVE ID**: CVE-2025-20352
 
-### Gladinet CentreStack Local File Inclusion Zero-Day
-- **Description**: A local file inclusion vulnerability in Gladinet's CentreStack business file-sharing solution that was being exploited as a zero-day
-- **Impact**: Threat actors can access sensitive files and potentially achieve code execution through file inclusion attacks
-- **Status**: Actively exploited since late 2024; security updates have now been released by Gladinet
+### Gladinet CentreStack Zero-Day Vulnerability
+- **Description**: A local file inclusion vulnerability in Gladinet's CentreStack business file-sharing solution
+- **Impact**: Unauthorized access to local files and potential system compromise
+- **Status**: Zero-day actively exploited since late 2024, security updates recently released
 - **CVE ID**: CVE-2025-11371
 
-### Cisco SNMP Remote Code Execution
-- **Description**: A recently patched remote code execution vulnerability in older Cisco IOS Software and IOS XE Software devices
-- **Impact**: Attackers can deploy Linux rootkits and gain persistent access to network infrastructure
-- **Status**: Recently patched but being actively exploited against unprotected older devices in "Zero Disco" attacks
-- **CVE ID**: CVE-2025-20352
+### Adobe Experience Manager Critical Vulnerability
+- **Description**: A maximum-severity vulnerability with a perfect 10.0 CVSS score affecting Adobe Experience Manager
+- **Impact**: Remote code execution on unpatched systems
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
+
+### WatchGuard Fireware Critical Vulnerability
+- **Description**: A critical security flaw in WatchGuard Fireware that allows unauthenticated attackers to execute arbitrary code
+- **Impact**: Complete device takeover by unauthenticated attackers
+- **Status**: Recently patched after disclosure by security researchers
+
+### Zendesk Authentication Weakness
+- **Description**: Widespread lack of proper authentication controls in Zendesk customer service platform
+- **Impact**: Email bombing attacks flooding targeted inboxes with menacing messages from legitimate Zendesk corporate accounts
+- **Status**: Actively being exploited by cybercriminals for harassment campaigns
 
 ## Affected Systems and Products
 
-- **Adobe Experience Manager**: Web content management platform vulnerable to remote code execution attacks
-- **Gladinet CentreStack**: Business file-sharing and collaboration solution affected by local file inclusion vulnerability
-- **Cisco IOS Software and IOS XE Software**: Older networking devices vulnerable to SNMP-based remote code execution
-- **Microsoft Teams**: Targeted by Rhysida ransomware through fraudulent certificate abuse
-- **WordPress Sites**: Being used as distribution points for blockchain-based malware campaigns
-- **F5 BIG-IP**: Network infrastructure compromised by nation-state actors with source code theft
+- **Cisco IOS Software and IOS XE Software**: Networking devices vulnerable to SNMP-based attacks leading to rootkit deployment
+- **Gladinet CentreStack**: Business file-sharing solution affected by zero-day local file inclusion vulnerability
+- **Adobe Experience Manager**: Content management system with maximum-severity remote code execution flaw
+- **WatchGuard Fireware**: Network security appliances vulnerable to unauthenticated code execution
+- **Zendesk Platform**: Customer service platform with authentication weaknesses enabling abuse
+- **Microsoft Teams**: Targeted by Rhysida ransomware through malicious installers signed with fraudulent certificates
+- **WordPress Sites**: Used as distribution points for blockchain-based malware campaigns
+- **AWS Infrastructure**: Compromised systems discovered hosting new Linux rootkits
 
 ## Attack Vectors and Techniques
 
-- **EtherHiding Technique**: North Korean hackers hiding malware inside blockchain smart contracts for stealth distribution
-- **Fraudulent Code Signing**: Vanilla Tempest using over 200 revoked certificates to sign malicious Teams installers
-- **Linux Rootkit Deployment**: LinkPro rootkit using eBPF technology and magic TCP packet activation on AWS infrastructure
-- **Smart Contract Abuse**: UNC5142 leveraging blockchain smart contracts to distribute information stealers like Atomic and Lumma
-- **Supply Chain Targeting**: Attacks on password managers through phishing campaigns exploiting user trust
-- **Certificate Authority Compromise**: Large-scale certificate abuse for signing malicious ransomware payloads
+- **SNMP Exploitation**: Attackers leveraging Cisco SNMP vulnerabilities to deploy rootkits and compromise network infrastructure
+- **EtherHiding Technique**: North Korean hackers hiding malware within Ethereum blockchain smart contracts for stealth and persistence
+- **Fraudulent Code Signing**: Rhysida ransomware operators using over 200 revoked certificates to sign malicious Teams installers
+- **Blockchain Smart Contract Abuse**: UNC5142 threat actor using smart contracts to distribute information stealers like Atomic and Lumma
+- **Email Bombing**: Exploitation of Zendesk authentication weaknesses to flood targets with threatening messages
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in file-sharing platforms
+- **Supply Chain Attacks**: Targeting of developer environments through compromised VS Code marketplace extensions
 
 ## Threat Actor Activities
 
-- **Vanilla Tempest**: Microsoft-tracked ransomware group behind Rhysida campaigns using fraudulent certificates to sign malicious Microsoft Teams installers
-- **UNC5142**: Financially motivated threat actor abusing blockchain smart contracts to distribute information stealers through compromised WordPress sites
-- **North Korean Groups**: Multiple DPRK-linked actors using EtherHiding techniques for malware distribution and cryptocurrency theft operations
-- **Jewelbug**: Chinese threat group conducting five-month infiltration of Russian IT service providers, expanding operations beyond Southeast Asia
-- **Nation-State Actors**: Sophisticated attackers compromising F5's BIG-IP environment and stealing source code along with customer information
-- **Mysterious Elephant**: Cyber-espionage group targeting government and diplomatic entities in South Asia with custom sophisticated tools
+- **Vanilla Tempest**: Microsoft-tracked threat actor using fraudulent certificates in Rhysida ransomware campaigns targeting Teams users
+- **UNC5142**: Financially motivated group abusing blockchain smart contracts to distribute information-stealing malware through infected WordPress sites
+- **North Korean APT Groups**: Using EtherHiding techniques to hide malware in blockchain smart contracts for cryptocurrency theft and espionage
+- **Mysterious Elephant**: Cyber-espionage group targeting government and diplomatic entities in South Asia with sophisticated custom tools
+- **Zero Disco Campaign**: Attackers exploiting Cisco vulnerabilities to deploy Linux rootkits including the newly discovered LinkPro rootkit
+- **Prosper Breach Actors**: Hackers who compromised financial services company systems affecting 17.6 million accounts
+- **Sotheby's Breach Actors**: Threat actors who infiltrated the auction house's systems and stole sensitive financial information
