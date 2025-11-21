@@ -505,213 +505,6 @@
             });
         }
 
-        // Load actors mapping generated during publish (actors.json)
-        let ACTORS_MAP = {};
-        function loadActors() {
-            return fetch('actors.json?v=' + Date.now())
-              .then(r => r.ok ? r.json() : {})
-              .then(j => { ACTORS_MAP = j || {}; })
-              .catch(() => { ACTORS_MAP = {}; });
-        }
-
-        // Load malware mapping generated during publish (malware.json)
-        let MALWARE_MAP = {};
-        function loadMalware() {
-            return fetch('malware.json?v=' + Date.now())
-              .then(r => r.ok ? r.json() : {})
-              .then(j => { MALWARE_MAP = j || {}; })
-              .catch(() => { MALWARE_MAP = {}; });
-        }
-        // Load campaigns mapping generated during publish (campaigns.json)
-        let CAMPAIGNS_MAP = {};
-        function loadCampaigns() {
-            return fetch('campaigns.json?v=' + Date.now())
-              .then(r => r.ok ? r.json() : {})
-              .then(j => { CAMPAIGNS_MAP = j || {}; })
-              .catch(() => { CAMPAIGNS_MAP = {}; });
-        }
-
-        function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-        function deriveActorsFromMarkdown(md) {
-            const result = {};
-            if (!md) return result;
-            // Focus on Threat Actor Activities section if present
-            const secRe = /^##\s+Threat Actor Activities\s*$/im;
-            let secText = md;
-            const m = md.match(secRe);
-            if (m) {
-                const start = m.index + m[0].length;
-                const rest = md.slice(start);
-                const nextH2 = rest.search(/^##\s+/m);
-                secText = nextH2 >= 0 ? rest.slice(0, nextH2) : rest;
-            }
-            const names = new Set();
-            const drop = /(unattributed|cluster|clusters|campaigns?)/i;
-            // Bold list item names
-            const boldRe = /^-\s*\*\*([^*]+)\*\*/gm;
-            let mb;
-            while ((mb = boldRe.exec(secText)) !== null) {
-                let raw = mb[1].trim();
-                raw = raw.replace(/\s*\(.*\)$/, '').trim();
-                raw.split(/\s*&\s*/).forEach(p => {
-                    const name = p.trim();
-                    if (!name || drop.test(name)) return;
-                    names.add(name);
-                });
-            }
-            // Code names in quotes
-            const quoteRe = /["“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-\s]{1,40})["“”']/g;
-            let mq;
-            while ((mq = quoteRe.exec(secText)) !== null) {
-                const name = mq[1].trim();
-                if (!drop.test(name)) names.add(name);
-            }
-            // Common prefixes
-            const tagRe = /\b(?:APT|TA|UNC|FIN)[ -]?\d{1,4}\b/gi;
-            let mt;
-            while ((mt = tagRe.exec(secText)) !== null) {
-                const norm = mt[0].toUpperCase().replace(/\s|-/, '');
-                if (!drop.test(norm)) names.add(norm);
-            }
-            const drops = /^(HTTP|HTTPS|TLS|SSL|VPN|DNS|ASA|IOS|IIS|SSH|RDP|SFTP|FTP|SMTP|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/i;
-            Array.from(names).forEach(n => {
-                if (/^(APT|TA|UNC|FIN)\d+$/i.test(n)) return;
-                if ((n.toUpperCase() === n && n.length <= 3) || drops.test(n)) return;
-                const q = encodeURIComponent('"' + n + '"');
-                result[n] = `https://www.virustotal.com/gui/search/${q}`;
-            });
-            return result;
-        }
-
-function deriveMalwareFromMarkdown(md) {
-            const result = {};
-            if (!md) return result;
-            const names = new Set();
-            // If lines follow "ACTOR: ...", pick ALL-CAPS tokens from RHS
-            const secMatch = md.match(/^##\s+Threat Actor Activities\s*$/im);
-            let scope = md;
-            if (secMatch) {
-                const start = secMatch.index + secMatch[0].length;
-                const rest = md.slice(start);
-                const nextH2 = rest.search(/^##\s+/m);
-                scope = nextH2 >= 0 ? rest.slice(0, nextH2) : rest;
-}
-
-        function deriveCampaignsFromMarkdown(md) {
-            const result = {};
-            if (!md) return result;
-            const names = new Set();
-            // Quoted names, allowing up to 3 adjectives (e.g., "ArcaneDoor" nation-state campaign)
-            const q = /["“”']([^"“”']{3,60})["“”']\s+(?:[A-Za-z-]+\s+){0,3}(?:operation|campaign)s?/gi;
-            let m;
-            while ((m = q.exec(md)) !== null) names.add(m[1].trim());
-            const t = /\b([A-Z][A-Za-z0-9][A-Za-z0-9_.\-]{1,60})\b\s+(?:operation|campaign)s?/g;
-            while ((m = t.exec(md)) !== null) names.add(m[1].trim());
-            const drops = /^(campaign|operation|operations|targeting|activity|activities)$/i;
-            Array.from(names).forEach(n => {
-                if (drops.test(n)) return;
-                const q = encodeURIComponent('"' + n + '"');
-                result[n] = `https://www.virustotal.com/gui/search/${q}`;
-            });
-            return result;
-        }
-            scope.split(/\n+/).forEach(line => {
-                const idx = line.indexOf(':');
-                if (idx <= 0) return;
-                const lhs = line.slice(0, idx).trim();
-                if (!/^(APT|TA|UNC|FIN)\d+$/i.test(lhs)) return;
-                const rhs = line.slice(idx+1);
-                const reCaps = /\b([A-Z][A-Z0-9._-]{3,})\b/g;
-                let m;
-                while ((m = reCaps.exec(rhs)) !== null) {
-                    const tok = m[1];
-                    if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL)$/.test(tok)) continue;
-                    names.add(tok);
-                }
-            });
-            const quoteRe = /["“”']([A-Z][A-Za-z0-9][A-Za-z0-9\-]{1,40})["“”']/g;
-            let mq;
-            while ((mq = quoteRe.exec(md)) !== null) names.add(mq[1].trim());
-            const suf = /(Bot|Loader|RAT|Stealer|Worm|Backdoor|Trojan|Spy|Spyware|Banker|Locker|Ransom|Ransomware)\b/i;
-            const wordRe = /\b([A-Z][A-Za-z0-9]*(?:[A-Z][A-Za-z0-9]+)*[A-Za-z0-9]{2,})\b/g;
-            let mw;
-            while ((mw = wordRe.exec(md)) !== null) {
-                const w = mw[0];
-                if (suf.test(w)) names.add(w);
-            }
-            // ALL-CAPS tokens across entire document (len>=5), skip actor tags and common acronyms
-            const capsGlobalRe = /\b([A-Z][A-Z0-9._-]{4,})\b/g;
-            let mg;
-            while ((mg = capsGlobalRe.exec(md)) !== null) {
-                const t = mg[1];
-                if (/^(APT|TA|UNC|FIN)\d+$/i.test(t)) continue;
-                if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/i.test(t)) continue;
-                names.add(t);
-            }
-            // TitleCase (CamelCase) tokens anywhere (two or more capitalized segments), skip common vendors/platforms
-            const camelRe = /\b([A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)+)\b/g;
-            let mcam;
-            while ((mcam = camelRe.exec(md)) !== null) {
-                const t = mcam[1];
-                if (/^(Windows|Linux|Android|Cisco|Microsoft|NetScaler|GitHub|Google|Apple)$/i.test(t)) continue;
-                names.add(t);
-            }
-            // ALL-CAPS tokens anywhere in TA section (len>=5), excluding actor tags and common acronyms
-            const capsRe = /\b([A-Z][A-Z0-9._-]{4,})\b/g;
-            let mc;
-            while ((mc = capsRe.exec(scope)) !== null) {
-                const t = mc[1];
-                if (/^(APT|TA|UNC|FIN)\d+$/i.test(t)) continue;
-                if (/^(IOC|IETF|HTTP|HTTPS|TLS|SSL|VPN|DNS|AAD|MFA|SQL|XML|JSON|RANSOMWARE|TROJAN|BACKDOOR|BACKDOORS|DOWNLOADER|CAMPAIGN|OPERATIONS|ACCESS|AFFILIATE)$/i.test(t)) continue;
-                names.add(t);
-            }
-            Array.from(names).forEach(n => {
-                const q = encodeURIComponent('"' + n + '"');
-                result[n] = `https://www.virustotal.com/gui/search/${q}`;
-            });
-            return result;
-        }
-
-        function linkifyThreatActors() {
-            const names = Object.keys(ACTORS_MAP || {});
-            if (!names.length) return;
-            // Sort by length to avoid partial matches (e.g., APT2 vs APT29)
-            names.sort((a,b) => b.length - a.length);
-            const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
-            contentEl.querySelectorAll('p, li').forEach(el => {
-                el.innerHTML = el.innerHTML.replace(re, (m) => {
-                    const url = ACTORS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
-                    return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
-                });
-            });
-        }
-
-        function linkifyMalware() {
-            const names = Object.keys(MALWARE_MAP || {});
-            if (!names.length) return;
-            names.sort((a,b) => b.length - a.length);
-            const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
-            contentEl.querySelectorAll('p, li').forEach(el => {
-                el.innerHTML = el.innerHTML.replace(re, (m) => {
-                    const url = MALWARE_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
-                    return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
-                });
-            });
-        }
-        function linkifyCampaigns() {
-            const names = Object.keys(CAMPAIGNS_MAP || {});
-            if (!names.length) return;
-            names.sort((a,b) => b.length - a.length);
-            const re = new RegExp('\\b(' + names.map(escapeRegex).join('|') + ')\\b', 'g');
-            contentEl.querySelectorAll('p, li').forEach(el => {
-                el.innerHTML = el.innerHTML.replace(re, (m) => {
-                    const url = CAMPAIGNS_MAP[m] || `https://www.virustotal.com/gui/search/${encodeURIComponent('"' + m + '"')}`;
-                    return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
-                });
-            });
-        }
-
         function addStatusBadges() {
             contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
                 const h3 = sec.querySelector('h3');
@@ -778,8 +571,30 @@ function deriveMalwareFromMarkdown(md) {
         }
 
         function computeSummary() {
-            // Cards intentionally removed per request
-            summaryEl.innerHTML = ``;
+            const cveMatches = markdownCache.match(/CVE-\d{4}-\d{4,7}/g) || [];
+            const uniqueCVEs = Array.from(new Set(cveMatches));
+            const sections = contentEl.querySelectorAll('h3').length;
+            let activeCount = 0;
+            contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
+                const txt = sec.textContent.toLowerCase();
+                if (/(status).*?(active|exploited|in the wild)/.test(txt)) activeCount++;
+            });
+            // Count products from the Affected Systems and Products section
+            let products = 0;
+            const h2s = Array.from(contentEl.querySelectorAll('h2'));
+            const target = h2s.find(h => /affected systems? and products/i.test(h.textContent));
+            if (target) {
+                let el = target.nextElementSibling;
+                while (el && el.tagName !== 'H2') {
+                    if (el.tagName === 'UL') products += el.querySelectorAll('li').length;
+                    el = el.nextElementSibling;
+                }
+            }
+
+            const html = `
+                <div class="card"><h5>CVEs Mentioned</h5><div class="value">${uniqueCVEs.length}</div><div class="chips">${uniqueCVEs.slice(0,6).map(c => `<a class="chip" href="https://nvd.nist.gov/vuln/detail/${c}" target="_blank" rel="noopener">${c}</a>`).join('')}</div></div>
+            `;
+            summaryEl.innerHTML = html;
         }
 
         function wireShortcuts() {
@@ -829,19 +644,7 @@ function deriveMalwareFromMarkdown(md) {
                 addStatusBadges();
                 enhanceActiveExploitationTags();
                 buildTOC();
-                // Load actors, malware, campaigns; merge with derived sets, linkify and compute summary
-                Promise.all([loadActors(), loadMalware(), loadCampaigns()]).then(() => {
-                    const derivedActors = deriveActorsFromMarkdown(markdownCache);
-                    ACTORS_MAP = Object.assign({}, derivedActors, ACTORS_MAP || {});
-                    const derivedMal = deriveMalwareFromMarkdown(markdownCache);
-                    MALWARE_MAP = Object.assign({}, derivedMal, MALWARE_MAP || {});
-                    const derivedCamp = deriveCampaignsFromMarkdown(markdownCache);
-                    CAMPAIGNS_MAP = Object.assign({}, derivedCamp, CAMPAIGNS_MAP || {});
-                    linkifyThreatActors();
-                    linkifyMalware();
-                    linkifyCampaigns();
-                    computeSummary();
-                });
+                computeSummary();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 setMeta(m ? m[1] : '');
           })
