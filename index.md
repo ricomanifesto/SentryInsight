@@ -1,57 +1,53 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity continues to escalate across multiple platforms, with threat actors actively targeting network infrastructure, enterprise applications, and development tools. Recent campaigns have exploited zero-day vulnerabilities in file-sharing software and networking devices, while ransomware groups are leveraging fraudulent code-signing certificates to distribute malware through trusted applications. North Korean threat actors are advancing their techniques by combining malware capabilities and utilizing blockchain smart contracts for malware distribution. The discovery of sophisticated rootkits targeting Linux systems and the exploitation of SNMP vulnerabilities in Cisco devices highlight the evolving threat landscape affecting enterprise infrastructure.
+Critical vulnerabilities are currently being exploited across enterprise platforms, with the most severe being a maximum severity SCIM flaw in Grafana Enterprise (CVE-2025-41115) that enables admin impersonation and privilege escalation. Threat actors are actively exploiting unpatched vulnerabilities in Ray AI frameworks for GPU cryptomining operations, conducting sophisticated espionage campaigns using custom malware, and targeting enterprise VPN infrastructure through massive scanning operations. Additionally, attackers are leveraging OAuth abuse vectors against Salesforce customers and deploying novel command-and-control techniques through browser notifications and Ethereum-based infrastructure.
 
 ## Active Exploitation Details
 
-### Gladinet CentreStack Zero-Day Vulnerability
-- **Description**: A local file inclusion vulnerability in Gladinet's CentreStack business solution that was actively exploited as a zero-day
-- **Impact**: Allows attackers to access sensitive files and potentially gain unauthorized system access
-- **Status**: Patched by Gladinet after active exploitation was detected since late in the attack timeline
-- **CVE ID**: CVE-2025-11371
+### Grafana Enterprise SCIM Vulnerability
+- **Description**: Maximum severity security flaw in Grafana's System for Cross-domain Identity Management (SCIM) implementation that allows attackers to treat new users as administrators
+- **Impact**: Complete privilege escalation, user impersonation, and unauthorized administrative access to Grafana Enterprise installations
+- **Status**: Security updates have been released by Grafana Labs
+- **CVE ID**: CVE-2025-41115
 
-### Cisco SNMP Remote Code Execution Vulnerability
-- **Description**: A remote code execution flaw in Cisco IOS Software and IOS XE Software SNMP functionality
-- **Impact**: Enables deployment of rootkits and complete system compromise on Cisco networking devices
-- **Status**: Recently patched but actively exploited in "Zero Disco" campaign targeting unprotected Linux systems
-- **CVE ID**: CVE-2025-20352
+### Ray AI Framework Vulnerability
+- **Description**: Two-year-old unpatched security flaw in the Ray open-source artificial intelligence framework being exploited by ShadowRay 2.0 botnet
+- **Impact**: Complete compromise of AI clusters with NVIDIA GPUs, conversion into self-spreading cryptocurrency mining botnet
+- **Status**: Actively exploited despite being known for two years, patches available but not widely applied
 
-### WatchGuard Fireware Critical Security Flaw
-- **Description**: A critical security vulnerability in WatchGuard Fireware that allows unauthenticated remote code execution
-- **Impact**: Attackers can execute arbitrary code and potentially take over VPN devices
-- **Status**: Recently patched, details disclosed by cybersecurity researchers
-
-### Microsoft ASP.NET Core High-Severity Vulnerability
-- **Description**: A vulnerability rated as the highest severity ever received by an ASP.NET Core security flaw
-- **Impact**: Significant security risk to ASP.NET Core applications
-- **Status**: Patched by Microsoft earlier this week
+### SonicWall SonicOS SSLVPN Vulnerability
+- **Description**: High-severity security flaw in SonicWall's SonicOS SSLVPN implementation that allows denial-of-service attacks
+- **Impact**: Attackers can crash vulnerable SonicWall firewalls, disrupting network security and connectivity
+- **Status**: Patch released by SonicWall, customers urged to update immediately
 
 ## Affected Systems and Products
 
-- **Gladinet CentreStack**: File-sharing business solution vulnerable to local file inclusion attacks
-- **Cisco IOS/IOS XE Devices**: Network switches and routers vulnerable to SNMP-based rootkit deployment
-- **WatchGuard Fireware**: VPN and firewall devices susceptible to unauthenticated remote code execution
-- **Microsoft ASP.NET Core**: Web application framework affected by critical vulnerability
-- **F5 BIG-IP Instances**: Over 266,000 instances exposed online following security breach disclosure
-- **Microsoft Visual Studio Code Marketplace**: Supply chain risks from exposed secrets in extensions
-- **WordPress Sites**: Infected sites used for blockchain-based malware distribution
-- **Microsoft Teams**: Targeted by fraudulent installers in ransomware campaigns
+- **Grafana Enterprise**: All versions with SCIM implementation prior to security update
+- **Ray AI Framework**: Open-source AI framework installations with NVIDIA GPU clusters
+- **SonicWall SonicOS**: SSLVPN-enabled firewall appliances running vulnerable firmware
+- **Palo Alto GlobalProtect**: VPN portals experiencing massive reconnaissance scanning
+- **Salesforce Platform**: Customer instances connected to compromised Gainsight applications
+- **Windows Systems**: Targets of Tsundere botnet using game-themed social engineering lures
+- **Italian Rail Infrastructure**: FS Italiane Group systems compromised via Almaviva IT services provider
+- **Chinese Organizations**: Primary targets of PlushDaemon router infections for software update hijacking
 
 ## Attack Vectors and Techniques
 
-- **SNMP Exploitation**: Threat actors leveraging SNMP vulnerabilities to deploy LinkPro rootkits on Linux systems
-- **EtherHiding Technique**: North Korean hackers hiding malware inside blockchain smart contracts for cryptocurrency theft
-- **Blockchain Smart Contract Abuse**: UNC5142 threat group distributing information stealers through smart contracts
-- **Fraudulent Code Signing**: Over 200 certificates used to sign malicious binaries in ransomware attacks
-- **Email Bombing**: Exploitation of lax authentication in Zendesk to flood targeted inboxes
-- **Magic TCP Packet Activation**: LinkPro rootkit uses eBPF technology and activates via specific TCP packets
-- **Supply Chain Compromise**: Secrets exposed in VS Code marketplace creating development environment risks
+- **SCIM Protocol Abuse**: Exploitation of identity management protocols to escalate privileges in enterprise environments
+- **AI Framework Exploitation**: Targeting distributed computing frameworks to build GPU-powered cryptocurrency mining operations
+- **VPN Portal Reconnaissance**: Mass scanning campaigns with 2.3 million sessions targeting GlobalProtect infrastructure
+- **OAuth Token Abuse**: Unauthorized access to customer data through compromised third-party application integrations
+- **Router-Based Software Hijacking**: Infection of networking equipment to intercept and modify legitimate software updates
+- **Browser Notification Hijacking**: Novel command-and-control technique using Matrix Push tool to abuse browser notification systems
+- **Game-Themed Social Engineering**: Distribution of malware through gaming-related lures targeting Windows users
+- **Ethereum-Based C2**: Use of blockchain infrastructure for command-and-control communications
 
 ## Threat Actor Activities
 
-- **Vanilla Tempest**: Microsoft-tracked group using fraudulent certificates in Rhysida ransomware campaigns targeting Teams users
-- **North Korean Groups**: Advanced campaigns combining BeaverTail and OtterCookie malware, utilizing EtherHiding and blockchain techniques for cryptocurrency theft
-- **UNC5142**: Financially motivated threat actor distributing Atomic (AMOS), Lumma, and other information stealers via blockchain smart contracts
-- **Zero Disco Campaign**: Attackers exploiting Cisco SNMP vulnerabilities to deploy sophisticated Linux rootkits on compromised infrastructure
-- **Chinese Threat Actors**: Testing AI-optimized attack chains in operations targeting Taiwan
-- **SIM Box Operation**: European law enforcement dismantled SIMCARTEL operation enabling over 3,200 fraud cases with 4.5 million euros in losses
+- **APT24**: China-linked espionage group conducting three-year campaign using previously undocumented BADAUDIO malware, targeting Taiwan and over 1,000 domains with sophisticated persistence mechanisms
+- **PlushDaemon Operators**: Chinese state-sponsored APT group infecting routers to hijack software updates, primarily targeting domestic Chinese organizations while evading international attention
+- **ShadowRay 2.0 Botnet**: Cryptocurrency mining operation exploiting Ray AI framework vulnerabilities to build self-spreading GPU botnets
+- **Tsundere Botnet**: Active since mid-2025, targeting Windows users with JavaScript-based malware distributed through gaming lures and utilizing Ethereum blockchain for command-and-control
+- **Scattered Spider**: British teenagers involved in Transport for London breach pleading not guilty to charges related to August 2024 attack causing millions in damages
+- **Italian Rail Attacker**: Threat actor claiming to steal 2.3TB of data from FS Italiane Group through Almaviva IT services provider compromise
+- **Gainsight-Linked Attackers**: Unauthorized actors exploiting OAuth applications to access Salesforce customer data through compromised Gainsight integrations
