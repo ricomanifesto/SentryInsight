@@ -3,6 +3,7 @@ feedparser
 tiktoken
 langchain>=0.1.0
 langchain-anthropic
+langchain-core
 python-dotenv
 langgraph>=0.0.20
 pydantic>=2.0.0

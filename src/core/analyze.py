@@ -7,7 +7,7 @@ from datetime import datetime
 
 import tiktoken
 from langchain_anthropic import ChatAnthropic
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
