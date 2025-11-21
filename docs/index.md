@@ -1,50 +1,47 @@
 # Exploitation Report
 
-Current cybersecurity threat landscape reveals several critical vulnerabilities under active exploitation, with maximum severity flaws in enterprise systems presenting immediate risks. The most concerning activity includes a CVSS 10.0 vulnerability in Grafana Enterprise enabling administrative privilege escalation, ongoing exploitation of Ray AI framework vulnerabilities for cryptocurrency mining operations, and sophisticated espionage campaigns by state-sponsored actors. Multiple threat groups are leveraging unpatched systems, insider threats, and novel attack vectors including browser notification hijacking and Ethereum-based command and control infrastructure.
+This report reveals critical active exploitation activity across multiple high-impact vulnerabilities. The most severe concern is a maximum CVSS 10.0 vulnerability in Grafana Enterprise affecting SCIM functionality, enabling user impersonation and privilege escalation. Simultaneously, threat actors are exploiting a two-year-old Ray AI framework vulnerability to build self-spreading GPU cryptomining botnets, while APT24 has deployed previously undocumented BADAUDIO malware in multi-year espionage campaigns targeting over 1,000 domains. Additional concerns include widespread scanning of Palo Alto GlobalProtect VPN portals, SonicWall firewall vulnerabilities allowing denial-of-service attacks, and data theft incidents affecting major platforms including Salesforce and Italian railway systems.
 
 ## Active Exploitation Details
 
-### Grafana Enterprise SCIM Vulnerability
-- **Description**: Maximum severity vulnerability in Grafana Enterprise's System for Cross-domain Identity Management (SCIM) functionality that allows attackers to treat new users as administrators or escalate privileges
-- **Impact**: Complete administrative access to Grafana systems, potential for full system compromise and data exfiltration
-- **Status**: Patches available, actively exploitable in unpatched systems
+### Grafana Enterprise SCIM Authentication Bypass
+- **Description**: Maximum severity vulnerability in Grafana Enterprise's SCIM implementation that allows authentication bypass and user impersonation
+- **Impact**: Attackers can treat new users as administrators or escalate privileges within Grafana environments
+- **Status**: Patches released by Grafana Labs
 - **CVE ID**: CVE-2025-41115
 
-### Ray AI Framework Security Flaw
-- **Description**: Two-year-old unpatched vulnerability in the Ray open-source artificial intelligence framework being exploited to build self-spreading GPU cryptocurrency mining botnets
-- **Impact**: Unauthorized cryptocurrency mining, resource consumption, potential lateral movement across AI clusters
-- **Status**: Actively exploited in ShadowRay 2.0 campaigns targeting NVIDIA GPU clusters
+### Ray AI Framework Remote Code Execution
+- **Description**: Two-year-old security flaw in the Ray open-source AI framework being actively exploited to build cryptomining botnets
+- **Impact**: Enables creation of self-spreading GPU cryptomining botnets targeting NVIDIA GPU clusters
+- **Status**: Unpatched systems continue to be exploited in ShadowRay 2.0 campaigns
 
-### Palo Alto Networks GlobalProtect Portal Scanning
-- **Description**: Massive reconnaissance campaign targeting GlobalProtect VPN portals with over 2.3 million scan sessions detected starting November 14, 2025
-- **Impact**: Network reconnaissance, potential identification of vulnerable endpoints for future exploitation
-- **Status**: Ongoing active scanning activity, no specific vulnerability exploitation confirmed
+### SonicWall SonicOS SSL VPN Denial-of-Service
+- **Description**: High-severity vulnerability in SonicWall SonicOS SSL VPN implementation
+- **Impact**: Allows attackers to crash vulnerable firewalls through denial-of-service attacks
+- **Status**: Patches available, urgent patching recommended by SonicWall
 
 ## Affected Systems and Products
 
-- **Grafana Enterprise**: SCIM-enabled configurations vulnerable to administrative privilege escalation
-- **Ray AI Framework**: Open-source AI clusters with NVIDIA GPUs targeted for cryptocurrency mining
-- **Palo Alto Networks GlobalProtect**: VPN portals under intensive reconnaissance scanning
-- **SonicWall SonicOS SSLVPN**: Firewalls vulnerable to denial-of-service attacks via high-severity flaw
-- **Salesforce Platform**: Customer data exposed through Gainsight-linked OAuth application compromise
-- **Windows Systems**: Targeted by Tsundere botnet using game-themed social engineering lures
-- **FS Italiane Group**: Italian national railway data compromised via IT services provider breach
+- **Grafana Enterprise**: All versions with SCIM functionality enabled prior to security updates
+- **Ray AI Framework**: Unpatched installations continue to be vulnerable to ShadowRay 2.0 attacks
+- **SonicWall SonicOS**: Firewalls running vulnerable SSL VPN implementations
+- **Palo Alto GlobalProtect**: VPN portals experiencing massive scanning campaigns with 2.3 million probe sessions
+- **Salesforce Platform**: Customer data accessed through Gainsight-linked OAuth activity
+- **Windows Systems**: Targeted by Tsundere botnet using game-based lures and Ethereum C2 infrastructure
 
 ## Attack Vectors and Techniques
 
-- **SCIM Protocol Exploitation**: Attackers manipulating cross-domain identity management to gain administrative privileges
-- **AI Framework Compromise**: Self-spreading malware targeting distributed AI computing environments
-- **OAuth Token Abuse**: Unauthorized access to cloud platforms through compromised third-party application tokens
-- **Browser Notification Hijacking**: Matrix Push command-and-control tool leveraging browser notifications for phishing
-- **Ethereum-Based C2**: Blockchain infrastructure used for botnet command and control communications
-- **Social Engineering**: Game-themed lures used to distribute Windows-targeting malware
-- **Supply Chain Attacks**: Compromising IT service providers to access downstream clients
+- **SCIM Authentication Bypass**: Exploitation of authentication flaws in System for Cross-domain Identity Management implementations
+- **GPU Cryptomining Botnet**: Self-spreading malware targeting AI framework clusters with high-performance graphics processing units
+- **OAuth Token Abuse**: Unauthorized access through compromised third-party application tokens on cloud platforms
+- **VPN Portal Scanning**: Mass reconnaissance campaigns targeting enterprise VPN infrastructure
+- **Social Engineering**: Game-based lures distributed through legitimate-appearing applications
+- **Ethereum-based C2**: Command and control infrastructure leveraging blockchain technology for communications
 
 ## Threat Actor Activities
 
-- **APT24**: China-linked group conducting three-year espionage campaign using BADAUDIO malware against Taiwan and over 1,000 domains
-- **Scattered Spider**: British teenagers involved in Transport for London breach causing millions in damage and customer data exposure
-- **PlushDaemon**: Chinese state-sponsored APT group infecting routers to hijack software updates, primarily targeting Chinese organizations
-- **ShadowRay Operators**: Cybercriminals building GPU-based cryptocurrency mining botnets through Ray framework exploitation
-- **CrowdStrike Insider Threat**: Internal actor sharing sensitive screenshots with external hackers via Telegram channels
-- **Tsundere Botnet Operators**: Active since mid-2025, expanding Windows-targeting botnet using JavaScript execution capabilities
+- **APT24**: China-linked group conducting multi-year espionage campaigns using BADAUDIO malware, targeting Taiwan and over 1,000 domains with sophisticated attack methods
+- **ShadowRay Operators**: Cybercriminals exploiting Ray framework vulnerabilities to build and expand GPU-based cryptomining infrastructure
+- **Scattered Spider**: British teenagers charged in connection with Transport for London breach causing millions in damages and customer data exposure
+- **Tsundere Botnet Operators**: Actively expanding Windows-targeting botnet using gaming lures and blockchain-based command infrastructure
+- **Unknown Threat Actors**: Conducting mass scanning campaigns against GlobalProtect VPN portals and data theft operations targeting Italian railway systems through Almaviva compromise
