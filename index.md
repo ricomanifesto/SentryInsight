@@ -1,47 +1,41 @@
 # Exploitation Report
 
-Critical vulnerabilities are being actively exploited across multiple enterprise platforms, with Oracle Identity Manager facing immediate remote code execution threats tracked as CVE-2025-61757, while Grafana Enterprise users confront a maximum severity SCIM flaw (CVE-2025-41115) enabling complete administrative takeover. Concurrently, sophisticated threat actors including APT24 and ShinyHunters are conducting prolonged espionage campaigns, with APT24 deploying novel malware for multi-year operations and ShinyHunters repeatedly targeting Salesforce customer data through third-party integrations. Additionally, Chinese state-sponsored groups are executing advanced router-based campaigns to hijack software updates, while security vulnerabilities in LINE messaging expose millions of Asian users to potential cyber espionage.
+Critical active exploitation activity is currently targeting Oracle Identity Manager systems through a remote code execution vulnerability, with CISA issuing urgent warnings to government agencies. Simultaneously, threat actors are conducting sophisticated espionage campaigns using novel malware and exploiting third-party application integrations to compromise enterprise environments. Notable activities include APT24's multi-year espionage operations using BadAudio malware, ShinyHunters group attacks on Salesforce customers through Gainsight applications, and maximum severity vulnerabilities in Grafana Enterprise that enable administrative privilege escalation.
 
 ## Active Exploitation Details
 
-### Oracle Identity Manager Remote Code Execution Vulnerability
-- **Description**: A critical remote code execution vulnerability in Oracle Identity Manager being actively exploited by threat actors in the wild
-- **Impact**: Allows attackers to execute arbitrary code remotely on affected Oracle Identity Manager systems, potentially leading to complete system compromise
-- **Status**: Currently being exploited in attacks, with CISA warning government agencies to apply patches immediately
+### Oracle Identity Manager RCE Vulnerability
+- **Description**: Remote code execution flaw in Oracle Identity Manager that allows attackers to execute arbitrary code on vulnerable systems
+- **Impact**: Attackers can gain complete system control, potentially compromising entire identity management infrastructures
+- **Status**: Currently being exploited in active attacks; CISA has warned government agencies to apply patches immediately
 - **CVE ID**: CVE-2025-61757
 
-### Grafana Enterprise SCIM Authentication Bypass
-- **Description**: Maximum severity vulnerability in Grafana Enterprise's SCIM (System for Cross-domain Identity Management) implementation that enables privilege escalation and user impersonation
-- **Impact**: Attackers can treat new users as administrators or escalate privileges to gain administrative access to Grafana Enterprise instances
-- **Status**: Patches released by Grafana Labs to address the vulnerability
+### Grafana Enterprise Administrative Spoofing
+- **Description**: Maximum severity vulnerability in Grafana Enterprise's SCIM implementation that allows treating new users as administrators
+- **Impact**: Attackers can achieve privilege escalation and perform user impersonation to gain administrative access
+- **Status**: Patches available; organizations urged to update immediately
 - **CVE ID**: CVE-2025-41115
-
-### LINE Messaging Protocol Vulnerabilities
-- **Description**: Multiple security flaws in LINE's custom encrypted messaging protocol that enable message replay attacks, user impersonation, and sensitive information exposure
-- **Impact**: Allows cyber espionage operations against Asian users, with potential for message interception and account takeover attacks
-- **Status**: Actively exploitable vulnerabilities affecting millions of users across Asia
 
 ## Affected Systems and Products
 
-- **Oracle Identity Manager**: All versions affected by the remote code execution vulnerability requiring immediate patching
-- **Grafana Enterprise**: Specific versions with SCIM configuration vulnerable to administrative privilege escalation
-- **LINE Messaging Application**: Custom protocol implementation exposing Asian users to espionage attacks
-- **Salesforce Platform**: Customer data exposed through unauthorized OAuth activity via Gainsight third-party applications
-- **Router Infrastructure**: Multiple router models targeted by Chinese APT groups for software update hijacking campaigns
+- **Oracle Identity Manager**: Systems running vulnerable versions are actively targeted by threat actors
+- **Grafana Enterprise**: SCIM-enabled configurations vulnerable to administrative privilege escalation
+- **Salesforce Environments**: Organizations using Gainsight-published applications face unauthorized data access risks
+- **LINE Messaging App**: Asian users exposed to cyber espionage through leaky custom protocol implementations
+- **Router Infrastructure**: Network devices compromised by PlushDaemon APT for software update hijacking
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution**: Direct exploitation of Oracle Identity Manager vulnerability enabling system compromise
-- **SCIM Protocol Abuse**: Manipulation of Grafana's user provisioning system to gain unauthorized administrative access
-- **OAuth Token Hijacking**: Exploitation of Gainsight-linked OAuth applications to access Salesforce customer data
-- **Router Compromise**: Chinese APT groups infecting routers to position themselves in software update delivery chains
-- **Browser Notification Hijacking**: Matrix Push C2 tool leveraging browser notifications for command and control operations
-- **Message Protocol Exploitation**: Custom protocol vulnerabilities enabling replay attacks and user impersonation in LINE messaging
+- **Third-Party Application Exploitation**: Threat actors leveraging OAuth integrations in applications like Gainsight to access Salesforce customer data
+- **Software Update Hijacking**: PlushDaemon APT compromising routers to intercept and manipulate software updates
+- **Browser Notification Abuse**: Matrix Push command and control tool exploiting browser notifications for phishing campaigns
+- **Custom Protocol Exploitation**: LINE messaging app vulnerabilities enabling message replays and impersonation attacks
+- **SCIM Protocol Manipulation**: Grafana vulnerability allowing new user registration with administrative privileges
 
 ## Threat Actor Activities
 
-- **APT24 (Chinese State-Sponsored)**: Conducting three-year espionage campaign using BADAUDIO malware, targeting over 1,000 domains with focus on Taiwan and persistent network access
-- **ShinyHunters Extortion Group**: Repeatedly targeting Salesforce customers through third-party application compromises, specifically exploiting Gainsight integrations for data theft
-- **PlushDaemon (Chinese APT)**: Sophisticated router infection campaign designed to hijack software updates, primarily targeting Chinese organizations while evading detection
-- **Scattered Spider**: British teenagers conducting high-profile attacks including the Transport for London breach, causing millions in damages and exposing customer data
-- **CrowdStrike Insider Threat**: Internal actor sharing sensitive system screenshots with external hackers via Telegram, highlighting insider risk concerns
+- **APT24**: Conducting three-year espionage campaign using BadAudio malware, targeting Taiwan and over 1,000 domains with sophisticated persistence mechanisms
+- **ShinyHunters Group**: Executing repeat attacks against Salesforce customers through compromise of third-party Gainsight applications
+- **PlushDaemon APT**: Chinese state-sponsored group primarily targeting domestic organizations through router compromise and software update manipulation
+- **Scattered Spider**: British teenagers charged in connection with Transport for London breach causing millions in damage and customer data exposure
+- **Internal Threats**: CrowdStrike identified insider sharing internal system screenshots with external hackers via Telegram channels
