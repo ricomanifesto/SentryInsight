@@ -1,58 +1,56 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are being actively exploited in the wild, with CISA warning of immediate exploitation of CVE-2025-61757 affecting Oracle Identity Manager systems. Meanwhile, researchers discovered significant security flaws across multiple platforms including WhatsApp API vulnerabilities enabling massive data harvesting, and a maximum severity vulnerability in Grafana Enterprise products. The threat landscape shows sophisticated APT groups like APT31 and APT24 conducting long-term espionage campaigns, while ransomware operators and insider threats continue to compromise enterprise networks.
+Critical zero-day vulnerabilities are being actively exploited in the wild, with CISA adding CVE-2025-61757 affecting Oracle Identity Manager to its Known Exploited Vulnerabilities catalog due to active exploitation. Cox Enterprises suffered a significant data breach through exploitation of a zero-day flaw in Oracle E-Business Suite, while threat actors continue to abuse third-party applications like Gainsight to compromise Salesforce customer data. Additional high-severity vulnerabilities include a maximum severity SCIM flaw in Grafana Enterprise (CVE-2025-41115) and a WhatsApp API vulnerability that enabled massive data scraping operations affecting 3.5 billion accounts.
 
 ## Active Exploitation Details
 
 ### Oracle Identity Manager Remote Code Execution Vulnerability
-- **Description**: Critical security flaw in Oracle Identity Manager that allows remote code execution
-- **Impact**: Attackers can execute arbitrary code remotely on affected systems, potentially leading to complete system compromise
-- **Status**: Being actively exploited in attacks according to CISA warning; patch available
+- **Description**: A critical security flaw in Oracle Identity Manager that allows remote code execution
+- **Impact**: Attackers can potentially gain full control of affected systems and execute arbitrary code remotely
+- **Status**: Actively exploited in the wild; CISA has added it to the KEV catalog requiring federal agencies to patch by a specified deadline
 - **CVE ID**: CVE-2025-61757
 
 ### Oracle E-Business Suite Zero-Day Vulnerability
-- **Description**: Zero-day vulnerability in Oracle E-Business Suite that was exploited to breach Cox Enterprises
-- **Impact**: Complete network compromise allowing attackers to access and exfiltrate personal data
-- **Status**: Previously unknown vulnerability that was exploited before patches were available
-
-### WhatsApp Contact Discovery API Vulnerability
-- **Description**: API flaw lacking proper rate limiting controls that enables mass data harvesting
-- **Impact**: Researchers compiled 3.5 billion WhatsApp phone numbers and associated personal information
-- **Status**: Vulnerability allows large-scale user data scraping and privacy violations
+- **Description**: An unpatched zero-day vulnerability in Oracle E-Business Suite that was exploited to breach Cox Enterprises
+- **Impact**: Enabled unauthorized access to corporate networks and exposure of personal data belonging to impacted individuals
+- **Status**: Zero-day vulnerability that was exploited before patches were available
 
 ### Grafana Enterprise SCIM Vulnerability
-- **Description**: Maximum severity vulnerability in Grafana Enterprise SCIM functionality
-- **Impact**: Enables privilege escalation and user impersonation, allowing attackers to gain administrative access
-- **Status**: Patches released for the critical vulnerability
+- **Description**: A maximum severity vulnerability in Grafana Enterprise's SCIM implementation that enables user impersonation and privilege escalation
+- **Impact**: Attackers can treat new users as administrators or escalate privileges within the system
+- **Status**: Patches have been released by Grafana Labs
 - **CVE ID**: CVE-2025-41115
+
+### WhatsApp API Contact Discovery Flaw
+- **Description**: A vulnerability in WhatsApp's contact-discovery API that lacked proper rate limiting controls
+- **Impact**: Enabled researchers to scrape 3.5 billion WhatsApp mobile phone numbers and associated personal information
+- **Status**: Vulnerability was demonstrated by security researchers and has been disclosed
 
 ## Affected Systems and Products
 
-- **Oracle Identity Manager**: Remote code execution vulnerability being actively exploited
-- **Oracle E-Business Suite**: Zero-day vulnerability used in Cox Enterprises breach
-- **WhatsApp**: Contact discovery API allowing mass phone number harvesting of 3.5 billion accounts
-- **Grafana Enterprise**: SCIM functionality with admin spoofing capabilities
-- **Salesforce**: Customer data accessed through unauthorized Gainsight OAuth activity
-- **LINE Messaging**: Custom protocol vulnerabilities enabling message replays and impersonation
-- **Russian IT Infrastructure**: Targeted by APT31 using cloud services for persistence
-- **Taiwanese Organizations**: Multi-year espionage campaigns by APT24 affecting 1,000+ domains
+- **Oracle Identity Manager**: All versions affected by the actively exploited RCE vulnerability
+- **Oracle E-Business Suite**: Vulnerable to zero-day exploitation that resulted in the Cox Enterprises breach
+- **Grafana Enterprise**: Affected by the maximum severity SCIM vulnerability enabling admin spoofing
+- **WhatsApp Platform**: API vulnerability affecting contact discovery functionality across the global user base
+- **Salesforce Platforms**: Customers affected through unauthorized access via compromised Gainsight OAuth applications
+- **LINE Messaging Application**: Custom protocol vulnerabilities enabling message replays and impersonation attacks
 
 ## Attack Vectors and Techniques
 
-- **API Rate Limiting Bypass**: Exploiting lack of proper rate controls to harvest massive datasets from WhatsApp
-- **Zero-Day Exploitation**: Targeting unknown vulnerabilities in Oracle products before patches are available
-- **Cloud Service Abuse**: APT31 leveraging legitimate cloud platforms to maintain stealth in Russian IT networks
-- **OAuth Token Abuse**: Unauthorized access to Salesforce data through compromised Gainsight applications
-- **Browser Notification Hijacking**: Matrix Push C2 platform using browser notifications for fileless, cross-platform phishing
-- **ScreenConnect Abuse**: Qilin ransomware operators using rogue ScreenConnect access for initial compromise
-- **SCIM Protocol Exploitation**: Privilege escalation through Grafana Enterprise authentication bypass
-- **Insider Threat Activity**: CrowdStrike employee sharing internal system screenshots with external hackers
+- **Remote Code Execution**: Exploitation of Oracle Identity Manager vulnerability to gain system control
+- **Zero-Day Exploitation**: Attackers leveraging unpatched Oracle E-Business Suite vulnerabilities
+- **API Rate Limiting Abuse**: Mass data scraping through WhatsApp's inadequately protected contact discovery API
+- **OAuth Application Compromise**: Unauthorized access to Salesforce data through compromised third-party Gainsight applications
+- **Privilege Escalation**: Exploitation of Grafana SCIM vulnerability to gain administrative access
+- **Browser Notification Abuse**: Matrix Push C2 platform using browser notifications for fileless, cross-platform phishing attacks
+- **Custom Protocol Exploitation**: Abuse of LINE messaging app's leaky custom protocol for message replays and impersonation
 
 ## Threat Actor Activities
 
-- **APT31**: Chinese threat group conducting stealthy cyberattacks against Russian IT sector using cloud services for persistence and evasion
-- **APT24**: China-nexus actor deploying BADAUDIO malware in multi-year espionage campaigns targeting Taiwan and over 1,000 domains
-- **Qilin Ransomware**: Active ransomware operations using ScreenConnect for initial access and deploying encryption payloads
-- **ShinyHunters**: Extortion group exploiting third-party applications to steal Salesforce customer data through Gainsight compromise
-- **Scattered Spider**: British teenagers linked to Transport for London breach causing millions in damages and customer data exposure
-- **Matrix Push C2 Operators**: Cybercriminals using innovative browser notification techniques for cross-platform phishing campaigns
+- **APT31 (China-linked)**: Conducting stealthy cyberattacks against Russian IT sector between 2024-2025 using cloud services for infrastructure
+- **APT24 (China-nexus)**: Deploying BADAUDIO malware in years-long espionage campaign targeting Taiwan and over 1,000 domains for persistent remote access
+- **ShinyHunters Extortion Group**: Affiliated threat actors exploiting third-party applications to steal Salesforce customer data in repeat attacks
+- **Qilin Ransomware Operators**: Conducting sophisticated ransomware attacks using rogue ScreenConnect access and failed infostealer attempts
+- **Scattered Spider Affiliates**: British teenagers charged in connection with Transport for London breach causing millions in damage and customer data exposure
+- **Matrix Push C2 Operators**: Bad actors leveraging new command-and-control platform for browser notification-based phishing campaigns
+- **CrowdStrike Insider Threat**: Internal employee confirmed to be feeding information and screenshots to external hackers via Telegram channels
