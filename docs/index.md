@@ -1,55 +1,55 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently being exploited in the wild, with the most severe being a zero-day flaw in Oracle Identity Manager that enables remote code execution and has been added to CISA's Known Exploited Vulnerabilities catalog. Additionally, a maximum severity vulnerability in Grafana Enterprise allows admin privilege escalation and user impersonation. Meanwhile, threat actors continue exploiting Oracle E-Business Suite zero-day flaws for data breaches, and sophisticated campaigns are leveraging browser notifications for fileless attacks across multiple platforms.
+Current exploitation activity reveals several critical zero-day vulnerabilities actively being exploited in the wild, with Oracle systems bearing the brunt of recent attacks. The most severe incident involves CVE-2025-61757, a zero-day remote code execution flaw in Oracle Identity Manager that CISA has added to its Known Exploited Vulnerabilities catalog due to active exploitation. Additionally, Oracle E-Business Suite has been compromised through zero-day attacks, leading to significant data breaches at major enterprises. State-sponsored activities continue to escalate with Chinese APT groups conducting sophisticated campaigns against Russian IT infrastructure and deploying new persistent access malware against Taiwan and other regional targets.
 
 ## Active Exploitation Details
 
-### Oracle Identity Manager Zero-Day Remote Code Execution
-- **Description**: A critical security flaw in Oracle Identity Manager that allows remote code execution
-- **Impact**: Attackers can gain full system control and execute arbitrary code remotely
-- **Status**: Actively exploited in the wild; CISA has added it to the Known Exploited Vulnerabilities catalog requiring government agencies to patch immediately
+### Oracle Identity Manager Zero-Day RCE
+- **Description**: Critical remote code execution vulnerability in Oracle Identity Manager allowing attackers to execute arbitrary code remotely
+- **Impact**: Complete system compromise, potential lateral movement, and unauthorized access to identity management systems
+- **Status**: Actively exploited in the wild, CISA has added to KEV catalog requiring federal agencies to patch
 - **CVE ID**: CVE-2025-61757
 
 ### Oracle E-Business Suite Zero-Day
-- **Description**: A zero-day vulnerability in Oracle E-Business Suite that enabled unauthorized access to corporate networks
-- **Impact**: Data breach exposing personal information of affected individuals
-- **Status**: Exploited by hackers in Cox Enterprises breach; patch status unknown
+- **Description**: Unpatched vulnerability in Oracle E-Business Suite exploited to breach enterprise networks
+- **Impact**: Data breach exposing personal information of impacted individuals, unauthorized network access
+- **Status**: Actively exploited, led to confirmed data breach at Cox Enterprises
 
 ### Grafana Enterprise SCIM Vulnerability
-- **Description**: A maximum severity flaw in Grafana's SCIM (System for Cross-domain Identity Management) implementation
-- **Impact**: Allows privilege escalation to administrator level and user impersonation attacks
-- **Status**: Recently patched by Grafana Labs with security updates
+- **Description**: Maximum severity flaw in Grafana Enterprise's SCIM (System for Cross-domain Identity Management) implementation
+- **Impact**: Privilege escalation allowing attackers to treat new users as administrators or escalate existing privileges
+- **Status**: Patched by vendor, CVSS score of 10.0
 - **CVE ID**: CVE-2025-41115
 
 ### WhatsApp Contact Discovery API Flaw
-- **Description**: A rate limiting vulnerability in WhatsApp's contact-discovery API
-- **Impact**: Enabled scraping of 3.5 billion WhatsApp phone numbers and associated personal information
-- **Status**: Exploited by researchers to demonstrate data exposure risks
+- **Description**: Rate limiting vulnerability in WhatsApp's contact discovery API allowing mass data scraping
+- **Impact**: Exposed 3.5 billion WhatsApp accounts and associated personal information through automated scraping
+- **Status**: Exploited by researchers, demonstrates large-scale data exposure potential
 
 ## Affected Systems and Products
 
-- **Oracle Identity Manager**: Critical vulnerability affecting identity management systems
-- **Oracle E-Business Suite**: Zero-day exploited in Cox Enterprises data breach
-- **Grafana Enterprise**: SCIM implementation vulnerability with CVSS 10.0 severity score
-- **WhatsApp API**: Contact discovery system lacking proper rate limiting controls
-- **Windows 11 Systems**: Gaming performance issues from October security updates affecting versions 24H2 and 25H2
-- **Gainsight Applications**: Third-party Salesforce applications enabling unauthorized data access
-- **LINE Messaging App**: Custom protocol vulnerabilities exposing Asian users to cyber espionage
+- **Oracle Identity Manager**: All versions vulnerable to zero-day RCE attack
+- **Oracle E-Business Suite**: Affected by separate zero-day vulnerability leading to data breaches
+- **Grafana Enterprise**: SCIM implementation vulnerable to privilege escalation
+- **WhatsApp Platform**: Contact discovery API lacks proper rate limiting controls
+- **LINE Messaging App**: Multiple vulnerabilities enabling message replay attacks and impersonation
+- **Gainsight Applications**: OAuth-linked applications enabling unauthorized Salesforce data access
+- **ScreenConnect**: Used as attack vector in Qilin ransomware campaigns
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct targeting of unpatched vulnerabilities in Oracle products for initial access
-- **API Abuse**: Exploiting rate limiting flaws to scrape massive datasets from messaging platforms
-- **OAuth Token Manipulation**: Using third-party application access to steal Salesforce customer data
-- **Browser Notification Hijacking**: Matrix Push C2 platform leveraging browser notifications for fileless, cross-platform phishing
-- **SCIM Protocol Abuse**: Exploiting identity management flaws for privilege escalation and impersonation
-- **Cloud Service Abuse**: APT31 using legitimate cloud services for stealthy operations against Russian IT infrastructure
+- **Zero-Day Exploitation**: Targeting unpatched Oracle products for initial access and system compromise
+- **API Abuse**: Exploiting rate limiting flaws in contact discovery systems for mass data collection
+- **OAuth Token Abuse**: Leveraging third-party application tokens for unauthorized cloud platform access
+- **Browser Push Notifications**: Using Matrix Push C2 platform for fileless, cross-platform phishing attacks
+- **Remote Access Tool Abuse**: Exploiting legitimate tools like ScreenConnect for persistent access
+- **Custom Protocol Exploitation**: Targeting proprietary messaging protocols for espionage activities
 
 ## Threat Actor Activities
 
-- **APT31 (China-linked)**: Conducting stealthy cyberattacks against Russian IT sector using cloud services between 2024-2025
-- **APT24 (China-nexus)**: Deploying BADAUDIO malware in multi-year espionage campaign targeting Taiwan and over 1,000 domains
-- **ShinyHunters Group**: Exploiting Gainsight OAuth applications to steal Salesforce customer data in repeat attack pattern
-- **Qilin Ransomware Operators**: Using rogue ScreenConnect access and failed infostealer attempts before ransomware deployment
-- **Scattered Spider**: British teenagers involved in Transport for London breach causing millions in damage
-- **CrowdStrike Insider Threat**: Internal employee sharing sensitive screenshots with external hackers via Telegram
+- **APT31 (China-linked)**: Conducting stealthy cyberattacks against Russian IT sector using cloud services for command and control operations
+- **APT24 (China-nexus)**: Deploying BADAUDIO malware for years-long espionage campaigns targeting Taiwan and over 1,000 domains
+- **ShinyHunters Group**: Exploiting Salesforce customers through Gainsight third-party application compromise
+- **Qilin Ransomware Operators**: Utilizing ScreenConnect for initial access and deploying ransomware payloads
+- **Scattered Spider**: British teenagers involved in Transport for London breach causing millions in damages
+- **Matrix Push C2 Users**: Leveraging browser notifications for cross-platform phishing distribution
