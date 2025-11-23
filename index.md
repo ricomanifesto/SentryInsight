@@ -1,64 +1,55 @@
 # Exploitation Report
 
-Critical exploitation activity has surged with multiple zero-day vulnerabilities being actively exploited in the wild. The most severe threats include CVE-2025-61757, an Oracle Identity Manager remote code execution flaw that CISA has confirmed is under active exploitation, and CVE-2025-41115, a maximum severity vulnerability in Grafana Enterprise enabling administrator privilege escalation. Additionally, Cox Enterprises suffered a major data breach through exploitation of an unnamed Oracle E-Business Suite zero-day vulnerability. These incidents highlight the growing trend of attackers targeting enterprise infrastructure and identity management systems, while sophisticated threat actors like APT24 and APT31 continue launching multi-year espionage campaigns using custom malware and cloud services.
+Critical zero-day vulnerabilities are currently being exploited in the wild, with CISA warning of active attacks targeting Oracle Identity Manager through CVE-2025-61757, a remote code execution flaw. Meanwhile, Cox Enterprises suffered a significant data breach after attackers exploited a zero-day vulnerability in Oracle E-Business Suite. Additional high-severity vulnerabilities have been identified in Grafana Enterprise products, including a maximum CVSS 10.0 SCIM flaw enabling privilege escalation. Threat actors continue to leverage sophisticated attack vectors, with APT31 conducting stealthy operations against Russian IT infrastructure, APT24 deploying custom malware in multi-year espionage campaigns, and various groups exploiting third-party integrations like Gainsight to compromise Salesforce customer data.
 
 ## Active Exploitation Details
 
 ### Oracle Identity Manager RCE Vulnerability
-- **Description**: Critical remote code execution vulnerability affecting Oracle Identity Manager systems
-- **Impact**: Allows attackers to execute arbitrary code remotely, potentially leading to complete system compromise
-- **Status**: Currently being actively exploited in the wild; CISA has added to Known Exploited Vulnerabilities catalog
+- **Description**: A critical remote code execution vulnerability in Oracle Identity Manager that allows attackers to execute arbitrary code on affected systems
+- **Impact**: Attackers can gain unauthorized access to systems, potentially leading to complete system compromise and data exfiltration
+- **Status**: Currently being actively exploited in the wild; CISA has added it to the Known Exploited Vulnerabilities catalog and mandated federal agencies to patch by a specific deadline
 - **CVE ID**: CVE-2025-61757
 
 ### Oracle E-Business Suite Zero-Day
-- **Description**: Unspecified zero-day vulnerability in Oracle E-Business Suite that enabled unauthorized access to Cox Enterprises systems
-- **Impact**: Led to major data breach exposing personal information of impacted individuals
-- **Status**: Exploited in attacks against Cox Enterprises, specific patch status unclear
+- **Description**: A zero-day vulnerability in Oracle E-Business Suite that was exploited to breach Cox Enterprises' network infrastructure
+- **Impact**: Complete network compromise leading to unauthorized access to personal data of impacted individuals
+- **Status**: Exploited in active breach; zero-day status indicates no patch was available at the time of exploitation
 
-### Grafana Enterprise Admin Spoofing Vulnerability
-- **Description**: Maximum severity vulnerability enabling user impersonation and privilege escalation in Grafana Enterprise
-- **Impact**: Attackers can treat new users as administrators or escalate existing privileges
+### Grafana Enterprise SCIM Vulnerability
+- **Description**: A maximum severity SCIM (System for Cross-domain Identity Management) implementation flaw in Grafana Enterprise
+- **Impact**: Enables privilege escalation and user impersonation under certain configurations, allowing attackers to gain administrative access
 - **Status**: Patched by Grafana Labs with security updates released
 - **CVE ID**: CVE-2025-41115
 
 ### WhatsApp Contact Discovery API Flaw
-- **Description**: Rate limiting vulnerability in WhatsApp's contact-discovery API allowing mass data scraping
-- **Impact**: Researchers compiled list of 3.5 billion WhatsApp phone numbers and associated personal information
-- **Status**: Exploitation demonstrated by researchers, current patch status not specified
-
-### Ray Framework Vulnerability
-- **Description**: Two-year-old security flaw in Ray open-source AI framework being exploited by ShadowRay 2.0 botnet
-- **Impact**: Attackers convert infected clusters with NVIDIA GPUs into cryptocurrency mining operations
-- **Status**: Actively exploited despite age of vulnerability, many systems remain unpatched
+- **Description**: A rate-limiting bypass vulnerability in WhatsApp's contact-discovery API that allowed unauthorized data scraping
+- **Impact**: Enabled compilation of 3.5 billion WhatsApp mobile phone numbers and associated personal information
+- **Status**: Exploited by researchers to demonstrate the vulnerability's impact
 
 ## Affected Systems and Products
 
-- **Oracle Identity Manager**: Enterprise identity management systems vulnerable to remote code execution
-- **Oracle E-Business Suite**: Business applications suite affected by zero-day vulnerability
-- **Grafana Enterprise**: Data visualization and monitoring platform with admin spoofing vulnerability
-- **WhatsApp API**: Contact discovery service vulnerable to rate limiting bypass
-- **Ray AI Framework**: Open-source artificial intelligence framework clusters with GPU resources
-- **Android Devices**: Targeted by Sturnus banking trojan and Tsundere botnet malware
-- **Windows Systems**: Affected by gaming performance issues from October security updates and targeted by various malware campaigns
+- **Oracle Identity Manager**: Enterprise identity management systems requiring immediate patching
+- **Oracle E-Business Suite**: Enterprise resource planning systems vulnerable to zero-day exploitation
+- **Grafana Enterprise**: Data visualization and monitoring platforms with SCIM configurations
+- **WhatsApp API**: Mobile messaging platform's contact discovery functionality
+- **Salesforce Platform**: Customer relationship management systems accessed through Gainsight third-party applications
+- **LINE Messaging App**: Encrypted messaging application using custom protocol with security weaknesses
 
 ## Attack Vectors and Techniques
 
-- **API Rate Limiting Bypass**: Exploitation of insufficient rate limiting in WhatsApp's contact discovery API for mass data harvesting
-- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in Oracle products for initial access
-- **Privilege Escalation**: Abuse of SCIM configuration flaws in Grafana for admin impersonation
-- **Cryptocurrency Mining**: Conversion of compromised AI clusters into mining botnets using GPU resources
-- **Malvertising Campaigns**: Distribution of TamperedChef malware through fake software installers
-- **Browser Notification Abuse**: Matrix Push C2 platform leveraging browser notifications for fileless attacks
-- **OAuth Token Manipulation**: Unauthorized access to Salesforce data through Gainsight-linked applications
-- **Ransomware Deployment**: Qilin ransomware using ScreenConnect access for network infiltration
+- **Remote Code Execution**: Direct exploitation of Oracle Identity Manager flaws for system compromise
+- **Zero-Day Exploitation**: Leveraging unknown vulnerabilities in Oracle E-Business Suite before patches are available
+- **API Abuse**: Rate-limiting bypass techniques to scrape massive datasets from WhatsApp's contact discovery service
+- **Third-Party Integration Abuse**: Exploiting OAuth connections between Salesforce and Gainsight applications for unauthorized data access
+- **Cloud Service Leverage**: Using legitimate cloud infrastructure to conduct stealthy cyber operations while evading detection
+- **Browser Notification Hijacking**: Matrix Push C2 platform utilizing browser notifications for fileless, cross-platform phishing campaigns
+- **Custom Protocol Exploitation**: Targeting weaknesses in LINE's proprietary messaging protocol for message replay and impersonation attacks
 
 ## Threat Actor Activities
 
-- **APT31 (China-linked)**: Conducting stealthy cyberattacks against Russian IT sector using cloud services between 2024-2025
-- **APT24 (China-nexus)**: Deploying BADAUDIO malware in multi-year espionage campaign targeting Taiwan and 1,000+ domains
-- **Qilin Ransomware Group**: Executing sophisticated ransomware attacks using rogue ScreenConnect access and failed infostealer attempts
-- **ShadowRay 2.0 Operators**: Building self-spreading GPU cryptomining botnet by exploiting unpatched Ray framework vulnerabilities
-- **Scattered Spider**: British teenagers charged in Transport for London breach causing millions in damage
-- **Iran-linked Actors**: Conducting cyber-enabled kinetic targeting by mapping ship AIS data before physical missile attacks
-- **HackOnChat Campaign**: Global WhatsApp hijacking operation using deceptive authentication portals and impersonation pages
-- **Tsundere Botnet**: Actively expanding Windows-targeting botnet using game lures and Ethereum-based command and control
+- **APT31**: China-linked advanced persistent threat group conducting sophisticated cyber operations against Russian IT sector infrastructure between 2024 and 2025, utilizing cloud services for stealth
+- **APT24**: China-nexus threat actor deploying custom BADAUDIO malware in multi-year espionage campaigns targeting Taiwan and over 1,000 domains for persistent network access
+- **ShinyHunters**: Extortion group affiliated actors exploiting third-party Gainsight applications to steal Salesforce customer data in repeat attack patterns
+- **Qilin Ransomware**: Operators conducting targeted attacks using rogue ScreenConnect access and infostealer techniques before deploying ransomware payloads
+- **Matrix Push C2 Operators**: Cybercriminals leveraging browser notifications as attack vectors for distributing malicious links through cross-platform phishing campaigns
+- **Scattered Lapsus$ Hunters**: Threat group involved in data theft operations, including recent activity involving CrowdStrike insider information sharing
