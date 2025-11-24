@@ -1,61 +1,64 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple enterprise systems through zero-day vulnerabilities and supply chain attacks. The most severe incidents include active exploitation of Oracle Identity Manager systems through a zero-day remote code execution flaw, widespread supply chain compromises affecting npm packages with the Shai-Hulud malware campaign infecting over 500 packages, and ShadowPad malware leveraging Windows Server Update Services vulnerabilities for full system access. Additional critical concerns include a maximum severity SCIM flaw in Grafana enabling privilege escalation, Oracle E-Business Suite zero-day exploitation leading to data breaches, and sophisticated browser-based attack vectors using notification systems for cross-platform phishing campaigns.
+Critical exploitation activity continues to surge with multiple zero-day vulnerabilities actively being exploited across major enterprise platforms. Oracle Identity Manager faces active exploitation of a critical zero-day flaw added to CISA's Known Exploited Vulnerabilities catalog. ShadowPad malware operators are leveraging a recently patched WSUS vulnerability to achieve full system access on Windows servers. Additionally, Cox Enterprises fell victim to attackers who exploited a zero-day flaw in Oracle E-Business Suite, resulting in a significant data breach. Supply chain attacks have intensified with the Shai-Hulud campaign infecting over 500 npm packages and a second wave affecting 25,000+ repositories through credential theft tactics.
 
 ## Active Exploitation Details
 
 ### Oracle Identity Manager Zero-Day Vulnerability
-- **Description**: Critical remote code execution vulnerability in Oracle Identity Manager being actively exploited in the wild
-- **Impact**: Attackers can gain full system access and potentially compromise enterprise identity management systems
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, requiring immediate patching by federal agencies
-- **CVE ID**: CVE-2025-61757
+- **Description**: A critical security flaw in Oracle Identity Manager that allows attackers to compromise identity management systems
+- **Impact**: Unauthorized access to identity management infrastructure, potential for privilege escalation and user impersonation
+- **Status**: Actively exploited in the wild, added to CISA's KEV catalog
 
-### Oracle E-Business Suite Zero-Day Exploitation
-- **Description**: Zero-day vulnerability in Oracle E-Business Suite exploited to breach enterprise networks
-- **Impact**: Full network compromise and exposure of personal data including employee and customer information
-- **Status**: Actively exploited, led to confirmed data breaches at Cox Enterprises
+### WSUS Vulnerability Exploited by ShadowPad
+- **Description**: A recently patched security flaw in Microsoft Windows Server Update Services being actively exploited by threat actors
+- **Impact**: Full system access on targeted Windows servers, malware distribution through trusted update mechanisms
+- **Status**: Recently patched but actively exploited by ShadowPad malware operators
 
-### Grafana SCIM Critical Vulnerability
-- **Description**: Maximum severity SCIM (System for Cross-domain Identity Management) flaw enabling privilege escalation and user impersonation
-- **Impact**: Complete compromise of user authentication and authorization systems under certain configurations
-- **Status**: Patches released by Grafana
+### Oracle E-Business Suite Zero-Day
+- **Description**: A zero-day vulnerability in Oracle E-Business Suite that was exploited to breach Cox Enterprises
+- **Impact**: Unauthorized access to enterprise systems and exposure of personal data
+- **Status**: Exploited in targeted attack against Cox Enterprises
 
-### Windows Server Update Services (WSUS) Vulnerability
-- **Description**: Security flaw in Microsoft WSUS being exploited to distribute ShadowPad malware
-- **Impact**: Full system access on Windows Server environments through malicious update distribution
-- **Status**: Recently patched but actively exploited by threat actors
+### Fluent Bit Vulnerabilities
+- **Description**: Five vulnerabilities discovered in Fluent Bit, an open-source telemetry agent used in cloud infrastructures
+- **Impact**: Remote code execution and stealthy infrastructure intrusions when vulnerabilities are chained together
+- **Status**: Recently discovered, potential for cloud infrastructure compromise
 
-### Shai-Hulud Supply Chain Campaign
-- **Description**: Massive supply chain attack targeting npm registry with trojanized versions of popular packages
-- **Impact**: Credential theft, secrets exposure on GitHub, and compromise of development environments
-- **Status**: Over 500 infected packages identified, second wave affecting 25,000+ repositories
+### Grafana SCIM Vulnerability
+- **Description**: A maximum severity security flaw in Grafana's SCIM implementation
+- **Impact**: Privilege escalation and user impersonation under certain configurations
+- **Status**: Security updates released to address the vulnerability
+- **CVE ID**: CVSS 10.0 severity rating
 
 ## Affected Systems and Products
 
-- **Oracle Identity Manager**: Enterprise identity management systems vulnerable to remote code execution
-- **Oracle E-Business Suite**: Business application suite compromised through zero-day exploitation
-- **Grafana**: Monitoring and observability platform with SCIM implementation flaws
-- **Windows Server Update Services (WSUS)**: Microsoft update distribution systems
-- **npm Registry**: JavaScript package repository with hundreds of trojanized packages
-- **WhatsApp API**: Contact discovery service allowing mass data scraping of 3.5 billion accounts
-- **LINE Messaging App**: Encrypted messaging platform with protocol vulnerabilities enabling espionage
-- **Salesforce via Gainsight**: Customer relationship management data accessed through third-party integration
+- **Oracle Identity Manager**: Enterprise identity management systems actively targeted
+- **Microsoft WSUS**: Windows Server Update Services on Windows servers
+- **Oracle E-Business Suite**: Enterprise resource planning systems
+- **Fluent Bit**: Cloud telemetry agents and logging infrastructures
+- **npm Registry**: JavaScript package ecosystem with 500+ infected packages
+- **Grafana**: Monitoring and observability platforms with SCIM configurations
+- **LINE Messaging App**: Asian messaging platform with protocol vulnerabilities
+- **WhatsApp API**: Contact discovery functionality affecting 3.5 billion accounts
+- **Salesforce via Gainsight**: Third-party application integration compromise
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched critical vulnerabilities in enterprise systems
-- **Supply Chain Poisoning**: Injection of malicious code into trusted software packages and repositories
-- **Malicious Update Distribution**: Abuse of legitimate update mechanisms to deliver malware payloads
-- **Browser Notification Phishing**: Matrix Push C2 platform leveraging browser notifications for fileless attacks
-- **API Rate Limiting Bypass**: Exploitation of WhatsApp's contact discovery API without proper restrictions
-- **Third-Party Integration Abuse**: Compromise through connected applications and vendor relationships
-- **Voice Phishing (Vishing)**: Social engineering attacks targeting Harvard University systems
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Oracle products
+- **Supply Chain Attacks**: Trojanized npm packages delivering Shai-Hulud malware with credential theft
+- **Malware Distribution**: ShadowPad leveraging compromised WSUS infrastructure for malware delivery
+- **Third-Party Compromise**: Gainsight application used to access Salesforce customer data
+- **Browser Notification Abuse**: Matrix Push C2 platform using browser notifications for fileless attacks
+- **API Abuse**: WhatsApp contact discovery API exploitation for mass data scraping
+- **Voice Phishing**: Harvard University breach through vishing attacks targeting systems access
+- **Vendor Supply Chain**: SitusAMC and Iberia breaches through compromised third-party suppliers
 
 ## Threat Actor Activities
 
-- **ShadowPad Operators**: Actively exploiting WSUS vulnerabilities to distribute advanced malware on Windows Server systems
-- **ShinyHunters Group**: Conducting repeat attacks against Salesforce customers through third-party applications like Gainsight
-- **APT31 (China-linked)**: Launching sophisticated cyberattacks against Russian IT sector using cloud services for stealth operations
-- **Shai-Hulud Campaign Actors**: Operating large-scale supply chain attacks targeting npm ecosystem with credential harvesting focus
-- **Qilin Ransomware Group**: Conducting targeted ransomware attacks using rogue ScreenConnect access and infostealer techniques
-- **Matrix Push C2 Operators**: Developing innovative browser-based command and control platforms for cross-platform attacks
+- **ShadowPad Operators**: Actively exploiting WSUS vulnerabilities to distribute malware on Windows servers
+- **ShinyHunters Group**: Targeting Salesforce customers through third-party application compromises
+- **APT31 (China-linked)**: Conducting stealthy cyberattacks against Russian IT sector using cloud services
+- **Shai-Hulud Campaign Actors**: Orchestrating supply chain attacks against npm ecosystem with credential harvesting
+- **Matrix Push C2 Operators**: Developing browser-based command and control platforms for cross-platform attacks
+- **Qilin Ransomware Group**: Conducting sophisticated ransomware operations with rogue ScreenConnect access
+- **Oracle Exploitation Actors**: Targeting enterprise Oracle deployments with zero-day vulnerabilities
