@@ -1,54 +1,55 @@
 # Exploitation Report
 
-Critical security incidents this week highlight active exploitation of zero-day vulnerabilities across enterprise infrastructure, with threat actors leveraging multiple attack vectors including supply chain compromises, cloud service vulnerabilities, and social engineering tactics. The most concerning activity involves active exploitation of Oracle Identity Manager zero-day vulnerabilities, ShadowPad malware campaigns targeting Microsoft WSUS infrastructure, and widespread supply chain attacks affecting thousands of npm packages. Additionally, sophisticated phishing campaigns are utilizing fake Windows Update screens and browser notification systems to deliver malware across multiple platforms.
+Current exploitation activity reveals a concerning landscape of actively exploited vulnerabilities across multiple enterprise systems and supply chains. The most critical developments include the active exploitation of CVE-2025-61757 in Oracle Identity Manager, which has been added to CISA's Known Exploited Vulnerabilities catalog. Threat actors are also leveraging vulnerabilities in the Ray AI framework through the ShadowRay 2.0 campaign to compromise AI infrastructure worldwide, while ShadowPad malware is exploiting Microsoft WSUS vulnerabilities for full system access. Additionally, massive supply chain attacks are targeting npm repositories through the resurgent Shai-Hulud campaign, affecting over 25,000 repositories and 500 packages with credential theft capabilities.
 
 ## Active Exploitation Details
 
 ### Oracle Identity Manager Zero-Day Vulnerability
-- **Description**: Critical security flaw in Oracle Identity Manager that allows unauthorized access to identity management systems
-- **Impact**: Attackers can gain unauthorized access to enterprise identity management infrastructure, potentially compromising user credentials and access controls
-- **Status**: Currently being actively exploited in the wild; CISA has added this vulnerability to its Known Exploited Vulnerabilities catalog
+- **Description**: A critical security flaw in Oracle Identity Manager that allows unauthorized access to identity management systems
+- **Impact**: Attackers can gain full system access and compromise enterprise identity infrastructure
+- **Status**: Actively exploited in the wild, added to CISA's KEV catalog
+- **CVE ID**: CVE-2025-61757
+
+### ShadowRay 2.0 Ray Framework Vulnerability
+- **Description**: A flaw in the Ray framework that enables attackers to hijack AI infrastructure and create self-propagating botnets
+- **Impact**: Compromise of AI clusters for cryptocurrency mining and data theft operations
+- **Status**: Actively exploited worldwide targeting AI infrastructure
 
 ### Microsoft WSUS Vulnerability
-- **Description**: Security flaw in Microsoft Windows Server Update Services that enables malware distribution through the update infrastructure
-- **Impact**: Attackers can distribute ShadowPad malware and gain full system access to Windows Servers
-- **Status**: Recently patched but actively exploited by threat actors to compromise Windows Server environments
-
-### Oracle E-Business Suite Zero-Day Vulnerability
-- **Description**: Zero-day flaw in Oracle E-Business Suite that allows unauthorized network access
-- **Impact**: Complete compromise of business systems and exposure of personal data
-- **Status**: Exploited in attacks against Cox Enterprises, leading to significant data breach
+- **Description**: A recently patched security flaw in Microsoft Windows Server Update Services
+- **Impact**: Full system access and malware distribution through enterprise update mechanisms
+- **Status**: Actively exploited by ShadowPad malware operators
 
 ### Fluent Bit Vulnerabilities
-- **Description**: Five vulnerabilities in Fluent Bit telemetry agent that can be chained together for complete infrastructure compromise
-- **Impact**: Remote code execution and stealthy infrastructure intrusions in cloud environments
-- **Status**: Newly discovered vulnerabilities that could enable cloud infrastructure takeover
+- **Description**: Five vulnerabilities in the open-source telemetry agent that can be chained together
+- **Impact**: Remote code execution and complete compromise of cloud infrastructures
+- **Status**: Newly discovered vulnerabilities with potential for infrastructure takeover
 
 ## Affected Systems and Products
 
-- **Oracle Identity Manager**: Enterprise identity management systems across multiple organizations
-- **Microsoft Windows Server Update Services (WSUS)**: Windows Server environments using WSUS for update management
-- **Oracle E-Business Suite**: Business application platforms, specifically affecting Cox Enterprises
-- **Fluent Bit**: Open-source telemetry agents deployed in cloud infrastructures
-- **npm Registry**: Over 25,000 repositories affected by supply chain attacks including popular packages like Zapier, ENS Domains, PostHog, and Postman
-- **Android TV Streaming Devices**: Superbox media streaming devices sold at major retailers forming part of botnets
-- **WhatsApp Platform**: Contact-discovery API affecting up to 3.5 billion user accounts
-- **LINE Messaging App**: Encrypted messaging application used across Asian markets
+- **Oracle Identity Manager**: Enterprise identity management systems exposed to zero-day exploitation
+- **Ray Framework**: AI infrastructure and machine learning clusters worldwide
+- **Microsoft Windows Server Update Services (WSUS)**: Enterprise Windows update systems vulnerable to malware distribution
+- **Fluent Bit**: Cloud telemetry agents used in containerized environments
+- **npm Registry**: JavaScript package management system with over 25,000 compromised repositories
+- **Blender 3D Software**: 3D modeling application files weaponized for malware delivery
+- **Android TV Streaming Boxes**: Consumer media devices compromised for botnet operations
+- **Salesforce via Gainsight**: Customer relationship management platforms accessed through third-party applications
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active targeting of unpatched vulnerabilities in Oracle products and Microsoft services
-- **Supply Chain Attacks**: Trojanization of legitimate npm packages through Shai-Hulud and follow-up campaigns affecting thousands of repositories
-- **Social Engineering**: ClickFix attacks using realistic Windows Update animations to deliver malware
-- **Browser-Based Attacks**: Matrix Push C2 platform leveraging browser notifications for fileless, cross-platform phishing
-- **Voice Phishing (Vishing)**: Harvard University breach through voice phishing targeting alumni and development systems
-- **Third-Party Compromise**: Attacks against service providers to access customer data, as seen in Iberia and Gainsight incidents
-- **API Abuse**: Exploitation of rate-limiting flaws in WhatsApp's contact-discovery API for large-scale data scraping
+- **Supply Chain Attacks**: Malicious packages injected into npm registry affecting hundreds of legitimate packages including Zapier, ENS Domains, PostHog, and Postman
+- **ClickFix Social Engineering**: Fake Windows Update screens displayed in full-screen browsers to deliver malware
+- **Matrix Push C2**: Browser notification-based command and control for fileless, cross-platform attacks
+- **Preinstall Script Exploitation**: Malicious code execution during package installation affecting build and runtime environments
+- **Voice Phishing (Vishing)**: Social engineering attacks targeting university systems and alumni databases
+- **Third-Party Application Compromise**: Exploitation of integrated applications to access primary platforms like Salesforce
 
 ## Threat Actor Activities
 
-- **ShadowPad Operators**: Actively exploiting WSUS vulnerabilities to distribute malware and gain full system access to Windows Server environments
-- **ShinyHunters Group**: Conducting repeated attacks against Salesforce customers through third-party applications like Gainsight
-- **APT31 (China-linked)**: Launching stealthy cyberattacks against Russian IT sector using cloud services for persistence and evasion
-- **Supply Chain Attackers**: Orchestrating large-scale npm repository compromises through credential theft and package trojanization
-- **ClickFix Campaign Operators**: Deploying sophisticated social engineering attacks using fake Windows Update screens across multiple platforms
+- **ShinyHunters**: Conducting extortion campaigns against Salesforce customers through third-party application compromises
+- **Russian-linked Actors**: Distributing StealC V2 information stealer through malicious Blender model files on 3D marketplaces
+- **APT31 (China-linked)**: Launching stealthy cyberattacks against Russian IT sector using cloud services for infrastructure
+- **ShadowPad Operators**: Actively exploiting WSUS vulnerabilities to distribute advanced persistent threat malware
+- **Shai-Hulud Campaign Actors**: Conducting massive npm supply chain attacks affecting over 500 packages and 25,000 repositories with credential harvesting capabilities
+- **ShadowRay 2.0 Operators**: Creating global cryptocurrency mining botnets through AI infrastructure compromise
