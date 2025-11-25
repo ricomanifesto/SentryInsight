@@ -1,55 +1,57 @@
 # Exploitation Report
 
-Current cybersecurity landscapes reveal a significant surge in exploitation activities targeting critical infrastructure and enterprise systems. The most concerning developments include the active exploitation of Oracle Identity Manager through CVE-2025-61757, ongoing supply chain attacks via malicious npm packages and Blender 3D assets, and sophisticated campaigns leveraging commercial spyware against high-value Signal and WhatsApp users. Additionally, threat actors are exploiting WSUS vulnerabilities to distribute ShadowPad malware and compromising AI infrastructure through Ray framework flaws for cryptomining operations.
+Multiple critical zero-day vulnerabilities and active exploitation campaigns are currently threatening organizations worldwide. The most significant threats include CVE-2025-61757 in Oracle Identity Manager being actively exploited, a critical flaw in the Ray framework (ShadowRay 2.0) enabling AI infrastructure hijacking, and sophisticated social engineering attacks like JackFix that circumvent existing ClickFix mitigations. Supply chain attacks are proliferating through compromised npm packages and Blender 3D assets, while threat actors are leveraging fake Windows Update screens and commercial spyware to target high-value users. Additionally, vulnerabilities in Fluent Bit expose cloud infrastructures to remote code execution, and ShadowPad malware is actively exploiting WSUS vulnerabilities for full system access.
 
 ## Active Exploitation Details
 
-### Oracle Identity Manager Critical Vulnerability
-- **Description**: A critical security flaw in Oracle Identity Manager that allows attackers to gain unauthorized access to enterprise identity management systems
-- **Impact**: Complete compromise of identity management infrastructure, potentially affecting authentication and access controls across entire organizations
-- **Status**: Currently under active exploitation following recent disclosure
+### Oracle Identity Manager Critical Flaw
+- **Description**: A critical vulnerability in Oracle Identity Manager that allows unauthorized access to identity management systems
+- **Impact**: Full system access and potential compromise of identity management infrastructure
+- **Status**: Currently under active exploitation by threat actors
 - **CVE ID**: CVE-2025-61757
 
-### WSUS Vulnerability Exploitation
-- **Description**: A recently patched security flaw in Microsoft Windows Server Update Services being actively exploited to distribute malware
-- **Impact**: Full system access and deployment of ShadowPad malware on Windows servers
-- **Status**: Actively exploited despite patch availability; organizations using WSUS remain at risk
+### ShadowRay 2.0 Ray Framework Vulnerability
+- **Description**: A vulnerability in the Ray framework that enables threat actors to hijack AI clusters and infrastructure
+- **Impact**: Complete compromise of AI infrastructure, cryptocurrency mining operations, and data theft capabilities
+- **Status**: Active exploitation with self-propagating botnet distribution
 
-### Ray Framework Vulnerability (ShadowRay 2.0)
-- **Description**: A flaw in the Ray framework being leveraged to hijack AI infrastructure worldwide
-- **Impact**: Conversion of AI clusters into cryptocurrency mining botnets and data theft operations
-- **Status**: Active exploitation targeting AI infrastructure globally
+### WSUS Vulnerability
+- **Description**: A recently patched security flaw in Microsoft Windows Server Update Services (WSUS) that allows malware distribution
+- **Impact**: Full system access and malware deployment across Windows Server environments
+- **Status**: Actively exploited by ShadowPad malware operators
 
-### Fluent Bit Security Flaws
-- **Description**: Five vulnerabilities in the open-source telemetry agent Fluent Bit that can be chained together
-- **Impact**: Remote code execution and complete compromise of cloud infrastructures
-- **Status**: Recently disclosed vulnerabilities with potential for widespread exploitation
+### Fluent Bit Remote Code Execution Vulnerabilities
+- **Description**: Five vulnerabilities in Fluent Bit telemetry agent that can be chained together for infrastructure compromise
+- **Impact**: Remote code execution and complete takeover of cloud infrastructures
+- **Status**: Newly discovered vulnerabilities with potential for active exploitation
 
 ## Affected Systems and Products
 
-- **Oracle Identity Manager**: Enterprise identity management systems across various organizations
-- **Microsoft WSUS**: Windows Server Update Services installations on enterprise networks
-- **Ray Framework**: AI cluster infrastructure and machine learning platforms worldwide
-- **Fluent Bit**: Cloud-native logging and telemetry systems
-- **npm Registry**: JavaScript package management ecosystem with over 500 compromised packages
-- **Blender 3D**: Creative software platforms and 3D model marketplaces like CGTrader
-- **Signal and WhatsApp**: Encrypted messaging applications targeted by commercial spyware
-- **Android TV Streaming Devices**: Superbox and similar media streaming hardware forming botnets
+- **Oracle Identity Manager**: Critical vulnerability affecting identity management systems
+- **Ray Framework**: AI infrastructure and machine learning clusters worldwide
+- **Microsoft WSUS**: Windows Server Update Services infrastructure
+- **Fluent Bit**: Cloud infrastructure using the open-source telemetry agent
+- **npm Registry**: Over 500 packages infected with Shai-Hulud malware, affecting 25,000+ repositories
+- **Blender Foundation**: 3D modeling files distributed through CGTrader and other marketplaces
+- **Android TV Streaming Devices**: Superbox and similar devices forming botnet infrastructure
+- **Signal and WhatsApp**: Messaging platforms targeted by commercial spyware campaigns
+- **Microsoft 365**: Access tokens and Outlook emails targeted by ToddyCat threat actor
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Malicious packages uploaded to npm registry and 3D model marketplaces delivering StealC V2 infostealer
-- **Social Engineering**: ClickFix attacks using fake Windows Update screens to trick users into executing malicious code
-- **Browser-based C2**: Matrix Push C2 platform leveraging browser notifications for fileless, cross-platform attacks
-- **Commercial Spyware**: Professional-grade surveillance tools targeting high-value individuals on messaging platforms
-- **Infrastructure Hijacking**: Exploitation of AI and cloud infrastructure for cryptomining and data exfiltration
-- **Voice Phishing**: Sophisticated vishing attacks targeting educational institutions and corporations
+- **JackFix Social Engineering**: Enhanced ClickFix variant using fake Windows Update screens and adult website lures
+- **Supply Chain Poisoning**: Malicious npm packages and Blender 3D assets delivering StealC V2 infostealer
+- **Fake Windows Updates**: Full-screen browser animations hiding malicious code in images
+- **Voice Phishing (Vishing)**: Targeting university systems and alumni databases
+- **Commercial Spyware**: RATs targeting high-value Signal and WhatsApp users
+- **Credential Theft**: Code beautifiers exposing sensitive data from banks, government, and tech organizations
+- **AI Infrastructure Hijacking**: Cryptocurrency mining and data theft through compromised Ray clusters
 
 ## Threat Actor Activities
 
-- **APT31**: Chinese advanced persistent threat group conducting stealthy cyberattacks against Russian IT sector using cloud services for command and control
-- **Clop Extortion Gang**: Continued ransomware operations with recent attacks on Dartmouth College's Oracle E-Business Suite servers
-- **Russian-linked Campaigns**: Distribution of StealC V2 malware through compromised Blender files and 3D asset marketplaces
-- **Shai-Hulud Operators**: Large-scale supply chain attacks infecting over 25,000 repositories through npm preinstall credential theft
-- **ShadowPad Distributors**: Threat actors leveraging WSUS vulnerabilities to deploy advanced malware on Windows server infrastructure
-- **Commercial Spyware Operators**: Active campaigns targeting high-profile users of encrypted messaging applications with sophisticated surveillance tools
+- **ToddyCat**: Deploying new tools like TCSectorCopy to steal Microsoft 365 access tokens and Outlook emails
+- **Clop Extortion Gang**: Attacking educational institutions like Dartmouth College through Oracle E-Business Suite vulnerabilities
+- **ShadowPad Operators**: Exploiting WSUS vulnerabilities to distribute advanced malware across Windows Server environments
+- **Shai-Hulud Campaign**: Second wave of supply chain attacks targeting npm repositories with credential theft capabilities
+- **Russian-linked Groups**: Distributing StealC V2 malware through compromised Blender files on 3D model marketplaces
+- **Commercial Spyware Operators**: CISA-warned campaigns targeting high-value individuals using Signal and WhatsApp
