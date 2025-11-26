@@ -1,55 +1,57 @@
 # Exploitation Report
 
-The current threat landscape reveals a surge in sophisticated attack campaigns targeting enterprise systems and user credentials. Key exploitation activities include the ASUS router authentication bypass vulnerability, malicious Chrome extensions targeting cryptocurrency transactions, and advanced threat actors like RomCom, ToddyCat, and North Korean FlexibleFerret conducting targeted campaigns. Additionally, researchers have identified critical weaknesses in AMD and Intel memory encryption that can be bypassed with inexpensive hardware, while cybercriminals continue exploiting social engineering tactics through fake update campaigns and financial institution impersonation schemes resulting in over $262 million in losses.
+Current exploitation activity reveals a surge in supply chain attacks, authentication bypass vulnerabilities, and sophisticated social engineering campaigns. The Shai-Hulud v2 campaign has expanded from npm to Maven ecosystems, compromising over 830 packages and exposing thousands of secrets. Critical authentication bypass flaws in ASUS routers with AiCloud enabled pose immediate risks to network infrastructure. Multiple threat actors are leveraging fake update mechanisms and malicious browser extensions to deploy information stealers and ransomware, while state-sponsored groups continue targeting critical infrastructure through sophisticated supply chain compromises.
 
 ## Active Exploitation Details
 
-### ASUS AiCloud Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability affecting ASUS routers with AiCloud functionality enabled
-- **Impact**: Allows attackers to bypass authentication mechanisms and gain unauthorized access to router management interfaces
-- **Status**: ASUS has released firmware patches to address this critical vulnerability along with eight additional security flaws
+### ASUS AiCloud Authentication Bypass Vulnerability
+- **Description**: Critical authentication bypass flaw affecting ASUS routers with AiCloud functionality enabled
+- **Impact**: Complete authentication bypass allowing unauthorized access to router management interfaces and connected network resources
+- **Status**: ASUS has released firmware patches to address this vulnerability alongside eight other security flaws
 
-### AMD and Intel Memory Encryption Bypass
-- **Description**: Hardware-based attack that circumvents confidential computing protections in AMD and Intel processors
-- **Impact**: Attackers can bypass scalable memory encryption using inexpensive custom hardware modules, potentially exposing sensitive data in memory
-- **Status**: Researchers have demonstrated successful exploitation using cheap hardware components
+### Chrome Extension Solana Transfer Injection
+- **Description**: Malicious Chrome extension discovered on the official Chrome Web Store capable of injecting hidden Solana cryptocurrency transfers into legitimate swap transactions
+- **Impact**: Financial theft through stealthy cryptocurrency transfer redirection during Raydium swap operations
+- **Status**: Actively exploited through Chrome Web Store distribution
 
-### Malicious Chrome Extension for Solana Theft
-- **Description**: Malicious browser extension distributed through Chrome Web Store that injects hidden Solana transfer fees
-- **Impact**: Steals cryptocurrency by injecting unauthorized transactions into Raydium swaps, redirecting funds to attacker-controlled wallets
-- **Status**: Extension identified and likely removed from Chrome Web Store
+### Supply Chain Package Compromise
+- **Description**: Shai-Hulud v2 campaign targeting package repositories with malicious packages designed to harvest secrets and credentials
+- **Impact**: Exposure of thousands of API keys, passwords, and other sensitive credentials from affected development environments
+- **Status**: Over 830 packages compromised across npm registry with expansion to Maven ecosystem
 
-### SocGholish JavaScript Loader
-- **Description**: JavaScript-based fake update attack vector used to deliver secondary malware payloads
-- **Impact**: Enables initial access through fake browser update prompts, leading to deployment of advanced persistent threats
-- **Status**: Actively exploited by RomCom threat actors to deliver Mythic Agent malware
+### Hardware Memory Encryption Bypass
+- **Description**: Low-cost hardware module capable of circumventing AMD and Intel confidential computing protections
+- **Impact**: Complete bypass of scalable memory encryption mechanisms, exposing sensitive data in memory
+- **Status**: Proof-of-concept demonstrated with inexpensive hardware device
 
 ## Affected Systems and Products
 
-- **ASUS Routers**: AiCloud-enabled router models affected by critical authentication bypass
-- **Chrome Browser**: Users installing malicious extensions from Chrome Web Store
-- **AMD and Intel Processors**: Systems with confidential computing and memory encryption features
-- **Windows Systems**: Targets of fake Windows update campaigns and ClickFix attacks
-- **Microsoft 365/Outlook**: Corporate email systems targeted by ToddyCat's TCSectorCopy tool
-- **OnSolve CodeRED**: Emergency alert systems disrupted by cyberattack
-- **JSONFormatter and CodeBeautify**: Online code formatting tools exposing credentials
-- **Adult Websites**: Used as distribution points for JackFix malware campaigns
+- **ASUS Routers**: All models with AiCloud functionality enabled are vulnerable to authentication bypass
+- **Chrome Browser**: Users of Chrome extensions, particularly those interacting with Solana/Raydium platforms
+- **npm and Maven Ecosystems**: Developers using packages from compromised repositories
+- **Windows Systems**: Targeted by JackFix campaign through fake Windows update prompts on adult websites
+- **macOS Systems**: Targeted by DPRK FlexibleFerret malware through "Contagious Interview" social engineering
+- **AMD and Intel Processors**: Systems with confidential computing features vulnerable to hardware-based memory encryption bypass
+- **OnSolve CodeRED Platform**: Emergency notification systems used by state and local governments disrupted
+- **South Korean Financial Sector**: 28 organizations affected through MSP supply chain attack
 
 ## Attack Vectors and Techniques
 
-- **Fake Update Campaigns**: JackFix and SocGholish leverage fake Windows update pop-ups to trick users into executing malicious commands
-- **Browser Extension Abuse**: Malicious extensions inject unauthorized cryptocurrency transactions into legitimate trading platforms
-- **Hardware-Based Attacks**: Custom hardware modules bypass processor-level memory encryption protections
-- **Social Engineering**: Advanced phishing campaigns impersonate financial institutions and tech support teams
-- **ClickFix Variants**: JackFix enhances traditional ClickFix attacks by increasing psychological pressure and addressing technical mitigations
-- **Credential Harvesting**: Exploitation of online code beautification tools to capture exposed API keys and passwords
-- **Email System Compromise**: TCSectorCopy tool specifically targets Microsoft 365 access tokens and Outlook email data
+- **Fake Update Campaigns**: JackFix and SocGholish leveraging fake Windows update pop-ups to deliver multiple information stealers
+- **Supply Chain Compromise**: Malicious package injection in software repositories to harvest developer credentials
+- **Browser Extension Abuse**: Malicious extensions on official stores performing cryptocurrency transaction manipulation
+- **Social Engineering**: DPRK actors using fake job interviews and technical assessments to target macOS users
+- **Hardware-Based Attacks**: Physical device deployment to bypass memory encryption protections
+- **MSP Targeting**: Ransomware groups compromising managed service providers to access multiple downstream clients
+- **Script Injection**: Exploitation of authentication systems through external script injection techniques
 
 ## Threat Actor Activities
 
-- **RomCom**: Targeting U.S. civil engineering companies using SocGholish fake update attacks to deliver Mythic Agent malware, marking first observed use of this attack vector by the group
-- **ToddyCat**: Deploying new custom tools including TCSectorCopy to steal corporate email data and Microsoft 365 access tokens from target organizations
-- **North Korean FlexibleFerret**: Continuing "Contagious Interview" campaigns with refined social engineering tactics targeting macOS users for credential theft
-- **Chinese State-Linked Actors**: Conducting espionage operations against Russian IT organizations using commercial cloud services for command-and-control communications
-- **Iranian Cyber Units**: Employing "cyber-enabled kinetic targeting" to support physical missile attacks against ships and land-based targets
-- **Financial Institution Impersonators**: Cybercriminal groups conducting account takeover fraud resulting in $262 million in losses since January through sophisticated social engineering campaigns
+- **Shai-Hulud Campaign Operators**: Expanded operations from npm to Maven ecosystems, compromising 830+ packages for credential harvesting
+- **RomCom Group**: Deployed Mythic Agent malware through SocGholish fake update attacks targeting U.S. civil engineering companies
+- **DPRK FlexibleFerret Operators**: Continued refinement of macOS targeting through "Contagious Interview" campaigns with enhanced social engineering tactics
+- **Qilin Ransomware Group**: Conducted sophisticated supply chain attack against South Korean MSP, affecting 28 organizations in "Korean Leaks" operation
+- **Scattered LAPSUS$ Hunters**: Ongoing data theft and mass extortion campaigns against major corporations with public exposure tactics
+- **Chinese State-Linked Groups**: Targeting Russian IT organizations using commercial cloud services for command-and-control communications
+- **Iranian Cyber Operations**: Deploying "cyber-enabled kinetic targeting" in coordination with real-world missile attacks against maritime and land-based targets
+- **Financial Institution Impersonators**: Account takeover fraud schemes resulting in $262 million in losses through bank support team impersonation
