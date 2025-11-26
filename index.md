@@ -1,50 +1,55 @@
 # Exploitation Report
 
-Current exploitation activity reveals a diverse threat landscape with critical vulnerabilities affecting enterprise infrastructure and sophisticated attack campaigns targeting high-value users. ASUS routers face critical authentication bypass vulnerabilities requiring immediate patching, while advanced threat actors are leveraging commercial spyware, AI infrastructure compromises, and novel malware delivery methods. Notable campaigns include RomCom's use of SocGholish loaders, ToddyCat's email theft operations, and North Korean actors refining macOS targeting techniques. The emergence of ShadowRay 2.0 botnet attacks against AI clusters and widespread credential exposure through code beautification services highlight the evolving nature of cyber threats across multiple sectors.
+The current threat landscape reveals a surge in sophisticated attack campaigns targeting enterprise systems and user credentials. Key exploitation activities include the ASUS router authentication bypass vulnerability, malicious Chrome extensions targeting cryptocurrency transactions, and advanced threat actors like RomCom, ToddyCat, and North Korean FlexibleFerret conducting targeted campaigns. Additionally, researchers have identified critical weaknesses in AMD and Intel memory encryption that can be bypassed with inexpensive hardware, while cybercriminals continue exploiting social engineering tactics through fake update campaigns and financial institution impersonation schemes resulting in over $262 million in losses.
 
 ## Active Exploitation Details
 
-### ASUS AiCloud Router Authentication Bypass
+### ASUS AiCloud Authentication Bypass
 - **Description**: Critical authentication bypass vulnerability affecting ASUS routers with AiCloud functionality enabled
-- **Impact**: Attackers can bypass authentication mechanisms to gain unauthorized access to router configurations and network resources
-- **Status**: New firmware released by ASUS to patch nine security vulnerabilities including this critical flaw
+- **Impact**: Allows attackers to bypass authentication mechanisms and gain unauthorized access to router management interfaces
+- **Status**: ASUS has released firmware patches to address this critical vulnerability along with eight additional security flaws
 
-### ShadowRay 2.0 AI Infrastructure Compromise
-- **Description**: Exploitation of vulnerabilities in the Ray framework to hijack AI infrastructure worldwide
-- **Impact**: Threat actors can convert compromised AI clusters into cryptocurrency mining botnets and conduct data theft operations
-- **Status**: Active exploitation targeting AI infrastructure globally with self-propagating capabilities
+### AMD and Intel Memory Encryption Bypass
+- **Description**: Hardware-based attack that circumvents confidential computing protections in AMD and Intel processors
+- **Impact**: Attackers can bypass scalable memory encryption using inexpensive custom hardware modules, potentially exposing sensitive data in memory
+- **Status**: Researchers have demonstrated successful exploitation using cheap hardware components
 
-### Commercial Spyware Campaigns Against Signal and WhatsApp Users
-- **Description**: Active campaigns leveraging commercial spyware and remote access trojans to target high-value users of encrypted messaging platforms
-- **Impact**: Complete compromise of secure communications, credential theft, and surveillance capabilities
-- **Status**: CISA issued active warning about ongoing exploitation targeting Signal and WhatsApp users
+### Malicious Chrome Extension for Solana Theft
+- **Description**: Malicious browser extension distributed through Chrome Web Store that injects hidden Solana transfer fees
+- **Impact**: Steals cryptocurrency by injecting unauthorized transactions into Raydium swaps, redirecting funds to attacker-controlled wallets
+- **Status**: Extension identified and likely removed from Chrome Web Store
+
+### SocGholish JavaScript Loader
+- **Description**: JavaScript-based fake update attack vector used to deliver secondary malware payloads
+- **Impact**: Enables initial access through fake browser update prompts, leading to deployment of advanced persistent threats
+- **Status**: Actively exploited by RomCom threat actors to deliver Mythic Agent malware
 
 ## Affected Systems and Products
 
-- **ASUS Routers**: AiCloud-enabled router models requiring firmware updates for nine security vulnerabilities
-- **Ray Framework**: AI infrastructure platforms vulnerable to ShadowRay 2.0 botnet deployment
-- **Signal and WhatsApp**: Encrypted messaging platforms targeted by commercial spyware campaigns
-- **Microsoft Exchange Online**: Service outage affecting Outlook mailbox access for enterprise customers
-- **OnSolve CodeRED**: Emergency alert systems disrupted by cyberattack affecting state and local governments
-- **JSONFormatter and CodeBeautify**: Online tools exposing thousands of credentials from sensitive organizations
-- **Blender 3D Assets**: Legitimate 3D modeling files weaponized to deliver StealC V2 malware
-- **Chrome Web Store**: Malicious extensions injecting hidden Solana transfer fees into cryptocurrency transactions
+- **ASUS Routers**: AiCloud-enabled router models affected by critical authentication bypass
+- **Chrome Browser**: Users installing malicious extensions from Chrome Web Store
+- **AMD and Intel Processors**: Systems with confidential computing and memory encryption features
+- **Windows Systems**: Targets of fake Windows update campaigns and ClickFix attacks
+- **Microsoft 365/Outlook**: Corporate email systems targeted by ToddyCat's TCSectorCopy tool
+- **OnSolve CodeRED**: Emergency alert systems disrupted by cyberattack
+- **JSONFormatter and CodeBeautify**: Online code formatting tools exposing credentials
+- **Adult Websites**: Used as distribution points for JackFix malware campaigns
 
 ## Attack Vectors and Techniques
 
-- **SocGholish Fake Updates**: RomCom threat group using JavaScript loaders disguised as browser updates to deliver Mythic Agent malware
-- **JackFix Campaign**: Enhanced ClickFix attacks using fake Windows update pop-ups on adult websites to bypass security mitigations
-- **Malicious Browser Extensions**: Chrome extensions performing cryptocurrency transaction manipulation and fund theft
-- **Weaponized 3D Models**: Blender files on marketplaces like CGTrader delivering StealC V2 information stealer
-- **Memory Encryption Bypass**: Hardware modules exploiting weaknesses in AMD and Intel scalable memory encryption
-- **Account Takeover Fraud**: Cybercriminals impersonating financial institutions to steal credentials and facilitate unauthorized access
+- **Fake Update Campaigns**: JackFix and SocGholish leverage fake Windows update pop-ups to trick users into executing malicious commands
+- **Browser Extension Abuse**: Malicious extensions inject unauthorized cryptocurrency transactions into legitimate trading platforms
+- **Hardware-Based Attacks**: Custom hardware modules bypass processor-level memory encryption protections
+- **Social Engineering**: Advanced phishing campaigns impersonate financial institutions and tech support teams
+- **ClickFix Variants**: JackFix enhances traditional ClickFix attacks by increasing psychological pressure and addressing technical mitigations
+- **Credential Harvesting**: Exploitation of online code beautification tools to capture exposed API keys and passwords
+- **Email System Compromise**: TCSectorCopy tool specifically targets Microsoft 365 access tokens and Outlook email data
 
 ## Threat Actor Activities
 
-- **RomCom Group**: Targeting U.S. civil engineering companies using SocGholish loaders to deliver Mythic Agent malware in first observed use of this technique
-- **ToddyCat**: Deploying new email theft tools including TCSectorCopy to steal Outlook emails and Microsoft 365 access tokens from corporate targets
-- **North Korean FlexibleFerret**: Continuing "Contagious Interview" campaigns with refined social engineering tactics targeting macOS users
-- **Chinese State-Linked Actors**: Conducting espionage operations against Russian IT organizations using commercial cloud services for command and control
-- **Russian-Linked Campaign**: Distributing StealC V2 malware through compromised Blender files on 3D model marketplaces
-- **Clop Ransomware Group**: Conducting extortion attacks against educational institutions including Dartmouth College's Oracle E-Business Suite servers
-- **Iranian Cyber Operations**: Deploying cyber-enabled kinetic targeting to support missile attacks against ships and land-based targets
+- **RomCom**: Targeting U.S. civil engineering companies using SocGholish fake update attacks to deliver Mythic Agent malware, marking first observed use of this attack vector by the group
+- **ToddyCat**: Deploying new custom tools including TCSectorCopy to steal corporate email data and Microsoft 365 access tokens from target organizations
+- **North Korean FlexibleFerret**: Continuing "Contagious Interview" campaigns with refined social engineering tactics targeting macOS users for credential theft
+- **Chinese State-Linked Actors**: Conducting espionage operations against Russian IT organizations using commercial cloud services for command-and-control communications
+- **Iranian Cyber Units**: Employing "cyber-enabled kinetic targeting" to support physical missile attacks against ships and land-based targets
+- **Financial Institution Impersonators**: Cybercriminal groups conducting account takeover fraud resulting in $262 million in losses since January through sophisticated social engineering campaigns
