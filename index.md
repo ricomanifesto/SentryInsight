@@ -1,57 +1,56 @@
 # Exploitation Report
 
-Current exploitation activity reveals a surge in supply chain attacks, authentication bypass vulnerabilities, and sophisticated social engineering campaigns. The Shai-Hulud v2 campaign has expanded from npm to Maven ecosystems, compromising over 830 packages and exposing thousands of secrets. Critical authentication bypass flaws in ASUS routers with AiCloud enabled pose immediate risks to network infrastructure. Multiple threat actors are leveraging fake update mechanisms and malicious browser extensions to deploy information stealers and ransomware, while state-sponsored groups continue targeting critical infrastructure through sophisticated supply chain compromises.
+Current exploitation activity reveals a diverse threat landscape dominated by supply chain attacks, critical infrastructure vulnerabilities, and sophisticated social engineering campaigns. The Shai-Hulud v2 campaign has expanded from npm to Maven ecosystems, compromising over 830 packages and exposing thousands of secrets. Critical authentication bypass vulnerabilities in ASUS routers pose immediate risks to network infrastructure, while the Qilin ransomware group has executed a sophisticated supply chain attack against South Korea's financial sector through MSP compromise. Additionally, threat actors are increasingly leveraging AI technologies to enhance their attack capabilities, from deepfake creation to runtime malware evasion techniques.
 
 ## Active Exploitation Details
 
 ### ASUS AiCloud Authentication Bypass Vulnerability
-- **Description**: Critical authentication bypass flaw affecting ASUS routers with AiCloud functionality enabled
-- **Impact**: Complete authentication bypass allowing unauthorized access to router management interfaces and connected network resources
-- **Status**: ASUS has released firmware patches to address this vulnerability alongside eight other security flaws
+- **Description**: Critical authentication bypass flaw in ASUS routers with AiCloud functionality enabled
+- **Impact**: Attackers can bypass authentication mechanisms and gain unauthorized access to router systems
+- **Status**: ASUS has released firmware patches to address nine security vulnerabilities including this critical flaw
+
+### Node-forge Signature Verification Bypass
+- **Description**: Vulnerability in the popular JavaScript cryptography library 'node-forge' that allows bypassing signature verifications
+- **Impact**: Attackers can craft malicious data that appears valid, potentially compromising cryptographic operations
+- **Status**: Fix has been released for the vulnerability
+
+### OnSolve CodeRED Platform Compromise
+- **Description**: Cyberattack against Crisis24's OnSolve CodeRED emergency notification platform
+- **Impact**: Disruption of emergency alert systems used by state and local governments and police departments nationwide
+- **Status**: Attack confirmed, systems disrupted
 
 ### Chrome Extension Solana Transfer Injection
-- **Description**: Malicious Chrome extension discovered on the official Chrome Web Store capable of injecting hidden Solana cryptocurrency transfers into legitimate swap transactions
-- **Impact**: Financial theft through stealthy cryptocurrency transfer redirection during Raydium swap operations
-- **Status**: Actively exploited through Chrome Web Store distribution
-
-### Supply Chain Package Compromise
-- **Description**: Shai-Hulud v2 campaign targeting package repositories with malicious packages designed to harvest secrets and credentials
-- **Impact**: Exposure of thousands of API keys, passwords, and other sensitive credentials from affected development environments
-- **Status**: Over 830 packages compromised across npm registry with expansion to Maven ecosystem
-
-### Hardware Memory Encryption Bypass
-- **Description**: Low-cost hardware module capable of circumventing AMD and Intel confidential computing protections
-- **Impact**: Complete bypass of scalable memory encryption mechanisms, exposing sensitive data in memory
-- **Status**: Proof-of-concept demonstrated with inexpensive hardware device
+- **Description**: Malicious Chrome Web Store extension that injects hidden Solana transfer fees into Raydium swap transactions
+- **Impact**: Stealthy theft of cryptocurrency funds during legitimate transactions
+- **Status**: Extension discovered on Chrome Web Store, actively stealing funds
 
 ## Affected Systems and Products
 
-- **ASUS Routers**: All models with AiCloud functionality enabled are vulnerable to authentication bypass
-- **Chrome Browser**: Users of Chrome extensions, particularly those interacting with Solana/Raydium platforms
-- **npm and Maven Ecosystems**: Developers using packages from compromised repositories
-- **Windows Systems**: Targeted by JackFix campaign through fake Windows update prompts on adult websites
-- **macOS Systems**: Targeted by DPRK FlexibleFerret malware through "Contagious Interview" social engineering
-- **AMD and Intel Processors**: Systems with confidential computing features vulnerable to hardware-based memory encryption bypass
-- **OnSolve CodeRED Platform**: Emergency notification systems used by state and local governments disrupted
-- **South Korean Financial Sector**: 28 organizations affected through MSP supply chain attack
+- **ASUS Routers**: AiCloud-enabled routers affected by critical authentication bypass vulnerability
+- **Node-forge Library**: Popular JavaScript cryptography library with signature verification bypass flaw
+- **OnSolve CodeRED**: Emergency notification platform serving state and local governments
+- **Chrome Browser**: Malicious extension targeting Solana cryptocurrency transactions
+- **npm and Maven Ecosystems**: Over 830 packages compromised in Shai-Hulud v2 supply chain attack
+- **South Korean MSP Infrastructure**: Financial sector targets through managed service provider compromise
+- **London Council Systems**: Royal Borough of Kensington and Chelsea and Westminster City Council IT systems
+- **JSONFormatter and CodeBeautify**: Online tools exposing thousands of passwords and API keys
 
 ## Attack Vectors and Techniques
 
-- **Fake Update Campaigns**: JackFix and SocGholish leveraging fake Windows update pop-ups to deliver multiple information stealers
-- **Supply Chain Compromise**: Malicious package injection in software repositories to harvest developer credentials
-- **Browser Extension Abuse**: Malicious extensions on official stores performing cryptocurrency transaction manipulation
-- **Social Engineering**: DPRK actors using fake job interviews and technical assessments to target macOS users
-- **Hardware-Based Attacks**: Physical device deployment to bypass memory encryption protections
-- **MSP Targeting**: Ransomware groups compromising managed service providers to access multiple downstream clients
-- **Script Injection**: Exploitation of authentication systems through external script injection techniques
+- **Supply Chain Attacks**: Shai-Hulud v2 campaign spreading across package repositories to steal secrets and credentials
+- **Social Engineering**: SocGholish fake update attacks delivering Mythic Agent malware to engineering companies
+- **Ransomware as a Service**: Qilin ransomware leveraging MSP compromise for multi-victim attacks
+- **Browser Extension Malware**: Malicious Chrome extensions performing cryptocurrency theft through transaction injection
+- **AI-Enhanced Attacks**: Threat actors using large language models for runtime malware evasion and deepfake creation
+- **Phishing Impersonation**: Cybercriminals impersonating financial institutions for account takeover attacks
+- **Hardware-Based Attacks**: Cheap hardware modules bypassing AMD and Intel memory encryption protections
 
 ## Threat Actor Activities
 
-- **Shai-Hulud Campaign Operators**: Expanded operations from npm to Maven ecosystems, compromising 830+ packages for credential harvesting
-- **RomCom Group**: Deployed Mythic Agent malware through SocGholish fake update attacks targeting U.S. civil engineering companies
-- **DPRK FlexibleFerret Operators**: Continued refinement of macOS targeting through "Contagious Interview" campaigns with enhanced social engineering tactics
-- **Qilin Ransomware Group**: Conducted sophisticated supply chain attack against South Korean MSP, affecting 28 organizations in "Korean Leaks" operation
-- **Scattered LAPSUS$ Hunters**: Ongoing data theft and mass extortion campaigns against major corporations with public exposure tactics
-- **Chinese State-Linked Groups**: Targeting Russian IT organizations using commercial cloud services for command-and-control communications
-- **Iranian Cyber Operations**: Deploying "cyber-enabled kinetic targeting" in coordination with real-world missile attacks against maritime and land-based targets
-- **Financial Institution Impersonators**: Account takeover fraud schemes resulting in $262 million in losses through bank support team impersonation
+- **Shai-Hulud Campaign Operators**: Expanded operations from npm to Maven ecosystems, compromising 830+ packages to steal credentials and secrets
+- **RomCom Group**: First observed using SocGholish JavaScript loader to deliver Mythic Agent malware to U.S. civil engineering companies
+- **Qilin Ransomware Group**: Executed sophisticated supply chain attack against South Korean MSP, leading to "Korean Leaks" data heist affecting 28 victims in financial sector
+- **Scattered LAPSUS$ Hunters**: Prolific cybercriminal group conducting mass data theft and extortion campaigns against major corporations
+- **DPRK FlexibleFerret**: Continuing "Contagious Interview" campaign with refined tactics targeting macOS users for credential theft
+- **Financial Institution Impersonators**: Account takeover fraud schemes resulting in $262 million in losses since January 2025
+- **Iranian Cyber Operations**: Deploying "cyber-enabled kinetic targeting" to support physical missile attacks against maritime and land-based targets
