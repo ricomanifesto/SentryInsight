@@ -1,75 +1,56 @@
 # Exploitation Report
 
-The current threat landscape reveals significant exploitation activity across multiple vectors, with IoT devices, supply chain attacks, and authentication bypass vulnerabilities being primary targets. Notable activities include the ShadowV2 botnet targeting IoT devices from major vendors, sophisticated supply chain attacks affecting npm and Maven repositories through the Shai-Hulud v2 campaign, and critical authentication bypass flaws in ASUS routers with AiCloud functionality. Additionally, threat actors are leveraging advanced techniques including fake browser updates, malicious Chrome extensions for cryptocurrency theft, and commercial spyware campaigns targeting high-value messaging applications.
+Critical exploitation activity is currently dominated by supply chain attacks and IoT device targeting, with several major campaigns impacting thousands of organizations. The ShadowV2 botnet is actively exploiting known vulnerabilities in IoT devices from major vendors like D-Link and TP-Link, while the Shai-Hulud v2 campaign has expanded from npm to Maven ecosystems, compromising over 830 packages. Meanwhile, threat actors are leveraging authentication bypass flaws in ASUS routers and signature verification vulnerabilities in popular JavaScript libraries. Financial institutions face escalating account takeover attacks, with cybercriminals stealing over $262 million through social engineering schemes targeting bank customers.
 
 ## Active Exploitation Details
 
-### ShadowV2 Botnet Malware
-- **Description**: A new Mirai-based botnet malware targeting IoT devices with exploits for known vulnerabilities
-- **Impact**: Allows attackers to compromise and control IoT devices, potentially creating large botnets for various malicious activities
-- **Status**: Active exploitation observed during AWS outage testing phase
+### ShadowV2 Botnet IoT Exploitation
+- **Description**: Mirai-based botnet malware targeting IoT devices with exploits for known vulnerabilities
+- **Impact**: Compromised IoT devices from D-Link, TP-Link, and other vendors being recruited into botnet infrastructure
+- **Status**: Actively exploiting devices, leveraged AWS outage as testing opportunity
 
 ### ASUS AiCloud Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in ASUS routers with AiCloud functionality
-- **Impact**: Attackers can bypass authentication mechanisms to gain unauthorized access to router configurations and network resources
-- **Status**: ASUS has released firmware patches to address nine security vulnerabilities including this critical flaw
+- **Description**: Critical authentication bypass vulnerability in ASUS routers with AiCloud enabled
+- **Impact**: Attackers can bypass authentication mechanisms to gain unauthorized access to router management
+- **Status**: Patches released by ASUS in new firmware updates
 
-### Node-forge Signature Verification Bypass
-- **Description**: Vulnerability in the popular JavaScript cryptography library that allows bypassing signature verifications through crafted data
-- **Impact**: Attackers can create malicious data that appears cryptographically valid, potentially compromising authentication and integrity checks
-- **Status**: Fix has been released for the node-forge package
+### Node-Forge Signature Verification Bypass
+- **Description**: Vulnerability in the popular JavaScript cryptography library allowing bypass of signature verifications
+- **Impact**: Attackers can craft malicious data that appears as valid, compromising cryptographic integrity
+- **Status**: Fixed in updated versions of the node-forge package
 
-### Fluent Bit Remote Code Execution Chain
-- **Description**: Five vulnerabilities in the open-source telemetry agent that can be chained together for complete infrastructure compromise
-- **Impact**: Attackers can achieve remote code execution and take over entire cloud infrastructures through stealthy intrusions
-- **Status**: Newly discovered vulnerabilities affecting cloud environments
-
-### Chrome Zero-Day Exploitation
-- **Description**: Zero-day vulnerability in Google Chrome browser being actively exploited
-- **Impact**: Allows attackers to execute arbitrary code in the context of the browser, potentially leading to system compromise
-- **Status**: Active exploitation reported in weekly security recap
-
-### Fortinet Zero-Day Exploitation
-- **Description**: Zero-day vulnerability affecting Fortinet security appliances
-- **Impact**: Enables attackers to compromise network security infrastructure and potentially pivot to internal networks
-- **Status**: Active exploitation confirmed in recent security reports
+### Qilin Ransomware Supply Chain Attack
+- **Description**: Sophisticated supply chain attack targeting South Korean MSP leading to ransomware deployment
+- **Impact**: 28 organizations compromised through MSP breach, data exfiltration and encryption
+- **Status**: Active campaign targeting financial sector organizations
 
 ## Affected Systems and Products
 
-- **D-Link IoT Devices**: Targeted by ShadowV2 botnet for known vulnerability exploitation
-- **TP-Link IoT Devices**: Compromised by ShadowV2 malware using existing security flaws
-- **ASUS Routers with AiCloud**: Affected by critical authentication bypass vulnerability
-- **Node-forge JavaScript Library**: Popular cryptography package vulnerable to signature bypass attacks
-- **Fluent Bit Telemetry Agent**: Open-source logging agent exposing cloud infrastructures to RCE attacks
-- **Google Chrome Browser**: Affected by actively exploited zero-day vulnerability
-- **Fortinet Security Appliances**: Targeted by zero-day exploitation campaigns
-- **npm Registry**: Compromised by Shai-Hulud v2 supply chain attacks affecting over 830 packages
-- **Maven Ecosystem**: Extended target of supply chain attacks spreading from npm
-- **Microsoft 365 and Outlook**: Targeted by ToddyCat threat group using custom credential theft tools
-- **Signal and WhatsApp**: High-value users targeted by commercial spyware campaigns
-- **Android TV Streaming Boxes**: Superbox devices potentially compromised for botnet activities
+- **D-Link IoT Devices**: Routers and networking equipment vulnerable to ShadowV2 botnet exploitation
+- **TP-Link IoT Devices**: Consumer networking products being targeted by botnet campaigns
+- **ASUS AiCloud Routers**: Critical authentication bypass affecting routers with AiCloud functionality enabled
+- **Node-Forge Library**: Popular JavaScript cryptography package used across web applications
+- **npm and Maven Ecosystems**: Package repositories compromised by Shai-Hulud v2 supply chain attack
+- **South Korean MSP Infrastructure**: Managed service provider systems compromised leading to downstream client impacts
+- **OnSolve CodeRED Platform**: Emergency notification systems disrupted by cyberattack
+- **Financial Institution Systems**: Banks and credit unions targeted through account takeover schemes
 
 ## Attack Vectors and Techniques
 
-- **IoT Vulnerability Exploitation**: ShadowV2 botnet leveraging known vulnerabilities in consumer network devices
-- **Supply Chain Poisoning**: Shai-Hulud v2 campaign compromising package repositories to steal credentials from 25,000+ repositories
-- **Fake Browser Updates**: SocGholish and JackFix campaigns using fraudulent update prompts to deliver malware
-- **Malicious Chrome Extensions**: Cryptocurrency theft through hidden Solana transfer fee injection in legitimate swap transactions
-- **Authentication Bypass**: Direct exploitation of router authentication mechanisms to gain administrative access
-- **Signature Verification Bypass**: Crafting malicious data that appears cryptographically valid to security systems
-- **Social Engineering**: Impersonating financial institutions and technical support teams for account takeover fraud
-- **Malware-as-a-Service**: Distribution of StealC V2 data-stealing malware through compromised Blender 3D assets
-- **Commercial Spyware Deployment**: Using professional-grade surveillance tools against high-value messaging app users
+- **IoT Vulnerability Exploitation**: ShadowV2 botnet targeting known vulnerabilities in consumer networking devices
+- **Supply Chain Compromise**: Shai-Hulud v2 campaign spreading malicious packages through software repositories
+- **Authentication Bypass**: Exploiting router vulnerabilities to gain unauthorized administrative access
+- **Social Engineering**: Cybercriminals impersonating bank support teams to steal credentials
+- **SocGholish Fake Updates**: JavaScript loader delivering Mythic Agent malware through fake browser update prompts
+- **Chrome Extension Malware**: Malicious extensions injecting hidden Solana transfer fees into cryptocurrency transactions
+- **AI-Enhanced Phishing**: Threat actors using large language models to create more sophisticated phishing campaigns
 
 ## Threat Actor Activities
 
-- **ShadowV2 Operators**: Deploying Mirai-based botnet targeting IoT infrastructure during AWS outage events for testing purposes
-- **Shai-Hulud v2 Attackers**: Orchestrating large-scale supply chain attacks across npm and Maven repositories, exposing thousands of credentials
-- **RomCom Group**: Utilizing SocGholish fake update campaigns to deliver Mythic Agent malware to U.S. civil engineering companies
-- **Qilin Ransomware**: Conducting sophisticated supply chain attacks against South Korean MSPs, compromising 28 victims in "Korean Leaks" operation
-- **ToddyCat**: Developing custom tools like TCSectorCopy to steal Outlook emails and Microsoft 365 access tokens from corporate targets
-- **JackFix Campaign**: Operating fake Windows update schemes on adult websites to distribute multiple information stealers
-- **Scattered LAPSUS$ Hunters**: Mass extortion group led by administrator "Rey" targeting dozens of major corporations throughout 2024
-- **Chrome Extension Threat Actors**: Injecting malicious cryptocurrency transaction modifications into legitimate browser extensions
-- **Commercial Spyware Operators**: CISA-confirmed active campaigns targeting high-value Signal and WhatsApp users with professional surveillance tools
-- **Android TV Botnet Controllers**: Potentially compromising Superbox streaming devices sold through major retailers for botnet activities
+- **RomCom Group**: Targeting U.S. civil engineering company using SocGholish fake update attacks to deliver Mythic Agent malware
+- **Qilin Ransomware**: Executing sophisticated supply chain attack against South Korean MSP, resulting in "Korean Leaks" data heist affecting 28 organizations
+- **Scattered LAPSUS$ Hunters**: Prolific cybercriminal group conducting mass extortion campaigns against major corporations
+- **DPRK FlexibleFerret**: Continuing "Contagious Interview" campaign with refined tactics targeting macOS users
+- **Financial Institution Impersonators**: Coordinated campaign stealing $262 million through account takeover fraud since January 2025
+- **Iranian Cyber Operations**: Deploying cyber-enabled kinetic targeting in coordination with missile attacks
+- **Chrome Web Store Attackers**: Distributing malicious extensions targeting cryptocurrency users with hidden fee injection
