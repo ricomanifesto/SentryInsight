@@ -1,48 +1,54 @@
 # Exploitation Report
 
-Current threat landscape shows significant exploitation activity across multiple attack vectors, with threat actors leveraging both known vulnerabilities and novel techniques. Key concerns include the ShadowV2 botnet targeting IoT devices with exploits for known vulnerabilities, signature verification bypass issues in the popular node-forge JavaScript library, critical authentication bypass vulnerabilities in ASUS AiCloud routers, and sophisticated supply chain attacks including the Qilin ransomware campaign against South Korean MSPs and the expanded Shai-Hulud campaign targeting npm and Maven repositories. Additionally, threat actors are increasingly incorporating AI and LLMs into malware to evade detection, while established groups like RomCom and Bloody Wolf continue targeted campaigns using established remote access tools.
+The current threat landscape reveals significant supply chain attacks targeting package repositories, with North Korean threat actors deploying hundreds of malicious packages across npm and Maven ecosystems. Critical vulnerabilities are being actively exploited in IoT devices through new botnet operations, while sophisticated ransomware groups continue to leverage supply chain compromises for large-scale data theft operations. Additional concerns include JavaScript library vulnerabilities that bypass cryptographic signature verification and Microsoft Teams security bypasses that remove endpoint protection capabilities.
 
 ## Active Exploitation Details
 
 ### ShadowV2 Botnet IoT Exploitation
-- **Description**: New Mirai-based botnet malware targeting IoT devices from D-Link, TP-Link, and other vendors using exploits for known vulnerabilities
-- **Impact**: Compromised IoT devices can be enlisted into botnets for DDoS attacks, cryptocurrency mining, or further network infiltration
-- **Status**: Active exploitation observed during AWS outage as testing opportunity
+- **Description**: New Mirai-based botnet malware targeting IoT devices from multiple vendors including D-Link and TP-Link
+- **Impact**: Device compromise and botnet recruitment for distributed attacks
+- **Status**: Actively exploiting known vulnerabilities in IoT devices, taking advantage of AWS outages for testing
 
 ### node-forge Signature Verification Bypass
-- **Description**: Vulnerability in the popular JavaScript cryptography library allowing bypass of signature verifications through crafted data that appears valid
-- **Impact**: Attackers can forge cryptographic signatures, potentially compromising authentication systems and data integrity
-- **Status**: Fix available for the vulnerability
+- **Description**: Vulnerability in the popular JavaScript cryptography library allowing attackers to bypass signature verifications
+- **Impact**: Attackers can craft data that appears cryptographically valid, undermining security controls
+- **Status**: Patch available, vulnerability affects signature verification mechanisms
 
-### ASUS AiCloud Authentication Bypass
-- **Description**: Critical authentication bypass flaw in ASUS routers with AiCloud enabled, along with eight additional security vulnerabilities
-- **Impact**: Complete bypass of authentication mechanisms, allowing unauthorized access to router configurations and network resources
-- **Status**: New firmware released to patch vulnerabilities
+### Microsoft Teams Defender Bypass
+- **Description**: Cross-tenant blind spot allowing attackers to bypass Microsoft Defender for Office 365 protections via guest access feature
+- **Impact**: Complete removal of endpoint protection when users join external Teams tenants
+- **Status**: Active exploitation technique affecting enterprise security posture
+
+### Legacy Python Bootstrap Script Vulnerabilities
+- **Description**: Vulnerable code in legacy Python packages creating domain takeover risks
+- **Impact**: Potential supply chain compromise through domain hijacking attacks
+- **Status**: Multiple PyPI packages affected, creates persistent supply chain risk
 
 ## Affected Systems and Products
 
-- **IoT Devices**: D-Link and TP-Link routers and devices targeted by ShadowV2 botnet
-- **JavaScript Applications**: Systems using the node-forge cryptography library for signature verification
-- **ASUS Routers**: Devices with AiCloud functionality vulnerable to authentication bypass
-- **Microsoft Teams**: Guest access feature creating cross-tenant security blind spots
-- **npm and Maven Ecosystems**: Over 830 compromised packages in npm registry, expansion to Maven repository
-- **South Korean Financial Sector**: MSP infrastructure compromised leading to 28-victim data breach campaign
+- **IoT Devices**: D-Link, TP-Link, and other vendor devices vulnerable to ShadowV2 botnet exploitation
+- **JavaScript Applications**: Systems using node-forge cryptography library for signature verification
+- **Microsoft Teams Environments**: Enterprise environments using guest access features with external tenants
+- **Python Package Ecosystem**: PyPI packages containing legacy bootstrap scripts with domain takeover vulnerabilities
+- **npm Registry**: 197 malicious packages deployed by North Korean actors, 830+ packages in Shai-Hulud v2 campaign
+- **Maven Repository**: Expanded Shai-Hulud v2 attack targeting Java ecosystem
+- **GitLab Repositories**: 5.6 million public repositories scanned, 17,000+ exposed secrets discovered
+- **Chrome Web Store**: Malicious extensions injecting hidden Solana transfer fees
 
 ## Attack Vectors and Techniques
 
-- **IoT Exploitation**: ShadowV2 botnet using known vulnerability exploits against network devices
-- **Supply Chain Attacks**: Shai-Hulud v2 campaign compromising package repositories to steal secrets and credentials
-- **Fake Browser Updates**: SocGholish JavaScript loader delivering Mythic Agent malware through fake update prompts
-- **Cross-tenant Bypasses**: Microsoft Teams guest access exploited to bypass Defender for Office 365 protections
-- **Cryptographic Bypass**: Crafted data exploitation to bypass signature verification in cryptographic libraries
-- **AI-Enhanced Malware**: LLMs integrated into malware for runtime evasion and code augmentation
-- **Script Injection**: Unauthorized script injection targeting authentication systems
+- **Supply Chain Poisoning**: Mass deployment of malicious packages across npm and Maven repositories
+- **IoT Botnet Recruitment**: Exploitation of known vulnerabilities in consumer and enterprise IoT devices
+- **Cross-Tenant Security Bypass**: Abuse of legitimate Microsoft Teams features to remove security protections
+- **Cryptographic Bypass**: Crafting of malicious data to circumvent signature verification processes
+- **Domain Takeover**: Exploitation of abandoned domains referenced in legacy package bootstrap scripts
+- **Secret Harvesting**: Automated scanning and extraction of credentials from public code repositories
+- **Browser Extension Injection**: Malicious Chrome extensions modifying cryptocurrency transactions
 
 ## Threat Actor Activities
 
-- **ShadowV2 Operators**: Deploying Mirai-based botnet targeting IoT infrastructure during service outages
-- **Shai-Hulud Campaign**: Expanding from npm to Maven ecosystems, exposing thousands of secrets from compromised packages
-- **RomCom Group**: First observed use of SocGholish fake update attacks to deliver Mythic Agent malware against U.S. civil engineering company
-- **Qilin Ransomware**: Sophisticated supply chain attack against South Korean MSP resulting in 28-victim "Korean Leaks" data heist
-- **Bloody Wolf**: Expanding Java-based NetSupport RAT campaigns targeting Kyrgyzstan and Uzbekistan since June 2025
-- **Scattered LAPSUS$ Hunters**: Prolific cybercriminal group conducting mass extortion campaigns against major corporations throughout 2025
+- **North Korean Actors (Contagious Interview Campaign)**: Deployed 197 malicious npm packages continuing their supply chain poisoning operations with updated OtterCookie malware
+- **Bloody Wolf**: Expanded Java-based NetSupport RAT attacks targeting Kyrgyzstan and Uzbekistan since June 2025
+- **Qilin Ransomware Group**: Conducted sophisticated supply chain attack against South Korean MSP, resulting in "Korean Leaks" operation affecting 28 victims in the financial sector
+- **Scattered LAPSUS$ Hunters**: Prolific cybercriminal group conducting mass data theft and public extortion campaigns against major corporations
+- **Shai-Hulud Operators**: Executed second wave of supply chain attacks expanding from npm to Maven, exposing thousands of secrets across both ecosystems
