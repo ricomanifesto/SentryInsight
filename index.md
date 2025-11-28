@@ -1,58 +1,59 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity across multiple vectors, with threat actors leveraging both traditional attack methods and emerging AI-powered techniques. Critical vulnerabilities are being actively exploited in ASUS routers, IoT devices, and cryptographic libraries, while sophisticated supply chain attacks target software repositories. Notable campaigns include Bloody Wolf's expansion of NetSupport RAT operations in Central Asia, ShadowV2 botnet targeting IoT infrastructure, and Qilin ransomware conducting large-scale supply chain attacks affecting South Korean financial institutions. The emergence of AI-enhanced malware and the exploitation of script injection vulnerabilities in authentication systems represent evolving threats requiring immediate attention.
+Multiple critical security incidents highlight active exploitation campaigns targeting enterprise infrastructure and IoT devices. The Qilin ransomware group orchestrated a sophisticated supply chain attack against South Korean financial institutions through MSP compromise, while the ShadowV2 botnet exploited IoT device vulnerabilities during AWS outages for testing purposes. Additional threats include the Bloody Wolf threat actor expanding NetSupport RAT deployments across Central Asia, RomCom leveraging SocGholish fake update campaigns, and widespread supply chain attacks targeting npm and Maven package repositories. These incidents demonstrate escalating sophistication in exploitation techniques, particularly through compromised third-party vendors and automated botnet operations.
 
 ## Active Exploitation Details
 
-### ASUS AiCloud Authentication Bypass Vulnerability
-- **Description**: Critical authentication bypass flaw affecting ASUS routers with AiCloud functionality enabled
-- **Impact**: Complete authentication bypass allowing unauthorized access to router configurations and network resources
-- **Status**: Firmware patches released by ASUS to address nine security vulnerabilities including this critical flaw
+### Qilin Ransomware Supply Chain Attack
+- **Description**: Sophisticated supply chain attack targeting South Korean MSP infrastructure leading to compromise of 28 victim organizations
+- **Impact**: Full network compromise, data exfiltration, and ransomware deployment across multiple financial sector entities
+- **Status**: Active campaign identified as "Korean Leaks" data heist operation
 
-### IoT Device Vulnerabilities (ShadowV2 Botnet Campaign)
-- **Description**: Multiple known vulnerabilities in D-Link, TP-Link, and other IoT device vendors being exploited by Mirai-based botnet malware
-- **Impact**: Remote code execution leading to device compromise and botnet recruitment
-- **Status**: Active exploitation observed with ShadowV2 malware using AWS outage as testing opportunity
+### ShadowV2 Mirai-based Botnet
+- **Description**: New Mirai variant targeting IoT devices from D-Link, TP-Link, and other vendors with known vulnerability exploits
+- **Impact**: Device compromise, botnet recruitment, and potential DDoS capabilities
+- **Status**: Actively exploiting known vulnerabilities in IoT infrastructure
+
+### ASUS AiCloud Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability in ASUS routers with AiCloud enabled
+- **Impact**: Complete router compromise and potential network lateral movement
+- **Status**: Firmware patches released to address nine security vulnerabilities including critical auth bypass
 
 ### Node-forge Signature Verification Bypass
-- **Description**: Vulnerability in the popular 'node-forge' JavaScript cryptography library allowing signature verification bypass
-- **Impact**: Attackers can craft data that appears valid, bypassing cryptographic security controls
-- **Status**: Fix released for the vulnerability
+- **Description**: Vulnerability in popular JavaScript cryptography library allowing signature verification bypass
+- **Impact**: Authentication bypass and potential cryptographic security circumvention
+- **Status**: Fix available for signature verification flaw
 
-### Memory Encryption Bypass Vulnerabilities
-- **Description**: Hardware-based vulnerabilities in AMD and Intel confidential computing protections
-- **Impact**: Circumvention of scalable memory encryption using inexpensive hardware modules
-- **Status**: Research demonstrates practical exploitation methods
+### Shai-Hulud v2 Supply Chain Attack
+- **Description**: Second wave supply chain attack expanding from npm to Maven ecosystem
+- **Impact**: Compromise of over 830 packages, exposure of thousands of secrets and credentials
+- **Status**: Active campaign spreading across multiple package repositories
 
 ## Affected Systems and Products
 
-- **ASUS Routers**: AiCloud-enabled routers vulnerable to authentication bypass
+- **ASUS Routers**: AiCloud-enabled routers affected by critical authentication bypass vulnerability
 - **IoT Devices**: D-Link and TP-Link devices targeted by ShadowV2 botnet malware
-- **Node-forge Library**: JavaScript cryptography library with signature verification weakness
-- **AMD/Intel Processors**: Memory encryption features vulnerable to hardware-based bypass
-- **Microsoft Entra ID**: Authentication system targeted by script injection attacks
-- **Gainsight Applications**: Customer success platform experiencing suspicious activity
-- **OpenAI API**: Customer data exposed through Mixpanel vendor breach
-- **Chrome Extensions**: Malicious extensions injecting hidden cryptocurrency transfers
-- **npm and Maven Repositories**: Software packages compromised in Shai-Hulud supply chain attack
+- **South Korean Financial Sector**: Multiple institutions compromised through MSP supply chain attack
+- **npm and Maven Repositories**: Over 830 packages compromised in Shai-Hulud v2 campaign
+- **Node-forge Library**: Popular JavaScript cryptography package with signature bypass flaw
+- **Chrome Extensions**: Malicious extensions injecting hidden Solana transfer fees
+- **London Government Systems**: Royal Borough of Kensington and Chelsea and Westminster City Council experiencing disruptions
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Shai-Hulud campaign compromising 830+ npm packages and expanding to Maven ecosystem
-- **Script Injection**: Unauthorized scripts targeting Microsoft Entra ID authentication flows
-- **SocGholish Fake Updates**: JavaScript loader delivering Mythic Agent malware via fake browser updates
-- **NetSupport RAT Deployment**: Java-based remote access trojans distributed by Bloody Wolf threat actor
-- **Botnet Exploitation**: ShadowV2 leveraging known IoT vulnerabilities for device recruitment
-- **Cryptocurrency Theft**: Malicious Chrome extensions injecting hidden Solana transfer fees
-- **AI-Enhanced Malware**: Integration of large language models for runtime evasion and code augmentation
-- **Hardware-Based Attacks**: Physical modules bypassing memory encryption protections
+- **Supply Chain Compromise**: MSP infrastructure targeting for downstream victim access
+- **Fake Software Updates**: SocGholish JavaScript loader delivering Mythic Agent malware
+- **IoT Vulnerability Exploitation**: Automated exploitation of known device vulnerabilities
+- **Package Repository Poisoning**: Malicious package injection into npm and Maven ecosystems
+- **Social Engineering**: NetSupport RAT delivery through Java-based attack campaigns
+- **Browser Extension Manipulation**: Cryptocurrency transaction hijacking through malicious Chrome extensions
+- **Vendor Compromise**: Third-party analytics provider breaches affecting downstream customers
 
 ## Threat Actor Activities
 
-- **Bloody Wolf**: Expanding NetSupport RAT campaigns targeting Kyrgyzstan and Uzbekistan since June 2025
-- **RomCom Group**: Using SocGholish fake update attacks to deliver Mythic Agent malware to U.S. civil engineering companies
-- **Qilin Ransomware**: Conducting sophisticated supply chain attack against South Korean MSP affecting 28 victims in "Korean Leaks" operation
-- **Scattered LAPSUS$ Hunters**: Continuing mass extortion campaigns against major corporations with regular data theft operations
-- **ShadowV2 Operators**: Deploying Mirai-based botnet malware targeting IoT infrastructure during AWS outage testing
-- **Shai-Hulud Campaign**: Second wave attackers compromising software supply chain across npm and Maven repositories
-- **Iranian Threat Actors**: Deploying "cyber-enabled kinetic targeting" in coordination with missile attacks
+- **Qilin Ransomware Group**: Orchestrating sophisticated supply chain attacks against Korean financial sector through MSP compromise
+- **Bloody Wolf**: Expanding Java-based NetSupport RAT campaigns targeting Kyrgyzstan and Uzbekistan since June 2025
+- **RomCom**: First documented use of SocGholish fake update attacks to deliver Mythic Agent malware
+- **ShadowV2 Operators**: Leveraging AWS outages as testing opportunities for new botnet malware
+- **Shai-Hulud Attackers**: Scaling supply chain attacks across multiple package repositories with credential harvesting focus
+- **Scattered LAPSUS$ Hunters**: Continuing mass extortion campaigns against major corporations with public data exposure tactics
