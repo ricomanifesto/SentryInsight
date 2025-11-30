@@ -1,59 +1,57 @@
 # Exploitation Report
 
-The current threat landscape shows significant exploitation activity across multiple vectors, with threat actors leveraging supply chain attacks, malware-as-a-service platforms, and social engineering techniques. Notable activities include the deployment of Mirai-based botnet malware targeting IoT devices, sophisticated supply chain compromises affecting package repositories, and advanced ransomware operations. North Korean threat actors continue their campaign activities through malicious npm packages, while new botnet infrastructure exploits known IoT vulnerabilities for widespread device compromise.
+The current threat landscape reveals a diverse range of active exploitation activities targeting both enterprise and consumer environments. North Korean threat actors continue their aggressive supply chain attacks through malicious npm packages, deploying updated OtterCookie malware across 197 compromised packages. A new Mirai-based botnet called ShadowV2 is actively exploiting known vulnerabilities in IoT devices from major vendors like D-Link and TP-Link. Additionally, sophisticated supply chain compromises are occurring, including the Qilin ransomware group's attack on South Korean managed service providers that resulted in data theft from 28 victims. Domain takeover vulnerabilities in legacy Python packages pose significant supply chain risks, while malicious Chrome extensions are being used to steal cryptocurrency through hidden transaction injections.
 
 ## Active Exploitation Details
 
-### ShadowV2 Botnet IoT Exploitation
-- **Description**: A new Mirai-based botnet malware targeting IoT devices from multiple vendors including D-Link and TP-Link
-- **Impact**: Device compromise, botnet recruitment, and potential use for DDoS attacks and cryptomining operations
-- **Status**: Actively exploiting known vulnerabilities in IoT devices during recent AWS outage testing
+### ShadowV2 Botnet Malware
+- **Description**: A new Mirai-based botnet malware targeting IoT devices with exploits for known vulnerabilities
+- **Impact**: Attackers can compromise IoT devices and incorporate them into botnets for distributed attacks
+- **Status**: Currently active, exploiting known vulnerabilities in D-Link, TP-Link, and other vendor devices
 
-### Shai-Hulud v2 Supply Chain Attack
-- **Description**: Multi-platform supply chain attack compromising over 830 packages in npm registry and expanding to Maven ecosystem
-- **Impact**: Exposure of thousands of secrets and potential widespread software supply chain compromise
-- **Status**: Active campaign with expanding scope across multiple package repositories
+### OtterCookie Malware Campaign
+- **Description**: Updated malware being distributed through 197 malicious npm packages by North Korean threat actors
+- **Impact**: Supply chain compromise allowing code execution and data theft from development environments
+- **Status**: Active campaign continuing since last month with new package deployments
 
-### OtterCookie Malware Distribution
-- **Description**: North Korean threat actors distributing updated OtterCookie malware through 197 malicious npm packages
-- **Impact**: System compromise and potential data theft targeting software developers
-- **Status**: Ongoing campaign as part of the Contagious Interview operation
+### Domain Takeover in Python Packages
+- **Description**: Vulnerable legacy Python bootstrap scripts creating domain takeover risks in PyPI packages
+- **Impact**: Potential supply chain compromise through domain hijacking affecting Python package installations
+- **Status**: Ongoing vulnerability affecting multiple PyPI packages
 
-### Chrome Extension Solana Injection
-- **Description**: Malicious Chrome extension injecting hidden Solana transfer fees into Raydium swap transactions
-- **Impact**: Financial theft through cryptocurrency transaction manipulation
-- **Status**: Recently discovered on Chrome Web Store with active deployment
+### Malicious Chrome Extension
+- **Description**: Chrome Web Store extension injecting hidden Solana transfer fees into Raydium cryptocurrency swaps
+- **Impact**: Financial theft through stealthy transaction manipulation during cryptocurrency exchanges
+- **Status**: Active exploitation targeting cryptocurrency users
+
+### Qilin Ransomware Supply Chain Attack
+- **Description**: Sophisticated attack targeting South Korean managed service provider leading to multiple victim compromise
+- **Impact**: Data theft from 28 organizations through MSP infrastructure compromise
+- **Status**: Recent attack resulting in "Korean Leaks" data publication
 
 ## Affected Systems and Products
 
-- **D-Link IoT Devices**: Multiple models vulnerable to ShadowV2 botnet exploitation
-- **TP-Link IoT Devices**: Various router and networking equipment models targeted
-- **npm Package Registry**: Over 830 compromised packages containing malicious code
-- **Maven Ecosystem**: Secondary target for Shai-Hulud v2 supply chain attacks
-- **Chrome Browser**: Users with malicious extensions face cryptocurrency theft risk
-- **Asahi Group Systems**: Administrative systems compromised affecting 1.9 million individuals
-- **French Football Federation**: Administrative management software breached through compromised accounts
-- **GitLab Cloud**: Over 17,000 exposed secrets across 2,800+ domains in public repositories
-- **Microsoft Teams**: Guest access feature creating security blind spots for Defender protection
-- **Gainsight Applications**: Customer management systems affected by suspicious activity
-- **OpenAI API Systems**: Customer data exposed through third-party vendor Mixpanel breach
+- **IoT Devices**: D-Link and TP-Link routers and networking equipment vulnerable to ShadowV2 botnet exploitation
+- **npm Registry**: 197 malicious packages spreading OtterCookie malware targeting JavaScript developers
+- **PyPI Packages**: Multiple legacy Python packages with domain takeover vulnerabilities
+- **Chrome Browser**: Users of cryptocurrency trading extensions vulnerable to hidden fee injection
+- **South Korean MSP**: 28 client organizations affected by Qilin ransomware supply chain attack
+- **Microsoft Teams**: Guest access feature creating blind spots in Defender for Office 365 protection
+- **GitLab Cloud**: Over 17,000 exposed secrets across 2,800 domains in public repositories
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Injection of malicious code into legitimate software packages across npm and Maven repositories
-- **IoT Vulnerability Exploitation**: Targeting known security flaws in consumer and enterprise IoT devices for botnet recruitment
-- **Evil Twin WiFi Networks**: Creation of rogue wireless access points to intercept user credentials and data
-- **Browser Extension Manipulation**: Deployment of malicious Chrome extensions to inject unauthorized cryptocurrency transactions
-- **Account Compromise**: Use of compromised credentials to access administrative systems and steal sensitive data
-- **Cross-Tenant Attacks**: Exploitation of Microsoft Teams guest access features to bypass security protections
-- **Vendor Supply Chain Attacks**: Compromising third-party service providers to access customer data
-- **Social Engineering**: Targeting developers through fake interview processes and malicious package distribution
+- **Supply Chain Poisoning**: North Korean actors flooding npm registry with malicious packages containing OtterCookie malware
+- **IoT Vulnerability Exploitation**: ShadowV2 botnet leveraging known vulnerabilities in networking equipment for botnet recruitment
+- **Domain Hijacking**: Legacy Python bootstrap scripts enabling takeover attacks through expired or vulnerable domains
+- **Browser Extension Abuse**: Malicious Chrome extensions manipulating cryptocurrency transactions through code injection
+- **MSP Infrastructure Compromise**: Qilin ransomware group targeting managed service providers for multi-victim attacks
+- **Cross-Tenant Exploitation**: Microsoft Teams guest access bypassing security controls when users join external tenants
 
 ## Threat Actor Activities
 
-- **North Korean APT Groups**: Continuing Contagious Interview campaign with 197 new malicious npm packages distributing OtterCookie malware
+- **North Korean Groups**: Continuing Contagious Interview campaign with 197 new malicious npm packages deploying updated OtterCookie malware
 - **Bloody Wolf**: Expanding Java-based NetSupport RAT attacks targeting Kyrgyzstan and Uzbekistan since June 2025
-- **Qilin Ransomware Group**: Conducting sophisticated supply chain attack against South Korean MSP resulting in 28-victim "Korean Leaks" data heist
-- **ShadowV2 Operators**: Deploying new Mirai-based botnet targeting IoT devices and using AWS outages as testing opportunities
-- **Shai-Hulud Attackers**: Orchestrating large-scale supply chain compromise across multiple package repositories exposing thousands of secrets
-- **Scattered LAPSUS$ Hunters**: Continuing mass data theft and extortion campaigns against major corporations throughout 2025
+- **Qilin Ransomware Group**: Orchestrating sophisticated supply chain attack against South Korean MSP resulting in 28-victim data breach
+- **Scattered Lapsus$ Hunters**: Conducting mass extortion campaigns against major corporations with data theft and public exposure tactics
+- **ShadowV2 Operators**: Deploying new Mirai-based botnet malware to compromise IoT devices and expand attack infrastructure
