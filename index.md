@@ -1,57 +1,69 @@
 # Exploitation Report
 
-The current threat landscape reveals a diverse range of active exploitation activities targeting both enterprise and consumer environments. North Korean threat actors continue their aggressive supply chain attacks through malicious npm packages, deploying updated OtterCookie malware across 197 compromised packages. A new Mirai-based botnet called ShadowV2 is actively exploiting known vulnerabilities in IoT devices from major vendors like D-Link and TP-Link. Additionally, sophisticated supply chain compromises are occurring, including the Qilin ransomware group's attack on South Korean managed service providers that resulted in data theft from 28 victims. Domain takeover vulnerabilities in legacy Python packages pose significant supply chain risks, while malicious Chrome extensions are being used to steal cryptocurrency through hidden transaction injections.
+Current security intelligence reveals a significant surge in sophisticated supply chain attacks and enterprise-targeted campaigns. North Korean threat actors continue their aggressive npm package poisoning operations with 197 new malicious packages delivering updated OtterCookie malware, while the Shai-Hulud v2 campaign has expanded from npm to Maven ecosystems, compromising over 830 packages. Critical infrastructure remains under threat as the ShadowV2 botnet exploits known vulnerabilities in IoT devices from major vendors, and the Qilin ransomware group executed a sophisticated supply chain attack against South Korea's financial sector through MSP compromise. Enterprise environments face increasing risks from malicious AI-powered tools, cross-tenant security bypasses in Microsoft Teams, and domain takeover vulnerabilities in legacy Python packages.
 
 ## Active Exploitation Details
 
-### ShadowV2 Botnet Malware
-- **Description**: A new Mirai-based botnet malware targeting IoT devices with exploits for known vulnerabilities
-- **Impact**: Attackers can compromise IoT devices and incorporate them into botnets for distributed attacks
-- **Status**: Currently active, exploiting known vulnerabilities in D-Link, TP-Link, and other vendor devices
+### ShadowV2 Mirai-based Botnet
+- **Description**: New botnet malware targeting IoT devices using known vulnerability exploits against D-Link, TP-Link, and other vendor devices
+- **Impact**: Device compromise for botnet recruitment, potential DDoS participation, and lateral network movement
+- **Status**: Active exploitation of known vulnerabilities in IoT devices, leveraged AWS outage as testing opportunity
 
-### OtterCookie Malware Campaign
-- **Description**: Updated malware being distributed through 197 malicious npm packages by North Korean threat actors
-- **Impact**: Supply chain compromise allowing code execution and data theft from development environments
-- **Status**: Active campaign continuing since last month with new package deployments
+### OtterCookie Malware via npm Packages
+- **Description**: North Korean threat actors deploying 197 malicious npm packages in continuation of Contagious Interview campaign
+- **Impact**: Supply chain compromise targeting developers, credential theft, and system infiltration
+- **Status**: Ongoing active campaign with continuous package uploads to npm registry
 
-### Domain Takeover in Python Packages
-- **Description**: Vulnerable legacy Python bootstrap scripts creating domain takeover risks in PyPI packages
-- **Impact**: Potential supply chain compromise through domain hijacking affecting Python package installations
-- **Status**: Ongoing vulnerability affecting multiple PyPI packages
+### Shai-Hulud v2 Supply Chain Attack
+- **Description**: Multi-ecosystem supply chain attack compromising over 830 npm packages and expanding to Maven repositories
+- **Impact**: Mass compromise of development environments and exposure of thousands of secrets
+- **Status**: Active campaign spreading across multiple package management ecosystems
 
-### Malicious Chrome Extension
-- **Description**: Chrome Web Store extension injecting hidden Solana transfer fees into Raydium cryptocurrency swaps
-- **Impact**: Financial theft through stealthy transaction manipulation during cryptocurrency exchanges
-- **Status**: Active exploitation targeting cryptocurrency users
+### Microsoft Teams Cross-Tenant Security Bypass
+- **Description**: Guest access feature allows attackers to bypass Microsoft Defender for Office 365 protections when users join external tenants
+- **Impact**: Security control evasion, potential data exfiltration, and compromise of enterprise protection mechanisms
+- **Status**: Active vulnerability affecting Microsoft Teams guest access functionality
 
-### Qilin Ransomware Supply Chain Attack
-- **Description**: Sophisticated attack targeting South Korean managed service provider leading to multiple victim compromise
-- **Impact**: Data theft from 28 organizations through MSP infrastructure compromise
-- **Status**: Recent attack resulting in "Korean Leaks" data publication
+### Chrome Extension Solana Injection Attack
+- **Description**: Malicious Chrome Web Store extension injecting hidden Solana transfer fees into Raydium swap transactions
+- **Impact**: Cryptocurrency theft through transaction manipulation and fee injection
+- **Status**: Active malicious extension deployed on Chrome Web Store
+
+### Legacy Python Package Domain Takeover
+- **Description**: Vulnerable bootstrap scripts in legacy Python packages creating domain takeover risks in PyPI ecosystem
+- **Impact**: Supply chain compromise potential through domain hijacking and malicious package injection
+- **Status**: Vulnerable code identified in multiple legacy packages
 
 ## Affected Systems and Products
 
-- **IoT Devices**: D-Link and TP-Link routers and networking equipment vulnerable to ShadowV2 botnet exploitation
-- **npm Registry**: 197 malicious packages spreading OtterCookie malware targeting JavaScript developers
-- **PyPI Packages**: Multiple legacy Python packages with domain takeover vulnerabilities
-- **Chrome Browser**: Users of cryptocurrency trading extensions vulnerable to hidden fee injection
-- **South Korean MSP**: 28 client organizations affected by Qilin ransomware supply chain attack
-- **Microsoft Teams**: Guest access feature creating blind spots in Defender for Office 365 protection
-- **GitLab Cloud**: Over 17,000 exposed secrets across 2,800 domains in public repositories
+- **IoT Devices**: D-Link and TP-Link devices vulnerable to ShadowV2 botnet exploitation
+- **npm Registry**: 197 malicious packages targeting JavaScript developers
+- **Maven Repository**: Expanded Shai-Hulud campaign affecting Java development ecosystem
+- **PyPI Packages**: Legacy Python packages with domain takeover vulnerabilities
+- **Microsoft Teams**: Enterprise tenants using guest access functionality
+- **Chrome Browser**: Users of malicious extensions from Chrome Web Store
+- **Salesforce/Gainsight**: Customer management platforms affected by security incidents
+- **GitLab Cloud**: 5.6 million public repositories exposing over 17,000 secrets
+- **South Korean Financial Sector**: MSP supply chain attack affecting 28 organizations
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: North Korean actors flooding npm registry with malicious packages containing OtterCookie malware
-- **IoT Vulnerability Exploitation**: ShadowV2 botnet leveraging known vulnerabilities in networking equipment for botnet recruitment
-- **Domain Hijacking**: Legacy Python bootstrap scripts enabling takeover attacks through expired or vulnerable domains
-- **Browser Extension Abuse**: Malicious Chrome extensions manipulating cryptocurrency transactions through code injection
-- **MSP Infrastructure Compromise**: Qilin ransomware group targeting managed service providers for multi-victim attacks
-- **Cross-Tenant Exploitation**: Microsoft Teams guest access bypassing security controls when users join external tenants
+- **Supply Chain Poisoning**: Mass deployment of malicious packages across npm and Maven ecosystems
+- **IoT Exploitation**: Leveraging known vulnerabilities in consumer and enterprise IoT devices
+- **Cross-Tenant Abuse**: Exploiting Microsoft Teams guest access to bypass security controls
+- **Browser Extension Malware**: Cryptocurrency transaction manipulation through malicious Chrome extensions
+- **Social Engineering**: North Korean Contagious Interview campaign targeting developers
+- **Domain Takeover**: Legacy package vulnerabilities enabling supply chain compromise
+- **MSP Compromise**: Targeting managed service providers for downstream victim access
+- **Evil Twin WiFi**: Airport-based WiFi attacks for credential harvesting
+- **AI-Powered Malware**: LLM-generated malicious code for evasion and automation
 
 ## Threat Actor Activities
 
-- **North Korean Groups**: Continuing Contagious Interview campaign with 197 new malicious npm packages deploying updated OtterCookie malware
-- **Bloody Wolf**: Expanding Java-based NetSupport RAT attacks targeting Kyrgyzstan and Uzbekistan since June 2025
-- **Qilin Ransomware Group**: Orchestrating sophisticated supply chain attack against South Korean MSP resulting in 28-victim data breach
-- **Scattered Lapsus$ Hunters**: Conducting mass extortion campaigns against major corporations with data theft and public exposure tactics
-- **ShadowV2 Operators**: Deploying new Mirai-based botnet malware to compromise IoT devices and expand attack infrastructure
+- **North Korean APT Groups**: Continued Contagious Interview campaign with 197 new npm packages deploying OtterCookie malware
+- **Bloody Wolf**: Java-based NetSupport RAT attacks targeting Kyrgyzstan and Uzbekistan since June 2025
+- **Qilin Ransomware Group**: Sophisticated supply chain attack against South Korean financial sector through MSP breach affecting 28 victims
+- **Scattered LAPSUS$ Hunters**: Mass extortion campaigns targeting major corporations with data theft operations
+- **ShadowV2 Operators**: IoT botnet development and deployment targeting consumer devices
+- **Shai-Hulud Campaign**: Multi-ecosystem supply chain attacks compromising development environments
+- **Cryptocurrency Scammers**: Chrome extension deployment for Solana transaction manipulation
