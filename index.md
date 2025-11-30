@@ -1,49 +1,54 @@
 # Exploitation Report
 
-Current cybersecurity activities reveal a complex landscape of active exploitations, supply chain compromises, and sophisticated attack campaigns. The most critical activity includes CISA's addition of CVE-2021-26829, an actively exploited cross-site scripting vulnerability in OpenPLC ScadaBR, to their Known Exploited Vulnerabilities catalog. North Korean threat actors continue their aggressive supply chain attacks through malicious npm packages targeting the Python ecosystem, while new botnet malware like ShadowV2 exploits known vulnerabilities in IoT devices from major vendors. Multiple high-profile data breaches have impacted millions of users, including incidents at Asahi Group Holdings, OpenAI, and the French Football Federation, demonstrating the ongoing success of threat actors in compromising enterprise systems.
+CISA has added an actively exploited cross-site scripting vulnerability in OpenPLC ScadaBR to its Known Exploited Vulnerabilities catalog, highlighting ongoing threats to industrial control systems. Concurrently, North Korean threat actors are conducting sophisticated supply chain attacks through malicious npm packages, while the Qilin ransomware group has executed a major supply chain attack targeting South Korean MSPs that compromised 28 victims. Additional threats include a new Mirai-based botnet targeting IoT devices, malicious LLM tools enabling less skilled attackers, and various data breaches affecting major organizations.
 
 ## Active Exploitation Details
 
 ### OpenPLC ScadaBR Cross-Site Scripting Vulnerability
-- **Description**: A cross-site scripting (XSS) vulnerability in OpenPLC ScadaBR that allows attackers to execute malicious scripts in users' browsers
-- **Impact**: Attackers can steal sensitive information, hijack user sessions, and perform unauthorized actions within the SCADA system
-- **Status**: Actively exploited in the wild, added to CISA's KEV catalog
+- **Description**: A cross-site scripting (XSS) vulnerability affecting OpenPLC ScadaBR, an industrial control system platform
+- **Impact**: Attackers can execute malicious scripts in users' browsers, potentially leading to credential theft, session hijacking, or unauthorized system access in industrial environments
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2021-26829
 
-### IoT Device Vulnerabilities Exploited by ShadowV2 Botnet
-- **Description**: Known vulnerabilities in D-Link, TP-Link, and other IoT vendor devices being exploited by new Mirai-based botnet malware
-- **Impact**: Remote code execution, device compromise, and botnet recruitment for distributed attacks
-- **Status**: Active exploitation targeting multiple IoT vendors
+### ShadowV2 Botnet IoT Exploits
+- **Description**: A new Mirai-based botnet malware targeting IoT devices from D-Link, TP-Link, and other vendors
+- **Impact**: Device compromise, botnet recruitment, and potential use in DDoS attacks or other malicious activities
+- **Status**: Active exploitation of known vulnerabilities in IoT devices
+
+### North Korean npm Package Supply Chain Attack
+- **Description**: Deployment of 197 malicious npm packages containing updated OtterCookie malware
+- **Impact**: Code execution, data theft, and potential compromise of development environments
+- **Status**: Active campaign by North Korean threat actors continuing the Contagious Interview operation
 
 ## Affected Systems and Products
 
-- **OpenPLC ScadaBR**: Industrial control systems and SCADA environments using this platform
-- **D-Link IoT Devices**: Various router and networking devices with known security flaws
-- **TP-Link IoT Devices**: Network infrastructure devices vulnerable to botnet recruitment
-- **npm Registry**: Over 830 packages compromised in Shai-Hulud v2 supply chain attack
-- **Maven Ecosystem**: Supply chain attack expansion from npm to Maven package repositories
-- **PyPI Packages**: Multiple Python packages vulnerable to domain takeover attacks
-- **Microsoft Teams**: Guest access feature creating cross-tenant security blind spots
-- **Asahi Group Holdings Systems**: Corporate infrastructure affecting 1.9 million individuals
-- **French Football Federation**: Administrative management software used by football clubs
-- **OpenAI API Infrastructure**: Customer data exposure through third-party analytics provider
+- **OpenPLC ScadaBR**: Industrial control system platform vulnerable to XSS attacks
+- **IoT Devices**: D-Link, TP-Link, and other vendor devices targeted by ShadowV2 botnet
+- **npm Ecosystem**: JavaScript package repository compromised with 197 malicious packages
+- **Maven Ecosystem**: Affected by Shai-Hulud v2 supply chain attack expanding from npm
+- **Microsoft Teams**: Guest access feature creating bypass opportunities for Defender protection
+- **Asahi Group Holdings**: Beer production company affected by September cyberattack impacting 1.9 million individuals
+- **French Football Federation**: Administrative management software compromised through account takeover
+- **OpenAI API**: Customer data exposed through Mixpanel vendor breach
+- **Gainsight**: Customer relationship platform with expanded impact from Salesforce security incident
+- **GitLab Cloud**: Over 17,000 secrets exposed across 2,800 domains in public repositories
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Malicious packages injected into npm, Maven, and PyPI repositories
-- **Cross-Site Scripting (XSS)**: Web application exploitation in SCADA systems
-- **Evil Twin WiFi Networks**: Wireless network impersonation at airports and public venues
-- **Domain Takeover**: Legacy Python bootstrap scripts creating takeover opportunities
-- **Botnet Recruitment**: IoT device compromise through known vulnerability exploitation
-- **Guest Access Exploitation**: Microsoft Teams cross-tenant security bypass techniques
-- **Phishing and Social Engineering**: NetSupport RAT delivery campaigns in Central Asia
-- **Third-Party Vendor Compromise**: Data breaches through analytics and service providers
+- **Supply Chain Attacks**: Malicious packages in npm and Maven repositories targeting developers
+- **Cross-Site Scripting (XSS)**: Web application vulnerabilities enabling script injection
+- **Botnet Recruitment**: IoT device exploitation for malware distribution and DDoS capabilities
+- **Evil Twin WiFi Networks**: Rogue access points deployed in airports to steal traveler data
+- **Account Takeover**: Compromised credentials used to access administrative systems
+- **Domain Takeover**: Legacy Python bootstrap scripts creating takeover risks in PyPI packages
+- **Prompt Injection**: AI model manipulation techniques targeting LLM-based systems
+- **Third-Party Vendor Compromise**: Indirect attacks through analytics and service providers
 
 ## Threat Actor Activities
 
-- **North Korean Hackers**: Deployed 197 malicious npm packages spreading updated OtterCookie malware through Contagious Interview campaign
-- **Bloody Wolf**: Expanded Java-based NetSupport RAT attacks targeting Kyrgyzstan and Uzbekistan since June 2025
-- **Qilin Ransomware Group**: Conducted sophisticated supply chain attack against South Korean MSP, resulting in 28-victim "Korean Leaks" data heist
-- **Scattered LAPSUS$ Hunters**: Continued mass extortion campaigns targeting major corporations with data theft and public exposure tactics
-- **ShadowV2 Botnet Operators**: Exploited AWS outage as testing opportunity while targeting IoT devices with Mirai-based malware
-- **Airport WiFi Attackers**: 44-year-old individual sentenced for operating evil twin networks across Australian airports over extended period
+- **North Korean Groups**: Conducting Contagious Interview campaign with 197 malicious npm packages and updated OtterCookie malware
+- **Bloody Wolf**: Expanding Java-based NetSupport RAT attacks targeting Kyrgyzstan and Uzbekistan since June 2025
+- **Qilin Ransomware Group**: Executed sophisticated supply chain attack on South Korean MSP, compromising 28 victims in "Korean Leaks" operation
+- **Scattered LAPSUS$ Hunters**: Prolific cybercriminal group conducting data theft and mass extortion campaigns against major corporations
+- **ShadowV2 Operators**: Deploying new Mirai-based botnet targeting IoT devices, using AWS outages as testing opportunities
+- **Shai-Hulud Campaign**: Second wave attackers compromising over 830 npm packages and expanding to Maven ecosystem
