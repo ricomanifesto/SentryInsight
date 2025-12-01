@@ -1,51 +1,58 @@
 # Exploitation Report
 
-Current cybersecurity threats reveal significant exploitation activity across multiple vectors, with particular emphasis on XSS vulnerabilities in industrial systems, mobile malware operations, and advanced persistent threat campaigns. The most critical concern is the active exploitation of CVE-2021-26829, a cross-site scripting vulnerability in OpenPLC ScadaBR that has been added to CISA's Known Exploited Vulnerabilities catalog. Additionally, sophisticated malware-as-a-service operations like Albiriox are targeting hundreds of mobile applications for fraud activities, while advanced threat actors such as Tomiris are deploying novel stealth techniques against government entities. The threat landscape is further complicated by large-scale supply chain attacks targeting software repositories and the emergence of AI-enhanced malware capabilities.
+Critical exploitation activity is dominated by supply chain attacks targeting software repositories and browser-based malware operations. The most significant threats include the ShadyPanda browser extension campaign affecting 4.3 million users, the Shai-Hulud 2.0 worm spreading across npm and Maven ecosystems, and North Korean threat actors distributing 197 malicious npm packages. Additionally, CISA has added CVE-2021-26829, an actively exploited XSS vulnerability in OpenPLC ScadaBR, to their Known Exploited Vulnerabilities catalog, indicating ongoing exploitation of industrial control systems.
 
 ## Active Exploitation Details
 
 ### OpenPLC ScadaBR Cross-Site Scripting Vulnerability
-- **Description**: A cross-site scripting (XSS) vulnerability affecting OpenPLC ScadaBR industrial control systems
-- **Impact**: Attackers can execute malicious scripts in the context of legitimate users, potentially compromising industrial control systems
-- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
+- **Description**: XSS vulnerability in OpenPLC ScadaBR industrial control system software
+- **Impact**: Allows attackers to execute malicious scripts in the context of affected applications, potentially leading to data theft or system compromise
+- **Status**: Actively being exploited in the wild, added to CISA KEV catalog
 - **CVE ID**: CVE-2021-26829
 
-### Albiriox Android Malware
-- **Description**: A sophisticated malware-as-a-service (MaaS) targeting over 400 mobile applications for on-device fraud
-- **Impact**: Enables screen control manipulation, credential theft, and financial fraud across multiple mobile platforms
-- **Status**: Actively distributed through MaaS model with comprehensive fraud capabilities
+### ShadyPanda Browser Extension Malware
+- **Description**: Long-running malware operation using seemingly legitimate Chrome and Edge browser extensions that evolve into malware after installation
+- **Impact**: Data theft, credential harvesting, and unauthorized access to user browsing activities
+- **Status**: Active campaign with 4.3 million installations already achieved
 
-### ShadowV2 Botnet
-- **Description**: Mirai-based botnet malware targeting IoT devices with known vulnerability exploits
-- **Impact**: Device compromise leading to botnet recruitment and potential DDoS attacks
-- **Status**: Active exploitation of IoT devices from multiple vendors including D-Link and TP-Link
+### Shai-Hulud 2.0 Supply Chain Attack
+- **Description**: Self-replicating worm targeting npm and Maven package repositories, evolved from previous npm-only attacks
+- **Impact**: Credential and secret theft from AWS, Google Cloud Platform, and Azure environments; supply chain compromise
+- **Status**: Actively spreading across multiple package ecosystems with over 830 compromised npm packages
+
+### North Korean OtterCookie Malware Campaign
+- **Description**: Contagious Interview campaign distributing updated OtterCookie malware through malicious npm packages
+- **Impact**: System compromise and data exfiltration targeting developers and software supply chains
+- **Status**: Ongoing with 197 new malicious packages deployed since last month
 
 ## Affected Systems and Products
 
+- **Chrome and Edge Browsers**: Browser extensions in ShadyPanda campaign affecting millions of users
 - **OpenPLC ScadaBR**: Industrial control system software vulnerable to XSS attacks
-- **Android Devices**: Over 400 mobile applications targeted by Albiriox malware
-- **IoT Devices**: D-Link, TP-Link, and other vendor devices targeted by ShadowV2 botnet
-- **Microsoft Teams**: Guest access feature bypassing Defender for Office 365 protections
-- **npm Registry**: 197 malicious packages deployed by North Korean actors
-- **PyPI Packages**: Legacy Python packages with domain-takeover vulnerabilities
-- **GitLab Repositories**: 5.6 million public repositories exposing over 17,000 secrets
-- **Maven Ecosystem**: Compromised packages in Shai-Hulud v2 supply chain attack
+- **npm Registry**: Over 830 packages compromised by Shai-Hulud 2.0 worm
+- **Maven Repository**: Newly targeted by Shai-Hulud 2.0 expansion beyond npm
+- **Cloud Platforms**: AWS, Google Cloud Platform, and Azure credentials targeted by supply chain attacks
+- **Android Devices**: Albiriox MaaS malware targeting 400+ applications for on-device fraud
+- **Microsoft Teams**: Guest access feature creating security blind spots in Defender for Office 365
+- **GitLab Cloud**: 5.6 million public repositories with over 17,000 exposed secrets across 2,800 domains
 
 ## Attack Vectors and Techniques
 
+- **Browser Extension Abuse**: Legitimate-appearing extensions that transform into malware post-installation
+- **Supply Chain Poisoning**: Self-replicating worms spreading through package repositories
+- **Social Engineering**: Fake job interviews and technical assessments to distribute malware
 - **Cross-Site Scripting (XSS)**: Exploitation of web application vulnerabilities in industrial systems
-- **Malware-as-a-Service**: Commercial distribution of sophisticated mobile malware
-- **Supply Chain Attacks**: Compromise of software repositories including npm and Maven ecosystems
-- **Guest Access Bypass**: Exploitation of Microsoft Teams cross-tenant functionality
-- **IoT Exploitation**: Targeting known vulnerabilities in internet-connected devices
-- **AI-Enhanced Malware**: Integration of large language models for evasion and code augmentation
-- **Evil Twin WiFi**: Deployment of rogue wireless networks in airports and public spaces
-- **Domain Takeover**: Exploitation of legacy bootstrap scripts in Python packages
+- **Malware-as-a-Service (MaaS)**: Albiriox offering comprehensive fraud capabilities to cybercriminals
+- **Evil Twin WiFi Networks**: Rogue access points targeting travelers in airports
+- **Domain Takeover**: Exploitation of legacy Python bootstrap scripts in PyPI packages
+- **Guest Access Exploitation**: Bypassing security controls through Microsoft Teams external tenant access
 
 ## Threat Actor Activities
 
-- **Tomiris Group**: Targeting government entities and foreign ministries using public-service implants for stealthier command-and-control operations
-- **Bloody Wolf**: Expanding Java-based NetSupport RAT attacks across Kyrgyzstan and Uzbekistan
-- **North Korean Actors**: Deploying 197 malicious npm packages spreading updated OtterCookie malware in Contagious Interview campaign
-- **Scattered LAPSUS$ Hunters**: Conducting mass data theft and extortion campaigns against major corporations
-- **Supply Chain Attackers**: Executing Shai-Hulud v2 campaign affecting both npm and Maven ecosystems with over 830 compromised packages
+- **ShadyPanda Group**: Operating long-running browser extension malware campaign with 4.3M+ installations
+- **North Korean APT**: Continuing Contagious Interview operations with updated OtterCookie malware distribution
+- **Shai-Hulud Operators**: Expanding supply chain attacks from npm to Maven repositories with credential theft capabilities
+- **Tomiris APT**: Targeting government entities and foreign ministries using public service implants for stealth
+- **Bloody Wolf**: Conducting Java-based NetSupport RAT attacks in Kyrgyzstan and Uzbekistan
+- **Albiriox Developers**: Offering Android malware-as-a-service for on-device fraud operations
+- **Scattered LAPSUS$ Hunters**: Mass extortion group stealing and publicly exposing corporate data
