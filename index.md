@@ -1,51 +1,43 @@
 # Exploitation Report
 
-Recent security activity reveals several critical exploitation trends, with Google addressing two actively exploited Android framework vulnerabilities among 107 total security flaws. Threat actors continue to leverage malicious browser extensions, NPM package poisoning campaigns, and supply chain attacks to compromise systems. The CISA has added CVE-2021-26829, an actively exploited cross-site scripting vulnerability in OpenPLC ScadaBR, to their Known Exploited Vulnerabilities catalog. Additionally, sophisticated campaigns like ShadyPanda have successfully compromised over 4.3 million browser extension installations, while North Korean actors persist with NPM-based malware distribution through the OtterCookie campaign.
+Critical Android vulnerabilities are under active exploitation, with Google confirming two framework bugs being exploited in the wild as part of their December security update addressing 107 total flaws. Simultaneously, multiple sophisticated threat campaigns are leveraging supply chain attacks through malicious packages and browser extensions, while ransomware groups continue targeting critical infrastructure and emergency services.
 
 ## Active Exploitation Details
 
 ### Android Framework Vulnerabilities
-- **Description**: Two critical vulnerabilities in the Android framework that were being actively exploited in the wild
-- **Impact**: Attackers could potentially gain unauthorized access to Android devices and compromise system security
-- **Status**: Patched by Google in their December 2024 monthly security update alongside 105 other vulnerabilities
-
-### OpenPLC ScadaBR Cross-Site Scripting Vulnerability
-- **Description**: Cross-site scripting (XSS) vulnerability in OpenPLC ScadaBR industrial control system software
-- **Impact**: Allows attackers to execute malicious scripts in users' browsers, potentially leading to session hijacking, data theft, or system manipulation
-- **Status**: Actively exploited in the wild and added to CISA's Known Exploited Vulnerabilities catalog
+- **Description**: Two Android framework vulnerabilities have been actively exploited in targeted attacks
+- **Impact**: Attackers can achieve system-level compromise and persistent access to affected Android devices
+- **Status**: Patched in Google's December 2024 Android security update
 - **CVE ID**: CVE-2021-26829
 
-### SmartTube Application Compromise
-- **Description**: Supply chain attack targeting the popular open-source SmartTube YouTube client for Android TV
-- **Impact**: Malicious update pushed to users after attackers gained access to developer signing keys, potentially compromising user devices
-- **Status**: Developer signing keys compromised, malicious updates distributed
+### OpenPLC ScadaBR Cross-Site Scripting Vulnerability
+- **Description**: Cross-site scripting vulnerability in OpenPLC ScadaBR industrial control system software
+- **Impact**: Remote code execution and unauthorized access to industrial control systems
+- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
 
 ## Affected Systems and Products
 
-- **Android Devices**: All Android systems vulnerable to the two framework bugs until December 2024 security update applied
-- **OpenPLC ScadaBR**: Industrial control system software affected by XSS vulnerability
-- **SmartTube for Android TV**: Popular YouTube client compromised through signing key theft
-- **Chrome and Edge Browser Extensions**: Over 4.3 million installations affected by ShadyPanda campaign
-- **NPM Registry**: 197 malicious packages deployed by North Korean actors in OtterCookie campaign
-- **Visual Studio Code Extensions**: OpenVSX and Microsoft Visual Studio marketplaces targeted by Glassworm malware
-- **Microsoft Teams**: Guest access feature creates bypass opportunities for Defender for Office 365
-- **PyPI Python Packages**: Legacy bootstrap scripts create domain takeover risks
+- **Android Operating System**: Framework vulnerabilities affecting multiple Android versions
+- **OpenPLC ScadaBR**: Industrial control system software vulnerable to XSS attacks
+- **Visual Studio Code Extensions**: Marketplace compromised with 4.3 million malicious installations via ShadyPanda campaign
+- **npm Package Registry**: 197 malicious packages deployed by North Korean threat actors
+- **SmartTube Android TV App**: Compromised through stolen developer signing keys
+- **Chrome and Edge Browsers**: Browser extensions turned into spyware affecting millions of users
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Attackers gaining access to developer signing keys and certificate infrastructure to distribute malicious updates
-- **Browser Extension Poisoning**: Long-term campaigns converting legitimate extensions into spyware through updates
-- **NPM Package Flooding**: Mass deployment of malicious packages to overwhelm detection systems
-- **Cross-Tenant Access Bypass**: Exploitation of Microsoft Teams guest access to bypass security controls
-- **Domain Takeover**: Leveraging abandoned domains in legacy Python packages for supply chain attacks
-- **Malware-as-a-Service**: Albiriox Android malware offering comprehensive fraud capabilities
-- **Evil Twin WiFi Networks**: Creating rogue access points to steal traveler data at airports
+- **Supply Chain Compromise**: Malicious npm packages and browser extensions used to deliver malware
+- **Code Signing Key Theft**: Attackers compromising developer signing keys to push malicious updates
+- **Browser Extension Hijacking**: Legitimate extensions converted to spyware through malicious updates
+- **Domain Takeover**: Legacy Python packages vulnerable to supply chain attacks via domain takeover
+- **Cross-Tenant Bypass**: Microsoft Teams guest access feature used to bypass Defender protections
+- **Evil Twin WiFi Networks**: Rogue wireless networks deployed in airports to steal traveler data
 
 ## Threat Actor Activities
 
-- **ShadyPanda**: Seven-year browser extension campaign amassing 4.3 million installations, converting legitimate extensions into spyware
-- **North Korean Actors**: Continued OtterCookie campaign with 197 new malicious NPM packages targeting developers
+- **ShadyPanda**: Seven-year campaign distributing malicious browser extensions with 4.3 million total installations
+- **North Korean Hackers**: Contagious Interview campaign deploying 197 malicious npm packages with updated OtterCookie malware
 - **Tomiris Group**: Russian-speaking APT targeting government and diplomatic entities in CIS states using public service implants for stealth
-- **Bloody Wolf**: Java-based NetSupport RAT attacks expanding into Kyrgyzstan and Uzbekistan since June 2025
-- **Glassworm Operators**: Third wave of malicious VS Code packages on OpenVSX and Microsoft marketplaces
-- **Inc Ransomware Gang**: Responsible for CodeRED emergency alert platform attack and data theft claims
+- **Bloody Wolf**: Expanding Java-based NetSupport RAT attacks in Kyrgyzstan and Uzbekistan
+- **Inc Ransomware Gang**: Responsible for CodeRED emergency alert platform compromise, claiming theft of sensitive subscriber data
+- **Glassworm Campaign**: Third wave of malicious Visual Studio Code packages targeting developers
