@@ -1,61 +1,56 @@
 # Exploitation Report
 
-Recent cybersecurity incidents reveal a concerning pattern of active exploitation across multiple attack vectors, with threat actors leveraging malicious packages, browser extensions, and compromised applications to target organizations and individuals. The most critical activity includes the Tomiris APT group's sophisticated espionage campaigns against government entities, the ShadyPanda operation affecting over 4.3 million users through malicious browser extensions, and the ongoing Glassworm malware campaign targeting Visual Studio Code packages. Additionally, supply chain attacks continue to proliferate with North Korean actors flooding npm repositories with malicious packages, while ransomware groups like Inc maintain pressure on critical infrastructure through targeted attacks on emergency services platforms.
+Current threat landscape shows significant active exploitation across multiple attack vectors, with threat actors leveraging compromised development environments, malicious browser extensions, and supply chain attacks to target organizations worldwide. The Tomiris APT group has evolved its tactics to use public service implants for stealthier command and control operations against government targets, while the ShadyPanda campaign has successfully compromised 4.3 million browser extension installations over seven years. Notable active exploitation includes CVE-2021-26829, a cross-site scripting vulnerability in OpenPLC ScadaBR that has been added to CISA's Known Exploited Vulnerabilities catalog. Additionally, multiple supply chain attacks are ongoing, including the third wave of Glassworm malware targeting VS Code packages, the return of the Shai-hulud 2.0 worm threatening cloud ecosystems, and North Korean threat actors deploying 197 malicious npm packages containing updated OtterCookie malware.
 
 ## Active Exploitation Details
 
 ### OpenPLC ScadaBR Cross-Site Scripting Vulnerability
-- **Description**: Cross-site scripting vulnerability in OpenPLC ScadaBR industrial control system software
-- **Impact**: Allows attackers to execute malicious scripts in users' browsers, potentially leading to credential theft and session hijacking
-- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
+- **Description**: A cross-site scripting (XSS) vulnerability affecting OpenPLC ScadaBR systems that allows attackers to execute malicious scripts in the context of legitimate users
+- **Impact**: Attackers can steal credentials, session tokens, and perform unauthorized actions on behalf of legitimate users in industrial control systems
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities (KEV) catalog
 - **CVE ID**: CVE-2021-26829
 
-### ShadyPanda Browser Extension Campaign
-- **Description**: Long-running malware operation using seemingly legitimate Chrome and Edge browser extensions that evolved into spyware
-- **Impact**: Data theft, credential harvesting, and surveillance of over 4.3 million users across a seven-year campaign
-- **Status**: Active exploitation with five extensions starting as legitimate tools before being weaponized
-
 ### Glassworm Malware Campaign
-- **Description**: Third wave of malicious Visual Studio Code packages on OpenVSX and Microsoft Visual Studio marketplaces
-- **Impact**: Code injection and potential system compromise for developers using infected extensions
-- **Status**: Active with 24 new malicious packages deployed in latest wave
+- **Description**: Third wave of malicious Visual Studio Code packages distributed through OpenVSX and Microsoft Visual Studio marketplaces, with 24 new packages added in the latest campaign
+- **Impact**: Code execution, data theft, and potential supply chain compromise affecting developers and development environments
+- **Status**: Active ongoing campaign since October, currently in third wave of attacks
 
-### SmartTube Application Compromise
-- **Description**: Popular open-source YouTube client for Android TV compromised through stolen developer signing keys
-- **Impact**: Malicious updates pushed to users, potentially compromising Android TV devices
-- **Status**: Supply chain attack successfully executed, malicious update distributed
+### Shai-hulud 2.0 Worm
+- **Description**: Self-replicating npm-package poisoning worm that has evolved to target cloud environments with enhanced credential stealing capabilities
+- **Impact**: Can steal credentials and secrets from AWS, Google Cloud Platform, and Azure cloud environments while spreading across npm ecosystems
+- **Status**: Active variant threatening cloud infrastructure with improved evasion techniques
 
-### Shai-hulud 2.0 npm Worm
-- **Description**: Self-replicating npm package poisoning worm targeting cloud environments
-- **Impact**: Credential and secret theft from AWS, Google Cloud Platform, and Azure environments
-- **Status**: Active variant threatening cloud ecosystem security
+### SmartTube Signing Key Compromise
+- **Description**: Popular open-source YouTube client for Android TV was compromised after attackers gained access to the developer's signing keys
+- **Impact**: Malicious updates pushed to legitimate users, potential for widespread device compromise and data theft
+- **Status**: Compromise confirmed, malicious updates distributed to user base
 
 ## Affected Systems and Products
 
-- **OpenPLC ScadaBR**: Industrial control system software vulnerable to XSS attacks
-- **Chrome and Edge Browser Extensions**: Over 4.3 million installations affected by ShadyPanda campaign
-- **Visual Studio Code Marketplace**: 24 malicious packages in latest Glassworm wave
-- **SmartTube for Android TV**: Popular YouTube client compromised via stolen signing keys
-- **npm Package Registry**: 197 malicious packages deployed by North Korean actors
-- **CodeRED Emergency Alert Platform**: Critical infrastructure targeted by Inc ransomware
-- **Coupang Retail Platform**: 33.7 million customer records compromised
-- **Asahi Group Holdings**: 1.9 million individuals affected in September cyberattack
+- **OpenPLC ScadaBR**: Industrial control systems and SCADA environments vulnerable to XSS attacks
+- **Visual Studio Code Extensions**: OpenVSX and Microsoft Visual Studio marketplaces affected by Glassworm malware packages
+- **npm Package Registry**: Cloud environments using npm packages at risk from Shai-hulud 2.0 worm propagation
+- **Browser Extensions**: Chrome and Edge extensions with over 4.3 million combined installations compromised by ShadyPanda
+- **SmartTube Android TV App**: Open-source YouTube client users affected by malicious update distribution
+- **CodeRED Emergency Platform**: Emergency alert system shut down following ransomware attack by Inc gang
+- **Coupang Retail Platform**: 33.7 million customer records exposed in data breach
+- **Asahi Group Holdings**: Up to 1.9 million individuals impacted by September cyberattack
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Malicious packages injected into npm registry and Visual Studio Code marketplaces
-- **Browser Extension Abuse**: Legitimate extensions weaponized for data theft and surveillance
-- **Code Signing Compromise**: Developer signing keys stolen to distribute malicious updates
-- **Cross-Site Scripting**: Industrial control systems targeted for credential harvesting
-- **Self-Replicating Worms**: Automated propagation through package dependencies
-- **Evil Twin WiFi Networks**: In-flight network attacks targeting travelers at airports
-- **Ransomware Deployment**: Critical infrastructure platforms shut down through encryption attacks
+- **Supply Chain Poisoning**: Malicious packages injected into npm registry and VS Code marketplaces to compromise developer environments
+- **Browser Extension Hijacking**: Legitimate extensions converted to spyware after gaining user trust over extended periods
+- **Signing Key Compromise**: Attackers gaining access to code signing certificates to distribute malicious updates through legitimate channels
+- **Public Service Implants**: Advanced persistent threat groups using public services as command and control infrastructure for stealth
+- **Cross-Site Scripting (XSS)**: Web application vulnerabilities exploited to execute malicious scripts in industrial control systems
+- **Evil Twin WiFi Networks**: Rogue wireless access points deployed in airports to steal traveler credentials and data
+- **Ransomware Operations**: Targeted attacks against critical infrastructure and emergency services platforms
 
 ## Threat Actor Activities
 
-- **Tomiris APT Group**: Russian-speaking actors targeting government and diplomatic entities in CIS states and Central Asia using new "Havoc" tools and public service implants for stealthier command and control
-- **ShadyPanda**: Seven-year browser extension campaign amassing millions of installations for data theft operations
-- **North Korean Actors**: Contagious Interview campaign deploying 197 npm packages with updated OtterCookie malware
-- **Inc Ransomware Gang**: Responsible for CodeRED emergency platform attack, claiming theft of sensitive subscriber data
-- **Bloody Wolf**: Java-based NetSupport RAT attacks expanded to target Kyrgyzstan and Uzbekistan
-- **Glassworm Campaign Operators**: Third wave of Visual Studio Code marketplace poisoning with 24 new malicious packages
+- **Tomiris APT Group**: Russian-speaking group targeting government and diplomatic entities in CIS member states and Central Asia using advanced public service implants for command and control
+- **ShadyPanda Campaign**: Seven-year browser extension operation affecting 4.3 million installations, evolving legitimate extensions into comprehensive spyware platforms
+- **North Korean Threat Actors**: Contagious Interview campaign operators deploying 197 malicious npm packages containing updated OtterCookie malware targeting developers
+- **Inc Ransomware Gang**: Claimed responsibility for CodeRED emergency platform attack and theft of sensitive subscriber data
+- **Bloody Wolf**: Cyber attack campaign targeting Kyrgyzstan and Uzbekistan since June 2025 using Java-based NetSupport RAT delivery
+- **Glassworm Operators**: Multi-wave campaign targeting VS Code development environments with 24 new malicious packages in latest iteration
