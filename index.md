@@ -1,48 +1,49 @@
 # Exploitation Report
 
-The current threat landscape reveals significant active exploitation across multiple attack vectors, with Android zero-day vulnerabilities being exploited in targeted attacks and widespread malicious campaigns targeting developer ecosystems. Two critical Android framework vulnerabilities are confirmed to be actively exploited in the wild, while sophisticated supply chain attacks through npm packages and browser extensions continue to compromise millions of users. Threat actors are leveraging enhanced backdoor capabilities, AI jailbreaking techniques, and infrastructure-as-a-service models to conduct espionage operations and financial fraud at scale.
+Current exploitation activity reveals a critical landscape dominated by zero-day attacks targeting Android systems and sophisticated supply chain compromises. Google has addressed two actively exploited Android framework vulnerabilities in their December security bulletin, while North Korean threat actors continue their aggressive campaign targeting software developers through malicious NPM packages and identity theft schemes. Iranian-linked MuddyWater group has deployed new backdoor capabilities against Israeli infrastructure, and widespread IP camera compromises in Korea have resulted in the theft of intimate footage from over 120,000 devices. The threat landscape is further complicated by browser extension malware campaigns affecting millions of users and AI-targeted attacks designed to evade modern security tools.
 
 ## Active Exploitation Details
 
-### Android Framework Zero-Day Vulnerabilities
-- **Description**: Two critical vulnerabilities in the Android framework that allow attackers to compromise device security through targeted exploitation
-- **Impact**: Complete device compromise, unauthorized access to sensitive data, and potential persistent access to affected Android systems
-- **Status**: Actively exploited in targeted attacks; patches released in December 2025 Android security bulletin addressing 107 total vulnerabilities
+### Android Framework Vulnerabilities
+- **Description**: Two critical vulnerabilities in the Android framework that have been actively exploited in targeted attacks
+- **Impact**: Attackers can achieve system-level compromise and execute arbitrary code on affected Android devices
+- **Status**: Patched in Google's December 2025 Android security bulletin addressing 107 total vulnerabilities
 
-### IP Camera Security Vulnerabilities
-- **Description**: Systematic exploitation of security weaknesses in over 120,000 IP cameras across South Korea, allowing unauthorized access to video streams
-- **Impact**: Mass surveillance breach with stolen intimate footage sold on foreign adult websites, severe privacy violations affecting thousands of users
-- **Status**: Active exploitation confirmed with arrests made; specific vulnerabilities and patch status not disclosed
+### IP Camera Security Flaws
+- **Description**: Multiple vulnerabilities in IP camera systems that allowed unauthorized access to camera feeds
+- **Impact**: Complete compromise of camera systems enabling theft of private footage and surveillance data
+- **Status**: Over 120,000 IP cameras across Korea were successfully compromised, with stolen footage sold on adult websites
 
-### Oracle E-Business Suite Vulnerabilities
-- **Description**: Security flaws in Oracle EBS systems allowing unauthorized access to sensitive institutional data
-- **Impact**: Data theft including personal information from university systems, potential exposure of student and employee records
-- **Status**: Actively exploited in August 2024 against University of Pennsylvania systems
+### Browser Extension Vulnerabilities
+- **Description**: Security flaws in popular browser extensions that were exploited to inject malicious code
+- **Impact**: Data theft, credential harvesting, and system surveillance affecting over 4.3 million users
+- **Status**: Seven-year-long campaign by ShadyPanda targeting legitimate extensions
 
 ## Affected Systems and Products
 
-- **Android Devices**: All Android versions affected by framework vulnerabilities, with patches available in December 2025 security update
-- **IP Cameras**: Over 120,000 IP camera systems in South Korea compromised through unspecified security weaknesses
-- **Oracle E-Business Suite**: Enterprise systems vulnerable to data theft attacks targeting educational institutions
-- **NPM Ecosystem**: Hundreds of malicious packages in Node Package Manager registry exposing up to 400,000 developer secrets
-- **Browser Extensions**: 4.3 million installations of malicious Chrome and Edge extensions turned into spyware
-- **Visual Studio Code Extensions**: 24 malicious extensions impersonating popular developer tools in Microsoft marketplace
+- **Android Devices**: All versions prior to December 2025 security update, particularly framework components
+- **IP Cameras**: Over 120,000 devices across Korea from various manufacturers
+- **Browser Extensions**: Multiple popular extensions with 4.3 million combined installations
+- **NPM Packages**: Over 197 malicious packages with 31,000+ downloads targeting developers
+- **Visual Studio Code Extensions**: 24 malicious extensions on Microsoft Visual Studio Marketplace and Open VSX
+- **Oracle E-Business Suite**: University of Pennsylvania systems compromised in August
+- **Microsoft Defender XDR Portal**: Service disruptions affecting threat hunting capabilities
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Shai-Hulud 2.0 worm self-replicating through npm packages to steal AWS, Google Cloud, and Azure credentials
-- **Extension Hijacking**: ShadyPanda campaign converting legitimate browser extensions into spyware over seven-year period
-- **AI Prompt Injection**: Poetry-based jailbreaking techniques increasing AI model attack success rates from 8% to 43%
-- **Social Engineering**: Fake Calendly invitations impersonating major brands to hijack Google Workspace and Facebook business accounts
-- **Identity Rental Schemes**: North Korean operatives recruiting legitimate developers to rent identities for illicit IT work
-- **Phishing Campaigns**: Sophisticated lures targeting ad manager accounts through spoofed brand communications
+- **Supply Chain Attacks**: Malicious NPM packages and browser extensions used as initial infection vectors
+- **Social Engineering**: Fake job interviews and identity rental schemes targeting developers
+- **Memory-Only Malware**: MuddyViper backdoor uses advanced evasion techniques to remain undetected
+- **AI Evasion**: Malicious packages designed specifically to fool AI-powered security scanners
+- **Phishing Campaigns**: Calendly-themed attacks impersonating major brands to steal credentials
+- **Remote Access Tools**: Havoc framework deployment for persistent access to target networks
 
 ## Threat Actor Activities
 
-- **MuddyWater (Iran)**: Evolved operations using new MuddyViper backdoor and Fooder loader for memory-only tactics against Israeli sectors including academia, engineering, government, manufacturing, technology, transportation, and utilities
-- **Lazarus Group (North Korea)**: Remote worker infiltration scheme captured live, targeting software development companies through fake employment operations
-- **ShadyPanda**: Long-term browser extension campaign spanning seven years with over 4.3 million compromised installations
-- **GlassWorm**: Supply chain campaign targeting developer tools through 24 malicious Visual Studio Code extensions
-- **Tomiris**: Russian-speaking group deploying new Havoc framework tools against government and diplomatic entities in CIS states and Central Asia
-- **Inc Ransomware Gang**: Responsible for CodeRED emergency alert platform attack, claiming theft of sensitive subscriber data
-- **North Korean IT Workers**: Systematic identity theft operations recruiting legitimate engineers for sanctions evasion and revenue generation
+- **MuddyWater (Iran)**: Deploying new MuddyViper backdoor against Israeli infrastructure across academia, engineering, government, manufacturing, technology, transportation, and utilities sectors
+- **Lazarus Group (North Korea)**: Operating fake IT worker schemes and identity rental programs to infiltrate organizations and generate revenue
+- **ShadyPanda**: Conducting seven-year browser extension campaign affecting 4.3 million users with spyware capabilities
+- **GlassWorm**: Returning with 24 malicious Visual Studio Code extensions impersonating popular developer tools
+- **Tomiris (Russia-linked)**: Targeting government and diplomatic entities in CIS member states and Central Asia using new Havoc framework tools
+- **Inc Ransomware Gang**: Successfully attacked CodeRED emergency alert platform, stealing sensitive subscriber data and forcing system shutdown
+- **Korean Cybercriminals**: Orchestrated large-scale IP camera hacking operation affecting over 120,000 devices nationwide
