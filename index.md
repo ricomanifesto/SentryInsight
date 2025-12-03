@@ -1,49 +1,48 @@
 # Exploitation Report
 
-Current exploitation activity reveals a critical landscape dominated by zero-day attacks targeting Android systems and sophisticated supply chain compromises. Google has addressed two actively exploited Android framework vulnerabilities in their December security bulletin, while North Korean threat actors continue their aggressive campaign targeting software developers through malicious NPM packages and identity theft schemes. Iranian-linked MuddyWater group has deployed new backdoor capabilities against Israeli infrastructure, and widespread IP camera compromises in Korea have resulted in the theft of intimate footage from over 120,000 devices. The threat landscape is further complicated by browser extension malware campaigns affecting millions of users and AI-targeted attacks designed to evade modern security tools.
+Multiple critical security incidents have emerged across various platforms, with Android zero-day vulnerabilities being actively exploited in targeted attacks, sophisticated supply chain campaigns targeting developers through malicious NPM packages, and advanced persistent threat groups deploying new backdoors in espionage operations. Notable activities include North Korean state-sponsored actors infiltrating software development environments, Iranian threat groups targeting Israeli infrastructure with advanced stealth techniques, and widespread exploitation of IP cameras leading to privacy violations. The security landscape demonstrates a concerning shift toward more sophisticated attack vectors including AI-powered evasion techniques and the commoditization of cybercrime tools through subscription-based models.
 
 ## Active Exploitation Details
 
-### Android Framework Vulnerabilities
-- **Description**: Two critical vulnerabilities in the Android framework that have been actively exploited in targeted attacks
-- **Impact**: Attackers can achieve system-level compromise and execute arbitrary code on affected Android devices
-- **Status**: Patched in Google's December 2025 Android security bulletin addressing 107 total vulnerabilities
+### Android Framework Zero-Day Vulnerabilities
+- **Description**: Two critical vulnerabilities in the Android framework are being actively exploited in targeted attacks
+- **Impact**: Attackers can compromise Android devices through these framework-level flaws, potentially gaining system-level access
+- **Status**: Patched in Google's December 2025 Android security bulletin alongside 105 other vulnerabilities
 
-### IP Camera Security Flaws
-- **Description**: Multiple vulnerabilities in IP camera systems that allowed unauthorized access to camera feeds
-- **Impact**: Complete compromise of camera systems enabling theft of private footage and surveillance data
-- **Status**: Over 120,000 IP cameras across Korea were successfully compromised, with stolen footage sold on adult websites
+### IP Camera Security Vulnerabilities
+- **Description**: Widespread exploitation of IP camera security flaws allowing unauthorized access to surveillance feeds
+- **Impact**: Unauthorized access to private video feeds, enabling theft and sale of intimate content
+- **Status**: Over 120,000 IP cameras compromised across South Korea, with suspects arrested for selling stolen footage
 
-### Browser Extension Vulnerabilities
-- **Description**: Security flaws in popular browser extensions that were exploited to inject malicious code
-- **Impact**: Data theft, credential harvesting, and system surveillance affecting over 4.3 million users
-- **Status**: Seven-year-long campaign by ShadyPanda targeting legitimate extensions
+### Oracle E-Business Suite Vulnerabilities
+- **Description**: Security flaws in Oracle E-Business Suite servers enabling unauthorized data access
+- **Impact**: Theft of documents containing personal information from enterprise systems
+- **Status**: Exploited against University of Pennsylvania in August, resulting in confirmed data breach
 
 ## Affected Systems and Products
 
-- **Android Devices**: All versions prior to December 2025 security update, particularly framework components
-- **IP Cameras**: Over 120,000 devices across Korea from various manufacturers
-- **Browser Extensions**: Multiple popular extensions with 4.3 million combined installations
-- **NPM Packages**: Over 197 malicious packages with 31,000+ downloads targeting developers
-- **Visual Studio Code Extensions**: 24 malicious extensions on Microsoft Visual Studio Marketplace and Open VSX
-- **Oracle E-Business Suite**: University of Pennsylvania systems compromised in August
-- **Microsoft Defender XDR Portal**: Service disruptions affecting threat hunting capabilities
+- **Android Devices**: Framework-level vulnerabilities affecting multiple Android versions
+- **IP Cameras**: Over 120,000 surveillance cameras compromised across South Korea
+- **NPM Ecosystem**: 197+ malicious packages with 31,000+ downloads targeting JavaScript developers
+- **Browser Extensions**: 24 malicious Visual Studio Code extensions in Microsoft Marketplace and Open VSX
+- **Oracle E-Business Suite**: Enterprise resource planning systems vulnerable to data theft
+- **Popular Browser Extensions**: 4.3 million installations compromised by ShadyPanda campaign over seven years
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Malicious NPM packages and browser extensions used as initial infection vectors
-- **Social Engineering**: Fake job interviews and identity rental schemes targeting developers
-- **Memory-Only Malware**: MuddyViper backdoor uses advanced evasion techniques to remain undetected
-- **AI Evasion**: Malicious packages designed specifically to fool AI-powered security scanners
-- **Phishing Campaigns**: Calendly-themed attacks impersonating major brands to steal credentials
-- **Remote Access Tools**: Havoc framework deployment for persistent access to target networks
+- **Supply Chain Poisoning**: Malicious NPM packages disguised as legitimate developer tools targeting software engineers
+- **Extension Marketplace Abuse**: Malicious browser extensions impersonating popular development tools to harvest credentials
+- **Social Engineering**: Fake IT recruitment schemes targeting developers for identity theft and remote work fraud
+- **Memory-Only Malware**: Advanced backdoors like MuddyViper operating entirely in memory to evade detection
+- **AI Evasion Techniques**: Hidden prompts and scripts designed to influence AI-driven security scanners
+- **Phishing Campaigns**: Calendly-themed attacks impersonating major brands to steal Google Workspace and Facebook credentials
 
 ## Threat Actor Activities
 
-- **MuddyWater (Iran)**: Deploying new MuddyViper backdoor against Israeli infrastructure across academia, engineering, government, manufacturing, technology, transportation, and utilities sectors
-- **Lazarus Group (North Korea)**: Operating fake IT worker schemes and identity rental programs to infiltrate organizations and generate revenue
-- **ShadyPanda**: Conducting seven-year browser extension campaign affecting 4.3 million users with spyware capabilities
-- **GlassWorm**: Returning with 24 malicious Visual Studio Code extensions impersonating popular developer tools
-- **Tomiris (Russia-linked)**: Targeting government and diplomatic entities in CIS member states and Central Asia using new Havoc framework tools
-- **Inc Ransomware Gang**: Successfully attacked CodeRED emergency alert platform, stealing sensitive subscriber data and forcing system shutdown
-- **Korean Cybercriminals**: Orchestrated large-scale IP camera hacking operation affecting over 120,000 devices nationwide
+- **MuddyWater (Iran-linked)**: Deploying new MuddyViper backdoor with Fooder loader against Israeli sectors including academia, engineering, government, manufacturing, and utilities
+- **Lazarus APT (North Korea)**: Operating sophisticated remote worker identity rental schemes to infiltrate organizations while evading sanctions
+- **ShadyPanda**: Conducting seven-year browser extension campaign compromising 4.3 million installations for data harvesting
+- **GlassWorm**: Returning with 24 malicious Visual Studio Code extensions targeting developers through supply chain attacks
+- **Tomiris (Russian-speaking)**: Targeting government and diplomatic entities in CIS states and Central Asia using new Havoc framework tools
+- **Shai-Hulud Operators**: Executing second major NPM supply chain attack exposing 400,000 developer secrets through infected packages
+- **Inc Ransomware Gang**: Attacking CodeRED emergency alert platform and claiming theft of sensitive subscriber data
