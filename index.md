@@ -1,44 +1,42 @@
 # Exploitation Report
 
-Critical exploitation activity is currently dominated by two confirmed Android zero-day vulnerabilities being exploited in targeted attacks, alongside sophisticated supply chain attacks targeting developers through malicious NPM packages and browser extensions. Iran-linked MuddyWater APT has evolved its operations with new backdoor capabilities targeting Israeli infrastructure, while North Korean threat actors continue their systematic compromise of software developers through elaborate social engineering schemes. The threat landscape reveals a concerning trend of legitimate platforms being weaponized for cybercrime, from browser extensions with millions of installations to developer tool marketplaces.
+Critical exploitation activity is currently dominated by two zero-day Android vulnerabilities being actively exploited in targeted attacks, alongside a sophisticated supply chain campaign targeting developers through malicious packages. The Android framework vulnerabilities pose significant risks to mobile device security, while threat actors continue to leverage supply chain attacks through malicious npm packages, PyTorch models, and Visual Studio extensions. Notable activities include North Korean state-sponsored groups conducting identity theft schemes for IT workers, Iranian threat actors deploying new backdoors against Israeli entities, and ransomware attacks disrupting critical emergency alert systems.
 
 ## Active Exploitation Details
 
 ### Android Framework Zero-Day Vulnerabilities
-- **Description**: Two vulnerabilities in the Android Framework are being actively exploited in targeted attacks against Android devices
-- **Impact**: Successful exploitation allows attackers to compromise Android devices in targeted campaigns
-- **Status**: Patched in Google's December 2025 Android security bulletin addressing 107 total vulnerabilities
+- **Description**: Two critical vulnerabilities in the Android framework that allow attackers to compromise targeted devices
+- **Impact**: Successful exploitation enables attackers to gain unauthorized access to Android devices in targeted attacks
+- **Status**: Actively exploited in the wild; patches released in December 2025 Android security bulletin
 
-### IP Camera Security Systems
-- **Description**: Mass exploitation of IP camera systems across South Korea affecting over 120,000 devices
-- **Impact**: Complete compromise of camera feeds allowing theft of intimate footage for commercial exploitation
-- **Status**: Law enforcement action resulted in arrests of four suspects involved in the operation
+### Picklescan Security Flaws
+- **Description**: Three critical security vulnerabilities in the open-source Picklescan utility used for scanning PyTorch models
+- **Impact**: Malicious actors can execute arbitrary code by loading untrusted PyTorch models, effectively bypassing security scans
+- **Status**: Vulnerabilities disclosed; allows malicious PyTorch models to evade detection and execute malicious code
 
 ## Affected Systems and Products
 
-- **Android Operating System**: Framework components affected by two actively exploited zero-day vulnerabilities
-- **IP Camera Systems**: Over 120,000 IP cameras compromised across South Korea
-- **NPM Package Registry**: Hundreds of malicious packages deployed affecting up to 400,000 developer secrets
-- **Browser Extensions**: Malicious extensions with over 4.3 million combined installations across Chrome and Edge
-- **Visual Studio Marketplace**: 24 malicious extensions impersonating popular developer tools
-- **Oracle E-Business Suite**: University of Pennsylvania servers compromised with personal data theft
-- **CodeRED Emergency Platform**: Emergency alert system shut down following ransomware attack
+- **Android Devices**: All Android systems affected by framework vulnerabilities; patches available in December 2025 security bulletin covering 107 total vulnerabilities
+- **PyTorch Models**: Machine learning models using Picklescan utility for security scanning
+- **IP Cameras**: Over 120,000 IP cameras in Korea compromised for unauthorized surveillance footage theft
+- **NPM Package Registry**: Multiple malicious packages including Shai-Hulud 2.0 attack exposing 400,000+ developer secrets
+- **Visual Studio Marketplace**: 24 malicious extensions impersonating popular developer tools in GlassWorm campaign
+- **Oracle E-Business Suite**: University of Pennsylvania systems compromised with personal data theft
+- **CodeRED Emergency Platform**: Critical emergency alert system shut down following ransomware attack
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Malicious NPM packages using sophisticated evasion techniques including hidden prompts and scripts to bypass AI security scanners
-- **Browser Extension Hijacking**: Legitimate extensions converted into spyware after gaining user trust and installations
-- **Social Engineering Campaigns**: North Korean operatives recruiting developers to rent their identities for illicit activities
-- **Phishing Operations**: Fake Calendly invites impersonating major brands to steal Google Workspace and Facebook business credentials
-- **Memory-Only Tactics**: Advanced persistent threat actors using fileless techniques to avoid detection
-- **Ransomware Deployment**: Inc ransomware gang targeting critical infrastructure including emergency alert systems
+- **Supply Chain Poisoning**: Malicious packages in npm registry, PyTorch models, and Visual Studio extensions targeting developers
+- **Social Engineering**: Fake Calendly invites impersonating major brands to steal Google Workspace and Facebook credentials
+- **Identity Theft Schemes**: North Korean actors recruiting legitimate developers to rent their identities for illicit operations
+- **Phishing Campaigns**: Multi-brand impersonation attacks targeting advertising account managers
+- **AI Evasion Techniques**: Hidden prompts and scripts designed to fool AI-powered security scanning tools
+- **Camera Network Exploitation**: Mass compromise of IP camera systems for unauthorized surveillance and content theft
 
 ## Threat Actor Activities
 
-- **MuddyWater (Iran-linked)**: Evolved operations targeting Israeli sectors with new MuddyViper backdoor, employing memory-only tactics and advanced evasion techniques across academia, engineering, government, manufacturing, technology, transportation, and utilities sectors
-- **Lazarus Group (North Korea)**: Sophisticated remote worker schemes captured live, involving elaborate recruitment processes to compromise developer identities for fundraising operations
-- **ShadyPanda**: Seven-year browser extension campaign converting legitimate extensions into spyware, affecting over 4.3 million users through gradual malicious updates
-- **GlassWorm**: Supply chain campaign targeting developer environments with 24 malicious Visual Studio extensions impersonating popular development tools
-- **Tomiris (Russian-speaking)**: Targeting government and diplomatic entities in CIS member states and Central Asia using new tools and tactics in cyber-espionage operations
-- **Shai-Hulud Operators**: Second-wave NPM attack exposing 400,000 developer secrets through hundreds of compromised packages and 30,000 GitHub repositories
-- **Inc Ransomware Gang**: Successful attack on CodeRED emergency alert platform resulting in system shutdown and claimed data theft
+- **North Korean State Actors**: Conducting sophisticated "fake IT worker" schemes, recruiting legitimate engineers to rent identities for fundraising operations; deploying 197+ malicious npm packages with 31,000+ downloads since October
+- **Iranian MuddyWater Group**: Evolved tactics with new MuddyViper backdoor and Fooder loader, targeting Israeli academia, engineering, government, manufacturing, technology, transportation, and utilities sectors
+- **GlassWorm Campaign**: Return of supply chain threat with 24 malicious Visual Studio extensions impersonating legitimate developer tools
+- **Russian Tomiris Group**: Targeting government and diplomatic entities in CIS member states and Central Asia using new "Havoc" tools and tactics
+- **Inc Ransomware Gang**: Successfully attacked CodeRED emergency alert platform, claiming theft of sensitive subscriber data and forcing system shutdown
