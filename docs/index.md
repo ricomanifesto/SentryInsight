@@ -1,50 +1,50 @@
 # Exploitation Report
 
-Critical exploitation activity has emerged across multiple fronts, with Google addressing two Android zero-day vulnerabilities that were actively exploited in targeted attacks as part of their December 2025 security bulletin covering 107 total flaws. North Korean threat actors continue sophisticated supply chain attacks through both the Lazarus APT's remote worker schemes and ongoing npm package poisoning campaigns, including the return of the Glassworm malware targeting developer environments. Iranian-linked hackers have deployed new backdoor capabilities against Israeli infrastructure, while the Tomiris group has evolved their tactics with public service implants for enhanced stealth in government targeting operations.
+The cybersecurity landscape is currently experiencing significant exploitation activity across multiple vectors, with Android zero-day vulnerabilities being actively exploited in targeted attacks and sophisticated supply chain campaigns targeting developer ecosystems. Google has confirmed two Android framework vulnerabilities are being exploited in the wild, while North Korean threat actors continue their elaborate schemes targeting IT workers and developers. Notable supply chain attacks include the Shai-Hulud 2.0 campaign exposing up to 400,000 developer secrets and the ongoing GlassWorm campaign infiltrating Visual Studio Code marketplaces. Additionally, browser extension campaigns like ShadyPanda have compromised over 4.3 million installations, and Iranian-linked actors are deploying new backdoors in targeted operations against Israeli infrastructure.
 
 ## Active Exploitation Details
 
-### Android Framework Zero-Day Vulnerabilities
-- **Description**: Two vulnerabilities in the Android framework that were being exploited in targeted attacks in the wild
-- **Impact**: Attackers can exploit these flaws to compromise Android devices in targeted operations
-- **Status**: Patched in Google's December 2025 Android security bulletin as part of 107 total vulnerability fixes
+### Android Framework Vulnerabilities
+- **Description**: Two vulnerabilities in the Android Framework have been actively exploited in targeted attacks
+- **Impact**: Attackers can exploit these framework flaws to compromise Android devices in targeted campaigns
+- **Status**: Patched in Google's December 2025 Android security bulletin addressing 107 total vulnerabilities
 
-### SmartTube YouTube Client Compromise
-- **Description**: The popular open-source SmartTube YouTube client for Android TV was compromised after attackers gained access to the developer's signing keys
-- **Impact**: Malicious updates were pushed to legitimate users through the official update mechanism
-- **Status**: Active compromise with malicious updates distributed to users
+### Shai-Hulud 2.0 NPM Supply Chain Attack
+- **Description**: Self-replicating npm-package poisoning worm targeting the Node Package Manager registry
+- **Impact**: Exposed approximately 400,000 raw developer secrets and credentials from AWS, Google Cloud Platform, and Azure environments
+- **Status**: Active campaign that infected hundreds of packages and published stolen data in 30,000 GitHub repositories
 
-### University of Pennsylvania Oracle E-Business Suite Breach
-- **Description**: Attackers successfully compromised Oracle E-Business Suite servers and stole documents containing personal information
-- **Impact**: Data theft of personal information from university systems
-- **Status**: Breach occurred in August with recent confirmation of data theft
+### SmartTube Android TV Application Compromise
+- **Description**: Popular open-source YouTube client for Android TV was compromised through developer signing key theft
+- **Impact**: Malicious updates were pushed to users through legitimate application channels
+- **Status**: Developer signing keys were compromised, allowing attackers to distribute malicious updates
 
 ## Affected Systems and Products
 
-- **Android Devices**: Framework vulnerabilities affecting Android operating system across multiple versions
-- **SmartTube Application**: Open-source YouTube client for Android TV platforms compromised via signing key theft
-- **Oracle E-Business Suite**: Enterprise resource planning systems targeted at University of Pennsylvania
-- **Visual Studio Code Extensions**: 24 malicious extensions impersonating legitimate developer tools in third wave of Glassworm campaign
-- **npm Ecosystem**: Over 197 malicious packages delivered by North Korean actors since October 10
-- **Browser Extensions**: ShadyPanda campaign affecting extensions with 4.3 million total installations over seven years
-- **Coupang Platform**: South Korean retail platform compromised affecting 33.7 million customers
+- **Android Devices**: Framework vulnerabilities affecting multiple Android versions
+- **NPM Package Manager**: Hundreds of infected packages in the registry ecosystem
+- **Visual Studio Code Marketplaces**: 24 malicious extensions on Microsoft Visual Studio Marketplace and Open VSX
+- **Browser Extensions**: Over 4.3 million installations across Chrome and other browsers affected by ShadyPanda campaign
+- **SmartTube Application**: Android TV users receiving compromised updates
+- **Oracle E-Business Suite**: University of Pennsylvania servers compromised in August
+- **CodeRED Emergency Platform**: Emergency alert system shut down following ransomware attack
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: North Korean actors using npm packages and VS Code extensions to target developers
-- **Identity Theft**: Lazarus APT recruiting legitimate developers to rent their identities for fraudulent employment
-- **Signing Key Compromise**: Attackers gaining access to legitimate application signing certificates to distribute malicious updates
-- **Backdoor Deployment**: Iranian groups using MuddyViper backdoor for persistent access to Israeli infrastructure
-- **Phishing Campaigns**: Fake Calendly invites spoofing major brands to steal Google Workspace and Facebook business credentials
-- **Browser Extension Manipulation**: Long-term campaigns turning legitimate extensions into spyware after gaining user trust
-- **Public Service Implants**: Tomiris group using legitimate public services as command and control infrastructure
+- **Supply Chain Poisoning**: Malicious packages injected into NPM registry and Visual Studio marketplaces
+- **Social Engineering**: North Korean actors using fake recruitment schemes to target developers
+- **Credential Harvesting**: Phishing campaigns using Calendly-themed lures to steal Google Workspace and Facebook credentials
+- **Browser Extension Hijacking**: Long-term campaigns converting legitimate extensions into spyware
+- **AI Security Tool Evasion**: Malicious npm packages using hidden prompts to influence AI-driven security scanners
+- **Identity Rental Schemes**: North Korean IT workers targeting engineers to rent their identities for illicit activities
+- **Signing Key Compromise**: Attackers gaining access to developer signing keys to push malicious updates
 
 ## Threat Actor Activities
 
-- **Lazarus APT**: Operating sophisticated remote worker schemes to infiltrate organizations by recruiting legitimate developers and renting their identities for fraudulent employment positions
-- **North Korean IT Workers**: Conducting ongoing npm package poisoning campaign with 197+ malicious packages and 31,000+ downloads targeting software developers
-- **Glassworm Campaign**: Third wave of malicious VS Code extension distribution through both Microsoft Visual Studio Marketplace and Open VSX platforms
-- **Iranian-Linked Groups**: Deploying MuddyViper backdoor against Israeli sectors including academia, engineering, government, manufacturing, technology, transportation, and utilities
-- **Tomiris Group**: Russian-speaking threat actor targeting government and diplomatic entities in CIS member states and Central Asia using evolved tactics including public service implants for stealthier command and control
-- **ShadyPanda**: Seven-year browser extension campaign affecting 4.3 million installations, turning legitimate extensions into spyware after establishing user trust
-- **Inc Ransomware Gang**: Responsible for CodeRED emergency alert platform attack with claims of stealing sensitive subscriber data
+- **North Korean IT Workers**: Operating sophisticated identity rental schemes targeting engineers and developers for fundraising activities
+- **Lazarus APT Group**: Conducting remote-worker schemes captured live during security research operations
+- **ShadyPanda**: Seven-year-long browser extension campaign affecting over 4.3 million installations
+- **GlassWorm Campaign**: Third wave of malicious Visual Studio Code packages impersonating popular developer tools
+- **Iranian-Linked Actors**: Deploying new MuddyViper backdoor targeting Israeli sectors including academia, engineering, government, manufacturing, technology, transportation, and utilities
+- **Tomiris Group**: Russian-speaking group targeting government and diplomatic entities in CIS member states and Central Asia using new tools and tactics
+- **Inc Ransomware Gang**: Responsible for CodeRED emergency platform attack, claiming theft of sensitive subscriber data
