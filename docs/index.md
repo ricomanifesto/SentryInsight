@@ -1,50 +1,58 @@
 # Exploitation Report
 
-Current exploitation activity reveals several critical vulnerabilities being actively targeted by threat actors across multiple platforms. The most severe concerns include a critical privilege escalation vulnerability in WordPress King Addons for Elementor (CVE-2025-8489) under active exploitation, maximum-severity React Server Components flaws (CVE-2025-5518) affecting cloud service providers, and a Windows LNK vulnerability that has been exploited as a zero-day by multiple state-backed and cybercrime groups for years before Microsoft's silent mitigation. Additional exploitation activity includes sophisticated browser weaponization campaigns by Chinese threat actors and advanced social engineering operations targeting financial institutions.
+Critical vulnerabilities are being actively exploited across multiple platforms, with attackers targeting WordPress plugins, React applications, Windows systems, and mobile browsers. The most significant threats include a maximum-severity React Server Components vulnerability allowing remote code execution, a WordPress plugin flaw enabling administrative privilege escalation, and a long-exploited Windows LNK vulnerability that Microsoft has only recently addressed. Additionally, sophisticated threat actors are leveraging malicious browser extensions, banking trojans, and supply chain attacks to compromise millions of users worldwide.
 
 ## Active Exploitation Details
 
-### WordPress King Addons for Elementor Privilege Escalation
-- **Description**: Critical privilege escalation vulnerability in the King Addons for Elementor WordPress plugin allowing attackers to obtain administrative permissions
-- **Impact**: Attackers can gain full administrative control over WordPress sites, create admin accounts, and potentially compromise entire website infrastructures
-- **Status**: Under active exploitation in the wild
-- **CVE ID**: CVE-2025-8489
-
-### React Server Components Remote Code Execution
-- **Description**: Maximum-severity security flaw in React Server Components (RSC) that enables unauthenticated remote code execution
-- **Impact**: Complete system compromise through remote code execution without authentication requirements
-- **Status**: Critical vulnerability with maximum CVSS score of 10, affecting over a third of cloud service providers
+### React Server Components Vulnerability
+- **Description**: A maximum-severity security flaw in React Server Components (RSC) that affects React and Next.js applications
+- **Impact**: Successful exploitation could result in unauthenticated remote code execution, potentially allowing attackers to take complete control of affected applications
+- **Status**: Critical vulnerability requiring immediate patching
 - **CVE ID**: CVE-2025-5518
 
-### Windows LNK Zero-Day Vulnerability
-- **Description**: High-severity Windows LNK file vulnerability that has been exploited as a zero-day since 2017
-- **Impact**: System compromise through malicious LNK file processing
-- **Status**: Microsoft silently mitigated the vulnerability after years of active exploitation by multiple threat groups
+### WordPress King Addons for Elementor Privilege Escalation
+- **Description**: A critical-severity privilege escalation vulnerability in the King Addons for Elementor plugin for WordPress
+- **Impact**: Attackers can obtain administrative permissions on WordPress sites, allowing them to create admin accounts and gain full control
+- **Status**: Currently under active exploitation in the wild
+- **CVE ID**: CVE-2025-8489
+
+### Windows LNK File Vulnerability
+- **Description**: A high-severity Windows LNK vulnerability that has been exploited by threat actors since 2017
+- **Impact**: Allows attackers to execute malicious code through specially crafted LNK files
+- **Status**: Microsoft has silently "mitigated" the vulnerability in November 2025 Patch Tuesday updates after years of active exploitation
+
+### Picklescan PyTorch Model Scanning Bypass
+- **Description**: Three critical security flaws in the open-source Picklescan utility used for scanning PyTorch models
+- **Impact**: Malicious actors can execute arbitrary code by loading untrusted PyTorch models that evade security scans
+- **Status**: Vulnerabilities allow bypass of security scanning mechanisms
 
 ## Affected Systems and Products
 
-- **WordPress Sites**: King Addons for Elementor plugin installations vulnerable to privilege escalation
-- **React Applications**: Applications using React Server Components and Next.js frameworks
-- **Windows Systems**: All Windows versions vulnerable to LNK file exploitation before recent mitigation
-- **Chrome and Edge Browsers**: Millions of browsers compromised through malicious extensions
-- **Oracle E-Business Suite**: University systems targeted in Clop ransomware campaigns
-- **IP Cameras**: Over 120,000 IP cameras compromised in Korea for surveillance footage theft
-- **PyTorch Models**: Machine learning systems using Picklescan utility vulnerable to code execution
+- **WordPress Sites**: King Addons for Elementor plugin installations vulnerable to privilege escalation attacks
+- **React Applications**: Applications using React Server Components, particularly those built with React and Next.js frameworks
+- **Windows Systems**: All Windows versions with LNK file handling capabilities, exploited since 2017
+- **Google Chrome and Microsoft Edge**: Millions of browsers compromised by ShadyPanda malicious extensions
+- **PyTorch Environments**: AI/ML development environments using Picklescan for model security scanning
+- **Financial Institutions**: 74 US banks and credit unions affected by Marquis Software Solutions data breach
+- **Oracle E-Business Suite**: University systems targeted in Clop ransomware campaign
+- **IP Cameras**: Over 120,000 IP cameras in Korea compromised for unauthorized surveillance
+- **Mobile Applications**: Android devices targeted by WhatsApp-based banking trojans in Brazil
 
 ## Attack Vectors and Techniques
 
-- **Malicious Browser Extensions**: ShadyPanda group using weaponized Chrome and Edge extensions for surveillance
-- **WhatsApp Worm Propagation**: Water Saci using HTML Application (HTA) files and PDFs via WhatsApp for banking trojan distribution
-- **Social Engineering**: Scattered Spider group employing advanced social engineering for initial access
-- **LNK File Exploitation**: Multiple threat actors using malicious LNK files for system compromise
-- **Supply Chain Attacks**: Malicious Rust packages targeting Web3 developers across multiple operating systems
-- **Oracle System Targeting**: Clop ransomware group exploiting vulnerable Oracle E-Business Suite instances
+- **Malicious Browser Extensions**: ShadyPanda threat group deploying extensions through official Chrome and Edge marketplaces for espionage
+- **WordPress Plugin Exploitation**: Direct attacks on vulnerable WordPress plugins to escalate privileges and create administrative accounts
+- **WhatsApp Worm Propagation**: Water Saci threat actor using sophisticated infection chains with HTA files and PDFs distributed via WhatsApp
+- **Supply Chain Attacks**: Malicious Rust crates targeting Web3 developers with OS-specific malware for Windows, macOS, and Linux
+- **LNK File Exploitation**: Multiple threat actors using crafted LNK files for code execution in ongoing campaigns since 2017
+- **Social Engineering**: DragonForce ransomware collaborating with Scattered Spider for advanced social engineering attacks
+- **DDoS Botnets**: Aisuru botnet conducting massive distributed denial-of-service attacks, including a record-breaking 29.7 Tbps attack
 
 ## Threat Actor Activities
 
-- **ShadyPanda Group**: China-based threat group quietly deploying malicious browser extensions to spy on millions of users across Chrome and Edge marketplaces
-- **Water Saci**: Actively evolving tactics with sophisticated infection chains targeting Brazilian financial institutions through WhatsApp propagation and AI-enhanced Python variants
-- **Clop Ransomware Group**: Conducting data theft campaigns against U.S. universities by targeting vulnerable Oracle E-Business Suite instances
-- **Scattered Spider**: English-speaking hackers collaborating with DragonForce ransomware operation, specializing in advanced social engineering and initial access
-- **MuddyWater (Iran)**: Evolving from noisy operations to stealthy espionage using new MuddyViper backdoor and memory-only tactics
-- **Multiple State-Backed Groups**: Exploiting Windows LNK vulnerability in zero-day attacks since 2017 before Microsoft's mitigation
+- **ShadyPanda**: China-based cyber-threat group weaponizing millions of browsers through malicious extensions on official marketplaces for long-term surveillance operations
+- **Water Saci**: Brazilian threat actor evolving tactics with AI-enhanced Python variants targeting banks and cryptocurrency exchanges through WhatsApp-based attacks
+- **MuddyWater**: Iran-linked APT group deploying new MuddyViper backdoor and Fooder loader, transitioning from noisy operations to stealthier espionage campaigns
+- **Clop Ransomware Group**: Conducting data theft campaigns targeting Oracle E-Business Suite instances at multiple US universities
+- **DragonForce Ransomware**: Expanding operations through collaboration with Scattered Spider group, leveraging advanced social engineering for initial access
+- **Multiple State-Backed Groups**: Various nation-state actors exploiting the Windows LNK vulnerability in ongoing campaigns since 2017
