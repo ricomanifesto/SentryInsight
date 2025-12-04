@@ -1,59 +1,60 @@
 # Exploitation Report
 
-Critical security vulnerabilities are actively being exploited across multiple platforms, with the most severe involving a Windows LNK vulnerability that has been under active exploitation by state-backed and cybercrime groups for years before Microsoft's recent silent patch. Meanwhile, the WordPress King Addons plugin (CVE-2025-8489) is experiencing widespread attacks that allow hackers to create administrator accounts, while sophisticated supply chain attacks targeting developers through malicious packages and extensions continue to pose significant threats to the software development ecosystem.
+Critical vulnerabilities are currently being exploited across multiple platforms, with several high-severity flaws demanding immediate attention. A maximum-severity React Server Components vulnerability (CVE-2025-5518) allows unauthenticated remote code execution, while a WordPress King Addons plugin flaw (CVE-2025-8489) is under active exploitation enabling attackers to create administrator accounts. Microsoft has silently patched a Windows LNK vulnerability that has been exploited by multiple threat actors since 2017 as zero-day attacks. Additionally, multiple data breaches have exposed customer information at major organizations including Leroy Merlin, Freedom Mobile, and University of Phoenix, with the latter being part of a broader Clop ransomware campaign targeting Oracle E-Business Suite instances.
 
 ## Active Exploitation Details
 
-### Windows LNK Vulnerability
-- **Description**: A high-severity Windows LNK vulnerability that has been exploited by multiple threat actors since 2017
-- **Impact**: Allows attackers to exploit Windows shortcut files for malicious purposes
-- **Status**: Recently mitigated by Microsoft through a silent patch in November 2025 Patch Tuesday updates after years of active zero-day exploitation
+### React Server Components Remote Code Execution Vulnerability
+- **Description**: A maximum-severity security flaw in React Server Components (RSC) that enables unauthenticated remote code execution attacks
+- **Impact**: Attackers can execute arbitrary code remotely without authentication, potentially leading to complete system compromise
+- **Status**: Recently disclosed vulnerability requiring immediate patching
+- **CVE ID**: CVE-2025-5518
 
-### WordPress King Addons Authentication Bypass
-- **Description**: A critical authentication bypass vulnerability in the King Addons for Elementor WordPress plugin
-- **Impact**: Allows attackers to create administrator accounts and gain full control over WordPress websites
-- **Status**: Currently under active exploitation in the wild
+### WordPress King Addons Plugin Privilege Escalation
+- **Description**: A critical security flaw in the King Addons for Elementor WordPress plugin that allows unauthorized administrative access
+- **Impact**: Attackers can create administrator accounts on vulnerable WordPress installations, gaining full control over websites
+- **Status**: Under active exploitation in the wild with high CVSS score
 - **CVE ID**: CVE-2025-8489
 
-### Oracle E-Business Suite Vulnerability
-- **Description**: Vulnerability in Oracle E-Business Suite instances that enables data theft campaigns
-- **Impact**: Allows threat actors to breach university systems and steal sensitive data
-- **Status**: Actively exploited by Clop ransomware group in targeted campaigns against educational institutions
+### Windows LNK File Vulnerability
+- **Description**: A high-severity Windows LNK vulnerability that has been exploited by multiple threat actors since 2017
+- **Impact**: Enables various attack vectors through malicious LNK file exploitation
+- **Status**: Recently mitigated by Microsoft in November 2025 Patch Tuesday updates after years of zero-day exploitation
 
-### Picklescan Security Flaws
-- **Description**: Three critical security flaws in the open-source Picklescan utility used for scanning PyTorch models
-- **Impact**: Allows malicious actors to execute arbitrary code by loading untrusted PyTorch models while evading security scans
-- **Status**: Recently disclosed vulnerabilities with active exploitation potential
+### Oracle E-Business Suite Vulnerabilities
+- **Description**: Vulnerabilities in Oracle E-Business Suite instances targeted by Clop ransomware group
+- **Impact**: Data theft and potential system compromise affecting multiple universities and organizations
+- **Status**: Actively exploited in coordinated campaign against educational institutions
 
 ## Affected Systems and Products
 
-- **WordPress Sites**: King Addons for Elementor plugin installations vulnerable to authentication bypass
-- **Windows Systems**: All Windows versions affected by the LNK vulnerability prior to November 2025 patches
-- **Oracle E-Business Suite**: University and enterprise installations targeted by Clop ransomware group
-- **IP Cameras**: Over 120,000 IP cameras in South Korea compromised for unauthorized surveillance
-- **NPM Ecosystem**: Hundreds of packages infected with Shai-Hulud 2.0 malware exposing developer secrets
-- **PyTorch Environments**: Machine learning systems using Picklescan utility vulnerable to code execution
-- **Visual Studio Code**: Extensions marketplace infiltrated with 24 malicious GlassWorm extensions
+- **React and Next.js Applications**: Applications using React Server Components vulnerable to remote code execution
+- **WordPress Sites with King Addons**: WordPress installations using the King Addons for Elementor plugin
+- **Windows Systems**: All Windows versions with unpatched LNK file handling vulnerabilities
+- **Oracle E-Business Suite**: Vulnerable instances targeted in Clop ransomware campaigns
+- **PyTorch Models**: Systems using Picklescan utility vulnerable to malicious model execution
+- **NPM Ecosystem**: Node.js developers affected by Shai-Hulud 2.0 malware campaign exposing 400,000 secrets
+- **IP Cameras**: Over 120,000 IP cameras in Korea compromised for unauthorized surveillance
+- **Visual Studio Extensions**: Development environments compromised by 24 malicious GlassWorm extensions
 
 ## Attack Vectors and Techniques
 
-- **LNK File Exploitation**: Malicious Windows shortcut files used to execute attacks
-- **Authentication Bypass**: Exploiting plugin vulnerabilities to create unauthorized administrator accounts
-- **Supply Chain Attacks**: Malicious packages and extensions distributed through legitimate software repositories
-- **WhatsApp Worm Propagation**: Banking trojans spreading through WhatsApp using HTML Application (HTA) files and PDFs
-- **Social Engineering**: North Korean IT workers using fake identities to infiltrate development teams
-- **NFC Relay Attacks**: RelayNFC fraud targeting banking and payment systems
-- **DDoS Amplification**: Aisuru botnet launching record-breaking 29.7 Tbps attacks
-- **Camera Hacking**: Mass compromise of IP cameras for unauthorized surveillance and content distribution
+- **Remote Code Execution**: Exploitation of RSC vulnerabilities to execute arbitrary code without authentication
+- **Privilege Escalation**: WordPress plugin exploitation to gain administrator privileges
+- **Malicious LNK Files**: Zero-day exploitation of Windows LNK file handling for various attack scenarios
+- **Supply Chain Attacks**: GlassWorm campaign distributing malicious Visual Studio extensions and NPM packages
+- **Social Engineering**: Advanced techniques used by Scattered Spider group in DragonForce ransomware operations
+- **WhatsApp Worm Propagation**: Water Saci using HTML Application files and PDFs to spread banking trojans
+- **Botnet Infrastructure**: Aisuru botnet launching record-breaking 29.7 Tbps DDoS attacks
+- **Camera Exploitation**: Mass compromise of IP cameras for surveillance and intimate content theft
 
 ## Threat Actor Activities
 
-- **Multiple State-Backed Groups**: Actively exploiting Windows LNK vulnerability since 2017 in zero-day attacks
-- **Clop Ransomware Group**: Conducting data theft campaigns targeting Oracle E-Business Suite vulnerabilities at universities
-- **Water Saci**: Evolving Brazilian threat actor using sophisticated infection chains targeting banking systems via WhatsApp
-- **DragonForce Ransomware**: Expanding operations through collaboration with Scattered Spider group for enhanced social engineering capabilities
-- **GlassWorm Campaign**: Supply chain attackers distributing malicious Visual Studio Code extensions impersonating developer tools
-- **Lazarus APT**: North Korean group operating fake IT worker schemes to infiltrate organizations and steal funds
-- **MuddyWater**: Iranian APT group deploying new MuddyViper backdoor with improved stealth capabilities
-- **Shai-Hulud Operators**: Conducting large-scale NPM supply chain attacks exposing up to 400,000 developer secrets
-- **Korean Cybercriminals**: Organized group hacking over 120,000 IP cameras and selling intimate footage
+- **Clop Ransomware Group**: Conducting coordinated data theft campaign targeting Oracle E-Business Suite instances at universities and organizations
+- **Water Saci**: Evolving tactics with sophisticated infection chains using WhatsApp worm propagation and AI-enhanced Python variants targeting Brazilian banking systems
+- **DragonForce Ransomware**: Expanded operations in 2025 through collaboration with Scattered Spider group, employing advanced social engineering techniques
+- **GlassWorm Campaign**: Returned with 24 malicious Visual Studio extensions impersonating popular developer tools to compromise development environments
+- **Lazarus APT**: Operating remote worker infiltration schemes captured live by researchers, demonstrating sophisticated social engineering tactics
+- **MuddyWater (Iran)**: Enhanced operations with new MuddyViper backdoor and Fooder loader, transitioning to more stealthy memory-only espionage tactics
+- **Korean Cybercriminals**: Organized group that compromised over 120,000 IP cameras and sold stolen intimate footage to foreign adult websites
+- **Aisuru Botnet Operators**: Launched over 1,300 DDoS attacks in three months, setting new records with 29.7 Tbps peak attack volume
