@@ -1,74 +1,74 @@
 # Exploitation Report
 
-Current cybersecurity threat landscape reveals several critical vulnerabilities under active exploitation, with significant focus on React2Shell attacks, Apache Tika vulnerabilities, and malicious package distribution campaigns. North Korean threat actors are leveraging React2Shell flaws to deploy sophisticated malware implants, while ransomware groups are evolving their tactics to abuse endpoint detection and response systems. The WordPress ecosystem faces ongoing exploitation through vulnerable plugins, and developer-focused attacks are increasing through malicious extensions and packages across multiple platforms.
+Current threat activity shows a critical escalation in exploitation targeting enterprise systems and development environments. North Korean threat actors have rapidly adopted the React2Shell vulnerability to deploy sophisticated malware including the newly discovered EtherRAT, while Microsoft addressed three zero-day vulnerabilities in its December 2025 Patch Tuesday, including one actively exploited flaw. Ransomware groups are leveraging advanced packing services and EDR evasion techniques, with initial access brokers like Storm-0249 evolving their tactics to include fileless PowerShell attacks and DLL sideloading. The exploitation landscape is further complicated by supply chain attacks targeting developer tools through malicious VSCode extensions and compromised package repositories across multiple ecosystems.
 
 ## Active Exploitation Details
 
 ### React2Shell Vulnerability
-- **Description**: A critical flaw enabling remote code execution that has seen rapid exploitation escalation since public disclosure
-- **Impact**: Allows threat actors to deploy advanced malware implants like EtherRAT with multiple persistence mechanisms and Ethereum blockchain communication capabilities
-- **Status**: Under active exploitation by North Korean hackers with increasing attack activity from multiple threat actors
+- **Description**: Critical security flaw in React Server Components (RSC) that allows remote code execution
+- **Impact**: Enables attackers to deploy malware, establish persistent access, and execute arbitrary code on affected systems
+- **Status**: Actively exploited by North Korean threat actors and multiple other groups
 - **CVE ID**: CVE-2025-55182
 
+### Microsoft December 2025 Zero-Day Vulnerabilities
+- **Description**: Three zero-day vulnerabilities patched in Microsoft's December 2025 Patch Tuesday update
+- **Impact**: One vulnerability was actively exploited in the wild, two others were publicly disclosed
+- **Status**: Patches released addressing 57 total security vulnerabilities including the three zero-days
+- **CVE ID**: Not specified in the articles
+
 ### Apache Tika Critical Vulnerability
-- **Description**: A maximum-severity vulnerability in Apache Tika that was incompletely patched, requiring an updated advisory
-- **Impact**: Enables attackers to execute arbitrary code remotely
-- **Status**: Apache has issued an updated fix after the initial patch missed the full scope of the vulnerability
-
-### Sneeit WordPress Plugin RCE
-- **Description**: Critical remote code execution vulnerability in the Sneeit Framework plugin for WordPress
-- **Impact**: Allows attackers to execute arbitrary code on vulnerable WordPress installations
-- **Status**: Actively exploited in the wild according to Wordfence data
-- **CVE ID**: CVE-2025-[number not specified in article]
-
-### Ivanti Endpoint Manager Code Execution Flaw
-- **Description**: Critical vulnerability in Ivanti's Endpoint Manager (EPM) solution
-- **Impact**: Enables remote code execution by attackers
-- **Status**: Newly disclosed with patch available from Ivanti
-
-### ICTBroadcast Vulnerability
-- **Description**: Security flaw being exploited to fuel Frost Botnet attacks
-- **Impact**: Enables botnet expansion and remote control of compromised systems
-- **Status**: Under active exploitation for botnet operations
+- **Description**: Maximum severity vulnerability in Apache Tika that was incompletely patched in an earlier fix
+- **Impact**: Critical security exposure requiring updated remediation
+- **Status**: Apache Software Foundation issued updated advisory and new patch
+- **CVE ID**: Not specified in the articles
 
 ### Gemini Enterprise No-Click Vulnerability
-- **Description**: Critical flaw allowing attackers to add malicious instructions to common documents
+- **Description**: Critical flaw allowing attackers to inject malicious instructions into common documents
 - **Impact**: Enables exfiltration of sensitive corporate information without user interaction
-- **Status**: Fixed by Google after discovery
+- **Status**: Fixed by Google
+- **CVE ID**: Not specified in the articles
+
+### FortiCloud SSO Authentication Bypass
+- **Description**: Two critical vulnerabilities in FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager
+- **Impact**: Allows attackers to bypass FortiCloud SSO authentication mechanisms
+- **Status**: Security updates released by Fortinet
+- **CVE ID**: Not specified in the articles
+
+### Ivanti Endpoint Manager Code Execution Flaw
+- **Description**: Critical vulnerability in Ivanti's Endpoint Manager solution
+- **Impact**: Enables remote code execution on affected systems
+- **Status**: Newly disclosed, patches available
+- **CVE ID**: Not specified in the articles
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager**: EPM solution with critical remote code execution vulnerability
-- **Apache Tika**: Document processing framework with maximum-severity vulnerability
-- **WordPress Sites**: Running vulnerable Sneeit Framework plugin
-- **ICTBroadcast Systems**: Telephony systems being exploited for botnet operations
-- **React-based Applications**: Applications vulnerable to React2Shell exploitation
-- **Google Gemini Enterprise**: AI platform with document-based attack vectors
-- **Visual Studio Code**: Development environment with malicious extensions
-- **Maritime DVR Systems**: Digital video recording systems in maritime logistics sector
-- **Android Devices**: Mobile platforms affected by FvncBot, SeedSnatcher, and ClayRat malware
-- **Developer Package Ecosystems**: npm, Go, Rust, and VS Code marketplace packages
+- **Microsoft Windows Systems**: Windows 10 and Windows 11 receiving critical security updates including zero-day patches
+- **React Server Components**: Applications using RSC framework vulnerable to React2Shell exploitation
+- **Apache Tika**: Document processing systems using affected versions
+- **Google Gemini Enterprise**: Corporate AI systems exposed to document-based attacks
+- **Fortinet Products**: FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager with SSO bypass vulnerabilities
+- **Ivanti Endpoint Manager**: Enterprise endpoint management deployments
+- **Microsoft Visual Studio Code**: Development environments with malicious extensions
+- **Package Repositories**: npm, Go, Rust, and other developer package ecosystems
 
 ## Attack Vectors and Techniques
 
-- **React2Shell Exploitation**: Leveraging framework vulnerabilities to deploy sophisticated malware with blockchain communication
-- **Document-Based Attacks**: Injecting malicious instructions into common documents for data exfiltration
-- **Malicious Package Distribution**: Deploying stealer malware through legitimate development platforms
-- **EDR Abuse**: Using endpoint detection and response solutions to load malware stealthily
-- **DLL Sideloading**: Loading malicious dynamic link libraries alongside legitimate applications
-- **Fileless PowerShell Attacks**: Memory-resident attacks using Windows PowerShell
-- **ClickFix Social Engineering**: Tricking users into executing malicious code
-- **Command Injection**: Exploiting DVR systems for device hijacking and lateral movement
-- **Packer-as-a-Service**: Using Shanya EXE packer to hide EDR killing tools
+- **React2Shell Exploitation**: North Korean actors leveraging critical RSC vulnerability to deploy EtherRAT malware with Ethereum-based command and control
+- **Fileless PowerShell Attacks**: Storm-0249 using memory-resident techniques to evade detection
+- **DLL Sideloading**: Advanced persistence mechanisms exploiting trusted Windows processes
+- **EDR Abuse**: Initial access brokers manipulating endpoint detection systems for stealthy malware execution
+- **Supply Chain Poisoning**: Malicious extensions in VSCode Marketplace delivering information stealers
+- **Packer-as-a-Service**: Shanya platform providing obfuscation services to ransomware operators
+- **ClickFix Social Engineering**: Domain spoofing combined with deceptive user interface elements
+- **Document-Based Injection**: Gemini Enterprise attacks using malicious instructions in common file formats
 
 ## Threat Actor Activities
 
-- **North Korean Hackers**: Actively exploiting React2Shell vulnerability to deploy EtherRAT malware with advanced persistence mechanisms
-- **Storm-0249**: Initial access broker evolving tactics to include domain spoofing, DLL sideloading, and fileless PowerShell attacks
-- **STAC6565/Gold Blade**: Targeting Canadian organizations in 80% of attacks, deploying QWCrypt ransomware
+- **North Korean Groups**: Actively exploiting React2Shell to deploy EtherRAT malware with advanced persistence and Ethereum-based C2 communication
+- **Storm-0249**: Initial access broker evolving tactics to include advanced techniques like fileless PowerShell, DLL sideloading, and EDR manipulation
+- **STAC6565**: Threat cluster targeting Canadian organizations in 80% of their attacks, deploying QWCrypt ransomware
+- **Gold Blade**: Ransomware group utilizing QWCrypt payloads in targeted attacks
+- **JS#SMUGGLER Campaign**: Using compromised websites to distribute NetSupport RAT through sophisticated delivery mechanisms
 - **GrayBravo**: Expanding malware service infrastructure with CastleLoader being used by four distinct threat clusters
-- **JS#SMUGGLER Campaign**: Using compromised websites to distribute NetSupport RAT
-- **Spanish Data Thief**: 19-year-old arrested for stealing 64 million personal records from nine companies
-- **Ukrainian Nationals**: Three arrested in Poland for attempting to damage IT systems using advanced hacking equipment
-- **Ransomware Groups**: Multiple gangs using Shanya packer-as-a-service to hide EDR killing operations
-- **Broadside Attackers**: Targeting maritime logistics sector with Mirai variant exploiting DVR system vulnerabilities
+- **Ransomware Groups**: Multiple operators adopting Shanya packing service for EDR evasion and stealth operations
+- **Spanish Teen Hacker**: Individual actor responsible for stealing 64 million personal data records from nine companies
