@@ -1,57 +1,65 @@
 # Exploitation Report
 
-Current threat landscapes reveal active exploitation of critical zero-day vulnerabilities and sophisticated attack campaigns targeting enterprise infrastructure. Microsoft's December 2025 Patch Tuesday addressed 57 vulnerabilities including three zero-days, with one actively exploited in the wild. North Korean threat actors are leveraging the React2Shell vulnerability to deploy new EtherRAT malware, while ransomware groups increasingly utilize advanced packing services and EDR evasion techniques. Critical vulnerabilities in enterprise software including SAP products, Fortinet FortiCloud SSO, and Ivanti Endpoint Manager present immediate risks to organizations worldwide.
+Critical exploitation activity is currently focused on multiple zero-day vulnerabilities and recently disclosed flaws across major enterprise platforms. Microsoft's December 2025 Patch Tuesday addressed one actively exploited zero-day vulnerability alongside two publicly disclosed zero-days, while North Korean threat actors have rapidly weaponized the React2Shell vulnerability to deploy new malware variants. Additionally, critical authentication bypass vulnerabilities in Fortinet's FortiCloud SSO system and code execution flaws in Ivanti Endpoint Manager require immediate attention. The exploitation landscape is further complicated by ransomware groups increasingly leveraging packer-as-a-service platforms and EDR evasion techniques to maintain persistence in enterprise environments.
 
 ## Active Exploitation Details
 
+### Microsoft Zero-Day Vulnerability
+- **Description**: An unspecified zero-day vulnerability in Microsoft Windows operating systems that is currently being exploited in the wild
+- **Impact**: Successful exploitation allows attackers to compromise Windows systems, with proof-of-concept exploit code publicly available for related flaws
+- **Status**: Actively exploited, patched in Microsoft's December 2025 Patch Tuesday update addressing 57 total vulnerabilities including 3 zero-days
+
 ### React2Shell Vulnerability
-- **Description**: Critical security flaw in React Server Components (RSC) allowing remote exploitation
-- **Impact**: Threat actors can deploy malware including the new EtherRAT implant which uses Ethereum smart contracts for command and control communication
-- **Status**: Actively exploited by North Korean-linked threat actors with exploitation activity ramping up since public disclosure
+- **Description**: A critical flaw in React Server Components (RSC) that enables remote code execution through server-side component manipulation
+- **Impact**: Allows threat actors to deploy malware payloads and gain initial access to targeted systems
+- **Status**: Active exploitation ongoing with increasing attack volume, being leveraged by North Korean-linked actors
 - **CVE ID**: CVE-2025-55182
 
-### Microsoft Windows Zero-Day
-- **Description**: Actively exploited zero-day vulnerability in Windows systems
-- **Impact**: Enables threat actors to execute arbitrary code and compromise target systems
-- **Status**: Actively exploited in the wild, patched in December 2025 Patch Tuesday release
-- **Status**: Patches available through KB5071546 extended security update and cumulative updates
-
 ### Apache Tika Maximum Severity Vulnerability
-- **Description**: Critical vulnerability in Apache Tika that was incompletely patched in previous fix
-- **Impact**: Maximum severity rating indicates potential for complete system compromise
-- **Status**: Updated advisory and patches issued after discovery that original fix missed full scope of vulnerability
+- **Description**: A critical vulnerability in Apache Tika that was incompletely patched, requiring a second security advisory and updated fix
+- **Impact**: Allows attackers to achieve remote code execution on systems processing documents through Tika
+- **Status**: Previously patched fix was insufficient, requiring updated patches with maximum severity rating
 
-### Google Gemini Enterprise No-Click Vulnerability
-- **Description**: Critical vulnerability enabling attackers to add malicious instructions to common documents
-- **Impact**: Allows exfiltration of sensitive corporate information without user interaction
-- **Status**: Fixed by Google, categorized as critical severity
+### Fortinet FortiCloud SSO Authentication Bypass
+- **Description**: Critical authentication bypass vulnerabilities in FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager affecting FortiCloud Single Sign-On functionality
+- **Impact**: Attackers can bypass authentication mechanisms and gain unauthorized access to Fortinet-protected resources
+- **Status**: Critical security updates released by Fortinet to address the bypass flaws
+
+### Ivanti Endpoint Manager Code Execution Flaw
+- **Description**: A newly disclosed critical vulnerability in Ivanti's Endpoint Manager (EPM) solution enabling remote code execution
+- **Impact**: Allows attackers to execute arbitrary code remotely on systems running the affected Endpoint Manager software
+- **Status**: Critical vulnerability requiring immediate patching, newly disclosed by Ivanti
+
+### SAP Critical Vulnerabilities
+- **Description**: Three critical-severity security flaws across multiple SAP products identified in December security updates
+- **Impact**: Successful exploitation could lead to authentication bypass and code execution across affected SAP environments
+- **Status**: December security updates released addressing 14 total vulnerabilities including the three critical flaws
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows 10 and Windows 11 systems affected by zero-day vulnerabilities and 57 total security flaws
-- **React Server Components**: Applications using RSC technology vulnerable to React2Shell exploitation
-- **SAP Products**: Multiple SAP solutions affected by three critical vulnerabilities across various product lines
-- **Fortinet Products**: FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager affected by critical FortiCloud SSO authentication bypass flaws
-- **Ivanti Endpoint Manager**: Critical remote code execution vulnerability in EPM solution
-- **Apache Tika**: Document processing framework affected by maximum severity vulnerability
-- **Google Gemini Enterprise**: Corporate AI platform vulnerable to data exfiltration attacks
-- **VS Code Marketplace**: Malicious extensions targeting developer environments through stealer malware
+- **Microsoft Windows**: All supported Windows operating systems affected by zero-day vulnerability and December Patch Tuesday fixes
+- **React Server Components**: Applications utilizing React Server Components vulnerable to React2Shell exploitation
+- **Apache Tika**: Document processing systems using Apache Tika affected by maximum severity vulnerability
+- **Fortinet Products**: FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager with FortiCloud SSO integration
+- **Ivanti Endpoint Manager**: EPM solution vulnerable to remote code execution attacks
+- **SAP Products**: Multiple SAP applications and platforms affected by critical authentication and code execution vulnerabilities
+- **Visual Studio Code**: VS Code Marketplace extensions used to distribute stealer malware targeting developers
+- **Google Gemini Enterprise**: Enterprise AI platform affected by no-click vulnerability enabling data exfiltration
 
 ## Attack Vectors and Techniques
 
-- **React2Shell Exploitation**: North Korean actors leveraging RSC vulnerabilities to deploy EtherRAT malware with Ethereum-based C2 communication
-- **Packer-as-a-Service**: Ransomware groups using Shanya EXE packer platform to obfuscate EDR-killing tools and malware payloads
-- **EDR Abuse**: Storm-0249 threat group exploiting legitimate endpoint detection and response solutions for stealthy malware execution
-- **ClickFix Campaigns**: Advanced social engineering techniques combined with fileless PowerShell execution and DLL sideloading
-- **Supply Chain Attacks**: Malicious packages distributed through VS Code, Go, npm, and Rust repositories targeting developer workflows
-- **JS#SMUGGLER Campaign**: Compromised websites used as distribution vectors for NetSupport RAT deployment
-- **Document-Based Attacks**: Exploitation of Gemini Enterprise through malicious document instructions for data exfiltration
+- **React2Shell Exploitation**: North Korean actors leveraging RSC vulnerabilities to deploy EtherRAT malware with Ethereum smart contract communication
+- **EDR Evasion**: Ransomware groups using Shanya packer-as-a-service platform to obfuscate malware and kill endpoint detection systems
+- **DLL Side-Loading**: Storm-0249 threat actor employing advanced techniques including domain spoofing and fileless PowerShell execution
+- **Malicious Package Distribution**: Threat actors distributing malicious extensions through VS Code Marketplace and packages via Go, npm, and Rust repositories
+- **ClickFix Campaigns**: Social engineering attacks using fake update prompts to deliver malware payloads
+- **Indirect Prompt Injection**: Attacks targeting AI systems through malicious instructions embedded in common documents
 
 ## Threat Actor Activities
 
-- **North Korean Groups**: Actively exploiting React2Shell vulnerability to deploy EtherRAT malware with advanced persistence mechanisms and blockchain-based command and control
-- **Storm-0249**: Evolved from initial access broker to sophisticated ransomware operator using EDR abuse, domain spoofing, and fileless execution techniques
-- **STAC6565/Gold Blade**: Targeting Canadian organizations in 80% of attacks, deploying QWCrypt ransomware through coordinated campaigns
-- **Ransomware Groups**: Multiple gangs adopting Shanya packing service for EDR evasion and improved operational security
-- **Spanish Teen Hacker**: Arrested for allegedly stealing 64 million personal data records from nine companies and attempting to sell the information
-- **CastleLoader Operators**: Four distinct threat clusters utilizing GrayBravo's malware service infrastructure for loader distribution
+- **North Korean-linked Actors**: Actively exploiting React2Shell vulnerability to deploy EtherRAT malware with sophisticated persistence mechanisms and blockchain-based command and control
+- **Storm-0249**: Initial access broker evolving tactics to include advanced DLL side-loading, fileless PowerShell execution, and EDR abuse for ransomware deployment
+- **STAC6565**: Threat cluster conducting targeted campaigns against Canadian organizations, responsible for 80% of attacks in the region while deploying QWCrypt ransomware
+- **Gold Blade**: Ransomware operation deploying QWCrypt ransomware in coordination with STAC6565 targeting efforts
+- **GrayBravo**: Malware-as-a-service provider expanding infrastructure to support multiple threat clusters using CastleLoader
+- **Ransomware Groups**: Multiple ransomware operations adopting Shanya packer-as-a-service platform for EDR evasion and payload obfuscation
