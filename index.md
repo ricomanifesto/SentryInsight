@@ -1,62 +1,75 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple enterprise systems and infrastructure components. The most significant threats include active exploitation of a WinRAR vulnerability being targeted by multiple threat groups, Microsoft vulnerabilities including actively exploited zero-days, and North Korean-linked actors exploiting a React2Shell flaw to deploy new EtherRAT malware. Russian hacktivist groups continue targeting US critical infrastructure through VNC connection compromises, while authentication bypass vulnerabilities in Fortinet, Ivanti, and SAP products pose immediate risks to enterprise security.
+Current exploitation activity reveals several critical security threats across multiple platforms and sectors. The most severe active exploitations include the React2Shell vulnerability in React Server Components being heavily targeted by multiple threat groups including North Korean actors, a WinRAR vulnerability under active attack by various threat groups, and three zero-day vulnerabilities in Microsoft products with one being actively exploited in the wild. Additionally, critical vulnerabilities in enterprise infrastructure from Fortinet, Ivanti, and SAP pose significant risks, while pro-Russian hacktivist groups are targeting US critical infrastructure through compromised virtual network computing connections.
 
 ## Active Exploitation Details
 
+### React2Shell Vulnerability in React Server Components
+- **Description**: A maximum-severity security flaw in React Server Components (RSC) that allows remote attackers to exploit web applications
+- **Impact**: Attackers can deliver cryptocurrency miners, deploy new malware strains including EtherRAT, and compromise systems across multiple sectors
+- **Status**: Actively exploited by multiple threat groups including North Korean-linked actors and various cybercriminal organizations
+
 ### WinRAR File Archiver Vulnerability
-- **Description**: Security flaw in the WinRAR file archiver and compression utility
-- **Impact**: Multiple threat groups are actively exploiting this vulnerability
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, indicating active exploitation
+- **Description**: A security flaw in the WinRAR file archiver and compression utility that has been added to CISA's Known Exploited Vulnerabilities catalog
+- **Impact**: Enables attackers to compromise systems through malicious archive files
+- **Status**: Under active attack by multiple threat groups
 - **CVE ID**: CVE-2025-6218
 
-### Microsoft Windows Zero-Day Vulnerability
-- **Description**: Actively exploited zero-day vulnerability in Microsoft Windows products
-- **Impact**: One vulnerability confirmed as actively exploited in the wild
-- **Status**: Patched in December 2025 Patch Tuesday, with proof-of-concept exploit code publicly available for related flaws
+### Microsoft Zero-Day Vulnerabilities
+- **Description**: Three zero-day vulnerabilities affecting various Microsoft Windows products and platforms
+- **Impact**: One vulnerability is being actively exploited in the wild, allowing attackers to compromise Windows systems
+- **Status**: Patches released in Microsoft's December 2025 Patch Tuesday, but exploitation ongoing for the actively targeted flaw
 
-### React2Shell Critical Flaw
-- **Description**: Critical security vulnerability in React Server Components (RSC)
-- **Impact**: Enables threat actors to deliver malware payloads and establish persistence
-- **Status**: Being actively exploited by North Korean-linked threat actors to deploy EtherRAT malware
+### .NET SOAPwn Vulnerability
+- **Description**: Exploitation primitives in the .NET Framework that can be leveraged against enterprise-grade applications through rogue WSDL files
+- **Impact**: Achieves remote code execution and enables arbitrary file writes on target systems
+- **Status**: Research disclosed showing exploitation potential against enterprise applications
 
-### Gemini Enterprise No-Click Vulnerability
-- **Description**: Critical vulnerability allowing attackers to add malicious instructions to common documents
-- **Impact**: Enables exfiltration of sensitive corporate information without user interaction
-- **Status**: Fixed by Google
+### Fortinet FortiCloud SSO Authentication Bypass
+- **Description**: Critical vulnerabilities in FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager affecting FortiCloud SSO authentication
+- **Impact**: Allows attackers to bypass authentication mechanisms and gain unauthorized access to Fortinet systems
+- **Status**: Security updates released to address the vulnerabilities
+
+### Ivanti Endpoint Manager Code Execution Flaw
+- **Description**: Critical vulnerability in Ivanti's Endpoint Manager (EPM) solution
+- **Impact**: Enables remote code execution on affected systems
+- **Status**: Newly disclosed with patches available
 
 ## Affected Systems and Products
 
-- **WinRAR**: File archiver and compression utility targeted by multiple threat groups
-- **Microsoft Windows**: Operating systems affected by actively exploited zero-day and additional vulnerabilities
-- **React Server Components**: Critical infrastructure component vulnerable to React2Shell exploitation
-- **Fortinet Products**: FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager with authentication bypass vulnerabilities
-- **Ivanti Endpoint Manager**: EPM solution with critical remote code execution vulnerability
-- **SAP Products**: Multiple products affected by three critical-severity vulnerabilities
-- **US Critical Infrastructure**: Water systems, election systems, nuclear facilities, and OT systems with VNC connections
-- **European Banking Systems**: Dozens of European banks targeted by Spiderman phishing service
-- **PCIe 5.0+ Systems**: Systems using PCIe Integrity and Data Encryption protocol with three disclosed vulnerabilities
+- **WinRAR File Archiver**: All versions affected by CVE-2025-6218
+- **React Server Components (RSC)**: Applications using React Server Components framework
+- **Microsoft Windows**: Multiple versions affected by 57 vulnerabilities including three zero-days
+- **Fortinet Products**: FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager with FortiCloud SSO integration
+- **Ivanti Endpoint Manager**: EPM solution installations
+- **SAP Products**: Multiple SAP products affected by 14 vulnerabilities including three critical-severity flaws
+- **Docker Hub**: Over 10,000 container images exposing sensitive credentials and authentication keys
+- **.NET Framework**: Enterprise applications using .NET Framework with SOAP functionality
+- **PCIe 5.0+ Systems**: Systems implementing PCIe Integrity and Data Encryption (IDE) protocol
+- **Critical Infrastructure**: US water systems, election systems, nuclear facilities, and OT systems with VNC connections
 
 ## Attack Vectors and Techniques
 
-- **Archive File Exploitation**: WinRAR vulnerability being exploited through malicious archive files
-- **Zero-Day Exploitation**: Direct exploitation of unpatched Windows vulnerabilities
-- **React2Shell Exploitation**: Leveraging React Server Components vulnerabilities to deploy malware
+- **Malicious Archive Files**: Exploiting WinRAR vulnerability through crafted archive files
+- **Web Application Exploitation**: Targeting React Server Components through malicious requests
+- **Rogue WSDL Files**: Using malicious Web Service Definition Language files to exploit .NET applications
+- **Authentication Bypass**: Circumventing FortiCloud SSO mechanisms in Fortinet products
+- **Remote Code Execution**: Exploiting various vulnerabilities to execute arbitrary code on target systems
+- **Cryptocurrency Mining**: Deploying crypto miners through React2Shell exploitation
+- **Phishing Campaigns**: Using Spiderman phishing kit to target European banks with pixel-perfect cloned sites
+- **Supply Chain Attacks**: Exploiting development tools and compromised credentials in manufacturing environments
+- **DLL Sideloading**: Advanced technique used by Storm-0249 for ransomware deployment
+- **ClickFix and Fileless PowerShell**: Sophisticated attack methods employed by threat actors
 - **VNC Connection Compromise**: Targeting virtual network computing connections in operational technology systems
-- **Authentication Bypass**: Exploiting FortiCloud SSO authentication vulnerabilities
-- **Phishing-as-a-Service**: Spiderman phishing kit creating pixel-perfect cloned banking sites
-- **Supply Chain Attacks**: Exploiting development tools, compromised credentials, and malicious NPM packages
-- **Social Engineering**: ClickFix tactics combined with fileless PowerShell and DLL sideloading
-- **Cloud Misconfiguration Exploitation**: Targeting AWS, AI models, and Kubernetes misconfigurations
 
 ## Threat Actor Activities
 
-- **Multiple WinRAR Threat Groups**: Coordinated exploitation of CVE-2025-6218 across different threat clusters
-- **North Korean-Linked Actors**: Deploying EtherRAT malware through React2Shell exploitation with Ethereum smart contract communication
-- **Pro-Russia Hactivists**: Targeting US critical infrastructure including water systems, election systems, and nuclear facilities
-- **Storm-0249**: Escalating from initial access broker to advanced ransomware operations using domain spoofing and DLL side-loading
-- **Ukrainian National**: Charged for assisting Russian hacktivist groups in critical infrastructure attacks
-- **Spiderman Phishing Operators**: Targeting European banking customers and cryptocurrency holders
-- **CastleLoader Users**: Four distinct threat clusters leveraging malware-as-a-service infrastructure
-- **Spanish Teen Hacker**: Arrested for stealing 64 million personal data records from nine companies
-- **Shanya Packer-as-a-Service**: Providing malware obfuscation services to ransomware actors with EDR evasion capabilities
+- **North Korean-Linked Actors**: Exploiting React2Shell to deploy EtherRAT malware and target multiple sectors
+- **Multiple Threat Groups**: Actively exploiting WinRAR vulnerability CVE-2025-6218 for various malicious purposes
+- **Pro-Russian Hactivists**: Targeting US critical infrastructure including water systems, election systems, and nuclear facilities through compromised VNC connections
+- **Storm-0249**: Escalating from initial access broker to advanced ransomware operations using ClickFix, fileless PowerShell, and DLL sideloading techniques
+- **CastleLoader Operators**: Four distinct threat clusters using CastleLoader malware-as-a-service infrastructure
+- **Ukrainian National**: Charged for assisting Russian hacktivist groups in cyberattacks against global critical infrastructure
+- **GrayBravo**: Expanding malware service infrastructure and offering tools to multiple threat actor groups
+- **Shanya Operators**: Providing packer-as-a-service to help ransomware actors evade detection and kill EDR systems
+- **Spiderman Phishing Groups**: Targeting dozens of European banks and cryptocurrency holders with sophisticated phishing campaigns
