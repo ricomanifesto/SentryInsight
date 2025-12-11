@@ -1,71 +1,63 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently under active exploitation across multiple platforms, with threat actors leveraging a range of attack vectors from zero-day exploits to social engineering campaigns. The most significant activity involves the WinRAR vulnerability CVE-2025-6218, which multiple threat groups are actively exploiting. Microsoft's December 2025 Patch Tuesday addressed 57 flaws including three zero-days, with one being actively exploited in the wild. The React2Shell vulnerability continues to see heavy exploitation, with North Korea-linked actors deploying new EtherRAT malware. Additionally, critical authentication bypass vulnerabilities in Fortinet FortiCloud SSO and remote code execution flaws in .NET Framework are creating significant security risks for enterprise environments.
+Current exploitation activity reveals several critical security threats across multiple platforms and systems. The most significant concerns include active exploitation of a WinRAR vulnerability affecting file archiver systems, Microsoft addressing multiple zero-day vulnerabilities with one already being exploited in the wild, and widespread exploitation of the React2Shell vulnerability in React Server Components. Additionally, threat actors are leveraging sophisticated malware campaigns including AMOS infostealer targeting macOS systems, DroidLock ransomware affecting Android devices, and Storm-0249's abuse of EDR processes for stealthy attacks. The landscape also shows increased activity from North Korean-linked actors deploying new malware variants and pro-Russia hacktivist groups targeting critical infrastructure systems.
 
 ## Active Exploitation Details
 
-### WinRAR File Archiver Vulnerability
-- **Description**: Security flaw in the WinRAR file archiver and compression utility that is being actively exploited by multiple threat groups
-- **Impact**: Allows attackers to compromise systems through malicious archive files
-- **Status**: Added to CISA's Known Exploited Vulnerabilities (KEV) catalog, indicating active exploitation
+### WinRAR Vulnerability
+- **Description**: Security flaw impacting the WinRAR file archiver and compression utility that has been added to CISA's Known Exploited Vulnerabilities catalog
+- **Impact**: Multiple threat groups are actively exploiting this vulnerability to compromise systems
+- **Status**: Under active attack by multiple threat groups, patches available
 - **CVE ID**: CVE-2025-6218
 
-### Microsoft Windows Zero-Day Vulnerability
-- **Description**: Zero-day vulnerability in Microsoft Windows platform that has been actively exploited in the wild
-- **Impact**: Allows attackers to compromise Windows systems through unknown attack vectors
-- **Status**: Patched in December 2025 Patch Tuesday, but was actively exploited before patch release
-- **CVE ID**: Not specified in the articles
+### Microsoft Zero-Day Vulnerabilities
+- **Description**: Microsoft addressed 56-57 security flaws including multiple zero-day vulnerabilities in Windows platforms and supported software
+- **Impact**: One zero-day is being actively exploited in the wild, allowing attackers to compromise Windows systems
+- **Status**: Actively exploited, patches released in December 2025 Patch Tuesday
+- **CVE ID**: Not specified in articles
 
 ### React2Shell Vulnerability
-- **Description**: Maximum-severity security flaw in React Server Components (RSC) that continues to witness heavy exploitation
-- **Impact**: Enables delivery of cryptocurrency miners, EtherRAT malware, and other malicious payloads across multiple sectors
-- **Status**: Actively exploited by North Korea-linked actors and other threat groups
-- **CVE ID**: Not specified in the articles
+- **Description**: Maximum-severity security flaw in React Server Components (RSC) enabling remote code execution
+- **Impact**: Threat actors leverage this vulnerability to deliver cryptocurrency miners, EtherRAT malware, and other malicious payloads across multiple sectors
+- **Status**: Continues to witness heavy exploitation across various threat groups including North Korea-linked actors
+- **CVE ID**: Not specified in articles
 
-### .NET SOAPwn Vulnerability
-- **Description**: Exploitation primitives in the .NET Framework that could be leveraged against enterprise-grade applications
-- **Impact**: Achieves remote code execution and arbitrary file writes via rogue WSDL files
-- **Status**: Newly disclosed research showing exploitation potential
-- **CVE ID**: Not specified in the articles
-
-### Fortinet FortiCloud SSO Authentication Bypass
-- **Description**: Critical vulnerabilities in FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager
-- **Impact**: Allows attackers to bypass FortiCloud SSO authentication mechanisms
-- **Status**: Security updates released to address the flaws
-- **CVE ID**: Not specified in the articles
+### .NET SOAPwn Flaw
+- **Description**: Exploitation primitives in the .NET Framework that can be leveraged against enterprise-grade applications
+- **Impact**: Achieves remote code execution and file writes via rogue WSDL
+- **Status**: Research disclosed, exploitation techniques identified
+- **CVE ID**: Not specified in articles
 
 ## Affected Systems and Products
 
-- **WinRAR**: File archiver and compression utility affected by actively exploited vulnerability
-- **Microsoft Windows**: Various versions affected by zero-day vulnerabilities and 57 total security flaws
-- **React Server Components**: Web applications using RSC framework vulnerable to maximum-severity exploit
-- **.NET Framework**: Enterprise applications using .NET vulnerable to remote code execution
-- **Fortinet Products**: FortiOS, FortiWeb, FortiProxy, and FortiSwitchManager affected by authentication bypass
+- **WinRAR File Archiver**: Compression utility vulnerable to active exploitation by multiple threat groups
+- **Microsoft Windows**: Multiple versions affected by zero-day vulnerabilities requiring December 2025 patches
+- **React Server Components**: Systems using RSC affected by critical remote code execution vulnerability
 - **macOS Systems**: Targeted by AMOS infostealer malware through malicious Google ads
-- **Android Devices**: Affected by DroidLock ransomware malware
+- **Android Devices**: Affected by DroidLock ransomware capable of screen locking and data access
+- **FortiOS, FortiWeb, FortiProxy, FortiSwitchManager**: Critical authentication bypass vulnerabilities in Fortinet products
+- **SAP Products**: Multiple products affected by three critical vulnerabilities
+- **PCIe 5.0+ Systems**: Three security vulnerabilities in PCIe Integrity and Data Encryption protocol
 - **Docker Hub Images**: Over 10,000 container images exposing credentials and authentication keys
-- **PCIe 5.0+ Systems**: Vulnerable to data handling issues due to encryption weaknesses
 
 ## Attack Vectors and Techniques
 
-- **Malicious Archive Files**: WinRAR vulnerability exploited through crafted archive files
-- **Social Engineering with AI Platforms**: Fake ChatGPT and Grok conversation guides used to distribute AMOS infostealer
-- **Google Ad Poisoning**: Search engine optimization poisoning combined with malicious advertisements
-- **EDR Process Abuse**: Storm-0249 threat group weaponizing endpoint detection and response platforms
-- **Rogue WSDL Files**: .NET applications targeted through malicious Web Services Description Language files
-- **Compromised VNC Connections**: Pro-Russian hacktivist groups targeting virtual network computing in OT systems
-- **Ransomware Screen Locking**: DroidLock malware using device screen locking for ransom demands
-- **Container Image Exploitation**: Exposed credentials in Docker Hub images creating attack opportunities
-- **Phishing Kit Operations**: Spiderman phishing service creating pixel-perfect cloned banking sites
+- **SEO Poisoning**: Malicious Google search ads directing users to fake ChatGPT and Grok conversations leading to AMOS infostealer installation
+- **ClickFix Social Engineering**: Combining SEO poisoning and legitimate AI domains for malware delivery
+- **EDR Process Abuse**: Storm-0249 weaponizing endpoint detection and response platforms for stealthy attacks
+- **Ransomware Screen Locking**: DroidLock malware locks Android screens demanding ransom payments
+- **VNC Connection Compromise**: Pro-Russia hacktivists targeting virtual network computing connections in operational technology systems
+- **Packer-as-a-Service**: Shanya service providing malware obfuscation to help ransomware actors evade detection
+- **Phishing Kits**: Spiderman phishing service creating pixel-perfect cloned sites targeting European banks
+- **Supply Chain Attacks**: Exploitation of development tools, compromised credentials, and malicious NPM packages
 
 ## Threat Actor Activities
 
-- **Multiple Threat Groups**: Actively exploiting WinRAR CVE-2025-6218 vulnerability
-- **North Korea-linked Actors**: Exploiting React2Shell vulnerability to deploy EtherRAT malware and cryptocurrency miners
-- **Storm-0249**: Initial access broker conducting high-precision attacks using EDR process abuse
-- **Pro-Russian Hacktivist Groups**: Targeting US critical infrastructure through compromised VNC connections in operational technology systems
-- **Ukrainian National**: Charged for assisting Russian hacktivist groups in cyberattacks against critical infrastructure including water systems, election systems, and nuclear facilities
-- **GrayBravo**: Expanding malware service infrastructure with CastleLoader being used by four distinct threat clusters
-- **AMOS Campaign Operators**: Running infostealer campaigns through malicious Google search advertisements
-- **DroidLock Operators**: Deploying Android ransomware with screen locking and data exfiltration capabilities
-- **Spiderman Phishing Service**: Targeting customers of dozens of European banks and cryptocurrency holders
+- **Storm-0249**: Initial access broker conducting high-precision attacks by weaponizing EDR platforms and Windows utilities
+- **North Korean-linked Actors**: Exploiting React2Shell vulnerability to deploy previously undocumented EtherRAT malware
+- **Pro-Russia Hacktivist Groups**: Targeting US critical infrastructure including water systems, election systems, and nuclear facilities through VNC compromises
+- **Ukrainian National**: Charged for role in cyberattacks targeting critical infrastructure worldwide in collaboration with Russian hacktivist groups
+- **Multiple Threat Groups**: Actively exploiting WinRAR vulnerability for system compromise
+- **GrayBravo**: Expanding malware service infrastructure with four distinct threat clusters using CastleLoader
+- **AMOS Campaign Operators**: Abusing Google search advertisements to distribute macOS infostealer malware through fake AI conversation guides
+- **Ransomware Actors**: Utilizing Shanya packer-as-a-service to obfuscate malware and evade endpoint detection systems
