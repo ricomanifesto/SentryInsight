@@ -1,63 +1,74 @@
 # Exploitation Report
 
-Current exploitation activity reveals several critical security threats across multiple platforms and systems. The most significant concerns include active exploitation of a WinRAR vulnerability affecting file archiver systems, Microsoft addressing multiple zero-day vulnerabilities with one already being exploited in the wild, and widespread exploitation of the React2Shell vulnerability in React Server Components. Additionally, threat actors are leveraging sophisticated malware campaigns including AMOS infostealer targeting macOS systems, DroidLock ransomware affecting Android devices, and Storm-0249's abuse of EDR processes for stealthy attacks. The landscape also shows increased activity from North Korean-linked actors deploying new malware variants and pro-Russia hacktivist groups targeting critical infrastructure systems.
+Critical exploitation activity is occurring across multiple platforms, with Google Chrome facing its eighth zero-day vulnerability of 2025 actively exploited in the wild. Microsoft's December Patch Tuesday addressed 57 security flaws including three zero-day vulnerabilities, with one being actively exploited. WinRAR vulnerability CVE-2025-6218 is under active attack by multiple threat groups and has been added to CISA's Known Exploited Vulnerabilities catalog. The React2Shell vulnerability continues to see heavy exploitation, with North Korean-linked actors and other threat groups leveraging this maximum-severity flaw to deploy cryptocurrency miners and malware across multiple sectors. Gladinet's CentreStack and Triofox products are being actively exploited through hard-coded cryptographic keys, affecting nine organizations.
 
 ## Active Exploitation Details
 
-### WinRAR Vulnerability
-- **Description**: Security flaw impacting the WinRAR file archiver and compression utility that has been added to CISA's Known Exploited Vulnerabilities catalog
-- **Impact**: Multiple threat groups are actively exploiting this vulnerability to compromise systems
-- **Status**: Under active attack by multiple threat groups, patches available
+### Chrome Zero-Day Vulnerability
+- **Description**: Eighth Chrome zero-day vulnerability of 2025 requiring emergency patches from Google
+- **Impact**: Allows attackers to exploit Chrome users through active attacks
+- **Status**: Emergency updates released to fix the vulnerability
+
+### Microsoft Zero-Day Vulnerability
+- **Description**: One of three zero-day vulnerabilities in Microsoft's December 2025 security updates
+- **Impact**: Being actively exploited in the wild with proof-of-concept exploit code publicly available for related flaws
+- **Status**: Patched in December 2025 Patch Tuesday
+
+### WinRAR Security Flaw
+- **Description**: Critical vulnerability in WinRAR file archiver and compression utility under active attack
+- **Impact**: Allows multiple threat groups to exploit WinRAR installations
+- **Status**: Added to CISA Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2025-6218
 
-### Microsoft Zero-Day Vulnerabilities
-- **Description**: Microsoft addressed 56-57 security flaws including multiple zero-day vulnerabilities in Windows platforms and supported software
-- **Impact**: One zero-day is being actively exploited in the wild, allowing attackers to compromise Windows systems
-- **Status**: Actively exploited, patches released in December 2025 Patch Tuesday
-- **CVE ID**: Not specified in articles
-
 ### React2Shell Vulnerability
-- **Description**: Maximum-severity security flaw in React Server Components (RSC) enabling remote code execution
-- **Impact**: Threat actors leverage this vulnerability to deliver cryptocurrency miners, EtherRAT malware, and other malicious payloads across multiple sectors
-- **Status**: Continues to witness heavy exploitation across various threat groups including North Korea-linked actors
-- **CVE ID**: Not specified in articles
+- **Description**: Maximum-severity security flaw in React Server Components (RSC) being heavily exploited
+- **Impact**: Threat actors deliver cryptocurrency miners and various malware payloads across multiple sectors
+- **Status**: Ongoing exploitation by multiple threat actors including North Korean-linked groups
 
-### .NET SOAPwn Flaw
-- **Description**: Exploitation primitives in the .NET Framework that can be leveraged against enterprise-grade applications
-- **Impact**: Achieves remote code execution and file writes via rogue WSDL
-- **Status**: Research disclosed, exploitation techniques identified
-- **CVE ID**: Not specified in articles
+### Gladinet Hard-Coded Keys Vulnerability
+- **Description**: Hard-coded cryptographic keys vulnerability in Gladinet's CentreStack and Triofox products
+- **Impact**: Enables unauthorized access and code execution capabilities
+- **Status**: Active exploitation affecting nine organizations
+
+### .NET SOAPwn Vulnerability
+- **Description**: Exploitation primitives in .NET Framework through rogue WSDL files
+- **Impact**: Achieves remote code execution against enterprise-grade applications
+- **Status**: Research disclosed new attack vectors for file writes and RCE
 
 ## Affected Systems and Products
 
-- **WinRAR File Archiver**: Compression utility vulnerable to active exploitation by multiple threat groups
-- **Microsoft Windows**: Multiple versions affected by zero-day vulnerabilities requiring December 2025 patches
-- **React Server Components**: Systems using RSC affected by critical remote code execution vulnerability
-- **macOS Systems**: Targeted by AMOS infostealer malware through malicious Google ads
-- **Android Devices**: Affected by DroidLock ransomware capable of screen locking and data access
-- **FortiOS, FortiWeb, FortiProxy, FortiSwitchManager**: Critical authentication bypass vulnerabilities in Fortinet products
-- **SAP Products**: Multiple products affected by three critical vulnerabilities
-- **PCIe 5.0+ Systems**: Three security vulnerabilities in PCIe Integrity and Data Encryption protocol
-- **Docker Hub Images**: Over 10,000 container images exposing credentials and authentication keys
+- **Google Chrome**: All versions prior to latest emergency security updates
+- **Microsoft Windows**: Windows 10 and other Windows platforms affected by 57 security flaws
+- **WinRAR**: File archiver and compression utility installations
+- **React Server Components**: Applications using React Server Components framework
+- **Gladinet CentreStack and Triofox**: File sync and sharing products with hard-coded keys
+- **PCIe 5.0+ Systems**: Systems using PCIe Integrity and Data Encryption protocol
+- **Android Devices**: Targeted by DroidLock ransomware malware
+- **macOS Systems**: Targeted by AMOS infostealer through malicious ads
+- **Docker Hub Images**: Over 10,000 container images leaking credentials
+- **SAP Products**: Multiple SAP products with three critical vulnerabilities
+- **Fortinet and Ivanti**: Products with authentication bypass and code execution flaws
 
 ## Attack Vectors and Techniques
 
-- **SEO Poisoning**: Malicious Google search ads directing users to fake ChatGPT and Grok conversations leading to AMOS infostealer installation
-- **ClickFix Social Engineering**: Combining SEO poisoning and legitimate AI domains for malware delivery
-- **EDR Process Abuse**: Storm-0249 weaponizing endpoint detection and response platforms for stealthy attacks
-- **Ransomware Screen Locking**: DroidLock malware locks Android screens demanding ransom payments
-- **VNC Connection Compromise**: Pro-Russia hacktivists targeting virtual network computing connections in operational technology systems
-- **Packer-as-a-Service**: Shanya service providing malware obfuscation to help ransomware actors evade detection
-- **Phishing Kits**: Spiderman phishing service creating pixel-perfect cloned sites targeting European banks
-- **Supply Chain Attacks**: Exploitation of development tools, compromised credentials, and malicious NPM packages
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in Chrome and Microsoft products
+- **Hard-Coded Cryptographic Keys**: Exploitation of embedded authentication credentials in Gladinet products
+- **Social Engineering with AI Platforms**: ClickFix-style attacks using Grok and ChatGPT for malware delivery
+- **SEO Poisoning**: Google ads manipulation to distribute AMOS infostealer malware
+- **Rogue WSDL Files**: .NET exploitation through malicious Web Service Description Language files
+- **EDR Process Abuse**: Storm-0249 weaponizing endpoint detection and response platforms
+- **VNC Connection Compromise**: Pro-Russia hacktivists targeting virtual network computing in OT systems
+- **Container Image Poisoning**: Credential exposure through compromised Docker Hub images
+- **Phishing Kit Deployment**: Spiderman phishing service targeting European banks
+- **Ransomware Screen Locking**: DroidLock malware demanding ransom payments on Android devices
 
 ## Threat Actor Activities
 
-- **Storm-0249**: Initial access broker conducting high-precision attacks by weaponizing EDR platforms and Windows utilities
-- **North Korean-linked Actors**: Exploiting React2Shell vulnerability to deploy previously undocumented EtherRAT malware
-- **Pro-Russia Hacktivist Groups**: Targeting US critical infrastructure including water systems, election systems, and nuclear facilities through VNC compromises
-- **Ukrainian National**: Charged for role in cyberattacks targeting critical infrastructure worldwide in collaboration with Russian hacktivist groups
-- **Multiple Threat Groups**: Actively exploiting WinRAR vulnerability for system compromise
-- **GrayBravo**: Expanding malware service infrastructure with four distinct threat clusters using CastleLoader
-- **AMOS Campaign Operators**: Abusing Google search advertisements to distribute macOS infostealer malware through fake AI conversation guides
-- **Ransomware Actors**: Utilizing Shanya packer-as-a-service to obfuscate malware and evade endpoint detection systems
+- **North Korean-Linked Groups**: Exploiting React2Shell vulnerability to deploy EtherRAT malware and other payloads
+- **Storm-0249**: Initial access broker conducting high-precision attacks by abusing EDR processes and Windows utilities
+- **Pro-Russia Hacktivist Groups**: Targeting US critical infrastructure through VNC connection compromises, assisted by Ukrainian national
+- **Multiple Threat Groups**: Actively exploiting WinRAR CVE-2025-6218 vulnerability across various campaigns
+- **AMOS Campaign Operators**: Distributing infostealer malware through malicious Google ads targeting macOS users
+- **Spiderman Phishing Operators**: Running phishing-as-a-service targeting dozens of European banks and cryptocurrency holders
+- **DroidLock Operators**: Deploying Android ransomware with screen locking and data access capabilities
+- **React2Shell Exploiters**: Various threat actors leveraging the vulnerability to deliver cryptocurrency miners across multiple sectors
