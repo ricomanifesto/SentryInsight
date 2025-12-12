@@ -1,70 +1,71 @@
 # Exploitation Report
 
-Current cybersecurity landscape reveals intense exploitation activity across multiple attack vectors, with attackers leveraging zero-day vulnerabilities, compromised infrastructure, and sophisticated social engineering techniques. Critical zero-day exploits are actively targeting Chrome browsers, Gogs Git services, and WinRAR utilities, while threat actors deploy advanced malware campaigns using legitimate cloud services for command and control operations. Particularly concerning is the exploitation of unpatched systems, with over 700 Gogs instances compromised and widespread attacks targeting enterprise applications through various authentication bypass methods.
+Critical zero-day and recently disclosed vulnerabilities are experiencing widespread active exploitation across multiple platforms and systems. The most severe activity centers around an unpatched zero-day in the Gogs Git service that has already compromised over 700 servers worldwide, alongside multiple Chrome zero-day exploits and hard-coded cryptographic key vulnerabilities in Gladinet products. Threat actors are leveraging these vulnerabilities for remote code execution, unauthorized access, and system compromise, with particular focus on cloud services, development tools, and enterprise infrastructure.
 
 ## Active Exploitation Details
 
-### Chrome Zero-Day Vulnerability
-- **Description**: High-severity vulnerability in Google Chrome browser currently under active exploitation
-- **Impact**: Allows remote code execution and system compromise through browser exploitation
-- **Status**: Patched by Google in emergency security update, marking the eighth Chrome zero-day exploited in 2025
-
 ### Gogs Zero-Day Remote Code Execution
-- **Description**: Unpatched zero-day vulnerability in Gogs self-hosted Git service enabling remote code execution
-- **Impact**: Complete server compromise with administrative access to Git repositories and underlying systems
-- **Status**: Actively exploited with over 700 compromised instances identified, no patch currently available
+- **Description**: An unpatched zero-day vulnerability in Gogs, a self-hosted Git service, allows attackers to achieve remote code execution on Internet-facing instances. This vulnerability bypasses a previous RCE bug disclosed last year and has been exploited for months.
+- **Impact**: Attackers can gain complete control of affected servers, with over 700 compromised instances identified across the internet
+- **Status**: Currently unpatched and under active widespread exploitation
 
-### WinRAR Security Vulnerability
-- **Description**: Critical vulnerability in WinRAR file archiver utility being exploited by multiple threat groups
-- **Impact**: Enables malicious code execution through specially crafted archive files
-- **Status**: Under active attack by multiple threat actors, added to CISA's Known Exploited Vulnerabilities catalog
-- **CVE ID**: CVE-2025-6218
+### Chrome High-Severity Zero-Day
+- **Description**: An undisclosed high-severity vulnerability in Google Chrome browser that has come under active exploitation in the wild
+- **Impact**: Allows attackers to execute arbitrary code through browser exploitation
+- **Status**: Patched by Google in emergency security updates, marking the eighth Chrome zero-day fixed in 2025
 
 ### Gladinet Hard-Coded Cryptographic Keys
-- **Description**: Vulnerability in Gladinet's CentreStack and Triofox products involving hard-coded cryptographic keys
-- **Impact**: Unauthorized access and remote code execution on affected systems
-- **Status**: Currently being exploited in the wild, affecting nine organizations
+- **Description**: CentreStack and Triofox products contain hard-coded cryptographic keys that enable unauthorized access and code execution
+- **Impact**: Attackers can gain unauthorized access to affected systems and execute arbitrary code, with nine organizations already confirmed compromised
+- **Status**: Under active exploitation with confirmed victim organizations
+
+### WinRAR Security Vulnerability
+- **Description**: A security flaw in the WinRAR file archiver and compression utility that allows malicious exploitation
+- **Impact**: Multiple threat groups are leveraging this vulnerability for attacks
+- **Status**: Under active attack by multiple threat groups and added to CISA's Known Exploited Vulnerabilities catalog
+- **CVE ID**: CVE-2025-6218
 
 ### React2Shell Maximum Severity Flaw
-- **Description**: Critical vulnerability in React Server Components (RSC) with maximum severity rating
-- **Impact**: Enables deployment of cryptocurrency miners and various malware payloads
-- **Status**: Heavy ongoing exploitation across multiple sectors
+- **Description**: A maximum-severity security flaw in React Server Components (RSC) that enables widespread exploitation
+- **Impact**: Threat actors are delivering cryptocurrency miners and various malware families across multiple sectors
+- **Status**: Under heavy exploitation across various industries
 
-### ConsentFix Azure CLI Attack
-- **Description**: New attack variation abusing Azure CLI OAuth application to hijack Microsoft accounts
-- **Impact**: Account takeover without password requirements or MFA bypass
-- **Status**: Actively deployed against Microsoft account holders
+### .NET SOAPwn Framework Vulnerability
+- **Description**: Exploitation primitives in the .NET Framework that can be leveraged through rogue WSDL files
+- **Impact**: Enables file writes and remote code execution against enterprise-grade applications
+- **Status**: Research disclosed exploitation methods for potential attacks
 
 ## Affected Systems and Products
 
-- **Google Chrome**: All versions prior to latest emergency patch release
-- **Gogs Git Service**: Self-hosted instances exposed to internet, over 700 confirmed compromised
-- **WinRAR File Archiver**: Vulnerable versions being targeted by multiple threat groups
-- **Gladinet CentreStack/Triofox**: Enterprise file sharing platforms with hard-coded key vulnerabilities
-- **React Server Components**: Applications using RSC framework across multiple sectors
-- **Microsoft Azure CLI**: OAuth applications and associated Microsoft accounts
-- **Docker Hub**: Over 10,000 container images exposing sensitive credentials
+- **Gogs Git Service**: Self-hosted Git service instances exposed to the internet (700+ confirmed compromised)
+- **Google Chrome**: All versions prior to latest security updates released in December 2025
+- **Gladinet CentreStack**: Enterprise file sync and share solutions
+- **Gladinet Triofox**: File server modernization platform
+- **WinRAR**: File archiver and compression utility across all affected versions
+- **React Server Components**: Applications using RSC across multiple sectors
+- **Microsoft Notepad++**: Text editor with WinGUp update tool vulnerability
+- **.NET Framework**: Enterprise applications utilizing SOAP/WSDL functionality
+- **VSCode Marketplace**: Developer environments with malicious extensions
 - **PCIe 5.0+ Systems**: Hardware with Integrity and Data Encryption protocol vulnerabilities
-- **Android Devices**: Systems targeted by DroidLock ransomware
-- **macOS Systems**: Targeted by AMOS infostealer through malicious ads
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Immediate weaponization of unpatched vulnerabilities in widely-used software
-- **Social Engineering via AI Platforms**: Abuse of ChatGPT and Grok conversations to deliver malware through Google ads
-- **Cloud Service Abuse**: NANOREMOTE malware using Google Drive API for command and control operations
-- **DLL Side-Loading**: WIRTE APT group using AshenLoader for stealthy backdoor deployment
-- **OAuth Application Abuse**: ConsentFix attacks leveraging legitimate Azure CLI for account compromise
-- **SEO Poisoning**: Malicious advertisements appearing in legitimate search results
-- **Container Image Compromise**: Exploitation of exposed credentials in Docker Hub repositories
-- **EDR Process Weaponization**: Storm-0249 group abusing endpoint detection tools for stealth
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in widely-used software
+- **Supply Chain Attacks**: Malicious VSCode Marketplace extensions targeting developers with trojans hidden in fake PNG files
+- **Update Mechanism Compromise**: Exploitation of Notepad++ WinGUp update tool to push malicious executables
+- **Hard-Coded Key Abuse**: Leveraging embedded cryptographic keys in enterprise software for unauthorized access
+- **Browser-Based Attacks**: Chrome zero-day exploitation for code execution in web browsers
+- **Social Engineering**: ConsentFix attacks abusing Azure CLI OAuth to hijack Microsoft accounts without passwords
+- **Malware Distribution**: Using Google ads for ChatGPT and Grok guides to distribute AMOS infostealer malware
+- **EDR Process Abuse**: Storm-0249 threat group weaponizing endpoint detection and response platforms
+- **Command and Control**: NANOREMOTE malware using Google Drive API for hidden C2 communications
 
 ## Threat Actor Activities
 
-- **WIRTE APT Group**: Targeting Middle Eastern government and diplomatic entities with AshenLoader and AshTag espionage backdoor
-- **Storm-0249**: Initial access broker weaponizing EDR platforms and Windows utilities in precision attacks
-- **Multiple WinRAR Threat Groups**: Coordinated exploitation of CVE-2025-6218 across different attack campaigns
+- **Storm-0249**: Initial access broker conducting high-precision attacks by abusing EDR processes and Windows utilities for stealthy operations
+- **WIRTE APT Group**: Advanced persistent threat targeting government and diplomatic entities across the Middle East using AshenLoader sideloading to install AshTag espionage backdoor
+- **Multiple WinRAR Threat Groups**: Various threat actors actively exploiting WinRAR vulnerability for malicious campaigns
 - **Pro-Russia Hacktivists**: Targeting US critical infrastructure through VNC connection compromises in operational technology systems
-- **AMOS Infostealer Operators**: Using Google ads and AI platform impersonation for macOS system compromise
-- **React2Shell Exploitation Groups**: Deploying cryptocurrency miners and malware across multiple business sectors
-- **Spiderman Phishing Service**: Targeting European banks and cryptocurrency holders with pixel-perfect cloned websites
+- **AMOS Infostealer Campaign**: Operators abusing Google search ads to distribute macOS malware through fake AI tool guides
+- **VSCode Marketplace Attackers**: Conducting stealthy campaign with 19 malicious extensions since February targeting developers
+- **React2Shell Exploiters**: Multiple threat actors leveraging RSC vulnerability to deploy cryptocurrency miners and malware across sectors
