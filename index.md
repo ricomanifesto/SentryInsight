@@ -1,68 +1,61 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-profile vulnerabilities across various platforms. The most severe threats include active exploitation of zero-day vulnerabilities in Windows RasMan service, GeoServer XXE flaws, Gogs Git service, and Gladinet CentreStack products. CISA has issued urgent patching orders for federal agencies regarding the actively exploited GeoServer vulnerability, while researchers report over 700 compromised Gogs instances worldwide. Additionally, sophisticated malware campaigns are leveraging legitimate services like Google Drive API for command and control operations, and advanced phishing kits are incorporating AI capabilities to bypass multi-factor authentication at scale.
+Critical vulnerability exploitation activity is currently dominated by large-scale attacks targeting React Server Components through the React2Shell vulnerability (CVE-2025-55182), which has prompted CISA to issue emergency patching orders for federal agencies. Concurrently, multiple zero-day vulnerabilities are under active exploitation, including a Windows RasMan service flaw and an undocumented Gladinet CentreStack cryptographic vulnerability. The threat landscape is further complicated by sophisticated malware campaigns leveraging GitHub repositories, malicious VSCode extensions, and advanced phishing kits employing AI-powered techniques to bypass multi-factor authentication.
 
 ## Active Exploitation Details
 
-### Windows RasMan Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability in the Windows Remote Access Connection Manager (RasMan) service that allows attackers to crash the service
-- **Impact**: Denial of service attacks against Windows systems through service crashes
-- **Status**: Currently unpatched by Microsoft, but free unofficial patches are available from third-party security researchers
+### React2Shell Vulnerability
+- **Description**: A critical vulnerability in React Server Components that enables remote code execution and denial-of-service attacks
+- **Impact**: Attackers can execute arbitrary code remotely and cause service disruptions through denial-of-service attacks
+- **Status**: Under active widespread exploitation with proof-of-concept exploits containing WAF bypasses flooding the internet
+- **CVE ID**: CVE-2025-55182
+
+### Windows RasMan Zero-Day
+- **Description**: A zero-day vulnerability affecting the Windows Remote Access Connection Manager (RasMan) service
+- **Impact**: Allows attackers to crash the RasMan service, potentially disrupting remote access capabilities
+- **Status**: Actively exploited in the wild with unofficial patches available but no official Microsoft fix yet released
 
 ### GeoServer XXE Vulnerability
-- **Description**: A critical XML External Entity (XXE) injection vulnerability in OSGeo GeoServer
-- **Impact**: Allows attackers to perform XXE injection attacks, potentially leading to data exposure and system compromise
-- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog with mandatory federal patching deadline
-
-### Gogs Git Service Zero-Day
-- **Description**: An unpatched high-severity vulnerability in the self-hosted Git service Gogs, which is a bypass for a previous RCE bug
-- **Impact**: Remote code execution on affected Git servers
-- **Status**: Actively exploited with over 700 compromised instances identified worldwide, remains unpatched
-
-### React Server Components (RSC) Vulnerabilities
-- **Description**: Two new types of flaws in React Server Components that affect web applications
-- **Impact**: Denial-of-service attacks and source code exposure
-- **Status**: Fixes have been released by the React team
-
-### React2Shell Vulnerability
-- **Description**: A vulnerability that has escalated into large-scale global attacks
-- **Impact**: Widespread system compromise across multiple organizations
-- **Status**: Under active exploitation, CISA has mandated federal agencies patch by December 12, 2025
+- **Description**: A high-severity XML External Entity (XXE) injection flaw in OSGeo GeoServer
+- **Impact**: Enables attackers to read sensitive files, perform server-side request forgery, and potentially execute remote code
+- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
 
 ### Gladinet CentreStack Cryptographic Flaw
-- **Description**: An undocumented vulnerability in the cryptographic algorithm implementation of Gladinet's CentreStack and Triofox products
-- **Impact**: Remote code execution on affected secure remote file access systems
-- **Status**: Actively exploited in RCE attacks
+- **Description**: An undocumented vulnerability in the cryptographic algorithm implementation of CentreStack and Triofox products
+- **Impact**: Enables remote code execution attacks against secure remote file access systems
+- **Status**: Currently being exploited in active attacks with no CVE assigned
 
-### Notepad++ WinGUp Update Tool Vulnerability
-- **Description**: A security weakness in Notepad++'s WinGUp update mechanism
-- **Impact**: Allows attackers to push malicious executables through the update system
-- **Status**: Fixed in Notepad++ version 8.8.9
+### Gogs Zero-Day Vulnerability
+- **Description**: An unpatched vulnerability in the self-hosted Git service Gogs that bypasses a previous RCE bug fix
+- **Impact**: Allows remote code execution on affected Gogs installations
+- **Status**: Exploited for months before discovery and remains unpatched
 
 ## Affected Systems and Products
 
-- **Windows Systems**: RasMan service vulnerability affects Windows operating systems across multiple versions
-- **GeoServer Instances**: OSGeo GeoServer installations vulnerable to XXE injection attacks
-- **Gogs Git Servers**: Over 700 self-hosted Git service instances compromised worldwide
-- **React Applications**: Web applications using React Server Components
-- **CentreStack/Triofox**: Gladinet's secure remote file access products
-- **Notepad++ Users**: Text editor users with outdated WinGUp update tool versions
-- **VSCode Developers**: Visual Studio Code Marketplace users targeted by 19 malicious extensions
+- **React Applications**: Systems using React Server Components are vulnerable to DoS and source code exposure
+- **Windows Systems**: All Windows versions with RasMan service are affected by the zero-day vulnerability
+- **GeoServer Deployments**: OSGeo GeoServer installations vulnerable to XXE injection attacks
+- **Gladinet Products**: CentreStack and Triofox secure file access solutions affected by cryptographic flaw
+- **Gogs Installations**: Self-hosted Git service deployments remain vulnerable to unpatched RCE bypass
+- **VSCode Users**: Developers using Visual Studio Code Marketplace extensions targeted by malicious packages
+- **GitHub Repositories**: Python repositories hosting fake OSINT and GPT utilities spreading PyStoreRAT malware
+- **Notepad++ Users**: WinGUp update tool vulnerability allowing malicious update delivery
 
 ## Attack Vectors and Techniques
 
-- **XXE Injection**: Exploiting XML External Entity vulnerabilities in GeoServer for data extraction and system access
-- **Service Disruption**: Crashing Windows RasMan service through zero-day exploitation
-- **Supply Chain Attacks**: Compromising software update mechanisms and development tools
-- **Malware Distribution**: Hiding malicious code in legitimate-looking files, including subtitle files and fake PNG images
-- **Google Drive API Abuse**: Using NANOREMOTE malware with Google Drive API for covert command and control operations
-- **DLL Sideloading**: AshenLoader technique used by WIRTE APT group for malware deployment
-- **Phishing Kit Evolution**: AI-enhanced phishing operations with MFA bypass capabilities through BlackForce, GhostFrame, InboxPrime AI, and Spiderman toolkits
+- **Web Application Exploitation**: Attackers using WAF bypass techniques in React2Shell exploit code
+- **XXE Injection**: XML External Entity attacks targeting GeoServer implementations
+- **Service Disruption**: RasMan service crashes through zero-day exploitation
+- **Supply Chain Attacks**: Malicious packages distributed through GitHub and VSCode Marketplace
+- **Social Engineering**: Fake torrent files hiding malware in subtitle files targeting movie downloads
+- **Phishing Campaigns**: AI-powered phishing kits (BlackForce, GhostFrame, InboxPrime AI, Spiderman) bypassing MFA
+- **Malware Distribution**: PyStoreRAT JavaScript-based RAT distributed through fake utility repositories
+- **Update Mechanism Abuse**: Exploitation of software updaters to deliver malicious payloads
 
 ## Threat Actor Activities
 
-- **WIRTE APT Group**: Targeting government and diplomatic entities across the Middle East using AshenLoader sideloading techniques to deploy AshTag espionage backdoor
-- **Hamas-Linked Hackers**: Expanding their operations across the Middle Eastern region, developing more sophisticated malware and broadening attack scope against diplomatic targets
-- **Malware Campaign Operators**: Running sustained operations since February 2025 targeting developers through malicious VSCode Marketplace extensions
-- **Movie Piracy Exploiters**: Distributing Agent Tesla RAT through fake movie torrents with malware hidden in subtitle files
-- **Phishing Kit Developers**: Creating advanced credential theft tools capable of bypassing multi-factor authentication at scale
+- **Hamas-Linked Hackers**: Targeting Middle Eastern diplomatic entities with improved malware and expanded regional operations
+- **Supply Chain Attackers**: Increasing focus on GitHub Actions and open source software repositories for malware distribution
+- **Phishing Groups**: Deploying advanced AI-powered credential theft operations with MFA bypass capabilities
+- **Insider Threats**: Former Coupang employee maintaining system access post-employment to exfiltrate 33.7 million customer records
+- **Malware Distributors**: Leveraging popular software platforms like VSCode Marketplace and GitHub to distribute trojans hidden in fake PNG files and utility tools
