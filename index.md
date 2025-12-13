@@ -1,57 +1,62 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently being exploited across multiple platforms, with Apple WebKit flaws targeting specific individuals in sophisticated attacks, React Server Component vulnerabilities enabling widespread exploitation, and GeoServer XXE injection attacks prompting emergency federal patching directives. The exploitation landscape shows escalating activity from React2Shell attacks flooding the internet, alongside malicious campaigns targeting developers through compromised GitHub repositories and VSCode Marketplace extensions.
+Critical vulnerability exploitation activity is currently focused on multiple high-impact zero-day vulnerabilities and recently disclosed flaws. Apple has released emergency security updates addressing two WebKit zero-day vulnerabilities that were exploited in sophisticated attacks targeting specific individuals. Separately, CISA has added multiple actively exploited vulnerabilities to its Known Exploited Vulnerabilities catalog, including a Sierra Wireless router flaw enabling remote code execution attacks, a GeoServer XML External Entity injection vulnerability, and the React2Shell vulnerability (CVE-2025-55182) which has escalated into large-scale global attacks. Additionally, threat actors are exploiting an undocumented cryptographic vulnerability in Gladinet CentreStack products and a new Windows RasMan zero-day flaw that can crash the Remote Access Connection Manager service.
 
 ## Active Exploitation Details
 
 ### Apple WebKit Zero-Day Vulnerabilities
-- **Description**: Two zero-day vulnerabilities in WebKit are being exploited in extremely sophisticated attacks targeting specific individuals
-- **Impact**: Attackers can exploit these flaws to compromise iOS, iPadOS, macOS, tvOS, watchOS, visionOS, and Safari browser installations
-- **Status**: Apple has released emergency security updates to address both vulnerabilities
+- **Description**: Two WebKit security flaws affecting Apple's browser engine across multiple platforms
+- **Impact**: Attackers can exploit these vulnerabilities in sophisticated attacks targeting specific individuals
+- **Status**: Apple has released emergency security updates for iOS, iPadOS, macOS, tvOS, watchOS, visionOS, and Safari browser
+
+### Sierra Wireless AirLink ALEOS Router Vulnerability
+- **Description**: High-severity flaw in Sierra Wireless AirLink ALEOS routers
+- **Impact**: Remote code execution attacks against affected router infrastructure
+- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
+
+### GeoServer XXE Vulnerability
+- **Description**: High-severity XML External Entity (XXE) injection flaw in OSGeo GeoServer
+- **Impact**: Allows attackers to perform XXE injection attacks against vulnerable GeoServer instances
+- **Status**: Actively exploited with CISA ordering federal agencies to patch immediately
 
 ### React2Shell Vulnerability
-- **Description**: Critical vulnerability in React Server Components enabling remote code execution and denial-of-service attacks
-- **Impact**: Attackers can achieve remote code execution, denial-of-service conditions, and source code exposure
-- **Status**: Actively exploited in large-scale global attacks, with CISA mandating federal agencies patch by December 12, 2025
+- **Description**: Critical vulnerability in React Server Components
+- **Impact**: Large-scale global exploitation enabling various attack scenarios
+- **Status**: Widespread active exploitation with CISA mandating federal agency patching by December 12, 2025
 - **CVE ID**: CVE-2025-55182
 
-### GeoServer XXE Injection Flaw
-- **Description**: High-severity XML External Entity (XXE) injection vulnerability in OSGeo GeoServer
-- **Impact**: Attackers can exploit XXE injection to access sensitive data and potentially achieve remote code execution
-- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
-
-### Windows RasMan Zero-Day Vulnerability
-- **Description**: Zero-day flaw in Windows Remote Access Connection Manager (RasMan) service
-- **Impact**: Attackers can crash the RasMan service, causing denial-of-service conditions
-- **Status**: Unofficial patches available, but Microsoft has not yet released an official fix
-
 ### Gladinet CentreStack Cryptographic Flaw
-- **Description**: Undocumented vulnerability in the cryptographic algorithm implementation of Gladinet's CentreStack and Triofox products
-- **Impact**: Remote code execution capabilities against secure remote file access and sharing systems
-- **Status**: Actively exploited by hackers in RCE attacks
+- **Description**: Undocumented vulnerability in cryptographic algorithm implementation affecting CentreStack and Triofox products
+- **Impact**: Remote code execution against secure remote file access and sharing systems
+- **Status**: Currently being exploited in active attacks
+
+### Windows RasMan Zero-Day
+- **Description**: Zero-day vulnerability in Windows Remote Access Connection Manager (RasMan) service
+- **Impact**: Allows attackers to crash the RasMan service, potentially disrupting remote access functionality
+- **Status**: Zero-day with unofficial patches available
 
 ## Affected Systems and Products
 
-- **Apple Devices**: iOS, iPadOS, macOS, tvOS, watchOS, visionOS devices and Safari browser across all supported versions
-- **React Applications**: Applications using React Server Components (RSC) vulnerable to DoS and source code exposure
-- **GeoServer Installations**: OSGeo GeoServer instances susceptible to XXE injection attacks
-- **Windows Systems**: Windows installations running Remote Access Connection Manager service
-- **Gladinet Products**: CentreStack and Triofox secure file access platforms
-- **Development Tools**: VSCode Marketplace extensions and GitHub-hosted Python repositories
+- **Apple Platforms**: iOS, iPadOS, macOS, tvOS, watchOS, visionOS, and Safari browser affected by WebKit vulnerabilities
+- **Sierra Wireless Routers**: AirLink ALEOS router series vulnerable to remote code execution
+- **OSGeo GeoServer**: Geographic information system software vulnerable to XXE injection
+- **React Applications**: Applications using React Server Components affected by React2Shell vulnerability
+- **Gladinet Products**: CentreStack and Triofox secure file access products vulnerable to cryptographic exploitation
+- **Windows Systems**: All Windows versions with RasMan service vulnerable to denial-of-service attacks
 
 ## Attack Vectors and Techniques
 
-- **WebKit Exploitation**: Sophisticated targeting of specific individuals through browser-based attacks
-- **XXE Injection**: XML External Entity attacks against GeoServer installations for data exfiltration
-- **Supply Chain Attacks**: Malicious GitHub repositories distributing PyStoreRAT malware through fake OSINT and GPT utility tools
-- **Extension Poisoning**: Trojan-laden VSCode Marketplace extensions hiding malware in fake PNG files within dependency folders
-- **Torrent-Based Distribution**: Malware distribution through fake movie torrents with malicious PowerShell loaders in subtitle files
-- **WAF Bypasses**: React2Shell exploits incorporating web application firewall evasion techniques
+- **Web-Based Exploitation**: WebKit vulnerabilities exploited through web content targeting specific individuals
+- **Remote Code Execution**: Sierra Wireless routers and Gladinet products targeted for RCE attacks
+- **XXE Injection**: GeoServer systems compromised through XML External Entity injection techniques
+- **Service Disruption**: Windows RasMan service targeted for denial-of-service attacks
+- **WAF Bypass**: React2Shell exploits include bypasses for web application firewall rules
+- **Supply Chain Attacks**: Increased targeting of GitHub Actions and fake repositories distributing malware
 
 ## Threat Actor Activities
 
-- **Hamas-Linked Groups**: Probing Middle Eastern diplomatic targets with improved malware capabilities and expanded regional operations
-- **PyStoreRAT Operators**: Leveraging GitHub-hosted repositories to distribute JavaScript-based Remote Access Trojans targeting developers
-- **Phishing Kit Developers**: Advanced groups deploying BlackForce, GhostFrame, InboxPrime AI, and Spiderman phishing kits with AI and MFA bypass capabilities
-- **VSCode Marketplace Attackers**: Persistent campaign active since February 2025, targeting developers with 19 malicious extensions containing hidden trojans
-- **React2Shell Exploiters**: Multiple threat groups conducting large-scale exploitation campaigns with WAF bypass techniques
+- **Sophisticated Attackers**: Conducting targeted attacks against specific individuals using Apple WebKit zero-days
+- **Infrastructure Attackers**: Exploiting router and server vulnerabilities for potential network compromise
+- **Cybercriminals**: Leveraging fake GitHub repositories and torrents to distribute malware including PyStoreRAT and Agent Tesla
+- **Hamas-Linked Groups**: Maturing capabilities and expanding attacks across Middle Eastern diplomatic targets
+- **Financial Fraudsters**: Utilizing money mules and advanced phishing kits with AI and MFA bypass capabilities
