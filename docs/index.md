@@ -1,60 +1,52 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are actively being exploited across multiple platforms, with Apple patching two WebKit flaws used in sophisticated targeted attacks, while CISA has added several vulnerabilities to its Known Exploited Vulnerabilities catalog including Sierra Wireless router flaws enabling remote code execution and GeoServer vulnerabilities being exploited for XML External Entity injection attacks. The React2Shell vulnerability has escalated into large-scale global attacks, forcing emergency mitigation efforts, while threat actors continue to leverage various attack vectors including malware distribution through GitHub repositories, phishing campaigns targeting Russian finance sectors, and ransomware operations with cryptographic weaknesses.
+Critical zero-day vulnerabilities are under active exploitation across multiple platforms, with Apple WebKit flaws targeting specific individuals through sophisticated attacks, while FreePBX systems face remote code execution threats through authentication bypass vulnerabilities. Chinese threat actors have significantly escalated React2Shell exploitation campaigns, prompting emergency federal response directives. Additionally, Sierra Wireless router vulnerabilities are being actively exploited to enable remote code execution attacks, with CISA adding the flaw to its Known Exploited Vulnerabilities catalog.
 
 ## Active Exploitation Details
 
 ### Apple WebKit Zero-Day Vulnerabilities
-- **Description**: Two zero-day vulnerabilities in WebKit that were exploited in an "extremely sophisticated attack" targeting specific individuals
-- **Impact**: Enables attackers to compromise iOS, iPadOS, macOS, tvOS, watchOS, visionOS devices and Safari browsers
-- **Status**: Apple has released emergency security updates to patch both vulnerabilities
+- **Description**: Two zero-day vulnerabilities in Apple's WebKit engine affecting Safari and other Apple applications across multiple platforms
+- **Impact**: Attackers can execute sophisticated attacks targeting specific individuals, potentially leading to device compromise
+- **Status**: Apple has released emergency security updates across all platforms including iOS, iPadOS, macOS, tvOS, watchOS, visionOS, and Safari
 
-### Sierra Wireless AirLink ALEOS Router Vulnerability
-- **Description**: High-severity flaw in Sierra Wireless AirLink ALEOS routers enabling remote code execution
-- **Impact**: Allows attackers to execute arbitrary code remotely on affected router systems
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, actively exploited
-
-### GeoServer XXE Vulnerability
-- **Description**: High-severity XML External Entity (XXE) injection flaw affecting OSGeo GeoServer
-- **Impact**: Enables attackers to conduct XXE injection attacks, potentially leading to data disclosure and system compromise
-- **Status**: Actively exploited, added to CISA KEV catalog, federal agencies ordered to patch immediately
-
-### React2Shell Vulnerability
-- **Description**: Critical vulnerability in React Server Components that has escalated into large-scale global attacks
-- **Impact**: Enables denial-of-service attacks and potential remote code execution
-- **Status**: Under active exploitation globally, CISA mandated federal agencies patch by December 12, 2025
+### React2Shell Remote Code Execution Vulnerability
+- **Description**: Maximum-severity remote code execution vulnerability that has escalated into large-scale global attacks
+- **Impact**: Enables complete system compromise through remote code execution
+- **Status**: Under active exploitation by multiple Chinese hacking groups; CISA has mandated federal agencies patch by December 12, 2025
 - **CVE ID**: CVE-2025-55182
 
-### Windows RasMan Zero-Day
-- **Description**: New zero-day vulnerability in Windows Remote Access Connection Manager (RasMan) service
-- **Impact**: Allows attackers to crash the RasMan service, causing denial-of-service conditions
-- **Status**: Unpatched by Microsoft, unofficial patches available
+### Sierra Wireless Router Remote Code Execution Flaw
+- **Description**: High-severity vulnerability in Sierra Wireless AirLink ALEOS routers
+- **Impact**: Enables remote code execution attacks on affected router infrastructure
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
+
+### FreePBX Critical Authentication Bypass
+- **Description**: Multiple critical vulnerabilities including SQL injection, file upload flaws, and AUTHTYPE bypass in FreePBX platform
+- **Impact**: Can result in authentication bypass and remote code execution under certain conditions
+- **Status**: Patches have been released by FreePBX
 
 ## Affected Systems and Products
 
-- **Apple Devices**: iOS, iPadOS, macOS, tvOS, watchOS, visionOS, and Safari web browser across all supported versions
-- **Sierra Wireless Routers**: AirLink ALEOS router systems vulnerable to remote code execution
-- **OSGeo GeoServer**: Web-based geographic information system servers susceptible to XXE attacks
-- **React Applications**: Applications using React Server Components affected by DoS and code exposure vulnerabilities
-- **Windows Systems**: Systems running Windows with RasMan service vulnerable to service crashes
-- **Microsoft Message Queuing**: Enterprise applications and IIS websites affected by December 2025 security updates
+- **Apple Devices**: iOS, iPadOS, macOS, tvOS, watchOS, visionOS devices and Safari browser across all supported versions
+- **React Applications**: Web applications utilizing React Server Components (RSC) vulnerable to denial-of-service and source code exposure
+- **Sierra Wireless Routers**: AirLink ALEOS router models enabling critical infrastructure compromise
+- **FreePBX Systems**: Open-source private branch exchange platforms with authentication and file upload vulnerabilities
+- **Russian Finance Sector**: Organizations targeted by Phantom Stealer malware campaigns via ISO phishing emails
 
 ## Attack Vectors and Techniques
 
-- **Sophisticated Zero-Day Exploits**: Highly targeted attacks against specific individuals using WebKit vulnerabilities
-- **Remote Code Execution**: Network-based attacks against Sierra Wireless routers
-- **XML External Entity Injection**: Web application attacks targeting GeoServer installations
-- **Phishing Campaigns**: ISO file attachments delivering Phantom Stealer malware targeting Russian financial sector
-- **GitHub Repository Abuse**: Fake OSINT and GPT utility repositories distributing PyStoreRAT malware
-- **Torrent-Based Malware Distribution**: Malicious PowerShell loaders hidden in subtitle files of fake movie torrents
-- **PayPal Subscription Abuse**: Legitimate PayPal emails containing embedded fake purchase notifications
-- **Supply Chain Attacks**: Increased targeting of GitHub Actions workflows
+- **Browser-Based Exploitation**: WebKit vulnerabilities exploited through sophisticated web-based attacks targeting specific individuals
+- **Mass Scanning Campaigns**: React2Shell exploits flooding the internet with automated scanning and exploitation attempts
+- **WAF Bypass Techniques**: Proof-of-concept React2Shell exploits containing bypasses for web application firewall rules
+- **Phishing with ISO Attachments**: Phantom Stealer distributed through malicious ISO files in targeted email campaigns
+- **GitHub Repository Poisoning**: Fake OSINT and GPT utility repositories distributing PyStoreRAT malware payloads
+- **Browser Extension Hijacking**: ShadyPanda campaign compromising popular Chrome and Edge extensions at massive scale
+- **Torrent-Based Malware**: Fake movie torrents hiding malicious PowerShell loaders in subtitle files
 
 ## Threat Actor Activities
 
-- **CyberVolk (GLORIAMIST)**: Pro-Russian hacktivist group launched VolkLocker ransomware-as-a-service with cryptographic implementation flaws
-- **Hamas-Linked Hackers**: Sophisticated threat actors probing Middle Eastern diplomatic targets with improved malware capabilities
-- **Unknown APT Groups**: Conducting sophisticated attacks against specific individuals using Apple zero-day vulnerabilities
-- **Russian Finance Sector Attackers**: Targeting multiple Russian sectors with Phantom Stealer via phishing campaigns using ISO attachments
-- **French Interior Ministry Attackers**: Successfully breached French Ministry of Interior email servers
-- **Coupang Insider Threat**: Former employee retained system access leading to breach of 33.7 million customer records
+- **Chinese Hacking Groups**: Five additional Chinese groups linked to React2Shell exploitation campaigns, representing significant escalation in attack volume
+- **ShadyPanda Campaign**: Cybercrime operation that hijacked popular browser extensions on Chrome and Edge at massive scale
+- **CyberVolk/GLORIAMIST**: Pro-Russian hacktivist group launched VolkLocker ransomware-as-a-service with cryptographic implementation flaws
+- **Phantom Stealer Operators**: Active phishing campaigns targeting Russian financial sector organizations with credential theft malware
+- **PyStoreRAT Distributors**: Campaign leveraging GitHub-hosted repositories to distribute JavaScript-based remote access trojans
