@@ -1,57 +1,52 @@
 # Exploitation Report
 
-Current cybersecurity threats are dominated by sophisticated state-sponsored campaigns and critical infrastructure attacks. Russian GRU operations are actively exploiting misconfigured edge network devices to target critical organizations globally, particularly in the energy sector. Simultaneously, threat actors are exploiting newly disclosed Fortinet authentication bypass vulnerabilities and the React2Shell vulnerability to deploy Linux backdoors. The GhostPoster campaign demonstrates the evolution of browser-based attacks, embedding malicious JavaScript in Firefox extensions to hijack affiliate links and monitor user activity. These threats are compounded by ongoing malware-as-a-service operations like Cellik targeting Android devices and supply chain attacks through compromised NuGet packages.
+The cybersecurity landscape is witnessing significant exploitation activity across multiple fronts, with critical vulnerabilities in Fortinet products being actively exploited just days after disclosure. The React2Shell vulnerability is being leveraged to deploy Linux backdoors, while Russian GRU operations continue targeting critical infrastructure through misconfigured edge devices. Browser-based threats are emerging through malicious Firefox extensions, and cloud environments face ongoing attacks through compromised credentials. Additionally, several major organizations including SoundCloud and Askul Corporation have fallen victim to data breaches and ransomware attacks, highlighting the persistent threat landscape facing enterprises globally.
 
 ## Active Exploitation Details
 
 ### Fortinet FortiGate SAML SSO Authentication Bypass
-- **Description**: Critical security flaws in Fortinet FortiGate devices allowing authentication bypass through SAML SSO implementations
-- **Impact**: Threat actors can gain unauthorized admin access and steal system configuration files
-- **Status**: Actively exploited less than a week after public disclosure, patches available
+- **Description**: Two newly disclosed security flaws in Fortinet FortiGate devices allowing authentication bypass through SAML SSO mechanisms
+- **Impact**: Unauthorized administrative access and potential system configuration theft
+- **Status**: Under active exploitation within a week of public disclosure, patches available
 
 ### React2Shell Vulnerability
-- **Description**: Security vulnerability in React applications enabling command injection attacks
-- **Impact**: Attackers can deploy Linux backdoors including KSwapDoor and ZnDoor malware families
-- **Status**: Currently being exploited in active campaigns
+- **Description**: Security vulnerability being exploited to deliver malware to Linux systems
+- **Impact**: Deployment of backdoors including KSwapDoor and ZnDoor malware families
+- **Status**: Actively exploited in the wild
 
-### Russian GRU Edge Device Exploitation
-- **Description**: Long-running campaign targeting misconfigured edge network devices and cloud infrastructure
-- **Impact**: Unauthorized access to critical infrastructure organizations, particularly energy sector
-- **Status**: Multi-year campaign from 2021-2025, recently disrupted by Amazon
-
-### GhostPoster Firefox Extension Campaign
-- **Description**: Malicious JavaScript code embedded in Firefox addon logo files across 17 extensions
-- **Impact**: Affiliate link hijacking, tracking code injection, and browser activity monitoring
-- **Status**: Over 50,000 downloads affected, campaign ongoing
+### Edge Network Device Vulnerabilities
+- **Description**: Misconfigured edge devices being targeted by Russian GRU hackers
+- **Impact**: Unauthorized access to critical infrastructure, particularly in energy sector
+- **Status**: Long-running campaign spanning 2021-2025, ongoing exploitation
 
 ## Affected Systems and Products
 
-- **Fortinet FortiGate**: Authentication bypass vulnerabilities in multiple products
-- **Firefox Browser Extensions**: 17 malicious addons with embedded JavaScript in logo files
-- **Edge Network Devices**: Misconfigured routers, firewalls, and network appliances
-- **Amazon Web Services**: IAM credential compromise leading to cryptocurrency mining
-- **React Applications**: Applications vulnerable to command injection through React2Shell
-- **Android Devices**: Google Play Store apps targeted by Cellik malware-as-a-service
-- **NuGet Packages**: .NET development ecosystem targeted through typosquatting attacks
-- **SoundCloud Platform**: Audio streaming service experiencing data breach
-- **PDVSA Oil Company**: Venezuelan state-owned petroleum company hit by cyberattack
+- **Fortinet FortiGate Devices**: SAML SSO authentication bypass vulnerabilities affecting multiple product lines
+- **Linux Systems**: Targeted by React2Shell exploitation for backdoor deployment
+- **Firefox Browser Extensions**: 17 malicious add-ons with over 50,000 downloads containing GhostPoster malware
+- **AWS Cloud Infrastructure**: Targeted through compromised IAM credentials for cryptocurrency mining operations
+- **Edge Network Devices**: Misconfigured devices in critical infrastructure organizations worldwide
+- **Android Applications**: Cellik malware-as-a-service targeting Google Play apps
+- **SoundCloud Platform**: Audio streaming service suffering data breach affecting user records
+- **Venezuelan PDVSA**: State oil company experiencing operational disruption from cyberattack
+- **Askul Corporation**: Japanese e-commerce platform compromised in RansomHouse attack
 
 ## Attack Vectors and Techniques
 
-- **SAML Authentication Bypass**: Exploiting authentication flaws in single sign-on implementations
-- **Edge Device Misconfiguration**: Targeting improperly configured network infrastructure
-- **Browser Extension Malware**: Hiding malicious code in legitimate-looking browser addons
-- **Supply Chain Attacks**: Compromising software packages and development tools
-- **Cloud IAM Exploitation**: Using stolen credentials for cryptocurrency mining operations
-- **Typosquatting**: Creating malicious packages that mimic legitimate software libraries
-- **Steganography**: Embedding JavaScript code in image files to evade detection
-- **Social Engineering**: Call center fraud operations targeting European victims
+- **Authentication Bypass**: SAML SSO vulnerabilities in Fortinet products enabling unauthorized admin access
+- **Malicious Browser Extensions**: JavaScript code hidden in Firefox addon logos for affiliate link hijacking and tracking injection
+- **Supply Chain Attacks**: Typosquatted NuGet packages impersonating legitimate libraries to steal cryptocurrency wallet data
+- **Cloud Credential Compromise**: Exploitation of compromised IAM credentials for unauthorized cloud resource access
+- **Mobile App Repackaging**: Cellik MaaS embedding malicious code in legitimate Android applications
+- **Infrastructure Targeting**: Long-term campaigns against edge devices in critical sectors
+- **Ransomware Operations**: Multi-stage attacks resulting in data encryption and exfiltration
 
 ## Threat Actor Activities
 
-- **Russian GRU (Military Intelligence)**: Multi-year campaign targeting Western critical infrastructure, particularly energy sector organizations
-- **Ink Dragon (Jewelbug)**: China-linked group expanding focus to European government targets while maintaining operations in Southeast Asia and South America
-- **GhostPoster Campaign**: Browser-based attack campaign targeting Firefox users through malicious extensions
-- **Cellik MaaS Operators**: Android malware-as-a-service providers offering embedding capabilities in legitimate apps
-- **RansomHouse**: Ransomware group responsible for attacks against Japanese e-commerce company Askul
-- **Call Center Fraud Networks**: Ukrainian-based operations scamming European victims for over 10 million euros
+- **Russian GRU**: Years-long campaign targeting Western critical infrastructure, particularly energy sector organizations, through misconfigured edge devices
+- **Ink Dragon (Jewelbug)**: China-linked threat actor increasingly focusing on European government targets using ShadowPad and FINALDRAFT malware
+- **GhostPoster Campaign**: Operators deploying malicious JavaScript through Firefox extension logos to monitor browser activity and establish backdoors
+- **RansomHouse**: Ransomware group responsible for attacking Japanese e-commerce giant Askul Corporation, stealing 740,000 customer records
+- **Cellik Operators**: Cybercriminals advertising Android malware-as-a-service on underground forums
+- **Cryptocurrency Mining Groups**: Attackers leveraging compromised AWS IAM credentials for large-scale mining operations
+- **Ukraine-based Fraud Network**: Call center operations scamming European victims out of over 10 million euros before law enforcement disruption
