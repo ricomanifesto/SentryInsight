@@ -1,52 +1,66 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting enterprise infrastructure through multiple attack vectors. Ransomware groups are exploiting the React2Shell vulnerability (CVE-2025-55182) for rapid network compromise and encryption deployment. SonicWall SMA1000 appliances face active zero-day exploitation for privilege escalation, while Fortinet products are being targeted through newly patched authentication bypass vulnerabilities. State-sponsored actors, particularly Russian GRU units, are conducting sustained campaigns against critical infrastructure and cloud environments. Additionally, supply chain attacks are proliferating through malicious browser extensions, compromised AWS credentials, and poisoned software packages.
+The current threat landscape is dominated by multiple critical zero-day vulnerabilities being actively exploited across enterprise infrastructure. Most notably, Cisco AsyncOS systems face maximum-severity zero-day attacks targeting email security appliances, while SonicWall SMA series devices are under active exploitation through multiple vulnerabilities. The React2Shell vulnerability has been weaponized by ransomware operators for rapid network compromise, and threat actors are leveraging stolen AWS credentials for large-scale cryptocurrency mining operations. Additionally, sophisticated campaigns are targeting Android devices through malicious TV applications and Firefox browser extensions, while state-sponsored groups continue credential harvesting operations against critical infrastructure.
 
 ## Active Exploitation Details
 
-### SonicWall SMA1000 Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability in the SonicWall SMA1000 Appliance Management Console (AMC) that allows privilege escalation
-- **Impact**: Attackers can chain this vulnerability in attacks to escalate privileges and gain unauthorized administrative access
-- **Status**: Currently being exploited in active attacks; patch status requires verification with SonicWall advisories
+### Cisco AsyncOS Zero-Day Vulnerability
+- **Description**: Unpatched maximum-severity vulnerability in Cisco AsyncOS affecting Secure Email Gateway (SEG) and Secure Email and Web Manager (SEWM) appliances
+- **Impact**: Complete system compromise of email security infrastructure
+- **Status**: Currently being exploited in active attacks with no patch available
+
+### SonicWall SMA 100 Series Vulnerability
+- **Description**: Security flaw in Secure Mobile Access (SMA) 100 series appliances enabling unauthorized access
+- **Impact**: Remote access infrastructure compromise and potential network lateral movement
+- **Status**: Actively exploited in the wild, patches now available
+- **CVE ID**: CVE-2025-40602
+
+### SonicWall SMA1000 AMC Zero-Day
+- **Description**: Privilege escalation vulnerability in SonicWall SMA1000 Appliance Management Console (AMC)
+- **Impact**: Attackers can chain this vulnerability with other exploits to escalate privileges and gain administrative access
+- **Status**: Used in zero-day attacks as part of exploitation chains
 
 ### React2Shell Critical Vulnerability
-- **Description**: A critical vulnerability affecting React-based applications that enables rapid system compromise
-- **Impact**: Ransomware gangs can gain initial access to corporate networks and deploy file-encrypting malware within one minute
-- **Status**: Actively exploited in ransomware attacks
+- **Description**: Critical vulnerability enabling rapid exploitation for initial access to corporate networks
+- **Impact**: Ransomware deployment within minutes of initial compromise
+- **Status**: Actively exploited by ransomware gangs for network infiltration
 - **CVE ID**: CVE-2025-55182
 
 ### Fortinet Authentication Bypass Vulnerabilities
-- **Description**: Critical-severity vulnerabilities affecting multiple Fortinet products that allow authentication bypass
-- **Impact**: Unauthorized access to admin accounts and theft of system configuration files
+- **Description**: Critical-severity vulnerabilities affecting multiple Fortinet products that bypass authentication mechanisms
+- **Impact**: Unauthorized access to administrative accounts and theft of system configuration files
 - **Status**: Recently patched but actively exploited by threat actors
 
 ## Affected Systems and Products
 
-- **SonicWall SMA1000**: Appliance Management Console (AMC) vulnerable to zero-day privilege escalation
-- **React-based Applications**: Systems using React framework susceptible to React2Shell exploitation
-- **Fortinet Products**: Multiple Fortinet security appliances affected by authentication bypass flaws
-- **Amazon Web Services**: EC2 and other AWS infrastructure targeted through compromised IAM credentials
-- **Firefox Browser**: 17 malicious add-ons with over 50,000 downloads containing GhostPoster malware
-- **Android Devices**: Google Play Store apps targeted for malicious version creation through Cellik MaaS
-- **Windows IIS**: Enterprise applications and IIS sites experiencing failures due to MSMQ issues
-- **Edge Network Devices**: Misconfigured devices targeted by Russian state actors
+- **Cisco AsyncOS**: Secure Email Gateway (SEG) and Secure Email and Web Manager (SEWM) appliances
+- **SonicWall SMA Series**: SMA 100 series and SMA1000 Appliance Management Console devices
+- **Android Platforms**: Android-based TVs, set-top boxes, and tablets (1.8 million devices compromised)
+- **Mozilla Firefox**: Browser extensions with over 50,000 downloads affected by malicious JavaScript injection
+- **AWS Infrastructure**: EC2 instances and IAM credentials targeted for cryptocurrency mining
+- **Fortinet Products**: Multiple product lines affected by authentication bypass vulnerabilities
+- **WhatsApp Accounts**: Device linking feature abused for account hijacking
+- **NuGet Packages**: .NET development environment targeted through typosquatting attacks
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched SonicWall vulnerabilities for privilege escalation
-- **Supply Chain Attacks**: Malicious NuGet packages typosquatting legitimate libraries to steal cryptocurrency wallet data
-- **Browser Extension Hijacking**: JavaScript code embedded in Firefox addon logos to hijack affiliate links and inject tracking code
-- **Credential Compromise**: Stolen AWS IAM credentials used for cryptocurrency mining operations across multiple customer environments
-- **Phishing Campaigns**: Fake eLibrary emails targeting Russian scholars and credential harvesting attacks against Ukrainian users
-- **Mobile Malware**: Cellik Android malware-as-a-service creating malicious versions of legitimate Google Play applications
-- **Infrastructure Targeting**: Attacks on misconfigured edge network devices to access critical infrastructure
+- **Device Linking Abuse**: Exploitation of WhatsApp's legitimate pairing feature using malicious QR codes and pairing codes
+- **Zero-Day Chaining**: Combining multiple vulnerabilities for privilege escalation and system compromise
+- **Steganography**: Hiding malicious JavaScript code within Firefox extension logo files
+- **Credential Theft**: Harvesting AWS IAM credentials for unauthorized cloud resource access
+- **Typosquatting**: Impersonating legitimate NuGet packages to distribute cryptocurrency wallet stealers
+- **Botnet Operations**: Large-scale DDoS attacks using compromised Android TV devices
+- **Supply Chain Attacks**: Embedding malicious code in browser extensions and development packages
+- **Phishing Campaigns**: Targeted credential harvesting using fake service notifications
 
 ## Threat Actor Activities
 
-- **Russian GRU Units**: Multi-year campaign targeting Western critical infrastructure between 2021-2025, focusing on energy sector organizations and cloud infrastructure
-- **APT28 (Fancy Bear)**: Sustained credential-harvesting campaign targeting UKR.net webmail users in Ukraine
-- **Ink Dragon (Jewelbug)**: Chinese-linked group focusing on European government targets since July 2025, using ShadowPad and FINALDRAFT malware
-- **ForumTroll Operators**: Fresh phishing attacks targeting individuals within Russia using fake eLibrary academic emails
-- **Ransomware Groups**: Exploiting React2Shell vulnerability for rapid network compromise and encryption deployment
-- **GhostPoster Campaign**: Threat actors distributing malicious Firefox extensions to monitor browser activity and establish backdoors
-- **AWS Cryptocurrency Miners**: Organized campaign using compromised IAM credentials for large-scale mining operations across customer environments
+- **GhostPairing Campaign**: Systematic WhatsApp account hijacking through abuse of device linking features
+- **APT28 (Fancy Bear)**: Sustained credential-harvesting campaign targeting Ukrainian UKR.net users through phishing operations
+- **Russian GRU**: Active operations against edge network devices and cloud infrastructure, disrupted by Amazon threat intelligence
+- **Ink Dragon (Jewelbug)**: China-linked group focusing on European government targets using ShadowPad and FINALDRAFT malware
+- **ForumTroll Operators**: Phishing attacks targeting Russian academic institutions using fake eLibrary email notifications
+- **Kimwolf Botnet**: Massive DDoS operation controlling 1.8 million Android devices for large-scale attacks
+- **GhostPoster Campaign**: Browser extension compromise affecting 17 Firefox add-ons with malicious JavaScript injection
+- **Ransomware Groups**: Rapid exploitation of React2Shell vulnerability for network compromise and encryption deployment
+- **Cryptocurrency Mining Groups**: Large-scale AWS infrastructure abuse using compromised IAM credentials
