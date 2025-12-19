@@ -1,61 +1,71 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing intense exploitation activity with multiple critical vulnerabilities under active attack. Most notably, a zero-day vulnerability in Cisco AsyncOS Email Security Appliances is being exploited by Chinese APT actors, while SonicWall Edge Access devices face ongoing zero-day attacks chaining new flaws with previously disclosed vulnerabilities. Critical vulnerabilities in HPE OneView and ASUS Live Update have also been flagged for active exploitation, with the HPE flaw receiving a maximum CVSS 10.0 severity rating. Additionally, threat actors are targeting VPN gateways through password spraying campaigns and exploiting legitimate features like WhatsApp device linking for account hijacking operations.
+Critical vulnerability exploitation activity is currently dominated by several high-severity flaws being actively exploited in the wild. WatchGuard Fireware OS VPN systems are under active attack through CVE-2025-14733, a critical remote code execution vulnerability with a CVSS score of 9.3. Meanwhile, SonicWall's SMA1000 Edge Access devices face ongoing zero-day attacks where threat actors are chaining a newly discovered vulnerability with previously disclosed flaws. Cisco AsyncOS Email Security Appliances are being targeted through an unpatched maximum-severity zero-day actively exploited by Chinese APT group UAT-9686. Additionally, CISA has flagged CVE-2025-5387, a critical ASUS Live Update vulnerability, for active exploitation and added it to their Known Exploited Vulnerabilities catalog. Fortinet systems are also experiencing active attacks targeting critical flaws, while UEFI vulnerabilities affect multiple motherboard vendors including ASRock, ASUS, GIGABYTE, and MSI.
 
 ## Active Exploitation Details
 
+### WatchGuard Fireware OS VPN Vulnerability
+- **Description**: Critical remote code execution vulnerability in WatchGuard Fireware OS affecting VPN functionality
+- **Impact**: Allows attackers to execute arbitrary code remotely on affected firewall systems
+- **Status**: Actively exploited in real-world attacks, patches available
+- **CVE ID**: CVE-2025-14733
+
+### SonicWall SMA1000 Zero-Day Vulnerability Chain
+- **Description**: New zero-day vulnerability being chained with previously disclosed critical vulnerability in SonicWall Edge Access devices
+- **Impact**: Enables comprehensive compromise of SonicWall SMA1000 devices through exploitation chain
+- **Status**: Actively exploited, zero-day remains unpatched
+
 ### Cisco AsyncOS Email Security Zero-Day
 - **Description**: Maximum-severity zero-day vulnerability in Cisco AsyncOS software for Email Security Appliances
-- **Impact**: Enables advanced persistent threat actors to gain unauthorized access to email security infrastructure
-- **Status**: Currently unpatched with active exploitation by Chinese APT group UAT-9686
-
-### SonicWall Edge Access Zero-Day
-- **Description**: New zero-day vulnerability affecting SMA1000 devices being chained with previously disclosed critical vulnerabilities
-- **Impact**: Allows threat actors to compromise network edge security appliances
-- **Status**: Active exploitation with attackers chaining multiple vulnerabilities for enhanced access
-
-### HPE OneView Remote Code Execution
-- **Description**: Maximum-severity vulnerability in HPE OneView software enabling unauthenticated remote code execution
-- **Impact**: Attackers can execute arbitrary code remotely without authentication
-- **Status**: Recently patched by HPE following discovery, rated CVSS 10.0
+- **Impact**: Allows remote code execution and system compromise
+- **Status**: Actively exploited by Chinese APT group UAT-9686, currently unpatched
 
 ### ASUS Live Update Critical Flaw
-- **Description**: Critical vulnerability in ASUS Live Update utility added to CISA's Known Exploited Vulnerabilities catalog
-- **Impact**: Enables attackers to compromise system update mechanisms
-- **Status**: Active exploitation confirmed, added to CISA KEV catalog for immediate patching
+- **Description**: Critical vulnerability in ASUS Live Update software component
+- **Impact**: Enables unauthorized system access and potential code execution
+- **Status**: Actively exploited, added to CISA KEV catalog
+- **CVE ID**: CVE-2025-5387
 
-### UEFI Early-Boot DMA Vulnerability
-- **Description**: UEFI firmware vulnerability enabling early-boot Direct Memory Access attacks on multiple motherboard vendors
-- **Impact**: Attackers can perform low-level system manipulation during boot process
-- **Status**: Affects ASRock, ASUS, GIGABYTE, and MSI motherboards
+### HPE OneView Remote Code Execution
+- **Description**: Maximum severity vulnerability in HPE OneView Software enabling unauthenticated remote code execution
+- **Impact**: Allows complete system compromise without authentication
+- **Status**: Patches available, CVSS 10.0 rating
+
+### Fortinet Critical Vulnerabilities
+- **Description**: Multiple critical flaws in Fortinet systems being actively targeted
+- **Impact**: Admin account compromise and device configuration export including credentials
+- **Status**: Under active attack
 
 ## Affected Systems and Products
 
-- **Cisco AsyncOS Email Security Appliances**: All versions running vulnerable AsyncOS software
-- **SonicWall SMA1000 Edge Access Devices**: Multiple models affected by zero-day vulnerability chain
-- **HPE OneView Software**: All versions prior to latest security update
-- **ASUS Live Update Utility**: Systems using vulnerable versions of the update mechanism
-- **Motherboard Platforms**: ASRock, ASUSTeK Computer, GIGABYTE, and MSI motherboard models with UEFI vulnerability
-- **Gladinet CentreStack File Servers**: Internet-exposed servers targeted by Clop ransomware
-- **Cisco SSL VPN and Palo Alto Networks GlobalProtect**: VPN gateways targeted in password spraying campaigns
-- **AWS EC2 and ECS Services**: Amazon cloud services targeted in cryptocurrency mining campaigns
+- **WatchGuard Firebox Firewalls**: Fireware OS VPN components affected by critical RCE vulnerability
+- **SonicWall SMA1000 Devices**: Edge Access devices vulnerable to zero-day exploitation chains
+- **Cisco Email Security Appliances**: AsyncOS software vulnerable to maximum-severity zero-day
+- **ASUS Systems**: Live Update software component across multiple ASUS products
+- **HPE OneView Software**: Infrastructure management platform with unauthenticated RCE
+- **Fortinet Products**: Multiple Fortinet systems experiencing active exploitation
+- **Motherboards**: ASRock, ASUS, GIGABYTE, and MSI motherboards affected by UEFI DMA attack vulnerabilities
+- **Gladinet CentreStack**: File servers being targeted by Clop ransomware for data theft
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Multiple zero-day vulnerabilities being actively exploited before patches are available
-- **Vulnerability Chaining**: Attackers combining multiple vulnerabilities to enhance access and persistence
-- **Password Spraying**: Automated credential-based attacks targeting VPN gateways and remote access solutions
-- **Social Engineering**: WhatsApp account hijacking through abuse of legitimate device-linking features
-- **Supply Chain Targeting**: Attacks on update mechanisms and firmware-level vulnerabilities
-- **Direct Memory Access (DMA) Attacks**: Low-level hardware attacks during system boot process
-- **Malware Deployment**: Use of Windows Group Policy and legitimate system features for malware distribution
+- **VPN Exploitation**: Direct attacks against WatchGuard VPN services through critical RCE vulnerability
+- **Zero-Day Chaining**: SonicWall attackers combining new zero-day with known vulnerabilities for enhanced impact
+- **Email Security Bypass**: Cisco AsyncOS exploitation enabling compromise of email security infrastructure
+- **Software Update Hijacking**: ASUS Live Update vulnerability exploitation for system compromise
+- **Unauthenticated Access**: HPE OneView attacks requiring no authentication for maximum impact
+- **Password Spraying**: Automated campaigns targeting Cisco SSL VPN and Palo Alto GlobalProtect gateways
+- **UEFI DMA Attacks**: Early-boot direct memory access attacks against motherboard UEFI implementations
+- **Phishing and Social Engineering**: RaccoonO365 toolkit used for Microsoft 365 credential theft
+- **QR Code Phishing**: Kimsuky using QR codes to distribute DocSwap Android malware
+- **Ransomware Data Theft**: Clop targeting Internet-exposed file servers for extortion
 
 ## Threat Actor Activities
 
-- **UAT-9686 (China-nexus APT)**: Actively exploiting Cisco AsyncOS zero-day vulnerability for email security appliance compromise
-- **LongNosedGoblin (China-aligned)**: Targeting governmental entities in Southeast Asia and Japan using Windows Group Policy for espionage malware deployment
-- **Clop Ransomware Group**: Conducting data theft extortion campaigns against Gladinet CentreStack file servers
-- **Kimsuky (North Korean APT)**: Distributing DocSwap Android malware via QR code phishing campaigns posing as delivery applications
-- **Prince of Persia (Iranian APT)**: Conducting advanced surveillance operations against dissidents with enhanced operational security
-- **North Korean-linked Groups**: Leading global cryptocurrency theft with $2.02 billion stolen in 2025 through various attack campaigns
-- **Cryptomining Operators**: Ongoing campaigns targeting compromised AWS accounts for unauthorized cryptocurrency mining operations
+- **UAT-9686 (Chinese APT)**: Actively exploiting Cisco AsyncOS zero-day vulnerability in targeted attacks against email security infrastructure
+- **Kimsuky (North Korean APT)**: Deploying DocSwap Android malware via QR code phishing campaigns mimicking delivery applications
+- **LongNosedGoblin (Chinese APT)**: Using Windows Group Policy to deploy espionage malware targeting government entities in Southeast Asia and Japan
+- **Prince of Persia (Iranian APT)**: Conducting surveillance operations against dissidents with advanced operational security and cryptographic C2 communications
+- **North Korean Threat Groups**: Leading global cryptocurrency theft with $2.02 billion stolen in 2025 across multiple campaigns
+- **Clop Ransomware Gang**: Targeting Gladinet CentreStack file servers in new data theft extortion operations
+- **RaccoonO365 Developers**: Nigerian cybercriminals creating phishing toolkits for Microsoft 365 attacks against major corporations
