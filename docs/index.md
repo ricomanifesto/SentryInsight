@@ -1,56 +1,57 @@
 # Exploitation Report
 
-Current exploitation activity reveals several critical vulnerabilities being actively targeted across network infrastructure and enterprise platforms. Most notably, WatchGuard Fireware OS systems are experiencing active exploitation through a critical VPN vulnerability rated CVSS 9.3, while SonicWall Edge Access devices face sophisticated zero-day attacks. Additionally, widespread credential-based attacks are targeting Cisco and Palo Alto Networks VPN platforms, and a new UEFI vulnerability enables pre-boot attacks across major motherboard manufacturers. The threat landscape is further complicated by sophisticated phishing campaigns targeting Microsoft 365 accounts and advanced persistent threat activities from state-sponsored actors.
+Current threat landscape shows multiple critical exploitation campaigns targeting enterprise infrastructure and authentication systems. The most severe activity includes active exploitation of a critical WatchGuard Fireware OS VPN vulnerability with a CVSS score of 9.3, zero-day attacks against SonicWall Edge Access devices, and widespread Microsoft 365 OAuth phishing campaigns by Russia-linked threat actors. Additional concerns include a newly discovered UEFI firmware vulnerability affecting major motherboard manufacturers and ongoing password spraying attacks against Cisco and Palo Alto Networks VPN gateways.
 
 ## Active Exploitation Details
 
 ### WatchGuard Fireware OS VPN Vulnerability
 - **Description**: Critical security flaw in WatchGuard Fireware OS affecting VPN functionality
-- **Impact**: Allows attackers to execute remote code and gain unauthorized access to network infrastructure
-- **Status**: Actively exploited in real-world attacks, patches have been released
+- **Impact**: Remote code execution allowing complete system compromise
+- **Status**: Actively exploited in real-world attacks, patches available
 - **CVE ID**: CVE-2025-14733
 
-### SonicWall Edge Access Device Zero-Day
-- **Description**: Previously unknown vulnerability in SonicWall SMA1000 Edge Access devices
-- **Impact**: Threat actors chain this zero-day with previously disclosed critical vulnerabilities for advanced network compromise
-- **Status**: Active zero-day exploitation ongoing, chained with existing vulnerabilities
+### SonicWall Edge Access Zero-Day
+- **Description**: New zero-day vulnerability in SonicWall SMA1000 devices being chained with previously disclosed critical flaws
+- **Impact**: Complete device compromise and network infiltration
+- **Status**: Active exploitation in the wild, zero-day status indicates no patches available
 
-### UEFI Pre-Boot Attack Vulnerability
-- **Description**: Direct Memory Access (DMA) vulnerability in UEFI firmware implementations that bypasses early-boot memory protections
-- **Impact**: Enables pre-boot attacks that can compromise system integrity before operating system loads
-- **Status**: Affects multiple major motherboard manufacturers, exploitation potential confirmed
+### UEFI Firmware DMA Vulnerability
+- **Description**: Direct Memory Access (DMA) vulnerability in UEFI firmware implementations enabling pre-boot attacks
+- **Impact**: Bypass of early-boot memory protections and persistent system compromise
+- **Status**: Newly discovered vulnerability affecting multiple motherboard vendors
 
-### HPE OneView Remote Code Execution Flaw
-- **Description**: Maximum-severity security vulnerability in HPE OneView Software allowing unauthenticated access
-- **Impact**: Successful exploitation results in remote code execution on management infrastructure
-- **Status**: Critical vulnerability with CVSS 10.0 rating, patches available
+### HPE OneView Critical Flaw
+- **Description**: Maximum severity vulnerability in HPE OneView Software enabling unauthenticated access
+- **Impact**: Remote code execution without authentication requirements
+- **Status**: Patches released by HPE
 
 ## Affected Systems and Products
 
-- **WatchGuard Firebox Firewalls**: Fireware OS systems with VPN functionality affected by active exploitation
-- **SonicWall SMA1000 Devices**: Edge Access devices targeted in sophisticated zero-day attack chains
-- **Motherboard Systems**: ASUS, Gigabyte, MSI, and ASRock motherboards vulnerable to UEFI-based DMA attacks
-- **Microsoft 365 Platforms**: Enterprise accounts targeted through OAuth device code phishing mechanisms
-- **Cisco VPN Systems**: SSL VPN gateways experiencing automated credential spraying attacks
-- **Palo Alto Networks**: GlobalProtect VPN platforms under targeted password spraying campaigns
-- **HPE OneView Software**: Management platform affected by critical unauthenticated RCE vulnerability
-- **Fortinet Devices**: Over 25,000 FortiCloud SSO-enabled devices exposed to remote authentication bypass attacks
+- **WatchGuard Firebox Firewalls**: Fireware OS installations with VPN functionality enabled
+- **SonicWall SMA1000 Devices**: Edge Access devices exposed to internet-facing attacks
+- **Major Motherboard Manufacturers**: ASUS, Gigabyte, MSI, and ASRock motherboards with vulnerable UEFI firmware
+- **Microsoft 365 Platforms**: Enterprise and business accounts targeted through OAuth device code phishing
+- **Cisco SSL VPN**: VPN gateways under automated password spraying attacks
+- **Palo Alto Networks GlobalProtect**: VPN platforms targeted in credential-based attacks
+- **Fortinet FortiCloud SSO**: Over 25,000 devices exposed online with SSO enabled
+- **Gladinet CentreStack**: File servers targeted by Clop ransomware for data theft
+- **HPE OneView Software**: Infrastructure management platforms vulnerable to unauthenticated RCE
 
 ## Attack Vectors and Techniques
 
-- **OAuth Device Code Phishing**: Sophisticated campaigns leveraging Microsoft 365 device authorization workflows to steal credentials
-- **VPN Password Spraying**: Automated credential-based attacks targeting multiple VPN platforms simultaneously
-- **Zero-Day Chaining**: Advanced attackers combining new zero-day exploits with previously disclosed vulnerabilities
-- **UEFI Firmware Exploitation**: Pre-boot DMA attacks bypassing traditional security controls at the hardware level
-- **Group Policy Abuse**: China-aligned actors using Windows Group Policy mechanisms to deploy espionage malware
-- **Phishing-as-a-Service**: Criminal platforms like Raccoon0365 providing turnkey phishing infrastructure for Microsoft 365 attacks
-- **Malware Distribution via Cracked Software**: CountLoader and GachiLoader malware spread through compromised software distribution sites
+- **OAuth Device Code Phishing**: Russia-linked actors exploiting Microsoft 365 device code authentication workflows for account takeovers
+- **VPN Password Spraying**: Automated credential-based attacks against Cisco and Palo Alto Networks VPN gateways
+- **Zero-Day Chaining**: SonicWall attackers combining new zero-day with previously disclosed vulnerabilities
+- **Group Policy Abuse**: LongNosedGoblin APT using Windows Group Policy for malware deployment and persistence
+- **Phishing-as-a-Service**: Raccoon0365 platform facilitating Microsoft 365 credential theft operations
+- **DMA Exploitation**: Direct memory access attacks bypassing early-boot protections in UEFI firmware
+- **Cracked Software Distribution**: CountLoader and GachiLoader malware spread through compromised software sites and YouTube videos
 
 ## Threat Actor Activities
 
-- **Russia-Aligned Groups**: Conducting sophisticated Microsoft 365 device code phishing campaigns for account takeovers and targeting Danish critical infrastructure with destructive cyberattacks
-- **LongNosedGoblin (China-Aligned)**: New APT group deploying Windows Group Policy mechanisms to conduct espionage against Southeast Asian and Japanese government entities
-- **North Korean Cybercriminals**: Responsible for $2.02 billion in cryptocurrency theft in 2025, shifting strategy to target larger payouts with sophisticated attack methods
-- **Prince of Persia (Iran APT)**: Resumed operations with enhanced operational security, targeting Iranian dissidents with advanced cryptographic communication methods
-- **Clop Ransomware Gang**: Targeting Internet-exposed Gladinet CentreStack file servers in new data theft extortion campaigns
-- **Nigerian Cybercriminals**: Three individuals arrested for developing and operating Raccoon0365 phishing-as-a-service platform targeting Microsoft 365 accounts
+- **Russia-Linked Groups**: Conducting sophisticated Microsoft 365 OAuth phishing campaigns targeting enterprise accounts
+- **LongNosedGoblin (China-Aligned)**: New APT group targeting government entities in Southeast Asia and Japan using Windows Group Policy for espionage
+- **Clop Ransomware**: Targeting Gladinet CentreStack file servers in data theft extortion campaigns
+- **North Korean Cybercriminals**: Executed sophisticated cryptocurrency theft operations resulting in $2.02 billion stolen in 2025
+- **Prince of Persia (Iran APT)**: Reactivated operations targeting dissidents with advanced operational security and cryptographic C2 communications
+- **Nigerian Fraud Syndicate**: Arrested developers behind Raccoon0365 phishing-as-a-service platform targeting Microsoft 365
