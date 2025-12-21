@@ -1,59 +1,55 @@
 # Exploitation Report
 
-Current threat landscape shows critical exploitation activity across multiple attack vectors, with notable campaigns targeting enterprise infrastructure and authentication systems. WatchGuard Fireware OS devices face active exploitation through CVE-2025-14733, a critical VPN vulnerability with a 9.3 CVSS score allowing remote code execution. SonicWall Edge Access devices are being targeted through zero-day attacks chaining new vulnerabilities with previously disclosed flaws. Additionally, over 25,000 Fortinet devices remain exposed online with FortiCloud SSO enabled, creating significant attack surface for authentication bypass exploits. Sophisticated phishing campaigns are leveraging OAuth device code authentication workflows to compromise Microsoft 365 accounts, while threat actors deploy advanced malware loaders and conduct large-scale financial fraud operations.
+Critical vulnerabilities are currently being actively exploited across multiple vendor platforms, with attackers targeting everything from enterprise firewalls to UEFI firmware and cloud authentication systems. The most severe active exploitation involves CVE-2025-14733, a critical WatchGuard Fireware OS vulnerability with a CVSS score of 9.3 that enables remote code execution on VPN devices. Simultaneously, threat actors are leveraging zero-day vulnerabilities in SonicWall SMA1000 Edge Access devices and exploiting UEFI firmware flaws that enable pre-boot attacks on major motherboard manufacturers. Advanced persistent threat groups from Iran, Russia, and China are conducting sophisticated campaigns using novel attack vectors including Microsoft 365 OAuth phishing, Windows Group Policy abuse, and ATM jackpotting schemes.
 
 ## Active Exploitation Details
 
 ### WatchGuard Fireware OS VPN Vulnerability
-- **Description**: Critical security flaw in WatchGuard Fireware OS affecting VPN functionality
-- **Impact**: Allows remote code execution on affected firewall devices, potentially granting full system control
-- **Status**: Actively exploited in real-world attacks, patches available from WatchGuard
+- **Description**: Critical remote code execution vulnerability in WatchGuard Fireware OS affecting VPN functionality
+- **Impact**: Attackers can execute arbitrary code remotely on affected firewall devices
+- **Status**: Actively exploited in real-world attacks; patches have been released by WatchGuard
 - **CVE ID**: CVE-2025-14733
 
 ### SonicWall Edge Access Zero-Day
-- **Description**: New zero-day vulnerability affecting SonicWall SMA1000 Edge Access devices
-- **Impact**: Enables unauthorized access when chained with previously disclosed critical vulnerabilities
-- **Status**: Actively exploited by threat actors, part of ongoing attack campaigns
+- **Description**: Zero-day vulnerability affecting SonicWall SMA1000 Edge Access devices, chained with previously disclosed critical vulnerabilities
+- **Impact**: Complete compromise of edge access infrastructure and potential lateral movement
+- **Status**: Actively exploited in the wild; zero-day status indicates no patches available
+
+### UEFI Firmware DMA Attack Vulnerability
+- **Description**: UEFI firmware implementation flaw enabling direct memory access (DMA) attacks that bypass early-boot memory protections
+- **Impact**: Pre-boot system compromise allowing attackers to persist below the operating system level
+- **Status**: Affects multiple major motherboard vendors; exploitation capability confirmed
 
 ### FortiCloud SSO Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability affecting Fortinet devices with FortiCloud SSO enabled
-- **Impact**: Allows attackers to bypass authentication mechanisms and gain unauthorized access
-- **Status**: Over 25,000 devices exposed online amid ongoing exploitation attempts
-
-### UEFI Firmware DMA Attacks
-- **Description**: UEFI firmware implementation vulnerability enabling direct memory access attacks
-- **Impact**: Bypasses early-boot memory protections, allowing pre-boot system compromise
-- **Status**: Affects multiple motherboard vendors, vulnerability details disclosed
+- **Description**: Critical authentication bypass vulnerability in FortiCloud SSO functionality
+- **Impact**: Complete bypass of single sign-on authentication mechanisms
+- **Status**: Over 25,000 devices exposed online with ongoing active attacks
 
 ## Affected Systems and Products
 
-- **WatchGuard Firebox Firewalls**: Fireware OS VPN components vulnerable to remote code execution
-- **SonicWall SMA1000 Devices**: Edge Access devices targeted in zero-day attack chains
-- **Fortinet Devices**: Over 25,000 internet-exposed devices with FortiCloud SSO enabled
-- **Microsoft 365 Accounts**: Enterprise and individual accounts targeted through OAuth phishing
-- **UEFI Motherboards**: ASUS, Gigabyte, MSI, and ASRock motherboards vulnerable to DMA attacks
-- **HPE OneView Software**: Infrastructure management software with maximum severity RCE flaw
-- **ATM Networks**: Financial institutions targeted through Ploutus malware jackpotting schemes
-- **Cisco VPN Systems**: Corporate VPN infrastructure targeted in sophisticated campaigns
+- **WatchGuard Firebox Firewalls**: Fireware OS with VPN functionality affected by CVE-2025-14733
+- **SonicWall SMA1000**: Edge Access devices vulnerable to zero-day exploitation
+- **UEFI Firmware**: Motherboards from ASUS, Gigabyte, MSI, and ASRock affected by DMA attack vulnerabilities
+- **Fortinet FortiCloud**: Over 25,000 devices with SSO enabled exposed to authentication bypass attacks
+- **Microsoft 365**: Widespread targeting through OAuth device code phishing campaigns
+- **ATM Systems**: Various ATM models vulnerable to Ploutus malware jackpotting attacks
+- **Gladinet CentreStack**: File servers targeted by Clop ransomware for data theft
 
 ## Attack Vectors and Techniques
 
-- **OAuth Device Code Phishing**: Exploitation of Microsoft 365 device code authentication workflows for account takeover
-- **VPN Infrastructure Attacks**: Targeting enterprise VPN solutions for initial network access
-- **Zero-Day Chaining**: Combining new vulnerabilities with known flaws for enhanced exploitation
-- **UEFI-Level Attacks**: Pre-boot system compromise through firmware-level exploitation
-- **Ransomware-as-a-Service**: Multi-layered encryption techniques for enhanced data processing
-- **ATM Jackpotting**: Physical and remote exploitation of ATM systems using specialized malware
-- **Malware Distribution**: Cracked software and YouTube videos as distribution vectors for loaders
-- **Group Policy Abuse**: Using Windows Group Policy for malware deployment in government networks
+- **OAuth Device Code Phishing**: Russia-linked actors exploiting Microsoft 365 device code authentication workflows for account takeovers
+- **Windows Group Policy Abuse**: China-aligned LongNosedGoblin APT using Group Policy to deploy espionage malware across government networks
+- **ATM Jackpotting**: Physical deployment of Ploutus malware to force ATMs to dispense cash through coordinated multi-million dollar schemes
+- **Phishing-as-a-Service**: Raccoon0365 platform enabling widespread Microsoft 365 credential harvesting operations
+- **UEFI Pre-Boot Attacks**: Early-boot DMA attacks bypassing traditional security controls through firmware exploitation
+- **Ransomware Evolution**: RansomHouse upgrading to multi-layered encryption processing for enhanced data destruction capabilities
 
 ## Threat Actor Activities
 
-- **RansomHouse Group**: Upgraded encryption capabilities with multi-layered data processing techniques
-- **Russia-Aligned Groups**: Conducting Microsoft 365 credential theft through device code phishing campaigns
-- **LongNosedGoblin (China-Aligned)**: Targeting Southeast Asian and Japanese government entities using Windows Group Policy for espionage malware deployment
-- **Clop Ransomware Gang**: Targeting Gladinet CentreStack file servers for data theft extortion
-- **ATM Fraud Network**: 54 individuals charged in multi-million dollar ATM jackpotting scheme using Ploutus malware
-- **RaccoonO365 Operators**: Three arrested in Nigeria for developing and operating Microsoft 365 phishing-as-a-service platform
-- **North Korean Groups**: Responsible for $2.02 billion in cryptocurrency theft in 2025, leading global crypto crime statistics
-- **Multiple Threat Actors**: Coordinated campaigns targeting Microsoft 365 accounts through various OAuth exploitation techniques
+- **Iranian Infy APT (Prince of Persia)**: Resurfaced after five years of silence with new malware campaigns targeting Swedish and other international victims
+- **Russia-Linked Groups**: Conducting sophisticated Microsoft 365 OAuth phishing campaigns using device code authentication abuse for account takeovers
+- **LongNosedGoblin (China-aligned)**: New APT group targeting government entities across Southeast Asia and Japan using Windows Group Policy for espionage malware deployment
+- **RansomHouse**: Ransomware-as-a-Service operation upgrading encryption capabilities with multi-layered data processing techniques
+- **Clop Ransomware**: Actively targeting Gladinet CentreStack file servers in coordinated data theft extortion campaigns
+- **ATM Fraud Networks**: 54 individuals charged in coordinated ATM jackpotting scheme using Ploutus malware across multiple financial institutions
+- **Raccoon0365 Operators**: Nigerian-based phishing-as-a-service developers arrested for creating platforms enabling widespread Microsoft 365 attacks
