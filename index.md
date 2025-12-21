@@ -1,58 +1,56 @@
 # Exploitation Report
 
-Current exploitation activities reveal a concerning landscape of active attacks targeting critical infrastructure and enterprise systems. Notable incidents include the active exploitation of WatchGuard Fireware OS vulnerability enabling remote code execution, zero-day attacks against SonicWall Edge Access devices, and sophisticated phishing campaigns targeting Microsoft 365 accounts through OAuth device code authentication. State-sponsored threat actors, including Iranian APT groups and China-aligned clusters, are conducting espionage operations while ransomware groups continue evolving their encryption techniques. Critical vulnerabilities in UEFI firmware and HPE OneView systems present additional attack surfaces requiring immediate attention.
+Critical exploitation activity is currently affecting enterprise infrastructure across multiple vectors, with threat actors targeting VPN solutions, UEFI firmware, and cloud authentication systems. The most severe incidents include active exploitation of WatchGuard Fireware OS vulnerabilities, zero-day attacks against SonicWall Edge Access devices, and widespread Microsoft 365 phishing campaigns leveraging OAuth device code authentication. Multiple nation-state actors, including China-aligned and Russia-linked groups, are conducting sophisticated espionage operations while ransomware groups continue evolving their encryption techniques for maximum impact.
 
 ## Active Exploitation Details
 
 ### WatchGuard Fireware OS VPN Vulnerability
 - **Description**: Critical security flaw in WatchGuard Fireware OS affecting VPN functionality
 - **Impact**: Remote code execution allowing complete system compromise
-- **Status**: Actively exploited in real-world attacks; patches available
+- **Status**: Actively exploited in real-world attacks, patches available
 - **CVE ID**: CVE-2025-14733
 
-### SonicWall Edge Access Zero-Day Vulnerability
-- **Description**: New zero-day flaw affecting SMA1000 Edge Access devices
-- **Impact**: Threat actors chaining this with previously disclosed critical vulnerabilities for system compromise
-- **Status**: Actively exploited; zero-day status indicates no patch currently available
+### SonicWall Edge Access Zero-Day
+- **Description**: New zero-day vulnerability affecting SMA1000 devices, chained with previously disclosed critical vulnerability
+- **Impact**: Complete device compromise and network infiltration
+- **Status**: Active exploitation ongoing, zero-day status indicates no patch available
 
-### HPE OneView Remote Code Execution Vulnerability
-- **Description**: Maximum-severity security flaw in HPE OneView Software
-- **Impact**: Unauthenticated remote code execution with complete system control
-- **Status**: Recently patched; maximum CVSS score of 10.0 indicates critical severity
+### UEFI Firmware DMA Attack Vulnerability
+- **Description**: Direct Memory Access (DMA) attack vulnerability in UEFI firmware implementations bypassing early-boot memory protections
+- **Impact**: Pre-boot attacks enabling persistent system compromise and bootkit installation
+- **Status**: Affects multiple major motherboard vendors, exploitation enables early-boot attacks
 
-### UEFI Firmware DMA Vulnerability
-- **Description**: UEFI firmware implementation vulnerability enabling direct memory access attacks
-- **Impact**: Pre-boot attacks that bypass early-boot memory protections
-- **Status**: Affects multiple major motherboard vendors; patches required from individual manufacturers
+### HPE OneView Remote Code Execution
+- **Description**: Maximum-severity security flaw allowing unauthenticated remote code execution
+- **Impact**: Complete system compromise without authentication requirements
+- **Status**: Critical vulnerability with CVSS score of 10.0, patches released
 
 ## Affected Systems and Products
 
-- **WatchGuard Firebox Firewalls**: Fireware OS versions with VPN functionality
-- **SonicWall SMA1000 Devices**: Edge Access devices with chained vulnerability exploitation
-- **HPE OneView Software**: Infrastructure management platform with unauthenticated RCE exposure
-- **UEFI Motherboards**: ASRock, ASUS, GIGABYTE, and MSI motherboard models vulnerable to DMA attacks
-- **Microsoft 365 Accounts**: Targeted through OAuth device code phishing campaigns
-- **Fortinet FortiCloud SSO**: Over 25,000 devices exposed online with authentication bypass vulnerability
-- **Gladinet CentreStack**: File servers targeted by Clop ransomware for data theft
-- **University Systems**: Sydney University coding repositories compromised with student/staff data exposure
+- **WatchGuard Firebox Firewalls**: Fireware OS VPN components experiencing active exploitation
+- **SonicWall SMA1000 Devices**: Edge Access devices targeted in zero-day attack campaigns
+- **Major Motherboard Vendors**: ASUS, Gigabyte, MSI, and ASRock motherboards with vulnerable UEFI implementations
+- **Microsoft 365**: Accounts targeted through OAuth device code phishing attacks
+- **HPE OneView Software**: Infrastructure management platform with maximum-severity RCE vulnerability
+- **Fortinet Devices**: Over 25,000 FortiCloud SSO-enabled devices exposed to authentication bypass attacks
+- **Gladinet CentreStack**: File servers targeted by Clop ransomware for data theft operations
 
 ## Attack Vectors and Techniques
 
-- **OAuth Device Code Phishing**: Microsoft 365 credential theft through device code authentication workflows
-- **ATM Jackpotting**: Ploutus malware deployment for cash dispensing attacks
-- **DMA Attacks**: Direct memory access exploitation bypassing early-boot protections
-- **Group Policy Abuse**: Windows Group Policy manipulation for espionage malware deployment
-- **Malware Distribution**: Cracked software and YouTube videos spreading CountLoader and GachiLoader
-- **Ransomware Evolution**: RansomHouse upgrading to multi-layered encryption processing
-- **Infrastructure Targeting**: Cyberattacks against critical water utility systems
+- **OAuth Device Code Phishing**: Microsoft 365 credential theft using legitimate device authentication workflows
+- **DMA Attacks**: Direct memory access exploitation during early boot phases to bypass security protections
+- **Group Policy Abuse**: Windows Group Policy mechanisms used for malware deployment and persistence
+- **ATM Jackpotting**: Physical malware deployment on ATM systems using Ploutus malware for cash dispensing
+- **Ransomware-as-a-Service**: Multi-layered encryption techniques with enhanced data processing capabilities
+- **Phishing-as-a-Service**: Raccoon0365 platform targeting Microsoft 365 environments
+- **VPN Exploitation**: Remote code execution through compromised VPN infrastructure
 
 ## Threat Actor Activities
 
-- **Iranian Infy APT**: Resurfaced after five years of silence with new malware activity
-- **Russia-Linked Groups**: Microsoft 365 device code phishing for account takeovers and infrastructure attacks against Denmark
-- **LongNosedGoblin**: China-aligned APT targeting Southeast Asian and Japanese government entities
-- **RaccoonO365 Developers**: Nigerian arrests related to Microsoft 365 phishing-as-a-service platform
-- **Clop Ransomware Gang**: Data theft extortion campaigns targeting CentreStack file servers
-- **RansomHouse Group**: Ransomware-as-a-service operations with upgraded encryption capabilities
-- **ATM Fraud Networks**: 54 individuals charged in multi-million dollar jackpotting scheme
-- **North Korean Groups**: Sophisticated targeting of "bigger fish" for larger cryptocurrency payouts
+- **Infy APT (Prince of Persia)**: Iranian threat group resurging after five-year dormancy with new malware campaigns
+- **LongNosedGoblin**: China-aligned APT group targeting Southeast Asian and Japanese government entities using Windows Group Policy for espionage malware deployment
+- **Russia-Linked Groups**: Multiple actors conducting Microsoft 365 device code phishing campaigns for account takeovers
+- **RansomHouse**: Ransomware-as-a-Service operation upgrading encryption methods with multi-layered data processing
+- **Clop Ransomware**: Targeting Internet-exposed Gladinet CentreStack servers for data theft extortion
+- **ATM Fraud Networks**: 54 individuals charged in multi-million dollar ATM jackpotting conspiracy using Ploutus malware
+- **CountLoader/GachiLoader Operators**: Malware distribution through cracked software sites and YouTube videos
