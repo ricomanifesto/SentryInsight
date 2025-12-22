@@ -1,61 +1,72 @@
 # Exploitation Report
 
-Critical exploitation activity is occurring across multiple fronts, with threat actors actively targeting network infrastructure, mobile platforms, and enterprise systems. The most severe activity involves a critical remote code execution vulnerability in WatchGuard Firebox firewalls with over 115,000 devices exposed online remaining unpatched. Sophisticated threat campaigns are also targeting Cisco VPN and email services, SonicWall Edge Access devices through zero-day attacks, and Fortinet devices through authentication bypass vulnerabilities. Additionally, multiple Android malware operations are deploying SMS stealers and remote access trojans at scale, while state-sponsored groups are conducting espionage campaigns against government entities across Southeast Asia.
+The cybersecurity landscape is currently dominated by several critical zero-day exploitations and active attacks targeting enterprise infrastructure. Most notably, WatchGuard Firebox devices are under active exploitation via CVE-2025-14733, a critical remote code execution vulnerability affecting over 115,000 exposed devices. SonicWall Edge Access devices are being targeted through chained zero-day attacks, while ASUS Live Update systems face exploitation through CVE-2025-59374. Additionally, over 25,000 FortiCloud SSO devices remain exposed to ongoing attacks targeting a critical authentication bypass vulnerability. The threat landscape is further complicated by sophisticated phishing campaigns targeting Microsoft 365 accounts using OAuth device code mechanisms, and the emergence of new threat actors like LongNosedGoblin conducting espionage operations against Asian governments.
 
 ## Active Exploitation Details
 
-### WatchGuard Firebox Firewall Remote Code Execution
-- **Description**: Critical remote code execution vulnerability in WatchGuard Fireware OS affecting VPN functionality
-- **Impact**: Allows attackers to execute arbitrary code remotely on firewall devices, potentially compromising network security
-- **Status**: Actively exploited in real-world attacks, patches available but over 115,000 devices remain unpatched
+### WatchGuard Fireware OS VPN Vulnerability
+- **Description**: Critical security flaw in WatchGuard Fireware OS affecting VPN functionality
+- **Impact**: Remote code execution allowing complete system compromise
+- **Status**: Actively exploited in real-world attacks, patches have been released
 - **CVE ID**: CVE-2025-14733
 
-### SonicWall Edge Access Zero-Day Attacks
-- **Description**: New zero-day vulnerability being chained with previously disclosed critical vulnerability in SMA1000 devices
-- **Impact**: Enables unauthorized access and potential compromise of SonicWall Edge Access infrastructure
-- **Status**: Active exploitation ongoing, represents latest in series of attacks against SonicWall devices
+### ASUS Live Update Vulnerability
+- **Description**: Vulnerability in ASUS Live Update software component
+- **Impact**: System compromise through software update mechanism
+- **Status**: Under exploitation, linked to CISA alerts
+- **CVE ID**: CVE-2025-59374
 
-### Fortinet FortiCloud SSO Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability affecting FortiCloud SSO-enabled devices
-- **Impact**: Allows remote attackers to bypass authentication mechanisms and gain unauthorized access
-- **Status**: Over 25,000 devices exposed online with ongoing attacks targeting this vulnerability
+### SonicWall Edge Access Zero-Day
+- **Description**: Previously unknown vulnerability in SonicWall SMA1000 Edge Access devices
+- **Impact**: Complete device compromise when chained with existing vulnerabilities
+- **Status**: Active zero-day exploitation targeting enterprise edge devices
+
+### FortiCloud SSO Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability in Fortinet devices with FortiCloud SSO enabled
+- **Impact**: Unauthorized access to protected networks and systems
+- **Status**: Ongoing attacks against over 25,000 exposed devices
 
 ### HPE OneView Remote Code Execution
-- **Description**: Maximum severity unauthenticated remote code execution flaw in HPE OneView Software
-- **Impact**: Enables complete system compromise without authentication requirements
-- **Status**: Critical vulnerability with CVSS score of 10.0, patches released
+- **Description**: Maximum-severity security flaw in HPE OneView Software
+- **Impact**: Unauthenticated remote code execution with complete system control
+- **Status**: Recently patched, rated CVSS 10.0
 
-### UEFI Firmware DMA Attack Vulnerability
-- **Description**: Direct memory access vulnerability in UEFI firmware implementations affecting early-boot memory protections
-- **Impact**: Enables pre-boot attacks that can bypass traditional security measures and establish persistent access
-- **Status**: Affects motherboards from major vendors including ASUS, Gigabyte, MSI, and ASRock
+### UEFI Firmware DMA Attacks
+- **Description**: UEFI firmware implementation vulnerability enabling direct memory access attacks
+- **Impact**: Pre-boot system compromise bypassing early-boot memory protections
+- **Status**: Affects multiple major motherboard manufacturers
 
 ## Affected Systems and Products
 
-- **WatchGuard Firebox Firewalls**: Over 115,000 devices running vulnerable Fireware OS versions exposed online
-- **SonicWall SMA1000 Devices**: Edge Access appliances targeted in sophisticated zero-day attack campaigns
-- **Fortinet Devices**: Over 25,000 FortiCloud SSO-enabled devices vulnerable to authentication bypass attacks
-- **HPE OneView Software**: Enterprise infrastructure management platforms affected by maximum severity RCE flaw
-- **Motherboards**: ASUS, Gigabyte, MSI, and ASRock motherboards with vulnerable UEFI firmware implementations
-- **Android Devices**: Mobile platforms targeted by Wonderland SMS stealer and various dropper applications
-- **Cisco VPN Services**: Network infrastructure targeted in separate sophisticated threat campaigns
-- **Microsoft 365**: Enterprise accounts compromised through OAuth device code phishing attacks
+- **WatchGuard Firebox Devices**: Over 115,000 exposed devices worldwide running vulnerable Fireware OS
+- **SonicWall SMA1000**: Edge Access devices vulnerable to chained zero-day exploitation
+- **ASUS Systems**: Live Update software installations across consumer and enterprise environments
+- **Fortinet Devices**: Over 25,000 devices with FortiCloud SSO enabled exposed online
+- **HPE OneView Software**: Enterprise infrastructure management platforms
+- **Motherboard Platforms**: ASUS, Gigabyte, MSI, and ASRock motherboards with vulnerable UEFI implementations
+- **Microsoft 365**: Accounts targeted through OAuth device code phishing mechanisms
+- **Android Devices**: Mobile platforms targeted by Wonderland SMS stealer and dropper applications
+- **ATM Systems**: Financial infrastructure targeted by Ploutus malware in jackpotting schemes
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution**: Direct exploitation of network appliances and enterprise software for immediate system compromise
-- **Zero-Day Chaining**: Combining newly discovered vulnerabilities with previously disclosed flaws for enhanced attack effectiveness
-- **Device Code Phishing**: Exploitation of OAuth device authorization workflows to steal Microsoft 365 credentials and conduct account takeovers
-- **Android Malware Deployment**: Distribution of malicious applications through cracked software sites and social media platforms
-- **DMA Attacks**: Exploitation of UEFI vulnerabilities to perform direct memory access attacks during early boot phases
-- **Group Policy Abuse**: Leveraging Windows Group Policy mechanisms to deploy espionage malware in government networks
-- **Phishing-as-a-Service**: Utilization of platforms like Raccoon0365 to conduct targeted Microsoft 365 credential theft operations
+- **Remote Code Execution**: Exploitation of critical RCE vulnerabilities in network devices and enterprise software
+- **Zero-Day Chaining**: Combination of newly discovered vulnerabilities with existing flaws for enhanced impact
+- **OAuth Device Code Phishing**: Abuse of Microsoft 365 device code authentication workflows for account takeover
+- **DMA Attacks**: Direct memory access exploitation during early boot phases on vulnerable motherboards
+- **Malicious App Distribution**: Android malware delivery through fake legitimate applications
+- **Group Policy Abuse**: Windows Group Policy mechanisms used for espionage malware deployment
+- **SMS Theft Operations**: Large-scale mobile credential harvesting targeting specific geographic regions
+- **ATM Jackpotting**: Physical and logical attacks on automated teller machines using specialized malware
 
 ## Threat Actor Activities
 
-- **LongNosedGoblin**: China-aligned APT group targeting governmental entities in Southeast Asia and Japan using Windows Group Policy for malware deployment
-- **Infy APT Group**: Iranian threat actor resuming operations after years of silence with new malware activity targeting government and diplomatic entities
-- **Russia-Aligned Groups**: Conducting Microsoft 365 device code phishing campaigns and destructive cyberattacks against critical infrastructure including Danish water utilities
-- **RansomHouse**: Ransomware-as-a-service operation upgrading encryption capabilities with multi-layered data processing techniques
-- **Android Malware Operators**: Large-scale campaigns targeting users in Uzbekistan with SMS stealers and remote access trojans through legitimate-appearing applications
-- **ATM Jackpotting Networks**: Multi-million dollar criminal conspiracy involving 54 individuals using Ploutus malware for ATM compromise operations
+- **LongNosedGoblin**: China-aligned APT group conducting espionage operations against Southeast Asian and Japanese government entities using Windows Group Policy for malware deployment
+- **Infy APT (Prince of Persia)**: Iranian threat actor resurging after years of inactivity with new malware campaigns
+- **Russia-Linked Groups**: Multiple campaigns targeting Microsoft 365 accounts through sophisticated phishing operations and conducting hybrid attacks against Danish critical infrastructure
+- **Nefilim Ransomware Gang**: Ukrainian affiliate operations targeting high-revenue businesses across multiple countries
+- **RansomHouse**: Ransomware-as-a-Service operation upgrading encryption capabilities with multi-layered data processing
+- **Raccoon0365 Developers**: Nigerian cybercriminals operating phishing-as-a-service platforms targeting Microsoft 365 environments
+- **North Korean Groups**: Sophisticated operations targeting high-value financial institutions with patient, strategic approaches
+- **ATM Fraud Networks**: Large-scale organized crime involving 54 individuals in multi-million dollar jackpotting schemes
+- **Android Malware Operators**: Threat actors distributing Wonderland SMS stealer and various RAT capabilities through dropper applications
