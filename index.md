@@ -1,65 +1,60 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical areas of active exploitation, with attackers targeting fundamental network infrastructure, mobile platforms, and software supply chains. WatchGuard firewalls are experiencing active exploitation of a critical remote code execution vulnerability affecting over 115,000 exposed devices. Meanwhile, sophisticated Android malware campaigns are targeting users in Uzbekistan with SMS stealer capabilities, and supply chain attacks through malicious npm packages are compromising WhatsApp accounts and messages. Additionally, state-sponsored groups are leveraging advanced phishing techniques against Microsoft 365 environments, while ransomware operations continue to impact critical infrastructure and educational institutions.
+Critical exploitation activity is currently centered around several high-impact vulnerabilities and sophisticated malware campaigns. Most notably, WatchGuard firewalls are under active attack through CVE-2025-14733, affecting over 115,000 exposed devices worldwide. Android users in Uzbekistan face targeted SMS stealer attacks using the Wonderland malware, while developers are being compromised through malicious npm packages that steal WhatsApp credentials. Multiple APT groups, including Iranian Infy APT and Chinese LongNosedGoblin, have resurfaced with enhanced capabilities targeting government and enterprise systems. The threat landscape also includes sophisticated macOS malware bypassing Gatekeeper protections and various ransomware operations impacting critical infrastructure.
 
 ## Active Exploitation Details
 
 ### WatchGuard Fireware OS VPN Vulnerability
-- **Description**: Critical remote code execution vulnerability in WatchGuard Fireware OS VPN functionality
-- **Impact**: Complete system compromise allowing attackers to execute arbitrary code with elevated privileges
-- **Status**: Actively exploited in real-world attacks with patches available from WatchGuard
+- **Description**: Critical security flaw in Fireware OS affecting VPN functionality with remote code execution capabilities
+- **Impact**: Attackers can achieve remote code execution on affected firewall devices, potentially compromising entire network perimeters
+- **Status**: Actively exploited in real-world attacks with over 115,000 devices remaining unpatched
 - **CVE ID**: CVE-2025-14733
 
-### Android SMS Stealer Malware (Wonderland)
-- **Description**: Sophisticated Android malware delivered through dropper applications masquerading as legitimate software
-- **Impact**: SMS interception, credential theft, and remote access capabilities targeting Telegram users
-- **Status**: Active ongoing campaign with evolving attack methods
-
-### Malicious npm Package WhatsApp API
-- **Description**: Fully functional WhatsApp API package on npm repository containing malicious code for data exfiltration
-- **Impact**: Intercepts WhatsApp messages, steals contact lists, and captures login tokens
-- **Status**: Active supply chain attack targeting developers and organizations
-
 ### ASUS Live Update Vulnerability
-- **Description**: Vulnerability in ASUS Live Update software that could allow privilege escalation
-- **Impact**: Local privilege escalation on affected ASUS systems
-- **Status**: Historical vulnerability with recent attention but no current active exploitation
+- **Description**: Security vulnerability in ASUS Live Update system that has been flagged by CISA
+- **Impact**: Potential system compromise through the update mechanism
+- **Status**: Years-old attack vector that continues to pose risks
 - **CVE ID**: CVE-2025-59374
 
 ### UEFI Early-Boot DMA Vulnerability
-- **Description**: Security flaw in UEFI firmware affecting multiple motherboard manufacturers
-- **Impact**: Early-boot direct memory access attacks bypassing security protections
-- **Status**: Newly disclosed vulnerability affecting ASRock, ASUS, GIGABYTE, and MSI motherboards
+- **Description**: Security flaw affecting UEFI firmware that enables early-boot direct memory access attacks
+- **Impact**: Attackers can perform DMA attacks during the boot process, potentially bypassing security measures
+- **Status**: Affects multiple motherboard vendors including ASRock, ASUS, GIGABYTE, and MSI
+
+### Wonderland SMS Stealer
+- **Description**: Android malware designed to steal SMS messages and other sensitive data through dropper applications
+- **Impact**: Theft of SMS messages, contacts, and potential two-factor authentication bypass
+- **Status**: Actively targeting users in Uzbekistan through malicious Telegram-distributed apps
 
 ## Affected Systems and Products
 
-- **WatchGuard Firebox Devices**: Over 115,000 internet-exposed firewall devices vulnerable to remote code execution
-- **Android Devices**: Uzbek users targeted through malicious applications on Android platform
-- **npm Ecosystem**: Node.js developers using WhatsApp API packages from npm registry
-- **ASUS Systems**: Computers with ASUS Live Update software installed
-- **Motherboard Systems**: ASRock, ASUSTeK Computer, GIGABYTE, and MSI motherboard models with affected UEFI firmware
-- **Microsoft 365 Environments**: Enterprise and government organizations using Microsoft 365 services
-- **Romanian Water Authority**: Critical infrastructure systems affected by ransomware
-- **University of Phoenix**: Educational institution network compromised by Clop ransomware
-- **Coupang Platform**: E-commerce platform affecting 33.7 million users
+- **WatchGuard Firebox Devices**: Over 115,000 internet-exposed devices vulnerable to remote code execution
+- **macOS Systems**: Targeted by MacSync information stealer using digitally signed Swift applications
+- **Android Devices**: Uzbekistan users affected by Wonderland SMS stealer malware
+- **npm Ecosystem**: Developers using fake WhatsApp API packages face credential theft
+- **ASUS Systems**: Devices using ASUS Live Update vulnerable to exploitation
+- **Multiple Motherboards**: ASRock, ASUS, GIGABYTE, and MSI motherboards affected by UEFI vulnerabilities
+- **Microsoft 365 Environments**: Targeted by Russia-linked device code phishing campaigns
+- **Cisco VPN Services**: Hit by separate threat campaigns affecting VPN and email services
 
 ## Attack Vectors and Techniques
 
-- **Network Infrastructure Exploitation**: Direct targeting of exposed firewall management interfaces for remote code execution
-- **Mobile Dropper Applications**: Malicious Android apps distributed through unofficial channels to deliver SMS stealer payloads
-- **Supply Chain Poisoning**: Injection of malicious code into legitimate-appearing software packages in public repositories
-- **OAuth Device Code Phishing**: Advanced phishing campaigns leveraging Microsoft 365 OAuth device authorization workflows
-- **UEFI Firmware Exploitation**: Early-boot attacks targeting system firmware to bypass security controls
-- **Ransomware Deployment**: Multi-stage ransomware attacks targeting critical infrastructure and educational institutions
-- **ATM Jackpotting**: Physical and malware-based attacks on ATM systems using Ploutus malware
+- **Firewall Exploitation**: Remote code execution through unpatched VPN vulnerabilities in WatchGuard devices
+- **Mobile App Distribution**: Malicious Android applications distributed through Telegram channels
+- **Supply Chain Attacks**: Malicious npm packages masquerading as legitimate WhatsApp API libraries
+- **Gatekeeper Bypass**: MacSync malware using digitally signed and notarized applications to evade macOS security
+- **Device Code Phishing**: Russia-linked groups using Microsoft 365 device authentication workflows for account takeover
+- **Early-Boot DMA Attacks**: UEFI vulnerabilities enabling direct memory access during system boot
+- **Cracked Software Distribution**: CountLoader and GachiLoader malware spread through pirated software and YouTube videos
+- **ATM Jackpotting**: Ploutus malware deployment for multi-million dollar ATM theft schemes
 
 ## Threat Actor Activities
 
-- **Infy APT (Prince of Persia)**: Iranian threat group resurging with new malware activity after years of dormancy
-- **LongNosedGoblin**: China-aligned APT group conducting espionage operations against Asian government networks using Group Policy techniques
-- **Russia-Linked Groups**: Multiple suspected Russian threat actors conducting Microsoft 365 phishing campaigns using device code authentication
-- **Clop Ransomware Gang**: Responsible for University of Phoenix breach affecting 3.5 million individuals
-- **RansomHouse Operators**: Ransomware-as-a-service group upgrading encryption techniques with multi-layered data processing
-- **Nigerian Cybercriminals**: Developers and operators of RaccoonO365 phishing platform targeting Microsoft 365 accounts
-- **Nefilim Ransomware Affiliates**: Ukrainian national admitted to affiliate role in ransomware operations targeting high-revenue businesses
-- **North Korean Groups**: Sophisticated cryptocurrency theft operations focusing on larger targets with patient, strategic approaches
+- **Iranian Infy APT**: Resurfaced after five years with new malware activity targeting various sectors
+- **Chinese LongNosedGoblin**: Newly identified APT group targeting Asian governments using Group Policy for network reconnaissance
+- **Russia-Linked Groups**: Conducting Microsoft 365 device code phishing campaigns for account takeovers
+- **Clop Ransomware Gang**: Breached University of Phoenix affecting 3.5 million individuals
+- **RansomHouse**: Upgraded encryption techniques with multi-layered data processing capabilities
+- **Nefilim Ransomware Affiliates**: Ukrainian national pleaded guilty to conducting attacks against high-revenue US businesses
+- **RaccoonO365 Developers**: Nigerian arrests related to Microsoft 365 phishing attacks targeting major corporations
+- **ATM Jackpotting Groups**: 54 individuals charged in connection with Ploutus malware ATM theft schemes
