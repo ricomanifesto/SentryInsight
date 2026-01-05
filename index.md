@@ -1,59 +1,61 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple attack surfaces, with threat actors exploiting vulnerabilities in Fortinet firewalls, IBM API Connect authentication systems, and leveraging supply chain attacks through compromised browser extensions and npm packages. The most severe immediate threats include over 10,000 internet-exposed Fortinet firewalls vulnerable to a five-year-old 2FA bypass exploit that remains actively exploited, and a critical IBM API Connect authentication flaw with a CVSS 9.8 rating. Additionally, sophisticated supply chain attacks like Shai-Hulud continue to evolve, with new variants targeting npm registries and browser extensions, resulting in millions of dollars in cryptocurrency theft and affecting millions of users worldwide through malicious browser extension campaigns.
+Current cybersecurity landscape reveals critical active exploitation across multiple attack vectors. Most notably, over 10,000 Fortinet firewalls remain vulnerable to a five-year-old two-factor authentication bypass vulnerability that attackers are actively exploiting. The RondoDox botnet has been conducting a persistent nine-month campaign exploiting the React2Shell vulnerability to compromise IoT devices and web servers. Additionally, the Kimwolf botnet is exploiting vulnerabilities that have been active for months, posing significant threats to local networks. Supply chain attacks continue to plague the ecosystem, with the Shai-Hulud attack linked to major cryptocurrency thefts, including an $8.5 million breach of Trust Wallet and the compromise of over 8.8 million users through malicious browser extensions.
 
 ## Active Exploitation Details
 
-### Fortinet Firewall 2FA Bypass Vulnerability
-- **Description**: A five-year-old two-factor authentication bypass vulnerability in Fortinet firewalls that allows attackers to circumvent security controls
-- **Impact**: Attackers can gain unauthorized access to protected systems by bypassing 2FA mechanisms
-- **Status**: Actively exploited in the wild with over 10,000 internet-exposed devices still vulnerable
+### **Fortinet Firewall 2FA Bypass Vulnerability**
+- **Description**: A five-year-old two-factor authentication bypass vulnerability affecting Fortinet firewalls
+- **Impact**: Attackers can bypass 2FA mechanisms to gain unauthorized access to firewall systems
+- **Status**: Actively exploited with over 10,000 Internet-exposed devices still vulnerable
 
-### IBM API Connect Authentication Flaw
-- **Description**: Critical security flaw in IBM API Connect authentication system that enables remote access exploitation
-- **Impact**: Attackers can gain remote access to the API Connect application and potentially compromise connected systems
-- **Status**: Critical vulnerability requiring immediate patching
+### **React2Shell Vulnerability**
+- **Description**: Critical vulnerability being exploited by the RondoDox botnet in a nine-month-long persistent campaign
+- **Impact**: Allows attackers to hijack IoT devices and web servers, enrolling them into botnets
+- **Status**: Active exploitation ongoing for nine months targeting IoT infrastructure
+
+### **Kimwolf Botnet Exploited Vulnerability**
+- **Description**: Vulnerability that has been exploited for months by the Kimwolf botnet
+- **Impact**: Enables botnet operators to compromise local network infrastructure
+- **Status**: Active exploitation for several months with urgent security advisory issued
+
+### **IBM API Connect Authentication System Flaw**
+- **Description**: Critical authentication system vulnerability in IBM API Connect
+- **Impact**: Could allow attackers to gain remote access to API Connect applications
+- **Status**: Critical severity with CVSS score of 9.8
 - **CVE ID**: CVE-2025-13915
-
-### React2Shell Critical Vulnerability
-- **Description**: Critical flaw being exploited by the RondoDox botnet to compromise IoT devices and web servers
-- **Impact**: Enables hijacking of IoT devices and web applications for botnet enrollment
-- **Status**: Under active exploitation for nine months in persistent campaign
-
-### Trust Wallet Chrome Extension Compromise
-- **Description**: Vulnerability in Trust Wallet's Chrome extension that was exploited through the Shai-Hulud supply chain attack
-- **Impact**: Resulted in theft of approximately $8.5 million from over 2,500 cryptocurrency wallets
-- **Status**: Compromised extension linked to industry-wide npm supply chain attack
 
 ## Affected Systems and Products
 
-- **Fortinet Firewalls**: Over 10,000 internet-exposed devices remain vulnerable to 2FA bypass attacks
-- **IBM API Connect**: Authentication system affected by critical remote access vulnerability
-- **IoT Devices and Web Servers**: Targeted by RondoDox botnet through React2Shell exploitation
-- **Trust Wallet Chrome Extension**: Compromised through Shai-Hulud supply chain attack affecting 2,500+ wallets
-- **Browser Extensions**: DarkSpectre campaigns impacted 8.8 million users through malicious extensions
-- **macOS Systems**: Targeted by GlassWorm malware campaign using trojanized crypto wallet applications
-- **npm Registry**: Affected by modified Shai-Hulud worm variants for supply chain attacks
-- **Discord Platforms**: Targeted by VVS Stealer malware for credential harvesting
+- **Fortinet Firewalls**: Over 10,000 Internet-exposed devices vulnerable to 2FA bypass attacks
+- **IoT Devices**: Targeted by RondoDox botnet through React2Shell vulnerability exploitation
+- **Web Servers**: Compromised by RondoDox botnet operations for nine months
+- **npm Registry**: Affected by Shai-Hulud worm variants targeting JavaScript package ecosystem
+- **Trust Wallet Chrome Extension**: $8.5 million cryptocurrency theft linked to supply chain compromise
+- **Browser Extensions**: Over 8.8 million users impacted by DarkSpectre campaigns including ShadyPanda and GhostPoster
+- **macOS Systems**: Targeted by GlassWorm malware campaign through trojanized crypto wallet applications
+- **Discord Platforms**: Targeted by VVS Stealer malware harvesting credentials and tokens
+- **IBM API Connect**: Critical authentication vulnerability affecting API management systems
+- **Local Networks**: Compromised by Kimwolf botnet operations
 
 ## Attack Vectors and Techniques
 
-- **Two-Factor Authentication Bypass**: Exploitation of legacy Fortinet firewall vulnerabilities to circumvent 2FA
-- **Supply Chain Attacks**: Shai-Hulud variants targeting npm packages and browser extensions for widespread compromise
-- **Remote Access Exploitation**: Critical IBM API Connect authentication bypass enabling remote system access
-- **Botnet Enrollment**: RondoDox using React2Shell exploits for persistent IoT device compromise
-- **Trojanized Applications**: GlassWorm campaign delivering malicious crypto wallets through VSCode/OpenVSX extensions
-- **Information Stealing**: VVS Stealer using obfuscated Python code to harvest Discord credentials and tokens
-- **Phishing Campaigns**: Multi-stage attacks abusing Google Cloud email features for credential theft
-- **Browser Extension Manipulation**: Large-scale campaigns affecting millions through malicious browser add-ons
+- **Supply Chain Attacks**: Shai-Hulud worm exploiting npm package dependencies to compromise downstream applications
+- **Malicious Browser Extensions**: DarkSpectre campaigns distributing malware through compromised browser extensions
+- **Trojanized Applications**: GlassWorm campaign using malicious VSCode/OpenVSX extensions to deliver cryptocurrency wallet trojans
+- **Phishing Campaigns**: Multi-stage attacks abusing Google Cloud Application Integration features for credential theft
+- **Python-based Information Stealing**: VVS Stealer using obfuscated Python code to harvest Discord credentials
+- **Botnet Operations**: RondoDox and Kimwolf botnets conducting persistent campaigns against IoT and network infrastructure
+- **Authentication Bypass**: Exploitation of 2FA bypass vulnerabilities in enterprise firewall systems
+- **Remote Access Trojan Deployment**: Transparent Tribe targeting Indian entities with custom RAT malware
 
 ## Threat Actor Activities
 
-- **RondoDox Operators**: Conducting nine-month persistent campaign targeting IoT devices and web servers through React2Shell exploitation
-- **Transparent Tribe**: Launching new RAT attacks against Indian government and academic institutions with remote access trojans
-- **DarkSpectre Threat Actor**: Operating multiple browser extension campaigns (ShadyPanda, GhostPoster, DarkSpectre) affecting 8.8 million users
-- **Shai-Hulud Operators**: Evolving supply chain attack methods with modified variants targeting npm registry and browser extensions
-- **GlassWorm Campaign**: Fourth wave targeting macOS developers with trojanized cryptocurrency wallet applications
-- **ShinyHunters Group**: Claiming breach of cybersecurity firm Resecurity, though disputed as honeypot access
-- **Kimwolf Botnet Operators**: Targeting local networks through vulnerability exploitation for months
-- **VVS Stealer Developers**: Creating Python-based information stealers specifically targeting Discord users and credentials
+- **ShinyHunters**: Claimed breach of cybersecurity firm Resecurity, though firm states it was a honeypot operation
+- **Transparent Tribe**: Launching fresh RAT attacks against Indian governmental, academic, and strategic entities
+- **RondoDox Operators**: Conducting nine-month persistent botnet campaign targeting IoT devices and web servers
+- **Kimwolf Botnet Operators**: Active exploitation of local network vulnerabilities for months
+- **DarkSpectre Campaign**: Attributed to threat actor behind ShadyPanda and GhostPoster browser extension attacks affecting 8.8 million users
+- **Shai-Hulud Actors**: Conducting supply chain attacks against npm registry with modified worm variants
+- **Cryptocurrency Thieves**: Leveraging 2022 LastPass breach data to conduct ongoing wallet drainage attacks
+- **VVS Stealer Operators**: Deploying Python-based malware specifically targeting Discord user credentials
