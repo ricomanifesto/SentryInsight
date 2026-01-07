@@ -1,64 +1,63 @@
 # Exploitation Report
 
-The current threat landscape reveals significant exploitation activity targeting multiple platforms and technologies. Active attacks are leveraging command injection vulnerabilities in legacy D-Link DSL routers, critical security flaws in web applications including a 9.9 CVSS vulnerability in n8n workflow automation platform and a 9.2 CVSS flaw in AdonisJS Bodyparser. The Kimwolf Android botnet has expanded to over 2 million infected devices through proxy network exploitation, while threat actors are actively exploiting the MongoBleed vulnerability in MongoDB servers. Social engineering campaigns using ClickFix techniques and fake Blue Screen of Death displays are delivering DCRat malware to hospitality sector targets.
+The current threat landscape reveals several critical vulnerabilities being actively exploited by threat actors. D-Link DSL gateway routers are under attack through a command injection vulnerability, while a severe memory leak vulnerability dubbed "MongoBleed" is being exploited to extract passwords and tokens from MongoDB servers. The cybersecurity community is also grappling with emerging threats including the massive Kimwolf Android botnet affecting over 2 million devices, sophisticated ClickFix campaigns using fake Windows Blue Screen of Death screens, and supply chain risks in popular development environments.
 
 ## Active Exploitation Details
 
-### D-Link DSL Router Command Injection Vulnerability
-- **Description**: Command injection vulnerability affecting multiple legacy D-Link DSL gateway routers that are no longer supported
-- **Impact**: Allows threat actors to execute arbitrary commands on compromised devices
-- **Status**: Currently being actively exploited in the wild; affected devices are out of support with no patches available
-
-### n8n Workflow Automation Platform Vulnerability
-- **Description**: Critical security vulnerability in the open-source workflow automation platform
-- **Impact**: Enables authenticated attackers to execute arbitrary system commands on the underlying system
-- **Status**: Actively disclosed with patches available
-- **CVE ID**: CVSS score 9.9
-
-### AdonisJS Bodyparser Critical Flaw
-- **Description**: Critical security vulnerability in the "@adonisjs/bodyparser" npm package
-- **Impact**: Allows attackers to perform arbitrary file write operations on servers
-- **Status**: Patches available, users advised to update immediately
-- **CVE ID**: CVSS score 9.2
+### D-Link DSL Gateway Command Injection Vulnerability
+- **Description**: A command injection vulnerability affecting multiple D-Link DSL gateway routers that are out of support
+- **Impact**: Allows threat actors to execute arbitrary commands on affected devices
+- **Status**: Currently being exploited in the wild; devices are legacy and no longer supported
 
 ### MongoBleed Memory Leak Vulnerability
-- **Description**: Memory leak security vulnerability affecting MongoDB servers
-- **Impact**: Allows unauthenticated attackers to extract passwords and tokens from MongoDB servers
-- **Status**: Under active attack, patches available
+- **Description**: A critical memory leak security vulnerability in MongoDB servers that exposes sensitive data
+- **Impact**: Enables unauthenticated attackers to extract passwords and tokens from MongoDB servers
+- **Status**: Under active attack; immediate patching required
 
-### TOTOLINK EX200 Wireless Range Extender Flaw
-- **Description**: Unpatched firmware security flaw in TOTOLINK EX200 wireless range extender
-- **Impact**: Enables remote authenticated attackers to gain full control of the device
-- **Status**: Remains unpatched according to CERT/CC disclosure
+### n8n Workflow Platform Vulnerability
+- **Description**: A critical security flaw in the n8n open-source workflow automation platform
+- **Impact**: Enables authenticated attackers to execute arbitrary system commands
+- **Status**: Critical vulnerability with CVSS score of 9.9; requires immediate patching
+
+### AdonisJS Bodyparser Vulnerability
+- **Description**: A critical security vulnerability in the "@adonisjs/bodyparser" npm package
+- **Impact**: Allows attackers to perform arbitrary file writes on servers
+- **Status**: Critical flaw with CVSS score of 9.2; users advised to update immediately
+
+### TOTOLINK EX200 Firmware Flaw
+- **Description**: An unpatched firmware vulnerability in TOTOLINK EX200 wireless range extender
+- **Impact**: Allows remote authenticated attackers to gain full device takeover
+- **Status**: Unpatched vulnerability disclosed by CERT/CC
 
 ## Affected Systems and Products
 
 - **D-Link DSL Gateway Routers**: Legacy models that are out of support and vulnerable to command injection
-- **n8n Workflow Automation Platform**: Open-source automation platform vulnerable to command execution
-- **AdonisJS Bodyparser**: npm package used in Node.js applications for parsing request bodies
-- **MongoDB Servers**: Database servers affected by the MongoBleed memory leak vulnerability
-- **TOTOLINK EX200**: Wireless range extender with unpatched firmware vulnerabilities
-- **Android Devices**: Over 2 million devices infected by Kimwolf botnet through proxy networks
-- **Chrome Web Store Extensions**: Two malicious extensions targeting ChatGPT and DeepSeek users
-- **VS Code Forks**: AI-powered development environments including Cursor, Windsurf, Google Antigravity, and Trae
+- **MongoDB Servers**: All versions affected by MongoBleed vulnerability
+- **n8n Platform**: Open-source workflow automation platform instances
+- **AdonisJS Applications**: Systems using the "@adonisjs/bodyparser" npm package
+- **TOTOLINK EX200**: Wireless range extender devices with vulnerable firmware
+- **Android Devices**: Over 2 million devices infected by Kimwolf botnet
+- **Chrome Browser**: Extensions targeting ChatGPT and DeepSeek conversations from 900,000 users
+- **VSCode Development Environments**: Popular AI-powered IDE forks including Cursor, Windsurf, Google Antigravity, and Trae
 
 ## Attack Vectors and Techniques
 
-- **Command Injection**: Exploitation of input validation flaws in legacy networking equipment
-- **Proxy Network Tunneling**: Kimwolf botnet uses residential proxy networks to infect internal devices via exposed ADB interfaces
-- **Social Engineering - ClickFix**: Fake Blue Screen of Death pages trick users into executing malicious code
-- **Malicious Browser Extensions**: Extensions stealing conversation data from AI chat platforms
-- **Supply Chain Attacks**: Exploitation of missing extensions in Open VSX registry for VS Code forks
-- **Memory Leak Exploitation**: Direct extraction of sensitive data from MongoDB server memory
-- **Viber Messaging Platform**: Delivery of malicious ZIP archives to Ukrainian targets
+- **Command Injection**: Direct exploitation of vulnerable D-Link routers for remote code execution
+- **Memory Leak Exploitation**: Unauthenticated data extraction from MongoDB servers
+- **Social Engineering - ClickFix**: Fake Windows Blue Screen of Death screens to trick users into manual malware compilation
+- **Supply Chain Attacks**: Malicious Chrome extensions stealing AI chat conversations and browsing data
+- **Residential Proxy Abuse**: Kimwolf botnet leveraging proxy networks to infect internal devices
+- **ADB Exploitation**: Android Debug Bridge vulnerabilities used for device infection
+- **Fake Email Campaigns**: Hospitality sector targeted with fake booking emails leading to malware
+- **Extension Recommendation Attacks**: VSCode forks recommending non-existent extensions creating supply chain risks
+- **React2Shell Exploitation**: RondoDox botnet targeting Next.js servers for cryptomining and botnet deployment
 
 ## Threat Actor Activities
 
-- **UAC-0184**: Russia-aligned threat actor targeting Ukrainian military and government entities using Viber messaging platform
-- **Kimwolf Botnet Operators**: Expanded Android botnet to over 2 million devices using proxy network exploitation techniques
-- **ClickFix Campaign Actors**: Targeting European hospitality sector with fake BSOD screens delivering DCRat malware
-- **Zestix**: Threat actor offering stolen corporate data from compromised ShareFile, Nextcloud, and OwnCloud instances
-- **Scattered Lapsus$ Hunters (ShinyHunters)**: Caught in cybersecurity researcher honeypot operations
-- **RondoDox Botnet**: Expanding operations with React2Shell exploitation targeting Next.js servers
-- **BlackCat/ALPHV Ransomware Affiliates**: Two US cybersecurity professionals pleaded guilty to ransomware activities
-- **Crimson Collective**: Extortion gang claiming breach of US broadband provider Brightspeed
+- **UAC-0184**: Russia-aligned threat actor targeting Ukrainian military and government entities via Viber messaging platform with malicious ZIP archives
+- **Crimson Collective**: Extortion gang claiming data theft from US broadband provider Brightspeed
+- **Zestix**: Threat actor offering stolen corporate data from ShareFile, Nextcloud, and OwnCloud instances
+- **BlackCat/ALPHV Affiliates**: Two US cybersecurity professionals pleaded guilty to ransomware affiliate activities in 2023
+- **Chinese State Actors**: Increased attacks on Taiwan's energy sector by tenfold in 2025 according to National Security Bureau
+- **Kimwolf Operators**: Botnet operators managing over 2 million infected Android devices through proxy networks
+- **ClickFix Campaign Operators**: Targeting European hospitality sector with fake BSOD screens delivering DCRat malware
