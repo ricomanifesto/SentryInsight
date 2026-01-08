@@ -1,62 +1,70 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms, with attackers targeting end-of-life D-Link routers through CVE-2026-0625 and compromising n8n workflow automation platforms. Additionally, threat actors are leveraging maximum severity vulnerabilities in enterprise software, conducting widespread botnet attacks against cryptocurrency infrastructure, and exploiting misconfigured systems to steal credentials and sensitive data. The current threat landscape shows sophisticated attacks ranging from remote code execution vulnerabilities to advanced social engineering campaigns targeting both individual users and enterprise environments.
+Critical exploitation activity is currently targeting multiple enterprise environments through zero-day vulnerabilities and recently patched flaws. CISA has flagged active exploitation of Microsoft Office and HPE OneView vulnerabilities, while threat actors are leveraging a critical zero-day flaw in end-of-life D-Link DSL routers with CVE-2026-0625. Additionally, maximum severity vulnerabilities in the n8n workflow automation platform present immediate risks to organizations, and the GoBruteforcer botnet continues targeting cryptocurrency and blockchain infrastructure through database exploitation techniques.
 
 ## Active Exploitation Details
 
-### D-Link DSL Router Zero-Day Vulnerability
-- **Description**: A critical zero-day flaw in legacy D-Link DSL gateway routers that allows remote code execution
-- **Impact**: Attackers can execute arbitrary commands and gain full control of affected routers
-- **Status**: Currently under active exploitation in the wild, affects end-of-life routers with no patches available
-- **CVE ID**: CVE-2026-0625
+### Microsoft Office Vulnerability
+- **Description**: A security flaw in Microsoft Office applications that CISA has added to its Known Exploited Vulnerabilities catalog
+- **Impact**: Allows attackers to gain unauthorized access to enterprise systems through Office document exploitation
+- **Status**: Actively exploited in the wild, added to CISA KEV catalog
 
-### n8n Workflow Automation Platform RCE
-- **Description**: Maximum severity vulnerability in the n8n workflow automation platform allowing unauthenticated remote code execution
-- **Impact**: Remote attackers can gain complete control over locally deployed n8n instances without authentication
-- **Status**: Critical vulnerability with CVSS score of 10.0, patches available for both self-hosted and cloud versions
+### HPE OneView Vulnerability
+- **Description**: A security vulnerability affecting Hewlett Packard Enterprise's OneView infrastructure management platform
+- **Impact**: Enables attackers to compromise enterprise infrastructure management systems
+- **Status**: Actively exploited in the wild, flagged by CISA
+
+### D-Link DSL Router Zero-Day
+- **Description**: A critical remote code execution vulnerability in legacy D-Link DSL gateway routers
+- **Impact**: Allows remote attackers to execute arbitrary commands on affected router systems
+- **Status**: Under active exploitation against end-of-life devices
+- **CVE ID**: CVE-2026-0625 (CVSS score: 9.3)
+
+### n8n Workflow Automation Platform Vulnerability
+- **Description**: A maximum-severity remote code execution flaw in the n8n workflow automation platform affecting both self-hosted and cloud versions
+- **Impact**: Allows unauthenticated remote attackers to gain complete control over n8n instances
+- **Status**: Recently disclosed, patches available but exploitation risk remains high
 
 ### jsPDF Library Vulnerability
-- **Description**: Critical flaw in the jsPDF JavaScript library used for generating PDF documents
-- **Impact**: Allows attackers to steal sensitive data from local filesystem through malicious PDF generation
-- **Status**: Affects JavaScript applications using the vulnerable jsPDF library
+- **Description**: A critical vulnerability in the jsPDF JavaScript library for generating PDF documents
+- **Impact**: Allows attackers to steal sensitive data from local filesystems through malicious PDF generation
+- **Status**: Critical flaw affecting applications using the jsPDF library
 
 ### Veeam Backup & Replication RCE
-- **Description**: Critical remote code execution vulnerability in Veeam Backup & Replication software
-- **Impact**: Attackers can execute arbitrary code on backup servers, potentially compromising critical backup infrastructure
-- **Status**: Security updates released to address the vulnerability with CVSS score of 9.0
-
-### TOTOLINK EX200 Firmware Flaw
-- **Description**: Unpatched security flaw in TOTOLINK EX200 wireless range extender firmware
-- **Impact**: Remote authenticated attackers can gain full control of the device
-- **Status**: Currently unpatched, affects TOTOLINK EX200 devices
+- **Description**: A critical remote code execution vulnerability in Veeam's Backup & Replication software
+- **Impact**: Enables attackers to execute arbitrary code on backup servers, potentially compromising backup infrastructure
+- **Status**: Recently patched, security updates available
 
 ## Affected Systems and Products
 
-- **D-Link DSL Gateway Routers**: Legacy end-of-life models vulnerable to zero-day exploitation
-- **n8n Workflow Platform**: Both self-hosted and cloud versions affected by maximum severity RCE
-- **jsPDF Library**: JavaScript applications incorporating the vulnerable PDF generation library
-- **Veeam Backup & Replication**: Enterprise backup software vulnerable to critical RCE
-- **TOTOLINK EX200**: Wireless range extender devices with unpatched firmware vulnerabilities
-- **Office 365 Tenants**: Organizations with weak configurations vulnerable to domain spoofing attacks
-- **ownCloud Platforms**: File-sharing instances targeted by credential theft campaigns
-- **Chrome Browser Extensions**: Malicious extensions targeting ChatGPT and DeepSeek users
+- **Microsoft Office**: All versions affected by the actively exploited vulnerability
+- **HPE OneView**: Infrastructure management platform instances
+- **D-Link DSL Routers**: Legacy DSL gateway router models (end-of-life devices)
+- **n8n Platform**: Both self-hosted and cloud versions of the workflow automation platform
+- **jsPDF Library**: JavaScript applications utilizing the PDF generation library
+- **Veeam Backup & Replication**: Enterprise backup and replication software installations
+- **ownCloud Platform**: File-sharing platform instances experiencing credential theft attacks
+- **Chrome Web Store**: Extensions targeting ChatGPT and DeepSeek user conversations
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Attackers targeting unpatched vulnerabilities in end-of-life network equipment
-- **Botnet Attacks**: GoBruteforcer malware targeting exposed database servers in cryptocurrency and blockchain projects
-- **SEO Poisoning**: Black Cat cybercrime gang using fraudulent sites to distribute malware through search results
-- **Social Engineering**: ClickFix campaigns using fake Blue Screen of Death to deploy remote access trojans
-- **Domain Spoofing**: Exploitation of misconfigured email routing to enable internal domain phishing
-- **Credential Harvesting**: Chrome extensions stealing AI chatbot conversations and browsing data
-- **Brute Force Attacks**: Automated attacks against exposed servers using AI-generated configuration examples
+- **Document-Based Exploitation**: Attackers leveraging Microsoft Office vulnerabilities through malicious documents
+- **Infrastructure Management Compromise**: Targeting HPE OneView systems for enterprise network access
+- **Router Firmware Exploitation**: Zero-day attacks against end-of-life D-Link router firmware
+- **Unauthenticated Remote Code Execution**: Direct attacks against n8n platform instances without authentication requirements
+- **PDF Generation Manipulation**: Exploiting jsPDF library flaws to access local filesystem data
+- **SEO Poisoning Campaigns**: Black Cat group using fraudulent software download sites to distribute malware
+- **Credential Theft Operations**: GoBruteforcer botnet targeting exposed databases with weak authentication
+- **Browser Extension Malware**: Malicious Chrome extensions stealing AI chat conversations and browsing data
+- **Social Engineering with ClickFix**: Fake Blue Screen of Death displays to deploy DCRat remote access trojans
+- **Email Routing Exploitation**: Misconfigured Office 365 anti-spoofing protections enabling internal domain phishing
 
 ## Threat Actor Activities
 
-- **Black Cat Cybercrime Gang**: Conducting SEO poisoning campaigns targeting users searching for popular software
-- **GoBruteforcer Operators**: Targeting cryptocurrency and blockchain infrastructure through botnet attacks
-- **NoName057(16)**: Pro-Russian hacktivist group using DDoSia tool for denial-of-service attacks against Western targets
-- **Zestix Threat Actor**: Emerging group using infostealers to breach approximately 50 enterprise file-sharing instances
-- **Scattered Lapsus$ Hunters**: Also known as ShinyHunters, targeted by researchers through honeypot operations
-- **ClickFix Campaign Actors**: Targeting hospitality sector with fake system error messages to deploy DCRat malware
-- **Chrome Extension Attackers**: Deploying malicious browser extensions to steal AI chatbot conversations from 900,000 users
+- **Black Cat Group**: Conducting SEO poisoning campaigns targeting popular software searches to distribute malware through fraudulent download sites
+- **GoBruteforcer Operators**: Launching new attack waves against cryptocurrency and blockchain project databases, targeting servers with AI-generated configuration examples
+- **Scattered Lapsus$ Hunters (ShinyHunters)**: Actively pursuing targets but recently caught in cybersecurity researcher honeypots
+- **NoName057(16)**: Pro-Russian hacktivist group using DDoSia tool for volunteer-driven attacks against government, media, and institutional sites supporting Ukraine and Western interests
+- **Zestix**: Emerging threat actor utilizing multiple infostealers to breach approximately 50 enterprise file-sharing instances through credential theft
+- **ClickFix Campaign Actors**: Targeting hospitality sector organizations with fake Blue Screen of Death social engineering techniques to deploy DCRat malware
+- **Chrome Extension Threat Actors**: Developing malicious browser extensions to exfiltrate ChatGPT and DeepSeek conversations from approximately 900,000 users
