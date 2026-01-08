@@ -1,62 +1,66 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently being actively exploited across multiple platforms and systems. The most severe incidents involve maximum-severity vulnerabilities in HPE OneView and Microsoft Office being exploited in the wild, as flagged by CISA. Additionally, a newly discovered zero-day vulnerability (CVE-2026-0625) in legacy D-Link DSL routers is under active exploitation, while threat actors are targeting the n8n workflow automation platform through a maximum-severity vulnerability. The landscape also shows significant malware campaigns including GoBruteforcer botnet attacks on cryptocurrency platforms and malicious Chrome extensions stealing user conversations from AI services.
+Critical exploitation activity is currently targeting multiple high-value systems with several maximum-severity vulnerabilities actively being exploited in the wild. CISA has flagged vulnerabilities in HPE OneView and Microsoft Office as actively exploited, while attackers are also exploiting zero-day flaws in end-of-life D-Link routers. The workflow automation platform n8n faces particularly severe exposure with a CVSS 10.0 vulnerability allowing complete system takeover, while Cisco ISE systems are at risk following the release of public proof-of-concept exploit code. Additionally, malicious actors are conducting sophisticated supply chain attacks through compromised npm packages and SEO poisoning campaigns targeting cryptocurrency and blockchain projects.
 
 ## Active Exploitation Details
 
-### HPE OneView Maximum-Severity Vulnerability
-- **Description**: A critical vulnerability in HPE OneView infrastructure management software that has reached maximum CVSS severity rating
-- **Impact**: Allows attackers to gain unauthorized access to infrastructure management systems
-- **Status**: Actively exploited in attacks and flagged by CISA for immediate attention
+### HPE OneView Maximum Severity Vulnerability
+- **Description**: A maximum-severity vulnerability in HPE OneView infrastructure management software
+- **Impact**: Complete system compromise and unauthorized access to infrastructure management capabilities
+- **Status**: Actively exploited in attacks according to CISA advisory
 
-### Microsoft Office Security Flaw
-- **Description**: A security vulnerability affecting Microsoft Office applications
-- **Impact**: Enables unauthorized access and potential system compromise
-- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
+### Microsoft Office Vulnerability
+- **Description**: Security flaw affecting Microsoft Office applications
+- **Impact**: Unauthorized access and potential system compromise through Office document exploitation
+- **Status**: Actively exploited and flagged by CISA as a Known Exploited Vulnerability
 
-### D-Link DSL Router Zero-Day
-- **Description**: A newly discovered critical remote code execution vulnerability in legacy D-Link DSL gateway routers
-- **Impact**: Allows remote attackers to execute arbitrary commands and take control of affected routers
-- **Status**: Under active exploitation in the wild
-- **CVE ID**: CVE-2026-0625
+### D-Link Router Zero-Day Vulnerability
+- **Description**: Critical zero-day flaw in unsupported D-Link DSL routers
+- **Impact**: Remote arbitrary command execution allowing complete router compromise
+- **Status**: Actively exploited against end-of-life router models
 
-### n8n Workflow Automation Platform Vulnerability
-- **Description**: A maximum-severity vulnerability dubbed "Ni8mare" affecting the N8N workflow automation platform
-- **Impact**: Allows remote, unauthenticated attackers to take complete control over locally deployed instances
-- **Status**: Critical vulnerability with CVSS 10.0 score affecting both self-hosted and cloud versions
+### n8n Workflow Platform Critical RCE Vulnerability
+- **Description**: Maximum-severity remote code execution vulnerability in n8n workflow automation platform dubbed "Ni8mare"
+- **Impact**: Complete server takeover by remote, unauthenticated attackers on locally deployed instances
+- **Status**: Recently disclosed with CVSS 10.0 rating affecting both self-hosted and cloud versions
 
-### jsPDF Library Critical Flaw
-- **Description**: A critical vulnerability in the jsPDF library for generating PDF documents in JavaScript applications
-- **Impact**: Allows attackers to steal sensitive data from the local filesystem by including malicious content in generated PDFs
-- **Status**: Recently disclosed with potential for widespread impact
+### Cisco ISE Security Vulnerability
+- **Description**: Medium-severity security flaw in Cisco Identity Services Engine (ISE) and ISE Passive Identity Connector
+- **Impact**: Exploitation by attackers with administrative privileges to compromise identity management systems
+- **Status**: Patched by Cisco after public proof-of-concept exploit code became available
+
+### jsPDF Library Critical Vulnerability
+- **Description**: Critical vulnerability in jsPDF library for generating PDF documents in JavaScript applications
+- **Impact**: Allows attackers to steal sensitive data from local filesystem through malicious PDF generation
+- **Status**: Recently disclosed with potential for data exfiltration attacks
 
 ## Affected Systems and Products
 
-- **HPE OneView**: Infrastructure management software with maximum-severity vulnerability
-- **Microsoft Office**: Various Office applications affected by actively exploited security flaw
-- **D-Link DSL Routers**: Legacy DSL gateway routers (end-of-life products) vulnerable to zero-day exploitation
-- **n8n Platform**: Workflow automation platform (both self-hosted and cloud versions)
-- **jsPDF Library**: JavaScript PDF generation library used in web applications
-- **Veeam Backup & Replication**: Backup software with multiple security flaws including critical RCE vulnerability
-- **Chrome Browser**: Extensions marketplace compromised by malicious extensions targeting 900,000 users
-- **ownCloud Platform**: File-sharing platform experiencing credential theft incidents
+- **HPE OneView**: Infrastructure management software with maximum-severity exploitation
+- **Microsoft Office**: Various Office applications vulnerable to active exploitation
+- **D-Link DSL Routers**: End-of-life router models with zero-day vulnerabilities
+- **n8n Workflow Platform**: Self-hosted and cloud instances vulnerable to complete takeover
+- **Cisco ISE Systems**: Identity Services Engine and ISE Passive Identity Connector
+- **jsPDF Library**: JavaScript applications using jsPDF for PDF generation
+- **Coolify Platform**: Self-hosting platform with 11 critical flaws enabling server compromise
+- **Veeam Backup & Replication**: Backup servers exposed to remote code execution attacks
+- **npm Package Repository**: JavaScript packages compromised with NodeCordRAT malware
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution**: Critical vulnerabilities in D-Link routers, Veeam backup systems, and n8n platform enabling arbitrary command execution
-- **Credential Theft**: Large-scale compromise affecting cloud platforms and file-sharing services, with lack of MFA being a common vulnerability
-- **Malware Distribution**: GoBruteforcer botnet targeting cryptocurrency and blockchain project databases
-- **Browser Extension Abuse**: Malicious Chrome extensions stealing ChatGPT and DeepSeek conversations from users
-- **SEO Poisoning**: Black Cat cybercrime gang using fraudulent sites to distribute malware through popular software searches
-- **Email Spoofing**: Exploitation of misconfigured email routing and weak anti-spoofing protections in Office 365
-- **PDF-based Attacks**: File inclusion vulnerabilities in PDF generation libraries enabling local file system access
+- **Remote Code Execution**: Unauthenticated attackers exploiting n8n and Veeam vulnerabilities for complete system control
+- **Zero-Day Exploitation**: Active attacks against unsupported D-Link routers using unknown vulnerabilities
+- **Supply Chain Attacks**: Malicious npm packages containing NodeCordRAT targeting Bitcoin-themed projects
+- **SEO Poisoning**: Black Cat cybercrime gang using fraudulent websites to distribute malware through popular software searches
+- **Credential Theft Campaigns**: GoBruteforcer botnet targeting cryptocurrency and blockchain project databases
+- **Administrative Privilege Abuse**: Cisco ISE vulnerabilities requiring admin access for exploitation
+- **PDF-Based Data Exfiltration**: jsPDF library vulnerabilities enabling filesystem access through malicious PDFs
 
 ## Threat Actor Activities
 
-- **CISA-Tracked Attackers**: Actively exploiting HPE OneView and Microsoft Office vulnerabilities in ongoing campaigns
-- **D-Link Router Exploiters**: Unknown threat actors leveraging zero-day vulnerability in legacy router infrastructure
-- **Black Cat Cybercrime Gang**: Conducting SEO poisoning campaigns targeting users searching for popular software
-- **GoBruteforcer Operators**: Targeting cryptocurrency and blockchain project databases using AI-generated configuration examples
-- **Zestix Threat Actor**: Emerging group using various infostealers to breach file-sharing instances of approximately 50 enterprises
-- **NoName057(16)**: Pro-Russian hacktivist group using DDoSia tool to mobilize volunteers for denial-of-service attacks
-- **Chrome Extension Threat Actors**: Operators of malicious browser extensions targeting AI service users for conversation theft
+- **Black Cat Cybercrime Gang**: Conducting SEO poisoning campaigns using fraudulent software download sites to distribute malware
+- **NodeCordRAT Operators**: Deploying previously undocumented malware through compromised npm packages targeting cryptocurrency projects
+- **GoBruteforcer Botnet**: New attack wave targeting exposed databases of crypto and blockchain projects using AI-generated configuration examples
+- **Zestix Threat Actor**: Emerging group using multiple infostealers to breach approximately 50 enterprise file-sharing instances
+- **NoName057(16)**: Pro-Russian hacktivist group using DDoSia tool to mobilize volunteers for attacks against Ukraine and Western targets
+- **Office 365 Phishing Actors**: Exploiting weak configurations and inadequate anti-spoofing protections to compromise tenant accounts
