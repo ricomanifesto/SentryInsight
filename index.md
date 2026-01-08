@@ -1,49 +1,54 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently under active exploitation, including a maximum severity flaw in the n8n workflow automation platform allowing complete server takeover, and ongoing attacks against legacy D-Link DSL routers. The n8n vulnerability enables unauthenticated remote code execution, while threat actors are actively exploiting a command injection flaw in outdated D-Link devices. Additional security concerns include new Veeam backup server vulnerabilities and widespread credential theft campaigns targeting cloud services, highlighting the urgent need for patch deployment and multi-factor authentication implementation across enterprise environments.
+Critical vulnerabilities are currently under active exploitation across multiple platforms, with several maximum-severity flaws posing immediate threats to organizations. The most concerning activity includes active exploitation of a critical D-Link router vulnerability (CVE-2026-0625), a maximum-severity n8n workflow automation platform flaw dubbed "Ni8mare," and newly disclosed Veeam Backup & Replication vulnerabilities. Additionally, threat actors are leveraging sophisticated social engineering campaigns, including ClickFix-style attacks targeting hospitality sectors, malicious Chrome extensions compromising AI chat conversations, and SEO poisoning campaigns by the Black Cat cybercrime group.
 
 ## Active Exploitation Details
 
-### Ni8mare n8n Vulnerability
-- **Description**: A maximum severity remote code execution vulnerability in the n8n workflow automation platform that allows unauthenticated attackers to gain complete control over locally deployed instances
-- **Impact**: Full server takeover, complete system compromise, and unauthorized access to sensitive workflow data
-- **Status**: Critical vulnerability with patches available, actively being exploited
-- **CVE ID**: CVSS 10.0 severity rating
-
-### D-Link DSL Router Command Injection
-- **Description**: A critical command injection vulnerability affecting multiple legacy D-Link DSL gateway routers that are no longer supported
-- **Impact**: Remote code execution allowing attackers to compromise router functionality and potentially pivot into internal networks
-- **Status**: Actively exploited in the wild, no patches available for end-of-life devices
+### D-Link DSL Router Remote Code Execution Vulnerability
+- **Description**: A critical security flaw affecting legacy D-Link DSL gateway routers that enables remote code execution
+- **Impact**: Complete remote compromise of affected router devices, allowing attackers to gain full control over network infrastructure
+- **Status**: Under active exploitation in the wild
 - **CVE ID**: CVE-2026-0625
 
-### Veeam Backup & Replication RCE
-- **Description**: Critical remote code execution vulnerability in Veeam's Backup & Replication software
-- **Impact**: Attackers can execute arbitrary code on backup servers, potentially compromising critical backup infrastructure
-- **Status**: Patches released, CVSS 9.0 severity
+### n8n Workflow Automation Platform "Ni8mare" Vulnerability
+- **Description**: A maximum severity vulnerability in the n8n workflow automation platform that allows remote unauthenticated attackers to take complete control over locally deployed instances
+- **Impact**: Full server takeover, enabling attackers to execute arbitrary code and access sensitive workflow data without authentication
+- **Status**: Critical vulnerability requiring immediate patching
+
+### Veeam Backup & Replication Remote Code Execution
+- **Description**: Multiple security flaws in Veeam's Backup & Replication software, including a critical remote code execution vulnerability
+- **Impact**: Attackers can execute arbitrary code on backup servers, potentially compromising backup infrastructure and data integrity
+- **Status**: Recently patched, but poses significant risk to unpatched systems
+
+### TOTOLINK EX200 Firmware Vulnerability
+- **Description**: An unpatched security flaw in TOTOLINK EX200 wireless range extender firmware
+- **Impact**: Remote authenticated attackers can gain full control of the device
+- **Status**: Remains unpatched, exposing devices to potential takeover
 
 ## Affected Systems and Products
 
-- **n8n Workflow Platform**: Both self-hosted and cloud versions affected by maximum severity vulnerability
-- **D-Link DSL Routers**: Multiple legacy DSL gateway models no longer receiving security updates
-- **Veeam Backup & Replication**: Enterprise backup software vulnerable to remote code execution
+- **D-Link DSL Gateway Routers**: Legacy models affected by critical RCE vulnerability
+- **n8n Workflow Automation Platform**: Both self-hosted and cloud versions impacted by maximum severity flaw
+- **Veeam Backup & Replication**: Multiple versions affected by critical RCE and other security vulnerabilities
 - **TOTOLINK EX200**: Wireless range extender with unpatched firmware vulnerability
-- **ownCloud Platforms**: File-sharing services targeted in credential theft campaigns
-- **Chrome Browser Extensions**: Malicious extensions targeting ChatGPT and DeepSeek conversations
+- **Chrome Browser Extensions**: Two malicious extensions targeting ChatGPT and DeepSeek users
+- **ownCloud Platform**: File-sharing platform experiencing credential theft incidents
+- **Microsoft Outlook**: Classic version experiencing bugs preventing encrypted email access
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Remote Exploitation**: Attackers targeting n8n servers without requiring authentication credentials
-- **Command Injection**: Legacy D-Link routers compromised through command injection vulnerabilities
-- **Social Engineering**: ClickFix campaigns using fake Blue Screen of Death pages to deploy DCRat malware
-- **Credential Harvesting**: Malicious browser extensions stealing AI chat conversations and browsing data
-- **Phishing Campaigns**: Fake hotel booking emails redirecting staff to malicious payloads
-- **Proxy Network Abuse**: Kimwolf botnet exploiting residential proxy vulnerabilities to infect internal devices
+- **SEO Poisoning**: Black Cat cybercrime group using fraudulent sites advertising popular software to distribute malware
+- **ClickFix Social Engineering**: Threat actors deploying fake Blue Screen of Death pages to deliver DCRat malware
+- **Malicious Browser Extensions**: Chrome extensions designed to exfiltrate AI chat conversations and browsing data
+- **Email-Based Phishing**: Fake hotel booking emails redirecting staff to malicious BSoD pages
+- **Domain Spoofing**: Exploitation of misconfigured email routing and spoof protections for internal domain phishing
+- **Credential Stuffing**: Attackers using compromised credentials against cloud platforms lacking multi-factor authentication
 
 ## Threat Actor Activities
 
-- **NoName057(16)**: Pro-Russian hacktivist group using DDoSia tool for affiliate-driven attacks targeting Ukrainian and Western government sites
-- **Zestix**: Emerging threat actor conducting vast cloud credential theft using various infostealers to breach approximately 50 enterprises
-- **Scattered Lapsus$**: Also known as ShinyHunters, caught in cybersecurity researcher honeypot operations
-- **Kimwolf Operators**: Android botnet operators infecting over two million devices through residential proxy exploitation
-- **ClickFix Campaign Actors**: Targeting hospitality sector with fake BSoD pages delivering DCRat remote access trojans
-- **State-Sponsored Groups**: China increasing attacks on Taiwan's energy sector by tenfold in 2025
+- **Black Cat Cybercrime Group**: Conducting SEO poisoning malware campaigns targeting users searching for popular software downloads
+- **PHALT#BLYX Campaign**: Targeting hospitality sector with fake booking emails leading to DCRat malware deployment
+- **Zestix Threat Actor**: Using various infostealers to obtain credentials and breach file-sharing instances of approximately 50 enterprises
+- **NoName057(16)**: Pro-Russian hacktivist group using DDoSia tool to mobilize volunteers for attacks against Ukraine and Western targets
+- **Scattered Lapsus$ Hunters**: Also known as ShinyHunters, caught in cybersecurity researcher honeypot operations
+- **State-Sponsored Activities**: China reportedly increasing attacks on Taiwan's energy sector by tenfold in 2025
