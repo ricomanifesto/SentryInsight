@@ -1,52 +1,64 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical exploitation activities spanning from zero-day vulnerabilities to sophisticated botnet operations. Most notably, HPE OneView faces active exploitation of CVE-2025-37164, a maximum severity flaw enabling remote code execution. Meanwhile, VMware ESXi zero-day vulnerabilities have been exploited by Chinese-speaking threat actors for over a year before disclosure. State-sponsored groups are intensifying their campaigns, with North Korean Kimsuky actors deploying malicious QR codes in spear-phishing operations, while Chinese-linked UAT-7290 targets telecommunications providers using Linux malware. The destructive Kimwolf botnet has rapidly infected over two million Android TV devices, and cybercriminals are leveraging fake AI Chrome extensions to harvest data from 900,000 users.
+Critical exploitation activity is dominating the cybersecurity landscape with multiple high-severity vulnerabilities being actively exploited across enterprise infrastructure. Trend Micro's Apex Central faces a critical remote code execution flaw with a 9.8 CVSS score that allows attackers to execute arbitrary code with SYSTEM privileges. HPE OneView is experiencing active exploitation of CVE-2025-37164, enabling remote code execution on IT infrastructure management platforms. Chinese-speaking threat actors are leveraging previously unknown VMware ESXi zero-day vulnerabilities that were likely exploited for over a year before disclosure, while sophisticated campaigns target telecommunications providers through edge device exploits and Linux-based malware.
 
 ## Active Exploitation Details
 
-### HPE OneView Remote Code Execution Flaw
-- **Description**: A maximum severity vulnerability affecting HPE's IT infrastructure management platform that enables remote code execution
-- **Impact**: Attackers can achieve devastating consequences through remote code execution on critical infrastructure management systems
+### Trend Micro Apex Central RCE Vulnerability
+- **Description**: A critical security flaw in Trend Micro Apex Central (on-premise) Windows versions that allows remote code execution
+- **Impact**: Attackers can execute arbitrary code with SYSTEM privileges, leading to complete system compromise
+- **Status**: Recently patched by Trend Micro; affects on-premise Windows versions
+
+### HPE OneView Maximum Severity Flaw
+- **Description**: A maximum severity vulnerability in HPE's IT infrastructure management platform
+- **Impact**: Enables remote code execution with devastating consequences for infrastructure management
 - **Status**: Currently being exploited in the wild
 - **CVE ID**: CVE-2025-37164
 
 ### VMware ESXi Zero-Day Vulnerabilities
-- **Description**: Previously unknown vulnerabilities in VMware ESXi that were exploited using a sophisticated toolkit delivered through compromised SonicWall VPN appliances
-- **Impact**: Complete compromise of virtualized infrastructure environments
-- **Status**: Exploited in the wild approximately one year before official disclosure, with exploit toolkit appearing to predate vulnerability disclosure significantly
-- **CVE ID**: Not specified in the articles
+- **Description**: Multiple zero-day vulnerabilities in VMware ESXi that were exploited using a specialized toolkit
+- **Impact**: Complete hypervisor compromise allowing attackers to control virtual infrastructure
+- **Status**: Exploited for approximately one year before public disclosure; delivered via compromised SonicWall VPN appliances
 
-### Trend Micro Apex Central RCE Vulnerability
-- **Description**: Critical security flaw in on-premise versions of Apex Central for Windows that allows arbitrary code execution with SYSTEM privileges
-- **Impact**: Attackers can gain complete system control with highest privilege levels
-- **Status**: Recently patched by Trend Micro with CVSS score of 9.8
-- **CVE ID**: Not specified in the articles
+### Coolify Critical Vulnerabilities
+- **Description**: Eleven critical-severity security flaws affecting the open-source, self-hosting platform
+- **Impact**: Authentication bypass and remote code execution leading to full server compromise
+- **Status**: Recently disclosed; affects self-hosted instances
+
+### Cisco Identity Services Engine Vulnerability
+- **Description**: Medium-severity security flaw in Cisco ISE and ISE Passive Identity Connector
+- **Impact**: Exploitable by attackers with admin privileges
+- **Status**: Recently patched after public proof-of-concept exploit release
 
 ## Affected Systems and Products
 
+- **Trend Micro Apex Central**: On-premise Windows versions affected by critical RCE vulnerability
 - **HPE OneView**: IT infrastructure management platform experiencing active exploitation
-- **VMware ESXi**: Virtualization platform targeted with zero-day exploits via compromised SonicWall VPN appliances
-- **Trend Micro Apex Central**: On-premise Windows versions vulnerable to remote code execution
-- **Android TV Streaming Devices**: Over 2 million devices infected by Kimwolf botnet through unofficial streaming applications
-- **Chrome Browser Extensions**: Fake AI-powered extensions affecting approximately 900,000 users
-- **Cisco Identity Services Engine (ISE)**: Network access control platform with public proof-of-concept exploit available
-- **Coolify Platform**: Self-hosted deployment platform affected by 11 critical vulnerabilities
-- **npm Package Repository**: Bitcoin-themed packages containing NodeCordRAT malware
+- **VMware ESXi**: Hypervisor infrastructure compromised through zero-day exploits
+- **SonicWall VPN Appliances**: Used as initial compromise vector for ESXi attacks
+- **Coolify Platform**: Self-hosted instances vulnerable to complete server compromise
+- **Cisco ISE/ISE-PIC**: Identity Services Engine and Passive Identity Connector affected
+- **Telecommunications Infrastructure**: Edge devices and Linux-based systems targeted by sophisticated actors
+- **Chrome Extensions**: Fake AI extensions affecting approximately 900,000 users
+- **Android TV Devices**: Over 2 million devices infected by Kimwolf botnet through unofficial streaming boxes
 
 ## Attack Vectors and Techniques
 
-- **QR Code Phishing**: North Korean Kimsuky group using malicious QR codes in targeted spear-phishing campaigns against U.S. organizations
-- **VPN Appliance Compromise**: Chinese actors leveraging compromised SonicWall VPN devices to deliver VMware exploit toolkits
-- **Botnet Distribution**: Mass compromise of unofficial Android TV streaming applications to deploy Kimwolf botnet
-- **Supply Chain Attacks**: Malicious npm packages disguised as Bitcoin-related tools delivering NodeCordRAT
-- **Browser Extension Impersonation**: Fake AI Chrome extensions mimicking legitimate tools to harvest ChatGPT and DeepSeek data
-- **WhatsApp Auto-Messaging**: Worm propagation spreading Astaroth banking trojan across Brazil through automated contact messaging
-- **Edge Device Exploitation**: China-linked actors targeting telecommunications providers through network edge device vulnerabilities
+- **Edge Device Exploitation**: Targeting telecommunications providers through compromised edge infrastructure
+- **VPN Appliance Compromise**: Using compromised SonicWall devices to deliver ESXi exploit toolkits
+- **Linux Malware Deployment**: Sophisticated actors using custom Linux-based malware against telecoms
+- **QR Code Phishing**: North Korean Kimsuky group leveraging malicious QR codes in spear-phishing campaigns
+- **Social Engineering**: Enhanced QR code attacks targeting U.S. organizations
+- **Supply Chain Attacks**: Malicious npm packages delivering NodeCordRAT malware through Bitcoin-themed packages
+- **Extension Impersonation**: Fake AI Chrome extensions mimicking legitimate tools to harvest user data
+- **WhatsApp Distribution**: Astaroth banking trojan spreading via WhatsApp auto-messaging worm in Brazil
+- **Botnet Mass Compromise**: Kimwolf botnet rapidly infecting millions of Android TV streaming devices
 
 ## Threat Actor Activities
 
-- **Kimsuky (North Korean APT)**: Conducting spear-phishing campaigns using malicious QR codes targeting U.S. organizations, representing evolution in social engineering tactics
-- **Chinese-Speaking Threat Actors**: Operating sophisticated VMware ESXi exploitation campaigns using zero-day vulnerabilities and compromised VPN infrastructure
-- **UAT-7290 (China-Linked)**: Espionage-focused intrusions against South Asian and Southeastern European telecommunications entities using Linux malware and ORB nodes
-- **Brazilian Cybercriminals**: WhatsApp-based distribution campaign spreading Astaroth banking trojan through automated messaging worm
-- **Supply Chain Attackers**: Targeting npm ecosystem with NodeCordRAT hidden in Bitcoin-themed packages to compromise developer environments
+- **Chinese-Speaking Threat Actors**: Deploying VMware ESXi exploit toolkits and targeting telecommunications infrastructure with advanced Linux malware
+- **UAT-7290**: China-linked group conducting espionage operations against South Asia and Southeastern Europe telecoms using ORB nodes
+- **North Korean Kimsuky Group**: Implementing QR code-based spear-phishing campaigns targeting U.S. organizations with sophisticated social engineering
+- **Cybercriminal Groups**: Operating Aisuru and Kimwolf botnets affecting millions of devices globally
+- **Banking Trojan Operators**: Distributing Astaroth malware through WhatsApp worm campaigns in Brazil
+- **Supply Chain Attackers**: Embedding NodeCordRAT in npm packages targeting cryptocurrency enthusiasts and developers
