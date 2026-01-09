@@ -1,66 +1,60 @@
 # Exploitation Report
 
-Critical vulnerabilities are being actively exploited across enterprise infrastructure and development platforms, with CISA flagging several maximum-severity flaws as under attack. The most concerning activities include active exploitation of HPE OneView infrastructure management systems, Microsoft Office vulnerabilities, and a zero-day flaw affecting end-of-life D-Link routers. Additionally, threat actors are leveraging sophisticated attack vectors including AI-powered prompt injection techniques, malicious npm packages, and SEO poisoning campaigns to distribute banking trojans and compromise critical systems.
+The cybersecurity landscape reveals several critical exploitation activities currently underway. Chinese-linked threat actors are actively exploiting VMware ESXi zero-day vulnerabilities that were likely leveraged for over a year before public disclosure, while simultaneously targeting telecommunications providers through sophisticated edge device exploits. The U.S. Cybersecurity and Infrastructure Security Agency has flagged a maximum-severity HPE OneView vulnerability as actively exploited in the wild, enabling remote code execution with devastating consequences. Additionally, attackers are exploiting a critical zero-day flaw in end-of-life D-Link routers, and North Korean state-sponsored groups are conducting advanced social engineering campaigns using QR codes to target U.S. organizations.
 
 ## Active Exploitation Details
 
 ### HPE OneView Critical Vulnerability
-- **Description**: Maximum-severity vulnerability in HPE OneView infrastructure management platform
-- **Impact**: Allows attackers to gain unauthorized access and potentially compromise entire server infrastructure
-- **Status**: Actively exploited in the wild, flagged by CISA as exploited
-- **CVE ID**: CVE-2024-55580
+- **Description**: Maximum severity vulnerability in HPE's IT infrastructure management platform that enables remote code execution
+- **Impact**: Attackers can achieve full system compromise leading to devastating consequences for enterprise infrastructure
+- **Status**: Actively exploited in the wild and flagged by CISA as a Known Exploited Vulnerability
+- **CVE ID**: CVE-2025-37164
 
-### Microsoft Office Vulnerability
-- **Description**: Security flaw affecting Microsoft Office applications
-- **Impact**: Enables attackers to execute unauthorized actions within Office environments
-- **Status**: Actively exploited, added to CISA Known Exploited Vulnerabilities catalog
+### VMware ESXi Zero-Day Vulnerabilities
+- **Description**: Previously unknown vulnerabilities in VMware ESXi virtualization platform that were exploited through a sophisticated toolkit
+- **Impact**: Complete compromise of virtualization infrastructure, potentially affecting multiple virtual machines and critical business operations
+- **Status**: Exploited for approximately one year before public disclosure, delivered via compromised SonicWall VPN appliances
+- **CVE ID**: Not specified in the source material
 
-### D-Link Router Zero-Day
-- **Description**: Critical zero-day vulnerability in end-of-life D-Link DSL routers
-- **Impact**: Allows hackers to run arbitrary commands on affected devices
-- **Status**: Currently being exploited in attacks against unsupported router models
+### D-Link Router Zero-Day Vulnerability
+- **Description**: Critical zero-day flaw affecting end-of-life D-Link DSL routers
+- **Impact**: Enables attackers to run arbitrary commands on compromised devices
+- **Status**: Currently being actively exploited against unsupported router models
+- **CVE ID**: Not specified in the source material
 
-### Cisco ISE Authentication Bypass
-- **Description**: Medium-severity security flaw in Cisco Identity Services Engine and ISE Passive Identity Connector
-- **Impact**: Potential authentication bypass and unauthorized access to network authentication systems
-- **Status**: Patched by Cisco after public proof-of-concept exploit code was released
-
-### n8n Workflow Automation Critical Flaw
-- **Description**: Maximum-severity vulnerability in n8n workflow automation platform with CVSS score of 10.0
-- **Impact**: Allows unauthenticated remote attackers to gain complete control of affected systems
-- **Status**: Critical vulnerability requiring immediate patching
-
-### jsPDF Library Vulnerability
-- **Description**: Critical vulnerability in jsPDF JavaScript library for PDF generation
-- **Impact**: Allows attackers to steal sensitive data from local filesystem through generated PDFs
-- **Status**: Recently disclosed, affects applications using vulnerable jsPDF versions
+### Microsoft Office Security Flaw
+- **Description**: Security vulnerability in Microsoft Office applications
+- **Impact**: Enables unauthorized access and potential system compromise
+- **Status**: Flagged by CISA as actively exploited
+- **CVE ID**: Not specified in the source material
 
 ## Affected Systems and Products
 
-- **HPE OneView**: Infrastructure management platform with maximum-severity exploitation
-- **Microsoft Office**: Various Office applications vulnerable to active attacks
-- **D-Link DSL Routers**: End-of-life router models with zero-day exploitation
-- **Cisco ISE**: Identity Services Engine and Passive Identity Connector systems
-- **n8n Platform**: Workflow automation platform with critical unauthenticated access flaw
-- **jsPDF Library**: JavaScript PDF generation library used in web applications
-- **Coolify Platform**: Open-source self-hosting platform with 11 critical vulnerabilities
-- **npm Packages**: Bitcoin-themed packages containing NodeCordRAT malware
-- **Cisco Switches**: Multiple switch models experiencing DNS client-related reboot loops
+- **HPE OneView**: IT infrastructure management platform vulnerable to remote code execution
+- **VMware ESXi**: Virtualization platform targeted by Chinese threat actors using zero-day exploits
+- **D-Link DSL Routers**: End-of-life router models vulnerable to arbitrary command execution
+- **Microsoft Office**: Office applications with actively exploited security vulnerabilities
+- **Telecommunications Infrastructure**: Edge devices and network equipment targeted by Chinese-linked groups
+- **Android TV Devices**: Over 2 million devices infected by Kimwolf botnet
+- **Chrome Extensions**: Fake AI-powered extensions compromising 900,000 users' data
+- **Cisco Identity Services Engine**: Network access control platform with public PoC exploit available
+- **Coolify Platform**: Self-hosting platform affected by 11 critical vulnerabilities
 
 ## Attack Vectors and Techniques
 
-- **SEO Poisoning**: Black Cat cybercrime gang using fraudulent sites to distribute malware through popular software searches
-- **Supply Chain Attacks**: Malicious npm packages delivering NodeCordRAT through Bitcoin-themed package names
-- **WhatsApp Worm Distribution**: Auto-messaging campaign spreading Astaroth banking trojan across Brazil
-- **AI-Powered Prompt Injection**: ZombieAgent exploit leveraging ChatGPT's memory feature for enhanced attacks
-- **Brute Force Campaigns**: GoBruteforcer botnet targeting cryptocurrency and blockchain project databases
-- **Social Engineering**: Office 365 phishing campaigns targeting users with weak anti-spoofing configurations
-- **Infrastructure Exploitation**: Direct targeting of enterprise management platforms and network authentication systems
+- **Zero-Day Exploitation**: Sophisticated toolkit deployment targeting VMware ESXi vulnerabilities over extended periods
+- **Edge Device Compromise**: Targeting telecommunications providers through network edge equipment vulnerabilities
+- **VPN Appliance Compromise**: Using compromised SonicWall VPN devices as delivery mechanisms for exploit toolkits
+- **QR Code Phishing**: North Korean groups using malicious QR codes in spearphishing campaigns
+- **Malicious Extensions**: Distribution of fake AI Chrome extensions to harvest user data
+- **Botnet Operations**: Mass compromise of Android TV devices through unofficial streaming applications
+- **Supply Chain Attacks**: Malicious npm packages containing NodeCordRAT malware in Bitcoin-themed packages
+- **Social Engineering**: Advanced phishing campaigns exploiting Office 365 users with weak security configurations
 
 ## Threat Actor Activities
 
-- **Black Cat Cybercrime Gang**: Conducting SEO poisoning campaigns using fraudulent software distribution sites to deliver malware payloads
-- **UAT-7290 (China-linked)**: Targeting telecommunications entities in South Asia and Southeastern Europe with Linux malware and ORB nodes for espionage operations
-- **NoName057(16) (Pro-Russian)**: Using DDoSia custom denial-of-service tool to mobilize volunteers for attacks against government, media, and institutional sites supporting Ukraine and Western nations
-- **Brazilian Banking Threat Actors**: Deploying WhatsApp-based worm campaigns to distribute Astaroth banking trojan through contact auto-messaging
-- **Cryptocurrency-Focused Attackers**: Leveraging GoBruteforcer botnet to target exposed databases of crypto and blockchain projects using AI-generated configuration examples
+- **Chinese-Linked Groups**: Conducting sophisticated espionage operations against telecommunications providers in South Asia and Southeastern Europe using Linux-based malware and ORB nodes
+- **UAT-7290**: China-nexus threat actor targeting entities in South Asia and Southeastern Europe with espionage-focused intrusions
+- **Kimsuky (North Korean APT)**: Using malicious QR codes in spearphishing campaigns targeting U.S. organizations through FBI-warned attack vectors
+- **Kimwolf Operators**: Rapidly growing botnet operations infecting over 2 million Android TV devices through mass-compromise techniques
+- **Astaroth Campaign**: WhatsApp-based distribution of banking trojans targeting Brazilian users through contact auto-messaging
