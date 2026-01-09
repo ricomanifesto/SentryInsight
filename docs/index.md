@@ -1,67 +1,52 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are being actively exploited across multiple platforms, with threat actors targeting enterprise infrastructure, telecommunications providers, and end-user devices. The most severe activity involves a maximum-severity HPE OneView flaw (CVE-2025-37164) that enables remote code execution and has been flagged by CISA as actively exploited. Meanwhile, Chinese-speaking threat actors are leveraging VMware ESXi zero-day vulnerabilities that appear to have been exploited for over a year before disclosure, and attackers are targeting end-of-life D-Link routers with zero-day exploits. North Korean APT groups continue sophisticated spear-phishing campaigns using malicious QR codes, while malicious browser extensions and banking trojans spread through social platforms, affecting hundreds of thousands of users.
+The current threat landscape reveals several critical exploitation activities spanning from zero-day vulnerabilities to sophisticated botnet operations. Most notably, HPE OneView faces active exploitation of CVE-2025-37164, a maximum severity flaw enabling remote code execution. Meanwhile, VMware ESXi zero-day vulnerabilities have been exploited by Chinese-speaking threat actors for over a year before disclosure. State-sponsored groups are intensifying their campaigns, with North Korean Kimsuky actors deploying malicious QR codes in spear-phishing operations, while Chinese-linked UAT-7290 targets telecommunications providers using Linux malware. The destructive Kimwolf botnet has rapidly infected over two million Android TV devices, and cybercriminals are leveraging fake AI Chrome extensions to harvest data from 900,000 users.
 
 ## Active Exploitation Details
 
-### HPE OneView Remote Code Execution Vulnerability
-- **Description**: A maximum-severity vulnerability in HPE's IT infrastructure management platform that allows attackers to execute arbitrary code remotely
-- **Impact**: Complete server compromise and devastating consequences for enterprise infrastructure management
-- **Status**: Actively exploited in the wild, flagged by CISA for immediate patching
+### HPE OneView Remote Code Execution Flaw
+- **Description**: A maximum severity vulnerability affecting HPE's IT infrastructure management platform that enables remote code execution
+- **Impact**: Attackers can achieve devastating consequences through remote code execution on critical infrastructure management systems
+- **Status**: Currently being exploited in the wild
 - **CVE ID**: CVE-2025-37164
 
 ### VMware ESXi Zero-Day Vulnerabilities
-- **Description**: Zero-day vulnerabilities in VMware ESXi hypervisor infrastructure that were exploited using a specialized toolkit
+- **Description**: Previously unknown vulnerabilities in VMware ESXi that were exploited using a sophisticated toolkit delivered through compromised SonicWall VPN appliances
 - **Impact**: Complete compromise of virtualized infrastructure environments
-- **Status**: Exploited in the wild for over a year before public disclosure, with exploit toolkit delivered through compromised VPN appliances
-- **CVE ID**: Not provided in articles
+- **Status**: Exploited in the wild approximately one year before official disclosure, with exploit toolkit appearing to predate vulnerability disclosure significantly
+- **CVE ID**: Not specified in the articles
 
-### D-Link DSL Router Zero-Day
-- **Description**: Critical zero-day vulnerability affecting end-of-life D-Link DSL routers
-- **Impact**: Allows attackers to run arbitrary commands on compromised devices
-- **Status**: Actively exploited in the wild against unsupported router models
-- **CVE ID**: Not provided in articles
-
-### Microsoft Office Vulnerability
-- **Description**: Security flaw affecting Microsoft Office products that has been flagged for active exploitation
-- **Impact**: Enables attackers to exploit Office 365 users with weak configurations and insufficient anti-spoofing protections
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog
-- **CVE ID**: Not provided in articles
-
-### Cisco Identity Services Engine (ISE) Vulnerability
-- **Description**: Medium-severity security flaw in Cisco ISE and ISE Passive Identity Connector with publicly available proof-of-concept exploit code
-- **Impact**: Can be abused by attackers with administrative privileges to compromise network access control systems
-- **Status**: Patched by Cisco after public exploit code release
-- **CVE ID**: Not provided in articles
+### Trend Micro Apex Central RCE Vulnerability
+- **Description**: Critical security flaw in on-premise versions of Apex Central for Windows that allows arbitrary code execution with SYSTEM privileges
+- **Impact**: Attackers can gain complete system control with highest privilege levels
+- **Status**: Recently patched by Trend Micro with CVSS score of 9.8
+- **CVE ID**: Not specified in the articles
 
 ## Affected Systems and Products
 
-- **HPE OneView**: IT infrastructure management platform with maximum-severity remote code execution vulnerability
-- **VMware ESXi**: Hypervisor infrastructure targeted by sophisticated exploit toolkits
-- **D-Link DSL Routers**: End-of-life router models vulnerable to zero-day exploitation
-- **Microsoft Office**: Office products and Office 365 tenants with weak security configurations
-- **Cisco ISE**: Identity Services Engine and ISE Passive Identity Connector platforms
-- **Android TV Devices**: Unofficial streaming devices infected by Kimwolf botnet affecting over 2 million devices
-- **Chrome Browser**: Malicious AI-powered extensions targeting 900,000 users' data
-- **SonicWall VPN**: Appliances compromised to deliver VMware exploit toolkits
-- **Telecommunications Infrastructure**: Edge devices and Linux-based systems targeted by China-linked actors
+- **HPE OneView**: IT infrastructure management platform experiencing active exploitation
+- **VMware ESXi**: Virtualization platform targeted with zero-day exploits via compromised SonicWall VPN appliances
+- **Trend Micro Apex Central**: On-premise Windows versions vulnerable to remote code execution
+- **Android TV Streaming Devices**: Over 2 million devices infected by Kimwolf botnet through unofficial streaming applications
+- **Chrome Browser Extensions**: Fake AI-powered extensions affecting approximately 900,000 users
+- **Cisco Identity Services Engine (ISE)**: Network access control platform with public proof-of-concept exploit available
+- **Coolify Platform**: Self-hosted deployment platform affected by 11 critical vulnerabilities
+- **npm Package Repository**: Bitcoin-themed packages containing NodeCordRAT malware
 
 ## Attack Vectors and Techniques
 
-- **Malicious QR Codes**: North Korean hackers using QR codes in spear-phishing campaigns to bypass traditional email security
-- **Compromised VPN Appliances**: SonicWall VPN devices used as delivery mechanism for advanced exploit toolkits
-- **Edge Device Exploitation**: Sophisticated targeting of telecommunications edge infrastructure
-- **Malicious Browser Extensions**: Fake AI-powered Chrome extensions stealing ChatGPT and DeepSeek user data
-- **WhatsApp Worm Distribution**: Banking trojans spread through WhatsApp auto-messaging to contacts
-- **NPM Package Poisoning**: Malicious Bitcoin-themed packages delivering NodeCordRAT malware
-- **Social Engineering**: Advanced phishing campaigns exploiting Office 365 user trust and weak configurations
-- **Zero-Day Exploitation**: Multiple zero-day vulnerabilities exploited before public disclosure or patching
+- **QR Code Phishing**: North Korean Kimsuky group using malicious QR codes in targeted spear-phishing campaigns against U.S. organizations
+- **VPN Appliance Compromise**: Chinese actors leveraging compromised SonicWall VPN devices to deliver VMware exploit toolkits
+- **Botnet Distribution**: Mass compromise of unofficial Android TV streaming applications to deploy Kimwolf botnet
+- **Supply Chain Attacks**: Malicious npm packages disguised as Bitcoin-related tools delivering NodeCordRAT
+- **Browser Extension Impersonation**: Fake AI Chrome extensions mimicking legitimate tools to harvest ChatGPT and DeepSeek data
+- **WhatsApp Auto-Messaging**: Worm propagation spreading Astaroth banking trojan across Brazil through automated contact messaging
+- **Edge Device Exploitation**: China-linked actors targeting telecommunications providers through network edge device vulnerabilities
 
 ## Threat Actor Activities
 
-- **Kimsuky (North Korean APT)**: Conducting sophisticated spear-phishing campaigns using malicious QR codes targeting U.S. organizations and government entities
-- **Chinese-Speaking Threat Actors**: Exploiting VMware ESXi vulnerabilities for over a year using advanced toolkit delivered through compromised infrastructure
-- **UAT-7290 (China-linked)**: Targeting telecommunications providers in South Asia and Southeastern Europe with Linux malware and ORB nodes for espionage operations
-- **Brazil-focused Cybercriminals**: Deploying Astaroth banking trojan through WhatsApp worm campaigns with contact auto-messaging capabilities
-- **Kimwolf Botnet Operators**: Mass-compromising over 2 million Android TV streaming devices for botnet operations
-- **Chrome Extension Threat Actors**: Creating fake AI-powered extensions to harvest user data from 900,000+ victims before sending to command and control servers
+- **Kimsuky (North Korean APT)**: Conducting spear-phishing campaigns using malicious QR codes targeting U.S. organizations, representing evolution in social engineering tactics
+- **Chinese-Speaking Threat Actors**: Operating sophisticated VMware ESXi exploitation campaigns using zero-day vulnerabilities and compromised VPN infrastructure
+- **UAT-7290 (China-Linked)**: Espionage-focused intrusions against South Asian and Southeastern European telecommunications entities using Linux malware and ORB nodes
+- **Brazilian Cybercriminals**: WhatsApp-based distribution campaign spreading Astaroth banking trojan through automated messaging worm
+- **Supply Chain Attackers**: Targeting npm ecosystem with NodeCordRAT hidden in Bitcoin-themed packages to compromise developer environments
