@@ -1,60 +1,48 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical exploitation campaigns targeting enterprise infrastructure and users. Chinese-speaking threat actors are actively exploiting VMware ESXi zero-day vulnerabilities to escape virtual machine sandboxes, while Russian APT28 conducts credential harvesting operations against energy sector organizations. Critical vulnerabilities have been identified in Trend Micro Apex Central with remote code execution capabilities, and North Korean hackers are leveraging QR code-based phishing techniques. Additionally, threat actors are systematically hunting for misconfigured proxy servers to access commercial LLM services, and new malware distribution campaigns are targeting both enterprise systems and consumer applications.
+The cybersecurity landscape continues to face significant threats from sophisticated exploitation campaigns targeting critical infrastructure and enterprise systems. Chinese-speaking threat actors have been observed deploying VMware ESXi exploits that may have been developed over a year before disclosure, demonstrating the persistence and advanced planning capabilities of state-sponsored groups. Concurrently, a critical HPE OneView vulnerability with maximum CVSS severity is being actively exploited in the wild, enabling remote code execution on enterprise infrastructure management platforms. Russian APT28 operations are intensifying with credential harvesting campaigns targeting energy and policy organizations, while North Korean Kimsuky hackers are innovating with QR code-based phishing attacks. Additional threats include the Astaroth banking trojan spreading through WhatsApp worms in Brazil and fake AI Chrome extensions stealing data from 900,000 users.
 
 ## Active Exploitation Details
 
 ### VMware ESXi Zero-Day Vulnerabilities
-- **Description**: Chinese-speaking threat actors are exploiting zero-day vulnerabilities in VMware ESXi to achieve virtual machine escape capabilities
-- **Impact**: Attackers can break out of virtual machine isolation and potentially compromise the underlying hypervisor infrastructure
-- **Status**: Actively exploited in the wild, vulnerabilities appear to have been exploited for over a year before disclosure
+- **Description**: Chinese-speaking threat actors exploited unknown zero-day vulnerabilities in VMware ESXi hypervisors to enable virtual machine escape capabilities
+- **Impact**: Attackers can escape virtual machine boundaries and gain unauthorized access to host systems
+- **Status**: Vulnerabilities were exploited approximately one year before public disclosure, with exploitation toolkit deployed through compromised SonicWall VPN appliances
+
+### HPE OneView Remote Code Execution Vulnerability
+- **Description**: Maximum severity vulnerability in HPE's IT infrastructure management platform enabling remote code execution
+- **Impact**: Complete system compromise and control over enterprise infrastructure management systems
+- **Status**: Currently being exploited in the wild with devastating potential consequences
+- **CVE ID**: CVE-2025-37164
 
 ### Trend Micro Apex Central Remote Code Execution
-- **Description**: Critical security flaw in Trend Micro Apex Central (on-premise) Windows versions allowing arbitrary code execution with SYSTEM privileges
-- **Impact**: Complete system compromise with highest privilege level access
-- **Status**: Patches available, CVSS score of 9.8 indicating critical severity
-
-### Microsoft Office and HPE OneView Vulnerabilities
-- **Description**: Security flaws in Microsoft Office and Hewlett Packard Enterprise OneView systems
-- **Impact**: Various impacts depending on specific vulnerability exploitation
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, indicating active exploitation in the wild
-
-### Cisco Identity Services Engine Vulnerability
-- **Description**: Medium-severity security flaw in Cisco ISE and ISE Passive Identity Connector
-- **Impact**: Security bypass and potential system compromise
-- **Status**: Public proof-of-concept exploit available, patches released by Cisco
+- **Description**: Critical security flaw affecting on-premise Windows versions of Apex Central that allows arbitrary code execution
+- **Impact**: Attackers can execute malicious code with SYSTEM privileges on affected systems
+- **Status**: Patches have been released by Trend Micro with CVSS score of 9.8
 
 ## Affected Systems and Products
 
-- **VMware ESXi**: Hypervisor platforms vulnerable to virtual machine escape attacks
-- **Trend Micro Apex Central**: On-premise Windows versions affected by critical RCE vulnerability
-- **Microsoft Office**: Various versions subject to active exploitation
-- **HPE OneView**: Enterprise infrastructure management platform
-- **Cisco ISE/ISE-PIC**: Identity Services Engine and Passive Identity Connector systems
-- **SonicWall VPN Appliances**: Used as initial access vectors in VMware attacks
-- **Coolify Platform**: Self-hosting platform with 11 critical vulnerabilities enabling server compromise
-- **Proxy Servers**: Misconfigured systems providing unauthorized access to LLM services
-- **Android TV Streaming Devices**: Compromised by Kimwolf botnet affecting over 2 million devices
-- **WhatsApp**: Used as distribution vector for Astaroth banking trojan
+- **VMware ESXi**: Hypervisor platforms vulnerable to virtual machine escape exploits
+- **HPE OneView**: IT infrastructure management platforms on all supported versions
+- **Trend Micro Apex Central**: On-premise Windows installations of the cybersecurity management console
+- **SonicWall VPN Appliances**: Used as initial access vectors for VMware ESXi exploitation campaigns
+- **Android TV Streaming Devices**: Over 2 million devices infected by Kimwolf botnet
+- **Chrome Browser Extensions**: AI-powered extensions targeting 900,000 users for data theft
+- **WhatsApp Messaging Platform**: Used to distribute Astaroth banking trojan in Brazil
 
 ## Attack Vectors and Techniques
 
-- **Virtual Machine Escape**: Exploitation of VMware ESXi vulnerabilities to break sandbox isolation
-- **VPN Appliance Compromise**: Initial access through compromised SonicWall VPN devices
-- **QR Code Phishing**: North Korean hackers using malicious QR codes in spear-phishing campaigns
-- **Proxy Server Exploitation**: Systematic hunting for misconfigured proxies to access paid services
-- **WhatsApp Worm Distribution**: Auto-messaging functionality used to spread banking trojans
-- **npm Package Poisoning**: Malicious packages delivering NodeCordRAT through Bitcoin-themed packages
-- **Edge Device Exploitation**: Targeting telecommunications providers through edge infrastructure
-- **Credential Harvesting**: Spear-phishing campaigns against energy and policy organizations
-- **ORB Node Deployment**: Linux malware installation for persistent access
+- **Compromised VPN Appliances**: SonicWall devices used as initial access points for deploying VMware exploitation toolkits
+- **QR Code Phishing**: North Korean Kimsuky group using malicious QR codes in spearphishing campaigns targeting U.S. organizations
+- **Credential Harvesting**: Russian APT28 conducting systematic credential theft operations against energy and policy sectors
+- **WhatsApp Worm Distribution**: Auto-messaging functionality exploited to spread banking trojans through contact lists
+- **Malicious Browser Extensions**: Fake AI-powered Chrome extensions designed to harvest ChatGPT and DeepSeek user data
+- **Proxy Server Misconfiguration**: Threat actors systematically hunting misconfigured proxy servers to access paid LLM services
 
 ## Threat Actor Activities
 
-- **Chinese-Speaking Groups**: Conducting sophisticated VMware ESXi exploitation campaigns with year-long development cycles
-- **Russian APT28**: Running credential-stealing operations targeting Turkish energy agencies and policy organizations
-- **North Korean Kimsuky**: Leveraging QR code-based phishing against U.S. organizations across multiple sectors
-- **UAT-7290 (China-linked)**: Targeting telecommunications in South Asia and Southeastern Europe with Linux malware
-- **Brazilian Cybercriminals**: Distributing Astaroth banking trojan via WhatsApp worm campaigns
-- **LLM Service Abusers**: Systematically exploiting misconfigured proxies for unauthorized access to commercial AI services
-- **Botnet Operators**: Managing Kimwolf and Aisuru botnets affecting millions of Android TV devices
+- **Chinese-Speaking APT Groups**: Deploying sophisticated VMware ESXi exploitation toolkits with virtual machine escape capabilities, potentially operating for over a year before detection
+- **Russian APT28 (Fancy Bear)**: Conducting credential-stealing campaigns targeting Turkish energy and nuclear research agencies, as well as strategic policy organizations
+- **North Korean Kimsuky**: Implementing QR code-based spearphishing campaigns against U.S. organizations, demonstrating tactical innovation in social engineering
+- **Brazilian Cybercriminals**: Operating WhatsApp-based distribution networks for Astaroth banking trojan, leveraging social engineering and auto-messaging capabilities
+- **Telecommunications-Focused APT**: China-linked threat actors using Linux-based malware to target telecommunications providers in Southeastern Europe through edge device exploits
