@@ -1,58 +1,54 @@
 # Exploitation Report
 
-Current threat landscape shows significant exploitation activity across multiple attack vectors. Chinese-speaking threat actors are leveraging VMware ESXi zero-day vulnerabilities to achieve virtual machine escapes, while HPE OneView faces maximum severity exploitation enabling remote code execution. State-sponsored groups including Russian APT28 and Iranian MuddyWater continue aggressive credential harvesting campaigns, with North Korean actors adopting novel QR code-based phishing techniques. Additional threats include widespread misconfigured proxy exploitation for unauthorized LLM access and sophisticated social engineering campaigns targeting financial institutions through messaging platforms.
+The cybersecurity landscape is currently dominated by several critical exploitation activities targeting enterprise infrastructure and communication platforms. Chinese-speaking threat actors have been actively exploiting zero-day vulnerabilities in VMware ESXi environments to achieve virtual machine escape capabilities, while Iranian state-sponsored groups continue deploying sophisticated RAT campaigns across Middle Eastern sectors. Russian APT groups remain highly active in credential harvesting operations targeting energy and policy organizations globally. Additionally, a critical remote code execution vulnerability in Trend Micro's Apex Central platform and an actively exploited maximum severity flaw in HPE OneView highlight significant risks to enterprise management infrastructure.
 
 ## Active Exploitation Details
 
 ### VMware ESXi Zero-Day Vulnerabilities
-- **Description**: Critical zero-day vulnerabilities in VMware ESXi hypervisor allowing virtual machine escape
-- **Impact**: Attackers can escape virtual machine confines and potentially gain access to hypervisor infrastructure
-- **Status**: Active exploitation by Chinese-speaking threat actors, exploiting compromised SonicWall VPN appliances as initial access vector
-
-### HPE OneView Remote Code Execution Flaw
-- **Description**: Maximum severity vulnerability in HPE's IT infrastructure management platform
-- **Impact**: Remote code execution capabilities leading to potential complete system compromise
-- **Status**: Currently being exploited in the wild with devastating potential consequences
-- **CVE ID**: CVE-2025-37164
+- **Description**: Chinese-speaking threat actors have been exploiting zero-day vulnerabilities in VMware ESXi environments to escape virtual machine constraints and gain unauthorized access to hypervisor systems
+- **Impact**: Attackers can break out of virtualized environments, potentially accessing host systems and other virtual machines within the infrastructure
+- **Status**: Active exploitation detected with compromised SonicWall VPN appliances used as initial access vectors
 
 ### Trend Micro Apex Central RCE Vulnerability
-- **Description**: Critical security flaw in on-premise Trend Micro Apex Central for Windows
-- **Impact**: Arbitrary code execution with SYSTEM privileges
-- **Status**: Recently patched by vendor, CVSS score of 9.8
+- **Description**: A critical remote code execution vulnerability affecting on-premise versions of Trend Micro Apex Central for Windows that allows arbitrary code execution with SYSTEM privileges
+- **Impact**: Attackers can achieve complete system compromise with highest privilege levels on affected security management platforms
+- **Status**: Security updates have been released to address the vulnerability
+- **CVE ID**: CVE-2025-37164
 
-### Misconfigured Proxy Server Exploitation
-- **Description**: Systematic targeting of misconfigured proxy servers to access commercial LLM services
-- **Impact**: Unauthorized access to paid AI services and potential data theft
-- **Status**: Ongoing active exploitation campaign
+### HPE OneView Critical Vulnerability
+- **Description**: A maximum severity vulnerability in HPE's IT infrastructure management platform that enables remote code execution
+- **Impact**: Exploitation can lead to devastating consequences including complete compromise of enterprise infrastructure management systems
+- **Status**: Currently being exploited in the wild
+- **CVE ID**: CVE-2025-37164
 
 ## Affected Systems and Products
 
-- **VMware ESXi**: Hypervisor platforms vulnerable to zero-day exploits enabling VM escape
-- **HPE OneView**: IT infrastructure management platform with maximum severity RCE vulnerability
-- **Trend Micro Apex Central**: On-premise Windows versions affected by critical RCE flaw
-- **SonicWall VPN Appliances**: Used as initial access vector in VMware ESXi attacks
-- **Proxy Servers**: Misconfigured instances providing unauthorized LLM access
-- **WhatsApp**: Messaging platform exploited for banking trojan distribution in Brazil
-- **ChatGPT**: Memory feature exploited through "ZombieAgent" prompt injection techniques
-- **Chrome Extensions**: Fake AI extensions compromising 900,000 users' data
+- **VMware ESXi**: Hypervisor environments vulnerable to zero-day exploits enabling virtual machine escape
+- **SonicWall VPN Appliances**: Used as initial access vectors in VMware ESXi exploitation campaigns
+- **Trend Micro Apex Central**: On-premise Windows versions affected by critical RCE vulnerability
+- **HPE OneView**: IT infrastructure management platform experiencing active exploitation
+- **WhatsApp**: Used as distribution vector for banking trojans targeting Brazilian users
+- **Chrome Browser Extensions**: Fake AI-powered extensions harvesting user data from approximately 900,000 users
+- **Snapchat Accounts**: Nearly 600 accounts compromised through phishing operations
+- **Misconfigured Proxy Servers**: Systematically targeted to provide unauthorized access to commercial LLM services
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: VMware ESXi vulnerabilities leveraged for hypervisor compromise
-- **VPN Compromise**: SonicWall appliances used as entry points for advanced attacks
-- **Spear-Phishing**: Multiple campaigns using email and QR codes for credential harvesting
-- **Social Engineering**: WhatsApp worm campaigns distributing Astaroth banking trojan
-- **Prompt Injection**: ChatGPT memory feature exploitation through ZombieAgent techniques
-- **Malicious Browser Extensions**: Fake AI Chrome extensions harvesting user data
-- **Proxy Exploitation**: Systematic hunting for misconfigured proxy servers
-- **Credential Harvesting**: Targeted phishing against energy and policy organizations
+- **Virtual Machine Escape**: Exploitation of VMware ESXi zero-days to break containment and access hypervisor systems
+- **Spear-Phishing Campaigns**: Iranian MuddyWater group deploying RustyWater RAT via targeted email attacks
+- **Credential Harvesting**: Russian APT28 running campaigns against energy and policy organizations
+- **Malicious QR Codes**: North Korean hackers incorporating QR codes into spear-phishing operations
+- **WhatsApp Worm Distribution**: Auto-messaging functionality exploited to spread Astaroth banking trojan
+- **Fake Browser Extensions**: AI-themed Chrome extensions used to harvest ChatGPT and DeepSeek data
+- **Proxy Server Abuse**: Systematic hunting for misconfigured proxies to access paid LLM services
+- **Social Engineering**: Phishing operations targeting Snapchat users to steal private content
 
 ## Threat Actor Activities
 
-- **Chinese-Speaking Groups**: Deploying VMware ESXi exploits developed as early as possible, using SonicWall VPN compromise for initial access
-- **APT28 (Fancy Bear)**: Russian state-sponsored credential stealing campaigns targeting Turkish energy agencies and strategic policy organizations
-- **MuddyWater**: Iranian threat actor launching RustyWater RAT via spear-phishing across Middle East diplomatic, maritime, financial, and telecom sectors
-- **North Korean State Actors**: FBI-warned campaigns using malicious QR codes in spear-phishing operations
-- **Black Axe**: 34 members arrested in Spain for organized cybercrime involving €5.9M fraud operations
-- **Brazilian Cybercriminals**: WhatsApp worm campaigns spreading Astaroth banking trojan through contact auto-messaging
-- **AI Extension Fraudsters**: Creating fake Chrome extensions to harvest ChatGPT and DeepSeek user data affecting 900,000 users
+- **Chinese-Speaking Threat Actors**: Actively exploiting VMware ESXi zero-days with sophisticated virtual machine escape techniques, using compromised VPN appliances for initial access
+- **MuddyWater (Iranian APT)**: Conducting spear-phishing campaigns across Middle Eastern diplomatic, maritime, financial, and telecom sectors using Rust-based RustyWater RAT
+- **APT28/Fancy Bear (Russian)**: Running credential-stealing campaigns targeting Turkish energy and nuclear research agencies, along with strategic policy organizations globally
+- **North Korean State-Sponsored Groups**: Incorporating malicious QR codes into spear-phishing campaigns targeting various sectors
+- **Black Axe Criminal Network**: 34 members arrested in Spain for cyber fraud activities totaling €5.9 million in organized crime operations
+- **Brazilian Banking Trojan Operators**: Deploying Astaroth banking trojan through WhatsApp worm campaigns with contact auto-messaging capabilities
+- **Chrome Extension Threat Actors**: Operating fake AI-powered browser extensions to harvest data from 900,000+ users before exfiltrating to command and control servers
