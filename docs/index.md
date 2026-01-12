@@ -1,68 +1,59 @@
 # Exploitation Report
 
-The current threat landscape reveals significant exploitation activities targeting critical infrastructure and enterprise systems. Chinese-speaking threat actors have successfully exploited zero-day vulnerabilities in VMware ESXi to achieve virtual machine escape capabilities, while HPE OneView infrastructure management platforms are being actively compromised through a maximum severity vulnerability. Nation-state actors, including Russian APT28 and Iranian MuddyWater groups, continue aggressive credential harvesting campaigns targeting energy, diplomatic, and policy organizations. Additionally, threat actors are exploiting misconfigured proxy servers to gain unauthorized access to commercial large language model services, and social media platforms face ongoing abuse through account takeover campaigns affecting hundreds of thousands of users.
+The cybersecurity landscape is currently experiencing significant exploitation activity across multiple attack vectors. Chinese-speaking threat actors are exploiting VMware ESXi zero-day vulnerabilities to achieve virtual machine escape, while Russian state-sponsored groups including APT28 and Fancy Bear continue credential harvesting campaigns targeting energy and policy organizations. Critical infrastructure is under threat with active exploitation of HPE OneView vulnerabilities, and threat actors are increasingly leveraging AI and social engineering techniques including malicious QR codes and fake Chrome extensions to compromise systems and steal user data.
 
 ## Active Exploitation Details
 
-### VMware ESXi Virtual Machine Escape
-- **Description**: Zero-day vulnerabilities in VMware ESXi hypervisor allowing threat actors to escape virtual machine boundaries
-- **Impact**: Complete compromise of virtualized infrastructure and potential lateral movement across enterprise networks
-- **Status**: Actively exploited by Chinese-speaking threat actors; exploit may have been developed as early as 2023
+### VMware ESXi Zero-Day Vulnerabilities
+- **Description**: Chinese-speaking threat actors have leveraged compromised SonicWall VPN appliances to deploy VMware ESXi exploits that enable virtual machine escape
+- **Impact**: Allows attackers to break out of virtualized environments and gain access to host systems
+- **Status**: Active exploitation observed with exploits potentially developed years ago
 
-### HPE OneView Remote Code Execution
-- **Description**: Maximum severity vulnerability in HPE's IT infrastructure management platform enabling remote code execution
-- **Impact**: Complete system compromise with devastating consequences for enterprise infrastructure management
-- **Status**: Actively exploited in the wild
+### HPE OneView Critical Vulnerability
+- **Description**: Maximum severity vulnerability in HPE's IT infrastructure management platform being actively exploited
+- **Impact**: Enables remote code execution with devastating consequences for IT infrastructure management
+- **Status**: Active exploitation confirmed in the wild
 - **CVE ID**: CVE-2025-37164
 
-### Instagram Password Reset Abuse
-- **Description**: Bug allowing mass automated password reset email requests leading to large-scale data scraping
-- **Impact**: Exposure of data from over 17 million Instagram accounts
-- **Status**: Fixed by Instagram but data already leaked online
+### Trend Micro Apex Central RCE Vulnerability
+- **Description**: Critical remote code execution flaw in on-premise Windows versions of Trend Micro Apex Central
+- **Impact**: Could result in arbitrary code execution on affected systems
+- **Status**: Security updates released to address the vulnerability
+- **CVE ID**: CVSS score of 9.8
 
-### Misconfigured LLM Proxy Exploitation
-- **Description**: Systematic targeting of misconfigured proxy servers providing unauthorized access to commercial AI services
-- **Impact**: Financial losses through unauthorized usage of paid LLM services and potential data exposure
-- **Status**: Ongoing exploitation campaign
-
-### Trend Micro Apex Central RCE
-- **Description**: Critical remote code execution vulnerability in on-premise Windows versions of Trend Micro Apex Central
-- **Impact**: Arbitrary code execution on enterprise security management systems
-- **Status**: Patches released by Trend Micro
-- **CVE ID**: CVE-2025-37164 (CVSS 9.8)
-
-### Snapchat Account Takeover Campaign
-- **Description**: Phishing operation targeting Snapchat accounts through credential harvesting
-- **Impact**: Compromise of nearly 600 accounts leading to theft and sale of private photos
-- **Status**: Individual charged by U.S. prosecutors; ongoing investigation
+### Instagram Password Reset Bug
+- **Description**: Vulnerability allowing threat actors to mass-request password reset emails
+- **Impact**: Enabled scraping of data from over 17 million Instagram accounts
+- **Status**: Instagram claims the bug has been fixed
 
 ## Affected Systems and Products
 
-- **VMware ESXi**: Hypervisor platforms vulnerable to virtual machine escape exploits
-- **HPE OneView**: IT infrastructure management platforms on Windows systems
-- **Instagram**: Social media platform with over 17 million accounts affected by data scraping
-- **Trend Micro Apex Central**: On-premise Windows versions vulnerable to RCE
-- **Snapchat**: Social media platform targeted in credential harvesting campaigns
-- **Commercial LLM Services**: AI platforms accessed through misconfigured proxy servers
-- **SonicWall VPN**: Appliances used as initial access vectors for VMware exploits
+- **VMware ESXi**: Hypervisor platforms vulnerable to zero-day exploits enabling VM escape
+- **SonicWall VPN Appliances**: Used as initial access vector by Chinese threat actors
+- **HPE OneView**: IT infrastructure management platform with maximum severity RCE vulnerability
+- **Trend Micro Apex Central**: On-premise Windows versions affected by critical RCE flaw
+- **Instagram**: Social media platform affected by password reset vulnerability
+- **Chrome Extensions**: Fake AI-powered extensions targeting 900,000+ users
 - **Android TV Devices**: Over 2 million devices infected by Kimwolf botnet
+- **ChatGPT**: Memory feature vulnerable to prompt injection attacks
 
 ## Attack Vectors and Techniques
 
 - **Virtual Machine Escape**: Exploitation of VMware ESXi zero-days to break out of virtualized environments
-- **Spear-Phishing Campaigns**: Targeted email attacks using malicious QR codes and social engineering
-- **Credential Harvesting**: Systematic collection of login credentials through fake websites and phishing
-- **WhatsApp Worm Distribution**: Auto-messaging malware propagation through contact lists
-- **Proxy Server Abuse**: Exploitation of misconfigured servers to access paid services
-- **Mass Password Reset Abuse**: Automated exploitation of password reset mechanisms for data scraping
-- **Chrome Extension Impersonation**: Fake AI-powered extensions stealing user data from 900,000 users
+- **VPN Compromise**: Using compromised SonicWall VPN appliances as initial access points
+- **Spear-Phishing**: MuddyWater deploying RustyWater RAT through targeted email campaigns
+- **Malicious QR Codes**: North Korean hackers incorporating QR codes in spear-phishing attacks
+- **Credential Harvesting**: APT28 targeting energy and policy organizations for credential theft
+- **Fake Browser Extensions**: Malicious AI-themed Chrome extensions stealing user data
+- **Prompt Injection**: ZombieAgent exploit targeting ChatGPT's memory feature
+- **Botnet Operations**: Mass compromise of Android TV devices through unofficial streaming applications
 
 ## Threat Actor Activities
 
-- **Chinese-Speaking Threat Actors**: Leveraging compromised SonicWall VPN appliances to deploy VMware ESXi exploits for virtual machine escape
-- **Russian APT28 (Fancy Bear)**: Conducting credential-stealing campaigns against Turkish energy/nuclear agencies and policy organizations using basic but highly effective techniques
-- **Iranian MuddyWater**: Launching RustyWater RAT via spear-phishing across Middle East diplomatic, maritime, financial, and telecom sectors
-- **North Korean State-Sponsored Groups**: Using malicious QR codes in spear-phishing campaigns targeting cryptocurrency and technology sectors
-- **Black Axe Criminal Network**: 34 members arrested in Spain for €5.9M fraud operations and organized cybercrime activities
-- **Brazilian Banking Trojan Operators**: Distributing Astaroth banking malware through WhatsApp worm campaigns targeting Brazilian users
-- **Kimwolf Botnet Operators**: Successfully infected over 2 million Android TV devices through mass-compromise campaigns
+- **Chinese-Speaking Threat Actors**: Sophisticated campaign using VMware ESXi zero-days with SonicWall VPN compromise as initial access
+- **MuddyWater (Iranian APT)**: Targeting Middle East diplomatic, maritime, financial, and telecom sectors with Rust-based RustyWater RAT
+- **APT28/Fancy Bear (Russian)**: Credential harvesting campaigns against Turkish energy research agencies and strategic policy organizations
+- **North Korean State Actors**: Deploying malicious QR codes in spear-phishing campaigns as warned by FBI
+- **Black Axe Criminal Network**: 34 members arrested in Spain for €5.9M fraud and organized cybercrime activities
+- **Pig Butchering Service Providers**: Industrial-scale fraud operations supported by specialized service providers
+- **Kimwolf/Aisuru Botnet Operators**: Successfully infected over 2 million Android TV devices through malicious streaming applications
