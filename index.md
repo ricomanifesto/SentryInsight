@@ -1,59 +1,62 @@
 # Exploitation Report
 
-Critical security threats are actively targeting organizations through multiple attack vectors, with CISA highlighting the active exploitation of a high-severity Gogs vulnerability that enables remote code execution. Concurrent threats include the SHADOW#REACTOR campaign delivering Remcos RAT through sophisticated multi-stage attacks, the GoBruteforcer botnet compromising over 50,000 Linux servers through credential attacks, and supply chain compromises targeting the n8n workflow automation platform. A ServiceNow AI Platform vulnerability has been patched that allowed unauthenticated user impersonation, while threat actors continue leveraging social engineering techniques including browser-in-browser attacks for credential theft and QR code phishing campaigns attributed to North Korean APT groups.
+Critical security vulnerabilities are being actively exploited across multiple platforms and services, with attackers targeting everything from AI platforms to gaming infrastructure. The most concerning developments include zero-day attacks against the Gogs Git service leading to CISA emergency directives, a critical ServiceNow AI Platform flaw allowing unauthenticated user impersonation, a maximum-severity vulnerability affecting nearly 60,000 n8n workflow automation instances, and sophisticated botnet operations targeting Linux servers and cryptocurrency databases. Additionally, supply chain attacks through malicious npm packages and advanced social engineering campaigns demonstrate the evolving sophistication of modern threat actors.
 
 ## Active Exploitation Details
 
-### Gogs Vulnerability
-- **Description**: High-severity security flaw in Gogs (Go Git Service) that enables remote code execution
+### Gogs Git Service Remote Code Execution
+- **Description**: A high-severity security flaw in the Gogs Git service that enables remote code execution
 - **Impact**: Attackers can execute arbitrary code on vulnerable systems, potentially leading to full system compromise
-- **Status**: Currently being exploited in zero-day attacks; CISA has ordered federal agencies to patch systems
+- **Status**: Being actively exploited as zero-day attacks; CISA has added it to the Known Exploited Vulnerabilities catalog and ordered federal agencies to patch immediately
 
-### ServiceNow AI Platform User Impersonation
-- **Description**: Critical security flaw in ServiceNow's AI Platform allowing unauthenticated attackers to impersonate legitimate users
-- **Impact**: Unauthorized users can perform arbitrary actions by impersonating other users, potentially accessing sensitive data and system functions
-- **Status**: Patched by ServiceNow; organizations advised to update immediately
+### ServiceNow AI Platform Authentication Bypass
+- **Description**: Critical security flaw in ServiceNow's AI Platform allowing unauthenticated user impersonation
+- **Impact**: Unauthenticated attackers can impersonate legitimate users and perform arbitrary actions within the platform
+- **Status**: Now patched by ServiceNow after disclosure
 
-### n8n Workflow Automation Platform Supply Chain Attack
-- **Description**: Eight malicious packages uploaded to npm registry masquerading as legitimate n8n integrations
-- **Impact**: Theft of developers' OAuth credentials and potential compromise of workflow automation systems
-- **Status**: Ongoing threat targeting the n8n ecosystem through compromised community nodes
-
-### Ni8mare n8n Vulnerability
+### n8n Workflow Automation Vulnerability (Ni8mare)
 - **Description**: Maximum-severity vulnerability affecting n8n workflow automation instances
-- **Impact**: Complete system compromise possible on vulnerable instances
-- **Status**: Nearly 60,000 n8n instances remain unpatched and exposed online
+- **Impact**: Critical system compromise potential affecting automation workflows
+- **Status**: Nearly 60,000 instances remain unpatched despite the severity
+
+### Telegram Proxy Link IP Address Exposure
+- **Description**: Vulnerability in how Telegram handles proxy links that can expose users' real IP addresses
+- **Impact**: Single-click attack can reveal user's actual IP address, compromising anonymity
+- **Status**: Telegram acknowledges the issue and plans to add warnings
 
 ## Affected Systems and Products
 
-- **Gogs Git Service**: Self-hosted Git service installations vulnerable to remote code execution
-- **ServiceNow AI Platform**: ServiceNow's artificial intelligence platform components
-- **n8n Workflow Automation**: Approximately 60,000 exposed instances globally
-- **Linux Servers**: Over 50,000 servers targeted by GoBruteforcer botnet
-- **Windows Systems**: Targeted by SHADOW#REACTOR campaign delivering Remcos RAT
-- **Cryptocurrency and Blockchain Databases**: Specifically targeted by GoBruteforcer attacks
-- **Facebook/Meta Platforms**: Targeted by browser-in-browser credential theft campaigns
-- **Telegram Users**: Affected by proxy link IP address exposure vulnerability
-- **Apex Legends Gaming Platform**: Character hijacking during live matches
+- **ServiceNow AI Platform**: Critical authentication bypass vulnerability allowing user impersonation
+- **Gogs Git Service**: High-severity remote code execution flaw under active exploitation
+- **n8n Workflow Automation**: Maximum-severity "Ni8mare" vulnerability affecting ~60,000 instances
+- **Linux Servers**: Over 50,000 servers targeted by GoBruteforcer botnet campaigns
+- **npm Registry**: Eight malicious packages uploaded targeting n8n workflow platform
+- **Telegram**: Proxy link handling vulnerability exposing user IP addresses
+- **Apex Legends**: Character hijacking attacks during live gaming sessions
+- **Facebook/Instagram**: Browser-in-browser attacks targeting login credentials
+- **Cryptocurrency Databases**: Targeted by GoBruteforcer botnet for credential compromise
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution**: Direct exploitation of Gogs vulnerability for system compromise
-- **Multi-Stage Attack Chains**: SHADOW#REACTOR campaign employs evasive techniques to deliver RATs
-- **Credential Brute-Forcing**: GoBruteforcer botnet targeting weak SSH and database credentials
-- **Supply Chain Compromise**: Malicious npm packages targeting developer workflows
-- **Browser-in-Browser (BitB)**: Advanced phishing technique mimicking legitimate login interfaces
-- **QR Code Phishing (Quishing)**: North Korean APT using QR codes in phishing emails
-- **Social Engineering**: Spear-phishing campaigns targeting specific sectors and organizations
-- **User Impersonation**: Exploiting authentication flaws to bypass access controls
+- **Zero-Day Exploitation**: Active exploitation of unpatched Gogs vulnerability for remote code execution
+- **Supply Chain Attacks**: Malicious npm packages masquerading as legitimate n8n integrations to steal OAuth tokens
+- **Botnet Operations**: GoBruteforcer targeting Linux servers and crypto databases through weak credential exploitation
+- **Browser-in-Browser (BitB)**: Sophisticated Facebook credential theft using fake browser windows
+- **Spear-Phishing**: Multi-stage SHADOW#REACTOR campaign delivering Remcos RAT through evasive attack chains
+- **QR Code Phishing (Quishing)**: North Korean APT Kimsuky using QR codes in phishing emails
+- **Character Hijacking**: Real-time manipulation of gaming characters in live Apex Legends matches
+- **Social Engineering**: Advanced techniques combining AI optimization with traditional attack methods
 
 ## Threat Actor Activities
 
-- **MuddyWater (Iranian APT)**: Conducting spear-phishing campaigns with RustyWater RAT targeting Middle East diplomatic, maritime, financial, and telecom sectors
-- **Kimsuky (North Korean APT)**: Deploying QR code phishing attacks against US and foreign government agencies, NGOs, and academic institutions
-- **SHADOW#REACTOR Campaign**: Sophisticated multi-stage attack delivering Remcos RAT through evasive techniques
-- **GoBruteforcer Operators**: Targeting cryptocurrency project databases and Linux servers for botnet recruitment
-- **n8n Supply Chain Attackers**: Uploading malicious packages to npm registry to steal OAuth credentials
-- **BreachForums Attackers**: Successfully breached the notorious cybercriminal forum, exposing 324,000 user records
-- **Port Infrastructure Hackers**: Dutch national sentenced for breaching Rotterdam and Antwerp ports
-- **Gaming Platform Attackers**: Hijacking Apex Legends characters during live gameplay sessions
+- **CISA Response**: Emergency directive issued for federal agencies to patch Gogs vulnerability due to active exploitation
+- **SHADOW#REACTOR Campaign**: Multi-stage attack chain deploying Remcos RAT through evasive techniques targeting Windows systems
+- **GoBruteforcer Operators**: Enhanced botnet targeting 50,000+ Linux servers and cryptocurrency project databases
+- **MuddyWater (Iranian APT)**: RustyWater RAT deployment via spear-phishing across Middle East diplomatic, maritime, financial, and telecom sectors
+- **Kimsuky (North Korean APT)**: QR code-based phishing campaigns targeting US and foreign government agencies, NGOs, and academic institutions
+- **n8n Supply Chain Attackers**: Eight malicious npm packages uploaded to steal developer OAuth credentials
+- **BreachForums Breach**: Major cybercriminal forum compromised, exposing 324,000 member identities
+- **Port Infrastructure Attackers**: Seven-year sentence handed down for Rotterdam and Antwerp port system breaches
+- **Target Corporation**: Claims of internal source code theft with samples published publicly
+- **University of Hawaii**: Ransomware attack on Cancer Center compromising participant data from 1990s
+- **Endesa Energy**: Spanish energy giant breach affecting customer contract information
