@@ -1,58 +1,57 @@
 # Exploitation Report
 
-The cybersecurity landscape continues to face significant exploitation activity, with zero-day vulnerabilities, sophisticated botnet operations, and supply chain attacks posing critical threats to organizations worldwide. The most concerning developments include the active exploitation of a high-severity Gogs remote code execution vulnerability in zero-day attacks, prompting CISA to issue emergency patching orders for federal agencies. Additionally, the discovery of the maximum-severity "Ni8mare" vulnerability affecting nearly 60,000 n8n workflow automation instances highlights the risks posed by widely deployed automation platforms. Chinese-speaking threat actors have been exploiting VMware ESXi zero-day vulnerabilities to escape virtual machines, while the GoBruteforcer botnet has evolved to target over 50,000 Linux servers with enhanced capabilities. Supply chain attacks are escalating, with malicious npm packages targeting n8n users and various campaigns exploiting exposed LLM services across organizations.
+CISA has issued critical warnings about active exploitation of a high-severity Gogs vulnerability that enables remote code execution through zero-day attacks. The agency has added this flaw to its Known Exploited Vulnerabilities catalog and mandated federal agencies to apply patches immediately. Meanwhile, threat actors are deploying sophisticated attack vectors including Chinese-linked hackers exploiting VMware ESXi zero-day vulnerabilities to escape virtual machines, the GoBruteforcer botnet targeting over 50,000 Linux servers with weak credentials, and supply chain attacks against n8n workflow automation platforms. Additional concerns include North Korean APT groups conducting quishing attacks and a maximum-severity vulnerability dubbed "Ni8mare" affecting nearly 60,000 n8n instances worldwide.
 
 ## Active Exploitation Details
 
 ### Gogs Remote Code Execution Vulnerability
-- **Description**: A high-severity remote code execution flaw in Gogs, a self-hosted Git service, that allows attackers to execute arbitrary code on vulnerable systems
-- **Impact**: Complete system compromise, unauthorized access to repositories, and potential lateral movement within networks
-- **Status**: Actively exploited in zero-day attacks; CISA has mandated federal agencies patch immediately
-
-### Ni8mare Vulnerability in n8n Workflow Automation
-- **Description**: A maximum-severity vulnerability affecting the n8n workflow automation platform that could allow complete system compromise
-- **Impact**: Full control over workflow automation systems, access to sensitive data and credentials processed by workflows
-- **Status**: Nearly 60,000 instances remain unpatched and vulnerable to exploitation
+- **Description**: High-severity security flaw in the Gogs Git service that allows attackers to execute arbitrary code remotely
+- **Impact**: Complete system compromise and unauthorized code execution on affected servers
+- **Status**: Actively exploited in zero-day attacks; patches available and mandated by CISA for federal agencies
 
 ### VMware ESXi Zero-Day Vulnerabilities
-- **Description**: Multiple zero-day vulnerabilities in VMware ESXi allowing virtual machine escape attacks
-- **Impact**: Attackers can break out of virtual machine isolation to access the underlying hypervisor and other virtual machines
-- **Status**: Actively exploited by Chinese-speaking threat actors using exploits potentially developed years ago
+- **Description**: Multiple zero-day vulnerabilities in VMware ESXi hypervisor that enable virtual machine escape
+- **Impact**: Attackers can break out of virtual machine containment and access the underlying hypervisor infrastructure
+- **Status**: Actively exploited by Chinese-linked threat actors; may have been developed years prior to discovery
+
+### n8n Ni8mare Vulnerability
+- **Description**: Maximum-severity vulnerability affecting the n8n workflow automation platform
+- **Impact**: Complete system compromise of n8n instances
+- **Status**: Nearly 60,000 instances remain unpatched and vulnerable to exploitation
+
+### Instagram Password Reset Bug
+- **Description**: Vulnerability allowing mass-requesting of password reset emails leading to data scraping
+- **Impact**: Potential exposure of account data from over 17 million Instagram accounts
+- **Status**: Fixed by Instagram, but data may have been compromised and leaked
 
 ## Affected Systems and Products
 
-- **Gogs Git Service**: Self-hosted Git service platforms vulnerable to remote code execution
-- **n8n Workflow Automation Platform**: Nearly 60,000 exposed instances affected by maximum-severity vulnerability
-- **VMware ESXi Hypervisors**: Virtual infrastructure systems targeted for VM escape attacks
-- **Linux Servers**: Over 50,000 systems targeted by enhanced GoBruteforcer botnet operations
-- **npm Registry Packages**: Eight malicious packages masquerading as n8n integrations
-- **SonicWall VPN Appliances**: Used as initial access vectors in advanced persistent threat campaigns
-- **Facebook/Meta Platforms**: Targeted by browser-in-browser phishing attacks
-- **LLM Services**: 91,403 sessions targeting publicly exposed large language model endpoints
-- **Apex Legends Gaming Platform**: Character hijacking during live matches
-- **Instagram**: Mass password reset exploitation affecting account security
+- **Gogs Git Service**: Self-hosted Git service installations vulnerable to remote code execution
+- **VMware ESXi**: Hypervisor platforms susceptible to virtual machine escape attacks
+- **n8n Workflow Automation**: Nearly 60,000 publicly exposed instances affected by Ni8mare vulnerability
+- **Linux Servers**: Over 50,000 servers targeted by GoBruteforcer botnet through weak credential exploitation
+- **npm Registry**: Eight malicious packages targeting n8n platform integrations
+- **SonicWall VPN**: Compromised appliances used as initial access vectors
+- **Instagram Platform**: Password reset functionality exploited for mass data scraping
+- **Telegram**: Proxy link handling vulnerability exposing user IP addresses
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Gogs and VMware ESXi systems
-- **Virtual Machine Escape**: Advanced techniques to break out of virtualized environments and access hypervisors
-- **Supply Chain Compromise**: Malicious npm packages uploaded to target n8n workflow automation developers
-- **Credential Brute-Forcing**: Enhanced GoBruteforcer operations targeting weak SSH, FTP, and database credentials
-- **Browser-in-Browser Phishing**: Sophisticated social engineering attacks mimicking legitimate login interfaces
-- **QR Code Phishing (Quishing)**: State-sponsored groups using QR codes in phishing emails to evade detection
-- **VPN Appliance Compromise**: Using compromised network devices as initial access points for lateral movement
-- **Character Hijacking**: Real-time manipulation of gaming characters during live gameplay sessions
-- **Mass Password Reset Abuse**: Exploiting platform bugs to trigger bulk password reset requests
-- **LLM Endpoint Scanning**: Automated discovery and exploitation of exposed AI service endpoints
+- **Zero-Day Exploitation**: Multiple zero-day vulnerabilities exploited before patches were available
+- **Credential Brute-Forcing**: GoBruteforcer botnet targeting servers with weak authentication
+- **Supply Chain Attacks**: Malicious npm packages masquerading as legitimate n8n integrations
+- **Virtual Machine Escape**: Sophisticated techniques to break out of VM containment
+- **Spear-Phishing**: Targeted email campaigns delivering malicious payloads
+- **Quishing Attacks**: QR code-based phishing techniques deployed via email
+- **Browser-in-Browser**: Deceptive technique mimicking legitimate login interfaces
+- **Mass Data Scraping**: Automated exploitation of password reset functionalities
 
 ## Threat Actor Activities
 
-- **Chinese-Speaking APT Groups**: Exploiting VMware ESXi zero-days through compromised SonicWall VPN appliances for virtual machine escape attacks
-- **North Korean Kimsuky APT**: Conducting quishing campaigns against US and foreign government agencies, NGOs, and academic institutions using QR-code-filled phishing emails
-- **Iranian MuddyWater Group**: Deploying RustyWater RAT via spear-phishing campaigns targeting diplomatic, maritime, financial, and telecom entities across the Middle East
-- **GoBruteforcer Operators**: Enhanced botnet operations targeting cryptocurrency and blockchain project databases with AI-generated configurations
-- **n8n Supply Chain Attackers**: Sophisticated campaign uploading malicious npm packages to steal OAuth credentials from workflow automation developers
-- **Gaming Platform Attackers**: Real-time character hijacking operations disrupting Apex Legends gameplay and manipulating player experiences
-- **Black Axe Criminal Organization**: International fraud operations resulting in 34 arrests in Spain for €5.9 million in fraudulent activities
-- **Facebook Credential Thieves**: Increased reliance on browser-in-browser techniques for social media account compromise over the past six months
-- **LLM Service Attackers**: Multiple campaigns targeting 91,403 sessions across exposed large language model endpoints to identify organizational AI usage and data leaks
+- **Chinese-Linked Groups**: Exploiting VMware ESXi zero-days through compromised SonicWall VPN appliances for virtual machine escape attacks
+- **MuddyWater (Iranian APT)**: Conducting spear-phishing campaigns across Middle East diplomatic, maritime, financial, and telecom sectors using RustyWater RAT
+- **Kimsuky (North Korean APT)**: Deploying quishing attacks against US and foreign government agencies, NGOs, and academic institutions
+- **GoBruteforcer Operators**: Targeting cryptocurrency and blockchain project databases with enhanced botnet capabilities
+- **Supply Chain Attackers**: Uploading malicious npm packages to steal OAuth credentials from n8n developers
+- **BreachForums**: Criminal marketplace compromised, exposing data of 324,000 cybercriminals and administrators
+- **Black Axe Organization**: International criminal group with 34 members arrested in Spain for €5.9M fraud operations
