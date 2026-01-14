@@ -1,53 +1,57 @@
 # Exploitation Report
 
-The January 2026 security landscape reveals critical exploitation activity across multiple platforms and products. Microsoft's first Patch Tuesday of the year addresses a significant actively exploited zero-day vulnerability alongside two publicly disclosed zero-days, representing the most urgent threats. Fortinet has patched a critical unauthenticated remote code execution flaw in FortiSIEM, while Node.js addressed a severe vulnerability affecting virtually all production applications. Additionally, new sophisticated malware frameworks like VoidLink are targeting Linux cloud environments, and threat actors continue targeting Ukrainian defense forces with PLUGGYAPE malware delivered through charity-themed campaigns.
+Microsoft's January 2026 Patch Tuesday reveals critical exploitation activity with 114 security flaws addressed, including one actively exploited zero-day vulnerability and two additional publicly disclosed zero-days. Simultaneously, threat actors are leveraging sophisticated techniques including DLL side-loading vulnerabilities in the c-ares library, exploiting FortiSIEM critical flaws for unauthenticated remote code execution, and deploying advanced malware frameworks like VoidLink targeting Linux cloud environments. Notable campaigns include PLUGGYAPE malware targeting Ukrainian defense forces and ongoing web skimming operations stealing credit card data from online checkout pages since 2022.
 
 ## Active Exploitation Details
 
 ### Microsoft Windows Zero-Day Vulnerability
-- **Description**: An actively exploited vulnerability affecting Windows systems that was addressed in Microsoft's January 2026 Patch Tuesday update
-- **Impact**: Active exploitation in the wild, allowing attackers to compromise Windows systems
-- **Status**: Patched as of January 2026 Patch Tuesday, but exploitation confirmed before patch release
+- **Description**: One of three zero-day vulnerabilities in Microsoft's January 2026 security update that has been actively exploited in the wild
+- **Impact**: Attackers can exploit this vulnerability to compromise Windows systems, though specific attack outcomes vary based on the vulnerability type
+- **Status**: Patched in Microsoft's January 2026 Patch Tuesday update (KB5074109, KB5073455, KB5073724)
 
-### Fortinet FortiSIEM Critical Vulnerability
-- **Description**: Critical security flaw in FortiSIEM operating system allowing unauthenticated remote code execution
-- **Impact**: Unauthenticated attackers can achieve complete code execution on vulnerable FortiSIEM instances
+### c-ares DLL Side-Loading Vulnerability
+- **Description**: A DLL side-loading vulnerability in a legitimate binary associated with the open-source c-ares library
+- **Impact**: Allows attackers to bypass security controls and deploy malware while appearing to use legitimate processes
+- **Status**: Currently being actively exploited in malware campaigns
+
+### FortiSIEM Critical Remote Code Execution Flaw
+- **Description**: A critical security flaw in Fortinet's FortiSIEM product allowing unauthenticated remote code execution
+- **Impact**: Enables unauthenticated attackers to achieve complete code execution on vulnerable FortiSIEM instances
 - **Status**: Patches released by Fortinet to address the vulnerability
 
-### Node.js Critical Stack Overflow Vulnerability
-- **Description**: Critical security issue in async_hooks functionality causing stack overflow conditions
-- **Impact**: Denial-of-service attacks that can crash Node.js servers, affecting virtually every production Node.js application
+### Node.js async_hooks Stack Overflow Vulnerability
+- **Description**: A critical security issue affecting virtually every production Node.js application through the async_hooks module
+- **Impact**: Successful exploitation can trigger denial-of-service conditions causing server crashes
 - **Status**: Updates released by Node.js to fix the vulnerability
-
-### Microsoft Windows Additional Zero-Days
-- **Description**: Two publicly disclosed zero-day vulnerabilities affecting Windows systems
-- **Impact**: System compromise and security bypass capabilities
-- **Status**: Patched in January 2026 Patch Tuesday alongside 111 other security flaws
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: All supported versions affected by three zero-day vulnerabilities and 111 additional security flaws
-- **Fortinet FortiSIEM**: Critical unauthenticated remote code execution vulnerability
-- **Node.js Applications**: Virtually all production Node.js applications vulnerable to denial-of-service via async_hooks stack overflow
-- **ServiceNow AI Platform**: Severe AI vulnerability exposing customer data and connected systems
-- **Linux Cloud Servers**: Targeted by VoidLink malware framework with custom loaders, implants, and rootkits
-- **Android Devices**: Volume button functionality issues with accessibility features enabled
+- **Microsoft Windows**: All supported Windows operating systems affected by 114 security flaws including three zero-days
+- **c-ares Library**: Open-source DNS resolution library vulnerable to DLL side-loading attacks
+- **Fortinet FortiSIEM**: Security information and event management platform with critical RCE vulnerability
+- **Node.js Applications**: Virtually all production Node.js applications vulnerable to async_hooks stack overflow
+- **ServiceNow AI Platform**: Agentic AI implementation with severe vulnerability exposing customer data
+- **Linux Cloud Servers**: Targeted by VoidLink malware framework with custom loaders and rootkits
 - **Google Chrome Extensions**: Malicious extensions targeting MEXC cryptocurrency exchange API keys
+- **Web Payment Systems**: American Express, Diners Club, Discover payment networks targeted by web skimming
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Remote Code Execution**: Direct exploitation of FortiSIEM without authentication requirements
-- **Stack Overflow Exploitation**: Targeting Node.js async_hooks functionality to cause denial-of-service
-- **Malware Framework Deployment**: VoidLink providing comprehensive Linux cloud environment compromise capabilities
-- **Social Engineering Campaigns**: Charity-themed phishing targeting Ukrainian defense forces with PLUGGYAPE malware
-- **Web Skimming Operations**: Long-running campaign since January 2022 targeting payment networks including American Express, Diners Club, and Discover
-- **Browser Extension Abuse**: Malicious Chrome extensions masquerading as legitimate trading tools
-- **Third-Party Application Abuse**: 64% of analyzed applications accessing sensitive data without business justification
+- **DLL Side-Loading**: Exploitation of legitimate c-ares binaries to load malicious DLLs and bypass security controls
+- **Unauthenticated Remote Code Execution**: Direct exploitation of FortiSIEM systems without authentication requirements
+- **Web Skimming**: Long-running campaign since January 2022 targeting online checkout pages to steal credit card data
+- **Malicious Browser Extensions**: Chrome extensions masquerading as trading tools to steal cryptocurrency API keys
+- **Social Engineering**: Charity-themed campaigns targeting Ukrainian defense forces with PLUGGYAPE malware
+- **Cloud-Native Malware**: VoidLink framework specifically designed for Linux cloud environments with modular architecture
+- **AI Session Hijacking**: "Reprompt" attack method to infiltrate Microsoft Copilot sessions for data exfiltration
+- **Python and Cloudflare Abuse**: Legitimate services weaponized to deliver AsyncRAT malware
+- **Text File Delivery**: Shadow#Reactor campaign using text-only files to deploy Remcos RAT
 
 ## Threat Actor Activities
 
-- **Ukrainian Defense Force Targeting**: CERT-UA reports attacks between October and December 2025 using PLUGGYAPE malware delivered through Signal and WhatsApp communications in charity-themed campaigns
-- **Chinese Cyber Operations**: Increased pressure on Taiwan's critical infrastructure with 6% rise in attacks during 2025, averaging 2.63 million attacks daily targeting energy utilities and hospitals
-- **Web Skimming Groups**: Sophisticated payment card theft operations active since January 2022 targeting major payment networks
-- **Linux Cloud Threat Actors**: Deployment of advanced VoidLink malware framework specifically designed for long-term, stealthy access to cloud and container environments
-- **Cryptocurrency Threat Actors**: Targeting MEXC exchange users through malicious Chrome extensions to steal API keys and trading credentials
+- **Ukrainian Defense Targeting**: CERT-UA reports attacks between October-December 2025 using PLUGGYAPE malware delivered through Signal and WhatsApp
+- **Chinese State Activity**: Increased cyber pressure on Taiwan with 6% rise in attacks on critical infrastructure, averaging 2.63 million attacks daily in 2025
+- **Web Skimming Groups**: Long-running campaign active since January 2022 targeting major payment networks with sophisticated card theft operations
+- **Cryptocurrency Threat Actors**: Development and deployment of malicious Chrome extensions specifically targeting MEXC exchange users
+- **Cloud-Focused Attackers**: Deployment of VoidLink malware framework showing advanced capabilities in Linux cloud environment targeting
+- **Healthcare Targeting**: Multiple incidents including Belgian hospital AZ Monica cyberattack and data breaches at Central Maine Healthcare (145,000+ affected) and Monroe University (320,000+ affected)
