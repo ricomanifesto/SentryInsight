@@ -1,51 +1,51 @@
 # Exploitation Report
 
-The current threat landscape reveals significant exploitation activity across multiple sectors and platforms. Microsoft's January 2026 Patch Tuesday addressed 114 vulnerabilities including three zero-day flaws, with one being actively exploited in the wild and two publicly disclosed. Critical exploitation activity includes a high-severity Gogs vulnerability enabling remote code execution that CISA has confirmed is being actively exploited in zero-day attacks. Additional concerning developments include sophisticated malware campaigns targeting Linux cloud environments, extensive web skimming operations affecting payment networks, and supply chain attacks targeting developer workflows.
+The cybersecurity landscape is currently experiencing significant exploitation activity across multiple fronts. Microsoft addressed three zero-day vulnerabilities in its January 2026 Patch Tuesday, with one being actively exploited in the wild. A critical AI platform vulnerability in ServiceNow has been identified as potentially the most severe AI-related security flaw to date. The CISA has warned of active exploitation of a Gogs vulnerability enabling remote code execution. Additionally, sophisticated malware campaigns are targeting diverse environments, from Ukraine's defense forces with PluggyApe backdoor malware to Linux cloud servers through the advanced VoidLink framework. North Korean APT groups are actively conducting quishing attacks against government agencies, while web skimming campaigns continue to steal credit card information from online checkout pages.
 
 ## Active Exploitation Details
 
 ### Microsoft Zero-Day Vulnerabilities
-- **Description**: Three zero-day vulnerabilities patched in Microsoft's January 2026 Patch Tuesday, including one that was actively exploited in the wild and two that were publicly disclosed
-- **Impact**: One vulnerability was being actively exploited by threat actors before patches were available
-- **Status**: Patches released in January 2026 through KB5073724 and other cumulative updates
+- **Description**: Three zero-day vulnerabilities patched in Microsoft's January 2026 Patch Tuesday, with one being actively exploited in the wild
+- **Impact**: Active exploitation allowing attackers to compromise Windows systems
+- **Status**: Patches available through KB5073724 extended security update and cumulative updates KB5074109 and KB5073455
 
-### Gogs Remote Code Execution Vulnerability
-- **Description**: High-severity security flaw in Gogs (Git service) enabling remote code execution
-- **Impact**: Attackers can execute arbitrary code on affected systems without authentication
-- **Status**: Being actively exploited in zero-day attacks; CISA has added to Known Exploited Vulnerabilities catalog and ordered federal agencies to patch
+### Gogs Code Execution Vulnerability
+- **Description**: High-severity security flaw in Gogs (Go Git Service) that enables remote code execution
+- **Impact**: Attackers can execute arbitrary code on vulnerable Gogs installations
+- **Status**: Actively exploited in the wild according to CISA warning, added to Known Exploited Vulnerabilities catalog
 
-### ServiceNow AI Platform User Impersonation Flaw
-- **Description**: Critical security vulnerability in ServiceNow's artificial intelligence platform allowing unauthenticated user impersonation
-- **Impact**: Enables attackers to impersonate legitimate users without authentication credentials
-- **Status**: Now patched by ServiceNow
+### ServiceNow AI Platform Critical Flaw
+- **Description**: Critical security vulnerability in ServiceNow's AI Platform that allows unauthenticated user impersonation
+- **Impact**: Unauthorized access to customer data and connected systems through unguarded legacy chatbot infrastructure
+- **Status**: Patched by ServiceNow, described as "most severe AI vulnerability to date"
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows 10 and Windows 11 systems affected by zero-day vulnerabilities and Secure Boot certificate issues
-- **Gogs Git Service**: Self-hosted Git service vulnerable to remote code execution attacks
-- **ServiceNow AI Platform**: Enterprise AI platform affected by critical impersonation vulnerability
-- **Linux Servers**: Over 50,000 Linux servers targeted by GoBruteforcer botnet
-- **Payment Networks**: American Express, Diners Club, Discover payment systems affected by web skimming
-- **MEXC Cryptocurrency Exchange**: API keys targeted through malicious Chrome extensions
-- **n8n Workflow Platform**: OAuth tokens stolen through supply chain attack on community nodes
+- **Microsoft Windows Systems**: Windows 10, Windows 11 versions 23H2, 24H2, and 25H2 affected by zero-day vulnerabilities
+- **Gogs Git Service**: Self-hosted Git service vulnerable to remote code execution
+- **ServiceNow AI Platform**: AI-enabled chatbot systems exposed customer data and connected infrastructure
+- **Linux Cloud Servers**: Targeted by VoidLink malware framework in containerized environments
+- **Ukraine Defense Forces**: Officials targeted by PluggyApe backdoor through charity-themed campaigns
+- **MEXC Cryptocurrency Exchange**: API keys stolen through malicious Chrome extensions
+- **Web Payment Systems**: American Express, Diners Club, Discover payment networks targeted by skimming campaigns
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active exploitation of unpatched Microsoft vulnerabilities before public disclosure
-- **Remote Code Execution**: Exploitation of Gogs vulnerability to execute arbitrary commands
-- **Web Skimming**: Long-running campaign since January 2022 targeting checkout pages to steal credit card data
-- **Browser-in-Browser (BitB)**: Facebook credential theft using convincing fake browser windows
-- **Supply Chain Attacks**: Malicious npm packages targeting n8n workflow automation platform
-- **Malicious Chrome Extensions**: Cryptocurrency API key theft through fake trading tools
-- **QR Code Phishing (Quishing)**: North Korean APT using QR codes in phishing campaigns
-- **Multi-Stage Malware Delivery**: SHADOW#REACTOR campaign delivering Remcos RAT through evasive attack chains
-- **Botnet Brute Force**: GoBruteforcer targeting Linux servers with weak credentials
+- **Charity-Themed Social Engineering**: Malicious campaigns targeting Ukraine's army using humanitarian themes to deliver PluggyApe backdoor
+- **Multi-Stage Malware Delivery**: SHADOW#REACTOR campaign using text-only files to deliver Remcos RAT while bypassing security tools
+- **Malicious Browser Extensions**: Chrome extensions masquerading as trading tools to steal cryptocurrency API keys
+- **QR Code Phishing (Quishing)**: North Korean APT Kimsuky using QR codes in phishing emails targeting government agencies
+- **Web Skimming**: Long-running campaign since January 2022 targeting online checkout pages to steal credit card data
+- **LinkedIn Social Engineering**: Fake comment-reply tactics using spoofed platform notifications for phishing
+- **Python and Cloudflare Abuse**: Legitimate cloud services weaponized to deliver AsyncRAT malware
+- **Brute Force Attacks**: GoBruteforcer botnet targeting over 50,000 Linux servers with weak credentials
 
 ## Threat Actor Activities
 
-- **North Korean APT (Kimsuky)**: Conducting quishing attacks against US and foreign government agencies, NGOs, and academic institutions using QR code-filled phishing emails
-- **Web Skimming Groups**: Operating sophisticated payment card theft campaign since January 2022 targeting major payment networks
-- **Linux Malware Operators**: Deploying advanced VoidLink malware framework for long-term, stealthy access to cloud and container environments
-- **Cryptocurrency Attackers**: Using malicious Chrome extensions and fake trading tools to steal MEXC exchange API keys
-- **BreachForums Infiltrators**: Successfully breached the notorious cybercriminal forum, exposing 324,000 member details including real identities and administrator information
-- **Supply Chain Attackers**: Uploading malicious npm packages masquerading as legitimate n8n workflow integrations to steal OAuth credentials
+- **North Korean APT Kimsuky**: Conducting quishing attacks against US and foreign government agencies, NGOs, and academic institutions using QR code-filled phishing emails
+- **SHADOW#REACTOR Operators**: Deploying sophisticated multi-stage attack chains using text files to deliver Remcos RAT and evade detection
+- **VoidLink Developers**: Creating advanced cloud-native malware framework with custom loaders, implants, rootkits, and plugins for Linux environments
+- **Ukrainian-Targeting Groups**: Conducting charity-themed campaigns against Ukraine's Defense Forces to deliver PluggyApe backdoor malware
+- **Web Skimming Groups**: Operating long-term campaigns since 2022 targeting major payment networks and online retailers
+- **Cryptocurrency Threat Actors**: Developing malicious Chrome extensions to steal MEXC exchange API keys from traders
+- **GoBruteforcer Operators**: Managing botnet infrastructure targeting Linux servers with enhanced AI-generated configurations
