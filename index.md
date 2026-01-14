@@ -1,53 +1,57 @@
 # Exploitation Report
 
-The current threat landscape reveals significant exploitation activity across multiple fronts, with Microsoft addressing three actively exploited zero-day vulnerabilities in its January 2026 Patch Tuesday release alongside 111 other security flaws. Critical infrastructure continues to face sustained attacks, exemplified by the 6% increase in Chinese cyberattacks against Taiwan's energy utilities and hospitals, averaging 2.63 million attacks daily. Advanced threat actors are deploying sophisticated malware frameworks like VoidLink targeting Linux cloud environments and PluggyApe backdoors in charity-themed campaigns against Ukrainian defense forces. Additionally, CISA has warned of active exploitation of a Gogs vulnerability enabling code execution, while ServiceNow patched a critical AI platform flaw allowing unauthenticated user impersonation.
+Current cybersecurity landscape reveals several critical exploitation activities demanding immediate attention. Microsoft addressed 114 security vulnerabilities in its January 2026 Patch Tuesday, including three zero-day vulnerabilities with one actively exploited in the wild. CISA has warned of active exploitation of a Gogs vulnerability enabling remote code execution. Node.js disclosed a critical vulnerability affecting virtually every production application that could trigger denial-of-service attacks. Additionally, multiple sophisticated malware campaigns are targeting cloud infrastructure, Ukrainian defense forces, and cryptocurrency platforms through advanced attack frameworks.
 
 ## Active Exploitation Details
 
 ### Microsoft Zero-Day Vulnerabilities
-- **Description**: Three zero-day vulnerabilities affecting Microsoft systems, with one actively exploited in the wild and two publicly disclosed
-- **Impact**: Complete system compromise and unauthorized access to Windows environments
-- **Status**: Patches released in January 2026 Patch Tuesday (KB5073724 for Windows 10, KB5074109 and KB5073455 for Windows 11)
+- **Description**: Microsoft's January 2026 Patch Tuesday addressed three zero-day vulnerabilities, with one being actively exploited in the wild and two publicly disclosed
+- **Impact**: Active exploitation of at least one zero-day vulnerability puts Windows systems at immediate risk
+- **Status**: Patches available through Windows 11 KB5074109, KB5073455, and Windows 10 KB5073724 updates
 
-### Gogs Code Repository Vulnerability
-- **Description**: High-severity security flaw in Gogs code repository platform enabling remote code execution
-- **Impact**: Attackers can execute arbitrary code on vulnerable Gogs installations
-- **Status**: Actively exploited according to CISA warning, added to Known Exploited Vulnerabilities catalog
+### Node.js async_hooks Stack Overflow
+- **Description**: Critical security issue in Node.js affecting virtually every production Node.js application through the async_hooks mechanism
+- **Impact**: Successfully exploited vulnerability could trigger denial-of-service attacks causing server crashes
+- **Status**: Node.js has released updates to address the critical vulnerability
 
-### ServiceNow AI Platform Critical Flaw
-- **Description**: Critical security vulnerability in ServiceNow's artificial intelligence platform allowing user impersonation
-- **Impact**: Unauthenticated attackers can impersonate legitimate users and access sensitive data
-- **Status**: Patched by ServiceNow, described as "most severe AI vulnerability to date"
+### Gogs Remote Code Execution Vulnerability
+- **Description**: High-severity security flaw in Gogs version control system enabling remote code execution
+- **Impact**: Allows attackers to execute arbitrary code on affected Gogs installations
+- **Status**: CISA has confirmed active exploitation and added it to Known Exploited Vulnerabilities catalog
+
+### ServiceNow AI Platform User Impersonation Flaw
+- **Description**: Critical security flaw in ServiceNow's artificial intelligence platform allowing unauthenticated user impersonation
+- **Impact**: Enables attackers to impersonate legitimate users without authentication
+- **Status**: ServiceNow has patched the critical vulnerability
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows 10 and Windows 11 systems affected by three zero-day vulnerabilities
-- **Gogs Git Repository**: Self-hosted Git service vulnerable to remote code execution attacks
-- **ServiceNow AI Platform**: Enterprise AI platform exposed to user impersonation attacks
-- **Linux Cloud Servers**: Targeted by VoidLink malware framework in cloud and container environments
-- **MEXC Cryptocurrency Exchange**: API keys stolen through malicious Chrome extension
-- **Taiwan Critical Infrastructure**: Energy utilities and hospitals facing increased cyberattacks
-- **Ukrainian Defense Forces**: Targeted by PluggyApe backdoor malware in charity-themed campaigns
-- **Target Corporation**: Internal source code systems compromised and leaked
-- **BreachForums**: Cybercriminal forum breached, exposing 324,000 user records
+- **Node.js Applications**: Virtually every production Node.js application vulnerable to async_hooks stack overflow
+- **Microsoft Windows**: All Windows operating systems and supported software affected by 114 vulnerabilities
+- **Gogs Version Control**: Gogs installations vulnerable to remote code execution attacks
+- **ServiceNow AI Platform**: ServiceNow artificial intelligence platform affected by user impersonation flaw
+- **Linux Cloud Servers**: Targeted by VoidLink malware framework designed for cloud environments
+- **Ukrainian Defense Forces**: Targeted by PLUGGYAPE malware through Signal and WhatsApp applications
+- **Chrome Browser**: Malicious extensions targeting MEXC cryptocurrency exchange API keys
+- **Healthcare Organizations**: Monroe University (320,000 individuals) and Central Maine Healthcare (145,000 individuals) suffered data breaches
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Microsoft systems compromised through unpatched vulnerabilities before public disclosure
-- **Multi-Stage Malware Delivery**: SHADOW#REACTOR campaign uses text files to deliver Remcos RAT
-- **Cloud-Native Malware**: VoidLink framework provides custom loaders, implants, and rootkits for Linux environments
-- **Social Engineering**: Charity-themed phishing campaigns targeting Ukrainian military personnel
-- **Browser Extension Abuse**: Malicious Chrome extensions masquerading as cryptocurrency trading tools
-- **Web Skimming**: Long-running campaign stealing credit card data from online checkout pages since January 2022
-- **Brute Force Attacks**: GoBruteforcer botnet targeting over 50,000 Linux servers with weak credentials
-- **LinkedIn Phishing**: Fake comment-reply tactics on LinkedIn posts directing users to malicious links
+- **Web Skimming**: Long-running campaign active since January 2022 targeting payment networks including American Express, Diners Club, and Discover
+- **Spear-Phishing**: MuddyWater threat actor deploying RustyWater RAT across Middle East diplomatic, maritime, financial, and telecom sectors
+- **Supply Chain Attacks**: n8n workflow automation platform targeted through malicious npm packages stealing OAuth credentials
+- **Multi-Stage Attacks**: SHADOW#REACTOR campaign delivering Remcos RAT through evasive Windows attack chains
+- **Charity-Themed Campaigns**: PluggyApe malware distributed through fake charity campaigns targeting Ukrainian defense officials
+- **Browser Extension Abuse**: Malicious Chrome extensions masquerading as trading tools to steal cryptocurrency API keys
+- **LinkedIn Phishing**: Fake comment-reply tactics impersonating LinkedIn platform warnings
+- **Brute Force Attacks**: GoBruteforcer botnet targeting cryptocurrency project databases with weak credentials
 
 ## Threat Actor Activities
 
-- **Chinese APT Groups**: Sustained cyber pressure against Taiwan with 2.63 million daily attacks on critical infrastructure
-- **SHADOW#REACTOR Campaign**: Sophisticated multi-stage attack chain delivering Remcos RAT through evasive techniques
-- **VoidLink Operators**: Advanced persistent threat actors deploying cloud-native Linux malware framework
-- **PluggyApe Campaign**: Threat actors targeting Ukrainian Defense Forces with charity-themed social engineering
-- **GoBruteforcer Operators**: Cybercriminals managing multipurpose botnet targeting Linux servers globally
-- **Web Skimming Groups**: Long-running operation stealing payment card data from major payment networks
-- **BreachForums Attackers**: Unknown threat actors successfully breaching notorious cybercriminal marketplace
+- **MuddyWater**: Iranian threat actor conducting spear-phishing campaigns with RustyWater RAT targeting Middle East entities across diplomatic, maritime, financial, and telecom sectors
+- **CERT-UA Disclosed Campaigns**: Attacks targeting Ukrainian Defense Forces with PLUGGYAPE malware delivered through Signal and WhatsApp between October-December 2025
+- **VoidLink Operators**: Advanced threat actors deploying cloud-native Linux malware framework targeting cloud servers with custom loaders, implants, and rootkits
+- **Web Skimming Groups**: Long-running campaign operators targeting major payment networks since January 2022
+- **Supply Chain Attackers**: Threat actors uploading malicious npm packages targeting n8n workflow automation platform
+- **Hospital Attackers**: Cyberattack on Belgian hospital AZ Monica forcing server shutdowns and patient transfers
+- **Data Breach Actors**: Multiple incidents affecting Betterment financial services, Target source code leak, Monroe University, and Central Maine Healthcare
