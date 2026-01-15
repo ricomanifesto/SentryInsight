@@ -1,76 +1,59 @@
 # Exploitation Report
 
-Current exploitation activity reveals a dangerous landscape with multiple critical vulnerabilities actively exploited by threat actors across enterprise infrastructure and consumer platforms. The most concerning developments include active exploitation of a critical FortiSIEM command injection flaw with public exploit code, a Node.js vulnerability affecting virtually every production application, ongoing attacks against Gogs repositories, and a Microsoft Windows vulnerability being exploited in the wild. Additionally, sophisticated malware campaigns are leveraging DLL side-loading techniques and targeting cloud environments with advanced frameworks designed for persistent access.
+Critical cybersecurity threats are actively targeting enterprise infrastructure with several high-impact vulnerabilities being exploited in the wild. Microsoft's January 2026 security update addresses 114 vulnerabilities including one actively exploited zero-day, while Fortinet's FortiSIEM platform faces critical command injection flaws with public exploit code available. Additional concerning developments include DLL side-loading attacks exploiting c-ares library vulnerabilities, sophisticated malware campaigns targeting Linux systems and Ukrainian defense forces, and a critical Node.js vulnerability affecting virtually every production application. Palo Alto Networks has also patched a high-severity denial-of-service vulnerability in GlobalProtect with proof-of-concept exploit code circulating.
 
 ## Active Exploitation Details
 
-### Microsoft Windows Vulnerability
-- **Description**: A security flaw in Microsoft Windows systems that is being actively exploited by threat actors
-- **Impact**: Successful exploitation allows attackers to compromise Windows systems and potentially gain unauthorized access
-- **Status**: Patched in Microsoft's January 2026 security update (Patch Tuesday)
-
-### Gogs Git Service Vulnerability
-- **Description**: A high-severity security flaw in the Gogs Git service that enables remote code execution
-- **Impact**: Attackers can execute arbitrary code on vulnerable Gogs instances, potentially compromising source code repositories
-- **Status**: CISA has confirmed active exploitation and added it to the Known Exploited Vulnerabilities catalog
+### Microsoft Windows Zero-Day Vulnerability
+- **Description**: An actively exploited vulnerability in Windows systems that Microsoft has confirmed is being used in attacks
+- **Impact**: Attackers can exploit this flaw to compromise Windows systems in the wild
+- **Status**: Patched in Microsoft's January 2026 security update addressing 114 total flaws
 
 ### FortiSIEM Command Injection Vulnerability
-- **Description**: A critical command injection flaw affecting Fortinet's Security Information and Event Management (SIEM) solution
-- **Impact**: Allows unauthenticated attackers to achieve remote code execution on vulnerable FortiSIEM instances
-- **Status**: Public exploit code is available; patches have been released by Fortinet
-- **CVE ID**: CVE-2024-47580
-
-### Node.js Critical Vulnerability
-- **Description**: A critical security issue affecting the async_hooks module that can cause stack overflow conditions
-- **Impact**: Successful exploitation triggers denial-of-service conditions affecting "virtually every production Node.js app"
-- **Status**: Security updates have been released by the Node.js project
-
-### ServiceNow AI Platform Flaw
-- **Description**: A critical vulnerability in ServiceNow's artificial intelligence platform allowing unauthenticated user impersonation
-- **Impact**: Enables attackers to impersonate legitimate users without authentication, potentially accessing sensitive data
-- **Status**: Patched by ServiceNow
-
-### Palo Alto Networks Firewall DoS Vulnerability
-- **Description**: A high-severity denial-of-service vulnerability in Palo Alto Networks firewalls
-- **Impact**: Allows unauthenticated attackers to disable firewall protections through DoS attacks
-- **Status**: Patched by Palo Alto Networks
+- **Description**: Critical command injection flaw in Fortinet's Security Information and Event Management solution
+- **Impact**: Allows unauthenticated remote attackers to achieve code execution on vulnerable FortiSIEM instances
+- **Status**: Patched by Fortinet, but public exploit code is available
 
 ### c-ares DLL Side-Loading Vulnerability
-- **Description**: A DLL side-loading vulnerability in the legitimate c-ares library binary
-- **Impact**: Enables malware deployment while bypassing security controls through legitimate binary abuse
-- **Status**: Active exploitation campaign ongoing
+- **Description**: DLL side-loading vulnerability in legitimate binary associated with the open-source c-ares library
+- **Impact**: Enables attackers to bypass security controls and deploy malware on compromised systems
+- **Status**: Actively being exploited in malware campaigns
+
+### Node.js Critical Stack Overflow
+- **Description**: Critical vulnerability in Node.js async_hooks causing stack overflow conditions
+- **Impact**: Can trigger denial-of-service attacks against virtually every production Node.js application
+- **Status**: Patched in recent Node.js updates
+
+### Palo Alto Networks GlobalProtect DoS Vulnerability
+- **Description**: High-severity denial-of-service flaw in GlobalProtect Gateway and Portal
+- **Impact**: Allows unauthenticated attackers to crash firewalls and disable firewall protections
+- **Status**: Patched by Palo Alto Networks, proof-of-concept exploit exists
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Multiple versions affected by actively exploited vulnerability
-- **Gogs Git Service**: Repository hosting platforms running vulnerable instances
-- **FortiSIEM**: Fortinet's Security Information and Event Management solution
-- **Node.js Applications**: Virtually all production Node.js applications using affected versions
-- **ServiceNow AI Platform**: Organizations using ServiceNow's artificial intelligence features
-- **Palo Alto Networks Firewalls**: Enterprise firewall installations
-- **c-ares Library**: Applications and systems utilizing the open-source DNS resolution library
-- **Linux Cloud Environments**: Container and cloud platforms targeted by VoidLink malware
-- **Chrome Browser Extensions**: MEXC cryptocurrency exchange users targeted by malicious extensions
+- **Microsoft Windows**: All Windows systems vulnerable to actively exploited zero-day
+- **Fortinet FortiSIEM**: Security Information and Event Management platform vulnerable to command injection
+- **c-ares Library**: Open-source DNS resolution library and associated applications
+- **Node.js Applications**: Virtually all production Node.js applications affected by stack overflow vulnerability
+- **Palo Alto Networks GlobalProtect**: Gateway and Portal components vulnerable to DoS attacks
+- **Delta Industrial PLCs**: Programmable logic controllers with trio of critical vulnerabilities
+- **Linux Systems**: Targeted by VoidLink malware framework
+- **Ukrainian Defense Systems**: Targeted by PLUGGYAPE malware campaigns
 
 ## Attack Vectors and Techniques
 
-- **Command Injection**: Critical FortiSIEM vulnerability exploited for unauthenticated remote code execution
-- **DLL Side-Loading**: Legitimate c-ares binaries abused to deploy malware while evading security detection
-- **Stack Overflow Exploitation**: Node.js async_hooks module targeted to crash production applications
-- **User Impersonation**: ServiceNow AI platform exploited for unauthorized access without authentication
-- **Denial-of-Service Attacks**: Palo Alto Networks firewalls targeted to disable security protections
-- **Web Skimming**: Long-running campaign since January 2022 targeting payment networks including American Express, Diners Club, and Discover
-- **OAuth Phishing**: ConsentFix technique abusing browser-based authorization flows to hijack Microsoft accounts
-- **AI Session Hijacking**: Reprompt attacks infiltrating Microsoft Copilot sessions for data exfiltration
-- **Malicious Browser Extensions**: Chrome extensions masquerading as trading tools to steal cryptocurrency API keys
-- **Multi-Stage Malware Delivery**: SHADOW#REACTOR campaign deploying Remcos RAT through evasive attack chains
+- **DLL Side-Loading**: Exploiting legitimate c-ares binaries to bypass security and deploy malware
+- **Command Injection**: Unauthenticated remote code execution via FortiSIEM vulnerabilities
+- **Stack Overflow**: async_hooks exploitation causing denial-of-service in Node.js applications
+- **Denial-of-Service**: Unauthenticated attacks against Palo Alto GlobalProtect firewalls
+- **OAuth Phishing**: ConsentFix technique abusing browser-based authorization flows
+- **AI Agent Exploitation**: Using AI agents as authorization bypass paths in enterprise environments
+- **Reprompt Attacks**: Hijacking Microsoft Copilot sessions for data exfiltration
 
 ## Threat Actor Activities
 
-- **RedVDS Cybercrime Platform**: Microsoft disrupted this massive virtual desktop service linked to at least $40 million in reported losses in the United States
-- **AISURU/Kimwolf Botnet**: Over 550 command-and-control nodes null-routed by researchers, with the botnet having infected over 2 million devices
-- **Ukrainian Defense Targeting**: PLUGGYAPE malware campaigns using Signal and WhatsApp to target Ukrainian Defense Forces between October and December 2025
-- **Enterprise Cloud Attackers**: VoidLink malware framework deployed for long-term, stealthy access to Linux cloud and container environments
-- **Cryptocurrency Threat Actors**: Malicious Chrome extension campaigns targeting MEXC exchange users to steal API keys
-- **Web Skimming Operations**: Ongoing campaigns since January 2022 targeting major payment networks and online checkout systems
-- **Ransomware Groups**: Kyowon Group (South Korean conglomerate) confirmed data theft in ransomware attack affecting operations and customer information
+- **RedVDS Cybercrime Service**: Microsoft disrupted this cybercrime-as-a-service platform linked to over $40 million in losses, operating virtual desktop infrastructure for malicious activities
+- **AISURU/Kimwolf Botnet Operators**: Black Lotus Labs null-routed over 550 command-and-control nodes, with the botnet infecting over 2 million devices
+- **Ukrainian Defense Attackers**: CERT-UA identified attacks using PLUGGYAPE malware targeting defense forces via Signal and WhatsApp between October-December 2025
+- **VoidLink Malware Operators**: Advanced threat actors deploying modular, cloud-first malware framework designed for stealthy, long-term access to Linux environments
+- **Industrial Espionage Groups**: Targeting Delta industrial PLCs with critical vulnerabilities affecting operational technology environments
