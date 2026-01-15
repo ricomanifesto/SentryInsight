@@ -1,57 +1,76 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple enterprise platforms and systems. Microsoft has confirmed active exploitation of one vulnerability in their January 2026 patch cycle, which addressed 114 security flaws. FortiSIEM faces immediate risk with public exploit code available for a critical command injection vulnerability allowing unauthenticated remote code execution. Multiple threat actors are deploying sophisticated attack techniques including DLL side-loading exploits targeting the c-ares library, OAuth phishing campaigns dubbed "ConsentFix," and advanced malware frameworks like VoidLink targeting Linux systems. ServiceNow has been impacted by what researchers describe as the "most severe AI vulnerability to date" affecting their agentic AI implementation.
+Current exploitation activity reveals a dangerous landscape with multiple critical vulnerabilities actively exploited by threat actors across enterprise infrastructure and consumer platforms. The most concerning developments include active exploitation of a critical FortiSIEM command injection flaw with public exploit code, a Node.js vulnerability affecting virtually every production application, ongoing attacks against Gogs repositories, and a Microsoft Windows vulnerability being exploited in the wild. Additionally, sophisticated malware campaigns are leveraging DLL side-loading techniques and targeting cloud environments with advanced frameworks designed for persistent access.
 
 ## Active Exploitation Details
 
 ### Microsoft Windows Vulnerability
-- **Description**: One of 114 security flaws patched in Microsoft's January 2026 update cycle has been actively exploited in the wild
-- **Impact**: Exploitation details not specified, but confirmed active targeting by threat actors
-- **Status**: Patched in January 2026 Microsoft security update
+- **Description**: A security flaw in Microsoft Windows systems that is being actively exploited by threat actors
+- **Impact**: Successful exploitation allows attackers to compromise Windows systems and potentially gain unauthorized access
+- **Status**: Patched in Microsoft's January 2026 security update (Patch Tuesday)
+
+### Gogs Git Service Vulnerability
+- **Description**: A high-severity security flaw in the Gogs Git service that enables remote code execution
+- **Impact**: Attackers can execute arbitrary code on vulnerable Gogs instances, potentially compromising source code repositories
+- **Status**: CISA has confirmed active exploitation and added it to the Known Exploited Vulnerabilities catalog
 
 ### FortiSIEM Command Injection Vulnerability
-- **Description**: Critical command injection flaw in Fortinet's Security Information and Event Management solution
-- **Impact**: Allows unauthenticated attackers to achieve remote code execution on vulnerable instances
-- **Status**: Public exploit code available, patches released by Fortinet
-
-### c-ares DLL Side-Loading Vulnerability
-- **Description**: DLL side-loading vulnerability in legitimate binary associated with the open-source c-ares library
-- **Impact**: Allows attackers to bypass security controls and deploy malware
-- **Status**: Actively exploited in ongoing malware campaigns
-
-### ServiceNow AI Vulnerability
-- **Description**: Critical vulnerability in ServiceNow's agentic AI implementation described as the "most severe AI vulnerability to date"
-- **Impact**: Exposes customer data and connected systems through unguarded legacy chatbot integration
-- **Status**: Under active investigation
+- **Description**: A critical command injection flaw affecting Fortinet's Security Information and Event Management (SIEM) solution
+- **Impact**: Allows unauthenticated attackers to achieve remote code execution on vulnerable FortiSIEM instances
+- **Status**: Public exploit code is available; patches have been released by Fortinet
+- **CVE ID**: CVE-2024-47580
 
 ### Node.js Critical Vulnerability
-- **Description**: Critical security issue affecting async_hooks causing stack overflow conditions
-- **Impact**: Can trigger denial-of-service conditions and server crashes, affects virtually every production Node.js application
-- **Status**: Updates released by Node.js
+- **Description**: A critical security issue affecting the async_hooks module that can cause stack overflow conditions
+- **Impact**: Successful exploitation triggers denial-of-service conditions affecting "virtually every production Node.js app"
+- **Status**: Security updates have been released by the Node.js project
+
+### ServiceNow AI Platform Flaw
+- **Description**: A critical vulnerability in ServiceNow's artificial intelligence platform allowing unauthenticated user impersonation
+- **Impact**: Enables attackers to impersonate legitimate users without authentication, potentially accessing sensitive data
+- **Status**: Patched by ServiceNow
+
+### Palo Alto Networks Firewall DoS Vulnerability
+- **Description**: A high-severity denial-of-service vulnerability in Palo Alto Networks firewalls
+- **Impact**: Allows unauthenticated attackers to disable firewall protections through DoS attacks
+- **Status**: Patched by Palo Alto Networks
+
+### c-ares DLL Side-Loading Vulnerability
+- **Description**: A DLL side-loading vulnerability in the legitimate c-ares library binary
+- **Impact**: Enables malware deployment while bypassing security controls through legitimate binary abuse
+- **Status**: Active exploitation campaign ongoing
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Various operating systems and supported software affected by 114 vulnerabilities
+- **Microsoft Windows**: Multiple versions affected by actively exploited vulnerability
+- **Gogs Git Service**: Repository hosting platforms running vulnerable instances
 - **FortiSIEM**: Fortinet's Security Information and Event Management solution
-- **c-ares Library**: Open-source DNS resolution library and associated applications
-- **ServiceNow Platform**: Enterprise service management platform with agentic AI features
-- **Node.js Applications**: Production Node.js applications using async_hooks functionality
-- **Microsoft Copilot**: AI assistant platform vulnerable to session hijacking
-- **Linux Systems**: Targeted by VoidLink malware framework
+- **Node.js Applications**: Virtually all production Node.js applications using affected versions
+- **ServiceNow AI Platform**: Organizations using ServiceNow's artificial intelligence features
+- **Palo Alto Networks Firewalls**: Enterprise firewall installations
+- **c-ares Library**: Applications and systems utilizing the open-source DNS resolution library
+- **Linux Cloud Environments**: Container and cloud platforms targeted by VoidLink malware
+- **Chrome Browser Extensions**: MEXC cryptocurrency exchange users targeted by malicious extensions
 
 ## Attack Vectors and Techniques
 
-- **DLL Side-Loading**: Exploiting legitimate binaries to load malicious DLL files and bypass security
-- **Command Injection**: Remote code execution through FortiSIEM vulnerability exploitation
-- **OAuth Phishing**: ConsentFix technique abusing browser-based authorization flows
-- **Reprompt Attacks**: Session hijacking of Microsoft Copilot to exfiltrate sensitive data
-- **Stack Overflow Exploitation**: Targeting Node.js async_hooks for denial-of-service attacks
-- **AI System Exploitation**: Targeting unguarded legacy chatbot integrations in AI platforms
+- **Command Injection**: Critical FortiSIEM vulnerability exploited for unauthenticated remote code execution
+- **DLL Side-Loading**: Legitimate c-ares binaries abused to deploy malware while evading security detection
+- **Stack Overflow Exploitation**: Node.js async_hooks module targeted to crash production applications
+- **User Impersonation**: ServiceNow AI platform exploited for unauthorized access without authentication
+- **Denial-of-Service Attacks**: Palo Alto Networks firewalls targeted to disable security protections
+- **Web Skimming**: Long-running campaign since January 2022 targeting payment networks including American Express, Diners Club, and Discover
+- **OAuth Phishing**: ConsentFix technique abusing browser-based authorization flows to hijack Microsoft accounts
+- **AI Session Hijacking**: Reprompt attacks infiltrating Microsoft Copilot sessions for data exfiltration
+- **Malicious Browser Extensions**: Chrome extensions masquerading as trading tools to steal cryptocurrency API keys
+- **Multi-Stage Malware Delivery**: SHADOW#REACTOR campaign deploying Remcos RAT through evasive attack chains
 
 ## Threat Actor Activities
 
-- **AISURU/Kimwolf Botnet**: Over 550 command-and-control nodes disrupted, had infected over 2 million systems
-- **PLUGGYAPE Operators**: Targeting Ukrainian Defense Forces using Signal and WhatsApp for malware delivery between October-December 2025
-- **Chinese APT Groups**: Intensified cyberattacks on Taiwan's critical infrastructure with 2.63 million attacks daily in 2025, representing a 6% increase
-- **RedVDS Cybercrime Service**: Disrupted cybercrime-as-a-service operation that stole millions from victims
-- **VoidLink Operators**: Deploying modular, cloud-first malware framework designed for stealthy, long-term access to Linux environments
+- **RedVDS Cybercrime Platform**: Microsoft disrupted this massive virtual desktop service linked to at least $40 million in reported losses in the United States
+- **AISURU/Kimwolf Botnet**: Over 550 command-and-control nodes null-routed by researchers, with the botnet having infected over 2 million devices
+- **Ukrainian Defense Targeting**: PLUGGYAPE malware campaigns using Signal and WhatsApp to target Ukrainian Defense Forces between October and December 2025
+- **Enterprise Cloud Attackers**: VoidLink malware framework deployed for long-term, stealthy access to Linux cloud and container environments
+- **Cryptocurrency Threat Actors**: Malicious Chrome extension campaigns targeting MEXC exchange users to steal API keys
+- **Web Skimming Operations**: Ongoing campaigns since January 2022 targeting major payment networks and online checkout systems
+- **Ransomware Groups**: Kyowon Group (South Korean conglomerate) confirmed data theft in ransomware attack affecting operations and customer information
