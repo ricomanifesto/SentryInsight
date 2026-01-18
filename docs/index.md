@@ -1,57 +1,57 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-value systems across enterprise environments. A China-linked threat actor has been exploiting a Sitecore zero-day vulnerability to gain initial access to North American critical infrastructure systems. Simultaneously, attackers are actively exploiting CVE-2025-64155, a command injection vulnerability in Fortinet FortiSIEM, and CVE-2026-23550, a maximum-severity flaw in the WordPress Modular DS plugin that allows attackers to gain administrative access. These attacks are complemented by sophisticated malware campaigns including GhostPoster browser extensions with 840,000 installations and credential-stealing Chrome extensions targeting enterprise HR platforms.
+Critical exploitation activity is currently targeting enterprise infrastructure through multiple attack vectors, with particular emphasis on zero-day vulnerabilities and malicious browser extensions. Notable active exploits include a command injection vulnerability in Fortinet's FortiSIEM platform that came under immediate attack following disclosure, and a maximum-severity AsyncOS zero-day that has been exploited by China-linked threat actors since November 2025. Additionally, widespread campaigns involving malicious Chrome extensions are targeting enterprise HR and ERP platforms, while advanced persistent threat groups continue to exploit zero-day vulnerabilities in content management systems for initial access to critical infrastructure.
 
 ## Active Exploitation Details
 
-### Sitecore Zero-Day Vulnerability
-- **Description**: An undisclosed zero-day vulnerability in Sitecore content management systems being exploited by China-linked threat actors
-- **Impact**: Provides initial access to critical infrastructure systems in North America, enabling lateral movement and persistent access
-- **Status**: Currently being exploited in the wild by UAT-8837 threat group; patch status unknown
-
-### Fortinet FortiSIEM Command Injection
-- **Description**: A critical command injection vulnerability in Fortinet's FortiSIEM security information and event management platform
-- **Impact**: Allows remote code execution and complete system compromise of security monitoring infrastructure
-- **Status**: Actively exploited with publicly available proof-of-concept code
+### Fortinet FortiSIEM Command Injection Vulnerability
+- **Description**: A critical command injection vulnerability in Fortinet FortiSIEM that allows attackers to execute arbitrary commands on the system
+- **Impact**: Attackers can gain unauthorized access and control over FortiSIEM installations, potentially compromising security monitoring capabilities
+- **Status**: Actively being exploited by attackers from various IP addresses following public disclosure
 - **CVE ID**: CVE-2025-64155
 
-### WordPress Modular DS Plugin Vulnerability
-- **Description**: A maximum-severity security flaw in the WordPress Modular DS plugin that allows unauthorized administrative access
-- **Impact**: Complete WordPress site takeover, allowing attackers to modify content, install malicious plugins, and access sensitive data
+### Cisco AsyncOS Zero-Day Remote Code Execution
+- **Description**: A maximum-severity security flaw in Cisco AsyncOS Software affecting Cisco Secure Email Gateway and Cisco Secure Email and Web Manager
+- **Impact**: Remote code execution capabilities allowing complete system compromise
+- **Status**: Exploited by China-linked APT groups since November 2025, recently patched by Cisco
+- **CVE ID**: Not specified in articles
+
+### Sitecore Zero-Day Vulnerability
+- **Description**: An unpatched zero-day vulnerability in Sitecore content management system used for initial access
+- **Impact**: Provides threat actors with initial access to critical infrastructure systems
+- **Status**: Actively exploited by China-linked threat actor UAT-8837 targeting North American critical infrastructure
+- **CVE ID**: Not specified in articles
+
+### WordPress Modular DS Plugin Critical Flaw
+- **Description**: A maximum-severity authentication bypass vulnerability in the WordPress Modular DS plugin
+- **Impact**: Allows attackers to gain administrative access to WordPress sites without authentication
 - **Status**: Under active exploitation in the wild
 - **CVE ID**: CVE-2026-23550
 
-### Cisco AsyncOS Zero-Day
-- **Description**: A maximum-severity remote code execution vulnerability in Cisco AsyncOS Software affecting Secure Email Gateway and Secure Email and Web Manager
-- **Impact**: Complete compromise of email security infrastructure, allowing attackers to bypass security controls and access email communications
-- **Status**: Exploited by China-linked APT groups since November 2024, recently patched
-
 ## Affected Systems and Products
 
-- **Sitecore Content Management Systems**: Undisclosed versions used in North American critical infrastructure
-- **Fortinet FortiSIEM**: Security information and event management platforms
-- **WordPress Sites**: Sites using the Modular DS plugin
-- **Cisco Secure Email Gateway**: Email security appliances running vulnerable AsyncOS versions
-- **Cisco Secure Email and Web Manager**: Management platforms for email security infrastructure
-- **Google Chrome**: Browser extensions targeting enterprise users through malicious add-ons
-- **Enterprise HR Platforms**: Workday, NetSuite, and similar ERP systems targeted by credential theft
+- **Fortinet FortiSIEM**: Security information and event management systems vulnerable to command injection attacks
+- **Cisco Secure Email Gateway**: Email security appliances running vulnerable AsyncOS software versions
+- **Cisco Secure Email and Web Manager**: Management platforms affected by AsyncOS vulnerability
+- **Sitecore CMS**: Content management systems used by critical infrastructure organizations
+- **WordPress Sites**: Websites using the vulnerable Modular DS plugin
+- **Google Chrome**: Browser users targeted by malicious extensions impersonating enterprise platforms
+- **Enterprise HR/ERP Platforms**: Organizations using Workday, NetSuite, and similar enterprise software
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Sitecore and Cisco systems for initial access
-- **Command Injection**: Exploitation of FortiSIEM vulnerability using publicly available proof-of-concept code
-- **Malicious Browser Extensions**: Deployment of credential-stealing extensions masquerading as legitimate productivity tools
-- **Social Engineering**: GhostPoster campaign using fake browser extensions to compromise user accounts
-- **Spear Phishing**: Venezuela-themed lures targeting U.S. policy entities with LOTUSLITE backdoor
-- **Malformed Archive Evasion**: GootLoader malware using 500-1,000 concatenated ZIP archives to bypass security detection
-- **Cross-Site Scripting**: XSS vulnerabilities in StealC malware control panels exploited by researchers
+- **Malicious Browser Extensions**: Attackers deploying fake Chrome extensions masquerading as productivity and security tools for HR/ERP platforms to steal authentication credentials
+- **GhostPoster Campaign**: Large-scale malicious extension distribution with over 840,000 installations across Chrome, Firefox, and Edge browsers
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise software for initial access
+- **Spear Phishing**: Venezuela-themed lures used to deliver LOTUSLITE backdoor targeting U.S. policy entities
+- **Supply Chain Targeting**: Attempts to compromise AWS CodeBuild configurations to gain access to GitHub repositories including AWS JavaScript SDK
+- **Concatenated ZIP Archives**: GootLoader malware using 500-1,000 concatenated ZIP archives to evade detection systems
 
 ## Threat Actor Activities
 
-- **UAT-8837 (China-linked)**: Targeting North American critical infrastructure using Sitecore zero-day and other vulnerabilities for persistent access
-- **China-linked APT Groups**: Exploiting Cisco AsyncOS zero-day in Secure Email Gateway appliances since November 2024
-- **Black Basta Ransomware**: Leadership identified by Ukrainian and German law enforcement, with leader added to Europol and Interpol wanted lists
-- **GhostPoster Campaign**: Operators distributing 17 malicious browser extensions across Chrome, Firefox, and Edge stores with 840,000 total installations
-- **LOTUSLITE Operators**: Targeting U.S. government and policy entities with Venezuela-themed spear phishing campaigns
-- **GootLoader Distributors**: Using sophisticated ZIP archive concatenation techniques to evade security detection systems
-- **StealC Malware Operators**: Running info-stealing campaigns with compromised web-based control panels due to XSS vulnerabilities
+- **UAT-8837 (China-linked)**: Advanced persistent threat group focusing on North American critical infrastructure, exploiting both known vulnerabilities and zero-days including Sitecore CMS
+- **China-linked APT Groups**: Multiple groups exploiting Cisco AsyncOS zero-day since November 2025, targeting secure email gateway infrastructure
+- **Black Basta Ransomware**: Russia-linked ransomware-as-a-service group with leadership now on INTERPOL Red Notice and EU Most Wanted lists
+- **GhostPoster Campaign Operators**: Cybercriminals distributing malicious browser extensions at scale across multiple browser platforms
+- **StealC Malware Operators**: Information-stealing malware groups whose control panels were compromised by researchers exploiting XSS vulnerabilities
+- **LOTUSLITE Operators**: Threat actors targeting U.S. government and policy entities using politically-themed spear phishing campaigns
