@@ -1,55 +1,58 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity is currently dominated by several zero-day attacks targeting enterprise infrastructure and security products. China-linked threat actors have been actively exploiting zero-day vulnerabilities in Sitecore content management systems and Cisco Secure Email Gateway products to gain initial access to North American critical infrastructure systems. Additionally, a critical command injection vulnerability in Fortinet's FortiSIEM platform is under active exploitation, while malicious browser extensions continue to target enterprise HR and ERP platforms through social engineering tactics.
+Critical exploitation activity is currently targeting enterprise infrastructure through multiple attack vectors. China-linked threat actors have been actively exploiting zero-day vulnerabilities in Cisco Secure Email Gateways and Sitecore systems to gain initial access to North American critical infrastructure. Additionally, a new hardware vulnerability called StackWarp has been discovered affecting AMD processors, while malicious browser extensions continue to proliferate across Chrome, Firefox, and Edge stores, targeting enterprise HR platforms and accumulating hundreds of thousands of installations. Fortinet systems face ongoing exploitation of a critical command injection vulnerability in FortiSIEM products.
 
 ## Active Exploitation Details
 
-### Sitecore Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability in Sitecore content management systems that allows threat actors to gain initial access to targeted systems
-- **Impact**: Enables unauthorized access to critical infrastructure systems and serves as an entry point for broader network compromise
-- **Status**: Currently being exploited by China-linked APT group UAT-8837 targeting North American critical infrastructure
-
-### Cisco Secure Email Gateway Zero-Day RCE
+### Cisco AsyncOS Zero-Day Vulnerability
 - **Description**: A maximum-severity remote code execution vulnerability in Cisco AsyncOS Software for Cisco Secure Email Gateway and Cisco Secure Email and Web Manager
-- **Impact**: Allows attackers to achieve remote code execution on affected email security appliances
-- **Status**: Actively exploited by China-linked APT groups; Cisco has released security updates
-- **CVE ID**: CVE-2025-20002
-
-### Fortinet FortiSIEM Command Injection Vulnerability
-- **Description**: A critical command injection vulnerability in Fortinet's FortiSIEM security information and event management platform
-- **Impact**: Enables attackers to execute arbitrary commands on affected systems
-- **Status**: Under active exploitation from multiple IP addresses shortly after disclosure
+- **Impact**: Allows attackers to achieve complete system compromise and remote code execution
+- **Status**: Recently patched by Cisco after being actively exploited by China-linked APT groups
 - **CVE ID**: CVE-2025-64155
 
-### AMD StackWarp Hardware Vulnerability
-- **Description**: A hardware-level vulnerability affecting AMD processors that breaks AMD SEV-SNP (Secure Encrypted Virtualization-Secure Nested Paging) protections
-- **Impact**: Allows attackers to bypass hardware-level security protections on virtualized environments
-- **Status**: Recently disclosed vulnerability affecting AMD Zen 1-5 CPUs
+### Sitecore Zero-Day Vulnerability
+- **Description**: An unknown zero-day vulnerability in Sitecore content management systems
+- **Impact**: Provides initial access for threat actors to infiltrate critical infrastructure networks
+- **Status**: Actively exploited by China-linked threat actor UAT-8837 targeting North American critical infrastructure
+
+### FortiSIEM Command Injection Vulnerability
+- **Description**: A critical command injection vulnerability in Fortinet FortiSIEM products
+- **Impact**: Enables attackers to execute arbitrary commands on affected systems
+- **Status**: Currently under active exploitation from various IP addresses following recent disclosure
+- **CVE ID**: CVE-2025-64155
+
+### StackWarp Hardware Vulnerability
+- **Description**: A hardware flaw affecting AMD processors that breaks SEV-SNP (Secure Encrypted Virtualization-Secure Nested Paging) security protections
+- **Impact**: Compromises confidential computing protections and allows attackers to bypass hardware-level security features
+- **Status**: Newly disclosed vulnerability affecting AMD Zen 1-5 CPUs
 
 ## Affected Systems and Products
 
-- **Sitecore CMS**: Content management systems used by organizations in critical infrastructure sectors
-- **Cisco Email Security Appliances**: AsyncOS Software for Cisco Secure Email Gateway and Cisco Secure Email and Web Manager
-- **Fortinet FortiSIEM**: Security information and event management platforms
-- **AMD Processors**: Zen 1 through Zen 5 architecture CPUs with SEV-SNP capabilities
-- **Chrome Browser Extensions**: Enterprise users of HR platforms like Workday and ERP systems like NetSuite
-- **StealC Malware Control Panels**: Web-based control panels used by StealC information stealer operators
+- **Cisco Secure Email Gateway**: AsyncOS Software vulnerable to remote code execution
+- **Cisco Secure Email and Web Manager**: AsyncOS Software affected by critical vulnerability
+- **Fortinet FortiSIEM**: Command injection vulnerability enabling system compromise
+- **AMD Processors**: Zen 1, 2, 3, 4, and 5 architectures affected by StackWarp hardware flaw
+- **Sitecore CMS**: Zero-day vulnerability exploited for initial access
+- **Chrome Web Store**: Multiple malicious extensions targeting HR platforms like Workday and NetSuite
+- **Firefox and Edge Stores**: GhostPoster campaign extensions with 840,000 total installations
+- **StealC Malware Panels**: Cross-site scripting vulnerability in control panels
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of undisclosed vulnerabilities in enterprise software and hardware
-- **Malicious Browser Extensions**: Social engineering through fake productivity and security tools targeting enterprise platforms
-- **Spear Phishing**: Venezuela-themed political lures used to deliver LOTUSLITE backdoor to U.S. policy entities
-- **ClickFix-Style Attacks**: Browser crash simulation followed by malicious Chrome extension installation delivering ModeloRAT
-- **ZIP Archive Concatenation**: GootLoader malware using 500-1,000 concatenated ZIP archives to evade detection
-- **Cross-Site Scripting**: XSS vulnerabilities in malware control panels exploited for intelligence gathering
+- **Zero-Day Exploitation**: China-linked APTs leveraging unknown vulnerabilities in Sitecore and Cisco systems for initial access
+- **Malicious Browser Extensions**: Credential-stealing extensions masquerading as productivity tools for enterprise platforms
+- **Hardware-Level Attacks**: StackWarp vulnerability exploiting AMD processor architecture to bypass security protections
+- **Command Injection**: FortiSIEM exploitation enabling arbitrary command execution
+- **Social Engineering**: KongTuke campaign using fake Chrome extensions with browser crash lures to deliver ModeloRAT
+- **Evasion Techniques**: GootLoader malware using 500-1,000 concatenated ZIP archives to avoid detection
+- **Spear Phishing**: LOTUSLITE backdoor campaigns using Venezuela-themed lures targeting U.S. policy entities
 
 ## Threat Actor Activities
 
-- **UAT-8837 (China-linked)**: Targeting North American critical infrastructure systems using Sitecore zero-day vulnerabilities for initial access
-- **China-linked APT Groups**: Exploiting Cisco Secure Email Gateway zero-day for remote code execution capabilities
-- **KongTuke Campaign**: Distributing ModeloRAT through CrashFix Chrome extension using browser crash social engineering
-- **GhostPoster Campaign**: Operating 17 malicious browser extensions across Chrome, Firefox, and Edge with 840,000+ installations
-- **Black Basta Ransomware**: Leadership identified by Ukrainian and German law enforcement; leader added to Europol and Interpol wanted lists
-- **StealC Operators**: Information stealing malware operations compromised through XSS vulnerabilities in their control panels
-- **LOTUSLITE Operators**: Targeting U.S. government and policy entities with Venezuela-themed spear phishing campaigns
+- **UAT-8837 (China-linked)**: Focusing on North American critical infrastructure, exploiting both known and zero-day vulnerabilities in Sitecore systems
+- **China-linked APT Groups**: Actively exploiting Cisco Secure Email Gateway zero-days for enterprise infiltration
+- **KongTuke Campaign Operators**: Distributing ModeloRAT through malicious Chrome extensions using ClickFix-style browser crash social engineering
+- **GhostPoster Campaign**: Deploying 17 malicious extensions across Chrome, Firefox, and Edge with 840,000 combined installations
+- **Black Basta Ransomware**: Leadership identified by Ukrainian and German law enforcement, with leader added to EU Most Wanted and INTERPOL Red Notice lists
+- **StealC Malware Operators**: Running information-stealing operations with vulnerable web-based control panels
+- **LOTUSLITE Campaign**: Targeting U.S. government and policy entities using politically themed spear phishing emails
