@@ -1,67 +1,56 @@
 # Exploitation Report
 
-Current cybersecurity threats are characterized by sophisticated attack campaigns leveraging browser extensions, infrastructure vulnerabilities, and advanced evasion techniques. Critical exploitation activity includes active attacks against Fortinet FortiSIEM systems through a command injection vulnerability, malicious Chrome extensions targeting enterprise platforms for credential theft, and hardware-level flaws affecting AMD processors. Threat actors are deploying advanced malware like GootLoader with enhanced evasion capabilities and conducting targeted ransomware campaigns against Fortune 100 companies using novel delivery mechanisms.
+Current cybersecurity landscape reveals significant active exploitation activity across multiple attack vectors. Critical vulnerabilities are being exploited in Fortinet's FortiSIEM platform (CVE-2025-64155), while sophisticated malware campaigns deploy fake browser extensions and novel hardware vulnerabilities target AMD processors. Ransomware operations continue targeting major enterprises, with new malware strains like PDFSider being deployed against Fortune 100 companies. Social engineering attacks have evolved with ClickFix-style campaigns using fake ad blockers, while threat actors exploit AI platform vulnerabilities to bypass security controls and access private data.
 
 ## Active Exploitation Details
 
-### Fortinet FortiSIEM Command Injection Vulnerability
-- **Description**: A critical command injection vulnerability in Fortinet's FortiSIEM security information and event management platform
-- **Impact**: Allows attackers to execute arbitrary commands on affected systems, potentially leading to complete system compromise
-- **Status**: Actively exploited from multiple IP addresses shortly after disclosure
+### FortiSIEM Command Injection Vulnerability
+- **Description**: A critical command injection vulnerability in Fortinet's FortiSIEM platform that allows attackers to execute arbitrary commands on the system
+- **Impact**: Attackers can gain unauthorized access to security information and event management systems, potentially compromising entire network monitoring infrastructure
+- **Status**: Actively exploited by multiple attackers from various IP addresses shortly after disclosure
 - **CVE ID**: CVE-2025-64155
 
-### Cloudflare ACME Validation Bug
-- **Description**: A security vulnerability in Cloudflare's Automatic Certificate Management Environment (ACME) validation logic
-- **Impact**: Enables attackers to bypass Web Application Firewall (WAF) security controls and directly access origin servers
-- **Status**: Recently patched by Cloudflare, but systems may remain vulnerable if not updated
+### StackWarp AMD Hardware Vulnerability
+- **Description**: A hardware vulnerability affecting AMD processors that breaks SEV-SNP (Secure Encrypted Virtualization-Secure Nested Paging) protections
+- **Impact**: Allows attackers to bypass hardware-level security protections on virtualized environments, potentially exposing sensitive data in secure enclaves
+- **Status**: Affects AMD Zen 1-5 CPU architectures, recently disclosed by academic researchers
 
-### Google Gemini Prompt Injection Flaw
-- **Description**: An indirect prompt injection vulnerability targeting Google Gemini that bypasses authorization guardrails
-- **Impact**: Allows unauthorized access to private Google Calendar data through malicious calendar invites
-- **Status**: Disclosed by security researchers, affects Google Calendar integration
+### Cloudflare ACME Validation Bypass
+- **Description**: A security flaw in Cloudflare's Automatic Certificate Management Environment validation logic that allows bypassing Web Application Firewall controls
+- **Impact**: Attackers can access origin servers directly, circumventing WAF protections and potentially reaching vulnerable backend systems
+- **Status**: Recently patched by Cloudflare
 
-### AMD StackWarp Hardware Vulnerability
-- **Description**: A hardware-level security flaw affecting AMD processors from Zen 1 through Zen 5 architectures
-- **Impact**: Breaks AMD SEV-SNP (Secure Encrypted Virtualization-Secure Nested Paging) security protections
-- **Status**: Newly disclosed by academic researchers from CISPA Helmholtz Center
-
-### StealC Malware Panel XSS Vulnerability
-- **Description**: A cross-site scripting vulnerability in the web-based control panel used by StealC information stealer operators
-- **Impact**: Allowed security researchers to infiltrate and monitor threat actor operations
-- **Status**: Discovered and exploited by researchers for threat intelligence gathering
+### Google Gemini Prompt Injection
+- **Description**: An indirect prompt injection vulnerability targeting Google Gemini that bypasses authorization guardrails through malicious calendar invites
+- **Impact**: Enables unauthorized access to private Google Calendar data by manipulating AI prompts through calendar event descriptions
+- **Status**: Allows attackers to extract sensitive calendar information through crafted invitations
 
 ## Affected Systems and Products
 
-- **Fortinet FortiSIEM**: Security information and event management platforms vulnerable to command injection attacks
-- **Cloudflare Services**: ACME validation systems allowing WAF bypass to origin servers
-- **Google Gemini/Calendar**: AI assistant and calendar services vulnerable to prompt injection attacks
-- **AMD Processors**: Zen 1-5 CPU architectures with compromised SEV-SNP security features
-- **Chrome Web Store Extensions**: Malicious extensions masquerading as productivity and HR tools
-- **Enterprise HR/ERP Platforms**: Corporate human resources and enterprise resource planning systems
-- **Windows Systems**: Fortune 100 company networks targeted by PDFSider malware
-- **U.S. Government Systems**: Supreme Court electronic filing system, AmeriCorps, and Department of Veterans Affairs
-- **Canadian Financial Systems**: CIRO platform affecting 750,000 investors
-- **IT Distribution Networks**: Ingram Micro systems impacting 42,000 individuals
+- **Fortinet FortiSIEM**: Security information and event management platform vulnerable to command injection attacks
+- **AMD Zen Processors**: Zen 1-5 CPU architectures affected by StackWarp hardware vulnerability impacting SEV-SNP protections
+- **Cloudflare Services**: ACME validation logic allowing WAF bypass to origin servers
+- **Google Gemini**: AI assistant vulnerable to prompt injection through calendar integration
+- **Chrome/Edge Browsers**: Targeted by malicious extensions including NexShield fake ad blocker and credential-stealing HR platform tools
+- **Windows Systems**: Affected by PDFSider malware deployment and various browser-based attacks
+- **StealC Malware Panel**: Command and control infrastructure vulnerable to cross-site scripting attacks
 
 ## Attack Vectors and Techniques
 
-- **Malicious Browser Extensions**: Fake ad blockers and productivity tools delivering ModeloRAT and credential stealers
-- **ClickFix Attack Methods**: Browser crash techniques used to social engineer victims into running malicious code
-- **Prompt Injection Attacks**: Indirect injection targeting AI systems to bypass security guardrails
-- **ZIP Archive Concatenation**: GootLoader malware using 500-1,000 concatenated ZIP archives for detection evasion
-- **Hardware Exploitation**: Low-level attacks against processor security features and memory protection
-- **Social Engineering**: Fake security alerts and browser crash scenarios to trick users
-- **Network Access Brokerage**: Sale of corporate network access to facilitate further attacks
-- **Ransomware Deployment**: PDFSider malware used as initial payload delivery mechanism
+- **Malicious Browser Extensions**: Fake ad blockers like NexShield that intentionally crash browsers to facilitate ClickFix social engineering attacks
+- **ClickFix Campaign Techniques**: Browser crash manipulation followed by social engineering to trick users into executing malicious commands
+- **ZIP Archive Concatenation**: GootLoader malware uses 500-1,000 concatenated ZIP archives to evade detection systems
+- **Hardware-Level Exploitation**: StackWarp attacks targeting AMD processor security features in virtualized environments
+- **Prompt Injection**: Indirect manipulation of AI systems through malicious calendar invites and crafted prompts
+- **Command Injection**: Direct exploitation of input validation flaws in enterprise security management platforms
+- **Credential Harvesting**: Malicious Chrome extensions masquerading as productivity tools for HR and ERP platforms
 
 ## Threat Actor Activities
 
-- **KongTuke Campaign**: Ongoing operation using CrashFix Chrome extensions to deliver ModeloRAT through browser crash lures
-- **Russian Hacktivist Groups**: Continued attacks against UK critical infrastructure and local government organizations
-- **Black Basta Ransomware**: Leadership identified by Ukrainian and German law enforcement, with members added to EU Most Wanted and INTERPOL Red Notice
-- **Corporate Network Brokers**: Jordanian access broker pleading guilty to selling access to 50+ corporate networks
-- **Supreme Court Hacker**: Tennessee individual admitting to breaching U.S. Supreme Court filing systems and federal agencies
-- **Fortune 100 Attackers**: Ransomware groups targeting major financial sector companies with PDFSider malware
-- **StealC Operators**: Information stealer campaigns compromised by researchers exploiting panel vulnerabilities
-- **GootLoader Distributors**: Malware operators using advanced evasion techniques with concatenated archive files
-- **Credential Theft Operations**: Attackers deploying malicious Chrome extensions targeting enterprise authentication systems
+- **KongTuke Campaign**: Ongoing operation using CrashFix Chrome extension to deliver ModeloRAT malware through fake ad blocker installations
+- **Russian Hacktivist Groups**: Continued targeting of UK critical infrastructure and local government organizations in disruptive attacks
+- **Black Basta Ransomware**: Leadership identified by Ukrainian and German authorities, with group added to EU Most Wanted and INTERPOL Red Notice
+- **Access Brokers**: Jordanian national pleaded guilty to selling network access to at least 50 corporate networks
+- **Fortune 100 Targeting**: Ransomware attackers deploying new PDFSider malware strain against major financial sector companies
+- **Supreme Court Hacker**: Tennessee individual admitted to breaching U.S. Supreme Court filing system and multiple federal agencies including AmeriCorps and Veterans Affairs
+- **Enterprise Data Breaches**: Multiple incidents including Ingram Micro ransomware attack affecting 42,000 individuals and CIRO breach exposing 750,000 Canadian investors
