@@ -1,56 +1,54 @@
 # Exploitation Report
 
-Current exploitation activity reveals a critical landscape dominated by several significant security incidents. A critical command injection vulnerability in Fortinet's FortiSIEM platform is being actively exploited in the wild, while sophisticated malware campaigns are targeting enterprise systems through various attack vectors. The Google Gemini AI assistant has been compromised through prompt injection attacks that bypass authorization controls to access private calendar data. New hardware vulnerabilities affect AMD processors across multiple CPU generations, and multiple malicious browser extension campaigns are stealing credentials from enterprise platforms. Ransomware operations continue to impact major organizations, with new malware strains like PDFSider being deployed against Fortune 100 companies.
+Current cybersecurity landscape reveals concerning exploitation activity across multiple vectors, with critical vulnerabilities being actively exploited in enterprise environments. The most significant threats include a command injection vulnerability in Fortinet's FortiSIEM platform (CVE-2025-64155) that came under immediate attack following disclosure, sophisticated malware campaigns targeting Fortune 100 companies, and advanced social engineering attacks using fake browser extensions. Additionally, hardware-level vulnerabilities affecting AMD processors and AI prompt injection flaws in Google services demonstrate the expanding attack surface facing organizations. Threat actors are leveraging increasingly sophisticated techniques including browser crashes for malware delivery, malformed archive structures for evasion, and targeted spear phishing campaigns against government entities.
 
 ## Active Exploitation Details
 
 ### Fortinet FortiSIEM Command Injection Vulnerability
-- **Description**: Critical command injection vulnerability in Fortinet's FortiSIEM platform that allows remote code execution
-- **Impact**: Attackers can execute arbitrary commands on vulnerable systems, potentially leading to complete system compromise
-- **Status**: Currently being exploited in the wild from various IP addresses shortly after public disclosure
+- **Description**: A critical command injection vulnerability in Fortinet's FortiSIEM platform that allows attackers to execute arbitrary commands on vulnerable systems
+- **Impact**: Attackers can gain unauthorized access to security information and event management systems, potentially compromising entire security infrastructure
+- **Status**: Disclosed earlier this week and quickly came under attack from various IP addresses
 - **CVE ID**: CVE-2025-64155
 
 ### Google Gemini Prompt Injection Vulnerability
-- **Description**: Security flaw that leverages indirect prompt injection targeting Google Gemini to bypass authorization guardrails
-- **Impact**: Attackers can access private Google Calendar data through malicious calendar invites
-- **Status**: Disclosed vulnerability that bypasses AI authorization controls
+- **Description**: A security flaw leveraging indirect prompt injection targeting Google Gemini to bypass authorization guardrails and access Google Calendar data
+- **Impact**: Unauthorized access to private calendar information through malicious calendar invites
+- **Status**: Recently disclosed vulnerability affecting Google's AI assistant integration
 
 ### AMD StackWarp Hardware Vulnerability
-- **Description**: Hardware vulnerability affecting AMD processors that breaks SEV-SNP (Secure Encrypted Virtualization-Secure Nested Paging) protections
-- **Impact**: Compromises hardware-level security protections on affected AMD processors
-- **Status**: Newly disclosed hardware flaw affecting multiple CPU generations
+- **Description**: A hardware vulnerability affecting AMD processors from Zen 1 through Zen 5 generations that breaks SEV-SNP (Secure Encrypted Virtualization-Secure Nested Paging) protections
+- **Impact**: Compromises confidential computing protections and secure virtualization features
+- **Status**: Disclosed by CISPA researchers, affects multiple generations of AMD CPUs
 
-### StealC Malware Panel XSS Vulnerability
-- **Description**: Cross-site scripting vulnerability in the web-based control panel used by StealC information stealer operators
-- **Impact**: Allows security researchers to spy on threat actor operations and gather intelligence
-- **Status**: Exploited by researchers for threat intelligence gathering
+### StealC Malware Panel Cross-Site Scripting Vulnerability
+- **Description**: An XSS vulnerability in the web-based control panel used by StealC information stealer operators
+- **Impact**: Allows researchers and potentially other threat actors to gather intelligence on malware operations
+- **Status**: Actively exploited vulnerability in cybercriminal infrastructure
 
 ## Affected Systems and Products
 
-- **Fortinet FortiSIEM**: Security information and event management platform vulnerable to command injection attacks
-- **Google Gemini AI**: AI assistant vulnerable to prompt injection attacks affecting calendar access
-- **AMD Processors**: Zen 1-5 CPU generations affected by StackWarp hardware vulnerability
-- **Google Chrome Extensions**: Multiple malicious extensions targeting enterprise HR and ERP platforms
-- **Enterprise HR Platforms**: Workday and NetSuite platforms targeted by credential-stealing browser extensions
-- **Windows Systems**: Fortune 100 finance company networks compromised with PDFSider malware
-- **U.S. Government Systems**: Supreme Court electronic filing system, AmeriCorps, and Department of Veterans Affairs breached
+- **Fortinet FortiSIEM**: Security information and event management platform under active exploitation
+- **Google Gemini**: AI assistant service vulnerable to prompt injection attacks affecting calendar data access
+- **AMD Zen 1-5 CPUs**: Hardware-level vulnerability affecting confidential computing features
+- **Google Chrome**: Multiple malicious extensions targeting enterprise platforms and ad-blocking functionality
+- **Microsoft Windows**: Out-of-band updates required to fix shutdown and Cloud PC functionality issues
+- **U.S. Supreme Court Systems**: Electronic filing system breached and compromised
+- **AmeriCorps and Department of Veterans Affairs**: Federal agency systems compromised in multi-target attack
 
 ## Attack Vectors and Techniques
 
-- **Command Injection**: Exploitation of FortiSIEM vulnerability to execute arbitrary commands
-- **Prompt Injection**: Indirect manipulation of AI systems to bypass security controls
-- **Malicious Browser Extensions**: Chrome extensions masquerading as productivity tools to steal credentials
-- **Hardware Exploitation**: StackWarp technique targeting AMD processor security features
-- **Spear Phishing**: Venezuela-themed lures delivering LOTUSLITE backdoor to policy entities
-- **ZIP Archive Concatenation**: GootLoader malware using 500-1,000 concatenated ZIP files for evasion
-- **Social Engineering**: CrashFix extension deliberately crashing browsers to trick users into installation
+- **ClickFix Browser Attacks**: Malicious Chrome extensions deliberately crash browsers to prompt users into downloading malware
+- **Malvertising Campaigns**: Fake ad-blocker extensions like NexShield used as initial infection vectors
+- **Archive Evasion**: GootLoader malware uses 500-1,000 concatenated ZIP archives to bypass security detection
+- **Spear Phishing**: Venezuela-themed campaigns targeting U.S. government and policy entities
+- **Enterprise Impersonation**: Malicious extensions masquerading as Workday and NetSuite platforms
+- **Ransomware Deployment**: PDFSider malware used by ransomware groups targeting Fortune 100 finance companies
 
 ## Threat Actor Activities
 
-- **Black Basta Ransomware Group**: Russia-linked RaaS operation with leadership added to EU Most Wanted and INTERPOL Red Notice lists
-- **Russian Hacktivist Groups**: Ongoing attacks against UK critical infrastructure and local government organizations
-- **KongTuke Campaign**: Operation using malicious Chrome extensions to deliver ModeloRAT malware
-- **GhostPoster Campaign**: 17 malicious browser extensions with 840,000 total installations across Chrome, Firefox, and Edge
-- **Access Brokers**: Jordanian individual selling access to at least 50 corporate networks
-- **LOTUSLITE Operators**: Targeting U.S. government and policy entities with politically themed spear phishing campaigns
-- **Fortune 100 Attackers**: Ransomware group deploying new PDFSider malware strain against major financial institutions
+- **Russian-aligned Hacktivist Groups**: Continued targeting of UK critical infrastructure and local government organizations
+- **Black Basta Ransomware**: Leadership identified with Ukrainian and German law enforcement adding leaders to EU Most Wanted and INTERPOL Red Notice
+- **KongTuke Campaign**: Ongoing operation using CrashFix Chrome extension to deliver ModeloRAT malware
+- **Access Brokers**: Jordanian national pleaded guilty to selling network access to at least 50 corporate networks
+- **State-Sponsored Groups**: Advanced persistent threat actors using LOTUSLITE backdoor for intelligence gathering against U.S. policy entities
+- **Ransomware Operators**: Targeting Fortune 100 companies in finance sector with custom malware strains
