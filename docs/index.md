@@ -1,53 +1,55 @@
 # Exploitation Report
 
-Critical exploitation activity is currently impacting multiple enterprise systems, with threat actors actively targeting authentication bypass vulnerabilities and zero-day flaws. The most severe ongoing attacks involve Fortinet FortiGate firewalls where attackers are exploiting a FortiCloud SSO authentication bypass vulnerability even on fully patched systems, allowing unauthorized access and configuration theft. Additionally, SmarterMail email servers are being compromised through an authentication bypass flaw that enables admin account takeovers just two days after patch release. The security landscape is further complicated by the discovery of 76 zero-day vulnerabilities demonstrated at Pwn2Own Automotive 2026 and a critical 11-year-old GNU InetUtils telnetd vulnerability that permits complete authentication bypass and root access.
+Critical security vulnerabilities are currently under active exploitation across multiple platforms and systems. The most severe activity involves a critical authentication bypass vulnerability in GNU InetUtils telnetd servers that has been present for 11 years and allows attackers to gain root access. Additionally, Fortinet FortiGate firewalls are experiencing widespread automated attacks targeting both a FortiCloud SSO bypass vulnerability and general configuration theft. Other significant exploitation includes SmarterMail authentication bypass attacks, ATM jackpotting schemes using malware, and sophisticated phishing campaigns leveraging legitimate remote management tools. The security landscape is further complicated by 76 zero-day vulnerabilities demonstrated at Pwn2Own Automotive 2026, highlighting the extensive attack surface in automotive systems.
 
 ## Active Exploitation Details
 
-### FortiCloud SSO Authentication Bypass
-- **Description**: A critical authentication bypass vulnerability in FortiCloud SSO that affects FortiGate firewalls, allowing attackers to bypass authentication mechanisms
-- **Impact**: Unauthorized access to firewall systems, theft of configuration files, creation of rogue accounts, and potential network compromise
-- **Status**: Actively exploited in the wild on fully patched devices; Fortinet working to completely resolve the issue
-
-### SmarterMail Authentication Bypass
-- **Description**: An authentication bypass vulnerability in SmarterTools SmarterMail email server that allows password reset manipulation
-- **Impact**: Complete takeover of administrator accounts, unauthorized access to email systems and sensitive communications
-- **Status**: Active exploitation observed within two days of patch release
-
-### GNU InetUtils Telnetd Critical Flaw
-- **Description**: A critical vulnerability in GNU InetUtils telnet daemon that went undetected for nearly 11 years
-- **Impact**: Complete authentication bypass and root access to affected systems
-- **Status**: Recently disclosed, patch available
+### GNU InetUtils telnetd Authentication Bypass
+- **Description**: A critical security flaw in the GNU InetUtils telnet daemon (telnetd) that went undetected for nearly 11 years, allowing attackers to completely bypass login authentication mechanisms
+- **Impact**: Attackers can gain root access to affected systems without valid credentials, providing complete system control
+- **Status**: Currently under coordinated exploitation campaign targeting the recently disclosed vulnerability
 - **CVE ID**: CVE-2026-24061
 
-### Automotive Zero-Day Vulnerabilities
-- **Description**: Collection of 76 zero-day vulnerabilities discovered across automotive systems during security research
-- **Impact**: Various impacts including remote code execution, privilege escalation, and system compromise
-- **Status**: Demonstrated at Pwn2Own Automotive 2026 competition
+### Fortinet FortiCloud SSO Authentication Bypass
+- **Description**: A critical vulnerability in Fortinet's FortiCloud Single Sign-On system that allows attackers to bypass authentication even on fully patched FortiGate firewalls
+- **Impact**: Unauthorized access to firewall management interfaces and network infrastructure control
+- **Status**: Active exploitation confirmed on fully patched systems; Fortinet working on complete remediation
+
+### SmarterMail Authentication Bypass
+- **Description**: An authentication bypass vulnerability in SmarterTools' SmarterMail email server and collaboration platform
+- **Impact**: Attackers can reset administrator passwords and hijack admin accounts, gaining full control over email systems
+- **Status**: Currently being exploited in active attacks against SmarterMail deployments
+
+### ATM Jackpotting Malware
+- **Description**: Sophisticated malware used to compromise bank ATM systems and force cash dispensing
+- **Impact**: Direct financial theft through unauthorized cash withdrawal from ATMs
+- **Status**: Active deployment by criminal organizations, resulting in convictions and deportations
 
 ## Affected Systems and Products
 
-- **Fortinet FortiGate Firewalls**: All versions affected by FortiCloud SSO bypass, including fully patched systems
-- **SmarterTools SmarterMail**: Email server and collaboration platform vulnerable to authentication bypass
-- **GNU InetUtils**: Telnet daemon component affected by critical authentication bypass
-- **Automotive Systems**: Multiple manufacturers and models with 76 different zero-day vulnerabilities
-- **CISA KEV Catalog**: Four additional software vulnerabilities added due to active exploitation evidence
+- **GNU InetUtils telnetd**: Telnet daemon servers with 11-year-old vulnerability affecting login authentication
+- **Fortinet FortiGate Firewalls**: Network security appliances affected by FortiCloud SSO bypass, including fully patched systems
+- **SmarterMail Email Servers**: Email and collaboration platforms vulnerable to administrative account takeover
+- **Bank ATM Systems**: Automated teller machines across U.S. banking infrastructure targeted by jackpotting malware
+- **Automotive Systems**: 76 zero-day vulnerabilities identified across various automotive platforms and components
+- **Okta SSO Platforms**: Single sign-on systems targeted through sophisticated voice-based social engineering attacks
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Direct circumvention of login mechanisms in FortiGate and SmarterMail systems
-- **Configuration Theft**: Automated attacks stealing firewall configuration data from compromised FortiGate devices
-- **Account Creation**: Unauthorized creation of rogue administrative accounts on compromised systems
-- **Password Reset Manipulation**: Exploitation of password reset functionality in SmarterMail to gain admin access
-- **Remote Access**: Use of legitimate tools like LogMeIn RMM for persistent access after initial compromise
-- **Adversary-in-the-Middle**: Multi-stage phishing campaigns targeting energy sector organizations
-- **Voice-based Social Engineering**: Custom phishing kits designed for vishing attacks against Okta SSO accounts
+- **Direct Authentication Bypass**: Exploitation of telnetd vulnerability to gain immediate root access without credentials
+- **Automated Configuration Theft**: Systematic attacks against FortiGate devices to extract firewall configuration files and create rogue administrative accounts
+- **Administrative Password Reset**: Abuse of authentication bypass flaws to reset and hijack administrator credentials
+- **Voice-based Social Engineering (Vishing)**: Custom phishing kits designed specifically for telephone-based credential theft targeting Okta accounts
+- **Adversary-in-the-Middle (AitM) Phishing**: Multi-stage campaigns combining credential theft with legitimate remote management tool deployment
+- **Physical ATM Compromise**: Deployment of specialized malware to force cash dispensing from banking systems
+- **Bring Your Own Vulnerable Driver (BYOVD)**: Ransomware attacks leveraging legitimate but vulnerable drivers for system compromise
 
 ## Threat Actor Activities
 
-- **Automated Attack Campaigns**: Systematic targeting of Fortinet FortiGate devices with automated exploitation tools
-- **Energy Sector Targeting**: Multi-stage AitM phishing and business email compromise campaigns specifically targeting energy organizations
-- **Credential-based Attacks**: Dual-vector campaigns leveraging stolen credentials to deploy legitimate RMM software
-- **Ransomware Operations**: INC ransomware group operational security failures leading to data recovery for 12 US organizations
-- **DPRK-linked Activities**: North Korean actors deploying VS Code tunnels for remote hacking through spear-phishing campaigns
-- **Supply Chain Attacks**: Malicious PyPI packages impersonating legitimate libraries to deploy cryptocurrency miners
+- **Venezuelan Criminal Groups**: Convicted ATM jackpotting operations targeting U.S. banking infrastructure with specialized malware deployment
+- **DPRK-linked Actors**: Spear-phishing campaigns using Microsoft VS Code tunnels and trusted infrastructure to avoid detection while targeting remote systems
+- **Energy Sector Attackers**: Multi-stage campaigns targeting energy companies with adversary-in-the-middle phishing and business email compromise techniques
+- **Coordinated Telnet Exploiters**: Organized campaign systematically targeting GNU InetUtils telnetd vulnerability across multiple systems
+- **Osiris Ransomware Group**: New ransomware family conducting BYOVD attacks against major food service operators in Southeast Asia
+- **INC Ransomware Gang**: Operational security failures exposed data theft operations affecting 12 U.S. organizations, allowing data recovery
+- **Fortinet Infrastructure Attackers**: Automated exploitation campaigns targeting FortiGate devices for configuration theft and persistent access
