@@ -1,65 +1,61 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple systems across various platforms, with attackers actively exploiting zero-day vulnerabilities and recently patched flaws. The most severe threats include active exploitation of authentication bypass vulnerabilities in SmarterMail email servers, critical remote code execution flaws in Cisco Unified Communications products (CVE-2026-20045), and authentication vulnerabilities in Fortinet FortiGate firewalls (CVE-2025-59718). Additionally, a critical 11-year-old vulnerability in GNU InetUtils telnet daemon (CVE-2026-24061) has been disclosed, allowing complete authentication bypass and root access. North Korean threat actors are conducting sophisticated campaigns using fake job interviews and Visual Studio Code tunnels to establish persistent access to victim systems.
+Several critical vulnerabilities are experiencing active exploitation across enterprise infrastructure, with threat actors targeting enterprise communication systems, firewall devices, and email servers. The most severe activity involves a Cisco Unified Communications zero-day vulnerability (CVE-2026-20045) that enables remote code execution and has been actively exploited in attacks. Additional exploitation includes automated attacks against Fortinet FortiGate devices through FortiCloud SSO abuse, authentication bypass vulnerabilities in SmarterMail email servers, and a critical GNU InetUtils telnet daemon flaw (CVE-2026-24061) that allows attackers to bypass login and gain root access. Threat actors are also leveraging trusted Microsoft infrastructure through VS Code tunnels in spear-phishing campaigns and exploiting 29 zero-day vulnerabilities during the Pwn2Own Automotive competition.
 
 ## Active Exploitation Details
 
-### SmarterMail Authentication Bypass Vulnerability
-- **Description**: Authentication bypass flaw in SmarterTools SmarterMail email server allowing attackers to reset administrator passwords without proper authentication
-- **Impact**: Complete administrative account takeover, unauthorized access to email systems and collaboration tools
-- **Status**: Actively exploited in the wild just two days after patch release
-
-### Cisco Unified Communications Remote Code Execution
-- **Description**: Critical remote code execution vulnerability affecting Cisco Unified Communications Manager (CM) and Webex Calling Dedicated Instance
-- **Impact**: Remote code execution allowing complete system compromise
-- **Status**: Actively exploited as zero-day before patch, now fixed
+### Cisco Unified Communications Zero-Day
+- **Description**: Critical remote code execution vulnerability in Cisco Unified Communications Manager (CM) and Webex Calling Dedicated Instance products
+- **Impact**: Allows attackers to execute arbitrary code remotely on vulnerable systems
+- **Status**: Actively exploited as zero-day; patches now available from Cisco
 - **CVE ID**: CVE-2026-20045
 
-### Fortinet FortiGate Authentication Bypass
-- **Description**: Critical authentication vulnerability in FortiGate firewalls with patch bypass techniques being exploited
-- **Impact**: Unauthorized access to firewall configurations, creation of rogue accounts, and theft of sensitive network data
-- **Status**: Actively exploited despite patches being available, automated attacks observed
-- **CVE ID**: CVE-2025-59718
-
 ### GNU InetUtils Telnet Daemon Vulnerability
-- **Description**: Critical authentication bypass vulnerability in GNU InetUtils telnet daemon that remained undetected for nearly 11 years
-- **Impact**: Complete authentication bypass allowing attackers to gain root access without valid credentials
-- **Status**: Recently disclosed, high risk for exploitation
+- **Description**: Critical security flaw in GNU InetUtils telnet daemon that went undetected for nearly 11 years, allowing attackers to bypass authentication
+- **Impact**: Complete system compromise with root access privileges
+- **Status**: Recently disclosed with patches available; rated 9.8 out of 10.0 severity
 - **CVE ID**: CVE-2026-24061
 
+### SmarterMail Authentication Bypass
+- **Description**: Authentication bypass vulnerability in SmarterTools' SmarterMail email server allowing unauthorized access to admin accounts
+- **Impact**: Complete compromise of email infrastructure with ability to reset admin passwords
+- **Status**: Actively exploited within two days of patch release
+
+### FortiGate Automated Configuration Attacks
+- **Description**: Automated attacks targeting Fortinet FortiGate devices through FortiCloud SSO functionality to make unauthorized configuration changes
+- **Impact**: Theft of firewall configuration files, creation of rogue accounts, and potential network compromise
+- **Status**: Ongoing automated campaign targeting potentially fully patched devices
+
 ### Pwn2Own Automotive Zero-Days
-- **Description**: Multiple zero-day vulnerabilities demonstrated at Pwn2Own Automotive competition
-- **Impact**: Various impacts across automotive systems and related technologies
-- **Status**: 29 zero-day vulnerabilities successfully exploited during competition
+- **Description**: Multiple zero-day vulnerabilities targeting automotive systems and related technologies
+- **Impact**: Complete system compromise in controlled demonstration environment
+- **Status**: 29 zero-day vulnerabilities successfully exploited on second day of competition, earning researchers $439,250
 
 ## Affected Systems and Products
 
-- **SmarterMail Email Server**: All versions prior to latest security update, email and collaboration platforms
-- **Cisco Unified Communications Manager**: Multiple CM products and Webex Calling Dedicated Instance
-- **Fortinet FortiGate Firewalls**: Network security appliances with FortiCloud SSO integration
-- **GNU InetUtils**: Telnet daemon implementations across Linux and Unix systems
-- **Automotive Systems**: Various automotive technologies demonstrated at security competitions
-- **Chainlit AI Framework**: Open-source conversational AI applications and cloud environments
-- **Android Devices**: Mobile platforms targeted by AI-powered click-fraud malware
-- **Visual Studio Code**: Development environments used as attack vectors by North Korean actors
+- **Cisco Unified Communications Manager**: Multiple versions affected by RCE zero-day
+- **Cisco Webex Calling Dedicated Instance**: Vulnerable to same RCE exploit
+- **Fortinet FortiGate Devices**: Targeted in automated configuration theft attacks
+- **SmarterTools SmarterMail**: Email server vulnerable to authentication bypass
+- **GNU InetUtils Telnet Daemon**: Legacy systems running vulnerable telnet services
+- **Automotive Systems**: Various automotive technologies demonstrated at Pwn2Own
+- **Android Devices**: Targeted by AI-powered click-fraud trojans
+- **PyPI Repository**: Hosting malicious packages impersonating legitimate libraries
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Direct exploitation of authentication flaws to gain administrative access
-- **Remote Code Execution**: Exploitation of RCE vulnerabilities for complete system compromise
-- **Automated Attacks**: Large-scale automated exploitation campaigns targeting multiple organizations
-- **Social Engineering**: Fake job interview campaigns using trusted development tools
-- **VS Code Tunnels**: Abuse of Microsoft Visual Studio Code remote access features for persistence
-- **BYOVD (Bring Your Own Vulnerable Driver)**: Use of POORTRY driver in ransomware operations
-- **AI-Powered Attacks**: Machine learning models used for automated ad clicking and evasion
-- **Supply Chain Attacks**: Malicious PyPI packages impersonating legitimate libraries
-- **Configuration Manipulation**: Unauthorized firewall configuration changes through SSO exploitation
+- **FortiCloud SSO Abuse**: Leveraging legitimate SSO functionality to gain unauthorized access to FortiGate devices
+- **VS Code Tunnel Exploitation**: North Korean actors using Microsoft VS Code tunnels for remote access and command execution
+- **Vishing with Custom Phishing Kits**: Voice-based social engineering targeting Okta SSO accounts
+- **Bring Your Own Vulnerable Driver (BYOVD)**: Osiris ransomware using POORTRY driver for privilege escalation
+- **Supply Chain Attacks**: Malicious PyPI packages impersonating popular libraries like SymPy
+- **AI-Powered Click Fraud**: Android malware using TensorFlow models for automated ad interaction
+- **Contagious Interview Campaigns**: Social engineering through malicious coding repositories
 
 ## Threat Actor Activities
 
-- **North Korean Groups**: Conducting "Contagious Interview" campaigns targeting 3,136 IP addresses across 20 organizations in artificial intelligence, cryptocurrency, and technology sectors
-- **PurpleBravo Campaign**: Large-scale North Korean operation using fake job interviews and VS Code infrastructure
-- **Osiris Ransomware Group**: New ransomware family targeting food service operators in Southeast Asia using BYOVD techniques
-- **INC Ransomware Gang**: Operational security failures allowed data recovery for 12 US organizations
-- **Automated Threat Actors**: Conducting systematic attacks against FortiGate devices and SmarterMail servers
-- **Cryptocurrency Miners**: Deploying XMRig miners through malicious PyPI packages targeting Linux hosts
+- **North Korean APT Groups**: Conducting spear-phishing campaigns using VS Code tunnels and "Contagious Interview" techniques targeting software developers
+- **Osiris Ransomware Group**: Deploying new ransomware strain with BYOVD techniques against Southeast Asian food service companies
+- **INC Ransomware Gang**: Suffered operational security failure allowing data recovery for 12 US organizations
+- **Automated Attack Clusters**: Coordinated campaigns targeting FortiGate devices globally for configuration theft
+- **AI-Powered Mobile Threats**: Sophisticated Android malware groups leveraging machine learning for fraud operations
