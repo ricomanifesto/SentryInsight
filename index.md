@@ -1,65 +1,62 @@
 # Exploitation Report
 
-Critical exploitation activity is currently impacting enterprise infrastructure with multiple zero-day vulnerabilities and authentication bypass flaws being actively exploited in the wild. CISA has added several vulnerabilities to its Known Exploited Vulnerabilities catalog, including CVE-2024-37079 affecting VMware vCenter Server and CVE-2026-20045 targeting Cisco UC systems. Nation-state actors including Sandworm and Konni are conducting sophisticated campaigns, while threat groups like ShinyHunters are targeting SSO accounts across major platforms. Additionally, authentication bypass vulnerabilities in Fortinet FortiCloud and SmarterMail systems are being exploited even on fully patched systems, indicating incomplete remediation efforts.
+Critical exploitation activity is currently targeting enterprise infrastructure across multiple vectors, with several zero-day vulnerabilities and recently patched flaws being actively exploited in the wild. The most significant threats include a zero-day authentication bypass in Cisco Unified Communications systems affecting potentially millions of devices, ongoing exploitation of a critical VMware vCenter vulnerability, and active attacks against Fortinet firewalls through an incompletely patched authentication bypass. Additional concerning activity includes coordinated campaigns targeting telnet services, enterprise software vulnerabilities, and sophisticated phishing operations targeting single sign-on accounts across major platforms.
 
 ## Active Exploitation Details
 
+### Cisco Unified Communications Zero-Day
+- **Description**: A critical zero-day vulnerability in Cisco Unified Communications systems that enables complete system takeover
+- **Impact**: Successful exploitation leads to full system compromise and potential lateral movement across enterprise networks
+- **Status**: Currently being exploited with mass scanning campaigns underway to identify vulnerable systems
+- **CVE ID**: CVE-2026-20045
+
 ### VMware vCenter Server Authentication Bypass
-- **Description**: Critical security flaw affecting Broadcom VMware vCenter Server that was patched in June 2024 but continues to be exploited
-- **Impact**: Successful exploitation could lead to unauthorized access to vCenter management interfaces
+- **Description**: A critical security flaw in Broadcom VMware vCenter Server that allows authentication bypass
+- **Impact**: Unauthorized access to virtualization infrastructure with potential for complete environment compromise
 - **Status**: Actively exploited in the wild, patch available since June 2024
 - **CVE ID**: CVE-2024-37079
 
-### Cisco UC Zero-Day Vulnerability
-- **Description**: Critical zero-day flaw in Cisco UC systems currently under mass scanning campaigns
-- **Impact**: Complete system takeover possible upon successful exploitation
-- **Status**: Actively exploited, mass scanning underway
-- **CVE ID**: CVE-2026-20045
-
 ### Fortinet FortiCloud SSO Authentication Bypass
-- **Description**: Authentication bypass vulnerability in FortiCloud SSO affecting FortiGate firewalls, with reports of exploitation on fully patched systems
-- **Impact**: Unauthorized access to firewall configurations and administrative functions
-- **Status**: Actively exploited, incomplete patch remediation confirmed by vendor
-
-### SmarterMail Authentication Bypass
-- **Description**: Authentication bypass vulnerability in SmarterTools' SmarterMail email server allowing password reset for admin accounts
-- **Impact**: Complete compromise of email server administration and user data access
-- **Status**: Actively exploited for admin account hijacking
+- **Description**: Critical authentication bypass vulnerability affecting FortiGate firewalls' FortiCloud SSO functionality
+- **Impact**: Threat actors can bypass authentication and make malicious configuration changes to steal firewall configurations
+- **Status**: Active exploitation confirmed on fully patched systems, indicating incomplete patch coverage
 
 ### GNU InetUtils Telnetd Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability present in GNU InetUtils telnetd server for 11 years, recently disclosed
-- **Impact**: Root-level system access through authentication bypass
-- **Status**: Coordinated exploitation campaign observed targeting this vulnerability
+- **Description**: Critical vulnerability in GNU InetUtils telnetd server that has been present for 11 years, allowing authentication bypass
+- **Impact**: Attackers can gain root access to affected systems through coordinated exploitation campaigns
+- **Status**: Currently being exploited in coordinated campaigns targeting vulnerable telnet services
+
+### Enterprise Software Vulnerabilities
+- **Description**: Four vulnerabilities affecting Versa Networks, Zimbra email servers, and Vite frontend development tool
+- **Impact**: Various impacts including unauthorized access, data exfiltration, and system compromise
+- **Status**: Active exploitation confirmed by CISA, added to Known Exploited Vulnerabilities catalog
 
 ## Affected Systems and Products
 
-- **VMware vCenter Server**: Broadcom VMware vCenter Server installations
-- **Cisco UC Systems**: Cisco Unified Communications infrastructure potentially affecting millions of users
-- **Fortinet FortiGate**: FortiGate firewalls using FortiCloud SSO authentication
-- **SmarterMail**: SmarterTools email server and collaboration platforms
-- **GNU InetUtils**: Systems running GNU InetUtils telnetd server
-- **Versa Networks**: Enterprise software solutions
-- **Zimbra**: Collaboration and email platforms
-- **Vite**: Frontend development tool
-- **VSCode Marketplace**: Two malicious AI extensions affecting 1.5 million installations
-- **Automotive Systems**: 76 zero-day vulnerabilities discovered in vehicle infotainment systems and EV chargers
+- **VMware vCenter Server**: Broadcom VMware vCenter Server installations, particularly those not updated since June 2024
+- **Cisco Unified Communications**: Millions of Cisco UC systems potentially affected by zero-day exploitation
+- **FortiGate Firewalls**: Fortinet FortiGate devices with FortiCloud SSO functionality, including fully patched systems
+- **GNU InetUtils**: Systems running telnetd server from GNU InetUtils package, vulnerability present for 11 years
+- **Enterprise Software**: Versa Networks products, Zimbra email servers, and Vite development environments
+- **Vehicle Systems**: 76 zero-day vulnerabilities discovered in automotive infotainment systems and EV chargers
+- **Microsoft Outlook**: Windows 10, 11, and Windows Server systems experiencing PST-related issues
+- **VSCode Marketplace**: Malicious AI extensions affecting Visual Studio Code developers
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Exploitation of authentication mechanisms in enterprise software to gain unauthorized access
-- **Mass Scanning**: Automated scanning campaigns targeting newly disclosed vulnerabilities
-- **Social Engineering**: Voice phishing (vishing) attacks targeting SSO accounts
-- **AI-Generated Malware**: Use of artificial intelligence to create PowerShell-based malware for blockchain sector targeting
-- **Supply Chain Attacks**: Malicious extensions in legitimate software marketplaces
-- **Multi-Stage Phishing**: Complex phishing campaigns combining multiple attack vectors
-- **BYOVD Attacks**: Bring Your Own Vulnerable Driver attacks using POORTRY driver
-- **Remote Access Trojan Deployment**: Installation of Amnesia RAT through phishing campaigns
+- **Mass Scanning Campaigns**: Automated scanning for vulnerable Cisco UC systems and other enterprise targets
+- **Authentication Bypass**: Exploitation of SSO and authentication mechanisms in enterprise systems
+- **Configuration Manipulation**: Malicious changes to firewall configurations for persistent access
+- **Voice Phishing (Vishing)**: Custom phishing kits targeting SSO accounts through social engineering
+- **AI-Generated Malware**: North Korean actors using AI to create PowerShell malware targeting blockchain developers
+- **Multi-Stage Phishing**: Complex campaigns delivering ransomware and remote access trojans
+- **Supply Chain Attacks**: Malicious extensions in trusted software repositories
+- **Wiper Malware**: Destructive attacks targeting critical infrastructure with data-wiping capabilities
 
 ## Threat Actor Activities
 
-- **Sandworm**: Russian nation-state group conducted "largest cyber attack" targeting Poland's power system using new DynoWiper malware in December 2025
-- **Konni (Opal Sleet, TA406)**: North Korean group using AI-generated PowerShell malware to target blockchain developers and engineers
-- **ShinyHunters**: Extortion gang claiming responsibility for wave of vishing attacks targeting Okta, Microsoft, and Google SSO accounts
-- **Energy Sector Attackers**: Multi-stage adversary-in-the-middle phishing and business email compromise campaigns targeting energy organizations
-- **Automotive Researchers**: Security researchers exploited 76 zero-day vulnerabilities during Pwn2Own Automotive 2026, earning over $1 million in rewards
-- **Ransomware Operators**: Deployment of Osiris ransomware targeting Southeast Asian food service companies using BYOVD techniques
+- **Sandworm (Russian State-Sponsored)**: Attempted deployment of DynoWiper malware against Poland's power grid in December 2025, representing the largest cyber attack on Polish power systems
+- **Konni/Opal Sleet (North Korean)**: Targeting blockchain engineers with AI-generated PowerShell malware in sophisticated social engineering campaigns
+- **ShinyHunters**: Claiming responsibility for ongoing vishing attacks targeting Okta, Microsoft, and Google SSO accounts for data theft operations
+- **Multiple Threat Groups**: Coordinated exploitation of telnetd vulnerabilities and enterprise software flaws across various attack campaigns
+- **Unknown Actors**: Exploiting Fortinet firewall vulnerabilities and conducting phishing campaigns with legitimate RMM tools for persistent access
