@@ -1,59 +1,62 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity across multiple platforms and industries. Critical vulnerabilities are being actively exploited by state-sponsored groups and cybercriminals, with notable campaigns targeting government agencies, enterprises, and developer ecosystems. The most concerning activities include Chinese state-sponsored espionage campaigns exploiting WinRAR vulnerabilities, active exploitation of SolarWinds Web Help Desk systems, and coordinated attacks against React Native development environments. These attacks demonstrate sophisticated adversaries rapidly weaponizing newly disclosed vulnerabilities and leveraging legitimate tools for malicious purposes.
+Critical vulnerabilities across multiple enterprise platforms are currently under active exploitation by various threat actors. CISA has confirmed that ransomware groups are now exploiting a high-severity VMware ESXi sandbox escape vulnerability that was previously used in zero-day attacks. Additionally, a five-year-old GitLab vulnerability is being actively exploited in the wild, prompting government agencies to implement immediate patches. The Chinese state-sponsored group Amaranth Dragon has been identified exploiting CVE-2025-8088 in WinRAR for espionage campaigns targeting Southeast Asian government agencies. A critical SolarWinds Web Help Desk remote code execution vulnerability has also been added to CISA's Known Exploited Vulnerabilities catalog following confirmed exploitation in attacks. Russian APT28 actors have demonstrated rapid weaponization capabilities by exploiting a Microsoft Office vulnerability within just three days of disclosure.
 
 ## Active Exploitation Details
 
-### WinRAR Vulnerability in Amaranth Dragon Campaigns
-- **Description**: A critical vulnerability in WinRAR being exploited by Chinese state-sponsored threat actors for espionage operations
-- **Impact**: Enables espionage campaigns targeting government and law enforcement agencies across Southeast Asia
-- **Status**: Actively exploited by Amaranth Dragon group throughout 2025
+### VMware ESXi Sandbox Escape Vulnerability
+- **Description**: High-severity vulnerability in VMware ESXi that allows attackers to escape sandbox restrictions
+- **Impact**: Enables ransomware deployment and system compromise on virtualized infrastructure
+- **Status**: Currently being exploited by ransomware gangs after initial zero-day exploitation
+
+### GitLab Legacy Vulnerability
+- **Description**: Five-year-old vulnerability in GitLab systems that remains unpatched in many environments
+- **Impact**: Allows unauthorized access and potential compromise of development infrastructure
+- **Status**: Actively exploited in attacks, prompting CISA emergency directive for federal agencies
+
+### WinRAR Archive Processing Vulnerability
+- **Description**: Vulnerability in WinRAR's archive processing functionality exploited by Chinese threat actors
+- **Impact**: Enables code execution and system compromise through malicious archive files
+- **Status**: Actively exploited in espionage campaigns targeting government entities
 - **CVE ID**: CVE-2025-8088
 
 ### SolarWinds Web Help Desk Remote Code Execution
-- **Description**: Critical security flaw allowing remote code execution in SolarWinds Web Help Desk systems
-- **Impact**: Attackers can achieve remote code execution and potentially gain administrative access to affected systems
-- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
-- **CVE ID**: Not specified in articles
+- **Description**: Critical vulnerability in SolarWinds Web Help Desk allowing remote code execution
+- **Impact**: Complete system compromise and unauthorized access to help desk infrastructure
+- **Status**: Added to CISA KEV catalog due to active exploitation
 
-### React Native Metro Server Vulnerability
-- **Description**: Critical vulnerability in the Metro Development Server within the React Native CLI npm package
-- **Impact**: Allows attackers to deliver malicious payloads to Windows and Linux development systems
-- **Status**: Actively exploited by threat actors targeting developers
-- **CVE ID**: CVE-2025-11953
-
-### Microsoft Office RTF Document Exploitation
-- **Description**: Security vulnerability in Microsoft Office Rich Text Format document processing
-- **Impact**: Enables multistage infection chains to deliver malicious payloads
-- **Status**: Weaponized by Russian hackers within 3 days of disclosure
+### Microsoft Office Rich Text Format Vulnerability
+- **Description**: Vulnerability in Microsoft Office RTF document processing exploited through specially crafted documents
+- **Impact**: Multistage infection chain leading to malicious payload delivery
+- **Status**: Weaponized by APT28 within three days of disclosure
 
 ## Affected Systems and Products
 
-- **WinRAR**: Targeted in Chinese espionage campaigns affecting government and law enforcement systems
-- **SolarWinds Web Help Desk**: Critical RCE vulnerability requiring immediate patching by federal agencies
-- **React Native CLI npm Package**: Metro Development Server component vulnerable to remote code execution
-- **Microsoft Office**: RTF document processing vulnerability exploited by APT28
-- **Google Looker**: Cross-tenant RCE and data exfiltration vulnerabilities in business intelligence platform
-- **Docker Desktop and CLI**: Ask Gordon AI assistant vulnerable to code execution via image metadata
-- **Citrix NetScaler**: Infrastructure being actively scanned by coordinated reconnaissance campaigns
-- **macOS Systems**: Targeted by Python-based infostealers through fake advertisements and installers
+- **VMware ESXi**: Hypervisor infrastructure vulnerable to sandbox escape attacks
+- **GitLab**: Development platforms with legacy unpatched vulnerabilities
+- **WinRAR**: Archive processing software targeted in espionage campaigns
+- **SolarWinds Web Help Desk**: IT service management platform with critical RCE flaw
+- **Microsoft Office**: RTF document processing vulnerability enabling rapid exploitation
+- **Google Looker**: Business intelligence platform with cross-tenant RCE vulnerabilities
+- **Docker Desktop**: Ask Gordon AI assistant with critical code execution flaw
+- **Citrix NetScaler**: Infrastructure targeted in coordinated reconnaissance campaigns
 
 ## Attack Vectors and Techniques
 
-- **Malicious Document Exploitation**: Specially crafted Microsoft RTF documents used to initiate infection chains
-- **Supply Chain Attacks**: Poisoning of npm packages and VSX extensions with malicious components
-- **Proxy-Based Reconnaissance**: Coordinated scanning campaigns using thousands of residential proxies
-- **Credential Abuse**: Exploitation of exposed API keys, tokens, and non-human identities in cloud environments
-- **EDR Evasion**: Abuse of legitimate but revoked kernel drivers to bypass endpoint detection systems
-- **Cross-Platform Malware**: Python-based infostealers targeting both Windows and macOS environments
-- **AI-Assisted Attacks**: Rapid exploitation of AWS environments using AI to accelerate breach timelines
-- **Insider Threats**: Compromise of executive devices leading to significant financial theft
+- **Malicious Archive Files**: WinRAR vulnerability exploitation through crafted archive files
+- **RTF Document Exploitation**: Microsoft Office attacks using specially crafted Rich Text Format documents
+- **Sandbox Escape**: VMware ESXi vulnerability enabling escape from virtualized environments
+- **Cross-Platform Infostealers**: Python-based malware targeting macOS through fake advertisements and installers
+- **EDR Evasion**: Abuse of legitimate signed kernel drivers to disable security tools
+- **Residential Proxy Networks**: Coordinated reconnaissance using thousands of residential IP addresses
+- **AI-Assisted Attacks**: Rapid AWS environment compromise achieved in 8 minutes using AI tools
+- **Supply Chain Attacks**: GlassWorm malware targeting developer ecosystems through poisoned Open VSX components
 
 ## Threat Actor Activities
 
-- **Amaranth Dragon**: Chinese state-sponsored group linked to APT41 conducting espionage campaigns against Southeast Asian government and law enforcement agencies using WinRAR exploits
-- **APT28 (Russian)**: Rapidly weaponizing Microsoft Office vulnerabilities within 3 days, using RTF documents for multistage attacks
-- **GlassWorm Operators**: Distributing self-replicating malware through poisoned Open VSX software components targeting developer ecosystems
-- **Everest Extortion Gang**: Claiming breach of Iron Mountain data storage services, though impact appears limited to marketing materials
-- **Unknown Actors**: Conducting coordinated Citrix NetScaler reconnaissance using residential proxy networks and exploiting React Native Metro vulnerabilities against developers
-- **Cryptocurrency Attackers**: Compromising executive devices at Step Finance resulting in $40 million theft of digital assets
+- **Amaranth Dragon**: Chinese state-sponsored group linked to APT41, conducting espionage campaigns against Southeast Asian government and law enforcement agencies using WinRAR exploits
+- **APT28**: Russian state-sponsored group demonstrating rapid weaponization capabilities by exploiting Microsoft Office vulnerabilities within 72 hours
+- **Ransomware Groups**: Multiple ransomware operators now exploiting VMware ESXi vulnerabilities for infrastructure compromise
+- **GlassWorm Operators**: Threat actors deploying self-replicating malware to poison developer ecosystems and deliver infostealers
+- **Chinese APT Groups**: Expanding infostealer campaigns to target macOS environments using cross-platform Python malware
+- **Citrix Reconnaissance Campaign**: Coordinated scanning activity targeting NetScaler infrastructure using residential proxy networks
