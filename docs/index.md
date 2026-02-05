@@ -1,68 +1,61 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting enterprise infrastructure through multiple attack vectors, with ransomware gangs expanding their operational scope and sophisticated threat actors leveraging both new and legacy vulnerabilities. Notable campaigns include VMware ESXi sandbox escape vulnerabilities being actively exploited by ransomware operators, a five-year-old GitLab flaw seeing renewed exploitation, and Chinese state-sponsored groups weaponizing WinRAR vulnerabilities in targeted espionage campaigns. The threat landscape shows increased coordination among criminal groups, with the DragonForce ransomware cartel emphasizing cooperation between gangs, while advanced persistent threats demonstrate rapid weaponization capabilities by exploiting Microsoft Office vulnerabilities within days of discovery.
+Critical vulnerabilities across enterprise infrastructure are experiencing active exploitation, with ransomware operators increasingly targeting virtualization platforms and network edge devices. The most severe incidents involve VMware ESXi sandbox escape vulnerabilities being leveraged by ransomware gangs, while China-linked APT groups exploit WinRAR flaws in espionage campaigns. Additionally, CISA has confirmed active exploitation of a critical SolarWinds Web Help Desk remote code execution vulnerability and a five-year-old GitLab flaw, indicating persistent threats against enterprise management systems. Russian threat actors have also demonstrated rapid weaponization capabilities, exploiting Microsoft Office vulnerabilities within just three days of disclosure.
 
 ## Active Exploitation Details
 
 ### VMware ESXi Sandbox Escape Vulnerability
-- **Description**: A high-severity sandbox escape vulnerability in VMware ESXi that allows attackers to break out of virtualized environments
-- **Impact**: Ransomware gangs can escape virtualized security boundaries and compromise underlying host systems
-- **Status**: Previously exploited in zero-day attacks, now confirmed as actively exploited by ransomware operators
-
-### Five-Year-Old GitLab Vulnerability  
-- **Description**: A legacy vulnerability in GitLab systems that has resurfaced in active attack campaigns
-- **Impact**: Allows attackers to compromise GitLab instances and potentially gain unauthorized access to source code repositories
-- **Status**: Actively exploited despite being five years old, prompted CISA warning to government agencies
-
-### WinRAR Archive Processing Flaw
-- **Description**: A vulnerability in WinRAR's archive processing functionality being exploited in targeted espionage campaigns
-- **Impact**: Enables code execution and system compromise through maliciously crafted archive files
-- **Status**: Actively exploited by Chinese state-sponsored Amaranth Dragon group
-- **CVE ID**: CVE-2025-8088
+- **Description**: High-severity sandbox escape vulnerability in VMware ESXi that was previously exploited as a zero-day
+- **Impact**: Allows attackers to escape virtualization constraints and gain control over the hypervisor
+- **Status**: Now being actively exploited by ransomware gangs following initial zero-day attacks
 
 ### SolarWinds Web Help Desk Remote Code Execution
-- **Description**: A critical security flaw in SolarWinds Web Help Desk software allowing remote code execution
-- **Impact**: Complete system compromise and potential lateral movement within enterprise networks
-- **Status**: Actively exploited in attacks, added to CISA KEV catalog with mandatory patching deadline
+- **Description**: Critical remote code execution vulnerability in SolarWinds Web Help Desk (WHD)
+- **Impact**: Enables attackers to execute arbitrary code remotely on affected systems
+- **Status**: Actively exploited in attacks, added to CISA KEV catalog with mandatory patching requirements
 
-### Microsoft Office RTF Processing Vulnerability
-- **Description**: A vulnerability in Microsoft Office's Rich Text Format document processing
-- **Impact**: Multistage infection chain delivery through specially crafted RTF documents
-- **Status**: Weaponized by Russian APT28 group within three days of discovery
+### GitLab Vulnerability
+- **Description**: Five-year-old vulnerability in GitLab systems
+- **Impact**: Allows unauthorized access and potential code repository compromise
+- **Status**: Currently being exploited in active attacks despite its age
 
-### n8n Workflow Platform Critical Flaws
-- **Description**: Multiple critical vulnerabilities in the n8n open-source workflow automation platform
-- **Impact**: Complete host server takeover through environment escape techniques
-- **Status**: Public exploits available, allowing attackers to break out of containerized environments
+### WinRAR Vulnerability
+- **Description**: Vulnerability in WinRAR compression software exploited by Chinese threat actors
+- **Impact**: Used as initial access vector for espionage campaigns
+- **Status**: Actively exploited by Amaranth Dragon APT group
+- **CVE ID**: CVE-2025-8088
+
+### Microsoft Office RTF Vulnerability
+- **Description**: Vulnerability in Microsoft Rich Text Format (RTF) document processing
+- **Impact**: Enables multistage infection chains through specially crafted RTF documents
+- **Status**: Weaponized by Russian APT28 within three days of disclosure
 
 ## Affected Systems and Products
 
-- **VMware ESXi**: Virtualization infrastructure vulnerable to sandbox escape attacks
-- **GitLab**: Source code management platforms across government and enterprise environments  
-- **WinRAR**: Archive processing software targeted in espionage campaigns
-- **SolarWinds Web Help Desk**: IT service management software with RCE vulnerabilities
-- **Microsoft Office**: Document processing systems vulnerable to RTF-based attacks
-- **n8n Platform**: Open-source workflow automation environments
-- **NGINX Servers**: Web servers compromised for traffic redirection campaigns
+- **VMware ESXi**: Hypervisor platform vulnerable to sandbox escape attacks
+- **SolarWinds Web Help Desk**: IT service management platform with critical RCE vulnerability
+- **GitLab**: Source code management platform with long-standing security flaw
+- **WinRAR**: File compression software targeted in espionage campaigns
+- **Microsoft Office**: RTF document processing component exploited by Russian APT groups
+- **NGINX Servers**: Web servers compromised for traffic redirection attacks
+- **n8n Workflow Platform**: Open-source automation platform with critical vulnerabilities
 - **Citrix NetScaler**: Network infrastructure targeted in reconnaissance campaigns
-- **Windows Systems**: Screensaver files (.scr) used as malware delivery mechanism
+- **Google Looker**: Business intelligence platform with cross-tenant vulnerabilities
 
 ## Attack Vectors and Techniques
 
-- **Virtualization Escape**: Exploitation of hypervisor vulnerabilities to break out of virtual machines
-- **Malicious Archives**: Weaponized WinRAR files delivering espionage payloads  
-- **RTF Document Attacks**: Specially crafted Rich Text Format files triggering infection chains
-- **Traffic Hijacking**: Compromised NGINX servers redirecting user traffic through attacker infrastructure
-- **Screensaver Abuse**: Windows .scr files bypassing executable-level security controls
-- **Container Escape**: Breaking out of workflow platform containers to compromise host systems
-- **EDR Evasion**: Signed kernel drivers from forensic software used to disable security tools
-- **Residential Proxy Networks**: Thousands of residential IPs used for infrastructure reconnaissance
+- **Traffic Redirection**: Compromising NGINX servers to hijack user traffic through attacker infrastructure
+- **Phishing with VHD Files**: DEAD#VAX campaign using IPFS-hosted VHD files to deploy AsyncRAT malware
+- **EDR Evasion**: Using legitimate but revoked EnCase kernel drivers to disable 59 security tools
+- **Screensaver Exploitation**: Leveraging Windows .scr files to bypass executable-level security controls
+- **Residential Proxy Networks**: Using thousands of residential proxies for Citrix NetScaler reconnaissance
+- **Supply Chain Attacks**: GlassWorm malware targeting Open VSX software components in developer ecosystems
+- **RTF Document Weaponization**: Crafted Microsoft RTF documents delivering malicious payloads
 
 ## Threat Actor Activities
 
-- **DragonForce Ransomware Cartel**: Operating cooperative model among ransomware gangs since 2023, emphasizing coordination and resource sharing
-- **Amaranth Dragon**: Chinese state-sponsored group linked to APT41, targeting government and law enforcement in Southeast Asia using WinRAR exploits
-- **APT28 (Fancy Bear)**: Russian military intelligence group rapidly weaponizing Microsoft Office vulnerabilities within 72 hours
-- **DEAD#VAX Campaign**: Sophisticated operation using IPFS-hosted VHD files and AsyncRAT deployment with disciplined tradecraft
-- **GlassWorm Operators**: Self-replicating malware campaign targeting developer ecosystems through poisoned Open VSX components
-- **NGINX Traffic Hijackers**: Unidentified threat actors compromising web servers for traffic redirection and backend infrastructure control
+- **Amaranth Dragon (APT41-linked)**: Chinese espionage group targeting Southeast Asian government and law enforcement agencies using WinRAR exploits
+- **APT28 (Russian)**: Rapidly weaponizing Microsoft Office vulnerabilities within three days for document-based attacks
+- **DragonForce Ransomware**: Operating cartel model emphasizing cooperation among ransomware gangs since 2023
+- **DEAD#VAX Campaign**: Sophisticated malware operation using disciplined tradecraft and legitimate system feature abuse
+- **Various Ransomware Groups**: Exploiting VMware ESXi vulnerabilities and building playbooks around network perimeter devices
