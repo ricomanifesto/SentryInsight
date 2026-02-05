@@ -1,66 +1,63 @@
 # Exploitation Report
 
-Critical vulnerabilities across multiple platforms are experiencing active exploitation, ranging from zero-day attacks to widespread campaigns targeting infrastructure components. The most significant activity includes CVE-2026-25049 in n8n workflow automation platform enabling system command execution, CVE-2025-8088 WinRAR vulnerability being exploited by Chinese state-sponsored groups, and active ransomware campaigns exploiting VMware ESXi flaws. Additional concerning activity involves large-scale NGINX server compromises for traffic hijacking, exploitation of a five-year-old GitLab vulnerability, and SolarWinds Web Help Desk remote code execution flaws being added to CISA's Known Exploited Vulnerabilities catalog.
+The current threat landscape reveals several critical exploitation campaigns actively targeting enterprise infrastructure and cloud environments. Ransomware operators have intensified their focus on network edge devices, particularly targeting VMware ESXi environments and legacy vulnerabilities in enterprise platforms. Notable threat actors including Chinese state-sponsored groups and Iranian cyber espionage teams are leveraging both recently disclosed vulnerabilities and older unpatched flaws to compromise high-value targets. Critical vulnerabilities in workflow automation platforms and web traffic hijacking campaigns demonstrate the evolving sophistication of attack methodologies against modern enterprise infrastructure.
 
 ## Active Exploitation Details
 
-### n8n Workflow Automation Platform Critical Flaw
-- **Description**: Critical security vulnerability in the n8n open-source workflow automation platform that allows escaping environment confines and taking complete control of host servers
-- **Impact**: Execution of arbitrary system commands and complete server compromise
-- **Status**: Critical vulnerabilities disclosed with public exploits available
+### n8n Workflow Automation Platform Vulnerability
+- **Description**: Critical security vulnerability in the n8n workflow automation platform enabling arbitrary system command execution
+- **Impact**: Complete control of host server and escape from environment confines
+- **Status**: Critical vulnerability with public exploits disclosed
 - **CVE ID**: CVE-2026-25049
 
-### WinRAR Vulnerability
-- **Description**: Security flaw in WinRAR being exploited by Chinese state-sponsored threat actors in espionage campaigns
-- **Impact**: Used in cyber espionage operations targeting government and law enforcement agencies across Southeast Asia
-- **Status**: Actively exploited by Amaranth Dragon APT group throughout 2025
+### VMware ESXi Sandbox Escape Vulnerability
+- **Description**: High-severity VMware ESXi vulnerability allowing escape from sandbox environment
+- **Impact**: Used in zero-day attacks since February 2024, now exploited by ransomware gangs
+- **Status**: Actively exploited in ransomware attacks, confirmed by CISA
+
+### GitLab Authentication Bypass
+- **Description**: Five-year-old GitLab vulnerability allowing authentication bypass
+- **Impact**: Unauthorized access to GitLab repositories and systems
+- **Status**: Actively exploited in attacks, added to CISA KEV catalog
+
+### SolarWinds Web Help Desk Remote Code Execution
+- **Description**: Critical security flaw in SolarWinds Web Help Desk platform
+- **Impact**: Remote code execution capabilities on affected systems
+- **Status**: Actively exploited, added to CISA KEV catalog
+
+### WinRAR Vulnerability Exploitation
+- **Description**: Vulnerability in WinRAR archiving software exploited in targeted campaigns
+- **Impact**: Initial access vector for espionage operations
+- **Status**: Actively exploited by Chinese APT groups
 - **CVE ID**: CVE-2025-8088
-
-### VMware ESXi Sandbox Escape
-- **Description**: High-severity VMware ESXi sandbox escape vulnerability previously used in zero-day attacks
-- **Impact**: Ransomware gangs using this flaw to compromise virtualization infrastructure
-- **Status**: CISA confirmed active exploitation in ransomware attacks
-
-### GitLab Five-Year-Old Vulnerability
-- **Description**: Legacy GitLab vulnerability that has remained unpatched for five years
-- **Impact**: Active exploitation in attacks targeting government systems
-- **Status**: CISA ordered government agencies to patch immediately due to active exploitation
-
-### SolarWinds Web Help Desk RCE
-- **Description**: Critical security flaw in SolarWinds Web Help Desk enabling remote code execution
-- **Impact**: Complete system compromise through remote code execution
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
 
 ## Affected Systems and Products
 
-- **n8n Workflow Automation Platform**: Open-source workflow automation systems vulnerable to command execution
-- **WinRAR**: Archive utility being exploited in targeted espionage campaigns
-- **VMware ESXi**: Virtualization infrastructure targeted by ransomware operators
-- **NGINX Servers**: Web servers and management panels like Baota (BT) being compromised for traffic hijacking
-- **GitLab**: Source code management platforms with legacy vulnerabilities
-- **SolarWinds Web Help Desk**: IT service management platforms vulnerable to RCE
-- **Microsoft Office**: RTF documents being weaponized for malware delivery
+- **n8n Workflow Automation Platform**: Open-source automation platform vulnerable to system command execution
+- **VMware ESXi**: Enterprise virtualization platform targeted in ransomware campaigns
+- **GitLab**: Source code management platform with authentication bypass vulnerability
+- **SolarWinds Web Help Desk**: IT service management platform with RCE vulnerability
+- **WinRAR**: File archiving software exploited in espionage campaigns
+- **NGINX Servers**: Web servers compromised for traffic hijacking campaigns
+- **Betterment Platform**: Financial technology platform with data breach affecting 1.4 million accounts
+- **Zendesk Support Systems**: Customer support platforms exploited for spam campaigns
 - **Google Looker**: Business intelligence platform with cross-tenant vulnerabilities
-- **macOS Systems**: Apple systems increasingly targeted by Python-based infostealers
 
 ## Attack Vectors and Techniques
 
-- **Malicious Workflows**: Attackers using crafted n8n workflows to execute system commands
-- **Spear-Phishing**: Iranian threat actors using targeted phishing for credential theft
-- **Social Engineering**: Sophisticated social engineering campaigns targeting Middle Eastern populations
-- **Traffic Hijacking**: NGINX server compromises routing traffic through attacker infrastructure
-- **Screensaver Malware**: Novel use of .scr files to deploy malware and RMM tools while evading detection
-- **RTF Document Exploitation**: Microsoft Office RTF files weaponized for multistage infection chains
-- **IPFS-Hosted VHD Files**: DEAD#VAX campaign using InterPlanetary File System to host malicious VHD phishing files
-- **Fake Advertisements**: Python infostealers distributed through fake ads and installers targeting macOS
-- **EDR Evasion**: Signed kernel drivers from forensic software being abused to disable security tools
+- **Web Traffic Hijacking**: Malicious NGINX configurations used to redirect and hijack user traffic through attacker infrastructure
+- **Malicious Workflows**: Exploitation of n8n platform through crafted workflows containing system commands
+- **Spear-phishing Campaigns**: Targeted email attacks using legitimate file formats like VHD files hosted on IPFS
+- **Screensaver Malware**: Unusual use of .scr file types to drop malware and remote management tools
+- **EDR Evasion**: Use of legitimate but revoked kernel drivers to detect and disable security tools
+- **Cross-platform Infostealers**: Python-based malware targeting macOS through fake advertisements and installers
+- **Ransomware Infrastructure**: Cartel-based cooperation models among ransomware groups for coordinated attacks
 
 ## Threat Actor Activities
 
-- **APT28**: Russian state-sponsored group weaponizing Microsoft Office bugs within 3 days of disclosure
-- **Amaranth Dragon**: Chinese APT group linked to APT41, exploiting WinRAR vulnerabilities in Southeast Asian espionage campaigns
-- **Iranian Threat Actors**: Conducting credential theft operations targeting expats, Syrians, and Israelis through spear-phishing
-- **DragonForce Ransomware**: Operating cartel model emphasizing cooperation among ransomware gangs since 2023
-- **DEAD#VAX Campaign**: Sophisticated malware operation deploying AsyncRAT via IPFS-hosted VHD phishing files
-- **GlassWorm Operators**: Self-replicating malware campaign poisoning Open VSX software components with infostealer infections
-- **NGINX Traffic Hijackers**: Threat actors compromising web servers to redirect user traffic through malicious infrastructure
+- **Infy (Prince of Persia)**: Iranian threat group resuming operations with new command-and-control infrastructure after internet blackout
+- **Amaranth Dragon**: Chinese state-sponsored group linked to APT41, conducting espionage campaigns against Southeast Asian government and law enforcement agencies
+- **DragonForce Ransomware**: Organized cartel emphasizing cooperation among ransomware gangs since 2023
+- **DEAD#VAX Campaign**: Sophisticated malware operation deploying AsyncRAT through IPFS-hosted VHD phishing files
+- **Iranian Cyber Operations**: Continued espionage targeting expats, Syrians, and Israelis using credential theft and social engineering
+- **React2Shell Operators**: Threat actors conducting large-scale web traffic hijacking through compromised NGINX servers
