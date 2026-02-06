@@ -1,61 +1,62 @@
 # Exploitation Report
 
-Current threat landscape reveals significant exploitation activity across multiple attack vectors, with critical vulnerabilities being actively exploited in workflow automation platforms, supply chain compromises targeting package repositories, and sophisticated infrastructure hijacking campaigns. The most concerning developments include critical remote code execution flaws in the n8n workflow automation platform (CVE-2026-25049), large-scale supply chain attacks compromising dYdX packages on npm and PyPI repositories, and coordinated web traffic hijacking campaigns targeting NGINX servers. Additional exploitation activities involve weaponized legitimate drivers for EDR evasion, record-setting DDoS attacks, and multiple data breaches affecting major platforms and organizations.
+The current threat landscape reveals several critical active exploitation activities targeting diverse systems and platforms. China-linked threat actors are deploying sophisticated adversary-in-the-middle frameworks to hijack router traffic and deliver malware, while a previously undocumented Asian state-backed group has successfully breached 70 government and critical infrastructure organizations across 37 countries. Additionally, supply chain attacks are targeting legitimate npm and PyPI packages, and a critical workflow automation vulnerability has been discovered that enables arbitrary system command execution. Ransomware operators are leveraging legitimate virtual infrastructure services for stealthy payload delivery, and multiple data breaches have exposed millions of user accounts across various platforms.
 
 ## Active Exploitation Details
 
-### n8n Workflow Automation Platform Remote Code Execution
-- **Description**: Critical security vulnerability in the n8n workflow automation platform that enables execution of arbitrary system commands through malicious workflows
-- **Impact**: Attackers can escape environment confines and gain complete control of the host server, potentially compromising entire infrastructure
-- **Status**: Critical vulnerability with public exploits available, patches released
+### DKnife Adversary-in-the-Middle Framework
+- **Description**: A sophisticated gateway-monitoring and adversary-in-the-middle framework operated by China-nexus threat actors since at least 2019
+- **Impact**: Enables traffic hijacking through compromised routers and facilitates malware delivery to targeted systems
+- **Status**: Actively used in ongoing campaigns with established infrastructure
+
+### Critical n8n Workflow Automation Vulnerability
+- **Description**: A critical security flaw in the n8n workflow automation platform that allows execution of arbitrary system commands through malicious workflows
+- **Impact**: Attackers can achieve complete system compromise and execute arbitrary commands on affected systems
+- **Status**: Recently disclosed as actively exploitable
 - **CVE ID**: CVE-2026-25049
 
-### dYdX Package Supply Chain Compromise
-- **Description**: Supply chain attack targeting legitimate packages on npm and Python Package Index (PyPI) repositories, with compromised versions containing malicious code
-- **Impact**: Deployment of wallet stealers and RAT malware to systems using compromised packages
-- **Status**: Active compromise with malicious packages distributed through official repositories
+### Compromised npm and PyPI Package Supply Chain
+- **Description**: Legitimate packages on npm and Python Package Index repositories have been compromised to distribute malicious versions containing wallet stealers and RAT malware
+- **Impact**: Developers unknowingly install malicious packages, leading to credential theft and system compromise
+- **Status**: Active supply chain attack affecting software development environments
 
-### NGINX Server Traffic Hijacking Campaign
-- **Description**: Large-scale campaign targeting NGINX installations and management panels like Baota (BT) to hijack web traffic through malicious configurations
-- **Impact**: User traffic redirection through attacker-controlled backend infrastructure, potential data theft and manipulation
-- **Status**: Ongoing active campaign with widespread targeting
-
-### EnCase Driver Weaponization for EDR Evasion
-- **Description**: Exploitation of EnCase forensic tool driver with expired digital certificates that Windows still loads due to security gaps
-- **Impact**: Bypassing endpoint detection and response (EDR) systems, enabling persistent access and defense evasion
-- **Status**: Active exploitation leveraging signed but expired certificates
+### EnCase Driver Exploitation for EDR Evasion
+- **Description**: The forensic tool's driver is being weaponized by threat actors to bypass endpoint detection and response systems
+- **Impact**: Enables attackers to disable security controls and maintain persistent access to compromised systems
+- **Status**: Actively exploited despite using expired digital certificates
 
 ## Affected Systems and Products
 
-- **n8n Workflow Automation Platform**: Critical vulnerabilities affecting open-source workflow automation installations
-- **npm and PyPI Package Repositories**: Compromised dYdX packages delivering malware payloads
-- **NGINX Web Servers**: Targeted installations with hijacked configurations for traffic redirection
-- **Windows Systems**: EnCase driver exploitation affecting systems with EDR solutions
-- **Flickr Platform**: Third-party email service vulnerability exposing user data
-- **Substack Newsletter Platform**: Data breach affecting user email addresses and phone numbers
-- **Betterment Investment Platform**: 1.4 million user accounts compromised in January breach
-- **ISPsystem Virtual Machines**: Ransomware operators abusing legitimate VM infrastructure for payload delivery
-- **Zendesk Support Systems**: Unsecured systems being exploited for spam campaigns
-- **Federal Edge Devices**: End-of-life network devices requiring replacement per CISA directive
+- **n8n Workflow Automation Platform**: Critical vulnerability enabling arbitrary command execution
+- **Router Infrastructure**: Targeted by DKnife framework for traffic interception and malware delivery
+- **npm and PyPI Repositories**: Legitimate package repositories compromised for supply chain attacks
+- **EnCase Forensic Tools**: Driver components weaponized for security evasion
+- **Federal Edge Network Devices**: Unsupported devices ordered for removal by CISA due to security risks
+- **Betterment Platform**: 1.4 million accounts compromised in data breach
+- **Substack Newsletter Platform**: User email addresses and phone numbers exposed in breach
+- **Flickr Photo-sharing Service**: Names, emails, and IP addresses potentially exposed through third-party vulnerability
+- **Snapchat Accounts**: Nearly 600 women's accounts compromised for image theft
+- **Spain's Ministry of Science**: IT systems partially shut down following breach claims
+- **La Sapienza University**: IT systems disrupted by cyberattack causing operational disruptions
+- **Conpet Oil Pipeline Operator**: Business systems disrupted by Qilin ransomware attack
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Compromising legitimate package repositories to distribute malware through trusted channels
-- **Configuration Manipulation**: Modifying NGINX server configurations to redirect traffic through malicious infrastructure
-- **Driver Exploitation**: Leveraging signed but expired certificates to bypass security controls and load malicious drivers
-- **Workflow Injection**: Exploiting workflow automation platforms to execute arbitrary system commands
-- **DDoS Amplification**: AISURU/Kimwolf botnet achieving record-setting 31.4 Tbps attacks through coordinated infrastructure
-- **Screensaver Exploitation**: Using .scr file types to deploy malware and remote management tools while bypassing executable controls
-- **Third-Party Service Compromise**: Exploiting vulnerabilities in service providers to access customer data
-- **VM Infrastructure Abuse**: Leveraging legitimate virtual machine services for stealthy malware distribution
+- **Adversary-in-the-Middle Attacks**: Router compromise for traffic interception and malicious payload injection
+- **Supply Chain Poisoning**: Compromise of legitimate software repositories to distribute malware
+- **Bring Your Own Vulnerable Driver (BYOVD)**: Exploitation of signed but vulnerable drivers to bypass security controls
+- **Virtual Machine Abuse**: Ransomware operators using ISPsystem VMs for stealthy payload hosting and delivery
+- **Spear-phishing Campaigns**: Iranian threat actors targeting Middle Eastern expatriates, Syrians, and Israelis
+- **Record-setting DDoS Attacks**: AISURU/Kimwolf botnet launching 31.4 Tbps attacks
+- **Browser-based Attacks**: Complete attack chains executed within browsers to evade traditional security tools
+- **Zendesk Platform Abuse**: Automated spam generation through unsecured support systems
 
 ## Threat Actor Activities
 
-- **Supply Chain Attackers**: Targeting npm and PyPI repositories with compromised dYdX packages for cryptocurrency theft and remote access
-- **NGINX Campaign Operators**: Conducting large-scale web traffic hijacking through compromised server configurations
-- **AISURU/Kimwolf Botnet**: Launching record-breaking 31.4 Tbps DDoS attacks lasting 35 seconds
-- **Ransomware Groups**: Utilizing ISPsystem VMs for stealthy payload delivery and forming coordinated cartels for enhanced operations
-- **Infy/Prince of Persia Group**: Iranian threat actors resuming operations with new C2 infrastructure following internet blackouts
-- **DragonForce Ransomware**: Implementing organized crime-style coordination and cooperation models among ransomware gangs
-- **EDR Bypass Specialists**: Weaponizing legitimate forensic tools for persistent access and defense evasion
-- **Iranian Cyber Operations**: Continuing surveillance operations targeting expats, Syrians, and Israelis despite domestic protests
+- **China-linked Groups**: Operating DKnife framework for sustained router compromise and traffic manipulation campaigns since 2019
+- **TGR-STA-1030**: Asian state-backed group conducting extensive espionage operations against 70 government and critical infrastructure targets across 37 countries
+- **Infy (Prince of Persia)**: Iranian threat group resuming operations with new command-and-control infrastructure following internet blackout, targeting regional dissidents and opposition figures
+- **dYdX Package Attackers**: Unknown actors compromising cryptocurrency-related packages to distribute wallet-stealing malware
+- **Qilin Ransomware Group**: Targeting critical infrastructure including Romanian oil pipeline operators
+- **AISURU/Kimwolf Botnet Operators**: Launching record-breaking distributed denial-of-service attacks exceeding 31 Tbps
+- **EDR Killer Groups**: Actively weaponizing legitimate forensic drivers to evade endpoint detection systems
