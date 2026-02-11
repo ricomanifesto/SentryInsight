@@ -1,47 +1,50 @@
 # Exploitation Report
 
-Microsoft's February 2026 Patch Tuesday reveals a critical security landscape with six actively exploited zero-day vulnerabilities being leveraged by attackers in the wild. Concurrently, threat actors are deploying sophisticated attack campaigns including the SSHStalker botnet targeting Linux systems through legacy kernel exploits, North Korean groups using AI-generated lures for cryptocurrency theft, and the emergence of Reynolds ransomware employing BYOVD techniques to disable security tools. The exploitation activity spans multiple platforms and demonstrates an escalation in both sophistication and targeting precision across Windows, Linux, and macOS environments.
+Microsoft has patched six actively exploited zero-day vulnerabilities as part of its February 2026 Patch Tuesday update, addressing 59 total security flaws across its software portfolio. Simultaneously, multiple sophisticated threat campaigns are actively targeting organizations through advanced malware operations, including North Korean-linked groups using AI-generated content to target cryptocurrency organizations, the emergence of new Linux botnets exploiting legacy kernel vulnerabilities, and surge in information stealer campaigns leveraging social engineering techniques. The threat landscape is further complicated by IoT botnet activities disrupting anonymity networks and cross-platform remote access trojan campaigns targeting critical infrastructure.
 
 ## Active Exploitation Details
 
 ### Microsoft Zero-Day Vulnerabilities
-- **Description**: Six zero-day vulnerabilities across Microsoft's software ecosystem, with three specifically identified as security feature bypass flaws
-- **Impact**: Attackers can circumvent built-in security protections in multiple Microsoft products, enabling unauthorized access and privilege escalation
-- **Status**: Actively exploited in the wild; patches released in February 2026 Patch Tuesday update
+- **Description**: Six zero-day vulnerabilities actively exploited in the wild, with three identified as security feature bypass flaws
+- **Impact**: Attackers can bypass built-in security protections across multiple Microsoft products, potentially leading to system compromise and privilege escalation
+- **Status**: Patches released in February 2026 Patch Tuesday update covering 59 total vulnerabilities
 
-### SSHStalker Botnet Linux Exploits
-- **Description**: Linux botnet operation exploiting legacy kernel vulnerabilities to compromise systems
-- **Impact**: Complete system compromise allowing attackers to establish persistence and use IRC-based command-and-control infrastructure
-- **Status**: Active exploitation targeting Linux systems with outdated kernels
+### Legacy Linux Kernel Exploits
+- **Description**: SSHStalker botnet leverages legacy Linux kernel vulnerabilities to compromise systems
+- **Impact**: Remote code execution and system compromise leading to botnet enrollment
+- **Status**: Ongoing exploitation targeting Linux systems with outdated kernels
 
-### Fortinet FortiClientEMS SQL Injection
-- **Description**: Critical SQL injection vulnerability enabling unauthenticated remote code execution
-- **Impact**: Complete system compromise without authentication requirements
-- **Status**: Recently patched by Fortinet; exploitation potential remains high for unpatched systems
-- **CVE ID**: CVE-2026 (specific number referenced but not fully disclosed in articles)
+### SolarWinds Web Help Desk Vulnerabilities
+- **Description**: Public-facing SolarWinds WHD instances being actively targeted by attackers
+- **Impact**: Unauthorized access to help desk systems and potential lateral movement
+- **Status**: Organizations with exposed instances identified as prime targets
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: All versions affected by six zero-day vulnerabilities, including Windows 10 and Windows 11 systems
-- **Microsoft 365**: Various components affected by security feature bypass vulnerabilities
+- **Microsoft Windows**: Windows 10, Windows 11 versions affected by six zero-day vulnerabilities and 53 additional security flaws
+- **Microsoft 365**: Admin center experiencing outages affecting business and enterprise subscriptions in North America
 - **Linux Systems**: Legacy kernel versions targeted by SSHStalker botnet operations
-- **Fortinet FortiClientEMS**: Enterprise endpoint management systems vulnerable to SQL injection attacks
-- **macOS and Windows**: Cryptocurrency sector targets of North Korean UNC1069 operations
-- **SolarWinds Web Help Desk**: Publicly exposed instances becoming prime attack targets
+- **SolarWinds Web Help Desk**: Public-facing instances at high risk of compromise
+- **I2P Network**: Anonymity network disrupted by Kimwolf IoT botnet activities
+- **Cryptocurrency Platforms**: Windows and macOS systems in cryptocurrency sector targeted by North Korean threat actors
 
 ## Attack Vectors and Techniques
 
-- **IRC-Based Command and Control**: SSHStalker botnet uses Internet Relay Chat protocol for C2 communications, representing a return to legacy protocols
-- **AI-Generated Social Engineering**: North Korean threat actors creating deepfake videos and AI-generated content to enhance phishing campaigns
-- **ClickFix Technique**: Social engineering method used to trick users into executing malicious code
-- **BYOVD (Bring Your Own Vulnerable Driver)**: Reynolds ransomware embeds vulnerable drivers to disable EDR security tools
-- **Security Feature Bypass**: Three zero-days specifically designed to circumvent Microsoft's built-in security protections
-- **Unauthenticated Remote Code Execution**: Critical Fortinet vulnerability allowing code execution without authentication
+- **Social Engineering with ClickFix**: LummaStealer campaigns using fake browser fixes to deliver CastleLoader malware
+- **AI-Generated Content**: North Korean actors using AI-generated videos as lures in cryptocurrency targeting campaigns
+- **IRC Command-and-Control**: SSHStalker botnet using Internet Relay Chat for C2 communications
+- **Cross-Platform RAT Deployment**: APT36 and SideCopy deploying remote access trojans across Windows and Linux environments
+- **Fake Software Distribution**: Malicious 7-Zip websites distributing trojanized installers with proxy tools
+- **LinkedIn Impersonation**: DPRK operatives using compromised LinkedIn accounts to apply for remote IT positions
+- **Legacy Protocol Exploitation**: Continued exploitation of Telnet traffic, particularly prevalent in Asian regions
+- **MFA Bypass Techniques**: ZeroDayRAT implementing stalkerware capabilities to bypass multi-factor authentication
 
 ## Threat Actor Activities
 
-- **UNC1069 (North Korean)**: Conducting sophisticated campaigns against cryptocurrency organizations using AI-generated lures and targeting both Windows and macOS systems
-- **DPRK IT Workers**: Impersonating professionals on LinkedIn using real accounts to infiltrate companies and secure remote positions
-- **SSHStalker Operators**: Deploying Linux botnet infrastructure targeting systems with legacy kernel vulnerabilities through SSH-based attacks
-- **Reynolds Ransomware Group**: Emerging ransomware family incorporating advanced evasion techniques including BYOVD drivers for EDR bypass
-- **Cryptocurrency-Focused Attackers**: Multiple threat groups specifically targeting the cryptocurrency sector with tailored malware and social engineering campaigns
+- **APT36 and SideCopy**: Targeting Indian defense sector and government organizations with cross-platform RAT campaigns
+- **UNC1069 (North Korea-linked)**: Sophisticated cryptocurrency sector targeting using AI lures and multi-platform malware
+- **SSHStalker Operators**: Linux botnet campaign using IRC protocol for command-and-control operations
+- **Kimwolf Botnet**: Large-scale IoT botnet disrupting I2P anonymity network infrastructure
+- **DPRK IT Workers**: Using compromised LinkedIn profiles to infiltrate companies through fake job applications
+- **LummaStealer Distributors**: Social engineering campaigns leveraging CastleLoader malware for information theft
+- **ZeroDayRAT Operators**: Commercial spyware operations targeting individuals with stalkerware capabilities
