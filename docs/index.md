@@ -1,54 +1,51 @@
 # Exploitation Report
 
-The current threat landscape reveals significant exploitation activity across multiple platforms, with Microsoft addressing six actively exploited zero-day vulnerabilities in their February 2026 Patch Tuesday release. Concurrently, Apple has patched a zero-day flaw that was leveraged in highly sophisticated targeted attacks against specific individuals. The exploitation landscape is further complicated by supply chain attacks targeting Microsoft Outlook add-ins, sophisticated North Korean campaigns against cryptocurrency organizations using AI-generated content, and emerging botnet operations targeting Linux systems with legacy kernel exploits.
+Current exploitation activity reveals a concerning surge in sophisticated attacks targeting multiple platforms and technologies. Apple has addressed a zero-day vulnerability exploited in "extremely sophisticated attacks" against specific individuals, while Microsoft patched six actively exploited zero-day vulnerabilities as part of their February 2026 Patch Tuesday release. The threat landscape also shows significant activity from state-sponsored actors, particularly North Korean groups like UNC1069 targeting cryptocurrency organizations using AI-enhanced social engineering techniques. Additionally, the emergence of new botnets like SSHStalker exploiting legacy Linux kernel vulnerabilities, combined with supply chain attacks involving malicious Outlook add-ins and trojanized software distributions, demonstrates the evolving complexity of current cyber threats.
 
 ## Active Exploitation Details
 
-### Microsoft Zero-Day Vulnerabilities
-- **Description**: Six zero-day vulnerabilities across Microsoft products that have been actively exploited in the wild, including three security feature bypass flaws
-- **Impact**: Attackers can bypass built-in security protections in multiple Microsoft products, potentially leading to unauthorized access and system compromise
-- **Status**: Patched in Microsoft's February 2026 Patch Tuesday release addressing 58 total flaws
-
 ### Apple Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability exploited in extremely sophisticated attacks targeting specific individuals
-- **Impact**: Enables attackers to compromise Apple devices through highly targeted exploitation
-- **Status**: Patched by Apple with security updates released to address the vulnerability
+- **Description**: A zero-day vulnerability in Apple products that was exploited in extremely sophisticated attacks targeting specific individuals
+- **Impact**: Enables attackers to compromise Apple devices through targeted exploitation
+- **Status**: Actively exploited in the wild, security updates have been released by Apple
+
+### Microsoft Zero-Day Vulnerabilities
+- **Description**: Six zero-day vulnerabilities across Microsoft products, including three security feature bypass flaws that allow attackers to circumvent built-in protections
+- **Impact**: Attackers can bypass security protections in multiple Microsoft products and gain unauthorized access to systems
+- **Status**: Actively exploited in the wild, patches released in February 2026 Patch Tuesday
 
 ### Windows 11 Notepad Remote Code Execution
-- **Description**: A remote code execution vulnerability in Windows 11 Notepad that allows attackers to execute local or remote programs through specially crafted Markdown links
-- **Impact**: Attackers can achieve code execution by tricking users into clicking malicious Markdown links
-- **Status**: Fixed by Microsoft
+- **Description**: A vulnerability in Windows 11 Notepad that allows remote code execution through specially crafted Markdown links
+- **Impact**: Attackers can execute local or remote programs by tricking users into clicking malicious Markdown links
+- **Status**: Fixed by Microsoft, previously exploitable through social engineering
 
-### SSHStalker Botnet Kernel Exploits
-- **Description**: New botnet operation targeting Linux systems using legacy kernel exploits for initial access
-- **Impact**: Compromised Linux systems are incorporated into a botnet controlled via IRC protocol
-- **Status**: Active exploitation ongoing against vulnerable Linux systems
+### Legacy Linux Kernel Exploits
+- **Description**: Multiple legacy kernel vulnerabilities being exploited by the SSHStalker botnet to compromise Linux systems
+- **Impact**: Enables botnet operators to gain control of Linux systems and establish persistent access
+- **Status**: Actively exploited by SSHStalker botnet operations
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows 10 and Windows 11 systems affected by zero-day vulnerabilities and Notepad flaw
-- **Microsoft Outlook**: Outlook add-ins compromised in supply chain attacks affecting over 4,000 accounts
-- **Apple Devices**: Unspecified Apple products targeted in sophisticated zero-day attacks
-- **Linux Systems**: Various Linux distributions vulnerable to legacy kernel exploits used by SSHStalker botnet
-- **SolarWinds Web Help Desk**: Instances exposed to public internet becoming prime targets for attacks
-- **Cryptocurrency Platforms**: Windows and macOS systems in cryptocurrency organizations targeted by North Korean actors
+- **Apple Products**: Specific Apple devices and software affected by zero-day exploitation
+- **Microsoft Windows**: Windows 11 Notepad application vulnerable to RCE attacks
+- **Microsoft Products**: Multiple Microsoft software products affected by six zero-day vulnerabilities
+- **Linux Systems**: Legacy Linux kernels susceptible to SSHStalker botnet exploitation
+- **Microsoft Outlook**: AgreeTo add-in compromised to steal over 4,000 Microsoft account credentials
+- **7-Zip Software**: Malicious distribution sites providing trojanized installers
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Technique**: Social engineering method used to deliver malware through fake error messages and prompts
-- **Supply Chain Attacks**: Compromised legitimate software add-ins and installers to distribute malware
-- **AI-Generated Content**: Use of deepfakes and AI-generated videos for social engineering in cryptocurrency targeting
-- **Markdown Link Exploitation**: Crafted Markdown links in Notepad to achieve remote code execution
-- **IRC Command and Control**: Traditional IRC protocol used for botnet communication and control
-- **Phishing Automation**: Tools like JokerOTP used to intercept multi-factor authentication codes
-- **Legitimate Tool Abuse**: Employee monitoring software and remote support tools used for persistence
+- **ClickFix Technique**: Social engineering method used by multiple threat actors to deliver malware through fake error messages and solutions
+- **AI-Generated Content**: North Korean actors using deepfakes and AI-generated videos to enhance social engineering campaigns
+- **Supply Chain Attacks**: Compromising legitimate software distribution channels and Microsoft Store add-ins
+- **IRC Command and Control**: SSHStalker botnet using old-school IRC protocols for C2 communications
+- **Markdown Link Exploitation**: Weaponizing Windows 11 Notepad's Markdown functionality for code execution
+- **Legitimate Tool Abuse**: Crazy ransomware gang abusing employee monitoring software and SimpleHelp remote support tools
 
 ## Threat Actor Activities
 
-- **UNC1069 (North Korea-linked)**: Targeting cryptocurrency organizations with AI-generated lures, deepfakes, and custom malware for both Windows and macOS systems
-- **APT36**: Cross-platform campaigns against Indian defense sector and government organizations using remote access trojans
-- **SideCopy**: Coordinated attacks alongside APT36 targeting Indian entities with multi-platform malware
-- **Crazy Ransomware Gang**: Abusing legitimate employee monitoring tools and SimpleHelp remote support software for persistence and evasion
-- **SSHStalker Operators**: New botnet campaign targeting Linux systems with IRC-based command and control infrastructure
-- **Microsoft Outlook Add-in Attackers**: Supply chain compromise of AgreeTo add-in resulting in theft of over 4,000 Microsoft account credentials
-- **LummaStealer Campaigns**: Surge in infections driven by CastleLoader malware distribution using ClickFix social engineering techniques
+- **UNC1069 (North Korea)**: Targeting cryptocurrency organizations using AI-enhanced social engineering, deepfakes, and ClickFix techniques to steal sensitive data from Windows and macOS systems
+- **APT36 and SideCopy**: Launching cross-platform RAT campaigns against Indian defense sector and government organizations, compromising both Windows and Linux environments
+- **SSHStalker Operators**: Operating a new Linux botnet using IRC for command and control, exploiting legacy kernel vulnerabilities
+- **Crazy Ransomware Gang**: Abusing legitimate employee monitoring tools to maintain persistence in corporate networks and evade detection
+- **Supply Chain Attackers**: Compromising Microsoft Store Outlook add-ins and creating malicious software distribution sites for popular tools like 7-Zip
