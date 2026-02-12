@@ -1,54 +1,49 @@
 # Exploitation Report
 
-Microsoft has addressed a significant wave of active exploitation with its February 2026 Patch Tuesday, releasing fixes for 59 vulnerabilities including six actively exploited zero-day vulnerabilities. Three of these zero-days are security feature bypass flaws that enable attackers to circumvent built-in protections across multiple Microsoft products. Concurrently, multiple threat actors are leveraging sophisticated social engineering campaigns, with North Korean groups targeting cryptocurrency organizations through AI-generated lures and the ClickFix technique, while ransomware groups abuse legitimate remote monitoring tools to maintain persistent access in corporate networks.
+The cybersecurity landscape is currently experiencing significant exploitation activity, with Microsoft releasing patches for six actively exploited zero-day vulnerabilities in their February 2026 Patch Tuesday update. Concurrently, threat actors are leveraging sophisticated social engineering techniques, including AI-generated content and the ClickFix method, to deliver malware across multiple platforms. Notable campaigns include North Korean UNC1069 targeting cryptocurrency firms with cross-platform malware, supply chain attacks through compromised Outlook add-ins that have stolen over 4,000 Microsoft credentials, and the emergence of new botnets like SSHStalker exploiting legacy Linux kernel vulnerabilities.
 
 ## Active Exploitation Details
 
 ### Microsoft Zero-Day Vulnerabilities
-- **Description**: Six zero-day vulnerabilities in Microsoft Windows and other software products that have been actively exploited in the wild
-- **Impact**: Three are security feature bypass flaws allowing attackers to circumvent built-in security protections, with additional vulnerabilities providing various attack capabilities
-- **Status**: Patches released in February 2026 Patch Tuesday update
+- **Description**: Six zero-day vulnerabilities across Microsoft's software ecosystem, including three security feature bypass flaws and multiple other critical vulnerabilities
+- **Impact**: Attackers can bypass built-in security protections in Microsoft products and potentially achieve elevated privileges or system compromise
+- **Status**: Actively exploited in the wild; patches released in February 2026 Patch Tuesday
 
-### SSHStalker Linux Botnet Exploits
-- **Description**: A new botnet operation targeting Linux systems using legacy kernel exploits to gain unauthorized access
-- **Impact**: Complete system compromise allowing remote control through IRC command-and-control infrastructure
-- **Status**: Active exploitation ongoing, using old-school IRC protocols for stealth
+### Windows 11 Notepad Remote Code Execution
+- **Description**: A vulnerability in Windows 11 Notepad that allows remote code execution through specially crafted Markdown links
+- **Impact**: Attackers can execute local or remote programs when users click malicious Markdown links
+- **Status**: Fixed by Microsoft in recent updates
 
-### JokerOTP MFA Bypass Tool
-- **Description**: Phishing automation tool designed to intercept one-time passwords and bypass multi-factor authentication
-- **Impact**: Account takeover through MFA circumvention, enabling unauthorized access to protected accounts
-- **Status**: Tool seller arrested by Netherlands Police, but tool may still be in circulation
+### Legacy Linux Kernel Exploits
+- **Description**: Multiple legacy kernel vulnerabilities being exploited by the SSHStalker botnet to compromise Linux systems
+- **Impact**: Complete system compromise allowing botnet enrollment and remote control via IRC communications
+- **Status**: Actively exploited against unpatched legacy systems
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: All supported versions affected by six zero-day vulnerabilities
-- **Microsoft Software Suite**: Various Microsoft products impacted by security feature bypass vulnerabilities
-- **Linux Systems**: Targeted by SSHStalker botnet through legacy kernel exploits
-- **macOS Systems**: Targeted by North Korean threat actors with new malware variants
-- **Employee Monitoring Software**: Abused by Crazy ransomware gang for persistence
-- **SimpleHelp Remote Support Tool**: Leveraged by ransomware operators for network access
-- **Cryptocurrency Platforms**: Primary targets for North Korean UNC1069 operations
-- **I2P Anonymity Network**: Disrupted by Kimwolf IoT botnet operations
-- **7-Zip Distribution**: Fake websites distributing trojanized installers
-- **SolarWinds Web Help Desk**: Exposed instances targeted by attackers
+- **Microsoft Windows**: Windows 10 and Windows 11 systems affected by zero-day vulnerabilities and Notepad RCE flaw
+- **Microsoft Outlook**: Email clients compromised through malicious add-ins distributed via Microsoft Store
+- **Linux Systems**: Legacy kernel versions vulnerable to SSHStalker botnet exploitation
+- **macOS Systems**: Targeted by North Korean UNC1069 campaigns with custom malware
+- **Cryptocurrency Platforms**: Web3 companies and crypto firms targeted by sophisticated social engineering campaigns
+- **SolarWinds Web Help Desk**: Internet-exposed instances targeted for exploitation
+- **7-Zip Users**: Victims of fake distribution sites serving trojanized installers
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: Used to deliver CastleLoader malware leading to LummaStealer infections
-- **AI-Generated Video Lures**: North Korean actors using sophisticated deepfake content to target cryptocurrency sector
-- **LinkedIn Impersonation**: DPRK operatives using real LinkedIn profiles to infiltrate companies for remote IT positions
-- **IRC Command-and-Control**: SSHStalker botnet using traditional IRC protocols to evade modern detection systems
-- **Legitimate Tool Abuse**: Ransomware groups leveraging employee monitoring and remote support tools for stealth
-- **Fake Software Distribution**: Malicious websites distributing trojanized versions of popular software like 7-Zip
-- **MFA Bypass Automation**: JokerOTP tool automating the interception of one-time passwords
-- **Cross-Platform RAT Deployment**: APT36 and SideCopy targeting both Windows and Linux environments simultaneously
+- **ClickFix Social Engineering**: Malicious campaigns using fake error messages to trick users into executing malware payloads
+- **AI-Generated Content**: Use of deepfakes and AI-generated videos in social engineering campaigns targeting crypto sector
+- **Supply Chain Attacks**: Compromise of legitimate software distribution channels and Microsoft Store add-ins
+- **IRC Command and Control**: Old-school IRC protocol used by SSHStalker botnet for stealthy communications
+- **Markdown Link Exploitation**: Specially crafted Markdown links used to trigger code execution in Windows Notepad
+- **Legitimate Tool Abuse**: Employee monitoring software and remote support tools used for persistence and evasion
+- **MFA Bypass Techniques**: ZeroDayRAT and similar tools capable of intercepting SMS codes and bypassing multi-factor authentication
 
 ## Threat Actor Activities
 
-- **Crazy Ransomware Gang**: Abusing legitimate employee monitoring software and SimpleHelp tools to maintain persistence in corporate networks while evading detection
-- **North Korean UNC1069**: Conducting sophisticated campaigns against cryptocurrency organizations using AI-generated video content and targeting both Windows and macOS systems for data theft
-- **SSHStalker Operators**: Managing a new Linux-focused botnet using IRC communication protocols to control compromised systems
-- **APT36 and SideCopy**: Launching coordinated cross-platform remote access trojan campaigns specifically targeting Indian defense sector and government-aligned organizations
-- **Kimwolf Botnet Controllers**: Operating a massive IoT botnet that has been disrupting the I2P anonymity network infrastructure
-- **JokerOTP Distributor**: Selling access to MFA bypass tools before arrest by Netherlands authorities
-- **DPRK IT Worker Network**: Using impersonated LinkedIn profiles of real professionals to gain remote employment and infiltrate target organizations
+- **UNC1069 (North Korea)**: Conducting cross-platform campaigns against cryptocurrency organizations using AI-generated lures and custom macOS/Windows malware
+- **APT36 and SideCopy**: Launching coordinated campaigns against Indian defense and government entities with cross-platform remote access trojans
+- **Crazy Ransomware Gang**: Abusing legitimate employee monitoring tools and remote support software for persistence and network preparation
+- **SSHStalker Operators**: Deploying Linux botnet using IRC communications and exploiting legacy kernel vulnerabilities
+- **JokerOTP Sellers**: Cybercriminals offering MFA bypass tools for credential theft and account takeover attacks
+- **Supply Chain Attackers**: Compromising legitimate software distribution channels including Microsoft Store add-ins and popular archive tools
