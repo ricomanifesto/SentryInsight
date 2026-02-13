@@ -1,62 +1,60 @@
 # Exploitation Report
 
-Current threat landscape shows intense exploitation activity across multiple vectors, with critical vulnerabilities being actively targeted in sophisticated attacks. Apple has addressed a zero-day vulnerability exploited in "extremely sophisticated" attacks targeting specific individuals, while BeyondTrust Remote Support and Privileged Remote Access products are facing active exploitation of a critical pre-authentication remote code execution flaw with a CVSS score of 9.9. Ivanti EPMM zero-day vulnerabilities are experiencing widespread exploitation attempts, with 83% of attacks traced to a single IP address on bulletproof hosting infrastructure. Additional threats include malicious Chrome extensions stealing business data, North Korean threat actors leveraging AI for reconnaissance and attacks, and various supply chain compromises targeting npm and PyPI repositories.
+Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms, with Apple addressing an exploited zero-day used in "extremely sophisticated attacks" targeting specific individuals. Meanwhile, CISA has flagged a Microsoft Configuration Manager vulnerability as being exploited in the wild, and security researchers have confirmed active exploitation of a critical BeyondTrust remote code execution flaw with a CVSS score of 9.9. Additionally, Ivanti EPMM zero-day vulnerabilities are experiencing an "exploit frenzy" with 83% of exploitation attempts traced to bulletproof hosting infrastructure. The threat landscape is further complicated by state-backed actors leveraging AI tools for reconnaissance and attack support, while malicious browser extensions and supply chain attacks continue to target enterprise environments.
 
 ## Active Exploitation Details
 
 ### Apple Zero-Day Vulnerability
-- **Description**: A zero-day vulnerability affecting iOS, iPadOS, macOS Tahoe, tvOS, watchOS, and visionOS systems that enables sophisticated cyber attacks
-- **Impact**: Allows attackers to conduct "extremely sophisticated attacks" targeting specific individuals
-- **Status**: Patched by Apple in recent security updates; was actively exploited in the wild
+- **Description**: A zero-day flaw affecting iOS, iPadOS, macOS Tahoe, tvOS, watchOS, and visionOS systems
+- **Impact**: Being exploited in extremely sophisticated cyber attacks targeting specific individuals
+- **Status**: Patched by Apple in recent security updates across all affected platforms
 
-### BeyondTrust Critical RCE Vulnerability
-- **Description**: A critical pre-authentication remote code execution vulnerability in BeyondTrust Remote Support (RS) and Privileged Remote Access (PRA) appliances
+### Microsoft Configuration Manager (SCCM) Vulnerability
+- **Description**: Critical vulnerability in Microsoft Configuration Manager that was patched in October 2024
+- **Impact**: Remote code execution capabilities allowing attackers to compromise enterprise systems
+- **Status**: Now being exploited in attacks according to CISA, which has ordered federal agencies to secure their systems
+
+### BeyondTrust Remote Support Critical Flaw
+- **Description**: Critical pre-authentication remote code execution vulnerability affecting BeyondTrust Remote Support (RS) and Privileged Remote Access (PRA) appliances
 - **Impact**: Allows attackers to achieve remote code execution without authentication
-- **Status**: Currently being exploited in attacks following public PoC release; patches available
+- **Status**: Currently being exploited in the wild after proof-of-concept code was published online, CVSS score of 9.9
 
 ### Ivanti EPMM Zero-Day Vulnerabilities
-- **Description**: Multiple zero-day security flaws in Ivanti Endpoint Manager Mobile (EPMM) products
-- **Impact**: Enables unauthorized system access and control
-- **Status**: Active exploitation observed with 83% of attacks originating from single IP address on bulletproof hosting infrastructure
+- **Description**: Multiple zero-day vulnerabilities affecting Ivanti Endpoint Manager Mobile (EPMM)
+- **Impact**: Enabling attackers to compromise mobile device management systems
+- **Status**: Under active exploitation with concentrated attack activity from bulletproof hosting infrastructure
 
-### Windows 11 Notepad RCE Vulnerability
-- **Description**: Remote code execution vulnerability in Windows 11 Notepad that exploits Markdown link processing
-- **Impact**: Allows execution of local or remote programs when users click specially crafted Markdown links
-- **Status**: Patched by Microsoft; vulnerability allowed silent file execution
-
-### WordPress WPvivid Plugin Critical Vulnerability
-- **Description**: Critical remote code execution vulnerability in WPvivid Backup & Migration plugin
-- **Impact**: Enables arbitrary file upload and remote code execution on affected WordPress sites
-- **Status**: Affects over 900,000 installations; patch status unclear
+### Windows 11 Notepad Vulnerability
+- **Description**: Remote code execution vulnerability in Windows 11 Notepad allowing execution via specially crafted Markdown links
+- **Impact**: Attackers can execute local or remote programs by tricking users into clicking malicious Markdown links
+- **Status**: Recently patched by Microsoft
 
 ## Affected Systems and Products
 
-- **Apple Devices**: iOS, iPadOS, macOS Tahoe, tvOS, watchOS, and visionOS systems affected by zero-day vulnerability
-- **BeyondTrust Products**: Remote Support (RS) and Privileged Remote Access (PRA) appliances with critical RCE flaw
-- **Ivanti EPMM**: Endpoint Manager Mobile products experiencing widespread zero-day exploitation
-- **Windows 11**: Notepad application vulnerable to RCE via Markdown link processing
-- **WordPress Sites**: Over 900,000 installations using WPvivid Backup & Migration plugin at risk
-- **Chrome Extensions**: Over 300,000 users affected by 30 malicious AI-themed extensions
-- **Google Chrome**: Browser extensions marketplace compromised with credential-stealing malware
-- **npm/PyPI**: Package repositories targeted with malicious packages in supply chain attacks
+- **Apple Devices**: iOS, iPadOS, macOS Tahoe, tvOS, watchOS, and visionOS systems
+- **Microsoft Configuration Manager**: Enterprise configuration management systems patched in October 2024
+- **BeyondTrust Products**: Remote Support (RS) and Privileged Remote Access (PRA) appliances
+- **Ivanti EPMM**: Endpoint Manager Mobile systems in enterprise environments
+- **Windows 11 Notepad**: Systems running Windows 11 with Notepad application
+- **WordPress Sites**: Over 900,000 websites using WPvivid Backup & Migration plugin vulnerable to critical RCE
+- **Chrome Browser**: Extensions marketplace with malicious AI-themed extensions affecting over 300,000 users
+- **npm and PyPI**: Package repositories targeted with malicious packages in supply chain attacks
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Sophisticated targeting of Apple devices and Ivanti EPMM systems
-- **Pre-Authentication RCE**: BeyondTrust appliances compromised without requiring credentials
-- **Malicious Browser Extensions**: AI-themed Chrome extensions stealing business data, credentials, and browsing history
-- **Supply Chain Attacks**: Malicious packages planted in npm and PyPI repositories by North Korean actors
-- **Social Engineering**: Fake recruitment campaigns and AI application lures used for malware distribution
-- **AI-Assisted Reconnaissance**: North Korean threat actors using Google Gemini AI for target reconnaissance
-- **Markdown Link Exploitation**: Windows 11 Notepad vulnerability enabling silent program execution
-- **Bulletproof Hosting**: Coordinated exploitation campaigns using resilient hosting infrastructure
+- **Zero-Day Exploitation**: Sophisticated attacks targeting high-value individuals using previously unknown vulnerabilities
+- **Pre-Authentication RCE**: BeyondTrust vulnerability allows remote code execution without requiring authentication
+- **Social Engineering via AI Apps**: AMOS infostealer targeting macOS users through popular AI applications
+- **Malicious Browser Extensions**: Chrome extensions masquerading as AI assistants to steal credentials and business data
+- **Supply Chain Attacks**: Lazarus group planting malicious packages in npm and PyPI ecosystems using fake recruitment themes
+- **Markdown Link Exploitation**: Windows 11 Notepad vulnerability exploited through specially crafted Markdown links
+- **Bulletproof Hosting**: 83% of Ivanti EPMM exploitation attempts originating from a single IP on bulletproof hosting infrastructure
 
 ## Threat Actor Activities
 
-- **UNC2970 (North Korea)**: Using Google Gemini AI for reconnaissance and attack support against various targets
-- **UNC1069 (North Korea)**: Focusing on cryptocurrency firms using AI, deepfakes, and legitimate platforms for attacks
-- **Lazarus Group (North Korea)**: Orchestrating fake recruitment campaigns with malicious packages in npm and PyPI ecosystems
-- **Qilin Ransomware Gang**: Successfully compromised Romania's oil pipeline operator Conpet S.A. and stole company data
+- **North Korea-linked UNC2970**: Using Google's Gemini AI for reconnaissance on targets and attack support activities
+- **Lazarus Group**: Orchestrating fake recruitment campaigns to plant malicious packages in npm and PyPI repositories
+- **Qilin Ransomware Gang**: Confirmed data theft from Romania's national oil pipeline operator Conpet S.A.
 - **Green Blood Group**: Breached Senegalese national biometric database exposing personal records of nearly 20 million residents
-- **Unknown Actors**: Conducting coordinated exploitation of Ivanti EPMM vulnerabilities from bulletproof hosting infrastructure
-- **Chrome Extension Attackers**: Deploying 30 malicious AI-themed extensions targeting business credentials and email content
+- **State-Backed Hackers**: Multiple groups leveraging AI tools across all attack stages for enhanced operational capabilities
+- **Cybercriminal Groups**: Deploying AMOS infostealer through AI app marketplaces and using malicious Chrome extensions for credential harvesting
