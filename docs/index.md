@@ -1,58 +1,63 @@
 # Exploitation Report
 
-Critical exploitation activity is currently dominated by several high-impact vulnerabilities being actively exploited in the wild. Most notably, a critical Microsoft Configuration Manager (SCCM) vulnerability has been flagged by CISA as exploited in attacks, prompting federal agencies to secure their systems. Additionally, a CVSS 9.9 BeyondTrust remote code execution flaw in Remote Support and Privileged Remote Access products is under active exploitation following public proof-of-concept releases. Nation-state actors from China, Iran, Russia, and North Korea are conducting coordinated operations against the defense industrial base, burning numerous zero-day vulnerabilities in edge devices. Meanwhile, threat actors are leveraging new attack vectors including malicious Chrome extensions, supply chain compromises through npm and PyPI repositories, and sophisticated malware campaigns targeting Ukrainian organizations and technology sectors.
+Critical exploitation activity is currently targeting enterprise infrastructure and consumer applications through multiple active attack campaigns. Nation-state actors from China, Iran, Russia, and North Korea are conducting coordinated operations against defense industrial base organizations, leveraging dozens of zero-day vulnerabilities in edge devices. Simultaneously, critical vulnerabilities in Microsoft Configuration Manager and BeyondTrust remote access products are being actively exploited in the wild, while threat actors abuse legitimate platforms like Claude AI artifacts and malicious browser extensions to deploy infostealers targeting both Windows and macOS users.
 
 ## Active Exploitation Details
 
-### Microsoft Configuration Manager (SCCM) Critical Vulnerability
-- **Description**: A critical vulnerability in Microsoft Configuration Manager that was patched in October 2024
-- **Impact**: Allows attackers to gain unauthorized access to enterprise systems and potentially achieve remote code execution
-- **Status**: Currently being exploited in attacks, CISA has ordered federal agencies to secure their systems
+### Microsoft Configuration Manager Remote Code Execution Vulnerability
+- **Description**: A critical vulnerability in Microsoft System Center Configuration Manager (SCCM) that allows remote code execution
+- **Impact**: Attackers can execute arbitrary code remotely on vulnerable SCCM systems, potentially gaining full control over enterprise configuration management infrastructure
+- **Status**: Patched in October 2024, now actively exploited in attacks with CISA ordering federal agencies to secure their systems
 
-### BeyondTrust Remote Code Execution Vulnerability
-- **Description**: A critical pre-authentication remote code execution flaw affecting BeyondTrust Remote Support (RS) and Privileged Remote Access (PRA) products
-- **Impact**: Attackers can achieve remote code execution without authentication on affected appliances
-- **Status**: CVSS score of 9.9, actively exploited in the wild after proof-of-concept publication
+### BeyondTrust Remote Support Critical RCE Vulnerability
+- **Description**: A critical pre-authentication remote code execution vulnerability affecting BeyondTrust Remote Support (RS) and Privileged Remote Access (PRA) appliances with CVSS score of 9.9
+- **Impact**: Allows attackers to execute arbitrary code without authentication on remote access management systems
+- **Status**: Currently being exploited in the wild following public proof-of-concept publication
 
-### Defense Industrial Base Zero-Day Vulnerabilities
-- **Description**: Multiple zero-day vulnerabilities in edge devices being exploited by nation-state actors
-- **Impact**: Allows infiltration of defense contractors' networks and espionage activities
-- **Status**: At least two dozen zero-days have been burned by espionage groups from multiple nations
+### Zero-Day Vulnerabilities in Edge Devices
+- **Description**: At least two dozen zero-day vulnerabilities targeting edge devices used by defense contractors
+- **Impact**: Enable nation-state actors to infiltrate defense industrial base networks for espionage operations
+- **Status**: Actively exploited by espionage groups from China, Russia, and other nations
 
 ### Ivanti EPMM Zero-Day Vulnerabilities
-- **Description**: Multiple zero-day bugs in Ivanti Endpoint Manager Mobile (EPMM) products
-- **Impact**: Enables attackers to compromise endpoint management systems and gain persistent access
-- **Status**: Currently experiencing active exploitation similar to previous Ivanti vulnerability incidents
+- **Description**: Multiple zero-day vulnerabilities affecting Ivanti Endpoint Manager Mobile (EPMM) products
+- **Impact**: Allows attackers to compromise mobile device management infrastructure
+- **Status**: Currently experiencing active exploitation following vulnerability disclosure
 
-### WPvivid Backup & Migration WordPress Plugin Vulnerability
-- **Description**: Critical remote code execution vulnerability in popular WordPress backup plugin
-- **Impact**: Allows arbitrary file upload leading to complete website compromise
-- **Status**: Affects over 900,000 WordPress installations, patch available
+### WordPress WPvivid Backup Plugin RCE Vulnerability
+- **Description**: Critical remote code execution vulnerability in WPvivid Backup & Migration plugin installed on over 900,000 WordPress sites
+- **Impact**: Enables arbitrary file upload leading to remote code execution on WordPress websites
+- **Status**: Vulnerability disclosed, patch status unclear
 
 ## Affected Systems and Products
 
-- **Microsoft Configuration Manager (SCCM)**: Enterprise system management platform used by federal agencies and large organizations
-- **BeyondTrust Remote Support and Privileged Remote Access**: Remote access and privileged access management appliances
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management and endpoint security platform
-- **WPvivid Backup & Migration Plugin**: WordPress backup solution with 900,000+ installations
-- **Google Chrome Extensions**: Various malicious extensions masquerading as AI assistants affecting 300,000+ users
-- **Edge Devices**: Network infrastructure devices used by defense contractors and industrial organizations
-- **npm and PyPI Repositories**: Software package ecosystems compromised with malicious packages
+- **Microsoft Configuration Manager**: Enterprise configuration management systems patched in October 2024
+- **BeyondTrust Remote Support/PRA**: Remote access management appliances with CVSS 9.9 vulnerability
+- **Defense Industrial Base Edge Devices**: Various edge computing and network devices used by defense contractors
+- **Ivanti EPMM Products**: Mobile device management systems experiencing zero-day exploitation
+- **WordPress WPvivid Plugin**: Backup and migration plugin with 900,000+ installations
+- **Google Chrome Extensions**: Malicious extensions targeting Meta Business Suite and Facebook Business Manager data
+- **macOS Systems**: Targeted by AMOS infostealer through AI application abuse
+- **Claude AI Artifacts**: Abused to deliver infostealers in ClickFix campaigns
+- **npm and PyPI Repositories**: Compromised with malicious packages linked to Lazarus group
 
 ## Attack Vectors and Techniques
 
-- **Bring Your Own Vulnerable Driver (BYOVD)**: Attackers exploiting security gaps in Windows drivers to terminate security processes
-- **Supply Chain Compromise**: Malicious packages planted in npm and PyPI ecosystems targeting developers
-- **Malicious Browser Extensions**: Fake AI-powered Chrome extensions stealing credentials and business data
-- **Zero-Day Exploitation**: Nation-state actors burning multiple zero-days in edge devices for network infiltration
-- **Social Engineering**: Fake recruitment campaigns and AI app distribution methods
-- **Pre-Authentication Attacks**: Exploitation of vulnerabilities without requiring user credentials
+- **ClickFix Campaigns**: Abuse of Claude AI artifacts and Google Ads to deliver infostealers to macOS users
+- **Malicious Browser Extensions**: Chrome extensions designed to steal business data, emails, and browsing history
+- **Supply Chain Attacks**: Malicious packages planted in npm and PyPI ecosystems by Lazarus group
+- **Fake Recruitment Campaigns**: Social engineering tactics using job opportunities to distribute malware
+- **AI Platform Abuse**: Exploitation of legitimate AI applications and extension marketplaces
+- **BYOVD Attacks**: Bring Your Own Vulnerable Driver attacks targeting Windows systems
+- **Pre-authentication Exploitation**: Remote code execution without requiring user credentials
+- **Zero-Day Edge Device Exploitation**: Targeting network infrastructure and edge computing devices
 
 ## Threat Actor Activities
 
-- **Russian State-Sponsored Groups**: Deploying CANFAIL malware against Ukrainian organizations through suspected Russian actors
-- **China, Iran, Russia, North Korea Coalition**: Coordinated cyber operations targeting defense industrial base with multiple zero-day exploits
-- **UAT-9921**: Previously unknown threat actor using VoidLink malware framework to target technology and financial sectors
-- **UNC2970 (North Korea-linked)**: Using Google's Gemini AI for reconnaissance and attack support activities
-- **Lazarus Group**: Conducting fake recruitment campaigns with malicious packages in software repositories targeting developers
-- **Various Criminal Groups**: Deploying malicious Chrome extensions, infostealer malware, and conducting romance scams
+- **Nation-State Espionage Groups**: China, Iran, Russia, and North Korea conducting coordinated operations against defense industrial base
+- **UNC2970 (North Korea)**: Using Google Gemini AI for reconnaissance and attack support activities
+- **Lazarus Group**: Planting malicious packages in software repositories through fake recruitment campaigns
+- **Russian State Actor**: Attributed to CANFAIL malware attacks targeting Ukrainian organizations
+- **UAT-9921**: Deploying VoidLink malware framework against technology and financial sectors
+- **Qilin Ransomware Gang**: Confirmed data theft from Romania's oil pipeline operator Conpet S.A.
+- **Various Cybercriminals**: Exploiting newly disclosed vulnerabilities in enterprise software and conducting infostealer campaigns
