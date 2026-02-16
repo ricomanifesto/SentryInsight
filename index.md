@@ -1,54 +1,48 @@
 # Exploitation Report
 
-Critical exploitation activity is currently dominated by vulnerabilities in enterprise infrastructure systems, with threat actors heavily targeting Ivanti Endpoint Manager Mobile, BeyondTrust Remote Access products, and Microsoft Configuration Manager. A single threat actor is responsible for 83% of recent Ivanti attacks, while BeyondTrust vulnerabilities rated at CVSS 9.9 are now being exploited in the wild following proof-of-concept publication. Simultaneously, sophisticated social engineering campaigns are proliferating through ClickFix attacks that abuse legitimate platforms like Pastebin, Google Groups, and Claude artifacts to deliver cryptocurrency theft malware and infostealers. Nation-state actors from China, Iran, Russia, and North Korea are coordinating extensive campaigns against defense industrial base organizations, burning dozens of zero-day vulnerabilities in edge devices to infiltrate contractor networks.
+Critical exploitation activity is currently focused on several high-impact vulnerabilities across enterprise systems and social engineering campaigns. Most concerning is the active exploitation of Microsoft Configuration Manager (SCCM) vulnerabilities and Ivanti Endpoint Manager Mobile (EPMM) flaws, with CISA flagging these for immediate patching. A single threat actor is reportedly responsible for 83% of recent Ivanti RCE attacks. Additionally, BeyondTrust Remote Support and Privileged Remote Access products are facing active exploitation of a critical pre-authentication RCE vulnerability with a CVSS 9.9 rating. Beyond traditional vulnerabilities, threat actors are increasingly leveraging sophisticated social engineering through evolved ClickFix attacks that abuse DNS queries, Pastebin comments, and even Claude AI artifacts to deliver malware payloads.
 
 ## Active Exploitation Details
 
-### Ivanti Endpoint Manager Mobile Remote Code Execution Vulnerabilities
-- **Description**: Two critical vulnerabilities in Ivanti EPMM allowing remote code execution without authentication
-- **Impact**: Complete system compromise and lateral movement within enterprise networks
-- **Status**: Actively exploited with a single threat actor responsible for 83% of observed attacks
+### Microsoft Configuration Manager (SCCM) Vulnerability
+- **Description**: Critical remote code execution flaw in Microsoft Configuration Manager that was patched in October 2024
+- **Impact**: Allows attackers to execute arbitrary code remotely on affected systems
+- **Status**: Actively exploited in the wild; CISA has ordered federal agencies to secure systems immediately
 
-### BeyondTrust Remote Support and Privileged Remote Access Vulnerability
-- **Description**: Critical pre-authentication remote code execution flaw with CVSS 9.9 rating
-- **Impact**: Complete compromise of privileged access management systems
-- **Status**: Now being exploited in the wild following public proof-of-concept release
+### Ivanti Endpoint Manager Mobile (EPMM) Remote Code Execution Vulnerabilities
+- **Description**: Two critical vulnerabilities in Ivanti EPMM allowing remote code execution
+- **Impact**: Complete system compromise through remote code execution capabilities
+- **Status**: Under active exploitation with one threat actor responsible for 83% of recent attacks
 
-### Microsoft Configuration Manager Vulnerability
-- **Description**: Critical remote code execution flaw in Microsoft SCCM
-- **Impact**: Enterprise-wide system compromise and administrative control
-- **Status**: Exploited in attacks, CISA has ordered federal agencies to patch immediately
-
-### Defense Industrial Base Zero-Day Vulnerabilities
-- **Description**: Multiple zero-day vulnerabilities in edge devices targeting defense contractors
-- **Impact**: Network infiltration and espionage operations
-- **Status**: At least two dozen zero-days burned by nation-state actors in active campaigns
+### BeyondTrust Remote Support and Privileged Remote Access RCE Vulnerability
+- **Description**: Critical pre-authentication remote code execution vulnerability affecting BeyondTrust RS and PRA appliances
+- **Impact**: Remote code execution without authentication required, enabling complete system compromise
+- **Status**: Actively exploited in attacks following public proof-of-concept release; CVSS score of 9.9
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Enterprise mobile device management systems vulnerable to RCE attacks
-- **BeyondTrust Remote Support and Privileged Remote Access**: Critical infrastructure for remote access management
-- **Microsoft Configuration Manager (SCCM)**: Enterprise system management and deployment platforms
-- **Edge Network Devices**: Various edge computing and networking equipment in defense sector
-- **Google Chrome Extensions**: Malicious extensions targeting Meta Business Suite and Facebook Business Manager
-- **Cryptocurrency Platforms**: Hardware wallets (Trezor, Ledger) and swap interfaces targeted through social engineering
+- **Microsoft Configuration Manager (SCCM)**: Enterprise system management platform used by federal agencies and organizations
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management solution with widespread enterprise deployment
+- **BeyondTrust Remote Support and Privileged Remote Access**: Remote access and privileged access management appliances
+- **Google Chrome**: Browser targeted by malicious extensions stealing business data and browsing history
+- **Windows 11 Commercial Systems**: Affected by boot failures following security updates
+- **macOS Systems**: Targeted by infostealer malware through ClickFix campaigns using Claude AI artifacts
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: Malicious JavaScript execution disguised as system fixes, distributed through Pastebin comments and Claude artifacts
-- **DNS-Based ClickFix**: Nslookup command exploitation for malware staging and delivery
-- **Google Groups Abuse**: Over 4,000 malicious Google Groups and 3,500 Google-hosted URLs spreading Lumma Stealer malware
-- **Physical Mail Campaigns**: Traditional letters impersonating hardware wallet manufacturers to steal recovery phrases
-- **Fake Recruitment Operations**: North Korean threat actors using cryptocurrency-related coding challenges to target JavaScript and Python developers
-- **Bring Your Own Vulnerable Driver (BYOVD)**: Weaponization of Windows drivers to terminate security processes
-- **Chrome Extension Hijacking**: Malicious browser extensions stealing business data and browsing history
+- **DNS-based ClickFix Attacks**: Threat actors abuse nslookup commands and DNS queries to retrieve PowerShell payloads, marking the first known use of DNS as a channel in ClickFix campaigns
+- **Pastebin Comment Exploitation**: Malicious JavaScript distributed through Pastebin comments to hijack cryptocurrency transactions
+- **Claude AI Artifact Abuse**: ClickFix campaigns leveraging Claude LLM artifacts combined with Google Ads to deliver macOS infostealers
+- **Malicious Chrome Extensions**: Extensions designed to steal Meta Business Suite and Facebook Business Manager data
+- **Fake Recruiter Campaigns**: North Korean threat actors targeting JavaScript and Python developers with cryptocurrency-related coding challenges containing malware
+- **Google Groups Abuse**: Over 4,000 malicious Google Groups and 3,500+ Google-hosted URLs spreading Lumma Stealer and Ninja Browser malware
+- **Physical Mail Social Engineering**: Traditional mail targeting Trezor and Ledger cryptocurrency wallet users
 
 ## Threat Actor Activities
 
-- **Single Ivanti Threat Actor**: Dominating exploitation landscape with 83% of recent EPMM attacks
-- **UAT-9921**: Previously unknown threat actor deploying VoidLink malware framework against technology and financial sectors
-- **Russian Actor with CANFAIL**: Google-attributed threat group targeting Ukrainian organizations with CANFAIL malware
-- **North Korean Groups**: Conducting fake recruitment campaigns targeting software developers with cryptocurrency-themed attacks
-- **Multi-Nation State Coalition**: China, Iran, Russia, and North Korea coordinating attacks against defense industrial base
-- **Cryptocurrency Threat Actors**: Sophisticated campaigns combining digital and physical attack vectors against crypto users
-- **Chrome Extension Operators**: Deploying "CL S" and other malicious extensions to steal Meta Business Suite data
+- **Single Ivanti Attacker**: One threat actor responsible for 83% of recent Ivanti EPMM RCE exploitation, demonstrating focused and persistent targeting
+- **UAT-9921**: Previously unknown threat actor deploying VoidLink malware framework against technology and financial services sectors
+- **Russian Suspected Actor**: Google attributes CANFAIL malware attacks targeting Ukrainian organizations to suspected Russian threat actor
+- **North Korean Groups**: Conducting fake recruiter campaigns targeting developers with malicious coding challenges
+- **Multi-Nation Coordination**: China, Iran, Russia, and North Korea coordinating cyber operations against defense industrial base sector
+- **CTM360-tracked Campaign**: Large-scale operation using Google infrastructure to distribute Lumma Stealer infostealer malware
