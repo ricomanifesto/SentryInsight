@@ -1,56 +1,59 @@
 # Exploitation Report
 
-Critical security incidents dominate the current threat landscape, with CISA confirming active exploitation of FileZen CVE-2026-25108 and multiple critical vulnerabilities in SolarWinds Serv-U offering root access to servers. The North Korean Lazarus Group has escalated operations using Medusa ransomware to target U.S. healthcare organizations and Middle Eastern entities, while Russian-backed threat actors APT28 and UAC-0050 conduct sophisticated campaigns against European targets. Notable security concerns include a vulnerability in GitHub Codespaces that could leak authentication tokens, and the compromise of over 600 FortiGate devices by an amateur hacker using AI tools.
+Critical exploitation activity continues to escalate with CISA confirming active exploitation of FileZen CVE-2026-25108, marking it as a significant threat requiring immediate attention. Additionally, SolarWinds has disclosed four critical vulnerabilities in its Serv-U file transfer software that allow remote code execution with root privileges. The cybersecurity landscape is further complicated by the arrest of a former defense contractor employee who sold eight zero-day exploits to Russian brokers, highlighting insider threats to national security. Meanwhile, the North Korean Lazarus Group has expanded its operations by deploying Medusa ransomware against healthcare organizations and Middle Eastern entities, demonstrating sophisticated nation-state actors' continued evolution in their attack methodologies.
 
 ## Active Exploitation Details
 
-### FileZen Vulnerability
-- **Description**: A recently disclosed vulnerability in FileZen file sharing software that has been added to CISA's Known Exploited Vulnerabilities catalog
-- **Impact**: Active exploitation confirmed by CISA with evidence of real-world attacks
-- **Status**: Currently being exploited in the wild, patch status unknown from provided information
+### FileZen File Transfer Vulnerability
+- **Description**: A security flaw in FileZen file transfer software that has been actively exploited in the wild
+- **Impact**: Allows attackers to compromise file transfer operations and potentially gain unauthorized access to systems
+- **Status**: Currently being exploited; added to CISA's Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2026-25108
 
 ### SolarWinds Serv-U Remote Code Execution Flaws
-- **Description**: Four critical remote code execution vulnerabilities in SolarWinds Serv-U file transfer software
-- **Impact**: Attackers can gain root access to unpatched servers, allowing complete system compromise
-- **Status**: Patches available from SolarWinds, but unpatched systems remain vulnerable
+- **Description**: Four critical security vulnerabilities in SolarWinds Serv-U 15.5 file transfer software enabling remote code execution
+- **Impact**: Successful exploitation could result in remote code execution with root privileges, allowing complete system compromise
+- **Status**: Recently patched by SolarWinds; patches available
 
-### GitHub Codespaces RoguePilot Flaw
-- **Description**: A vulnerability in GitHub Codespaces that allows malicious actors to inject Copilot instructions through GitHub issues to seize repository control
-- **Impact**: Attackers could leak GITHUB_TOKEN credentials and gain unauthorized access to repositories
-- **Status**: Vulnerability disclosed, exploitation potential through AI manipulation
+### Defense Contractor Zero-Day Exploits
+- **Description**: Eight zero-day vulnerabilities sold by a former L3Harris employee to Russian exploit brokers
+- **Impact**: Unknown specific impacts as vulnerability details remain classified for national security reasons
+- **Status**: Employee arrested and sentenced; exploits potentially in adversary hands
 
-### FortiGate Device Compromise
-- **Description**: Mass compromise of over 600 FortiGate firewall devices by an amateur hacker using generative AI tools
-- **Impact**: Credential theft and backup access, potentially enabling follow-on ransomware attacks
-- **Status**: Active compromise affecting 600+ devices, targeting Russian-speaking regions
+### GitHub Codespaces RoguePilot Vulnerability
+- **Description**: A flaw in GitHub Codespaces that could be exploited to inject malicious Copilot instructions through GitHub issues
+- **Impact**: Attackers could seize control of repositories by leaking GITHUB_TOKEN credentials
+- **Status**: Vulnerability disclosed; remediation status unclear
 
 ## Affected Systems and Products
 
-- **FileZen**: File sharing software currently under active exploitation
-- **SolarWinds Serv-U**: File transfer servers vulnerable to remote code execution
-- **GitHub Codespaces**: Development environment susceptible to AI-based token leakage
-- **FortiGate Firewalls**: 600+ devices compromised for credential and backup theft
-- **Android Mental Health Apps**: 14.7 million installations containing security vulnerabilities exposing medical data
-- **Classic Microsoft Outlook**: Desktop client experiencing mouse pointer visibility issues
+- **SolarWinds Serv-U 15.5**: File transfer software with four critical remote code execution vulnerabilities
+- **FileZen**: File transfer software actively being exploited in the wild
+- **GitHub Codespaces**: Development environment vulnerable to malicious Copilot instruction injection
+- **L3Harris Defense Systems**: Unspecified systems affected by stolen zero-day exploits
+- **Android Mental Health Apps**: 14.7 million installations containing security flaws exposing medical information
+- **Central Asian Telecommunications**: Companies in Kyrgyzstan and Tajikistan targeted by UnsolicitedBooker
+- **European Financial Institutions**: Targeted by UAC-0050 with spoofed domains and RMS malware
+- **U.S. Healthcare Organizations**: Targeted by Lazarus Group using Medusa ransomware
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering**: UAC-0050 using spoofed domains and social engineering against European financial institutions
-- **Webhook-Based Macro Malware**: APT28 deploying macro-based malware with webhook communication
-- **Voice Phishing (Vishing)**: Optimizely breach through voice-based social engineering attacks
-- **AI-Enhanced Exploitation**: Amateur hackers leveraging generative AI to compromise enterprise firewalls
-- **Ransomware Deployment**: Lazarus Group using Medusa ransomware in healthcare and Middle Eastern targets
-- **Malicious Google Ads**: 1Campaign platform helping threat actors evade detection in advertising networks
+- **Social Engineering**: UAC-0050 uses spoofed domains to target European financial institutions
+- **Ransomware Deployment**: Lazarus Group employing Medusa ransomware against healthcare and Middle Eastern targets
+- **Backdoor Installation**: UnsolicitedBooker deploying LuciDoor and MarsSnake backdoors in telecom networks
 - **Phishing Campaigns**: Diesel Vortex targeting freight and logistics organizations across 52 domains
+- **Malicious Google Ads**: 1Campaign platform helping threat actors evade detection in advertising networks
+- **AI Model Extraction**: Chinese firms using 16 million queries to illegally copy Anthropic's Claude model
+- **ATM Jackpotting**: Physical attacks on ATMs causing over $20 million in losses during 2025
+- **DDoS Attacks**: Spanish hacktivist groups targeting government ministries and political parties
 
 ## Threat Actor Activities
 
-- **Lazarus Group**: North Korean state-backed group deploying Medusa ransomware against U.S. healthcare organizations and Middle Eastern entities, utilizing Comebacker backdoor, Blindingcan RAT, and Infohook information stealer
-- **APT28**: Russian state-sponsored actor targeting Western and Central European entities with webhook-based macro malware campaigns
+- **Lazarus Group (Diamond Sleet/Pompilus)**: North Korean state-backed group deploying Medusa ransomware against U.S. healthcare and Middle Eastern entities, utilizing Comebacker backdoor, Blindingcan RAT, and Infohook stealer
+- **UnsolicitedBooker**: Targeting Central Asian telecommunications companies with LuciDoor and MarsSnake backdoors, expanding from previous Saudi Arabian focus
 - **UAC-0050**: Russia-aligned threat actor conducting social engineering attacks against European financial institutions using spoofed domains and RMS malware
-- **UnsolicitedBooker**: Threat cluster targeting telecommunications companies in Kyrgyzstan and Tajikistan with LuciDoor and MarsSnake backdoors
-- **ShinyHunters**: Extortion gang claiming breaches of Wynn Resorts, CarGurus (12.4 million accounts), and Odido telecommunications provider
-- **Diesel Vortex**: Financially motivated group conducting credential theft campaigns against freight and logistics operators in the U.S. and Europe
-- **MuddyWater**: Iranian threat group deploying new malware strains against organizations in the Middle East and Africa
-- **Anonymous Fenix**: Spanish hacktivist group arrested for DDoS attacks against government ministries and public institutions
+- **Diesel Vortex**: Financially motivated group stealing credentials from freight and logistics operators using 52 domains in phishing attacks
+- **ShinyHunters**: Extortion gang claiming responsibility for multiple data breaches including Wynn Resorts, CarGurus (12.4 million accounts), and Dutch telecom provider Odido
+- **MuddyWater**: Iranian threat group deploying fresh malware strains against organizations in the Middle East and Africa amid rising geopolitical tensions
+- **Anonymous Fenix**: Spanish hacktivist group arrested for DDoS attacks against government websites and political institutions
+- **Russian Exploit Brokers**: Purchasing zero-day exploits from defense contractor insiders for potential state-sponsored operations
