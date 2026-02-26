@@ -1,63 +1,63 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities continue to pose significant threats to enterprise infrastructure, with CVE-2026-20127 in Cisco SD-WAN systems being actively exploited since 2023, allowing remote authentication bypass. Simultaneously, Chinese threat actors have conducted widespread espionage campaigns breaching 53 organizations across 42 countries, while CISA has confirmed active exploitation of CVE-2026-25108 in FileZen systems. The cybersecurity landscape is further complicated by recent discoveries of multiple critical vulnerabilities in SolarWinds Serv-U software and vulnerabilities in AI-powered development tools like Claude Code and GitHub Copilot.
+Critical zero-day exploitation continues to plague enterprise networks, with the most severe being a Cisco SD-WAN authentication bypass vulnerability (CVE-2026-20127) that has been actively exploited since 2023. Additionally, CISA has confirmed active exploitation of a FileZen vulnerability (CVE-2026-25108), while threat actors are leveraging sophisticated supply chain attacks targeting developers through malicious repositories and AI-powered tools. Chinese state-sponsored groups have conducted widespread espionage campaigns against telecommunications and government organizations across 42 countries, demonstrating the continued evolution of advanced persistent threat activities.
 
 ## Active Exploitation Details
 
 ### Cisco SD-WAN Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in Cisco Catalyst SD-WAN that has been exploited as a zero-day since 2023
-- **Impact**: Allows remote attackers to bypass authentication mechanisms and gain unauthorized access to SD-WAN infrastructure
-- **Status**: Active zero-day exploitation confirmed, critical severity
+- **Description**: Critical authentication bypass vulnerability in Cisco Catalyst SD-WAN allowing remote attackers to compromise systems
+- **Impact**: Remote attackers can gain unauthorized access to SD-WAN infrastructure
+- **Status**: Zero-day exploitation confirmed since 2023, patches now available
 - **CVE ID**: CVE-2026-20127
 
 ### FileZen Vulnerability
-- **Description**: Recently disclosed vulnerability in FileZen file sharing platform confirmed by CISA for active exploitation
-- **Impact**: Enables attackers to compromise file sharing systems and potentially access sensitive data
+- **Description**: Security flaw in FileZen file transfer software enabling unauthorized access
+- **Impact**: Attackers can compromise file transfer operations and potentially access sensitive data
 - **Status**: Active exploitation confirmed by CISA, added to Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2026-25108
 
+### Claude Code AI Assistant Vulnerabilities
+- **Description**: Multiple security flaws in Anthropic's Claude Code AI-powered coding assistant
+- **Impact**: Remote code execution and API key exfiltration on developer machines
+- **Status**: Vulnerabilities disclosed, patches required
+
+### Zyxel Router Remote Code Execution
+- **Description**: Critical vulnerability affecting over a dozen Zyxel router models
+- **Impact**: Unauthenticated attackers can achieve remote command execution
+- **Status**: Security updates released by Zyxel
+
 ### SolarWinds Serv-U Critical Flaws
-- **Description**: Four critical security vulnerabilities in SolarWinds Serv-U 15.5 file transfer software
-- **Impact**: Successful exploitation could result in remote code execution with root-level privileges
-- **Status**: Critical patches released, vulnerabilities allow root code execution
-
-### Claude Code Security Flaws
-- **Description**: Multiple security vulnerabilities discovered in Anthropic's Claude Code AI-powered coding assistant
-- **Impact**: Could result in remote code execution and API key exfiltration from developer environments
-- **Status**: Newly disclosed vulnerabilities affecting AI development tools
-
-### GitHub Copilot RoguePilot Flaw
-- **Description**: Vulnerability in GitHub Codespaces that could be exploited through malicious Copilot instructions
-- **Impact**: Enables attackers to seize control of repositories by injecting malicious instructions and leak GITHUB_TOKEN
-- **Status**: Vulnerability allows repository compromise through AI manipulation
+- **Description**: Four critical security vulnerabilities in SolarWinds Serv-U file transfer software
+- **Impact**: Remote code execution with root privileges
+- **Status**: Updates released to address vulnerabilities
 
 ## Affected Systems and Products
 
-- **Cisco Catalyst SD-WAN**: Critical authentication bypass vulnerability affecting enterprise network infrastructure
-- **FileZen Platform**: File sharing systems experiencing confirmed active exploitation
-- **SolarWinds Serv-U 15.5**: File transfer software with four critical remote code execution vulnerabilities
-- **Anthropic Claude Code**: AI-powered coding assistant vulnerable to remote code execution and data exfiltration
-- **GitHub Codespaces/Copilot**: Development platforms vulnerable to malicious instruction injection
-- **Zyxel Routers**: Over a dozen router models affected by critical remote command execution vulnerability
-- **ASP.NET Applications**: Targeted by malicious NuGet packages designed to steal sensitive data
-- **Next.js Repositories**: Poisoned repositories targeting developers through fake job recruitment campaigns
+- **Cisco Catalyst SD-WAN**: Authentication bypass vulnerability affecting SD-WAN infrastructure
+- **FileZen**: File transfer software with confirmed active exploitation
+- **Anthropic Claude Code**: AI-powered coding assistant with RCE vulnerabilities
+- **Zyxel Routers**: Over a dozen router models affected by critical RCE flaw
+- **SolarWinds Serv-U 15.5**: File transfer software with four critical vulnerabilities
+- **Next.js Projects**: Malicious repositories targeting developers
+- **NuGet Packages**: Four malicious packages targeting ASP.NET developers
+- **UFP Technologies**: Medical device manufacturer systems compromised
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Long-term exploitation of unpatched Cisco SD-WAN systems since 2023
-- **SaaS API Abuse**: Chinese threat actors using SaaS API calls to hide malicious traffic in espionage campaigns
-- **Supply Chain Attacks**: Malicious packages in NuGet and npm repositories targeting developers
-- **Social Engineering**: North Korean groups using fake job interviews to distribute malicious repositories
-- **Vishing Operations**: Scattered LAPSUS$ Hunters recruiting women for IT help desk social engineering attacks
-- **AI Instruction Injection**: Exploitation of AI development tools through malicious prompt injection
-- **Email Gateway Bypass**: Telephone-oriented attack delivery (TOAD) using phone numbers as primary payload
+- **Supply Chain Attacks**: Malicious Next.js repositories and NuGet packages targeting developers
+- **Fake Job Interviews**: North Korean-linked campaigns using fraudulent technical assessments
+- **AI Tool Exploitation**: Vulnerabilities in AI coding assistants enabling code execution
+- **Social Engineering**: Telephone-oriented attack delivery (TOAD) bypassing email gateways
+- **API Abuse**: SaaS API calls used to hide malicious traffic in espionage campaigns
+- **Vishing Attacks**: Scattered LAPSUS$ Hunters recruiting women for IT help desk social engineering
+- **Malicious Ads**: 1Campaign platform helping threat actors evade Google Ads detection
 
 ## Threat Actor Activities
 
-- **UNC2814 (Chinese APT)**: Conducted GRIDTIDE campaign resulting in 53 organizational breaches across 42 countries using SaaS API abuse techniques
-- **Scattered LAPSUS$ Hunters (SLH)**: Offering $500-$1,000 per call to recruit women for IT help desk vishing attacks
-- **North Korean Groups**: Targeting developers with malicious Next.js repositories through fake job recruitment campaigns
-- **Diesel Vortex**: Financially motivated group conducting credential theft against freight and logistics operators across US and Europe using 52 malicious domains
-- **Lazarus Group**: North Korean threat group now leveraging Medusa ransomware along with Comebacker backdoor and Blindingcan RAT
-- **Russian Exploit Brokers**: Sanctioned individuals involved in purchasing stolen zero-day exploits from US defense contractors
-- **ShinyHunters**: Extortion gang responsible for data breaches affecting Wynn Resorts and CarGurus, exposing 12.4 million accounts
+- **UNC2814 (Chinese APT)**: Conducted global espionage campaign with 53 breaches across 42 countries targeting telecommunications and government agencies
+- **Scattered LAPSUS$ Hunters (SLH)**: Offering $500-$1,000 per call to recruit women for vishing attacks against IT help desks
+- **Diesel Vortex**: Financially motivated group targeting freight and logistics organizations in US and Europe through phishing campaigns using 52 domains
+- **North Korean Groups**: Linked to fake job interview campaigns targeting developers with malicious repositories
+- **ShinyHunters**: Extortion gang responsible for Wynn Resorts employee data breach
+- **Chinese Police**: Using ChatGPT for politically motivated influence operations against Japanese officials
+- **Russian Exploit Brokers**: Purchasing stolen zero-day exploits from defense contractor employees
