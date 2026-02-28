@@ -1,64 +1,62 @@
 # Exploitation Report
 
-Critical exploitation activity is currently impacting multiple enterprise systems and platforms across various sectors. The most severe incidents include a zero-day vulnerability in Cisco SD-WAN systems that has been actively exploited for three years, ongoing web shell attacks compromising over 900 Sangoma FreePBX instances, and the deployment of RESURGE malware on Ivanti devices through zero-day exploitation. Additionally, threat actors are leveraging sophisticated supply chain attacks through malicious packages and repositories, while advanced persistent threat groups continue targeting critical infrastructure and air-gapped networks with novel techniques.
+The current threat landscape reveals several critical exploitation activities targeting enterprise networks, with the most concerning being a three-year-long exploitation of a maximum-severity Cisco SD-WAN zero-day vulnerability and ongoing attacks against Ivanti Connect Secure devices using the RESURGE malware implant. North Korean APT groups are actively deploying sophisticated tools to breach air-gapped networks, while threat actors continue to exploit command injection vulnerabilities in Sangoma FreePBX instances. Additionally, multiple critical vulnerabilities in enterprise security products including Trend Micro Apex One and Juniper Networks routers pose significant risks to organizational infrastructure.
 
 ## Active Exploitation Details
 
 ### Cisco SD-WAN Zero-Day Vulnerability
-- **Description**: Maximum-severity security flaw in Cisco Catalyst SD-WAN Controller (formerly vSmart) and Catalyst SD-WAN Manager (formerly vManage)
-- **Impact**: Allows sophisticated threat actors to gain administrative access to SD-WAN infrastructure
-- **Status**: Actively exploited since 2023, recently disclosed with patches available
+- **Description**: A maximum-severity vulnerability in Cisco SD-WAN infrastructure that has been actively exploited for three years
+- **Impact**: Complete network compromise with sophisticated threat actors leaving minimal evidence
+- **Status**: Currently under active exploitation with patches available
 - **CVE ID**: CVE-2026-20127
 
-### Sangoma FreePBX Command Injection
-- **Description**: Command injection vulnerability in Sangoma FreePBX systems allowing web shell deployment
-- **Impact**: Complete system compromise with persistent backdoor access
-- **Status**: Over 900 instances remain infected despite patches being available
-- **CVE ID**: Not specified in articles
-
-### Ivanti Zero-Day with RESURGE Malware
-- **Description**: Zero-day vulnerability in Ivanti Connect systems exploited to deploy RESURGE malicious implant
-- **Impact**: Persistent backdoor access with potential for dormant long-term compromise
-- **Status**: CISA has issued warnings about dormant malware remaining on systems
+### Ivanti Connect Secure RESURGE Malware
+- **Description**: Malicious implant used in zero-day attacks targeting Ivanti Connect Secure devices
+- **Impact**: Persistent backdoor access that can remain dormant on compromised devices
+- **Status**: Active exploitation with CISA warnings issued
 - **CVE ID**: CVE-2025-0282
 
-### Trend Micro Apex One Remote Code Execution
-- **Description**: Two critical vulnerabilities in Trend Micro Apex One security software
-- **Impact**: Remote code execution on vulnerable Windows systems
-- **Status**: Recently patched by Trend Micro
-- **CVE ID**: Not specified in articles
+### Sangoma FreePBX Command Injection Vulnerability
+- **Description**: Command injection flaw in Sangoma FreePBX instances leading to web shell deployment
+- **Impact**: Remote code execution and persistent access to VoIP systems
+- **Status**: Over 900 instances remain compromised despite patches being available
+
+### Trend Micro Apex One Critical Vulnerabilities
+- **Description**: Two critical vulnerabilities in Trend Micro Apex One allowing remote code execution
+- **Impact**: Complete system compromise on vulnerable Windows systems
+- **Status**: Patches available but systems remain at risk until updated
 
 ### Juniper Networks PTX Router Vulnerability
-- **Description**: Critical flaw in Junos OS Evolved network operating system on PTX Series routers
-- **Impact**: Unauthenticated remote code execution with root privileges, full router takeover
-- **Status**: Patches available
-- **CVE ID**: Not specified in articles
+- **Description**: Critical vulnerability in Junos OS Evolved running on PTX Series routers
+- **Impact**: Full router takeover with root-level code execution capabilities
+- **Status**: Recently disclosed with patches required
 
 ## Affected Systems and Products
 
-- **Cisco SD-WAN Infrastructure**: Catalyst SD-WAN Controller and Manager systems globally affected
-- **Sangoma FreePBX**: Over 900 VoIP systems compromised with web shells
-- **Ivanti Connect**: Enterprise connectivity solutions vulnerable to RESURGE implant
+- **Cisco SD-WAN Infrastructure**: Network devices running vulnerable SD-WAN software
+- **Ivanti Connect Secure**: VPN appliances vulnerable to RESURGE malware implantation
+- **Sangoma FreePBX**: VoIP systems with over 900 instances currently compromised
 - **Trend Micro Apex One**: Windows-based endpoint security platforms
-- **Juniper PTX Series**: Network routers running Junos OS Evolved
-- **Google API Services**: Previously harmless API keys now expose Gemini AI data
-- **Developer Environments**: Next.js repositories and NuGet packages used in supply chain attacks
+- **Juniper Networks PTX Series**: Enterprise routers running Junos OS Evolved
+- **Google API Services**: Gemini AI data exposure through misconfigured API keys
+- **Air-Gapped Networks**: High-security isolated systems targeted by sophisticated malware
 
 ## Attack Vectors and Techniques
 
-- **Web Shell Deployment**: Command injection vulnerabilities exploited to install persistent backdoors
-- **Zero-Day Exploitation**: Long-term exploitation of unpatched vulnerabilities for administrative access
-- **Supply Chain Attacks**: Malicious packages mimicking legitimate libraries (StripeApi NuGet, malicious Go modules)
-- **Social Engineering**: Fake job repositories and technical assessments targeting developers
-- **USB-Based Attacks**: Air-gapped network infiltration using removable media
-- **Blockchain-Based C2**: Aeternum C2 botnet using Polygon blockchain for resilient command infrastructure
-- **Cloud Service Abuse**: Zoho WorkDrive leveraged for command-and-control communications
+- **Zero-Day Exploitation**: Long-term exploitation of unpatched vulnerabilities in critical infrastructure
+- **Web Shell Deployment**: Command injection leading to persistent backdoor installation
+- **Air-Gap Bridging**: USB-based malware for transferring data between isolated and connected networks
+- **Cloud Service Abuse**: Zoho WorkDrive used for command-and-control communications
+- **Blockchain C2 Infrastructure**: Aeternum botnet using Polygon blockchain for resilient communications
+- **Social Engineering**: Fake job repositories and gaming tools targeting developers and users
+- **Supply Chain Attacks**: Malicious Go modules delivering backdoors and credential stealers
 
 ## Threat Actor Activities
 
-- **ScarCruft (North Korean APT)**: Targeting air-gapped networks using USB malware and cloud services for C2
-- **UAT-10027**: Undocumented threat cluster targeting U.S. education and healthcare sectors with Dohdoor backdoor
-- **Unknown Sophisticated Actor**: Three-year exploitation campaign against Cisco SD-WAN infrastructure
-- **Supply Chain Attackers**: Coordinated campaigns targeting developers through malicious repositories and packages
-- **Chinese State-Linked Operations**: Using AI tools like ChatGPT for political influence operations
-- **Ransomware Groups**: Continued high-volume attacks despite record-low payment rates of 28%
+- **APT37 (North Korean)**: Deploying new tools for air-gapped network infiltration and covert surveillance
+- **ScarCruft (North Korean)**: Using Zoho WorkDrive and USB malware for air-gapped network breaches
+- **UAT-10027**: Targeting U.S. education and healthcare sectors with Dohdoor backdoor since December 2025
+- **The Com Cybercrime Collective**: Online group targeting children and teenagers (30 arrests made)
+- **Sophisticated Unknown Actor**: Three-year exploitation campaign against Cisco SD-WAN infrastructure
+- **Developer-Targeting Groups**: Coordinated campaigns using fake Next.js repositories to deliver in-memory malware
+- **Gaming Community Threats**: Distribution of Java-based RATs through trojanized gaming utilities
