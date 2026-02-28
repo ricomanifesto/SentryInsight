@@ -1,56 +1,61 @@
 # Exploitation Report
 
-The security landscape reveals significant exploitation activity across multiple critical infrastructure sectors. Most notably, a zero-day vulnerability in Cisco SD-WAN systems has been actively exploited for three years by sophisticated threat actors, while Ivanti Connect devices continue to face active exploitation through the RESURGE malware implant. North Korean threat groups APT37 and ScarCruft are deploying advanced tools to breach air-gapped networks, and over 900 Sangoma FreePBX instances remain compromised from ongoing web shell attacks. Additionally, threat actors are leveraging exposed Google Cloud API keys to access sensitive Gemini AI data, while critical vulnerabilities in Trend Micro Apex One and Juniper Networks PTX routers present immediate remote code execution risks.
+Current threat activity reveals several critical exploitation campaigns targeting enterprise infrastructure and air-gapped networks. The most severe ongoing exploitation involves CVE-2025-0282, a zero-day vulnerability in Ivanti Connect devices that has enabled attackers to deploy RESURGE malware with dormant capabilities. Additionally, CVE-2026-20127, a maximum-severity Cisco SD-WAN vulnerability, has been actively exploited for three years by sophisticated threat actors. North Korean groups APT37 and ScarCruft are conducting advanced operations targeting air-gapped networks through USB-based malware and cloud services abuse. Over 900 Sangoma FreePBX instances remain compromised with web shells, while threat actors continue exploiting Google Cloud API keys to access Gemini AI data and Trend Micro Apex One critical vulnerabilities for remote code execution.
 
 ## Active Exploitation Details
 
-### Cisco SD-WAN Zero-Day Vulnerability
-- **Description**: A maximum-severity zero-day vulnerability in Cisco SD-WAN systems that has been under active exploitation
-- **Impact**: Full system compromise by sophisticated threat actors with minimal evidence left behind
-- **Status**: Actively exploited for 3 years by unknown advanced persistent threat actors
-- **CVE ID**: CVE-2026-20127
-
-### Ivanti Connect Secure Zero-Day
-- **Description**: Zero-day vulnerability exploited to deploy RESURGE malware implant on Ivanti Connect Secure devices
-- **Impact**: Persistent backdoor access that can remain dormant on compromised systems
-- **Status**: Active exploitation with RESURGE malware remaining on affected devices even after patching
+### RESURGE Malware on Ivanti Devices
+- **Description**: A sophisticated malicious implant targeting Ivanti Connect devices through zero-day exploitation, with capabilities to remain dormant on compromised systems
+- **Impact**: Enables persistent access and can remain undetected for extended periods on enterprise network infrastructure
+- **Status**: Actively exploited in zero-day attacks, CISA has released new threat details
 - **CVE ID**: CVE-2025-0282
 
-### Sangoma FreePBX Command Injection
-- **Description**: Command injection vulnerability in Sangoma FreePBX systems leading to web shell deployment
-- **Impact**: Remote code execution and persistent access to telecommunications systems
-- **Status**: Over 900 instances remain compromised with web shells from attacks beginning in December
+### Cisco SD-WAN Zero-Day
+- **Description**: A maximum-severity vulnerability in Cisco SD-WAN infrastructure that has been exploited for an extended period
+- **Impact**: Allows sophisticated threat actors to compromise network infrastructure with minimal evidence
+- **Status**: Exploited for 3 years by unknown but sophisticated threat actors
+- **CVE ID**: CVE-2026-20127
 
-### Google Cloud API Key Abuse
-- **Description**: Previously harmless Google API keys can now authenticate to sensitive Gemini AI endpoints
-- **Impact**: Access to private data through Gemini AI assistant and unauthorized API usage
-- **Status**: Thousands of exposed API keys identified with potential for ongoing abuse
+### Sangoma FreePBX Command Injection
+- **Description**: A command injection vulnerability in FreePBX systems enabling web shell deployment
+- **Impact**: Remote code execution and persistent access to VoIP infrastructure
+- **Status**: Over 900 instances still compromised with ongoing web shell attacks since December
+
+### Trend Micro Apex One Vulnerabilities
+- **Description**: Critical vulnerabilities in Trend Micro Apex One security software allowing remote code execution
+- **Impact**: Attackers can gain remote code execution on vulnerable Windows systems running the security software
+- **Status**: Recently patched but previously exploitable for RCE
+
+### Juniper Networks PTX Router Flaw
+- **Description**: Critical vulnerability in Junos OS Evolved network operating system on PTX Series routers
+- **Impact**: Allows unauthenticated attackers to execute code remotely with root privileges, enabling full router takeover
+- **Status**: Critical vulnerability requiring immediate patching
 
 ## Affected Systems and Products
 
-- **Cisco SD-WAN Systems**: All SD-WAN infrastructure vulnerable to three-year exploitation campaign
-- **Ivanti Connect Secure**: Devices compromised with RESURGE malware implants
-- **Sangoma FreePBX**: Over 900 instances currently infected with web shells
-- **Google Cloud Services**: API keys with Gemini access exposed across thousands of projects
-- **Trend Micro Apex One**: Windows systems vulnerable to critical remote code execution flaws
-- **Juniper Networks PTX Series**: Routers running Junos OS Evolved at risk of full takeover
-- **Windows Systems**: Air-gapped networks targeted by APT37 malware via removable drives
+- **Ivanti Connect Devices**: Network appliances vulnerable to RESURGE malware deployment through zero-day exploitation
+- **Cisco SD-WAN Infrastructure**: Enterprise networking equipment compromised through long-term exploitation
+- **Sangoma FreePBX Systems**: Over 900 VoIP systems infected with web shells following command injection attacks
+- **Google Cloud API Keys**: Thousands of public API keys with unintended Gemini AI access capabilities
+- **Trend Micro Apex One**: Windows security software with critical remote code execution vulnerabilities
+- **Juniper PTX Series Routers**: Network infrastructure running Junos OS Evolved vulnerable to complete takeover
+- **Air-Gapped Networks**: Isolated systems targeted through USB-based malware and removable drive attacks
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Long-term exploitation of undisclosed vulnerabilities in critical infrastructure
-- **Web Shell Deployment**: Command injection leading to persistent backdoor access
-- **Air-Gap Bridging**: USB-based malware designed to move data between isolated and connected networks
-- **API Key Abuse**: Leveraging exposed credentials to access unauthorized cloud services
-- **Blockchain C2 Infrastructure**: Aeternum botnet using Polygon blockchain for resilient command and control
-- **Social Engineering**: Trojanized gaming tools distributed via browsers and chat platforms
-- **Supply Chain Targeting**: Malicious Go crypto modules in software repositories
+- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in enterprise infrastructure like Ivanti and Cisco systems
+- **USB-Based Attacks**: Deployment of malware through removable drives to breach air-gapped networks and facilitate data exfiltration
+- **Web Shell Deployment**: Command injection attacks resulting in persistent backdoor access through web shells
+- **Cloud Service Abuse**: Misuse of legitimate cloud services like Zoho WorkDrive for command-and-control communications
+- **API Key Exploitation**: Abuse of exposed Google Cloud API keys to access sensitive Gemini AI endpoints and private data
+- **Blockchain C2 Infrastructure**: Use of blockchain technology for resilient command-and-control operations to evade takedown efforts
+- **Trojanized Software**: Distribution of malicious gaming utilities through browsers and chat platforms to deploy remote access trojans
 
 ## Threat Actor Activities
 
-- **APT37 (North Korean)**: Deploying new malware tools to breach air-gapped networks using removable drives for covert surveillance operations
-- **ScarCruft (North Korean)**: Using Zoho WorkDrive for C2 communications and USB malware to target air-gapped systems
-- **UAT-10027**: Previously undocumented threat cluster targeting U.S. education and healthcare sectors with Dohdoor backdoor since December 2025
-- **Unknown Advanced Actor**: Three-year exploitation campaign against Cisco SD-WAN infrastructure with sophisticated evasion techniques
-- **Kimwolf Botnet Operators**: Operating world's largest botnet through exploited vulnerability disclosed by security researcher
-- **The Com Cybercrime Collective**: 30 arrests in Europol operation targeting online criminal group exploiting children and teenagers
+- **APT37 (North Korean)**: Deploying new tools to breach air-gapped networks using removable drives for covert surveillance and data movement
+- **ScarCruft (North Korean)**: Using Zoho WorkDrive and USB malware for sophisticated air-gapped network infiltration campaigns
+- **UAT-10027**: Targeting U.S. education and healthcare sectors with Dohdoor backdoor malware since December 2025
+- **The Com Cybercrime Collective**: Online group targeting children and teenagers, resulting in 30 arrests through Europol's Project Compass operation
+- **Kimwolf Botnet Operators**: Operating what is described as the world's largest and most disruptive botnet through disclosed vulnerabilities
+- **Unknown Sophisticated Actors**: Exploiting Cisco SD-WAN infrastructure for three years while leaving minimal forensic evidence
