@@ -1,64 +1,74 @@
 # Exploitation Report
 
-The cybersecurity landscape continues to face significant exploitation activity across multiple attack vectors, with threat actors targeting everything from browser extensions and AI systems to critical network infrastructure. Most concerning is the active exploitation of a maximum-severity zero-day vulnerability in Cisco SD-WAN systems that has been under attack for three years, alongside the compromise of over 900 Sangoma FreePBX instances through web shell attacks. North Korean APT groups APT37 and ScarCruft have deployed sophisticated new malware tools to breach air-gapped networks, while a compromised Chrome extension has been weaponized to steal cryptocurrency from thousands of users. Additionally, critical vulnerabilities in Trend Micro Apex One and Juniper Networks PTX routers pose immediate risks of remote code execution and full system compromise.
+Current threat landscape reveals several critical exploitation activities targeting diverse platforms and systems. The most significant concerns include a high-severity zero-day vulnerability in Cisco SD-WAN systems that has been exploited for three years, ongoing attacks against Sangoma FreePBX instances through command injection vulnerabilities, and the deployment of sophisticated malware by North Korean threat actors targeting air-gapped networks. Additional exploitation activities involve compromised browser extensions stealing cryptocurrency, vulnerable AI agents being hijacked through WebSocket connections, and critical remote code execution flaws in enterprise security solutions.
 
 ## Active Exploitation Details
 
 ### Cisco SD-WAN Zero-Day Vulnerability
-- **Description**: A maximum-severity vulnerability that has been actively exploited by sophisticated threat actors
-- **Impact**: Allows attackers to compromise SD-WAN infrastructure with significant network access
-- **Status**: Under active exploitation for approximately 3 years by unknown sophisticated threat actors
+- **Description**: A maximum-severity vulnerability in Cisco SD-WAN systems that has remained undetected for three years
+- **Impact**: Allows sophisticated threat actors to compromise network infrastructure with minimal forensic evidence
+- **Status**: Currently being exploited by unknown advanced threat actors
 - **CVE ID**: CVE-2026-20127
 
-### Ivanti Connect Secure Zero-Day
-- **Description**: Zero-day vulnerability exploited to deploy RESURGE malware implants on Ivanti devices
-- **Impact**: Allows persistent access and malware deployment that can remain dormant on affected systems
-- **Status**: Actively exploited with CISA warning about dormant malware persistence
+### RESURGE Malware on Ivanti Devices
+- **Description**: Malicious implant that can remain dormant on Ivanti Connect Secure devices
+- **Impact**: Provides persistent access to compromised network infrastructure
+- **Status**: Active exploitation through zero-day attacks, CISA has issued warnings
 - **CVE ID**: CVE-2025-0282
 
 ### Sangoma FreePBX Command Injection
-- **Description**: Command injection vulnerability in Sangoma FreePBX systems allowing web shell deployment
-- **Impact**: Remote code execution and persistent system access through web shells
-- **Status**: Over 900 instances currently compromised with ongoing attacks since December
+- **Description**: Command injection vulnerability in FreePBX systems allowing web shell deployment
+- **Impact**: Full system compromise with persistent backdoor access
+- **Status**: Over 900 instances remain infected with web shells from attacks starting in December
 
 ### QuickLens Chrome Extension Compromise
-- **Description**: Legitimate Chrome extension "QuickLens - Search Screen with Google Lens" compromised to deliver malware
+- **Description**: Legitimate Chrome extension compromised to push malware and steal cryptocurrency
 - **Impact**: Cryptocurrency theft and malware distribution to thousands of users
-- **Status**: Extension removed from Chrome Web Store after compromise detection
+- **Status**: Extension removed from Chrome Web Store, exploitation ceased
 
-### ClawJacked WebSocket Vulnerability
-- **Description**: High-severity flaw in OpenClaw AI agents allowing malicious websites to hijack local AI agents via WebSocket connections
-- **Impact**: Unauthorized access and control of locally running AI agents
-- **Status**: Patched by OpenClaw after security disclosure
+### ClawJacked OpenClaw AI Vulnerability
+- **Description**: High-severity flaw allowing malicious websites to hijack local AI agents via WebSocket connections
+- **Impact**: Complete takeover of AI agents and potential access to sensitive local data
+- **Status**: Patched by OpenClaw, but previously exploitable systems may remain vulnerable
+
+### Trend Micro Apex One Critical Flaws
+- **Description**: Two critical vulnerabilities in Apex One security software
+- **Impact**: Remote code execution on Windows systems running the security solution
+- **Status**: Recently patched, but systems may remain vulnerable if not updated
+
+### Juniper Networks PTX Router Vulnerability
+- **Description**: Critical flaw in Junos OS Evolved on PTX Series routers
+- **Impact**: Unauthenticated remote code execution with root privileges, full router takeover
+- **Status**: Vulnerability disclosed, patch status unclear
 
 ## Affected Systems and Products
 
-- **Cisco SD-WAN Systems**: All SD-WAN infrastructure vulnerable to CVE-2026-20127 exploitation
-- **Ivanti Connect Secure**: Devices vulnerable to CVE-2025-0282 with potential dormant RESURGE malware
-- **Sangoma FreePBX**: Over 900 instances compromised with web shells, ongoing exploitation
-- **Chrome Browser Extensions**: QuickLens extension users affected by malicious compromise
-- **OpenClaw AI Agents**: Local AI agent installations vulnerable to WebSocket hijacking
-- **Trend Micro Apex One**: Windows systems running vulnerable versions at risk of RCE
-- **Juniper Networks PTX Routers**: PTX Series routers running Junos OS Evolved vulnerable to takeover
-- **Google Cloud API**: Thousands of API keys exposed with unauthorized Gemini AI access
+- **Cisco SD-WAN Systems**: Network infrastructure components vulnerable to sophisticated exploitation
+- **Ivanti Connect Secure Devices**: Network security appliances affected by persistent malware
+- **Sangoma FreePBX Instances**: Over 900 VoIP systems compromised with web shells
+- **Chrome Browser Extensions**: QuickLens extension with thousands of users affected
+- **OpenClaw AI Agents**: Local AI systems vulnerable to WebSocket hijacking
+- **Trend Micro Apex One**: Windows endpoint security solutions with RCE vulnerabilities
+- **Juniper PTX Series Routers**: Enterprise network routers running Junos OS Evolved
+- **Google Cloud API Keys**: Previously harmless keys now exposing Gemini AI data access
 
 ## Attack Vectors and Techniques
 
-- **Browser Extension Compromise**: Legitimate extensions weaponized for malware delivery and cryptocurrency theft
-- **ClickFix Attack Technique**: Social engineering method demonstrated in QuickLens extension compromise
-- **Web Shell Deployment**: Command injection exploits leading to persistent web shell access
+- **Zero-Day Exploitation**: Long-term exploitation of undiscovered vulnerabilities in network infrastructure
+- **Supply Chain Compromise**: Legitimate browser extensions compromised to deliver malware
+- **Web Shell Deployment**: Command injection attacks resulting in persistent backdoor access
 - **WebSocket Hijacking**: Malicious websites exploiting local AI agent connections
-- **Air-Gapped Network Infiltration**: USB-based malware and removable drive propagation
-- **Blockchain C2 Infrastructure**: Encrypted command storage on Polygon blockchain for takedown resilience
-- **Supply Chain Attacks**: Third-party service provider compromises affecting downstream customers
-- **Zero-Day Exploitation**: Long-term exploitation of unpatched critical vulnerabilities
+- **Air-Gapped Network Infiltration**: USB-based malware spreading between isolated systems
+- **ClickFix Social Engineering**: Deceptive user interface manipulation for malware delivery
+- **Blockchain C2 Infrastructure**: Command and control systems using cryptocurrency networks
+- **Trojanized Gaming Tools**: Malicious utilities distributed through browsers and chat platforms
 
 ## Threat Actor Activities
 
-- **APT37 (North Korean)**: Deploying new malware tools for air-gapped network breaches and covert surveillance via removable drives
-- **ScarCruft (North Korean)**: Using Zoho WorkDrive for C2 communications and USB malware to breach air-gapped networks
-- **Kimwolf Botmaster "Dort"**: Operating the world's largest and most disruptive botnet through disclosed vulnerability exploitation
-- **The Com Cybercrime Collective**: Targeting children and teenagers, leading to 30 arrests in Europol-coordinated operation
-- **Unknown Sophisticated Actor**: Exploiting Cisco SD-WAN zero-day for three years with minimal forensic evidence
-- **Cryptocurrency Scammers**: Operating pig butchering schemes with $61 million in seized Tether assets
-- **Gaming Tool Attackers**: Distributing Java-based RATs through trojanized gaming utilities via browsers and chat platforms
+- **APT37 (North Korean)**: Deploying new malware tools to breach air-gapped networks using removable drives and conducting covert surveillance operations
+- **ScarCruft (North Korean)**: Using Zoho WorkDrive for C2 communications and USB-based malware to infiltrate isolated networks
+- **Sophisticated Unknown Actor**: Exploiting Cisco SD-WAN zero-day for three years with minimal forensic traces
+- **Kimwolf Botnet Operators**: Operating world's largest botnet through disclosed vulnerability exploitation
+- **The Com Cybercrime Collective**: Targeting children and teenagers, resulting in 30 arrests through Europol coordination
+- **Aeternum C2 Operators**: Using blockchain-based infrastructure to evade takedown efforts
+- **FreePBX Attackers**: Mass exploitation of VoIP systems for web shell deployment and persistent access
