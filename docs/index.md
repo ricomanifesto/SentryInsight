@@ -1,63 +1,66 @@
 # Exploitation Report
 
-The current threat landscape is dominated by sophisticated zero-day exploitation campaigns, with APT28 actively exploiting CVE-2026-21513, a critical MSHTML vulnerability that was weaponized before Microsoft's February 2026 Patch Tuesday. State-sponsored threat actors are increasingly targeting air-gapped networks and cloud infrastructure, while cybercriminals continue exploiting supply chain vulnerabilities through compromised browser extensions and malicious npm packages. Notable incidents include the exploitation of Ivanti devices through CVE-2025-0282, ongoing attacks against Sangoma FreePBX systems, and the ClawJacked vulnerability affecting OpenClaw AI agents. The exploitation landscape also features novel attack vectors targeting identity verification systems through deepfakes and AI-powered deception techniques.
+The current threat landscape reveals several critical exploitation activities across multiple platforms and attack vectors. Most notably, APT28 has been actively exploiting a zero-day MSHTML vulnerability before Microsoft's February 2026 patch cycle, while over 900 Sangoma FreePBX instances remain compromised with web shells from ongoing attacks. Chrome users face risks from malicious extensions exploiting privilege escalation vulnerabilities through the Gemini AI panel, and North Korean threat actors continue their sophisticated supply chain attacks through compromised npm packages. Additional concerns include AI agent hijacking through WebSocket vulnerabilities and widespread crypto theft through various attack methods.
 
 ## Active Exploitation Details
 
 ### MSHTML Zero-Day Vulnerability
-- **Description**: A critical security flaw in Microsoft's MSHTML component that was actively exploited by state-sponsored threat actors before being patched
-- **Impact**: Allows attackers to execute arbitrary code and compromise target systems through web-based attacks
-- **Status**: Patched by Microsoft in February 2026 Patch Tuesday, but was exploited in the wild before disclosure
+- **Description**: A security flaw in Microsoft's MSHTML component that was exploited as a zero-day before the February 2026 Patch Tuesday
+- **Impact**: Allows threat actors to gain unauthorized access and execute malicious code on targeted systems
+- **Status**: Patched by Microsoft in February 2026, but was actively exploited before the patch release
 - **CVE ID**: CVE-2026-21513
 
-### Ivanti Connect Secure Zero-Day
-- **Description**: A vulnerability in Ivanti Connect Secure devices that allows for malware implantation and persistent access
-- **Impact**: Enables attackers to deploy the RESURGE malware implant, which can remain dormant on compromised devices
-- **Status**: Actively exploited with CISA warning about dormant malware remaining on affected systems
-- **CVE ID**: CVE-2025-0282
+### Chrome Gemini Panel Privilege Escalation
+- **Description**: A vulnerability in Google Chrome's Gemini AI panel that allows malicious extensions to escalate privileges
+- **Impact**: Attackers can gain access to local files on the system, violate user privacy while browsing, and access sensitive resources
+- **Status**: Now patched by Google Chrome
+- **CVE ID**: Not specified in the articles
 
 ### Sangoma FreePBX Command Injection
-- **Description**: A command injection vulnerability in Sangoma FreePBX systems that allows for web shell deployment
-- **Impact**: Enables attackers to gain persistent access to telecommunications infrastructure and deploy malicious web shells
-- **Status**: Over 900 instances remain compromised with active web shell infections since December attacks
+- **Description**: A command injection vulnerability in Sangoma FreePBX systems that allows attackers to deploy web shells
+- **Impact**: Complete system compromise allowing persistent access and control over PBX systems
+- **Status**: Over 900 instances remain infected despite patches being available
 
-### ClawJacked OpenClaw Vulnerability
-- **Description**: A high-severity vulnerability in the OpenClaw AI agent that allows malicious websites to hijack local instances via WebSocket connections
-- **Impact**: Permits unauthorized control of AI agents, data theft, and system compromise through web-based attacks
-- **Status**: Fixed by OpenClaw developers after security researcher disclosure
+### Ivanti Connect Zero-Day
+- **Description**: A zero-day vulnerability in Ivanti Connect Secure devices exploited to deploy RESURGE malware
+- **Impact**: Allows deployment of dormant malware implants that can remain undetected on compromised devices
+- **Status**: Currently being exploited with RESURGE malware deployments
+- **CVE ID**: CVE-2025-0282
 
-### QuickLens Chrome Extension Compromise
-- **Description**: A legitimate Chrome extension that was compromised to deliver malware and cryptocurrency theft capabilities
-- **Impact**: Targets cryptocurrency users with ClickFix attack techniques and credential harvesting
-- **Status**: Extension removed from Chrome Web Store after compromise detection
+### OpenClaw WebSocket Vulnerability (ClawJacked)
+- **Description**: A high-severity vulnerability in the OpenClaw AI agent that allows malicious websites to hijack local AI agents via WebSocket connections
+- **Impact**: Remote takeover of AI agents, data theft, and unauthorized access to local systems
+- **Status**: Fixed by OpenClaw developers
 
 ## Affected Systems and Products
 
-- **Microsoft MSHTML Component**: Legacy web rendering component used across Windows systems
-- **Ivanti Connect Secure**: VPN and secure access devices widely deployed in enterprise environments
-- **Sangoma FreePBX**: Open-source PBX telephony systems used by businesses globally
-- **OpenClaw AI Agents**: Local AI automation tools running on user systems
-- **Google Chrome Extensions**: Browser extension ecosystem, specifically the QuickLens extension
-- **npm Package Registry**: JavaScript package repository targeted by North Korean threat actors
-- **Google Cloud API**: Cloud platform services with exposed API keys providing Gemini access
-- **Zoho WorkDrive**: Cloud storage service used as command-and-control infrastructure
+- **Google Chrome**: Gemini AI panel vulnerability affecting users with malicious extensions installed
+- **Microsoft MSHTML**: Component vulnerability exploited by APT28 before February 2026 patches
+- **Sangoma FreePBX**: Over 900 instances compromised with web shells from command injection attacks
+- **Ivanti Connect Secure**: Devices affected by zero-day exploitation and RESURGE malware implants
+- **OpenClaw AI Agent**: Local AI agents vulnerable to WebSocket-based hijacking attacks
+- **npm Registry**: 26 malicious packages published containing cross-platform RAT malware
+- **Chrome Extensions**: QuickLens extension compromised to steal cryptocurrency and deploy malware
+- **Google Cloud API**: Thousands of exposed API keys providing unauthorized access to Gemini endpoints
+- **Go Modules**: Malicious cryptocurrency modules deploying Rekoobe backdoors on Linux systems
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: State-sponsored actors leveraging undisclosed vulnerabilities before patches are available
-- **Web Shell Deployment**: Persistent access through malicious web shells on compromised FreePBX systems
-- **Supply Chain Compromise**: Infiltration of legitimate software distribution channels including npm packages and browser extensions
-- **WebSocket Hijacking**: Exploitation of local AI agents through malicious website interactions
-- **USB-Based Air-Gap Bridging**: Malware designed to transfer data between isolated and internet-connected networks
-- **Cloud API Abuse**: Exploitation of exposed Google Cloud API keys for unauthorized Gemini access
-- **ClickFix Social Engineering**: Deceptive techniques used in browser extension compromise campaigns
-- **Deepfake Identity Bypass**: AI-generated content used to circumvent identity verification systems
+- **Zero-Day Exploitation**: Targeted exploitation of unpatched vulnerabilities in MSHTML and Ivanti systems
+- **Supply Chain Attacks**: Malicious npm packages and compromised Chrome extensions used to deliver malware
+- **WebSocket Hijacking**: ClawJacked attacks exploiting AI agent communication protocols
+- **Web Shell Deployment**: Command injection attacks leading to persistent backdoor access
+- **Social Engineering**: ClickFix attacks and fraudulent browser extension installations
+- **API Key Abuse**: Exploitation of exposed Google Cloud API keys for unauthorized service access
+- **Malware Implants**: Deployment of dormant malware like RESURGE that can remain undetected
+- **Cross-Platform RAT**: Node.js-based remote access tools targeting multiple operating systems
 
 ## Threat Actor Activities
 
-- **APT28 (Russian State-Sponsored)**: Actively exploiting CVE-2026-21513 MSHTML vulnerability in targeted campaigns before patch availability
-- **APT37/ScarCruft (North Korean)**: Deploying sophisticated malware toolsets including USB-based air-gap bridging capabilities and Zoho WorkDrive C2 infrastructure
-- **North Korean Contagious Interview Campaign**: Publishing 26 malicious npm packages with Pastebin command-and-control for cross-platform RAT deployment
-- **Kimwolf Botnet Operators**: Managing the world's largest and most disruptive botnet through exploited vulnerabilities
-- **The Com Cybercrime Collective**: Online criminal group targeting children and teenagers, subject to Europol operation resulting in 30 arrests
-- **Unknown Threat Actors**: Conducting ongoing web shell attacks against FreePBX systems and exploiting Ivanti devices with RESURGE malware
+- **APT28 (Russian State-Sponsored)**: Actively exploiting CVE-2026-21513 MSHTML zero-day before Microsoft patches
+- **APT37 (North Korean)**: Deploying new malware tools to breach air-gapped networks and conduct covert surveillance
+- **North Korean Hackers**: Publishing 26 malicious npm packages in Contagious Interview campaign with Pastebin C2 infrastructure
+- **Cybercriminal Groups**: Compromising Chrome extensions like QuickLens to steal cryptocurrency from thousands of users
+- **Unknown Attackers**: Targeting Sangoma FreePBX systems with command injection attacks and web shell deployment
+- **The Com Collective**: Online cybercrime group targeting children and teenagers, resulting in 30 arrests in Europol operation
+- **Kimwolf Botnet Operators**: Assembling and operating the world's largest disruptive botnet through vulnerability exploitation
