@@ -1,56 +1,57 @@
 # Exploitation Report
 
-Current threat activity demonstrates a concerning trend of active zero-day exploitation across multiple platforms and attack vectors. The most critical development involves the active exploitation of CVE-2026-21385, a high-severity vulnerability in Qualcomm's Android display component, which Google has confirmed is being exploited in the wild. Additionally, CVE-2026-21513, a Microsoft HTML zero-day vulnerability, has been tied to APT28 operations and was exploited before Microsoft's February 2026 Patch Tuesday. The threat landscape is further complicated by the emergence of AI-powered attack tools, sophisticated phishing campaigns using Progressive Web Apps, and multiple vulnerabilities in popular AI platforms like OpenClaw that enable remote code execution and data theft.
+The current threat landscape reveals several critical zero-day vulnerabilities being actively exploited in the wild, with particularly concerning activity targeting Android devices and Windows systems. The most significant active exploitation involves CVE-2026-21385, a high-severity Qualcomm display component vulnerability affecting Android devices, and CVE-2026-21513, an MSHTML zero-day that was exploited by APT28 before Microsoft's February patch cycle. Additionally, a sophisticated phishing infrastructure called Starkiller is leveraging advanced techniques to bypass multi-factor authentication, while the ClawJacked vulnerability demonstrates new risks in AI agent security. Multiple threat actors are conducting coordinated campaigns against government entities and critical infrastructure, indicating a significant escalation in state-sponsored and criminal exploitation activities.
 
 ## Active Exploitation Details
 
-### Qualcomm Android Display Component Zero-Day
+### Qualcomm Android Display Component Vulnerability
 - **Description**: High-severity security flaw impacting an open-source Qualcomm component used in Android devices' display functionality
-- **Impact**: Allows attackers to exploit Android devices through the display component, potentially gaining elevated access
-- **Status**: Actively exploited in the wild, patches released by Google as part of 129 Android security vulnerabilities
+- **Impact**: Allows attackers to exploit Android devices through the display component, potentially leading to privilege escalation and system compromise
+- **Status**: Actively exploited in the wild; patches released by Google in latest Android security updates
 - **CVE ID**: CVE-2026-21385
 
-### Microsoft HTML Zero-Day Vulnerability
-- **Description**: Security flaw in Microsoft's MSHTML component that was exploited before official patching
-- **Impact**: Enables attackers to compromise systems through HTML-based attacks
-- **Status**: Exploited by APT28 before February 2026 Patch Tuesday, now patched
+### MSHTML Zero-Day Vulnerability
+- **Description**: Security flaw in Microsoft's MSHTML component that was exploited before the February 2026 Patch Tuesday
+- **Impact**: Enables attackers to compromise Windows systems through web-based attacks
+- **Status**: Actively exploited by APT28 threat actors; subsequently patched by Microsoft
 - **CVE ID**: CVE-2026-21513
 
-### OpenClaw AI Agent Hijacking Vulnerability (ClawJacked)
-- **Description**: High-severity vulnerability in the popular AI agent OpenClaw that allows malicious websites to connect to locally running AI agents via WebSocket
-- **Impact**: Enables remote attackers to hijack local AI agents, steal sensitive data, and execute commands on victim systems
-- **Status**: Recently patched, but was actively exploited through malicious website connections
+### ClawJacked OpenClaw AI Agent Vulnerability
+- **Description**: High-severity vulnerability in the popular OpenClaw AI agent that allows malicious websites to hijack locally running AI agents via WebSocket connections
+- **Impact**: Enables attackers to silently brute-force access to local AI agents, steal data, and execute unauthorized commands
+- **Status**: Patched by OpenClaw developers following responsible disclosure
 
 ### Chrome Gemini Panel Privilege Escalation
 - **Description**: Security flaw in Google Chrome's Gemini AI panel that could permit privilege escalation
-- **Impact**: Attackers could escalate privileges, gain access to local files, violate user privacy during browsing, and access sensitive resources
-- **Status**: Now patched by Google
+- **Impact**: Allows malicious extensions to escalate privileges, access local files, and violate user privacy
+- **Status**: Patched by Google; affected Chrome versions updated
 
 ## Affected Systems and Products
 
-- **Android Devices**: All Android devices using Qualcomm display components vulnerable to zero-day exploitation
-- **Microsoft Windows Systems**: Systems running MSHTML components targeted by APT28 operations
-- **Google Chrome Browser**: Users with Gemini AI panel functionality at risk for privilege escalation attacks
-- **OpenClaw AI Platform**: Local AI agent installations vulnerable to remote hijacking via malicious websites
-- **Chrome Extensions**: QuickLens extension compromised to deliver cryptocurrency theft malware
-- **npm Package Registry**: 26 malicious packages published by North Korean actors for cross-platform RAT deployment
-- **Progressive Web Apps**: Fake Google security sites delivering credential and MFA code theft applications
+- **Android Devices**: All devices using Qualcomm display components, particularly those not yet updated with latest Android security patches
+- **Windows Systems**: Systems running affected MSHTML components, targeted specifically by APT28 operations
+- **OpenClaw AI Agent**: Local installations of OpenClaw before the security patch implementation
+- **Google Chrome**: Chrome browsers with Gemini AI panel integration before the latest security updates
+- **AWS Data Centers**: Three UAE facilities and one Bahrain facility affected by physical drone strike attacks
+- **Cloud Imperium Games**: Star Citizen and Squadron 42 game platforms and user databases
+- **University of Hawaii Cancer Center**: Epidemiology Division systems affecting 1.2 million individuals
+- **npm Registry**: 26 malicious packages targeting cross-platform environments in supply chain attacks
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Qualcomm and Microsoft components
-- **WebSocket Hijacking**: ClawJacked attacks using malicious websites to connect to local AI agents through WebSocket protocols
-- **Supply Chain Compromise**: Malicious npm packages and compromised Chrome extensions delivering malware payloads
-- **Progressive Web App Phishing**: Sophisticated phishing campaigns using PWA technology to steal credentials and MFA codes
-- **AI-Powered Attack Tools**: Adoption of CyberStrikeAI platform for enhanced automated attack capabilities
-- **ClickFix Social Engineering**: Chrome extension compromise combined with social engineering to deliver cryptocurrency theft malware
-- **Cross-Platform RAT Deployment**: North Korean actors using npm packages with Pastebin C2 infrastructure for multi-platform remote access
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Android and Windows systems
+- **Adversary-in-the-Middle (AitM)**: Starkiller phishing suite uses reverse proxy techniques to intercept and bypass MFA protections
+- **WebSocket Hijacking**: ClawJacked attack vector allowing malicious websites to connect to local AI agents
+- **Supply Chain Attacks**: North Korean threat actors publishing malicious npm packages with hidden Pastebin C2 infrastructure
+- **OAuth Redirect Abuse**: Sophisticated phishing campaigns leveraging legitimate OAuth mechanisms to bypass security defenses
+- **Progressive Web App (PWA) Abuse**: Fake Google Security sites deploying PWA applications to steal credentials and MFA codes
+- **Physical Infrastructure Attacks**: Drone strikes targeting cloud infrastructure in Middle East regions
 
 ## Threat Actor Activities
 
-- **APT28 (Russian State-Sponsored)**: Actively exploiting CVE-2026-21513 Microsoft HTML zero-day before official patching, demonstrating advanced persistent threat capabilities
-- **SloppyLemming**: Conducting targeted campaigns against Pakistan and Bangladesh government entities using dual malware chains and sophisticated attack infrastructure
-- **North Korean Threat Actors**: Publishing 26 malicious npm packages as part of the ongoing "Contagious Interview" campaign, using Pastebin for C2 communications and cross-platform RAT deployment
-- **CyberStrikeAI Users**: Multiple threat actors adopting AI-powered security testing platforms for enhanced attack automation and effectiveness
-- **The Com Cybercriminal Collective**: 30 alleged members arrested in Project Compass, with nearly 180 members identified in global law enforcement operation
-- **Cryptocurrency Theft Groups**: Exploiting exposed wallet seeds and compromising browser extensions to steal millions in cryptocurrency funds
+- **APT28**: Russian state-sponsored group actively exploiting CVE-2026-21513 MSHTML zero-day in targeted campaigns against high-value targets
+- **SloppyLemming**: Conducting sophisticated attacks against government entities and critical infrastructure in Pakistan and Bangladesh using dual malware chains
+- **North Korean Hackers**: Executing Contagious Interview campaign with 26 malicious npm packages containing cross-platform RAT capabilities
+- **The Com Cybercriminal Collective**: Global law enforcement operation Project Compass resulted in 30 arrests and identification of 180 members
+- **Iranian Threat Actors**: UK warns of heightened cyberattack risks from Iranian groups amid Middle East conflict escalation
+- **CyberStrikeAI Tool Adopters**: Threat actors leveraging AI-powered attack tools in campaigns that previously breached hundreds of Fortinet FortiGate devices
