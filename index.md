@@ -1,48 +1,49 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical vulnerabilities under active exploitation, with particular focus on zero-day flaws in mobile platforms and enterprise infrastructure. The most significant developments include the exploitation of CVE-2026-21385, a high-severity memory corruption vulnerability in Qualcomm Android components, and CVE-2026-22719, a remote code execution flaw in VMware Aria Operations that has prompted CISA to add it to the Known Exploited Vulnerabilities catalog. Additionally, sophisticated threat actors are leveraging AI-powered tools and novel attack techniques, including OAuth redirect abuse and malicious package distribution, to target government entities and enterprises across multiple continents.
+Critical exploitation activity is currently targeting multiple platforms and systems across various attack vectors. The most significant threats include active exploitation of a VMware Aria Operations remote code execution vulnerability (CVE-2026-22719) that has been added to CISA's Known Exploited Vulnerabilities catalog, indicating widespread in-the-wild attacks. Additionally, a powerful iOS exploit kit called Coruna has been identified targeting Apple devices with 23 different exploits across five exploitation chains, affecting iOS versions 13.0 through 17.2.1. A Qualcomm zero-day vulnerability (CVE-2026-21385) is also being actively exploited in targeted Android attacks, potentially linked to commercial spyware or nation-state operations. These developments represent a significant escalation in mobile and enterprise infrastructure targeting.
 
 ## Active Exploitation Details
 
-### Qualcomm Android Zero-Day Vulnerability
-- **Description**: High-severity memory corruption flaw affecting an open-source Qualcomm display component used in Android devices
-- **Impact**: Enables targeted attacks against Android users, potentially allowing remote code execution and device compromise
-- **Status**: Actively exploited in the wild; patches released by Google in Android security updates
-- **CVE ID**: CVE-2026-21385
-
-### VMware Aria Operations Remote Code Execution
-- **Description**: Critical vulnerability in Broadcom VMware Aria Operations allowing remote code execution
-- **Impact**: Complete system compromise and unauthorized access to enterprise virtualization infrastructure
-- **Status**: Actively exploited; added to CISA's Known Exploited Vulnerabilities catalog
+### VMware Aria Operations Remote Code Execution Vulnerability
+- **Description**: A security flaw in Broadcom VMware Aria Operations that allows remote code execution
+- **Impact**: Attackers can execute arbitrary code remotely on affected systems
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2026-22719
 
-### Laravel Package Supply Chain Attack
-- **Description**: Malicious Packagist PHP packages masquerading as legitimate Laravel utilities containing cross-platform remote access trojans
-- **Impact**: Cross-platform compromise affecting Windows, macOS, and Linux systems through software supply chain
-- **Status**: Active distribution through compromised package repositories
+### Coruna iOS Exploit Kit
+- **Description**: A new and powerful exploit kit targeting Apple iPhone models with 23 exploits across five exploitation chains
+- **Impact**: Complete compromise of iOS devices, allowing attackers full system access
+- **Status**: Active exploitation targeting iOS versions 13.0 through 17.2.1
+- **CVE ID**: Not specified in source articles
+
+### Qualcomm Zero-Day Android Vulnerability
+- **Description**: A high-severity memory corruption flaw in Qualcomm components used in targeted Android attacks
+- **Impact**: Device compromise potentially enabling surveillance capabilities
+- **Status**: Actively exploited, potentially tied to commercial spyware or nation-state threat groups
+- **CVE ID**: CVE-2026-21385
 
 ## Affected Systems and Products
 
-- **Android Devices**: Devices containing Qualcomm display components vulnerable to memory corruption attacks
-- **VMware Aria Operations**: Broadcom VMware Aria Operations environments at risk of remote code execution
-- **Laravel Applications**: PHP applications using compromised Laravel packages from Packagist repository
-- **FortiGate Appliances**: Fortinet FortiGate devices targeted by AI-driven attacks across 55 countries
-- **Government Networks**: European and Southeast Asian government entities targeted by APT campaigns
-- **Enterprise OAuth Systems**: Organizations using OAuth authentication vulnerable to redirect abuse
+- **VMware Aria Operations**: Broadcom VMware Aria Operations systems vulnerable to remote code execution
+- **Apple iOS Devices**: iPhone models running iOS versions 13.0 through 17.2.1 targeted by Coruna exploit kit
+- **Android Devices**: Devices with Qualcomm components affected by memory corruption vulnerability
+- **Fortinet FortiGate**: Network security appliances targeted in AI-driven attacks across 55 countries
+- **Enterprise OAuth Systems**: Organizations using OAuth authentication mechanisms targeted for credential theft
 
 ## Attack Vectors and Techniques
 
-- **Memory Corruption Exploitation**: Targeted attacks leveraging memory corruption in Qualcomm Android components
-- **AI-Powered Attacks**: Use of CyberStrikeAI platform for automated vulnerability discovery and exploitation
-- **Supply Chain Compromise**: Distribution of malicious packages through legitimate software repositories
-- **OAuth Redirect Abuse**: Exploitation of legitimate OAuth redirection mechanisms to bypass email and browser security
-- **Reverse Proxy Phishing**: Starkiller phishing suite using AitM (Adversary-in-the-Middle) techniques to bypass multi-factor authentication
-- **Fake Tech Support Campaigns**: Social engineering campaigns deploying customized Havoc C2 frameworks
+- **RDP Brute Force**: Credential-based attacks targeting Remote Desktop Protocol services leading to ransomware infrastructure exposure
+- **OAuth Redirect Abuse**: Legitimate OAuth redirection mechanisms abused to bypass phishing protections in email and browsers
+- **AI-Assisted Attacks**: CyberStrikeAI platform deployed in automated attacks against FortiGate appliances
+- **Phishing-as-a-Service**: Starkiller phishing suite using adversary-in-the-middle reverse proxy to bypass multi-factor authentication
+- **Supply Chain Compromise**: Fake Laravel packages on Packagist deploying cross-platform remote access trojans
+- **Fake Tech Support**: Social engineering campaigns deploying customized Havoc C2 framework for data exfiltration
 
 ## Threat Actor Activities
 
-- **Silver Dragon (APT41-Linked)**: Advanced persistent threat group targeting European and Southeast Asian governments using Cobalt Strike and Google Drive command-and-control infrastructure
-- **SloppyLemming**: Threat cluster conducting dual malware chain attacks against government entities and critical infrastructure in Pakistan and Bangladesh
-- **Commercial Spyware/Nation-State Groups**: Suspected exploitation of Qualcomm zero-day for targeted Android surveillance operations
-- **Pro-Iranian Actors**: Coordinated cyberattack campaigns targeting US and Israeli interests in retaliation for military actions
-- **Cybercrime Syndicates**: African cybercrime networks disrupted by international law enforcement operations resulting in 574 arrests
+- **Silver Dragon (APT41-linked)**: Targeting government entities in Europe and Southeast Asia using Cobalt Strike and Google Drive for command and control
+- **Sloppy Lemming**: India-nexus threat actors targeting defense and critical infrastructure with custom Rust-coded tools and cloud-based C2
+- **Pro-Iranian Actors**: Launching cyberattacks in retaliation for US-Israeli military action, aimed at economic and physical disruption
+- **Commercial Spyware Operations**: Exploitation of Qualcomm zero-day potentially linked to commercial surveillance tools
+- **Cybercrime Syndicates**: African cybercrime ring disrupted by law enforcement with 574 arrests and $3 million recovered
+- **Underground Markets**: Mass distribution of compromised cPanel credentials for phishing and scam infrastructure deployment
