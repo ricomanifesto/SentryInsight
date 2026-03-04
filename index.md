@@ -1,41 +1,48 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are being actively exploited across multiple platforms, with the most significant threats targeting Android devices and enterprise infrastructure. CVE-2026-21385, a high-severity memory corruption flaw in Qualcomm Android components, is being exploited in targeted attacks potentially linked to commercial spyware or nation-state actors. Additionally, CVE-2026-22719, a remote code execution vulnerability in VMware Aria Operations, has been flagged by CISA as actively exploited and added to the Known Exploited Vulnerabilities catalog. Threat actors are also leveraging sophisticated attack techniques, including AI-powered tools and OAuth redirect abuse, to bypass security measures and target government entities and critical infrastructure.
+The current threat landscape reveals several critical vulnerabilities being actively exploited in the wild, with particular focus on enterprise infrastructure and mobile platforms. Most notably, CISA has flagged a VMware Aria Operations vulnerability (CVE-2026-22719) for active exploitation, while Google has confirmed the exploitation of a high-severity Qualcomm Android component flaw (CVE-2026-21385). Additionally, threat actors are leveraging sophisticated attack techniques including OAuth redirect abuse, AI-powered exploitation tools, and multi-platform malware distribution through compromised package repositories.
 
 ## Active Exploitation Details
 
-### Qualcomm Android Component Zero-Day
-- **Description**: A high-severity memory corruption vulnerability affecting an open-source Qualcomm display component used in Android devices
-- **Impact**: Enables arbitrary code execution on affected Android devices, potentially allowing complete device compromise
-- **Status**: Actively exploited in the wild; patches released by Google as part of Android security updates
+### VMware Aria Operations Remote Code Execution Vulnerability
+- **Description**: A security flaw in Broadcom VMware Aria Operations that allows remote code execution
+- **Impact**: Attackers can gain unauthorized access and execute arbitrary code on vulnerable systems
+- **Status**: Actively exploited in attacks and added to CISA's Known Exploited Vulnerabilities catalog
+- **CVE ID**: CVE-2026-22719
+
+### Qualcomm Android Component Memory Corruption Vulnerability
+- **Description**: A high-severity memory corruption flaw affecting an open-source Qualcomm display component used in Android devices
+- **Impact**: Enables targeted attacks against Android devices, potentially allowing code execution and privilege escalation
+- **Status**: Actively exploited in the wild, patches released by Google
 - **CVE ID**: CVE-2026-21385
 
-### VMware Aria Operations Remote Code Execution
-- **Description**: A critical security flaw in Broadcom VMware Aria Operations that allows remote code execution
-- **Impact**: Attackers can execute arbitrary code remotely on vulnerable VMware Aria Operations systems
-- **Status**: Actively exploited in attacks; flagged by CISA and added to KEV catalog
-- **CVE ID**: CVE-2026-22719
+### OAuth Redirect Mechanism Abuse
+- **Description**: Malicious exploitation of legitimate OAuth redirection mechanisms to bypass phishing protections
+- **Impact**: Allows attackers to circumvent email and browser security defenses, leading users to malicious pages and delivering malware
+- **Status**: Actively used in phishing campaigns targeting government entities
 
 ## Affected Systems and Products
 
-- **Android Devices**: All devices using affected Qualcomm display components vulnerable to zero-day exploitation
-- **VMware Aria Operations**: Broadcom VMware infrastructure management platform experiencing active exploitation
-- **Fortinet FortiGate Appliances**: Targeted by AI-assisted campaigns using CyberStrikeAI tools across 55 countries
-- **Government Networks**: Entities in Pakistan, Bangladesh, Europe, and Southeast Asia targeted by APT groups
-- **Enterprise OAuth Systems**: Organizations using OAuth authentication mechanisms targeted through redirect abuse
+- **VMware Aria Operations**: Broadcom's infrastructure management platform experiencing active exploitation
+- **Android Devices**: Devices using Qualcomm components affected by zero-day exploitation
+- **Packagist PHP Repository**: Fake Laravel packages distributing cross-platform RATs
+- **cPanel Management Systems**: Compromised credentials being sold in bulk on cybercrime markets
+- **Fortinet FortiGate Appliances**: Targeted by AI-driven attacks across 55 countries
+- **Enterprise OAuth Systems**: Government and organizational targets of redirect abuse campaigns
 
 ## Attack Vectors and Techniques
 
-- **AI-Powered Exploitation**: Threat actors using CyberStrikeAI open-source security testing platform for automated vulnerability discovery and exploitation
-- **OAuth Redirect Abuse**: Malicious actors exploiting legitimate OAuth redirection mechanisms to bypass email and browser phishing protections
-- **Adversary-in-the-Middle (AitM)**: Starkiller phishing suite using reverse proxy techniques to bypass multi-factor authentication
-- **Dual Malware Chains**: SloppyLemming group deploying multiple malware payloads for persistence and stealth
-- **Fake Tech Support Campaigns**: Social engineering attacks delivering Havoc C2 framework through fraudulent IT support communications
+- **Package Repository Poisoning**: Malicious Laravel packages on Packagist deploying RATs across Windows, macOS, and Linux
+- **AI-Powered Exploitation**: CyberStrikeAI platform being used for automated security testing and attacks
+- **OAuth Redirect Abuse**: Legitimate authentication mechanisms weaponized to bypass security controls
+- **Phishing-as-a-Service**: Starkiller suite using AitM reverse proxy to bypass multi-factor authentication
+- **Fake Tech Support Campaigns**: Social engineering attacks delivering Havoc C2 framework
+- **Google Drive C2 Infrastructure**: Cloud services utilized for command and control operations
 
 ## Threat Actor Activities
 
-- **APT41-Linked Silver Dragon**: Advanced persistent threat group targeting government entities in Europe and Southeast Asia using Cobalt Strike and Google Drive for command and control
-- **SloppyLemming**: Threat cluster conducting targeted attacks against government entities and critical infrastructure in Pakistan and Bangladesh using sophisticated malware delivery chains
-- **Pro-Iranian Actors**: Increased cyberattack activity targeting US and Israeli interests as retaliation for military actions, focusing on economic and physical disruption
-- **Commercial Spyware Operators**: Exploitation of Qualcomm zero-day potentially linked to commercial surveillance tools targeting specific individuals or organizations
-- **African Cybercrime Syndicate**: Large-scale criminal operation disrupted by international law enforcement, resulting in 574 arrests and recovery of over $3 million
+- **APT41-Linked Silver Dragon**: Targeting European and Southeast Asian government entities using Cobalt Strike and Google Drive for C2 communications
+- **SloppyLemming**: Conducting dual malware chain attacks against government entities and critical infrastructure in Pakistan and Bangladesh
+- **African Cybercrime Syndicate**: Large-scale operation disrupted by Interpol resulting in 574 arrests and recovery of over $3 million
+- **Pro-Iranian Actors**: Launching coordinated cyberattacks in retaliation for US-Israeli military actions, targeting economic and physical infrastructure
+- **Commercial Spyware Operators**: Potentially behind Qualcomm zero-day exploitation targeting Android devices
