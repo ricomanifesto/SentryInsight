@@ -1,59 +1,59 @@
 # Exploitation Report
 
-Current exploitation activities reveal a concerning landscape of actively exploited vulnerabilities across enterprise infrastructure, with particular focus on network devices and cloud platforms. Notable incidents include active exploitation of Cisco Catalyst SD-WAN Manager vulnerabilities, a critical WordPress plugin flaw being leveraged to create admin accounts, and a maximum severity FreeScout vulnerability enabling zero-click remote code execution. Threat actors are increasingly targeting telecommunication infrastructure, with Chinese state hackers deploying sophisticated malware toolkits against South American telcos. The period also saw significant law enforcement actions, including the takedown of major cybercriminal platforms and phishing operations, while threat intelligence indicates 90 zero-day vulnerabilities were exploited in attacks throughout 2025.
+Critical exploitation activity has escalated significantly with multiple high-severity vulnerabilities being actively exploited across various platforms. The most concerning developments include two Cisco Catalyst SD-WAN Manager vulnerabilities flagged as actively exploited, CVSS 9.8 rated vulnerabilities in Hikvision and Rockwell Automation products added to CISA's KEV catalog, and a maximum severity zero-click vulnerability in FreeScout helpdesk platform. Additionally, Google reported tracking 90 zero-day vulnerabilities exploited throughout 2025, with nearly half targeting enterprise software and appliances. WordPress sites are under attack through a critical vulnerability in the User Registration & Membership plugin, while sophisticated phishing campaigns continue to evolve with ClickFix operations using Windows Terminal to deploy Lumma Stealer malware.
 
 ## Active Exploitation Details
 
 ### Cisco Catalyst SD-WAN Manager Vulnerabilities
-- **Description**: Two security flaws in Cisco's SD-WAN Manager (formerly SD-WAN vManage) are being actively exploited by attackers
-- **Impact**: Successful exploitation could allow attackers to compromise network infrastructure and gain unauthorized access to SD-WAN environments
-- **Status**: Cisco has confirmed active exploitation and released security advisories urging immediate upgrades
+- **Description**: Two security flaws affecting Cisco Catalyst SD-WAN Manager (formerly SD-WAN vManage) that allow unauthorized access and control
+- **Impact**: Attackers can gain administrative access to SD-WAN infrastructure and potentially compromise entire network segments
+- **Status**: Actively exploited in the wild; patches available
+
+### Hikvision and Rockwell Automation Critical Vulnerabilities
+- **Description**: Critical security flaws with CVSS 9.8 severity ratings affecting industrial control systems and video surveillance equipment
+- **Impact**: Complete system compromise with potential for remote code execution and unauthorized access
+- **Status**: Added to CISA KEV catalog due to active exploitation; immediate patching required
+
+### FreeScout Helpdesk Platform Zero-Click Vulnerability
+- **Description**: Maximum severity vulnerability enabling remote code execution without any user interaction or authentication requirements
+- **Impact**: Complete server compromise through zero-click attack vector, allowing full control of mail servers
+- **Status**: Actively exploited; immediate patching critical
 
 ### WordPress User Registration & Membership Plugin Vulnerability
-- **Description**: Critical vulnerability in the User Registration & Membership plugin affecting over 60,000 WordPress installations
-- **Impact**: Attackers can exploit this flaw to create administrator accounts, gaining full control over WordPress websites
-- **Status**: Currently being actively exploited in the wild
+- **Description**: Critical vulnerability in plugin installed on over 60,000 WordPress sites allowing unauthorized administrative access
+- **Impact**: Attackers can create admin accounts and gain full control of WordPress installations
+- **Status**: Actively exploited; affects significant number of websites
 
-### FreeScout Mail2Shell Zero-Click Attack
-- **Description**: Maximum severity vulnerability in the FreeScout helpdesk platform enabling remote code execution
-- **Impact**: Allows complete server compromise without any user interaction or authentication required
-- **Status**: Zero-click attack vector makes this particularly dangerous for automated exploitation
-
-### VMware Aria Operations Command Injection
+### VMware Aria Operations Command Injection Flaw
 - **Description**: Command injection vulnerability in VMware Aria Operations cloud management platform
-- **Impact**: Successful exploitation grants attackers broad access to victims' cloud environments and resources
-- **Status**: Active exploitation confirmed, putting cloud infrastructures at risk
-
-### Cisco Secure Firewall Management Center Flaws
-- **Description**: Two maximum-severity vulnerabilities in Cisco's Secure FMC software
-- **Impact**: Exploitation provides root-level access to firewall management systems
-- **Status**: Security updates released to address critical flaws
+- **Impact**: Broad access to victims' cloud environments and infrastructure
+- **Status**: Currently being exploited; cloud resources at significant risk
 
 ## Affected Systems and Products
 
-- **Cisco Catalyst SD-WAN Manager**: Network management and orchestration platform vulnerable to active exploitation
-- **WordPress Sites**: Over 60,000 installations using vulnerable User Registration & Membership plugin
-- **FreeScout Helpdesk**: Mail server platforms running vulnerable FreeScout software
-- **VMware Aria Operations**: Cloud management and monitoring environments
-- **Cisco Secure FMC**: Firewall management centers across enterprise networks
-- **Telecommunication Infrastructure**: South American telecom providers targeted by Chinese state actors
-- **Wikipedia Platform**: Affected by self-propagating JavaScript worm causing page vandalization
+- **Cisco Catalyst SD-WAN Manager**: Network infrastructure management systems vulnerable to unauthorized access
+- **Hikvision Video Surveillance Systems**: Industrial security cameras and monitoring equipment
+- **Rockwell Automation Industrial Control Systems**: Manufacturing and industrial automation platforms
+- **FreeScout Helpdesk Platform**: Customer support and ticketing systems
+- **WordPress Sites**: Over 60,000 websites using User Registration & Membership plugin
+- **VMware Aria Operations**: Cloud infrastructure management and monitoring platforms
+- **Enterprise Software and Appliances**: Nearly half of the 90 tracked zero-day exploits target enterprise environments
 
 ## Attack Vectors and Techniques
 
-- **Zero-Click Exploitation**: FreeScout vulnerability requires no user interaction for successful compromise
-- **Privilege Escalation**: WordPress plugin flaw enables creation of administrator accounts
-- **Command Injection**: VMware Aria Operations vulnerable to remote command execution attacks
-- **Network Device Compromise**: SD-WAN manager exploitation targeting critical network infrastructure
-- **Malware Deployment**: Chinese APT groups using sophisticated toolkits against telecom targets
-- **JavaScript Worms**: Self-propagating malicious scripts targeting wiki platforms
-- **Phishing-as-a-Service**: Advanced credential harvesting operations bypassing multi-factor authentication
+- **Zero-Click Exploitation**: Mail2Shell attacks against FreeScout servers requiring no user interaction
+- **Social Engineering**: ClickFix campaigns using Windows Terminal to deploy malware payloads
+- **Privilege Escalation**: WordPress plugin exploitation to create unauthorized admin accounts
+- **Network Infrastructure Compromise**: SD-WAN manager exploitation for network-wide access
+- **Command Injection**: VMware Aria Operations attacks enabling cloud environment compromise
+- **Phishing-as-a-Service**: Tycoon 2FA platform facilitating large-scale credential theft operations
+- **Self-Propagating Attacks**: JavaScript worms targeting Wikipedia and similar platforms
 
 ## Threat Actor Activities
 
-- **UAT-9244 (Chinese State Actor)**: Targeting South American telecommunications providers with new malware toolkit since 2024, compromising Windows, Linux, and network-edge devices
-- **APT36 (Pakistan)**: Leveraging AI-powered malware generation techniques to create mediocre but scalable malicious code
-- **APT28 (Russian)**: Deploying BadPaw loader and MeowMeow backdoor in targeted campaigns against Ukrainian entities
-- **Dust Specter (Iran-linked)**: Impersonating Iraqi Ministry of Foreign Affairs to deliver SPLITDROP and GHOSTFORM malware to government officials
-- **Hacktivist Groups**: Conducting 149 DDoS attacks against 110 organizations across 16 countries following Middle East conflicts
-- **Cybercriminal Operations**: Multiple major platforms disrupted including Tycoon 2FA phishing service (64,000 attacks) and LeakBase credential trading forum
+- **UAT-9244 (Chinese APT)**: Targeting South American telecommunications providers since 2024 with new malware toolkit affecting Windows, Linux, and network-edge devices
+- **APT28 (Russian)**: Deploying BadPaw loader and MeowMeow backdoor in campaigns targeting Ukrainian entities
+- **APT36 (Pakistani)**: Utilizing AI-powered malware development techniques to scale malware production
+- **Dust Specter (Iran-linked)**: Targeting Iraqi government officials with SPLITDROP and GHOSTFORM malware while impersonating Ministry of Foreign Affairs
+- **ClickFix Campaign Operators**: Conducting widespread social engineering campaigns using Windows Terminal to deploy Lumma Stealer
+- **Phobos Ransomware Operation**: International cybercriminal network with Russian administrator recently pleading guilty to wire fraud conspiracy
