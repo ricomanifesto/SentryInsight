@@ -1,57 +1,62 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity across multiple fronts, with threat actors leveraging AI technologies to enhance traditional attack methods while actively exploiting critical vulnerabilities in enterprise infrastructure. CISA has ordered federal agencies to patch three iOS security flaws being exploited in cyberespionage and crypto-theft attacks using the Coruna exploit kit. Critical vulnerabilities in Cisco Catalyst SD-WAN Manager systems are under active exploitation, while nation-state actors from North Korea, China, Pakistan, and Iran are deploying sophisticated campaigns targeting telecommunications infrastructure, financial institutions, and government agencies. Google's Threat Intelligence Group tracked 90 zero-day vulnerabilities that were actively exploited throughout 2025, with nearly half targeting enterprise software and appliances.
+The cybersecurity landscape reveals significant exploitation activity across multiple sectors, with particular focus on iOS vulnerabilities being weaponized for cyberespionage and cryptocurrency theft, alongside widespread zero-day exploitation affecting enterprise systems. Government agencies are under active attack from nation-state actors, while threat groups increasingly leverage AI technologies to scale malware production and social engineering campaigns. Critical vulnerabilities in network infrastructure devices and enterprise software are being exploited in the wild, prompting urgent patch advisories from security agencies.
 
 ## Active Exploitation Details
 
-### iOS Security Flaws in Coruna Exploit Kit Attacks
-- **Description**: Three iOS security vulnerabilities being exploited through the Coruna exploit kit in targeted attacks
-- **Impact**: Enables cyberespionage activities and cryptocurrency theft operations
-- **Status**: CISA has mandated federal agencies to apply patches immediately
+### iOS Security Flaws in Coruna Exploit Kit
+- **Description**: Three iOS security vulnerabilities being exploited through the Coruna exploit kit for targeted attacks
+- **Impact**: Cyberespionage operations and cryptocurrency theft targeting mobile device users
+- **Status**: CISA has ordered federal agencies to patch these flaws immediately due to active exploitation
 
 ### Cisco Catalyst SD-WAN Manager Vulnerabilities
-- **Description**: Two critical vulnerabilities in Cisco Catalyst SD-WAN Manager (formerly SD-WAN vManage) systems
-- **Impact**: Allows attackers to compromise network management infrastructure
-- **Status**: Active exploitation confirmed by Cisco in the wild
-
-### WordPress User Registration & Membership Plugin Vulnerability
-- **Description**: Critical vulnerability in the User Registration & Membership plugin affecting over 60,000 WordPress sites
-- **Impact**: Enables attackers to create administrative accounts and gain full site control
-- **Status**: Currently being exploited to compromise WordPress installations
+- **Description**: Two vulnerabilities in Cisco's SD-WAN management platform confirmed to be under active exploitation
+- **Impact**: Network infrastructure compromise and potential lateral movement within enterprise environments
+- **Status**: Cisco has confirmed active exploitation in the wild
 
 ### Hikvision and Rockwell Automation Critical Flaws
-- **Description**: Two security flaws with CVSS 9.8 severity ratings affecting industrial and surveillance systems
-- **Impact**: Complete system compromise potential due to maximum severity rating
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog indicating active exploitation
+- **Description**: Two security vulnerabilities with CVSS 9.8 scores affecting industrial and surveillance systems
+- **Impact**: Critical system compromise with maximum severity ratings
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
+
+### WordPress User Registration & Membership Plugin Vulnerability
+- **Description**: Critical vulnerability allowing unauthorized admin account creation on WordPress sites
+- **Impact**: Complete website takeover and administrative access compromise
+- **Status**: Actively exploited against over 60,000 WordPress installations
+
+### Zero-Day Vulnerabilities
+- **Description**: Google Threat Intelligence tracked 90 zero-day vulnerabilities exploited throughout 2025
+- **Impact**: Nearly half targeting enterprise software and appliances for system compromise
+- **Status**: Active exploitation across multiple platforms and vendors
 
 ## Affected Systems and Products
 
-- **Apple iOS Devices**: Multiple versions affected by three security flaws exploited via Coruna kit
-- **Cisco Catalyst SD-WAN Manager**: Network management systems under active attack
-- **WordPress Sites**: Over 60,000 installations using vulnerable User Registration & Membership plugin
-- **Hikvision Products**: Surveillance and security camera systems with critical vulnerabilities
-- **Rockwell Automation Systems**: Industrial control and automation infrastructure
-- **Telecommunications Infrastructure**: South American telecom providers targeted by Chinese APT groups
-- **U.S. Financial Institutions**: Banks and financial services targeted by Iranian MuddyWater group
-- **Wikipedia Platform**: Multiple wikis affected by self-propagating JavaScript worm
-- **FBI Surveillance Systems**: Wiretap and surveillance warrant management systems breached
+- **iOS Devices**: Apple mobile devices targeted through Coruna exploit kit
+- **Cisco Catalyst SD-WAN Manager**: Network management infrastructure platforms
+- **Hikvision Products**: Video surveillance and security camera systems
+- **Rockwell Automation Systems**: Industrial control and automation equipment  
+- **WordPress Sites**: Over 60,000 sites using User Registration & Membership plugin
+- **Telecommunication Infrastructure**: South American telecom providers targeted by Chinese APT groups
+- **Healthcare Systems**: TriZetto Provider Solutions affecting 3.4 million patient records
+- **Government Networks**: U.S. federal agencies and Mexican government systems
+- **Enterprise Software**: Widespread targeting of business applications and appliances
 
 ## Attack Vectors and Techniques
 
-- **AI-Enhanced Social Engineering**: North Korean APTs using AI for face swapping and automated communication in IT worker scams
-- **ClickFix Social Engineering**: InstallFix variation convincing users to run malicious commands for fake Claude Code installations
-- **Multi-Stage Malware Deployment**: VOID#GEIST campaign using batch scripts to deliver encrypted RAT payloads including XWorm, AsyncRAT, and Xeno RAT
-- **JavaScript Worm Propagation**: Self-replicating worm vandalizing Wikipedia pages and modifying user scripts
-- **Phishing-as-a-Service**: Tycoon 2FA platform bypassing multi-factor authentication before law enforcement takedown
-- **Search Engine Poisoning**: Fake GitHub repositories promoted through Microsoft Bing AI to distribute info-stealing malware
-- **Network Infrastructure Targeting**: Custom malware toolkits including TernDoor, PeerTime, and BruteEntry for telecom attacks
+- **Coruna Exploit Kit**: Sophisticated mobile exploitation framework for iOS vulnerabilities
+- **ClickFix Social Engineering**: InstallFix variation tricking users into running malicious commands through fake software installation guides
+- **AI-Enhanced Malware Production**: Threat actors using artificial intelligence to mass-produce malware implants and social engineering content
+- **Multi-Stage VOID#GEIST Campaign**: Batch script-based delivery system for encrypted RAT payloads including XWorm, AsyncRAT, and Xeno RAT
+- **JavaScript Worm**: Self-propagating worm targeting Wikipedia and Wikimedia platforms for page vandalization
+- **Network Edge Device Compromise**: Targeting Windows, Linux systems and network infrastructure equipment
+- **Phishing-as-a-Service**: Tycoon 2FA platform enabling bypass of multifactor authentication systems
 
 ## Threat Actor Activities
 
-- **North Korean APTs**: Leveraging AI technologies to enhance long-running IT worker infiltration scams with improved face swapping and automated communications
-- **Transparent Tribe (APT36)**: Pakistan-aligned group using AI-powered coding tools for mass-producing malware implants targeting Indian organizations
-- **Iranian MuddyWater Group**: Deploying new Dindoor backdoor to establish persistence in U.S. corporate networks including banks and airlines
-- **Chinese UAT-9244 Group**: Targeting South American telecommunications infrastructure since 2024 with sophisticated malware toolkit affecting Windows, Linux, and network devices
-- **Iranian Cyber Operations**: Developing cyber-kinetic warfare capabilities, hacking IP cameras for missile strike planning and targeting physical infrastructure
-- **Mexico Government Attackers**: Using Anthropic's Claude and OpenAI's ChatGPT with detailed playbooks to breach government agencies and access citizen data
-- **Cryptocurrency Theft Operations**: Coordinated attacks resulting in $46 million theft from U.S. Marshals Service and $100 million fraud ring targeting U.S. businesses through BEC and romance scams
+- **North Korean APTs**: Using AI tools for enhanced IT worker infiltration scams including face-swapping and automated communications
+- **Transparent Tribe (APT36)**: Pakistan-aligned group leveraging AI-powered coding tools for malware development targeting India
+- **MuddyWater**: Iran-linked hackers deploying new Dindoor backdoor against U.S. networks including banks and airlines  
+- **UAT-9244**: China-linked APT group targeting South American telecommunications with TernDoor, PeerTime, and BruteEntry malware toolkit
+- **Iranian Cyber Operations**: Developing cyber-kinetic warfare doctrine including hacking IP cameras for missile strike planning
+- **Mexican Government Attackers**: Using Claude AI and ChatGPT for sophisticated attacks on government agencies and citizen data
+- **Fraud Networks**: $100 million international fraud ring using business email compromise and romance scams
