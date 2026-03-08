@@ -1,54 +1,63 @@
 # Exploitation Report
 
-Current cybersecurity threats reveal a surge in sophisticated attack campaigns leveraging both traditional exploitation techniques and emerging AI-powered methods. Critical vulnerabilities are being actively exploited across multiple platforms, including iOS devices targeted through crypto-theft attacks, WordPress sites compromised via membership plugin flaws, and telecommunications infrastructure targeted by state-sponsored actors. Notable activities include the use of ClickFix social engineering campaigns deploying various malware families, AI-enhanced malware development by nation-state actors, and critical vulnerabilities in industrial control systems and network devices being added to government watch lists for active exploitation.
+Current threat landscape reveals significant exploitation activity across multiple vectors, with threat actors increasingly leveraging AI-powered techniques and social engineering campaigns. Critical vulnerabilities are being actively exploited in Hikvision surveillance systems, Rockwell Automation products, iOS devices, and WordPress plugins. Nation-state actors from China, Iran, and Pakistan are conducting sophisticated campaigns targeting telecommunications infrastructure, government agencies, and financial institutions. Social engineering attacks utilizing ClickFix and InstallFix techniques are proliferating, while ransomware groups continue to evolve their tactics with AI assistance.
 
 ## Active Exploitation Details
 
+### Hikvision Security Flaw
+- **Description**: Critical vulnerability in Hikvision surveillance systems with maximum severity rating
+- **Impact**: Complete system compromise allowing unauthorized access to surveillance infrastructure
+- **Status**: Actively exploited in the wild, added to CISA KEV catalog
+- **CVE ID**: CVSS 9.8 rated vulnerability
+
+### Rockwell Automation Industrial Control System Vulnerability
+- **Description**: Critical security flaw affecting Rockwell Automation industrial control products
+- **Impact**: Potential for complete system takeover in industrial environments
+- **Status**: Actively exploited, added to CISA KEV catalog with mandatory patching requirements
+- **CVE ID**: CVSS 9.8 rated vulnerability
+
 ### iOS Security Flaws in Coruna Exploit Kit
-- **Description**: Three iOS security vulnerabilities are being exploited in cyberespionage and crypto-theft attacks using the Coruna exploit kit
-- **Impact**: Attackers can conduct espionage operations and steal cryptocurrency from targeted devices
-- **Status**: CISA has ordered U.S. federal agencies to patch these flaws, indicating active exploitation in the wild
+- **Description**: Three iOS security vulnerabilities being exploited through the Coruna exploit kit
+- **Impact**: Cyberespionage operations and cryptocurrency theft targeting iOS devices
+- **Status**: Active exploitation confirmed, CISA has ordered federal agencies to patch immediately
 
-### WordPress User Registration & Membership Plugin Vulnerability
-- **Description**: Critical vulnerability in the User Registration & Membership plugin affecting over 60,000 WordPress installations
-- **Impact**: Allows attackers to create administrative accounts on compromised WordPress sites
-- **Status**: Currently being exploited by hackers to gain unauthorized administrative access
-
-### Hikvision and Rockwell Automation Critical Flaws
-- **Description**: Security vulnerabilities with CVSS scores of 9.8 affecting Hikvision surveillance systems and Rockwell Automation industrial control products
-- **Impact**: Could allow complete system compromise of critical infrastructure and surveillance systems
-- **Status**: Added to CISA's Known Exploited Vulnerabilities (KEV) catalog, indicating confirmed exploitation activity
+### WordPress User Registration Plugin Vulnerability
+- **Description**: Critical vulnerability in User Registration & Membership plugin affecting over 60,000 WordPress sites
+- **Impact**: Allows attackers to create unauthorized administrator accounts
+- **Status**: Currently being exploited to compromise WordPress installations
 
 ### Cisco Firewall Vulnerabilities
-- **Description**: 48 new vulnerabilities discovered in Cisco firewall products, including 2 critical flaws with maximum CVSS scores
-- **Impact**: Could enable complete firewall bypass and network compromise
-- **Status**: Recently disclosed with patches available, but exploitation risk remains high
+- **Description**: 48 newly disclosed firewall vulnerabilities including 2 critical flaws
+- **Impact**: Edge device compromise with potential for network infiltration
+- **Status**: Recently patched, with 2 vulnerabilities scoring 10/10 on CVSS scale
 
 ## Affected Systems and Products
 
-- **iOS Devices**: Apple mobile devices targeted through Coruna exploit kit campaigns
-- **WordPress Sites**: Over 60,000 sites using User Registration & Membership plugin vulnerable to admin account creation
-- **Hikvision Systems**: Surveillance cameras and security systems with critical CVSS 9.8 vulnerabilities
-- **Rockwell Automation**: Industrial control systems and automation products
-- **Cisco Firewalls**: Network security appliances affected by 48 new vulnerabilities including 2 critical flaws
-- **Firefox Browser**: 22 newly discovered vulnerabilities identified through AI-powered security research
-- **Telecommunications Infrastructure**: South American telecom providers targeted by Chinese state actors
-- **Wikipedia Platform**: Multiple wikis affected by self-propagating JavaScript worm
+- **Hikvision Surveillance Systems**: Critical infrastructure surveillance equipment with CVSS 9.8 vulnerability
+- **Rockwell Automation Products**: Industrial control systems and automation equipment
+- **iOS Devices**: Apple mobile devices targeted through Coruna exploit kit
+- **WordPress Sites**: Over 60,000 sites using User Registration & Membership plugin
+- **Cisco Firewalls**: Edge security devices with 48 disclosed vulnerabilities
+- **Firefox Browser**: 22 new vulnerabilities discovered including 14 high-severity flaws
+- **Windows Systems**: Targeted through ClickFix campaigns using Windows Terminal
+- **Telecommunications Infrastructure**: South American telecom providers under attack
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: Malicious campaigns using fake error messages to trick users into executing commands through Windows Terminal
-- **InstallFix Technique**: New variation of ClickFix targeting users with fake software installation guides for legitimate applications like Claude Code
-- **AI-Enhanced Malware Development**: Nation-state actors using artificial intelligence tools to mass-produce malware implants and bypass detection
-- **Ransomware Deployment**: Velvet Tempest group using ClickFix techniques to deploy DonutLoader malware and CastleRAT backdoor leading to Termite ransomware
-- **JavaScript Worm Propagation**: Self-propagating malware targeting Wikipedia through user script modifications
-- **Multi-Stage Malware Campaigns**: VOID#GEIST campaigns using batch scripts to deliver encrypted RAT payloads including XWorm, AsyncRAT, and Xeno RAT
+- **ClickFix Social Engineering**: Malicious campaigns using fake error messages to trick users into executing harmful commands
+- **InstallFix Attacks**: New variation targeting users with fake software installation guides
+- **AI-Powered Code Generation**: Threat actors using AI tools to mass-produce malware implants
+- **Phishing-as-a-Service**: Tycoon 2FA platform enabling bypass of multifactor authentication
+- **JavaScript Worms**: Self-propagating malicious code affecting Wikipedia and other platforms
+- **Ransomware Deployment**: DonutLoader malware and CastleRAT backdoor distribution
+- **Business Email Compromise**: Large-scale fraud operations targeting financial institutions
 
 ## Threat Actor Activities
 
-- **Velvet Tempest**: Ransomware group leveraging ClickFix social engineering and legitimate Windows utilities to deploy Termite ransomware via DonutLoader and CastleRAT
-- **Transparent Tribe (APT36)**: Pakistan-aligned group using AI-powered coding tools to mass-produce malware implants targeting Indian entities
-- **MuddyWater**: Iran-linked hacking group deploying new Dindoor backdoor against U.S. networks including banks and airlines
-- **UAT-9244**: China-linked APT group targeting South American telecommunications providers with custom malware toolkit including TernDoor, PeerTime, and BruteEntry
-- **North Korean APTs**: Using AI tools for enhanced IT worker scams including face-swapping technology and automated communications
-- **Tycoon 2FA Operators**: Phishing-as-a-service platform disrupted by Europol after facilitating multifactor authentication bypass attacks
+- **Velvet Tempest**: Ransomware group using ClickFix techniques to deploy Termite ransomware and CastleRAT backdoor
+- **Transparent Tribe (APT36)**: Pakistan-aligned group using AI to mass-produce malware targeting India
+- **MuddyWater**: Iran-linked hackers deploying new Dindoor backdoor against U.S. networks including banks and airlines
+- **UAT-9244**: China-linked APT targeting South American telecommunications with TernDoor, PeerTime, and BruteEntry malware
+- **North Korean APTs**: Using AI tools to enhance IT worker infiltration scams and social engineering
+- **VOID#GEIST Campaign**: Multi-stage malware operation delivering XWorm, AsyncRAT, and Xeno RAT through encrypted batch scripts
+- **Mexican Government Attackers**: Cyberattackers using AI tools including Claude and ChatGPT to breach government agencies
