@@ -1,61 +1,53 @@
 # Exploitation Report
 
-Current exploitation activity reveals a concerning trend of threat actors leveraging artificial intelligence to enhance and scale their attacks while targeting critical infrastructure and high-value systems. Multiple sophisticated campaigns are actively exploiting vulnerabilities in iOS devices for crypto-theft attacks, industrial systems from Hikvision and Rockwell Automation, and WordPress plugins to create unauthorized admin accounts. Notable threats include the Iran-linked MuddyWater group deploying new backdoors against U.S. networks, Chinese state-sponsored actors targeting South American telecommunications infrastructure with custom malware toolkits, and the widespread abuse of social engineering techniques like ClickFix to deploy various RATs and infostealers. The emergence of AI-powered malware development by nation-state actors represents a significant escalation in cyber capabilities.
+The cybersecurity landscape is experiencing a significant surge in sophisticated exploitation activity across multiple domains. Key developments include the active exploitation of iOS security flaws through the Coruna exploit kit for cyberespionage and crypto-theft attacks, prompting CISA to issue urgent patching orders for federal agencies. Google's Threat Intelligence Group has tracked 90 zero-day vulnerabilities exploited in attacks during 2025, with nearly half targeting enterprise software and appliances. Critical vulnerabilities in VMware Aria Operations are being actively exploited through command injection attacks, potentially granting attackers broad access to cloud environments. Additionally, a critical WordPress membership plugin vulnerability affecting over 60,000 sites is being exploited to create unauthorized admin accounts, while Cisco has patched 48 new firewall vulnerabilities, including two critical flaws with perfect 10.0 CVSS scores.
 
 ## Active Exploitation Details
 
-### iOS Security Flaws
-- **Description**: Three critical iOS security vulnerabilities being exploited through the Coruna exploit kit
-- **Impact**: Enables cyberespionage operations and cryptocurrency theft attacks
-- **Status**: CISA has ordered federal agencies to patch these vulnerabilities immediately
+### iOS Security Flaws via Coruna Exploit Kit
+- **Description**: Three iOS security vulnerabilities being exploited through the Coruna exploit kit
+- **Impact**: Cyberespionage operations and cryptocurrency theft attacks
+- **Status**: CISA has ordered federal agencies to patch these actively exploited flaws
 
-### Hikvision Camera Vulnerabilities
-- **Description**: Critical security flaw with CVSS score of 9.8 affecting Hikvision camera systems
-- **Impact**: Allows remote code execution and unauthorized access to surveillance systems
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, active exploitation confirmed
+### VMware Aria Operations Command Injection Vulnerability
+- **Description**: Command injection flaw in VMware Aria Operations cloud management platform
+- **Impact**: Attackers can gain broad access to victims' cloud environments and resources
+- **Status**: Currently being exploited in active attacks
 
-### Rockwell Automation Industrial Systems
-- **Description**: Critical vulnerability with CVSS score of 9.8 in Rockwell Automation products
-- **Impact**: Compromises industrial control systems and manufacturing environments
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, under active exploitation
+### WordPress User Registration & Membership Plugin Vulnerability
+- **Description**: Critical vulnerability in WordPress membership plugin installed on over 60,000 sites
+- **Impact**: Allows hackers to create unauthorized administrator accounts
+- **Status**: Actively being exploited by attackers
 
-### WordPress User Registration Plugin
-- **Description**: Critical vulnerability in User Registration & Membership plugin affecting over 60,000 WordPress sites
-- **Impact**: Allows attackers to create unauthorized administrator accounts
-- **Status**: Currently being exploited in the wild
-
-### Firefox Browser Vulnerabilities
-- **Description**: 22 newly discovered security vulnerabilities found through AI analysis
-- **Impact**: 14 classified as high severity, 7 as medium, enabling various attack vectors
-- **Status**: Discovered through security partnership between Anthropic and Mozilla
+### Zero-Day Vulnerabilities Tracked by Google
+- **Description**: 90 zero-day vulnerabilities identified as actively exploited throughout 2025
+- **Impact**: Nearly half target enterprise software and appliances, enabling various attack scenarios
+- **Status**: Ongoing exploitation across multiple platforms and vendors
 
 ## Affected Systems and Products
 
-- **Apple iOS Devices**: Multiple versions affected by Coruna exploit kit targeting
-- **Hikvision Camera Systems**: Various models vulnerable to remote exploitation
-- **Rockwell Automation Products**: Industrial control and automation systems
-- **WordPress Sites**: Over 60,000 sites using vulnerable User Registration plugin
-- **Firefox Browser**: Multiple versions affected by newly discovered vulnerabilities
-- **Microsoft 365**: Target of various attack campaigns and social engineering
-- **Telecommunications Infrastructure**: South American telecom providers targeted by Chinese APTs
-- **Windows and Linux Systems**: Targeted by multiple threat actor groups with custom malware
+- **Apple iOS Devices**: Multiple iOS versions affected by three security flaws exploited via Coruna kit
+- **VMware Aria Operations**: Cloud management platform vulnerable to command injection attacks
+- **WordPress Sites**: Over 60,000 sites using User Registration & Membership plugin at risk
+- **Cisco Firewall Products**: 48 vulnerabilities patched, including two critical flaws with CVSS 10.0 scores
+- **Enterprise Software**: Broad category representing nearly half of the 90 zero-days tracked by Google
+- **Network Appliances**: Infrastructure devices targeted in zero-day exploitation campaigns
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: Convincing users to run malicious commands disguised as legitimate fixes
-- **InstallFix Technique**: New variation targeting users installing software like Claude Code
-- **AI-Enhanced Phishing**: Using AI tools for face swapping and automated communication in IT worker scams
-- **Coruna Exploit Kit**: Sophisticated exploitation framework targeting iOS devices
-- **Multi-Stage Malware Delivery**: VOID#GEIST campaign using batch scripts to deliver encrypted RAT payloads
-- **JavaScript Worms**: Self-propagating malware affecting Wikipedia and other platforms
-- **Fake Software Repositories**: Malicious GitHub repositories promoted through search engines
-- **Terminal Application Abuse**: Using Windows Terminal to execute malicious command chains
+- **ClickFix Social Engineering**: Velvet Tempest ransomware group using ClickFix technique with legitimate Windows utilities
+- **InstallFix Attacks**: New variation of ClickFix targeting fake Claude Code installations to deploy infostealers
+- **Command Injection**: Direct exploitation of VMware Aria Operations for cloud environment access
+- **Plugin Exploitation**: Direct attacks on WordPress membership plugin to escalate privileges
+- **AI-Enhanced Attacks**: Threat actors leveraging artificial intelligence across all stages of cyberattacks
+- **Phishing Campaigns**: Traditional social engineering enhanced with AI tools for improved effectiveness
 
 ## Threat Actor Activities
 
-- **MuddyWater (Iran-linked)**: Deploying new Dindoor backdoor against U.S. companies including banks and airlines
-- **UAT-9244 (China-linked)**: Targeting South American telecommunications with TernDoor, PeerTime, and BruteEntry malware
-- **Transparent Tribe (Pakistan-aligned)**: Using AI-powered coding tools to mass-produce malware implants targeting India
-- **Velvet Tempest**: Conducting ransomware operations using ClickFix techniques and CastleRAT backdoor
-- **North Korean APTs**: Enhancing IT worker scams using AI tools for identity manipulation
-- **Various Criminal Groups**: Operating phishing-as-a-service platforms like Tycoon 2FA (recently disrupted by Europol)
+- **Velvet Tempest**: Deploying Termite ransomware through ClickFix techniques and CastleRAT backdoor operations
+- **Chinese APT UAT-9244**: Targeting South American telecommunications providers with new malware toolkit since 2024
+- **China's Silver Dragon**: APT41-nexus group conducting cyber espionage against EU and Southeast Asian governments
+- **Pakistani APT36**: Using AI-powered "vibe-coding" to mass-produce malware at unprecedented scale
+- **Indian APT Sloppy Lemming**: Targeting defense and critical infrastructure with custom Rust-based tools
+- **North Korean APTs**: Enhancing IT worker scams with AI tools including face swapping and automated communications
+- **Nation-State Actors**: Broadly leveraging AI for malware development and attack acceleration across multiple campaigns
