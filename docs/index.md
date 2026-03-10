@@ -1,58 +1,64 @@
 # Exploitation Report
 
-Current threat activity reveals a concerning escalation in sophisticated attack campaigns targeting critical infrastructure, cloud environments, and high-value organizations. Notable incidents include Chinese threat actors conducting years-long espionage campaigns against Asian critical infrastructure using web server exploits, North Korean APT group UNC4899 executing sophisticated crypto-theft operations, and Russian state-sponsored hackers targeting government officials through messaging app hijacking campaigns. Cloud environments are increasingly under attack through newly disclosed vulnerabilities rather than weak credentials, while threat actors are leveraging AI tools to enhance their operations across all attack stages.
+Current threat activity reveals a diverse landscape of exploitation techniques targeting multiple platforms and organizations. Attackers are increasingly leveraging artificial intelligence tools to enhance their operations while exploiting cloud infrastructure vulnerabilities with dramatically reduced attack windows. Notable campaigns include North Korean threat actors conducting sophisticated cryptocurrency theft operations, Russian state-sponsored groups targeting government officials through messaging platforms, and widespread phishing campaigns using novel evasion techniques. Critical vulnerabilities in iOS devices are being actively exploited for both espionage and financial theft, while malicious actors continue to abuse legitimate platforms and services for initial access and persistence.
 
 ## Active Exploitation Details
 
 ### iOS Security Vulnerabilities
-- **Description**: Multiple iOS security flaws being exploited using the Coruna exploit kit in targeted attacks
-- **Impact**: Enables cyberespionage activities and cryptocurrency theft operations against high-value targets
-- **Status**: CISA has ordered federal agencies to patch these vulnerabilities immediately
+- **Description**: Multiple iOS security flaws are being exploited in targeted attacks using the Coruna exploit kit
+- **Impact**: Attackers can conduct cyberespionage operations and cryptocurrency theft from compromised iOS devices
+- **Status**: CISA has ordered federal agencies to patch these vulnerabilities, indicating active exploitation in the wild
 
-### Web Server Vulnerabilities
-- **Description**: Unspecified web server exploits used in multi-year campaigns targeting Asian critical infrastructure
-- **Impact**: Allows threat actors to gain initial access to high-value organizations in aviation, energy, and government sectors
-- **Status**: Actively exploited by Chinese threat actors using combination of custom malware and living-off-the-land techniques
+### Qualcomm Zero-Day Vulnerability
+- **Description**: An unpatched zero-day vulnerability affecting Qualcomm components
+- **Impact**: Allows attackers to gain unauthorized access and execute malicious code on affected devices
+- **Status**: Currently being exploited in active campaigns
 
-### Salesforce Experience Cloud Misconfigurations
-- **Description**: Misconfigured Salesforce Experience Cloud platforms providing guest users unintended data access
-- **Impact**: Enables unauthorized access to sensitive customer and organizational data
-- **Status**: Ongoing exploitation by ShinyHunters threat group with active data theft campaigns
+### Cloud Infrastructure Vulnerabilities
+- **Description**: Newly disclosed vulnerabilities in third-party software used in cloud environments
+- **Impact**: Provides initial access to cloud environments for further compromise
+- **Status**: Attack window has shrunk from weeks to just days after disclosure, indicating rapid exploitation
 
-### Third-Party Software Vulnerabilities
-- **Description**: Newly disclosed vulnerabilities in third-party software used for cloud environment attacks
-- **Impact**: Provides initial access to cloud environments, with exploitation window shrinking from weeks to days
-- **Status**: Increasingly exploited by threat actors targeting cloud infrastructure
+### Web Server Exploits
+- **Description**: Vulnerabilities in web server software being exploited by Chinese threat actors
+- **Impact**: Enables unauthorized access to critical infrastructure organizations
+- **Status**: Actively exploited in multi-year campaigns targeting Asian organizations
+
+### Salesforce Aura Platform Misconfigurations
+- **Description**: Misconfigured Experience Cloud platforms allowing excessive guest user access
+- **Impact**: Unauthorized access to sensitive customer and organizational data
+- **Status**: Ongoing attacks claimed by ShinyHunters group
 
 ## Affected Systems and Products
 
-- **Apple iOS Devices**: Multiple versions affected by vulnerabilities exploited via Coruna exploit kit
-- **Salesforce Experience Cloud**: Platforms with guest user access misconfigurations
-- **Web Servers**: Various web server platforms in Asian critical infrastructure organizations
-- **Cloud Environments**: Third-party software components in cloud deployments
-- **Microsoft Teams**: Platforms targeted for phishing and social engineering attacks
-- **npm Packages**: Node.js package ecosystem with malicious OpenClaw installer package
-- **Chrome Extensions**: Browser extensions compromised through ownership transfer
-- **Firefox Web Browser**: 22 vulnerabilities discovered, including 14 classified as high severity
+- **iOS Devices**: Multiple versions affected by vulnerabilities exploited via Coruna exploit kit
+- **Qualcomm Components**: Devices containing vulnerable Qualcomm chipsets and software
+- **Cloud Platforms**: Third-party software deployed in cloud environments, particularly newly disclosed vulnerabilities
+- **Web Servers**: Various web server platforms in Asian critical infrastructure
+- **Salesforce Experience Cloud**: Misconfigured platforms with improper guest access controls
+- **Microsoft Teams**: Corporate environments targeted through phishing campaigns
+- **Google Chrome Extensions**: Two extensions turned malicious after ownership transfer
+- **npm Packages**: Malicious packages masquerading as legitimate software installers
+- **Signal and WhatsApp**: Messaging platforms targeted in account hijacking campaigns
+- **Firefox Browser**: 22 newly discovered vulnerabilities identified by AI security research
 
 ## Attack Vectors and Techniques
 
-- **Microsoft Teams Phishing**: Social engineering through Teams messages to deploy A0Backdoor malware via Quick Assist
-- **ClickFix Technique**: Malvertising campaigns using fake Claude AI coding sites to trick users into running malicious commands
-- **AirDrop File Transfer**: UNC4899 using AirDrop to transfer trojanized files to work devices for initial compromise
-- **Signal and WhatsApp Hijacking**: Account takeover attacks targeting government officials and journalists
-- **DNS and IPv6 Abuse**: Exploitation of .arpa domains and IPv6 reverse DNS to evade security controls
-- **Supply Chain Attacks**: Malicious npm packages and compromised Chrome extensions
-- **Web Server Exploitation**: Direct exploitation of web server vulnerabilities for persistent access
-- **Credential Stuffing**: Attacks targeting orphaned accounts and service accounts missed by password audits
+- **ClickFix Technique**: Social engineering method tricking users into executing malicious commands, used by Velvet Tempest for ransomware deployment
+- **AirDrop File Transfer**: Weaponized file sharing used by North Korean UNC4899 group to deploy trojans on work devices
+- **AI-Enhanced Phishing**: Artificial intelligence tools used to improve phishing content, face swapping, and automated communications
+- **Microsoft Teams Social Engineering**: Direct contact through corporate messaging platforms to deploy remote access tools
+- **DNS and IPv6 Abuse**: Exploitation of .arpa domain and IPv6 reverse DNS to evade security controls
+- **Malicious Browser Extensions**: Extension ownership transfers leading to code injection and data theft capabilities
+- **Fake AI Assistant Sites**: Malvertising campaigns promoting fraudulent Claude AI coding assistant websites
+- **npm Package Poisoning**: Trojanized packages deployed through legitimate software repositories
 
 ## Threat Actor Activities
 
-- **UNC4899 (North Korean APT)**: Sophisticated cloud compromise campaigns targeting cryptocurrency organizations using AirDrop and social engineering
-- **Chinese Threat Actors**: Years-long espionage campaigns against Asian critical infrastructure using web server exploits and custom malware
-- **Russian State-Sponsored Groups**: Signal and WhatsApp account hijacking campaigns targeting government officials and military personnel
-- **ShinyHunters**: Ongoing Salesforce data theft attacks exploiting misconfigured Experience Cloud platforms
-- **Velvet Tempest**: Termite ransomware operations using ClickFix techniques and CastleRAT backdoor deployment
-- **AI-Enhanced Threat Actors**: Multiple groups using artificial intelligence tools to accelerate attacks and enhance social engineering capabilities
-- **Cybercriminals**: Impersonation of US city and county officials in business email compromise attacks
-- **Supply Chain Attackers**: Compromise of legitimate software distribution channels including npm packages and Chrome extensions
+- **UNC4899 (North Korean APT)**: Sophisticated cryptocurrency theft operations using AirDrop trojans and cloud compromise techniques targeting crypto organizations
+- **Russian State-Sponsored Groups**: Signal and WhatsApp account hijacking campaigns targeting government officials, military personnel, and journalists
+- **Velvet Tempest**: Ransomware operations using ClickFix techniques and legitimate Windows utilities to deploy DonutLoader and CastleRAT backdoor
+- **ShinyHunters**: Ongoing data theft attacks against misconfigured Salesforce Aura platforms
+- **Chinese Threat Actors**: Multi-year campaigns targeting critical infrastructure in South, Southeast, and East Asia using web server exploits and Mimikatz
+- **North Korean IT Worker Scams**: Enhanced use of AI tools for identity deception and maintaining long-term employment fraud schemes
+- **Cryptocurrency Targeting Groups**: Multiple threat actors leveraging Coruna exploit kit for iOS-based crypto theft operations
