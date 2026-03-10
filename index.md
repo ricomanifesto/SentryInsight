@@ -1,61 +1,67 @@
 # Exploitation Report
 
-Current exploitation activity demonstrates a concerning escalation in threat actor sophistication, particularly in cloud environments where attackers are increasingly exploiting newly disclosed vulnerabilities rather than relying on weak credentials. Notable campaigns include the deployment of A0Backdoor malware through Microsoft Teams phishing, Russian state-sponsored Signal and WhatsApp account hijacking operations, and North Korean APT UNC4899's sophisticated cloud compromise targeting cryptocurrency organizations. Critical iOS vulnerabilities are being actively exploited through the Coruna exploit kit for crypto-theft attacks, while Chinese threat actors have maintained persistent access to Asian critical infrastructure for years using web server exploits and custom malware.
+Critical exploitation activity continues to surge across multiple sectors, with threat actors leveraging sophisticated techniques to target cloud environments, enterprise platforms, and critical infrastructure. CISA has flagged vulnerabilities in SolarWinds, Ivanti, and VMware Workspace One as actively exploited, while hackers are increasingly exploiting newly disclosed vulnerabilities in third-party software to gain initial access to cloud environments. Notable campaigns include Chinese threat actors conducting multi-year operations against Asian critical infrastructure, North Korean group UNC4899 targeting cryptocurrency organizations, and mass exploitation of misconfigured Salesforce Experience Cloud sites. The threat landscape shows attackers rapidly weaponizing vulnerabilities within days of disclosure, utilizing AI-enhanced techniques, and employing novel attack vectors including malicious Chrome extensions and npm packages.
 
 ## Active Exploitation Details
 
-### iOS Security Vulnerabilities
-- **Description**: Three iOS security flaws are being actively exploited through the Coruna exploit kit
-- **Impact**: Used in cyberespionage operations and cryptocurrency theft attacks
-- **Status**: CISA has ordered federal agencies to patch these vulnerabilities immediately
+### SolarWinds Vulnerability
+- **Description**: Security flaw affecting SolarWinds products being actively exploited in the wild
+- **Impact**: Allows attackers to compromise SolarWinds environments and potentially conduct supply chain attacks
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog based on evidence of active exploitation
+
+### Ivanti Vulnerability
+- **Description**: Security vulnerability in Ivanti products under active exploitation
+- **Impact**: Enables threat actors to gain unauthorized access to Ivanti-managed environments
+- **Status**: Added to CISA KEV catalog due to confirmed active exploitation
+
+### VMware Workspace One Vulnerability
+- **Description**: Security flaw in VMware Workspace One platform being exploited by attackers
+- **Impact**: Allows compromise of enterprise workspace environments and potential lateral movement
+- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities list
 
 ### Qualcomm Zero-Day Vulnerability
-- **Description**: Zero-day vulnerability affecting Qualcomm systems
-- **Impact**: Active exploitation in targeted attacks
-- **Status**: Recently disclosed, exploitation ongoing
-
-### Web Server Vulnerabilities in Asian Infrastructure
-- **Description**: Multiple web server exploits targeting critical infrastructure
-- **Impact**: Persistent access to aviation, energy, and government sectors
-- **Status**: Long-term campaign with continued exploitation
+- **Description**: Previously unknown vulnerability in Qualcomm products being exploited in the wild
+- **Impact**: Enables attackers to compromise devices using Qualcomm components
+- **Status**: Zero-day exploitation confirmed, patch status unknown
 
 ### Salesforce Experience Cloud Misconfigurations
-- **Description**: Misconfigured Experience Cloud platforms giving guest users excessive data access
-- **Impact**: Unauthorized access to sensitive customer data
-- **Status**: Ongoing exploitation by ShinyHunters group
-
-### Firefox Browser Vulnerabilities
-- **Description**: 22 security vulnerabilities discovered in Firefox web browser
-- **Impact**: 14 classified as high severity, 7 as medium severity
-- **Status**: Discovered through AI-assisted security research
+- **Description**: Widespread exploitation of misconfigured Salesforce Experience Cloud sites that grant guest users excessive data access
+- **Impact**: Mass data theft from exposed Salesforce environments, with ShinyHunters claiming ongoing attacks
+- **Status**: Active exploitation using modified AuraInspector tools for automated scanning
 
 ## Affected Systems and Products
 
-- **Microsoft Teams**: Phishing campaigns targeting financial and healthcare organizations
-- **iOS Devices**: Multiple versions affected by crypto-theft and spyware attacks
-- **Qualcomm Systems**: Hardware and software components vulnerable to zero-day exploits
-- **Firefox Browser**: Multiple versions affected by newly discovered vulnerabilities
-- **Salesforce Experience Cloud**: Platforms with misconfigured guest access permissions
-- **Asian Critical Infrastructure**: Aviation, energy, and government systems across South, Southeast, and East Asia
-- **Chrome Extensions**: Browser extensions compromised after ownership transfers
-- **npm Packages**: Malicious packages targeting macOS systems with RAT deployment
+- **SolarWinds Products**: Enterprise network management and monitoring solutions
+- **Ivanti Products**: IT service management and endpoint security platforms
+- **VMware Workspace One**: Enterprise mobility management and virtual app delivery platform
+- **Qualcomm Components**: Mobile processors and chipsets in various devices
+- **Salesforce Experience Cloud**: Customer portal and community platforms with misconfigurations
+- **Mozilla Firefox**: Web browser with 22 newly discovered vulnerabilities (14 high severity)
+- **Google Chrome Extensions**: Browser extensions compromised through ownership transfers
+- **npm Packages**: Malicious packages targeting macOS systems and OpenClaw users
+- **Microsoft Teams**: Enterprise communication platform targeted in phishing campaigns
+- **Asian Critical Infrastructure**: Aviation, energy, government, and telecommunications sectors
 
 ## Attack Vectors and Techniques
 
-- **Microsoft Teams Phishing**: Social engineering to deploy A0Backdoor malware through Quick Assist
-- **ClickFix Technique**: Used by Velvet Tempest ransomware group to deploy DonutLoader and CastleRAT
-- **AirDrop File Transfer**: UNC4899 using trojanized files transferred to work devices
-- **InstallFix Attacks**: Malvertising campaigns targeting AI coding assistant users
-- **DNS Abuse**: Threat actors abusing .arpa domains and IPv6 reverse DNS for phishing evasion
-- **Extension Ownership Transfer**: Malicious takeover of legitimate Chrome extensions
-- **Supply Chain Attacks**: Compromising npm packages and browser extensions
+- **Modified Security Tools**: Customized AuraInspector tool used for mass scanning of Salesforce sites
+- **Supply Chain Attacks**: Compromised Chrome extensions and malicious npm packages
+- **Social Engineering**: Microsoft Teams phishing campaigns deploying A0Backdoor malware
+- **ClickFix Techniques**: Malvertising campaigns targeting AI coding assistants and command-line interfaces
+- **AirDrop Transfer Attacks**: UNC4899 using file transfers to compromise cryptocurrency organizations
+- **Web Server Exploits**: Targeting Asian infrastructure using web application vulnerabilities
+- **Mimikatz Deployment**: Credential harvesting tools used in critical infrastructure attacks
+- **DNS Abuse**: Exploitation of .arpa domains and IPv6 reverse DNS for phishing evasion
+- **AI-Enhanced Operations**: Threat actors using AI across all stages of cyberattacks
+- **Quick Assist Abuse**: Legitimate remote access tools weaponized for malware deployment
 
 ## Threat Actor Activities
 
-- **UNC4899 (North Korean APT)**: Sophisticated cloud compromise targeting cryptocurrency organizations, using AirDrop and AI-enhanced social engineering
-- **Russian State-Sponsored Groups**: Signal and WhatsApp phishing campaigns targeting government officials, military personnel, and journalists
-- **ShinyHunters**: Ongoing data theft attacks against Salesforce Aura platforms
-- **Velvet Tempest**: Ransomware operations using ClickFix techniques and legitimate Windows utilities
-- **Chinese Threat Actor**: Multi-year campaign against Asian critical infrastructure using web server exploits and Mimikatz
-- **North Korean IT Workers**: AI-enhanced scams using face swapping and automated communications
-- **Termite Ransomware Group**: Linked to ClickFix CastleRAT deployment campaigns
+- **UNC4899**: North Korean group targeting cryptocurrency firms through sophisticated cloud compromise campaigns, using AirDrop file transfers and trojanized applications
+- **Chinese Threat Actors**: Multi-year campaign targeting South, Southeast, and East Asian critical infrastructure including aviation, energy, government, and telecommunications sectors
+- **ShinyHunters**: Extortion group claiming responsibility for ongoing Salesforce Aura data theft attacks
+- **Russian State Actors**: Conducting Signal and WhatsApp phishing campaigns targeting government officials, military personnel, and journalists
+- **Velvet Tempest**: Ransomware group using ClickFix techniques and CastleRAT backdoor for Termite ransomware deployment
+- **Chinese-Speaking Actors**: Undefined group using custom malware, open source tools, and living-off-the-land binaries against Windows and Linux systems
+- **Financial Sector Attackers**: Targeting healthcare and financial organizations through Microsoft Teams phishing with backdoor malware
+- **InstallFix Campaign**: Cybercriminals spreading fake Claude AI code sites using malvertising and ClickFix-style techniques
