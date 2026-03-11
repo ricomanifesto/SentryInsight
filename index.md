@@ -1,69 +1,70 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity is intensifying across multiple platforms, with Microsoft addressing two actively exploited zero-day vulnerabilities in its March 2026 Patch Tuesday release alongside 77 other security flaws. The threat landscape is further complicated by active exploitation of recently patched Ivanti Endpoint Manager vulnerabilities, which CISA has flagged for immediate federal agency remediation. Sophisticated threat actors are deploying advanced evasion techniques including the new BlackSanta EDR killer targeting HR departments, while Russian state-sponsored group APT28 continues espionage operations using customized variants of open-source tools. Additionally, cybercriminals are exploiting misconfigurations in cloud services, particularly targeting Salesforce Experience Cloud sites and FortiGate devices as network entry points.
+Current threat activity reveals a concerning landscape of active exploitation targeting enterprise systems, cloud infrastructures, and network devices. Microsoft's March 2026 Patch Tuesday addressed 2 zero-day vulnerabilities alongside 79 other security flaws, while CISA has flagged multiple vulnerabilities in SolarWinds, Ivanti, and VMware Workspace One as actively exploited. The threat landscape is further complicated by sophisticated supply chain attacks through malicious Rust crates, advanced EDR evasion techniques, and targeted campaigns against critical infrastructure including FortiGate firewalls and ASUS routers. State-sponsored groups like APT28 continue their espionage operations with customized toolkits, while cybercriminals deploy new malware variants that bypass traditional security defenses.
 
 ## Active Exploitation Details
 
 ### Microsoft Windows Zero-Day Vulnerabilities
-- **Description**: Two publicly disclosed zero-day vulnerabilities in Microsoft Windows systems that were being actively exploited before patches were available
-- **Impact**: Attackers can gain unauthorized access to Windows systems and potentially achieve privilege escalation or system compromise
-- **Status**: Patched in Microsoft's March 2026 Patch Tuesday release, with security updates available for Windows 10 and Windows 11
+- **Description**: Two publicly disclosed zero-day vulnerabilities affecting Windows systems that were patched in March 2026
+- **Impact**: Attackers can exploit these flaws to compromise Windows devices and potentially gain system-level access
+- **Status**: Patches available through KB5078885 extended security update for Windows 10 and cumulative updates for Windows 11
 
-### Ivanti Endpoint Manager (EPM) Vulnerability
-- **Description**: High-severity vulnerability in Ivanti Endpoint Manager that allows attackers to compromise endpoint management systems
-- **Impact**: Threat actors can gain unauthorized access to enterprise endpoint management infrastructure
-- **Status**: Recently patched but now actively exploited in the wild; CISA has ordered federal agencies to patch within three weeks
+### Ivanti Endpoint Manager Vulnerability
+- **Description**: High-severity vulnerability in Ivanti EPM that allows unauthorized access to endpoint management systems
+- **Impact**: Attackers can gain control over managed endpoints and potentially pivot throughout enterprise networks
+- **Status**: Recently patched but now actively exploited in the wild according to CISA
 
-### SolarWinds Vulnerability
-- **Description**: Security flaw in SolarWinds software that enables unauthorized access to affected systems
-- **Impact**: Attackers can compromise network management and monitoring capabilities
-- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
+### SolarWinds Platform Vulnerabilities
+- **Description**: Security flaws in SolarWinds software that enable unauthorized access to network monitoring infrastructure
+- **Impact**: Compromise of critical network visibility and management capabilities
+- **Status**: Actively exploited according to CISA KEV catalog
 
-### VMware Workspace One Vulnerability
-- **Description**: Security vulnerability affecting VMware's Workspace One platform
-- **Impact**: Potential compromise of virtual desktop infrastructure and mobile device management systems
-- **Status**: Actively exploited and flagged by CISA for immediate attention
+### VMware Workspace One Vulnerabilities
+- **Description**: Security vulnerabilities affecting VMware's unified endpoint management platform
+- **Impact**: Potential compromise of enterprise mobile and desktop device management
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
 
-### HPE Aruba Networking AOS-CX Critical Flaw
-- **Description**: Critical vulnerability allowing unauthorized admin password resets in HPE's AOS-CX operating system
-- **Impact**: Complete administrative takeover of network switching infrastructure
-- **Status**: Multiple security vulnerabilities patched, including authentication and code execution issues
+### HPE AOS-CX Critical Authentication Flaw
+- **Description**: Critical vulnerability in Aruba Networking AOS-CX operating system allowing admin password resets
+- **Impact**: Complete administrative takeover of network infrastructure devices
+- **Status**: Multiple security vulnerabilities patched including authentication bypass and code execution issues
 
-### Google Looker Studio LeakyLooker Vulnerabilities
-- **Description**: Nine cross-tenant vulnerabilities enabling unauthorized SQL query execution across different customer environments
-- **Impact**: Attackers could run arbitrary SQL queries on victims' databases and exfiltrate sensitive data
-- **Status**: Disclosed vulnerabilities that could enable cross-tenant data breaches
+### Google Looker Studio Cross-Tenant Vulnerabilities (LeakyLooker)
+- **Description**: Nine cross-tenant vulnerabilities enabling unauthorized access to victim databases
+- **Impact**: Arbitrary SQL query execution and data exfiltration across tenant boundaries
+- **Status**: Disclosed vulnerabilities that could permit cross-tenant data access
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows 10 and Windows 11 systems affected by zero-day exploits
-- **Ivanti Endpoint Manager**: Enterprise endpoint management platforms vulnerable to active exploitation  
-- **SolarWinds Products**: Network management and monitoring software under active attack
-- **VMware Workspace One**: Virtual desktop and mobile device management platforms
-- **HPE Aruba AOS-CX**: Network switching operating systems with critical authentication flaws
-- **FortiGate NGFW Appliances**: Next-generation firewall devices being abused as network entry points
-- **ASUS Routers**: Edge networking devices targeted by KadNap botnet malware
-- **Google Looker Studio**: Business intelligence platform vulnerable to cross-tenant attacks
-- **Salesforce Experience Cloud**: Public-facing cloud services with misconfiguration exploitation
-- **Android Devices**: Mobile devices targeted by BeatBanker malware masquerading as Starlink app
+- **Microsoft Windows Systems**: Windows 10, Windows 11 versions 23H2, 24H2, and 25H2 affected by zero-day vulnerabilities and 77+ additional security flaws
+- **Ivanti Endpoint Manager**: EPM systems vulnerable to high-severity exploitation
+- **SolarWinds Platform**: Network monitoring and management infrastructure
+- **VMware Workspace One**: Unified endpoint management platforms
+- **HPE Aruba Networking**: AOS-CX operating system with authentication and code execution vulnerabilities
+- **ASUS Router Devices**: Over 14,000 edge devices infected by KadNap botnet malware
+- **FortiGate NGFW Appliances**: Next-Generation Firewall devices exploited as network entry points
+- **Google Looker Studio**: Business intelligence platform with cross-tenant access vulnerabilities
+- **Salesforce Experience Cloud**: Publicly accessible sites with misconfiguration exploitation
+- **Android Devices**: Targeted by BeatBanker malware masquerading as Starlink applications
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Immediate exploitation of unpatched vulnerabilities before fixes are available
-- **Phishing via Microsoft Teams**: Social engineering attacks using trusted collaboration platforms to deploy A0Backdoor malware
-- **EDR Evasion**: BlackSanta malware specifically designed to bypass endpoint detection and response systems
-- **Cloud Misconfiguration Abuse**: Exploitation of overly permissive configurations in Salesforce and other cloud services
-- **Botnet Proxy Networks**: KadNap malware converting compromised routers into stealth proxy infrastructure
-- **Zombie ZIP Technique**: New compression-based evasion method to slip malware past security tools
-- **Modified Open-Source Tools**: Customized versions of legitimate tools like AuraInspector for scanning vulnerabilities
-- **Quick Assist Abuse**: Legitimate remote access tools used for initial compromise and malware deployment
-- **App Impersonation**: Malware disguised as legitimate applications like Starlink distributed through fake app stores
+- **Supply Chain Poisoning**: Five malicious Rust crates masquerading as time utilities to steal developer secrets from CI/CD pipelines
+- **EDR Evasion**: BlackSanta malware specifically designed to kill endpoint detection and response systems
+- **Social Engineering**: Microsoft Teams phishing campaigns delivering A0Backdoor malware through Quick Assist remote access
+- **Network Device Compromise**: Exploitation of router and firewall vulnerabilities for persistent network access
+- **Zombie ZIP Technique**: New compression-based evasion method to bypass antivirus and EDR detection
+- **Geometry-Based Human Simulation**: Advanced sandbox evasion using mouse movement patterns to simulate human behavior
+- **Cross-Platform Mobile Targeting**: Android malware distribution through fake Google Play Store websites
+- **Cloud Misconfiguration Exploitation**: Mass scanning of Salesforce Experience Cloud sites using modified AuraInspector tools
 
 ## Threat Actor Activities
 
-- **APT28 (Russian State-Sponsored)**: Conducting long-term espionage operations against Ukrainian military personnel using BEARDSHELL and customized COVENANT malware variants
-- **Sednit Group**: Russian-affiliated threat actor returning with sophisticated new malware toolkit after period of using simpler implants
-- **Russian-Speaking Actors**: Targeting HR departments with BlackSanta EDR killer malware for over one year, focusing on workflow hijacking
-- **Multiple Threat Groups**: Mass-scanning Salesforce Experience Cloud sites using modified AuraInspector tools to identify misconfigurations
-- **Cybercriminal Networks**: Exploiting cloud vulnerabilities with attack windows shrinking from weeks to just days after disclosure
-- **Botnet Operators**: Deploying KadNap malware to build proxy networks from compromised ASUS routers and edge devices
+- **APT28 (Russian State-Sponsored)**: Deploying BEARDSHELL and customized COVENANT malware variants for long-term surveillance of Ukrainian military personnel
+- **Sednit Group**: Resurfacing with sophisticated new malware toolkit after years of using simple implants
+- **Russian-Speaking Threat Actors**: Targeting HR departments with BlackSanta EDR killer malware for over one year
+- **KadNap Botnet Operators**: Infecting 14,000+ ASUS routers to create stealth proxy network for cybercrime operations
+- **BeatBanker Campaign**: Android banking malware operators using fake Starlink applications to hijack mobile devices
+- **FortiGate Exploitation Campaign**: Threat actors abusing firewall appliances as entry points to steal service account credentials
+- **Rust Crate Poisoners**: Cybercriminals targeting developer environments through malicious package repositories
+- **Salesforce Reconnaissance Operations**: Threat actors conducting mass scanning operations against misconfigured cloud environments
