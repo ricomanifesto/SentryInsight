@@ -1,70 +1,70 @@
 # Exploitation Report
 
-Critical exploitation activity is currently affecting enterprise environments across multiple attack vectors. Notable incidents include the UNC6426 threat group leveraging supply chain compromises to gain AWS administrative access within 72 hours, while CISA has flagged several actively exploited vulnerabilities in enterprise software including SolarWinds, Ivanti, and VMware Workspace One products. Microsoft has addressed two zero-day vulnerabilities in their March 2026 Patch Tuesday release, and threat actors are increasingly targeting edge devices, cloud configurations, and development environments through sophisticated campaigns including malicious package repositories, EDR evasion techniques, and social engineering attacks.
+This period has witnessed significant exploitation activity across multiple platforms and attack vectors. Microsoft's March 2026 Patch Tuesday addressed 77-84 vulnerabilities including two publicly disclosed zero-day vulnerabilities, while threat actors have actively exploited recently patched vulnerabilities in Ivanti EPM, SolarWinds, and VMware Workspace One. Notable campaigns include UNC6426's supply chain attack exploiting the nx npm package compromise, widespread targeting of FortiGate devices for network infiltration, and the emergence of new malware variants like BlackSanta EDR killer and KadNap botnet targeting ASUS routers. The period also saw sophisticated attacks against cloud services, including Salesforce Experience Cloud misconfigurations and supply chain compromises targeting developer environments.
 
 ## Active Exploitation Details
 
-### Microsoft Windows Zero-Day Vulnerabilities
-- **Description**: Two publicly disclosed zero-day vulnerabilities in Windows operating systems
-- **Impact**: Attackers can exploit these flaws for privilege escalation and system compromise
-- **Status**: Patched in Microsoft's March 2026 Patch Tuesday update, but previously exploited in the wild
+### Microsoft Zero-Day Vulnerabilities
+- **Description**: Two publicly disclosed zero-day vulnerabilities patched in Microsoft's March 2026 Patch Tuesday
+- **Impact**: Active exploitation allowing unauthorized access to systems
+- **Status**: Patches available as part of March 2026 security updates (KB5078885, KB5079473, KB5078883)
 
 ### Ivanti Endpoint Manager Vulnerability
-- **Description**: High-severity vulnerability in Ivanti Endpoint Manager (EPM) software
-- **Impact**: Allows attackers to compromise endpoint management infrastructure
-- **Status**: Recently patched but now actively exploited according to CISA
+- **Description**: High-severity vulnerability in Ivanti Endpoint Manager (EPM) recently patched but now actively exploited
+- **Impact**: Network compromise and unauthorized system access
+- **Status**: CISA flagged as actively exploited, federal agencies ordered to patch within three weeks
 
 ### SolarWinds Vulnerability
-- **Description**: Security flaw in SolarWinds software products
-- **Impact**: Enables unauthorized access and potential network compromise
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
+- **Description**: Security flaw in SolarWinds products being actively exploited in the wild
+- **Impact**: Network infiltration and potential data exfiltration
+- **Status**: CISA added to Known Exploited Vulnerabilities (KEV) catalog
 
-### VMware Workspace One Vulnerability
-- **Description**: Security vulnerability affecting VMware Workspace One platform
-- **Impact**: Allows attackers to compromise virtual desktop infrastructure
-- **Status**: Actively exploited and flagged by CISA for immediate patching
+### VMware Workspace One Vulnerability  
+- **Description**: Critical security flaw in VMware Workspace One platform
+- **Impact**: Administrative access and system compromise
+- **Status**: CISA flagged as actively exploited, patches required
 
-### HPE AOS-CX Authentication Bypass
-- **Description**: Critical vulnerability in HPE Aruba Networking AOS-CX operating system allowing admin password resets
-- **Impact**: Complete administrative takeover of network infrastructure devices
-- **Status**: Recently patched by HPE, multiple authentication and code execution issues addressed
+### FortiGate NGFW Exploitation
+- **Description**: Threat actors exploiting FortiGate Next-Generation Firewall appliances as network entry points
+- **Impact**: Network breach and service account credential theft
+- **Status**: Active exploitation campaign targeting enterprise networks
 
-### Google Looker Studio Cross-Tenant Vulnerabilities
-- **Description**: Nine cross-tenant vulnerabilities dubbed "LeakyLooker" flaws in Google Looker Studio
-- **Impact**: Enables attackers to run arbitrary SQL queries on victims' databases and exfiltrate sensitive data
-- **Status**: Disclosed vulnerabilities that could allow cross-tenant data access
+### nx npm Supply Chain Compromise
+- **Description**: Supply chain attack targeting the nx npm package used by developers
+- **Impact**: AWS cloud environment compromise achieved within 72 hours
+- **Status**: UNC6426 threat actor leveraged stolen keys for complete cloud breach
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Multiple versions affected by zero-day vulnerabilities and 79 total flaws in March 2026 updates
-- **Ivanti Endpoint Manager**: EPM software actively targeted by threat actors
-- **SolarWinds Products**: Various SolarWinds software solutions under active exploitation
-- **VMware Workspace One**: Virtual desktop infrastructure platform compromised
-- **HPE Aruba AOS-CX**: Network operating system with critical authentication bypass flaws
-- **Google Looker Studio**: Business intelligence platform vulnerable to cross-tenant attacks
-- **FortiGate NGFW**: Next-Generation Firewall appliances used as network entry points
-- **ASUS Routers**: Edge networking devices infected by KadNap malware botnet
-- **Salesforce Experience Cloud**: Misconfigured public sites targeted for data exposure
-- **npm Package Repository**: Supply chain attacks targeting nx npm packages
-- **Rust Crates Repository**: Five malicious Rust packages targeting CI/CD pipelines
+- **Microsoft Windows**: All versions affected by March 2026 Patch Tuesday vulnerabilities including Windows 10 and Windows 11
+- **Ivanti Endpoint Manager**: EPM systems vulnerable to active exploitation
+- **SolarWinds Products**: Multiple SolarWinds solutions targeted in active campaigns
+- **VMware Workspace One**: Enterprise mobility management platform at risk
+- **FortiGate Firewalls**: Next-Generation Firewall appliances compromised for network entry
+- **ASUS Routers**: Over 14,000 edge devices infected by KadNap malware
+- **Salesforce Experience Cloud**: Publicly accessible sites with misconfigurations under mass scanning
+- **Google Looker Studio**: Nine cross-tenant vulnerabilities discovered (LeakyLooker flaws)
+- **HPE Aruba AOS-CX**: Multiple authentication and code execution vulnerabilities
+- **Developer Environments**: npm packages, Rust crates, and CI/CD pipelines targeted
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Exploitation of compromised nx npm packages to steal AWS credentials and achieve administrative access
-- **Malicious Package Distribution**: Five malicious Rust crates masquerading as time utilities to steal .env file data from CI/CD pipelines
-- **Edge Device Compromise**: KadNap malware targeting over 14,000 ASUS routers to create proxy botnets for malicious traffic
-- **EDR Evasion**: BlackSanta malware specifically designed to disable endpoint detection and response solutions
-- **Social Engineering**: Microsoft Teams phishing campaigns delivering A0Backdoor malware through Quick Assist remote access
-- **Zombie ZIP Technique**: New compression-based evasion method to bypass security tools and deliver malware payloads
-- **Configuration Exploitation**: Targeting overly permissive Salesforce cloud configurations and guest user access controls
-- **Cross-Tenant Attacks**: Exploiting multi-tenant cloud services to access unauthorized data across different organizations
+- **Supply Chain Attacks**: Malicious npm packages (nx) and Rust crates targeting developer environments
+- **Zero-Day Exploitation**: Two Microsoft zero-days being actively exploited
+- **Network Device Compromise**: FortiGate firewalls and ASUS routers as entry points
+- **EDR Evasion**: BlackSanta malware specifically designed to kill endpoint detection systems
+- **Cloud Misconfigurations**: Salesforce Experience Cloud and overly permissive configurations targeted
+- **Mobile Malware**: BeatBanker Android malware masquerading as Starlink application
+- **Stealth Techniques**: Zombie ZIP compression method to evade security detection
+- **AI-Assisted Social Engineering**: Threat actors using geometry-based human verification bypass
+- **Proxy Botnet Operations**: KadNap malware creating stealth proxy networks from infected devices
 
 ## Threat Actor Activities
 
-- **UNC6426**: Advanced threat group executed complete cloud environment breach within 72 hours using stolen supply chain credentials to gain AWS administrative access
-- **APT28 (Russian State-Sponsored)**: Deployed customized BEARDSHELL and COVENANT malware variants for long-term surveillance operations against Ukrainian military personnel
-- **Sednit (Russian-Affiliated)**: Resurfaced with sophisticated new toolkit after years of using simple implants, demonstrating evolved capabilities
-- **Russian-Speaking Actors**: Conducted year-long campaign targeting HR departments with BlackSanta EDR killer malware to hijack organizational workflows
-- **Anonymous Threat Actors**: Exploited FortiGate devices as network entry points to breach victim networks and steal service account credentials
-- **Cybercriminals**: Created fake Android applications posing as Starlink apps to distribute BeatBanker malware and hijack mobile devices
-- **Package Repository Attackers**: Published malicious Rust crates and deployed AI bots to exploit CI/CD pipelines for developer secret theft
+- **UNC6426**: Exploited nx npm supply chain compromise to achieve complete AWS environment takeover within 72 hours
+- **APT28 (Russian State-Sponsored)**: Deployed BEARDSHELL and customized COVENANT malware for long-term surveillance of Ukrainian military personnel
+- **Sednit Group**: Russian-affiliated actor returned with sophisticated new malware toolkit after years of using simple implants
+- **Russian-Speaking Actors**: Targeting HR departments with BlackSanta EDR killer for over one year
+- **Unknown Threat Actors**: Mass scanning Salesforce Experience Cloud sites using modified AuraInspector tools
+- **Cybercriminal Groups**: Operating KadNap botnet with over 14,000 infected ASUS routers for proxy services
+- **Developer-Focused Attackers**: Distributing malicious Rust crates and exploiting CI/CD pipelines to steal secrets
