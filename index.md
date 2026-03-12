@@ -1,52 +1,67 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently dominated by several critical exploitation activities affecting enterprise systems, cloud environments, and developer toolchains. Most notably, CISA has ordered federal agencies to patch an actively exploited n8n workflow automation vulnerability that allows remote code execution, while threat actors continue to leverage supply chain compromises through malicious NPM packages and GitHub Action poisoning. Healthcare sectors in Oceania face ongoing ransomware attacks from the INC group, and Iranian-linked actors have launched wiper attacks against major medical technology firms. Additionally, Microsoft's March Patch Tuesday addressed two publicly disclosed zero-day vulnerabilities alongside numerous other critical flaws.
+The current threat landscape reveals multiple critical exploitation activities targeting enterprise infrastructure and cloud environments. CISA has issued emergency directives for federal agencies to patch actively exploited vulnerabilities in n8n workflow automation platforms, while threat actors continue to leverage supply chain attacks through compromised NPM packages and malicious code repositories. Healthcare systems across Oceania face ongoing ransomware campaigns, and Iranian-linked groups have deployed wiper malware against major medical technology companies. Meanwhile, sophisticated attackers are exploiting enterprise software vulnerabilities, including SQL injection flaws in WordPress plugins affecting hundreds of thousands of installations, and leveraging compromised GitHub Actions for sustained command and control operations.
 
 ## Active Exploitation Details
 
-### n8n Workflow Automation RCE Vulnerability
-- **Description**: Critical remote code execution flaw in the n8n workflow automation platform that allows arbitrary command execution
-- **Impact**: Attackers can execute arbitrary commands on affected systems and potentially access stored credentials
-- **Status**: Actively exploited in attacks; CISA has ordered federal agencies to patch immediately
+### n8n Workflow Automation Platform Vulnerabilities
+- **Description**: Critical remote code execution and credential exposure vulnerabilities in the n8n workflow automation platform
+- **Impact**: Attackers can achieve arbitrary command execution and access stored credentials on affected systems
+- **Status**: Actively exploited in the wild; CISA has mandated federal agencies to patch immediately
+
+### Elementor Ally WordPress Plugin SQL Injection
+- **Description**: SQL injection vulnerability in the Ally WordPress plugin for web accessibility and usability
+- **Impact**: Exploitation allows attackers to steal sensitive data without authentication
+- **Status**: Affects over 250,000 WordPress installations; patch status unclear
+
+### xygeni-action GitHub Repository Compromise
+- **Description**: Tag poisoning attack compromising AppSec vendor Xygeni's GitHub Action
+- **Impact**: Attackers operated an active command and control implant for up to one week
+- **Status**: Attackers maintained persistent access to the compromised repository
 
 ### Microsoft Zero-Day Vulnerabilities
-- **Description**: Two publicly disclosed zero-day vulnerabilities in Microsoft products addressed in March 2026 Patch Tuesday
-- **Impact**: Publicly known vulnerabilities that could be exploited before patches are applied
-- **Status**: Recently patched but were publicly disclosed before fixes were available
+- **Description**: Two publicly disclosed zero-day vulnerabilities patched in March 2026 Patch Tuesday
+- **Impact**: Exploitation details vary by vulnerability; impact assessment ongoing
+- **Status**: Publicly known vulnerabilities now patched as part of 79-84 total security fixes
 
-### Xygeni GitHub Action Tag Poisoning
-- **Description**: Supply chain compromise of the xygeni/xygeni-action GitHub Action through tag poisoning attack
-- **Impact**: Attackers operated an active command and control implant for up to a week, potentially compromising CI/CD pipelines
-- **Status**: AppSec vendor Xygeni's GitHub Action was compromised and used maliciously
+### HPE AOS-CX Authentication Bypass
+- **Description**: Critical authentication vulnerability in Hewlett Packard Enterprise's Aruba Networking AOS-CX operating system
+- **Impact**: Allows unauthorized administrative password resets and potential system compromise
+- **Status**: Multiple authentication and code execution vulnerabilities patched
 
 ## Affected Systems and Products
 
-- **n8n Workflow Automation Platform**: Critical RCE vulnerability affecting workflow automation systems
-- **Microsoft Windows**: 79 security flaws addressed in March 2026 Patch Tuesday, including 2 zero-days
-- **WordPress Elementor Ally Plugin**: SQL injection vulnerability affecting 250,000+ installations
-- **HPE Aruba Networking AOS-CX**: Critical authentication bypass allowing admin password resets
-- **SAP Enterprise Software**: Two critical vulnerabilities enabling arbitrary code execution
-- **GitHub Actions**: Supply chain compromise through tag poisoning of security vendor tools
-- **NPM Registry**: Multiple waves of malicious packages targeting JavaScript developers
-- **Rust Crates Registry**: Five malicious crates masquerading as time utilities to steal secrets
+- **n8n Workflow Automation Platform**: Critical RCE and credential exposure vulnerabilities
+- **WordPress Sites**: Over 250,000 installations using Elementor Ally plugin vulnerable to SQL injection
+- **Microsoft Windows Systems**: 79-84 vulnerabilities across Windows operating systems and software components
+- **GitHub Repositories**: xygeni/xygeni-action compromised via tag poisoning attack
+- **HPE Aruba Networking**: AOS-CX operating system affected by authentication bypass vulnerabilities
+- **Healthcare Systems**: Government agencies, emergency clinics in Australia, New Zealand, and Tonga targeted by ransomware
+- **Medical Technology**: Stryker medical technology company hit by wiper malware attack
+- **NPM Package Registry**: 88+ malicious packages in PhantomRaven campaign targeting JavaScript developers
+- **Rust Package Registry**: Five malicious crates targeting CI/CD pipelines to steal developer secrets
+- **Android Devices**: BeatBanker malware targeting users through fake Starlink applications
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Malicious NPM packages and compromised GitHub Actions targeting developer environments
-- **Tag Poisoning**: Manipulation of version control tags to serve malicious code through legitimate repositories
-- **SQL Injection**: Database attacks targeting WordPress plugins with over 250,000 installations
-- **Remote Code Execution**: Critical vulnerabilities in enterprise automation platforms allowing arbitrary command execution
-- **Wiper Malware**: Destructive attacks targeting medical technology infrastructure
-- **EDR Evasion**: New "BlackSanta" EDR killer malware targeting HR departments
-- **Zombie ZIP Technique**: Payload concealment method designed to bypass security solutions
-- **CI/CD Pipeline Exploitation**: Malicious crates and AI bots targeting development environments
+- **Supply Chain Attacks**: Compromised NPM packages, malicious Rust crates, and poisoned GitHub Actions
+- **Ransomware Deployment**: INC ransomware group targeting healthcare infrastructure across Oceania
+- **Wiper Malware**: Iranian-linked Handala group deploying destructive malware against medical companies
+- **SQL Injection**: Web application attacks targeting WordPress plugin vulnerabilities
+- **Tag Poisoning**: GitHub repository compromise through malicious tag manipulation
+- **EDR Evasion**: BlackSanta malware specifically designed to disable endpoint detection and response systems
+- **Mobile Malware**: BeatBanker Android malware masquerading as legitimate Starlink applications
+- **Social Engineering**: Fake app stores and malicious packages targeting developer environments
+- **Cloud Environment Compromise**: UNC6426 achieving AWS admin access within 72 hours via NPM supply chain attack
+- **Zombie ZIP Technique**: New evasion method to conceal payloads in compressed files
 
 ## Threat Actor Activities
 
-- **INC Ransomware Group**: Actively targeting healthcare organizations across Australia, New Zealand, and Tonga with ransomware attacks
-- **Handala (Iranian-linked)**: Pro-Palestinian hacktivist group claimed responsibility for wiper malware attack against medical technology giant Stryker
-- **UNC6426**: Leveraged stolen keys from nx NPM supply chain compromise to achieve AWS admin access within 72 hours
-- **PhantomRaven Campaign**: Ongoing supply chain attacks distributing 88 malicious NPM packages to steal developer data
-- **Chinese Nexus Actors**: Shifted targeting focus to Qatar entities in response to geopolitical events involving Iranian conflict
-- **Russian-speaking Threat Actor**: Operating BlackSanta EDR killer targeting HR departments for over a year
-- **Sednit (Russian APT)**: Resurfaced with sophisticated new malware toolkit after years of using simpler implants
+- **INC Ransomware Group**: Actively targeting healthcare systems across Australia, New Zealand, and Tonga with ransomware attacks
+- **Handala (Iranian-linked)**: Pro-Palestinian hacktivist group claiming responsibility for wiper malware attack against Stryker medical technology company
+- **PhantomRaven Campaign**: Ongoing supply chain attacks through 88+ malicious NPM packages targeting JavaScript developers
+- **UNC6426**: Sophisticated threat actor leveraging stolen NPM package credentials to achieve complete AWS cloud environment compromise
+- **Russian-speaking Actor**: Deploying BlackSanta EDR killer malware targeting HR departments for over a year
+- **Sednit (Russian APT)**: Resurfacing with sophisticated new malware toolkit after period of using simple implants
+- **Chinese Nexus Actors**: Shifting operational focus to Qatari entities in response to Iranian conflict developments
+- **BeatBanker Operators**: Distributing Android malware through fake Starlink applications and counterfeit app stores
