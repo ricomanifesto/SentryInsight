@@ -1,57 +1,67 @@
 # Exploitation Report
 
-The current threat landscape reveals multiple critical exploitation campaigns targeting enterprise infrastructure and supply chain components. The most significant activity includes active exploitation of n8n workflow automation vulnerabilities, with CISA mandating immediate federal remediation due to confirmed attacks in the wild. Parallel campaigns show sophisticated threat actors leveraging supply chain compromises through malicious npm packages and exploiting FortiGate network appliances for credential theft and lateral movement. Additional concerns include Iranian-linked wiper attacks against critical infrastructure, advanced EDR evasion techniques, and compromised edge devices being enrolled into proxy botnets for malicious traffic routing.
+Current exploitation activity reveals a concerning landscape of active attacks targeting critical infrastructure, supply chains, and enterprise systems. The most significant threats include actively exploited vulnerabilities in n8n workflow automation platforms being targeted by CISA emergency directives, sophisticated supply chain attacks through GitHub Actions and NPM packages, and wiper malware campaigns by Iranian-linked groups targeting healthcare infrastructure. Enterprise environments face multiple attack vectors through compromised FortiGate devices, SQL injection flaws in WordPress plugins affecting hundreds of thousands of sites, and advanced EDR evasion techniques. The threat landscape is further complicated by AI-driven exploitation techniques and supply chain compromises that demonstrate rapid escalation capabilities.
 
 ## Active Exploitation Details
 
 ### n8n Remote Code Execution Vulnerability
-- **Description**: Critical vulnerability in the n8n workflow automation platform allowing arbitrary command execution
-- **Impact**: Attackers can achieve complete system compromise and execute malicious code remotely
-- **Status**: Actively exploited in the wild, patches available, CISA mandates federal agency remediation
+- **Description**: Critical security flaws in the n8n workflow automation platform allowing arbitrary command execution and exposure of stored credentials
+- **Impact**: Complete system compromise, credential theft, and lateral movement capabilities
+- **Status**: Actively exploited in attacks, CISA has issued emergency directive for federal agencies to patch immediately
 
-### FortiGate Network Appliance Compromise
-- **Description**: Threat actors exploiting FortiGate Next-Generation Firewall devices as network entry points
-- **Impact**: Complete network breach capabilities with service account credential theft and lateral movement
-- **Status**: Active campaign targeting enterprise networks through compromised firewall appliances
+### Elementor Ally Plugin SQL Injection
+- **Description**: SQL injection vulnerability in the Ally WordPress plugin for web accessibility and usability
+- **Impact**: Sensitive data theft without authentication, potential database compromise
+- **Status**: Affects over 250,000 WordPress installations, actively exploitable
 
 ### Microsoft Zero-Day Vulnerabilities
-- **Description**: Two publicly disclosed zero-day vulnerabilities in Microsoft products
-- **Impact**: Various exploitation capabilities depending on specific vulnerabilities
-- **Status**: Patched in March 2026 Patch Tuesday, previously exploited in the wild
+- **Description**: Two publicly disclosed zero-day vulnerabilities included in March 2026 Patch Tuesday
+- **Impact**: Various security implications requiring immediate patching
+- **Status**: Publicly known vulnerabilities, patches available
 
-### nx npm Supply Chain Compromise
-- **Description**: Supply chain attack targeting the nx npm package with stolen authentication keys
-- **Impact**: Complete cloud environment compromise within 72 hours, AWS administrative access
-- **Status**: Historical compromise being leveraged for ongoing attacks by UNC6426 threat group
+### HPE AOS-CX Authentication Bypass
+- **Description**: Critical authentication vulnerability allowing administrative password resets in Aruba Networking AOS-CX operating system
+- **Impact**: Complete administrative access to network infrastructure
+- **Status**: Patches released for multiple authentication and code execution issues
+
+### SAP Critical Code Execution Flaws
+- **Description**: Two critical security vulnerabilities enabling arbitrary code execution on SAP systems
+- **Impact**: Complete system compromise of enterprise SAP environments
+- **Status**: Security updates released by SAP
 
 ## Affected Systems and Products
 
-- **n8n Workflow Platform**: Workflow automation systems requiring immediate patching
-- **FortiGate NGFW Appliances**: Network security devices being exploited as attack vectors
-- **Microsoft Windows Systems**: Various Windows components affected by 79 vulnerabilities including 2 zero-days
-- **HPE Aruba AOS-CX**: Network operating system with critical authentication bypass vulnerabilities
-- **Asus Routers**: Edge devices infected by KadNap malware for botnet operations
-- **npm Package Registry**: JavaScript development environments targeted through malicious packages
-- **Rust Crates Repository**: Development pipelines compromised through malicious time utility packages
-- **Stryker Medical Systems**: Healthcare technology infrastructure targeted by wiper malware
-- **Android Devices**: Mobile platforms targeted by BeatBanker malware disguised as Starlink applications
+- **n8n Workflow Automation Platform**: Critical RCE vulnerabilities affecting enterprise automation systems
+- **WordPress Sites**: Over 250,000 installations using Elementor Ally plugin vulnerable to SQL injection
+- **Microsoft Windows Systems**: 79-84 vulnerabilities across Windows operating systems and software components
+- **HPE Aruba Networking**: AOS-CX operating system with critical authentication bypass vulnerabilities
+- **SAP Enterprise Software**: Critical code execution flaws in enterprise software components
+- **FortiGate NGFW Appliances**: Being exploited as entry points for network breaches
+- **GitHub Actions**: Xygeni security action compromised via tag poisoning attacks
+- **NPM Registry**: Multiple malicious packages in PhantomRaven campaigns and Rust crates targeting developers
+- **Stryker Medical Technology**: Global medtech company hit by Iranian wiper malware
+- **Android Devices**: BeatBanker malware targeting users through fake Starlink applications
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Malicious packages deployed through npm registry and Rust crates targeting developer environments
-- **Wiper Malware Deployment**: Destructive attacks against critical infrastructure using data-wiping capabilities
-- **EDR Evasion**: BlackSanta malware specifically designed to disable endpoint detection and response systems
-- **Zombie ZIP Technique**: Novel compression-based evasion method to bypass security scanning solutions
-- **AI Browser Manipulation**: Social engineering attacks targeting AI-powered autonomous browsing systems
-- **Firewall Exploitation**: Network appliances compromised to facilitate credential theft and network traversal
-- **Mobile Application Impersonation**: Malware distribution through fake application stores and brand impersonation
+- **Supply Chain Attacks**: GitHub Action tag poisoning, malicious NPM packages, and compromised Rust crates
+- **Tag Poisoning**: Attackers compromising GitHub Actions through malicious tag manipulation
+- **SQL Injection**: WordPress plugin exploitation affecting hundreds of thousands of sites
+- **Wiper Malware**: Iranian-linked groups deploying destructive malware against healthcare infrastructure
+- **EDR Evasion**: BlackSanta malware specifically designed to kill endpoint detection and response systems
+- **CI/CD Pipeline Exploitation**: Malicious packages targeting developer environments and build systems
+- **Zombie ZIP Technique**: New evasion method to conceal malware payloads from security tools
+- **AI Browser Manipulation**: Exploitation of AI-powered web browsers through social engineering
+- **Network Infrastructure Compromise**: FortiGate devices used as persistent entry points
+- **Mobile Malware Distribution**: Fake app stores distributing Android banking trojans
 
 ## Threat Actor Activities
 
-- **UNC6426**: Leveraging historical npm supply chain compromise to achieve rapid cloud environment takeover within 72 hours
-- **Handala Group**: Iranian-linked hacktivist organization conducting wiper attacks against medical technology companies
-- **PhantomRaven Campaign**: Ongoing supply chain attacks through 88+ malicious npm packages targeting developer credentials
-- **Russian-Speaking Actors**: Targeting HR departments with BlackSanta EDR killer malware for over one year
-- **Sednit (APT28)**: Russian state-affiliated group returning with sophisticated new malware toolkit after period of reduced activity
-- **Chinese Nexus Actors**: Pivoting targeting focus to Qatar amid regional geopolitical tensions
-- **Southeast Asian Scam Centers**: Operating 150,000+ fraudulent accounts across Meta platforms for financial crimes
+- **Handala Group**: Iranian-linked hacktivist group claiming responsibility for Stryker wiper attack
+- **UNC6426**: Leveraged nx npm supply chain compromise to achieve AWS admin access within 72 hours
+- **PhantomRaven Campaign**: Ongoing supply chain attacks through 88 malicious NPM packages targeting developers
+- **Russian-Speaking Actors**: BlackSanta EDR killer campaigns targeting HR departments for over a year
+- **Sednit (APT28)**: Russian-affiliated group resurfaces with sophisticated new malware toolkit
+- **Chinese Nexus Actors**: Shifting focus to Qatar amid Iranian conflict, demonstrating rapid geopolitical pivoting
+- **Southeast Asia Scam Centers**: Meta disabled 150,000 accounts linked to coordinated scam operations
+- **BeatBanker Operators**: Android malware campaign impersonating Starlink to hijack mobile devices
