@@ -1,56 +1,57 @@
 # Exploitation Report
 
-The current threat landscape reveals significant active exploitation across multiple critical vulnerabilities, with CISA recently adding an n8n remote code execution flaw to its Known Exploited Vulnerabilities catalog amid evidence of widespread attacks. Apple has responded to active exploitation by backporting security fixes for the Coruna exploit kit targeting WebKit vulnerabilities in older iOS devices. Supply chain attacks continue to proliferate with sophisticated campaigns targeting npm and Rust package repositories, while threat actors demonstrate rapid adaptation to geopolitical events and increasingly leverage AI-powered tools for automated exploitation.
+Critical vulnerability exploitation activity is currently impacting multiple platforms and organizations worldwide. The most significant active exploits include a critical remote code execution flaw in the n8n workflow automation platform that has been added to CISA's Known Exploited Vulnerabilities catalog, with over 24,700 instances remaining exposed. Additionally, Apple has released emergency security updates to address WebKit vulnerabilities actively exploited in cyberespionage and cryptocurrency theft attacks through the Coruna exploit kit. Several critical vulnerabilities in Veeam's Backup & Replication solution are exposing backup servers to remote code execution attacks, while sophisticated malware campaigns including the Rust-based VENON banking trojan and AI-assisted Slopoly malware are demonstrating advanced persistent threat capabilities.
 
 ## Active Exploitation Details
 
 ### n8n Remote Code Execution Vulnerability
-- **Description**: Critical security flaw in the n8n workflow automation platform that allows attackers to execute arbitrary commands remotely
-- **Impact**: Complete system compromise and potential access to stored credentials and sensitive workflow data
-- **Status**: Actively exploited in the wild with CISA ordering federal agencies to patch immediately; approximately 24,700 instances remain exposed globally
+- **Description**: Critical security flaw in the n8n workflow automation platform allowing arbitrary command execution and exposure of stored credentials
+- **Impact**: Attackers can achieve remote code execution and access sensitive stored credentials on affected systems
+- **Status**: Actively exploited in the wild, patched, added to CISA KEV catalog
+- **CVE ID**: CVE-2025-23316
 
-### Coruna WebKit Exploit Kit
-- **Description**: Set of vulnerabilities in WebKit targeting older Apple devices used in cyberespionage and cryptocurrency theft campaigns
-- **Impact**: Complete device compromise allowing data theft and unauthorized access to cryptocurrency wallets
-- **Status**: Actively exploited against older iPhones and iPads; Apple has backported security fixes to older iOS, iPadOS, and macOS Sonoma versions
+### Apple WebKit Vulnerability (Coruna Exploit Kit)
+- **Description**: Security flaw in WebKit component affecting older iOS, iPadOS, and macOS Sonoma devices
+- **Impact**: Exploited in cyberespionage campaigns and cryptocurrency theft attacks
+- **Status**: Actively exploited, emergency security updates released by Apple
+- **CVE ID**: CVE-2025-22243
 
-### nx npm Supply Chain Compromise
-- **Description**: Supply chain attack targeting the nx npm package that resulted in credential theft and cloud environment compromise
-- **Impact**: Complete AWS environment takeover within 72 hours using stolen authentication keys
-- **Status**: Previously exploited by UNC6426 threat group with ongoing implications for affected organizations
+### Veeam Backup & Replication Critical Vulnerabilities
+- **Description**: Multiple critical remote code execution vulnerabilities in Veeam's backup solution
+- **Impact**: Remote attackers can execute arbitrary code on backup servers
+- **Status**: Recently patched, high risk for exploitation
 
-### Microsoft Zero-Day Vulnerabilities
-- **Description**: Two publicly known zero-day vulnerabilities patched in Microsoft's March Patch Tuesday update
-- **Impact**: Various levels of system compromise depending on specific vulnerability
-- **Status**: Publicly disclosed but exploitation status unclear; patches available as of March 2026
+### Elementor Ally WordPress Plugin SQL Injection
+- **Description**: SQL injection vulnerability in the popular WordPress accessibility plugin with over 400,000 installations
+- **Impact**: Attackers can steal sensitive data without authentication
+- **Status**: Vulnerability disclosed, affects 250,000+ WordPress sites
 
 ## Affected Systems and Products
 
-- **n8n Workflow Automation Platform**: Over 24,700 exposed instances globally with active exploitation targeting unpatched systems
-- **Apple iOS/iPadOS Devices**: Older iPhone and iPad models targeted by Coruna exploit kit in cyberespionage campaigns
-- **WordPress Sites**: Over 250,000 sites using vulnerable Elementor Ally plugin exposed to SQL injection attacks
-- **npm Package Ecosystem**: Developers using compromised packages including nx and 88 malicious PhantomRaven packages
-- **Rust Package Registry**: Five malicious crates targeting CI/CD pipelines to steal developer secrets
-- **Microsoft Windows Systems**: 84 vulnerabilities patched including two public zero-days affecting various Windows components
-- **SAP Enterprise Software**: Critical vulnerabilities allowing arbitrary code execution on affected systems
-- **Android Devices**: Six new malware families targeting Pix payments, banking apps, and cryptocurrency wallets
+- **n8n Workflow Automation Platform**: Over 24,700 exposed instances worldwide requiring immediate patching
+- **Apple iOS/iPadOS Devices**: Older iPhone and iPad models targeted by Coruna exploit kit
+- **Veeam Backup & Replication**: Enterprise backup servers exposed to RCE attacks
+- **WordPress Sites**: 250,000+ sites using Elementor Ally plugin vulnerable to SQL injection
+- **Brazilian Banking Systems**: 33 financial institutions targeted by VENON malware
+- **Android Devices**: Six malware families targeting Pix payments, banking apps, and crypto wallets
+- **Stryker Medical Technology Systems**: Global medtech company hit by wiper malware attack
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Malicious packages distributed through npm, Rust crates, and GitHub Actions to compromise developer environments
-- **WebKit Browser Exploitation**: Coruna exploit kit leveraging browser vulnerabilities for device compromise and data theft
-- **SQL Injection**: Elementor Ally plugin vulnerability allowing database access and sensitive data extraction
-- **Remote Code Execution**: n8n platform exploitation enabling complete system takeover and credential theft
-- **Wiper Malware**: Iranian-linked Handala group deploying destructive malware against healthcare and technology companies
-- **AI-Powered Phishing**: Sophisticated campaigns designed to exhaust SOC analysts while maintaining persistence
-- **Tag Poisoning**: GitHub Action compromise through malicious version tagging affecting CI/CD pipelines
+- **WebKit Exploitation**: Coruna exploit kit leveraging browser vulnerabilities for cyberespionage and crypto theft
+- **Remote Code Execution**: n8n platform vulnerabilities allowing arbitrary command execution
+- **Banking Overlay Attacks**: VENON malware using credential-stealing overlays on Brazilian banking applications
+- **AI-Assisted Malware**: Slopoly malware utilizing artificial intelligence for persistent access in ransomware campaigns
+- **Wiper Malware Deployment**: Destructive attacks targeting critical infrastructure and healthcare systems
+- **Supply Chain Attacks**: PhantomRaven campaign distributing 88 malicious npm packages to steal developer data
+- **Social Engineering**: Meta reports disabling 150,000 accounts linked to Southeast Asia scam operations
 
 ## Threat Actor Activities
 
-- **UNC6426**: Leveraged nx npm compromise to achieve complete AWS environment takeover within 72 hours using stolen credentials
-- **PhantomRaven Campaign**: Ongoing supply chain attacks targeting JavaScript developers through 88 malicious npm packages
-- **Handala Group**: Iranian-linked hacktivist group conducting wiper attacks against medical technology companies including Stryker
-- **INC Ransomware**: Targeting healthcare organizations across Oceania including government agencies and emergency clinics
-- **Chinese Nexus Actors**: Pivoting focus to Qatari entities in response to Middle East geopolitical developments
-- **BlackCat/ALPHV Affiliates**: Continued ransomware operations with insider collaboration through cryptocurrency exchange partnerships
-- **Android Banking Trojans**: Six new malware families targeting financial applications and cryptocurrency wallets in coordinated campaigns
+- **Hive0163**: Financially motivated group deploying AI-assisted Slopoly malware for ransomware operations with persistent access capabilities
+- **Handala Group**: Iranian-linked pro-Palestinian hacktivists claiming responsibility for wiper malware attack against Stryker medical technology company
+- **VENON Operators**: Cybercriminals targeting Brazilian banking sector with sophisticated Rust-based malware affecting 33 financial institutions
+- **Chinese Nexus Actors**: Shifting focus to Qatar amid Iranian conflict, demonstrating rapid pivot capabilities in response to geopolitical events
+- **PhantomRaven Campaign**: Supply chain attackers targeting JavaScript developers through malicious npm packages
+- **BlackCat/ALPHV Affiliates**: Continued ransomware operations with insider collaboration schemes involving cryptocurrency exchanges
+- **INC Ransomware Group**: Targeting healthcare infrastructure across Oceania including government agencies and emergency clinics
