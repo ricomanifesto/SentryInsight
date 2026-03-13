@@ -1,57 +1,50 @@
 # Exploitation Report
 
-The current threat landscape shows significant exploitation activity across multiple critical vulnerabilities and attack vectors. Most notably, CISA has flagged an actively exploited n8n remote code execution vulnerability affecting over 24,700 exposed instances worldwide. Concurrent threats include iOS/macOS vulnerabilities being exploited through the Coruna exploit kit for cyberespionage and crypto-theft, critical Veeam backup server flaws enabling remote code execution, and a SQL injection vulnerability in the widely-used Elementor Ally WordPress plugin affecting over 250,000 installations. The landscape is further complicated by AI-assisted malware development, Iranian-backed wiper attacks against critical infrastructure, and sophisticated supply chain attacks targeting developer environments.
+Recent security activity reveals a concerning landscape of active exploitations across multiple sectors, with threat actors leveraging both sophisticated malware and critical vulnerabilities. The most significant developments include the active exploitation of the n8n automation platform vulnerability that CISA has flagged as a critical threat to federal systems, the emergence of AI-generated Slopoly malware in ransomware campaigns, and targeted attacks against Apple devices using the Coruna exploit kit. Iranian-linked threat actors have escalated their activities with destructive wiper attacks against major healthcare infrastructure, while cybercriminals continue to innovate with new malware families targeting financial systems and supply chain attacks through compromised repositories.
 
 ## Active Exploitation Details
 
-### n8n Remote Code Execution Vulnerability
-- **Description**: Critical security flaw in the n8n workflow automation platform that allows remote code execution
-- **Impact**: Attackers can execute arbitrary code on vulnerable systems, potentially leading to full system compromise
-- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
-- **CVE ID**: CVE-2024-56335
+### n8n Automation Platform RCE Vulnerability
+- **Description**: A critical remote code execution vulnerability in the n8n workflow automation platform that allows attackers to execute arbitrary code on vulnerable systems
+- **Impact**: Full system compromise, unauthorized access to sensitive data, and potential lateral movement within networks
+- **Status**: Actively exploited in the wild, CISA has added to Known Exploited Vulnerabilities catalog with mandatory patching requirements for federal agencies
+- **CVE ID**: CVE-2024-50389
 
-### iOS/macOS WebKit Vulnerability (Coruna Exploit Kit)
-- **Description**: Security flaw in WebKit component affecting older iOS, iPadOS, and macOS Sonoma devices
-- **Impact**: Used in cyberespionage and crypto-theft attacks, allows unauthorized access to sensitive data
-- **Status**: Actively exploited via Coruna exploit kit, patches now available for older devices
+### Apple WebKit Vulnerability (Coruna Exploit Kit)
+- **Description**: A security flaw in Apple's WebKit browser engine that is being exploited through the Coruna exploit kit in targeted cyberespionage and cryptocurrency theft campaigns
+- **Impact**: Device compromise, data exfiltration, and unauthorized access to cryptocurrency wallets
+- **Status**: Apple has released security updates for older iOS, iPadOS, and macOS devices; actively exploited in targeted attacks
 
-### Veeam Backup & Replication Critical Flaws
-- **Description**: Multiple critical vulnerabilities in Veeam's backup solution, including four remote code execution flaws
-- **Impact**: Attackers can achieve remote code execution on backup servers, potentially compromising critical backup infrastructure
-- **Status**: Recently patched by Veeam, exploitation potential remains high for unpatched systems
-
-### Elementor Ally WordPress Plugin SQL Injection
-- **Description**: SQL injection vulnerability in the Ally accessibility plugin for WordPress
-- **Impact**: Allows attackers to steal sensitive data from WordPress databases without authentication
-- **Status**: Affects over 250,000 WordPress installations, patches available
+### Xygeni GitHub Action Tag Poisoning
+- **Description**: Supply chain attack targeting the xygeni/xygeni-action GitHub Action through malicious tag manipulation
+- **Impact**: Code execution in CI/CD pipelines, potential compromise of software build processes, and unauthorized access to development environments
+- **Status**: Active C2 implant operated for up to one week before detection
 
 ## Affected Systems and Products
 
-- **n8n Workflow Platform**: Over 24,700 instances remain exposed globally
-- **Apple iOS/iPadOS**: Older versions targeted by Coruna exploit kit
-- **Apple macOS Sonoma**: Legacy versions vulnerable to WebKit exploits
-- **Veeam Backup & Replication**: Enterprise backup infrastructure at risk
-- **WordPress Sites**: 250,000+ installations using Elementor Ally plugin
-- **Android Devices**: Multiple malware families targeting banking and cryptocurrency applications
-- **NPM Registry**: JavaScript developers targeted via 88 malicious packages
-- **GitHub Actions**: Xygeni security action compromised through tag poisoning
+- **n8n Automation Platform**: Approximately 24,700 exposed instances remain vulnerable to remote code execution attacks
+- **Apple iOS/iPadOS Devices**: Older iPhone and iPad models targeted by Coruna exploit kit campaigns
+- **Veeam Backup & Replication**: Multiple critical RCE vulnerabilities patched in backup infrastructure systems
+- **WordPress Sites**: Over 250,000 WordPress installations using Elementor Ally plugin affected by SQL injection vulnerability
+- **Android Devices**: Six new malware families targeting Pix payments, banking apps, and cryptocurrency wallets
+- **NPM Package Registry**: 88 malicious packages in PhantomRaven campaign targeting JavaScript developers
+- **GitHub Actions**: Xygeni security vendor's GitHub Action compromised via tag poisoning attack
 
 ## Attack Vectors and Techniques
 
-- **AI-Assisted Malware Development**: Slopoly malware created using generative AI tools for persistent access
-- **Supply Chain Attacks**: PhantomRaven campaign distributing malicious NPM packages to steal developer data
-- **Tag Poisoning**: GitHub Actions compromised through malicious tag manipulation
-- **Wiper Malware**: Destructive attacks against critical infrastructure and medical technology companies
-- **Banking Overlays**: Mobile malware using credential-stealing overlays targeting Brazilian financial institutions
-- **Proxy Network Operations**: SocksEscort network using compromised edge devices via AVRecon malware
-- **Ransomware Persistence**: Extended dwell time attacks using AI-generated tools
+- **AI-Generated Malware**: Slopoly malware created using generative AI tools for persistent access in ransomware operations
+- **Supply Chain Poisoning**: PhantomRaven campaign deploying malicious NPM packages to steal developer credentials and sensitive data
+- **Wiper Malware Attacks**: Iranian-linked Handala group deploying destructive malware against healthcare infrastructure
+- **Financial Overlay Attacks**: VENON malware using Rust-based credential-stealing overlays targeting Brazilian banking customers
+- **Proxy Network Exploitation**: SocksEscort network leveraging AVRecon malware on compromised edge devices for cybercrime operations
+- **Tag Poisoning**: GitHub Actions compromise through malicious tag manipulation enabling C2 implant deployment
 
 ## Threat Actor Activities
 
-- **Hive0163**: Financially motivated group using AI-assisted Slopoly malware for ransomware operations
-- **Handala**: Iranian-linked hacktivist group conducting wiper attacks against medical technology companies
-- **Iranian MOIS**: Intelligence service collaborating with cybercriminal groups to enhance attack capabilities
-- **PhantomRaven**: Supply chain threat actors targeting JavaScript developers through malicious NPM packages
-- **AiLock Ransomware Gang**: Targeting sports organizations and conducting data extortion operations
-- **INC Ransomware Group**: Specifically targeting healthcare infrastructure in Oceania region
-- **BlackCat (ALPHV) Affiliates**: Ongoing law enforcement actions against ransomware negotiators and facilitators
+- **Hive0163**: Financially motivated group deploying AI-assisted Slopoly malware for persistent access in Interlock ransomware attacks
+- **Handala (Iranian-linked)**: Pro-Palestinian hacktivist group claiming responsibility for wiper malware attack against Stryker medical technology company
+- **Iran MOIS**: Ministry of Intelligence colluding with cybercriminal groups to enhance cyberattack capabilities and expand operational reach
+- **PhantomRaven Campaign**: Ongoing supply chain attacks targeting npm registry with credential-stealing packages affecting JavaScript developers
+- **INC Ransomware Group**: Targeting healthcare organizations across Australia, New Zealand, and Tonga with significant operational disruptions
+- **AiLock Ransomware**: Listed England Hockey as victim on data leak site following successful breach of the sports governing body
+- **BlackCat (ALPHV) Affiliates**: Continued law enforcement actions against ransomware negotiators involved in insider schemes with cryptocurrency exchanges
