@@ -1,49 +1,56 @@
 # Exploitation Report
 
-Critical exploitation activity is currently dominated by two actively exploited Google Chrome zero-day vulnerabilities affecting the Skia graphics library and V8 JavaScript engine, alongside multiple supply-chain attacks targeting developers and organizations. The Chrome vulnerabilities represent immediate threats to millions of users, while sophisticated campaigns like GlassWorm are compromising development environments through malicious VSX extensions. Additionally, threat actors are leveraging fake VPN clients and SEO poisoning techniques to steal enterprise credentials, and multiple critical vulnerabilities have been discovered in Veeam Backup & Replication software and Linux AppArmor that could enable remote code execution and privilege escalation.
+Multiple critical zero-day vulnerabilities and active exploitation campaigns have been identified across various platforms and products. The most significant activity includes two Chrome zero-day vulnerabilities actively exploited in the wild affecting the Skia graphics library and V8 JavaScript engine, requiring immediate patching. Additionally, nine critical Linux AppArmor vulnerabilities collectively dubbed "CrackArmor" enable privilege escalation and container isolation bypass. Supply chain attacks have escalated with malicious code injection into the AppsFlyer Web SDK for cryptocurrency theft and the GlassWorm campaign targeting developers through 72 compromised Open VSX extensions. Seven critical remote code execution vulnerabilities in Veeam Backup & Replication software pose significant risks to enterprise backup infrastructure.
 
 ## Active Exploitation Details
 
-### Google Chrome Zero-Day Vulnerabilities
-- **Description**: Two high-severity vulnerabilities in Google Chrome's Skia graphics library and V8 JavaScript engine that are being actively exploited in the wild
-- **Impact**: Attackers can potentially achieve remote code execution and compromise user systems through malicious websites
-- **Status**: Google has released emergency security updates to patch these vulnerabilities
-- **CVE ID**: CVE-2026-20023 (Skia), CVE-2026-20024 (V8)
+### Chrome Zero-Day Vulnerabilities
+- **Description**: Two high-severity vulnerabilities in Google Chrome affecting the Skia graphics library and V8 JavaScript engine
+- **Impact**: Complete system compromise through arbitrary code execution in the browser context
+- **Status**: Actively exploited in the wild, security patches released by Google
 
-### AppsFlyer Web SDK Supply-Chain Attack
-- **Description**: The AppsFlyer Web SDK was temporarily hijacked with malicious JavaScript code designed to steal cryptocurrency
-- **Impact**: Websites using the compromised SDK could have their visitors' cryptocurrency wallets targeted and funds stolen
-- **Status**: The attack has been identified and mitigated, but affected websites may have been compromised during the attack window
+### Linux AppArmor CrackArmor Vulnerabilities
+- **Description**: Nine security flaws within the Linux kernel's AppArmor security module
+- **Impact**: Unprivileged users can escalate to root privileges and bypass container isolation protections
+- **Status**: Disclosed vulnerabilities requiring immediate kernel updates
 
-### GlassWorm VSX Extension Campaign
-- **Description**: A significant escalation of the GlassWorm campaign targeting developers through 72 malicious Open VSX extensions
-- **Impact**: Compromise of developer environments and potential injection of malicious code into software projects
-- **Status**: Active campaign targeting the development community through infected Visual Studio Code extensions
+### Veeam Backup & Replication Critical Flaws
+- **Description**: Seven critical vulnerabilities in Veeam's enterprise backup solution
+- **Impact**: Remote code execution allowing complete compromise of backup infrastructure
+- **Status**: Security patches released, immediate updates required
+
+### AppsFlyer Web SDK Supply Chain Attack
+- **Description**: Malicious code injection into the AppsFlyer Web SDK library
+- **Impact**: Cryptocurrency theft through compromised JavaScript code execution on affected websites
+- **Status**: Temporary hijacking detected and resolved
 
 ## Affected Systems and Products
 
-- **Google Chrome**: All versions prior to the latest security update containing patches for Skia and V8 vulnerabilities
-- **AppsFlyer Web SDK**: Websites and applications using the compromised SDK during the attack window
-- **Open VSX Registry**: Developer environments using affected extensions from the compromised registry
-- **Veeam Backup & Replication**: Multiple versions containing seven critical vulnerabilities enabling remote code execution
-- **Linux AppArmor**: Systems running affected versions of the Linux kernel's AppArmor security module
-- **Samsung Windows 11 PCs**: Specific Samsung laptop models experiencing C: drive access issues after February 2026 security updates
-- **Steam Gaming Platform**: Eight malicious games identified as containing malware
-- **Enterprise VPN Systems**: Fake clients impersonating Ivanti, Cisco, and Fortinet VPN solutions
+- **Google Chrome**: All versions prior to the latest security update across Windows, macOS, and Linux platforms
+- **Linux Systems**: Any distribution using AppArmor security module for mandatory access control
+- **Veeam Backup & Replication**: Enterprise backup infrastructure across all supported versions
+- **AppsFlyer Web SDK**: Websites and applications integrating the compromised SDK version
+- **Open VSX Registry**: Development environments using affected extensions from the registry
+- **Steam Gaming Platform**: Eight malicious games distributed through the official platform
+- **Samsung Laptops**: Windows 11 systems experiencing C: drive access issues after February 2026 updates
+- **Enterprise VPN Clients**: Fake Ivanti, Cisco, and Fortinet VPN applications
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active exploitation of unpatched Chrome vulnerabilities through malicious websites
-- **Supply-Chain Compromise**: Hijacking of legitimate SDKs and development tools to distribute malicious code
-- **SEO Poisoning**: Using search engine optimization techniques to promote fake VPN download sites
-- **Social Engineering**: Distributing trojan VPN clients disguised as legitimate enterprise security tools
-- **Malicious Extensions**: Compromising developer environments through infected VSX registry extensions
-- **Gaming Platform Abuse**: Using Steam as a distribution mechanism for malware through fake games
+- **Browser Exploitation**: Zero-day vulnerabilities targeting Chrome's graphics and JavaScript engines for code execution
+- **Supply Chain Compromise**: Injection of malicious code into legitimate software development tools and libraries
+- **SEO Poisoning**: Manipulation of search engine results to distribute fake VPN clients and malware
+- **Container Escape**: Exploitation of AppArmor vulnerabilities to break out of containerized environments
+- **Social Engineering**: Click-fix variants and fake enterprise software to steal credentials
+- **Malicious Extensions**: Abuse of developer tools through compromised Visual Studio Code extensions
+- **Proxy Botnet Operations**: SocksEscort botnet enslaving residential routers across 163 countries
 
 ## Threat Actor Activities
 
-- **Storm-2561**: Microsoft-tracked group distributing fake enterprise VPN clients through SEO poisoning to steal corporate credentials
-- **Chinese APT Groups**: Targeting Southeast Asian military organizations with AppleChris and MemFun malware in campaigns dating back to 2020
-- **GlassWorm Operators**: Escalating supply-chain attacks through compromised developer tools and extensions
-- **Banking Trojan Operators**: Targeting Brazil's Pix payment system users with real-time operator-assisted attacks
-- **SocksEscort Botnet**: International criminal operation that enslaved 369,000 residential router IPs across 163 countries before law enforcement disruption
+- **Storm-2561**: Distributing trojan VPN clients through SEO poisoning to steal enterprise credentials from Ivanti, Cisco, and Fortinet users
+- **GlassWorm Campaign**: Escalated supply chain attacks through 72 compromised Open VSX extensions targeting software developers
+- **Chinese APT Groups**: Sustained espionage operations against Southeast Asian military organizations using AppleChris and MemFun malware since 2020
+- **Brazilian Banking Trojans**: Real-time attacks against Pix payment system users combining automated malware with human operators
+- **SocksEscort Operators**: International cybercriminal network operating proxy botnet across 369,000 compromised IP addresses
+- **Steam Malware Distributors**: Threat actors uploading eight malicious games to the Steam platform for malware distribution
+- **Iranian MOIS**: Collaboration with cybercriminal groups to enhance cyberattack capabilities and expand operational reach
