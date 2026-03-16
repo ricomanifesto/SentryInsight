@@ -1,57 +1,61 @@
 # Exploitation Report
 
-Critical exploitation activity is currently affecting multiple platforms with several zero-day vulnerabilities being actively exploited in the wild. The most significant threats include two Chrome zero-day vulnerabilities in the Skia graphics library and V8 JavaScript engine, nine Linux AppArmor vulnerabilities enabling privilege escalation, and a Windows 11 RRAS remote code execution flaw requiring emergency patching. Additionally, widespread supply chain attacks are targeting developers through compromised SDK packages and malicious browser extensions, while threat actors continue exploiting vulnerabilities in enterprise systems and cloud environments.
+Critical exploitation activity is currently targeting multiple platforms with significant focus on zero-day vulnerabilities in Google Chrome, supply-chain attacks against development tools, and sophisticated credential theft campaigns. Two Chrome zero-day vulnerabilities affecting the Skia graphics library and V8 JavaScript engine are being actively exploited in the wild, prompting emergency security updates from Google. Supply-chain attacks have escalated with the hijacking of the AppsFlyer Web SDK to spread cryptocurrency-stealing malware and the GlassWorm campaign abusing 72 Open VSX extensions to target developers. Additionally, a threat actor designated Storm-2561 is conducting widespread credential theft operations using fake VPN clients distributed through search engine optimization poisoning techniques.
 
 ## Active Exploitation Details
 
 ### Chrome Zero-Day Vulnerabilities in Skia and V8
 - **Description**: Two high-severity vulnerabilities affecting Google Chrome's Skia graphics library and V8 JavaScript engine
-- **Impact**: Remote code execution and potential system compromise through browser exploitation
-- **Status**: Actively exploited in the wild, security updates released by Google
+- **Impact**: Attackers can achieve remote code execution and potentially gain control of affected systems
+- **Status**: Actively exploited in the wild; Google has released emergency security updates to address both vulnerabilities
+
+### AppsFlyer Web SDK Supply-Chain Attack
+- **Description**: The AppsFlyer Web SDK was temporarily compromised with malicious JavaScript code designed to steal cryptocurrency
+- **Impact**: Websites using the compromised SDK exposed users to cryptocurrency theft
+- **Status**: Supply-chain attack was detected and remediated; SDK was temporarily hijacked during the attack window
 
 ### Windows 11 RRAS Remote Code Execution Vulnerability
-- **Description**: Critical security vulnerability affecting Windows 11 Enterprise devices' Routing and Remote Access Service (RRAS)
-- **Impact**: Remote code execution allowing attackers to gain system control
-- **Status**: Out-of-band hotpatch released by Microsoft for Enterprise systems
+- **Description**: A security vulnerability affecting Windows 11 Enterprise devices' Routing and Remote Access Service (RRAS)
+- **Impact**: Remote code execution capabilities for attackers
+- **Status**: Microsoft has released an out-of-band hotpatch update to address the vulnerability
 
 ### Linux AppArmor CrackArmor Vulnerabilities
-- **Description**: Nine security flaws within the Linux kernel's AppArmor security module
-- **Impact**: Unprivileged users can circumvent kernel protections, escalate privileges to root, and bypass container isolation
-- **Status**: Multiple vulnerabilities identified and disclosed, patches required
+- **Description**: Nine security vulnerabilities within the Linux kernel's AppArmor module that allow unprivileged users to circumvent kernel protections
+- **Impact**: Root privilege escalation and container isolation bypass
+- **Status**: Multiple critical flaws enabling unprivileged users to escalate privileges and bypass security controls
 
 ### Veeam Backup & Replication Critical Flaws
 - **Description**: Seven critical vulnerabilities in Veeam's Backup & Replication software
-- **Impact**: Remote code execution capabilities allowing complete system compromise
-- **Status**: Security updates released by Veeam
+- **Impact**: Remote code execution capabilities for attackers
+- **Status**: Veeam has released security updates to address all identified vulnerabilities
 
 ## Affected Systems and Products
 
-- **Google Chrome**: Skia graphics library and V8 JavaScript engine components affected
-- **Windows 11 Enterprise**: Routing and Remote Access Service (RRAS) functionality
-- **Linux Systems**: AppArmor security module in Linux kernel
-- **Veeam Backup & Replication**: Enterprise backup software installations
-- **AppsFlyer Web SDK**: JavaScript SDK used in web applications
-- **Open VSX Extensions**: 72 malicious extensions in the Visual Studio Code marketplace
-- **Steam Gaming Platform**: Eight malicious games containing malware
-- **Samsung Windows 11 PCs**: C: drive access issues after February 2026 security updates
-- **Southeast Asian Military Organizations**: Targeted by state-sponsored campaigns
+- **Google Chrome**: All versions prior to the latest security update affecting Skia graphics library and V8 JavaScript engine
+- **Windows 11 Enterprise**: Devices receiving hotpatch updates, specifically affecting RRAS functionality
+- **AppsFlyer Web SDK**: Websites and applications integrating the compromised SDK during the attack window
+- **Open VSX Registry**: Development environments using compromised extensions from the GlassWorm campaign
+- **Linux Systems**: Distributions using AppArmor module with the CrackArmor vulnerabilities
+- **Veeam Backup & Replication**: Enterprise backup solutions running vulnerable versions
+- **VPN Clients**: Fake clients impersonating Ivanti, Cisco, and Fortinet enterprise VPN solutions
+- **Steam Gaming Platform**: Eight malicious games uploaded to distribute malware to users
+- **Samsung Laptops**: Specific models experiencing C: drive access issues after Windows 11 February 2026 security updates
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Compromising legitimate software packages and SDKs to distribute malware
-- **Browser Exploitation**: Zero-day vulnerabilities in Chrome components for remote code execution
-- **SEO Poisoning**: Fake VPN client distribution through manipulated search engine results
-- **Malicious Extensions**: Trojanized VS Code extensions in Open VSX registry
-- **Container Escape**: Linux AppArmor bypass techniques for privilege escalation
-- **Credential Harvesting**: Fake enterprise VPN clients stealing authentication credentials
-- **Cryptocurrency Theft**: JavaScript injection for wallet draining attacks
-- **Phishing Campaigns**: Advanced social engineering targeting enterprise users
+- **Supply-Chain Poisoning**: Compromising legitimate software distribution channels including SDK repositories and browser extension marketplaces
+- **SEO Poisoning**: Manipulating search engine results to promote fake VPN client downloads for credential theft
+- **Zero-Day Exploitation**: Leveraging previously unknown vulnerabilities in widely-used software before patches are available
+- **Fake Software Distribution**: Creating counterfeit versions of legitimate enterprise security tools to steal credentials
+- **Gaming Platform Abuse**: Uploading malicious games to legitimate gaming platforms to reach unsuspecting users
+- **Proxy Botnet Operations**: Enslaving residential routers into botnets for criminal proxy services across 163 countries
 
 ## Threat Actor Activities
 
-- **Storm-2561**: Distributing fake enterprise VPN clients from Ivanti, Cisco, and Fortinet to steal credentials through SEO poisoning techniques
-- **GlassWorm Campaign**: Escalated supply chain attacks through 72 compromised Open VSX extensions targeting developers
-- **Chinese State-Sponsored Groups**: Targeting Southeast Asian military organizations with AppleChris and MemFun malware since 2020
-- **SocksEscort Operators**: Running proxy botnet exploiting 369,000 IP addresses across 163 countries before law enforcement disruption
-- **Banking Trojan Operators**: Real-time attacks targeting Brazil's Pix payment system users with human-operated malware
-- **Steam Game Publishers**: Eight malicious games uploaded to Steam platform for malware distribution
+- **Storm-2561**: Conducting widespread credential theft campaigns using fake enterprise VPN clients distributed through SEO poisoning techniques targeting Ivanti, Cisco, and Fortinet users
+- **GlassWorm Campaign Operators**: Escalating supply-chain attacks by abusing 72 Open VSX extensions to target software developers and development environments
+- **Chinese State-Sponsored Groups**: Targeting Southeast Asian military organizations with AppleChris and MemFun malware in campaigns dating back to at least 2020
+- **SocksEscort Operators**: Managing a criminal proxy service that enslaved 369,000 IP addresses across 163 countries before law enforcement disruption
+- **Banking Trojan Operators**: Targeting Brazil's Pix payment system users with real-time human-operated malware campaigns
+- **Click-Fix Variant Distributors**: Developing new variants of click-fix attack techniques to bypass security measures
+- **Steam Malware Distributors**: Uploading eight malicious games to the Steam platform to distribute malware to gaming communities
