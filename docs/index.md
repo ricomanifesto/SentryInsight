@@ -1,50 +1,49 @@
 # Exploitation Report
 
-Critical exploitation activity is currently dominated by sophisticated supply chain attacks and infrastructure targeting. The GlassWorm malware campaign represents a significant escalation in developer-focused attacks, leveraging stolen GitHub tokens to inject malicious code into Python repositories while simultaneously abusing 72 Open VSX extensions to target development environments. CISA has flagged a Wing FTP Server vulnerability as actively exploited in the wild, warning federal agencies to secure their instances against potential remote code execution attacks. State-sponsored activities continue with China-nexus threat actors maintaining persistent access to Southeast Asian military organizations through novel backdoors, while Russian-linked groups deploy the DRILLAPP backdoor against Ukrainian entities using Microsoft Edge debugging features for stealth operations.
+CISA has flagged a critical Wing FTP Server vulnerability for active exploitation, adding it to the Known Exploited Vulnerabilities catalog due to evidence of in-the-wild attacks. This vulnerability enables path disclosure attacks and may be chained with other exploits for remote code execution. Meanwhile, sophisticated supply chain attacks are targeting developers through the GlassWorm campaign, which has evolved to abuse GitHub tokens and Visual Studio Code extensions. China-nexus threat actors continue extensive espionage operations against Southeast Asian military organizations using novel backdoors, while various social engineering campaigns leverage legitimate services like LiveChat to steal credentials and personal data.
 
 ## Active Exploitation Details
 
-### Wing FTP Server Vulnerability
-- **Description**: A security flaw in Wing FTP Server that is being actively exploited by threat actors
-- **Impact**: The vulnerability may be chained in remote code execution attacks, allowing attackers to gain unauthorized system access
-- **Status**: Currently being exploited in the wild; CISA has issued warnings to federal agencies to secure their instances
+### Wing FTP Server Path Disclosure Vulnerability
+- **Description**: A medium-severity security flaw in Wing FTP Server that allows attackers to leak server paths and potentially chain with other vulnerabilities
+- **Impact**: Path disclosure that can be leveraged in remote code execution attack chains
+- **Status**: Actively exploited in the wild, CISA has mandated federal agencies secure their instances
 
-### GlassWorm Supply Chain Attack
-- **Description**: A sophisticated malware campaign targeting developers through multiple attack vectors including stolen GitHub tokens and malicious Visual Studio Code extensions
-- **Impact**: Malware injection into Python repositories, compromise of development environments, and potential downstream supply chain contamination
-- **Status**: Active campaign with significant escalation in attack methods
+### GlassWorm Supply Chain Campaign
+- **Description**: Multi-vector supply chain attack targeting Python developers through compromised GitHub repositories and Visual Studio Code extensions
+- **Impact**: Code injection into hundreds of Python repositories, credential theft, and development environment compromise
+- **Status**: Ongoing campaign with evolving techniques including stolen GitHub token abuse and Open VSX registry manipulation
 
-### Companies House Security Flaw
-- **Description**: A security vulnerability in the UK's Companies House WebFiling service that exposed business data
-- **Impact**: Exposure of sensitive business registration and filing information
-- **Status**: Service was temporarily taken offline for remediation; now restored
+### AppsFlyer Web SDK Supply Chain Attack
+- **Description**: Temporary compromise of the AppsFlyer Web SDK with malicious JavaScript code
+- **Impact**: Cryptocurrency theft from applications using the compromised SDK
+- **Status**: Incident contained but demonstrates supply chain vulnerability risks
 
 ## Affected Systems and Products
 
-- **Wing FTP Server**: File transfer server instances requiring immediate patching and security review
-- **Python Repositories**: Hundreds of repositories on GitHub targeted for malware injection
-- **Open VSX Registry**: 72 malicious extensions targeting Visual Studio Code development environments
-- **AppsFlyer Web SDK**: JavaScript SDK temporarily hijacked for cryptocurrency theft
-- **Steam Gaming Platform**: Eight malicious games identified as malware delivery vectors
-- **Companies House WebFiling**: UK government business registry service
-- **Windows 11**: Samsung PC users experiencing C: drive access issues after February 2026 security updates
-- **Microsoft Edge**: Browser debugging features abused by DRILLAPP backdoor
+- **Wing FTP Server**: All versions vulnerable to path disclosure attacks, government agencies specifically at risk
+- **Python Repositories**: Hundreds of GitHub repositories compromised through stolen tokens and force-push attacks
+- **Visual Studio Code Extensions**: 72 malicious extensions distributed through Open VSX registry targeting developers
+- **AppsFlyer Web SDK**: Temporarily compromised with crypto-stealing JavaScript code
+- **Windows 11 Samsung PCs**: Galaxy Book 4 and desktop models experiencing C: drive access issues after security updates
+- **Southeast Asian Military Systems**: Targeted by Chinese hackers using AppleChris and MemFun malware
+- **Steam Gaming Platform**: Eight malicious games identified containing malware, FBI investigation ongoing
+- **UK Companies House**: WebFiling service affected by security flaw exposing business data
 
 ## Attack Vectors and Techniques
 
-- **Stolen Token Abuse**: Attackers using compromised GitHub tokens to force-push malicious code into legitimate repositories
-- **Supply Chain Poisoning**: Injection of malware into development tools and dependencies to reach downstream targets
-- **Browser Debugging Exploitation**: DRILLAPP backdoor leverages Microsoft Edge debugging capabilities for stealth operations
-- **Social Engineering**: ClickFix campaigns distributing MacSync infostealer through fake AI tool installers
-- **Extension Marketplace Abuse**: Malicious extensions distributed through Open VSX registry targeting developers
-- **Phishing via LiveChat**: Attackers impersonating PayPal and Amazon through customer support interactions
-- **SDK Hijacking**: Temporary compromise of AppsFlyer Web SDK to inject cryptocurrency-stealing code
+- **GitHub Token Theft**: Stolen authentication tokens used to force-push malware into legitimate repositories
+- **Extension Poisoning**: Malicious Visual Studio Code extensions distributed through official registries
+- **Social Engineering via LiveChat**: Impersonation of PayPal and Amazon through customer support interactions
+- **ClickFix Campaigns**: Fake AI tool installers delivering MacSync infostealer to macOS users  
+- **Microsoft Edge Debugging Abuse**: DRILLAPP backdoor leveraging Edge debugging features for stealth operations
+- **Supply Chain Compromise**: Direct injection of malicious code into widely-used development tools and SDKs
+- **Gaming Platform Abuse**: Distribution of malware through legitimate Steam game titles
 
 ## Threat Actor Activities
 
-- **China-nexus Groups**: Long-term cyberespionage campaign against Southeast Asian military organizations using AppleChris and MemFun malware, maintaining persistent access since at least 2020
-- **Russian-linked Actors**: Deployment of DRILLAPP backdoor against Ukrainian entities, utilizing Microsoft Edge debugging for stealth espionage operations
-- **GlassWorm Campaign Operators**: Sophisticated supply chain attackers targeting developer ecosystems through multiple simultaneous attack vectors
-- **Steam Game Malware Distributors**: Threat actors uploading malicious games to Steam platform for malware distribution, prompting FBI investigation
-- **Cryptocurrency Thieves**: Groups exploiting compromised SDKs and fake AI tools to steal digital assets
-- **State-sponsored Espionage**: Continued targeting of military and government organizations across Southeast Asia and Eastern Europe
+- **China-Nexus Groups**: Long-term espionage campaign against Southeast Asian military organizations using AppleChris and MemFun backdoors, maintaining persistent access since at least 2020
+- **Russian-Linked Actors**: Targeting Ukrainian entities with DRILLAPP backdoor, abusing Microsoft Edge debugging capabilities for stealth operations
+- **GlassWorm Operators**: Sophisticated supply chain attackers evolving tactics to hide in dependencies and abuse legitimate development platforms
+- **Steam Malware Distributors**: Cybercriminals using gaming platform to distribute malware, prompting FBI investigation and victim identification efforts
+- **Financial Fraud Groups**: Leveraging legitimate customer support platforms like LiveChat to conduct credential harvesting and payment fraud campaigns
