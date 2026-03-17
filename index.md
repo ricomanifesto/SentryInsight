@@ -1,47 +1,56 @@
 # Exploitation Report
 
-The current threat landscape is dominated by sophisticated supply chain attacks targeting developer environments and critical infrastructure vulnerabilities. The GlassWorm malware campaign represents a significant escalation in supply chain threats, evolving to abuse stolen GitHub tokens for injecting malware into Python repositories and exploiting 72 Open VSX extensions to target developers. Meanwhile, CISA has flagged a Wing FTP Server vulnerability as actively exploited in the wild, and attackers have successfully hijacked the AppsFlyer Web SDK to distribute cryptocurrency-stealing JavaScript code. State-sponsored groups continue targeting critical sectors, with Russian-linked actors deploying the DRILLAPP backdoor against Ukrainian entities and Chinese hackers conducting long-term espionage campaigns against Southeast Asian military organizations using AppleChris and MemFun malware.
+Current security threats demonstrate a sophisticated landscape of active exploitation targeting critical infrastructure, development environments, and enterprise systems. The most concerning activities include the GlassWorm supply chain campaign targeting developers through malicious extensions and stolen GitHub tokens, CISA's warning about active exploitation of Wing FTP Server vulnerabilities, and targeted espionage campaigns using advanced malware like DRILLAPP backdoor against Ukrainian entities and AppleChris/MemFun malware against Southeast Asian militaries. Additionally, supply chain attacks have emerged through hijacked SDKs and malicious Steam games, while ransomless attacks like the Stryker incident demonstrate new destructive capabilities that can wipe thousands of devices without traditional malware deployment.
 
 ## Active Exploitation Details
 
 ### Wing FTP Server Vulnerability
-- **Description**: A critical vulnerability in Wing FTP Server that enables remote code execution when chained with other exploits
-- **Impact**: Attackers can achieve remote code execution on affected systems
-- **Status**: Actively exploited in attacks, CISA has issued warnings to U.S. government agencies
+- **Description**: A vulnerability in Wing FTP Server that is being actively exploited in the wild and may be chained with other vulnerabilities to achieve remote code execution
+- **Impact**: Remote code execution capabilities when chained with other attack vectors
+- **Status**: CISA has issued warnings for U.S. government agencies to secure their Wing FTP Server instances
 
 ### GlassWorm Supply Chain Attack
-- **Description**: Sophisticated malware campaign targeting developers through multiple vectors including stolen GitHub tokens and malicious VSX extensions
-- **Impact**: Malware injection into Python repositories, compromise of developer environments, and potential widespread distribution through dependency chains
-- **Status**: Actively evolving with new evasion techniques and attack vectors
+- **Description**: Multi-vector supply chain attack targeting Python repositories and Visual Studio Code extensions through stolen GitHub tokens and malicious Open VSX extensions
+- **Impact**: Malware injection into hundreds of Python repositories and deployment of 72 malicious Open VSX extensions targeting developers
+- **Status**: Ongoing campaign with evolved evasion techniques
 
-### AppsFlyer Web SDK Hijack
-- **Description**: Supply chain attack where the AppsFlyer Web SDK was temporarily compromised with malicious JavaScript code
-- **Impact**: Cryptocurrency theft from users of applications using the compromised SDK
-- **Status**: Temporary hijacking that has been addressed, but demonstrates ongoing supply chain risks
+### Chrome Zero-Day Vulnerabilities
+- **Description**: Multiple zero-day vulnerabilities affecting Google Chrome browser
+- **Impact**: Active exploitation in the wild with potential for code execution and system compromise
+- **Status**: Part of weekly security recap indicating active exploitation
+
+### Companies House Security Flaw
+- **Description**: Security vulnerability in the UK's Companies House WebFiling service that exposed business data
+- **Impact**: Exposure of sensitive business registration and filing information
+- **Status**: Service was temporarily shut down on Friday for remediation and has since been restored
 
 ## Affected Systems and Products
 
-- **Wing FTP Server**: Vulnerable instances requiring immediate patching to prevent remote code execution
-- **Python Repositories**: Hundreds of repositories targeted by GlassWorm campaign through stolen GitHub tokens
-- **Open VSX Registry**: 72 malicious extensions identified as part of GlassWorm campaign targeting developers
-- **AppsFlyer Web SDK**: JavaScript SDK temporarily compromised to distribute crypto-stealing code
-- **Steam Gaming Platform**: Eight malicious games identified by FBI investigation spreading malware to gamers
-- **Samsung Galaxy Book 4**: Windows 11 devices affected by Samsung Galaxy Connect app blocking C: drive access
-- **Companies House WebFiling**: UK government service experienced security flaw exposing business data
+- **Wing FTP Server**: File transfer protocol server software used in enterprise environments
+- **Python Repositories**: Hundreds of Python software repositories on GitHub platforms
+- **Visual Studio Code Extensions**: 72 malicious extensions in the Open VSX registry targeting developers
+- **Google Chrome**: Multiple versions affected by zero-day vulnerabilities
+- **AppsFlyer Web SDK**: Marketing attribution platform temporarily hijacked for cryptocurrency theft
+- **Steam Gaming Platform**: Eight malicious games identified by FBI investigation
+- **Samsung Galaxy Books**: Specific models experiencing C: drive access issues on Windows 11
+- **Stryker Medical Devices**: Tens of thousands of employee devices wiped in ransomless attack
+- **Companies House WebFiling Service**: UK government business registry platform
 
 ## Attack Vectors and Techniques
 
-- **Stolen GitHub Token Abuse**: Attackers using compromised GitHub tokens to force-push malware into legitimate repositories
-- **VSX Extension Poisoning**: Malicious extensions uploaded to Open VSX registry to target Visual Studio Code developers
-- **SDK Supply Chain Compromise**: Hijacking of legitimate software development kits to distribute malware
-- **Gaming Platform Abuse**: Uploading malicious games to Steam platform for malware distribution
-- **Microsoft Edge Debugging Abuse**: DRILLAPP backdoor leverages Edge debugging features for stealth espionage
-- **ClickFix Social Engineering**: Fake AI tool installers used to deploy MacSync infostealer on macOS systems
-- **LiveChat Impersonation**: Social engineering campaigns impersonating PayPal and Amazon through customer support interactions
+- **Supply Chain Injection**: GlassWorm campaign using stolen GitHub tokens to force-push malware into legitimate repositories
+- **Extension Poisoning**: Deployment of malicious Visual Studio Code extensions through Open VSX registry
+- **SDK Hijacking**: Temporary compromise of AppsFlyer Web SDK to inject cryptocurrency-stealing JavaScript
+- **Social Engineering**: ClickFix campaigns using fake AI tool installers to distribute MacSync infostealer on macOS
+- **Stealth Backdoors**: DRILLAPP backdoor abusing Microsoft Edge debugging features for persistent access
+- **Gaming Platform Abuse**: Distribution of malware through legitimate Steam gaming platform
+- **Ransomless Attacks**: Stryker attack demonstrating device wiping without traditional ransomware deployment
+- **Phishing via LiveChat**: Attackers impersonating PayPal and Amazon through customer support interactions
 
 ## Threat Actor Activities
 
-- **Russian-linked APT Groups**: Deploying DRILLAPP backdoor against Ukrainian entities using Microsoft Edge debugging for stealth operations
-- **Chinese State-sponsored Actors**: Long-term espionage campaign targeting Southeast Asian military organizations with AppleChris and MemFun malware, dating back to at least 2020
-- **GlassWorm Campaign Operators**: Sophisticated supply chain attackers evolving techniques to target developer environments through multiple vectors
-- **Cybercriminals**: Targeting Poland's National Centre for Nuclear Research, Stryker medical technology company, and conducting phishing campaigns through various platforms
+- **Russian-Linked Groups**: Targeting Ukrainian entities with DRILLAPP backdoor malware using Microsoft Edge debugging for stealth espionage operations
+- **Chinese State-Sponsored Actors**: Long-term espionage campaign against Southeast Asian military organizations using AppleChris and MemFun malware, dating back to at least 2020
+- **GlassWorm Operators**: Sophisticated supply chain attackers targeting the software development ecosystem through multiple vectors including GitHub token theft and extension poisoning
+- **Cryptocurrency Thieves**: Opportunistic actors hijacking popular SDKs and development tools for financial gain
+- **Gaming Platform Attackers**: Groups distributing malware through Steam games, prompting FBI investigation and victim identification efforts
