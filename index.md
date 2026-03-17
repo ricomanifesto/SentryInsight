@@ -1,50 +1,54 @@
 # Exploitation Report
 
-Critical exploitation activity is currently dominated by several high-impact campaigns targeting diverse systems and platforms. The most significant developments include CISA's addition of a Wing FTP Server vulnerability to the Known Exploited Vulnerabilities catalog due to active exploitation, sophisticated ransomware operations employing ClickFix social engineering tactics, and advanced persistent threat actors conducting long-term espionage campaigns. Notable threat activities include the LeakNet ransomware gang's innovative use of Deno runtime for stealthy attacks, North Korean Konni group's exploitation of KakaoTalk for malware propagation, China-nexus hackers maintaining persistent access to Southeast Asian military organizations, and the GlassWorm campaign targeting Python repositories through stolen GitHub tokens.
+Current threat activity demonstrates a concerning trend toward sophisticated exploitation techniques targeting both traditional infrastructure and emerging AI systems. The most critical active exploitation involves a Wing FTP Server vulnerability that CISA has flagged as actively exploited, enabling attackers to leak server paths and potentially chain attacks for remote code execution. Ransomware groups are evolving their tactics with LeakNet adopting ClickFix social engineering through compromised websites and deploying novel Deno-based loaders, while Warlock ransomware has enhanced post-exploitation capabilities using BYOVD techniques. Additionally, threat actors are exploiting AI systems through novel attack vectors including DNS-based data exfiltration from AI code execution environments and sophisticated social engineering campaigns targeting macOS users with fake AI tool installers. North Korean actors continue persistent campaigns using phishing to compromise KakaoTalk applications for malware distribution, while China-nexus groups maintain long-term access to Southeast Asian military organizations through advanced backdoors.
 
 ## Active Exploitation Details
 
 ### Wing FTP Server Path Disclosure Vulnerability
-- **Description**: A medium-severity security flaw in Wing FTP Server that allows attackers to leak server paths, potentially exposing sensitive system information
-- **Impact**: Path disclosure that can be chained with other vulnerabilities to achieve remote code execution
-- **Status**: Actively exploited in the wild, CISA has added this vulnerability to the Known Exploited Vulnerabilities catalog
+- **Description**: A medium-severity security flaw in Wing FTP Server that allows attackers to leak server paths
+- **Impact**: Attackers can obtain sensitive server path information and potentially chain this vulnerability with other exploits to achieve remote code execution
+- **Status**: Actively exploited in the wild; CISA has added this vulnerability to the Known Exploited Vulnerabilities (KEV) catalog
 
-### Companies House WebFiling Security Flaw
-- **Description**: A security vulnerability in the UK's Companies House WebFiling service that exposed business data
-- **Impact**: Unauthorized access to sensitive business information and company registry data
-- **Status**: Service was temporarily taken offline and has been restored after fixing the vulnerability
+### AI Code Execution Environment Vulnerabilities
+- **Description**: Multiple vulnerabilities affecting Amazon Bedrock, LangSmith, and SGLang AI platforms that enable data exfiltration through DNS queries
+- **Impact**: Attackers can exfiltrate sensitive data from AI environments and potentially achieve remote code execution
+- **Status**: Newly disclosed vulnerabilities with proof-of-concept exploitation methods demonstrated
 
-### Microsoft Edge Debugging Feature Abuse
-- **Description**: DRILLAPP backdoor campaign abusing Microsoft Edge debugging capabilities for stealth operations
-- **Impact**: Enables persistent access and espionage activities while evading detection through legitimate debugging processes
-- **Status**: Active campaign targeting Ukrainian entities with suspected Russian threat actor involvement
+### UK Companies House WebFiling Security Flaw
+- **Description**: A security vulnerability in the UK government's Companies House WebFiling service that exposed business registration data
+- **Impact**: Unauthorized access to sensitive business registration information and corporate data
+- **Status**: Service was taken offline for remediation and has since been restored
 
 ## Affected Systems and Products
 
-- **Wing FTP Server**: All versions affected by the path disclosure vulnerability requiring immediate patching
-- **Companies House WebFiling Service**: British government agency's company registry system temporarily compromised
-- **Python Repositories**: Hundreds of Python projects on GitHub infected through the GlassWorm campaign
-- **KakaoTalk Desktop Application**: Used as propagation vector for EndRAT malware distribution
-- **Microsoft Edge Browser**: Debugging features exploited by DRILLAPP backdoor for stealth operations
-- **macOS Systems**: Targeted by MacSync infostealer through fake AI tool installers
-- **Samsung Galaxy Book 4 and Desktop Models**: Affected by C: drive access issues on Windows 11
-- **Android Devices**: Accessibility API being abused by malware, prompting security improvements in Android 17
+- **Wing FTP Server**: All versions susceptible to path disclosure vulnerability actively exploited by threat actors
+- **Amazon Bedrock**: AI service vulnerable to DNS-based data exfiltration attacks
+- **LangSmith**: Platform affected by data exfiltration vulnerabilities in AI code execution environments
+- **SGLang**: AI framework with remote code execution vulnerabilities
+- **UK Companies House WebFiling**: Government business registry service exposed sensitive corporate data
+- **Windows 11 Samsung Devices**: Galaxy Book 4 and desktop models experiencing C: drive access issues due to Samsung Galaxy Connect app
+- **macOS Systems**: Targeted by MacSync infostealer distributed through fake AI tool installers
+- **Python Repositories**: Hundreds of GitHub repositories compromised through stolen tokens and malicious GlassWorm injections
+- **KakaoTalk Desktop**: Messaging application compromised to distribute malware payloads
+- **Microsoft Edge**: Abused for debugging features in DRILLAPP backdoor campaigns
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: Deployed through compromised websites to deliver LeakNet ransomware and MacSync infostealer
-- **Deno Runtime Exploitation**: In-memory loader techniques using the open-source JavaScript/TypeScript runtime for stealth
-- **GitHub Token Theft**: Force-pushing malware into Python repositories using stolen authentication tokens
-- **Font-Rendering Attacks**: New technique to hide malicious commands from AI tools through HTML manipulation
-- **Phishing Campaigns**: Multi-vector approach using email and instant messaging platforms like KakaoTalk
-- **Fake AI Tool Distribution**: Malicious installers masquerading as legitimate artificial intelligence applications
-- **LiveChat Platform Abuse**: Social engineering campaigns impersonating PayPal and Amazon through customer support interactions
+- **ClickFix Social Engineering**: LeakNet ransomware and macOS threat actors using fake error prompts to trick users into executing malicious code
+- **DNS Data Exfiltration**: Novel technique for extracting sensitive information from AI code execution environments using domain name system queries
+- **BYOVD (Bring Your Own Vulnerable Driver)**: Warlock ransomware employing legitimate but vulnerable drivers to enhance post-exploitation capabilities
+- **Deno Runtime Exploitation**: LeakNet deploying in-memory malware loaders based on the open-source Deno JavaScript/TypeScript runtime
+- **GitHub Token Theft**: GlassWorm campaign leveraging stolen GitHub authentication tokens to force-push malware into Python repositories
+- **Font Rendering Manipulation**: New attack method hiding malicious commands from AI tools using HTML font-rendering tricks
+- **Microsoft Edge Debugging Abuse**: DRILLAPP backdoor exploiting Edge's debugging features for stealth espionage operations
+- **Phishing with KakaoTalk Propagation**: North Korean actors using email phishing to compromise messaging applications for lateral malware distribution
 
 ## Threat Actor Activities
 
-- **LeakNet Ransomware Gang**: Actively deploying ClickFix tactics and innovative Deno-based loaders for initial access and persistence
-- **Konni (North Korean APT)**: Conducting spear-phishing campaigns and leveraging KakaoTalk desktop application for malware distribution to specific contacts
-- **China-Nexus Threat Actors**: Maintaining long-term persistent access to Southeast Asian military organizations using novel backdoors and familiar evasion techniques
-- **GlassWorm Campaign Operators**: Sophisticated supply chain attacks targeting Python ecosystem through stolen GitHub credentials and dependency manipulation
-- **Russian-Linked Groups**: Suspected involvement in DRILLAPP backdoor campaign specifically targeting Ukrainian entities for espionage purposes
-- **ClickFix Campaign Actors**: Multiple distinct campaigns using the same social engineering technique to distribute various malware families across different platforms
+- **LeakNet Ransomware Group**: Adopting ClickFix social engineering delivered through compromised websites and deploying Deno-based malware loaders for stealthier operations
+- **Warlock Ransomware Group**: Enhancing post-exploitation activities with new BYOVD techniques and improved cross-network stealth capabilities
+- **Konni (North Korean APT)**: Conducting spear-phishing campaigns targeting organizations to compromise KakaoTalk desktop applications and distribute malware to contacts
+- **China-Nexus APT Groups**: Maintaining persistent access to Southeast Asian military organizations for years using novel backdoors and familiar evasion techniques
+- **GlassWorm Campaign Operators**: Executing sophisticated supply chain attacks against Python developers using stolen GitHub tokens to inject malicious dependencies
+- **Russian-Linked Threat Actors**: Deploying DRILLAPP backdoor against Ukrainian entities using Microsoft Edge debugging features for stealth espionage
+- **ClickFix Campaign Groups**: Running multiple coordinated campaigns distributing MacSync macOS infostealer through fake AI tool installers targeting Mac users
