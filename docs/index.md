@@ -1,52 +1,59 @@
 # Exploitation Report
 
-Current cybersecurity landscape shows significant active exploitation across multiple vectors, with critical vulnerabilities being exploited in AI platforms, FTP servers, and through sophisticated social engineering campaigns. The Wing FTP Server vulnerability stands out as actively exploited and flagged by CISA, while AI platforms including Amazon Bedrock, LangSmith, and SGLang face data exfiltration and remote code execution risks. Notable threat actor activities include the Warlock ransomware group's enhanced post-exploitation techniques, LeakNet ransomware's adoption of ClickFix tactics, and sophisticated campaigns targeting cybersecurity firms and military organizations in Southeast Asia.
+The cybersecurity landscape is currently experiencing significant exploitation activity across multiple attack vectors. Critical vulnerabilities are being actively exploited in Wing FTP Server systems, while sophisticated supply chain attacks through the GlassWorm malware campaign are targeting hundreds of repositories across GitHub, npm, and VSCode platforms. Ransomware groups including LeakNet and Warlock are evolving their tactics with new social engineering techniques and stealthier post-exploitation methods. Meanwhile, credential theft has surged dramatically in the second half of 2025, driven by industrialized infostealer malware operations and AI-enhanced social engineering campaigns. State-sponsored threat actors, particularly those with China and North Korea nexus, are conducting extensive espionage campaigns targeting military organizations and using novel techniques for persistent access and malware distribution.
 
 ## Active Exploitation Details
 
-### Wing FTP Server Path Disclosure Vulnerability
-- **Description**: A medium-severity security flaw in Wing FTP Server that allows attackers to leak server paths and potentially chain with other vulnerabilities for remote code execution
-- **Impact**: Server path disclosure that can be leveraged for further exploitation and potential remote code execution when combined with other attack vectors
-- **Status**: Actively exploited in the wild and added to CISA's Known Exploited Vulnerabilities (KEV) catalog
+### Wing FTP Server Path Information Disclosure Vulnerability
+- **Description**: A medium-severity security flaw in Wing FTP Server that allows attackers to leak server path information
+- **Impact**: Information disclosure that may be chained with other vulnerabilities to achieve remote code execution
+- **Status**: Actively exploited in the wild; CISA has added this vulnerability to its Known Exploited Vulnerabilities (KEV) catalog
 
-### AI Platform Vulnerabilities in Amazon Bedrock, LangSmith, and SGLang
-- **Description**: Multiple vulnerabilities in AI code execution environments that enable DNS-based data exfiltration techniques
-- **Impact**: Sensitive data exfiltration from AI environments and potential remote code execution capabilities
-- **Status**: Recently disclosed with proof-of-concept methods available for exploitation
+### GlassWorm Supply Chain Attack
+- **Description**: Coordinated malware campaign targeting software development platforms and repositories
+- **Impact**: Injection of malicious code into Python repositories, VSCode extensions, and npm packages affecting hundreds of projects
+- **Status**: Ongoing campaign using stolen GitHub tokens to force-push malware into repositories
 
-### UK Companies House WebFiling Service Security Flaw
-- **Description**: Security vulnerability in the UK government's Companies House WebFiling service that exposed business registration data
+### Companies House WebFiling Security Flaw
+- **Description**: Security vulnerability in the UK's Companies House WebFiling service that exposed business data
 - **Impact**: Unauthorized access to sensitive business information and company registry data
 - **Status**: Service was taken offline for remediation and has since been restored
 
+### AI Code Execution Environment Data Exfiltration
+- **Description**: New DNS-based data exfiltration method targeting AI platforms including Amazon Bedrock, LangSmith, and SGLang
+- **Impact**: Sensitive data exfiltration from AI environments and potential remote code execution
+- **Status**: Disclosed vulnerabilities affecting multiple AI service platforms
+
 ## Affected Systems and Products
 
-- **Wing FTP Server**: All versions affected by the path disclosure vulnerability requiring immediate patching
-- **Amazon Bedrock**: AI service vulnerable to DNS-based data exfiltration attacks
-- **LangSmith**: Development platform for AI applications susceptible to data exfiltration
-- **SGLang**: AI language model framework with remote code execution vulnerabilities
-- **UK Companies House WebFiling**: British government business registry service with data exposure risks
-- **Microsoft Edge**: Browser debugging features being abused by DRILLAPP backdoor for stealth operations
-- **KakaoTalk Desktop**: South Korean messaging application targeted for malware propagation
-- **Samsung Galaxy Book 4**: Windows devices experiencing C: drive access issues due to problematic Samsung applications
+- **Wing FTP Server**: All versions affected by path information disclosure vulnerability
+- **GitHub Repositories**: Hundreds of Python repositories targeted by GlassWorm malware injection
+- **VSCode Extensions**: Multiple extensions compromised through OpenVSX and VSCode marketplaces
+- **npm Packages**: Various npm packages infected with GlassWorm malware
+- **Amazon Bedrock**: AI service platform affected by DNS exfiltration techniques
+- **LangSmith**: AI development platform vulnerable to data exfiltration attacks
+- **SGLang**: AI inference platform with code execution vulnerabilities
+- **Companies House WebFiling**: UK business registry service exposed sensitive data
+- **Samsung Galaxy Book 4**: Windows 11 devices experiencing C: drive access issues
+- **Microsoft Exchange Online**: Service outages affecting mailbox and calendar access
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: Multi-stage technique used by LeakNet ransomware and MacSync infostealer campaigns, delivered through compromised websites to trick users into executing malicious commands
-- **DNS-Based Data Exfiltration**: Novel method for extracting sensitive data from AI code execution environments using domain name system queries
-- **Bring Your Own Vulnerable Driver (BYOVD)**: Advanced technique employed by Warlock ransomware group for enhanced post-exploitation activities and stealth
-- **GitHub Token Theft**: GlassWorm malware campaign leveraging stolen GitHub tokens to force-push malware into Python repositories
-- **Microsoft Edge Debugging Abuse**: DRILLAPP backdoor exploiting browser debugging features for stealth espionage operations
-- **Font-Rendering Attacks**: New technique to hide malicious commands from AI tools using HTML font manipulation
-- **Seven-Stage Phishing**: Sophisticated campaign targeting cybersecurity executives using trusted brands and domains
+- **ClickFix Social Engineering**: LeakNet ransomware using fake website prompts to trick users into executing malicious code
+- **DNS Exfiltration**: Novel technique for stealing data from AI code execution environments using domain name system queries
+- **GitHub Token Theft**: Attackers using stolen authentication tokens to inject malware into repositories
+- **BYOVD (Bring Your Own Vulnerable Driver)**: Warlock ransomware group employing new driver-based techniques for stealthy operations
+- **Deno Runtime Loader**: LeakNet deploying in-memory malware loaders based on open-source Deno runtime
+- **Phishing with Trusted Brands**: Multi-stage phishing campaigns leveraging legitimate brand domains for credential theft
+- **KakaoTalk Propagation**: North Korean actors using compromised desktop messaging applications to distribute malware
+- **Font Rendering Attacks**: New technique hiding malicious commands from AI tools using HTML font manipulation
 
 ## Threat Actor Activities
 
-- **Warlock Ransomware Group**: Enhanced post-exploitation capabilities with BYOVD techniques and improved cross-network stealth activities in recent attacks
-- **LeakNet Ransomware**: Adoption of ClickFix social engineering tactics through compromised websites and deployment of Deno-based in-memory loaders
-- **Konni (North Korean APT)**: Phishing campaigns targeting victims to compromise KakaoTalk desktop applications for malware distribution to contacts
-- **China-Nexus Actors**: Multi-year cyber espionage campaign against Southeast Asian military organizations using novel backdoors and familiar evasion techniques
-- **GlassWorm Campaign**: Ongoing supply chain attacks targeting Python repositories through stolen GitHub tokens and dependency hiding techniques
-- **Russian-Linked Groups**: DRILLAPP backdoor campaigns specifically targeting Ukrainian entities using Microsoft Edge debugging for stealth espionage
-- **MacSync Operators**: ClickFix campaigns distributing macOS information stealer through fake AI tool installers
-- **Stryker Attackers**: Internal Microsoft environment compromise resulting in remote wiping of tens of thousands of employee devices without traditional malware deployment
+- **LeakNet Ransomware Group**: Adopting ClickFix tactics and deploying Deno-based malware loaders for stealthy corporate environment infiltration
+- **Warlock Ransomware Group**: Showcasing enhanced post-exploitation capabilities with new BYOVD techniques and improved cross-network stealth
+- **China-Nexus Actors**: Conducting extensive cyber espionage campaigns against Southeast Asian military organizations with novel backdoors and persistent access techniques
+- **North Korean Konni Group**: Deploying EndRAT malware through phishing campaigns and using KakaoTalk desktop applications for malware propagation
+- **GlassWorm Operators**: Coordinating sophisticated supply chain attacks across multiple platforms with evolved evasion techniques and dependency hiding
+- **Sanctioned Chinese and Iranian Entities**: Targeted by European Union sanctions for cyberattacks against critical infrastructure
+- **Credential Theft Syndicates**: Industrializing infostealer malware operations with AI-enhanced social engineering capabilities
