@@ -138,7 +138,11 @@ def generate_podcast_feed(episode_mp3_path: str, episode_date: str, summary: str
     feed_path = "podcast.xml"
     mp3_filename = Path(episode_mp3_path).name
     episode_url = f"{PODCAST_BASE_URL}/podcast/{mp3_filename}"
-    mp3_size = str(os.path.getsize(episode_mp3_path))
+    mp3_size = os.path.getsize(episode_mp3_path)
+    # Estimate duration from file size and 128kbps bitrate
+    duration_seconds = int((mp3_size * 8) / (128 * 1000))
+    duration_str = f"{duration_seconds // 60}:{duration_seconds % 60:02d}"
+    mp3_size = str(mp3_size)
     pub_date = formatdate(mktime(datetime.strptime(episode_date, "%Y-%m-%d").timetuple()), usegmt=True)
 
     # Parse existing feed to preserve prior episodes
@@ -182,6 +186,8 @@ def generate_podcast_feed(episode_mp3_path: str, episode_date: str, summary: str
     ET.SubElement(new_item, "description").text = summary
     ET.SubElement(new_item, "pubDate").text = pub_date
     ET.SubElement(new_item, "guid").text = episode_url
+    ET.SubElement(new_item, f"{{{ITUNES_NS}}}duration").text = duration_str
+    ET.SubElement(new_item, f"{{{ITUNES_NS}}}episodeType").text = "full"
     enclosure = ET.SubElement(new_item, "enclosure")
     enclosure.set("url", episode_url)
     enclosure.set("length", mp3_size)
