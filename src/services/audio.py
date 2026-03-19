@@ -229,6 +229,123 @@ def generate_podcast_feed(episode_mp3_path: str, episode_date: str, summary: str
         return False
 
 
+ASSETS_DIR = Path(__file__).resolve().parent.parent.parent / "assets" / "audio"
+
+
+def detect_critical_zero_days(report_markdown: str) -> bool:
+    """Check if the report contains critical zero-day or actively exploited vulnerabilities."""
+    threat_section = extract_threat_actor_section(report_markdown)
+    text = (threat_section + "\n" + report_markdown).lower()
+    critical_patterns = [
+        r"zero[- ]day",
+        r"actively exploited",
+        r"critical.*vulnerabilit",
+        r"cvss\s*10",
+        r"maximum severity",
+        r"remote code execution.*active",
+    ]
+    return any(re.search(p, text) for p in critical_patterns)
+
+
+def generate_background_music(duration_ms: int, output_path: str) -> bool:
+    """Generate subtle dark ambient background music via Eleven Labs Music API."""
+    api_key = os.getenv("ELEVENLABS_API_KEY")
+    if not api_key:
+        logger.warning("ELEVENLABS_API_KEY not set — skipping background music generation")
+        return False
+
+    logger.info(f"Generating background music ({duration_ms / 1000:.0f}s)")
+
+    try:
+        from elevenlabs.client import ElevenLabs
+
+        client = ElevenLabs(api_key=api_key)
+        track = client.music.compose(
+            prompt="Subtle dark ambient electronic background music, low volume, minimal, cybersecurity atmosphere, understated, no vocals, no drums",
+            music_length_ms=duration_ms,
+        )
+
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "wb") as f:
+            for chunk in track:
+                f.write(chunk)
+
+        logger.info(f"Background music saved to {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error generating background music: {e}")
+        return False
+
+
+def produce_episode(narration_path: str, output_path: str) -> bool:
+    """Mix narration with intro, outro, background music, and transitions."""
+    try:
+        from pydub import AudioSegment
+    except ImportError:
+        logger.error("pydub not installed — skipping episode production")
+        return False
+
+    logger.info("Producing final podcast episode")
+
+    try:
+        narration = AudioSegment.from_mp3(narration_path)
+        narration_duration_ms = len(narration)
+
+        # Load static assets
+        intro = AudioSegment.from_mp3(ASSETS_DIR / "intro.mp3")
+        outro = AudioSegment.from_mp3(ASSETS_DIR / "outro.mp3")
+        transition = AudioSegment.from_mp3(ASSETS_DIR / "transition.mp3")
+
+        # Generate background music to match narration length
+        music_path = Path(output_path).parent / "bg_music_temp.mp3"
+        music_ok = generate_background_music(narration_duration_ms, str(music_path))
+
+        # Start building the episode
+        episode = intro
+
+        # Add a short transition before narration starts
+        episode = episode + transition
+
+        # Overlay narration on background music if available
+        if music_ok and music_path.exists():
+            bg_music = AudioSegment.from_mp3(str(music_path))
+            # Lower music volume significantly so narration is clear
+            bg_music = bg_music - 20
+
+            # Match music length to narration
+            if len(bg_music) < len(narration):
+                loops_needed = (len(narration) // len(bg_music)) + 1
+                bg_music = bg_music * loops_needed
+            bg_music = bg_music[:len(narration)]
+
+            # Fade music in and out
+            bg_music = bg_music.fade_in(3000).fade_out(5000)
+
+            narration_with_music = narration.overlay(bg_music)
+            episode = episode + narration_with_music
+
+            # Clean up temp file
+            music_path.unlink(missing_ok=True)
+        else:
+            episode = episode + narration
+
+        # Add transition before outro and append outro
+        episode = episode + transition + outro
+
+        # Fade out the very end
+        episode = episode.fade_out(2000)
+
+        # Export
+        episode.export(output_path, format="mp3", bitrate="128k")
+        size = os.path.getsize(output_path)
+        logger.info(f"Produced episode saved to {output_path} ({size / 1024:.0f} KB, {len(episode) / 1000:.0f}s)")
+        return True
+
+    except Exception as e:
+        logger.error(f"Error producing episode: {e}")
+        return False
+
+
 async def generate_executive_summary_audio(report_markdown: str, output_path: str) -> bool:
     """Generate an MP3 narration of the executive summary using Eleven Labs TTS."""
     api_key = os.getenv("ELEVENLABS_API_KEY")

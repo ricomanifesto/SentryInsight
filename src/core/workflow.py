@@ -16,6 +16,7 @@ from ..services.audio import (
     generate_podcast_script,
     generate_podcast_audio,
     generate_podcast_feed,
+    produce_episode,
 )
 
 # Set up logging
@@ -206,14 +207,25 @@ async def generate_podcast(state: ExploitationAnalysisState) -> ExploitationAnal
         logger.warning("Failed to generate podcast script — skipping podcast")
         return state
 
-    # Generate audio
+    # Generate raw narration audio
     today = datetime.now().strftime("%Y-%m-%d")
     episode_filename = f"episode-{today}.mp3"
     episode_path = f"podcast/{episode_filename}"
+    raw_narration_path = f"podcast/raw_narration_{today}.mp3"
 
-    success = generate_podcast_audio(script, episode_path)
+    success = generate_podcast_audio(script, raw_narration_path)
     if not success:
         return state
+
+    # Produce the final episode with intro, background music, transitions, and outro
+    produced = produce_episode(raw_narration_path, episode_path)
+    if not produced:
+        # Fall back to raw narration if production fails
+        import shutil as _shutil
+        _shutil.copy(raw_narration_path, episode_path)
+
+    # Clean up raw narration temp file
+    Path(raw_narration_path).unlink(missing_ok=True)
 
     # Copy to docs/podcast/ and create a stable latest.mp3 for the player
     import shutil
