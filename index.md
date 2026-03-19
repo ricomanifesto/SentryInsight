@@ -1,81 +1,75 @@
 # Exploitation Report
 
-Critical cybersecurity threats continue to emerge across multiple platforms and technologies, with several zero-day vulnerabilities being actively exploited by ransomware groups and threat actors. The most significant activity includes the Interlock ransomware gang exploiting a maximum severity remote code execution vulnerability in Cisco's Secure Firewall Management Center software since January, alongside newly disclosed critical flaws in GNU InetUtils telnet daemon, IP KVM devices, and Ubuntu Desktop systems. Additional concerning developments include the emergence of new iOS exploit kits targeting cryptocurrency wallets and sophisticated supply chain attacks affecting major code repositories.
+The cybersecurity landscape is experiencing a surge of critical exploitation activity, with several zero-day vulnerabilities being actively targeted by threat actors. The most concerning developments include the Interlock ransomware gang exploiting CVE-2026-20131 in Cisco's Secure Firewall Management Center since January, CISA ordering federal agencies to patch an actively exploited XSS vulnerability in Zimbra Collaboration Suite, and the discovery of multiple critical flaws in IP KVM devices enabling unauthenticated root access. Additionally, a critical unpatched telnetd vulnerability CVE-2026-32746 poses immediate risks, while threat actors are increasingly leveraging AI vulnerabilities and supply chain attacks to compromise enterprise networks.
 
 ## Active Exploitation Details
 
-### Cisco Secure Firewall Management Center Zero-Day Vulnerability
-- **Description**: A maximum severity remote code execution vulnerability in Cisco's Secure Firewall Management Center (FMC) software that enables root access
-- **Impact**: Attackers can achieve complete system compromise with root-level privileges on network security infrastructure
-- **Status**: Actively exploited by Interlock ransomware gang since late January 2026
+### Cisco Secure Firewall Management Center Zero-Day
+- **Description**: Maximum severity remote code execution vulnerability in Cisco's Secure Firewall Management Center (FMC) software that allows attackers to gain root-level access
+- **Impact**: Complete system compromise with root privileges, enabling full control over firewall management infrastructure
+- **Status**: Being actively exploited by Interlock ransomware gang since late January 2026, recently patched
 - **CVE ID**: CVE-2026-20131
 
-### GNU InetUtils Telnet Daemon Critical Flaw
-- **Description**: A critical security vulnerability in GNU InetUtils telnet daemon (telnetd) allowing unauthenticated remote code execution
-- **Impact**: Unauthenticated remote attackers can execute arbitrary code with root privileges
-- **Status**: Currently unpatched and poses significant risk to systems running telnetd
+### Zimbra Collaboration Suite XSS Vulnerability
+- **Description**: Cross-site scripting vulnerability in Zimbra Collaboration Suite that is being actively exploited in the wild
+- **Impact**: Allows attackers to execute malicious scripts in users' browsers, potentially leading to credential theft and session hijacking
+- **Status**: Currently under active exploitation, CISA has issued mandatory patching orders for federal agencies
+
+### GNU InetUtils Telnetd Critical Flaw
+- **Description**: Critical security flaw in GNU InetUtils telnet daemon that enables unauthenticated remote code execution
+- **Impact**: Allows unauthenticated remote attackers to execute arbitrary code with root privileges
+- **Status**: Currently unpatched and poses immediate exploitation risk
 - **CVE ID**: CVE-2026-32746
 
-### Ubuntu Desktop Privilege Escalation Vulnerability
-- **Description**: A high-severity security flaw affecting default installations of Ubuntu Desktop that exploits systemd cleanup timing
-- **Impact**: Attackers can escalate privileges to root level on affected Ubuntu systems
+### ConnectWise ScreenConnect Signature Verification Flaw
+- **Description**: Cryptographic signature verification vulnerability in ScreenConnect software
+- **Impact**: Can lead to unauthorized access and privilege escalation, allowing attackers to hijack remote sessions
+- **Status**: Recently patched by ConnectWise
+
+### Ubuntu systemd Privilege Escalation
+- **Description**: High-severity security flaw affecting default installations of Ubuntu Desktop that exploits systemd cleanup timing
+- **Impact**: Allows attackers to escalate privileges to root level on compromised Ubuntu systems
 - **Status**: Affects Ubuntu Desktop versions 24.04 and later
 - **CVE ID**: CVE-2026-3888
 
-### Apple WebKit Same-Origin Policy Bypass
-- **Description**: A vulnerability in WebKit that enables bypassing the same-origin policy on iOS and macOS systems
-- **Impact**: Attackers can potentially access cross-origin resources and compromise web application security
+### WebKit Same-Origin Policy Bypass
+- **Description**: Security flaw in WebKit that enables same-origin policy bypass attacks
+- **Impact**: Could allow malicious websites to access data from other origins, compromising browser security
 - **Status**: Fixed by Apple through Background Security Improvements update
 - **CVE ID**: CVE-2026-20643
 
-### ConnectWise ScreenConnect Cryptographic Vulnerability
-- **Description**: A cryptographic signature verification vulnerability that could lead to unauthorized access and privilege escalation
-- **Impact**: Unauthorized access to ScreenConnect sessions and potential privilege escalation
-- **Status**: Patched by ConnectWise
-
-### IP KVM Critical Vulnerabilities
-- **Description**: Nine critical vulnerabilities affecting low-cost IP KVM devices across four vendors
-- **Impact**: Enable unauthenticated root access and extensive control over compromised host systems
-- **Status**: Affects multiple vendor implementations of IP KVM solutions
-
-### Darksword iOS Exploit Kit
-- **Description**: A new exploit kit and delivery framework targeting iOS devices for information stealing
-- **Impact**: Steals wide range of personal information including cryptocurrency wallet data
-- **Status**: Actively being used in targeted attacks against iPhone users
-
 ## Affected Systems and Products
 
-- **Cisco Secure Firewall Management Center**: FMC software vulnerable to zero-day remote code execution
-- **GNU InetUtils**: Telnet daemon (telnetd) component with critical unpatched vulnerability
-- **Ubuntu Desktop**: Versions 24.04 and later affected by systemd privilege escalation flaw
-- **Apple iOS/iPadOS/macOS**: WebKit component vulnerable to same-origin policy bypass
-- **ConnectWise ScreenConnect**: Remote access software with cryptographic signature verification issues
-- **IP KVM Devices**: Low-cost devices from four different vendors containing multiple critical flaws
-- **iOS Devices**: iPhones targeted by Darksword exploit kit for information theft
-- **GitHub/npm/VSCode/OpenVSX**: Platforms affected by GlassWorm supply chain malware campaign
-- **Amazon Bedrock/LangSmith/SGLang**: AI platforms vulnerable to data exfiltration and RCE
-- **Claude AI Assistant**: Affected by "Claudy Day" vulnerabilities enabling data theft
+- **Cisco Secure Firewall Management Center**: All versions vulnerable to CVE-2026-20131, critical infrastructure component
+- **Zimbra Collaboration Suite**: Email collaboration platform widely used in government and enterprise environments
+- **GNU InetUtils telnetd**: Legacy telnet daemon implementations across various Unix-like systems
+- **ConnectWise ScreenConnect**: Remote access and support software used by managed service providers
+- **Ubuntu Desktop**: Versions 24.04 and later affected by systemd privilege escalation
+- **Apple devices**: iOS, iPadOS, and macOS systems running WebKit-based browsers
+- **IP KVM devices**: Low-cost Internet Protocol KVM devices from four different vendors
+- **Claude AI**: Anthropic's AI assistant vulnerable to prompt injection attacks
+- **AI platforms**: Amazon Bedrock, LangSmith, and SGLang affected by data exfiltration vulnerabilities
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in critical network infrastructure
-- **Ransomware Deployment**: Use of zero-day exploits for initial access followed by ransomware deployment
-- **ClickFix Social Engineering**: LeakNet ransomware using compromised websites to trick users into executing malicious code
-- **Supply Chain Attacks**: GlassWorm campaign targeting code repositories and development platforms
-- **Prompt Injection**: Exploitation of AI systems through malicious prompts leading to data theft
-- **DNS Exfiltration**: Novel method for extracting data from AI code execution environments
-- **Font Rendering Attacks**: Hiding malicious commands from AI tools using font manipulation techniques
-- **BYOVD (Bring Your Own Vulnerable Driver)**: Warlock ransomware group using vulnerable drivers for stealthier operations
-- **Email System Abuse**: Compromise of legitimate email systems like Nordstrom's for cryptocurrency scams
-- **Credential Theft**: Increased use of infostealer malware for obtaining valid authentication credentials
+- **Zero-day exploitation**: Interlock ransomware leveraging unpatched Cisco FMC vulnerability for initial access
+- **Cross-site scripting**: Active exploitation of Zimbra XSS flaw to compromise email systems
+- **Unauthenticated RCE**: Critical telnetd vulnerability enabling remote code execution without authentication
+- **Cryptographic bypass**: Signature verification flaws in ScreenConnect enabling unauthorized access
+- **Timing-based exploitation**: systemd cleanup timing attacks for privilege escalation on Ubuntu
+- **Supply chain attacks**: GlassWorm malware campaign targeting 400+ repositories on GitHub, npm, and VSCode extensions
+- **ClickFix social engineering**: LeakNet ransomware using compromised websites to deliver malicious payloads
+- **Prompt injection**: "Claudy Day" vulnerabilities enabling data theft through malicious AI prompts
+- **DNS exfiltration**: New methods for extracting sensitive data from AI code execution environments
+- **Font-rendering attacks**: Novel technique to hide malicious commands from AI security tools
 
 ## Threat Actor Activities
 
-- **Interlock Ransomware Gang**: Actively exploiting Cisco FMC zero-day vulnerability since January for ransomware deployment
-- **LeakNet Ransomware Operation**: Adopting ClickFix techniques and deploying Deno-based malware loaders for stealthy attacks
-- **Warlock Ransomware Group**: Enhanced post-exploitation activities using BYOVD techniques for cross-network movement
-- **SideWinder APT Group**: Suspected India-linked threat group expanding espionage campaigns across Southeast Asia targeting governments and critical infrastructure
-- **GlassWorm Campaign**: Coordinated supply chain attack targeting hundreds of packages across multiple development platforms
-- **DPRK IT Worker Network**: Six individuals and two entities sanctioned for using fake remote jobs to fund weapons programs
-- **Chinese and Iranian Entities**: Three entities and two individuals sanctioned by EU for cyberattacks on critical infrastructure
-- **Marquis Ransomware Gang**: Successful data theft affecting 672,000 individuals in August 2025 attack on financial services provider
+- **Interlock Ransomware**: Actively exploiting Cisco FMC zero-day since January 2026 to gain root access and deploy ransomware
+- **LeakNet Ransomware**: Utilizing ClickFix social engineering through compromised websites and deploying Deno in-memory loaders
+- **Warlock Ransomware**: Enhanced post-exploitation activities using BYOVD (Bring Your Own Vulnerable Driver) techniques
+- **SideWinder Group**: Suspected India-linked threat group expanding espionage campaigns across Southeast Asia targeting governments and critical infrastructure
+- **DPRK IT Workers**: Sanctioned network of North Korean workers using fake remote jobs to fund weapons of mass destruction programs
+- **GlassWorm Campaign**: Coordinated supply chain attack targeting hundreds of code repositories and extensions across multiple platforms
+- **Darksword iOS Exploit**: New exploit kit specifically targeting iOS devices for information theft, including cryptocurrency wallet data
+- **European-sanctioned actors**: Chinese and Iranian entities targeting critical infrastructure in Europe through sophisticated cyberattacks
