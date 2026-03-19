@@ -7,12 +7,17 @@
     <language>en</language>
     <itunes:author>SentryInsight</itunes:author>
     <itunes:summary>Automated threat actor intelligence briefings from SentryInsight.</itunes:summary>
-    <itunes:image href="https://ricomanifesto.github.io/SentryInsight/assets/logo.png" />
+    <itunes:image href="https://ricomanifesto.github.io/SentryInsight/assets/podcast-cover.png" />
     <itunes:category text="Technology" />
     <itunes:explicit>no</itunes:explicit>
+    <itunes:type>episodic</itunes:type>
+    <itunes:owner>
+      <itunes:name>SentryInsight</itunes:name>
+      <itunes:email>thericox2@gmail.com</itunes:email>
+    </itunes:owner>
     <item>
       <title>Threat Actor Briefing — 2026-03-18</title>
-      <description>Threat actor briefing for today.</description>
+      <description>Threat actor briefing covering Interlock Ransomware, SideWinder, GlassWorm, Warlock, DPRK IT Workers, and Chinese/Iranian entities.</description>
       <pubDate>Wed, 18 Mar 2026 05:00:00 GMT</pubDate>
       <guid>https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-18.mp3</guid>
       <enclosure url="https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-18.mp3" length="2119515" type="audio/mpeg" />

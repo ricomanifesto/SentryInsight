@@ -167,10 +167,14 @@ def generate_podcast_feed(episode_mp3_path: str, episode_date: str, summary: str
     ET.SubElement(channel, f"{{{ITUNES_NS}}}author").text = "SentryInsight"
     ET.SubElement(channel, f"{{{ITUNES_NS}}}summary").text = "Automated threat actor intelligence briefings from SentryInsight."
     image = ET.SubElement(channel, f"{{{ITUNES_NS}}}image")
-    image.set("href", f"{PODCAST_BASE_URL}/assets/logo.png")
+    image.set("href", f"{PODCAST_BASE_URL}/assets/podcast-cover.png")
     category = ET.SubElement(channel, f"{{{ITUNES_NS}}}category")
     category.set("text", "Technology")
     ET.SubElement(channel, f"{{{ITUNES_NS}}}explicit").text = "no"
+    ET.SubElement(channel, f"{{{ITUNES_NS}}}type").text = "episodic"
+    owner = ET.SubElement(channel, f"{{{ITUNES_NS}}}owner")
+    ET.SubElement(owner, f"{{{ITUNES_NS}}}name").text = "SentryInsight"
+    ET.SubElement(owner, f"{{{ITUNES_NS}}}email").text = "thericox2@gmail.com"
 
     # New episode
     new_item = ET.SubElement(channel, "item")
