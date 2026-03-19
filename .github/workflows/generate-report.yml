@@ -35,6 +35,7 @@ jobs:
         run: python main.py
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           # Pass VT Intelligence API key under multiple common env names
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
           VIRUSTOTAL_API_KEY: ${{ secrets.VIRUSTOTAL_API_KEY }}
@@ -51,6 +52,7 @@ jobs:
           if [ -d docs ]; then
             git add -f docs/index.md || true
             git add -f docs/index.html || true
+            git add -f docs/executive_summary.mp3 || true
           fi
           git commit -m "Update exploitation report [automated]" || echo "No changes to commit"
           git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git

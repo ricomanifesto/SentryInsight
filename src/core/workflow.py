@@ -10,6 +10,7 @@ from pathlib import Path
 from ..services.rss_mcp import fetch_rss_feed, enrich_rss_articles  # Import the MCP tools
 from .analyze import filter_exploitation_articles, analyze_exploitation
 from ..services.publish import publish_to_github_pages
+from ..services.audio import generate_executive_summary_audio
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -155,6 +156,24 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
     state["report_path"] = output_path
     return state
 
+async def generate_audio(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
+    """Generate audio narration of the executive summary using Eleven Labs."""
+    logger.info("Generating executive summary audio")
+
+    analysis_results = state.get("analysis_results", {})
+    report = analysis_results.get("exploitation_report", "")
+
+    if report:
+        success = await generate_executive_summary_audio(report, "docs/executive_summary.mp3")
+        if success:
+            logger.info("Executive summary audio generated successfully")
+        else:
+            logger.warning("Executive summary audio generation failed — continuing without audio")
+    else:
+        logger.warning("No report available for audio generation")
+
+    return state
+
 async def publish_results(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
     """Publish results to GitHub Pages or local file"""
     logger.info("Publishing results")
@@ -206,6 +225,7 @@ def create_exploitation_analysis_graph() -> StateGraph:
     workflow.add_node("filter_articles", filter_articles)
     workflow.add_node("analyze_articles", analyze_articles)
     workflow.add_node("generate_report", generate_report)
+    workflow.add_node("generate_audio", generate_audio)
     workflow.add_node("publish_results", publish_results)
     
     # Define edges
@@ -214,7 +234,8 @@ def create_exploitation_analysis_graph() -> StateGraph:
     workflow.add_edge("enrich_articles", "filter_articles")
     workflow.add_edge("filter_articles", "analyze_articles")
     workflow.add_edge("analyze_articles", "generate_report")
-    workflow.add_edge("generate_report", "publish_results")
+    workflow.add_edge("generate_report", "generate_audio")
+    workflow.add_edge("generate_audio", "publish_results")
     workflow.add_edge("publish_results", END)
     
     # Add conditional edges
