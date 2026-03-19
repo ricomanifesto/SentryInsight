@@ -200,8 +200,8 @@ async def generate_podcast(state: ExploitationAnalysisState) -> ExploitationAnal
         logger.warning("No Threat Actor Activities section found — skipping podcast")
         return state
 
-    # Generate conversational podcast script via Claude
-    script = await generate_podcast_script(threat_actor_text, config)
+    # Generate insightful podcast script via Claude (full report gives context)
+    script = await generate_podcast_script(threat_actor_text, config, full_report=report)
     if not script:
         logger.warning("Failed to generate podcast script — skipping podcast")
         return state

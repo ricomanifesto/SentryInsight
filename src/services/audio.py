@@ -59,8 +59,12 @@ def extract_threat_actor_section(report_markdown: str) -> str:
     return "\n".join(section_lines).strip()
 
 
-async def generate_podcast_script(threat_actor_text: str, config: dict) -> str:
-    """Use Claude to rewrite threat actor bullet points into a conversational podcast script."""
+async def generate_podcast_script(threat_actor_text: str, config: dict, full_report: str = "") -> str:
+    """Use Claude to generate an insightful podcast script from threat actor intelligence.
+
+    Takes the threat actor section for focus, plus the full report for context
+    on vulnerabilities, attack vectors, and affected systems.
+    """
     from langchain_anthropic import ChatAnthropic
     from langchain_core.messages import HumanMessage, SystemMessage
 
@@ -70,25 +74,35 @@ async def generate_podcast_script(threat_actor_text: str, config: dict) -> str:
         return ""
 
     model_name = config.get("analysis", {}).get("model", "claude-sonnet-4-20250514")
-    model = ChatAnthropic(api_key=api_key, model=model_name, max_tokens=2000)
+    model = ChatAnthropic(api_key=api_key, model=model_name, max_tokens=4000)
 
     today = datetime.now().strftime("%B %d, %Y")
 
     messages = [
-        SystemMessage(content="You are a professional cybersecurity podcast host. You deliver clear, engaging threat intelligence briefings in a conversational but authoritative tone."),
-        HumanMessage(content=f"""Rewrite the following threat actor intelligence into a natural podcast script. This is a short daily briefing episode (1-2 minutes when read aloud).
+        SystemMessage(content="You are a seasoned cybersecurity analyst and podcast host. You go beyond surface-level reporting to deliver strategic insight, connecting dots between threat actors, vulnerabilities, and real-world impact. Your audience is security professionals who already read the headlines — they listen to you for the analysis they can't get elsewhere."),
+        HumanMessage(content=f"""Create an insightful podcast episode script focused on threat actor activity. This should be a 3-4 minute briefing that goes DEEPER than the bullet points — your audience can already read those.
 
-Requirements:
-- Start with a brief intro: "Welcome to the SentryInsight Threat Actor Briefing for {today}."
-- Cover each threat actor naturally, as if speaking to a security-conscious audience
-- Use transitions between topics (e.g., "Moving on to...", "Also worth noting...", "Meanwhile...")
-- End with a brief sign-off: "That's your threat actor briefing for today. Stay vigilant, and we'll see you next time."
-- Do NOT use markdown formatting, bullet points, or special characters — this will be read aloud by a text-to-speech engine
-- Write in plain spoken English, keeping sentences clear and not too long
+FOCUS SECTION — Threat Actor Activities:
 
-Here is the threat actor intelligence:
+{threat_actor_text}
 
-{threat_actor_text}""")
+FULL REPORT CONTEXT (use this to enrich your analysis):
+
+{full_report}
+
+Script requirements:
+- Open with: "Welcome to the SentryInsight Threat Actor Briefing for {today}."
+- Do NOT just restate the bullet points. Instead, provide ANALYSIS:
+  * Why does each threat actor matter strategically? What's the bigger picture?
+  * Are there connections between actors or campaigns? Common attack vectors or targets?
+  * What patterns or trends should defenders pay attention to?
+  * What concrete actions should security teams take this week?
+- Connect threat actors to the specific vulnerabilities and attack vectors from the full report when relevant
+- Group related actors or themes together rather than covering each one in isolation
+- End with 2-3 key takeaways and a sign-off: "That's your threat actor briefing for today. Stay vigilant, and we'll see you next time."
+- Do NOT use markdown formatting, bullet points, asterisks, or special characters — this will be read aloud by a text-to-speech engine
+- Write in plain spoken English with natural pauses and transitions
+- Be direct and opinionated — take a position on what matters most""")
     ]
 
     try:

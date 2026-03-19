@@ -17,12 +17,15 @@
     </itunes:owner>
     <item>
       <title>Threat Actor Briefing — 2026-03-18</title>
-      <description>Threat actor briefing covering Interlock Ransomware, SideWinder, GlassWorm, Warlock, DPRK IT Workers, and Chinese/Iranian entities.</description>
+      <description>- **Interlock Ransomware Gang**: Actively exploiting Cisco FMC vulnerability since January, demonstrating sophisticated zero-day attack capabilities
+- **SideWinder Espionage Group**: Suspected India-linked threat group expanding operations across Southeast Asia, targeting governments, telecom, and critical infrastructure
+- **GlassWorm Campaign**: Coordinated supply chain attack targeting hundreds of development platforms and repositories
+- **Warlock Ransomware Group**: Enhanced post-exploitation</description>
       <pubDate>Wed, 18 Mar 2026 05:00:00 GMT</pubDate>
       <guid>https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-18.mp3</guid>
-      <itunes:duration>2:12</itunes:duration>
+      <itunes:duration>5:08</itunes:duration>
       <itunes:episodeType>full</itunes:episodeType>
-      <enclosure url="https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-18.mp3" length="2119515" type="audio/mpeg" />
+      <enclosure url="https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-18.mp3" length="4937813" type="audio/mpeg" />
     </item>
   </channel>
 </rss>
