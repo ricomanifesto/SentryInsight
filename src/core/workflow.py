@@ -215,11 +215,13 @@ async def generate_podcast(state: ExploitationAnalysisState) -> ExploitationAnal
     if not success:
         return state
 
-    # Copy to docs/podcast/ for redundancy
+    # Copy to docs/podcast/ and create a stable latest.mp3 for the player
     import shutil
     docs_podcast_dir = Path("docs/podcast")
     docs_podcast_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy(episode_path, f"docs/podcast/{episode_filename}")
+    shutil.copy(episode_path, "podcast/latest.mp3")
+    shutil.copy(episode_path, "docs/podcast/latest.mp3")
 
     # Generate/update RSS feed at root and docs/
     generate_podcast_feed(episode_path, today, threat_actor_text[:500])

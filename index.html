@@ -660,8 +660,7 @@
                     const podAudio = document.createElement('audio');
                     podAudio.controls = true;
                     podAudio.preload = 'none';
-                    const today = new Date().toISOString().slice(0, 10);
-                    podAudio.src = 'podcast/episode-' + today + '.mp3?v=' + Date.now();
+                    podAudio.src = 'podcast/latest.mp3?v=' + Date.now();
                     podAudio.addEventListener('error', () => { podDiv.style.display = 'none'; });
                     podDiv.appendChild(podLabel);
                     podDiv.appendChild(podAudio);
