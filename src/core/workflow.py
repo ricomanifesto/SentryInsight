@@ -10,7 +10,13 @@ from pathlib import Path
 from ..services.rss_mcp import fetch_rss_feed, enrich_rss_articles  # Import the MCP tools
 from .analyze import filter_exploitation_articles, analyze_exploitation
 from ..services.publish import publish_to_github_pages
-from ..services.audio import generate_executive_summary_audio
+from ..services.audio import (
+    generate_executive_summary_audio,
+    extract_threat_actor_section,
+    generate_podcast_script,
+    generate_podcast_audio,
+    generate_podcast_feed,
+)
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -177,6 +183,51 @@ async def generate_audio(state: ExploitationAnalysisState) -> ExploitationAnalys
 
     return state
 
+async def generate_podcast(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
+    """Generate a podcast episode from the Threat Actor Activities section."""
+    logger.info("Generating threat actor podcast")
+
+    analysis_results = state.get("analysis_results", {})
+    report = analysis_results.get("exploitation_report", "")
+    config = state.get("config", {})
+
+    if not report:
+        logger.warning("No report available for podcast generation")
+        return state
+
+    threat_actor_text = extract_threat_actor_section(report)
+    if not threat_actor_text:
+        logger.warning("No Threat Actor Activities section found — skipping podcast")
+        return state
+
+    # Generate conversational podcast script via Claude
+    script = await generate_podcast_script(threat_actor_text, config)
+    if not script:
+        logger.warning("Failed to generate podcast script — skipping podcast")
+        return state
+
+    # Generate audio
+    today = datetime.now().strftime("%Y-%m-%d")
+    episode_filename = f"episode-{today}.mp3"
+    episode_path = f"podcast/{episode_filename}"
+
+    success = generate_podcast_audio(script, episode_path)
+    if not success:
+        return state
+
+    # Copy to docs/podcast/ for redundancy
+    import shutil
+    docs_podcast_dir = Path("docs/podcast")
+    docs_podcast_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy(episode_path, f"docs/podcast/{episode_filename}")
+
+    # Generate/update RSS feed at root and docs/
+    generate_podcast_feed(episode_path, today, threat_actor_text[:500])
+    shutil.copy("podcast.xml", "docs/podcast.xml")
+
+    logger.info("Podcast episode generated successfully")
+    return state
+
 async def publish_results(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
     """Publish results to GitHub Pages or local file"""
     logger.info("Publishing results")
@@ -229,6 +280,7 @@ def create_exploitation_analysis_graph() -> StateGraph:
     workflow.add_node("analyze_articles", analyze_articles)
     workflow.add_node("generate_report", generate_report)
     workflow.add_node("generate_audio", generate_audio)
+    workflow.add_node("generate_podcast", generate_podcast)
     workflow.add_node("publish_results", publish_results)
     
     # Define edges
@@ -238,7 +290,8 @@ def create_exploitation_analysis_graph() -> StateGraph:
     workflow.add_edge("filter_articles", "analyze_articles")
     workflow.add_edge("analyze_articles", "generate_report")
     workflow.add_edge("generate_report", "generate_audio")
-    workflow.add_edge("generate_audio", "publish_results")
+    workflow.add_edge("generate_audio", "generate_podcast")
+    workflow.add_edge("generate_podcast", "publish_results")
     workflow.add_edge("publish_results", END)
     
     # Add conditional edges

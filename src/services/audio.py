@@ -1,7 +1,11 @@
 import logging
 import os
 import re
+import xml.etree.ElementTree as ET
+from datetime import datetime
+from email.utils import formatdate
 from pathlib import Path
+from time import mktime
 
 logger = logging.getLogger(__name__)
 
@@ -10,12 +14,12 @@ VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
 MODEL_ID = "eleven_multilingual_v2"
 OUTPUT_FORMAT = "mp3_44100_128"
 
+PODCAST_BASE_URL = "https://ricomanifesto.github.io/SentryInsight"
+MAX_FEED_EPISODES = 20
+
 
 def extract_executive_summary(report_markdown: str) -> str:
-    """Extract the executive summary paragraph from the exploitation report markdown.
-
-    The executive summary is the first paragraph after the '# Exploitation Report' heading.
-    """
+    """Extract the executive summary paragraph from the exploitation report markdown."""
     lines = report_markdown.split("\n")
     found_heading = False
     summary_lines = []
@@ -37,11 +41,172 @@ def extract_executive_summary(report_markdown: str) -> str:
     return " ".join(summary_lines)
 
 
-async def generate_executive_summary_audio(report_markdown: str, output_path: str) -> bool:
-    """Generate an MP3 narration of the executive summary using Eleven Labs TTS.
+def extract_threat_actor_section(report_markdown: str) -> str:
+    """Extract the Threat Actor Activities section from the report markdown."""
+    lines = report_markdown.split("\n")
+    found_heading = False
+    section_lines = []
 
-    Returns True on success, False on failure. Failures are logged but do not raise.
-    """
+    for line in lines:
+        if re.match(r"^##\s+Threat Actor Activities", line):
+            found_heading = True
+            continue
+        if found_heading:
+            if re.match(r"^##\s+", line):
+                break
+            section_lines.append(line)
+
+    return "\n".join(section_lines).strip()
+
+
+async def generate_podcast_script(threat_actor_text: str, config: dict) -> str:
+    """Use Claude to rewrite threat actor bullet points into a conversational podcast script."""
+    from langchain_anthropic import ChatAnthropic
+    from langchain_core.messages import HumanMessage, SystemMessage
+
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        logger.error("ANTHROPIC_API_KEY not set — cannot generate podcast script")
+        return ""
+
+    model_name = config.get("analysis", {}).get("model", "claude-sonnet-4-20250514")
+    model = ChatAnthropic(api_key=api_key, model=model_name, max_tokens=2000)
+
+    today = datetime.now().strftime("%B %d, %Y")
+
+    messages = [
+        SystemMessage(content="You are a professional cybersecurity podcast host. You deliver clear, engaging threat intelligence briefings in a conversational but authoritative tone."),
+        HumanMessage(content=f"""Rewrite the following threat actor intelligence into a natural podcast script. This is a short daily briefing episode (1-2 minutes when read aloud).
+
+Requirements:
+- Start with a brief intro: "Welcome to the SentryInsight Threat Actor Briefing for {today}."
+- Cover each threat actor naturally, as if speaking to a security-conscious audience
+- Use transitions between topics (e.g., "Moving on to...", "Also worth noting...", "Meanwhile...")
+- End with a brief sign-off: "That's your threat actor briefing for today. Stay vigilant, and we'll see you next time."
+- Do NOT use markdown formatting, bullet points, or special characters — this will be read aloud by a text-to-speech engine
+- Write in plain spoken English, keeping sentences clear and not too long
+
+Here is the threat actor intelligence:
+
+{threat_actor_text}""")
+    ]
+
+    try:
+        response = await model.ainvoke(messages)
+        script = response.content
+        logger.info(f"Generated podcast script ({len(script)} chars)")
+        return script
+    except Exception as e:
+        logger.error(f"Error generating podcast script: {e}")
+        return ""
+
+
+def generate_podcast_audio(script: str, output_path: str) -> bool:
+    """Generate podcast MP3 from a script using Eleven Labs TTS."""
+    api_key = os.getenv("ELEVENLABS_API_KEY")
+    if not api_key:
+        logger.warning("ELEVENLABS_API_KEY not set — skipping podcast audio generation")
+        return False
+
+    logger.info(f"Generating podcast audio ({len(script)} chars)")
+
+    try:
+        from elevenlabs.client import ElevenLabs
+
+        client = ElevenLabs(api_key=api_key)
+        audio = client.text_to_speech.convert(
+            text=script,
+            voice_id=VOICE_ID,
+            model_id=MODEL_ID,
+            output_format=OUTPUT_FORMAT,
+        )
+
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "wb") as f:
+            for chunk in audio:
+                f.write(chunk)
+
+        logger.info(f"Podcast audio saved to {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error generating podcast audio: {e}")
+        return False
+
+
+def generate_podcast_feed(episode_mp3_path: str, episode_date: str, summary: str) -> bool:
+    """Generate or update the podcast.xml RSS feed."""
+    feed_path = "podcast.xml"
+    mp3_filename = Path(episode_mp3_path).name
+    episode_url = f"{PODCAST_BASE_URL}/podcast/{mp3_filename}"
+    mp3_size = str(os.path.getsize(episode_mp3_path))
+    pub_date = formatdate(mktime(datetime.strptime(episode_date, "%Y-%m-%d").timetuple()), usegmt=True)
+
+    # Parse existing feed to preserve prior episodes
+    existing_items = []
+    if os.path.exists(feed_path):
+        try:
+            tree = ET.parse(feed_path)
+            channel = tree.find("channel")
+            if channel is not None:
+                for item in channel.findall("item"):
+                    existing_items.append(item)
+        except Exception:
+            logger.warning("Could not parse existing podcast.xml — creating fresh feed")
+
+    # Build the feed
+    ITUNES_NS = "http://www.itunes.com/dtds/podcast-1.0.dtd"
+    ET.register_namespace("itunes", ITUNES_NS)
+
+    rss = ET.Element("rss", version="2.0")
+    channel = ET.SubElement(rss, "channel")
+
+    ET.SubElement(channel, "title").text = "SentryInsight Threat Actor Briefing"
+    ET.SubElement(channel, "link").text = PODCAST_BASE_URL
+    ET.SubElement(channel, "description").text = "Daily cybersecurity threat actor intelligence briefings powered by SentryInsight. Stay informed about the latest threat groups, campaigns, and adversary activities."
+    ET.SubElement(channel, "language").text = "en"
+    ET.SubElement(channel, f"{{{ITUNES_NS}}}author").text = "SentryInsight"
+    ET.SubElement(channel, f"{{{ITUNES_NS}}}summary").text = "Automated threat actor intelligence briefings from SentryInsight."
+    image = ET.SubElement(channel, f"{{{ITUNES_NS}}}image")
+    image.set("href", f"{PODCAST_BASE_URL}/assets/logo.png")
+    category = ET.SubElement(channel, f"{{{ITUNES_NS}}}category")
+    category.set("text", "Technology")
+    ET.SubElement(channel, f"{{{ITUNES_NS}}}explicit").text = "no"
+
+    # New episode
+    new_item = ET.SubElement(channel, "item")
+    ET.SubElement(new_item, "title").text = f"Threat Actor Briefing — {episode_date}"
+    ET.SubElement(new_item, "description").text = summary
+    ET.SubElement(new_item, "pubDate").text = pub_date
+    ET.SubElement(new_item, "guid").text = episode_url
+    enclosure = ET.SubElement(new_item, "enclosure")
+    enclosure.set("url", episode_url)
+    enclosure.set("length", mp3_size)
+    enclosure.set("type", "audio/mpeg")
+
+    # Re-add prior episodes (skip duplicates for same date), limit to MAX_FEED_EPISODES
+    count = 1
+    for item in existing_items:
+        guid = item.find("guid")
+        if guid is not None and guid.text == episode_url:
+            continue
+        if count >= MAX_FEED_EPISODES:
+            break
+        channel.append(item)
+        count += 1
+
+    try:
+        ET.indent(rss, space="  ")
+        tree = ET.ElementTree(rss)
+        tree.write(feed_path, encoding="unicode", xml_declaration=True)
+        logger.info(f"Podcast feed updated at {feed_path} ({count} episodes)")
+        return True
+    except Exception as e:
+        logger.error(f"Error writing podcast feed: {e}")
+        return False
+
+
+async def generate_executive_summary_audio(report_markdown: str, output_path: str) -> bool:
+    """Generate an MP3 narration of the executive summary using Eleven Labs TTS."""
     api_key = os.getenv("ELEVENLABS_API_KEY")
     if not api_key:
         logger.warning("ELEVENLABS_API_KEY not set — skipping audio generation")

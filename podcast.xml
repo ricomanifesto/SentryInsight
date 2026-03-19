@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+  <channel>
+    <title>SentryInsight Threat Actor Briefing</title>
+    <link>https://ricomanifesto.github.io/SentryInsight</link>
+    <description>Daily cybersecurity threat actor intelligence briefings powered by SentryInsight. Stay informed about the latest threat groups, campaigns, and adversary activities.</description>
+    <language>en</language>
+    <itunes:author>SentryInsight</itunes:author>
+    <itunes:summary>Automated threat actor intelligence briefings from SentryInsight.</itunes:summary>
+    <itunes:image href="https://ricomanifesto.github.io/SentryInsight/assets/logo.png" />
+    <itunes:category text="Technology" />
+    <itunes:explicit>no</itunes:explicit>
+    <item>
+      <title>Threat Actor Briefing — 2026-03-18</title>
+      <description>Threat actor briefing for today.</description>
+      <pubDate>Wed, 18 Mar 2026 05:00:00 GMT</pubDate>
+      <guid>https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-18.mp3</guid>
+      <enclosure url="https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-18.mp3" length="2119515" type="audio/mpeg" />
+    </item>
+  </channel>
+</rss>

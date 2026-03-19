@@ -648,6 +648,26 @@
                     }
                 }
 
+                // Inject podcast player after Threat Actor Activities heading
+                const threatH2 = Array.from(contentEl.querySelectorAll('h2')).find(h => /threat actor activities/i.test(h.textContent));
+                if (threatH2) {
+                    const podDiv = document.createElement('div');
+                    podDiv.className = 'audio-player';
+                    podDiv.style.margin = '8px 0 16px';
+                    const podLabel = document.createElement('span');
+                    podLabel.style.cssText = 'font-size:0.85rem;color:var(--text-secondary);margin-right:8px;';
+                    podLabel.textContent = 'Podcast Briefing';
+                    const podAudio = document.createElement('audio');
+                    podAudio.controls = true;
+                    podAudio.preload = 'none';
+                    const today = new Date().toISOString().slice(0, 10);
+                    podAudio.src = 'podcast/episode-' + today + '.mp3?v=' + Date.now();
+                    podAudio.addEventListener('error', () => { podDiv.style.display = 'none'; });
+                    podDiv.appendChild(podLabel);
+                    podDiv.appendChild(podAudio);
+                    threatH2.after(podDiv);
+                }
+
                 // Post-processing
                 addHeadingAnchors();
                 addSeverityBadges();
