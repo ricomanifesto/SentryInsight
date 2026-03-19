@@ -252,6 +252,8 @@
         .exec { border: 1px solid var(--border-color); background: #ffffff; border-radius: 12px; padding: 12px 16px; margin: 8px 0 16px; }
         .exec h4 { margin: 0 0 6px; color: var(--text-secondary); }
         .exec p { margin: 0; color: var(--text-primary); }
+        .exec .audio-player { margin-top: 10px; }
+        .exec audio { width: 100%; border-radius: 8px; height: 36px; }
         body.dark .exec { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .exec h4 { color: #cbd5e1; }
         body.dark .exec p { color: #e5e7eb; }
@@ -632,6 +634,17 @@
                         execEl.innerHTML = `<h4>Executive Summary</h4>`;
                         execEl.appendChild(next.cloneNode(true));
                         next.remove();
+                        // Add audio player for narrated executive summary
+                        const audioDiv = document.createElement('div');
+                        audioDiv.className = 'audio-player';
+                        const audioEl = document.createElement('audio');
+                        audioEl.controls = true;
+                        audioEl.preload = 'none';
+                        audioEl.src = 'executive_summary.mp3?v=' + Date.now();
+                        // Only show the player if the audio file exists
+                        audioEl.addEventListener('error', () => { audioDiv.style.display = 'none'; });
+                        audioDiv.appendChild(audioEl);
+                        execEl.appendChild(audioDiv);
                     }
                 }
 

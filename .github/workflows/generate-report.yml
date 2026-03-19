@@ -49,6 +49,7 @@ jobs:
           # Force add report files
           git add -f index.md || true
           git add -f index.html || true
+          git add -f executive_summary.mp3 || true
           if [ -d docs ]; then
             git add -f docs/index.md || true
             git add -f docs/index.html || true
