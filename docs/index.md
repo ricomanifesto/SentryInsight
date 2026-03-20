@@ -1,78 +1,74 @@
 # Exploitation Report
 
-Critical exploitation activity is currently impacting organizations across multiple sectors, with several zero-day vulnerabilities being actively exploited in the wild. Most concerning is the DarkSword iOS exploit kit utilizing three zero-day vulnerabilities for complete device takeover, targeting users in Saudi Arabia, Turkey, Malaysia, and Ukraine. Simultaneously, the Interlock ransomware gang has been exploiting a maximum severity Cisco Secure Firewall Management Center zero-day vulnerability since January 2026. Additional active exploitation includes Russian APT28 targeting Ukrainian government systems through Zimbra vulnerabilities, while CISA has issued urgent warnings for multiple actively exploited flaws in Microsoft SharePoint and Zimbra Collaboration Suite systems.
+Critical zero-day exploitation activity is currently targeting organizations across multiple sectors, with ransomware groups leading active attacks against enterprise infrastructure. The Interlock ransomware gang has been exploiting a maximum severity remote code execution vulnerability in Cisco Secure Firewall Management Center software (CVE-2026-20131) since January, achieving root access on targeted systems. Additionally, sophisticated iOS exploit chains leveraging multiple zero-day vulnerabilities are targeting users in Saudi Arabia, Turkey, Malaysia, and Ukraine through the "Darksword" exploit kit. CISA has ordered federal agencies to patch an actively exploited cross-site scripting vulnerability in Zimbra Collaboration Suite, while critical unpatched flaws in GNU InetUtils telnetd (CVE-2026-32746) and Ubuntu Desktop systems (CVE-2026-3888) present immediate risks for privilege escalation attacks.
 
 ## Active Exploitation Details
 
-### DarkSword iOS Exploit Kit
-- **Description**: A sophisticated exploit kit targeting Apple iOS devices using a combination of six vulnerabilities, including three zero-day flaws
-- **Impact**: Enables complete device takeover and sensitive data theft from iOS devices
-- **Status**: Actively exploited since at least November 2025 by multiple threat actors
-
-### Cisco Secure Firewall Management Center Zero-Day
-- **Description**: Maximum severity remote code execution vulnerability in Cisco FMC software
-- **Impact**: Allows attackers to gain root access and deploy ransomware
-- **Status**: Actively exploited by Interlock ransomware gang since January 2026
+### Cisco Secure Firewall Management Center RCE Vulnerability
+- **Description**: Maximum severity remote code execution vulnerability in Cisco's Secure Firewall Management Center (FMC) software allowing unauthenticated attackers to execute arbitrary code
+- **Impact**: Complete system compromise with root-level access, enabling ransomware deployment and lateral movement
+- **Status**: Actively exploited by Interlock ransomware gang since January 2026, recently patched by Cisco
 - **CVE ID**: CVE-2026-20131
 
-### Microsoft SharePoint Critical Vulnerability
-- **Description**: Critical vulnerability in Microsoft SharePoint patched in January
-- **Impact**: Enables unauthorized access and potential system compromise
-- **Status**: Now being actively exploited in attacks, prompting CISA warning
+### Darksword iOS Zero-Day Exploit Chain
+- **Description**: Sophisticated iOS exploit chain leveraging multiple zero-day vulnerabilities targeting iPhone users
+- **Impact**: Data theft from cryptocurrency wallet apps and comprehensive personal information extraction
+- **Status**: Active exploitation targeting users in Saudi Arabia, Turkey, Malaysia, and Ukraine
 
-### Zimbra Collaboration Suite XSS Flaw
-- **Description**: Cross-site scripting vulnerability in Zimbra Collaboration Suite
-- **Impact**: Allows unauthorized access and potential data theft
-- **Status**: Actively exploited by Russian APT28 in attacks against Ukrainian government
+### Zimbra Collaboration Suite XSS Vulnerability
+- **Description**: Cross-site scripting vulnerability in Zimbra Collaboration Suite enabling unauthorized access
+- **Impact**: Potential for credential theft and unauthorized system access
+- **Status**: Actively exploited in the wild, CISA has mandated federal agency patching
 
-### PolyShell Magento Vulnerability
-- **Description**: Newly disclosed vulnerability affecting all Magento Open Source and Adobe Commerce stable version 2 installations
-- **Impact**: Allows unauthenticated remote code execution and complete account takeover
-- **Status**: Newly disclosed with potential for widespread exploitation
+### GNU InetUtils Telnetd Critical Flaw
+- **Description**: Critical security flaw in GNU InetUtils telnet daemon enabling unauthenticated remote code execution
+- **Impact**: Root-level system compromise without authentication requirements
+- **Status**: Currently unpatched and exploitable
+- **CVE ID**: CVE-2026-32746
 
-### Ubiquiti UniFi Maximum Severity Flaw
-- **Description**: Maximum severity vulnerability in UniFi Network Application
-- **Impact**: May allow attackers to take over user accounts
-- **Status**: Recently patched by Ubiquiti
+### Ubuntu Desktop Privilege Escalation
+- **Description**: High-severity flaw affecting default installations of Ubuntu Desktop versions 24.04 and later through systemd cleanup timing exploitation
+- **Impact**: Local privilege escalation to root level access
+- **Status**: Affects current Ubuntu Desktop installations
+- **CVE ID**: CVE-2026-3888
 
-### ConnectWise ScreenConnect Vulnerability
-- **Description**: Cryptographic signature verification vulnerability in ScreenConnect
-- **Impact**: Could lead to unauthorized access and privilege escalation
+### Apple WebKit Same-Origin Policy Bypass
+- **Description**: WebKit vulnerability enabling same-origin policy bypass on iOS, iPadOS, and macOS systems
+- **Impact**: Cross-origin data access and potential web application compromise
+- **Status**: Recently patched through Apple's Background Security Improvements update
+- **CVE ID**: CVE-2026-20643
+
+### ConnectWise ScreenConnect Cryptographic Vulnerability
+- **Description**: Cryptographic signature verification vulnerability in ScreenConnect software
+- **Impact**: Unauthorized access and privilege escalation on remote access systems
 - **Status**: Recently patched by ConnectWise
 
 ## Affected Systems and Products
 
-- **Apple iOS Devices**: All iOS versions targeted by DarkSword exploit kit
-- **Cisco Secure Firewall Management Center**: FMC software vulnerable to zero-day exploitation
-- **Microsoft SharePoint**: SharePoint installations vulnerable to critical flaw
-- **Zimbra Collaboration Suite**: ZCS installations affected by XSS vulnerability
-- **Magento E-commerce Platforms**: All Magento Open Source and Adobe Commerce version 2 installations
-- **Ubiquiti UniFi Network Application**: Network management systems vulnerable to account takeover
-- **ConnectWise ScreenConnect**: Remote access software affected by signature verification flaw
-- **IoT Devices**: Over 3 million compromised devices used in massive botnets
-- **Microsoft Intune Systems**: Endpoint management tools exploited in Stryker breach
+- **Cisco Secure Firewall Management Center (FMC)**: All versions prior to recent security patches
+- **iOS Devices**: iPhones running vulnerable iOS versions, particularly in targeted geographic regions
+- **Zimbra Collaboration Suite**: Email and collaboration servers requiring immediate patching
+- **GNU InetUtils Telnetd**: Systems running the telnet daemon service
+- **Ubuntu Desktop**: Versions 24.04 and later with default systemd configurations
+- **Apple WebKit**: iOS, iPadOS, and macOS systems prior to Background Security Improvements update
+- **ConnectWise ScreenConnect**: Remote access software installations requiring security updates
+- **IP KVM Devices**: Low-cost Internet Protocol KVM devices across four major vendors
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Multiple threat actors leveraging previously unknown vulnerabilities
-- **Bring Your Own Vulnerable Driver (BYOVD)**: 54 EDR killers exploiting 34 signed vulnerable drivers
-- **Cross-Site Scripting**: Web-based attacks targeting Zimbra installations
-- **Remote Code Execution**: Unauthenticated RCE attacks against Magento stores
-- **Ransomware Deployment**: Exploitation of Cisco vulnerabilities for ransomware distribution
-- **Mobile Device Takeover**: iOS exploit chains for complete device compromise
-- **Botnet Infrastructure**: IoT device compromise for large-scale DDoS attacks
-- **Supply Chain Attacks**: Hijacking legitimate software infrastructure (Cobra DocGuard)
-- **Prompt Injection**: Attacking AI systems through malicious prompts
-- **Social Engineering**: Fake remote job schemes for IT worker infiltration
+- **Zero-Day Exploitation**: Sophisticated exploit chains targeting unpatched vulnerabilities in critical infrastructure
+- **Ransomware Deployment**: Direct exploitation of network infrastructure for ransomware distribution and data encryption
+- **Supply Chain Attacks**: GlassWorm campaign targeting over 400 code repositories on GitHub, npm, VSCode, and OpenVSX platforms
+- **Cross-Site Scripting**: Web-based attacks leveraging XSS vulnerabilities for credential harvesting
+- **Privilege Escalation**: Local and remote techniques for gaining administrative access on compromised systems
+- **DNS Exfiltration**: Novel methods for data extraction from AI environments using DNS queries
+- **Credential Theft**: Industrialized infostealer malware campaigns targeting authentication credentials
 
 ## Threat Actor Activities
 
-- **APT28 (Russian GRU)**: Exploiting Zimbra vulnerabilities in attacks against Ukrainian government systems
-- **Interlock Ransomware Gang**: Actively exploiting Cisco FMC zero-day since January 2026 for ransomware deployment
-- **Lazarus Group (North Korean)**: Attributed to Bitrefill cryptocurrency platform attack
-- **Bluenoroff Group**: Subgroup of Lazarus involved in financial cybercrime operations
-- **Handala Hacktivist Group**: Conducted destructive cyberattack on Stryker medical technology company
-- **Multiple Unknown Actors**: Operating DarkSword iOS exploit kit since November 2025
-- **DPRK IT Worker Networks**: Using fake remote jobs to fund weapons of mass destruction programs
-- **Various Cybercriminal Groups**: Deploying Perseus Android malware for financial fraud and device takeover
-- **Speagle Malware Operators**: Hijacking legitimate Cobra DocGuard infrastructure for data theft
+- **Interlock Ransomware Gang**: Actively exploiting Cisco FMC vulnerability since January, demonstrating sophisticated zero-day attack capabilities
+- **SideWinder Espionage Group**: Suspected India-linked threat group expanding operations across Southeast Asia, targeting governments, telecom, and critical infrastructure
+- **GlassWorm Campaign**: Coordinated supply chain attack targeting hundreds of development platforms and repositories
+- **Warlock Ransomware Group**: Enhanced post-exploitation activities using BYOVD (Bring Your Own Vulnerable Driver) techniques for stealthier network movement
+- **DPRK IT Worker Network**: North Korean-linked actors using fake remote employment for funding weapons programs, recently sanctioned by OFAC
+- **Chinese and Iranian Entities**: Threat actors sanctioned by the European Union for cyberattacks against critical infrastructure

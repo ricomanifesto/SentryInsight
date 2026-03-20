@@ -46,6 +46,7 @@ jobs:
           GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
       
       - name: Commit and push updated report
+        if: github.ref == 'refs/heads/main'
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
