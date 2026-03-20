@@ -11,4 +11,3 @@ mcp-python>=0.1.0
 anthropic
 elevenlabs
 pydub
-audioop-lts; python_version >= "3.13"
