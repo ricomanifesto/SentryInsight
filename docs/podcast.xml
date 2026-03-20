@@ -16,6 +16,19 @@
       <itunes:email>thericox2@gmail.com</itunes:email>
     </itunes:owner>
     <item>
+      <title>Threat Actor Briefing — 2026-03-20</title>
+      <description>- **APT28 (Russian GRU)**: Exploiting Zimbra vulnerabilities in attacks against Ukrainian government systems
+- **Interlock Ransomware Gang**: Actively exploiting Cisco FMC zero-day since January 2026 for ransomware deployment
+- **Lazarus Group (North Korean)**: Attributed to Bitrefill cryptocurrency platform attack
+- **Bluenoroff Group**: Subgroup of Lazarus involved in financial cybercrime operations
+- **Handala Hacktivist Group**: Conducted destructive cyberattack on Stryker medical technology</description>
+      <pubDate>Fri, 20 Mar 2026 00:00:00 GMT</pubDate>
+      <guid>https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-20.mp3</guid>
+      <itunes:duration>6:13</itunes:duration>
+      <itunes:episodeType>full</itunes:episodeType>
+      <enclosure url="https://ricomanifesto.github.io/SentryInsight/podcast/episode-2026-03-20.mp3" length="5969755" type="audio/mpeg" />
+    </item>
+    <item>
       <title>Threat Actor Briefing — 2026-03-18</title>
       <description>- **Interlock Ransomware Gang**: Actively exploiting Cisco FMC vulnerability since January, demonstrating sophisticated zero-day attack capabilities
 - **SideWinder Espionage Group**: Suspected India-linked threat group expanding operations across Southeast Asia, targeting governments, telecom, and critical infrastructure
