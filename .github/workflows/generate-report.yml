@@ -45,6 +45,15 @@ jobs:
           VT_INTELLIGENCE_API_KEY: ${{ secrets.VT_INTELLIGENCE_API_KEY }}
           GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
       
+      - name: Check for podcast quota skip
+        run: |
+          if [ -f podcast/PODCAST_SKIPPED ]; then
+            echo "::warning::Podcast generation was skipped this run — ElevenLabs quota exhausted. podcast/latest.mp3 and podcast.xml were NOT updated."
+            echo "--- Skip marker contents ---"
+            cat podcast/PODCAST_SKIPPED
+            echo "----------------------------"
+          fi
+
       - name: Validate report content before publishing
         run: |
           if grep -qE "Error code: 400|credit balance is too low|Error Generating Exploitation Report" index.md 2>/dev/null; then

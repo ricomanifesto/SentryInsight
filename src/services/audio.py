@@ -9,6 +9,25 @@ from time import mktime
 
 logger = logging.getLogger(__name__)
 
+
+class ElevenLabsQuotaExhaustedError(Exception):
+    """Raised when ElevenLabs TTS fails due to insufficient credit balance."""
+    pass
+
+
+def _is_quota_exhausted(exc: Exception) -> bool:
+    """Return True if the exception indicates an ElevenLabs quota/credit error."""
+    err_str = str(exc).lower()
+    quota_indicators = [
+        "quota_exceeded",
+        "credit balance is too low",
+        "insufficient credits",
+        "exceeded your quota",
+        "out of credits",
+    ]
+    return any(indicator in err_str for indicator in quota_indicators)
+
+
 # Rachel - calm, professional female voice
 VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
 MODEL_ID = "eleven_multilingual_v2"
@@ -143,6 +162,12 @@ def generate_podcast_audio(script: str, output_path: str) -> bool:
         logger.info(f"Podcast audio saved to {output_path}")
         return True
     except Exception as e:
+        if _is_quota_exhausted(e):
+            logger.error(
+                f"ElevenLabs quota exhausted — cannot generate podcast audio. "
+                f"podcast/latest.mp3 and podcast.xml will NOT be updated this run. Detail: {e}"
+            )
+            raise ElevenLabsQuotaExhaustedError(str(e)) from e
         logger.error(f"Error generating podcast audio: {e}")
         return False
 
@@ -379,5 +404,10 @@ async def generate_executive_summary_audio(report_markdown: str, output_path: st
         logger.info(f"Audio saved to {output_path}")
         return True
     except Exception as e:
-        logger.error(f"Error generating audio: {e}")
+        if _is_quota_exhausted(e):
+            logger.error(
+                f"ElevenLabs quota exhausted — executive_summary.mp3 will NOT be updated this run. Detail: {e}"
+            )
+        else:
+            logger.error(f"Error generating audio: {e}")
         return False

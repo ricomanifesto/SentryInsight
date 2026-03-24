@@ -19,3 +19,6 @@ Thumbs.db
 
 # Private notes (do not commit)
 docs/notes/
+
+# Runtime CI markers (transient, not part of published content)
+podcast/PODCAST_SKIPPED

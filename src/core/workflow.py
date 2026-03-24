@@ -11,6 +11,7 @@ from ..services.rss_mcp import fetch_rss_feed, enrich_rss_articles  # Import the
 from .analyze import filter_exploitation_articles, analyze_exploitation
 from ..services.publish import publish_to_github_pages
 from ..services.audio import (
+    ElevenLabsQuotaExhaustedError,
     generate_executive_summary_audio,
     extract_threat_actor_section,
     generate_podcast_script,
@@ -184,6 +185,14 @@ async def generate_audio(state: ExploitationAnalysisState) -> ExploitationAnalys
 
     return state
 
+def _write_podcast_skip_marker(date: str, reason: str) -> None:
+    """Write a marker file so the CI step can emit a visible annotation."""
+    marker_path = Path("podcast/PODCAST_SKIPPED")
+    marker_path.parent.mkdir(parents=True, exist_ok=True)
+    marker_path.write_text(f"date={date}\nreason=quota_exhausted\ndetail={reason}\n")
+    logger.warning(f"Wrote podcast skip marker to {marker_path}")
+
+
 async def generate_podcast(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
     """Generate a podcast episode from the Threat Actor Activities section."""
     logger.info("Generating threat actor podcast")
@@ -213,8 +222,19 @@ async def generate_podcast(state: ExploitationAnalysisState) -> ExploitationAnal
     episode_path = f"podcast/{episode_filename}"
     raw_narration_path = f"podcast/raw_narration_{today}.mp3"
 
-    success = generate_podcast_audio(script, raw_narration_path)
+    try:
+        success = generate_podcast_audio(script, raw_narration_path)
+    except ElevenLabsQuotaExhaustedError as e:
+        logger.error(
+            "::error::Podcast generation skipped — ElevenLabs quota exhausted. "
+            "podcast/latest.mp3 and podcast.xml were NOT updated this run. "
+            f"Detail: {e}"
+        )
+        _write_podcast_skip_marker(today, str(e))
+        return state
+
     if not success:
+        logger.warning("Podcast audio generation failed — skipping podcast")
         return state
 
     # Produce the final episode with intro, background music, transitions, and outro
