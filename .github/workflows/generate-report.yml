@@ -45,6 +45,14 @@ jobs:
           VT_INTELLIGENCE_API_KEY: ${{ secrets.VT_INTELLIGENCE_API_KEY }}
           GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
       
+      - name: Validate report content before publishing
+        run: |
+          if grep -qE "Error code: 400|credit balance is too low|Error Generating Exploitation Report" index.md 2>/dev/null; then
+            echo "::error::Report contains API error — aborting publish to prevent pushing invalid content to GitHub Pages."
+            exit 1
+          fi
+          echo "Report content validation passed."
+
       - name: Commit and push updated report
         if: github.ref == 'refs/heads/main'
         run: |
