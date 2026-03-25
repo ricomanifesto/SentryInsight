@@ -26,9 +26,6 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -62,14 +59,10 @@ jobs:
           git add -f index.md || true
           git add -f index.html || true
           git add -f executive_summary.mp3 || true
-          git add -f podcast.xml || true
-          git add -f podcast/ || true
           if [ -d docs ]; then
             git add -f docs/index.md || true
             git add -f docs/index.html || true
             git add -f docs/executive_summary.mp3 || true
-            git add -f docs/podcast.xml || true
-            git add -f docs/podcast/ || true
           fi
           git commit -m "Update exploitation report [automated]" || echo "No changes to commit"
           git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git
