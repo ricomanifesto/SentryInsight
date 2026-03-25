@@ -634,10 +634,12 @@
                         execEl.innerHTML = `<h4>Executive Summary</h4>`;
                         execEl.appendChild(next.cloneNode(true));
                         next.remove();
-                        // Add audio player only if the file actually exists
+                        // Add audio player only if the file exists and has content
                         const audioSrc = 'executive_summary.mp3?v=' + Date.now();
                         fetch('executive_summary.mp3', { method: 'HEAD' }).then(r => {
                             if (!r.ok) return;
+                            const len = parseInt(r.headers.get('Content-Length') || '0');
+                            if (len === 0) return;
                             const audioDiv = document.createElement('div');
                             audioDiv.className = 'audio-player';
                             const audioEl = document.createElement('audio');
