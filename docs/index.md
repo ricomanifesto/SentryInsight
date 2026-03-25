@@ -1,58 +1,61 @@
 # Exploitation Report
 
-Critical exploitation activity is dominated by sophisticated supply chain attacks targeting development infrastructure and authentication bypass vulnerabilities. TeamPCP has emerged as a persistent threat actor conducting extensive supply chain compromises affecting popular development tools and packages, including the LiteLLM Python package, Trivy CI/CD systems, and Checkmarx GitHub Actions. Meanwhile, attackers are actively exploiting a critical authentication bypass vulnerability in TP-Link Archer NX routers that allows firmware uploads without authentication. Additional concerning activity includes device code phishing campaigns targeting Microsoft 365 organizations, malvertising campaigns using tax-related search terms to deliver ScreenConnect malware, and AI-assisted campaigns distributing hundreds of malicious packages across development platforms.
+Current threat activity is dominated by sophisticated supply chain attacks, AI-powered campaigns, and critical infrastructure vulnerabilities. The TeamPCP hacking group has launched a coordinated supply chain compromise affecting multiple popular development tools including the LiteLLM Python package, Trivy scanner, and Checkmarx KICS, stealing credentials and authentication tokens from hundreds of thousands of developers. Concurrently, threat actors are exploiting critical router authentication bypass vulnerabilities in TP-Link devices while leveraging AI agents for autonomous cyber espionage campaigns. Large-scale malvertising operations are delivering ScreenConnect malware that uses legitimate Huawei drivers to disable endpoint detection and response systems, while device code phishing campaigns are successfully compromising Microsoft 365 identities across over 340 organizations globally.
 
 ## Active Exploitation Details
 
-### TP-Link Archer NX Router Authentication Bypass
-- **Description**: Critical vulnerability allowing attackers to bypass authentication mechanisms and upload malicious firmware to affected routers
-- **Impact**: Complete device compromise, ability to install persistent malware, potential for network lateral movement
+### TP-Link Router Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability in TP-Link Archer NX router series allowing attackers to upload malicious firmware
+- **Impact**: Complete device compromise, network infiltration, and ability to install persistent backdoors
 - **Status**: Patches available from TP-Link, users urged to update immediately
 
-### TeamPCP Supply Chain Compromises
-- **Description**: Coordinated attacks compromising CI/CD pipelines and popular development packages to inject credential-harvesting malware
-- **Impact**: Theft of developer credentials, authentication tokens, and potential access to enterprise development environments
-- **Status**: Ongoing active campaign with multiple compromised packages and tools
-
 ### PTC Windchill and FlexPLM Remote Code Execution
-- **Description**: Critical vulnerability in widely-used product lifecycle management solutions allowing remote code execution
-- **Impact**: Complete system compromise, unauthorized access to sensitive product data and intellectual property
-- **Status**: PTC warning of imminent exploitation threat
+- **Description**: Critical vulnerability in widely-used product lifecycle management solutions enabling remote code execution
+- **Impact**: Full system compromise and potential lateral movement within enterprise networks
+- **Status**: PTC warns of imminent threat, patches required immediately
+
+### LiteLLM Supply Chain Compromise
+- **Description**: Malicious backdoor inserted into versions 1.82.7-1.82.8 of the popular Python package by TeamPCP threat actors
+- **Impact**: Credential harvesting and authentication token theft from development environments
+- **Status**: Compromised versions identified, clean versions available
+
+### ConnectWise ScreenConnect Malware Distribution
+- **Description**: Malvertising campaign delivering rogue ScreenConnect installers through tax-related search advertisements
+- **Impact**: Remote access trojan deployment with EDR evasion capabilities using legitimate Huawei drivers
+- **Status**: Ongoing campaign active since January 2026
 
 ### Microsoft 365 Device Code Phishing
-- **Description**: Active OAuth abuse campaign using device code authentication flow to compromise Microsoft 365 identities
-- **Impact**: Unauthorized access to corporate Microsoft 365 environments and sensitive organizational data
-- **Status**: Ongoing attacks across 340+ organizations in multiple countries
+- **Description**: OAuth abuse campaign targeting Microsoft 365 identities through device code phishing techniques
+- **Impact**: Account compromise and unauthorized access to corporate cloud environments
+- **Status**: Active campaign affecting organizations across five countries
 
 ## Affected Systems and Products
 
-- **TP-Link Archer NX Router Series**: Multiple models vulnerable to authentication bypass allowing firmware upload
-- **LiteLLM Python Package**: Versions 1.82.7-1.82.8 compromised with credential-harvesting backdoors
+- **TP-Link Archer NX Router Series**: Authentication bypass vulnerability affecting multiple router models
 - **PTC Windchill and FlexPLM**: Product lifecycle management solutions vulnerable to remote code execution
-- **Microsoft 365 Organizations**: 340+ organizations across US, Canada, Australia affected by device code phishing
-- **Trivy Security Scanner**: CI/CD systems compromised leading to supply chain attacks
-- **Checkmarx KICS**: Code scanning tools compromised via GitHub Actions credential theft
-- **npm Package Ecosystem**: Multiple malicious packages targeting cryptocurrency wallets and developer credentials
-- **GitHub Development Platform**: Over 300 poisoned packages targeting developer tools and gaming applications
-- **ConnectWise ScreenConnect**: Malicious installers distributed through tax-related search advertising
+- **LiteLLM Python Package**: Versions 1.82.7 and 1.82.8 contain malicious backdoors
+- **Trivy Security Scanner**: Compromised by TeamPCP in CI/CD pipeline attacks
+- **Checkmarx KICS**: Code security scanner targeted in supply chain compromise
+- **ConnectWise ScreenConnect**: Legitimate remote access tool being impersonated in malvertising
+- **Microsoft 365 Organizations**: Over 340 organizations across US, Canada, Australia affected by device code phishing
+- **GlassWorm Campaign Targets**: Multi-stage framework targeting cryptocurrency and browser data
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Systematic targeting of CI/CD pipelines and package repositories to inject malicious code
-- **Device Code Phishing**: Abuse of OAuth device authentication flow to bypass traditional MFA protections
-- **Malvertising**: Tax-themed search advertisements delivering malware-laden software installers
-- **Credential Harvesting**: Deployment of information stealers to capture authentication tokens and sensitive data
-- **Authentication Bypass**: Direct exploitation of router firmware upload vulnerabilities without credential requirements
-- **Social Engineering**: Fake resume campaigns targeting French corporate environments with embedded malware
-- **Package Poisoning**: Creation of legitimate-looking packages containing hidden malicious functionality
+- **Supply Chain Compromise**: TeamPCP group systematically targeting development tools and CI/CD pipelines
+- **Malvertising Campaigns**: Tax-related search ads delivering malicious ScreenConnect installers
+- **Device Code Phishing**: OAuth abuse targeting Microsoft 365 authentication flows
+- **AI Agent Exploitation**: Autonomous AI systems conducting 80-90% of cyber espionage operations
+- **EDR Evasion**: Legitimate Huawei drivers being weaponized to disable security software
+- **Solana Dead Drops**: GlassWorm malware using blockchain technology for command and control
+- **Job Scam Phishing**: Fake recruitment campaigns impersonating Palo Alto Networks recruiters
+- **Resume-Based Attacks**: French-speaking environments targeted with malicious resume documents
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Persistent supply chain attacks targeting development infrastructure including Trivy, Checkmarx KICS, LiteLLM, and GitHub Actions workflows
-- **TA551 Botnet Operators**: Russian-managed botnet infrastructure used for BitPaymer ransomware deployment against 72 U.S. companies
-- **State-Sponsored AI Agent Campaign**: Anthropic-disclosed autonomous cyber espionage operation targeting 30 global entities with 80-90% AI automation
-- **Yanluowang Ransomware Affiliates**: Initial access brokers facilitating ransomware deployment through compromised enterprise networks
-- **ShinyHunters**: Data theft operations targeting educational institutions including Infinite Campus K-12 systems
-- **Ghost Campaign**: Cryptocurrency theft operation using 7 malicious npm packages to target digital wallets
-- **Tax Season Malvertisers**: Large-scale campaign exploiting seasonal tax document searches to distribute ScreenConnect malware
-- **Iranian Hacktivists**: Coordinated but largely ineffective operations targeting Gulf region infrastructure
+- **TeamPCP**: Coordinated supply chain attacks targeting Trivy, KICS, LiteLLM, and other development tools with credential harvesting capabilities
+- **TA551 Botnet Operators**: Russian national sentenced for managing botnet used in BitPaymer ransomware attacks against 72 US companies
+- **State-Sponsored AI Agents**: Autonomous AI systems conducting cyber espionage campaigns against 30 global targets with minimal human intervention
+- **GlassWorm Campaign**: Advanced persistent threat delivering multi-stage framework for comprehensive data theft and RAT deployment
+- **Iranian Hacktivists**: Limited impact operations in Gulf region with focus on regional conflicts
+- **AI Underground Markets**: Cybercriminals commercializing premium AI account access for malicious purposes
