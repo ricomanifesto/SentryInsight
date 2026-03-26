@@ -1,61 +1,62 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting iOS devices, e-commerce platforms, and enterprise systems through sophisticated attack vectors. The most significant concerns include the Coruna iOS exploit kit reusing proven kernel exploits from Operation Triangulation, active PolyShell attacks targeting over half of all vulnerable Magento stores, and authentication bypass vulnerabilities in enterprise networking equipment. Payment card skimmers are evolving to bypass Content Security Policy protections using WebRTC channels, while threat actors continue to leverage popular platforms for credential theft and data exfiltration campaigns.
+Current security reports reveal several critical exploitation activities targeting both enterprise systems and mobile platforms. The most significant threats include zero-click iOS exploits being actively used through the evolved Coruna framework, payment skimmers bypassing security controls on e-commerce sites using WebRTC channels, and mass attacks targeting vulnerable Magento installations through the PolyShell vulnerability. Additional concerns include sophisticated phishing campaigns leveraging legitimate platforms like Bubble AI and TikTok for Business, along with the emergence of advanced malware families like GlassWorm using blockchain-based command and control infrastructure.
 
 ## Active Exploitation Details
 
-### PolyShell Vulnerability in Magento
-- **Description**: A critical vulnerability in version 2 of Magento Open Source and Adobe Commerce installations
-- **Impact**: Allows attackers to compromise e-commerce platforms and potentially access sensitive customer data
-- **Status**: Active exploitation targeting 56% of all vulnerable Magento stores
+### Coruna iOS Exploit Framework
+- **Description**: An evolved version of the framework used in Operation Triangulation espionage campaigns, targeting iPhones through zero-click iMessage exploits
+- **Impact**: Allows attackers to compromise iOS devices without user interaction, enabling espionage and data theft
+- **Status**: Currently active in mass attacks, reusing kernel exploit code from 2023 Triangulation attacks
 
-### Coruna iOS Kit Kernel Exploits
-- **Description**: Updated kernel exploit targeting two security vulnerabilities in Apple iOS, reusing code from the 2023 Operation Triangulation campaign
-- **Impact**: Enables device compromise and potential surveillance capabilities on iOS devices
-- **Status**: Active mass attacks using refined exploitation techniques from previous campaigns
+### PolyShell Magento Vulnerability
+- **Description**: Critical vulnerability affecting Magento Open Source version 2 and Adobe Commerce installations
+- **Impact**: Enables remote code execution and complete compromise of e-commerce platforms
+- **Status**: Actively exploited against 56% of all vulnerable Magento stores
 
-### Citrix NetScaler Authentication Bypass
-- **Description**: Authentication bypass vulnerability in NetScaler ADC and NetScaler Gateway systems, similar to previously exploited CitrixBleed vulnerabilities
-- **Impact**: Unauthorized access to enterprise network infrastructure and potential lateral movement
-- **Status**: Recently patched with urgent recommendations for immediate deployment
+### Claude Chrome Extension XSS Flaw
+- **Description**: Zero-click cross-site scripting vulnerability in Anthropic's Claude Google Chrome Extension
+- **Impact**: Allows malicious prompt injection simply by visiting a compromised web page
+- **Status**: Vulnerability disclosed and patched
 
-### PTC Windchill and FlexPLM Remote Code Execution
-- **Description**: Critical vulnerability in widely used product lifecycle management (PLM) solutions
-- **Impact**: Remote code execution capabilities allowing complete system compromise
-- **Status**: Imminent threat warning issued with active exploitation concerns
+### WebRTC Payment Skimmer
+- **Description**: Novel payment card skimmer that uses WebRTC data channels to receive payloads and exfiltrate stolen payment data
+- **Impact**: Bypasses Content Security Policy (CSP) controls to steal payment information from e-commerce sites
+- **Status**: Currently active against e-commerce platforms
 
-### TP-Link Router Authentication Bypass
-- **Description**: Critical severity flaw in Archer NX router series allowing authentication bypass
-- **Impact**: Unauthorized firmware upload and complete device takeover capabilities
-- **Status**: Recently patched with active exploitation potential
+### NetScaler ADC and Gateway Vulnerabilities
+- **Description**: Two critical vulnerabilities in Citrix NetScaler products, with one similar to previously exploited CitrixBleed flaws
+- **Impact**: Potential for unauthorized access and data theft through network appliances
+- **Status**: Patches available, administrators urged to update immediately
 
 ## Affected Systems and Products
 
-- **Apple iOS Devices**: Targeted by Coruna exploit kit using refined Triangulation attack methods
-- **Magento E-commerce Platforms**: Version 2 of Open Source and Adobe Commerce installations under active attack
-- **Citrix NetScaler**: ADC and Gateway systems vulnerable to authentication bypass attacks
-- **PTC Enterprise Software**: Windchill and FlexPLM product lifecycle management solutions
-- **TP-Link Routers**: Archer NX series devices with authentication bypass vulnerabilities
-- **E-commerce Websites**: General targeting by WebRTC-based payment skimmers
-- **Microsoft 365 Organizations**: Over 340 organizations across five countries targeted by device code phishing
+- **iOS Devices**: iPhones targeted through zero-click iMessage exploits via Coruna framework
+- **Magento E-commerce Platforms**: Version 2 of Magento Open Source and Adobe Commerce installations
+- **Chrome Extensions**: Claude AI extension for Google Chrome browsers
+- **E-commerce Websites**: Payment processing systems vulnerable to WebRTC-based skimmers
+- **Citrix Infrastructure**: NetScaler ADC and NetScaler Gateway appliances
 - **Cryptocurrency Wallets**: 728 different crypto wallet extensions targeted by Torg Grabber malware
+- **Microsoft Accounts**: Targeted through Bubble AI platform abuse for credential theft
+- **TikTok for Business**: Accounts targeted in sophisticated phishing campaigns
 
 ## Attack Vectors and Techniques
 
-- **WebRTC Data Channel Abuse**: Payment skimmers using WebRTC channels to bypass Content Security Policy protections and exfiltrate payment card data
-- **Device Code Phishing**: OAuth abuse targeting Microsoft 365 identities through device authentication flows
-- **No-Code Platform Abuse**: Threat actors leveraging Bubble AI app builder to create convincing phishing applications
-- **Blockchain Dead Drops**: GlassWorm malware using Solana blockchain for command and control communications
-- **Job Recruitment Scams**: Long-term campaigns impersonating legitimate companies for credential harvesting
-- **AI Platform Account Trading**: Underground markets selling premium AI service access for malicious purposes
-- **Browser Extension Targeting**: Comprehensive data theft from 850+ browser extensions including crypto wallets
+- **Zero-Click Mobile Exploits**: Deployment of iOS exploits through iMessage without user interaction
+- **WebRTC Channel Abuse**: Using WebRTC data channels to bypass security controls and exfiltrate payment data
+- **Platform Abuse**: Leveraging legitimate services like Bubble AI and TikTok for malicious campaigns
+- **Blockchain Command and Control**: GlassWorm malware using Solana blockchain for dead drop communications
+- **Multi-Stage Fraud Operations**: Coordinated bot signups, proxy networks, and credential theft for account takeovers
+- **Phishing Kit Evolution**: Advanced kits targeting specific platforms with sophisticated evasion techniques
+- **Supply Chain Targeting**: Attacks against development dependencies and AI-powered recommendation systems
 
 ## Threat Actor Activities
 
-- **RedLine Operation Administrators**: Armenian suspect extradited to face charges for managing prolific infostealer infrastructure
-- **TA551 Botnet Operators**: Russian national sentenced for managing botnet used in BitPaymer ransomware attacks against 72 U.S. companies
-- **LeakBase Forum Administration**: Russian law enforcement arrested alleged administrator of massive credential marketplace
-- **State-Sponsored iOS Targeting**: Mass attack campaigns leveraging proven Triangulation exploit code for widespread device compromise
-- **E-commerce Threat Groups**: Coordinated PolyShell exploitation targeting majority of vulnerable Magento installations
-- **Cryptocurrency-Focused Attackers**: Development and deployment of specialized malware targeting extensive range of crypto wallet extensions
-- **Phishing-as-a-Service Operations**: Sophisticated campaigns using legitimate platforms to evade detection and target enterprise credentials
+- **Operation Triangulation Operators**: Continued evolution of iOS exploitation framework into mass attack toolkit
+- **E-commerce Threat Groups**: Systematic targeting of Magento stores using automated PolyShell exploitation
+- **Payment Card Skimmers**: Development of advanced WebRTC-based skimming techniques to evade detection
+- **Cryptocurrency Focused Actors**: Deployment of Torg Grabber targeting extensive range of crypto wallet extensions
+- **RedLine Operation**: Ongoing infostealer campaign with administrator facing extradition to United States
+- **LeakBase Forum Operators**: Major cybercrime marketplace disrupted with administrator arrest in Russia
+- **GlassWorm Campaign**: Multi-stage malware operation using blockchain infrastructure for persistence
+- **Corporate Impersonation Groups**: Sustained campaigns impersonating major companies like Palo Alto Networks for recruitment fraud
