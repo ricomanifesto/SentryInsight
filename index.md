@@ -1,58 +1,54 @@
 # Exploitation Report
 
-Current cybersecurity exploitation activity reveals a concerning landscape of active attacks targeting critical infrastructure, supply chain components, and enterprise systems. Notable developments include TeamPCP's sophisticated supply chain attacks compromising multiple popular development tools, active device code phishing campaigns targeting over 340 Microsoft 365 organizations across five countries, and critical vulnerabilities in Citrix NetScaler systems reminiscent of previously exploited CitrixBleed flaws. Additionally, threat actors are leveraging AI-powered autonomous agents for cyber espionage, while traditional attack vectors continue through malvertising campaigns using legitimate drivers to bypass endpoint detection and response systems.
+Critical vulnerabilities are currently under active exploitation across multiple platforms, with threat actors leveraging zero-day attacks, recently patched flaws, and sophisticated attack techniques. The most concerning activity includes widespread attacks against Magento stores through the PolyShell vulnerability affecting 56% of vulnerable installations, authentication bypass flaws in networking equipment, and remote code execution vulnerabilities in enterprise software. Additionally, sophisticated phishing campaigns are exploiting legitimate platforms and OAuth mechanisms to compromise Microsoft 365 environments across hundreds of organizations, while supply chain attacks targeting popular development packages pose significant risks to software ecosystems.
 
 ## Active Exploitation Details
 
-### Citrix NetScaler Vulnerabilities
-- **Description**: Two vulnerabilities in NetScaler ADC and NetScaler Gateway, with one bearing similarities to the previously exploited CitrixBleed and CitrixBleed2 flaws
-- **Impact**: Potential for unauthorized access and system compromise similar to previous zero-day attacks
-- **Status**: Patches available; Citrix urgently recommends immediate patching
+### PolyShell Vulnerability in Magento
+- **Description**: A critical vulnerability affecting Magento Open Source version 2 and Adobe Commerce installations that allows remote attackers to compromise e-commerce stores
+- **Impact**: Complete system compromise of affected e-commerce platforms, potentially leading to data theft, payment card information exposure, and website defacement
+- **Status**: Currently under active exploitation with attacks targeting 56% of all vulnerable Magento stores
+
+### TP-Link Archer Router Authentication Bypass
+- **Description**: A critical-severity authentication bypass vulnerability in TP-Link Archer NX router series that allows attackers to circumvent security controls
+- **Impact**: Attackers can bypass authentication mechanisms and upload malicious firmware, potentially gaining complete control over network infrastructure
+- **Status**: Patched by TP-Link with urgent recommendations for immediate updates
 
 ### PTC Windchill and FlexPLM Remote Code Execution
-- **Description**: Critical vulnerability in widely used product lifecycle management (PLM) solutions allowing remote code execution
-- **Impact**: Complete system compromise and unauthorized access to sensitive product development data
-- **Status**: PTC warns of imminent threat; patches required immediately
+- **Description**: Critical remote code execution vulnerability in PTC's widely-used Product Lifecycle Management (PLM) solutions Windchill and FlexPLM
+- **Impact**: Complete remote system compromise allowing attackers to execute arbitrary code on enterprise PLM systems
+- **Status**: PTC warning of imminent threat with active exploitation expected
 
-### TP-Link Archer NX Authentication Bypass
-- **Description**: Critical-severity authentication bypass flaw in TP-Link Archer NX router series
-- **Impact**: Attackers can bypass authentication and upload malicious firmware
-- **Status**: Patches available; users urged to update immediately
-
-### TeamPCP Supply Chain Compromises
-- **Description**: Sophisticated supply chain attacks targeting multiple development tools including Trivy, KICS, and LiteLLM Python package
-- **Impact**: Credential harvesting and backdoor installation affecting hundreds of thousands of developers
-- **Status**: Malicious versions identified; LiteLLM versions 1.82.7-1.82.8 compromised
+### Citrix NetScaler Vulnerabilities
+- **Description**: Two vulnerabilities in Citrix NetScaler ADC and NetScaler Gateway, with similarities to previously exploited CitrixBleed and CitrixBleed2 flaws
+- **Impact**: Potential system compromise and unauthorized access to enterprise network infrastructure
+- **Status**: Recently patched with Citrix urging immediate deployment due to similarity to previously exploited zero-day vulnerabilities
 
 ## Affected Systems and Products
 
-- **Citrix NetScaler ADC and Gateway**: All versions requiring immediate patching
-- **PTC Windchill and FlexPLM**: Product lifecycle management solutions used across industries
-- **TP-Link Archer NX Router Series**: Consumer and enterprise networking equipment
-- **LiteLLM Python Package**: Versions 1.82.7 and 1.82.8 containing backdoors
-- **Trivy and KICS Security Scanners**: Compromised CI/CD pipeline components
-- **Microsoft 365 Organizations**: 340+ organizations across US, Canada, Australia targeted
-- **Browser Extensions**: 850 extensions targeted by Torg Grabber, including 700+ cryptocurrency wallets
-- **ConnectWise ScreenConnect**: Delivered via malvertising campaigns
+- **Magento Open Source v2 and Adobe Commerce**: E-commerce platforms vulnerable to PolyShell attacks
+- **TP-Link Archer NX Router Series**: Network devices susceptible to authentication bypass
+- **PTC Windchill and FlexPLM**: Enterprise product lifecycle management solutions
+- **Citrix NetScaler ADC and Gateway**: Network application delivery and gateway solutions
+- **Microsoft 365 Organizations**: Over 340 organizations across US, Canada, Australia affected by OAuth abuse campaigns
+- **LiteLLM Python Package**: Popular AI library compromised in supply chain attack
+- **Checkmarx KICS Code Scanner**: Security scanning tool targeted in supply chain attacks
 
 ## Attack Vectors and Techniques
 
-- **Device Code Phishing**: OAuth abuse targeting Microsoft 365 identities using legitimate authentication flows
-- **Supply Chain Attacks**: Compromising popular development tools and packages to harvest credentials
-- **Malvertising Campaigns**: Tax-related search advertisements delivering ScreenConnect malware
-- **No-Code Platform Abuse**: Using Bubble AI app builder to create and host phishing applications
-- **EDR Evasion**: Leveraging legitimate Huawei drivers to disable endpoint detection and response systems
-- **AI Agent Exploitation**: Autonomous AI coding agents conducting cyber espionage campaigns
-- **Solana Blockchain Dead Drops**: GlassWorm malware using blockchain for command and control communication
-- **Phishing-as-a-Service**: TA551 botnet infrastructure supporting ransomware operations
+- **PolyShell Exploitation**: Direct attacks against vulnerable Magento installations for complete system compromise
+- **Device Code Phishing**: OAuth abuse targeting Microsoft 365 identities across multiple countries
+- **Supply Chain Attacks**: Compromising popular development packages and tools like LiteLLM and Checkmarx KICS
+- **AI Agent Exploitation**: Autonomous cyber espionage campaigns where AI handles 80-90% of attack operations
+- **No-Code Platform Abuse**: Using Bubble AI app builder to create and host malicious phishing applications
+- **Botnet Operations**: TA551 botnet infrastructure used for ransomware deployment against US companies
+- **Blockchain Dead Drops**: GlassWorm malware using Solana blockchain for command and control communications
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Conducting widespread supply chain attacks against development tools, targeting Trivy, KICS, and LiteLLM packages with credential harvesting backdoors
-- **TA551 Botnet Operators**: Russian-managed botnet infrastructure used for BitPaymer ransomware attacks against 72 U.S. companies, with operator sentenced to two years
-- **State-Sponsored AI Agents**: Autonomous cyber espionage campaign targeting 30 global entities with 80-90% AI-handled operations
-- **Device Code Phishing Operators**: Active campaign targeting Microsoft 365 across five countries using OAuth authentication abuse
-- **GlassWorm Campaign**: Multi-stage framework operators using Solana blockchain for C2 communication and comprehensive data theft
-- **Torg Grabber Developers**: New infostealer targeting 728 cryptocurrency wallets and 850 browser extensions
-- **LeakBase Administrator**: Arrested in Russia for operating massive stolen credential marketplace
-- **Tax Season Malvertisers**: Large-scale campaign since January 2026 targeting tax document searches with ScreenConnect malware
+- **TeamPCP Group**: Conducting widespread supply chain attacks targeting popular Python packages, development tools, and security scanners including LiteLLM, Checkmarx KICS, and VS Code plugins
+- **TA551 Botnet Operators**: Russian-managed botnet infrastructure used for BitPaymer ransomware attacks against 72 US companies, with operator sentenced to 2 years imprisonment
+- **State-Sponsored AI Operators**: Disclosed autonomous cyber espionage campaign using AI coding agents against 30 global targets with minimal human intervention
+- **Microsoft 365 Phishing Actors**: Large-scale device code phishing campaign targeting over 340 organizations across five countries using OAuth abuse techniques
+- **GlassWorm Campaign Operators**: Advanced persistent threat actors using Solana blockchain infrastructure for multi-stage malware delivery and comprehensive data theft
+- **LeakBase Administrator**: Arrested Russian national who operated massive stolen credential marketplace before law enforcement takedown
