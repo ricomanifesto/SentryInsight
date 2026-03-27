@@ -1,58 +1,64 @@
 # Exploitation Report
 
-The current threat landscape reveals significant exploitation activity across multiple attack vectors, with particular focus on telecom infrastructure, e-commerce platforms, and mobile devices. China-linked threat actors continue leveraging sophisticated espionage campaigns using advanced implants like BPFDoor to target government networks through telecom providers. Critical vulnerabilities are being actively exploited in Magento/Adobe Commerce installations through PolyShell attacks affecting over half of vulnerable stores, while iOS devices face ongoing threats from evolved exploit frameworks based on previous zero-day campaigns. Additionally, threat actors are increasingly abusing legitimate platforms and AI-powered tools to conduct credential theft and payment fraud operations.
+Critical vulnerabilities are being actively exploited across multiple platforms, with particular focus on AI frameworks, e-commerce platforms, and iOS devices. The most significant active exploitation involves CVE-2026-33017 in the Langflow AI platform, where threat actors began exploiting the code injection vulnerability within hours of disclosure. Additionally, widespread attacks against Magento stores using the PolyShell vulnerability are targeting over half of all vulnerable installations, while sophisticated iOS exploit frameworks continue to evolve from previous zero-click campaigns.
 
 ## Active Exploitation Details
 
-### PolyShell Vulnerability in Magento/Adobe Commerce
-- **Description**: Critical vulnerability affecting version 2 of Magento Open Source and Adobe Commerce installations
-- **Impact**: Allows attackers to compromise e-commerce stores and potentially access sensitive customer and payment data
-- **Status**: Currently being actively exploited against 56% of all vulnerable Magento stores worldwide
+### Langflow AI Platform Code Injection Vulnerability
+- **Description**: Critical code injection vulnerability affecting the Langflow AI workflow framework
+- **Impact**: Allows hackers to hijack AI workflows and execute arbitrary code
+- **Status**: Actively exploited by threat actors within hours of disclosure
+- **CVE ID**: CVE-2026-33017
 
-### iOS Kernel Vulnerabilities (Coruna Exploit Kit)
-- **Description**: Evolved exploit framework reusing code from the 2023 Operation Triangulation campaign targeting iOS devices
-- **Impact**: Enables zero-click exploitation of iPhones via iMessage, allowing complete device compromise and espionage
-- **Status**: Active exploitation detected in mass attacks using updated versions of previous zero-day exploits
+### PolyShell Magento Vulnerability
+- **Description**: Vulnerability affecting Magento Open Source version 2 and Adobe Commerce installations
+- **Impact**: Enables attackers to compromise e-commerce stores and potentially access customer data
+- **Status**: Active exploitation targeting 56% of all vulnerable Magento stores
+
+### Operation Triangulation iOS Exploits
+- **Description**: Zero-click iMessage exploits targeting iPhones, now evolved into the Coruna exploit framework
+- **Impact**: Allows remote device compromise and espionage without user interaction
+- **Status**: Framework continues to be developed and used in mass attacks
 
 ### Claude Chrome Extension XSS Vulnerability
-- **Description**: Cross-site scripting vulnerability in Anthropic's Claude Google Chrome Extension enabling zero-click prompt injection
-- **Impact**: Attackers can trigger malicious prompts and potentially compromise user interactions with the AI assistant by simply visiting a malicious webpage
-- **Status**: Vulnerability disclosed and patched
+- **Description**: Zero-click cross-site scripting vulnerability enabling prompt injection
+- **Impact**: Allows malicious prompts to be triggered by simply visiting a webpage
+- **Status**: Recently disclosed vulnerability in Anthropic's Claude extension
 
-### NetScaler ADC and Gateway Vulnerabilities
-- **Description**: Two newly patched vulnerabilities in Citrix NetScaler products, with one being similar to previously exploited CitrixBleed flaws
-- **Impact**: Could potentially allow unauthorized access and compromise of network infrastructure
-- **Status**: Patches available; Citrix urging immediate patching due to similarity to previous zero-day exploits
+### Citrix NetScaler Vulnerabilities
+- **Description**: Two vulnerabilities in NetScaler ADC and Gateway, similar to previously exploited CitrixBleed flaws
+- **Impact**: Potential for unauthorized access and data exfiltration
+- **Status**: Recently patched with urgent advisory from Citrix
 
 ## Affected Systems and Products
 
-- **Magento Open Source v2**: E-commerce platforms vulnerable to PolyShell attacks
-- **Adobe Commerce v2**: Enterprise e-commerce solutions affected by the same vulnerability
-- **iOS Devices**: iPhones targeted by Coruna exploit kit via iMessage zero-click exploits
-- **Claude Chrome Extension**: AI assistant browser extension vulnerable to XSS attacks
-- **Citrix NetScaler ADC**: Application delivery controllers with newly discovered vulnerabilities
-- **Citrix NetScaler Gateway**: VPN and remote access solutions requiring immediate patching
-- **Telecom Network Infrastructure**: Compromised by China-linked actors for espionage operations
-- **TikTok for Business Accounts**: Targeted in sophisticated phishing campaigns
-- **Microsoft Account Systems**: Credential theft via abuse of Bubble AI app builder platform
+- **Langflow AI Framework**: AI workflow management platform used for building AI applications
+- **Magento Open Source v2**: E-commerce platform installations running vulnerable versions
+- **Adobe Commerce**: Enterprise e-commerce platform affected by PolyShell attacks
+- **Apple iOS Devices**: iPhones targeted by Coruna exploit framework
+- **Claude Chrome Extension**: Anthropic's AI assistant browser extension
+- **Citrix NetScaler ADC/Gateway**: Network delivery and security appliances
+- **Ajax Football Club IT Systems**: Fan data and ticketing systems
+- **TikTok for Business Accounts**: Business accounts targeted in phishing campaigns
+- **Microsoft Accounts**: Targeted through Bubble platform abuse
+- **Cryptocurrency Wallets**: 728 different wallet extensions targeted by Torg Grabber
 
 ## Attack Vectors and Techniques
 
-- **BPFDoor Implants**: Stealthy backdoor malware embedded in telecom networks for persistent access
-- **Zero-Click iMessage Exploits**: iOS device compromise without user interaction via messaging platform
-- **WebRTC Data Channels**: Payment skimmers bypassing Content Security Policy (CSP) controls on e-commerce sites
-- **Phishing via No-Code Platforms**: Abuse of legitimate Bubble AI platform to host credential theft applications
-- **Bot-Driven Account Takeovers**: Multi-stage fraud attacks chaining bots, proxies, and stolen credentials
-- **Solana Blockchain Dead Drops**: GlassWorm malware using cryptocurrency blockchain for command and control
-- **AI Platform Abuse**: Threat actors leveraging AI-powered tools for enhanced social engineering and evasion
+- **Code Injection**: Direct exploitation of Langflow framework vulnerabilities for workflow hijacking
+- **Zero-Click Exploits**: iMessage-based attacks requiring no user interaction for iOS compromise
+- **Web Skimming**: WebRTC-based payment skimmers bypassing Content Security Policy controls
+- **Prompt Injection**: XSS-based attacks against AI assistants through malicious web content
+- **Phishing Campaigns**: Multi-stage attacks using legitimate platforms to evade detection
+- **No-Code Platform Abuse**: Leveraging Bubble app builder to create malicious applications
+- **Browser Extension Targeting**: Mass targeting of cryptocurrency wallet browser extensions
 
 ## Threat Actor Activities
 
-- **Red Menshen (China-linked)**: Long-term espionage campaign targeting government networks via telecom infrastructure using BPFDoor implants
-- **PolyShell Attackers**: Mass exploitation campaign targeting vulnerable Magento/Adobe Commerce installations across 56% of susceptible stores
-- **Coruna Kit Operators**: Advanced persistent threat group deploying evolved iOS exploit framework based on Operation Triangulation code
-- **GlassWorm Campaign**: Sophisticated malware operation using Solana blockchain for C2 communications and comprehensive data theft
-- **TikTok Business Phishers**: Organized campaign specifically targeting business accounts with bot-detection evasion techniques
-- **RedLine Infostealer Network**: Prolific malware operation with alleged administrator extradited to US for prosecution
-- **Torg Grabber Operators**: New infostealer campaign targeting 850 browser extensions including 700+ cryptocurrency wallets
-- **LeakBase Forum Administration**: Major cybercrime marketplace for stolen data and hacking tools disrupted by Russian law enforcement
+- **Red Menshen (China-linked)**: Long-term espionage campaign embedding in telecom networks using BPFDoor implants for government network surveillance
+- **PolyShell Attackers**: Coordinated campaign targeting vulnerable Magento installations across multiple regions
+- **Coruna Framework Operators**: Continued development and deployment of iOS exploit frameworks based on Operation Triangulation code
+- **TikTok Business Phishers**: Sophisticated phishing campaign specifically targeting business accounts with bot-resistant techniques
+- **Cryptocurrency Wallet Thieves**: Operators of Torg Grabber infostealer targeting extensive range of crypto wallet extensions
+- **E-commerce Skimmers**: Advanced threat actors using WebRTC channels to bypass security controls and steal payment data
+- **AI Platform Exploiters**: Rapid exploitation of newly disclosed AI framework vulnerabilities within hours of public disclosure
