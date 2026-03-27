@@ -1,66 +1,67 @@
 # Exploitation Report
 
-Current cybersecurity threat landscape reveals critical active exploitation activities targeting AI frameworks, mobile platforms, and e-commerce systems. The most concerning developments include active attacks against the Langflow AI platform through CVE-2026-33017, sophisticated iOS exploit kits linked to previous nation-state campaigns, and widespread attacks targeting Magento e-commerce stores. Threat actors are rapidly adapting their tactics, exploiting newly disclosed vulnerabilities within hours and leveraging legitimate platforms to bypass security controls while conducting credential theft and payment card skimming operations.
+Several critical vulnerabilities are currently under active exploitation, with the most concerning being a zero-day flaw in the Langflow AI framework (CVE-2026-33017) that CISA has warned is being actively exploited by threat actors to hijack AI workflows. Additionally, widespread attacks are targeting vulnerable Magento stores through the PolyShell vulnerability, affecting over 56% of all vulnerable installations. The cyberthreat landscape also includes sophisticated iOS exploit frameworks like Coruna, which reuses code from previous Triangulation campaigns, and new WebRTC-based payment skimmers that bypass Content Security Policy protections on e-commerce sites.
 
 ## Active Exploitation Details
 
-### Langflow AI Platform Critical Vulnerability
-- **Description**: Critical code injection vulnerability in the Langflow AI workflow framework that enables attackers to hijack AI workflows
-- **Impact**: Complete compromise of AI workflows, potential unauthorized access to sensitive data and model manipulation
-- **Status**: Actively exploited in the wild, CISA has issued warnings about ongoing attacks
+### Langflow AI Framework Vulnerability
+- **Description**: A critical code injection vulnerability in the Langflow framework that allows attackers to execute malicious code
+- **Impact**: Complete hijacking of AI workflows and potential system compromise
+- **Status**: Actively exploited in the wild, with threat actors pouncing on the vulnerability within hours of disclosure
 - **CVE ID**: CVE-2026-33017
 
 ### PolyShell Magento Vulnerability
-- **Description**: Critical vulnerability affecting Magento Open Source version 2 and Adobe Commerce installations
-- **Impact**: Remote code execution and complete store compromise
-- **Status**: Actively exploited, targeting 56% of all vulnerable Magento stores worldwide
+- **Description**: A vulnerability affecting Magento Open Source version 2 and Adobe Commerce installations
+- **Impact**: Compromise of e-commerce stores and potential access to customer data and payment information
+- **Status**: Active exploitation targeting 56% of all vulnerable Magento stores
 
-### iOS Coruna Exploit Kit
-- **Description**: Advanced iOS exploit framework utilizing kernel exploits from Operation Triangulation attacks
-- **Impact**: Zero-click remote code execution on iOS devices, enabling complete device compromise
-- **Status**: Active exploitation framework being used in mass attacks, evolution of 2023 Triangulation campaign
+### Coruna iOS Exploit Kit
+- **Description**: An evolution of the framework used in Operation Triangulation, targeting iPhones via zero-click iMessage exploits
+- **Impact**: Complete device compromise and espionage capabilities on iOS devices
+- **Status**: Recently discovered exploit kit reusing 2023 Triangulation exploit code
 
-### Ajax Football Club IT Systems
-- **Description**: Unspecified vulnerabilities in Ajax Amsterdam's IT infrastructure
-- **Impact**: Data breach exposing fan personal information and enabling ticket hijacking
-- **Status**: Successfully exploited, incident disclosed by the organization
+### WebRTC Payment Skimmer
+- **Description**: A sophisticated payment skimmer that uses WebRTC data channels to receive payloads and exfiltrate data
+- **Impact**: Theft of payment card data from e-commerce websites while bypassing Content Security Policy protections
+- **Status**: Active deployment on compromised e-commerce sites
 
-### Claude Chrome Extension XSS
-- **Description**: Cross-site scripting vulnerability in Anthropic's Claude Google Chrome Extension enabling zero-click prompt injection
-- **Impact**: Malicious prompt execution through simple website visits, potential AI model manipulation
+### Ajax Football Club System Vulnerabilities
+- **Description**: Unspecified vulnerabilities in Ajax Amsterdam's IT systems
+- **Impact**: Exposure of fan data and enabling of ticket hijacking attacks
+- **Status**: Successfully exploited, affecting hundreds of people
+
+### Claude Chrome Extension Vulnerability
+- **Description**: A zero-click XSS prompt injection vulnerability in Anthropic's Claude Google Chrome Extension
+- **Impact**: Malicious prompt execution simply by visiting a web page
 - **Status**: Vulnerability disclosed and patched
 
 ## Affected Systems and Products
 
-- **Langflow AI Framework**: All versions vulnerable to CVE-2026-33017 code injection attacks
-- **Magento Open Source v2**: E-commerce platforms vulnerable to PolyShell exploitation
-- **Adobe Commerce**: E-commerce installations susceptible to PolyShell attacks
-- **iOS Devices**: Mobile devices targeted by Coruna exploit kit and zero-click attacks
-- **Ajax IT Systems**: Football club infrastructure compromised through unspecified vulnerabilities
-- **Claude Chrome Extension**: Browser extension vulnerable to XSS and prompt injection
-- **Citrix NetScaler ADC/Gateway**: Network appliances requiring urgent patching for critical vulnerabilities
-- **E-commerce Websites**: Payment systems targeted by WebRTC-based skimming attacks
-- **Microsoft Accounts**: Credential harvesting through Bubble platform abuse
-- **Cryptocurrency Wallets**: 728 different wallet types targeted by Torg Grabber infostealer
+- **Langflow Framework**: AI workflow platform vulnerable to code injection attacks
+- **Magento Open Source v2**: E-commerce platform with over half of vulnerable installations under attack
+- **Adobe Commerce**: Enterprise e-commerce solution affected by PolyShell vulnerability
+- **iOS Devices**: iPhones targeted by Coruna exploit kit through iMessage
+- **E-commerce Websites**: Sites using vulnerable payment processing systems targeted by WebRTC skimmers
+- **Ajax Amsterdam IT Systems**: Football club infrastructure compromised through multiple vulnerabilities
+- **Claude Chrome Extension**: Anthropic's AI assistant browser extension vulnerable to XSS attacks
+- **NetScaler ADC and Gateway**: Citrix networking products with newly disclosed vulnerabilities requiring urgent patching
 
 ## Attack Vectors and Techniques
 
-- **Zero-Click Exploitation**: iOS devices compromised without user interaction through iMessage exploits
-- **Code Injection**: Langflow framework exploited through malicious code injection techniques
-- **WebRTC Data Channels**: Payment skimmers using WebRTC to bypass Content Security Policy controls
-- **No-Code Platform Abuse**: Bubble AI app builder leveraged to host Microsoft credential phishing campaigns
-- **Supply Chain Attacks**: Exploitation of AI frameworks and development platforms
-- **Phishing Campaign Evolution**: TikTok for Business accounts targeted with bot-resistant phishing pages
-- **Cross-Site Scripting**: Zero-click XSS exploitation through malicious website visits
-- **E-commerce Skimming**: Advanced payment card data theft bypassing security controls
+- **Code Injection**: Direct exploitation of vulnerable Langflow installations for workflow hijacking
+- **Zero-Click Exploits**: Coruna framework delivers payloads through iMessage without user interaction
+- **WebRTC Data Channels**: Novel technique bypassing CSP protections to exfiltrate payment data
+- **XSS Prompt Injection**: Zero-click exploitation through malicious web page visits
+- **Web Application Exploitation**: Direct targeting of vulnerable Magento installations
+- **Social Engineering**: Phishing campaigns targeting TikTok for Business accounts with bot-resistant pages
+- **Credential Stuffing**: Multi-stage fraud attacks using bots, proxies, and stolen credentials
 
 ## Threat Actor Activities
 
-- **Red Menshen (China-linked)**: Long-term espionage campaign embedding BPFDoor implants in telecom networks for government surveillance
-- **Operation Triangulation Actors**: Continued iOS exploitation activities using evolved Coruna exploit kit for mass attacks
-- **PolyShell Campaign**: Widespread automated attacks targeting vulnerable Magento installations globally
-- **RedLine Malware Operation**: Administrative arrests made but operations continue with Armenian suspect extradited to US
-- **LeakBase Forum**: Major cybercrime marketplace disrupted with administrator arrest in Russia
-- **Xinbi Marketplace**: Chinese-language cryptocurrency marketplace sanctioned by UK for selling stolen data
-- **Torg Grabber Operators**: New infostealer malware targeting extensive range of cryptocurrency wallets and browser extensions
-- **WebRTC Skimmer Groups**: Sophisticated payment card theft operations using advanced bypass techniques
+- **China-Linked Red Menshen**: Long-term espionage campaign embedding BPFDoor implants in telecom networks to spy on government networks
+- **Unknown Langflow Attackers**: Rapid exploitation of CVE-2026-33017 within hours of disclosure
+- **PolyShell Operators**: Systematic targeting of vulnerable Magento stores affecting majority of vulnerable installations
+- **Payment Card Skimmer Groups**: Deployment of sophisticated WebRTC-based skimmers across multiple e-commerce sites
+- **TikTok Phishing Operators**: Targeting business accounts with advanced bot-detection evasion techniques
+- **RedLine Malware Administrators**: Continued operation of one of the most prolific infostealer malware families
+- **Coruna Kit Operators**: Reuse and evolution of previous Triangulation campaign code for mass iOS attacks
