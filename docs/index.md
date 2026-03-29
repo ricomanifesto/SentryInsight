@@ -1,64 +1,66 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity is surging across multiple platforms, with threat actors demonstrating rapid response times to newly disclosed flaws. Most concerning is the immediate exploitation of CVE-2026-33017 in Langflow AI workflows, alongside active reconnaissance against Citrix NetScaler systems for CVE-2026-3055 and confirmed exploitation of F5 BIG-IP APM systems through CVE-2025-53521. State-sponsored actors are leveraging sophisticated exploit kits including DarkSword for iOS exploitation, while supply chain attacks continue to plague Python package repositories and WordPress plugins affecting hundreds of thousands of installations.
+Critical vulnerability exploitation activity is actively targeting multiple platforms and services across various sectors. The most significant threats include active exploitation of F5 BIG-IP Access Policy Manager systems through CVE-2025-53521, which has been added to CISA's Known Exploited Vulnerabilities catalog. Citrix NetScaler systems are under active reconnaissance for CVE-2026-3055, a critical memory overread vulnerability with a CVSS score of 9.3. Additionally, attackers are actively exploiting CVE-2026-33017 in the Langflow AI framework to hijack AI workflows. Nation-state actors continue sophisticated operations, with Iran-linked groups breaching high-profile targets including FBI Director's personal email and conducting wiper attacks against Stryker, while Russian-linked TA446 is deploying the DarkSword iOS exploit kit in targeted campaigns. Supply chain attacks are proliferating through compromised Python packages and malicious VS Code extensions targeting developers.
 
 ## Active Exploitation Details
 
-### Langflow AI Platform Code Injection Vulnerability
-- **Description**: Critical code injection vulnerability in the Langflow AI framework allowing attackers to hijack AI workflows
-- **Impact**: Complete compromise of AI workflow systems and potential lateral movement within target networks
-- **Status**: Under active exploitation within hours of disclosure
-- **CVE ID**: CVE-2026-33017
-
-### Citrix NetScaler Memory Overread Bug
-- **Description**: Critical memory overread vulnerability affecting Citrix NetScaler ADC and NetScaler Gateway with CVSS score of 9.3
-- **Impact**: Information disclosure and potential system compromise through memory manipulation
-- **Status**: Under active reconnaissance by threat actors
-- **CVE ID**: CVE-2026-3055
-
 ### F5 BIG-IP Access Policy Manager Vulnerability
-- **Description**: Critical security flaw in F5 BIG-IP Access Policy Manager (APM) systems
-- **Impact**: Complete system compromise and unauthorized access to network infrastructure
-- **Status**: Actively exploited in the wild, added to CISA KEV catalog
+- **Description**: A critical security flaw impacting F5 BIG-IP Access Policy Manager (APM) that allows attackers to compromise network access control systems
+- **Impact**: Unauthorized access to network resources and potential lateral movement within enterprise environments
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2025-53521
 
-### Smart Slider 3 WordPress Plugin File Read Vulnerability
-- **Description**: File read vulnerability allowing subscriber-level users to access arbitrary files on the server
-- **Impact**: Unauthorized access to sensitive files and potential privilege escalation
-- **Status**: Affects over 800,000 WordPress installations, vulnerability details publicly disclosed
+### Citrix NetScaler Memory Overread Vulnerability
+- **Description**: A critical memory overread bug affecting Citrix NetScaler ADC and NetScaler Gateway systems
+- **Impact**: Potential information disclosure and system compromise through memory corruption
+- **Status**: Under active reconnaissance by threat actors, patches available
+- **CVE ID**: CVE-2026-3055
 
-### iOS Web-Based Exploits
-- **Description**: Web-based attacks targeting older versions of iOS and iPadOS systems
-- **Impact**: Device compromise through web browser exploitation
-- **Status**: Active exploitation confirmed by Apple, prompting emergency lock screen notifications
+### Langflow AI Framework Code Injection
+- **Description**: A critical code injection vulnerability in the Langflow AI platform that allows unauthorized workflow manipulation
+- **Impact**: Complete takeover of AI workflows, potential data exfiltration, and system compromise
+- **Status**: Actively exploited within hours of disclosure
+- **CVE ID**: CVE-2026-33017
+
+### Smart Slider 3 WordPress Plugin File Read Vulnerability
+- **Description**: A file read vulnerability in the Smart Slider 3 WordPress plugin that allows subscriber-level users to access arbitrary server files
+- **Impact**: Unauthorized access to sensitive files and potential privilege escalation
+- **Status**: Affects over 800,000 WordPress websites, exploitation confirmed
+
+### Apple iOS/iPadOS Web-Based Exploits
+- **Description**: Active web-based attacks targeting outdated iOS and iPadOS devices
+- **Impact**: Device compromise through malicious web content
+- **Status**: Apple issuing lock screen notifications to warn users of active exploitation
 
 ## Affected Systems and Products
 
-- **WordPress Websites**: Over 800,000 sites running Smart Slider 3 plugin vulnerable to file access attacks
-- **Citrix NetScaler**: ADC and Gateway systems facing reconnaissance for memory overread exploitation
-- **F5 BIG-IP**: Access Policy Manager systems confirmed under active exploitation
-- **Langflow AI Platform**: AI workflow frameworks compromised within hours of vulnerability disclosure
-- **iOS/iPadOS Devices**: Older versions targeted by web-based attack campaigns
-- **Python Package Index**: Multiple packages including Telnyx compromised with malicious versions containing hidden malware
-- **macOS Systems**: Targeted by Infinity Stealer malware through ClickFix social engineering campaigns
-- **GitHub Repositories**: VS Code extension marketplace targeted with malicious packages bypassing security checks
+- **F5 BIG-IP Access Policy Manager**: Network access control systems across enterprise environments
+- **Citrix NetScaler ADC and Gateway**: Application delivery controllers and secure remote access solutions
+- **Langflow AI Framework**: AI workflow development and management platforms
+- **Smart Slider 3 WordPress Plugin**: Over 800,000 WordPress websites using the popular slider plugin
+- **iOS/iPadOS Devices**: Older versions of Apple mobile operating systems vulnerable to web-based attacks
+- **Python Package Index (PyPI)**: Telnyx package compromised with credential-stealing malware
+- **Visual Studio Code Extensions**: Malicious extensions bypassing Open VSX security checks
+- **TikTok for Business**: Business accounts targeted through adversary-in-the-middle phishing
+- **European Commission AWS**: Amazon cloud environment accessed by threat actors
+- **Dutch National Police**: Internal systems compromised through phishing attacks
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: TeamPCP threat actors compromising Python packages and hiding malware in WAV audio files
-- **Social Engineering**: ClickFix campaigns targeting macOS users with fake security alerts and VS Code notifications on GitHub
-- **Adversary-in-the-Middle Phishing**: TikTok Business accounts targeted through sophisticated phishing pages bypassing Cloudflare Turnstile
-- **Spear-Phishing**: TA446 deploying DarkSword iOS exploit kit through targeted email campaigns
-- **Memory Exploitation**: Advanced techniques targeting NetScaler memory overread vulnerabilities
-- **Code Injection**: Direct exploitation of AI workflow systems through Langflow vulnerabilities
-- **Wiper Attacks**: Iran-linked actors deploying destructive malware against corporate targets including medical device manufacturer Stryker
+- **Supply Chain Poisoning**: TeamPCP actors compromising Python packages (Telnyx, Trivy, KICS, litellm) and hiding malware in WAV audio files
+- **Adversary-in-the-Middle (AitM) Phishing**: Sophisticated phishing campaigns using Cloudflare Turnstile evasion to target TikTok business accounts
+- **ClickFix Social Engineering**: Infinity Stealer malware targeting macOS systems through fake security alerts and malicious Python payloads
+- **Spear-Phishing Campaigns**: Targeted email attacks delivering DarkSword iOS exploit kit to specific victims
+- **GitHub Repository Abuse**: Fake Visual Studio Code security alerts posted in GitHub Discussions to distribute malware to developers
+- **Reconnaissance Activities**: Active scanning and probing of Citrix NetScaler systems for vulnerability exploitation
+- **Memory Corruption Exploitation**: Exploitation of memory overread vulnerabilities in network infrastructure devices
+- **Code Injection Attacks**: Direct exploitation of AI framework vulnerabilities for workflow hijacking
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Conducting sustained supply chain attacks against Python ecosystem, compromising multiple packages including Telnyx, Trivy, KICS, and litellm
-- **TA446 (Russian-linked)**: Deploying DarkSword iOS exploit kit in targeted spear-phishing campaigns against high-value targets
-- **Iran-linked Groups**: Successfully breaching FBI Director's personal email and conducting wiper attacks against corporate infrastructure
-- **Red Menshen (Chinese APT)**: Upgrading BPFdoor backdoor capabilities for advanced persistent access to global telecommunications infrastructure
-- **Bearlyfy (Pro-Ukrainian)**: Targeting over 70 Russian companies with custom GenieLocker ransomware in coordinated campaign
-- **State Actors**: Multiple nations exploiting compromised IP cameras for intelligence gathering in conflict zones
-- **Cybercriminal Groups**: Large-scale campaigns targeting developers through fake VS Code security alerts and malicious GitHub discussions
+- **Iran-Linked Groups**: Successfully breached FBI Director Kash Patel's personal email account and conducted destructive wiper attacks against medical device manufacturer Stryker
+- **TA446 (Russian-Linked)**: Deploying DarkSword iOS exploit kit in targeted spear-phishing campaigns against high-value iOS device users
+- **TeamPCP**: Conducting extensive supply chain attacks, compromising multiple Python packages including Telnyx, and previously targeting Trivy, KICS, and litellm projects
+- **Chinese APT Red Menshen**: Upgrading BPFdoor malware capabilities to maintain persistent backdoor access in global telecommunications infrastructure
+- **Bearlyfy (Pro-Ukrainian)**: Conducting over 70 cyber attacks against Russian companies using custom GenieLocker ransomware since January 2025
+- **Unidentified Threat Actors**: Large-scale GitHub campaigns targeting developers with fake VS Code security alerts to distribute malware
