@@ -1,64 +1,76 @@
 # Exploitation Report
 
-Current threat activity reveals a concerning landscape of active exploitation targeting critical infrastructure and enterprise systems. A large-scale credential harvesting operation has compromised 766 Next.js hosts using the React2Shell vulnerability (CVE-2025-55182), while threat actors are exploiting a zero-day vulnerability in TrueConf conference servers to push malicious software updates. Critical Cisco infrastructure remains vulnerable with authentication bypass flaws in Integrated Management Controller systems, and over 14,000 F5 BIG-IP APM instances continue to face active remote code execution attacks. The exploitation landscape is further complicated by sophisticated malware campaigns including the NoVoice Android malware affecting 2.3 million devices and the DarkSword exploit kit prompting Apple to expand iOS security updates across multiple device generations.
+Current exploitation activity reveals a concerning landscape of active vulnerabilities being weaponized across multiple platforms and industries. Critical zero-day exploits are targeting conference systems and Apple devices, while recently patched vulnerabilities in enterprise infrastructure continue to face widespread exploitation. Threat actors are leveraging sophisticated attack chains, from Next.js host compromises affecting hundreds of systems to Android malware campaigns reaching millions of devices. The emergence of specialized malicious services and the abuse of legitimate infrastructure demonstrate an evolving threat ecosystem that combines traditional software vulnerabilities with novel attack vectors.
 
 ## Active Exploitation Details
 
-### React2Shell Next.js Vulnerability
-- **Description**: A vulnerability in Next.js applications that allows remote attackers to gain unauthorized access to systems
-- **Impact**: Credential harvesting, theft of database credentials, SSH private keys, and Amazon Web Services credentials from 766 compromised hosts
-- **Status**: Currently under active exploitation in a large-scale campaign
+### React2Shell Vulnerability (CVE-2025-55182)
+- **Description**: A vulnerability in Next.js hosts that enables large-scale credential harvesting operations
+- **Impact**: Attackers can steal database credentials, SSH private keys, and Amazon Web Services credentials
+- **Status**: Actively exploited in attacks against 766 Next.js hosts
 - **CVE ID**: CVE-2025-55182
 
 ### TrueConf Zero-Day Vulnerability
 - **Description**: An unpatched vulnerability in TrueConf conference servers allowing arbitrary file execution
 - **Impact**: Attackers can execute malicious files on all connected endpoints through compromised conference servers
-- **Status**: Currently being exploited in the wild with no patch available
+- **Status**: Zero-day vulnerability currently being exploited in the wild
 
-### Cisco IMC Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in Cisco Integrated Management Controller (IMC) systems
-- **Impact**: Unauthenticated remote attackers can bypass authentication and gain administrative access to systems
-- **Status**: Patches have been released by Cisco
+### F5 BIG-IP APM Remote Code Execution Vulnerability
+- **Description**: Critical severity vulnerability in F5 BIG-IP Application Policy Manager instances
+- **Impact**: Remote code execution capabilities allowing complete system compromise
+- **Status**: Over 14,000 instances remain exposed despite ongoing exploitation campaigns
 
-### F5 BIG-IP APM Remote Code Execution
-- **Description**: Critical remote code execution vulnerability affecting F5 BIG-IP Application Policy Manager instances
-- **Impact**: Attackers can execute arbitrary code remotely on vulnerable systems
-- **Status**: Over 14,000 instances remain exposed despite available patches
+### Cisco Integrated Management Controller Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability in Cisco IMC with CVSS score of 9.8
+- **Impact**: Unauthenticated remote attackers can bypass authentication and gain administrative access
+- **Status**: Recently patched but represents significant risk to unpatched systems
 
-### DarkSword iOS Exploit Kit
-- **Description**: Sophisticated exploit kit targeting iOS devices across multiple versions
-- **Impact**: Device compromise and potential data theft on targeted iOS devices
-- **Status**: Apple has expanded iOS 18.7.7 updates to protect against active exploitation
+### Progress ShareFile Pre-Authentication Chain
+- **Description**: Two vulnerabilities that can be chained together for unauthenticated attacks
+- **Impact**: Enables pre-authentication remote code execution and file exfiltration from enterprise environments
+- **Status**: Newly disclosed vulnerabilities with potential for exploitation chains
 
-### NoVoice Android Rootkit
-- **Description**: Android malware exploiting known vulnerabilities to gain root access
-- **Impact**: Root-level system compromise affecting 2.3 million devices through 50+ malicious apps on Google Play
-- **Status**: Distributed through compromised applications on official app stores
+### Apple DarkSword Exploit Kit
+- **Description**: Actively exploited vulnerabilities targeted by the DarkSword exploit kit
+- **Impact**: Compromise of iOS devices through sophisticated exploit techniques
+- **Status**: Apple has expanded iOS 18.7.7 security updates to protect against active exploitation
+
+### NoVoice Android Malware Vulnerabilities
+- **Description**: Known Android vulnerabilities exploited to gain root access
+- **Impact**: Root-level compromise of Android devices enabling complete system control
+- **Status**: Distributed through Google Play Store apps with 2.3 million downloads
 
 ## Affected Systems and Products
 
-- **Next.js Applications**: Web applications and development frameworks running vulnerable Next.js implementations
-- **TrueConf Conference Servers**: Enterprise video conferencing infrastructure and connected endpoints
-- **Cisco IMC Systems**: Integrated Management Controller systems across Cisco's enterprise infrastructure
-- **F5 BIG-IP APM**: Application Policy Manager instances with over 14,000 systems currently exposed
-- **iOS Devices**: Multiple iPhone generations running iOS 18 and earlier versions
-- **Android Devices**: Mobile devices running Android with 2.3 million confirmed infections
-- **Progress ShareFile**: Enterprise file transfer solutions vulnerable to pre-authentication attacks
+- **Next.js Hosts**: 766 confirmed compromised systems in credential harvesting campaign
+- **TrueConf Conference Servers**: Enterprise video conferencing infrastructure with zero-day exposure
+- **F5 BIG-IP APM**: Over 14,000 internet-exposed instances vulnerable to RCE attacks
+- **Cisco IMC**: Integrated Management Controller systems with critical authentication bypass
+- **Progress ShareFile**: Enterprise file sharing solutions vulnerable to pre-auth attacks
+- **Apple iOS Devices**: Multiple iPhone models targeted by DarkSword exploit kit
+- **Android Devices**: 2.3 million devices infected through malicious Google Play Store apps
+- **Hasbro Corporate Systems**: Enterprise infrastructure compromised requiring weeks for remediation
+- **Drift Protocol**: DeFi platform losing $280 million through administrative compromise
+- **Stryker Corporation**: Medical technology systems affected by data-wiping attacks
 
 ## Attack Vectors and Techniques
 
 - **Credential Harvesting**: Large-scale operations targeting database credentials, SSH keys, and cloud service credentials
-- **Software Update Hijacking**: Exploitation of legitimate update mechanisms to deliver malicious payloads
-- **Authentication Bypass**: Direct circumvention of authentication controls in enterprise management systems
-- **Mobile App Store Infiltration**: Distribution of malware through official app repositories
-- **Zero-Day Exploitation**: Targeting unpatched vulnerabilities in enterprise conference systems
-- **Root Privilege Escalation**: Exploitation of known vulnerabilities to gain administrative access on mobile devices
+- **Supply Chain Compromise**: Malicious GitHub repositories exploiting source code leaks to distribute information stealers
+- **Zero-Day Exploitation**: Active use of unpatched vulnerabilities in enterprise conference systems
+- **Authentication Bypass**: Critical vulnerabilities allowing unauthenticated remote access to administrative functions
+- **Pre-Authentication Chains**: Chaining multiple vulnerabilities for unauthenticated remote code execution
+- **Malicious Software Updates**: Exploitation of update mechanisms to deploy malware through compromised systems
+- **Device Code Phishing**: Microsoft account hijacking through specialized phishing kits targeting device authentication flows
+- **Administrative Privilege Escalation**: Seizure of Security Council powers in blockchain protocols
+- **Mobile Malware Distribution**: Distribution of Android malware through legitimate app stores using known vulnerabilities
 
 ## Threat Actor Activities
 
-- **REF1695 Campaign**: Financially motivated operation deploying remote access trojans and cryptocurrency miners through fake installers since November 2023
-- **Casbaneiro Banking Trojan**: Augmented Marauder group conducting multipronged banking trojan campaigns targeting Spanish speakers in Latin America
-- **Claude Code Exploiters**: Threat actors leveraging leaked source code to distribute Vidar information-stealing malware through fake GitHub repositories
-- **Drift Protocol Attackers**: Sophisticated threat actors who seized Security Council administrative powers resulting in $280 million in losses
-- **Mobile Malware Distributors**: Organized groups infiltrating Google Play Store with rootkit-enabled applications affecting millions of users
-- **Enterprise Infrastructure Attackers**: Groups specifically targeting conference systems and enterprise management interfaces for lateral movement
+- **REF1695 Operation**: Financially motivated campaign using fake installers to deploy RATs and cryptocurrency miners since November 2023
+- **Casbaneiro Banking Trojan Campaign**: Augmented Marauder group targeting Spanish-speaking users in Latin America with multipronged banking trojans
+- **Claude Code Exploitation**: Threat actors leveraging recent source code leaks to create fake repositories distributing Vidar information-stealing malware
+- **EvilTokens Service Operators**: Cybercriminals providing device code phishing capabilities for Microsoft account compromise and business email compromise attacks
+- **NoVoice Malware Distributors**: Android malware campaign operators successfully placing malicious apps on Google Play Store affecting millions of devices
+- **DarkSword Exploit Kit Users**: Active exploitation of Apple iOS vulnerabilities through sophisticated exploit kit deployment
+- **Iranian-Linked Groups**: Attribution of data-wiping attacks against major corporations including medical technology companies
