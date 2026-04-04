@@ -1,57 +1,60 @@
 # Exploitation Report
 
-The current threat landscape is dominated by several critical exploitation activities, with CVE-2025-55182 being actively exploited in a large-scale credential harvesting campaign affecting 766 Next.js hosts. Simultaneously, sophisticated supply chain attacks are targeting high-profile packages like Axios through social engineering, while North Korean threat actors continue their aggressive campaigns with a $285 million cryptocurrency theft and coordinated attacks against European government entities. The emergence of cookie-controlled PHP web shells and advanced mobile malware variants demonstrates the evolving sophistication of exploitation techniques across multiple platforms.
+Current exploitation activity reveals a landscape dominated by supply chain attacks, advanced social engineering campaigns, and targeted breaches affecting major organizations. North Korean threat actors are leading sophisticated operations, including the massive $280-285 million theft from Drift Protocol and a targeted npm supply chain compromise affecting the popular Axios package. The TeamPCP threat group has expanded its operations with attacks on the European Commission exposing data from 30 EU entities. Active exploitation includes CVE-2025-55182 being used to breach hundreds of Next.js hosts for credential theft, while threat actors exploit iOS vulnerabilities through the DarkSword tool and distribute SparkCat malware through official app stores.
 
 ## Active Exploitation Details
 
-### React2Shell Vulnerability
-- **Description**: A vulnerability in Next.js hosts being exploited for large-scale credential harvesting operations
-- **Impact**: Attackers can steal database credentials, SSH private keys, and Amazon Web Services credentials from compromised systems
-- **Status**: Actively exploited against 766 Next.js hosts in ongoing campaign
+### React2Shell Vulnerability in Next.js
+- **Description**: A vulnerability in Next.js framework allowing unauthorized access to web applications and server environments
+- **Impact**: Mass credential harvesting operation targeting database credentials, SSH private keys, and Amazon Web Services credentials across 766 compromised hosts
+- **Status**: Currently being actively exploited in large-scale attacks
 - **CVE ID**: CVE-2025-55182
 
-### DarkSword iOS Vulnerability
-- **Description**: A severe mobile OS-cracking tool affecting iOS systems
-- **Impact**: Complete compromise of iOS devices, allowing attackers to bypass security controls
-- **Status**: Recently patched by Apple for iOS 18, breaking their typical patching precedent
+### DarkSword iOS Exploitation Tool
+- **Description**: A severe mobile operating system cracking tool targeting iOS devices
+- **Impact**: Complete compromise of iOS devices, allowing attackers to bypass security controls and access sensitive data
+- **Status**: Apple has broken precedent to patch this vulnerability in iOS 18, indicating severity
+- **Platform**: iOS 18 and earlier versions
 
-### Axios npm Package Supply Chain Compromise
-- **Description**: Social engineering attack against the maintainer of the popular Axios npm package
-- **Impact**: Potential code execution and data theft across applications using the compromised package
-- **Status**: Confirmed supply chain attack orchestrated by North Korean threat actors
+### SparkCat Mobile Malware
+- **Description**: Trojan malware distributed through official iOS and Android app stores targeting cryptocurrency wallets
+- **Impact**: Theft of cryptocurrency wallet recovery phrase images, potentially leading to complete wallet compromise
+- **Status**: New variant discovered on both Apple App Store and Google Play Store after previous detection
 
-### Durable Nonce Exploitation in Solana
-- **Description**: Advanced attack targeting Solana-based decentralized exchange Drift Protocol
-- **Impact**: $285 million financial loss through exploitation of Security Council administrative powers
-- **Status**: Completed attack with confirmed North Korean attribution
+### Cookie-Controlled PHP Web Shells
+- **Description**: Advanced web shell techniques using HTTP cookies as control channels on compromised Linux servers
+- **Impact**: Remote code execution and persistent access to compromised servers through cron job persistence
+- **Status**: Actively deployed by threat actors targeting Linux server environments
 
 ## Affected Systems and Products
 
-- **Next.js Hosts**: 766 confirmed compromised systems affected by credential harvesting campaign
-- **iOS Devices**: Systems vulnerable to DarkSword exploitation tool, now patched for iOS 18
-- **Linux Servers**: Targeted by cookie-controlled PHP web shells for persistent access
-- **npm Ecosystem**: Applications using compromised Axios package at risk of supply chain attacks
-- **Solana Protocol**: Drift decentralized exchange lost $285 million in sophisticated attack
-- **European Government Systems**: Multiple diplomatic and government organizations targeted by TA416
-- **Mobile Platforms**: iOS and Android apps on official stores compromised with SparkCat malware
-- **Zendesk Platform**: Third-party breach affecting Hims & Hers customer support data
-- **Windows Systems**: 254 servers locked in internal extortion plot by malicious employee
+- **Next.js Framework**: 766 hosts compromised in credential harvesting campaign
+- **iOS Devices**: Targeted by DarkSword exploitation tool, patched in iOS 18
+- **Android and iOS Mobile Apps**: SparkCat malware distributed through official app stores
+- **Linux Servers**: Targeted by PHP web shell attacks using cookie-based control mechanisms
+- **Axios npm Package**: Supply chain compromise affecting popular JavaScript library
+- **European Commission Cloud Infrastructure**: Compromised by TeamPCP affecting 30 EU entities
+- **Drift Protocol**: Solana-based decentralized exchange losing $280-285 million
+- **Die Linke Political Party**: German political organization hit by Qilin ransomware
+- **Hims & Hers Health**: Telehealth platform affected through Zendesk breach
+- **Hasbro**: Toy manufacturer experiencing ongoing attack requiring weeks of remediation
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering**: Highly-targeted campaigns against package maintainers and cryptocurrency platform administrators
-- **Supply Chain Attacks**: Compromise of trusted software packages and dependencies to reach downstream targets
-- **Cookie-Controlled Web Shells**: PHP-based backdoors using HTTP cookies as control channels for stealth persistence
-- **OAuth-Based Phishing**: Advanced phishing campaigns targeting European government credentials
-- **Mobile App Store Infiltration**: Malicious applications bypassing security checks on official app stores
-- **Administrative Privilege Abuse**: Internal threats exploiting elevated access for extortion purposes
-- **Credential Harvesting**: Large-scale operations targeting sensitive authentication data and private keys
+- **Social Engineering**: Highly targeted campaigns against open source maintainers, particularly North Korean operations against npm package maintainers
+- **Supply Chain Attacks**: Compromise of trusted software packages and third-party services to reach downstream targets
+- **OAuth-Based Phishing**: Advanced phishing techniques leveraging OAuth authentication mechanisms
+- **Administrative Privilege Escalation**: Attackers gaining Security Council powers in decentralized finance protocols
+- **Multi-Extortion Ransomware**: Combined data encryption and data theft for enhanced pressure tactics
+- **Residential Proxy Networks**: Malicious traffic routing through legitimate residential IP addresses to evade detection
+- **Browser Extension Scanning**: Hidden JavaScript used to fingerprint users based on installed browser extensions
+- **Fake Repository Distribution**: Exploitation of source code leaks to distribute malware through fake GitHub repositories
 
 ## Threat Actor Activities
 
-- **UNC1069 (North Korean)**: Orchestrated sophisticated social engineering campaign against Axios maintainer, leading to npm supply chain compromise
-- **TA416 (China-linked)**: Renewed targeting of European government and diplomatic organizations since mid-2025 using PlugX malware and OAuth-based phishing
-- **TeamPCP**: Supply chain attacks expanding in scope with involvement from ShinyHunters and Lapsus$ groups, affecting European Commission and 30 EU entities
-- **Qilin Ransomware Group**: Claimed responsibility for attack against German political party Die Linke, threatening sensitive data leak
-- **SparkCat Operators**: Deployed new malware variants through official iOS and Android app stores targeting cryptocurrency wallet recovery phrases
-- **DPRK-linked Actors**: Multiple sophisticated operations including $285 million Drift Protocol theft and various social engineering campaigns
+- **UNC1069 (North Korean APT)**: Social engineering campaign targeting Axios npm package maintainer, leading to supply chain compromise
+- **DPRK-Linked Groups**: $285 million theft from Drift Protocol using sophisticated durable nonce attack techniques
+- **TA416 (China-Aligned)**: Renewed targeting of European government and diplomatic organizations after two-year hiatus, using PlugX malware and OAuth-based phishing
+- **TeamPCP**: Supply chain attacks expanding to affect European Commission and 30 EU entities, with involvement from ShinyHunters and Lapsus$ groups
+- **Qilin Ransomware Group**: Attack on German political party Die Linke with threats of sensitive data leak
+- **SparkCat Operators**: Distribution of cryptocurrency theft malware through official mobile app stores targeting wallet recovery phrases
