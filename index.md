@@ -1,58 +1,48 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity across multiple attack vectors, with threat actors leveraging vulnerabilities in enterprise software, supply chain attacks, and sophisticated social engineering campaigns. Critical exploitation includes an actively exploited FortiClient EMS vulnerability (CVE-2026-35616), a widespread Next.js vulnerability (CVE-2025-55182) affecting 766 hosts, and multiple supply chain compromises targeting npm packages and popular libraries. North Korean threat actors, particularly UNC1069, have been highly active in sophisticated social engineering campaigns, while China-linked groups like TA416 continue targeting European government entities. The exploitation landscape demonstrates a shift toward multi-vector attacks combining technical vulnerabilities with human manipulation techniques.
+Critical exploitation activity is currently dominated by several active campaigns targeting enterprise infrastructure and supply chain components. Most notably, attackers are exploiting the React2Shell vulnerability in Next.js applications for automated credential theft, while FortiClient EMS systems face active exploitation requiring emergency patches. The threat landscape is further complicated by sophisticated supply chain attacks targeting popular npm packages, North Korean-linked social engineering campaigns against major JavaScript libraries, and widespread device code phishing attacks that have surged dramatically. These attacks demonstrate a clear shift toward targeting foundational software components and authentication mechanisms that underpin modern enterprise environments.
 
 ## Active Exploitation Details
 
-### FortiClient EMS Critical Vulnerability
-- **Description**: A critical security flaw in Fortinet's FortiClient EMS that has been exploited in the wild, prompting out-of-band patches from Fortinet
-- **Impact**: Allows attackers to compromise enterprise endpoint management systems
-- **Status**: Actively exploited, patches released by Fortinet
-- **CVE ID**: CVE-2026-35616
-
-### Next.js React2Shell Vulnerability
-- **Description**: A vulnerability in Next.js hosts that enables credential harvesting operations at scale
-- **Impact**: Large-scale theft of database credentials, SSH private keys, and Amazon Web Services credentials
-- **Status**: Actively exploited against 766 Next.js hosts in credential harvesting campaign
+### React2Shell in Next.js Applications
+- **Description**: A vulnerability in Next.js applications that allows attackers to execute automated credential theft campaigns
+- **Impact**: Large-scale automated credential harvesting from vulnerable web applications
+- **Status**: Currently being exploited in active campaigns
 - **CVE ID**: CVE-2025-55182
 
-### Apple iOS DarkSword Vulnerability
-- **Description**: A severe mobile OS-cracking tool affecting iOS 18 systems
-- **Impact**: Enables exploitation of iOS devices for unauthorized access and control
-- **Status**: Patched by Apple in an unprecedented move for older iOS versions
+### FortiClient EMS Critical Flaw
+- **Description**: A critical security vulnerability in Fortinet's FortiClient Enterprise Management Server
+- **Impact**: Allows attackers to gain unauthorized access to enterprise endpoint management infrastructure
+- **Status**: Actively exploited in the wild, emergency patches released by Fortinet
+- **CVE ID**: CVE-2026-35616
 
-### Malicious npm Package Campaign
-- **Description**: 36 malicious packages disguised as Strapi CMS plugins deployed in npm registry
-- **Impact**: Persistent implants deployed to Redis and PostgreSQL databases
-- **Status**: Packages identified and removed, ongoing threat assessment
+### DarkSword iOS Exploitation Tool
+- **Description**: A severe mobile OS-cracking tool targeting iOS systems
+- **Impact**: Complete compromise of iOS devices and data extraction capabilities
+- **Status**: Apple has broken precedent by patching this vulnerability in iOS 18
 
 ## Affected Systems and Products
 
-- **FortiClient EMS**: Enterprise endpoint management systems vulnerable to critical exploitation
-- **Next.js Applications**: 766 hosts compromised in credential harvesting operation
-- **iOS 18 Devices**: Previously vulnerable to DarkSword exploitation tool
-- **npm Registry**: 36 malicious packages targeting Strapi CMS environments
-- **Axios Library**: Popular HTTP client targeted in supply chain compromise
-- **Redis and PostgreSQL**: Databases targeted for persistent implant deployment
-- **European Government Systems**: Targeted by China-linked TA416 group
-- **Drift Platform**: Solana-based decentralized exchange losing $285 million
-- **Zendesk Platform**: Third-party breach affecting Hims & Hers customer data
+- **Next.js Applications**: Web applications using vulnerable Next.js frameworks susceptible to React2Shell attacks
+- **FortiClient EMS**: Enterprise management servers for Fortinet endpoint security solutions
+- **npm Package Registry**: 36 malicious packages disguised as Strapi CMS plugins targeting Redis and PostgreSQL databases
+- **iOS Mobile Devices**: Apple mobile devices running iOS versions prior to recent patches
+- **Axios HTTP Client**: Popular JavaScript library compromised through social engineering of maintainer accounts
+- **Linux Servers**: Web servers running PHP applications vulnerable to cookie-controlled web shell attacks
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering**: North Korean UNC1069 group using fake Microsoft Teams error messages to compromise maintainer accounts
-- **Supply Chain Attacks**: Multiple compromises targeting npm packages and popular libraries like Axios
-- **Device Code Phishing**: OAuth 2.0 Device Authorization Grant flow abuse surging 37x with new attack kits
-- **Cookie-Controlled Web Shells**: PHP-based web shells using HTTP cookies for control channels on Linux servers
-- **Durable Nonce Attack**: Social engineering attack against Solana-based platforms
-- **Extension Scanning**: LinkedIn using hidden JavaScript to scan for Chrome extensions and collect device data
-- **Multi-Extortion Ransomware**: Advanced ransomware techniques combining encryption with data theft threats
+- **Social Engineering**: Sophisticated campaigns targeting software maintainers with fake Microsoft Teams error fixes and technical support requests
+- **Supply Chain Compromise**: Malicious npm packages and compromised popular JavaScript libraries
+- **Device Code Phishing**: OAuth 2.0 Device Authorization Grant flow abuse showing 37x increase in attacks
+- **Cookie-Controlled Web Shells**: PHP-based backdoors using HTTP cookies for command and control on Linux servers
+- **Automated Credential Harvesting**: Large-scale automated attacks targeting web application authentication systems
 
 ## Threat Actor Activities
 
-- **UNC1069 (North Korean)**: Sophisticated social engineering campaign targeting Axios maintainer using fake Microsoft Teams error scenarios
-- **TA416 (China-linked)**: Renewed targeting of European government and diplomatic organizations since mid-2025 using PlugX malware and OAuth-based phishing
-- **TeamPCP**: Supply chain attacks expanding with involvement from ShinyHunters and Lapsus$ groups creating complex attribution challenges
-- **Qilin Ransomware Group**: Successful attack against German political party Die Linke with data theft and system outages
-- **DPRK-linked Actors**: $285 million theft from Drift platform using social engineering techniques
-- **SparkCat Operators**: New malware variant targeting iOS and Android apps to steal cryptocurrency wallet recovery phrases
+- **UNC1069 (North Korean)**: Orchestrated sophisticated social engineering campaign against Axios maintainer, leading to npm supply chain attack
+- **TeamPCP**: Responsible for European Commission cloud hack exposing data from 30 EU entities
+- **TA416 (China-aligned)**: Targeting European government and diplomatic organizations with PlugX malware and OAuth-based phishing since mid-2025
+- **DPRK-linked Groups**: Conducting social engineering attacks against cryptocurrency platforms, including $285 million theft from Drift exchange
+- **Qilin Ransomware Group**: Claimed responsibility for attack against German political party Die Linke
+- **SparkCat Operators**: Deploying new malware variants on Apple App Store and Google Play Store targeting cryptocurrency wallet recovery phrases
