@@ -63,16 +63,6 @@ jobs:
             git add -f docs/index.md || true
             git add -f docs/index.html || true
             git add -f docs/executive_summary.mp3 || true
-            git add -f docs/articles.json || true
           fi
           git commit -m "Update exploitation report [automated]" || echo "No changes to commit"
           git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git
-
-      - name: Notify ThreatWiki
-        if: github.ref == 'refs/heads/main'
-        run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.PAT_GITHUB }}" \
-            https://api.github.com/repos/ricomanifesto/ThreatWiki/dispatches \
-            -d '{"event_type":"sentryinsight-updated"}'

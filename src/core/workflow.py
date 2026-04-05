@@ -7,9 +7,6 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-import re
-from html import unescape
-
 from ..services.rss_mcp import fetch_rss_feed, enrich_rss_articles  # Import the MCP tools
 from .analyze import filter_exploitation_articles, analyze_exploitation
 from ..services.publish import publish_to_github_pages
@@ -157,31 +154,7 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
         with open(docs_index, "w") as f:
             f.write(report)
         logger.info(f"Copied report to {docs_index}")
-
-    # Save enriched articles as docs/articles.json for ThreatWiki consumption
-    articles = state.get("articles", [])
-    if articles and docs_dir.exists():
-        def strip_html(text):
-            if not text:
-                return ""
-            text = unescape(text)
-            return re.sub(r"<[^>]+>", "", text)
-
-        articles_out = []
-        for a in articles:
-            articles_out.append({
-                "title": a.get("title", ""),
-                "link": a.get("link", ""),
-                "summary": strip_html(a.get("summary", "")),
-                "source": a.get("source", ""),
-                "date": a.get("date", ""),
-                "content": strip_html(a.get("content", "")),
-            })
-        articles_path = docs_dir / "articles.json"
-        with open(articles_path, "w") as f:
-            json.dump(articles_out, f, indent=2, default=str)
-        logger.info(f"Saved {len(articles_out)} articles to {articles_path}")
-
+    
     state["report_path"] = output_path
     return state
 
