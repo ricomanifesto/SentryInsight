@@ -1,50 +1,52 @@
 # Exploitation Report
 
-Critical exploitation activity is currently centered around several high-impact vulnerabilities and sophisticated attack campaigns. Most notably, Fortinet's FortiClient Enterprise Management Server is under active attack through CVE-2026-35616, prompting emergency patches. Simultaneously, threat actors are exploiting React2Shell vulnerabilities (CVE-2025-55182) in Next.js applications for automated credential theft campaigns. Advanced persistent threat groups, including North Korean actors, are conducting elaborate social engineering operations targeting major software supply chains, while ransomware operators are leveraging vulnerable drivers to disable hundreds of endpoint detection and response tools. These attacks demonstrate increasingly sophisticated techniques combining zero-day exploitation, supply chain compromise, and advanced evasion methods.
+Critical vulnerabilities are actively being exploited across multiple attack vectors, with notable zero-day exploitation and sophisticated social engineering campaigns. The most severe activity includes active exploitation of CVE-2026-35616 in Fortinet's FortiClient EMS requiring emergency patching, widespread credential theft campaigns targeting CVE-2025-55182 (React2Shell) vulnerabilities in Next.js applications, and sophisticated supply chain attacks targeting npm maintainers. Ransomware groups continue leveraging vulnerable drivers through BYOVD techniques to disable EDR tools, while North Korean threat actors have orchestrated complex multi-month social engineering operations resulting in significant financial losses and supply chain compromises.
 
 ## Active Exploitation Details
 
 ### FortiClient EMS Critical Vulnerability
-- **Description**: A critical security flaw in Fortinet's FortiClient Enterprise Management Server that allows attackers to compromise enterprise security management infrastructure
-- **Impact**: Complete compromise of enterprise endpoint management capabilities, potentially affecting entire organizational security postures
-- **Status**: Actively exploited in the wild; emergency out-of-band patches released by Fortinet
+- **Description**: Critical security flaw in FortiClient Enterprise Management Server actively exploited in the wild
+- **Impact**: Allows attackers to compromise enterprise endpoint management infrastructure
+- **Status**: Emergency patches released by Fortinet, active exploitation confirmed
 - **CVE ID**: CVE-2026-35616
 
-### React2Shell Next.js Vulnerability
-- **Description**: A vulnerability in Next.js applications that enables attackers to execute shell commands and steal credentials through automated exploitation
-- **Impact**: Automated credential theft campaigns targeting vulnerable web applications at scale
-- **Status**: Currently being exploited in large-scale automated campaigns
+### React2Shell Vulnerability
+- **Description**: Vulnerability in Next.js applications being exploited in large-scale automated campaigns
+- **Impact**: Enables credential theft through automated exploitation methods
+- **Status**: Active exploitation in widespread credential harvesting operations
 - **CVE ID**: CVE-2025-55182
 
-### Bring Your Own Vulnerable Driver (BYOVD) Attacks
-- **Description**: Ransomware operators are exploiting vulnerable legitimate drivers to disable endpoint detection and response (EDR) tools
-- **Impact**: Complete neutralization of security tools, enabling undetected ransomware deployment and data exfiltration
-- **Status**: Actively used by Qilin and Warlock ransomware groups to disable over 300 EDR tools
+### Vulnerable Driver Exploitation (BYOVD)
+- **Description**: Bring Your Own Vulnerable Driver technique used to disable endpoint detection and response tools
+- **Impact**: Complete neutralization of security monitoring across 300+ EDR products
+- **Status**: Actively used by multiple ransomware groups including Qilin and Warlock
 
 ## Affected Systems and Products
 
-- **Fortinet FortiClient EMS**: Enterprise management servers vulnerable to critical exploitation
-- **Next.js Applications**: Web applications using React frameworks susceptible to React2Shell attacks
-- **Windows Systems**: Targeted by vulnerable driver exploitation to disable EDR protection
-- **npm Package Ecosystem**: Supply chain compromised through social engineering of maintainers
-- **Redis and PostgreSQL Databases**: Exploited through malicious npm packages disguised as Strapi CMS plugins
-- **iOS and Android Devices**: Targeted by SparkCat malware variants stealing cryptocurrency wallet recovery phrases
-- **Linux Servers**: Compromised through cookie-controlled PHP web shells with cron persistence
+- **FortiClient EMS**: Enterprise Management Server infrastructure requiring immediate patching
+- **Next.js Applications**: Web applications vulnerable to React2Shell exploitation
+- **Windows Endpoints**: Targeted by BYOVD attacks disabling EDR protection
+- **npm Registry**: Supply chain targeting through malicious packages and social engineering
+- **Redis and PostgreSQL**: Database systems exploited through malicious npm packages
+- **iOS and Android Devices**: Targeted by SparkCat malware variants for cryptocurrency theft
+- **Linux Servers**: Compromised through cookie-controlled PHP web shells
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering**: Sophisticated months-long campaigns targeting software maintainers with fake Microsoft Teams error scenarios
-- **Supply Chain Compromise**: Infiltration of popular npm packages including Axios through maintainer account hijacking
-- **Device Code Phishing**: 37-fold increase in OAuth 2.0 Device Authorization Grant flow abuse for account takeovers
-- **Malicious Package Distribution**: Deployment of 36 malicious npm packages disguised as legitimate Strapi CMS plugins
-- **Cookie-Controlled Web Shells**: HTTP cookies used as control channels for PHP-based backdoors on Linux systems
-- **QR Code Phishing**: Traffic violation scams using QR codes to redirect victims to credential harvesting sites
+- **BYOVD (Bring Your Own Vulnerable Driver)**: Ransomware groups loading vulnerable drivers to disable security tools
+- **Social Engineering**: Multi-month targeted campaigns against software maintainers and developers
+- **Supply Chain Compromise**: Malicious npm packages disguised as legitimate plugins
+- **Automated Credential Harvesting**: Large-scale exploitation of React2Shell vulnerabilities
+- **Cookie-Controlled Web Shells**: PHP-based remote code execution using HTTP cookies as control channels
+- **Device Code Phishing**: OAuth 2.0 Device Authorization Grant flow abuse showing 37x increase
+- **QR Code Phishing**: Traffic violation scams incorporating QR codes for mobile targeting
 
 ## Threat Actor Activities
 
-- **North Korean Groups (UNC1069/DPRK)**: Conducted six-month social engineering operation resulting in $285 million Drift platform theft and Axios npm package compromise
-- **Qilin Ransomware**: Attacking German political organizations and using vulnerable drivers to disable security tools
-- **Warlock Ransomware**: Employing BYOVD techniques alongside Qilin to neutralize endpoint protection
-- **China-Linked TA416**: Targeting European government and diplomatic organizations with PlugX malware and OAuth-based phishing since mid-2025
-- **REvil/GandCrab Leadership**: German authorities identified key figures including "UNKN" (Daniil Maksimov) behind major ransomware operations
-- **TeamPCP**: Supply chain attacks expanding with involvement from ShinyHunters and Lapsus$ groups creating complex attribution challenges
+- **UNC1069 (North Korean)**: Six-month social engineering operation against Axios maintainer resulting in npm supply chain attack
+- **Qilin Ransomware**: Using BYOVD techniques and targeting German political organizations
+- **Warlock Ransomware**: Employing vulnerable drivers to disable EDR systems
+- **TA416 (China-linked)**: Targeting European government and diplomatic organizations with PlugX malware and OAuth-based phishing
+- **DPRK Actors**: $285 million cryptocurrency theft through sophisticated social engineering
+- **ShinyHunters and Lapsus$**: Involvement in TeamPCP supply chain attacks amid hacker infighting
+- **SparkCat Operators**: Deploying mobile malware variants on official app stores for cryptocurrency wallet theft
