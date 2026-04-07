@@ -1,59 +1,60 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity is dominated by several zero-day and recently disclosed flaws being actively exploited in the wild. The most severe threats include a newly discovered FortiClient EMS authentication bypass vulnerability (CVE-2026-35616) that prompted emergency patching, a leaked Windows privilege escalation zero-day known as "BlueHammer," and widespread exploitation of the React2Shell vulnerability (CVE-2025-55182) in automated credential harvesting campaigns. Nation-state actors are leveraging sophisticated social engineering operations, including a six-month DPRK campaign that resulted in a $285 million cryptocurrency theft, while ransomware groups are using vulnerable drivers to disable over 300 endpoint detection and response tools.
+The cybersecurity landscape is currently experiencing intense exploitation activity across multiple attack vectors. Critical zero-day vulnerabilities are being actively exploited, including CVE-2026-35616 in Fortinet's FortiClient EMS and CVE-2025-55182 (React2Shell) affecting Next.js applications. State-sponsored groups, particularly from North Korea, Iran, and China, are conducting sophisticated campaigns targeting financial institutions, government organizations, and critical infrastructure. Notable incidents include a $285 million cryptocurrency theft linked to a six-month DPRK social engineering operation and automated credential harvesting campaigns exploiting web application vulnerabilities. Ransomware groups are employing advanced evasion techniques, including BYOVD attacks to disable hundreds of security tools, while maintaining persistent access through supply chain compromises and AI-assisted targeting.
 
 ## Active Exploitation Details
 
-### FortiClient EMS Authentication Bypass Vulnerability
-- **Description**: Critical authentication bypass flaw in FortiClient Enterprise Management Server that allows attackers to circumvent security controls
-- **Impact**: Complete system compromise and unauthorized access to enterprise management infrastructure
-- **Status**: Actively exploited in the wild; emergency patch released by Fortinet
+### FortiClient EMS Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability in Fortinet's FortiClient Enterprise Management Server allowing unauthorized access to management functions
+- **Impact**: Complete system compromise, unauthorized access to enterprise management capabilities, potential for lateral movement across networks
+- **Status**: Actively exploited in the wild, emergency patch released by Fortinet, CISA has ordered federal agencies to patch by Friday
 - **CVE ID**: CVE-2026-35616
 
-### BlueHammer Windows Zero-Day
-- **Description**: Unpatched Windows privilege escalation vulnerability that was privately reported to Microsoft but remains unfixed
-- **Impact**: Allows attackers to gain SYSTEM or elevated administrator permissions on Windows systems
-- **Status**: Exploit code has been publicly leaked by a disgruntled researcher; no patch currently available
-
-### React2Shell Vulnerability
-- **Description**: Vulnerability in Next.js applications that enables automated credential and data exfiltration
-- **Impact**: Large-scale credential theft, secret extraction, and system data compromise
-- **Status**: Actively exploited in automated campaigns by threat cluster UAT-10608
+### React2Shell Vulnerability in Next.js Applications
+- **Description**: Server-side request forgery vulnerability in Next.js applications enabling remote code execution and credential theft
+- **Impact**: Automated credential harvesting, system data exfiltration, unauthorized access to application secrets
+- **Status**: Under active exploitation by threat cluster UAT-10608 using automated tools for large-scale attacks
 - **CVE ID**: CVE-2025-55182
 
-### Chrome Zero-Day Vulnerability
-- **Description**: Unspecified zero-day vulnerability affecting Google Chrome browser
-- **Impact**: Browser-based attacks and potential system compromise
-- **Status**: Recently disclosed and being actively exploited
+### BlueHammer Windows Privilege Escalation
+- **Description**: Unpatched Windows privilege escalation flaw allowing attackers to gain SYSTEM or elevated administrator permissions
+- **Impact**: Complete system takeover, persistence establishment, potential for domain-wide compromise
+- **Status**: Exploit code publicly released by disgruntled researcher, currently unpatched by Microsoft
+
+### GPU Memory Rowhammer Attack (GPUBreach)
+- **Description**: Novel attack technique exploiting GPU GDDR6 memory vulnerabilities through Rowhammer bit-flips to escalate privileges
+- **Impact**: Full system compromise through GPU memory manipulation, bypass of traditional security controls
+- **Status**: Proof-of-concept demonstrated, affects systems with vulnerable GPU configurations
 
 ## Affected Systems and Products
 
-- **FortiClient Enterprise Management Server**: Critical authentication bypass affecting enterprise security infrastructure
-- **Windows Operating Systems**: Privilege escalation vulnerability affecting all Windows versions
-- **Next.js Applications**: Web applications vulnerable to automated credential harvesting attacks
-- **Google Chrome Browser**: Zero-day vulnerability affecting browser security
-- **Microsoft 365 Environments**: Targeted by Iran-linked password spraying campaigns affecting 300+ Israeli organizations
-- **Redis and PostgreSQL Databases**: Exploited by malicious npm packages for persistent implant deployment
-- **npm Package Registry**: 36 malicious packages disguised as Strapi CMS plugins targeting developers
+- **FortiClient Enterprise Management Server**: All versions prior to emergency patch, critical for enterprise network management
+- **Next.js Applications**: Web-exposed applications vulnerable to React2Shell exploitation
+- **Windows Operating Systems**: Multiple versions affected by BlueHammer privilege escalation flaw
+- **GPU Systems**: Devices with GDDR6 memory susceptible to GPUBreach attacks
+- **npm Registry Packages**: 36 malicious packages targeting Redis and PostgreSQL databases
+- **Microsoft 365 Environments**: Israeli and UAE organizations targeted in password-spraying campaigns
+- **GitHub Repositories**: Supply chain attacks targeting developers and maintainers
+- **EDR Security Tools**: Over 300 tools targeted by BYOVD attacks from Qilin and Warlock ransomware
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Exploiting critical flaws in FortiClient EMS to gain unauthorized access
-- **Privilege Escalation**: Using BlueHammer zero-day to elevate permissions on Windows systems
-- **Automated Credential Harvesting**: Large-scale exploitation of React2Shell for systematic credential theft
-- **Password Spraying**: Iran-linked actors targeting Microsoft 365 environments with credential attacks
-- **Social Engineering**: Sophisticated six-month DPRK operation targeting cryptocurrency platforms
-- **Supply Chain Attacks**: Malicious npm packages and compromised maintainer accounts (Axios incident)
-- **BYOVD (Bring Your Own Vulnerable Driver)**: Ransomware groups using vulnerable drivers to disable EDR tools
-- **Device Code Phishing**: OAuth 2.0 abuse with 37x increase in attacks using device authorization flows
-- **QR Code Phishing**: Traffic violation scams incorporating QR codes to bypass traditional security measures
+- **Authentication Bypass**: Exploitation of CVE-2026-35616 for unauthorized FortiClient EMS access
+- **Server-Side Request Forgery**: React2Shell vulnerability enabling automated credential theft
+- **Privilege Escalation**: BlueHammer exploit for Windows SYSTEM-level access
+- **Memory Corruption**: GPUBreach technique using GPU memory rowhammer attacks
+- **Supply Chain Attacks**: Malicious npm packages and compromised GitHub repositories
+- **Password Spraying**: Large-scale credential attacks against Microsoft 365 environments
+- **Social Engineering**: Six-month DPRK operation resulting in $285 million theft
+- **BYOVD (Bring Your Own Vulnerable Driver)**: Technique to disable security tools using legitimate but vulnerable drivers
+- **AI-Assisted Targeting**: Automated identification and exploitation of GitHub misconfigurations
 
 ## Threat Actor Activities
 
-- **Storm-1175 (China-based)**: Medusa ransomware affiliate deploying zero-day and n-day exploits in high-velocity attacks
-- **UAT-10608**: Emerging threat cluster exploiting React2Shell in automated credential harvesting campaigns
-- **Iran-linked Actors**: Conducting password spraying campaigns against 300+ Israeli Microsoft 365 organizations amid Middle East conflict
-- **DPRK-linked Groups**: Using GitHub as C2 infrastructure in multi-stage attacks targeting South Korean organizations; executed sophisticated six-month social engineering operation resulting in $285 million Drift Protocol theft
-- **Qilin Ransomware**: Using vulnerable drivers to disable 300+ EDR tools on compromised hosts
-- **Warlock Ransomware**: Employing BYOVD techniques to silence security tools during ransomware deployment
-- **REvil/Sodinokibi Leaders**: Key figures identified by German authorities behind 130 German ransomware attacks, including "UNKN" (Daniil Maksimov)
+- **Storm-1175 (China-based)**: Financially motivated group deploying Medusa ransomware with n-day and zero-day exploits
+- **DPRK-Linked Groups**: Conducting sophisticated social engineering operations, including six-month campaign against Drift Protocol resulting in $285 million theft, using GitHub as C2 infrastructure
+- **Iran-Nexus Actors**: Password-spraying campaigns targeting 300+ Israeli Microsoft 365 organizations amid Middle East conflict
+- **REvil/GandCrab Leaders**: German authorities identified Russian nationals behind ransomware operations affecting 130 German organizations
+- **UAT-10608**: Threat cluster exploiting React2Shell vulnerabilities in automated credential harvesting campaigns
+- **Qilin and Warlock Ransomware**: Using BYOVD techniques to disable over 300 EDR security tools
+- **Supply Chain Attackers**: Targeting npm ecosystem with 36 malicious packages exploiting Redis and PostgreSQL databases
