@@ -1,65 +1,58 @@
 # Exploitation Report
 
-Current threat landscape reveals intense exploitation activity across multiple attack vectors, with threat actors actively targeting critical infrastructure, enterprise systems, and popular development platforms. Iranian-linked hackers are systematically compromising internet-exposed programmable logic controllers across U.S. critical infrastructure, while Russian state-sponsored APT28 has orchestrated a massive DNS hijacking campaign through compromised SOHO routers to steal Microsoft 365 authentication tokens. Multiple maximum-severity vulnerabilities are under active exploitation, including critical flaws in WordPress plugins, Docker Engine, and AI platforms, with threat actors deploying ransomware at unprecedented speeds and distributing malicious packages across major software repositories.
+Current threat activity shows a surge in critical infrastructure targeting, with Iranian threat actors actively compromising U.S. operational technology systems and Russian APT28 conducting sophisticated DNS hijacking campaigns. Several zero-day and recently patched vulnerabilities are being exploited in the wild, including a critical WordPress plugin flaw and a maximum-severity remote code execution vulnerability in Flowise. North Korean hackers continue their supply chain attacks through malicious packages across multiple development ecosystems, while Storm-1175 demonstrates rapid deployment of ransomware using both N-day and zero-day exploits.
 
 ## Active Exploitation Details
 
+### Ninja Forms File Uploads WordPress Plugin Vulnerability
+- **Description**: Critical vulnerability in the Ninja Forms File Uploads premium add-on that allows uploading arbitrary files without authentication
+- **Impact**: Remote code execution on affected WordPress sites
+- **Status**: Currently being exploited in the wild by threat actors
+
 ### Flowise Remote Code Execution Vulnerability
-- **Description**: Maximum-severity vulnerability in the open-source Flowise AI platform for building custom LLM applications and agentic systems
-- **Impact**: Allows attackers to execute arbitrary code on affected systems with over 12,000 exposed instances identified
-- **Status**: Actively exploited in the wild with CVSS 10.0 severity rating
+- **Description**: Maximum-severity vulnerability in the open-source Flowise platform used for building custom LLM applications and agentic systems
+- **Impact**: Allows attackers to execute arbitrary code on affected systems
+- **Status**: Active exploitation detected in attacks
 - **CVE ID**: CVE-2025-59528
 
-### Ninja Forms WordPress Plugin File Upload Vulnerability
-- **Description**: Critical vulnerability in the Ninja Forms File Uploads premium add-on for WordPress allowing arbitrary file uploads without authentication
-- **Impact**: Enables remote code execution through malicious file uploads, compromising WordPress websites
-- **Status**: Actively exploited by threat actors targeting WordPress installations
-
-### Docker Engine Authorization Bypass Vulnerability
-- **Description**: High-severity vulnerability in Docker Engine that allows attackers to bypass authorization plugins under specific circumstances
-- **Impact**: Enables unauthorized access to Docker hosts and container environments
-- **Status**: Patched vulnerability with ongoing exploitation concerns
+### Docker Engine Authorization Bypass
+- **Description**: High-severity vulnerability that permits attackers to bypass authorization plugins (AuthZ) under specific circumstances
+- **Impact**: Unauthorized access to Docker host systems
+- **Status**: Vulnerability disclosed with patch available
 - **CVE ID**: CVE-2026-34040
 
-### Router DNS Hijacking Campaign
-- **Description**: Exploitation of known flaws in older MikroTik and TP-Link routers to modify DNS settings and harvest authentication tokens
-- **Impact**: Mass harvest of Microsoft Office authentication tokens through DNS redirection attacks
-- **Status**: Actively exploited by Russian military intelligence units; law enforcement disruption operation conducted
-
-### Critical Infrastructure PLC Targeting
-- **Description**: Systematic targeting of internet-facing Rockwell/Allen-Bradley programmable logic controllers on critical infrastructure networks
-- **Impact**: Potential disruption of critical infrastructure operations including power grids, water systems, and manufacturing facilities
-- **Status**: Ongoing active exploitation by Iranian-linked threat actors
+### Grafana AI Integration Vulnerability
+- **Description**: Bug in Grafana's AI functionality that could lead to data leakage through malicious instruction injection
+- **Impact**: Potential exposure of sensitive user data through AI prompt manipulation
+- **Status**: Patched by Grafana
 
 ## Affected Systems and Products
 
-- **Flowise AI Platform**: Over 12,000 internet-exposed instances vulnerable to remote code execution
-- **WordPress Sites**: Websites using Ninja Forms File Uploads premium add-on susceptible to arbitrary file upload attacks
-- **Docker Environments**: Docker Engine installations affected by authorization bypass vulnerability
-- **SOHO Routers**: MikroTik and TP-Link routers compromised for DNS hijacking operations
-- **Critical Infrastructure PLCs**: Rockwell/Allen-Bradley programmable logic controllers on U.S. critical infrastructure networks
-- **Package Repositories**: npm, PyPI, Go, and Rust ecosystems infiltrated with 1,700 malicious packages
-- **ComfyUI Instances**: Over 1,000 exposed stable diffusion platform instances targeted for cryptocurrency mining
-- **Grafana AI Components**: AI-enabled Grafana instances vulnerable to prompt injection attacks
-- **Snowflake Customers**: Multiple organizations affected through compromised SaaS integrator authentication tokens
+- **WordPress Sites**: Ninja Forms File Uploads premium add-on users vulnerable to unauthenticated file upload
+- **Flowise Platforms**: Open-source LLM application building platforms exposed to RCE attacks
+- **Docker Engine**: Containerized environments with authorization plugins at risk
+- **Critical Infrastructure**: U.S. water treatment, energy, and manufacturing facilities with exposed PLCs
+- **MikroTik and TP-Link Routers**: SOHO routers compromised for DNS hijacking operations
+- **Rockwell/Allen-Bradley PLCs**: Internet-exposed programmable logic controllers in critical infrastructure
+- **Development Environments**: npm, PyPI, Go, Rust, and PHP ecosystems targeted with malicious packages
+- **ComfyUI Instances**: Over 1,000 exposed stable diffusion platform installations targeted for cryptomining
+- **Snowflake Customers**: Multiple companies affected through SaaS integrator breach
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution**: Exploitation of maximum-severity vulnerabilities in AI platforms and WordPress plugins to execute arbitrary code
-- **DNS Hijacking**: Compromise of SOHO routers to redirect traffic and steal authentication credentials
-- **Supply Chain Attacks**: Distribution of malicious packages across multiple software repositories targeting developers
-- **Infrastructure Targeting**: Direct attacks on internet-exposed industrial control systems and programmable logic controllers
-- **Token Theft**: Harvesting of Microsoft 365 and other cloud service authentication tokens through compromised network infrastructure
-- **Privilege Escalation**: GPUBreach attacks using RowHammer techniques on GPU memory to escalate system privileges
-- **Prompt Injection**: AI-targeted attacks using hidden malicious instructions to extract sensitive data
-- **Cryptocurrency Mining**: Botnet recruitment of exposed AI platform instances for mining operations
+- **Unauthenticated File Upload**: Exploitation of WordPress plugin allowing arbitrary file uploads leading to RCE
+- **DNS Hijacking**: Modification of router DNS settings to redirect traffic and steal authentication tokens
+- **Supply Chain Poisoning**: Distribution of malicious packages across multiple development platforms
+- **PLC Manipulation**: Direct targeting of internet-exposed operational technology devices
+- **Spear-Phishing**: Targeted email campaigns deploying PRISMEX malware
+- **Token Theft**: Mass harvesting of Microsoft Office authentication tokens through compromised routers
+- **Cryptomining Botnet**: Targeting of AI platforms for cryptocurrency mining operations
+- **Authorization Bypass**: Exploitation of Docker authorization plugin vulnerabilities
 
 ## Threat Actor Activities
 
-- **APT28 (Forest Blizzard)**: Russian state-linked group conducting global DNS hijacking campaign through compromised routers to steal Microsoft 365 credentials
-- **Iranian-Linked Actors**: Systematically targeting U.S. critical infrastructure by exploiting internet-exposed programmable logic controllers
-- **Storm-1175**: China-linked threat actor deploying Medusa ransomware at high velocity using combination of zero-day and N-day vulnerabilities
-- **North Korean Contagious Interview Campaign**: Distributing 1,700 malicious packages across npm, PyPI, Go, and Rust ecosystems targeting software developers
-- **Cryptocurrency Mining Groups**: Actively recruiting exposed ComfyUI instances into mining and proxy botnets
-- **WordPress Attackers**: Exploiting Ninja Forms vulnerability for website compromise and potential data theft
-- **REvil and GandCrab Operators**: German authorities identified Russian nationals as leaders of major ransomware operations between 2019-2021
+- **APT28 (Forest Blizzard/Pawn Storm)**: Conducting global DNS hijacking campaign through compromised SOHO routers and deploying PRISMEX malware against Ukraine and NATO allies
+- **Iranian Threat Actors**: Systematically targeting U.S. critical infrastructure through exposed PLCs, causing operational disruption and financial losses
+- **Storm-1175**: Deploying Medusa ransomware at high velocity using both N-day and zero-day vulnerabilities
+- **North Korean Hackers (Contagious Interview Campaign)**: Spreading 1,700 malicious packages across npm, PyPI, Go, Rust, and PHP ecosystems
+- **Financially Motivated Groups**: Targeting exposed ComfyUI instances for cryptomining botnet operations and exploiting SaaS integrators for data theft
