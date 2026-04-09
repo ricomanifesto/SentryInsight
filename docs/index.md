@@ -1,51 +1,58 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are being actively exploited in the wild, with the most significant being an Adobe Reader zero-day that has been exploited via malicious PDF documents since December 2025. Additionally, CISA has issued emergency directives for federal agencies to patch a critical Ivanti EPMM vulnerability that is under active exploitation. Threat actors are also leveraging compromised SOHO routers for credential harvesting, targeting cloud deployments with new malware variants, and conducting sophisticated supply chain attacks through malicious packages across multiple programming ecosystems. Iranian threat actors have demonstrated the ability to disrupt critical infrastructure through exposed industrial control systems.
+Critical active exploitation is currently underway across multiple attack vectors, with the most significant being a zero-day vulnerability in Adobe Reader that threat actors have been exploiting since December 2025 through maliciously crafted PDF documents. Additionally, CISA has issued urgent patching orders for an Ivanti EPMM vulnerability being actively exploited since January, while Russian APT28 operations are targeting global organizations through compromised SOHO routers and deploying new malware variants. The threat landscape also includes a 13-year-old Apache ActiveMQ vulnerability enabling remote code execution, targeted campaigns against journalists and activists, and sophisticated attacks on cloud infrastructure and e-commerce platforms.
 
 ## Active Exploitation Details
 
 ### Adobe Reader Zero-Day Vulnerability
-- **Description**: A previously unknown zero-day vulnerability in Adobe Reader that allows exploitation through maliciously crafted PDF documents
-- **Impact**: Attackers can execute arbitrary code and compromise systems when victims open specially crafted PDF files
-- **Status**: Currently being exploited in the wild since December 2025, no patch information provided in the articles
+- **Description**: Previously unknown zero-day vulnerability in Adobe Reader being exploited through maliciously crafted PDF documents
+- **Impact**: Allows threat actors to compromise systems when users open malicious PDF files
+- **Status**: Active exploitation since at least December 2025, zero-day status indicates no patch currently available
 
 ### Ivanti EPMM Critical Vulnerability
-- **Description**: A critical-severity vulnerability in Ivanti Endpoint Manager Mobile (EPMM) affecting enterprise mobile device management systems
-- **Impact**: Allows attackers to compromise enterprise mobile management infrastructure
-- **Status**: Actively exploited since January, CISA has ordered federal agencies to patch by Sunday deadline
+- **Description**: Critical-severity vulnerability in Ivanti Endpoint Manager Mobile (EPMM) 
+- **Impact**: System compromise allowing attackers to gain unauthorized access to mobile device management infrastructure
+- **Status**: Active exploitation since January 2026, CISA has ordered federal agencies to patch by Sunday
 
-### Apache ActiveMQ Remote Code Execution
-- **Description**: A 13-year-old remote code execution vulnerability in Apache ActiveMQ Classic message broker that went undetected
-- **Impact**: Enables attackers to execute arbitrary commands on vulnerable systems
-- **Status**: Recently discovered vulnerability with potential for exploitation
+### Apache ActiveMQ RCE Vulnerability
+- **Description**: 13-year-old remote code execution vulnerability in Apache ActiveMQ Classic that remained undetected
+- **Impact**: Enables attackers to execute arbitrary commands remotely on affected systems
+- **Status**: Recently discovered after 13 years, exploitation potential confirmed
+
+### SOHO Router DNS Manipulation
+- **Description**: Vulnerability allowing modification of DNS settings in small office/home office routers
+- **Impact**: Enables malwareless cyber espionage through DNS redirection and traffic manipulation
+- **Status**: Actively exploited by Russian APT28 (Forest Blizzard) for credential harvesting
 
 ## Affected Systems and Products
 
-- **Adobe Reader**: All versions susceptible to zero-day PDF-based attacks
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Enterprise mobile device management systems under active attack
-- **Apache ActiveMQ Classic**: Message broker systems vulnerable to 13-year-old RCE flaw
-- **SOHO Routers**: Small office/home office routers being compromised for credential harvesting
-- **Magento E-commerce Platforms**: Nearly 100 online stores affected by credit card stealing campaigns
-- **Industrial Control Systems**: Internet-facing PLCs and OT devices in critical infrastructure sectors
-- **Cloud Deployments**: Misconfigured cloud infrastructure targeted by Chaos malware variant
-- **Package Repositories**: npm, PyPI, Go, Rust ecosystems infiltrated with 1,700+ malicious packages
+- **Adobe Reader**: All versions affected by zero-day vulnerability, targeted via PDF documents
+- **Ivanti EPMM**: Endpoint Manager Mobile platform with critical vulnerability requiring immediate patching
+- **Apache ActiveMQ Classic**: 13-year-old vulnerability affecting remote code execution capabilities
+- **SOHO Routers**: Small office/home office routers vulnerable to DNS setting manipulation
+- **Magento E-commerce**: Nearly 100 online stores compromised with credit card stealing code
+- **macOS Systems**: Targeted by Atomic Stealer malware through Script Editor abuse
+- **Zendesk Platforms**: Corporate support ticket systems compromised by UNC6783 threat actor
+- **Cloud Deployments**: Misconfigured cloud infrastructure targeted by Chaos botnet variants
+- **IoT Devices**: Global IoT devices recruited into Masjesu botnet for DDoS attacks
 
 ## Attack Vectors and Techniques
 
-- **Malicious PDF Documents**: Zero-day exploitation through crafted PDF files in Adobe Reader
-- **DNS Modification**: APT28 modifying DNS settings in compromised routers for credential harvesting
-- **ClickFix Attacks**: macOS campaigns using Script Editor to deliver Atomic Stealer malware
-- **SVG Image Hiding**: Credit card stealers concealed in pixel-sized Scalable Vector Graphics images
-- **Supply Chain Poisoning**: Malicious packages distributed across multiple programming language ecosystems
-- **Cloud Misconfiguration Exploitation**: Targeting improperly configured cloud deployments
-- **Spear-Phishing Campaigns**: Targeted email attacks deploying PRISMEX malware
-- **Industrial Control System Compromise**: Direct attacks on Internet-exposed PLCs and OT devices
+- **Malicious PDF Documents**: Zero-day exploitation through crafted PDF files targeting Adobe Reader users
+- **DNS Manipulation**: Router compromise enabling traffic redirection without deploying traditional malware
+- **ClickFix Attacks**: Social engineering technique abusing macOS Script Editor for malware deployment
+- **SVG Image Hiding**: Credit card stealing code concealed in pixel-sized Scalable Vector Graphics images
+- **BPO Provider Compromise**: Targeting business process outsourcing companies to access high-value clients
+- **Spear-Phishing Campaigns**: Targeted email attacks deploying PRISMEX malware against Ukraine and NATO allies
+- **Cloud Misconfigurations**: Exploiting improperly configured cloud deployments for botnet expansion
+- **PLC Exploitation**: Compromising Internet-facing operational technology devices in critical infrastructure
 
 ## Threat Actor Activities
 
-- **APT28 (Forest Blizzard)**: Russian group conducting credential harvesting via compromised SOHO routers and deploying PRISMEX malware against Ukraine and NATO allies
-- **UNC6783**: New threat actor compromising business process outsourcing providers to access high-value corporate targets and steal Zendesk support tickets
-- **Bitter-Linked Group**: Suspected Indian government-affiliated actors running hack-for-hire campaigns targeting journalists and activists across the MENA region
-- **North Korean Contagious Interview Campaign**: Spreading 1,700+ malicious packages across Go, Rust, PHP, npm, and PyPI ecosystems
-- **Iranian Threat Actors**: Disrupting US critical infrastructure through compromise of exposed industrial control systems
-- **Masjesu Botnet Operators**: Running DDoS-for-hire services targeting global IoT devices via Telegram advertising
+- **APT28 (Forest Blizzard)**: Russian state-sponsored group conducting malwareless espionage through router compromise and deploying PRISMEX malware against Ukraine and NATO allies
+- **UNC6783**: New threat actor compromising business process outsourcing providers to gain access to high-value corporate targets across multiple sectors
+- **Bitter-Linked Campaign**: Hack-for-hire operation with suspected Indian government ties targeting journalists, activists, and government officials across MENA region
+- **Iranian Threat Actors**: Disrupting US critical infrastructure through exposed programmable logic controller (PLC) compromise
+- **Masjesu Botnet Operators**: Advertising DDoS-for-hire services via Telegram while recruiting global IoT devices
+- **Chaos Botnet Operators**: Expanding targeting to include misconfigured cloud deployments with enhanced SOCKS proxy capabilities
+- **Credit Card Skimming Groups**: Operating massive campaigns against e-commerce platforms using sophisticated SVG hiding techniques
