@@ -1,60 +1,66 @@
 # Exploitation Report
 
-Critical exploitation activity is dominated by state-sponsored threat actors and sophisticated campaigns targeting infrastructure at scale. Russian APT28 (Forest Blizzard) has been conducting large-scale espionage operations by compromising vulnerable SOHO routers to harvest Microsoft Office authentication tokens without deploying traditional malware. Iranian threat actors are actively disrupting U.S. critical infrastructure by targeting Internet-exposed programmable logic controllers (PLCs), causing operational disruption and financial losses across multiple sectors. Additionally, CISA has issued emergency directives for federal agencies to patch a critical Ivanti Endpoint Manager Mobile vulnerability that has been exploited in attacks since January. The threat landscape also shows significant activity from financially motivated groups, with Storm-1175 deploying Medusa ransomware at high velocity using both N-day and zero-day vulnerabilities, while North Korean actors have distributed over 1,700 malicious packages across major software repositories.
+Critical exploitation activity is currently dominated by several high-impact campaigns targeting diverse infrastructure components. Russia's APT28 (Forest Blizzard) is conducting sophisticated espionage operations by compromising vulnerable SOHO routers to harvest Microsoft Office authentication tokens without deploying traditional malware. Meanwhile, Iranian threat actors are actively disrupting U.S. critical infrastructure by targeting Internet-exposed programmable logic controllers (PLCs), causing operational disruptions and financial losses. Additional concerning activity includes a massive credit card skimming campaign affecting nearly 100 Magento e-commerce stores, active exploitation of vulnerabilities in Ivanti Endpoint Manager Mobile, Apache ActiveMQ Classic, and WordPress plugins, alongside emerging threats from North Korean supply chain attacks and new botnet operations.
 
 ## Active Exploitation Details
 
-### Ivanti Endpoint Manager Mobile (EPMM) Critical Vulnerability
-- **Description**: Critical-severity vulnerability in Ivanti EPMM that allows attackers to compromise endpoint management systems
-- **Impact**: Complete system compromise of mobile device management infrastructure
-- **Status**: Actively exploited since January 2025, CISA has ordered federal agencies to patch by Sunday
+### Ivanti Endpoint Manager Mobile (EPMM) Vulnerability
+- **Description**: Critical-severity vulnerability in Ivanti EPMM that allows unauthorized access to mobile device management systems
+- **Impact**: Complete compromise of mobile device management infrastructure, potential access to corporate mobile devices and data
+- **Status**: Actively exploited since January, CISA has mandated federal agencies patch by Sunday
 
-### SOHO Router Authentication Token Harvesting
-- **Description**: Russian APT28 exploiting known flaws in older Internet routers to mass harvest Microsoft Office authentication tokens
-- **Impact**: Large-scale credential theft and unauthorized access to corporate Microsoft Office environments
-- **Status**: Ongoing active exploitation using "malwareless" techniques that modify DNS settings
-
-### Internet-Exposed Programmable Logic Controllers
-- **Description**: Iranian threat actors targeting Internet-facing operational technology devices, specifically Rockwell/Allen-Bradley PLCs
-- **Impact**: Operational disruption, file and display manipulation, and financial losses across critical infrastructure sectors
-- **Status**: Active ongoing campaign targeting U.S. critical infrastructure
+### Apache ActiveMQ Classic Remote Code Execution
+- **Description**: 13-year-old remote code execution vulnerability in Apache ActiveMQ Classic message broker that went undetected
+- **Impact**: Attackers can execute arbitrary commands on affected systems, potentially leading to complete system compromise
+- **Status**: Recently discovered vulnerability with proof-of-concept available, high risk of active exploitation
 
 ### Ninja Forms WordPress Plugin File Upload Vulnerability
-- **Description**: Critical vulnerability in Ninja Forms File Uploads premium add-on allowing arbitrary file upload without authentication
-- **Impact**: Remote code execution on WordPress websites
+- **Description**: Critical vulnerability in the Ninja Forms File Uploads premium add-on allowing arbitrary file uploads without authentication
+- **Impact**: Remote code execution on WordPress sites, complete website compromise
 - **Status**: Currently being exploited in the wild
 
-### 13-Year-Old Apache ActiveMQ Classic RCE Vulnerability
-- **Description**: Remote code execution vulnerability in Apache ActiveMQ Classic that remained undetected for 13 years
-- **Impact**: Arbitrary command execution on affected message broker systems
-- **Status**: Recently discovered but potentially exploitable since 2012
+### SOHO Router Authentication Token Harvesting
+- **Description**: APT28 exploiting known vulnerabilities in older Internet routers to modify DNS settings and harvest Microsoft Office authentication tokens
+- **Impact**: Mass credential theft enabling persistent access to corporate email and cloud services
+- **Status**: Ongoing espionage campaign targeting global organizations
+
+### Internet-Exposed PLC Compromise
+- **Description**: Iranian threat actors targeting vulnerabilities in Rockwell/Allen-Bradley programmable logic controllers accessible from the Internet
+- **Impact**: Critical infrastructure disruption, operational manipulation, financial losses
+- **Status**: Active targeting of U.S. critical infrastructure sectors
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Critical vulnerability requiring immediate patching by federal agencies
-- **SOHO Routers**: Older Internet routers with known vulnerabilities being mass-exploited by Russian APT28
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management platforms in federal and enterprise environments
+- **Apache ActiveMQ Classic**: Message broker systems across enterprise infrastructure
+- **WordPress Sites**: Websites using Ninja Forms File Uploads premium add-on
+- **SOHO Routers**: Older consumer and small office routers with known vulnerabilities
 - **Rockwell/Allen-Bradley PLCs**: Internet-exposed programmable logic controllers in critical infrastructure
-- **WordPress Sites**: Websites using Ninja Forms File Uploads premium add-on vulnerable to file upload attacks
-- **Apache ActiveMQ Classic**: Message broker systems with 13-year-old RCE vulnerability
-- **Magento E-commerce Platforms**: Nearly 100 online stores compromised with credit card stealing code
-- **macOS Systems**: Targeted by Atomic Stealer malware through ClickFix attacks using Script Editor
-- **Software Repositories**: npm, PyPI, Go, Rust, and PHP ecosystems contaminated with 1,700+ malicious packages
+- **Magento E-commerce Platforms**: Nearly 100 online stores affected by credit card skimming campaign
+- **Zendesk Systems**: Business process outsourcing providers using Zendesk for customer support
+- **macOS Systems**: Targeted by Atomic Stealer malware via Script Editor abuse
+- **Cloud Deployments**: Misconfigured cloud infrastructure targeted by Chaos botnet variant
+- **IoT Devices**: Global IoT infrastructure targeted by Masjesu DDoS-for-hire botnet
 
 ## Attack Vectors and Techniques
 
-- **DNS Modification**: APT28 modifying single DNS settings in compromised routers for credential harvesting
-- **Pixel-Sized SVG Injection**: Credit card stealers hidden in 1-pixel SVG images on Magento sites
-- **ClickFix Social Engineering**: macOS users tricked into executing malicious commands via Script Editor
-- **Supply Chain Poisoning**: North Korean actors distributing malicious packages across multiple programming language ecosystems
-- **Internet-Exposed OT Targeting**: Direct attacks on publicly accessible operational technology devices
-- **Business Process Outsourcing Compromise**: UNC6783 targeting BPO providers to access high-value corporate clients
-- **Spear-Phishing Campaigns**: APT28 using targeted email attacks to deploy PRISMEX malware
+- **DNS Manipulation**: Modifying single DNS settings in compromised routers to redirect traffic and harvest tokens
+- **Malwareless Espionage**: Credential theft without traditional malware deployment through infrastructure compromise
+- **SVG Image Hiding**: Concealing credit card stealing code in pixel-sized Scalable Vector Graphics images
+- **ClickFix Social Engineering**: Tricking macOS users into executing malicious commands via Script Editor
+- **Supply Chain Poisoning**: Distributing 1,700+ malicious packages across npm, PyPI, Go, and Rust ecosystems
+- **Business Email Compromise**: Targeting BPO providers to gain access to high-value corporate customers
+- **Spear Phishing**: PRISMEX malware deployment against Ukraine and NATO allies
+- **File Upload Exploitation**: Bypassing authentication to upload arbitrary files on WordPress sites
+- **OT Device Targeting**: Direct attacks on Internet-facing operational technology systems
 
 ## Threat Actor Activities
 
-- **APT28 (Forest Blizzard)**: Conducting large-scale router compromise campaigns for authentication token theft and deploying PRISMEX malware against Ukraine and NATO allies
-- **Iranian Threat Actors**: Systematically targeting U.S. critical infrastructure through Internet-exposed PLCs causing operational disruptions
-- **Storm-1175**: Deploying Medusa ransomware at high velocity using both N-day and zero-day vulnerabilities
-- **UNC6783**: Compromising business process outsourcing providers to gain access to high-value companies across multiple sectors
-- **North Korean Contagious Interview Campaign**: Distributing over 1,700 malicious packages across npm, PyPI, Go, Rust, and PHP ecosystems
-- **Masjesu Botnet Operators**: Running DDoS-for-hire service targeting global IoT devices through Telegram advertisements
+- **APT28 (Forest Blizzard)**: Conducting router-based credential harvesting campaigns targeting global organizations for espionage purposes
+- **Iranian Threat Actors**: Systematically targeting U.S. critical infrastructure PLCs causing operational disruption across multiple sectors
+- **UNC6783**: Compromising business process outsourcing providers to access high-value companies and steal Zendesk support tickets
+- **Storm-1175**: Deploying Medusa ransomware at high velocity, exploiting both N-day and zero-day vulnerabilities
+- **North Korean Actors**: Operating Contagious Interview campaign distributing malicious packages across multiple programming language ecosystems
+- **Magento Skimmers**: Large-scale credit card theft operation targeting e-commerce platforms with sophisticated concealment techniques
+- **Chaos Botnet Operators**: Expanding targeting to include misconfigured cloud deployments with enhanced SOCKS proxy capabilities
+- **Masjesu Botnet**: Emerging DDoS-for-hire service advertised via Telegram targeting global IoT devices
