@@ -1,56 +1,59 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently under active exploitation, with threat actors targeting Adobe Reader through malicious PDF documents since December 2025, and Windows systems through the BlueHammer exploit. Additional exploitation activity includes attacks on Ivanti Endpoint Manager Mobile systems, compromised Smart Slider 3 Pro plugin updates for WordPress and Joomla platforms, and sophisticated campaigns targeting corporate credentials through VENOM phishing-as-a-service operations. State-sponsored groups continue aggressive exploitation campaigns, with Russia's APT28/Fancy Bear and Forest Blizzard groups conducting global operations, while the UAT-10362 cluster targets Taiwanese organizations using the new LucidRook malware.
+Critical zero-day vulnerabilities are being actively exploited across multiple platforms, with threat actors targeting Adobe Reader through malicious PDF campaigns since December 2025. Several sophisticated attack campaigns are underway, including the deployment of LucidRook malware against Taiwanese organizations, exploitation of misconfigured cloud deployments by Chaos botnet variants, and active compromise of Ivanti Endpoint Manager Mobile systems. Additionally, threat actors are leveraging compromised update mechanisms, stolen credentials, and advanced phishing techniques to maintain persistent access to corporate environments and steal sensitive data.
 
 ## Active Exploitation Details
 
 ### Adobe Reader Zero-Day Vulnerability
-- **Description**: Previously unknown vulnerability in Adobe Reader being exploited through maliciously crafted PDF documents
-- **Impact**: Allows attackers to compromise systems when users open malicious PDF files
-- **Status**: Active exploitation confirmed since December 2025, vulnerability remains unpatched
+- **Description**: A previously unknown zero-day vulnerability in Adobe Reader being exploited through maliciously crafted PDF documents
+- **Impact**: Attackers can execute arbitrary code and potentially achieve system compromise when victims open malicious PDF files
+- **Status**: Active exploitation confirmed since at least December 2025, patch status not specified
 
-### BlueHammer Windows Zero-Day Exploit
-- **Description**: Zero-day flaw in Windows systems that allows for complete system takeover by a local user
-- **Impact**: Enables privilege escalation and full system compromise
-- **Status**: Proof-of-concept exploit released publicly under alias 'Chaotic Eclipse'
+### BlueHammer Windows Zero-Day
+- **Description**: A zero-day vulnerability in Windows systems that allows local privilege escalation for system takeover
+- **Impact**: Local users can escalate privileges to gain complete control of affected Windows systems
+- **Status**: Proof-of-concept exploit released by researcher "Chaotic Eclipse", indicating active threat potential
 
-### Ivanti Endpoint Manager Mobile Critical Vulnerability
-- **Description**: Critical-severity vulnerability in Ivanti EPMM systems
-- **Impact**: Allows unauthorized access to mobile device management infrastructure
-- **Status**: Actively exploited in attacks since January, CISA has mandated federal agencies patch by Sunday
+### Ivanti Endpoint Manager Mobile (EPMM) Vulnerability
+- **Description**: Critical-severity vulnerability in Ivanti EPMM being actively exploited in targeted attacks
+- **Impact**: Unauthorized access to mobile device management infrastructure and potential data exfiltration
+- **Status**: Active exploitation confirmed since January, CISA emergency directive issued requiring federal agencies to patch by Sunday
 
-### Smart Slider 3 Pro Update System Compromise
-- **Description**: Hijacked update mechanism for WordPress and Joomla Smart Slider 3 Pro plugin
-- **Impact**: Delivers malicious plugin versions containing multiple backdoors to websites
-- **Status**: Update system compromised, malicious versions distributed to users
+### EngageLab SDK Vulnerability
+- **Description**: Security flaw in widely-used Android SDK affecting millions of users including cryptocurrency wallet applications
+- **Impact**: Potential exposure of sensitive user data and compromise of cryptocurrency wallet security
+- **Status**: Now patched, but previously exposed 50 million Android users including 30 million crypto wallet users
 
 ## Affected Systems and Products
 
-- **Adobe Reader**: All versions vulnerable to zero-day PDF exploitation
-- **Windows Systems**: Affected by BlueHammer local privilege escalation vulnerability
+- **Adobe Reader**: All versions affected by zero-day vulnerability exploited via malicious PDFs
+- **Windows Systems**: Affected by BlueHammer zero-day allowing local privilege escalation
 - **Ivanti Endpoint Manager Mobile (EPMM)**: Critical vulnerability under active exploitation
-- **WordPress/Joomla Platforms**: Sites using Smart Slider 3 Pro plugin affected by malicious updates
-- **EngageLab SDK**: Android applications using the SDK exposed 50M users including 30M crypto wallets
-- **ChipSoft Healthcare Solutions**: Dutch healthcare software vendor hit by ransomware
-- **Bitcoin Depot**: Crypto ATM network suffered $3.6 million theft from wallets
+- **Android Applications**: 50+ million users affected through EngageLab SDK vulnerability
+- **Smart Slider 3 Pro**: WordPress and Joomla plugin update system compromised with backdoored versions
+- **Magento E-commerce Platforms**: Nearly 100 online stores affected by credit card skimming campaign
+- **Small Office/Home Office (SOHO) Routers**: Targeted by Forest Blizzard for DNS manipulation attacks
+- **Cloud Deployments**: Misconfigured instances targeted by Chaos botnet variants
+- **IoT Devices**: Global targeting by Masjesu botnet for DDoS operations
 
 ## Attack Vectors and Techniques
 
-- **Malicious PDF Documents**: Zero-day Adobe Reader exploitation through crafted PDF files
-- **Spear-Phishing Campaigns**: LucidRook malware delivery targeting NGOs and universities in Taiwan
-- **Phishing-as-a-Service**: VENOM platform targeting C-suite executives' Microsoft credentials
-- **Supply Chain Attacks**: Compromised plugin update mechanisms for web platforms
-- **Router DNS Modification**: APT28 modifying single DNS settings in vulnerable SOHO routers
-- **ClickFix Attacks**: Atomic Stealer malware using Script Editor on macOS systems
-- **Pixel-Sized SVG Hiding**: Credit card stealer code hidden in 1-pixel SVG images on Magento stores
+- **Malicious PDF Documents**: Adobe Reader zero-day exploitation through crafted PDF files
+- **Spear-phishing Campaigns**: LucidRook malware delivery targeting NGOs and universities in Taiwan
+- **Phishing-as-a-Service (PhaaS)**: VENOM platform targeting C-suite executives' Microsoft credentials
+- **Supply Chain Compromise**: Smart Slider plugin update system hijacked to distribute backdoors
+- **DNS Manipulation**: Forest Blizzard modifying DNS settings in vulnerable SOHO routers for credential theft
+- **ClickFix Attacks**: macOS campaigns using Script Editor to deliver Atomic Stealer malware
+- **Credit Card Skimming**: Pixel-sized SVG images hiding malicious code on e-commerce sites
+- **BPO Provider Compromise**: UNC6783 targeting business process outsourcing providers for lateral movement
 
 ## Threat Actor Activities
 
-- **APT28/Fancy Bear**: Continuing global onslaught with sophisticated techniques and router compromise campaigns
-- **Forest Blizzard (APT28)**: Conducting malwareless cyber espionage through DNS modification in SOHO routers
-- **UAT-10362**: Previously undocumented threat cluster targeting Taiwanese NGOs with LucidRook malware
-- **UNC6783**: Compromising business process outsourcing providers to access high-value companies
-- **Bitter-Linked Groups**: Hack-for-hire campaigns targeting journalists across MENA region
-- **Chaotic Eclipse**: Researcher releasing Windows zero-day exploit citing issues with Microsoft
-- **Masjesu Botnet**: DDoS-for-hire service targeting global IoT devices advertised via Telegram
-- **Chaos Malware Variant**: Targeting misconfigured cloud deployments with added SOCKS proxy capabilities
+- **UAT-10362**: Conducting spear-phishing campaigns with LucidRook malware against Taiwanese NGOs and universities
+- **Forest Blizzard (APT28)**: Russian group performing malwareless espionage through SOHO router DNS manipulation
+- **Fancy Bear (APT28)**: Continuing global cyberattack campaigns with emphasis on credential harvesting
+- **UNC6783**: Compromising business process outsourcing providers to access high-value corporate targets across multiple sectors
+- **Bitter-Linked Groups**: Suspected Indian government-tied actors targeting journalists and activists across MENA region through hack-for-hire operations
+- **VENOM Operators**: Running phishing-as-a-service platform specifically targeting senior executives' Microsoft accounts
+- **Chaos Botnet Operators**: Expanding targeting to include misconfigured cloud deployments with new SOCKS proxy capabilities
+- **Masjesu Botnet**: Operating DDoS-for-hire service through Telegram, targeting global IoT infrastructure
