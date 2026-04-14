@@ -1,54 +1,60 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently experiencing intense exploitation activity across multiple vectors, with several critical zero-day vulnerabilities actively being exploited in the wild. The most significant threat involves a critical Adobe Acrobat Reader zero-day vulnerability (CVE-2026-34621) that has been under active exploitation since December, prompting an emergency security update. Additionally, a critical pre-authentication remote code execution vulnerability in Marimo is now being actively exploited for credential theft. Supply chain attacks continue to pose severe risks, with multiple incidents affecting OpenAI's macOS code-signing workflow through a malicious Axios package, CPUID's website serving trojanized downloads of popular hardware monitoring tools, and ongoing sophisticated campaigns by state-sponsored threat actors. Advanced persistent threat groups, particularly APT37 and APT41, are leveraging social engineering and sophisticated backdoors to target cloud environments and deliver advanced malware payloads.
+Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms and industries. The most severe incident involves an Adobe Acrobat Reader zero-day vulnerability (CVE-2026-34621) that has been exploited through malicious PDF files for at least four months before receiving an emergency patch. Additionally, a critical pre-authentication remote code execution flaw in Marimo is experiencing active exploitation for credential theft. Supply chain attacks have escalated with multiple incidents including the compromise of CPUID's website to distribute trojanized hardware monitoring tools, and OpenAI's code-signing workflow being targeted through a malicious Axios package. Advanced persistent threats are leveraging sophisticated backdoors and social engineering campaigns, while financial institutions face targeted malware campaigns and widespread phishing operations.
 
 ## Active Exploitation Details
 
 ### Adobe Acrobat Reader Zero-Day Vulnerability
-- **Description**: Critical security flaw in Adobe Acrobat Reader that enables remote code execution
-- **Impact**: Attackers can achieve complete system compromise through malicious PDF documents
-- **Status**: Under active exploitation since December 2024, emergency patch released
+- **Description**: Critical vulnerability in Adobe Acrobat and Reader applications that allows attackers to exploit the software through maliciously crafted PDF files
+- **Impact**: Successful exploitation enables attackers to execute arbitrary code on target systems through weaponized PDF documents
+- **Status**: Actively exploited for at least four months before Adobe released emergency security updates
 - **CVE ID**: CVE-2026-34621
 
-### Marimo Pre-Authentication RCE Vulnerability
-- **Description**: Critical pre-authentication remote code execution vulnerability in Marimo platform
-- **Impact**: Enables credential theft and unauthorized system access without authentication
-- **Status**: Currently under active exploitation for credential harvesting campaigns
+### Marimo Pre-Authentication Remote Code Execution
+- **Description**: Critical pre-authentication remote code execution vulnerability affecting Marimo applications
+- **Impact**: Attackers can execute arbitrary code without authentication and steal user credentials
+- **Status**: Currently under active exploitation in the wild
 
-### Anthropic Mythos AI Zero-Day Discovery
-- **Description**: AI model autonomously discovered and exploited zero-day vulnerabilities across major operating systems and browsers
-- **Impact**: Demonstrates potential for automated vulnerability discovery and exploitation
-- **Status**: Model restricted after successful exploitation demonstrations
+### CPUID Website Compromise
+- **Description**: Supply chain attack targeting CPUID's official website hosting popular hardware monitoring tools
+- **Impact**: Trojanized versions of CPU-Z, HWMonitor, HWMonitor Pro, and PerfMonitor distributed with STX RAT malware
+- **Status**: Compromise lasted less than 24 hours but affected legitimate software downloads
+
+### OpenAI Code-Signing Workflow Compromise
+- **Description**: GitHub Actions workflow used for macOS app signing was compromised through a malicious Axios package
+- **Impact**: Potential exposure of code-signing certificates and compromise of software integrity
+- **Status**: OpenAI rotated potentially exposed macOS certificates as a precautionary measure
 
 ## Affected Systems and Products
 
-- **Adobe Acrobat Reader**: All versions prior to emergency security update
-- **Marimo Platform**: All versions with pre-authentication vulnerability
-- **OpenAI macOS Applications**: Code-signing workflow compromised via malicious dependencies
-- **CPUID Software**: CPU-Z, HWMonitor, HWMonitor Pro, and PerfMonitor downloads trojanized
-- **Booking.com Systems**: Reservation and user data systems breached
-- **Cloud Platforms**: AWS, Google Cloud, Azure, and Alibaba Cloud environments targeted by APT41
-- **Industrial Control Systems**: Nearly 4,000 US programmable logic controllers exposed to Iranian attacks
+- **Adobe Acrobat and Reader**: All versions affected by the zero-day vulnerability requiring emergency patching
+- **Marimo Applications**: Systems running Marimo applications vulnerable to pre-authentication RCE attacks
+- **CPUID Hardware Tools**: CPU-Z, HWMonitor, HWMonitor Pro, and PerfMonitor downloads compromised with malware
+- **OpenAI macOS Applications**: Code-signing workflow potentially compromised affecting macOS app integrity
+- **wolfSSL Library**: Critical vulnerability in SSL/TLS library affecting ECDSA certificate verification
+- **Cloud Environments**: AWS, Google Cloud, Microsoft Azure, and Alibaba Cloud platforms targeted by APT41
+- **Banking Systems**: Latin American financial institutions targeted by JanelaRAT malware
+- **Industrial Control Systems**: Nearly 4,000 US programmable logic controllers exposed to potential attacks
 - **Developer IDEs**: Multiple integrated development environments targeted by GlassWorm campaign
-- **Canadian Payroll Systems**: Employee salary payment systems compromised
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Malicious packages injected into software distribution channels and dependency chains
-- **Social Engineering**: Facebook-based targeting for malware delivery and credential harvesting
-- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in widely-used software
-- **Session Hijacking**: Server-side decryption techniques bypassing local security measures
-- **Typosquatting**: Domain spoofing to obscure command and control communications
-- **Phishing Operations**: Large-scale coordinated campaigns targeting financial credentials
-- **Code-Signing Abuse**: Compromise of legitimate signing workflows to distribute malware
-- **Website Compromise**: Direct modification of legitimate download links to serve malicious content
+- **Malicious PDF Files**: Weaponized PDF documents exploiting Adobe Reader zero-day vulnerability
+- **Supply Chain Compromise**: Targeting legitimate software distribution channels to insert malware
+- **Social Engineering**: Facebook-based approaches used by APT37 to deliver RokRAT malware
+- **Phishing-as-a-Service**: W3LL platform facilitating large-scale phishing operations
+- **Session Hijacking**: Storm infostealer bypassing passwords and multi-factor authentication
+- **Typosquatting**: APT41 using domain spoofing to obscure command and control communications
+- **Zero-Detection Backdoors**: Advanced backdoors designed to evade security detection systems
+- **Server-Side Decryption**: Novel approach by Storm malware to decrypt browser data remotely
 
 ## Threat Actor Activities
 
-- **APT37 (ScarCruft)**: North Korean group conducting multi-stage social engineering campaigns via Facebook to deliver RokRAT malware
-- **APT41**: China-backed group deploying zero-detection backdoors targeting major cloud platforms for credential harvesting
-- **Storm-2755**: Financially motivated actor specializing in payroll piracy attacks against Canadian employees
-- **W3LL Network**: Global phishing operation dismantled by FBI and Indonesian police after $20 million in fraud attempts
-- **GlassWorm Campaign**: Sophisticated operation using Zig droppers to infect developer environments
-- **Iranian-linked Groups**: Targeting US critical infrastructure through exposed industrial control systems
-- **Unknown Supply Chain Actors**: Multiple groups conducting coordinated attacks against software distribution channels
+- **APT41**: China-backed group targeting cloud environments with zero-detection backdoors for credential harvesting
+- **APT37 (ScarCruft)**: North Korean group using Facebook social engineering to deliver RokRAT malware
+- **ShinyHunters**: Extortion gang leaking stolen Rockstar Games analytics data
+- **Unknown Actors**: Exploiting Adobe zero-day through PDF-based attacks for extended periods
+- **JanelaRAT Operators**: Targeting Latin American banks with 14,739 attacks recorded in Brazil
+- **W3LL Platform Users**: Global phishing operation attempting over $20 million in fraud before FBI takedown
+- **GlassWorm Campaign**: Using Zig droppers to infect developer environments across multiple IDEs
+- **Iranian-Linked Groups**: Targeting US critical infrastructure through exposed industrial control systems
