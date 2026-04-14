@@ -1,70 +1,70 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms, with Adobe Acrobat/Reader CVE-2026-34621 representing the most significant threat after being exploited for at least four months before detection. Concurrent exploitation campaigns target document management systems like ShowDoc (CVE-2025-0520) and data analytics platforms like Marimo, while sophisticated malware operations leverage Android RATs, Chrome extension abuse, and supply chain compromises to establish persistent access across millions of devices. The emergence of advanced AI-powered vulnerability discovery tools has heightened concerns about accelerated exploit development capabilities.
+The cybersecurity landscape is experiencing an alarming surge in active exploitation campaigns, with several critical zero-day vulnerabilities and recently discovered threats causing significant impact across diverse platforms. Most notably, CVE-2026-34621, a critical Adobe Acrobat Reader zero-day vulnerability, has been actively exploited for at least four months through maliciously crafted PDF files. Meanwhile, CVE-2025-0520, affecting ShowDoc document management services, is seeing widespread exploitation on unpatched servers. The threat landscape is further complicated by sophisticated malware campaigns including the Mirax Android RAT affecting over 220,000 accounts, malicious Chrome extensions compromising 20,000 users, and advanced persistent threats like APT37 and APT41 conducting targeted operations against financial institutions and cloud environments.
 
 ## Active Exploitation Details
 
-### Adobe Acrobat/Reader Zero-Day Vulnerability
-- **Description**: Critical security flaw in Adobe Acrobat and Reader applications that has been exploited through maliciously crafted PDF files
-- **Impact**: Attackers can achieve code execution and compromise systems by distributing weaponized PDF documents
-- **Status**: Emergency patch released by Adobe after months of active exploitation in the wild
+### Adobe Acrobat Reader Zero-Day Vulnerability
+- **Description**: A critical security flaw in Adobe Acrobat Reader that allows attackers to exploit the application through maliciously crafted PDF files
+- **Impact**: Enables arbitrary code execution and complete system compromise when victims open weaponized PDF documents
+- **Status**: Emergency security update released by Adobe after months of active exploitation in the wild
 - **CVE ID**: CVE-2026-34621
 
 ### ShowDoc Remote Code Execution Flaw
-- **Description**: Critical vulnerability in ShowDoc document management and collaboration service, particularly popular in China
-- **Impact**: Remote code execution capabilities allowing full system compromise
-- **Status**: Actively exploited against unpatched servers
+- **Description**: A critical remote code execution vulnerability affecting ShowDoc, a document management and collaboration service popular in China
+- **Impact**: Allows attackers to achieve complete system compromise and execute arbitrary code on vulnerable servers
+- **Status**: Under active exploitation targeting unpatched ShowDoc installations
 - **CVE ID**: CVE-2025-0520
 
-### Marimo Pre-Authentication RCE Vulnerability
-- **Description**: Critical pre-authentication remote code execution vulnerability in the Marimo platform
-- **Impact**: Credential theft and system compromise without authentication requirements
-- **Status**: Currently under active exploitation for credential harvesting attacks
+### Marimo Pre-Authentication RCE
+- **Description**: A critical pre-authentication remote code execution vulnerability in Marimo that doesn't require user authentication
+- **Impact**: Enables credential theft and complete system compromise without any user interaction
+- **Status**: Currently under active exploitation for credential harvesting operations
 
 ### CISA Known Exploited Vulnerabilities
-- **Description**: Six security flaws in Fortinet, Microsoft, and Adobe software products
-- **Impact**: Various system compromise scenarios depending on the specific vulnerability
+- **Description**: Six security flaws affecting Fortinet, Microsoft, and Adobe software products
+- **Impact**: Various impacts including privilege escalation, remote code execution, and system compromise
 - **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to evidence of active exploitation
 
 ### wolfSSL Certificate Verification Bypass
-- **Description**: Critical vulnerability in the wolfSSL SSL/TLS library affecting Elliptic Curve Digital Signature Algorithm (ECDSA) verification
-- **Impact**: Enables use of forged certificates, potentially allowing man-in-the-middle attacks and authentication bypass
-- **Status**: Recently disclosed with high severity rating
+- **Description**: Critical vulnerability in the wolfSSL SSL/TLS library affecting proper verification of hash algorithms and sizes when checking ECDSA signatures
+- **Impact**: Allows attackers to use forged certificates, potentially enabling man-in-the-middle attacks and bypassing security controls
+- **Status**: Patch available, actively being assessed for exploitation potential
 
 ## Affected Systems and Products
 
-- **Adobe Acrobat and Reader**: All versions prior to emergency patch release
-- **ShowDoc Servers**: Unpatched installations of the document management platform
-- **Marimo Platform**: Pre-authentication access points vulnerable to RCE
-- **Google Chrome Browser**: 108 malicious extensions affecting approximately 20,000 users
-- **Android Devices**: 220,000+ accounts targeted by Mirax RAT via Meta advertising platforms
-- **Fortinet Products**: Specific products mentioned in CISA KEV catalog
-- **Microsoft Software**: Various applications included in CISA's exploitation list
-- **wolfSSL Library**: SSL/TLS implementations using vulnerable ECDSA verification
-- **CPUID Website**: Hardware monitoring tools (CPU-Z, HWMonitor) served with malicious payloads
-- **Basic-Fit Systems**: Fitness chain infrastructure affecting 1 million member accounts
-- **Booking.com Platform**: Reservation and user data systems compromised
+- **Adobe Acrobat Reader**: All versions prior to the emergency update, exploited via malicious PDF files
+- **ShowDoc**: Document management and collaboration service installations, particularly popular in China
+- **Marimo**: Interactive computing platform vulnerable to pre-authentication attacks
+- **Google Chrome**: 108 malicious extensions affecting approximately 20,000 users
+- **Android Devices**: Mirax RAT targeting Spanish-speaking countries through Meta advertising platforms
+- **Fortinet Products**: Multiple products with actively exploited vulnerabilities
+- **Microsoft Software**: Various Microsoft products with confirmed exploitation
+- **CPUID Website**: CPU-Z and HWMonitor download compromises distributing STX RAT
+- **wolfSSL Library**: SSL/TLS implementation used across multiple applications and systems
+- **macOS Applications**: OpenAI and other applications affected by Axios supply chain attack
 
 ## Attack Vectors and Techniques
 
-- **Malicious PDF Distribution**: Weaponized documents exploiting Adobe Reader zero-day vulnerability
-- **Chrome Extension Abuse**: 108 malicious browser extensions communicating with shared C2 infrastructure
-- **Android RAT Deployment**: Mirax trojan turning devices into SOCKS5 proxies via social media advertising
-- **Supply Chain Compromise**: CPUID website breach distributing STX RAT through legitimate software downloads
-- **Social Engineering Campaigns**: Facebook-based approaches delivering RokRAT malware
-- **Certificate Forgery**: Exploitation of wolfSSL ECDSA verification weaknesses
-- **Session Hijacking**: Storm infostealer bypassing MFA through server-side decryption techniques
-- **Typosquatting**: APT41 using domain mimicry to obscure command and control communications
-- **Phishing-as-a-Service**: W3LL platform facilitating large-scale credential theft operations
+- **Malicious PDF Files**: Weaponized documents exploiting Adobe Reader vulnerabilities for code execution
+- **Social Engineering**: APT37 using Facebook messaging to deliver RokRAT malware to targets
+- **Meta Advertising Campaigns**: Mirax RAT distribution through Facebook, Instagram, and Messenger ads
+- **Chrome Extension Distribution**: 108 malicious extensions stealing Google and Telegram data
+- **Supply Chain Attacks**: Compromised Axios package affecting GitHub Actions workflows
+- **Website Compromise**: CPUID website breach distributing trojanized software downloads
+- **Session Hijacking**: Storm infostealer bypassing passwords and MFA through server-side decryption
+- **SOCKS5 Proxy Creation**: Converting compromised Android devices into network proxies
+- **Typosquatting**: APT41 using domain typosquatting to obscure command and control communication
+- **Phishing-as-a-Service**: W3LL platform enabling large-scale phishing operations
 
 ## Threat Actor Activities
 
+- **APT37 (ScarCruft)**: North Korean group conducting multi-stage social engineering campaigns via Facebook to deliver RokRAT malware
 - **APT41**: China-backed group deploying zero-detection backdoors to harvest cloud credentials from AWS, Google, Azure, and Alibaba environments
-- **APT37 (ScarCruft)**: North Korean group conducting Facebook social engineering campaigns to deliver RokRAT malware
-- **Mirax Operators**: Spanish-speaking region targeting through Android RAT campaigns reaching 220,000+ Meta platform accounts
-- **ShinyHunters**: Extortion gang leaking Rockstar Games analytics data following Anodot security incident
-- **W3LL Network**: Dismantled global phishing operation responsible for $20 million in fraud attempts
-- **Chrome Extension Threat Actors**: Coordinated campaign operators managing 108 malicious browser extensions
-- **JanelaRAT Operators**: Latin American banking sector targeting with 14,739 attacks recorded in Brazil during 2025
-- **Storm Infostealer Developers**: Advanced credential theft operation using server-side decryption techniques
-- **CPUID Attackers**: Supply chain compromise operators distributing STX RAT through legitimate software channels
+- **Mirax RAT Operators**: Targeting Spanish-speaking countries with Android malware distributed through Meta advertising platforms
+- **JanelaRAT Campaign**: Targeting Latin American banks and financial institutions, with 14,739 attacks recorded in Brazil during 2025
+- **ShinyHunters**: Extortion gang leaking stolen Rockstar Games analytics data following Anodot security incident
+- **Chrome Extension Campaign**: Coordinated operation deploying 108 malicious Chrome extensions with shared command and control infrastructure
+- **W3LL Network**: Global phishing operation dismantled by FBI and Indonesian police after facilitating $20 million in fraud attempts
+- **Storm Infostealer Operators**: Deploying advanced session hijacking malware with server-side decryption capabilities
+- **CPUID Website Attackers**: Unknown threat actors compromising legitimate software distribution site to distribute STX RAT
