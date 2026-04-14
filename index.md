@@ -1,47 +1,57 @@
 # Exploitation Report
 
-Critical zero-day exploitation activity is currently targeting widely-used software platforms, with Adobe Acrobat and Reader experiencing active attacks through maliciously crafted PDF files for at least four months. CVE-2026-34621 represents a significant threat as attackers have successfully weaponized this vulnerability before patches were available. Additionally, a critical pre-authentication remote code execution flaw in Marimo is now under active exploitation for credential theft, while threat actors have compromised the CPUID website to distribute trojaned versions of popular hardware monitoring tools. These incidents highlight the persistent challenge of zero-day vulnerabilities and supply chain attacks targeting both enterprise and consumer software platforms.
+Critical zero-day vulnerabilities are currently under active exploitation across multiple attack surfaces, with Adobe Acrobat Reader being targeted through malicious PDF files for several months. Security researchers have identified active campaigns exploiting vulnerabilities in ShowDoc document management systems, a critical pre-authentication RCE flaw in Marimo, and malicious Chrome extensions targeting user data. CISA has added six new vulnerabilities to its Known Exploited Vulnerabilities catalog, affecting major software vendors including Fortinet, Microsoft, and Adobe. The threat landscape is further complicated by sophisticated supply chain attacks, including the compromise of CPUID's website and a malicious Axios package affecting OpenAI's code-signing workflow.
 
 ## Active Exploitation Details
 
-### Adobe Acrobat and Reader Zero-Day Vulnerability
-- **Description**: A critical vulnerability in Adobe Acrobat and Reader that allows attackers to exploit the software through maliciously crafted PDF files
-- **Impact**: Successful exploitation enables attackers to execute arbitrary code on victim systems, potentially leading to full system compromise
-- **Status**: Adobe has released an emergency security update to patch this actively exploited vulnerability
+### Adobe Acrobat Reader Zero-Day
+- **Description**: A critical vulnerability in Adobe Acrobat and Reader that has been exploited through maliciously crafted PDF files
+- **Impact**: Attackers can execute arbitrary code on victim systems when malicious PDF files are opened
+- **Status**: Emergency patch released by Adobe after months of active exploitation in the wild
 - **CVE ID**: CVE-2026-34621
 
-### Marimo Pre-Authentication Remote Code Execution Flaw
-- **Description**: A critical pre-authentication remote code execution vulnerability that allows attackers to execute code without prior authentication
-- **Impact**: Attackers can gain unauthorized access to systems and steal credentials without needing valid login information
-- **Status**: Currently under active exploitation with attacks focused on credential theft
+### ShowDoc Remote Code Execution
+- **Description**: A critical security vulnerability affecting ShowDoc document management and collaboration service
+- **Impact**: Enables remote code execution on unpatched servers
+- **Status**: Under active exploitation in the wild, particularly targeting deployments in China
+- **CVE ID**: CVE-2025-0520
 
-### wolfSSL Library Certificate Verification Flaw
-- **Description**: A critical vulnerability in the wolfSSL SSL/TLS library affecting improper verification of hash algorithms or their size when checking Elliptic Curve Digital Signature Algorithm (ECDSA)
-- **Impact**: Enables the use of forged certificates, potentially allowing man-in-the-middle attacks and bypassing SSL/TLS security protections
-- **Status**: Vulnerability disclosed with security implications for applications using the affected library
+### Marimo Pre-Authentication RCE
+- **Description**: A critical pre-authentication remote code execution vulnerability in Marimo
+- **Impact**: Allows attackers to execute arbitrary code without authentication and perform credential theft
+- **Status**: Now under active exploitation following public disclosure
+
+### CISA Known Exploited Vulnerabilities
+- **Description**: Six security flaws in Fortinet, Microsoft, and Adobe software products
+- **Impact**: Various impacts including remote code execution and privilege escalation
+- **Status**: Added to CISA KEV catalog due to evidence of active exploitation in the wild
 
 ## Affected Systems and Products
 
-- **Adobe Acrobat and Reader**: All versions vulnerable to CVE-2026-34621 prior to emergency patch release
-- **Marimo Platform**: Systems running vulnerable versions susceptible to pre-authentication RCE attacks
-- **wolfSSL Library**: Applications and systems utilizing the affected wolfSSL library for SSL/TLS operations
-- **CPUID Tools**: CPU-Z, HWMonitor, HWMonitor Pro, and PerfMonitor downloaded during compromise window
-- **macOS Applications**: OpenAI applications affected by malicious Axios supply chain incident
+- **Adobe Acrobat and Reader**: All versions prior to emergency security update
+- **ShowDoc**: Document management and collaboration service, particularly popular in China
+- **Marimo**: Interactive computing environment and applications
+- **Google Chrome**: 108 malicious extensions affecting approximately 20,000 users
+- **CPUID Tools**: CPU-Z, HWMonitor, HWMonitor Pro, and PerfMonitor downloads compromised
+- **Fortinet Products**: Multiple products affected by newly cataloged vulnerabilities
+- **Microsoft Software**: Various Microsoft products with exploited vulnerabilities
+- **wolfSSL Library**: SSL/TLS library with critical certificate verification flaw
 
 ## Attack Vectors and Techniques
 
-- **Malicious PDF Files**: Weaponized PDF documents exploiting Adobe zero-day vulnerability for code execution
-- **Pre-Authentication Exploitation**: Direct attacks against Marimo systems without requiring valid credentials
-- **Supply Chain Compromise**: CPUID website breach resulting in distribution of trojaned hardware monitoring tools
-- **Certificate Forgery**: Exploitation of wolfSSL library flaws to use forged certificates in SSL/TLS communications
-- **Social Engineering**: Facebook-based campaigns delivering RokRAT malware through multi-stage attacks
-- **Session Hijacking**: Storm infostealer bypassing passwords and MFA through server-side decryption techniques
+- **Malicious PDF Files**: Exploitation of Adobe Reader zero-day through weaponized documents
+- **Pre-Authentication Attacks**: Direct exploitation of Marimo services without authentication requirements
+- **Browser Extension Abuse**: Malicious Chrome extensions communicating with command-and-control infrastructure
+- **Supply Chain Compromise**: Trojanized downloads from legitimate software distribution sites
+- **Social Engineering**: Facebook-based campaigns by North Korean APT37 delivering RokRAT malware
+- **Session Hijacking**: New "Storm" infostealer bypassing passwords and MFA through server-side decryption
+- **Typosquatting**: APT41 using domain name variations to obscure command-and-control communications
 
 ## Threat Actor Activities
 
-- **APT37 (ScarCruft)**: North Korean group conducting Facebook social engineering campaigns to deliver RokRAT malware through multi-stage attacks
-- **APT41**: China-backed threat group deploying zero-detection backdoors targeting AWS, Google, Azure, and Alibaba cloud environments using typosquatting for C2 communication
+- **APT41**: Deploying zero-detection backdoors to harvest cloud credentials from AWS, Google, Azure, and Alibaba environments
+- **APT37 (ScarCruft)**: North Korean group conducting multi-stage social engineering campaigns via Facebook to deliver RokRAT malware
+- **Unknown Threat Actors**: Compromising CPUID website to distribute STX RAT through trojanized hardware monitoring tools
+- **Chrome Extension Operators**: Coordinated campaign using 108 malicious extensions to steal Google and Telegram data
+- **JanelaRAT Operators**: Targeting Latin American banks with 14,739 attacks recorded in Brazil during 2025
 - **ShinyHunters**: Extortion gang leaking stolen Rockstar Games analytics data following Anodot security incident
-- **Unknown Actors**: Compromised CPUID website for less than 24 hours to distribute STX RAT through trojaned versions of popular hardware tools
-- **Criminal Organizations**: JanelaRAT malware campaigns targeting Latin American banks with 14,739 attacks recorded in Brazil during 2025
-- **W3LL Phishing Network**: Global phishing operation dismantled by FBI and Indonesian authorities, responsible for $20 million in fraud attempts
