@@ -1,49 +1,47 @@
 # Exploitation Report
 
-Critical zero-day exploitation activity continues to pose significant threats, with Adobe Acrobat Reader vulnerability CVE-2026-34621 being actively exploited for at least four months through malicious PDF files. A critical pre-authentication remote code execution flaw in Marimo is also under active exploitation for credential theft. Meanwhile, threat actors have compromised multiple high-profile organizations including CPUID's website to distribute malware, and APT groups are deploying sophisticated backdoors and conducting targeted campaigns against financial institutions and cloud environments.
+Critical zero-day exploitation activity is currently targeting widely-used software platforms, with Adobe Acrobat and Reader experiencing active attacks through maliciously crafted PDF files for at least four months. CVE-2026-34621 represents a significant threat as attackers have successfully weaponized this vulnerability before patches were available. Additionally, a critical pre-authentication remote code execution flaw in Marimo is now under active exploitation for credential theft, while threat actors have compromised the CPUID website to distribute trojaned versions of popular hardware monitoring tools. These incidents highlight the persistent challenge of zero-day vulnerabilities and supply chain attacks targeting both enterprise and consumer software platforms.
 
 ## Active Exploitation Details
 
-### Adobe Acrobat Reader Zero-Day Vulnerability
-- **Description**: A critical security flaw in Adobe Acrobat and Reader that allows attackers to execute malicious code through crafted PDF files
-- **Impact**: Remote code execution enabling complete system compromise through document exploitation
-- **Status**: Actively exploited for at least four months before emergency patch release
+### Adobe Acrobat and Reader Zero-Day Vulnerability
+- **Description**: A critical vulnerability in Adobe Acrobat and Reader that allows attackers to exploit the software through maliciously crafted PDF files
+- **Impact**: Successful exploitation enables attackers to execute arbitrary code on victim systems, potentially leading to full system compromise
+- **Status**: Adobe has released an emergency security update to patch this actively exploited vulnerability
 - **CVE ID**: CVE-2026-34621
 
-### Marimo Pre-Authentication Remote Code Execution
-- **Description**: Critical pre-authentication remote code execution vulnerability allowing unauthorized system access
-- **Impact**: Complete system compromise and credential theft without authentication requirements
-- **Status**: Currently under active exploitation in the wild
+### Marimo Pre-Authentication Remote Code Execution Flaw
+- **Description**: A critical pre-authentication remote code execution vulnerability that allows attackers to execute code without prior authentication
+- **Impact**: Attackers can gain unauthorized access to systems and steal credentials without needing valid login information
+- **Status**: Currently under active exploitation with attacks focused on credential theft
 
-### wolfSSL ECDSA Signature Verification Bypass
-- **Description**: Critical vulnerability enabling improper verification of hash algorithms in Elliptic Curve Digital Signature Algorithm implementations
-- **Impact**: Certificate forgery and weakened cryptographic security through signature bypass
-- **Status**: Recently disclosed, patch available
+### wolfSSL Library Certificate Verification Flaw
+- **Description**: A critical vulnerability in the wolfSSL SSL/TLS library affecting improper verification of hash algorithms or their size when checking Elliptic Curve Digital Signature Algorithm (ECDSA)
+- **Impact**: Enables the use of forged certificates, potentially allowing man-in-the-middle attacks and bypassing SSL/TLS security protections
+- **Status**: Vulnerability disclosed with security implications for applications using the affected library
 
 ## Affected Systems and Products
 
-- **Adobe Acrobat and Reader**: All versions prior to emergency security update
-- **Marimo Platform**: Pre-authentication systems vulnerable to remote code execution
-- **wolfSSL Library**: SSL/TLS implementations using ECDSA signature verification
-- **CPUID Hardware Monitoring Tools**: CPU-Z, HWMonitor, HWMonitor Pro, and PerfMonitor compromised versions
-- **Cloud Environments**: AWS, Google Cloud, Azure, and Alibaba Cloud targeted by APT41
-- **macOS Applications**: OpenAI applications affected by supply chain compromise
+- **Adobe Acrobat and Reader**: All versions vulnerable to CVE-2026-34621 prior to emergency patch release
+- **Marimo Platform**: Systems running vulnerable versions susceptible to pre-authentication RCE attacks
+- **wolfSSL Library**: Applications and systems utilizing the affected wolfSSL library for SSL/TLS operations
+- **CPUID Tools**: CPU-Z, HWMonitor, HWMonitor Pro, and PerfMonitor downloaded during compromise window
+- **macOS Applications**: OpenAI applications affected by malicious Axios supply chain incident
 
 ## Attack Vectors and Techniques
 
-- **Malicious PDF Exploitation**: Crafted PDF documents targeting Adobe Reader vulnerabilities for months
-- **Supply Chain Compromise**: Trojanized downloads through compromised legitimate websites
-- **Social Engineering via Facebook**: Multi-stage campaigns using social media platforms for initial access
-- **Typosquatting for C2 Communication**: Domain spoofing to obscure command and control infrastructure
-- **Session Hijacking**: Server-side decryption bypassing passwords and multi-factor authentication
-- **Certificate Forgery**: Exploiting cryptographic weaknesses in signature verification processes
+- **Malicious PDF Files**: Weaponized PDF documents exploiting Adobe zero-day vulnerability for code execution
+- **Pre-Authentication Exploitation**: Direct attacks against Marimo systems without requiring valid credentials
+- **Supply Chain Compromise**: CPUID website breach resulting in distribution of trojaned hardware monitoring tools
+- **Certificate Forgery**: Exploitation of wolfSSL library flaws to use forged certificates in SSL/TLS communications
+- **Social Engineering**: Facebook-based campaigns delivering RokRAT malware through multi-stage attacks
+- **Session Hijacking**: Storm infostealer bypassing passwords and MFA through server-side decryption techniques
 
 ## Threat Actor Activities
 
-- **APT41**: Deploying zero-detection backdoors targeting cloud credentials across major cloud platforms
-- **APT37 (ScarCruft)**: Conducting Facebook-based social engineering campaigns to deliver RokRAT malware
-- **ShinyHunters**: Data extortion operations targeting gaming companies and analytics providers
-- **JanelaRAT Operators**: Targeting Latin American financial institutions with 14,739 attacks in Brazil
-- **W3LL Phishing Network**: Global operation attempting $20 million in fraud before FBI takedown
-- **Storm Infostealer Developers**: Implementing server-side decryption to bypass local security measures
-- **Unknown CPUID Attackers**: Compromising legitimate software distribution for STX RAT deployment
+- **APT37 (ScarCruft)**: North Korean group conducting Facebook social engineering campaigns to deliver RokRAT malware through multi-stage attacks
+- **APT41**: China-backed threat group deploying zero-detection backdoors targeting AWS, Google, Azure, and Alibaba cloud environments using typosquatting for C2 communication
+- **ShinyHunters**: Extortion gang leaking stolen Rockstar Games analytics data following Anodot security incident
+- **Unknown Actors**: Compromised CPUID website for less than 24 hours to distribute STX RAT through trojaned versions of popular hardware tools
+- **Criminal Organizations**: JanelaRAT malware campaigns targeting Latin American banks with 14,739 attacks recorded in Brazil during 2025
+- **W3LL Phishing Network**: Global phishing operation dismantled by FBI and Indonesian authorities, responsible for $20 million in fraud attempts
