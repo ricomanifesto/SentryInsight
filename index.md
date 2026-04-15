@@ -1,63 +1,58 @@
 # Exploitation Report
 
-Microsoft's April 2026 Patch Tuesday addressed a massive security update encompassing 167 vulnerabilities, including two actively exploited zero-day vulnerabilities and a SharePoint Server zero-day that was publicly disclosed. Concurrent with these critical Windows patches, threat actors have been leveraging various attack vectors including malicious Chrome extensions, compromised mobile applications, and sophisticated social engineering campaigns. Notable incidents include the exploitation of CVE-2025-0520 in ShowDoc servers, six vulnerabilities added to CISA's Known Exploited Vulnerabilities catalog, and an Adobe zero-day that remained actively exploited for months before being patched.
+The current threat landscape reveals a concerning surge in active exploitation activity, with Microsoft releasing emergency patches for 167 vulnerabilities including two actively exploited zero-day vulnerabilities in April 2026. Critical exploitation activity includes a ShowDoc remote code execution vulnerability being actively targeted on unpatched servers, alongside a months-long zero-day campaign exploiting Adobe Acrobat and Reader through malicious PDF files. CISA has added six new vulnerabilities to its Known Exploited Vulnerabilities catalog, indicating active exploitation of flaws in Fortinet, Microsoft, and Adobe products. The threat environment is further complicated by sophisticated malware campaigns, including over 100 malicious Chrome extensions stealing user credentials and a new Android RAT reaching over 220,000 victims through Meta advertising platforms.
 
 ## Active Exploitation Details
 
 ### Microsoft Windows Zero-Day Vulnerabilities
-- **Description**: Two zero-day vulnerabilities in Windows operating systems were actively exploited in the wild before patches were released
-- **Impact**: Attackers could achieve privilege escalation and potentially gain full system control
-- **Status**: Patched in April 2026 Patch Tuesday update, including Windows 10 KB5082200 and Windows 11 cumulative updates
-
-### SharePoint Server Zero-Day
-- **Description**: Zero-day vulnerability in Microsoft SharePoint Server that was publicly disclosed
-- **Impact**: Potential unauthorized access to SharePoint systems and data
-- **Status**: Included in the April 2026 Patch Tuesday fixes
+- **Description**: Two critical zero-day vulnerabilities patched in Microsoft's April 2026 Patch Tuesday affecting Windows operating systems and SharePoint Server
+- **Impact**: Privilege escalation and unauthorized system access, with elevation-of-privilege bugs accounting for more than half of the 165 vulnerabilities patched
+- **Status**: Patches released via KB5082200 extended security update for Windows 10 and cumulative updates KB5083769 & KB5082052 for Windows 11
 
 ### ShowDoc Remote Code Execution Vulnerability
-- **Description**: Critical security vulnerability in ShowDoc, a document management and collaboration service popular in China
-- **Impact**: Attackers can execute arbitrary commands on unpatched servers
-- **Status**: Actively exploited in the wild against unpatched servers
+- **Description**: Critical security vulnerability in ShowDoc document management and collaboration service popular in China
+- **Impact**: Remote code execution on unpatched servers, allowing attackers complete system compromise
+- **Status**: Actively exploited in the wild on unpatched servers
 - **CVE ID**: CVE-2025-0520
 
 ### Adobe Acrobat and Reader Zero-Day
 - **Description**: Zero-day vulnerability in Adobe Acrobat and Reader exploited through maliciously crafted PDF files
-- **Impact**: Code execution and potential system compromise through PDF document attacks
-- **Status**: Actively exploited for at least four months before being patched
+- **Impact**: System compromise through document-based attacks, enabling arbitrary code execution
+- **Status**: Actively exploited for at least four months before patch release
 
-### Six CISA-Listed Vulnerabilities
-- **Description**: Multiple security flaws in Fortinet, Microsoft, and Adobe software products
-- **Impact**: Various attack vectors depending on specific vulnerabilities
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to evidence of active exploitation
+### CISA Known Exploited Vulnerabilities
+- **Description**: Six security flaws in Fortinet, Microsoft, and Adobe software added to CISA's Known Exploited Vulnerabilities catalog
+- **Impact**: Various impacts including unauthorized access, privilege escalation, and system compromise
+- **Status**: Confirmed active exploitation in the wild requiring immediate patching
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows 10 and Windows 11 systems affected by 167 vulnerabilities including zero-days
-- **SharePoint Server**: Microsoft SharePoint installations vulnerable to zero-day exploit
-- **ShowDoc Servers**: Document management platforms running unpatched ShowDoc software
-- **Adobe Acrobat and Reader**: PDF viewing and editing applications across multiple platforms
-- **Chrome Browser Extensions**: Over 100 malicious extensions in Chrome Web Store affecting 20,000+ users
-- **Android Devices**: Mirax RAT targeting Spanish-speaking countries through Meta advertising campaigns
-- **Fortinet Products**: Multiple Fortinet security appliances and software solutions
-- **PHP Composer**: Package manager for PHP with command execution vulnerabilities
-- **wolfSSL Library**: SSL/TLS library implementations with certificate verification flaws
+- **Microsoft Windows**: Windows 10, Windows 11 (versions 25H2/24H2 and 23H2), SharePoint Server
+- **ShowDoc Platform**: Document management and collaboration service, particularly affecting Chinese deployments
+- **Adobe Products**: Acrobat and Reader applications across multiple versions
+- **Fortinet Products**: Various Fortinet security appliances and software solutions
+- **Chrome Browser Extensions**: Over 100 malicious extensions in official Chrome Web Store
+- **Android Devices**: Devices targeted by Mirax RAT through Meta advertising platforms
+- **PHP Composer**: Package manager for PHP with newly disclosed command execution vulnerabilities
+- **wolfSSL Library**: SSL/TLS library with critical certificate verification vulnerability
 
 ## Attack Vectors and Techniques
 
-- **Malicious PDF Files**: Crafted PDF documents exploiting Adobe Reader/Acrobat zero-day vulnerability
-- **Browser Extension Compromise**: Malicious Chrome extensions stealing Google OAuth2 tokens and Telegram data
-- **Social Engineering**: Meta advertising campaigns distributing Mirax Android RAT to 220,000+ accounts
-- **Remote Desktop File Abuse**: Phishing attacks leveraging malicious RDP files with new Windows protections implemented
-- **Mobile App Store Infiltration**: Fake Ledger Live app on Apple's App Store stealing $9.5 million in cryptocurrency
-- **Bring-Your-Own-Vulnerable-Driver (BYOVD)**: EDR-killer techniques using vulnerable drivers to bypass security controls
-- **SEO Poisoning**: AI-driven "Pushpaganda" campaigns exploiting Google Discover for scareware distribution
-- **Insider Threats**: Internal access exploitation as seen in Kraken cryptocurrency exchange breach
+- **Malicious PDF Files**: Zero-day exploitation through weaponized PDF documents targeting Adobe products
+- **Remote Desktop Protocol Abuse**: Phishing attacks using malicious RDP files with new Windows protections implemented
+- **Browser Extension Malware**: Over 100 Chrome extensions stealing OAuth2 Bearer tokens and deploying backdoors
+- **Social Media Manipulation**: Meta advertising platforms used to distribute Mirax Android RAT to 220,000+ victims
+- **Bring-Your-Own-Vulnerable-Driver (BYOVD)**: EDR-killer ecosystem expansion using vulnerable driver techniques
+- **OAuth2 Token Theft**: Sophisticated credential harvesting through malicious browser extensions
+- **Supply Chain Attacks**: Fake applications distributed through official app stores (Apple App Store Ledger Live scam)
+- **SEO Poisoning**: AI-driven Pushpaganda scams exploiting Google Discover for scareware distribution
 
 ## Threat Actor Activities
 
-- **ShinyHunters Extortion Gang**: Leaked stolen Rockstar Games analytics data following Anodot security incident
-- **Cryptocurrency Attackers**: Targeted Kraken exchange with insider breach and extortion attempts
-- **Chrome Extension Operators**: Coordinated campaign using 108 malicious extensions with shared command-and-control infrastructure
-- **Mobile Malware Distributors**: Mirax RAT operators targeting Spanish-speaking users through sophisticated Meta ad campaigns
-- **PDF Exploit Actors**: Long-term exploitation of Adobe zero-day using malicious PDF files over multiple months
-- **Corporate Data Thieves**: Multiple incidents including McGraw-Hill Salesforce misconfiguration exploitation and Basic-Fit breach affecting 1 million members
+- **ShinyHunters Extortion Gang**: Actively leaking stolen Rockstar Games analytics data following Anodot security incident
+- **Chrome Extension Threat Actors**: Coordinated campaign managing 108 malicious extensions communicating with shared command-and-control infrastructure
+- **Mirax RAT Operators**: Targeting Spanish-speaking countries through Meta advertising platforms, converting devices into SOCKS5 proxies
+- **Crypto Scammers**: Operating fake Ledger Live application that stole $9.5 million in cryptocurrency from 50 victims
+- **Kraken Exchange Attackers**: Cybercrime group attempting extortion through insider breach, threatening to release client data videos
+- **McGraw-Hill Attackers**: Exploiting Salesforce misconfiguration to access internal education company data
+- **Basic-Fit Breach Actors**: Compromising European gym chain systems affecting 1 million customer records
