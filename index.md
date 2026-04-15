@@ -1,55 +1,59 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently experiencing significant exploitation activity, with multiple critical vulnerabilities being actively targeted by threat actors. Microsoft's April 2026 Patch Tuesday addressed a record-breaking 167 security flaws, including two zero-day vulnerabilities that have been exploited in the wild. The most concerning active exploits include CVE-2026-33032 affecting nginx-ui systems and a Windows Task Host privilege escalation vulnerability flagged by CISA. Additionally, threat actors are exploiting Salesforce misconfigurations, targeting Chrome Web Store extensions for credential theft, and conducting sophisticated cryptocurrency theft operations through fake applications in official app stores.
+Critical exploitation activity has emerged across multiple platforms and technologies, with active attacks targeting nginx-ui servers, Microsoft SharePoint environments, and Windows Task Host components. A critical nginx-ui vulnerability enables complete server takeover and is currently being exploited in the wild. Microsoft addressed a record 167 security vulnerabilities in their April 2026 Patch Tuesday, including two zero-day vulnerabilities—one affecting SharePoint Server that has been actively exploited. Additionally, CISA has warned of active exploitation of a Windows Task Host privilege escalation vulnerability that allows attackers to gain SYSTEM-level privileges. Beyond these critical vulnerabilities, threat actors are leveraging legitimate services like n8n workflow automation platforms and signed software to deploy malicious payloads while evading detection.
 
 ## Active Exploitation Details
 
-### nginx-ui Critical Vulnerability
-- **Description**: A critical security flaw in nginx-ui, an open-source web-based Nginx management tool, that enables complete server takeover
-- **Impact**: Attackers can achieve full control of Nginx servers, potentially leading to data theft, service disruption, and lateral movement within networks
-- **Status**: Actively exploited in the wild with patches available
+### nginx-ui Server Takeover Vulnerability
+- **Description**: A critical security flaw in nginx-ui, an open-source web-based Nginx management tool, that enables complete server compromise
+- **Impact**: Attackers can achieve full nginx server takeover, potentially gaining complete control over web server infrastructure
+- **Status**: Currently under active exploitation in the wild; patches available
 - **CVE ID**: CVE-2026-33032
 
-### Windows Task Host Privilege Escalation
-- **Description**: A privilege escalation vulnerability in Windows Task Host that allows attackers to gain SYSTEM-level privileges
-- **Impact**: Attackers can escalate privileges to the highest level on Windows systems, enabling complete system control
-- **Status**: Actively exploited in attacks, CISA has issued warnings to federal agencies
+### Microsoft SharePoint Server Zero-Day
+- **Description**: A zero-day vulnerability affecting Microsoft SharePoint Server that has been actively exploited by threat actors
+- **Impact**: Exploitation allows unauthorized access to SharePoint environments, potentially compromising sensitive corporate data and collaboration systems
+- **Status**: Actively exploited in the wild; patched in April 2026 Patch Tuesday update
 
-### Microsoft SharePoint Zero-Day
-- **Description**: A zero-day vulnerability in SharePoint Server that was actively exploited before patching
-- **Impact**: Unauthorized access to SharePoint environments and potential data exposure
-- **Status**: Patched in April 2026 Patch Tuesday, was actively exploited in the wild
+### Windows Task Host Privilege Escalation
+- **Description**: A privilege escalation vulnerability in Windows Task Host component that allows elevation to SYSTEM privileges
+- **Impact**: Attackers can gain SYSTEM-level access to Windows systems, enabling complete system compromise
+- **Status**: CISA has flagged this vulnerability as exploited in attacks; patches available
 
 ### PHP Composer Command Execution Vulnerabilities
 - **Description**: Two high-severity vulnerabilities in Composer, a package manager for PHP, enabling arbitrary command execution
-- **Impact**: Attackers can execute arbitrary commands on systems running vulnerable Composer versions
-- **Status**: Patches have been released for these vulnerabilities
+- **Impact**: Successful exploitation allows attackers to execute arbitrary commands on systems running vulnerable Composer versions
+- **Status**: Patches have been released to address these vulnerabilities
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: Windows Task Host privilege escalation affecting government and enterprise systems
-- **Microsoft SharePoint Server**: Zero-day vulnerability impacting SharePoint deployments
-- **nginx-ui**: Open-source Nginx management tool vulnerable to complete takeover
-- **PHP Composer**: Package manager vulnerabilities affecting PHP development environments
+- **nginx-ui**: Open-source web-based Nginx management tool vulnerable to complete server takeover
+- **Microsoft SharePoint Server**: Corporate collaboration platform affected by actively exploited zero-day vulnerability
+- **Windows Task Host**: Windows component vulnerable to privilege escalation attacks
+- **PHP Composer**: Package manager for PHP affected by command execution vulnerabilities
+- **n8n Workflow Platform**: AI workflow automation platform being abused for malicious campaigns
 - **Chrome Web Store Extensions**: Over 100 malicious extensions targeting user accounts and data
-- **Salesforce**: Misconfiguration exploited in McGraw-Hill breach
-- **Apple App Store**: Fake Ledger Live app conducting cryptocurrency theft
-- **Windows Servers**: BitLocker recovery issues triggered by April updates on Server 2025
+- **Apple App Store**: Fake Ledger Live application stealing cryptocurrency from victims
+- **Microsoft Windows Server 2019/2022**: Systems experiencing unexpected upgrades to Windows Server 2025
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: Windows Task Host vulnerability allowing SYSTEM privilege gain
-- **Web Application Exploitation**: nginx-ui takeover through critical vulnerabilities
-- **Supply Chain Attacks**: Malicious Chrome extensions and fake mobile applications
-- **Configuration Exploitation**: Salesforce misconfigurations leading to data access
-- **Social Engineering**: Fake cryptocurrency applications mimicking legitimate software
-- **OAuth Token Theft**: Chrome extensions stealing Google OAuth2 Bearer tokens
-- **Bring-Your-Own-Vulnerable-Driver (BYOVD)**: EDR-killer techniques using vulnerable drivers
+- **Server Takeover**: Exploitation of nginx-ui vulnerabilities to gain complete control over web servers
+- **Privilege Escalation**: Windows Task Host vulnerability abuse to achieve SYSTEM-level privileges
+- **Signed Software Abuse**: Digitally signed adware tools deploying antivirus-killing scripts with SYSTEM privileges
+- **Webhook Weaponization**: n8n webhooks being leveraged for sophisticated phishing campaigns since October 2025
+- **Supply Chain Attacks**: Malicious Chrome Web Store extensions stealing OAuth2 Bearer tokens and deploying backdoors
+- **App Store Impersonation**: Fake applications in official app stores used to steal cryptocurrency
+- **Command Injection**: PHP Composer vulnerabilities enabling arbitrary command execution
+- **EDR Evasion**: Bring-your-own-vulnerable-driver (BYOVD) techniques used to disable endpoint detection and response systems
 
 ## Threat Actor Activities
 
-- **Cryptocurrency Theft Operations**: Threat actors deployed fake Ledger Live app on Apple's App Store, stealing $9.5 million from 50 victims in just a few days
-- **Chrome Extension Campaign**: Large-scale operation involving over 100 malicious extensions targeting user accounts, deploying backdoors, and conducting ad fraud
-- **Kraken Exchange Extortion**: Cybercrime group attempting to extort Kraken cryptocurrency exchange after insider breach, threatening to release videos of internal systems
-- **McGraw-Hill Data Breach**: Attackers exploited Salesforce misconfiguration to access internal education company data
-- **AI-Driven Ad Fraud**: "Pushpaganda" scam campaign leveraging Google Discover and AI-generated content for scareware distribution and ad fraud
+- **nginx-ui Exploitation Campaign**: Threat actors actively exploiting CVE-2026-33032 to compromise nginx servers worldwide
+- **Microsoft Zero-Day Exploiters**: Attackers leveraging SharePoint Server zero-day vulnerability for unauthorized access to corporate environments
+- **Chrome Extension Malware Operators**: Criminal groups distributing over 100 malicious Chrome extensions for account theft and ad fraud
+- **Cryptocurrency Thieves**: Cybercriminals using fake Ledger Live app to steal $9.5 million in cryptocurrency from 50 victims
+- **Kraken Exchange Extortionists**: Cybercrime group attempting to extort cryptocurrency exchange following insider breach
+- **McGraw-Hill Data Breach Actors**: Hackers exploiting Salesforce misconfiguration to access internal company data
+- **n8n Campaign Operators**: Threat actors weaponizing AI workflow automation platform for phishing since October 2025
+- **EDR Killer Ecosystem**: Expanding network of actors using BYOVD techniques to disable security tools
