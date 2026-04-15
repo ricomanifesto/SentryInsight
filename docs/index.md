@@ -1,61 +1,55 @@
 # Exploitation Report
 
-Microsoft's April 2026 Patch Tuesday addressed a record-breaking 167 security vulnerabilities, including two actively exploited zero-day vulnerabilities that pose immediate threats to organizations. Among the most critical findings is active exploitation of CVE-2025-0520, a remote code execution vulnerability in ShowDoc servers that is being targeted by threat actors in the wild. Additionally, prompt injection vulnerabilities in AI systems from Microsoft Copilot and Salesforce Agentforce have been patched after enabling external attackers to leak sensitive data. The threat landscape is further complicated by widespread malicious activities including over 100 malicious Chrome extensions stealing user data, a fake Ledger Live app that drained $9.5 million in cryptocurrency, and sophisticated Android malware campaigns reaching hundreds of thousands of victims.
+The cybersecurity landscape is currently experiencing significant exploitation activity, with multiple critical vulnerabilities being actively targeted by threat actors. Microsoft's April 2026 Patch Tuesday addressed a record-breaking 167 security flaws, including two zero-day vulnerabilities that have been exploited in the wild. The most concerning active exploits include CVE-2026-33032 affecting nginx-ui systems and a Windows Task Host privilege escalation vulnerability flagged by CISA. Additionally, threat actors are exploiting Salesforce misconfigurations, targeting Chrome Web Store extensions for credential theft, and conducting sophisticated cryptocurrency theft operations through fake applications in official app stores.
 
 ## Active Exploitation Details
 
-### SharePoint Server Zero-Day Vulnerability
-- **Description**: A critical zero-day vulnerability in Microsoft SharePoint Server that has been actively exploited in the wild
-- **Impact**: Attackers can potentially gain unauthorized access to SharePoint systems and sensitive corporate data
-- **Status**: Patched in Microsoft's April 2026 Patch Tuesday update
+### nginx-ui Critical Vulnerability
+- **Description**: A critical security flaw in nginx-ui, an open-source web-based Nginx management tool, that enables complete server takeover
+- **Impact**: Attackers can achieve full control of Nginx servers, potentially leading to data theft, service disruption, and lateral movement within networks
+- **Status**: Actively exploited in the wild with patches available
+- **CVE ID**: CVE-2026-33032
 
-### Secondary Zero-Day Vulnerability
-- **Description**: A publicly disclosed zero-day vulnerability affecting Microsoft products that was being actively exploited
-- **Impact**: Privilege elevation and potential system compromise
-- **Status**: Addressed in the April 2026 security updates
+### Windows Task Host Privilege Escalation
+- **Description**: A privilege escalation vulnerability in Windows Task Host that allows attackers to gain SYSTEM-level privileges
+- **Impact**: Attackers can escalate privileges to the highest level on Windows systems, enabling complete system control
+- **Status**: Actively exploited in attacks, CISA has issued warnings to federal agencies
 
-### ShowDoc Remote Code Execution Flaw
-- **Description**: A critical remote code execution vulnerability in ShowDoc, a popular document management and collaboration service in China
-- **Impact**: Complete system compromise through arbitrary code execution on vulnerable servers
-- **Status**: Active exploitation confirmed on unpatched servers
-- **CVE ID**: CVE-2025-0520
+### Microsoft SharePoint Zero-Day
+- **Description**: A zero-day vulnerability in SharePoint Server that was actively exploited before patching
+- **Impact**: Unauthorized access to SharePoint environments and potential data exposure
+- **Status**: Patched in April 2026 Patch Tuesday, was actively exploited in the wild
 
-### AI Agent Prompt Injection Vulnerabilities
-- **Description**: Prompt injection flaws in Microsoft Copilot and Salesforce Agentforce that allow external attackers to manipulate AI responses
-- **Impact**: Sensitive data leakage through compromised AI agent interactions
-- **Status**: Recently patched by both Microsoft and Salesforce
+### PHP Composer Command Execution Vulnerabilities
+- **Description**: Two high-severity vulnerabilities in Composer, a package manager for PHP, enabling arbitrary command execution
+- **Impact**: Attackers can execute arbitrary commands on systems running vulnerable Composer versions
+- **Status**: Patches have been released for these vulnerabilities
 
 ## Affected Systems and Products
 
-- **Microsoft SharePoint Server**: Zero-day vulnerability affecting server installations
-- **Microsoft Windows Operating Systems**: 167 vulnerabilities patched across Windows versions including Server 2019, 2022, and 2025
-- **ShowDoc Servers**: Critical RCE vulnerability actively exploited on unpatched installations
-- **Microsoft Copilot**: Prompt injection vulnerability enabling data exfiltration
-- **Salesforce Agentforce**: AI agent platform affected by prompt injection flaws
-- **Google Chrome Browser**: Over 100 malicious extensions targeting user accounts and OAuth2 tokens
-- **Android Devices**: Mirax RAT affecting Spanish-speaking users through Meta advertising platforms
-- **PHP Composer**: Package manager vulnerabilities enabling arbitrary command execution
-- **Fortinet Products**: Multiple vulnerabilities added to CISA's Known Exploited Vulnerabilities catalog
-- **Adobe Software**: Security flaws confirmed as actively exploited and added to KEV catalog
+- **Microsoft Windows**: Windows Task Host privilege escalation affecting government and enterprise systems
+- **Microsoft SharePoint Server**: Zero-day vulnerability impacting SharePoint deployments
+- **nginx-ui**: Open-source Nginx management tool vulnerable to complete takeover
+- **PHP Composer**: Package manager vulnerabilities affecting PHP development environments
+- **Chrome Web Store Extensions**: Over 100 malicious extensions targeting user accounts and data
+- **Salesforce**: Misconfiguration exploited in McGraw-Hill breach
+- **Apple App Store**: Fake Ledger Live app conducting cryptocurrency theft
+- **Windows Servers**: BitLocker recovery issues triggered by April updates on Server 2025
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active targeting of unpatched SharePoint servers and other Microsoft products
-- **Prompt Injection**: Manipulation of AI systems to extract sensitive information from corporate environments
-- **Supply Chain Attacks**: Malicious Chrome extensions distributed through official Web Store targeting OAuth2 tokens
-- **Social Engineering**: Fake mobile applications impersonating legitimate cryptocurrency wallets
-- **Malvertising**: Android malware distribution through Facebook, Instagram, and Messenger advertisements
-- **Configuration Exploitation**: Salesforce misconfigurations leading to unauthorized data access
-- **EDR Evasion**: Bring-Your-Own-Vulnerable-Driver (BYOVD) techniques to bypass endpoint detection systems
-- **SEO Poisoning**: AI-generated content manipulation for search engine optimization and ad fraud
-- **Remote Desktop File Abuse**: Malicious RDP files used in phishing campaigns
+- **Privilege Escalation**: Windows Task Host vulnerability allowing SYSTEM privilege gain
+- **Web Application Exploitation**: nginx-ui takeover through critical vulnerabilities
+- **Supply Chain Attacks**: Malicious Chrome extensions and fake mobile applications
+- **Configuration Exploitation**: Salesforce misconfigurations leading to data access
+- **Social Engineering**: Fake cryptocurrency applications mimicking legitimate software
+- **OAuth Token Theft**: Chrome extensions stealing Google OAuth2 Bearer tokens
+- **Bring-Your-Own-Vulnerable-Driver (BYOVD)**: EDR-killer techniques using vulnerable drivers
 
 ## Threat Actor Activities
 
-- **ShowDoc Exploiters**: Actively targeting CVE-2025-0520 to compromise unpatched document management servers
-- **Chrome Extension Operators**: Coordinated campaign deploying 108 malicious extensions affecting over 20,000 users
-- **Cryptocurrency Thieves**: Sophisticated operation using fake Ledger Live app to steal $9.5 million from 50 victims
-- **Mirax RAT Distributors**: Large-scale Android malware campaign reaching 220,000 accounts via Meta advertising platforms
-- **Corporate Data Extortionists**: Groups targeting companies like Kraken cryptocurrency exchange and McGraw-Hill through insider threats and configuration exploits
-- **AI System Attackers**: Threat actors exploiting prompt injection vulnerabilities in enterprise AI deployments
-- **Pushpaganda Operators**: AI-driven scareware distribution through Google Discover platform manipulation
+- **Cryptocurrency Theft Operations**: Threat actors deployed fake Ledger Live app on Apple's App Store, stealing $9.5 million from 50 victims in just a few days
+- **Chrome Extension Campaign**: Large-scale operation involving over 100 malicious extensions targeting user accounts, deploying backdoors, and conducting ad fraud
+- **Kraken Exchange Extortion**: Cybercrime group attempting to extort Kraken cryptocurrency exchange after insider breach, threatening to release videos of internal systems
+- **McGraw-Hill Data Breach**: Attackers exploited Salesforce misconfiguration to access internal education company data
+- **AI-Driven Ad Fraud**: "Pushpaganda" scam campaign leveraging Google Discover and AI-generated content for scareware distribution and ad fraud
