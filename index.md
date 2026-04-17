@@ -1,62 +1,69 @@
 # Exploitation Report
 
-Critical vulnerabilities are being actively exploited across multiple platforms, with several zero-day vulnerabilities and newly discovered threats targeting enterprise infrastructure. Microsoft Defender is facing a second zero-day exploit called "RedSun" that grants SYSTEM privileges, while a critical authentication bypass flaw in Nginx UI is being exploited for complete server takeover. Threat actors are leveraging sophisticated malware campaigns including ZionSiphon targeting water treatment systems, NKAbuse malware distributed through Marimo vulnerabilities, and new variants like AgingFly targeting Ukrainian government and healthcare institutions. Additionally, the PowMix botnet is actively targeting Czech workers, and North Korean threat actors are using ClickFix attacks against macOS users.
+Critical vulnerabilities are under active exploitation across multiple platforms, with attackers targeting enterprise infrastructure, government systems, and individual users. The most severe threats include zero-day vulnerabilities in Microsoft Defender being publicly exploited, active exploitation of Apache ActiveMQ systems added to CISA's Known Exploited Vulnerabilities catalog, and a critical authentication bypass flaw in Nginx UI being leveraged for full server takeovers. Additionally, sophisticated malware campaigns are targeting critical infrastructure including water treatment systems and healthcare facilities, while new attack vectors abuse legitimate platforms like Obsidian plugins and WordPress installations to deliver advanced persistent threats.
 
 ## Active Exploitation Details
 
-### Microsoft Defender "RedSun" Zero-Day
-- **Description**: A privilege escalation vulnerability in Microsoft Defender that allows attackers to gain SYSTEM-level privileges
-- **Impact**: Complete system compromise with highest privilege access
-- **Status**: Zero-day with proof-of-concept exploit published by researcher "Chaotic Eclipse"
+### Apache ActiveMQ Classic Vulnerability
+- **Description**: High-severity security flaw in Apache ActiveMQ Classic message broker
+- **Impact**: Active exploitation enabling unauthorized access to messaging systems
+- **Status**: Under active exploitation in the wild, added to CISA KEV catalog
+- **CVE ID**: CVE-2026-34197
+
+### Microsoft Defender Zero-Day "RedSun"
+- **Description**: Privilege escalation vulnerability in Microsoft Defender with publicly available proof-of-concept exploit
+- **Impact**: Grants SYSTEM-level privileges to attackers, allowing complete system compromise
+- **Status**: Zero-day vulnerability with active PoC exploitation code released by researcher "Chaotic Eclipse"
 
 ### Nginx UI Authentication Bypass
-- **Description**: Critical vulnerability in Nginx UI with Model Context Protocol (MCP) support allowing authentication bypass
-- **Impact**: Full server takeover without authentication required
-- **Status**: Actively exploited in the wild
+- **Description**: Critical vulnerability in Nginx UI with Model Context Protocol (MCP) support
+- **Impact**: Full server takeover without authentication, allowing attackers to restart, create, modify, and delete NGINX configuration files
+- **Status**: Actively exploited in the wild for complete server compromise
 
 ### Marimo Python Notebook Vulnerability
 - **Description**: Critical flaw in Marimo reactive Python notebook platform
-- **Impact**: Deployment of NKAbuse malware variants hosted on Hugging Face Spaces
-- **Status**: Actively exploited to distribute malware
+- **Impact**: Deployment of NKAbuse malware variant hosted on Hugging Face Spaces
+- **Status**: Actively exploited to deliver malware from legitimate AI/ML platforms
 
 ### WordPress Plugin Suite Compromise
 - **Description**: Over 30 WordPress plugins in the EssentialPlugin package compromised with malicious code
-- **Impact**: Unauthorized access to thousands of websites running affected plugins
-- **Status**: Active compromise affecting multiple sites
+- **Impact**: Unauthorized access to thousands of WordPress websites
+- **Status**: Supply chain attack affecting multiple plugin installations simultaneously
 
 ## Affected Systems and Products
 
-- **Microsoft Defender**: Windows security platform vulnerable to privilege escalation
-- **Nginx UI with MCP**: Web interface for Nginx server management
-- **Marimo Python Notebooks**: Reactive Python development environment
-- **WordPress EssentialPlugin Suite**: Over 30 compromised plugins affecting thousands of sites
-- **Cisco Webex Services**: Cloud-based collaboration platform with critical flaws requiring customer action
-- **Cisco Identity Services**: Identity management platform with code execution vulnerabilities
-- **Water Treatment Systems**: Operational technology environments targeted by ZionSiphon malware
-- **macOS Systems**: Apple systems targeted by North Korean ClickFix campaigns
-- **Windows Systems**: Targeted by Dragon Boss adware that disables Windows Defender
+- **Apache ActiveMQ Classic**: Message broker systems experiencing active exploitation
+- **Microsoft Defender**: Windows endpoint protection with zero-day privilege escalation
+- **Nginx UI**: Web interface management systems with MCP integration
+- **Marimo**: Python notebook environments used for data science and development
+- **WordPress**: Websites using EssentialPlugin suite components
+- **Cisco Webex Services**: Cloud-based collaboration platform with critical certificate validation flaws
+- **Cisco Identity Services**: Authentication systems with code execution vulnerabilities
+- **Water Treatment Systems**: Industrial control systems targeted by ZionSiphon malware
+- **Ukrainian Government Systems**: Clinics and municipal healthcare institutions
+- **macOS Systems**: Apple computers targeted through ClickFix social engineering attacks
+- **Czech Republic Workforce**: Systems compromised by PowMix botnet campaign
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: Microsoft Defender zero-day exploitation for SYSTEM access
-- **Authentication Bypass**: Direct server compromise through Nginx UI vulnerability
-- **Supply Chain Attack**: Compromise of legitimate WordPress plugin repositories
-- **Social Engineering**: ClickFix campaigns using fake job offers and Zoom updates
-- **Malware Distribution**: Hosting malicious payloads on legitimate platforms like Hugging Face
-- **AI-Powered Vishing**: ATHR platform using AI voice agents for automated credential harvesting
-- **Obsidian Plugin Abuse**: PHANTOMPULSE RAT delivery through note-taking application
-- **n8n Webhook Abuse**: Workflow automation platform weaponized for phishing campaigns
-- **Digitally Signed Malware**: Legitimate software certificates abused to deploy antivirus-killing scripts
+- **Social Engineering**: ClickFix attacks using fake job offers and phony Zoom updates targeting macOS users
+- **Supply Chain Attacks**: Compromise of WordPress plugin repositories affecting thousands of sites
+- **Legitimate Platform Abuse**: Obsidian note-taking application plugins delivering PHANTOMPULSE RAT
+- **AI Voice Phishing**: ATHR platform using automated AI agents for credential harvesting
+- **Industrial Sabotage**: ZionSiphon malware specifically designed for operational technology environments
+- **Certificate Validation Bypass**: Exploitation of improper certificate validation in Cisco Webex Services
+- **Authentication Bypass**: Direct exploitation of Nginx UI authentication mechanisms
+- **Privilege Escalation**: Microsoft Defender zero-day enabling SYSTEM-level access
+- **Browser Data Theft**: AgingFly malware targeting Chromium-based browsers and WhatsApp data
+- **Antivirus Evasion**: Digitally signed adware deploying SYSTEM-level payloads to disable security protections
 
 ## Threat Actor Activities
 
-- **Chaotic Eclipse**: Security researcher publishing Microsoft Defender zero-day exploits as protest
-- **Sapphire Sleet (North Korea)**: Targeting macOS users with ClickFix attacks using fake job offers and Zoom updates
-- **UAC-0247**: Targeting Ukrainian government clinics and healthcare institutions with AgingFly malware
-- **ShinyHunters**: Extortion group responsible for McGraw Hill breach affecting 13.5 million accounts
-- **Dragon Boss Operators**: Distributing adware that transforms into antivirus-killing malware
-- **PowMix Botnet Operators**: Targeting Czech workforce with randomized command and control traffic
-- **Unknown Threat Actors**: Exploiting Nginx UI vulnerabilities for server takeover
-- **WordPress Plugin Attackers**: Compromising legitimate plugin repositories for widespread access
-- **North Korean IT Workers**: Operating "laptop farms" to infiltrate U.S. companies
-- **Turkish Ransomware Groups**: Conducting 6-year campaign against homes and small businesses
+- **Sapphire Sleet (North Korea)**: Conducting ClickFix campaigns against macOS users using fake job offers and fraudulent software updates
+- **UAC-0247**: Targeting Ukrainian government institutions and healthcare facilities with data-theft malware campaigns
+- **ShinyHunters**: Extortion group responsible for McGraw Hill data breach affecting 13.5 million accounts through Salesforce environment compromise
+- **Czech Republic Targeting Group**: Operating PowMix botnet campaign against workforce since December 2025
+- **Finance/Crypto Targeting Actors**: Using Obsidian plugin abuse to deliver PHANTOMPULSE RAT in targeted attacks
+- **Dragon Boss Operators**: Distributing adware that transforms into antivirus-killing malware with persistence mechanisms
+- **Turkish Ransomware Campaign**: Six-year operation targeting homes and small-to-medium businesses with under-reported incidents
+- **North Korean IT Worker Networks**: Operating laptop farms with assistance from convicted U.S. nationals to infiltrate over 100 companies
