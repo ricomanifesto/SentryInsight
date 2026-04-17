@@ -1,59 +1,61 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently being exploited across multiple platforms, with Apache ActiveMQ CVE-2026-34197 being actively targeted by attackers after going undetected for 13 years. Three recently leaked Windows zero-day vulnerabilities are now being exploited to gain SYSTEM privileges, while a new Microsoft Defender zero-day dubbed "RedSun" allows privilege escalation. Threat actors are also exploiting a critical Marimo vulnerability to deploy NKAbuse malware, and operational technology environments are being targeted by ZionSiphon malware designed specifically for water treatment systems sabotage.
+Critical zero-day vulnerabilities in Microsoft Defender are being actively exploited by threat actors to gain elevated privileges, with two vulnerabilities remaining unpatched. Simultaneously, a high-severity Apache ActiveMQ vulnerability that went undetected for 13 years is now under active exploitation and has been added to CISA's Known Exploited Vulnerabilities catalog. The threat landscape is further complicated by recently leaked Windows zero-days being weaponized in attacks, while new malware families like ZionSiphon target critical infrastructure and specialized botnet operations like PowMix focus on specific geographic regions.
 
 ## Active Exploitation Details
 
-### Apache ActiveMQ High-Severity Vulnerability
-- **Description**: A high-severity security flaw in Apache ActiveMQ Classic that remained undetected for 13 years before being patched earlier this month
-- **Impact**: Allows attackers to compromise messaging infrastructure and potentially gain unauthorized access to enterprise systems
-- **Status**: Actively exploited in the wild, patched but exploitation ongoing
+### Microsoft Defender Zero-Day Vulnerabilities
+- **Description**: Three recently disclosed security flaws in Microsoft Defender that allow threat actors to gain elevated privileges
+- **Impact**: Attackers can obtain SYSTEM or elevated administrator permissions on compromised systems
+- **Status**: One vulnerability has been patched, two remain unpatched and actively exploited
+
+### Microsoft Defender "RedSun" Zero-Day
+- **Description**: A proof-of-concept exploit published by researcher "Chaotic Eclipse" targeting Microsoft Defender
+- **Impact**: Grants SYSTEM privileges to attackers
+- **Status**: Zero-day vulnerability with public proof-of-concept available
+
+### Apache ActiveMQ Classic Vulnerability
+- **Description**: High-severity security flaw in Apache ActiveMQ Classic that remained undetected for 13 years
+- **Impact**: Active exploitation by threat actors for system compromise
+- **Status**: Patched earlier this month, but actively exploited in the wild
 - **CVE ID**: CVE-2026-34197
 
 ### Windows Zero-Day Vulnerabilities
-- **Description**: Three recently disclosed Windows security vulnerabilities that were leaked and are now being exploited by threat actors
-- **Impact**: Allows attackers to gain SYSTEM or elevated administrator permissions on Windows systems
-- **Status**: Active exploitation reported, recently disclosed
+- **Description**: Recently leaked Windows security vulnerabilities being exploited in attacks
+- **Impact**: Threat actors gain SYSTEM or elevated administrator permissions
+- **Status**: Active exploitation following public disclosure
 
-### Microsoft Defender "RedSun" Zero-Day
-- **Description**: A zero-day vulnerability in Microsoft Defender with proof-of-concept exploit published by researcher "Chaotic Eclipse"
-- **Impact**: Grants SYSTEM privileges to attackers, allowing complete system compromise
-- **Status**: Zero-day with public PoC available, actively being protested by researcher
-
-### Marimo Critical Vulnerability
+### Marimo Reactive Python Notebook Vulnerability
 - **Description**: Critical vulnerability in Marimo reactive Python notebook platform
-- **Impact**: Allows deployment of NKAbuse malware variants hosted on Hugging Face Spaces
-- **Status**: Actively exploited to deliver malware payloads
+- **Impact**: Used to deploy NKAbuse malware hosted on Hugging Face Spaces
+- **Status**: Actively exploited by hackers
 
 ## Affected Systems and Products
 
-- **Apache ActiveMQ Classic**: Messaging infrastructure affected by 13-year-old vulnerability
-- **Windows Systems**: Multiple versions affected by three zero-day vulnerabilities
-- **Microsoft Defender**: Vulnerable to privilege escalation attacks
-- **Marimo Platform**: Python notebook users at risk of malware deployment
-- **Water Treatment Systems**: Operational technology environments targeted by ZionSiphon malware
-- **Windows Server 2025**: Experiencing installation failures with April security updates
-- **Windows Domain Controllers**: Some systems entering reboot loops after April patches
-- **Cisco Webex Services**: Cloud-based platform with critical certificate validation flaw
-- **Cisco Identity Services**: Multiple critical flaws enabling code execution
+- **Microsoft Defender**: Windows security platform affected by multiple zero-day vulnerabilities
+- **Apache ActiveMQ Classic**: Message broker system with 13-year-old vulnerability under exploitation
+- **Windows Systems**: Multiple versions affected by recently leaked zero-day vulnerabilities
+- **Marimo Platform**: Reactive Python notebook environment vulnerable to malware deployment
+- **Cisco Webex Services**: Cloud-based platform with critical certificate validation flaws
+- **Water Treatment Systems**: Targeted by ZionSiphon malware for operational technology sabotage
+- **Windows Domain Controllers**: Experiencing reboot loops after April 2026 security updates
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: Exploitation of Windows zero-days and Defender flaws to gain SYSTEM privileges
-- **Infrastructure Targeting**: ActiveMQ messaging systems compromised for persistent access
-- **Malware Deployment**: Marimo vulnerability used as vector for NKAbuse malware distribution
-- **OT Sabotage**: ZionSiphon malware specifically designed to disrupt water treatment operations
-- **Social Engineering**: North Korean actors using ClickFix attacks with fake job offers and Zoom updates
-- **Voice Phishing**: ATHR platform using AI voice agents for automated credential harvesting
-- **Plugin Abuse**: Obsidian note-taking application exploited to deliver PHANTOMPULSE RAT
-- **Certificate Validation Bypass**: Cisco Webex Services exploited through improper certificate validation
+- **Privilege Escalation**: Microsoft Defender vulnerabilities exploited to gain SYSTEM privileges
+- **Message Broker Exploitation**: ActiveMQ vulnerabilities used for system compromise
+- **Malware Deployment**: Hugging Face Spaces leveraged as hosting platform for NKAbuse malware
+- **ClickFix Attacks**: North Korean actors using fake job offers and Zoom updates targeting macOS users
+- **Vishing Automation**: ATHR platform deploying AI voice agents for automated credential harvesting
+- **Botnet Operations**: PowMix botnet using randomized C2 traffic to target Czech workforce
+- **Infrastructure Sabotage**: ZionSiphon malware specifically designed for water treatment system disruption
 
 ## Threat Actor Activities
 
-- **UAC-0247**: Targeting Ukrainian government and healthcare institutions with data-theft malware campaigns
-- **North Korean APT Groups**: Using ClickFix attacks to target macOS users with fake job offers and software updates
-- **Sapphire Sleet**: Conducting sophisticated social engineering campaigns against Mac users
-- **Czech Republic Campaign**: PowMix botnet actively targeting workforce with randomized C2 traffic since December
-- **PHANTOMPULSE Operators**: Targeting finance and cryptocurrency sectors through Obsidian plugin abuse
-- **ShinyHunters**: Extortion group responsible for McGraw Hill data breach affecting 13.5 million accounts
-- **Dragon Boss Adware**: Evolving from benign adware to antivirus-killing malware with persistence mechanisms
+- **Microsoft Defender Exploitation**: Multiple threat actor groups actively exploiting zero-day vulnerabilities for privilege escalation
+- **Sapphire Sleet (North Korea)**: Using ClickFix techniques with fake job offers and phony Zoom updates to steal credentials from macOS users
+- **Czech Republic Targeting**: PowMix botnet operators conducting sustained campaign against Czech workers since December
+- **Water Infrastructure Attackers**: Threat actors deploying ZionSiphon malware to sabotage water treatment and desalination facilities
+- **Grinex Exchange Attackers**: Unknown actors responsible for $13.7 million cryptocurrency theft from Kyrgyzstan-based exchange
+- **DDoS Service Operators**: Criminal networks providing commercial DDoS services through 53 domains serving over 3 million accounts before takedown
+- **Credential Marketplace Actors**: Underground operators managing stolen credit card shops with sophisticated vetting processes
