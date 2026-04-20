@@ -1,60 +1,63 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple platforms with several zero-day vulnerabilities being actively exploited in the wild. Most concerning are three Microsoft Defender zero-day vulnerabilities that threat actors are exploiting to gain elevated privileges, with two remaining unpatched. Additionally, a recently disclosed Apache ActiveMQ vulnerability (CVE-2026-34197) has been added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation. The threat landscape also includes sophisticated attacks using TBK DVR exploits for botnet recruitment, novel ransomware techniques utilizing QEMU virtual machines for security evasion, and targeted malware campaigns against critical infrastructure including Israeli water treatment facilities.
+Critical active exploitation is currently affecting multiple systems, with threat actors leveraging zero-day vulnerabilities in Microsoft Defender, a newly discovered flaw in the protobuf.js library, and targeting operational technology systems with specialized malware. The most concerning activity involves three zero-day vulnerabilities in Microsoft Defender being actively exploited for privilege escalation, with two remaining unpatched. Additionally, attackers are exploiting CVE-2024-3721 in TBK DVRs to deploy Mirai botnet variants, while a critical remote code execution vulnerability in the widely-used protobuf.js library has proof-of-concept exploit code publicly available.
 
 ## Active Exploitation Details
 
 ### Microsoft Defender Zero-Day Vulnerabilities
-- **Description**: Three recently disclosed security flaws in Microsoft Defender that allow threat actors to gain elevated privileges in compromised systems
-- **Impact**: Attackers can escalate privileges and gain elevated administrator or SYSTEM-level permissions on compromised Windows systems
-- **Status**: One vulnerability has been patched, but two remain unpatched and are actively being exploited in attacks
+- **Description**: Three recently disclosed security flaws in Microsoft Defender are being actively exploited by threat actors
+- **Impact**: Attackers can gain elevated privileges in compromised systems
+- **Status**: Active exploitation confirmed, two vulnerabilities remain unpatched
 
-### Apache ActiveMQ Classic Vulnerability
-- **Description**: High-severity security flaw in Apache ActiveMQ Classic that went undetected for 13 years before being discovered and patched
-- **Impact**: Allows attackers to exploit the message broker service for unauthorized access and potential system compromise
-- **Status**: Actively exploited in the wild, added to CISA Known Exploited Vulnerabilities catalog
-- **CVE ID**: CVE-2026-34197
+### Protobuf.js Remote Code Execution Vulnerability
+- **Description**: Critical remote code execution flaw in protobuf.js, a widely used JavaScript implementation of Google's Protocol Buffers
+- **Impact**: Enables JavaScript code execution on affected systems
+- **Status**: Proof-of-concept exploit code has been published
 
-### TBK DVR Security Flaws
-- **Description**: Security vulnerabilities in TBK DVR systems being exploited by the Nexcorium Mirai botnet variant
-- **Impact**: Compromised devices are recruited into DDoS botnets for coordinated attacks
-- **Status**: Active exploitation for botnet expansion and DDoS operations
+### TBK DVR Vulnerability in Mirai Botnet Campaign
+- **Description**: Security flaw in TBK DVR systems being exploited to deploy Mirai-botnet variants
+- **Impact**: Compromised devices are hijacked for DDoS botnet operations
+- **Status**: Active exploitation by Nexcorium Mirai variant
 - **CVE ID**: CVE-2024-3721
 
-### Protobuf.js Critical Vulnerability
-- **Description**: Critical remote code execution flaw in protobuf.js, a widely used JavaScript implementation of Google's Protocol Buffers
-- **Impact**: Enables JavaScript code execution and potential system compromise
-- **Status**: Proof-of-concept exploit code has been published, increasing exploitation risk
+### Apache ActiveMQ Vulnerability
+- **Description**: High-severity vulnerability in Apache ActiveMQ that went undetected for 13 years before being patched
+- **Impact**: System compromise and potential remote code execution
+- **Status**: CISA has flagged as actively exploited in attacks
+
+### Anthropic MCP Design Vulnerability
+- **Description**: Critical "by design" weakness in the Model Context Protocol's (MCP) architecture
+- **Impact**: Remote code execution with cascading effects on AI supply chain
+- **Status**: Newly discovered design flaw enabling RCE
 
 ## Affected Systems and Products
 
-- **Microsoft Defender**: Windows security solution affected by three zero-day vulnerabilities
-- **Apache ActiveMQ Classic**: Message broker service with 13-year-old vulnerability now under active attack
-- **TBK DVR Systems**: Digital video recorder devices being compromised for botnet recruitment
-- **End-of-Life TP-Link Wi-Fi Routers**: Legacy networking equipment targeted alongside DVR systems
+- **Microsoft Defender**: Multiple versions affected by zero-day vulnerabilities
+- **Protobuf.js Library**: JavaScript implementation of Google's Protocol Buffers widely used across applications
+- **TBK DVR Systems**: Digital video recorder systems vulnerable to botnet exploitation
+- **TP-Link Wi-Fi Routers**: End-of-life models targeted in Mirai botnet campaigns
+- **Apache ActiveMQ**: Message broker systems with 13-year-old undetected vulnerability
+- **Anthropic MCP**: Model Context Protocol architecture with design-level security weakness
+- **Israeli Water Treatment Systems**: Targeted by specialized ZionSiphon malware
 - **Windows Server Systems**: Domain controllers experiencing issues after April 2026 security updates
-- **Protobuf.js Library**: JavaScript Protocol Buffers implementation with critical RCE vulnerability
-- **Israeli Water Treatment Systems**: Critical infrastructure targeted by ZionSiphon malware
-- **Vercel Infrastructure**: Web development platform compromised through Context AI breach
-- **Microsoft Teams Desktop Client**: Functionality impacted by Microsoft Edge browser update bug
+- **Vercel Infrastructure**: Web infrastructure provider systems compromised
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: Microsoft Defender zero-days exploited to gain SYSTEM or elevated administrator permissions
-- **Botnet Recruitment**: CVE-2024-3721 exploited in TBK DVRs and legacy TP-Link routers for Mirai variant deployment
-- **Virtual Machine Evasion**: Payouts King ransomware using QEMU emulator as reverse SSH backdoor to run hidden VMs and bypass endpoint security
-- **Device Code Phishing**: Tycoon 2FA phishing groups adopting legitimate new-device login flows to trick victims
-- **Supply Chain Compromise**: Vercel breach originating from Context AI hack exposing customer credentials
-- **Apple Account Abuse**: Legitimate Apple notification system exploited to send phishing emails with increased credibility
-- **Critical Infrastructure Targeting**: ZionSiphon malware specifically designed for Israeli water and desalination systems
+- **Zero-Day Exploitation**: Active exploitation of unpatched Microsoft Defender vulnerabilities for privilege escalation
+- **Botnet Deployment**: Mirai variant Nexcorium exploiting DVR vulnerabilities to build DDoS infrastructure
+- **Supply Chain Attacks**: MCP design vulnerability threatening AI development ecosystems
+- **QEMU VM Evasion**: Payouts King ransomware using QEMU emulator as reverse SSH backdoor to bypass endpoint security
+- **Device Code Phishing**: Tycoon 2FA attackers adopting legitimate device login flows to bypass multi-factor authentication
+- **OT System Targeting**: ZionSiphon malware specifically designed for Israeli water treatment and desalination systems
+- **Apple Service Abuse**: Legitimate Apple account change notifications exploited for phishing campaigns
 
 ## Threat Actor Activities
 
-- **Microsoft Defender Exploiters**: Unknown threat actors actively exploiting three zero-day vulnerabilities for privilege escalation
-- **Nexcorium Botnet Operators**: Deploying Mirai variant through CVE-2024-3721 exploitation targeting DVR and router systems
-- **Payouts King Ransomware Group**: Innovative use of QEMU virtual machines to evade endpoint detection and maintain persistence
-- **Tycoon 2FA Phishing Network**: Adapting to device code phishing techniques after previous operations were disrupted
-- **ZionSiphon Operators**: Sophisticated threat actors targeting Israeli critical water infrastructure with custom malware
-- **Operation PowerOFF Targets**: International law enforcement seized 53 DDoS domains and arrested four individuals, disrupting services used by over 3 million criminal accounts
-- **Context AI Attackers**: Compromised AI company leading to downstream Vercel infrastructure breach
-- **Apple Phishing Actors**: Abusing legitimate Apple notification systems for iPhone purchase scam campaigns
+- **Nexcorium Operators**: Deploying Mirai botnet variant targeting TBK DVRs and end-of-life TP-Link routers for DDoS operations
+- **Payouts King Ransomware Group**: Using sophisticated QEMU virtual machine techniques to evade endpoint detection while conducting ransomware operations
+- **ZionSiphon Operators**: Targeting Israeli critical infrastructure with specialized malware designed for water treatment and desalination systems
+- **Tycoon 2FA Group**: Adapting phishing techniques to use device code authentication flows, bypassing traditional 2FA protections
+- **Operation PowerOFF Targets**: International law enforcement operation seized 53 DDoS domains and exposed 3 million criminal accounts involved in commercial DDoS services
+- **Vercel Attackers**: Threat actors claiming to have breached Vercel systems and attempting to sell stolen customer data
+- **Microsoft Defender Exploiters**: Unknown threat actors actively exploiting three zero-day vulnerabilities for system privilege escalation
