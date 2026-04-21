@@ -1,60 +1,62 @@
 # Exploitation Report
 
-Current threat landscape reveals multiple critical exploitation activities targeting both enterprise infrastructure and operational technology systems. Notable active exploitations include three Microsoft Defender zero-day vulnerabilities being leveraged for privilege escalation, with two remaining unpatched. The SGLang vulnerability CVE-2026-5760 poses severe risks with remote code execution capabilities through malicious GGUF model files. Industrial systems face significant threats from the Nexcorium Mirai variant exploiting CVE-2024-3721 to compromise TBK DVR systems for botnet operations, while ZionSiphon malware specifically targets Israeli water treatment and desalination infrastructure. Additionally, serial-to-IP devices used in operational technology environments harbor thousands of vulnerabilities, creating widespread attack surfaces for threat actors.
+Critical security incidents are actively impacting organizations across multiple sectors, with state-sponsored attackers and cybercriminal groups exploiting vulnerabilities in widely-used platforms and infrastructure. The most significant exploitation activity includes CVE-2026-5760 in SGLang enabling remote code execution, CVE-2024-3721 being actively exploited by Mirai botnets, and sophisticated supply chain attacks targeting cryptocurrency platforms and cloud services. Notable incidents include a $290 million cryptocurrency theft attributed to North Korean Lazarus hackers, malicious applications infiltrating Apple's App Store, and critical vulnerabilities in AI tools and IoT devices being weaponized for large-scale attacks.
 
 ## Active Exploitation Details
 
-### Microsoft Defender Zero-Day Vulnerabilities
-- **Description**: Three recently disclosed security flaws in Microsoft Defender are being actively exploited by threat actors
-- **Impact**: Attackers can gain elevated privileges in compromised systems
-- **Status**: Active exploitation confirmed; two of the three vulnerabilities remain unpatched
-
 ### SGLang Remote Code Execution Vulnerability
 - **Description**: Critical security vulnerability in SGLang that enables remote code execution through malicious GGUF model files
-- **Impact**: Complete system compromise through remote code execution on susceptible systems
-- **Status**: Critical vulnerability with CVSS score of 9.8
+- **Impact**: Attackers can achieve remote code execution on susceptible systems
+- **Status**: Actively exploitable with CVSS score of 9.8
 - **CVE ID**: CVE-2026-5760
 
-### TBK DVR Exploitation for Botnet Operations
-- **Description**: Security flaws in TBK DVR systems and end-of-life TP-Link Wi-Fi routers being exploited to deploy Mirai botnet variants
-- **Impact**: Device compromise for DDoS botnet operations
-- **Status**: Active exploitation by Nexcorium Mirai variant
+### TBK DVR Authentication Bypass
+- **Description**: Security flaw in TBK DVR systems being exploited to build DDoS botnets using Mirai variant Nexcorium
+- **Impact**: Complete device compromise and inclusion in DDoS botnet infrastructure
+- **Status**: Actively exploited by threat actors
 - **CVE ID**: CVE-2024-3721
 
-### Protobuf.js Remote Code Execution Flaw
-- **Description**: Critical remote code execution vulnerability in protobuf.js, a widely used JavaScript implementation of Google's Protocol Buffers
-- **Impact**: JavaScript code execution on affected systems
-- **Status**: Proof-of-concept exploit code published
+### Anthropic Model Context Protocol Design Vulnerability
+- **Description**: Critical "by design" weakness in the Model Context Protocol's architecture that enables remote code execution
+- **Impact**: Remote code execution with cascading effects on AI supply chain
+- **Status**: Actively exploitable design flaw threatening AI infrastructure
+
+### Protobuf.js Remote Code Execution
+- **Description**: Critical flaw in protobuf.js JavaScript library enabling arbitrary code execution
+- **Impact**: JavaScript code execution in applications using the widely-adopted Protocol Buffers library
+- **Status**: Proof-of-concept exploit code publicly available
 
 ## Affected Systems and Products
 
-- **Microsoft Defender**: Multiple versions affected by three zero-day vulnerabilities
-- **SGLang**: Systems processing GGUF model files vulnerable to remote code execution
-- **TBK DVR Systems**: Digital video recorders compromised for botnet operations
-- **TP-Link Wi-Fi Routers**: End-of-life devices targeted for Mirai variant deployment
-- **Serial-to-IP Devices**: OT devices with thousands of old and new vulnerabilities
-- **Protobuf.js Library**: JavaScript implementation of Google's Protocol Buffers
-- **Israeli Water Treatment Systems**: Targeted by ZionSiphon malware
-- **Desalination Systems**: Specifically targeted operational technology infrastructure
+- **SGLang**: AI model serving framework vulnerable to malicious GGUF model file attacks
+- **TBK DVR Systems**: Digital video recorders compromised for botnet recruitment
+- **TP-Link Wi-Fi Routers**: End-of-life devices targeted for Mirai botnet expansion
+- **Apple App Store**: 26 malicious applications impersonating popular cryptocurrency wallets
+- **KelpDAO**: DeFi platform suffering $290 million cryptocurrency theft
+- **Vercel**: Cloud development platform experiencing data breach through third-party AI tool compromise
+- **Serial-to-IP Devices**: OT infrastructure devices containing thousands of vulnerabilities
+- **Microsoft Teams**: Platform increasingly abused for helpdesk impersonation attacks
+- **WhatsApp**: Metadata leakage enabling user information inference
+- **Seiko USA**: E-commerce website defaced with ransom demands
 
 ## Attack Vectors and Techniques
 
-- **Malicious GGUF Model Files**: Remote code execution through specially crafted model files in SGLang
-- **Privilege Escalation**: Microsoft Defender vulnerabilities exploited for elevated system access
-- **Botnet Recruitment**: TBK DVR and router exploitation for DDoS botnet expansion
-- **OT System Targeting**: Direct attacks on water treatment and desalination infrastructure
-- **QEMU VM Evasion**: Payouts King ransomware using QEMU emulator as reverse SSH backdoor
-- **Device Code Phishing**: Tycoon 2FA phishing groups adopting legitimate device login flows
-- **SystemBC Proxy Botnet**: Network of over 1,570 compromised hosts used by Gentlemen ransomware
-- **Microsoft Teams Abuse**: Helpdesk impersonation attacks leveraging external collaboration features
+- **Malicious Model File Injection**: SGLang exploitation through crafted GGUF files
+- **IoT Botnet Recruitment**: CVE-2024-3721 exploitation for Mirai variant deployment
+- **App Store Infiltration**: Fake cryptocurrency wallet applications stealing seed phrases
+- **OAuth Token Theft**: Compromised authentication tokens enabling lateral movement
+- **SystemBC Proxy Botnet**: Ransomware gangs using proxy malware for bot-powered attacks
+- **Helpdesk Impersonation**: Microsoft Teams abuse for social engineering attacks
+- **Device Code Phishing**: New technique adopted by Tycoon 2FA phishing groups
+- **Website Defacement**: Direct attacks on e-commerce platforms with ransom demands
+- **Supply Chain Compromise**: Third-party AI tool access leading to broader infrastructure breaches
 
 ## Threat Actor Activities
 
-- **Nexcorium Operators**: Deploying Mirai variant to compromise IoT devices for botnet operations
-- **ZionSiphon Attackers**: Targeting Israeli critical infrastructure with specialized malware
-- **Gentlemen Ransomware Group**: Utilizing SystemBC proxy malware botnet for enhanced attack capabilities
-- **Scattered Spider**: British leader pleaded guilty to cryptocurrency theft and identity fraud charges
-- **Payouts King Operators**: Using QEMU virtualization to evade endpoint security solutions
-- **Tycoon 2FA Phishing Groups**: Adapting techniques to use device code phishing for account compromise
-- **Microsoft Defender Exploiters**: Actively leveraging three zero-day vulnerabilities for privilege escalation
-- **Seiko USA Attackers**: Website defacement and claimed customer database theft with ransom demands
+- **Lazarus Group**: North Korean state-sponsored hackers responsible for $290 million KelpDAO cryptocurrency theft
+- **Scattered Spider**: British cybercrime collective leader pleading guilty to wire fraud and identity theft charges
+- **Gentlemen Ransomware Gang**: Deploying SystemBC proxy malware across 1,570+ compromised hosts for bot-powered attacks
+- **ZionSiphon Operators**: Targeting Israeli water treatment and desalination OT systems with specialized malware
+- **Tycoon 2FA Phishers**: Evolving tactics to include device code phishing techniques
+- **Chinese Threat Actors**: Distributing 26 malicious cryptocurrency wallet applications through Apple App Store
+- **Mirai Botnet Operators**: Exploiting TBK DVR and TP-Link router vulnerabilities for DDoS infrastructure expansion
