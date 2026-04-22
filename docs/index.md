@@ -1,72 +1,80 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-value platforms with attackers leveraging both newly discovered vulnerabilities and established attack vectors. The most concerning developments include active exploitation of Catalyst SD-WAN Manager vulnerabilities flagged by CISA, widespread targeting of over 6,400 Apache ActiveMQ servers through code injection attacks, and the abuse of Windows Defender through unpatched proof-of-concept exploits. Additionally, ransomware operations continue to evolve with The Gentlemen group deploying SystemBC proxy malware across more than 1,570 victim networks, while serial-to-IP converters face exposure through 22 newly identified BRIDGE:BREAK vulnerabilities affecting thousands of industrial devices.
+Critical vulnerability exploitation continues across multiple attack vectors, with Microsoft, Google, and Cisco systems under active attack. Key highlights include Microsoft's emergency patching of a critical ASP.NET Core privilege escalation vulnerability, ongoing exploitation of over 1,300 unpatched SharePoint servers through a spoofing vulnerability that was previously exploited as a zero-day, and CISA flagging a new SD-WAN flaw as actively exploited. Additional critical issues include a sandbox escape vulnerability in Cohere AI's Terrarium tool rated 9.3, Windows Defender being weaponized through unpatched exploits, and over 6,400 Apache ActiveMQ servers vulnerable to ongoing code injection attacks. The Bomgar RMM exploitation surge demonstrates significant supply chain risks through CVE-2026-1731.
 
 ## Active Exploitation Details
 
-### Catalyst SD-WAN Manager Vulnerability
-- **Description**: A critical vulnerability in Cisco Catalyst SD-WAN Manager that CISA has flagged for active exploitation
-- **Impact**: Allows attackers to compromise SD-WAN infrastructure and potentially pivot to connected networks
-- **Status**: Actively exploited in attacks; CISA has mandated federal agencies patch within four days
+### Microsoft ASP.NET Core Privilege Escalation Vulnerability
+- **Description**: Critical privilege escalation flaw in ASP.NET Core requiring emergency out-of-band security updates
+- **Impact**: Allows attackers to escalate privileges within affected systems
+- **Status**: Microsoft has released emergency patches to address the vulnerability
 
-### Apache ActiveMQ Code Injection Vulnerability
-- **Description**: A high-severity code injection vulnerability affecting Apache ActiveMQ message broker servers
-- **Impact**: Enables attackers to execute arbitrary code on vulnerable servers
-- **Status**: Over 6,400 servers exposed online are vulnerable to ongoing attacks
+### Microsoft SharePoint Spoofing Vulnerability
+- **Description**: Spoofing vulnerability affecting SharePoint servers that was previously exploited as a zero-day
+- **Impact**: Enables spoofing attacks against vulnerable SharePoint installations
+- **Status**: Over 1,300 servers remain unpatched and vulnerable to ongoing attacks
 
-### Windows Defender Exploitation
-- **Description**: Three proof-of-concept exploits targeting Microsoft's built-in security platform
-- **Impact**: Turns Windows Defender into an attacker tool, potentially bypassing security measures
-- **Status**: Two exploits remain unpatched and are being used in active attacks
+### Cohere AI Terrarium Sandbox Vulnerability
+- **Description**: Critical security vulnerability in Python-based Terrarium sandbox allowing arbitrary code execution
+- **Impact**: Enables root code execution and container escape
+- **Status**: Vulnerability has been disclosed with critical severity rating
+- **CVE ID**: CVE-2026-5752
 
-### Bomgar RMM Remote Code Execution
-- **Description**: A critical remote code execution flaw in the Bomgar remote monitoring and management tool
+### Cisco Catalyst SD-WAN Manager Vulnerability
+- **Description**: New vulnerability in SD-WAN systems flagged by CISA as actively exploited
+- **Impact**: Allows attackers to compromise SD-WAN infrastructure
+- **Status**: CISA has given U.S. government agencies four days to secure systems
+
+### Bomgar RMM Critical Remote Code Execution Flaw
+- **Description**: Critical remote code execution vulnerability in Bomgar remote monitoring and management tool
 - **Impact**: Can be exploited to spread ransomware and compromise supply chains
-- **Status**: Experiencing a surge in exploitation activity
+- **Status**: Actively exploited with surge in activity
 - **CVE ID**: CVE-2026-1731
 
-### SGLang Remote Code Execution
-- **Description**: A critical vulnerability in SGLang that enables remote code execution through malicious GGUF model files
-- **Impact**: Allows attackers to execute arbitrary code on susceptible systems
-- **Status**: Recently disclosed with proof-of-concept available
-- **CVE ID**: CVE-2026-5760
+### Apache ActiveMQ Code Injection Vulnerability
+- **Description**: High-severity code injection vulnerability affecting Apache ActiveMQ servers
+- **Impact**: Enables code injection attacks against vulnerable servers
+- **Status**: Over 6,400 servers exposed online remain vulnerable to ongoing attacks
 
-### Google Antigravity IDE Prompt Injection
-- **Description**: A prompt injection vulnerability in Google's agentic AI product for filesystem operations
-- **Impact**: Enables sandbox escape and arbitrary code execution through sanitization bypass
-- **Status**: Recently patched by Google
+### Windows Defender Exploitation
+- **Description**: Three proof-of-concept exploits turning Windows Defender into an attacker tool
+- **Impact**: Microsoft's built-in security platform weaponized for malicious purposes
+- **Status**: Two exploits remain unpatched and are being used in active attacks
+
+### Google Antigravity IDE Prompt Injection Vulnerability
+- **Description**: Vulnerability in Google's agentic integrated development environment enabling prompt injection
+- **Impact**: Allows sandbox escape and arbitrary code execution through sanitization bypass
+- **Status**: Google has patched the vulnerability
 
 ## Affected Systems and Products
 
-- **Cisco Catalyst SD-WAN Manager**: Enterprise SD-WAN infrastructure components
-- **Apache ActiveMQ**: Message broker servers with over 6,400 instances exposed online
-- **Microsoft Windows Defender**: Built-in security platform across Windows environments
-- **Bomgar RMM**: Remote monitoring and management tools used in enterprise environments
-- **Lantronix and Silex Serial-to-IP Converters**: Thousands of industrial device converters affected by 22 vulnerabilities
-- **SGLang**: Machine learning language processing systems
-- **Google Antigravity IDE**: AI-based development environment platform
-- **HandyPay NFC Application**: Mobile payment processing tools targeted by NGate malware
-- **KelpDAO DeFi Platform**: Cryptocurrency platform suffering $290 million loss
-- **Microsoft Teams**: Enterprise collaboration platform increasingly abused for social engineering
+- **Microsoft ASP.NET Core**: Web application framework requiring emergency patches
+- **Microsoft SharePoint Servers**: Over 1,300 exposed servers remain vulnerable to spoofing attacks
+- **Cohere AI Terrarium**: Python-based sandbox environment with container escape vulnerability
+- **Cisco Catalyst SD-WAN Manager**: Network infrastructure systems under active exploitation
+- **Bomgar RMM**: Remote monitoring and management platform with critical RCE flaw
+- **Apache ActiveMQ**: Message broker servers with over 6,400 vulnerable instances exposed online
+- **Windows Defender**: Microsoft's built-in security platform being weaponized
+- **Google Antigravity IDE**: AI-based development environment with prompt injection flaw
+- **Lantronix and Silex Serial-to-IP Converters**: Industrial devices affected by 22 BRIDGE:BREAK vulnerabilities
 
 ## Attack Vectors and Techniques
 
-- **Code Injection**: Exploitation of Apache ActiveMQ servers through high-severity injection vulnerabilities
-- **Proof-of-Concept Weaponization**: Active use of PoC exploits against Windows Defender with two remaining unpatched
-- **Supply Chain Attacks**: Targeting of RMM tools to compromise multiple downstream organizations
-- **Prompt Injection**: Malicious manipulation of AI systems to achieve code execution and sandbox escape
-- **NFC Data Theft**: Trojanized mobile applications stealing payment card data and PINs
-- **Social Engineering**: Helpdesk impersonation attacks through Microsoft Teams external collaboration
-- **Proxy Malware Deployment**: SystemBC botnet operations across corporate networks
-- **Data Wiping Operations**: Lotus malware targeting energy and utility infrastructure
+- **Zero-Day Exploitation**: SharePoint spoofing vulnerability previously exploited before patches were available
+- **Emergency Patch Requirements**: Critical ASP.NET Core vulnerability requiring immediate out-of-band updates
+- **Supply Chain Attacks**: Bomgar RMM exploitation used to spread ransomware across supply chains
+- **Container Escape**: Terrarium sandbox vulnerability enabling escape to host system with root privileges
+- **Code Injection**: Apache ActiveMQ servers vulnerable to injection attacks through exposed interfaces
+- **Security Tool Weaponization**: Windows Defender exploits turning defensive tools into attack vectors
+- **Prompt Injection**: AI system manipulation through crafted inputs in Google Antigravity IDE
+- **Infrastructure Targeting**: SD-WAN systems compromised to disrupt network communications
 
 ## Threat Actor Activities
 
-- **The Gentlemen Ransomware Group**: Operating a SystemBC proxy malware botnet affecting over 1,570 corporate victims for ransomware deployment
-- **BlackCat/ALPHV Operators**: Continuing ransomware operations with insider negotiator involvement in 2023 attacks
-- **Scattered Spider Members**: Senior members facing legal consequences with Tyler Robert Buchanan pleading guilty to wire fraud and identity theft
-- **North Korean Lazarus Group**: Suspected involvement in $290 million KelpDAO cryptocurrency heist
-- **Chinese APT Groups**: Targeting Indian banking sector and Korean policy circles with espionage operations
-- **Venezuelan Energy Sector Attackers**: Deploying Lotus data wiper against energy and utility organizations
-- **NGate Malware Operators**: Targeting Brazilian Android users through trojanized HandyPay applications
-- **French Government Data Thieves**: Breaching France Titres agency and offering stolen citizen data for sale
+- **Mustang Panda**: Chinese APT group deploying new LOTUSLITE variant targeting India banks and South Korea policy circles
+- **BlackCat/ALPHV Ransomware**: Former negotiator Angelo Martino pleaded guilty to conducting ransomware attacks against U.S. companies in 2023
+- **The Gentlemen Ransomware**: RaaS operation with 1,570+ victims revealed through SystemBC C2 server analysis
+- **Scattered Spider**: Senior member Tyler Robert Buchanan pleaded guilty to wire fraud conspiracy and aggravated identity theft
+- **Lazarus Group**: North Korean state-sponsored hackers likely behind $290 million KelpDAO cryptocurrency heist
+- **NGate Campaign**: Android malware operators targeting Brazil through trojanized HandyPay application to steal NFC payment data
+- **Lotus Data Wiper**: Previously undocumented malware used in targeted attacks against Venezuelan energy and utility organizations
