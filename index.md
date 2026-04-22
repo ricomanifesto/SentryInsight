@@ -1,57 +1,70 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-impact systems across various sectors. The most significant threats include active exploitation of Bomgar RMM systems enabling ransomware deployment and supply chain attacks, ongoing attacks against Apache ActiveMQ servers affecting over 6,400 systems worldwide, and CISA-flagged exploitation of Catalyst SD-WAN Manager vulnerabilities. Additionally, a critical SGLang vulnerability with a CVSS score of 9.8 is enabling remote code execution through malicious model files, while Google has patched a critical prompt injection flaw in their AI-based Antigravity IDE tool that allowed sandbox escape and arbitrary code execution.
+Current exploitation activity reveals multiple critical vulnerabilities being actively targeted, including unpatched Windows Defender exploits, a Bomgar RMM remote code execution flaw (CVE-2026-1731), and newly added CISA KEV vulnerabilities affecting Cisco Catalyst SD-WAN Manager and Apache ActiveMQ systems. Threat actors are leveraging these vulnerabilities alongside sophisticated malware campaigns, with over 6,400 Apache ActiveMQ servers currently exposed to ongoing attacks and ransomware operations using proxy botnets to target corporate networks.
 
 ## Active Exploitation Details
 
-### Bomgar RMM Critical Remote Code Execution Flaw
-- **Description**: Critical remote code execution vulnerability in Bomgar remote monitoring and management tool that enables attackers to compromise systems and spread malware
-- **Impact**: Ransomware deployment, supply chain compromise, and lateral movement across managed networks
-- **Status**: Currently being actively exploited in the wild
+### Windows Defender Exploitation
+- **Description**: Three proof-of-concept exploits targeting Microsoft's built-in security platform are being used in active attacks
+- **Impact**: Attackers can turn Windows Defender into an attack tool, compromising the security platform itself
+- **Status**: Two of the three exploits remain unpatched, indicating ongoing vulnerability
+
+### Bomgar RMM Remote Code Execution
+- **Description**: Critical remote code execution vulnerability in the remote monitoring and management tool
+- **Impact**: Exploitation enables ransomware deployment and supply chain compromise
+- **Status**: Currently being exploited to spread ransomware
 - **CVE ID**: CVE-2026-1731
 
-### Apache ActiveMQ Code Injection Vulnerability
-- **Description**: High-severity code injection vulnerability in Apache ActiveMQ message broker systems exposed to the internet
-- **Impact**: Remote code execution and complete system compromise of message broker infrastructure
-- **Status**: Actively exploited with over 6,400 vulnerable servers identified by Shadowserver
-
 ### Catalyst SD-WAN Manager Vulnerability
-- **Description**: CISA-flagged vulnerability in Cisco Catalyst SD-WAN Manager systems being actively exploited
-- **Impact**: Network infrastructure compromise and potential lateral movement across SD-WAN environments
-- **Status**: Active exploitation confirmed by CISA, federal agencies given 4-day remediation deadline
+- **Description**: Critical vulnerability in Cisco's SD-WAN Manager infrastructure
+- **Impact**: Network compromise and unauthorized access to enterprise SD-WAN deployments
+- **Status**: Actively exploited in attacks, flagged by CISA with 4-day remediation deadline
 
-### SGLang Remote Code Execution via Malicious Model Files
-- **Description**: Critical vulnerability in SGLang framework that allows remote code execution through malicious GGUF model files
-- **Impact**: Complete system compromise when processing untrusted AI model files
-- **Status**: Recently disclosed with patches available
-- **CVE ID**: CVE-2026-5760
+### Apache ActiveMQ Code Injection
+- **Description**: High-severity code injection vulnerability in Apache ActiveMQ message broker
+- **Impact**: Remote code execution and system compromise
+- **Status**: Over 6,400 servers exposed online are vulnerable to ongoing attacks
 
-### Google Antigravity IDE Prompt Injection Vulnerability
-- **Description**: Critical prompt injection vulnerability in Google's AI-based Antigravity IDE tool that allows sandbox escape
-- **Impact**: Arbitrary code execution through filesystem operations and sandbox bypass
+### Google Antigravity AI Tool RCE
+- **Description**: Prompt injection vulnerability in Google's agentic AI product for filesystem operations
+- **Impact**: Sandbox escape and arbitrary code execution through sanitization bypass
 - **Status**: Recently patched by Google
+
+### SGLang Remote Code Execution
+- **Description**: Critical vulnerability in SGLang that enables remote code execution via malicious GGUF model files
+- **Impact**: Remote code execution on susceptible systems
+- **Status**: High severity with CVSS 9.8 score
+- **CVE ID**: CVE-2026-5760
 
 ## Affected Systems and Products
 
-- **Bomgar RMM Systems**: Remote monitoring and management infrastructure used by managed service providers
-- **Apache ActiveMQ Servers**: Over 6,400 internet-exposed message broker systems
-- **Cisco Catalyst SD-WAN Manager**: Network infrastructure management systems in enterprise environments
-- **SGLang Framework**: AI/ML systems processing GGUF model files
-- **Google Antigravity IDE**: AI-powered integrated development environment for filesystem operations
+- **Microsoft Windows Defender**: Built-in security platform vulnerable to exploitation techniques
+- **Bomgar RMM**: Remote monitoring and management infrastructure
+- **Cisco Catalyst SD-WAN Manager**: Enterprise network management systems
+- **Apache ActiveMQ**: Message broker services with 6,400+ exposed servers
+- **Google Antigravity**: AI-based development environment and filesystem tools
 - **Lantronix and Silex Serial-to-IP Converters**: Industrial OT devices with 22 newly discovered vulnerabilities
+- **SGLang**: Large language model serving framework
+- **HandyPay NFC Application**: Mobile payment processing platform targeted by NGate malware
+- **Vercel Development Platform**: OAuth token compromise affecting customer data
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution**: Direct exploitation of RCE vulnerabilities in Bomgar RMM and Apache ActiveMQ systems
-- **Prompt Injection**: AI system manipulation through crafted prompts to achieve code execution in Antigravity IDE
-- **Malicious Model Files**: Weaponized GGUF files targeting SGLang framework for remote code execution
-- **Supply Chain Attacks**: Exploitation of managed service provider tools like Bomgar to compromise downstream clients
-- **Network Infrastructure Targeting**: Direct attacks against SD-WAN management systems for network-wide access
+- **Proof-of-Concept Exploit Weaponization**: Active use of POC exploits against Windows Defender
+- **Supply Chain Targeting**: RMM tool exploitation for downstream customer compromise
+- **Prompt Injection Attacks**: AI tool manipulation for sandbox escape and code execution
+- **Malicious Model File Distribution**: GGUF files weaponized for remote code execution
+- **NFC Data Theft**: Android malware trojanizing legitimate payment applications
+- **OAuth Token Abuse**: Stolen authentication tokens for lateral movement and data access
+- **Helpdesk Impersonation**: Microsoft Teams abuse for social engineering attacks
+- **Proxy Botnet Operations**: SystemBC malware creating corporate victim networks
 
 ## Threat Actor Activities
 
-- **BlackCat/ALPHV Ransomware Operations**: Former cybersecurity negotiator Angelo Martino pleaded guilty to conducting BlackCat ransomware attacks against U.S. companies in 2023
-- **Scattered Spider Group**: British national Tyler Robert Buchanan, a senior member, pleaded guilty to wire fraud conspiracy and aggravated identity theft
-- **Lazarus Group**: North Korean state-sponsored hackers suspected in $290 million KelpDAO cryptocurrency heist
-- **Chinese APT Groups**: Targeting Indian financial sector and Korean policy circles with relatively unsophisticated but persistent campaigns
-- **The Gentlemen Ransomware**: Now utilizing SystemBC proxy malware botnet comprising over 1,570 compromised hosts for enhanced attack capabilities
+- **The Gentlemen Ransomware**: Deploying SystemBC proxy malware across 1,570+ victim hosts for bot-powered attacks
+- **Scattered Spider Member**: Senior member Tyler Robert Buchanan pleaded guilty to wire fraud conspiracy and identity theft
+- **BlackCat Ransomware Associates**: Former DigitalMint employee Angelo Martino pleaded guilty to conducting 2023 ransomware attacks
+- **North Korean Lazarus Group**: Suspected involvement in $290 million KelpDAO cryptocurrency heist
+- **Chinese APT Operations**: Targeting Indian financial sector and Korean policy circles with dated techniques
+- **Venezuelan Energy Sector Attackers**: Deploying Lotus data wiper malware against energy and utility organizations
+- **Cryptocurrency Theft Operations**: 26 malicious wallet apps infiltrating China's Apple App Store to steal recovery phrases
