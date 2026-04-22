@@ -1,78 +1,73 @@
 # Exploitation Report
 
-Critical vulnerabilities across multiple enterprise systems are under active exploitation, highlighting urgent threats to infrastructure security. Key concerns include a privilege escalation flaw in ASP.NET Core requiring emergency patching (CVE-2026-40372), ongoing exploitation of SharePoint servers through a spoofing vulnerability previously exploited as a zero-day, and active attacks against Apache ActiveMQ servers affecting over 6,400 exposed instances. Additional threats include exploitation of Bomgar RMM systems (CVE-2026-1731) enabling supply chain compromises, Windows Defender being weaponized through unpatched exploits, and Cisco SD-WAN vulnerabilities flagged by CISA for immediate remediation. The threat landscape also features destructive malware campaigns targeting critical infrastructure and sophisticated backdoors leveraging legitimate Microsoft services for stealth operations.
+Current threat landscape shows significant active exploitation across multiple critical vulnerabilities, with attackers leveraging both zero-day flaws and recently patched vulnerabilities for maximum impact. Most concerning are the ongoing attacks against Microsoft SharePoint servers through an unpatched spoofing vulnerability that was previously exploited as a zero-day, the active exploitation of a new SD-WAN vulnerability flagged by CISA, and the emergence of Bomgar RMM exploitation for ransomware deployment. Additionally, threat actors are weaponizing Windows Defender through multiple proof-of-concept exploits, while sophisticated supply chain attacks target npm ecosystems and developer environments through fake job recruitment campaigns.
 
 ## Active Exploitation Details
 
-### ASP.NET Core Privilege Escalation Vulnerability
-- **Description**: A critical privilege escalation vulnerability in ASP.NET Core that allows attackers to elevate their privileges within affected applications
-- **Impact**: Attackers can gain elevated access to ASP.NET Core applications, potentially leading to full application compromise
-- **Status**: Microsoft has released out-of-band emergency security updates to address this critical flaw
-- **CVE ID**: CVE-2026-40372
+### SharePoint Spoofing Vulnerability
+- **Description**: A spoofing vulnerability affecting Microsoft SharePoint servers that was previously exploited as a zero-day
+- **Impact**: Allows attackers to conduct spoofing attacks against vulnerable SharePoint installations
+- **Status**: Actively being exploited in ongoing attacks with over 1,300 servers remaining unpatched
 
-### SharePoint Server Spoofing Vulnerability
-- **Description**: A spoofing vulnerability in Microsoft SharePoint servers that was initially exploited as a zero-day attack
-- **Impact**: Allows attackers to conduct spoofing attacks against SharePoint deployments, potentially compromising authentication and data integrity
-- **Status**: Over 1,300 SharePoint servers remain unpatched and vulnerable to ongoing attacks despite patches being available
+### SD-WAN Manager Vulnerability
+- **Description**: A newly identified vulnerability in Catalyst SD-WAN Manager systems
+- **Impact**: Enables remote code execution and potential system compromise
+- **Status**: Actively exploited in attacks, flagged by CISA with mandatory patching deadline for federal agencies
 
-### Apache ActiveMQ Code Injection Vulnerability
-- **Description**: A high-severity code injection vulnerability affecting Apache ActiveMQ message broker servers
-- **Impact**: Enables remote code execution on vulnerable servers, allowing attackers to compromise messaging infrastructure
-- **Status**: Over 6,400 exposed ActiveMQ servers remain vulnerable to active exploitation campaigns
-
-### Bomgar RMM Remote Code Execution Flaw
-- **Description**: A critical remote code execution vulnerability in Bomgar remote monitoring and management tool
-- **Impact**: Exploitation enables ransomware deployment and supply chain compromise through managed service provider networks
-- **Status**: Actively being exploited to spread ransomware and compromise supply chains
+### Bomgar RMM Critical Flaw
+- **Description**: Critical remote code execution vulnerability in Bomgar remote monitoring and management tool
+- **Impact**: Exploited to spread ransomware and compromise supply chains
+- **Status**: Experiencing surge in exploitation activity
 - **CVE ID**: CVE-2026-1731
 
-### Cisco Catalyst SD-WAN Manager Vulnerability
-- **Description**: A newly identified vulnerability in Cisco Catalyst SD-WAN Manager systems
-- **Impact**: Allows attackers to compromise software-defined WAN infrastructure and network management systems
-- **Status**: CISA has flagged this as actively exploited, requiring federal agencies to patch within four days
+### Windows Defender Exploitation
+- **Description**: Multiple proof-of-concept exploits targeting Microsoft's built-in security platform
+- **Impact**: Converts Windows Defender into an attacker tool, compromising endpoint security
+- **Status**: Being used in active attacks with two exploits remaining unpatched
 
-### Windows Defender Exploitation Chain
-- **Description**: Three proof-of-concept exploits that weaponize Microsoft's built-in Windows Defender security platform
-- **Impact**: Turns the security tool into an attack vector, allowing attackers to abuse trusted system components
-- **Status**: Two of the three exploits remain unpatched and are being used in active attacks
+### ASP.NET Core Privilege Escalation
+- **Description**: Critical vulnerability in ASP.NET Core allowing privilege escalation
+- **Impact**: Attackers can escalate privileges on affected systems
+- **Status**: Microsoft released emergency out-of-band patches
+- **CVE ID**: CVE-2026-40372
 
-### Cohere AI Terrarium Sandbox Escape
-- **Description**: A critical vulnerability in the Python-based Terrarium sandbox used by Cohere AI
-- **Impact**: Enables arbitrary code execution, root access, and container escape from the sandbox environment
-- **Status**: Recently disclosed vulnerability with high severity rating
+### Cohere AI Terrarium Sandbox Flaw
+- **Description**: Critical security vulnerability in Python-based Terrarium sandbox
+- **Impact**: Enables root code execution and container escape
+- **Status**: Recently disclosed with high severity rating
 - **CVE ID**: CVE-2026-5752
 
 ## Affected Systems and Products
 
-- **Microsoft ASP.NET Core**: All versions affected by the privilege escalation vulnerability requiring emergency patches
-- **Microsoft SharePoint Servers**: Over 1,300 servers exposed online remain vulnerable to spoofing attacks
-- **Apache ActiveMQ**: Over 6,400 message broker servers exposed to internet-facing attacks
-- **Bomgar RMM**: Remote monitoring and management deployments vulnerable to supply chain attacks
-- **Cisco Catalyst SD-WAN Manager**: Enterprise network management systems requiring immediate patching
-- **Windows Defender**: Microsoft's built-in security platform being weaponized in active campaigns
-- **Cohere AI Terrarium**: Python-based sandbox environment used in AI applications
-- **Lantronix and Silex Serial-to-IP Converters**: Industrial devices affected by 22 BRIDGE:BREAK vulnerabilities
-- **Google Antigravity IDE**: AI-based development environment with prompt injection vulnerabilities
+- **Microsoft SharePoint**: Over 1,300 servers exposed online remain vulnerable to spoofing attacks
+- **Catalyst SD-WAN Manager**: Systems actively targeted with mandatory federal patching requirements
+- **Bomgar RMM**: Remote monitoring and management installations experiencing exploitation surge
+- **Windows Defender**: Microsoft's built-in security platform being weaponized through multiple exploits
+- **ASP.NET Core**: Web development framework requiring emergency patching
+- **Lantronix and Silex Serial-to-IP Converters**: Thousands of devices exposed through 22 BRIDGE:BREAK vulnerabilities
+- **npm Ecosystem**: Node Package Manager supply chain under active attack
+- **Linux Systems**: Targeted by GoGra backdoor utilizing Microsoft Graph API
+- **Venezuelan Energy Infrastructure**: Hit by Lotus wiper malware in destructive attacks
+- **Cohere AI Terrarium**: Python sandbox environment with critical container escape flaw
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: Exploitation of ASP.NET Core flaws to gain elevated system access
-- **Zero-Day Exploitation**: Initial SharePoint attacks using previously unknown vulnerabilities
-- **Code Injection**: ActiveMQ servers compromised through injection of malicious code
-- **Supply Chain Attacks**: Bomgar RMM exploitation to spread ransomware through managed service networks
-- **Living-off-the-Land**: Windows Defender being turned into an attack tool using trusted system components
-- **Sandbox Escape**: Container breakout techniques targeting AI sandbox environments
-- **Prompt Injection**: AI system manipulation through crafted input prompts in development environments
-- **Data Wiping Campaigns**: Destructive malware targeting critical infrastructure in Venezuela
-- **Backdoor Communications**: Malware using legitimate Microsoft Graph API for command and control
+- **Supply Chain Attacks**: Self-propagating npm attacks stealing developer credentials and auth tokens
+- **Fake Job Recruitment**: DPRK-linked "Contagious Interview" campaigns using compromised developer repositories as infection vectors
+- **Wiper Malware Deployment**: Lotus wiper targeting critical infrastructure in Venezuela's energy sector
+- **Remote Access Trojans**: Distribution through compromised repositories in developer-focused social engineering
+- **Proxy Malware**: SystemBC deployment by The Gentlemen ransomware operation affecting 1,570+ victims
+- **Living-off-the-Land**: GoGra backdoor abusing legitimate Microsoft Graph API for command and control
+- **Mobile Malware**: NGate campaign trojanizing HandyPay app to steal NFC data and PINs in Brazil
+- **Privilege Escalation**: Exploitation of ASP.NET Core vulnerability for system compromise
 
 ## Threat Actor Activities
 
-- **Lotus Wiper Operators**: Conducted destructive attacks against Venezuelan energy and utility organizations using previously undocumented data-wiping malware
-- **Mustang Panda (Chinese APT)**: Deployed new LOTUSLITE backdoor variant targeting Indian banking sector and South Korean policy circles
-- **The Gentlemen Ransomware Group**: Operates ransomware-as-a-service with over 1,570 victims identified through SystemBC proxy malware infrastructure
-- **BlackCat/ALPHV Affiliates**: Conducted ransomware attacks against U.S. companies with assistance from insider ransomware negotiators
-- **Scattered Spider Members**: Senior cybercrime group members pleading guilty to wire fraud and identity theft schemes
-- **GoGra Malware Operators**: Deploy Linux backdoors that abuse Microsoft Graph API and Outlook for stealthy command and control communications
-- **NGate Campaign Actors**: Target Brazilian users with trojanized HandyPay applications to steal NFC payment data and PINs
-- **France Titres Attackers**: Breached French government agency responsible for administrative document issuance and offered stolen citizen data for sale
+- **DPRK Groups**: Conducting fake job recruitment campaigns targeting developers with self-propagating malware
+- **Mustang Panda**: Deploying LOTUSLITE variant targeting Indian banks and South Korean policy circles
+- **The Gentlemen Ransomware**: Operating RaaS with SystemBC proxy malware affecting over 1,500 victims
+- **Scattered Spider**: Senior member Tyler Robert Buchanan pleaded guilty to wire fraud and identity theft
+- **BlackCat Affiliates**: Ransomware negotiator Angelo Martino pleaded guilty to conducting 2023 attacks
+- **Venezuelan Infrastructure Attackers**: Deploying Lotus wiper against energy and utility organizations
+- **Supply Chain Attackers**: Targeting npm ecosystem with self-spreading credential theft campaigns
+- **Chinese APT Groups**: Targeting Indian financial sector and Korean policy circles with updated LOTUSLITE malware
