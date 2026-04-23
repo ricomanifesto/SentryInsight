@@ -1,82 +1,73 @@
 # Exploitation Report
 
-Critical exploitation activity continues to surge across multiple attack vectors, with threat actors leveraging supply chain vulnerabilities, zero-day exploits, and sophisticated malware campaigns. The most severe concerns include self-propagating npm supply chain attacks stealing developer credentials, critical privilege escalation vulnerabilities in ASP.NET Core (CVE-2026-40372), ongoing exploitation of SharePoint spoofing vulnerabilities, and destructive wiper malware targeting critical infrastructure. Advanced persistent threat groups are deploying new variants of backdoors while exploiting legitimate Microsoft services for command and control operations, demonstrating the evolving sophistication of modern cyber threats.
+Current exploitation activity shows a significant surge in critical vulnerabilities being actively targeted across multiple platforms and systems. Most notably, a new Mirai botnet campaign is exploiting CVE-2025-29635, a command injection vulnerability in end-of-life D-Link routers. Microsoft has issued emergency patches for a critical ASP.NET Core privilege escalation flaw (CVE-2026-40372), while over 1,300 SharePoint servers remain vulnerable to ongoing spoofing attacks. Additionally, supply chain attacks are proliferating through npm packages and Docker repositories, with self-propagating worms stealing developer authentication tokens. Ransomware operations continue to evolve, with The Gentlemen group rapidly scaling operations and new variants like Kyber implementing post-quantum encryption techniques.
 
 ## Active Exploitation Details
 
-### ASP.NET Core Privilege Escalation Vulnerability
-- **Description**: Critical security vulnerability in ASP.NET Core that allows attackers to escalate privileges through exploitation of the framework
-- **Impact**: Attackers can gain elevated privileges within affected applications, potentially leading to complete system compromise
-- **Status**: Microsoft has released emergency out-of-band patches to address the vulnerability
+### D-Link Router Command Injection Vulnerability
+- **Description**: A high-severity command-injection vulnerability affecting D-Link DIR-823X routers that allows remote code execution
+- **Impact**: Enables attackers to execute arbitrary commands and enlist devices into Mirai botnets for DDoS attacks and further malicious activities
+- **Status**: Actively exploited in ongoing Mirai campaigns targeting end-of-life devices with no patches available
+- **CVE ID**: CVE-2025-29635
+
+### Microsoft ASP.NET Core Privilege Escalation Flaw
+- **Description**: A critical privilege escalation vulnerability in ASP.NET Core that allows attackers to elevate their privileges within affected systems
+- **Impact**: Attackers can gain elevated access to systems and potentially compromise entire application environments
+- **Status**: Microsoft released emergency out-of-band patches to address active exploitation concerns
 - **CVE ID**: CVE-2026-40372
 
-### SharePoint Server Spoofing Vulnerability
-- **Description**: Zero-day spoofing vulnerability affecting Microsoft SharePoint servers that remains actively exploited in ongoing attacks
-- **Impact**: Attackers can conduct spoofing attacks against SharePoint infrastructure, potentially leading to authentication bypass and unauthorized access
-- **Status**: Over 1,300 SharePoint servers remain unpatched and vulnerable to ongoing exploitation
-
-### Cohere AI Terrarium Sandbox Escape
-- **Description**: Critical vulnerability in Python-based Terrarium sandbox environment that enables arbitrary code execution and container escape
-- **Impact**: Attackers can achieve root code execution and escape sandbox containment, potentially compromising the underlying host system
-- **Status**: Vulnerability disclosed with patches available
-- **CVE ID**: CVE-2026-5752
+### SharePoint Spoofing Vulnerability
+- **Description**: A spoofing vulnerability in Microsoft SharePoint servers that was previously exploited as a zero-day
+- **Impact**: Enables attackers to conduct spoofing attacks and potentially gain unauthorized access to SharePoint environments
+- **Status**: Over 1,300 exposed SharePoint servers remain unpatched despite ongoing exploitation
 
 ### Bomgar RMM Remote Code Execution
-- **Description**: Critical remote code execution flaw in Bomgar remote monitoring and management tool being actively exploited
-- **Impact**: Attackers can execute arbitrary code remotely, spread ransomware, and compromise supply chains through managed endpoints
-- **Status**: Active exploitation observed with supply chain implications
+- **Description**: A critical remote code execution vulnerability in Bomgar remote monitoring and management tool
+- **Impact**: Can be exploited to spread ransomware and compromise supply chains through managed service provider networks
+- **Status**: Experiencing surge in exploitation activity demonstrating supply chain risks
 - **CVE ID**: CVE-2026-1731
 
+### Cohere AI Terrarium Sandbox Escape
+- **Description**: A critical security vulnerability in the Python-based Terrarium sandbox environment
+- **Impact**: Results in arbitrary code execution with root privileges and container escape capabilities
+- **Status**: Recently disclosed with proof-of-concept available
+- **CVE ID**: CVE-2026-5752
+
 ### Windows Defender Exploitation
-- **Description**: Three proof-of-concept exploits turning Microsoft's built-in Windows Defender security platform into an attacker tool
-- **Impact**: Attackers can weaponize the legitimate security software for malicious purposes, bypassing detection mechanisms
-- **Status**: Active exploitation confirmed; two exploits remain unpatched
-
-### Google Antigravity AI Tool RCE
-- **Description**: Critical remote code execution vulnerability in Google's AI-based 'Antigravity' tool caused by prompt injection and sanitization issues
-- **Impact**: Allows sandbox escape and arbitrary code execution through prompt injection attacks
-- **Status**: Patched by Google following disclosure
-
-### npm Supply Chain Self-Propagating Attack
-- **Description**: Self-propagating worm that hijacks npm packages to steal developer authentication tokens and spreads through compromised accounts
-- **Impact**: Theft of developer credentials, unauthorized package publishing, and potential widespread supply chain contamination
-- **Status**: Active ongoing campaign targeting Node.js ecosystem
+- **Description**: Three proof-of-concept exploits targeting Microsoft's built-in Windows Defender security platform
+- **Impact**: Turns the security tool into an attacker weapon, compromising system defenses
+- **Status**: Currently being used in active attacks with two exploits remaining unpatched
 
 ## Affected Systems and Products
 
-- **ASP.NET Core Applications**: All versions affected by privilege escalation vulnerability requiring emergency patching
-- **Microsoft SharePoint Servers**: Over 1,300 internet-exposed servers vulnerable to spoofing attacks
-- **Cohere AI Terrarium**: Python-based sandbox environments susceptible to container escape
-- **Bomgar RMM Platform**: Remote monitoring and management installations vulnerable to RCE exploitation
-- **Windows Defender**: Microsoft's built-in security platform across Windows environments
-- **Google Antigravity Tool**: AI-based filesystem operation tool affected by prompt injection
-- **npm Package Ecosystem**: Node.js development environment and package management infrastructure
-- **Lantronix and Silex Devices**: Serial-to-IP converters affected by 22 BRIDGE:BREAK vulnerabilities
-- **Linux Systems**: Targeted by GoGra backdoor variants using Microsoft Graph API
-- **Venezuelan Energy Infrastructure**: Critical systems targeted by Lotus wiper malware
-- **Indian Banking Sector**: Financial institutions targeted by LOTUSLITE malware variants
+- **D-Link DIR-823X Routers**: End-of-life devices vulnerable to command injection attacks through Mirai campaigns
+- **Microsoft ASP.NET Core**: Web applications and services using affected ASP.NET Core versions
+- **Microsoft SharePoint**: Over 1,300 internet-exposed SharePoint servers lacking security patches
+- **Bomgar RMM**: Remote monitoring and management deployments used by managed service providers
+- **Cohere AI Terrarium**: Python-based sandbox environments in AI development platforms
+- **Windows Defender**: Microsoft's built-in antivirus and security platform on Windows systems
+- **npm Package Registry**: Node.js package ecosystem targeted by supply chain attacks
+- **Docker Hub**: Official container repositories including Checkmarx KICS images
+- **Lantronix and Silex Devices**: Serial-to-IP converters with 22 newly discovered vulnerabilities
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Self-propagating worms spreading through compromised npm packages and developer accounts
-- **Privilege Escalation**: Exploitation of ASP.NET Core vulnerabilities to gain elevated system access
-- **Container Escape**: Breaking out of sandbox environments through code execution vulnerabilities
-- **Living-off-the-Land**: Weaponizing legitimate tools like Windows Defender for malicious purposes
-- **Prompt Injection**: Manipulating AI systems to achieve code execution and sandbox escape
-- **Spoofing Attacks**: Exploiting SharePoint vulnerabilities for authentication bypass
-- **Remote Code Execution**: Leveraging RMM platform vulnerabilities for supply chain compromise
-- **Microsoft Graph API Abuse**: Using legitimate Microsoft infrastructure for backdoor communication
-- **Data Wiping**: Deploying destructive malware against critical infrastructure systems
-- **Social Engineering**: DPRK-attributed fake job scams with self-propagating malware delivery
+- **Command Injection**: Direct exploitation of input validation flaws in D-Link routers for remote code execution
+- **Supply Chain Compromise**: Self-propagating worms spreading through npm packages and Docker images to steal developer tokens
+- **Privilege Escalation**: ASP.NET Core vulnerability exploitation to gain elevated system access
+- **Social Engineering**: DPRK-linked fake job interview campaigns spreading malware through compromised developer repositories
+- **Living-off-the-Land**: GoGra backdoor using legitimate Microsoft Graph API infrastructure for command and control communications
+- **Sandbox Escape**: Terrarium vulnerability exploitation enabling container breakout and root code execution
+- **Anti-Virus Weaponization**: Exploiting Windows Defender to turn security tools against the systems they protect
+- **Post-Quantum Encryption**: Kyber ransomware implementing advanced Kyber1024 encryption for enhanced payload protection
 
 ## Threat Actor Activities
 
-- **Harvester Group**: Deploying Linux GoGra backdoor variants targeting South Asian entities using Microsoft Graph API for command and control
+- **Mirai Botnet Operators**: Actively exploiting D-Link router vulnerabilities to expand botnet infrastructure for DDoS capabilities
+- **The Gentlemen Ransomware Group**: Rapidly scaling operations with sophisticated techniques and SystemBC proxy malware deployment affecting over 1,570 victims
+- **Kyber Ransomware Operation**: Targeting Windows systems and VMware ESXi endpoints while experimenting with post-quantum encryption methods
+- **Harvester APT Group**: Deploying Linux variants of GoGra backdoor against South Asian targets using Microsoft Graph API for stealthy communications
 - **Mustang Panda**: Distributing new LOTUSLITE malware variants targeting Indian banking sector and South Korean policy organizations
-- **The Gentlemen Ransomware Group**: Operating ransomware-as-a-service with SystemBC proxy malware affecting over 1,570 victims
-- **DPRK-Attributed Actors**: Conducting sophisticated fake job scams with self-propagating remote access trojans
-- **Scattered Spider Member**: British national pleading guilty to wire fraud and identity theft as part of cybercrime operations
-- **BlackCat Ransomware Associates**: Multiple individuals charged and pleading guilty to ransomware negotiation and attack facilitation
-- **Venezuelan Infrastructure Attackers**: Unknown threat actors deploying Lotus wiper malware against energy and utility companies
-- **npm Supply Chain Attackers**: Cybercriminals conducting self-propagating attacks against Node.js development infrastructure
-- **NGate Campaign Operators**: Android malware distributors targeting Brazilian users through trojanized HandyPay applications
+- **DPRK-linked Groups**: Conducting "Contagious Interview" campaigns using fake job offers to spread remote access trojans through developer communities
+- **Scattered Spider Member**: Senior cybercrime group member pleading guilty to wire fraud and identity theft charges
+- **Supply Chain Attackers**: Operating sophisticated npm and Docker repository compromise campaigns with self-propagating worm capabilities
