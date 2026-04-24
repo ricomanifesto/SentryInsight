@@ -1,60 +1,63 @@
 # Exploitation Report
 
-Critical vulnerability exploitation is escalating across multiple platforms, with attackers demonstrating rapid weaponization capabilities. The most concerning activity includes zero-day exploitation of Microsoft Defender vulnerabilities dubbed BlueHammer that CISA has designated for immediate federal patching, alongside active attacks on over 10,000 Zimbra servers exploiting cross-site scripting flaws. Supply chain attacks have intensified, with compromised npm packages targeting developer credentials and Docker images being weaponized. LMDeploy vulnerabilities are being exploited within hours of public disclosure, while threat actors leverage sophisticated social engineering through legitimate platforms like Microsoft Teams, Slack, and Discord for command and control operations.
+Critical exploitation activity is currently targeting multiple platforms with several high-impact vulnerabilities being actively exploited. The most significant threats include the Pack2TheRoot vulnerability allowing local privilege escalation to root access on Linux systems, ongoing attacks against over 10,000 vulnerable Zimbra servers through XSS exploitation, and a rapidly exploited LMDeploy flaw that was weaponized within just 13 hours of public disclosure. Additionally, supply chain attacks have compromised developer tools including the Bitwarden CLI and Checkmarx KICS analysis tool, while sophisticated APT groups are leveraging compromised infrastructure and social engineering tactics to target organizations across multiple sectors.
 
 ## Active Exploitation Details
 
-### Microsoft Defender BlueHammer Privilege Escalation
-- **Description**: A privilege escalation vulnerability in Microsoft Defender that has been actively exploited in zero-day attacks
-- **Impact**: Allows attackers to escalate privileges on compromised systems, potentially leading to full system compromise
-- **Status**: Currently being exploited in the wild; CISA has mandated federal agencies patch immediately
+### Pack2TheRoot Linux Privilege Escalation
+- **Description**: A vulnerability in the PackageKit daemon that allows local Linux users to install or remove system packages and gain root permissions
+- **Impact**: Local attackers can escalate privileges to root level, gaining complete system control
+- **Status**: Actively exploitable vulnerability affecting Linux systems with PackageKit daemon
 
-### Zimbra Collaboration Suite Cross-Site Scripting
-- **Description**: Cross-site scripting vulnerability affecting Zimbra Collaboration Suite instances
-- **Impact**: Enables attackers to execute malicious scripts in users' browsers, potentially stealing credentials or session tokens
-- **Status**: Over 10,000 servers remain vulnerable to ongoing exploitation
+### Zimbra Cross-Site Scripting (XSS) Attacks
+- **Description**: Cross-site scripting vulnerability in Zimbra Collaboration Suite affecting over 10,000 exposed instances
+- **Impact**: Attackers can execute malicious scripts in users' browsers, potentially leading to credential theft and unauthorized access
+- **Status**: Currently under active exploitation with thousands of vulnerable servers online
 
-### LMDeploy Toolkit Vulnerability
-- **Description**: High-severity security flaw in LMDeploy, an open-source toolkit for compressing, deploying, and serving LLMs
-- **Impact**: Allows attackers to compromise AI/ML deployment infrastructure
-- **Status**: Exploited within 13 hours of public disclosure
+### LMDeploy Rapid Exploitation
+- **Description**: High-severity security flaw in LMDeploy toolkit for compressing, deploying, and serving large language models
+- **Impact**: Enables attackers to compromise AI infrastructure and potentially access sensitive model data
+- **Status**: Exploited within 13 hours of public disclosure, demonstrating rapid weaponization
 - **CVE ID**: CVE-2026-33626
 
-### Breeze Cache WordPress Plugin File Upload
+### Breeze Cache WordPress Plugin File Upload Vulnerability
 - **Description**: Critical vulnerability in the Breeze Cache WordPress plugin allowing arbitrary file uploads without authentication
-- **Impact**: Complete server compromise through malicious file upload and execution
-- **Status**: Actively being exploited by attackers targeting WordPress installations
+- **Impact**: Attackers can upload malicious files to compromised servers, potentially leading to remote code execution
+- **Status**: Under active exploitation by threat actors
+
+### FIRESTARTER Backdoor on Cisco Firepower
+- **Description**: Persistent backdoor targeting federal Cisco Firepower devices running Adaptive Security Appliance software
+- **Impact**: Provides persistent access to network security infrastructure, surviving security patches
+- **Status**: Discovered on unnamed federal civilian agency device, demonstrates advanced persistence capabilities
 
 ## Affected Systems and Products
 
+- **Linux Systems**: All distributions running PackageKit daemon vulnerable to Pack2TheRoot privilege escalation
 - **Zimbra Collaboration Suite**: Over 10,000 instances exposed online vulnerable to XSS attacks
-- **Microsoft Defender**: Federal systems requiring immediate patching due to zero-day exploitation
-- **WordPress Breeze Cache Plugin**: Sites using the plugin vulnerable to unauthenticated file upload attacks
-- **LMDeploy Toolkit**: AI/ML infrastructure using this open-source deployment tool
-- **Bitwarden CLI npm package**: Developer environments using compromised @bitwarden/cli package
-- **Checkmarx KICS**: Docker images, VSCode and Open VSX extensions compromised
-- **Apple App Store**: 26 malicious cryptocurrency wallet apps targeting user seed phrases
-- **SumatraPDF**: Trojanized versions distributing AdaptixC2 Beacon malware
-- **Home Routers**: Japanese targets being compromised by Tropic Trooper APT
-- **Mongolian Government Systems**: 12 systems infected with Go backdoors by GopherWhisper
+- **LMDeploy Toolkit**: Open-source AI deployment infrastructure compromised
+- **WordPress Sites**: Installations using vulnerable Breeze Cache plugin
+- **Cisco Firepower Devices**: Federal and enterprise network security appliances
+- **Developer Tools**: Bitwarden CLI npm package and Checkmarx KICS analysis tools compromised
+- **macOS Systems**: Targeted by Lazarus group using ClickFix techniques
+- **Apple App Store**: 26 malicious cryptocurrency wallet applications discovered
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Attackers compromising legitimate software packages and Docker images to inject malicious payloads
-- **Social Engineering via Microsoft Teams**: UNC6692 threat group impersonating IT help desk personnel to deploy SNOW malware
-- **Trojanized Software Distribution**: Legitimate applications like SumatraPDF being weaponized with backdoors
-- **Malicious App Store Applications**: Fake cryptocurrency wallets designed to steal recovery phrases and private keys
-- **ClickFix Technique**: Lazarus group leveraging ClickFix for initial access against macOS users
-- **AI-Powered Phishing**: Significant increase in personalized, AI-generated phishing campaigns
-- **Legitimate Service Abuse**: Threat actors using Microsoft Outlook, Slack, Discord, and file.io for command and control
-- **Proxy Network Evasion**: Chinese hackers using large-scale proxy networks of hijacked consumer devices
+- **Local Privilege Escalation**: Pack2TheRoot exploits PackageKit daemon for root access
+- **Cross-Site Scripting**: Zimbra servers targeted through XSS vulnerabilities
+- **Supply Chain Compromises**: Developer tools including Bitwarden CLI and Checkmarx KICS infiltrated with malicious code
+- **Social Engineering**: Microsoft Teams impersonation by UNC6692 for SNOW malware deployment
+- **ClickFix Campaigns**: Lazarus group targeting macOS users with fake error prompts
+- **Trojanized Applications**: Legitimate software like SumatraPDF weaponized for malware delivery
+- **Phishing Campaigns**: AI-powered and traditional phishing targeting NASA employees and defense contractors
+- **Proxy Networks**: Chinese APT groups using hijacked consumer devices for evasion
 
 ## Threat Actor Activities
 
-- **Lazarus Group**: Targeting macOS users through ClickFix techniques, focusing on Mac-centric organizations and high-value leaders
-- **Tropic Trooper**: Chinese APT group expanding operations to target home routers and Japanese victims, using trojanized SumatraPDF
-- **UNC6692**: Previously undocumented threat cluster using Microsoft Teams social engineering to deploy SNOW malware suite
-- **GopherWhisper**: China-aligned APT group targeting Mongolian government institutions with Go-based backdoors, using legitimate cloud services for C2
-- **Chinese State-Backed Groups**: Industrializing botnet operations using compromised consumer devices for low-risk, deniable attacks
-- **Trigona Ransomware Operators**: Deploying custom command-line exfiltration tools for faster and more efficient data theft
-- **Supply Chain Attackers**: Ongoing campaign compromising developer tools including Bitwarden CLI and Checkmarx KICS analysis tools
+- **Lazarus Group**: Targeting macOS users through ClickFix techniques and focusing on Mac-centric organizations
+- **UNC6692**: Impersonating IT help desk via Microsoft Teams to deploy SNOW malware suite
+- **Tropic Trooper**: Using trojanized SumatraPDF and targeting home routers with focus on Japanese entities
+- **GopherWhisper APT**: Newly documented state-backed group abusing legitimate services like Outlook, Slack, and Discord for command and control
+- **Chinese APT Groups**: Conducting espionage operations against Mongolia using multiple cloud tools and industrializing botnet operations
+- **Trigona Ransomware**: Deploying custom exfiltration tools for faster data theft operations
+- **Supply Chain Attackers**: Targeting developer ecosystems through compromised packages and tools
