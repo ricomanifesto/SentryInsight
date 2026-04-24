@@ -1,60 +1,60 @@
 # Exploitation Report
 
-Current cybersecurity threat landscape shows significant exploitation activity across multiple attack vectors, with particular emphasis on supply chain compromises, zero-day vulnerabilities, and sophisticated APT campaigns. Critical vulnerabilities are being exploited within hours of disclosure, including CVE-2026-33626 in LMDeploy which was exploited within 13 hours. Supply chain attacks have compromised multiple developer tools including Bitwarden CLI and Checkmarx KICS analysis tool. Zero-day exploitation includes CVE-2026-28950 affecting iOS notification services and the BlueHammer vulnerability in Microsoft Defender. Advanced persistent threat groups, particularly Chinese state-sponsored actors, are conducting extensive campaigns against government targets using sophisticated techniques and leveraging legitimate cloud services for command and control operations.
+Critical vulnerability exploitation is escalating across multiple platforms, with attackers demonstrating rapid weaponization capabilities. The most concerning activity includes zero-day exploitation of Microsoft Defender vulnerabilities dubbed BlueHammer that CISA has designated for immediate federal patching, alongside active attacks on over 10,000 Zimbra servers exploiting cross-site scripting flaws. Supply chain attacks have intensified, with compromised npm packages targeting developer credentials and Docker images being weaponized. LMDeploy vulnerabilities are being exploited within hours of public disclosure, while threat actors leverage sophisticated social engineering through legitimate platforms like Microsoft Teams, Slack, and Discord for command and control operations.
 
 ## Active Exploitation Details
 
-### LMDeploy Security Flaw
-- **Description**: High-severity vulnerability in LMDeploy, an open-source toolkit for compressing, deploying, and serving Large Language Models
-- **Impact**: Allows attackers to exploit the vulnerability for unauthorized access and potential system compromise
-- **Status**: Under active exploitation in the wild, exploited within 13 hours of public disclosure
+### Microsoft Defender BlueHammer Privilege Escalation
+- **Description**: A privilege escalation vulnerability in Microsoft Defender that has been actively exploited in zero-day attacks
+- **Impact**: Allows attackers to escalate privileges on compromised systems, potentially leading to full system compromise
+- **Status**: Currently being exploited in the wild; CISA has mandated federal agencies patch immediately
+
+### Zimbra Collaboration Suite Cross-Site Scripting
+- **Description**: Cross-site scripting vulnerability affecting Zimbra Collaboration Suite instances
+- **Impact**: Enables attackers to execute malicious scripts in users' browsers, potentially stealing credentials or session tokens
+- **Status**: Over 10,000 servers remain vulnerable to ongoing exploitation
+
+### LMDeploy Toolkit Vulnerability
+- **Description**: High-severity security flaw in LMDeploy, an open-source toolkit for compressing, deploying, and serving LLMs
+- **Impact**: Allows attackers to compromise AI/ML deployment infrastructure
+- **Status**: Exploited within 13 hours of public disclosure
 - **CVE ID**: CVE-2026-33626
 
-### iOS Notification Services Vulnerability
-- **Description**: Flaw in iOS and iPadOS Notification Services that stored notifications marked for deletion on the device
-- **Impact**: Enabled FBI and other entities to recover deleted Signal messages and other sensitive notification data
-- **Status**: Recently patched by Apple with out-of-band security updates
-- **CVE ID**: CVE-2026-28950
-
-### BlueHammer Microsoft Defender Flaw
-- **Description**: Privilege escalation vulnerability in Microsoft Defender
-- **Impact**: Allows attackers to gain elevated privileges on compromised systems
-- **Status**: Exploited as zero-day vulnerability, CISA has ordered federal agencies to patch immediately
-
-### Breeze Cache WordPress Plugin Vulnerability
-- **Description**: Critical file upload vulnerability in the Breeze Cache plugin for WordPress
-- **Impact**: Allows uploading arbitrary files on the server without authentication, leading to complete server compromise
-- **Status**: Under active exploitation by threat actors
+### Breeze Cache WordPress Plugin File Upload
+- **Description**: Critical vulnerability in the Breeze Cache WordPress plugin allowing arbitrary file uploads without authentication
+- **Impact**: Complete server compromise through malicious file upload and execution
+- **Status**: Actively being exploited by attackers targeting WordPress installations
 
 ## Affected Systems and Products
 
-- **LMDeploy Toolkit**: Open-source toolkit for Large Language Model deployment and serving
-- **iOS and iPadOS Devices**: Apple mobile devices running affected versions of iOS/iPadOS
-- **Microsoft Defender**: Microsoft's endpoint protection platform
-- **WordPress Sites**: Sites using the Breeze Cache plugin
-- **Bitwarden CLI**: Command-line interface for Bitwarden password manager via npm package
-- **Checkmarx KICS**: Security analysis tool with compromised Docker images and VSCode extensions
-- **SumatraPDF**: PDF reader trojanized by threat actors
-- **Apple App Store**: 26 FakeWallet applications targeting cryptocurrency users
-- **Home Routers**: Consumer networking devices targeted by APT groups
-- **Microsoft Teams**: Platform exploited for social engineering attacks
+- **Zimbra Collaboration Suite**: Over 10,000 instances exposed online vulnerable to XSS attacks
+- **Microsoft Defender**: Federal systems requiring immediate patching due to zero-day exploitation
+- **WordPress Breeze Cache Plugin**: Sites using the plugin vulnerable to unauthenticated file upload attacks
+- **LMDeploy Toolkit**: AI/ML infrastructure using this open-source deployment tool
+- **Bitwarden CLI npm package**: Developer environments using compromised @bitwarden/cli package
+- **Checkmarx KICS**: Docker images, VSCode and Open VSX extensions compromised
+- **Apple App Store**: 26 malicious cryptocurrency wallet apps targeting user seed phrases
+- **SumatraPDF**: Trojanized versions distributing AdaptixC2 Beacon malware
+- **Home Routers**: Japanese targets being compromised by Tropic Trooper APT
+- **Mongolian Government Systems**: 12 systems infected with Go backdoors by GopherWhisper
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Attackers compromising legitimate developer tools and packages including npm packages, Docker images, and VSCode extensions
-- **Trojanized Software**: Distribution of malicious versions of legitimate applications like SumatraPDF
-- **Social Engineering via Teams**: UNC6692 impersonating IT help desk staff through Microsoft Teams to deploy SNOW malware
-- **Mobile App Store Infiltration**: 26 malicious cryptocurrency wallet applications on Apple App Store designed to steal seed phrases
-- **Zero-Day Exploitation**: Rapid exploitation of newly disclosed vulnerabilities within hours
-- **Living-off-the-Land**: Abuse of legitimate cloud services including Microsoft Outlook, Slack, Discord for command and control
-- **Proxy Network Abuse**: Chinese hackers using large-scale networks of compromised consumer devices to evade detection
-- **Custom Toolkits**: Development of specialized malware and exfiltration tools for targeted attacks
+- **Supply Chain Compromise**: Attackers compromising legitimate software packages and Docker images to inject malicious payloads
+- **Social Engineering via Microsoft Teams**: UNC6692 threat group impersonating IT help desk personnel to deploy SNOW malware
+- **Trojanized Software Distribution**: Legitimate applications like SumatraPDF being weaponized with backdoors
+- **Malicious App Store Applications**: Fake cryptocurrency wallets designed to steal recovery phrases and private keys
+- **ClickFix Technique**: Lazarus group leveraging ClickFix for initial access against macOS users
+- **AI-Powered Phishing**: Significant increase in personalized, AI-generated phishing campaigns
+- **Legitimate Service Abuse**: Threat actors using Microsoft Outlook, Slack, Discord, and file.io for command and control
+- **Proxy Network Evasion**: Chinese hackers using large-scale proxy networks of hijacked consumer devices
 
 ## Threat Actor Activities
 
-- **Tropic Trooper**: Chinese APT group targeting Chinese-speaking individuals with trojanized SumatraPDF to deploy AdaptixC2 Beacon, expanding operations to target home routers and Japanese entities
-- **UNC6692**: Previously undocumented threat group using Microsoft Teams social engineering to deploy SNOW malware suite on compromised hosts
-- **GopherWhisper**: China-aligned APT group targeting 12 Mongolian government systems with Go-based backdoors, using legitimate cloud services for command and control
-- **Chinese State-Sponsored Groups**: Multiple groups industrializing botnet operations and using proxy networks of hijacked consumer devices for covert operations
-- **Trigona Ransomware Operators**: Using custom command-line exfiltration tools to steal data more efficiently from compromised environments
-- **Supply Chain Attackers**: Coordinated campaign compromising multiple developer tools in ongoing Checkmarx supply chain attack affecting Bitwarden CLI and KICS analysis tool
+- **Lazarus Group**: Targeting macOS users through ClickFix techniques, focusing on Mac-centric organizations and high-value leaders
+- **Tropic Trooper**: Chinese APT group expanding operations to target home routers and Japanese victims, using trojanized SumatraPDF
+- **UNC6692**: Previously undocumented threat cluster using Microsoft Teams social engineering to deploy SNOW malware suite
+- **GopherWhisper**: China-aligned APT group targeting Mongolian government institutions with Go-based backdoors, using legitimate cloud services for C2
+- **Chinese State-Backed Groups**: Industrializing botnet operations using compromised consumer devices for low-risk, deniable attacks
+- **Trigona Ransomware Operators**: Deploying custom command-line exfiltration tools for faster and more efficient data theft
+- **Supply Chain Attackers**: Ongoing campaign compromising developer tools including Bitwarden CLI and Checkmarx KICS analysis tools
