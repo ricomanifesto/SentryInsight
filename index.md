@@ -1,64 +1,71 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-value systems across enterprise and government environments. The most concerning developments include the persistent Firestarter malware surviving security patches on federal Cisco firewall devices, rapid exploitation of a newly disclosed LMDeploy vulnerability within hours of public disclosure, ongoing attacks against over 10,000 vulnerable Zimbra servers, and sophisticated supply chain compromises affecting developer tools. Nation-state actors, particularly Chinese APT groups, are demonstrating advanced persistence capabilities while cybercriminal groups are leveraging AI-powered social engineering and targeting cloud infrastructure with increasing sophistication.
+Critical exploitation activity is currently targeting multiple platforms and systems worldwide. CISA has added four new vulnerabilities to the Known Exploited Vulnerabilities (KEV) catalog affecting SimpleHelp, Samsung MagicINFO 9 Server, and D-Link routers, indicating active exploitation in the wild. Meanwhile, attackers have rapidly exploited CVE-2026-33626 in LMDeploy within just 13 hours of public disclosure, demonstrating the increasing speed of exploit weaponization. A persistent FIRESTARTER malware campaign has compromised Cisco Firepower devices at federal agencies, surviving security patches and updates. Additionally, over 10,000 Zimbra servers remain vulnerable to ongoing cross-site scripting attacks, while hackers are actively exploiting a critical file upload vulnerability in the Breeze Cache WordPress plugin.
 
 ## Active Exploitation Details
 
-### Firestarter Malware on Cisco Firewalls
-- **Description**: Custom malware persisting on Cisco Firepower and Secure Firewall devices running Adaptive Security Appliance (ASA) software, specifically targeting federal civilian agency infrastructure
-- **Impact**: Persistent backdoor access that survives security updates and patches, compromising critical network security infrastructure
-- **Status**: Actively deployed on federal systems, demonstrates exceptional persistence capabilities
+### CISA KEV Vulnerabilities
+- **Description**: Four vulnerabilities across SimpleHelp, Samsung MagicINFO 9 Server, and D-Link DIR-823X series routers
+- **Impact**: Various security impacts across remote support software, digital signage systems, and network routers
+- **Status**: Added to CISA KEV catalog with May 2026 federal deadline for patching
 
-### LMDeploy Vulnerability
-- **Description**: High-severity security flaw in LMDeploy, an open-source toolkit for compressing, deploying, and serving Large Language Models
-- **Impact**: Enables attackers to compromise AI/ML infrastructure and potentially access sensitive model data
-- **Status**: Exploited in the wild within 13 hours of public disclosure
+### LMDeploy Toolkit Vulnerability
+- **Description**: High-severity security flaw in LMDeploy open-source toolkit for compressing, deploying, and serving large language models
+- **Impact**: Complete system compromise and unauthorized access to AI model infrastructure
+- **Status**: Actively exploited within 13 hours of public disclosure
 - **CVE ID**: CVE-2026-33626
 
-### Zimbra Cross-Site Scripting Attacks
-- **Description**: Cross-site scripting (XSS) security flaw affecting Zimbra Collaboration Suite instances
-- **Impact**: Allows attackers to execute malicious scripts in user browsers, potentially leading to credential theft and session hijacking
-- **Status**: Over 10,000 Zimbra servers currently vulnerable and under active attack
+### FIRESTARTER Backdoor
+- **Description**: Custom malware persisting on Cisco Firepower and Secure Firewall devices running Adaptive Security Appliance (ASA) software
+- **Impact**: Persistent backdoor access that survives firmware updates and security patches
+- **Status**: Active exploitation targeting federal civilian agencies
 
-### WordPress Breeze Cache Plugin Vulnerability
-- **Description**: Critical vulnerability in the Breeze Cache plugin for WordPress allowing arbitrary file uploads without authentication
-- **Impact**: Remote code execution and complete website compromise through malicious file uploads
-- **Status**: Actively exploited by hackers targeting WordPress installations
+### Zimbra Cross-Site Scripting Vulnerability
+- **Description**: Cross-site scripting (XSS) security flaw in Zimbra Collaboration Suite
+- **Impact**: Web-based attacks against email and collaboration systems
+- **Status**: Ongoing exploitation affecting over 10,000 exposed servers
 
-### Pack2TheRoot Linux Privilege Escalation
-- **Description**: Vulnerability in the PackageKit daemon affecting Linux systems
-- **Impact**: Allows local users to install or remove system packages and gain root permissions
-- **Status**: Newly disclosed vulnerability with privilege escalation capabilities
+### Breeze Cache WordPress Plugin Vulnerability
+- **Description**: Critical file upload vulnerability allowing arbitrary file uploads without authentication
+- **Impact**: Complete website compromise and server control
+- **Status**: Active exploitation in the wild
+
+### PackageKit Daemon Vulnerability (Pack2TheRoot)
+- **Description**: Vulnerability in PackageKit daemon allowing local privilege escalation
+- **Impact**: Local Linux users can install/remove system packages and gain root permissions
+- **Status**: Newly disclosed vulnerability
 
 ## Affected Systems and Products
 
-- **Cisco Firepower and Secure Firewall Devices**: Running Adaptive Security Appliance (ASA) software, particularly federal civilian agency deployments
-- **LMDeploy Toolkit**: Open-source AI/ML deployment infrastructure
-- **Zimbra Collaboration Suite**: Over 10,000 exposed instances vulnerable to XSS attacks
-- **WordPress Sites**: Using vulnerable Breeze Cache plugin installations
-- **Linux Systems**: Running PackageKit daemon vulnerable to Pack2TheRoot exploit
-- **Developer Tools**: Bitwarden CLI npm package, Checkmarx KICS analysis tool Docker images and VSCode extensions
-- **Apple App Store**: 26 malicious cryptocurrency wallet applications targeting iOS users
-- **Home Security Systems**: ADT customer data systems compromised by ShinyHunters group
+- **Cisco Firepower and Secure Firewall**: Devices running Adaptive Security Appliance (ASA) software
+- **SimpleHelp**: Remote support software platform
+- **Samsung MagicINFO 9 Server**: Digital signage management system
+- **D-Link DIR-823X Series**: Router hardware and firmware
+- **LMDeploy**: Open-source toolkit for large language model deployment
+- **Zimbra Collaboration Suite**: Email and collaboration platform with over 10,000 exposed instances
+- **Breeze Cache WordPress Plugin**: WordPress caching plugin
+- **PackageKit Daemon**: Linux package management system
+- **Bitwarden CLI npm Package**: Command-line interface for password manager
+- **Checkmarx KICS**: Code analysis tool Docker images and extensions
 
 ## Attack Vectors and Techniques
 
-- **Persistent Malware**: Firestarter demonstrates advanced persistence, surviving security patches and updates on critical infrastructure
-- **Supply Chain Compromises**: Multiple developer tools compromised including Bitwarden CLI and Checkmarx KICS analysis tools
-- **Social Engineering via Microsoft Teams**: UNC6692 impersonating IT help desk personnel to deploy SNOW malware
-- **Trojanized Software Distribution**: SumatraPDF reader compromised to deploy AdaptixC2 Beacon post-exploitation tools
-- **AI-Powered Phishing**: Increased use of AI for personalized phishing attacks and social engineering campaigns
-- **ClickFix Technique**: Lazarus group targeting macOS users through deceptive user interface interactions
-- **Vishing Attacks**: BlackFile group using voice phishing combined with data theft and extortion
-- **Fake Mobile Applications**: Cryptocurrency wallet impersonation on official app stores
+- **Social Engineering via Microsoft Teams**: UNC6692 threat group impersonating IT help desk to deploy SNOW malware
+- **Trojanized Software Distribution**: Tropic Trooper using compromised SumatraPDF and GitHub for AdaptixC2 deployment
+- **Supply Chain Compromise**: Bitwarden CLI npm package and Checkmarx KICS tool compromised to steal developer credentials
+- **ClickFix Technique**: North Korea's Lazarus group targeting macOS users
+- **Spear-Phishing**: Chinese nationals posing as U.S. researchers to target NASA employees
+- **AI-Powered Phishing**: Significant increase in personalized AI-generated phishing attacks
+- **Vishing Attacks**: BlackFile extortion group using voice phishing against retail and hospitality
+- **Persistent Backdoor**: FIRESTARTER malware surviving security updates on network infrastructure
 
 ## Threat Actor Activities
 
-- **Chinese APT Groups**: Targeting Mongolian entities using cloud services like Microsoft Outlook, Slack, and Discord for command and control; Tropic Trooper expanding operations against Japanese targets and home routers
-- **Lazarus Group**: North Korean actors targeting macOS users and high-value leaders in Mac-centric organizations using ClickFix techniques
-- **UNC6692**: Previously undocumented threat cluster using Microsoft Teams for social engineering and deploying custom SNOW malware suite
-- **Tropic Trooper**: Chinese-speaking threat actor using trojanized SumatraPDF to target Chinese-speaking individuals with AdaptixC2 tools
-- **BlackFile Extortion Group**: New financially motivated group targeting retail and hospitality organizations since February 2026 with data theft and vishing attacks
-- **ShinyHunters**: Extortion group threatening to leak ADT customer data unless ransom demands are met
-- **Trigona Ransomware Operators**: Using custom command-line exfiltration tools for faster and more efficient data theft
-- **Chinese National Phishing**: NASA employees targeted in spear-phishing campaign by Chinese national impersonating U.S. researcher to target defense software
+- **UNC6692**: Previously undocumented group using Microsoft Teams social engineering to deploy custom SNOW malware suite
+- **Tropic Trooper**: Chinese APT group targeting home routers and Japanese organizations with trojanized applications
+- **Lazarus Group**: North Korean APT leveraging ClickFix techniques against macOS users and high-value targets
+- **Chinese State-Sponsored Groups**: Multiple campaigns including espionage against Mongolia using cloud tools and spear-phishing against NASA
+- **BlackFile Extortion Group**: New financially motivated group targeting retail and hospitality since February 2026
+- **ShinyHunters**: Threatening ADT with data leak unless ransom is paid
+- **Trigona Ransomware Operators**: Using custom exfiltration tools for faster data theft
+- **Chinese-Backed Botnet Operations**: Industrializing compromised device networks for low-risk attacks
