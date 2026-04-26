@@ -1,62 +1,64 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple platforms including enterprise infrastructure devices, WordPress websites, Linux systems, and cloud-based collaboration tools. The most concerning developments include active exploitation of Cisco Firepower devices by the persistent FIRESTARTER malware that survives security patches, widespread attacks against over 10,000 vulnerable Zimbra servers, and rapid weaponization of the LMDeploy vulnerability within 13 hours of disclosure. Threat actors are increasingly leveraging sophisticated social engineering through Microsoft Teams and deploying custom malware suites while exploiting unpatched vulnerabilities in enterprise-critical systems.
+Critical exploitation activity is currently targeting multiple platforms and services with several high-impact vulnerabilities under active attack. The most severe include rapid exploitation of the LMDeploy CVE-2026-33626 vulnerability within 13 hours of disclosure, persistent malware on Cisco firewall devices surviving security patches, active attacks against over 10,000 vulnerable Zimbra servers, and widespread exploitation of WordPress plugin vulnerabilities. Threat actors are leveraging sophisticated social engineering campaigns through Microsoft Teams, compromising npm packages, and deploying custom malware suites while Chinese state-sponsored groups are expanding their targeting scope across multiple regions.
 
 ## Active Exploitation Details
 
-### FIRESTARTER Malware on Cisco Devices
-- **Description**: Custom malware targeting Cisco Firepower and Secure Firewall devices running Adaptive Security Appliance (ASA) software, with persistence capabilities that survive firmware updates and security patches
-- **Impact**: Complete compromise of federal civilian agency firewall infrastructure with potential for network surveillance and lateral movement
-- **Status**: Active exploitation confirmed on federal systems with malware persistence despite patching efforts
-
-### Zimbra Cross-Site Scripting Vulnerability
-- **Description**: Cross-site scripting (XSS) security flaw affecting Zimbra Collaboration Suite instances
-- **Impact**: Enables attackers to execute malicious scripts in user browsers and potentially steal credentials or session tokens
-- **Status**: Active exploitation targeting over 10,000 exposed Zimbra servers worldwide
-
-### LMDeploy Vulnerability
-- **Description**: High-severity security flaw in LMDeploy, an open-source toolkit for compressing, deploying, and serving Large Language Models
-- **Impact**: Allows attackers to compromise AI/ML deployment infrastructure
-- **Status**: Exploited within 13 hours of public disclosure, demonstrating rapid weaponization
+### LMDeploy High-Severity Vulnerability
+- **Description**: A high-severity security flaw in LMDeploy, an open-source toolkit for compressing, deploying, and serving Large Language Models (LLMs)
+- **Impact**: Allows unauthorized access to LLM deployment infrastructure and potential data compromise
+- **Status**: Under active exploitation in the wild less than 13 hours after public disclosure
 - **CVE ID**: CVE-2026-33626
 
-### Pack2TheRoot Linux Vulnerability
-- **Description**: Vulnerability in the PackageKit daemon allowing local privilege escalation
-- **Impact**: Local Linux users can install or remove system packages and gain root permissions
-- **Status**: Newly discovered vulnerability with potential for widespread exploitation
+### Zimbra Collaboration Suite Cross-Site Scripting
+- **Description**: Cross-site scripting (XSS) security flaw affecting Zimbra Collaboration Suite instances
+- **Impact**: Enables attackers to execute malicious scripts in user browsers and potentially steal credentials
+- **Status**: Currently being exploited in ongoing attacks against over 10,000 exposed servers
 
-### Breeze Cache WordPress Plugin Vulnerability
-- **Description**: Critical file upload vulnerability in the Breeze Cache plugin for WordPress
-- **Impact**: Allows uploading arbitrary files to the server without authentication, leading to complete website compromise
-- **Status**: Active exploitation reported against WordPress installations
+### Breeze Cache WordPress Plugin File Upload Vulnerability
+- **Description**: Critical vulnerability in the Breeze Cache plugin for WordPress allowing arbitrary file uploads
+- **Impact**: Permits uploading malicious files on the server without authentication, leading to full server compromise
+- **Status**: Currently under active exploitation by hackers
+
+### Pack2TheRoot Linux Privilege Escalation
+- **Description**: Vulnerability in the PackageKit daemon that allows local Linux users to gain elevated permissions
+- **Impact**: Enables local users to install or remove system packages and achieve root access
+- **Status**: Recently disclosed vulnerability with potential for exploitation
+
+### Cisco Firepower Persistent Malware
+- **Description**: Firestarter malware persisting on Cisco Firepower and Secure Firewall devices running Adaptive Security Appliance (ASA) software
+- **Impact**: Maintains persistent access to critical network infrastructure even after security updates
+- **Status**: Confirmed compromise of federal civilian agency device, survives security patches and updates
 
 ## Affected Systems and Products
 
-- **Cisco Firepower and Secure Firewall Devices**: Running Adaptive Security Appliance (ASA) software, confirmed compromise of federal civilian agency systems
-- **Zimbra Collaboration Suite**: Over 10,000 instances exposed online vulnerable to XSS attacks
-- **LMDeploy Toolkit**: Open-source toolkit for LLM compression and deployment
-- **Linux Systems**: PackageKit daemon vulnerable to privilege escalation
-- **WordPress Websites**: Sites using the Breeze Cache plugin vulnerable to file upload attacks
-- **Microsoft Teams**: Exploited as attack vector for social engineering campaigns
-- **Bitwarden CLI**: npm package temporarily compromised for credential theft
+- **LMDeploy**: Open-source toolkit for LLM deployment and serving
+- **Zimbra Collaboration Suite**: Over 10,000 exposed instances vulnerable to XSS attacks
+- **WordPress Breeze Cache Plugin**: WordPress caching plugin with critical file upload vulnerability
+- **Linux PackageKit**: Package management system affected by privilege escalation flaw
+- **Cisco Firepower/ASA**: Network security appliances compromised by persistent Firestarter malware
+- **Microsoft Teams**: Platform abused for social engineering attacks deploying SNOW malware
+- **Bitwarden CLI npm Package**: Temporarily compromised developer tool package
+- **Apple App Store**: 26 malicious FakeWallet applications targeting cryptocurrency users
+- **SumatraPDF**: Trojanized version used to deploy AdaptixC2 malware
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering via Microsoft Teams**: UNC6692 impersonates IT help desk personnel to deploy SNOW malware suite
-- **Persistence Through Updates**: FIRESTARTER malware maintains presence despite firmware and security patches
-- **Rapid Vulnerability Weaponization**: CVE-2026-33626 exploited within 13 hours of disclosure
-- **Supply Chain Compromise**: Bitwarden CLI npm package temporarily compromised to steal developer credentials
-- **Trojanized Software**: Tropic Trooper uses trojanized SumatraPDF reader to deploy AdaptixC2 Beacon
-- **Fake Mobile Applications**: 26 malicious cryptocurrency wallet apps distributed through Apple App Store
-- **Custom Data Exfiltration Tools**: Trigona ransomware operators deploy specialized tools for efficient data theft
+- **Social Engineering via Microsoft Teams**: UNC6692 impersonates IT help desk personnel to deploy custom malware
+- **Supply Chain Compromise**: Malicious packages uploaded to npm repository targeting developer credentials
+- **Trojanized Software**: Legitimate applications modified to deliver backdoors and command-and-control tools
+- **Persistent Malware**: Advanced techniques allowing malware to survive system updates and patches
+- **File Upload Exploitation**: Direct server compromise through unrestricted file upload vulnerabilities
+- **Mobile App Store Abuse**: Fake cryptocurrency wallet applications distributed through official channels
+- **Phishing Campaigns**: AI-enhanced and personalized phishing attacks increasing in sophistication
+- **ClickFix Techniques**: North Korean groups using deceptive user interface tricks for initial access
 
 ## Threat Actor Activities
 
-- **UNC6692**: Deploys custom SNOW malware suite including browser extensions, tunnelers, and backdoors through Microsoft Teams social engineering
-- **FIRESTARTER Operators**: Target federal infrastructure with persistent malware that survives security measures
-- **Tropic Trooper**: Chinese APT group targeting home routers and Japanese organizations, expanding victimology and attack methods
-- **Chinese APT Groups**: Multiple campaigns targeting Mongolia using cloud tools including Microsoft Outlook, Slack, Discord, and file.io for command and control
-- **Lazarus Group**: North Korean APT leveraging ClickFix techniques against macOS users in Mac-centric organizations
-- **BlackFile**: New financially motivated extortion group targeting retail and hospitality organizations through vishing attacks
-- **ShinyHunters**: Extortion group threatening to leak ADT customer data unless ransom demands are met
-- **Trigona Ransomware**: Operators using custom command-line exfiltration tools for efficient data theft
+- **UNC6692**: Deploying custom SNOW malware suite through Microsoft Teams social engineering, targeting organizations with browser extensions, tunnelers, and backdoors
+- **Tropic Trooper**: Chinese-speaking threat group using trojanized SumatraPDF and GitHub infrastructure to deploy AdaptixC2 Beacon, expanding targeting to home routers and Japanese organizations
+- **Chinese State-Sponsored APTs**: Multiple groups conducting espionage operations against Mongolia using cloud services like Microsoft Outlook, Slack, and Discord for command and control
+- **Lazarus Group**: North Korean APT targeting macOS users through ClickFix techniques, focusing on Mac-centric organizations and high-value leaders
+- **BlackFile Extortion Group**: New financially motivated group conducting data theft and extortion attacks against retail and hospitality sectors since February 2026
+- **ShinyHunters**: Extortion group threatening to leak stolen ADT customer data unless ransom demands are met
+- **Trigona Ransomware Operators**: Using custom command-line tools for faster and more efficient data exfiltration from compromised environments
