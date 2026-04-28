@@ -1,57 +1,56 @@
 # Exploitation Report
 
-The current threat landscape reveals a surge in sophisticated attack campaigns targeting critical infrastructure and enterprise systems. Threat actors are exploiting unpatched vulnerabilities in Windows RPC mechanisms, Cisco firewall devices, and third-party software platforms while simultaneously deploying advanced malware frameworks and conducting large-scale supply chain compromises. Notable activities include the discovery of a 20-year-old malware framework that predates Stuxnet, persistent malware surviving security updates on federal systems, and coordinated campaigns leveraging social engineering through legitimate cloud platforms.
+Current threat landscape shows active exploitation across multiple vectors, with significant focus on supply chain attacks, social engineering campaigns, and exploitation of unpatched vulnerabilities. Notable activities include the GlassWorm v2 malware campaign targeting developer environments through malicious VS Code extensions, the emergence of the UNC6692 threat group using Microsoft Teams for initial access, and active exploitation of vulnerabilities in TrueConf video conferencing software by the PhantomCore hacktivist group. CISA has added four newly exploited vulnerabilities to its Known Exploited Vulnerabilities catalog, indicating active in-the-wild exploitation. Additionally, a sophisticated FIRESTARTER backdoor was discovered persisting on federal Cisco Firepower devices, demonstrating advanced persistent threat capabilities against critical infrastructure.
 
 ## Active Exploitation Details
 
-### PhantomRPC Windows Vulnerability
-- **Description**: An architectural weakness in Windows Remote Procedure Call (RPC) mechanism that handles connections to unavailable services
-- **Impact**: Enables privilege escalation with five different exploit paths discovered
-- **Status**: Currently unpatched and actively exploitable
-
 ### TrueConf Video Conferencing Vulnerabilities
-- **Description**: Multiple security flaws in TrueConf video conferencing software
-- **Impact**: Complete server compromise and network breach capabilities
-- **Status**: Actively exploited by PhantomCore hacktivist group since September 2025
+- **Description**: Multiple vulnerabilities in TrueConf video conferencing software being exploited since September 2025
+- **Impact**: Allows threat actors to breach Russian networks and gain unauthorized access to video conferencing infrastructure
+- **Status**: Actively exploited by PhantomCore hacktivist group
 
-### FIRESTARTER Persistent Backdoor
-- **Description**: Custom malware targeting Cisco Firepower and Secure Firewall devices running Adaptive Security Appliance (ASA) software
-- **Impact**: Persistent access to network infrastructure, survives security patches and updates
-- **Status**: Confirmed infection of federal civilian agency device, remains active post-patching
+### PhantomRPC Windows Privilege Escalation Flaw
+- **Description**: Architectural weakness in Windows' Remote Procedure Call (RPC) mechanism that handles connections to unavailable services
+- **Impact**: Enables local privilege escalation through five different exploit paths
+- **Status**: Unpatched vulnerability with active exploitation potential
 
-### Four CISA KEV Vulnerabilities
+### CISA KEV Catalog Additions
 - **Description**: Four vulnerabilities affecting SimpleHelp, Samsung MagicINFO 9 Server, and D-Link DIR-823X series routers
-- **Impact**: Various compromise scenarios depending on affected system
-- **Status**: Added to CISA Known Exploited Vulnerabilities catalog with May 2026 federal remediation deadline
+- **Impact**: Various attack vectors enabling unauthorized access and system compromise
+- **Status**: Active exploitation confirmed, federal agencies must patch by May 2026
+
+### FIRESTARTER Backdoor on Cisco Firepower
+- **Description**: Sophisticated backdoor targeting federal Cisco Firepower devices running Adaptive Security Appliance (ASA) software
+- **Impact**: Persistent access that survives security patches and firmware updates
+- **Status**: Confirmed deployment on federal civilian agency infrastructure
 
 ## Affected Systems and Products
 
-- **Windows Systems**: All versions affected by PhantomRPC RPC mechanism vulnerability
-- **TrueConf Video Conferencing**: Servers running TrueConf software in Russian networks
-- **Cisco Firepower/Secure Firewall**: Devices running Adaptive Security Appliance (ASA) software
-- **SimpleHelp**: Remote support software platform
-- **Samsung MagicINFO 9 Server**: Digital signage management platform
-- **D-Link DIR-823X**: Series routers with known vulnerabilities
-- **PyPI elementary-data Package**: Python package with 1.1 million monthly downloads
-- **VS Code Extensions**: 73 malicious extensions on Open VSX repository
-- **Microsoft Teams**: Leveraged for malware delivery and social engineering
+- **TrueConf Video Conferencing Software**: Russian networks and video conferencing infrastructure
+- **Windows RPC Mechanism**: All Windows systems vulnerable to PhantomRPC privilege escalation
+- **SimpleHelp Remote Access Software**: Systems using vulnerable versions
+- **Samsung MagicINFO 9 Server**: Digital signage and display management systems
+- **D-Link DIR-823X Series Routers**: Consumer and small business networking equipment
+- **Cisco Firepower/ASA Devices**: Federal civilian agency security appliances
+- **OpenVSX/VS Code Extensions**: Developer environments using malicious extensions
+- **PyPI Python Packages**: Developer systems using compromised elementary-data package
+- **Microsoft Teams**: Organizations using Teams for communication
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering via Microsoft Teams**: UNC6692 uses Teams platform to deploy Snow malware suite
-- **Supply Chain Compromise**: Malicious PyPI package versions and fake VS Code extensions
-- **SMS Blaster Devices**: Physical devices mimicking cellular towers for phishing message distribution
-- **Fake CAPTCHA Schemes**: International Revenue Share Fraud (IRSF) campaigns using fake verification
-- **Cloud Infrastructure Abuse**: AWS S3 buckets used for command and control operations
-- **Deepfake Voice Technology**: Three-second audio samples sufficient for voice cloning attacks
-- **Persistent Malware**: FIRESTARTER backdoor survives system updates and security patches
+- **Supply Chain Poisoning**: Malicious VS Code extensions in OpenVSX repository delivering GlassWorm v2 malware
+- **Package Repository Compromise**: Hijacking of popular Python packages with 1.1M+ monthly downloads to deliver infostealers
+- **Social Engineering via Microsoft Teams**: UNC6692 using Teams messages to deploy Snow malware suite
+- **SMS Blaster Devices**: Physical devices mimicking cellular towers to send phishing messages
+- **Fake CAPTCHA IRSF Scams**: International Revenue Share Fraud campaigns using fraudulent verification prompts
+- **Account Creation Abuse**: Exploiting Robinhood's account registration process to inject phishing content
+- **Persistent Backdoor Deployment**: FIRESTARTER maintaining access through security updates and patches
 
 ## Threat Actor Activities
 
-- **UNC6692**: Multi-pronged campaign combining Microsoft Teams social engineering, custom Snow malware suite (browser extension, tunneler, backdoor), and AWS cloud infrastructure abuse
 - **PhantomCore**: Pro-Ukrainian hacktivist group actively targeting Russian TrueConf servers since September 2025
-- **ShinyHunters**: Extortion group responsible for ADT data breach affecting 5.5 million individuals and threatening data publication
-- **GlassWorm Campaign**: Persistent information-stealing operation distributing malware through 73 fake VS Code extensions
+- **UNC6692**: Newly identified threat group combining Microsoft Teams, AWS S3 buckets, and custom Snow malware in multipronged campaigns
+- **GlassWorm Operators**: Persistent campaign operators using 73 "sleeper" extensions that activate malicious functionality after updates
+- **ShinyHunters**: Extortion group responsible for ADT data breach affecting 5.5 million individuals
 - **Silk Typhoon**: Chinese state-sponsored group with member extradited to US for cyberespionage operations
-- **fast16 Operators**: Historical threat actors operating Lua-based malware framework targeting engineering software five years before Stuxnet
-- **Myanmar Fraud Ring**: 29-person operation including Cambodian senator targeting US citizens through fake investment sites
+- **Myanmar Fraud Ring**: International financial fraud operation targeting US citizens with fake investment sites
