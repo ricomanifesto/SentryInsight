@@ -1,66 +1,69 @@
 # Exploitation Report
 
-Current threat activity reveals a concerning landscape of active exploitation targeting critical infrastructure components and development platforms. Attackers are leveraging multiple zero-day and recently patched vulnerabilities to achieve remote code execution, privilege escalation, and data theft. The most significant exploitation activity involves CVE-2026-42208 targeting LiteLLM open-source gateways, CVE-2026-32202 affecting Windows Shell components, and CVE-2026-3854 impacting GitHub platforms. Additionally, sophisticated social engineering campaigns and supply chain attacks through compromised VS Code extensions are being actively deployed by threat actors including BlueNoroff, UNC6692, and the resurgent LofyGang.
+Current threat activity reveals a complex landscape of active exploitation targeting both known and emerging vulnerabilities. Critical exploitation is occurring against LiteLLM gateways through a pre-authentication SQL injection flaw, while GitHub platforms face remote code execution attacks through a single git push vulnerability. Windows environments are under active attack through a high-severity shell vulnerability that Microsoft has confirmed is being exploited in the wild. Additionally, supply chain attacks continue to evolve with malicious VS Code extensions infiltrating developer environments, and sophisticated social engineering campaigns are leveraging AI technology and cloud services to scale attacks against high-value targets in the cryptocurrency sector.
 
 ## Active Exploitation Details
 
-### LiteLLM Pre-Authentication SQL Injection Vulnerability
-- **Description**: Critical vulnerability in the LiteLLM open-source large-language model gateway allowing pre-authentication SQL injection attacks
-- **Impact**: Attackers can access sensitive information stored in LiteLLM databases without authentication
-- **Status**: Currently being actively exploited by hackers targeting LLM gateway deployments
+### LiteLLM Pre-Authentication SQL Injection
+- **Description**: A critical vulnerability affecting the LiteLLM open-source large-language model gateway that allows pre-authentication SQL injection attacks
+- **Impact**: Attackers can target and extract sensitive information stored in LiteLLM systems without requiring authentication
+- **Status**: Currently being actively exploited by hackers in the wild
 - **CVE ID**: CVE-2026-42208
 
-### Windows Shell Security Flaw
-- **Description**: High-severity security vulnerability affecting Windows Shell components
-- **Impact**: Enables attackers to exploit the Windows shell for malicious activities
-- **Status**: Microsoft has confirmed active exploitation in the wild and released patches
-- **CVE ID**: CVE-2026-32202
-
-### GitHub Remote Code Execution Vulnerability
-- **Description**: Critical security flaw impacting GitHub.com and GitHub Enterprise Server allowing authenticated users to achieve remote code execution
-- **Impact**: Authenticated attackers can execute arbitrary code through a single Git push operation
-- **Status**: Vulnerability disclosed by researchers, exploitation possible via single Git push
+### GitHub Remote Code Execution Flaw
+- **Description**: A critical security vulnerability affecting GitHub.com and GitHub Enterprise Server that enables remote code execution through a single git push operation
+- **Impact**: Authenticated users can achieve remote code execution on GitHub systems, potentially compromising source code repositories and development infrastructure
+- **Status**: Critical vulnerability discovered by researchers, exploitation possible via single git push
 - **CVE ID**: CVE-2026-3854
 
-### Hugging Face LeRobot Remote Code Execution
-- **Description**: Critical unpatched vulnerability in Hugging Face's LeRobot open-source robotics platform
-- **Impact**: Enables unauthenticated remote code execution on systems running LeRobot
-- **Status**: Remains unpatched despite disclosure, affecting platform with nearly 24,000 GitHub stars
+### Windows Shell Vulnerability
+- **Description**: A high-severity security flaw in Windows Shell that has been confirmed as actively exploited
+- **Impact**: Enables attackers to exploit Windows shell functionality for unauthorized access and potential privilege escalation
+- **Status**: Microsoft has confirmed active exploitation in the wild and issued patches
+- **CVE ID**: CVE-2026-32202
+
+### Hugging Face LeRobot Unauthenticated RCE
+- **Description**: A critical unpatched security flaw in LeRobot, Hugging Face's open-source robotics platform with nearly 24,000 GitHub stars
+- **Impact**: Allows unauthenticated remote code execution against robotics platforms, potentially compromising AI and robotics systems
+- **Status**: Critical vulnerability disclosed but remains unpatched
 - **CVE ID**: CVE-2026-25874
 
-### PhantomRPC Windows Privilege Escalation
-- **Description**: Architectural weakness in Windows Remote Procedure Call (RPC) mechanism handling connections to unavailable services
-- **Impact**: Multiple exploit paths enable privilege escalation attacks
-- **Status**: Currently unpatched with five different exploit paths identified
+### Windows PhantomRPC Privilege Escalation
+- **Description**: An architectural weakness in Windows' Remote Procedure Call (RPC) mechanism that handles connections to unavailable services
+- **Impact**: Enables privilege escalation through five different exploit paths discovered by researchers
+- **Status**: Currently unpatched with multiple exploitation vectors identified
 
 ## Affected Systems and Products
 
-- **LiteLLM Gateway**: Open-source large-language model gateway systems vulnerable to SQL injection
-- **Windows Operating Systems**: Shell components affected by actively exploited vulnerability
-- **GitHub Platforms**: Both GitHub.com and GitHub Enterprise Server susceptible to RCE attacks
-- **Hugging Face LeRobot**: Open-source robotics platform with unpatched critical vulnerability
-- **Visual Studio Code Extensions**: OpenVSX marketplace compromised with 73 malicious "sleeper" extensions
+- **LiteLLM Gateway**: Open-source large-language model gateway systems vulnerable to pre-auth SQL injection
+- **GitHub Platforms**: GitHub.com and GitHub Enterprise Server affected by RCE vulnerability
+- **Windows Systems**: Multiple Windows versions affected by shell vulnerability and PhantomRPC flaw
+- **Hugging Face LeRobot**: Open-source robotics platform with nearly 24,000 GitHub stars
+- **Visual Studio Code**: OpenVSX ecosystem targeted by malicious extensions
 - **Microsoft Entra ID**: Administrative roles for AI agents vulnerable to privilege escalation
-- **Robinhood Platform**: Account creation process exploited for phishing email injection
-- **Windows RPC Services**: Remote Procedure Call mechanism vulnerable to privilege escalation
+- **Robinhood Platform**: Account creation process exploited for phishing campaigns
+- **Vimeo Services**: Customer data exposed through Anodot breach
 
 ## Attack Vectors and Techniques
 
-- **SQL Injection**: Pre-authentication attacks against LiteLLM gateways to access sensitive data
-- **Remote Code Execution**: Single Git push exploitation of GitHub platforms and unauthenticated RCE against robotics platforms
-- **Supply Chain Poisoning**: Malicious VS Code extensions deployed as "sleeper" agents in OpenVSX marketplace
-- **Social Engineering**: Fake Zoom calls with AI-generated avatars and stolen victim videos
-- **Privilege Escalation**: Multiple exploitation paths through Windows RPC architectural weaknesses
-- **Phishing Email Injection**: Abuse of legitimate platform account creation processes
-- **Identity Takeover**: Exploitation of administrative roles in cloud identity management systems
+- **SQL Injection**: Pre-authentication attacks against LiteLLM gateways to extract sensitive data
+- **Git Repository Exploitation**: Single git push operations triggering remote code execution on GitHub
+- **Supply Chain Infiltration**: Malicious VS Code extensions deployed as "sleeper" packages that activate after updates
+- **Social Engineering with AI**: Fake Zoom calls using stolen victim videos and AI-generated avatars
+- **Cloud Service Abuse**: Exploitation of AWS S3 buckets and Microsoft Teams for malware distribution
+- **SMS Blaster Attacks**: Device-based attacks impersonating cellular towers to send phishing messages
+- **Privilege Escalation**: Multiple RPC-based exploitation paths in Windows environments
+- **Account Creation Abuse**: Injection of phishing content through legitimate platform registration processes
 
 ## Threat Actor Activities
 
-- **BlueNoroff**: North Korean group conducting sophisticated social engineering campaigns using fake Zoom calls, AI-generated avatars, and stolen victim videos to target cryptocurrency executives
-- **UNC6692**: Newly discovered threat actor combining Microsoft Teams abuse, AWS S3 bucket exploitation, and custom "Snow" malware in multipronged campaigns
-- **LofyGang**: Brazilian cybercrime group resurging after three years with Minecraft-targeted LofyStealer campaign
-- **GlassWorm Operators**: Scaling supply chain attacks through 73 compromised VS Code extensions in OpenVSX marketplace
-- **Scattered Spider**: Prolific hacking group with arrested member facing federal charges for extensive cybercriminal activities
-- **LAPSUS$ Group**: Confirmed data leak of stolen information from Checkmarx's private GitHub repository
-- **Silk Typhoon**: Chinese state-sponsored group with member extradited to US for COVID research facility cyberattacks
-- **VECT 2.0 Operators**: Ransomware group with flawed encryption implementation causing permanent data destruction rather than recovery
+- **BlueNoroff (North Korean)**: Conducting sophisticated social engineering campaigns using fake Zoom calls, stolen victim videos, and AI-generated avatars to target cryptocurrency executives and scale malware attacks
+- **VECT 2.0 Operators**: Deploying ransomware that acts more like a wiper due to encryption implementation flaws, irreversibly destroying files over 131KB across Windows, Linux, and ESXi systems
+- **LofyGang (Brazilian)**: Resurfaced after three years with new LofyStealer campaign targeting Minecraft players using custom malware also known as GrabBot
+- **GlassWorm Campaign**: Ongoing supply chain attacks seeding OpenVSX with 73 "sleeper" VS Code extensions that appear benign but turn malicious after updates
+- **UNC6692**: Newly discovered threat actor combining social engineering, custom "Snow" malware, and cloud abuse through Microsoft Teams and AWS S3 buckets
+- **LAPSUS$**: Confirmed data leak of stolen information from Checkmarx's private GitHub repository
+- **Scattered Spider**: 19-year-old dual US-Estonian citizen arrested in Finland facing federal charges for prolific hacking activities
+- **Silk Typhoon (Chinese)**: Member extradited to US for cyberespionage operations targeting COVID research and other sensitive information
+- **0APT and KryBit**: Feuding ransomware groups that attacked each other, exposing infrastructure and operational data that provides defenders with rare insights into ransomware operations
+- **Vidar Operators**: Infostealer malware rising to market dominance, filling gaps created by law enforcement takedowns of Lumma and Rhadamanthys
