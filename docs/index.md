@@ -1,74 +1,70 @@
 # Exploitation Report
 
-The current threat landscape is dominated by rapid exploitation of critical vulnerabilities across multiple platforms and attack vectors. Most notably, threat actors are achieving remarkably fast exploitation cycles, with the LiteLLM SQL injection vulnerability being exploited within 36 hours of disclosure. Zero-day attacks continue to pose significant risks, with CISA ordering federal agencies to patch Windows vulnerabilities actively exploited in the wild. The emergence of AI-enhanced attack methodologies is reshaping the threat landscape, with North Korean groups leveraging AI-generated content and automated tools to scale their operations. Critical infrastructure targeting remains a priority for sophisticated actors, as evidenced by the Lotus Wiper attacks against Venezuelan energy firms and the proliferation of supply chain attacks through malicious npm packages and VS Code extensions.
+Critical vulnerability exploitation activity is currently dominated by several high-impact remote code execution flaws and supply chain attacks. The most severe incidents include active exploitation of authentication bypass vulnerabilities in the Qinglong task scheduler for cryptomining operations, critical SQL injection attacks against LiteLLM platforms occurring within 36 hours of disclosure (CVE-2026-42208), and a zero-day Windows vulnerability that has prompted emergency federal patching orders. Additionally, a critical GitHub remote code execution flaw (CVE-2026-3854) has been patched that could have provided access to millions of private repositories. Supply chain attacks are proliferating through compromised npm packages targeting SAP-related systems and malicious VS Code extensions in the GlassWorm campaign, while sophisticated threat actors including North Korean groups are deploying AI-enhanced attack techniques.
 
 ## Active Exploitation Details
 
+### Qinglong Task Scheduler Authentication Bypass
+- **Description**: Two authentication bypass vulnerabilities in the open-source Qinglong task scheduling tool that allow unauthorized access
+- **Impact**: Attackers can deploy cryptominers on developers' servers and gain unauthorized system access
+- **Status**: Currently being actively exploited in the wild
+
 ### LiteLLM SQL Injection Vulnerability
-- **Description**: A critical pre-authentication SQL injection flaw in BerriAI's LiteLLM Python package that allows attackers to access sensitive information stored in the LLM gateway
-- **Impact**: Unauthorized access to sensitive data and potential complete compromise of LiteLLM deployments
-- **Status**: Actively exploited within 36 hours of public disclosure, patch available
+- **Description**: Critical pre-authentication SQL injection flaw in the BerriAI LiteLLM Python package
+- **Impact**: Attackers can access sensitive information stored in LLM gateway systems and potentially compromise AI infrastructure
+- **Status**: Actively exploited within 36 hours of public disclosure
 - **CVE ID**: CVE-2026-42208
 
 ### Windows Zero-Day Vulnerability
-- **Description**: A Windows security flaw actively exploited in zero-day attacks targeting federal systems
-- **Impact**: Unauthorized system access and potential lateral movement within government networks
-- **Status**: Actively exploited in the wild, CISA has mandated federal agencies to apply patches immediately
+- **Description**: Unspecified Windows vulnerability that was exploited as a zero-day before patches were available
+- **Impact**: Unknown specific impact, but significant enough to warrant emergency federal patching orders
+- **Status**: CISA has ordered federal agencies to patch immediately due to active zero-day exploitation
 
 ### GitHub Remote Code Execution Flaw
-- **Description**: A critical remote code execution vulnerability in GitHub.com and GitHub Enterprise Server exploitable through a single Git push operation
-- **Impact**: Remote code execution and unauthorized access to millions of private repositories
+- **Description**: Critical remote code execution vulnerability affecting GitHub.com and GitHub Enterprise Server
+- **Impact**: Authenticated users could obtain remote code execution and potentially access millions of private repositories
 - **Status**: Patched in early March 2026
 - **CVE ID**: CVE-2026-3854
 
+### cPanel Authentication Bypass
+- **Description**: Critical vulnerability affecting authentication paths in cPanel and WebHost Manager (WHM) dashboard
+- **Impact**: Attackers can obtain access to control panel software without authentication
+- **Status**: Emergency updates released to address the vulnerability
+
 ### ConnectWise ScreenConnect Vulnerability
 - **Description**: Security flaw in ConnectWise ScreenConnect remote access software
-- **Impact**: Unauthorized access to remote systems and potential lateral movement
-- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
-
-### Hugging Face LeRobot Vulnerability
-- **Description**: Critical unauthenticated remote code execution flaw in Hugging Face's open-source robotics platform
-- **Impact**: Complete system compromise without authentication requirements
-- **Status**: Currently unpatched and publicly disclosed
-- **CVE ID**: CVE-2026-25874
-
-### cPanel Authentication Bypass
-- **Description**: Critical authentication vulnerability affecting various authentication paths in cPanel control panel software
-- **Impact**: Unauthorized access to web hosting control panels and server infrastructure
-- **Status**: Security updates released, immediate patching required
+- **Impact**: Active exploitation allowing unauthorized remote access to systems
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog
 
 ## Affected Systems and Products
 
-- **LiteLLM Python Package**: Open-source large language model gateway systems
-- **Microsoft Windows**: Federal government systems and enterprise environments
-- **GitHub Platform**: GitHub.com and GitHub Enterprise Server installations
-- **ConnectWise ScreenConnect**: Remote access and support infrastructure
-- **Hugging Face LeRobot**: Robotics platform with approximately 24,000 GitHub stars
-- **cPanel Software**: Web hosting control panel systems
-- **npm Package Registry**: JavaScript development environments
-- **Visual Studio Code**: Development environments using Open VSX extensions
-- **Venezuelan Energy Infrastructure**: Power generation and utility systems
-- **Minecraft Gaming Platform**: Gaming clients and related services
+- **Qinglong Task Scheduler**: Open-source task scheduling tool used by developers
+- **LiteLLM Python Package**: Large language model gateway platform used in AI applications
+- **Microsoft Windows**: Multiple Windows systems vulnerable to zero-day exploitation
+- **GitHub Enterprise**: Both GitHub.com and on-premises GitHub Enterprise Server installations
+- **cPanel/WHM**: Web hosting control panel software used across hosting providers
+- **ConnectWise ScreenConnect**: Remote access and support software
+- **OpenEMR Platform**: Electronic health record system used by over 100,000 healthcare providers
+- **SAP-related npm packages**: Development packages in the Node.js ecosystem
+- **VS Code Extensions**: Visual Studio Code marketplace extensions via Open VSX
 
 ## Attack Vectors and Techniques
 
-- **AI-Enhanced Supply Chain Attacks**: Malicious npm packages inserted through AI assistance and fake company operations
-- **Living-off-the-Land Techniques**: Sophisticated use of legitimate tools for malicious purposes in wiper attacks
-- **OAuth Integration Exploitation**: Compromised third-party OAuth applications leading to widespread access
-- **Social Engineering with AI**: Fake Zoom calls using stolen victim videos and AI-generated avatars
-- **Git Repository Manipulation**: Single Git push operations triggering remote code execution
-- **Pre-Authentication SQL Injection**: Direct database access without authentication requirements
-- **Malicious VS Code Extensions**: Self-propagating malware through development tool extensions
-- **Ransomware with Wiper Functionality**: Flawed encryption implementation causing permanent data destruction
+- **Authentication Bypass**: Exploitation of authentication mechanisms in web applications like Qinglong and cPanel
+- **SQL Injection**: Pre-authentication database attacks targeting LiteLLM systems
+- **Supply Chain Compromise**: Malicious code injection into legitimate software packages and extensions
+- **Git Repository Exploitation**: Single Git push operations to trigger remote code execution on GitHub
+- **AI-Enhanced Social Engineering**: North Korean groups using AI-generated content and fake video calls
+- **Cryptomining Deployment**: Installation of cryptocurrency miners on compromised developer systems
+- **Living-off-the-Land Techniques**: Use of legitimate system tools for malicious purposes in wiper attacks
 
 ## Threat Actor Activities
 
-- **North Korean DPRK Groups**: Conducting AI-enhanced supply chain attacks using malicious npm packages, fake firms, and remote access trojans
+- **North Korean Groups (DPRK)**: Deploying AI-inserted npm malware, creating fake companies, and using remote access trojans in sophisticated supply chain attacks
 - **BlueNoroff**: Using stolen victim videos, AI-generated avatars, and fake Zoom calls to target cryptocurrency executives
-- **LofyGang**: Brazilian cybercrime group resurfaced after three years with Minecraft-focused LofyStealer campaigns
-- **Scattered Spider**: Prolific cybercrime group with arrested member facing federal charges in the US
-- **LAPSUS$ Group**: Confirmed to have leaked stolen data from Checkmarx's private GitHub repository
-- **Venezuelan Energy Attackers**: Sophisticated threat actors deploying Lotus Wiper malware against critical infrastructure
-- **GlassWorm Campaign**: Operators scaling supply chain attacks through malicious VS Code extensions
-- **VECT 2.0 Operators**: Ransomware group with flawed encryption causing irreversible data destruction
-- **Competing Ransomware Groups**: 0APT and KryBit groups feuding and exposing each other's operational data
+- **LofyGang**: Brazilian cybercrime group resurging after three years with LofyStealer malware targeting Minecraft players
+- **Scattered Spider**: Prolific hacking group with members facing federal charges for widespread cybercrime activities
+- **Ukrainian Gaming Account Hackers**: Criminal group that compromised over 610,000 Roblox accounts for profit
+- **GlassWorm Campaign Operators**: Attackers scaling malicious VS Code extension distribution through supply chain compromise
+- **Vect 2.0 Ransomware Operators**: Groups deploying broken ransomware that acts as a wiper due to design flaws
+- **Lotus Wiper Attackers**: Sophisticated actors targeting Venezuelan energy firms and utilities with destructive malware
