@@ -1,76 +1,84 @@
 # Exploitation Report
 
-Critical vulnerabilities across multiple platforms are being actively exploited in the wild, with several zero-day attacks targeting enterprise infrastructure. The most severe exploitation activity includes authentication bypass flaws in cPanel and WHM hosting platforms being exploited as zero-days, remote code execution vulnerabilities in Qinglong task schedulers used for cryptomining campaigns, and compromised npm packages in supply chain attacks targeting SAP development environments. Additional concerning activity includes Windows vulnerabilities added to CISA's Known Exploited Vulnerabilities catalog and a GitHub remote code execution flaw that provided access to millions of private repositories.
+Multiple critical vulnerabilities are currently under active exploitation across web hosting platforms, development tools, and enterprise software. The most severe activity involves a zero-day authentication bypass vulnerability in cPanel and WHM (CVE-2026-41940) that has been exploited since late February, alongside rapid exploitation of a SQL injection flaw in LiteLLM (CVE-2026-42208) within 36 hours of disclosure. Additional critical exploitation includes remote code execution flaws in GitHub (CVE-2026-3854), Google Gemini CLI with maximum CVSS 10 severity, ConnectWise ScreenConnect, and authentication bypass vulnerabilities in Qinglong task scheduler. Supply chain attacks targeting SAP npm packages and sophisticated malware campaigns including DEEP#DOOR backdoor and EtherRAT distribution are also actively compromising systems.
 
 ## Active Exploitation Details
 
-### cPanel and WHM Authentication Bypass Vulnerability
-- **Description**: Critical authentication bypass vulnerability affecting cPanel, WHM, and WP Squared platforms that allows attackers to gain unauthorized access to control panel software without authentication
-- **Impact**: Complete compromise of web hosting control panels, potentially affecting thousands of websites and servers
-- **Status**: Actively exploited as zero-day since late February, emergency updates now available
+### cPanel and WHM Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability affecting all versions of cPanel and WebHost Manager (WHM) dashboard except the latest versions
+- **Impact**: Attackers can obtain unauthorized access to control panels without authentication, potentially compromising web hosting infrastructure
+- **Status**: Actively exploited as zero-day since late February, emergency patches released, PoC code now available
 - **CVE ID**: CVE-2026-41940
 
-### Qinglong Task Scheduler Remote Code Execution
-- **Description**: Two authentication bypass vulnerabilities in the Qinglong open-source task scheduling tool that allow remote code execution
-- **Impact**: Deployment of cryptocurrency miners on compromised developer servers
-- **Status**: Currently being exploited in the wild for cryptomining operations
+### LiteLLM SQL Injection
+- **Description**: Critical SQL injection vulnerability in BerriAI's LiteLLM Python package
+- **Impact**: Database compromise and potential remote code execution in AI/ML environments
+- **Status**: Exploited within 36 hours of public disclosure, actively targeted by threat actors
+- **CVE ID**: CVE-2026-42208
 
-### GitHub Remote Code Execution Vulnerability
-- **Description**: Critical remote code execution flaw in GitHub's infrastructure that could provide unauthorized access to private repositories
-- **Impact**: Potential access to millions of private repositories and sensitive source code
-- **Status**: Patched in early March after active exploitation concerns
+### GitHub Remote Code Execution
+- **Description**: Critical remote code execution vulnerability in GitHub's infrastructure
+- **Impact**: Could allow attackers to access millions of private repositories and execute arbitrary code
+- **Status**: Patched in early March after discovery through AI-assisted reverse engineering
 - **CVE ID**: CVE-2026-3854
 
-### LiteLLM SQL Injection Vulnerability
-- **Description**: Critical SQL injection flaw in BerriAI's LiteLLM Python package
-- **Impact**: Database compromise and potential remote code execution
-- **Status**: Exploited within 36 hours of public disclosure
-- **CVE ID**: CVE-2026-42208
+### Google Gemini CLI Remote Code Execution
+- **Description**: Maximum severity vulnerability in "@google/gemini-cli" npm package and "google-github-actions/run-gemini-cli" GitHub Actions workflow
+- **Impact**: Remote code execution in CI/CD environments and development workflows
+- **Status**: Recently patched by Google, CVSS 10 severity rating
+
+### Qinglong Task Scheduler Authentication Bypass
+- **Description**: Two authentication bypass vulnerabilities in the Qinglong open-source task scheduling tool
+- **Impact**: Deployment of cryptocurrency miners on developers' servers
+- **Status**: Actively exploited for cryptomining operations
+
+### Linux 'Copy Fail' Privilege Escalation
+- **Description**: High-severity local privilege escalation flaw affecting major Linux distributions
+- **Impact**: Allows unprivileged local users to obtain root access
+- **Status**: Recently disclosed, affects multiple major distributions
+
+### Windows Zero-Day Vulnerability
+- **Description**: Windows vulnerability exploited in zero-day attacks
+- **Impact**: System compromise on Windows environments
+- **Status**: Actively exploited, CISA ordered federal agencies to patch immediately
 
 ### ConnectWise ScreenConnect Vulnerability
 - **Description**: Security flaw in ConnectWise ScreenConnect remote access software
-- **Impact**: Unauthorized remote access to managed systems
-- **Status**: Added to CISA Known Exploited Vulnerabilities catalog, actively exploited
-
-### Microsoft Windows Zero-Day Vulnerability
-- **Description**: Windows vulnerability being exploited in zero-day attacks
-- **Impact**: System compromise and privilege escalation
-- **Status**: CISA ordered federal agencies to patch immediately due to active exploitation
-
-### Linux "Copy Fail" Local Privilege Escalation
-- **Description**: High-severity Linux local privilege escalation vulnerability that allows unprivileged users to obtain root access
-- **Impact**: Complete system compromise from local access
-- **Status**: Affects major Linux distributions, patches available
+- **Impact**: Potential remote access and system compromise
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, actively exploited
 
 ## Affected Systems and Products
 
-- **cPanel and WHM**: Web hosting control panel software used by hosting providers worldwide
-- **Qinglong Task Scheduler**: Open-source task scheduling tool used by developers
-- **GitHub Enterprise**: Source code repositories and development platforms
-- **LiteLLM**: Python package for AI/ML applications
-- **ConnectWise ScreenConnect**: Remote access and support software
-- **Microsoft Windows**: Enterprise and consumer operating systems
-- **Linux Distributions**: Major distributions including Ubuntu, Red Hat, and others
-- **SAP npm Packages**: Official SAP development packages in npm registry
-- **WordPress Sites**: Sites using Quick Page/Post Redirect plugin (70,000+ installations)
-- **OpenEMR Platform**: Electronic health record system used by 100,000+ healthcare providers
+- **cPanel and WHM**: Web hosting control panels, all versions except latest updates
+- **LiteLLM Python Package**: AI/ML development environments using BerriAI's package
+- **GitHub Infrastructure**: Millions of private repositories and development environments
+- **Google Gemini CLI**: CI/CD pipelines using Google's Gemini CLI tools and GitHub Actions
+- **Qinglong Task Scheduler**: Open-source task scheduling deployments
+- **Linux Distributions**: Major distributions affected by 'Copy Fail' vulnerability
+- **Microsoft Windows**: Federal agencies and enterprise Windows deployments
+- **ConnectWise ScreenConnect**: Remote access management systems
+- **SAP npm Packages**: Development environments using official SAP npm packages
+- **WordPress Sites**: Over 70,000 sites using Quick Page/Post Redirect plugin
+- **OpenEMR Platform**: Electronic health record systems used by 100,000+ healthcare providers
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Multiple vulnerabilities exploited before patches were available
-- **Supply Chain Attacks**: Compromised npm packages containing credential-stealing malware
-- **Authentication Bypass**: Direct circumvention of authentication mechanisms in web applications
-- **SQL Injection**: Database compromise through malicious SQL queries
-- **Remote Code Execution**: Direct execution of arbitrary code on target systems
-- **Cryptomining Deployment**: Installation of cryptocurrency mining software on compromised systems
-- **Backdoor Installation**: Long-term persistent access through hidden backdoors
-- **Social Engineering**: Use of fake Zoom calls and AI-generated content to target victims
+- **Authentication Bypass**: Direct access to control panels and administrative interfaces without credentials
+- **SQL Injection**: Database compromise through malicious SQL queries in web applications
+- **Supply Chain Attacks**: Compromise of legitimate npm packages to distribute malware
+- **Zero-Day Exploitation**: Targeting unpatched vulnerabilities before fixes are available
+- **AI-Assisted Attacks**: Using large language models to insert malicious code and automate attack processes
+- **Social Engineering**: Fake Zoom calls and AI-generated avatars for targeted deception
+- **Tunneling Services**: DEEP#DOOR backdoor using tunneling for persistent access and credential theft
+- **GitHub Facades**: EtherRAT distribution spoofing administrative tools through fake repositories
+- **Dormant Backdoors**: WordPress plugin backdoors remaining hidden for years before activation
 
 ## Threat Actor Activities
 
-- **TeamPCP Group**: Conducting supply chain attacks against SAP-related npm packages and deploying VECT 2.0 ransomware
-- **BlueNoroff (North Korean APT)**: Using AI-generated avatars and fake Zoom calls to target cryptocurrency executives with malware
-- **DPRK-linked Groups**: Deploying AI-inserted npm malware and using fake companies as attack infrastructure
-- **Cryptomining Operations**: Opportunistic attackers exploiting Qinglong vulnerabilities for cryptocurrency mining
-- **WordPress Backdoor Operators**: Long-term campaign maintaining dormant backdoors in popular WordPress plugins for five years
-- **Financial Fraud Networks**: Organized crime groups running cryptocurrency investment scams with combined losses exceeding €50 million
+- **TeamPCP Group**: Conducting supply chain attacks against SAP npm packages and deploying VECT 2.0 ransomware
+- **BlueNoroff (North Korean)**: Using stolen victim videos and AI-generated avatars in fake Zoom calls targeting cryptocurrency executives
+- **DPRK Actors**: New wave of attacks using AI-inserted npm malware, fake firms, and remote access trojans
+- **Cryptocurrency Scammers**: International operations with 276 arrests across 9 fraud centers, €50 million fraud ring dismantled
+- **Roblox Account Hijackers**: Ukrainian criminals arrested for compromising 610,000 gaming accounts for $225,000 profit
+- **Venezuelan Energy Attackers**: Lotus Wiper deployment targeting energy firms and utilities with sophisticated living-off-the-land techniques
+- **Atos Threat Research Identified Campaign**: Sophisticated operation targeting high-privilege professional accounts through administrative tool spoofing
