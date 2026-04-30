@@ -1,70 +1,77 @@
 # Exploitation Report
 
-The current threat landscape is dominated by several critical exploitation campaigns, including active zero-day attacks on Windows systems, sophisticated supply chain compromises targeting SAP-related npm packages, and widespread exploitation of vulnerabilities in popular web management platforms. CISA has issued emergency directives for federal agencies to patch actively exploited flaws, while threat actors continue to rapidly weaponize newly disclosed vulnerabilities, with some exploits appearing within 36 hours of public disclosure. The emergence of AI-assisted attack techniques and the compromise of widely-used development tools represents a significant escalation in both the speed and sophistication of modern cyber threats.
+The cybersecurity landscape is experiencing intense exploitation activity across multiple critical vulnerabilities. Several zero-day attacks have been confirmed, including a Windows authentication bypass flaw and ConnectWise ScreenConnect vulnerabilities that CISA has added to its Known Exploited Vulnerabilities catalog. Supply chain attacks are particularly concerning, with SAP-related npm packages compromised in TeamPCP operations and a dormant backdoor discovered in a popular WordPress plugin affecting over 70,000 sites. Critical remote code execution vulnerabilities are being actively exploited in GitHub Enterprise Server (CVE-2026-3854), LiteLLM gateway systems (CVE-2026-42208), and cPanel authentication systems. North Korean threat actors continue sophisticated campaigns targeting cryptocurrency executives and developers through AI-enhanced social engineering and malicious npm packages.
 
 ## Active Exploitation Details
 
-### Windows Zero-Day Vulnerability
-- **Description**: A critical Windows vulnerability being exploited in active zero-day attacks
-- **Impact**: Allows attackers to gain unauthorized access to Windows systems
-- **Status**: Actively exploited in the wild; CISA has ordered federal agencies to patch immediately
+### Windows Authentication Bypass Vulnerability
+- **Description**: A critical authentication bypass vulnerability in Windows systems that allows attackers to circumvent security controls
+- **Impact**: Unauthorized access to Windows systems and potential privilege escalation
+- **Status**: Being exploited as zero-day; CISA has mandated federal agencies to patch immediately
 
-### ConnectWise ScreenConnect Vulnerability  
-- **Description**: Security flaw in the ConnectWise ScreenConnect remote access platform
-- **Impact**: Enables unauthorized access to remote management capabilities
-- **Status**: Actively exploited; added to CISA's Known Exploited Vulnerabilities catalog
+### ConnectWise ScreenConnect Vulnerabilities
+- **Description**: Critical security flaws in the ConnectWise ScreenConnect remote access platform
+- **Impact**: Unauthorized remote access to managed systems and potential lateral movement
+- **Status**: Actively exploited in the wild; added to CISA's Known Exploited Vulnerabilities catalog
 
-### LiteLLM SQL Injection Vulnerability
-- **Description**: Critical pre-authentication SQL injection flaw in BerriAI's LiteLLM Python package
-- **Impact**: Allows attackers to access sensitive information stored in large language model gateways
-- **Status**: Exploited within 36 hours of disclosure
-- **CVE ID**: CVE-2026-42208
-
-### cPanel Authentication Bypass Vulnerability
-- **Description**: Critical authentication bypass vulnerability affecting cPanel and WebHost Manager (WHM) dashboards
-- **Impact**: Allows attackers to gain access to control panels without authentication
-- **Status**: Emergency updates released; affects all but the latest versions
-
-### GitHub Remote Code Execution Vulnerability
-- **Description**: Critical RCE vulnerability discovered through AI-assisted reverse engineering
-- **Impact**: Could allow access to millions of private repositories through a single Git push
-- **Status**: Patched in early March
+### GitHub Remote Code Execution Flaw
+- **Description**: Critical remote code execution vulnerability exploitable through a single Git push operation
+- **Impact**: Access to millions of private repositories and potential code theft or tampering
+- **Status**: Patched in early March 2026; was exploitable against GitHub.com and Enterprise Server
 - **CVE ID**: CVE-2026-3854
 
-### Qinglong Task Scheduler RCE Vulnerabilities
-- **Description**: Two authentication bypass vulnerabilities in the Qinglong open-source task scheduling tool
-- **Impact**: Enables deployment of cryptominers on developers' servers
+### LiteLLM SQL Injection Vulnerability
+- **Description**: Pre-authentication SQL injection flaw in the BerriAI LiteLLM Python package
+- **Impact**: Access to sensitive information stored in large language model gateways
+- **Status**: Actively exploited within 36 hours of public disclosure
+- **CVE ID**: CVE-2026-42208
+
+### cPanel/WHM Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability affecting multiple authentication paths in cPanel and WebHost Manager
+- **Impact**: Unauthorized access to web hosting control panels without authentication
+- **Status**: Emergency patches released; affects all but the latest versions
+
+### Qinglong Task Scheduler RCE Flaws
+- **Description**: Two authentication bypass vulnerabilities in the open-source Qinglong task scheduling tool
+- **Impact**: Remote code execution and deployment of cryptocurrency miners on developer servers
 - **Status**: Actively exploited for cryptomining operations
+
+### WordPress Quick Page/Post Redirect Plugin Backdoor
+- **Description**: Dormant backdoor present in the plugin for five years, allowing arbitrary code injection
+- **Impact**: Complete compromise of WordPress sites through code injection capabilities
+- **Status**: Backdoor discovered affecting over 70,000 WordPress installations
 
 ## Affected Systems and Products
 
-- **SAP npm packages**: Multiple official packages compromised in supply chain attack
-- **WordPress sites**: Over 70,000 sites using Quick Page/Post Redirect plugin affected by dormant backdoor
-- **cPanel/WHM**: All versions except the latest affected by authentication bypass
-- **GitHub.com and GitHub Enterprise Server**: Millions of private repositories potentially accessible
-- **LiteLLM Python package**: Open-source LLM gateway platform
-- **Qinglong task scheduler**: Open-source task scheduling tool used by developers
-- **OpenEMR platform**: Electronic health record system used by over 100,000 healthcare providers
+- **SAP npm Packages**: Multiple official packages compromised in TeamPCP supply-chain attacks
+- **WordPress Sites**: Over 70,000 installations using Quick Page/Post Redirect plugin
+- **GitHub Platforms**: GitHub.com and GitHub Enterprise Server vulnerable to RCE
+- **LiteLLM Gateway**: Open-source large language model gateway systems
+- **cPanel/WHM**: Web hosting control panel software across multiple versions
+- **Qinglong Scheduler**: Open-source task scheduling platform used by developers
 - **ConnectWise ScreenConnect**: Remote access and support platform
-- **Windows systems**: Federal and enterprise environments targeted
+- **Windows Systems**: Microsoft Windows operating systems with authentication bypass vulnerability
+- **OpenEMR Platform**: Electronic health record platform used by 100,000+ healthcare providers
+- **Roblox Gaming Platform**: 610,000 user accounts compromised and sold
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Compromise of legitimate npm packages to steal developer credentials and authentication tokens
-- **AI-Assisted Exploitation**: Use of artificial intelligence tools to discover and exploit vulnerabilities more rapidly
-- **Backdoor Injection**: Long-term dormant backdoors in popular WordPress plugins enabling arbitrary code injection
-- **Authentication Bypass**: Direct circumvention of authentication mechanisms in web management platforms
-- **SQL Injection**: Pre-authentication database attacks targeting AI/ML platforms
-- **Zero-Day Exploitation**: Immediate weaponization of unknown vulnerabilities
-- **Cryptomining Deployment**: Installation of cryptocurrency miners on compromised development servers
-- **Living-off-the-Land Techniques**: Use of legitimate system tools for malicious purposes
+- **Supply Chain Compromise**: Injection of malicious code into legitimate npm packages and software dependencies
+- **Authentication Bypass**: Exploitation of flaws allowing unauthorized access without credentials
+- **Remote Code Execution**: Direct code execution on target systems through various vulnerability classes
+- **SQL Injection**: Database compromise through unsanitized input in web applications
+- **Social Engineering**: AI-enhanced fake video calls and impersonation techniques
+- **Cryptomining Deployment**: Installation of cryptocurrency mining software on compromised systems
+- **Living-off-the-Land**: Use of legitimate system tools for malicious purposes in wiper attacks
+- **OAuth Token Theft**: Stealing authentication tokens through compromised third-party integrations
+- **Backdoor Implantation**: Long-term persistence mechanisms in widely-used software
 
 ## Threat Actor Activities
 
-- **TeamPCP Group**: Conducting sophisticated supply chain attacks targeting SAP-related development tools and deploying VECT 2.0 ransomware
-- **North Korean APT Groups**: Using AI-generated content and fake business personas to target cryptocurrency executives through social engineering
-- **BlueNoroff**: Employing stolen victim videos, AI-generated avatars, and fake Zoom calls to scale malware attacks
-- **Cryptomining Operations**: Targeting developer infrastructure through task scheduler vulnerabilities for cryptocurrency mining
-- **Ukrainian Cybercriminals**: Arrested for hijacking over 610,000 Roblox gaming accounts for profit
-- **Lotus Wiper Operators**: Targeting Venezuelan energy firms and utilities with destructive malware using advanced evasion techniques
-- **Ransomware Groups**: Feuding between 0APT and KryBit groups resulting in mutual data exposure and operational intelligence leaks
+- **TeamPCP Group**: Conducting sophisticated supply-chain attacks targeting SAP npm packages and deploying VECT 2.0 ransomware
+- **North Korean BlueNoroff**: Using AI-generated avatars and stolen victim videos in fake Zoom calls to target cryptocurrency executives
+- **DPRK Operators**: Deploying AI-inserted npm malware through fake companies and remote access trojans
+- **Ukrainian Cybercriminals**: Arrested for hijacking 610,000 Roblox accounts and selling them for $225,000 profit
+- **Cryptomining Groups**: Exploiting Qinglong scheduler vulnerabilities for cryptocurrency mining operations
+- **Ransomware Operators**: Deploying broken VECT 2.0 ransomware that acts as a data wiper due to encryption flaws
+- **Venezuelan Energy Attackers**: Using Lotus wiper malware with sophisticated living-off-the-land techniques against energy firms
