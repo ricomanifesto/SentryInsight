@@ -1,66 +1,67 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are actively being exploited across multiple platforms, with several high-severity flaws requiring immediate attention. The most significant threats include CVE-2026-41940, an authentication bypass vulnerability in cPanel and WHM that has been actively exploited since late February, and CVE-2026-3854, a remote code execution flaw in GitHub that could have provided access to millions of private repositories. Additional concerns include the "Copy Fail" Linux privilege escalation vulnerability affecting kernels since 2017, authentication bypass flaws in Qinglong task scheduler being exploited for cryptomining operations, and a maximum severity Google Gemini CLI vulnerability. Supply chain attacks are also prominent, with compromised SAP npm packages and WordPress plugins containing backdoors posing significant risks to developers and website operators.
+The current threat landscape is marked by a significant surge in supply chain attacks targeting popular development packages, critical authentication bypass vulnerabilities being actively exploited, and the emergence of AI-assisted attack techniques. Notable activity includes TeamPCP's "Mini Shai-Hulud" campaign compromising official SAP npm packages, active exploitation of CVE-2026-41940 in cPanel and WHM systems, and the Linux "Copy Fail" privilege escalation vulnerability affecting major distributions since 2017. Additionally, threat actors are leveraging sophisticated malware frameworks and establishing persistent access through tunneling services to steal credentials and cloud access tokens.
 
 ## Active Exploitation Details
 
-### cPanel and WHM Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability affecting cPanel, WHM, and WP Squared control panels
-- **Impact**: Allows attackers to obtain access to control panels without authentication credentials
-- **Status**: Actively exploited in the wild since late February 2026, emergency patches available
+### cPanel and WHM Authentication Bypass Vulnerability
+- **Description**: Critical authentication bypass vulnerability affecting cPanel, WHM, and WP Squared systems that allows unauthorized access to control panels
+- **Impact**: Attackers can gain administrative access to web hosting control panels without authentication, potentially compromising entire hosting infrastructures
+- **Status**: Being actively exploited in the wild since late February 2026, emergency patches have been released
 - **CVE ID**: CVE-2026-41940
 
-### GitHub Remote Code Execution Flaw
-- **Description**: Critical remote code execution vulnerability in GitHub's infrastructure
-- **Impact**: Could have allowed attackers to access millions of private repositories
-- **Status**: Patched in early March 2026, previously active exploitation possible
-- **CVE ID**: CVE-2026-3854
+### Linux "Copy Fail" Privilege Escalation
+- **Description**: Local privilege escalation vulnerability in Linux kernels that allows unprivileged users to gain root access
+- **Impact**: Complete system compromise allowing attackers to escalate from limited user accounts to full administrative control
+- **Status**: Affects Linux kernels released since 2017, exploit code has been published, patches are available for major distributions
+- **CVE ID**: Not specified in articles
 
-### Linux Copy Fail Privilege Escalation
-- **Description**: Local privilege escalation vulnerability in Linux kernels released since 2017
-- **Impact**: Allows unprivileged local attackers to gain root permissions on major distributions
-- **Status**: Exploit code published, affects multiple major Linux distributions
+### Google Gemini CLI Remote Code Execution
+- **Description**: Maximum severity vulnerability in Gemini CLI npm package and GitHub Actions workflow enabling remote code execution
+- **Impact**: Attackers can execute arbitrary code in CI/CD environments and development systems
+- **Status**: Fixed by Google with CVSS 10 severity rating
+- **CVE ID**: Not specified in articles
 
 ### Qinglong Task Scheduler Authentication Bypass
-- **Description**: Two authentication bypass vulnerabilities in the open-source task scheduling tool
-- **Impact**: Enables deployment of cryptominers on developers' servers
-- **Status**: Actively exploited for cryptomining operations
-
-### Windows Zero-Day Vulnerability
-- **Description**: Unspecified vulnerability in Windows systems being exploited in zero-day attacks
-- **Impact**: Active exploitation in the wild affecting Windows environments
-- **Status**: CISA has ordered federal agencies to patch immediately
+- **Description**: Two authentication bypass vulnerabilities in the Qinglong open-source task scheduling tool
+- **Impact**: Enables deployment of cryptocurrency miners on developers' servers
+- **Status**: Currently being exploited for cryptomining attacks
+- **CVE ID**: Not specified in articles
 
 ## Affected Systems and Products
 
-- **cPanel and WHM**: All versions prior to latest emergency updates, affecting web hosting control panels
-- **GitHub**: Millions of private repositories potentially accessible before March patch
-- **Linux Distributions**: Major distributions with kernels released since 2017 affected by Copy Fail
-- **Qinglong**: Open-source task scheduler used by developers
-- **Windows Systems**: Federal systems ordered to patch by CISA
-- **SAP npm Packages**: Multiple official packages compromised in supply chain attack
-- **WordPress Sites**: Over 70,000 sites using Quick Page/Post Redirect plugin with dormant backdoor
-- **OpenEMR**: 38 security flaws discovered in platform used by 100,000+ healthcare providers
-- **Google Gemini CLI**: Maximum severity vulnerability in npm package and GitHub Actions workflow
+- **cPanel and WHM**: Web hosting control panels across multiple versions
+- **Linux Distributions**: Major distributions with kernels released since 2017
+- **SAP npm Packages**: Official SAP development packages in the npm ecosystem
+- **PyTorch Lightning**: Popular Python machine learning framework
+- **Intercom-client**: JavaScript client library for Intercom services
+- **WordPress**: Quick Page/Post Redirect plugin installed on over 70,000 sites
+- **Qinglong Task Scheduler**: Open-source task scheduling platform
+- **OpenEMR**: Electronic health record platform used by over 100,000 healthcare providers
+- **Roblox Gaming Platform**: Accounts compromised through credential theft
+- **Google Gemini CLI**: Development tools and CI/CD workflows
+- **Cursor IDE**: Code editor with vulnerable components
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Direct access to control panels without credentials in cPanel/WHM systems
-- **Supply Chain Attacks**: Compromised npm packages targeting SAP-related development tools
-- **Backdoor Injection**: Dormant backdoor in WordPress plugin allowing arbitrary code injection
-- **Privilege Escalation**: Local exploitation of Copy Fail vulnerability for root access
-- **Remote Code Execution**: GitHub vulnerability enabling repository access
-- **Cryptomining Deployment**: Exploitation of Qinglong vulnerabilities for cryptocurrency mining
-- **AI-Enhanced Attacks**: Use of LLMs to insert malicious dependencies in development projects
-- **Social Engineering**: EtherRAT campaign spoofing administrative tools via fake GitHub repositories
-- **DDoS Operations**: Brazilian anti-DDoS firm enabling botnet attacks against ISPs
+- **Supply Chain Compromise**: Malicious code injection into legitimate npm packages and development tools
+- **AI-Assisted Code Injection**: Large language models used to insert malicious dependencies into projects
+- **Authentication Bypass**: Exploiting flaws in authentication mechanisms to gain unauthorized access
+- **Privilege Escalation**: Local vulnerabilities used to gain administrative privileges on compromised systems
+- **Credential Harvesting**: Malware designed to steal authentication tokens, browser credentials, and cloud access keys
+- **Backdoor Implantation**: Long-term persistent access mechanisms hidden in popular software packages
+- **GitHub Repository Spoofing**: Fake repositories hosting malicious administrative tools
+- **Tunneling Services**: Use of legitimate tunneling infrastructure to establish covert communication channels
+- **Phishing-as-a-Service**: AI-enhanced phishing kits with automated campaign generation capabilities
 
 ## Threat Actor Activities
 
-- **TeamPCP Group**: Conducting supply chain attacks targeting SAP npm packages and deploying Vect 2.0 ransomware
-- **DPRK-affiliated Actors**: Using AI-inserted npm malware and fake companies to distribute RATs
-- **Ukrainian Cybercriminals**: Hijacked 610,000 Roblox gaming accounts generating $225,000 in profits
-- **EtherRAT Campaign**: Sophisticated operation targeting high-privilege professional accounts through spoofed GitHub repositories
-- **Cryptocurrency Scammers**: International operations with 276 arrests across 9 fraud centers, causing over €50 million in losses
-- **Brazilian DDoS Operators**: Anti-DDoS firm enabling massive attacks against internet service providers
-- **Automated Attack Groups**: Rapid scanning and compromise of new assets within 24 hours of deployment
+- **TeamPCP**: Conducting widespread supply chain attacks targeting SAP npm packages with "Mini Shai-Hulud" campaign for credential theft
+- **DPRK-Affiliated Groups**: Using AI-inserted npm malware, fake companies, and remote access trojans in sophisticated social engineering campaigns
+- **EtherRAT Operators**: Distributing malware through spoofed administrative tools via GitHub facades, targeting high-privilege professional accounts
+- **Ukrainian Cybercriminals**: Arrested for hijacking 610,000 Roblox accounts and selling them for $225,000 profit
+- **Romanian Swatting Ring**: Leader sentenced to 4 years for coordinating attacks against 75+ public officials and journalists
+- **Cryptocurrency Miners**: Exploiting Qinglong vulnerabilities to deploy mining operations on development servers
+- **Brazilian DDoS Operators**: Anti-DDoS firm enabling botnet attacks against ISPs
+- **DEEP#DOOR Framework Users**: Deploying Python-based backdoors with tunneling capabilities for persistent access and credential theft
+- **Vect 2.0 Ransomware Group**: Deploying ransomware with wiper capabilities due to design flaws, affecting TeamPCP attack victims
