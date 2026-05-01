@@ -1,52 +1,59 @@
 # Exploitation Report
 
-A critical wave of active exploits is targeting multiple platforms and supply chain components across the cybersecurity landscape. The most significant threats include a zero-day authentication bypass vulnerability in cPanel and WHM systems (CVE-2026-41940) that has been actively exploited since late February, a newly disclosed Linux privilege escalation flaw dubbed "Copy Fail" affecting kernels since 2017, and widespread supply chain attacks compromising official SAP npm packages and popular Python libraries. Additionally, a maximum severity vulnerability (CVSS 10.0) was recently patched in Google's Gemini CLI tools, while a dormant backdoor in a widely-used WordPress plugin has been discovered after remaining hidden for five years.
+The current threat landscape reveals significant exploitation activity across multiple attack vectors, with critical zero-day vulnerabilities being actively exploited in production environments. The most severe incidents include authentication bypass vulnerabilities in web hosting infrastructure, supply chain attacks targeting development environments, and local privilege escalation flaws affecting major Linux distributions. Notably, a maximum severity remote code execution vulnerability in Google's Gemini CLI has been addressed, while authentication bypass vulnerabilities in cPanel and WHM continue to face active exploitation attempts. The period has also seen extensive supply chain compromise campaigns targeting popular development packages and frameworks, demonstrating the evolving sophistication of threat actors in targeting software development pipelines.
 
 ## Active Exploitation Details
 
 ### cPanel and WHM Authentication Bypass Vulnerability
-- **Description**: A critical authentication bypass vulnerability affecting cPanel, WHM, and WP Squared hosting management platforms
-- **Impact**: Allows attackers to bypass authentication mechanisms and gain unauthorized access to web hosting control panels
-- **Status**: Currently being actively exploited in the wild since late February 2026, with proof-of-concept exploit code now publicly available
+- **Description**: Critical authentication bypass vulnerability affecting cPanel, WHM, and WP Squared hosting management platforms
+- **Impact**: Allows attackers to bypass authentication mechanisms and gain unauthorized access to hosting control panels
+- **Status**: Currently being exploited in the wild with active exploitation attempts detected since late February 2026, proof-of-concept exploit code now publicly available
 - **CVE ID**: CVE-2026-41940
 
-### Linux "Copy Fail" Privilege Escalation
-- **Description**: A local privilege escalation vulnerability affecting Linux kernels released since 2017 that allows unprivileged users to gain root access
-- **Impact**: Enables local attackers to escalate privileges to root level on major Linux distributions
-- **Status**: Exploit code has been published and is available for exploitation; patches are available for affected distributions
+### Linux Copy Fail Local Privilege Escalation
+- **Description**: Local privilege escalation vulnerability affecting Linux kernels released since 2017, dubbed "Copy Fail"
+- **Impact**: Allows unprivileged local attackers to gain root access on affected systems
+- **Status**: Exploit code has been published and is actively being used to compromise Linux systems across major distributions
 
 ### Google Gemini CLI Remote Code Execution
 - **Description**: Maximum severity security flaw in Google's Gemini CLI npm package and GitHub Actions workflow
-- **Impact**: Could allow attackers to achieve remote code execution in continuous integration environments
-- **Status**: Recently patched by Google; affects "@google/gemini-cli" npm package and "google-github-actions/run-gemini-cli" GitHub Actions workflow
+- **Impact**: Could allow remote code execution in CI/CD environments and development pipelines
+- **Status**: Recently patched by Google, previously posed critical risk to development infrastructure
 
 ### Quick Page/Post Redirect WordPress Plugin Backdoor
-- **Description**: A dormant backdoor discovered in the popular WordPress redirect plugin that had been hidden for five years
-- **Impact**: Allows injection of arbitrary code into WordPress sites using the plugin
-- **Status**: Backdoor was active and undetected for years; affects over 70,000 WordPress installations
+- **Description**: Dormant backdoor discovered in popular WordPress redirect plugin that remained hidden for five years
+- **Impact**: Enables injection of arbitrary code into WordPress sites, potentially compromising over 70,000 installations
+- **Status**: Backdoor was embedded years ago and has been dormant, now discovered and being addressed
 
 ## Affected Systems and Products
 
-- **cPanel and WHM**: Web hosting control panel systems vulnerable to authentication bypass
-- **Linux Distributions**: Major distributions with kernels released since 2017 affected by privilege escalation
-- **Google Gemini CLI**: npm package and GitHub Actions workflow components
-- **WordPress Sites**: Over 70,000 sites using Quick Page/Post Redirect plugin
-- **SAP Development Ecosystem**: Official npm packages compromised in supply chain attack
-- **Python Package Repositories**: PyTorch Lightning and Intercom-client packages compromised
-- **Ruby and Go Ecosystems**: Poisoned gems and modules targeting CI/CD pipelines
+- **cPanel and WHM**: Web hosting control panel software used by hosting providers globally
+- **WP Squared**: WordPress management platform integrated with cPanel/WHM environments
+- **Linux Distributions**: Major Linux distributions running kernels released since 2017, including enterprise and desktop versions
+- **Google Gemini CLI**: Development tool for Google's AI platform integration (@google/gemini-cli npm package)
+- **GitHub Actions**: CI/CD workflows using google-github-actions/run-gemini-cli
+- **WordPress Sites**: Over 70,000 installations using Quick Page/Post Redirect plugin
+- **PyTorch Lightning**: Popular Python machine learning framework
+- **SAP npm Packages**: Official SAP development packages for cloud application development
+- **Ruby Gems and Go Modules**: Development packages used in CI/CD pipelines
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Compromise of legitimate software packages including SAP npm packages, Python libraries, Ruby gems, and Go modules
 - **Authentication Bypass**: Direct exploitation of authentication mechanisms in web hosting platforms
-- **Local Privilege Escalation**: Exploitation of kernel vulnerabilities to gain root access on Linux systems
-- **CI/CD Pipeline Exploitation**: Targeting continuous integration environments through compromised development tools
-- **Credential Theft**: Malicious packages designed to harvest authentication tokens and credentials from developer systems
-- **Backdoor Injection**: Long-term persistence through dormant backdoors in popular software components
+- **Supply Chain Poisoning**: Compromising legitimate software packages to distribute malicious payloads
+- **Sleeper Package Attacks**: Deploying seemingly benign packages that later push malicious updates
+- **CI/CD Pipeline Exploitation**: Targeting continuous integration systems to steal credentials and manipulate workflows
+- **Local Privilege Escalation**: Exploiting kernel vulnerabilities to gain elevated system access
+- **Backdoor Injection**: Installing persistent access mechanisms in popular software plugins
+- **Credential Harvesting**: Stealing authentication tokens, API keys, and development credentials
+- **GitHub Repository Spoofing**: Creating fake administrative tool repositories to distribute malware
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Conducting sophisticated supply chain attacks targeting SAP development packages and expanding operations to broader software ecosystems
-- **BlackCat/ALPHV Ransomware**: Continued operations despite law enforcement actions, with former cybersecurity professionals sentenced for facilitating attacks
-- **Python Package Attackers**: Targeting PyTorch Lightning and other popular Python libraries for credential theft
-- **CI/CD Threat Actors**: Exploiting development pipelines through poisoned Ruby gems and Go modules to steal credentials and tamper with GitHub Actions
+- **TeamPCP**: Conducting supply chain attacks against SAP npm packages and other development tools using "Mini Shai-Hulud" attack techniques
+- **BlackCat Ransomware Operators**: Former cybersecurity professionals sentenced for facilitating ransomware attacks, highlighting insider threat risks
+- **Supply Chain Attackers**: Multiple groups targeting Python packages (PyTorch Lightning), Ruby gems, and Go modules for credential theft
+- **EtherRAT Campaign**: Sophisticated operation targeting high-privilege professional accounts through GitHub repository spoofing
+- **Bluekit Phishing Service**: New phishing-as-a-service platform offering AI-assisted campaign generation with over 40 templates
+- **DEEP#DOOR Operators**: Deploying Python-based backdoor framework with tunneling capabilities for persistent access and credential harvesting
+- **Anti-DDoS Firm Abuse**: Brazilian company enabling botnet operations while purporting to provide DDoS protection services
