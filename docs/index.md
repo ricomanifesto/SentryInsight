@@ -1,58 +1,67 @@
 # Exploitation Report
 
-Multiple critical vulnerabilities are currently under active exploitation across various platforms, presenting significant security risks to organizations worldwide. The most severe activity includes a critical authentication bypass vulnerability in cPanel and WHM (CVE-2026-41940) being exploited as a zero-day since late February, and widespread supply chain attacks targeting SAP npm packages by the TeamPCP group in their "Mini Shai-Hulud" campaign. Additional exploitation includes a new Linux privilege escalation flaw dubbed "Copy Fail" affecting kernels since 2017, authentication bypass vulnerabilities in Qinglong task scheduler enabling cryptomining operations, and a dormant backdoor discovered in a popular WordPress redirect plugin. These attacks demonstrate sophisticated targeting of development environments, web hosting infrastructure, and enterprise systems.
+The current threat landscape reveals a surge in critical vulnerabilities being actively exploited across multiple platforms and systems. Most notably, a critical authentication bypass vulnerability CVE-2026-41940 in cPanel and WHM systems has been exploited as a zero-day since late February, with proof-of-concept code now publicly available. Supply chain attacks have intensified with TeamPCP conducting widespread credential theft through compromised SAP npm packages and PyTorch Lightning libraries. A newly disclosed Linux privilege escalation vulnerability dubbed "Copy Fail" affects major distributions and allows unprivileged users to gain root access through a simple 10-line exploit. Additionally, multiple remote code execution vulnerabilities in Qinglong task scheduler and Google's Gemini CLI are being actively exploited, while AI-assisted vulnerability research has uncovered 38 security flaws in the OpenEMR healthcare platform affecting over 100,000 providers.
 
 ## Active Exploitation Details
 
-### cPanel and WHM Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability allowing attackers to gain unauthorized access to cPanel and WHM control panels without valid credentials
-- **Impact**: Complete compromise of web hosting environments, unauthorized access to server management functions
-- **Status**: Actively exploited as zero-day since late February 2026, emergency patches now available
+### Critical cPanel and WHM Authentication Bypass
+- **Description**: Authentication bypass vulnerability allowing unauthorized access to control panels without authentication
+- **Impact**: Complete compromise of web hosting control panels and server management systems
+- **Status**: Actively exploited as zero-day since late February 2026, emergency patches released, PoC code publicly available
 - **CVE ID**: CVE-2026-41940
 
-### SAP npm Package Compromise
-- **Description**: Supply chain attack compromising multiple official SAP npm packages to inject credential-stealing malware
-- **Impact**: Theft of developer credentials and authentication tokens from systems using compromised packages
-- **Status**: Active campaign by TeamPCP group, part of "Mini Shai-Hulud" operation targeting SAP cloud development ecosystem
-
 ### Linux Copy Fail Privilege Escalation
-- **Description**: Local privilege escalation vulnerability in Linux kernels allowing unprivileged users to gain root access
-- **Impact**: Complete system compromise through privilege escalation on affected Linux distributions
-- **Status**: Affects kernels released since 2017, proof-of-concept exploit code available, patches released
+- **Description**: Local privilege escalation vulnerability in Linux kernels released since 2017
+- **Impact**: Unprivileged local attackers can gain root permissions on compromised systems
+- **Status**: Exploit code published, affects major Linux distributions, patches available
 
-### Qinglong Task Scheduler RCE
-- **Description**: Authentication bypass vulnerabilities in Qinglong open-source task scheduling tool enabling remote code execution
-- **Impact**: Deployment of cryptocurrency miners on compromised developer servers
-- **Status**: Actively exploited for cryptomining operations on vulnerable installations
+### Qinglong Task Scheduler RCE Vulnerabilities
+- **Description**: Two authentication bypass vulnerabilities in the open-source task scheduling tool
+- **Impact**: Remote code execution leading to cryptomining deployment on developer servers
+- **Status**: Actively exploited for cryptocurrency mining operations
+
+### Google Gemini CLI RCE Vulnerability
+- **Description**: Maximum severity security flaw in Gemini CLI npm package and GitHub Actions workflow
+- **Impact**: Remote code execution in continuous integration environments
+- **Status**: Patched by Google, previously exploitable in CI/CD pipelines
+
+### TeamPCP Supply Chain Attacks
+- **Description**: Compromise of official SAP npm packages and PyTorch Lightning libraries
+- **Impact**: Credential theft and authentication token harvesting from developer environments
+- **Status**: Actively ongoing, multiple packages compromised including SAP cloud development tools
 
 ### WordPress Quick Page/Post Redirect Plugin Backdoor
-- **Description**: Dormant backdoor embedded in WordPress redirect plugin for five years, allowing arbitrary code injection
-- **Impact**: Unauthorized code execution on WordPress sites using the compromised plugin
-- **Status**: Backdoor discovered after years of dormancy, affects over 70,000 WordPress installations
+- **Description**: Dormant backdoor hidden in popular WordPress plugin for five years
+- **Impact**: Arbitrary code injection into WordPress sites
+- **Status**: Affects over 70,000 WordPress installations, backdoor recently discovered
 
 ## Affected Systems and Products
 
-- **cPanel and WHM**: All versions prior to latest emergency updates, affecting web hosting control panels
-- **SAP npm packages**: Multiple official packages in SAP's cloud application development ecosystem
-- **Linux distributions**: Major distributions with kernels released since 2017, including Ubuntu, Red Hat, and SUSE
-- **Qinglong task scheduler**: Open-source task scheduling tool used by developers
-- **WordPress**: Sites using Quick Page/Post Redirect plugin across 70,000+ installations
-- **PyTorch Lightning**: Popular Python machine learning framework compromised in supply chain attack
-- **Windows 11**: Versions 24H2 and 25H2 affected by backup software failures after April KB5083769 update
+- **cPanel and WHM**: Web hosting control panels and server management systems
+- **Linux Distributions**: Major distributions with kernels released since 2017
+- **SAP npm Packages**: Official SAP cloud application development packages
+- **PyTorch Lightning**: Popular Python machine learning library
+- **Qinglong Task Scheduler**: Open-source task scheduling and automation tool
+- **Google Gemini CLI**: Google's AI development command-line interface
+- **WordPress Sites**: Over 70,000 sites using Quick Page/Post Redirect plugin
+- **OpenEMR Platform**: Electronic health record system used by 100,000+ healthcare providers
+- **GitHub Repositories**: Development environments using compromised packages
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Compromise of legitimate software packages to distribute malware through trusted channels
-- **Authentication Bypass**: Exploiting flaws in authentication mechanisms to gain unauthorized access
-- **Privilege Escalation**: Local exploitation to gain elevated system privileges on Linux systems
-- **Remote Code Execution**: Direct execution of malicious code on target systems through vulnerable applications
-- **Credential Theft**: Harvesting of developer credentials and authentication tokens from compromised environments
-- **Cryptomining Deployment**: Installing cryptocurrency mining software on compromised servers
+- **Supply Chain Compromise**: Injection of malicious code into legitimate software packages and libraries
+- **Authentication Bypass**: Circumventing login mechanisms in web applications and control panels
+- **Local Privilege Escalation**: Exploiting kernel vulnerabilities to gain elevated system permissions
+- **Remote Code Execution**: Executing arbitrary commands on target systems through vulnerable applications
+- **Credential Harvesting**: Stealing authentication tokens and login credentials from development environments
+- **Backdoor Implantation**: Installing persistent access mechanisms in popular software plugins
+- **CI/CD Pipeline Exploitation**: Targeting continuous integration and deployment systems
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Conducting "Mini Shai-Hulud" supply chain campaign targeting SAP development ecosystem and deploying Vect 2.0 ransomware
-- **DPRK-linked groups**: Utilizing AI-assisted techniques to insert malicious npm packages and establish fake companies for social engineering
-- **Ukrainian cybercriminals**: Compromised and sold over 610,000 Roblox gaming accounts for $225,000 profit before arrest
-- **Romanian swatting ring**: Leader sentenced to 4 years for coordinating attacks against 75+ public officials and journalists
-- **Cargo theft operators**: FBI reports sharp increase in cyber-enabled cargo theft with estimated losses in US and Canada
+- **TeamPCP**: Conducting large-scale supply chain attacks targeting SAP development ecosystem and PyTorch libraries for credential theft
+- **Cryptocurrency Miners**: Exploiting Qinglong vulnerabilities to deploy mining operations on developer servers
+- **Web Hosting Attackers**: Leveraging cPanel zero-day for unauthorized access to hosting infrastructure
+- **WordPress Plugin Attackers**: Maintaining long-term backdoors in popular plugins for code injection capabilities
+- **Gaming Account Thieves**: Ukrainian cybercriminals arrested for hijacking 610,000 Roblox accounts generating $225,000 in profits
+- **Healthcare Targeting Groups**: Potential exploitation of 38 newly discovered OpenEMR vulnerabilities affecting healthcare data
