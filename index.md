@@ -1,59 +1,68 @@
 # Exploitation Report
 
-A significant wave of supply chain attacks has dominated the cybersecurity landscape, with TeamPCP orchestrating sophisticated campaigns targeting SAP npm packages and PyTorch Lightning to steal credentials from developers. Critical zero-day exploitation is occurring against cPanel and WHM systems through CVE-2026-41940, an authentication bypass vulnerability that has been actively exploited since late February. Additionally, a newly disclosed Linux privilege escalation vulnerability dubbed "Copy Fail" affects major distributions and allows unprivileged users to gain root access. The emergence of AI-assisted attack tools and the deployment of the DEEP#DOOR Python backdoor framework indicate an escalation in attacker capabilities and persistence mechanisms.
+Current exploitation activity shows a concerning surge in supply chain attacks, zero-day exploits, and critical vulnerabilities being actively leveraged by threat actors. The most significant threats include the TeamPCP supply chain campaign compromising official SAP npm packages, active exploitation of CVE-2026-41940 in cPanel and WHM systems, authentication bypass vulnerabilities in Qinglong task schedulers being exploited for cryptomining, and the newly disclosed Linux "Copy Fail" privilege escalation flaw affecting major distributions. These attacks demonstrate sophisticated techniques including AI-assisted malware insertion, credential theft operations, and coordinated campaigns targeting development ecosystems and critical infrastructure.
 
 ## Active Exploitation Details
 
 ### cPanel and WHM Authentication Bypass
 - **Description**: Critical authentication bypass vulnerability in cPanel, WHM, and WP Squared allowing unauthorized access to control panels
-- **Impact**: Attackers can gain complete administrative access to web hosting control panels without authentication
-- **Status**: Actively exploited as zero-day since late February, emergency patches now available
+- **Impact**: Attackers can gain complete access to hosting control panels without authentication credentials
+- **Status**: Being actively exploited in the wild since late February 2026, emergency patches available
 - **CVE ID**: CVE-2026-41940
 
 ### Linux Copy Fail Privilege Escalation
-- **Description**: Local privilege escalation vulnerability affecting Linux kernels released since 2017, allowing unprivileged users to gain root permissions
-- **Impact**: Complete system compromise with root-level access from any local user account
-- **Status**: Proof-of-concept exploit code published, patches available for major distributions
+- **Description**: Local privilege escalation vulnerability in Linux kernels released since 2017 allowing unprivileged users to gain root access
+- **Impact**: Complete system compromise through elevation to root privileges
+- **Status**: Exploit code publicly available, patches distributed to major distributions
 
 ### Qinglong Task Scheduler RCE
 - **Description**: Two authentication bypass vulnerabilities in the Qinglong open-source task scheduling tool
-- **Impact**: Remote code execution leading to cryptomining deployment on compromised servers
-- **Status**: Actively exploited for cryptocurrency mining operations
+- **Impact**: Remote code execution leading to cryptominer deployment on developers' servers
+- **Status**: Actively being exploited for cryptocurrency mining operations
 
-### OpenEMR Electronic Health Record Platform
-- **Description**: 38 security vulnerabilities discovered in the widely-used healthcare platform
-- **Impact**: Database compromise, remote code execution, and sensitive health data theft
-- **Status**: Affects platform used by over 100,000 healthcare providers
+### SAP npm Package Supply Chain Attack
+- **Description**: Multiple official SAP npm packages compromised by TeamPCP threat group
+- **Impact**: Credential and authentication token theft from developers' systems
+- **Status**: Ongoing supply chain attack campaign targeting SAP cloud development ecosystem
+
+### PyTorch Lightning Package Compromise
+- **Description**: Popular Python package Lightning compromised with two malicious versions
+- **Impact**: Credential theft from affected development environments
+- **Status**: Malicious versions pushed to PyPI repository for credential harvesting
+
+### WordPress Quick Page/Post Redirect Plugin Backdoor
+- **Description**: Dormant backdoor hidden in popular WordPress redirect plugin for five years
+- **Impact**: Arbitrary code injection capabilities on over 70,000 WordPress sites
+- **Status**: Backdoor recently activated after years of dormancy
 
 ## Affected Systems and Products
 
-- **SAP npm Packages**: Multiple official packages compromised in TeamPCP supply chain attack
-- **PyTorch Lightning**: Python package compromised with malicious versions for credential theft
-- **cPanel/WHM**: Web hosting control panel systems across all versions prior to latest updates
-- **Linux Distributions**: Major distributions affected by Copy Fail vulnerability since 2017
-- **WordPress**: Quick Page/Post Redirect plugin with dormant backdoor affecting 70,000+ sites
-- **Qinglong**: Open-source task scheduling tool targeted for cryptomining attacks
-- **OpenEMR**: Healthcare platform serving over 100,000 medical providers
-- **Google Gemini CLI**: npm package and GitHub Actions workflow with maximum severity RCE
-- **Intercom-client**: Python package targeted in supply chain compromise
+- **cPanel and WHM**: All versions prior to latest emergency updates vulnerable to authentication bypass
+- **Linux Distributions**: Major distributions with kernels released since 2017 affected by Copy Fail vulnerability
+- **SAP Development Ecosystem**: Multiple official npm packages compromised in supply chain attack
+- **Qinglong Task Scheduler**: Open-source task scheduling tool targeted for cryptomining operations
+- **PyTorch Lightning**: Popular Python machine learning framework package compromised
+- **WordPress Sites**: Over 70,000 sites using Quick Page/Post Redirect plugin vulnerable to backdoor
+- **OpenEMR Platform**: Electronic health record platform with 38 newly discovered security flaws
+- **Google Gemini CLI**: Maximum severity vulnerability in CLI tool and GitHub Actions workflow
+- **Roblox Gaming Platform**: Over 610,000 accounts compromised and sold
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: TeamPCP targeting official package repositories with credential-stealing malware
-- **Mini Shai-Hulud Attack**: Specific technique used against SAP ecosystem packages
-- **Authentication Bypass**: Exploitation of login mechanisms in web management interfaces
-- **Local Privilege Escalation**: Kernel-level vulnerabilities allowing privilege elevation
-- **AI-Assisted Code Injection**: Use of large language models to insert malicious dependencies
-- **GitHub Repository Spoofing**: EtherRAT campaign using fake administrative tools on GitHub
-- **Tunneling Service Abuse**: DEEP#DOOR backdoor using tunneling for persistence and data exfiltration
-- **Dormant Backdoors**: Long-term persistence mechanisms hidden in legitimate plugins
+- **Supply Chain Poisoning**: TeamPCP group targeting official packages in npm ecosystem with credential-stealing malware
+- **Authentication Bypass**: Direct exploitation of authentication mechanisms in web control panels and task schedulers
+- **Privilege Escalation**: Local attackers exploiting kernel vulnerabilities to gain root access on Linux systems
+- **AI-Assisted Malware**: Use of AI language models to insert malicious code into npm packages and generate attack code
+- **Dormant Backdoors**: Long-term persistence through backdoors hidden in legitimate plugins for years
+- **Social Engineering**: EtherRAT campaign spoofing administrative tools via fake GitHub repositories
+- **Phishing-as-a-Service**: Bluekit service offering AI-assisted phishing campaigns with 40+ templates
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Conducting broad supply chain attacks targeting SAP packages, PyTorch Lightning, and deploying Vect 2.0 ransomware
-- **DPRK-linked Groups**: Using AI-inserted npm malware, fake companies, and remote access trojans in coordinated campaigns
-- **EtherRAT Operators**: Targeting high-privilege professional accounts through spoofed GitHub repositories
-- **Cryptomining Gangs**: Exploiting Qinglong vulnerabilities for unauthorized cryptocurrency mining
-- **Romanian Swatting Ring**: Coordinated harassment campaigns targeting public officials and journalists
-- **Roblox Account Thieves**: Ukrainian criminals stealing and selling over 610,000 gaming accounts for $225,000 profit
-- **Anti-DDoS Firm Abuse**: Brazilian company enabling botnet attacks against internet service providers
+- **TeamPCP Group**: Conducting extensive supply chain attacks against SAP npm packages and deploying Vect 2.0 ransomware
+- **DPRK-Linked Actors**: Using AI-inserted npm malware, fake companies, and remote access trojans in sophisticated campaigns
+- **EtherRAT Operators**: Targeting high-privilege professional accounts through spoofed administrative tools on GitHub
+- **Ukrainian Cybercriminals**: Three individuals arrested for hijacking and selling 610,000 Roblox accounts for $225,000 profit
+- **Romanian Swatting Ring**: Leader sentenced to 4 years for coordinating attacks against 75+ public officials and journalists
+- **Cryptocurrency Scammers**: 276 suspects arrested in joint US-Chinese operation targeting crypto investment fraud centers
+- **DEEP#DOOR Operators**: Deploying Python-based backdoor framework for persistent access and credential harvesting
