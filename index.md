@@ -1,65 +1,61 @@
 # Exploitation Report
 
-Multiple critical security incidents are currently impacting global organizations across diverse sectors. North Korean threat actors continue their unprecedented cryptocurrency theft operations, stealing 76% of all crypto assets in 2026. Supply chain attacks targeting popular development packages like PyTorch Lightning and Ruby Gems are enabling widespread credential theft through compromised CI/CD pipelines. A newly discovered Linux privilege escalation vulnerability dubbed "Copy Fail" affects major distributions released since 2017, allowing unprivileged attackers to gain root access. Additionally, sophisticated phishing campaigns are leveraging Google AppSheet services to compromise Facebook accounts, while cybercrime groups are conducting rapid SaaS extortion attacks through voice phishing and SSO abuse techniques.
+The current threat landscape reveals several critical exploitation campaigns targeting diverse sectors from government agencies to software supply chains. Most concerning are the large-scale phishing operations compromising tens of thousands of Facebook accounts through Google AppSheet abuse, sophisticated supply chain attacks targeting popular Python packages and CI/CD pipelines, and ongoing ransomware operations by established cybercriminal groups. North Korean threat actors continue their aggressive cryptocurrency theft campaigns, while Chinese state-sponsored groups are conducting extensive espionage operations across Asian governments and defense sectors. Additionally, significant vulnerabilities are being exploited in software supply chains, with malicious packages infiltrating popular development ecosystems and CI/CD pipelines to steal credentials and compromise development environments.
 
 ## Active Exploitation Details
 
-### Copy Fail Linux Privilege Escalation
-- **Description**: A local privilege escalation vulnerability affecting Linux kernels released since 2017
-- **Impact**: Allows unprivileged local attackers to gain root permissions on major Linux distributions
-- **Status**: Exploit code has been published; patches are available
+### Google AppSheet Phishing Campaign
+- **Description**: Vietnamese-linked operation using Google AppSheet as a "phishing relay" to distribute phishing emails targeting Facebook accounts
+- **Impact**: Successful compromise of approximately 30,000 Facebook user accounts
+- **Status**: Active campaign discovered and being monitored
 
-### PyTorch Lightning Supply Chain Compromise
-- **Description**: Threat actors compromised the popular Python package Lightning on PyPI to distribute malicious versions
-- **Impact**: Credential theft from developers and organizations using the compromised package
-- **Status**: Actively exploited with malicious versions pushed to package repository
+### Software Supply Chain Attacks on Python Packages
+- **Description**: Multiple malicious packages including compromised PyTorch Lightning and Intercom-client packages containing credential theft capabilities
+- **Impact**: Credential theft from developers and compromise of CI/CD pipelines
+- **Status**: Malicious versions identified and removed from package repositories
 
-### Ruby Gems and Go Modules CI Pipeline Exploitation
-- **Description**: Sleeper packages in Ruby Gems and Go modules designed to exploit CI/CD pipelines
-- **Impact**: Credential theft, GitHub Actions tampering, and supply chain compromise
-- **Status**: Active campaign targeting development environments
+### Ruby Gems and Go Modules Supply Chain Attack
+- **Description**: Sleeper packages being used as conduits to push malicious payloads for credential theft and GitHub Actions tampering
+- **Impact**: CI pipeline compromise, credential theft, and potential source code manipulation
+- **Status**: Ongoing campaign targeting multiple language ecosystems
 
-### Google AppSheet Phishing Relay
-- **Description**: Vietnamese-linked operation using Google AppSheet as a phishing relay to distribute malicious emails
-- **Impact**: Compromise of approximately 30,000 Facebook accounts
-- **Status**: Active campaign leveraging legitimate Google services
+### SAP npm Package Compromises
+- **Description**: TeamPCP threat group compromising npm packages in SAP's cloud application development ecosystem using "Mini Shai-Hulud" attacks
+- **Impact**: Compromise of SAP development environments and potential access to enterprise applications
+- **Status**: Multiple packages identified as compromised
 
-### SAP Package Compromise (Mini Shai-Hulud)
-- **Description**: TeamPCP threat group compromised multiple npm packages for SAP's cloud application development ecosystem
-- **Impact**: Supply chain attacks targeting SAP development environments
-- **Status**: Active compromise affecting SAP cloud development packages
-
-### French Government Agency Data Breach
-- **Description**: Cyberattack on France Titres (ANTS), the country's agency for issuing administrative documents
-- **Impact**: Theft and sale of sensitive government data
-- **Status**: Under investigation with suspect detained
+### BlackCat Ransomware Operations
+- **Description**: Continued ransomware attacks facilitated by insider threats including former cybersecurity professionals
+- **Impact**: Significant financial losses and operational disruption to victim organizations
+- **Status**: Law enforcement actions taken against facilitators, but group remains active
 
 ## Affected Systems and Products
 
-- **Linux Distributions**: Major distributions with kernels released since 2017 vulnerable to Copy Fail exploit
-- **PyPI Package Repository**: Lightning package compromised with malicious versions
-- **Ruby Gems and Go Modules**: Multiple packages compromised in sleeper package campaign
-- **Facebook Accounts**: Approximately 30,000 accounts compromised through Google AppSheet phishing
-- **SAP Cloud Development**: npm packages for SAP's cloud application ecosystem
-- **Windows 11**: KB5083769 update causing backup software failures on 24H2 and 25H2 versions
-- **France Titres (ANTS)**: French administrative document agency systems breached
+- **Facebook Platform**: Targeted through Google AppSheet phishing campaigns affecting user accounts
+- **Python Package Ecosystem**: PyTorch Lightning and Intercom-client packages compromised
+- **Ruby Gems Repository**: Multiple gems containing malicious payloads
+- **Go Module Registry**: Compromised modules targeting CI/CD pipelines
+- **SAP Cloud Development Platform**: npm packages for SAP ecosystem compromised
+- **Windows 11 Systems**: KB5083769 update causing backup software failures
+- **GitHub Actions**: CI/CD pipelines targeted for credential theft and tampering
+- **France Titres (ANTS)**: French government agency suffered data breach
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Compromising legitimate package repositories to distribute malicious code
-- **Phishing Relay Services**: Using legitimate platforms like Google AppSheet to distribute phishing emails
-- **Voice Phishing (Vishing)**: Cybercrime groups using voice calls combined with SSO abuse for SaaS extortion
-- **CI/CD Pipeline Exploitation**: Targeting continuous integration environments for credential theft
-- **Local Privilege Escalation**: Exploiting kernel vulnerabilities to gain root access
-- **Cryptocurrency Theft**: Advanced persistent operations targeting crypto exchanges and wallets
-- **Data Exfiltration**: Stealing and monetizing sensitive government and personal data
+- **Phishing Relay Attacks**: Using legitimate Google AppSheet platform to distribute phishing content and bypass security controls
+- **Supply Chain Poisoning**: Injecting malicious code into legitimate software packages across multiple language ecosystems
+- **Sleeper Package Strategy**: Deploying initially benign packages that are later updated with malicious functionality
+- **CI/CD Pipeline Exploitation**: Targeting development environments to steal credentials and manipulate source code
+- **Vishing and SSO Abuse**: Cybercrime groups using voice phishing combined with single sign-on abuse for rapid SaaS environment compromise
+- **Insider Facilitation**: Former cybersecurity professionals providing internal knowledge for ransomware operations
+- **Fake Cell Tower SMS Scams**: Using rogue base stations to send fraudulent text messages
 
 ## Threat Actor Activities
 
-- **North Korean Groups**: Conducting historic cryptocurrency heists with potential AI assistance, controlling 76% of stolen crypto in 2026
-- **Vietnamese-Linked Operators**: Running sophisticated phishing campaigns using Google services to compromise social media accounts
-- **TeamPCP**: Expanding supply chain attacks to target SAP development ecosystems with Mini Shai-Hulud operations
-- **China-Aligned Groups**: Targeting Asian governments, NATO states, journalists, and activists in espionage campaigns
-- **BlackCat Ransomware Affiliates**: Former cybersecurity professionals sentenced for facilitating ransomware attacks
-- **Brazilian DDoS Operators**: Anti-DDoS firm enabling botnet attacks against Brazilian ISPs
-- **Cybercrime Groups**: Conducting rapid SaaS extortion attacks using minimal traces and advanced social engineering
+- **Vietnamese-linked Groups**: Conducting large-scale Facebook account compromise campaigns using Google AppSheet as infrastructure
+- **TeamPCP**: Expanding supply chain attacks to target SAP development ecosystems with sophisticated package compromise techniques
+- **Chinese State-Sponsored Groups**: Targeting government and defense sectors across South, East, and Southeast Asia, plus European NATO states, journalists, and activists
+- **North Korean Actors**: Conducting unprecedented cryptocurrency theft operations, controlling 76% of all stolen cryptocurrency with AI-assisted capabilities
+- **BlackCat Ransomware Affiliates**: Leveraging insider knowledge from former cybersecurity professionals to enhance attack effectiveness
+- **Brazilian DDoS Operators**: Anti-DDoS firm paradoxically enabling massive DDoS attack campaigns against Brazilian ISPs
+- **Romanian Swatting Ring**: Organized group targeting over 75 public officials, journalists, and religious institutions before law enforcement disruption
