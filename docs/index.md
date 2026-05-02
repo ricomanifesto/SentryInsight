@@ -1,63 +1,62 @@
 # Exploitation Report
 
-The current cybersecurity landscape reveals a diverse array of active exploitation activities targeting multiple vectors. Notable threats include sophisticated OAuth abuse campaigns targeting Azure environments through ConsentFix v3 attacks, large-scale phishing operations compromising thousands of Facebook accounts via Google AppSheet, and supply chain attacks targeting software development environments through poisoned Ruby Gems and Go modules. Additionally, cybercrime groups are conducting rapid SaaS extortion attacks using vishing and SSO abuse techniques, while nation-state actors continue extensive espionage campaigns against government and defense sectors across Asia and Europe.
+The current threat landscape is dominated by sophisticated attacks targeting cloud environments and supply chain infrastructure. Notable activity includes automated OAuth abuse campaigns against Azure environments through ConsentFix v3 attacks, large-scale supply chain compromises affecting popular Python packages and SAP development tools, and state-sponsored cryptocurrency theft operations. North Korean threat actors continue their aggressive cryptocurrency targeting, while Vietnamese-linked operations are exploiting Google AppSheet for Facebook account compromises. Additionally, multiple software supply chain attacks are targeting developer environments through poisoned packages in Ruby Gems, Go modules, and PyPI repositories.
 
 ## Active Exploitation Details
 
 ### ConsentFix v3 OAuth Abuse
-- **Description**: An automated OAuth abuse technique targeting Azure environments with enhanced scaling capabilities
-- **Impact**: Unauthorized access to Azure resources through manipulated OAuth consent flows
-- **Status**: Actively being deployed by threat actors with automated tooling available on hacker forums
+- **Description**: Automated OAuth abuse attacks targeting Azure environments with enhanced scaling and automation capabilities
+- **Impact**: Unauthorized access to Azure resources through OAuth token manipulation
+- **Status**: Active exploitation observed in hacker forums
 
-### Google AppSheet Phishing Campaign
-- **Description**: Vietnamese-linked phishing operation using Google AppSheet as a relay to distribute malicious emails
-- **Impact**: Compromise of approximately 30,000 Facebook accounts through credential harvesting
-- **Status**: Active campaign with ongoing credential theft operations
+### Supply Chain Package Poisoning
+- **Description**: Coordinated attacks targeting PyPI packages including PyTorch Lightning and Intercom-client, along with compromised Ruby Gems and Go modules
+- **Impact**: Credential theft, GitHub Actions tampering, and CI pipeline compromise
+- **Status**: Multiple packages compromised with malicious payloads deployed
 
-### Software Supply Chain Attacks (Ruby Gems and Go Modules)
-- **Description**: Malicious packages distributed through software repositories to exploit CI/CD pipelines
-- **Impact**: Credential theft, GitHub Actions tampering, and unauthorized access to development environments
-- **Status**: Active campaign using sleeper packages to deploy subsequent malicious payloads
+### TeamPCP Mini Shai-Hulud Attack
+- **Description**: Supply chain attacks targeting SAP packages in the npm ecosystem
+- **Impact**: Compromise of SAP cloud application development tools and environments
+- **Status**: Several npm packages confirmed compromised
 
-### PyTorch Lightning Package Compromise
-- **Description**: Compromise of the popular Python package Lightning with malicious versions pushed to PyPI
-- **Impact**: Credential theft from developer environments using the compromised package
-- **Status**: Malicious versions identified and targeted for remediation
+### Google AppSheet Phishing Relay
+- **Description**: Vietnamese-linked campaign using Google AppSheet as a phishing relay to distribute Facebook credential harvesting emails
+- **Impact**: Compromise of approximately 30,000 Facebook accounts
+- **Status**: Active campaign with ongoing victim targeting
 
-### BlackCat Ransomware Operations
-- **Description**: Ransomware-as-a-Service operation targeting various organizations with insider assistance
-- **Impact**: Data encryption, extortion, and significant financial losses to victim organizations
-- **Status**: Ongoing operations despite law enforcement actions against facilitators
+### Nine-Year-Old Linux Vulnerability
+- **Description**: AI-assisted discovery of a previously unknown Linux vulnerability present for nine years
+- **Impact**: System compromise through a 10-line proof-of-concept exploit
+- **Status**: Patch available, vulnerability actively disclosed
 
 ## Affected Systems and Products
 
-- **Microsoft Azure**: OAuth consent mechanisms and SSO integrations vulnerable to abuse
-- **Facebook/Meta Platforms**: User accounts compromised through phishing campaigns
-- **Google AppSheet**: Legitimate service abused as phishing relay infrastructure
-- **Python Package Index (PyPI)**: Distribution platform for malicious Lightning package versions
-- **Ruby Gems Repository**: Platform used for distributing poisoned packages
-- **Go Modules**: Package management system targeted for supply chain attacks
-- **SAP Development Packages**: npm packages for SAP cloud application development compromised
-- **Windows 11**: Backup software functionality disrupted by security updates
-- **CI/CD Pipelines**: Development environments targeted for credential harvesting
+- **Microsoft Azure**: OAuth systems and authentication mechanisms targeted by ConsentFix v3
+- **PyPI Ecosystem**: PyTorch Lightning and Intercom-client packages compromised
+- **SAP Cloud Development**: npm packages for SAP's cloud application development tools
+- **Ruby Gems Repository**: Multiple gems infected with credential-stealing payloads
+- **Go Modules**: Developer packages compromised for CI pipeline attacks
+- **Facebook Platform**: 30,000 accounts compromised through phishing campaigns
+- **Google AppSheet**: Abused as phishing infrastructure relay
+- **Linux Systems**: Nine-year-old vulnerability affecting various Linux distributions
+- **Windows 11**: KB5083769 update causing backup software failures
 
 ## Attack Vectors and Techniques
 
-- **OAuth Consent Abuse**: Automated manipulation of Azure OAuth flows to gain unauthorized access
-- **Phishing Relay**: Using legitimate Google AppSheet service to distribute phishing emails
-- **Supply Chain Poisoning**: Injection of malicious code into popular software packages
-- **Vishing and SSO Abuse**: Voice phishing combined with single sign-on exploitation for SaaS environments
-- **Insider Assistance**: Use of compromised cybersecurity professionals to facilitate ransomware attacks
-- **Package Typosquatting**: Distribution of malicious packages with similar names to legitimate software
-- **CI Pipeline Exploitation**: Targeting continuous integration systems for credential theft
+- **Automated OAuth Abuse**: Scaled attacks against Azure authentication using ConsentFix v3 methodology
+- **Supply Chain Poisoning**: Injection of malicious code into legitimate software packages across multiple ecosystems
+- **Phishing Relay**: Using legitimate Google services as intermediaries for credential harvesting
+- **Social Engineering**: Vishing attacks combined with SSO abuse for rapid SaaS environment compromise
+- **CI Pipeline Exploitation**: Targeting continuous integration systems through compromised development packages
+- **Sleeper Packages**: Deployment of initially benign packages later updated with malicious payloads
 
 ## Threat Actor Activities
 
-- **Vietnamese Cybercrime Groups**: Conducting large-scale Facebook account compromise operations using Google services
-- **ConsentFix Operators**: Developing and distributing automated OAuth abuse tools on underground forums
-- **Supply Chain Attackers**: Systematic compromise of software repositories targeting developer environments
-- **BlackCat Affiliates**: Ransomware operations with insider assistance from compromised security professionals
-- **China-aligned APT Groups**: Espionage campaigns targeting Asian governments, NATO states, journalists, and activists
-- **North Korean Threat Actors**: Cryptocurrency theft operations accounting for 76% of all stolen crypto in 2026
-- **TeamPCP**: Supply chain attacks expanding to target SAP development ecosystems
-- **Romanian Cybercriminals**: Operating swatting rings and cargo theft operations
+- **North Korean Groups**: Responsible for 76% of all cryptocurrency theft in 2026, conducting historic heists with potential AI assistance
+- **Vietnamese-Linked Operators**: Conducting large-scale Facebook account compromises through Google AppSheet phishing campaigns
+- **TeamPCP Group**: Expanding supply chain attacks to target SAP development ecosystem
+- **China-Aligned Espionage Campaign**: Targeting government and defense sectors across South, East, and Southeast Asia, plus one European government
+- **BlackCat Ransomware Affiliates**: Former cybersecurity professionals sentenced for facilitating ransomware attacks
+- **Cybercrime Groups**: Conducting rapid SaaS extortion attacks using vishing and SSO abuse techniques
+- **Romanian Swatting Ring**: Targeted over 75 public officials, journalists, and religious institutions
+- **Cargo Theft Cybercriminals**: Sharp increase in cyber-enabled cargo theft operations across US and Canada
