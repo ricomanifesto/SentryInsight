@@ -1,63 +1,64 @@
 # Exploitation Report
 
-Based on the analyzed security articles, several critical exploitation activities are currently impacting organizations globally. Notable threats include sophisticated supply chain attacks targeting Python packages like PyTorch Lightning and npm packages for SAP ecosystems, where threat actors are compromising legitimate software repositories to steal credentials and tamper with CI/CD pipelines. North Korean threat actors continue their aggressive cryptocurrency theft operations, reportedly controlling 76% of all crypto stolen in 2026. Additionally, cybercrime groups are executing rapid SaaS-based extortion attacks using vishing techniques and SSO abuse, while Vietnamese-linked actors have successfully compromised 30,000 Facebook accounts through Google AppSheet phishing campaigns.
+Critical cybersecurity threats are dominating the current threat landscape, with multiple high-impact exploitation campaigns targeting diverse sectors. North Korean threat actors continue their aggressive cryptocurrency theft operations, successfully stealing 76% of all crypto assets taken in 2026. Simultaneously, sophisticated supply chain attacks are compromising popular development packages including PyTorch Lightning and Ruby Gems, targeting CI/CD pipelines for credential theft. Vietnamese-linked operators have successfully compromised over 30,000 Facebook accounts through innovative Google AppSheet phishing campaigns, while China-aligned espionage groups are actively targeting government and defense sectors across Asia and Europe. Additional concerning activities include rapid SaaS environment exploitation using vishing and SSO abuse techniques, and the emergence of AI-enhanced phishing services with advanced template capabilities.
 
 ## Active Exploitation Details
 
-### PyTorch Lightning Package Compromise
-- **Description**: Threat actors compromised the popular Python package Lightning, pushing two malicious versions to the PyPI repository to conduct credential theft
-- **Impact**: Attackers can steal developer credentials and potentially access development environments and source code repositories
-- **Status**: Active supply chain attack targeting Python development environments
+### Facebook Account Compromise Campaign
+- **Description**: Vietnamese-linked operation using Google AppSheet as a "phishing relay" to distribute sophisticated phishing emails
+- **Impact**: Successful compromise of approximately 30,000 Facebook accounts through credential harvesting
+- **Status**: Active campaign with ongoing exploitation detected
 
-### Intercom-client Package Attack
-- **Description**: The Intercom-client package was compromised in a coordinated supply chain attack alongside PyTorch Lightning
-- **Impact**: Credential theft and potential unauthorized access to communication platforms and customer data
-- **Status**: Active exploitation through compromised package distribution
+### Supply Chain Package Poisoning
+- **Description**: Coordinated attacks targeting PyTorch Lightning, Intercom-client, Ruby Gems, and Go modules through malicious package versions
+- **Impact**: Credential theft, GitHub Actions tampering, and CI/CD pipeline compromise enabling further lateral movement
+- **Status**: Active supply chain attacks with multiple compromised packages identified
 
-### SAP npm Package Poisoning
-- **Description**: TeamPCP threat group compromised several npm packages for SAP's cloud application development ecosystem in the "Mini Shai-Hulud" attack campaign
-- **Impact**: Compromise of SAP development environments and potential access to enterprise cloud applications
-- **Status**: Active supply chain attack targeting SAP development tools
+### SAP Package Compromise (Mini Shai-Hulud Attack)
+- **Description**: TeamPCP threat group compromising npm packages within SAP's cloud application development ecosystem
+- **Impact**: Supply chain infiltration affecting SAP development environments and related infrastructure
+- **Status**: Active compromise with TeamPCP expanding their supply chain attack operations
 
-### 9-Year-Old Linux Vulnerability
-- **Description**: AI-assisted security scanning revealed a previously unknown Linux vulnerability that has existed for nine years
-- **Impact**: Potential system compromise with a proof-of-concept exploit requiring only 10 lines of code
-- **Status**: Newly discovered but patch already available
+### North Korean Cryptocurrency Theft Operations
+- **Description**: Large-scale cryptocurrency theft campaigns potentially enhanced by AI capabilities
+- **Impact**: Control of 76% of all cryptocurrency stolen in 2026, representing historic theft volumes
+- **Status**: Ongoing operations with weekly frequency of major heists
 
-### Ruby Gems and Go Modules CI Pipeline Exploitation
-- **Description**: Sleeper packages in Ruby Gems and Go modules are being used to push malicious payloads targeting CI/CD pipelines
-- **Impact**: Credential theft, GitHub Actions tampering, and compromise of software development workflows
-- **Status**: Active attacks targeting development infrastructure
+### China-Aligned Government Espionage
+- **Description**: Sophisticated espionage campaign targeting government and defense sectors
+- **Impact**: Intelligence gathering and potential state secret compromise across multiple nations
+- **Status**: Active targeting of Asian governments, NATO states, journalists, and activists
 
 ## Affected Systems and Products
 
-- **PyTorch Lightning**: Python machine learning framework with compromised packages on PyPI
-- **Intercom-client**: Communication platform integration package compromised through supply chain attack
-- **SAP Cloud Development Tools**: npm packages for SAP's cloud application development ecosystem
-- **Linux Systems**: Nine-year-old vulnerability affecting Linux distributions (patch available)
-- **Ruby Gems Repository**: Poisoned packages targeting Ruby development environments
-- **Go Modules**: Compromised packages affecting Go-based development projects
-- **Facebook Platform**: 30,000 accounts compromised through Google AppSheet phishing
-- **Canvas Learning Platform**: Instructure's educational technology platform affected by cybersecurity incident
-- **France Titres (ANTS)**: French government agency for administrative documents breached
-- **Windows 11 Systems**: KB5083769 update causing backup software failures
+- **PyTorch Lightning**: Popular Python package compromised with malicious versions for credential theft
+- **Intercom-client**: Python package targeted in supply chain attack
+- **Ruby Gems**: Multiple gems compromised to exploit CI/CD pipelines
+- **Go Modules**: Packages poisoned for credential harvesting
+- **SAP npm packages**: Cloud application development ecosystem packages compromised
+- **Facebook platform**: Over 30,000 accounts compromised through phishing operations
+- **Google AppSheet**: Leveraged as phishing relay infrastructure
+- **OpenEMR**: Medical records system with identified security flaws
+- **Windows 11 systems**: Backup software failures caused by KB5083769 update
+- **SaaS environments**: Multiple platforms targeted through SSO abuse techniques
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Compromising legitimate software packages to distribute malware and steal credentials
-- **Phishing Relay**: Using Google AppSheet as an intermediary platform to distribute phishing emails
+- **Phishing Relay**: Using legitimate Google AppSheet platform to distribute phishing emails and evade detection
+- **Supply Chain Poisoning**: Injecting malicious code into legitimate software packages and development tools
 - **Vishing and SSO Abuse**: Voice phishing combined with single sign-on exploitation for rapid SaaS environment compromise
-- **CI/CD Pipeline Targeting**: Exploiting continuous integration and deployment systems for credential theft
-- **Sleeper Package Strategy**: Deploying dormant malicious packages that activate later to avoid detection
-- **GitHub Actions Tampering**: Manipulating automated workflows in development environments
+- **AI-Enhanced Phishing**: Deployment of AI assistants and over 40 templates in Bluekit phishing service
+- **Package Repository Compromise**: Direct compromise of popular development package repositories
+- **Credential Harvesting**: Systematic collection of authentication credentials across multiple platforms
+- **CI/CD Pipeline Exploitation**: Targeting continuous integration environments for persistent access
 
 ## Threat Actor Activities
 
-- **North Korean Groups**: Conducting historic cryptocurrency heists, controlling 76% of crypto stolen in 2026, potentially using AI assistance
-- **TeamPCP**: Executing "Mini Shai-Hulud" attacks against SAP development packages, broadening supply chain attack operations
-- **Vietnamese-linked Operators**: Running large-scale Facebook account compromise campaign using Google AppSheet phishing relay affecting 30,000 accounts
-- **China-aligned Espionage Groups**: Targeting government and defense sectors across South, East, and Southeast Asia, plus one European government and NATO state
-- **BlackCat Ransomware Affiliates**: Former cybersecurity professionals sentenced for facilitating ransomware attacks against U.S. companies
-- **Cybercrime SaaS Groups**: Two identified groups conducting rapid, high-impact attacks within SaaS environments while leaving minimal forensic traces
-- **Romanian Swatting Ring**: Organized group targeting over 75 public officials, journalists, and religious institutions
-- **Brazilian DDoS Operators**: Anti-DDoS firm enabling botnet responsible for massive DDoS attacks against Brazilian ISPs
+- **North Korean Groups**: Conducting historic cryptocurrency theft operations with potential AI enhancement, achieving 76% control of 2026 crypto theft
+- **Vietnamese-linked Operators**: Executing large-scale Facebook account compromise campaign using 30,000+ successful credential thefts
+- **TeamPCP**: Expanding supply chain attacks with "Mini Shai-Hulud" operations targeting SAP development ecosystems
+- **China-aligned Espionage Groups**: Conducting sophisticated intelligence gathering campaigns against Asian governments, NATO states, journalists, and activists
+- **BlackCat Ransomware Affiliates**: Two cybersecurity professionals sentenced to 4 years for facilitating ransomware attacks
+- **Romanian Swatting Ring**: Leader sentenced to 4 years for orchestrating attacks on 75+ public officials and journalists
+- **Brazilian DDoS Operators**: Anti-DDoS firm enabling massive botnet attacks against Brazilian ISPs
+- **Cybercrime SaaS Groups**: Two identified groups conducting rapid, high-impact SaaS environment attacks with minimal forensic traces
