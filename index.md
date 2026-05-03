@@ -1,56 +1,57 @@
 # Exploitation Report
 
-Critical exploitation activity is currently dominated by several high-impact vulnerabilities and attack campaigns. CISA has added a Linux root access vulnerability CVE-2026-31431 to its Known Exploited Vulnerabilities catalog due to active exploitation in the wild. Simultaneously, a critical cPanel flaw CVE-2026-41940 is being mass-exploited in "Sorry" ransomware attacks, targeting web hosting infrastructure. Supply chain attacks have intensified with poisoned Ruby Gems and Go modules targeting CI pipelines for credential theft, while North Korean threat actors continue their aggressive cryptocurrency theft operations, now controlling 76% of all crypto stolen in 2026.
+Current threat landscapes show significant active exploitation across multiple critical vulnerabilities. CISA has added a Linux root access vulnerability (CVE-2026-31431) to its Known Exploited Vulnerabilities catalog, indicating active exploitation in the wild. Simultaneously, a critical cPanel flaw (CVE-2026-41940) is being mass-exploited in widespread "Sorry" ransomware campaigns targeting web hosting infrastructure. Additionally, sophisticated supply chain attacks are targeting development environments through compromised Ruby Gems, Go modules, and Python packages, while automated OAuth abuse campaigns are escalating attacks against Azure environments.
 
 ## Active Exploitation Details
 
 ### Linux Root Access Vulnerability
-- **Description**: A security flaw impacting various Linux distributions that allows unauthorized root access
-- **Impact**: Complete system compromise with administrative privileges
-- **Status**: Recently disclosed and actively exploited, added to CISA KEV catalog
+- **Description**: A recently disclosed security flaw affecting various Linux distributions that provides root access to attackers
+- **Impact**: Complete system compromise with administrative privileges across affected Linux systems
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, indicating confirmed active exploitation
 - **CVE ID**: CVE-2026-31431
 
-### Critical cPanel Vulnerability
-- **Description**: A critical flaw in cPanel web hosting control panel software
-- **Impact**: Website breaches and data encryption in ransomware attacks
-- **Status**: Mass-exploited in "Sorry" ransomware campaign
+### Critical cPanel Flaw
+- **Description**: A newly disclosed vulnerability in cPanel web hosting control panel software
+- **Impact**: Complete website compromise leading to data encryption in ransomware attacks
+- **Status**: Being mass-exploited in "Sorry" ransomware campaigns
 - **CVE ID**: CVE-2026-41940
 
-### Poisoned Software Packages
-- **Description**: Malicious Ruby Gems and Go modules deployed as sleeper packages in software repositories
-- **Impact**: Credential theft, GitHub Actions tampering, and CI pipeline compromise
-- **Status**: Active supply chain attack campaign targeting development environments
+### Supply Chain Package Compromises
+- **Description**: Coordinated attacks targeting development dependencies through malicious Ruby Gems, Go modules, and Python packages including PyTorch Lightning and Intercom-client
+- **Impact**: Credential theft, CI pipeline manipulation, and development environment compromise
+- **Status**: Ongoing campaigns targeting multiple package repositories
 
-### PyTorch Lightning Package Compromise
-- **Description**: Popular Python package Lightning compromised with two malicious versions
-- **Impact**: Credential theft through compromised package installations
-- **Status**: Active supply chain attack affecting Python development environments
+### Automated OAuth Abuse Campaign
+- **Description**: ConsentFix v3 attack methodology targeting Azure environments with automated OAuth token abuse
+- **Impact**: Unauthorized access to Azure resources and services through consent manipulation
+- **Status**: Actively circulating on hacker forums with enhanced automation capabilities
 
 ## Affected Systems and Products
 
-- **Linux Distributions**: Various distributions affected by root access vulnerability
-- **cPanel Systems**: Web hosting platforms using cPanel control panel software
-- **CI/CD Pipelines**: Development environments using Ruby Gems and Go modules
-- **Python Development**: Systems using PyTorch Lightning and Intercom-client packages
-- **SAP Development**: npm packages for SAP's cloud application development ecosystem
-- **Azure Environments**: OAuth-enabled systems targeted by ConsentFix v3 attacks
-- **Facebook Accounts**: 30,000 accounts compromised through Google AppSheet phishing
+- **Linux Distributions**: Various distributions affected by root access vulnerability requiring immediate patching
+- **cPanel Hosting Platforms**: Web hosting environments running vulnerable cPanel versions targeted in mass ransomware campaigns
+- **Development Environments**: CI/CD pipelines using Ruby Gems, Go modules, and Python packages from compromised repositories
+- **Azure Environments**: Microsoft Azure subscriptions and OAuth-enabled applications susceptible to consent abuse
+- **SAP Cloud Packages**: npm packages for SAP's cloud application development ecosystem compromised in TeamPCP attacks
+- **Facebook Accounts**: Approximately 30,000 accounts compromised through Google AppSheet phishing campaigns
 
 ## Attack Vectors and Techniques
 
-- **ConsentFix v3**: Automated OAuth abuse targeting Azure environments with enhanced scaling capabilities
-- **Phishing Relay**: Google AppSheet used as intermediate platform to distribute phishing emails
-- **Supply Chain Poisoning**: Malicious packages uploaded to legitimate software repositories
-- **Vishing and SSO Abuse**: Voice phishing combined with single sign-on exploitation for rapid SaaS extortion
-- **AI-Assisted Phishing**: Bluekit phishing service includes AI assistant for campaign generation
-- **Mini Shai-Hulud Attack**: TeamPCP targeting SAP packages in supply chain attacks
+- **Privilege Escalation**: Linux vulnerability exploitation for root access across multiple distributions
+- **Ransomware Deployment**: Mass exploitation of cPanel flaws for "Sorry" ransomware encryption attacks
+- **Supply Chain Poisoning**: Injection of malicious code into legitimate development packages and dependencies
+- **OAuth Consent Abuse**: Automated manipulation of Azure OAuth consent flows for unauthorized access
+- **Phishing-as-a-Service**: Bluekit phishing platform offering AI-assisted campaign generation with 40+ templates
+- **Vishing and SSO Abuse**: Rapid SaaS extortion attacks operating within legitimate service environments
+- **Package Repository Compromise**: Sleeper packages used as conduits for subsequent malicious payload distribution
 
 ## Threat Actor Activities
 
-- **North Korean Groups**: Conducting historic cryptocurrency heists, controlling 76% of all crypto stolen in 2026, potentially using AI assistance
-- **Vietnamese-Linked Operation**: Using Google AppSheet as phishing relay to compromise 30,000 Facebook accounts
-- **China-Aligned Espionage**: Targeting government and defense sectors across South, East, and Southeast Asia, plus one European government
-- **Sorry Ransomware Group**: Mass-exploiting cPanel vulnerability for website encryption attacks
-- **TeamPCP**: Expanding supply chain attacks to target SAP development packages
-- **BlackCat Ransomware Affiliates**: Two cybersecurity professionals sentenced for facilitating attacks
-- **Romanian Swatting Ring**: Leader sentenced for targeting 75+ public officials and journalists
+- **Vietnamese-Linked Operation**: Conducting large-scale Facebook account compromise using Google AppSheet as phishing relay infrastructure
+- **TeamPCP Group**: Expanding supply chain attacks to target SAP cloud development packages with "Mini Shai-Hulud" methodology
+- **Sorry Ransomware Operators**: Mass-exploiting cPanel vulnerabilities for widespread encryption attacks against web hosting infrastructure
+- **China-Aligned Espionage Groups**: Targeting government and defense sectors across South, East, and Southeast Asia, plus one European NATO member state
+- **North Korean Actors**: Controlling 76% of all cryptocurrency stolen in 2026, conducting historic heists with potential AI assistance
+- **BlackCat Ransomware Affiliates**: Two cybersecurity professionals sentenced to 4 years for facilitating attacks through insider knowledge
+- **ConsentFix Operators**: Distributing automated OAuth abuse techniques through underground forums for Azure environment targeting
+- **French Government Data Breach**: 15-year-old detained for selling stolen data from France Titres administrative document agency
