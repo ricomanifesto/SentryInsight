@@ -1,60 +1,63 @@
 # Exploitation Report
 
-A critical wave of exploitation activity is currently impacting organizations worldwide, with the most significant threat being the mass exploitation of a newly disclosed cPanel vulnerability tracked as CVE-2026-41940 for "Sorry" ransomware deployments. Concurrently, sophisticated attack campaigns are leveraging automated OAuth abuse techniques targeting Azure environments, while supply chain attacks are compromising popular Python packages and development ecosystems. North Korean threat actors continue their aggressive cryptocurrency theft operations, representing 76% of all crypto stolen in 2026, while Chinese-aligned groups are conducting extensive espionage campaigns across Asian governments and NATO states.
+Critical cybersecurity incidents have emerged involving mass exploitation of cPanel infrastructure through CVE-2026-41940, leading to widespread "Sorry" ransomware deployments. Concurrently, sophisticated attack campaigns are targeting cloud environments through automated OAuth abuse, supply chain compromises affecting popular software packages, and coordinated phishing operations that have successfully compromised thousands of accounts. North Korean threat actors continue to dominate cryptocurrency theft operations, while Chinese-linked espionage groups expand their targeting of government entities across multiple continents.
 
 ## Active Exploitation Details
 
 ### Critical cPanel Vulnerability
-- **Description**: A newly disclosed critical flaw in cPanel infrastructure that allows attackers to breach websites and deploy ransomware
-- **Impact**: Complete website compromise leading to data encryption and ransomware deployment
-- **Status**: Currently being mass-exploited in active "Sorry" ransomware attacks
+- **Description**: A newly disclosed critical vulnerability in cPanel hosting management software
+- **Impact**: Attackers can breach websites and deploy ransomware to encrypt data
+- **Status**: Being mass-exploited in active "Sorry" ransomware attacks
 - **CVE ID**: CVE-2026-41940
 
 ### ConsentFix v3 OAuth Abuse
-- **Description**: Automated OAuth abuse technique targeting Azure environments with enhanced scaling capabilities
-- **Impact**: Unauthorized access to Azure resources and potential privilege escalation
-- **Status**: Actively circulating on hacker forums with automation tools available
+- **Description**: Automated OAuth consent abuse attack targeting Microsoft Azure environments
+- **Impact**: Unauthorized access to cloud resources through manipulated consent flows
+- **Status**: Actively circulated on hacker forums with automation capabilities
 
-### Supply Chain Package Poisoning
-- **Description**: Malicious versions of popular development packages including PyTorch Lightning, Ruby Gems, and Go modules
-- **Impact**: Credential theft, GitHub Actions tampering, and CI/CD pipeline compromise
-- **Status**: Active compromise of multiple package repositories
+### PyTorch Lightning Supply Chain Attack
+- **Description**: Compromise of popular Python package Lightning with malicious versions
+- **Impact**: Credential theft from developers and organizations using the compromised package
+- **Status**: Active supply chain attack with malicious versions distributed
 
-### SAP Package Compromise - Mini Shai-Hulud Attack
-- **Description**: TeamPCP threat group targeting npm packages within SAP's cloud application development ecosystem
+### Ruby Gems and Go Modules Supply Chain Attack
+- **Description**: Sleeper packages used as conduits for malicious payloads in CI/CD pipelines
+- **Impact**: Credential theft, GitHub Actions tampering, and unauthorized access to development environments
+- **Status**: Active campaign targeting software development workflows
+
+### TeamPCP SAP Package Compromise
+- **Description**: Mini Shai-Hulud attack targeting npm packages in SAP's cloud application development ecosystem
 - **Impact**: Supply chain compromise affecting SAP development environments
-- **Status**: Ongoing attacks by TeamPCP expanding their supply chain targeting
+- **Status**: Active attacks broadening TeamPCP's supply chain targeting scope
 
 ## Affected Systems and Products
 
-- **cPanel Infrastructure**: Web hosting control panels vulnerable to CVE-2026-41940 exploitation
-- **Microsoft Azure**: OAuth systems targeted by automated ConsentFix v3 attacks
-- **Python Package Index (PyPI)**: PyTorch Lightning and Intercom-client packages compromised
-- **Ruby Gems Repository**: Multiple poisoned gems targeting CI/CD pipelines
-- **Go Modules**: Malicious packages exploiting development workflows
-- **SAP Cloud Development**: npm packages within SAP ecosystem compromised
-- **Facebook Accounts**: 30,000 accounts compromised via Google AppSheet phishing
-- **Trellix Systems**: Source code repositories breached with unauthorized access
-- **Canvas Learning Platform**: Instructure systems affected by cybersecurity incident
-- **Windows 11 Systems**: Backup software failures caused by KB5083769 update
+- **cPanel**: Hosting management software vulnerable to mass exploitation
+- **Microsoft Azure**: OAuth consent flows targeted by automated abuse campaigns
+- **PyTorch Lightning**: Python machine learning framework compromised in package repositories
+- **Ruby Gems**: Ruby package ecosystem targeted with malicious gems
+- **Go Modules**: Go programming language packages compromised in CI pipelines
+- **SAP npm packages**: Cloud application development packages targeted by TeamPCP
+- **Intercom-client**: Python package compromised for credential theft
+- **Facebook**: 30,000 accounts compromised through Google AppSheet phishing relay
+- **Windows 11**: Third-party backup software failures following security updates
 
 ## Attack Vectors and Techniques
 
-- **Ransomware Deployment**: Mass exploitation of cPanel vulnerability for "Sorry" ransomware distribution
-- **OAuth Abuse**: Automated techniques for compromising Azure Single Sign-On systems
-- **Supply Chain Poisoning**: Sleeper packages in development repositories delivering malicious payloads
-- **Phishing Relay**: Google AppSheet used as phishing infrastructure for Facebook account compromise
-- **Vishing and SSO Abuse**: Cybercrime groups conducting rapid SaaS environment attacks
-- **AI-Assisted Development**: Malicious use of AI tools for phishing campaign generation
-- **Repository Compromise**: Direct targeting of source code repositories
+- **Mass Ransomware Deployment**: Exploitation of cPanel vulnerability for "Sorry" ransomware distribution
+- **Automated OAuth Abuse**: ConsentFix v3 technique with scaling potential and automation features
+- **Supply Chain Poisoning**: Multiple campaigns targeting package repositories with malicious code
+- **Phishing Relay**: Google AppSheet used as intermediary platform for Facebook account compromise
+- **Vishing Combined with SSO Abuse**: Voice phishing integrated with single sign-on exploitation for SaaS extortion
+- **AI-Assisted Phishing**: Bluekit service offering 40+ templates with AI-generated campaign drafts
+- **Sleeper Package Strategy**: Dormant malicious packages activated after gaining trust in repositories
 
 ## Threat Actor Activities
 
-- **Sorry Ransomware Group**: Mass exploitation campaign targeting cPanel infrastructure for data encryption
-- **TeamPCP**: Expanding supply chain attacks to SAP development packages with Mini Shai-Hulud techniques
-- **North Korean APT Groups**: Historic cryptocurrency theft operations accounting for 76% of 2026 crypto theft
-- **Chinese-Aligned APT**: Espionage campaign targeting Asian governments, NATO states, journalists, and activists
-- **Vietnamese Phishing Operation**: Large-scale Facebook account compromise using Google AppSheet infrastructure
-- **BlackCat Ransomware Affiliates**: Continuing operations despite law enforcement actions and insider arrests
-- **Romanian Swatting Ring**: Coordinated attacks against public officials and journalists
-- **French Data Breach Actor**: 15-year-old detained for selling stolen government agency data
+- **North Korean Groups**: Dominating cryptocurrency theft operations with 76% of all crypto stolen in 2026
+- **Chinese-Linked Espionage Groups**: Targeting Asian governments, NATO states, journalists, and activists across South, East, and Southeast Asia plus European governments
+- **Vietnamese-Linked Operation**: Using Google AppSheet phishing relay to compromise 30,000 Facebook accounts
+- **TeamPCP**: Expanding supply chain attacks to include SAP package ecosystem with Mini Shai-Hulud techniques
+- **BlackCat/ALPHV Affiliates**: Former cybersecurity professionals sentenced for facilitating ransomware operations
+- **Romanian Swatting Ring**: Leader sentenced for targeting 75+ public officials, journalists, and religious institutions
+- **Cargo Theft Cybercriminals**: FBI reports sharp surge in cyber-enabled cargo theft with significant losses across US and Canada
