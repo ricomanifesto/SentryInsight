@@ -1,53 +1,60 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently under active exploitation across multiple platforms, posing significant risks to organizations worldwide. The most severe threats include a Linux root access vulnerability (CVE-2026-31431) that CISA has added to its Known Exploited Vulnerabilities catalog, and a critical cPanel flaw (CVE-2026-41940) being mass-exploited in "Sorry" ransomware attacks. Additionally, threat actors are leveraging sophisticated attack vectors including Telegram Mini Apps for malware distribution, automated OAuth abuse targeting Azure environments, poisoned software packages in CI pipelines, and large-scale phishing campaigns compromising thousands of Facebook accounts.
+Critical exploitation activity is currently targeting multiple platforms through various attack vectors. Most notably, CISA has added CVE-2026-31431, a Linux root access vulnerability, to its Known Exploited Vulnerabilities catalog due to active exploitation in the wild. Simultaneously, a critical cPanel flaw tracked as CVE-2026-41940 is being mass-exploited in "Sorry" ransomware campaigns, demonstrating the rapid weaponization of newly disclosed vulnerabilities. Additional threats include sophisticated supply chain attacks targeting CI/CD pipelines through poisoned Ruby Gems and Go modules, large-scale phishing operations leveraging Google AppSheet to compromise Facebook accounts, and automated OAuth abuse campaigns targeting Azure environments.
 
 ## Active Exploitation Details
 
 ### Linux Root Access Vulnerability
-- **Description**: A recently disclosed security flaw impacting various Linux distributions that enables attackers to gain root-level access to affected systems
-- **Impact**: Complete system compromise with administrative privileges, potentially allowing full control over affected Linux systems
-- **Status**: Actively exploited in the wild and added to CISA's Known Exploited Vulnerabilities catalog
+- **Description**: Recently disclosed security flaw affecting various Linux distributions that allows attackers to gain root-level access to compromised systems
+- **Impact**: Complete system compromise with administrative privileges, enabling full control over affected Linux machines
+- **Status**: Actively exploited in the wild; CISA has added to Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2026-31431
 
-### Critical cPanel Vulnerability
-- **Description**: A critical security flaw in cPanel that is being exploited for data encryption attacks
-- **Impact**: Website compromise leading to data encryption and ransomware deployment
-- **Status**: Mass exploitation ongoing with "Sorry" ransomware attacks
+### Critical cPanel Security Flaw
+- **Description**: Newly disclosed critical vulnerability in cPanel web hosting control panel software being exploited for ransomware deployment
+- **Impact**: Website compromise and data encryption through "Sorry" ransomware attacks
+- **Status**: Mass exploitation currently underway against vulnerable cPanel installations
 - **CVE ID**: CVE-2026-41940
 
-### Software Supply Chain Attacks
-- **Description**: Poisoned Ruby Gems and Go Modules deployed as sleeper packages in software repositories
-- **Impact**: Credential theft, GitHub Actions tampering, and compromise of CI/CD pipelines
-- **Status**: Active campaign targeting development environments
+### Supply Chain Attacks on CI/CD Pipelines
+- **Description**: Malicious packages distributed through Ruby Gems and Go module repositories targeting continuous integration environments
+- **Impact**: Credential theft, GitHub Actions tampering, and compromise of software development infrastructure
+- **Status**: Active campaign using sleeper packages to deploy subsequent malicious payloads
+
+### Google AppSheet Phishing Relay
+- **Description**: Vietnamese-linked operation using Google AppSheet as a phishing relay platform to distribute credential harvesting campaigns
+- **Impact**: Compromise of over 30,000 Facebook accounts through sophisticated phishing infrastructure
+- **Status**: Ongoing large-scale operation targeting social media credentials
 
 ## Affected Systems and Products
 
-- **Linux Distributions**: Various distributions affected by root access vulnerability
-- **cPanel Hosting Platforms**: Web hosting environments using vulnerable cPanel versions
-- **Azure Environments**: Microsoft Azure platforms targeted by automated OAuth abuse
-- **Telegram Ecosystem**: Mini Apps feature being exploited for malware distribution
-- **Facebook Accounts**: Over 30,000 accounts compromised through phishing campaigns
-- **SAP Development Packages**: npm packages in SAP's cloud application development ecosystem
-- **Development Environments**: Ruby Gems and Go Modules repositories compromised
-- **Educational Technology**: Canvas learning platform and Instructure systems
+- **Linux Distributions**: Various distributions vulnerable to root access exploitation
+- **cPanel Hosting Platforms**: Web hosting environments running vulnerable cPanel versions
+- **Ruby Development Environments**: CI/CD pipelines using Ruby Gems package manager
+- **Go Development Infrastructure**: Systems utilizing Go modules in build processes
+- **Facebook Accounts**: Social media users targeted through AppSheet-based phishing
+- **Azure Environments**: Microsoft cloud platforms targeted by automated OAuth abuse
+- **Telegram Mini Apps**: Mobile applications distributed through Telegram's Mini App feature
+- **SAP Development Packages**: npm packages for SAP's cloud application development ecosystem
 
 ## Attack Vectors and Techniques
 
-- **ConsentFix v3 Attacks**: Automated OAuth abuse techniques targeting Azure with scaling potential and minimal detection
-- **Telegram Mini App Abuse**: Exploitation of Telegram's Mini App feature for crypto scams and Android malware delivery
-- **Google AppSheet Phishing**: Vietnamese-linked operation using Google AppSheet as a phishing relay for Facebook account compromise
-- **Supply Chain Poisoning**: Deployment of malicious packages in Ruby Gems and Go Modules repositories
-- **Vishing and SSO Abuse**: Rapid SaaS extortion attacks combining voice phishing with single sign-on exploitation
-- **AI-Enhanced Phishing**: Bluekit phishing service featuring AI assistant and 40+ templates for campaign generation
+- **Privilege Escalation**: Linux root access exploitation for system compromise
+- **Web Application Exploitation**: cPanel vulnerability abuse for ransomware deployment
+- **Supply Chain Poisoning**: Malicious package distribution through legitimate repositories
+- **Phishing-as-a-Service**: Google AppSheet platform abuse for credential harvesting
+- **OAuth Manipulation**: Automated consent abuse targeting Azure Single Sign-On systems
+- **Vishing Operations**: Voice phishing combined with SSO abuse for rapid SaaS environment compromise
+- **Mobile Malware Distribution**: Telegram Mini Apps used for Android malware deployment
+- **Package Repository Compromise**: TeamPCP's "Mini Shai-Hulud" attacks targeting SAP ecosystems
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Data breach activities targeting educational technology company Instructure
+- **ShinyHunters**: Claimed responsibility for Instructure data breach affecting educational technology platform
+- **Vietnamese Threat Actors**: Operating large-scale Facebook account compromise campaign through Google AppSheet
 - **Sorry Ransomware Group**: Mass exploitation of cPanel vulnerabilities for data encryption attacks
-- **Vietnamese Cybercriminals**: Large-scale Facebook phishing operation compromising 30,000 accounts via Google AppSheet
-- **North Korean APT Groups**: Responsible for 76% of all cryptocurrency theft in 2026, conducting historic heists with potential AI assistance
-- **China-Aligned Espionage Groups**: Targeting Asian governments, NATO states, journalists, and activists across multiple regions
-- **TeamPCP**: Supply chain attacks targeting SAP packages with "Mini Shai-Hulud" attack methodology
-- **BlackCat Ransomware Affiliates**: Ongoing ransomware operations with insider assistance from cybersecurity professionals
-- **Cybercrime Groups**: Rapid SaaS extortion attacks using vishing and SSO abuse techniques
+- **TeamPCP**: Supply chain attacks targeting SAP development packages with compromised npm modules
+- **China-Linked Espionage Groups**: Targeting Asian governments, NATO states, journalists, and activists
+- **North Korean Actors**: Responsible for 76% of all cryptocurrency stolen in 2026 through historic heist operations
+- **ConsentFix v3 Operators**: Automated OAuth abuse campaigns circulating on underground hacker forums
+- **BlackCat Ransomware Affiliates**: Former cybersecurity professionals sentenced for facilitating ransomware attacks
