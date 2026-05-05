@@ -1,59 +1,56 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical vulnerabilities under active exploitation, with attackers targeting enterprise systems, government networks, and popular platforms. The most concerning activity involves the exploitation of a critical Weaver E-cology vulnerability (CVE-2026-22679) that has been actively exploited since March 2026, alongside a critical cPanel authentication bypass flaw being weaponized against government and MSP networks. Additional threats include supply chain attacks by North Korean groups, sophisticated phishing campaigns leveraging legitimate services, and the emergence of new malware variants targeting mobile and desktop platforms.
+Critical exploitation activity is currently targeting multiple enterprise systems with several high-impact vulnerabilities under active attack. The most severe concerns include a critical remote code execution flaw in MetInfo CMS (CVE-2026-29014), a critical authentication bypass vulnerability in Weaver E-cology (CVE-2026-22679) that has been exploited since March, and a critical authentication bypass flaw affecting Progress MOVEit Automation systems. Additional threats include sophisticated supply chain attacks by North Korean APT groups, widespread phishing campaigns leveraging legitimate cloud services, and multiple data breaches affecting major platforms including Vimeo and Trellix.
 
 ## Active Exploitation Details
 
-### Weaver E-cology RCE Vulnerability
-- **Description**: Critical remote code execution vulnerability in Weaver (Fanwei) E-cology enterprise office automation platform exploiting a debug API endpoint
-- **Impact**: Attackers can execute arbitrary commands and gain full system control, with exploitation being used to run discovery commands on compromised systems
-- **Status**: Under active exploitation since mid-March 2026
+### MetInfo CMS Remote Code Execution
+- **Description**: Critical security flaw in the open-source MetInfo content management system enabling remote code execution attacks
+- **Impact**: Complete system compromise allowing attackers to execute arbitrary code on affected servers
+- **Status**: Under active exploitation in the wild according to VulnCheck findings
+- **CVE ID**: CVE-2026-29014
+
+### Weaver E-cology Debug API Vulnerability
+- **Description**: Critical remote code execution vulnerability in the Weaver (Fanwei) E-cology enterprise office automation platform exploitable via debug API
+- **Impact**: Allows attackers to execute discovery commands and potentially gain full system access
+- **Status**: Actively exploited since mid-March 2025
 - **CVE ID**: CVE-2026-22679
 
-### Critical cPanel Authentication Bypass
-- **Description**: Authentication bypass vulnerability in cPanel control panel software that allows unauthorized access without proper credentials
-- **Impact**: Complete system compromise and control over web hosting environments, affecting millions of users
-- **Status**: Multiple proof-of-concept exploits available with claims of zero-day activity for at least one month
-- **CVE ID**: Not provided
+### Progress MOVEit Automation Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability in Progress MOVEit Automation enterprise-grade managed file transfer application
+- **Impact**: Complete authentication bypass allowing unauthorized access to file transfer systems
+- **Status**: Recently patched by Progress Software, exploitation status unclear
 
-### Copy Fail Linux Privilege Escalation
-- **Description**: Privilege escalation vulnerability affecting Linux systems that allows local attackers to gain root access
-- **Impact**: Complete system compromise and root-level access to affected Linux systems
-- **Status**: Now being actively exploited in the wild according to CISA warning
-- **CVE ID**: Not provided
-
-### MOVEit Automation Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in Progress MOVEit Automation managed file transfer application
-- **Impact**: Unauthorized access to sensitive file transfer systems and potential data exfiltration
-- **Status**: Recently patched by Progress Software
+### Microsoft Edge Password Storage Vulnerability
+- **Description**: Security issue where Microsoft Edge stores passwords in process memory, exposing them to extraction
+- **Impact**: Administrative users can exploit this to steal stored passwords for further malicious activity
+- **Status**: Proof-of-concept exploit available, poses enterprise risk
 
 ## Affected Systems and Products
 
-- **Weaver E-cology Platform**: Enterprise office automation and collaboration systems
-- **cPanel Control Panels**: Web hosting management systems affecting millions of users
-- **Linux Systems**: Various distributions vulnerable to Copy Fail privilege escalation
-- **MOVEit Automation**: Enterprise managed file transfer applications
-- **Android and Windows Systems**: Targeted by ScarCruft BirdCall malware campaign
-- **Microsoft Phone Link**: Abused by CloudZ malware for SMS and OTP theft
-- **PyTorch Lightning Package**: Backdoored version on Python Package Index
-- **Government Networks**: Southeast Asian government and military entities
-- **Managed Service Providers**: Hosting providers and MSP networks
+- **MetInfo CMS**: Open-source content management system vulnerable to remote code execution
+- **Weaver E-cology**: Enterprise office automation and collaboration platform with debug API vulnerability
+- **Progress MOVEit Automation**: Enterprise managed file transfer application with authentication bypass flaw
+- **Microsoft Edge**: Password storage vulnerability affecting enterprise deployments
+- **Vimeo Platform**: Video platform compromised by ShinyHunters gang affecting 119,000 users
+- **Trellix Systems**: Cybersecurity firm's source code repository compromised in data breach
+- **Gaming Platforms**: Video game platforms compromised for supply chain attacks
+- **PyTorch Lightning**: Malicious package on Python Package Index delivering credential stealers
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Compromise of video game platforms to distribute BirdCall malware across Android and Windows systems
+- **Supply Chain Attacks**: North Korean ScarCruft group compromising gaming platforms to deploy BirdCall malware on Android and Windows systems
 - **Phishing Campaigns**: Large-scale credential theft targeting 35,000 users across 26 countries using code of conduct themes
-- **RMM Tool Abuse**: Legitimate remote monitoring tools (SimpleHelp and ScreenConnect) used for persistent access in campaigns affecting 80+ organizations
-- **Email Service Abuse**: Amazon SES and legitimate email services exploited to bypass security filters in phishing attacks
-- **Package Repository Compromise**: Malicious PyTorch Lightning packages on PyPI delivering credential stealers
-- **Debug API Exploitation**: Direct exploitation of debug endpoints in enterprise applications
-- **Authentication Bypass**: Direct circumvention of authentication mechanisms in critical enterprise software
+- **RMM Tool Abuse**: Attackers leveraging SimpleHelp and ScreenConnect remote monitoring tools to evade detection across 80+ organizations
+- **Cloud Service Abuse**: Amazon SES increasingly used for phishing to bypass security filters and reputation-based blocks
+- **OAuth Token Exploitation**: Persistent OAuth tokens from AI tools and productivity apps creating backdoor access
+- **Package Repository Compromise**: Backdoored PyTorch Lightning packages delivering credential-stealing payloads
 
 ## Threat Actor Activities
 
-- **ScarCruft (APT37)**: North Korean state-sponsored group conducting supply chain attacks through compromised gaming platforms to deploy BirdCall malware on Android and Windows systems
-- **Silver Fox**: China-based cybercrime group deploying ABCDoor malware via tax-themed phishing campaigns targeting organizations in Russia and India with over 1,600 socially engineered messages
-- **Karakurt Ransomware Group**: Russian extortion gang with recent arrest of cold case negotiator sentenced to 8.5 years in prison
-- **ShinyHunters**: Extortion gang claiming responsibility for Instructure data breach
-- **Unknown Southeast Asian Threat Actor**: Targeting government, military entities, and MSPs using weaponized cPanel vulnerability
-- **Multi-vector Phishing Operators**: Coordinated campaigns using legitimate RMM tools affecting 80+ organizations since April 2025
+- **ScarCruft (APT37)**: North Korean state-sponsored group conducting supply chain espionage through compromised gaming platforms, deploying BirdCall backdoor on Android and Windows
+- **UAT-8302**: China-linked APT group targeting government entities in South America and southern regions using shared malware infrastructure
+- **ShinyHunters**: Extortion gang responsible for Vimeo data breach exposing 119,000 users' personal information
+- **Silver Fox**: China-backed APT group conducting tax-themed attacks against organizations in India and Russia, targeting over 1,600 victims with ABCDoor backdoor and ValleyRAT
+- **Karakurt Group**: Russian ransomware operation with members receiving prison sentences for extortion activities
+- **CloudZ Operators**: Deploying new malware variants that abuse Microsoft Phone Link to steal SMS and OTP codes
