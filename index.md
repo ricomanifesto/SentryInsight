@@ -1,62 +1,62 @@
 # Exploitation Report
 
-The current threat landscape reveals intense exploitation activity targeting critical infrastructure and enterprise systems. The most significant threats include active exploitation of a critical cPanel authentication bypass vulnerability (CVE-2026-41940) being mass-exploited in "Sorry" ransomware attacks, and the Linux "Copy Fail" vulnerability (CVE-2026-31431) that CISA has added to its Known Exploited Vulnerabilities catalog after confirming active exploitation for privilege escalation. Additional concerning activity includes ongoing exploitation of a Weaver E-cology office automation vulnerability (CVE-2026-22679) since March, sophisticated phishing campaigns leveraging legitimate RMM tools, and supply chain attacks through backdoored Python packages.
+Current cybersecurity landscape shows intense exploitation activity across multiple fronts, with several critical vulnerabilities being actively exploited in the wild. The most concerning developments include mass exploitation of a critical cPanel authentication bypass flaw being used in ransomware campaigns, active exploitation of the Linux "Copy Fail" vulnerability for root access escalation, and ongoing attacks against Weaver E-cology office automation systems. Additionally, sophisticated phishing campaigns are leveraging legitimate services like Amazon SES, Google AppSheet, and RMM tools to evade detection, while threat actors continue to exploit trusted platforms for credential theft and malware distribution.
 
 ## Active Exploitation Details
 
-### cPanel Authentication Bypass Vulnerability
-- **Description**: Critical authentication bypass flaw in cPanel web hosting control panel software allowing unauthorized access
-- **Impact**: Complete system compromise, mass exploitation for "Sorry" ransomware deployment, targeting of millions of websites
-- **Status**: Actively exploited in widespread attacks with proof-of-concept exploits publicly available
-- **CVE ID**: CVE-2026-41940
-
-### Linux Copy Fail Privilege Escalation
-- **Description**: Security vulnerability in Linux systems allowing privilege escalation to root access
-- **Impact**: Complete system compromise, root-level access on affected Linux distributions
-- **Status**: Actively exploited in the wild according to CISA, added to Known Exploited Vulnerabilities catalog
-- **CVE ID**: CVE-2026-31431
-
-### Weaver E-cology Office Automation Vulnerability
-- **Description**: Critical vulnerability in Weaver E-cology office automation platform
-- **Impact**: Unauthorized access and execution of discovery commands on corporate systems
+### Weaver E-cology Critical Vulnerability
+- **Description**: Critical vulnerability in Weaver E-cology office automation system allowing attackers to execute discovery commands
+- **Impact**: Enables unauthorized access and reconnaissance within enterprise environments
 - **Status**: Actively exploited since mid-March 2026
 - **CVE ID**: CVE-2026-22679
 
+### cPanel Authentication Bypass Flaw
+- **Description**: Critical authentication bypass vulnerability in cPanel web hosting control panel
+- **Impact**: Complete system compromise allowing attackers to deploy ransomware and encrypt data
+- **Status**: Mass-exploited in "Sorry" ransomware attacks, with proof-of-concept exploits publicly available
+- **CVE ID**: CVE-2026-41940
+
+### Linux Copy Fail Vulnerability
+- **Description**: Security flaw affecting various Linux distributions enabling privilege escalation
+- **Impact**: Allows attackers to gain root access to compromised Linux systems
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, actively exploited in the wild
+- **CVE ID**: CVE-2026-31431
+
 ### MOVEit Automation Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in Progress MOVEit Automation enterprise file transfer application
-- **Impact**: Unauthorized access to managed file transfer systems and sensitive data
-- **Status**: Recently patched by Progress Software, potential for active exploitation
+- **Description**: Critical authentication bypass vulnerability in Progress Software's MOVEit Automation managed file transfer application
+- **Impact**: Potential unauthorized access to file transfer systems and sensitive data
+- **Status**: Recently patched by Progress Software, customers warned to apply updates immediately
 
 ## Affected Systems and Products
 
-- **cPanel Web Hosting Control Panels**: Millions of websites using cPanel infrastructure globally
-- **Linux Distributions**: Various Linux systems vulnerable to Copy Fail privilege escalation
-- **Weaver E-cology**: Office automation platforms in corporate environments
-- **Progress MOVEit Automation**: Enterprise managed file transfer applications
-- **PyTorch Lightning Package**: Python developers using compromised package from PyPI
-- **Facebook Accounts**: Over 30,000 accounts compromised via Google AppSheet phishing
-- **Government and Military Networks**: Southeast Asian entities targeted via cPanel exploitation
-- **Managed Service Providers**: MSP networks targeted in multiple campaigns
-- **Amazon SES**: Email service increasingly abused for phishing campaigns
+- **Weaver E-cology**: Office automation systems vulnerable to command execution attacks
+- **cPanel**: Web hosting control panels across government, MSP, and hosting provider networks
+- **Linux Distributions**: Various distributions affected by Copy Fail privilege escalation vulnerability
+- **MOVEit Automation**: Enterprise managed file transfer applications
+- **PyTorch Lightning Package**: Backdoored version distributed via Python Package Index (PyPI)
+- **Facebook Accounts**: Over 30,000 accounts compromised via Google AppSheet phishing relay
+- **SimpleHelp and ScreenConnect**: RMM tools abused in legitimate software-based attacks
+- **Amazon SES**: Increasingly exploited for phishing email distribution
+- **Telegram Mini Apps**: Platform abused for crypto scams and Android malware delivery
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass Exploitation**: Direct exploitation of cPanel and MOVEit authentication flaws for unauthorized access
-- **Privilege Escalation**: Linux Copy Fail vulnerability exploited for root access elevation
-- **RMM Tool Abuse**: Legitimate SimpleHelp and ScreenConnect tools used for persistent remote access in phishing campaigns
-- **Supply Chain Attacks**: Backdoored PyTorch Lightning package delivering credential-stealing malware
-- **Phishing Relay Techniques**: Google AppSheet used as intermediary to bypass detection in Facebook account compromise
-- **Email Service Abuse**: Amazon SES leveraged to send convincing phishing emails that evade standard filters
-- **Tax-Themed Social Engineering**: Malicious campaigns using tax season themes to deliver ABCDoor backdoor and ValleyRAT
-- **OAuth Abuse**: ConsentFix v3 attacks targeting Azure environments with automated OAuth exploitation
+- **Authentication Bypass Exploitation**: Direct exploitation of cPanel and MOVEit authentication flaws
+- **Privilege Escalation**: Linux Copy Fail vulnerability used for root access
+- **Supply Chain Attacks**: Backdoored PyTorch Lightning package delivering credential stealers
+- **RMM Tool Abuse**: Legitimate remote management software used for persistent access
+- **Phishing Relay Attacks**: Google AppSheet used as intermediary for Facebook account theft
+- **Email Service Abuse**: Amazon SES leveraged to bypass security filters
+- **Social Engineering**: Tax-themed phishing campaigns targeting organizations in India and Russia
+- **OAuth Abuse**: ConsentFix v3 attacks using automated Azure OAuth exploitation
+- **Platform Exploitation**: Telegram Mini Apps abused for crypto fraud and malware distribution
 
 ## Threat Actor Activities
 
-- **Unknown Threat Actor**: Targeting government and military entities in Southeast Asia using cPanel vulnerability exploitation
-- **Sorry Ransomware Group**: Mass exploitation of cPanel flaw for ransomware deployment across multiple websites
-- **Silver Fox (China-based APT)**: Deploying ABCDoor malware via tax-themed phishing campaigns targeting organizations in Russia and India
-- **Vietnamese-linked Operation**: Compromising over 30,000 Facebook accounts using Google AppSheet as phishing relay
-- **ShinyHunters Extortion Gang**: Claiming responsibility for Instructure data breach affecting educational technology platform
-- **Multi-vector Phishing Operators**: Targeting 80+ organizations using legitimate RMM tools for persistent access since April 2025
-- **Supply Chain Attackers**: Publishing malicious PyTorch Lightning packages targeting developers and cloud services
-- **ConsentFix v3 Operators**: Automated OAuth abuse campaigns targeting Azure environments with scaling capabilities
+- **Silver Fox (China-backed APT)**: Conducting tax-themed phishing campaigns targeting organizations in India and Russia, deploying ABCDoor backdoor, ValleyRAT, and other malware through over 1,600 socially engineered messages
+- **Sorry Ransomware Operators**: Mass-exploiting cPanel vulnerability to encrypt victim data and deploy ransomware payloads
+- **Vietnamese-linked Operation**: Using Google AppSheet phishing relay to compromise over 30,000 Facebook accounts
+- **ShinyHunters Extortion Gang**: Claiming responsibility for Instructure educational technology company data breach
+- **Unknown Government Targeting Group**: Exploiting cPanel vulnerability to specifically target government, military, and MSP networks in Southeast Asia
+- **RMM-based Campaign Operators**: Targeting over 80 organizations using legitimate SimpleHelp and ScreenConnect tools for persistent access
+- **PyPI Package Attackers**: Distributing backdoored Python packages targeting browser credentials, environment files, and cloud services
