@@ -1,60 +1,64 @@
 # Exploitation Report
 
-Critical exploitation activity is surging across multiple attack vectors, with threat actors leveraging both newly disclosed vulnerabilities and sophisticated evasion techniques. Active exploitation includes a critical authentication bypass flaw in cPanel being mass-exploited for ransomware attacks, a Linux privilege escalation vulnerability enabling root access, and various zero-day activities targeting government and enterprise systems. Attackers are increasingly abusing legitimate services like Remote Monitoring and Management tools, cloud email services, and package repositories to evade detection while conducting large-scale phishing campaigns and credential theft operations.
+Critical vulnerabilities are currently under active exploitation across multiple platforms, with particularly concerning activity targeting enterprise infrastructure and gaming platforms. The most severe exploitation involves CVE-2026-22679, a critical remote code execution vulnerability in Weaver E-cology that has been actively exploited since March through debug API abuse. Additionally, threat actors are weaponizing CVE-2026-31431, a Linux privilege escalation flaw dubbed "Copy Fail," and CVE-2026-41940, a critical cPanel authentication bypass vulnerability that is being mass-exploited in ransomware campaigns. State-sponsored groups including North Korean ScarCruft and Chinese Silver Fox are conducting sophisticated supply chain attacks, while cybercriminals are leveraging legitimate services like Amazon SES and RMM tools to evade detection in widespread phishing campaigns.
 
 ## Active Exploitation Details
 
-### Weaver E-cology Critical Vulnerability
-- **Description**: Critical vulnerability in Weaver E-cology office automation system allowing attackers to execute discovery commands
-- **Impact**: Enables reconnaissance and potential system compromise through command execution
-- **Status**: Actively exploited in attacks since mid-March 2026
+### Weaver E-cology RCE Vulnerability
+- **Description**: Critical remote code execution vulnerability in Weaver E-cology enterprise office automation platform exploitable through debug API
+- **Impact**: Allows attackers to execute arbitrary commands and gain unauthorized access to enterprise systems
+- **Status**: Under active exploitation since mid-March 2026, with discovery commands being executed against vulnerable systems
 - **CVE ID**: CVE-2026-22679
 
-### cPanel Authentication Bypass Flaw
-- **Description**: Critical authentication bypass vulnerability affecting cPanel control panel software with multiple proof-of-concept exploits available
-- **Impact**: Complete system compromise, website defacement, and ransomware deployment
-- **Status**: Mass-exploited in "Sorry" ransomware attacks with claims of zero-day activity for at least one month
-- **CVE ID**: CVE-2026-41940
-
 ### Linux Copy Fail Privilege Escalation
-- **Description**: "Copy Fail" vulnerability affecting various Linux distributions enabling privilege escalation to root access
-- **Impact**: Local privilege escalation allowing attackers to gain full system control
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog after active exploitation confirmed
+- **Description**: Security vulnerability affecting various Linux distributions that enables privilege escalation to root access
+- **Impact**: Allows attackers to gain complete administrative control over compromised Linux systems
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2026-31431
 
+### cPanel Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability affecting cPanel web hosting control panel software
+- **Impact**: Enables complete compromise of hosting infrastructure and deployment of ransomware
+- **Status**: Mass exploitation ongoing with "Sorry" ransomware attacks targeting compromised systems
+- **CVE ID**: CVE-2026-41940
+
 ### MOVEit Automation Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in Progress MOVEit Automation enterprise file transfer application
-- **Impact**: Unauthorized access to file transfer systems and potential data exfiltration
-- **Status**: Recently patched by Progress Software with critical severity rating
+- **Description**: Critical authentication bypass vulnerability in Progress MOVEit Automation managed file transfer application
+- **Impact**: Could allow unauthorized access to sensitive file transfer systems and data
+- **Status**: Recently patched by Progress Software, potential for active exploitation given historical MOVEit targeting
 
 ## Affected Systems and Products
 
-- **Weaver E-cology**: Office automation systems compromised since March 2026
-- **cPanel Control Panels**: Web hosting control panels targeted by government and MSP-focused threat actors
-- **Linux Distributions**: Various distributions affected by Copy Fail vulnerability enabling root access
-- **MOVEit Automation**: Enterprise managed file transfer applications with authentication bypass risks
-- **PyTorch Lightning**: Malicious package on Python Package Index delivering credential stealers
-- **Remote Monitoring Tools**: SimpleHelp and ScreenConnect RMM tools abused in phishing campaigns
-- **Amazon SES**: Email service increasingly exploited for phishing bypassing security filters
-- **Facebook Accounts**: 30,000 accounts compromised through Google AppSheet phishing relay
-- **Telegram Mini Apps**: Platform abused for cryptocurrency scams and Android malware distribution
+- **Weaver E-cology**: Enterprise office automation and collaboration platforms widely used in corporate environments
+- **Linux Distributions**: Various Linux distributions affected by Copy Fail vulnerability, particularly targeting systems with vulnerable kernel components
+- **cPanel Hosting Infrastructure**: Web hosting providers and managed service providers using cPanel control panels
+- **Gaming Platforms**: Video game platforms compromised in ScarCruft supply chain attacks
+- **PyTorch Lightning**: Python Package Index packages containing backdoored versions targeting developer environments
+- **MOVEit Automation**: Enterprise managed file transfer systems used by organizations for secure file sharing
+- **Amazon SES**: Simple Email Service being abused for phishing campaigns to bypass security filters
+- **RMM Tools**: SimpleHelp and ScreenConnect remote monitoring and management platforms used in legitimate operations
+- **Telegram Mini Apps**: Platform feature abused for cryptocurrency scams and Android malware distribution
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Exploitation of critical authentication flaws in enterprise applications
-- **Privilege Escalation**: Linux kernel vulnerabilities exploited for root access within 24 hours of disclosure
-- **Supply Chain Attacks**: Malicious packages distributed through legitimate software repositories
-- **RMM Tool Abuse**: Legitimate remote management software used to establish persistent access across 80+ organizations
-- **Phishing Relay**: Google AppSheet exploited as intermediary platform to evade email security filters
-- **Cloud Service Abuse**: Amazon SES leveraged to send convincing phishing emails bypassing reputation filters
-- **OAuth Manipulation**: ConsentFix v3 attacks using automated OAuth abuse to compromise Azure environments
-- **Ransomware Deployment**: Mass exploitation of cPanel vulnerability for "Sorry" ransomware attacks
+- **Supply Chain Compromise**: ScarCruft trojanizing gaming platform components to deliver BirdCall malware across Android and Windows systems
+- **Debug API Exploitation**: Weaver E-cology vulnerabilities exploited through exposed debug interfaces allowing remote command execution
+- **Privilege Escalation**: Linux Copy Fail vulnerability used to escalate from user to root privileges on compromised systems
+- **Authentication Bypass**: cPanel and MOVEit vulnerabilities allowing complete bypass of authentication mechanisms
+- **Phishing with Legitimate Services**: Amazon SES abuse to send convincing phishing emails that bypass reputation-based security filters
+- **RMM Tool Abuse**: Legitimate remote monitoring tools used to establish persistent remote access after initial compromise
+- **Package Repository Poisoning**: Backdoored PyTorch Lightning packages delivering credential stealers through trusted repositories
+- **OAuth Abuse Automation**: ConsentFix v3 attacks targeting Azure environments with automated OAuth consent abuse techniques
+- **Ransomware Deployment**: Mass exploitation of cPanel vulnerabilities followed by "Sorry" ransomware encryption
+- **Tax-Themed Social Engineering**: Silver Fox using seasonal tax themes to deliver ABCDoor backdoor and ValleyRAT malware
 
 ## Threat Actor Activities
 
-- **Silver Fox APT**: China-based group deploying ABCDoor malware via tax-themed phishing targeting organizations in India and Russia with over 1,600 socially engineered messages
-- **Unknown cPanel Attackers**: Threat actors targeting government, military entities in Southeast Asia, and managed service providers using critical cPanel vulnerabilities
-- **Vietnamese Phishing Group**: Operation using Google AppSheet as phishing relay to compromise 30,000 Facebook accounts
-- **Sorry Ransomware Operators**: Group mass-exploiting cPanel authentication bypass for website encryption and ransom demands
-- **ShinyHunters**: Extortion gang claiming responsibility for Instructure educational platform data breach
-- **North Korean Groups**: Responsible for 76% of all cryptocurrency stolen in 2026, leveraging AI-enhanced techniques for historic heists
+- **ScarCruft (North Korean APT)**: Conducting supply chain attacks against gaming platforms to deploy cross-platform BirdCall malware targeting both Android and Windows users
+- **Silver Fox (Chinese APT)**: Targeting organizations in Russia and India with tax-themed phishing campaigns delivering previously undocumented ABCDoor backdoor and ValleyRAT malware
+- **Sorry Ransomware Operators**: Mass-exploiting critical cPanel authentication bypass vulnerability to deploy ransomware across hosting infrastructure
+- **Unknown Southeast Asian Threat Actor**: Targeting government, military entities, and managed service providers using weaponized cPanel vulnerabilities
+- **ShinyHunters Extortion Gang**: Claiming responsibility for Instructure data breach affecting educational technology systems
+- **Multiple Cybercriminal Groups**: Conducting large-scale phishing campaigns targeting over 35,000 users across 26 countries using code of conduct-themed lures and legitimate email services
+- **RMM-Based Attack Campaign**: Targeting over 80 organizations since April 2025 using legitimate SimpleHelp and ScreenConnect tools for persistent access
+- **Cryptocurrency Fraud Networks**: Operating large-scale scam operations through Telegram Mini Apps, with recent international crackdowns arresting 276 suspects and seizing $701 million
