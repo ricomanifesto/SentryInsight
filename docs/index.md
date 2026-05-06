@@ -1,52 +1,58 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently experiencing significant exploitation activity across multiple attack vectors, with threat actors leveraging supply chain compromises, critical infrastructure vulnerabilities, and sophisticated malware campaigns. Notable incidents include active exploitation of vulnerabilities in MetInfo CMS and Weaver E-cology platforms, supply chain attacks targeting DAEMON Tools and gaming platforms, and advanced persistent threat activities by China-linked and North Korean groups. These attacks demonstrate an escalating threat environment with particular focus on enterprise systems, educational institutions, and critical infrastructure.
+The cybersecurity landscape faces significant active exploitation threats, with critical zero-day vulnerabilities being exploited in Palo Alto Networks firewall systems and enterprise platforms. CVE-2026-0300 represents a particularly severe threat as attackers exploit a buffer overflow vulnerability in PAN-OS software for remote code execution. Simultaneously, threat actors are leveraging CVE-2026-22679 in Weaver E-cology systems and CVE-2026-29014 in MetInfo CMS platforms to achieve remote code execution capabilities. Supply chain attacks have emerged as a prominent attack vector, with DAEMON Tools installers being compromised and ScarCruft APT group deploying BirdCall malware through gaming platforms. These incidents highlight the growing sophistication of attack campaigns targeting both network infrastructure and software distribution channels.
 
 ## Active Exploitation Details
 
-### MetInfo CMS Remote Code Execution Vulnerability
-- **Description**: A critical security flaw in the MetInfo open-source content management system that allows remote code execution
-- **Impact**: Attackers can execute arbitrary code remotely on affected systems
-- **Status**: Currently under active exploitation by threat actors
-- **CVE ID**: CVE-2026-29014
+### Palo Alto Networks PAN-OS Buffer Overflow
+- **Description**: A critical buffer overflow vulnerability in the PAN-OS User-ID Authentication Portal allowing unauthenticated remote code execution
+- **Impact**: Complete system compromise, unauthorized access to firewall configurations, and potential network infiltration
+- **Status**: Actively exploited in the wild, patch available
+- **CVE ID**: CVE-2026-0300
 
-### Weaver E-cology Debug API Remote Code Execution
-- **Description**: A critical vulnerability in Weaver E-cology enterprise office automation platform accessible through its debug API
-- **Impact**: Remote code execution allowing attackers to run discovery commands and potentially gain full system control
-- **Status**: Actively exploited in the wild since mid-March 2025
+### Weaver E-cology Remote Code Execution
+- **Description**: Critical security vulnerability in Weaver E-cology enterprise office automation platform exploitable via Debug API
+- **Impact**: Remote code execution capabilities allowing attackers to run discovery commands and gain system control
+- **Status**: Actively exploited since mid-March 2026
 - **CVE ID**: CVE-2026-22679
 
-### Apache HTTP/2 Server Vulnerability
-- **Description**: A severe vulnerability in Apache HTTP Server that could lead to denial of service and potential remote code execution
-- **Impact**: Service disruption and possible remote code execution capabilities
+### MetInfo CMS Remote Code Execution
+- **Description**: Critical security flaw in the open-source MetInfo content management system enabling remote code execution
+- **Impact**: Complete website compromise and potential server takeover
+- **Status**: Under active exploitation by threat actors
+- **CVE ID**: CVE-2026-29014
+
+### Apache HTTP/2 Denial of Service and Potential RCE
+- **Description**: Severe vulnerability in Apache HTTP Server that could potentially lead to denial of service and remote code execution
+- **Impact**: Service disruption and potential system compromise
 - **Status**: Security updates released by Apache Software Foundation
 - **CVE ID**: CVE-2026-23918
 
 ## Affected Systems and Products
 
-- **MetInfo CMS**: Open-source content management system vulnerable to remote code execution attacks
-- **Weaver E-cology**: Enterprise office automation and collaboration platform experiencing active exploitation
-- **Apache HTTP Server**: Web server software with critical HTTP/2 implementation flaws
-- **DAEMON Tools**: Software installers compromised in supply chain attack since April 8, 2025
-- **Microsoft Edge**: Browser storing passwords in process memory, creating enterprise security risks
-- **Instructure Platform**: Education technology systems affecting 8,800 schools and universities
-- **Vimeo Platform**: Online video platform breached affecting 119,000 users
-- **Gaming Platforms**: Video game platforms compromised by North Korean threat actors
+- **Palo Alto Networks PAN-OS**: Firewall systems with User-ID Authentication Portal component
+- **Weaver E-cology**: Enterprise office automation and collaboration platform installations
+- **MetInfo CMS**: Open-source content management system deployments
+- **Apache HTTP Server**: Web server installations with HTTP/2 support
+- **DAEMON Tools**: Official software installers compromised in supply chain attack
+- **Gaming Platforms**: Video game platforms targeted by ScarCruft for malware distribution
+- **Microsoft Phone Link**: Windows application exploited by CloudZ RAT for credential theft
+- **Android Systems**: Mobile devices targeted through compromised gaming platforms
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Trojanized installers for legitimate software including DAEMON Tools and gaming platform components
-- **Phishing Campaigns**: Large-scale credential theft targeting 35,000 users across 26 countries using code of conduct themes
-- **RMM Tool Abuse**: Malicious use of SimpleHelp and ScreenConnect remote monitoring tools to evade detection
-- **OAuth Token Persistence**: Exploitation of persistent OAuth tokens with no expiration dates in AI tools and productivity applications
-- **Microsoft Phone Link Hijacking**: CloudZ malware leveraging Phone Link connections to steal SMS messages and OTPs
-- **Amazon SES Abuse**: Using Amazon Simple Email Service to bypass security filters in phishing campaigns
-- **TETRA Communication System**: Direct interference with railway communication systems causing emergency brake activation
+- **Zero-Day Exploitation**: Attackers leveraging unpatched vulnerabilities in critical network infrastructure
+- **Supply Chain Compromise**: Trojanized software installers distributing backdoors through legitimate download channels
+- **Debug API Abuse**: Exploitation of debug interfaces in enterprise applications for unauthorized access
+- **Phone Link Hijacking**: Malware intercepting SMS and OTP codes through Microsoft Phone Link connections
+- **Social Engineering**: Large-scale phishing campaigns using code of conduct themes across 26 countries
+- **Infrastructure Targeting**: Attacks against critical infrastructure including railway communication systems
 
 ## Threat Actor Activities
 
-- **China-linked UAT-8302**: Advanced persistent threat group targeting government entities in South America and southern regions using shared APT malware
-- **ScarCruft/APT37**: North Korean state-sponsored group conducting supply chain attacks on gaming platforms to deploy BirdCall malware on Android and Windows systems
-- **ShinyHunters**: Extortion gang responsible for Vimeo data breach exposing personal information of 119,000 individuals
-- **Karakurt Ransomware Group**: Russian cybercriminal organization with sentenced negotiator highlighting ongoing law enforcement efforts
-- **Unknown APT Groups**: Multiple sophisticated actors conducting coordinated attacks on UAE critical infrastructure with tripled breach attempts during regional conflicts
+- **ScarCruft (APT37)**: North Korean state-sponsored group conducting supply chain attacks through gaming platforms, deploying BirdCall malware on Android and Windows systems
+- **UAT-8302**: China-linked APT group targeting government entities across South America and southern regions using shared malware infrastructure
+- **CloudZ Operators**: Cybercriminals deploying enhanced RAT capabilities with new Pheno plugin for credential theft
+- **ShinyHunters**: Extortion gang responsible for Vimeo data breach affecting 119,000 individuals
+- **Karakurt Group**: Russian ransomware operation with sentenced negotiator highlighting law enforcement efforts
+- **Unknown Threat Actors**: Multiple groups exploiting Palo Alto Networks, Weaver E-cology, and MetInfo vulnerabilities for various malicious purposes
