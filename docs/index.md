@@ -1,64 +1,51 @@
 # Exploitation Report
 
-Current cybersecurity landscapes reveal multiple critical vulnerabilities under active exploitation, with threat actors targeting enterprise software platforms, content management systems, and conducting sophisticated supply chain attacks. The most severe exploitation activity involves remote code execution vulnerabilities in widely-deployed enterprise systems including MetInfo CMS (CVE-2026-29014) and Weaver E-cology (CVE-2026-22679), alongside a critical Apache HTTP/2 server vulnerability (CVE-2026-23918). Supply chain compromises have affected popular software distribution channels, including trojanized DAEMON Tools installers and compromised gaming platforms used by state-sponsored groups for malware delivery.
+The cybersecurity landscape is witnessing a significant surge in exploitation activity targeting critical vulnerabilities across enterprise systems and platforms. Most notably, threat actors are actively exploiting critical remote code execution flaws in Weaver E-cology (CVE-2026-22679) and MetInfo CMS (CVE-2026-29014), while Apache HTTP Server faces a severe vulnerability (CVE-2026-23918) enabling denial-of-service and potential remote code execution. Supply chain attacks have emerged as a major threat vector, with compromised installers for DAEMON Tools and trojanized PyTorch Lightning packages delivering malware to thousands of systems. State-sponsored groups including China-linked UAT-8302 and North Korean ScarCruft are conducting sophisticated campaigns against government entities and gaming platforms, while large-scale data breaches at Instructure, Vimeo, and Trellix highlight the persistent threat to organizational data security.
 
 ## Active Exploitation Details
 
-### MetInfo CMS Remote Code Execution
-- **Description**: Critical security flaw in the open-source MetInfo content management system allowing remote code execution
-- **Impact**: Attackers can execute arbitrary code on vulnerable systems, potentially leading to complete system compromise
-- **Status**: Actively exploited in the wild by threat actors
-- **CVE ID**: CVE-2026-29014
-
-### Weaver E-cology RCE Vulnerability
-- **Description**: Critical remote code execution vulnerability in Weaver (Fanwei) E-cology enterprise office automation platform exploitable via Debug API
-- **Impact**: Complete compromise of enterprise collaboration systems, enabling unauthorized access to sensitive corporate data
-- **Status**: Under active exploitation since mid-March, with attackers running discovery commands
+### Weaver E-cology Remote Code Execution Vulnerability
+- **Description**: A critical security flaw in Weaver (Fanwei) E-cology enterprise office automation platform that allows remote code execution through exploitation of a debug API
+- **Impact**: Attackers can execute arbitrary code remotely and run discovery commands on targeted systems
+- **Status**: Actively exploited in the wild since mid-March 2026
 - **CVE ID**: CVE-2026-22679
 
-### Apache HTTP/2 Server Vulnerability
-- **Description**: Severe vulnerability in Apache HTTP Server that could lead to denial of service and potential remote code execution
-- **Impact**: Service disruption and possible complete server compromise
-- **Status**: Critical patches released by Apache Software Foundation
+### MetInfo CMS Remote Code Execution Flaw
+- **Description**: A critical vulnerability in the open-source MetInfo content management system enabling remote code execution attacks
+- **Impact**: Allows threat actors to execute arbitrary code remotely on affected systems
+- **Status**: Currently under active exploitation by threat actors
+- **CVE ID**: CVE-2026-29014
+
+### Apache HTTP/2 Critical Vulnerability
+- **Description**: A severe security flaw in Apache HTTP Server affecting HTTP/2 functionality that could lead to denial-of-service attacks and potential remote code execution
+- **Impact**: Enables attackers to cause service disruption and potentially achieve remote code execution
+- **Status**: Security updates released by Apache Software Foundation
 - **CVE ID**: CVE-2026-23918
-
-### DAEMON Tools Supply Chain Attack
-- **Description**: Trojanized installers of DAEMON Tools software delivering backdoors through official distribution channels
-- **Impact**: Backdoor deployment on thousands of systems downloading from the official website
-- **Status**: Active since April 8, compromising legitimate software distribution
-
-### Taiwan High-Speed Rail TETRA System Breach
-- **Description**: Interference with TETRA communication system used by Taiwan's high-speed railway network
-- **Impact**: Triggering of emergency brakes on high-speed trains, posing significant safety risks
-- **Status**: Perpetrator arrested, highlighting critical infrastructure vulnerabilities
 
 ## Affected Systems and Products
 
-- **MetInfo CMS**: Open-source content management system with critical RCE vulnerability
-- **Weaver E-cology**: Enterprise office automation and collaboration platform
-- **Apache HTTP Server**: Web server software with HTTP/2 implementation flaws
-- **DAEMON Tools**: Popular disk imaging software with compromised installers
-- **Taiwan High-Speed Rail (THSR)**: TETRA communication systems
-- **Gaming Platforms**: Video game platforms compromised for malware distribution
-- **Microsoft Phone Link**: Abused by CloudZ malware for SMS and OTP theft
-- **PyTorch Lightning**: Machine learning framework with backdoored packages on PyPI
+- **Weaver E-cology Platform**: Enterprise office automation and collaboration systems vulnerable to RCE attacks via debug API
+- **MetInfo CMS**: Open-source content management system installations facing active exploitation
+- **Apache HTTP Server**: Web servers running vulnerable HTTP/2 implementations
+- **DAEMON Tools Software**: Official installers compromised since April 8, 2026, affecting thousands of systems
+- **PyTorch Lightning**: Machine learning package on PyPI repository backdoored with credential stealing malware
+- **Taiwan High-Speed Railway TETRA System**: Communication infrastructure compromised to trigger emergency brakes
+- **Microsoft Edge Browser**: Password storage vulnerability in process memory exposing enterprise credentials
+- **Gaming Platforms**: Video game platforms compromised by state-sponsored actors for malware distribution
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Trojanization of legitimate software installers and packages
-- **Remote Code Execution**: Exploitation of critical vulnerabilities in web applications and enterprise software
-- **Phishing Campaigns**: Large-scale credential theft targeting 35,000+ users across 26 countries using code of conduct-themed lures
-- **RMM Tool Abuse**: Legitimate remote monitoring tools (SimpleHelp and ScreenConnect) used for persistent access
-- **Communication System Interference**: Direct attacks on critical infrastructure communication protocols
-- **Package Repository Poisoning**: Malicious packages uploaded to Python Package Index for credential theft
-- **Gaming Platform Compromise**: State-sponsored groups using compromised gaming platforms for malware delivery
+- **Supply Chain Compromise**: Trojanization of legitimate software installers including DAEMON Tools and PyPI packages to deliver backdoors and credential stealers
+- **Remote Code Execution Exploits**: Direct exploitation of web application vulnerabilities in enterprise systems like Weaver E-cology and MetInfo CMS
+- **Phishing Campaigns**: Large-scale credential theft operations using legitimate email services and code of conduct-themed lures targeting 35,000+ users across 26 countries
+- **RMM Tool Abuse**: Attackers leveraging SimpleHelp and ScreenConnect remote monitoring tools to establish persistent access across 80+ organizations
+- **Infrastructure Targeting**: Direct attacks on critical infrastructure systems including railway communication networks
+- **OAuth Token Persistence**: Exploitation of persistent OAuth tokens with no expiration dates left by AI tools and productivity applications
 
 ## Threat Actor Activities
 
-- **ScarCruft (APT37)**: North Korean state-sponsored group compromising gaming platforms to deploy BirdCall malware on Android and Windows systems
-- **UAT-8302**: China-linked APT group targeting government entities in South America since late 2024 using shared APT malware
-- **ShinyHunters**: Extortion gang responsible for Vimeo data breach affecting 119,000+ individuals
-- **Karakurt Group**: Russian ransomware operators with sentenced negotiator highlighting ongoing enforcement actions
-- **CloudZ Operators**: Threat actors deploying enhanced RAT with Microsoft Phone Link hijacking capabilities
-- **Phishing Syndicates**: Organized campaigns using Amazon SES and legitimate email services to evade detection
-- **Supply Chain Attackers**: Multiple groups targeting software distribution channels including DAEMON Tools and PyTorch packages
+- **China-linked UAT-8302**: Advanced persistent threat group targeting government entities in South America since late 2024 using shared APT malware across multiple regions
+- **North Korean ScarCruft (APT37)**: State-sponsored group compromising gaming platforms to deploy BirdCall malware on Android and Windows systems through supply chain attacks
+- **ShinyHunters Extortion Gang**: Conducted data breach at Vimeo stealing personal information of over 119,000 users in April 2026
+- **Karakurt Ransomware Group**: Russian extortion gang with sentenced negotiator highlighting ongoing law enforcement actions against ransomware operations
+- **Unknown Threat Actors**: Multiple groups conducting large-scale phishing campaigns, supply chain attacks, and infrastructure compromises across various sectors
