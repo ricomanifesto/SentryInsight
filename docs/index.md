@@ -1,59 +1,56 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are actively being exploited across multiple platforms, with the most severe incidents affecting Ivanti Endpoint Manager Mobile (EPMM) and Palo Alto Networks PAN-OS firewalls. State-sponsored threat actors have successfully exploited these vulnerabilities for extended periods, enabling remote code execution and unauthorized system access. Additional exploitation activity includes sandbox escape vulnerabilities in Node.js libraries, supply chain attacks targeting legitimate software distributions, and sophisticated phishing campaigns leveraging social engineering through Microsoft Teams and Google Ads.
+Current threat landscape shows critical active exploitation across multiple high-value targets, including enterprise infrastructure and cloud systems. Notable zero-day exploitation includes Ivanti EPMM systems with CVE-2026-6973 and Palo Alto Networks PAN-OS firewalls being exploited by suspected state-sponsored actors for nearly a month. The PCPJack credential theft framework is leveraging multiple vulnerabilities to spread worm-like across cloud infrastructure, while new malware campaigns target AI tools and enterprise platforms. Critical sandbox escape vulnerabilities in the vm2 Node.js library pose significant risks to systems relying on JavaScript sandboxing for security isolation.
 
 ## Active Exploitation Details
 
 ### Ivanti EPMM Remote Code Execution Vulnerability
-- **Description**: High-severity remote code execution vulnerability in Ivanti Endpoint Manager Mobile (EPMM)
-- **Impact**: Enables attackers to execute arbitrary code remotely on vulnerable systems
-- **Status**: Currently being exploited in active zero-day attacks; patch available
+- **Description**: High-severity remote code execution flaw in Ivanti Endpoint Manager Mobile (EPMM) allowing attackers to gain admin-level access
+- **Impact**: Attackers can achieve administrative privileges and execute arbitrary code on affected systems
+- **Status**: Currently being exploited in limited attacks in the wild, patches available
+- **CVE ID**: CVE-2026-6973
 
 ### Palo Alto Networks PAN-OS Firewall Zero-Day
-- **Description**: Critical-severity vulnerability in PAN-OS firewall systems allowing remote code execution
-- **Impact**: Provides attackers with root access and enables espionage activities
-- **Status**: Actively exploited by suspected state-sponsored hackers since April 9, 2026, for nearly a month
+- **Description**: Critical remote code execution vulnerability in PAN-OS firewalls enabling root access and espionage capabilities
+- **Impact**: Complete system compromise with root-level access, allowing for data theft and network surveillance
+- **Status**: Actively exploited by suspected state-sponsored actors since April 9, 2026
 
-### vm2 Node.js Sandbox Escape Vulnerabilities
-- **Description**: Dozen critical security vulnerabilities in the vm2 Node.js sandboxing library
-- **Impact**: Allows attackers to break out of sandbox environments and execute arbitrary code on host systems
-- **Status**: Critical vulnerabilities disclosed; patches available
+### PCPJack Credential Theft Framework
+- **Description**: Malware framework targeting exposed cloud infrastructure while removing competing malware (TeamPCP)
+- **Impact**: Credential theft from cloud systems and lateral movement across infrastructure
+- **Status**: Actively spreading worm-like across cloud environments exploiting five different CVEs
 
-### Windows Phone Link Text Message Theft
-- **Description**: Exploitation of Windows Phone Link functionality to intercept text messages
-- **Impact**: Enables bypassing two-factor authentication and stealing sensitive communications
-- **Status**: Active attacks using CloudZ RAT and Pheno plugin to hijack PC-smartphone bridge
+### vm2 Node.js Library Sandbox Escape
+- **Description**: Critical vulnerabilities in the vm2 Node.js sandboxing library allowing escape from security containers
+- **Impact**: Arbitrary code execution on host systems, complete sandbox bypass
+- **Status**: Multiple critical vulnerabilities disclosed, patches required for affected systems
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Zero-day remote code execution vulnerability
-- **Palo Alto Networks PAN-OS Firewalls**: Critical RCE vulnerability enabling root access
-- **vm2 Node.js Library**: Sandbox escape vulnerabilities affecting Node.js applications
-- **DAEMON Tools Lite**: Supply chain attack with trojanized software distribution
-- **Windows Phone Link**: Abuse of legitimate functionality for 2FA bypass
-- **Google Chrome**: VoidStealer Trojan bypassing App-Bound Encryption (ABE) protection
-- **Android Debug Bridge (ADB)**: IoT devices targeted by Mirai-based xlabs_v1 botnet
-- **Cisco Crosswork Network Controller**: Denial-of-service vulnerability requiring manual reboot
-- **Instructure Canvas LMS**: Breach by ShinyHunters affecting educational institutions
+- **Ivanti EPMM**: Enterprise mobile device management systems with admin-level compromise potential
+- **Palo Alto Networks PAN-OS**: Firewall appliances with critical RCE vulnerability
+- **Cloud Infrastructure**: Various cloud platforms targeted by PCPJack framework
+- **Node.js Applications**: Systems using vm2 library for JavaScript sandboxing
+- **Android Debug Bridge (ADB)**: IoT devices exposed with ADB services targeted by xlabs_v1 botnet
+- **DAEMON Tools Lite**: Software supply chain compromise confirmed by developers
+- **PyPI Repository**: Python packages delivering ZiChatBot malware
+- **Claude AI Platform**: Fake websites distributing Beagle backdoor malware
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise software
-- **Supply Chain Attacks**: Trojanization of legitimate software like DAEMON Tools Lite
-- **Social Engineering via Microsoft Teams**: MuddyWater using Teams for credential theft in false flag ransomware operations
-- **Google Ads Phishing**: Malicious sponsored search results targeting ManageWP credentials
-- **Fake AI Websites**: Fraudulent Claude AI sites distributing Beagle backdoor malware
-- **PyPI Package Poisoning**: Malicious Python packages delivering ZiChatBot malware via Zulip APIs
-- **ADB Exploitation**: Botnet recruitment through exposed Android Debug Bridge interfaces
-- **Browser Encryption Bypass**: VoidStealer circumventing Chrome's App-Bound Encryption
-- **Sandbox Escape**: Exploitation of vm2 library flaws to break containment
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise systems
+- **Supply Chain Attacks**: Trojanized software packages and legitimate applications
+- **Social Engineering**: ClickFix techniques and Microsoft Teams-based credential theft
+- **Worm Propagation**: Self-spreading malware across cloud infrastructure
+- **Malicious Package Distribution**: Compromised PyPI packages and fake AI tool websites
+- **Phishing Campaigns**: Google Ads abuse for credential harvesting and fake software distribution
+- **False Flag Operations**: MuddyWater using Chaos ransomware as cover for espionage activities
 
 ## Threat Actor Activities
 
-- **State-Sponsored Groups**: Suspected government-backed hackers exploiting PAN-OS firewalls for espionage activities
-- **MuddyWater (Iranian APT)**: Using Microsoft Teams for social engineering and deploying Chaos ransomware as false flag operations
-- **ShinyHunters**: Attacking Instructure Canvas LMS affecting educational institutions
-- **North Korean IT Workers**: Operating through laptop farms to fraudulently obtain remote employment at American companies
-- **Cryptocurrency Theft Gangs**: Home invasion and money laundering operations targeting crypto assets worth over $250 million
-- **Mirai Botnet Operators**: Deploying xlabs_v1 variant to hijack IoT devices for DDoS attacks
-- **VoidStealer Developers**: Creating Chrome encryption bypass techniques for credential theft
+- **State-Sponsored Groups**: Suspected nation-state actors exploiting PAN-OS zero-day for espionage
+- **MuddyWater (Iranian APT)**: Using Microsoft Teams and false flag ransomware attacks for credential theft and persistence
+- **PCPJack Operators**: Credential harvesting and competitive malware removal in cloud environments
+- **ShinyHunters**: Breach of Instructure (Canvas LMS) affecting educational institutions
+- **North Korean IT Workers**: Operating laptop farms for fraudulent remote employment
+- **Cryptocurrency Criminals**: Multi-million dollar heists using home invasion and money laundering tactics
