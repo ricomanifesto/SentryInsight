@@ -1,56 +1,62 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms, with state-sponsored attackers and sophisticated threat actors leading widespread campaigns. The most significant threats include the Ivanti EPMM vulnerability CVE-2026-6973 being exploited in limited attacks, a Palo Alto Networks PAN-OS firewall zero-day that has been actively exploited for nearly a month, and the PCPJack malware framework exploiting 5 CVEs to spread worm-like across cloud environments. Additional concerns include the xlabs_v1 botnet targeting IoT devices, critical vm2 sandbox vulnerabilities enabling code execution, and supply chain attacks affecting DAEMON Tools.
+Current threat landscape reveals widespread exploitation targeting cloud infrastructure, education systems, and enterprise applications. The most critical active exploitation involves a zero-day vulnerability in Palo Alto Networks PAN-OS firewalls that has been exploited by suspected state-sponsored hackers for nearly a month, granting root access and enabling espionage operations. Simultaneously, the Ivanti Endpoint Manager Mobile platform is under active zero-day exploitation providing admin-level access to enterprise environments. Additional concerning activity includes the PCPJack credential stealer leveraging multiple vulnerabilities to spread worm-like across cloud systems, while the ShinyHunters extortion gang continues targeting educational institutions through Canvas portal compromises.
 
 ## Active Exploitation Details
 
-### Ivanti EPMM Remote Code Execution Vulnerability
-- **Description**: A high-severity remote code execution vulnerability in Ivanti Endpoint Manager Mobile (EPMM) that grants admin-level access to compromised systems
-- **Impact**: Attackers can gain administrative privileges and execute arbitrary code on affected EPMM installations
-- **Status**: Under active exploitation in limited attacks in the wild; patches available
+### Palo Alto Networks PAN-OS Firewall Zero-Day
+- **Description**: Critical remote code execution vulnerability in PAN-OS firewall systems enabling complete system compromise
+- **Impact**: Attackers gain root access to firewall systems and can conduct espionage operations, potentially compromising entire network perimeters
+- **Status**: Active exploitation detected since April 9, 2026 by suspected state-sponsored actors; patch status not specified in articles
+
+### Ivanti EPMM Remote Code Execution
+- **Description**: High-severity vulnerability in Endpoint Manager Mobile allowing remote code execution
+- **Impact**: Attackers can achieve admin-level access to enterprise mobile device management systems
+- **Status**: Under active exploitation in limited zero-day attacks
 - **CVE ID**: CVE-2026-6973
 
-### Palo Alto Networks PAN-OS Firewall Zero-Day
-- **Description**: A critical-severity remote code execution vulnerability in PAN-OS firewalls that enables root access and espionage capabilities
-- **Impact**: Complete system compromise with root-level access, enabling persistent access and data exfiltration
-- **Status**: Actively exploited by suspected state-sponsored hackers for nearly a month before disclosure
+### Canvas Learning Management System
+- **Description**: Vulnerability in Instructure's Canvas platform enabling portal defacement and potential data access
+- **Impact**: Unauthorized access to educational institution portals affecting hundreds of colleges and universities
+- **Status**: Actively exploited by ShinyHunters extortion gang for mass defacement campaigns
 
-### PCPJack Multi-CVE Exploitation Framework
-- **Description**: A sophisticated credential theft framework that exploits five different CVEs to spread worm-like across cloud infrastructure while removing TeamPCP malware artifacts
-- **Impact**: Credential harvesting from exposed cloud infrastructure, lateral movement across cloud environments, and displacement of competing malware
-- **Status**: Active in the wild, targeting exposed cloud services and infrastructure
+### vm2 Node.js Sandbox Vulnerabilities
+- **Description**: Critical vulnerabilities in the popular vm2 Node.js sandboxing library enabling sandbox escape
+- **Impact**: Allows attackers to break out of secure sandboxes and execute arbitrary code on host systems
+- **Status**: Multiple critical vulnerabilities disclosed with potential for widespread exploitation
 
-### vm2 Node.js Sandbox Escape Vulnerabilities
-- **Description**: A dozen critical security vulnerabilities in the vm2 Node.js sandboxing library enabling sandbox breakout
-- **Impact**: Arbitrary code execution on host systems, complete bypass of sandbox protections
-- **Status**: Critical vulnerabilities disclosed, patches required for affected implementations
+### PCPJack Cloud Infrastructure Targeting
+- **Description**: Credential theft framework exploiting multiple vulnerabilities to target exposed cloud infrastructure
+- **Impact**: Steals cloud credentials and spreads worm-like across multiple cloud environments while removing competing malware
+- **Status**: Active worm-like propagation across cloud systems exploiting five separate vulnerabilities
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: All versions prior to patched releases affected by CVE-2026-6973
-- **Palo Alto Networks PAN-OS**: Firewall systems running vulnerable PAN-OS versions
-- **Cloud Infrastructure**: Multiple cloud environments targeted by PCPJack framework exploiting various CVEs
-- **Node.js Applications**: Systems using vm2 library for sandboxing vulnerable to escape attacks
-- **IoT Devices**: Android-based devices with exposed Android Debug Bridge (ADB) targeted by xlabs_v1 botnet
-- **DAEMON Tools Software**: Supply chain compromise affecting distributed versions
-- **PyPI Package Ecosystem**: Malicious packages delivering ZiChatBot malware to Windows and Linux systems
+- **Palo Alto Networks PAN-OS Firewalls**: Critical infrastructure devices providing network perimeter security
+- **Ivanti Endpoint Manager Mobile**: Enterprise mobile device management platforms
+- **Instructure Canvas**: Learning management systems used by hundreds of educational institutions
+- **vm2 Node.js Library**: JavaScript sandbox environments in Node.js applications
+- **Cloud Infrastructure**: AWS, Azure, and other cloud platforms with exposed services
+- **Android Debug Bridge (ADB)**: IoT devices and Android systems with exposed ADB interfaces
+- **Cisco Crosswork Network Controller**: Network management and orchestration systems
+- **DAEMON Tools**: Disc imaging software affected by supply chain compromise
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise software
-- **Worm-Like Propagation**: PCPJack uses automated spreading techniques across cloud environments
-- **Supply Chain Attacks**: Trojanization of legitimate software like DAEMON Tools
-- **Social Engineering**: ClickFix campaigns pushing Vidar Stealer and Microsoft Teams-based attacks by MuddyWater
-- **Malicious Package Distribution**: PyPI repository abuse for delivering ZiChatBot malware
-- **ADB Exploitation**: xlabs_v1 botnet targeting exposed Android Debug Bridge services
-- **Phishing Campaigns**: Google Ads abuse for ManageWP credential theft
-- **Fake Software Distribution**: Counterfeit Claude AI websites delivering Beagle malware
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise systems for persistent access
+- **Supply Chain Attacks**: Compromise of legitimate software distribution channels to deliver malware
+- **Social Engineering (ClickFix)**: Fake error messages prompting users to execute malicious commands
+- **Malicious Package Distribution**: Trojanized packages distributed through PyPI and fake software websites
+- **Google Ads Abuse**: Malicious advertisements in search results directing to phishing sites
+- **Worm Propagation**: Self-spreading malware using multiple vulnerabilities to expand across networks
+- **Portal Defacement**: Mass compromise of web portals for extortion and reputation damage
 
 ## Threat Actor Activities
 
-- **State-Sponsored Groups**: Suspected government-backed hackers exploiting PAN-OS zero-day for espionage operations
-- **MuddyWater (Iranian APT)**: Using Chaos ransomware as decoy while conducting espionage operations via Microsoft Teams social engineering
-- **PCPJack Operators**: Sophisticated threat actors deploying multi-CVE exploitation framework across cloud environments
-- **ShinyHunters**: Conducted breach against Instructure, affecting Canvas learning management system users
-- **xlabs_v1 Botnet Operators**: Deploying Mirai-derived botnet targeting IoT devices for DDoS attacks
-- **Cryptocurrency Theft Gangs**: Multi-million dollar heists targeting cryptocurrency holdings through home invasion and technical exploitation
+- **ShinyHunters**: Conducting mass extortion campaigns targeting educational institutions through Canvas portal compromises and defacement operations
+- **State-Sponsored Actors**: Suspected nation-state groups exploiting PAN-OS firewall zero-day for espionage operations since April 2026
+- **PCPJack Operators**: Deploying sophisticated credential stealing framework targeting cloud infrastructure while actively competing with TeamPCP malware
+- **ClickFix Campaign Actors**: Australian-targeted campaign using social engineering to distribute Vidar Stealer malware
+- **TCLBanker Group**: Operating banking trojan targeting 59 financial platforms using trojanized software installers
+- **xlabs_v1 Botnet**: Mirai-based operation targeting Android Debug Bridge interfaces for DDoS attacks
+- **North Korean IT Workers**: Fraudulent employment schemes using laptop farms to infiltrate American companies
