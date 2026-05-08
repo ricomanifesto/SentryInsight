@@ -1,61 +1,54 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently being exploited across multiple platforms, with particularly severe impacts on Linux systems, Palo Alto Networks firewalls, Ivanti Endpoint Manager Mobile, and educational institutions. The most significant threats include the newly disclosed "Dirty Frag" Linux zero-day vulnerability that grants root privileges across all major distributions, an Ivanti EPMM remote code execution flaw (CVE-2026-6973) under active exploitation, and a Palo Alto Networks PAN-OS firewall vulnerability that has been exploited by suspected state-sponsored actors for nearly a month. Additionally, the ShinyHunters extortion group has successfully breached Instructure's Canvas platform, disrupting educational services nationwide, while new malware frameworks like PCPJack are actively exploiting five different vulnerabilities to spread across cloud environments.
+Critical zero-day vulnerabilities are currently being exploited in widespread attacks targeting enterprise infrastructure and cloud environments. The most severe activity involves active exploitation of Ivanti Endpoint Manager Mobile (EPMM) vulnerabilities, PAN-OS firewall systems, and Linux kernel privilege escalation flaws. Threat actors are leveraging these vulnerabilities to gain administrative access, steal credentials, and establish persistent footholds in corporate networks. Additionally, sophisticated malware campaigns including new Linux RATs, banking trojans, and credential-stealing frameworks are actively targeting developers and cloud infrastructure with worm-like propagation capabilities.
 
 ## Active Exploitation Details
 
-### Dirty Frag Linux Zero-Day
-- **Description**: A critical privilege escalation vulnerability in the Linux kernel that allows local attackers to gain root privileges with a single command
-- **Impact**: Complete system compromise with root-level access across all major Linux distributions
-- **Status**: Currently unpatched zero-day vulnerability with proof-of-concept exploit available
-
-### Ivanti Endpoint Manager Mobile RCE
-- **Description**: High-severity remote code execution vulnerability in Ivanti's Endpoint Manager Mobile platform
-- **Impact**: Grants administrator-level access to attackers, enabling full system compromise
-- **Status**: Under active exploitation in limited attacks in the wild
+### Ivanti EPMM Remote Code Execution
+- **Description**: High-severity remote code execution vulnerability in Ivanti Endpoint Manager Mobile (EPMM) being exploited in limited zero-day attacks
+- **Impact**: Attackers can gain administrative-level access to mobile device management systems
+- **Status**: Actively exploited in the wild, CISA mandated federal agencies patch within four days
 - **CVE ID**: CVE-2026-6973
 
-### Palo Alto Networks PAN-OS Firewall Zero-Day
-- **Description**: Critical-severity remote code execution vulnerability in PAN-OS firewall systems
-- **Impact**: Enables root access and facilitates espionage activities by threat actors
-- **Status**: Exploited by suspected state-sponsored hackers since April 9, 2026
+### Linux Kernel Dirty Frag Privilege Escalation
+- **Description**: Unpatched local privilege escalation vulnerability affecting all major Linux distributions, described as successor to Copy Fail
+- **Impact**: Local attackers can gain root privileges with a single command across most Linux distributions
+- **Status**: Zero-day vulnerability with proof-of-concept exploit available, currently unpatched
 
-### PCPJack Framework Vulnerabilities
-- **Description**: Multiple vulnerabilities exploited by the PCPJack credential stealer framework targeting cloud infrastructure
-- **Impact**: Credential theft from exposed cloud systems and worm-like spreading capabilities
-- **Status**: Actively exploited to steal cloud secrets and credentials
+### PAN-OS Firewall Remote Code Execution
+- **Description**: Critical-severity zero-day vulnerability in Palo Alto Networks PAN-OS firewalls exploited by suspected state-sponsored actors
+- **Impact**: Root access and espionage capabilities on enterprise firewall systems
+- **Status**: Actively exploited since April 9, 2026 for nearly a month before discovery
 
-### vm2 Node.js Library Vulnerabilities
-- **Description**: Dozen critical security vulnerabilities in the vm2 Node.js library enabling sandbox escape
-- **Impact**: Arbitrary code execution on vulnerable systems through sandbox breakout
-- **Status**: Critical vulnerabilities disclosed with potential for exploitation
+### Canvas Education Platform Vulnerability
+- **Description**: Vulnerability in Instructure Canvas education platform exploited by ShinyHunters extortion gang
+- **Impact**: Mass defacement of login portals affecting hundreds of colleges and universities nationwide
+- **Status**: Ongoing data extortion campaign causing widespread disruption to educational institutions
 
 ## Affected Systems and Products
 
-- **Linux Systems**: All major Linux distributions affected by Dirty Frag zero-day
-- **Ivanti EPMM**: Endpoint Manager Mobile platforms experiencing active exploitation
-- **Palo Alto Networks Firewalls**: PAN-OS firewall systems vulnerable to RCE attacks
-- **Canvas Learning Management System**: Educational platform owned by Instructure, affecting hundreds of schools and universities
-- **Cloud Infrastructure**: AWS, Azure, and other cloud platforms targeted by PCPJack framework
-- **Node.js Applications**: Systems using vm2 library for sandboxing vulnerable to escape attacks
-- **Google Chrome**: Browser encryption protection bypassed by VoidStealer malware
-- **PyPI Repository**: Python packages delivering ZiChatBot malware to Windows and Linux systems
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management systems in federal and enterprise environments
+- **Linux Distributions**: All major Linux distributions including Ubuntu, Red Hat, SUSE, and Debian affected by Dirty Frag vulnerability
+- **Palo Alto Networks PAN-OS**: Enterprise firewall systems providing network security
+- **Instructure Canvas**: Widely-used education technology platform serving schools and universities
+- **Cloud Infrastructure**: AWS, Azure, and other cloud platforms targeted by PCPJack credential theft framework
+- **Banking and Fintech Platforms**: 59 banking, fintech, and cryptocurrency platforms targeted by TCLBanker malware
 
 ## Attack Vectors and Techniques
 
-- **Local Privilege Escalation**: Dirty Frag exploits kernel vulnerabilities for root access
-- **Remote Code Execution**: Ivanti EPMM and PAN-OS vulnerabilities enable remote system compromise
-- **Social Engineering**: ClickFix campaigns distributing Vidar Stealer malware
-- **Supply Chain Attacks**: Malicious PyPI packages delivering ZiChatBot malware
-- **Phishing Campaigns**: Google Ads abuse for ManageWP credential harvesting
-- **Trojanized Installers**: TCLBanker malware using fake Logitech AI Prompt Builder installers
-- **Browser-based Attacks**: VoidStealer bypassing Chrome's App-Bound Encryption
-- **Worm-like Propagation**: PCPJack framework spreading across cloud environments
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Ivanti EPMM, PAN-OS, and Linux kernel
+- **Social Engineering (ClickFix)**: Australian organizations warned of ongoing campaigns using ClickFix technique to distribute Vidar Stealer
+- **Supply Chain Compromise**: Quasar Linux RAT targeting developer systems to establish foothold for broader supply chain attacks
+- **Credential Theft**: PCPJack framework exploiting five CVEs to spread worm-like across cloud systems while stealing credentials
+- **Trojanized Software**: TCLBanker malware using fake Logitech AI Prompt Builder MSI installer for initial infection
+- **PAM Module Abuse**: PamDOORa backdoor leveraging PAM modules to steal SSH credentials on Linux systems
+- **WhatsApp and Email Propagation**: TCLBanker malware self-spreading through WhatsApp and Outlook messaging platforms
 
 ## Threat Actor Activities
 
-- **ShinyHunters Extortion Gang**: Successfully breached Instructure Canvas platform, conducting mass extortion campaign affecting educational institutions nationwide
-- **State-Sponsored Actors**: Suspected of exploiting Palo Alto Networks PAN-OS firewall zero-day for espionage activities since April 9, 2026
-- **PCPJack Operators**: Deploying new malware framework to steal credentials from cloud infrastructure while cleaning TeamPCP infections
-- **North Korean IT Workers**: Continuing fraudulent employment schemes through laptop farms operated by U.S. nationals
-- **Cryptocurrency Criminals**: Multi-million dollar heists targeting digital assets with sophisticated money laundering operations
+- **State-Sponsored Actors**: Suspected nation-state groups exploiting PAN-OS firewall vulnerabilities for espionage and persistence
+- **ShinyHunters**: Extortion gang conducting mass Canvas platform breaches affecting educational institutions nationwide
+- **darkworm**: Threat actor advertising PamDOORa Linux backdoor on Rehub Russian cybercrime forum for $1,600
+- **PCPJack Operators**: Cybercriminals deploying credential theft framework while actively removing TeamPCP malware from infected systems
+- **North Korean IT Workers**: Using laptop farms operated by American nationals to fraudulently obtain remote employment at 70+ U.S. companies
+- **Cryptocurrency Gang**: Criminal organization responsible for $230+ million cryptocurrency heist involving home invasion and money laundering
