@@ -1,60 +1,61 @@
 # Exploitation Report
 
-The current threat landscape is dominated by critical zero-day vulnerabilities and sophisticated malware campaigns targeting diverse sectors. Most notably, a high-severity Ivanti EPMM vulnerability (CVE-2026-6973) is under active exploitation, providing attackers with admin-level access. The Linux ecosystem faces a significant threat from the unpatched "Dirty Frag" zero-day vulnerability that enables root privilege escalation across all major distributions. Additionally, multiple credential theft frameworks including PCPJack, TCLBanker, and PamDOORa are actively compromising cloud infrastructure and financial platforms. Educational institutions are experiencing widespread disruption through ShinyHunters' continued exploitation of Canvas platforms, while new Linux RATs and banking trojans demonstrate increasingly sophisticated techniques for supply chain compromise and financial fraud.
+The current threat landscape reveals a concerning mix of zero-day vulnerabilities under active exploitation and sophisticated malware campaigns targeting critical infrastructure. Most notably, threat actors are actively exploiting vulnerabilities in Ivanti Endpoint Manager Mobile (EPMM) systems and leveraging the "Dirty Frag" Linux kernel zero-day to gain root privileges across major distributions. The ShinyHunters extortion group continues their aggressive campaign against educational platforms, while new malware families like TCLBANKER and PCPJack are employing novel spreading techniques and targeting cloud infrastructure. Additionally, a critical PAN-OS vulnerability is being exploited for espionage operations, demonstrating the continued focus on network infrastructure by advanced persistent threat actors.
 
 ## Active Exploitation Details
 
-### Ivanti EPMM Remote Code Execution
-- **Description**: High-severity vulnerability in Ivanti Endpoint Manager Mobile (EPMM) allowing remote code execution
-- **Impact**: Attackers gain administrative-level access to mobile device management systems
-- **Status**: Actively exploited in zero-day attacks, patch available
+### Ivanti EPMM Remote Code Execution Vulnerability
+- **Description**: High-severity remote code execution vulnerability in Ivanti Endpoint Manager Mobile (EPMM) that grants admin-level access to attackers
+- **Impact**: Allows attackers to execute arbitrary code remotely and gain administrative privileges on affected systems
+- **Status**: Actively exploited in zero-day attacks, CISA has mandated federal agencies patch within four days
 - **CVE ID**: CVE-2026-6973
 
-### Linux Dirty Frag Zero-Day
-- **Description**: Unpatched local privilege escalation vulnerability affecting the Linux kernel, described as successor to Copy Fail vulnerability
-- **Impact**: Local attackers can gain root privileges on major Linux distributions with a single command
-- **Status**: Currently unpatched zero-day with proof-of-concept exploit available
+### Linux Kernel "Dirty Frag" Local Privilege Escalation
+- **Description**: Unpatched zero-day vulnerability in the Linux kernel allowing local privilege escalation with a single command
+- **Impact**: Enables local attackers to gain root privileges on most major Linux distributions
+- **Status**: Currently unpatched zero-day with public proof-of-concept exploit available
 
-### Canvas Platform Vulnerabilities
-- **Description**: Multiple vulnerabilities in Instructure's Canvas education platform exploited by ShinyHunters
-- **Impact**: Mass defacement of login portals, data extortion affecting hundreds of colleges and universities nationwide
-- **Status**: Under active exploitation in ongoing campaigns
+### PAN-OS Remote Code Execution Vulnerability
+- **Description**: Critical security flaw in Palo Alto Networks PAN-OS that enables root access and facilitates espionage operations
+- **Impact**: Threat actors can gain root access to firewall systems and conduct espionage activities
+- **Status**: Under active exploitation since at least April 9, 2026, with unsuccessful exploitation attempts detected
 
-### PCPJack Cloud Infrastructure Exploitation
-- **Description**: Credential theft framework targeting exposed cloud infrastructure while removing TeamPCP infections
-- **Impact**: Steals cloud credentials and secrets across multiple environments
-- **Status**: Active worm-like spreading across cloud systems exploiting 5 different CVEs
+### PCPJack Framework CVE Exploitation
+- **Description**: Credential theft framework that exploits multiple CVEs to spread worm-like across cloud systems
+- **Impact**: Steals credentials from exposed cloud infrastructure and removes competing malware
+- **Status**: Actively spreading across cloud environments, displacing TeamPCP malware
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management systems with administrative access compromise
-- **Linux Distributions**: All major distributions vulnerable to Dirty Frag privilege escalation
-- **Canvas Learning Management System**: Hundreds of educational institutions experiencing login portal defacement and data extortion
-- **Cloud Infrastructure**: Exposed cloud systems targeted by PCPJack credential stealer
-- **Financial Platforms**: 59 banking, fintech, and cryptocurrency platforms targeted by TCLBanker trojan
-- **WhatsApp and Outlook**: Used as propagation vectors for malware distribution
-- **Android Devices**: Fraudulent apps on Google Play Store with over 7.3 million downloads
-- **SSH Systems**: Linux servers with PAM modules compromised by PamDOORa backdoor
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Systems vulnerable to remote code execution attacks
+- **Linux Distributions**: All major Linux distributions affected by Dirty Frag kernel vulnerability
+- **Palo Alto Networks PAN-OS**: Firewall systems targeted for root access and espionage
+- **Canvas Educational Platform**: Login portals compromised in mass extortion campaign by ShinyHunters
+- **Cloud Infrastructure**: AWS, Azure, and other cloud platforms targeted by PCPJack credential theft
+- **Banking and Fintech Platforms**: 59 financial platforms targeted by TCLBANKER trojan
+- **Android Devices**: Fake call history apps distributed through Google Play Store affecting 7.3 million downloads
 - **NVIDIA GeForce NOW**: Armenian users affected by data breach
-- **Palo Alto Networks PAN-OS**: Firewalls targeted for root access and espionage activities
+- **Instructure Systems**: Second attack claimed by ShinyHunters affecting educational technology platform
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Ivanti EPMM and Linux kernel
-- **Social Engineering (ClickFix)**: Fake browser error prompts distributing Vidar Stealer malware
-- **Supply Chain Compromise**: Quasar Linux RAT targeting developer systems for software supply chain infiltration
-- **Mobile App Fraud**: Fake call history apps on Google Play Store stealing user payments
-- **Worm Propagation**: Self-spreading malware through WhatsApp and Outlook platforms
-- **PAM Module Abuse**: PamDOORa backdoor intercepting SSH credentials through compromised authentication modules
-- **MSI Installer Trojaning**: TCLBanker using fake Logitech AI Prompt Builder installers
-- **Portal Defacement**: Mass compromise of educational login portals for extortion purposes
+- **Zero-Day Exploitation**: Multiple zero-day vulnerabilities being actively exploited including Ivanti EPMM and Linux Dirty Frag
+- **Social Engineering**: ClickFix techniques used to distribute Vidar Stealer malware in Australia
+- **Trojanized Software**: TCLBANKER distributed via fake Logitech AI Prompt Builder MSI installers
+- **Worm Propagation**: TCLBANKER self-spreads through WhatsApp and Outlook communications
+- **PAM Module Abuse**: PamDOORa backdoor uses Linux PAM modules to steal SSH credentials
+- **Cloud Infrastructure Exploitation**: PCPJack exploits exposed cloud services to steal credentials
+- **Supply Chain Targeting**: Quasar Linux RAT targets developer systems for software supply chain compromise
+- **Educational Platform Exploitation**: Mass defacement of Canvas login portals through vulnerability exploitation
+- **Mobile App Store Abuse**: Fraudulent apps on Google Play Store tricking users into payment theft
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Conducting second major attack against Instructure, exploiting Canvas vulnerabilities for data extortion affecting educational institutions nationwide
+- **ShinyHunters**: Conducting second major attack against Instructure, mass exploitation of Canvas platform vulnerabilities affecting hundreds of colleges and universities
 - **RansomHouse**: Claimed responsibility for Trellix source code repository breach, leaked proof-of-concept images
-- **darkworm**: Advertising PamDOORa Linux backdoor on Rehub Russian cybercrime forum for $1,600
-- **Brazilian Threat Actors**: Operating TCLBANKER banking trojan targeting 59 financial platforms with worm-like capabilities
-- **PCPJack Operators**: Deploying credential theft framework across cloud infrastructure while competing with TeamPCP malware
-- **Mobile Fraud Networks**: Publishing fake applications on Google Play Store to steal user payments through fraudulent subscription services
-- **Supply Chain Attackers**: Using Quasar Linux RAT to establish persistent footholds in developer environments for broader software compromise
+- **TCLBANKER Operators**: Brazilian threat actors targeting financial institutions with self-propagating banking trojan
+- **PCPJack Operators**: Advanced threat actors targeting cloud infrastructure while displacing competing TeamPCP malware
+- **darkworm**: Threat actor advertising PamDOORa Linux backdoor on Russian cybercrime forums for $1,600
+- **ClickFix Campaign Operators**: Targeting Australian organizations with Vidar Stealer distribution campaigns
+- **North Korean IT Workers**: Using laptop farms operated by U.S. nationals to fraudulently obtain remote employment at American companies
+- **Advanced Persistent Threat Groups**: Exploiting PAN-OS vulnerabilities for espionage operations and root access to network infrastructure
