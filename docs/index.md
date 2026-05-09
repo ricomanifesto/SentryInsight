@@ -1,55 +1,57 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently experiencing intense exploitation activity across multiple critical systems. Most notably, attackers are actively exploiting zero-day vulnerabilities in Ivanti Endpoint Manager Mobile (EPMM) systems, with CISA issuing emergency directives for federal agencies to patch within four days. The Linux ecosystem faces a significant threat from the newly discovered "Dirty Frag" zero-day vulnerability that grants root access across all major distributions. Additionally, the ShinyHunters threat group has launched a widespread campaign against educational institutions through Canvas platform breaches, while sophisticated malware frameworks like PCPJack and TCLBANKER are actively targeting cloud infrastructure and financial platforms respectively. Enterprise security is further compromised by active exploitation of PAN-OS vulnerabilities and the emergence of new credential-stealing backdoors targeting developer environments.
+The current threat landscape reveals multiple critical vulnerabilities under active exploitation, with zero-day attacks targeting enterprise infrastructure and widespread malware campaigns compromising cloud environments. Most concerning are the active exploitation of Ivanti EPMM vulnerabilities enabling administrative access, the emergence of a new Linux zero-day privilege escalation flaw called "Dirty Frag," and sophisticated worm-like malware frameworks targeting cloud credentials. Educational institutions face particular risk with mass compromises of Canvas learning platforms, while new banking trojans and stealer malware are spreading through social engineering campaigns across WhatsApp and email platforms.
 
 ## Active Exploitation Details
 
-### Ivanti Endpoint Manager Mobile Remote Code Execution
-- **Description**: A high-severity remote code execution vulnerability in Ivanti EPMM that grants administrative-level access to affected systems
-- **Impact**: Allows attackers to gain complete administrative control over endpoint management systems, potentially affecting thousands of managed devices
-- **Status**: Currently being exploited in zero-day attacks; patches available but emergency patching required
+### Ivanti EPMM Remote Code Execution Vulnerability
+- **Description**: High-severity remote code execution vulnerability in Ivanti Endpoint Manager Mobile (EPMM) that allows attackers to gain administrative-level access to systems
+- **Impact**: Complete system compromise with admin-level privileges, enabling full control over endpoint management infrastructure
+- **Status**: Currently being exploited in zero-day attacks in the wild; patches available but CISA has mandated federal agencies patch within four days
 - **CVE ID**: CVE-2026-6973
 
-### Linux Kernel "Dirty Frag" Local Privilege Escalation
-- **Description**: An unpatched zero-day vulnerability in the Linux kernel that enables local privilege escalation with a single command
-- **Impact**: Allows local attackers to gain root privileges on most major Linux distributions including Ubuntu, RHEL, and others
-- **Status**: Actively exploited zero-day with proof-of-concept code available; no patch currently available
+### Linux Kernel "Dirty Frag" Zero-Day Privilege Escalation
+- **Description**: Unpatched local privilege escalation vulnerability affecting the Linux kernel across all major distributions, described as a successor to previous Copy Fail exploits
+- **Impact**: Local attackers can gain root privileges on compromised Linux systems with a single command
+- **Status**: Active zero-day with proof-of-concept exploit available; no patches currently available
 
-### PAN-OS Remote Code Execution
-- **Description**: A critical security flaw in Palo Alto Networks PAN-OS that enables remote code execution and root access
-- **Impact**: Provides attackers with complete system control, enabling espionage activities and network compromise
-- **Status**: Under active exploitation since April 2026; attempts documented by Palo Alto Networks
+### PAN-OS Critical Remote Code Execution Flaw
+- **Description**: Critical vulnerability in Palo Alto Networks PAN-OS that enables remote code execution and root access
+- **Impact**: Complete firewall compromise allowing espionage activities and network infiltration
+- **Status**: Under active exploitation since at least April 9, 2026, with attempted exploit activities detected
 
-### Canvas Platform Authentication Bypass
-- **Description**: Vulnerability in Instructure's Canvas education platform allowing unauthorized access to login portals
-- **Impact**: Mass defacement of hundreds of college and university login pages, potential data theft affecting millions of students
-- **Status**: Actively exploited by ShinyHunters in ongoing extortion campaign
+### cPanel and WHM Vulnerabilities
+- **Description**: Three newly disclosed vulnerabilities in cPanel and Web Host Manager affecting web hosting infrastructure
+- **Impact**: Privilege escalation, code execution, and denial-of-service attacks against web hosting platforms
+- **Status**: Patches released and available for immediate deployment
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: All versions prior to latest security update; affects enterprise mobile device management systems
-- **Linux Distributions**: All major distributions including Ubuntu, Red Hat Enterprise Linux, SUSE, Debian, and derivatives
-- **Palo Alto Networks PAN-OS**: Firewall and security appliance platforms running vulnerable PAN-OS versions
-- **Instructure Canvas**: Educational technology platform used by hundreds of colleges and universities nationwide
-- **cPanel and WHM**: Web hosting control panels with three newly discovered vulnerabilities requiring immediate patching
-- **Cloud Infrastructure**: AWS, Azure, and Google Cloud environments targeted by PCPJack worm
-- **Banking and Financial Platforms**: 59 different banking, fintech, and cryptocurrency platforms targeted by TCLBANKER trojan
+- **Ivanti Endpoint Manager Mobile (EPMM)**: Enterprise mobile device management platforms with administrative access compromise
+- **Linux Kernel**: All major Linux distributions vulnerable to privilege escalation attacks
+- **Palo Alto Networks PAN-OS**: Firewall and security appliances subject to remote code execution
+- **cPanel/WHM**: Web hosting control panels and management interfaces
+- **Canvas LMS Platform**: Educational technology platforms used by hundreds of colleges and universities
+- **Android Devices**: Google Play Store apps with over 7.3 million downloads containing fraudulent payment theft functionality
+- **Cloud Infrastructure**: AWS, Azure, and other cloud platforms targeted by credential theft frameworks
+- **Financial Platforms**: 59 banking, fintech, and cryptocurrency platforms targeted by TCLBANKER trojan
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Ivanti EPMM and Linux kernel systems
-- **Social Engineering via ClickFix**: Fake error messages tricking users into executing malicious PowerShell commands to deploy Vidar Stealer
-- **WhatsApp and Outlook Worms**: TCLBANKER malware self-propagating through messaging platforms using trojanized installers
-- **PAM Module Hijacking**: PamDOORa backdoor intercepting SSH credentials through Linux authentication modules
-- **Credential Harvesting**: PCPJack framework systematically stealing cloud credentials while removing competing malware
-- **Supply Chain Compromise**: Quasar Linux RAT targeting developer systems to establish persistent access for broader attacks
-- **Mobile App Store Fraud**: Fake call history applications on Google Play Store conducting payment fraud after 7.3 million downloads
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise infrastructure
+- **Social Engineering via ClickFix**: Fake software update prompts used to distribute Vidar Stealer malware
+- **WhatsApp and Outlook Worms**: Self-spreading malware using messaging platforms for initial infection
+- **Trojanized Software Installers**: Legitimate-looking MSI installers for popular software containing banking trojans
+- **PAM Module Backdoors**: Linux systems compromised through malicious Pluggable Authentication Modules
+- **Canvas Portal Defacement**: Mass compromise of educational login portals for extortion campaigns
+- **CVE Exploitation Chains**: PCPJack framework exploiting five different CVEs to spread across cloud systems
+- **Supply Chain Targeting**: Quasar Linux RAT specifically targeting developer systems for broader compromise
 
 ## Threat Actor Activities
 
-- **ShinyHunters Group**: Conducting mass extortion campaign against educational institutions through Canvas platform breaches; second major attack against Instructure
-- **RansomHouse Hackers**: Claimed responsibility for Trellix source code repository breach with leaked proof-of-concept images
-- **PCPJack Operators**: Deploying sophisticated worm targeting cloud infrastructure while actively removing TeamPCP malware from infected systems
-- **TCLBANKER Campaign**: Brazilian banking trojan operators targeting financial platforms through multi-platform worm propagation
-- **darkworm Actor**: Advertising PamDOORa Linux backdoor on Russian Rehub cybercrime forum for $1,600
-- **North Korean IT Workers**: Continued fraudulent employment schemes using laptop farms operated by convicted American accomplices
+- **ShinyHunters**: Conducting second major attack against Instructure/Canvas with mass portal defacement and extortion campaigns affecting hundreds of educational institutions
+- **RansomHouse**: Claiming responsibility for Trellix source code repository breach with leaked proof-of-concept evidence
+- **Brazilian Banking Threat Actors**: Operating TCLBANKER trojan campaigns targeting South American financial institutions
+- **"darkworm" Actor**: Advertising PamDOORa Linux backdoor on Russian cybercrime forums for $1,600
+- **PCPJack Operators**: Running sophisticated credential theft operations while actively removing competing TeamPCP malware infections
+- **North Korean IT Workers**: Using laptop farm operations to fraudulently obtain remote employment at American companies for intelligence gathering
