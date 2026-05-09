@@ -1,59 +1,57 @@
 # Exploitation Report
 
-The current threat landscape shows several critical zero-day vulnerabilities under active exploitation, with particularly concerning activity targeting enterprise infrastructure and cloud environments. The most severe active exploitations include CVE-2026-6973 affecting Ivanti Endpoint Manager Mobile, which grants admin-level access and has prompted CISA to issue emergency patching directives. Additionally, a new Linux kernel zero-day dubbed "Dirty Frag" is being exploited to gain root privileges across major distributions. Cloud infrastructure faces significant threats from the PCPJack credential stealer exploiting five different CVEs to spread worm-like across systems, while the ShinyHunters group continues exploiting vulnerabilities in Canvas education platforms. Threat actors are also leveraging sophisticated social engineering through ClickFix campaigns and deploying advanced malware like TCLBANKER, which spreads through WhatsApp and Outlook.
+The cybersecurity landscape is currently experiencing significant exploitation activity across multiple critical vulnerabilities and malware campaigns. Zero-day vulnerabilities in Ivanti Endpoint Manager Mobile (CVE-2026-6973) and the Linux kernel ("Dirty Frag") are under active exploitation, enabling remote code execution and privilege escalation respectively. The ShinyHunters threat group has launched multiple successful attacks against educational platforms, compromising Canvas login portals and Instructure systems affecting hundreds of institutions nationwide. Meanwhile, sophisticated malware frameworks including TCLBANKER, PCPJack, and PamDOORa are actively targeting financial institutions, cloud infrastructure, and Linux systems through innovative attack vectors including self-spreading mechanisms and credential theft capabilities.
 
 ## Active Exploitation Details
 
 ### Ivanti EPMM Remote Code Execution Vulnerability
-- **Description**: A high-severity remote code execution flaw in Ivanti Endpoint Manager Mobile that allows attackers to gain administrative privileges on affected systems
-- **Impact**: Grants admin-level access to enterprise mobile device management infrastructure, enabling full system compromise
-- **Status**: Under active exploitation in limited attacks; patches available
+- **Description**: High-severity remote code execution vulnerability in Ivanti Endpoint Manager Mobile (EPMM) allowing attackers to execute arbitrary code on affected systems
+- **Impact**: Attackers can gain administrative-level access to endpoint management systems, potentially compromising entire mobile device fleets
+- **Status**: Under active exploitation in zero-day attacks; patches available but CISA has mandated federal agencies patch within four days
 - **CVE ID**: CVE-2026-6973
 
-### Linux Kernel "Dirty Frag" Zero-Day
-- **Description**: An unpatched local privilege escalation vulnerability in the Linux kernel that allows attackers to gain root access with a single command
-- **Impact**: Enables complete system compromise on all major Linux distributions
-- **Status**: Actively exploited with public proof-of-concept exploit available; no patches currently available
+### Linux Kernel Dirty Frag Zero-Day
+- **Description**: Unpatched local privilege escalation vulnerability in the Linux kernel affecting all major distributions
+- **Impact**: Local attackers can gain root privileges with a single command, compromising system integrity completely
+- **Status**: Zero-day exploitation with publicly available proof-of-concept exploit; no patches currently available
+- **CVE ID**: CVE-2026-31 (related to Copy Fail vulnerability)
 
-### Canvas Education Platform Vulnerabilities
-- **Description**: Multiple vulnerabilities in the Canvas learning management system exploited to deface login portals and conduct data extortion
-- **Impact**: Widespread disruption of educational services across hundreds of colleges and universities
-- **Status**: Under active exploitation by ShinyHunters group
+### ShinyHunters Educational Platform Attacks
+- **Description**: Mass exploitation campaign targeting Canvas login portals and Instructure systems through unspecified vulnerabilities
+- **Impact**: Data extortion affecting hundreds of colleges and universities, disrupting classes and exposing personal information of hundreds of millions of users
+- **Status**: Ongoing active exploitation with successful breaches reported across multiple educational institutions
 
 ### PCPJack Multi-CVE Exploitation Framework
-- **Description**: A credential theft framework that exploits five different vulnerabilities to spread across cloud infrastructure
-- **Impact**: Steals cloud credentials and secrets while removing competing malware from compromised systems
-- **Status**: Actively spreading through exposed cloud environments
+- **Description**: Advanced credential theft framework exploiting five different CVEs to spread worm-like across cloud infrastructure
+- **Impact**: Steals cloud credentials, AWS keys, and other sensitive data while removing competing TeamPCP malware infections
+- **Status**: Active exploitation targeting exposed cloud systems with automated propagation capabilities
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Enterprise mobile device management platforms vulnerable to CVE-2026-6973
-- **Linux Distributions**: All major Linux distributions affected by Dirty Frag zero-day exploit
-- **Canvas Learning Management System**: Educational institutions using Canvas platform experiencing login portal compromises
-- **Cloud Infrastructure**: Exposed cloud environments targeted by PCPJack framework
-- **Android Devices**: Google Play Store apps with 7.3 million downloads spreading fraudulent payment stealing malware
-- **PAN-OS Firewalls**: Palo Alto Networks devices targeted for root access and espionage
-- **WhatsApp and Outlook**: Communication platforms used for TCLBANKER malware distribution
-- **Banking and Financial Platforms**: 59 different banking, fintech, and cryptocurrency platforms targeted by TCLBANKER
+- **Ivanti Endpoint Manager Mobile (EPMM)**: All versions prior to latest security updates
+- **Linux Distributions**: All major distributions including Ubuntu, Red Hat, SUSE, Debian affected by Dirty Frag zero-day
+- **Canvas Learning Management System**: Login portals at hundreds of educational institutions compromised
+- **Instructure Platforms**: Multiple successful breaches by ShinyHunters threat group
+- **Financial Platforms**: 59 banking, fintech, and cryptocurrency platforms targeted by TCLBANKER trojan
+- **Cloud Infrastructure**: Exposed AWS, Azure, and other cloud environments targeted by PCPJack framework
+- **Android Devices**: Google Play Store apps with 7.3 million downloads used for payment fraud
+- **WhatsApp and Outlook**: Used as propagation vectors for TCLBANKER malware
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in critical enterprise systems
-- **Social Engineering via ClickFix**: Fake error messages tricking users into executing malicious PowerShell scripts
-- **Worm-Like Propagation**: PCPJack framework automatically spreading across compromised cloud infrastructure
-- **Supply Chain Compromise**: Quasar Linux RAT targeting developers to infiltrate software development environments
-- **Mobile App Store Fraud**: Malicious apps disguised as legitimate call history tools on Google Play Store
-- **PAM Module Abuse**: PamDOORa backdoor exploiting Linux PAM authentication system to steal SSH credentials
-- **Communication Platform Hijacking**: TCLBANKER spreading through WhatsApp messages and Outlook emails
-- **Educational Platform Defacement**: Mass compromise of Canvas login portals for extortion purposes
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Ivanti EPMM and Linux kernel
+- **Social Engineering**: ClickFix techniques used to distribute Vidar Stealer malware in Australia
+- **Mobile App Fraud**: Fake call history applications on Google Play Store tricking users into payment theft
+- **Worm Propagation**: Self-spreading capabilities through WhatsApp and Outlook for TCLBANKER distribution
+- **PAM Module Hijacking**: PamDOORa backdoor uses Linux PAM modules to steal SSH credentials
+- **Cloud Credential Harvesting**: Automated scanning and exploitation of exposed cloud infrastructure
+- **Supply Chain Targeting**: Quasar Linux RAT specifically targets developer systems for software supply chain compromise
 
 ## Threat Actor Activities
 
-- **ShinyHunters Group**: Conducting mass extortion campaign against Canvas education platform with widespread portal defacements
-- **RansomHouse**: Claimed responsibility for Trellix source code repository breach
-- **PCPJack Operators**: Deploying sophisticated credential theft framework while actively removing competing TeamPCP malware
-- **TCLBANKER Campaign**: Brazilian threat actors targeting 59 financial platforms using self-spreading trojan via messaging applications
-- **ClickFix Campaigns**: Australian-targeted attacks distributing Vidar Stealer malware through social engineering
-- **PamDOORa Distributors**: Russian cybercrime forum actors selling Linux backdoor for $1,600
-- **Quasar Linux RAT Campaign**: Targeting software developers to establish persistent access for supply chain attacks
-- **North Korean IT Workers**: Operating laptop farms to fraudulently obtain remote employment at American companies
+- **ShinyHunters Group**: Conducting multiple high-profile attacks against educational technology platforms, claiming responsibility for Canvas and Instructure breaches affecting millions of users
+- **RansomHouse**: Claimed responsibility for Trellix source code repository breach, leaked proof-of-concept images
+- **darkworm Actor**: Advertising PamDOORa Linux backdoor on Russian cybercrime forums for $1,600
+- **Brazilian Threat Actors**: Operating TCLBANKER banking trojan with sophisticated self-propagation mechanisms
+- **PCPJack Operators**: Running advanced credential theft operations while actively competing with and removing TeamPCP malware
+- **North Korean IT Workers**: Using laptop farms operated by convicted U.S. nationals to fraudulently obtain remote employment at 70+ American companies
