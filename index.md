@@ -1,51 +1,56 @@
 # Exploitation Report
 
-The current threat landscape reveals critical zero-day exploitation activity alongside sophisticated malware campaigns targeting enterprise infrastructure. Most concerning is the active exploitation of CVE-2026-6973 in Ivanti Endpoint Manager Mobile, prompting emergency patching directives from CISA. Meanwhile, the "Dirty Frag" Linux kernel zero-day enables complete system compromise across major distributions, while threat actors leverage supply chain attacks through compromised software repositories and malicious application stores. The ShinyHunters group has escalated their campaign against educational platforms, successfully breaching Canvas systems nationwide, while new malware frameworks like PCPJack and TCLBANKER demonstrate advanced persistence and lateral movement capabilities.
+Critical zero-day vulnerabilities and active exploitation campaigns are currently targeting enterprise infrastructure and popular software platforms. The most significant threats include a zero-day privilege escalation vulnerability in the Linux kernel called "Dirty Frag" that grants root access across all major distributions, active exploitation of Ivanti Endpoint Manager Mobile CVE-2026-6973, and widespread supply chain attacks against JDownloader and educational platforms. Threat actors are leveraging sophisticated techniques including website compromises, malicious repositories, and worm-like propagation methods to steal credentials and establish persistent access to cloud environments.
 
 ## Active Exploitation Details
 
-### Ivanti EPMM Remote Code Execution Vulnerability
-- **Description**: High-severity remote code execution flaw in Ivanti Endpoint Manager Mobile allowing unauthorized access to mobile device management infrastructure
-- **Impact**: Attackers can gain admin-level access to EPMM systems, potentially compromising managed mobile devices and accessing sensitive enterprise data
-- **Status**: Currently being exploited in limited zero-day attacks; CISA has mandated federal agencies patch within four days
+### Dirty Frag Linux Kernel Zero-Day
+- **Description**: An unpatched local privilege escalation vulnerability in the Linux kernel that allows attackers to gain root privileges with a single command
+- **Impact**: Complete system compromise with root-level access across all major Linux distributions
+- **Status**: Currently unpatched zero-day with public proof-of-concept exploit available
+
+### Ivanti EPMM Remote Code Execution
+- **Description**: A high-severity remote code execution vulnerability in Ivanti Endpoint Manager Mobile being exploited in limited attacks
+- **Impact**: Admin-level access to mobile device management systems
+- **Status**: Under active exploitation in the wild, patches available
 - **CVE ID**: CVE-2026-6973
 
-### Linux Kernel "Dirty Frag" Zero-Day
-- **Description**: Local privilege escalation vulnerability in the Linux kernel affecting all major distributions, described as a successor to Copy Fail
-- **Impact**: Single command execution grants root privileges on compromised systems, enabling complete system takeover
-- **Status**: Active zero-day with proof-of-concept exploit available; currently unpatched
+### JDownloader Website Compromise
+- **Description**: The official JDownloader website was compromised to distribute malicious Windows and Linux installers containing Python-based RAT malware
+- **Impact**: Complete system compromise and remote access for attackers
+- **Status**: Website compromise resolved, affected users need to reinstall clean versions
 
-### PAN-OS Remote Code Execution Vulnerability
-- **Description**: Critical security flaw in Palo Alto Networks PAN-OS enabling remote code execution
-- **Impact**: Root access and espionage capabilities on network security appliances
-- **Status**: Under active exploitation attempts since April 9, 2026
+### Canvas Education Platform Breach
+- **Description**: Mass exploitation of vulnerabilities in Canvas login portals by ShinyHunters affecting hundreds of educational institutions
+- **Impact**: Data theft, system defacement, and disruption of educational services nationwide
+- **Status**: Ongoing extortion campaign with widespread impact
 
 ## Affected Systems and Products
 
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management platform vulnerable to remote code execution
-- **Linux Distributions**: All major Linux distributions affected by Dirty Frag kernel vulnerability
-- **Palo Alto Networks PAN-OS**: Network security appliances compromised through RCE exploitation
-- **JDownloader Website**: Download manager site compromised to distribute Python RAT malware
-- **Hugging Face Platform**: AI model repository hosting malicious OpenAI impersonation projects
-- **cPanel and WHM**: Web hosting management platforms with three newly patched vulnerabilities
-- **Canvas Educational Platform**: Learning management system breached affecting hundreds of institutions
-- **Google Play Store**: Android application marketplace hosting 7.3 million downloads of fraudulent call history apps
+- **Ivanti Endpoint Manager Mobile**: High-severity RCE vulnerability under active exploitation
+- **Linux Kernel**: All major distributions affected by Dirty Frag zero-day privilege escalation
+- **JDownloader**: Popular download manager with compromised official website distributing malware
+- **Canvas by Instructure**: Education platform with breached login portals affecting schools and universities
+- **cPanel and WHM**: Three new vulnerabilities allowing privilege escalation and code execution
+- **NVIDIA GeForce NOW**: Data breach affecting Armenian users with exposed personal information
+- **Google Play Store**: Fraudulent call history apps downloaded 7.3 million times stealing payments
+- **Hugging Face Platform**: Fake OpenAI repository distributing information-stealing malware
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise infrastructure
-- **Supply Chain Compromise**: Malicious installers distributed through legitimate software websites
-- **Social Engineering**: ClickFix campaigns and fake AI repositories targeting developers and users
-- **Worm Propagation**: Self-spreading malware using WhatsApp and Outlook for lateral movement
-- **Repository Poisoning**: Fake projects on legitimate platforms like Hugging Face delivering malware
-- **Mobile App Store Fraud**: Malicious applications masquerading as legitimate utilities on official stores
-- **Website Defacement**: Mass compromise of educational login portals for extortion purposes
+- **Supply Chain Compromise**: Attackers compromising official software distribution channels and repositories
+- **ClickFix Social Engineering**: Malicious campaigns using fake error messages to trick users into executing malware
+- **Worm-Like Propagation**: PCPJack malware spreading across cloud systems while exploiting multiple vulnerabilities
+- **Website Defacement**: Mass defacement of educational login portals for extortion purposes
+- **Repository Impersonation**: Creating fake repositories on platforms like Hugging Face to distribute malware
+- **Mobile App Store Fraud**: Publishing fraudulent apps on official stores to steal user payments
+- **WhatsApp and Email Worms**: TCLBanker malware self-spreading through messaging platforms
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Conducting second major attack against Instructure, defacing Canvas login portals across hundreds of educational institutions in mass extortion campaign
-- **RansomHouse**: Claimed responsibility for Trellix source code repository breach, leaked proof-of-compromise images
-- **darkworm**: Advertising PamDOORa Linux backdoor on Russian cybercrime forums for $1,600, targeting SSH credential theft
-- **Brazilian Threat Actors**: Deploying TCLBANKER banking trojan targeting 59 financial platforms with self-propagation capabilities
-- **PCPJack Operators**: Credential theft framework operators exploiting cloud infrastructure while removing competing TeamPCP malware
-- **ClickFix Campaign Actors**: Australian-targeted malware distribution using social engineering to deploy Vidar Stealer
+- **ShinyHunters**: Conducting second attack against Instructure with mass Canvas portal compromises and ongoing extortion campaigns
+- **RansomHouse**: Claiming responsibility for Trellix source code repository breach with leaked proof images
+- **Brazilian Banking Actors**: Deploying TCLBANKER trojan targeting 59 financial platforms with worm capabilities
+- **PCPJack Operators**: Running credential theft framework that exploits cloud infrastructure and removes competing malware
+- **darkworm**: Advertising PamDOORa Linux backdoor for $1,600 on Russian cybercrime forums
+- **Various APT Groups**: Exploiting zero-day vulnerabilities in enterprise software for espionage and persistent access
