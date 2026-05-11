@@ -1,61 +1,52 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple platforms and systems across various sectors. The most severe threats include the Dirty Frag zero-day vulnerability affecting all major Linux distributions with root privilege escalation capabilities, an Ivanti EPMM vulnerability being exploited as a zero-day providing administrative access, and sophisticated malware campaigns including the new PCPJack credential stealer exploiting multiple vulnerabilities to spread across cloud systems. Additionally, major breaches have affected educational platforms Canvas/Instructure by the ShinyHunters group, while new malware strains like TCLBanker and PamDOORa are actively targeting financial institutions and Linux systems respectively.
+Critical zero-day exploitation activity is currently targeting Linux systems and enterprise infrastructure, with the newly disclosed "Dirty Frag" Linux kernel vulnerability enabling root access across all major distributions. Simultaneously, threat actors are exploiting vulnerabilities in Ivanti Endpoint Manager Mobile (CVE-2026-6973) in active attacks, while sophisticated malware campaigns leverage compromised websites and fraudulent repositories to distribute banking trojans and information stealers. The ShinyHunters group continues aggressive attacks against educational infrastructure, compromising Canvas portals across hundreds of institutions, while new Linux backdoors and worms are actively stealing credentials from cloud environments and developer systems.
 
 ## Active Exploitation Details
 
-### Dirty Frag Zero-Day
+### Dirty Frag Linux Zero-Day
 - **Description**: An unpatched local privilege escalation vulnerability in the Linux kernel that allows attackers to gain root privileges with a single command
-- **Impact**: Complete system compromise with root access across all major Linux distributions
+- **Impact**: Complete system compromise with root access on all major Linux distributions including Ubuntu, Red Hat, SUSE, and others
 - **Status**: Currently unpatched zero-day with public proof-of-concept exploit available
 
-### Ivanti EPMM Remote Code Execution
-- **Description**: A high-severity vulnerability in Ivanti Endpoint Manager Mobile allowing remote code execution
-- **Impact**: Administrative-level access to mobile device management systems
-- **Status**: Under active exploitation in limited attacks, patch available
+### Ivanti EPMM Remote Code Execution Vulnerability
+- **Description**: High-severity vulnerability in Ivanti Endpoint Manager Mobile allowing remote code execution
+- **Impact**: Attackers can gain administrator-level access to mobile device management infrastructure
+- **Status**: Under active exploitation in limited attacks, patches available
 - **CVE ID**: CVE-2026-6973
 
-### Ollama Out-of-Bounds Read
-- **Description**: Critical vulnerability in Ollama allowing remote, unauthenticated attackers to leak entire process memory
-- **Impact**: Complete process memory disclosure exposing sensitive data
-- **Status**: Disclosed vulnerability requiring immediate patching
-
-### PCPJack Multi-CVE Exploitation
-- **Description**: Advanced credential theft framework exploiting five different vulnerabilities to spread worm-like across cloud infrastructure
-- **Impact**: Credential theft, lateral movement across cloud environments, and removal of competing malware
-- **Status**: Active in the wild targeting exposed cloud systems
+### Ollama Out-of-Bounds Read Vulnerability
+- **Description**: Critical security vulnerability allowing remote process memory leak in Ollama AI platform
+- **Impact**: Remote, unauthenticated attackers can leak entire process memory contents
+- **Status**: Recently disclosed, patch status unknown
 
 ## Affected Systems and Products
 
-- **Linux Kernel**: All major Linux distributions vulnerable to Dirty Frag privilege escalation
-- **Ivanti EPMM**: Mobile device management platforms exposed to remote code execution
-- **Ollama**: AI model serving platforms at risk of memory disclosure
-- **Canvas/Instructure**: Educational technology platforms breached by ShinyHunters
-- **Cloud Infrastructure**: AWS, Azure, and other cloud platforms targeted by PCPJack
-- **cPanel/WHM**: Web hosting management platforms with three newly patched vulnerabilities
-- **JDownloader**: Download manager website compromised to distribute Python RAT
-- **Banking/Fintech Platforms**: 59 platforms targeted by TCLBanker trojan
-- **Google Play Store**: Fraudulent call history apps with 7.3 million downloads
-- **NVIDIA GeForce NOW**: Gaming service affected by data breach
-- **Zara**: Fashion retailer database breach affecting 197,000 customers
+- **Linux Systems**: All major distributions including Ubuntu, Red Hat, SUSE, Debian affected by Dirty Frag zero-day
+- **Ivanti EPMM**: Mobile device management platforms under active attack
+- **Canvas Education Platform**: Hundreds of colleges and universities experiencing compromised login portals
+- **JDownloader**: Popular download manager website compromised to distribute Python RAT malware
+- **Hugging Face Platform**: AI model repository targeted for malicious OpenAI impersonation campaigns
+- **cPanel/WHM**: Web hosting control panels affected by three newly patched vulnerabilities
+- **NVIDIA GeForce NOW**: Armenian users affected by confirmed data breach
+- **Zara**: 197,000 customer records exposed in database breach
 
 ## Attack Vectors and Techniques
 
-- **Malvertising Campaigns**: Google Ads abuse to distribute Mac malware targeting Claude.ai users
-- **Website Compromise**: JDownloader site hacked to replace legitimate installers with malware
-- **Supply Chain Attacks**: Fake repositories on platforms like Hugging Face impersonating legitimate projects
-- **ClickFix Social Engineering**: Australian ACSC warns of campaigns distributing Vidar Stealer
-- **WhatsApp and Outlook Worms**: TCLBanker spreading through messaging platforms
-- **PAM Module Abuse**: PamDOORa backdoor using Linux authentication modules for SSH credential theft
-- **Zero-Day Exploitation**: Multiple zero-day vulnerabilities being exploited before patches available
-- **Cloud Infrastructure Scanning**: Automated discovery and exploitation of exposed cloud services
+- **Website Compromise**: JDownloader official site hacked to replace legitimate installers with Python-based RAT malware
+- **Repository Poisoning**: Fake OpenAI Privacy Filter repository on Hugging Face delivering Rust-based information stealer
+- **Malvertising**: Google Ads abuse combined with Claude.ai shared chats to distribute Mac malware
+- **Mobile App Fraud**: 7.3 million downloads of fake call history apps on Google Play Store stealing payments
+- **Supply Chain Targeting**: Quasar Linux RAT specifically targeting developer credentials for broader compromise
+- **Blockchain C2**: TrickMo Android banker adopting TON blockchain for covert command-and-control communications
+- **Worm Propagation**: TCLBanker malware self-spreading through WhatsApp and Outlook, targeting 59 financial platforms
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Conducting second attack against Instructure/Canvas, causing nationwide educational disruptions
-- **RansomHouse**: Claimed responsibility for Trellix source code repository breach
-- **TCLBanker Operators**: Brazilian threat actors targeting financial platforms with self-spreading malware
-- **PCPJack Developers**: Advanced threat actors replacing TeamPCP infections while stealing credentials
-- **darkworm**: Threat actor selling PamDOORa Linux backdoor on Russian cybercrime forums
-- **Crimenetwork Operators**: German authorities shut down relaunched criminal marketplace generating €3.6 million
-- **State-Sponsored Groups**: CISA directive suggests federal agencies under active threat from Ivanti EPMM exploitation
+- **ShinyHunters**: Conducting second attack against Instructure's Canvas platform, exploiting vulnerabilities to deface login portals across hundreds of educational institutions
+- **RansomHouse**: Claimed responsibility for Trellix source code repository breach, leaked proof-of-concept images
+- **Brazilian Threat Actors**: Deploying TCLBanker trojan via trojanized Logitech AI Prompt Builder MSI installers
+- **PCPJack Operators**: New worm framework stealing cloud credentials while actively removing competing TeamPCP malware infections
+- **Linux Backdoor Developers**: PamDOORa backdoor being sold for $1,600 on Russian Rehub cybercrime forum by "darkworm" actor
+- **Android Banking Groups**: Enhanced TrickMo campaigns targeting European users with blockchain-based infrastructure
+- **Mac Malware Distributors**: Sophisticated campaigns abusing legitimate platforms like Google Ads and Claude.ai for distribution
