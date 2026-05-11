@@ -1,61 +1,69 @@
 # Exploitation Report
 
-The current threat landscape reveals a significant escalation in AI-assisted exploit development, with attackers leveraging large language models to create sophisticated zero-day exploits targeting popular administration tools. Critical zero-day vulnerabilities are actively being exploited across multiple platforms, including a newly disclosed Linux kernel privilege escalation vulnerability dubbed "Dirty Frag" that affects all major Linux distributions. Additionally, widespread supply chain attacks have compromised educational platforms and development tools, while threat actors are increasingly using legitimate services like AI chatbots and cloud repositories to distribute malware. The exploitation of an Ivanti Endpoint Manager Mobile vulnerability and multiple banking trojans targeting financial platforms demonstrate the diverse range of systems under active attack.
+Current cybersecurity landscape shows significant exploitation activity across multiple vectors, with threat actors leveraging AI-assisted exploit development, zero-day vulnerabilities, and sophisticated supply chain attacks. Notable incidents include hackers using Canvas platform vulnerabilities to deface educational portals, AI-generated zero-day exploits targeting web administration tools, and the emergence of the "Dirty Frag" Linux privilege escalation vulnerability. Attackers are increasingly targeting software repositories, compromising legitimate download sites, and exploiting enterprise platforms while employing advanced techniques like blockchain-based command and control communications.
 
 ## Active Exploitation Details
 
-### AI-Generated Zero-Day Exploit for Web Administration Tool
-- **Description**: A zero-day vulnerability in a popular open-source web administration tool that was exploited using AI-generated attack code
-- **Impact**: Remote attackers can compromise web administration interfaces
-- **Status**: Active exploitation detected by Google Threat Intelligence Group
+### Canvas Platform Vulnerability
+- **Description**: Security flaw in Instructure's Canvas learning management system allowing unauthorized modification of login portals
+- **Impact**: Portal defacement and extortion message placement, potential unauthorized access to educational systems
+- **Status**: Confirmed exploitation by hackers, under investigation by Instructure
 
-### Dirty Frag Linux Kernel Zero-Day
-- **Description**: An unpatched local privilege escalation vulnerability in the Linux kernel that allows attackers to gain root privileges with a single command
-- **Impact**: Local attackers can escalate privileges to root on affected Linux systems
-- **Status**: Currently unpatched across major Linux distributions with public proof-of-concept exploit available
+### AI-Generated Zero-Day Exploit
+- **Description**: Zero-day vulnerability in popular open-source web administration tool exploited using AI-generated attack code
+- **Impact**: Unauthorized access to web administration interfaces and potential system compromise
+- **Status**: Active exploitation detected by Google Threat Intelligence Group, exploit likely developed using large language models
+
+### Dirty Frag Linux Vulnerability
+- **Description**: Privilege escalation vulnerability affecting enterprise Linux distributions, similar to Copy Fail and Dirty Pipe flaws
+- **Impact**: Local privilege escalation allowing attackers to gain elevated system access
+- **Status**: May already be under limited exploitation, poses significant risk to enterprise Linux environments
 
 ### Ivanti Endpoint Manager Mobile Vulnerability
-- **Description**: High-severity vulnerability in Ivanti EPMM that was exploited in zero-day attacks
-- **Impact**: Allows attackers to compromise endpoint management systems
-- **Status**: CISA has mandated federal agencies patch within four days due to active exploitation
+- **Description**: High-severity vulnerability in Ivanti EPMM exploited in zero-day attacks
+- **Impact**: Unauthorized access to mobile device management systems
+- **Status**: Actively exploited as zero-day, CISA mandated federal agencies patch within four days
 
 ### Ollama Out-of-Bounds Read Vulnerability
-- **Description**: Critical security vulnerability in Ollama that allows remote, unauthenticated attackers to leak entire process memory
-- **Impact**: Remote memory disclosure leading to potential credential theft and system compromise
-- **Status**: Disclosed with exploitation potential
+- **Description**: Critical vulnerability allowing remote, unauthenticated attackers to leak entire process memory
+- **Impact**: Memory leak could expose sensitive information and credentials
+- **Status**: Disclosed vulnerability requiring immediate patching
+
+### cPanel and WHM Vulnerabilities
+- **Description**: Three new vulnerabilities affecting cPanel and Web Host Manager platforms
+- **Impact**: Privilege escalation, code execution, and denial-of-service attacks possible
+- **Status**: Patches released, immediate updates required
 
 ## Affected Systems and Products
 
-- **Linux Kernel**: All major distributions affected by Dirty Frag privilege escalation vulnerability
-- **Ivanti Endpoint Manager Mobile**: Federal agencies and enterprise deployments under active attack
-- **Canvas/Instructure**: Education technology platform compromised by ShinyHunters affecting hundreds of institutions
-- **JDownloader**: Download manager website compromised to distribute Python RAT malware
-- **Ollama**: AI inference platform vulnerable to remote memory leakage
-- **cPanel and WHM**: Web hosting control panels with three newly disclosed vulnerabilities
-- **NVIDIA GeForce NOW**: Gaming platform experiencing data breach affecting Armenian users
-- **Zara**: Fashion retailer database breach exposing 197,000 customer records
-- **Android Devices**: Multiple malicious apps distributed through Google Play Store
-- **Hugging Face**: Malicious repositories impersonating OpenAI projects
+- **Instructure Canvas**: Learning management system used by educational institutions worldwide
+- **Open-source web administration tools**: Unspecified popular web admin platforms targeted by AI-generated exploits
+- **Enterprise Linux distributions**: Multiple enterprise Linux variants affected by Dirty Frag vulnerability
+- **Ivanti Endpoint Manager Mobile**: Mobile device management solution used by federal agencies and enterprises
+- **Ollama**: AI model serving platform with memory leak vulnerability
+- **cPanel and WHM**: Web hosting control panel platforms
+- **JDownloader**: Popular download manager with compromised official website
+- **Hugging Face repositories**: AI model sharing platform hosting malicious OpenAI impersonation
+- **NVIDIA GeForce NOW**: Cloud gaming service with confirmed data breach
+- **Trellix**: Cybersecurity company with source code repository breach
 
 ## Attack Vectors and Techniques
 
-- **AI-Assisted Exploit Development**: Threat actors using large language models to generate exploit code and automate complex attacks
-- **Supply Chain Compromise**: Targeting developer tools and legitimate software distribution channels
-- **Malvertising**: Abusing Google Ads and legitimate Claude.ai chats to distribute Mac malware
-- **Repository Poisoning**: Creating fake OpenAI repositories on Hugging Face platform to deliver information stealers
-- **Mobile App Store Abuse**: Distributing fraudulent apps through official Google Play Store
-- **Website Compromise**: Hacking legitimate software distribution sites to replace installers with malware
-- **Blockchain Command and Control**: TrickMo banking malware using TON blockchain for covert communications
-- **PAM Module Backdoors**: PamDOORa Linux backdoor targeting SSH credential theft
-- **WhatsApp and Outlook Worms**: TCLBANKER trojan spreading through messaging platforms
+- **AI-Assisted Exploit Development**: Threat actors using large language models to generate zero-day exploits and automate attack development
+- **Supply Chain Compromise**: Attackers compromising legitimate software repositories and download sites to distribute malware
+- **Website Compromise**: Hijacking official websites like JDownloader to replace legitimate installers with malicious payloads
+- **Repository Poisoning**: Creating fake repositories on platforms like Hugging Face to distribute information-stealing malware
+- **Malvertising Campaigns**: Abusing Google Ads and Claude.ai shared chats to distribute macOS malware
+- **Blockchain C2 Communications**: TrickMo banking malware adopting TON blockchain for covert command and control
+- **PAM Module Backdoors**: PamDOORa backdoor using Linux PAM modules to steal SSH credentials
+- **Mobile App Store Fraud**: Fake call history apps on Google Play Store conducting payment theft after 7.3 million downloads
 
 ## Threat Actor Activities
 
-- **Google Threat Intelligence Observations**: Documented first known case of AI-generated zero-day exploit development
-- **ShinyHunters**: Conducting mass extortion campaigns against educational institutions, claiming multiple attacks on Instructure/Canvas
-- **RansomHouse**: Claimed responsibility for Trellix source code repository breach
-- **Cyber Espionage Groups**: Targeting aviation firms to steal GIS files, terrain models, and GPS mapping data
-- **Brazilian Banking Trojan Operators**: Deploying TCLBANKER to target 59 banking, fintech, and cryptocurrency platforms
-- **Darkworm**: Advertising PamDOORa Linux backdoor on Russian cybercrime forums for $1,600
-- **Mobile Fraud Networks**: Operating fake call history apps on Google Play Store with 7.3 million downloads
-- **Government Database Sabotage**: Former federal contractor convicted for wiping dozens of government databases
+- **ShinyHunters**: Claiming second attack against Instructure education platform, targeting PII of hundreds of millions
+- **RansomHouse**: Claimed responsibility for Trellix source code repository breach, leaked proof-of-compromise images
+- **Aviation-Focused Espionage Group**: Quietly compromising aerospace and drone operators to steal GIS files, terrain models, and GPS data
+- **darkworm**: Threat actor advertising PamDOORa Linux backdoor on Russian cybercrime forums for $1,600
+- **TCLBANKER Operators**: Brazilian banking trojan group targeting 59 financial platforms via WhatsApp and Outlook worms
+- **Quasar Linux RAT Developers**: Targeting developer systems to steal credentials for software supply chain compromise
+- **Crimenetwork Operators**: Relaunched criminal marketplace generating 3.6 million euros before law enforcement shutdown
