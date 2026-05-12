@@ -1,58 +1,59 @@
 # Exploitation Report
 
-The current threat landscape reveals a significant surge in supply chain attacks and zero-day exploitation, with threat actors leveraging artificial intelligence to develop exploits and compromise critical infrastructure. Most notably, Google has identified the first known instance of hackers using AI to develop a zero-day exploit targeting a popular web administration tool, marking a concerning evolution in attack sophistication. Simultaneously, the TeamPCP group continues its aggressive supply chain campaign, compromising legitimate packages across npm and PyPI repositories, including those from major organizations like TanStack, Mistral AI, and Checkmarx. Critical vulnerabilities in widely-used platforms like cPanel are being actively exploited to deploy backdoors, while enterprise Linux distributions face imminent threats from privilege escalation exploits.
+The current threat landscape reveals intense supply chain attack activity, with the TeamPCP threat actor orchestrating multiple sophisticated campaigns targeting popular development tools and packages. Critical exploitation includes active abuse of cPanel vulnerabilities to deploy backdoors, the first documented AI-assisted zero-day exploit development, and widespread compromises of trusted software repositories. Notable incidents include the Shai-Hulud campaign affecting major npm and PyPI packages from TanStack, Mistral AI, and other prominent vendors, alongside active exploitation of Canvas platform vulnerabilities by the ShinyHunters extortion group.
 
 ## Active Exploitation Details
 
-### AI-Generated Zero-Day Web Admin Tool Exploit
-- **Description**: An unknown threat actor developed a zero-day exploit targeting a popular open-source web administration tool using artificial intelligence systems
-- **Impact**: Enables attackers to bypass two-factor authentication mechanisms and gain unauthorized access to administrative interfaces
-- **Status**: Zero-day vulnerability under active exploitation, representing the first known case of AI-assisted exploit development
-
 ### cPanel Critical Vulnerability
-- **Description**: A critical security flaw in cPanel hosting control panel being exploited by the threat actor "Mr_Rot13"
-- **Impact**: Allows attackers to deploy the "Filemanager" backdoor on compromised hosting environments
-- **Status**: Under active exploitation with backdoor deployment confirmed
+- **Description**: Critical vulnerability in cPanel control panel software allowing unauthorized access and backdoor deployment
+- **Impact**: Complete system compromise with persistent backdoor access via the "Filemanager" tool
+- **Status**: Under active exploitation by threat actor Mr_Rot13
 - **CVE ID**: CVE-2026-41940
 
-### Canvas Learning Management System Flaw
-- **Description**: A security vulnerability in Instructure's Canvas learning management system allowing unauthorized portal modifications
-- **Impact**: Enables attackers to deface login portals and leave extortion messages on educational platforms
-- **Status**: Exploited by ShinyHunters group in recent attacks against educational institutions
+### AI-Developed Zero-Day 2FA Bypass
+- **Description**: First known zero-day exploit developed using artificial intelligence targeting a popular open-source web administration tool's two-factor authentication mechanism
+- **Impact**: Complete bypass of 2FA security controls enabling unauthorized administrative access
+- **Status**: Actively exploited by unknown threat actors, marking a significant milestone in AI-assisted exploit development
+
+### Canvas Platform Vulnerability
+- **Description**: Security flaw in Instructure's Canvas learning management system allowing portal modification and defacement
+- **Impact**: Login portal defacement with extortion messages and potential data exposure affecting educational institutions
+- **Status**: Exploited by ShinyHunters group leading to 3.65TB data theft and ransom agreement
 
 ### Dirty Frag Linux Privilege Escalation
-- **Description**: A privilege escalation vulnerability affecting enterprise Linux distributions, similar to previous flaws like Dirty Pipe and Copy Fail
-- **Impact**: Allows local attackers to escalate privileges and gain root access on Linux systems
-- **Status**: May already be under limited exploitation in the wild
+- **Description**: Linux kernel vulnerability enabling privilege escalation, similar to previous flaws like Dirty Pipe and Copy Fail
+- **Impact**: Local privilege escalation to root access on affected Linux distributions
+- **Status**: May already be under limited exploitation targeting enterprise Linux environments
 
 ## Affected Systems and Products
 
-- **cPanel Hosting Control Panel**: Hosting environments using vulnerable cPanel versions
-- **Canvas Learning Management System**: Educational institutions using Instructure's Canvas platform
-- **npm and PyPI Package Repositories**: Developers using compromised packages from TanStack, Mistral AI, UiPath, OpenSearch, and Guardrails AI
-- **Jenkins Marketplace**: Users of the compromised Checkmarx Application Security Testing (AST) plugin
-- **Enterprise Linux Distributions**: Various Linux enterprise environments vulnerable to Dirty Frag exploitation
-- **Hugging Face Platform**: Users downloading the fake OpenAI Privacy Filter repository
-- **macOS Systems**: Mac users targeted through malicious Google Ads and Claude.ai chat abuse
-- **Android Devices**: European users targeted by TrickMo banking malware campaigns
-- **SAP Commerce Cloud and S/4HANA**: Enterprise environments using affected SAP products
+- **cPanel Control Panel**: Web hosting control panel software vulnerable to critical backdoor deployment
+- **Canvas LMS**: Educational technology platform used by universities and schools worldwide
+- **npm Packages**: TanStack, UiPath, Mistral AI, OpenSearch, and Guardrails AI packages compromised
+- **PyPI Packages**: Python Package Index repositories from major technology vendors
+- **Jenkins Marketplace**: Checkmarx AST plugin compromised with information stealing malware
+- **Hugging Face Platform**: Machine learning model repository hosting malicious OpenAI impersonation
+- **Enterprise Linux Distributions**: Various Linux distros vulnerable to Dirty Frag privilege escalation
+- **SAP Commerce Cloud**: Enterprise e-commerce platform with critical vulnerabilities
+- **SAP S/4HANA**: Business suite software affected by critical security flaws
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: TeamPCP group compromising legitimate packages across multiple repositories with credential-stealing malware
-- **AI-Assisted Exploit Development**: Threat actors using large language models to generate sophisticated zero-day exploits
-- **Malvertising Campaigns**: Abuse of Google Ads and legitimate AI chat platforms to distribute macOS malware
-- **Repository Impersonation**: Fake repositories mimicking legitimate OpenAI models to deliver information stealers
-- **Portal Defacement**: Exploitation of web application flaws to modify login interfaces and display extortion messages
-- **Backdoor Deployment**: Installation of persistent access mechanisms through hosting control panel vulnerabilities
-- **Blockchain Communication**: Use of The Open Network (TON) blockchain for covert command-and-control communications
-- **Privilege Escalation**: Exploitation of Linux kernel vulnerabilities to gain elevated system access
+- **Supply Chain Poisoning**: Mini Shai-Hulud worm compromising trusted development packages across multiple repositories
+- **Package Repository Infiltration**: Malicious packages uploaded to npm, PyPI, Jenkins Marketplace, and Hugging Face
+- **Web Application Exploitation**: Direct exploitation of cPanel and Canvas vulnerabilities for backdoor deployment
+- **AI-Assisted Exploit Development**: Machine learning models used to generate zero-day exploits automatically
+- **Search Engine Optimization Poisoning**: Malicious Google Ads campaigns promoting fake Claude.ai downloads
+- **Social Engineering via Legitimate Platforms**: Abuse of Claude.ai shared chats to distribute malware
+- **Blockchain-Based C2 Communications**: TrickMo banking malware using TON blockchain for covert communications
+- **Privilege Escalation**: Linux kernel exploitation for local privilege escalation attacks
 
 ## Threat Actor Activities
 
-- **TeamPCP Group**: Conducting extensive supply chain attacks targeting developer ecosystems through package repository compromises, including the recent Shai-Hulud campaign affecting hundreds of packages
-- **Mr_Rot13**: Actively exploiting cPanel vulnerabilities to deploy Filemanager backdoors on hosting environments
-- **ShinyHunters**: Extortion group that breached Instructure, stealing 3.65TB of Canvas data and reaching a ransom agreement to prevent further data leaks
-- **Unknown AI-Using Actor**: First documented threat actor to leverage artificial intelligence for zero-day exploit development, targeting web administration tools
-- **Aviation-Focused Espionage Group**: Cyber espionage campaign quietly targeting aerospace and drone operators to steal geographic information systems files, terrain models, and GPS data
-- **Android Banking Operators**: Groups distributing TrickMo malware across European targets, utilizing blockchain technology for enhanced stealth
+- **TeamPCP**: Orchestrating widespread supply chain attacks targeting npm, PyPI, and Jenkins repositories with credential-stealing malware
+- **Mr_Rot13**: Actively exploiting cPanel vulnerability to deploy Filemanager backdoors on compromised hosting environments
+- **ShinyHunters**: Extortion group responsible for Canvas platform breach and 3.65TB data theft, successfully negotiating ransom agreement
+- **Unknown AI-Assisted Actor**: First documented threat actor using artificial intelligence to develop zero-day exploits for web administration tools
+- **TrickMo Operators**: Android banking malware campaign targeting European users with enhanced blockchain-based command and control
+- **Fake OpenAI Impersonators**: Malicious actors creating convincing fake repositories to distribute Rust-based information stealers
+- **Mac Malware Distributors**: Sophisticated malvertising campaigns abusing Google Ads and Claude.ai platforms to target macOS users
