@@ -1,62 +1,78 @@
 # Exploitation Report
 
-Current threat landscape reveals a significant surge in AI-assisted exploit development, supply chain attacks, and zero-day exploitation targeting enterprise infrastructure. Most concerning is Google's first documented case of AI-generated zero-day exploits being used for mass exploitation against 2FA bypass mechanisms. Simultaneously, widespread supply chain compromises have affected major package repositories including npm, PyPI, and Jenkins Marketplace, with threat actor TeamPCP conducting sustained campaigns against development infrastructure. Critical vulnerabilities in enterprise systems including cPanel and SAP platforms are under active exploitation, while sophisticated Android banking trojans are leveraging blockchain technologies for command-and-control operations.
+The current threat landscape shows intense exploitation activity across multiple attack vectors, with attackers leveraging critical vulnerabilities, supply chain compromises, and AI-assisted exploitation techniques. The most concerning developments include active exploitation of cPanel's CVE-2026-41940 vulnerability being used to deploy backdoors, Google's discovery of the first AI-developed zero-day exploit targeting 2FA bypass mechanisms, and extensive supply chain attacks by TeamPCP affecting major software repositories. Additionally, critical vulnerabilities in enterprise systems like Fortinet products, SAP Commerce Cloud, and Exim mail servers are creating significant risk exposure for organizations worldwide.
 
 ## Active Exploitation Details
 
-### AI-Generated Zero-Day 2FA Bypass
-- **Description**: Unknown threat actors developed the first known AI-generated zero-day exploit targeting two-factor authentication mechanisms in popular web administration tools
-- **Impact**: Mass exploitation enabling bypass of 2FA protections across enterprise environments
-- **Status**: Actively exploited in the wild, marking a milestone in AI-assisted cybercrime
-
-### cPanel Critical Authentication Bypass
-- **Description**: Critical vulnerability in cPanel allowing unauthorized access to web hosting control panels
-- **Impact**: Deployment of "Filemanager" backdoors on compromised hosting environments, enabling persistent access to web servers
-- **Status**: Under active exploitation by threat actor "Mr_Rot13"
+### cPanel Critical Vulnerability
+- **Description**: A critical flaw in cPanel allowing unauthorized access and backdoor deployment
+- **Impact**: Attackers can deploy the "Filemanager" backdoor on compromised cPanel environments
+- **Status**: Actively exploited by threat actor Mr_Rot13
 - **CVE ID**: CVE-2026-41940
 
+### AI-Developed Zero-Day 2FA Bypass
+- **Description**: First known zero-day exploit developed using artificial intelligence to bypass two-factor authentication
+- **Impact**: Mass exploitation capability against 2FA-protected systems
+- **Status**: Actively exploited by unknown threat actors
+- **CVE ID**: Not specified in articles
+
 ### Canvas Learning Management System Vulnerability
-- **Description**: Security flaw in Instructure's Canvas LMS platform allowing unauthorized portal modification
-- **Impact**: Portal defacement and extortion message deployment across educational institutions
-- **Status**: Exploited by ShinyHunters group leading to 3.65TB data breach and ransom negotiations
+- **Description**: Security vulnerability in Instructure's Canvas LMS allowing portal defacement
+- **Impact**: Hackers can modify Canvas login portals and leave extortion messages
+- **Status**: Confirmed exploitation with portal defacement attacks
+- **CVE ID**: Not specified in articles
 
-### Linux Privilege Escalation - "Dirty Frag"
-- **Description**: Privilege escalation vulnerability affecting enterprise Linux distributions, similar to Copy Fail and Dirty Pipe exploits
-- **Impact**: Local privilege escalation allowing attackers to gain root access
-- **Status**: Under limited exploitation with potential for widespread abuse
+### Dirty Frag Linux Privilege Escalation
+- **Description**: Privilege escalation vulnerability affecting enterprise Linux distributions, similar to Copy Fail and Dirty Pipe
+- **Impact**: Local privilege escalation on Linux systems
+- **Status**: May already be under limited exploitation
+- **CVE ID**: Not specified in articles
 
-### Hugging Face AI Model Manipulation
-- **Description**: Tokenizer library files in AI models can be manipulated to hijack model outputs
-- **Impact**: Data exfiltration and AI model compromise through single file modification
-- **Status**: Weaponization technique identified affecting machine learning infrastructure
+### Fortinet Critical RCE Vulnerabilities
+- **Description**: Critical remote code execution flaws in FortiSandbox and FortiAuthenticator
+- **Impact**: Attackers can run arbitrary commands or code on affected systems
+- **Status**: Patches released by Fortinet
+- **CVE ID**: Not specified in articles
+
+### Exim BDAT Vulnerability
+- **Description**: Severe security issue in Exim mail server affecting GnuTLS builds
+- **Impact**: Memory corruption and potential code execution
+- **Status**: Security updates released
+- **CVE ID**: Not specified in articles
 
 ## Affected Systems and Products
 
-- **cPanel Web Hosting Platform**: Critical vulnerability enabling backdoor deployment
-- **Instructure Canvas LMS**: Educational platform compromised affecting millions of students and faculty
-- **Hugging Face AI Models**: Machine learning models vulnerable to tokenizer manipulation
-- **Jenkins Marketplace**: AST plugin compromised with credential-stealing malware
-- **npm and PyPI Packages**: TanStack, Mistral AI, UiPath, OpenSearch, and Guardrails AI packages compromised
-- **SAP Commerce Cloud and S/4HANA**: Critical vulnerabilities patched in May 2026 security updates
-- **Enterprise Linux Distributions**: Multiple distros affected by "Dirty Frag" privilege escalation
-- **Android Devices**: TrickMo banking trojan targeting European users
-- **Aviation and Aerospace Firms**: GIS and mapping data theft targeting drone operators
+- **cPanel**: Web hosting control panels vulnerable to backdoor deployment
+- **Fortinet Products**: FortiSandbox and FortiAuthenticator systems affected by critical RCE flaws
+- **Canvas LMS**: Instructure's learning management system with portal defacement vulnerability
+- **Exim Mail Server**: GnuTLS builds vulnerable to memory corruption attacks
+- **SAP Commerce Cloud**: Critical vulnerabilities in enterprise e-commerce platform
+- **SAP S/4HANA**: Critical flaws in enterprise resource planning software
+- **Enterprise Linux**: Multiple distributions affected by Dirty Frag privilege escalation
+- **Windows 11**: Versions 25H2/24H2 and 23H2 receiving security updates
+- **npm Packages**: TanStack, Mistral AI, UiPath, OpenSearch, Guardrails AI packages compromised
+- **PyPI Packages**: Multiple Python packages infected with malicious code
+- **RubyGems**: Package manager affected by massive malicious package upload campaign
+- **Jenkins Marketplace**: Checkmarx AST plugin compromised with infostealer
+- **Hugging Face Models**: AI models vulnerable to tokenizer manipulation attacks
 
 ## Attack Vectors and Techniques
 
-- **AI-Assisted Exploit Development**: Large language models used to generate zero-day exploits and automate attack development
-- **Supply Chain Poisoning**: Malicious packages published to legitimate repositories including npm, PyPI, and Jenkins Marketplace
-- **Blockchain Command-and-Control**: TrickMo malware using The Open Network (TON) blockchain for covert communications
-- **SOCKS5 Proxy Networks**: Android banking trojans creating network pivots for lateral movement
-- **Single File Manipulation**: AI model compromise through minimal tokenizer library modifications
-- **Portal Defacement**: Web application vulnerabilities exploited for extortion messaging
-- **Backdoor Deployment**: Persistent access mechanisms installed via cPanel exploitation
+- **Supply Chain Compromise**: TeamPCP conducting extensive campaigns against npm, PyPI, and Jenkins repositories
+- **AI-Assisted Exploitation**: First known use of AI to develop zero-day exploits for 2FA bypass
+- **Backdoor Deployment**: Filemanager backdoor installation via cPanel vulnerability exploitation
+- **Package Poisoning**: Shai-Hulud worm spreading through compromised software packages
+- **Portal Defacement**: Canvas login portal modification for extortion purposes
+- **Memory Corruption**: Exim BDAT attacks targeting GnuTLS implementations
+- **Privilege Escalation**: Dirty Frag exploit targeting Linux kernel vulnerabilities
+- **Tokenizer Manipulation**: Hugging Face model hijacking through single file modifications
+- **Banking Trojan Evolution**: TrickMo using TON C2 and SOCKS5 for Android network pivots
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Orchestrating widespread supply chain attacks across multiple package repositories, compromising Checkmarx Jenkins plugins, TanStack, Mistral AI, and other development tools
-- **Mr_Rot13**: Actively exploiting cPanel vulnerabilities to deploy Filemanager backdoors on hosting infrastructure
-- **ShinyHunters**: Conducting extortion operations against educational institutions, compromising Canvas LMS and negotiating ransom agreements with Instructure
-- **Unknown AI-Enabled Groups**: First documented use of AI-generated exploits for zero-day 2FA bypass attacks
-- **Aviation-Focused Espionage Group**: Targeting aerospace and drone operators to steal GIS files, terrain models, and GPS data for intelligence gathering
-- **European Banking Campaign**: TrickMo operators targeting Android users across Europe with blockchain-enabled banking trojans
+- **Mr_Rot13**: Actively exploiting cPanel CVE-2026-41940 to deploy Filemanager backdoors across compromised environments
+- **TeamPCP**: Conducting massive supply chain attacks targeting npm, PyPI, and Jenkins repositories with credential-stealing malware and self-propagating worms
+- **Unknown AI-Assisted Actor**: Leveraging artificial intelligence to develop zero-day exploits for 2FA bypass, representing a significant evolution in attack sophistication
+- **ShinyHunters**: Extortion group that breached Instructure and reached agreement to stop 3.65TB Canvas data leak
+- **TrickMo Operators**: Banking trojan campaign using advanced C2 infrastructure and network pivoting capabilities on Android devices
+- **Škoda Auto Attackers**: Successfully compromised online shop infrastructure leading to customer data breach
