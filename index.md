@@ -1,63 +1,65 @@
 # Exploitation Report
 
-Critical exploitation activity is currently affecting multiple platforms with significant security implications. A cPanel vulnerability (CVE-2026-41940) is under active exploitation by the threat actor Mr_Rot13 to deploy Filemanager backdoors on compromised systems. Google has reported the first known instance of AI-assisted zero-day exploit development, where attackers used artificial intelligence to create a zero-day 2FA bypass for mass exploitation targeting a popular web administration tool. Additionally, supply chain attacks have compromised the Checkmarx Jenkins AST plugin and JDownloader download manager, while an Ivanti Endpoint Manager Mobile vulnerability is being exploited as a zero-day, prompting CISA to issue emergency patching directives for federal agencies.
+The current threat landscape reveals several critical exploitation activities targeting enterprise systems and popular software platforms. Most notably, threat actors are actively exploiting a critical cPanel vulnerability (CVE-2026-41940) to deploy backdoors on hosting environments, while simultaneously leveraging AI-generated zero-day exploits for the first time in documented history. Supply chain attacks have intensified with compromises of the Checkmarx Jenkins plugin, JDownloader website, and malicious repositories on trusted platforms like Hugging Face. Additionally, banking trojans and Android malware are evolving with new communication methods, and attackers are increasingly abusing legitimate services like Google Ads and Claude.ai for malware distribution.
 
 ## Active Exploitation Details
 
 ### cPanel Critical Vulnerability
-- **Description**: Critical vulnerability in cPanel allowing unauthorized access and backdoor deployment
-- **Impact**: Attackers can deploy the Filemanager backdoor on compromised cPanel environments, potentially gaining persistent access to web hosting systems
-- **Status**: Under active exploitation by Mr_Rot13 threat actor; patches available
+- **Description**: A critical security flaw in cPanel that allows threat actors to deploy backdoors on compromised hosting environments
+- **Impact**: Full system compromise and deployment of the "Filemanager" backdoor for persistent access
+- **Status**: Under active exploitation by threat actor "Mr_Rot13"
 - **CVE ID**: CVE-2026-41940
 
-### AI-Developed Zero-Day 2FA Bypass
-- **Description**: First known zero-day exploit developed using artificial intelligence systems targeting a popular web administration tool
-- **Impact**: Bypasses two-factor authentication mechanisms, allowing unauthorized access to administrative interfaces
-- **Status**: Active exploitation detected by Google Threat Intelligence Group; represents a significant evolution in exploit development methodologies
+### AI-Generated Zero-Day 2FA Bypass
+- **Description**: First documented zero-day exploit developed using artificial intelligence targeting a popular open-source web administration tool's two-factor authentication mechanism
+- **Impact**: Complete bypass of 2FA protections, allowing unauthorized access to web administration interfaces
+- **Status**: Active exploitation identified by Google Threat Intelligence Group, likely developed with AI systems
 
-### Ivanti Endpoint Manager Mobile Zero-Day
-- **Description**: High-severity vulnerability in Ivanti EPMM being exploited in zero-day attacks
-- **Impact**: Allows attackers to compromise mobile device management systems
-- **Status**: Active zero-day exploitation; CISA has mandated federal agencies patch within four days
+### Canvas Portal Defacement Vulnerability
+- **Description**: Security vulnerability in Instructure's Canvas learning management system allowing unauthorized modification of login portals
+- **Impact**: Portal defacement and display of extortion messages targeting educational institutions
+- **Status**: Confirmed exploitation with hackers successfully modifying Canvas login portals
 
-### Checkmarx Jenkins AST Plugin Supply Chain Attack
-- **Description**: TeamPCP threat group compromised the Checkmarx Jenkins AST plugin in the Jenkins Marketplace
-- **Impact**: Organizations using the compromised plugin may have their CI/CD pipelines compromised
-- **Status**: Modified malicious version published to Jenkins Marketplace; users must verify they are using legitimate versions
+### Ollama Memory Leak Vulnerability
+- **Description**: Out-of-bounds read vulnerability in Ollama that allows remote attackers to leak entire process memory
+- **Impact**: Unauthorized access to sensitive process memory contents without authentication
+- **Status**: Critical vulnerability disclosed, exploitation potential confirmed
 
-### Canvas Learning Management System Vulnerability
-- **Description**: Security vulnerability in Instructure Canvas allowing unauthorized portal modification
-- **Impact**: Hackers can deface Canvas login portals and leave extortion messages
-- **Status**: Confirmed exploitation by Instructure; vulnerability used for portal defacement and extortion
+### Dirty Frag Linux Privilege Escalation
+- **Description**: Privilege escalation vulnerability affecting enterprise Linux distributions, similar to Copy Fail and Dirty Pipe flaws
+- **Impact**: Local privilege escalation allowing attackers to gain elevated system access
+- **Status**: May already be under limited exploitation according to security researchers
 
 ## Affected Systems and Products
 
-- **cPanel and Web Host Manager (WHM)**: Web hosting control panels vulnerable to backdoor deployment
-- **Ivanti Endpoint Manager Mobile (EPMM)**: Mobile device management systems under zero-day attack
-- **Jenkins AST Plugin**: CI/CD pipeline security tools compromised in supply chain attack
-- **Canvas Learning Management System**: Education technology platforms used by institutions worldwide
-- **JDownloader**: Popular download manager with compromised website distributing malware
-- **Ollama AI Platform**: Out-of-bounds read vulnerability allowing remote memory leak
-- **Linux Enterprise Distributions**: "Dirty Frag" privilege escalation vulnerability affecting enterprise systems
-- **Hugging Face Repository Platform**: Fake OpenAI repositories distributing information-stealing malware
+- **cPanel/WHM**: Web hosting control panels vulnerable to critical exploitation
+- **Checkmarx Jenkins AST Plugin**: Compromised plugin distributed through Jenkins Marketplace
+- **Instructure Canvas**: Educational platform login portals targeted for defacement
+- **JDownloader**: Official website compromised to distribute Python RAT malware
+- **Ollama**: AI model serving platform vulnerable to memory leak attacks
+- **Enterprise Linux Distributions**: Multiple distros affected by Dirty Frag privilege escalation
+- **Windows Systems**: Targeted by GhostLock file access blocking tool and various infostealers
+- **Android Devices**: TrickMo banking malware targeting European users
+- **macOS Systems**: Targeted through malvertising campaigns via Google Ads and Claude.ai
+- **NVIDIA GeForce NOW**: Data breach affecting Armenian users
 
 ## Attack Vectors and Techniques
 
-- **AI-Assisted Exploit Development**: First documented use of artificial intelligence to develop zero-day exploits
-- **Supply Chain Compromises**: Attackers targeting trusted software repositories and distribution channels
-- **Website Compromises**: Direct compromise of legitimate software websites to distribute malware
-- **Malvertising Campaigns**: Abuse of Google Ads and legitimate AI chat platforms to distribute malware
-- **Repository Poisoning**: Creation of fake repositories on trusted platforms like Hugging Face
-- **2FA Bypass Techniques**: Advanced methods to circumvent two-factor authentication systems
-- **Privilege Escalation**: "Dirty Frag" vulnerability enabling local privilege escalation on Linux systems
+- **Supply Chain Attacks**: Compromise of trusted software repositories and official download sites
+- **AI-Powered Exploit Development**: First documented use of artificial intelligence to generate zero-day exploits
+- **Malvertising Campaigns**: Abuse of Google Ads and legitimate chat platforms to distribute malware
+- **Repository Poisoning**: Fake repositories on trusted platforms like Hugging Face and Jenkins Marketplace
+- **Website Compromise**: Direct compromise of official software download sites
+- **TON Blockchain C2**: Use of blockchain technology for covert command and control communications
+- **Windows API Abuse**: Legitimate file APIs exploited to block file access (GhostLock technique)
+- **WhatsApp/Outlook Worms**: Banking trojans spreading through messaging and email platforms
 
 ## Threat Actor Activities
 
-- **Mr_Rot13**: Actively exploiting cPanel CVE-2026-41940 to deploy Filemanager backdoors on compromised hosting environments
-- **TeamPCP**: Conducted supply chain attack against Checkmarx Jenkins AST plugin following previous KICS supply chain compromise
-- **ShinyHunters**: Claims second attack against Instructure, targeting educational technology platforms with potential exposure of hundreds of millions of personal records
-- **RansomHouse**: Claimed responsibility for Trellix source code repository breach, leaked proof-of-concept images
-- **Unknown AI-Leveraging Group**: First threat actor identified using artificial intelligence for zero-day exploit development, marking significant evolution in attack methodologies
-- **Aviation-Targeting Espionage Group**: Quietly compromising aerospace and drone operators to steal GIS files, terrain models, and GPS mapping data
-- **TCLBANKER Operators**: Brazilian banking trojan targeting 59 financial platforms via WhatsApp and Outlook worm propagation
-- **TrickMo Android Banking Group**: Enhanced Android banking malware using TON blockchain for covert command-and-control communications
+- **Mr_Rot13**: Actively exploiting cPanel CVE-2026-41940 to deploy Filemanager backdoors on hosting environments
+- **TeamPCP**: Responsible for compromising the Checkmarx Jenkins AST plugin in a supply chain attack
+- **Unknown AI-Powered Actor**: First threat group identified using AI to develop zero-day exploits for web admin tools
+- **ShinyHunters**: Claims second attack against Instructure, targeting educational technology platforms
+- **TCLBANKER Operators**: Brazilian banking trojan operators targeting 59 financial and cryptocurrency platforms
+- **TrickMo Operators**: Android banking malware campaign targeting European users with blockchain-based C2
+- **Aviation Espionage Group**: Cyber espionage campaign targeting aerospace and drone operators to steal GIS and GPS data
