@@ -1,61 +1,61 @@
 # Exploitation Report
 
-This reporting period reveals several critical security developments across multiple platforms and industries. The most significant exploitation activity centers around supply chain attacks, with the Shai-Hulud campaign compromising hundreds of npm and PyPI packages from major organizations including TanStack, Mistral AI, and Guardrails AI. Critical remote code execution vulnerabilities have been disclosed in Fortinet's FortiSandbox and FortiAuthenticator products, while a severe memory corruption flaw affects Exim mail server configurations. Additional notable incidents include the ShinyHunters extortion group's successful breach of Instructure's Canvas platform affecting millions of users, and the compromise of CheckMarx's official Jenkins plugin with credential-stealing malware.
+The cybersecurity landscape shows significant threat actor activity with multiple high-impact incidents affecting major platforms and supply chain infrastructure. Notable exploitation includes the ShinyHunters extortion group's successful breach of Instructure's Canvas platform affecting millions of educational users, and the TeamPCP threat actor's sophisticated Shai-Hulud supply chain campaign compromising hundreds of npm and PyPI packages from major organizations including TanStack, Mistral AI, and Guardrails AI. Critical vulnerabilities have been disclosed in Fortinet products enabling remote code execution, while the Android banking trojan TrickMo has evolved with advanced network pivoting capabilities. The threat landscape is further complicated by malicious attacks on package repositories including RubyGems and compromised official Jenkins plugins, demonstrating the continued targeting of developer infrastructure.
 
 ## Active Exploitation Details
 
-### Shai-Hulud Supply Chain Attack
-- **Description**: A sophisticated worm-based campaign targeting npm and PyPI package repositories, compromising official packages from major organizations
-- **Impact**: Credential theft, potential system compromise for developers using infected packages, and supply chain contamination affecting downstream users
-- **Status**: Active exploitation with hundreds of compromised packages identified; TeamPCP threat actor continues operations
+### Canvas Platform Breach
+- **Description**: ShinyHunters extortion group successfully breached Instructure's Canvas learning management system through unauthorized network access
+- **Impact**: Compromise of 3.65TB of sensitive educational data affecting millions of students and educational institutions worldwide
+- **Status**: Instructure has reached an "agreement" with threat actors to prevent further data leakage
 
-### Fortinet FortiSandbox and FortiAuthenticator RCE Vulnerabilities
-- **Description**: Critical remote code execution flaws in Fortinet's security products enabling arbitrary code execution
-- **Impact**: Attackers can execute commands or arbitrary code on vulnerable systems, potentially leading to complete system compromise
-- **Status**: Security patches released; exploitation potential remains high for unpatched systems
+### Shai-Hulud Supply Chain Campaign
+- **Description**: Self-propagating credential-stealing worm targeting npm and PyPI package repositories with hundreds of compromised packages
+- **Impact**: Credential theft targeting developers across multiple major organizations including TanStack, Mistral AI, UiPath, OpenSearch, and Guardrails AI
+- **Status**: Actively spreading across package ecosystems with signed malicious packages
 
-### Exim BDAT Memory Corruption Vulnerability
-- **Description**: Severe security flaw in Exim mail server affecting GnuTLS builds, leading to memory corruption and potential code execution
-- **Impact**: Remote code execution on vulnerable mail servers, potentially allowing complete system takeover
-- **Status**: Security updates released to address the vulnerability
+### Fortinet Critical RCE Vulnerabilities
+- **Description**: Critical remote code execution flaws discovered in FortiSandbox and FortiAuthenticator products
+- **Impact**: Attackers can execute arbitrary commands or code on affected systems
+- **Status**: Security patches released by Fortinet
+
+### Exim BDAT Vulnerability
+- **Description**: Severe security issue in Exim mail transfer agent affecting GnuTLS builds that enables memory corruption
+- **Impact**: Potential code execution through memory corruption attacks
+- **Status**: Security updates released
 
 ### CheckMarx Jenkins Plugin Compromise
-- **Description**: Official CheckMarx Jenkins Application Security Testing plugin compromised and published with malicious code
-- **Impact**: Information stealing capabilities targeting development environments and CI/CD pipelines
-- **Status**: Rogue version identified and reported; users advised to verify plugin integrity
-
-### ShinyHunters Canvas Platform Breach
-- **Description**: Successful compromise of Instructure's Canvas learning management system by ShinyHunters extortion group
-- **Impact**: Exposure of personal data from millions of students and educators; 3.65TB of data stolen
-- **Status**: Instructure reached "agreement" with attackers to prevent data leak
+- **Description**: Official CheckMarx Jenkins Application Security Testing plugin compromised with malicious infostealer code
+- **Impact**: Information theft from development environments using the compromised plugin
+- **Status**: Rogue version published on Jenkins Marketplace
 
 ## Affected Systems and Products
 
-- **Fortinet FortiSandbox**: Critical RCE vulnerabilities requiring immediate patching
-- **Fortinet FortiAuthenticator**: Critical RCE vulnerabilities with patch available
+- **Instructure Canvas**: Educational learning management system affecting millions of users globally
+- **npm and PyPI Packages**: Hundreds of compromised packages in major JavaScript and Python repositories
+- **Fortinet FortiSandbox**: Security appliance vulnerable to remote code execution
+- **Fortinet FortiAuthenticator**: Authentication solution with critical RCE flaws
 - **Exim Mail Server**: GnuTLS builds vulnerable to memory corruption attacks
-- **npm and PyPI Packages**: Hundreds of packages from TanStack, Mistral AI, Guardrails AI, UiPath, and OpenSearch compromised
-- **Jenkins Marketplace**: Official CheckMarx AST plugin compromised with malware
-- **Canvas LMS Platform**: Educational platform serving millions of users worldwide
-- **SAP Commerce Cloud**: Critical vulnerabilities patched in May 2026 updates
-- **SAP S/4HANA**: Critical flaws addressed in security updates
-- **Microsoft Products**: 120 vulnerabilities patched in May 2026 Patch Tuesday
-- **Android Devices**: TrickMo banking trojan targeting mobile users
+- **Jenkins Marketplace**: Official plugin repository compromised with malicious CheckMarx plugin
+- **RubyGems**: Package manager for Ruby programming language targeted by malicious uploads
+- **Hugging Face AI Models**: Machine learning models vulnerable to manipulation through tokenizer library files
+- **SAP Commerce Cloud**: Enterprise e-commerce platform with critical vulnerabilities
+- **SAP S/4HANA**: Enterprise resource planning system affected by security flaws
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Malicious packages injected into official repositories to target developers
-- **Worm Propagation**: Self-replicating malware spreading across package ecosystems
-- **Remote Code Execution**: Exploitation of memory corruption and input validation flaws
-- **Social Engineering**: Targeting of development teams through compromised tools
-- **Credential Harvesting**: Information stealing malware embedded in legitimate-appearing packages
-- **Extortion Operations**: Data theft followed by ransom demands and leak threats
-- **C2 Infrastructure**: Use of The Open Network (TON) for command and control communications
-- **Network Pivoting**: SOCKS5 proxy implementation for lateral movement
+- **Supply Chain Poisoning**: Self-propagating worm infecting legitimate package repositories to distribute credential stealers
+- **Package Repository Infiltration**: Mass upload of malicious packages to trusted development repositories
+- **Signed Malicious Packages**: Use of legitimate signing certificates to distribute malware through official channels
+- **Remote Code Execution**: Exploitation of critical vulnerabilities in enterprise security appliances
+- **Memory Corruption**: Attacks targeting mail server vulnerabilities to achieve code execution
+- **Data Extortion**: Large-scale data theft with threats of public disclosure unless ransom demands are met
+- **Plugin Marketplace Compromise**: Distribution of malicious code through official development tool marketplaces
+- **AI Model Manipulation**: Weaponization of machine learning model components for data exfiltration
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Conducting large-scale supply chain attacks through the Shai-Hulud campaign, targeting major open-source projects
-- **ShinyHunters**: Successfully breached Instructure's Canvas platform, stealing 3.65TB of data and conducting extortion operations
-- **TrickMo Operators**: Deploying enhanced Android banking trojans with improved C2 capabilities and network pivoting features
-- **RubyGems Attackers**: Launched major malicious campaign forcing temporary suspension of new account signups on the platform
+- **ShinyHunters Group**: Conducted massive breach of Instructure Canvas platform, negotiated "agreement" to prevent 3.65TB data leak affecting educational institutions
+- **TeamPCP**: Advanced persistent threat actor behind sophisticated Shai-Hulud supply chain campaign targeting developer infrastructure across multiple package ecosystems
+- **TrickMo Operators**: Enhanced Android banking trojan with TON blockchain C2 infrastructure and SOCKS5 proxy capabilities for network pivoting
+- **Unknown Attackers**: Compromised official CheckMarx Jenkins plugin with infostealer malware and conducted mass malicious package uploads to RubyGems
