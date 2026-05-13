@@ -1,78 +1,57 @@
 # Exploitation Report
 
-The current threat landscape shows intense exploitation activity across multiple attack vectors, with attackers leveraging critical vulnerabilities, supply chain compromises, and AI-assisted exploitation techniques. The most concerning developments include active exploitation of cPanel's CVE-2026-41940 vulnerability being used to deploy backdoors, Google's discovery of the first AI-developed zero-day exploit targeting 2FA bypass mechanisms, and extensive supply chain attacks by TeamPCP affecting major software repositories. Additionally, critical vulnerabilities in enterprise systems like Fortinet products, SAP Commerce Cloud, and Exim mail servers are creating significant risk exposure for organizations worldwide.
+The current threat landscape shows significant supply chain compromise activity with multiple package repositories under attack, alongside critical vulnerabilities in enterprise systems. Notable incidents include the Shai-Hulud worm campaign targeting npm and PyPI packages with credential-stealing malware, and critical remote code execution vulnerabilities discovered in Fortinet's security products. While Microsoft's latest patch cycle notably contains no zero-day vulnerabilities for the first time in two years, threat actors continue to exploit organizational trust relationships and software supply chains to achieve widespread compromise.
 
 ## Active Exploitation Details
 
-### cPanel Critical Vulnerability
-- **Description**: A critical flaw in cPanel allowing unauthorized access and backdoor deployment
-- **Impact**: Attackers can deploy the "Filemanager" backdoor on compromised cPanel environments
-- **Status**: Actively exploited by threat actor Mr_Rot13
-- **CVE ID**: CVE-2026-41940
+### Shai-Hulud Supply Chain Attack
+- **Description**: A self-propagating worm targeting npm and PyPI package repositories, compromising legitimate packages from major organizations including TanStack, Mistral AI, UiPath, OpenSearch, and Guardrails AI
+- **Impact**: Credential theft and potential supply chain poisoning affecting developers who install compromised packages
+- **Status**: Active campaign with hundreds of packages compromised across multiple repositories
 
-### AI-Developed Zero-Day 2FA Bypass
-- **Description**: First known zero-day exploit developed using artificial intelligence to bypass two-factor authentication
-- **Impact**: Mass exploitation capability against 2FA-protected systems
-- **Status**: Actively exploited by unknown threat actors
-- **CVE ID**: Not specified in articles
+### RubyGems Malicious Package Campaign
+- **Description**: Mass upload of malicious packages to the RubyGems repository forcing temporary suspension of new account registrations
+- **Impact**: Potential compromise of Ruby development environments and applications using affected gems
+- **Status**: RubyGems has paused new signups to address the attack
 
-### Canvas Learning Management System Vulnerability
-- **Description**: Security vulnerability in Instructure's Canvas LMS allowing portal defacement
-- **Impact**: Hackers can modify Canvas login portals and leave extortion messages
-- **Status**: Confirmed exploitation with portal defacement attacks
-- **CVE ID**: Not specified in articles
+### CheckMarx Jenkins Plugin Compromise
+- **Description**: Official CheckMarx Jenkins Application Security Testing plugin compromised with information-stealing malware
+- **Impact**: Credential theft and potential compromise of CI/CD pipelines using the affected plugin
+- **Status**: Rogue version published on Jenkins Marketplace, users advised to verify plugin integrity
 
-### Dirty Frag Linux Privilege Escalation
-- **Description**: Privilege escalation vulnerability affecting enterprise Linux distributions, similar to Copy Fail and Dirty Pipe
-- **Impact**: Local privilege escalation on Linux systems
-- **Status**: May already be under limited exploitation
-- **CVE ID**: Not specified in articles
+### Fortinet FortiSandbox and FortiAuthenticator RCE Vulnerabilities
+- **Description**: Critical remote code execution vulnerabilities in Fortinet's security products
+- **Impact**: Attackers can execute arbitrary commands or code on affected systems
+- **Status**: Security patches released by Fortinet
 
-### Fortinet Critical RCE Vulnerabilities
-- **Description**: Critical remote code execution flaws in FortiSandbox and FortiAuthenticator
-- **Impact**: Attackers can run arbitrary commands or code on affected systems
-- **Status**: Patches released by Fortinet
-- **CVE ID**: Not specified in articles
-
-### Exim BDAT Vulnerability
-- **Description**: Severe security issue in Exim mail server affecting GnuTLS builds
-- **Impact**: Memory corruption and potential code execution
-- **Status**: Security updates released
-- **CVE ID**: Not specified in articles
+### Exim BDAT Memory Corruption Vulnerability
+- **Description**: Severe security issue in Exim mail transfer agent affecting GnuTLS builds
+- **Impact**: Memory corruption leading to potential code execution on mail servers
+- **Status**: Security updates released by Exim
 
 ## Affected Systems and Products
 
-- **cPanel**: Web hosting control panels vulnerable to backdoor deployment
-- **Fortinet Products**: FortiSandbox and FortiAuthenticator systems affected by critical RCE flaws
-- **Canvas LMS**: Instructure's learning management system with portal defacement vulnerability
-- **Exim Mail Server**: GnuTLS builds vulnerable to memory corruption attacks
-- **SAP Commerce Cloud**: Critical vulnerabilities in enterprise e-commerce platform
-- **SAP S/4HANA**: Critical flaws in enterprise resource planning software
-- **Enterprise Linux**: Multiple distributions affected by Dirty Frag privilege escalation
-- **Windows 11**: Versions 25H2/24H2 and 23H2 receiving security updates
-- **npm Packages**: TanStack, Mistral AI, UiPath, OpenSearch, Guardrails AI packages compromised
-- **PyPI Packages**: Multiple Python packages infected with malicious code
-- **RubyGems**: Package manager affected by massive malicious package upload campaign
-- **Jenkins Marketplace**: Checkmarx AST plugin compromised with infostealer
-- **Hugging Face Models**: AI models vulnerable to tokenizer manipulation attacks
+- **npm and PyPI Package Repositories**: Hundreds of packages compromised including TanStack, Mistral AI, UiPath, OpenSearch, and Guardrails AI packages
+- **RubyGems Repository**: Multiple malicious packages uploaded targeting Ruby developers
+- **Jenkins CI/CD Platform**: CheckMarx AST plugin compromised with infostealer malware
+- **Fortinet Products**: FortiSandbox and FortiAuthenticator systems vulnerable to remote code execution
+- **Exim Mail Servers**: GnuTLS builds affected by memory corruption vulnerability
+- **Hugging Face AI Models**: Tokenizer library files can be manipulated to hijack model outputs
+- **SAP Enterprise Systems**: Commerce Cloud and S/4HANA platforms with critical vulnerabilities
+- **Android Banking Applications**: TrickMo banking trojan using TON blockchain for C2 communications
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: TeamPCP conducting extensive campaigns against npm, PyPI, and Jenkins repositories
-- **AI-Assisted Exploitation**: First known use of AI to develop zero-day exploits for 2FA bypass
-- **Backdoor Deployment**: Filemanager backdoor installation via cPanel vulnerability exploitation
-- **Package Poisoning**: Shai-Hulud worm spreading through compromised software packages
-- **Portal Defacement**: Canvas login portal modification for extortion purposes
-- **Memory Corruption**: Exim BDAT attacks targeting GnuTLS implementations
-- **Privilege Escalation**: Dirty Frag exploit targeting Linux kernel vulnerabilities
-- **Tokenizer Manipulation**: Hugging Face model hijacking through single file modifications
-- **Banking Trojan Evolution**: TrickMo using TON C2 and SOCKS5 for Android network pivots
+- **Package Repository Compromise**: Threat actors uploading malicious versions of legitimate packages to npm, PyPI, and RubyGems repositories
+- **Supply Chain Worm Propagation**: Self-replicating malware spreading through package dependencies and development environments
+- **Plugin Marketplace Abuse**: Compromising official plugin repositories to distribute malicious code through trusted channels
+- **AI Model Manipulation**: Weaponizing tokenizer library files in Hugging Face models to hijack outputs and exfiltrate data
+- **Memory Corruption Exploitation**: Leveraging buffer overflow vulnerabilities in mail transfer agents for code execution
+- **Blockchain C2 Infrastructure**: Using The Open Network (TON) blockchain for command and control communications in mobile malware
 
 ## Threat Actor Activities
 
-- **Mr_Rot13**: Actively exploiting cPanel CVE-2026-41940 to deploy Filemanager backdoors across compromised environments
-- **TeamPCP**: Conducting massive supply chain attacks targeting npm, PyPI, and Jenkins repositories with credential-stealing malware and self-propagating worms
-- **Unknown AI-Assisted Actor**: Leveraging artificial intelligence to develop zero-day exploits for 2FA bypass, representing a significant evolution in attack sophistication
-- **ShinyHunters**: Extortion group that breached Instructure and reached agreement to stop 3.65TB Canvas data leak
-- **TrickMo Operators**: Banking trojan campaign using advanced C2 infrastructure and network pivoting capabilities on Android devices
-- **Škoda Auto Attackers**: Successfully compromised online shop infrastructure leading to customer data breach
+- **TeamPCP**: Behind the Shai-Hulud supply chain attack campaign targeting multiple package repositories with credential-stealing worms
+- **ShinyHunters**: Extortion group that breached Instructure (Canvas LMS) and reached a ransom agreement to prevent leak of 3.65TB of data
+- **TrickMo Operators**: Android banking trojan developers implementing advanced techniques including SOCKS5 proxies and blockchain-based C2 infrastructure
+- **Unknown Supply Chain Attackers**: Groups targeting RubyGems repository with mass malicious package uploads and compromising official Jenkins plugins
