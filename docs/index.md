@@ -1,61 +1,72 @@
 # Exploitation Report
 
-Current cybersecurity threat activity reveals significant exploitation targeting critical infrastructure and widely deployed systems. Multiple high-severity vulnerabilities are being actively exploited, including a Linux kernel privilege escalation flaw allowing root access (CVE-2026-46300) and an 18-year-old NGINX rewrite module vulnerability enabling unauthenticated remote code execution. State-sponsored threat actors, particularly China-linked groups like FamousSparrow, are conducting sustained campaigns against energy sector organizations, while innovative attack vectors are emerging through supply chain abuse of RubyGems repositories and Windows BitLocker bypass techniques.
+Current threat activity reveals a critical landscape of active exploitation targeting enterprise infrastructure and open-source platforms. The most severe threats include newly disclosed zero-day vulnerabilities in Windows BitLocker and privilege escalation mechanisms, rapid exploitation of authentication bypass flaws in AI orchestration frameworks, and sophisticated social engineering campaigns leveraging trusted communication platforms. Ransomware groups continue to target manufacturing and pharmaceutical sectors, while nation-state actors are conducting sustained attacks against energy infrastructure using established Microsoft Exchange vulnerabilities.
 
 ## Active Exploitation Details
 
-### Fragnesia Linux Kernel Privilege Escalation Vulnerability
-- **Description**: A high-severity kernel privilege escalation vulnerability in Linux distributions that exploits page cache corruption mechanisms, representing a variant of the Dirty Frag vulnerability family
-- **Impact**: Allows local attackers to gain root access and execute malicious code with elevated privileges
-- **Status**: Linux distributions are actively rolling out patches for this vulnerability
+### Windows BitLocker Zero-Day Bypass (YellowKey)
+- **Description**: Zero-day vulnerability allowing unauthorized access to BitLocker-protected drives through encryption bypass mechanisms
+- **Impact**: Attackers can gain access to encrypted data without proper authentication credentials
+- **Status**: Unpatched with proof-of-concept exploit code publicly released
+
+### Windows Privilege Escalation Zero-Day (GreenPlasma)
+- **Description**: Zero-day privilege escalation vulnerability in Windows CTFMON service allowing local attackers to gain elevated privileges
+- **Impact**: Local attackers can escalate privileges to administrator or system level access
+- **Status**: Unpatched with proof-of-concept exploit code publicly released
+
+### PraisonAI Authentication Bypass
+- **Description**: Authentication bypass vulnerability in PraisonAI open-source multi-agent orchestration framework
+- **Impact**: Unauthenticated attackers can bypass authentication controls and gain unauthorized access
+- **Status**: Actively exploited within four hours of public disclosure
+- **CVE ID**: CVE-2026-44338
+
+### Fragnesia Linux Kernel Privilege Escalation
+- **Description**: High-severity kernel privilege escalation vulnerability affecting Linux distributions through page cache corruption
+- **Impact**: Local attackers can execute malicious code with root privileges
+- **Status**: Patches being rolled out by Linux distributions
 - **CVE ID**: CVE-2026-46300
 
 ### NGINX Rewrite Module Remote Code Execution
-- **Description**: An 18-year-old critical vulnerability in NGINX Plus and NGINX Open affecting the rewrite module that remained undetected for nearly two decades
-- **Impact**: Enables unauthenticated remote code execution, allowing attackers to compromise web servers without authentication
-- **Status**: Critical vulnerability disclosed with multiple security flaws affecting NGINX installations
+- **Description**: Critical vulnerability in NGINX rewrite module that remained undetected for 18 years
+- **Impact**: Enables unauthenticated remote code execution on affected NGINX Plus and NGINX Open installations
+- **Status**: Recently disclosed, patches available
 
 ### Exim Mail Transfer Agent Remote Code Execution
-- **Description**: A critical vulnerability affecting specific configurations of the Exim open-source mail transfer agent
-- **Impact**: Allows unauthenticated remote attackers to execute arbitrary code on vulnerable mail servers
-- **Status**: Recently disclosed vulnerability requiring immediate patching
-
-### Windows BitLocker Zero-Day Vulnerabilities
-- **Description**: Two unpatched Microsoft Windows vulnerabilities named YellowKey and GreenPlasma affecting BitLocker encryption and privilege escalation
-- **Impact**: YellowKey provides unauthorized access to BitLocker-protected drives while GreenPlasma enables privilege escalation
-- **Status**: Proof-of-concept exploits have been publicly released; vulnerabilities remain unpatched
-
-### Microsoft Exchange Exploitation
-- **Description**: Continued exploitation of Microsoft Exchange vulnerabilities by threat actors
-- **Impact**: Enables multi-wave intrusions and persistent access to enterprise environments
-- **Status**: Ongoing exploitation observed in targeted campaigns against energy sector organizations
+- **Description**: Critical vulnerability in Exim open-source mail transfer agent affecting specific configurations
+- **Impact**: Unauthenticated remote attackers can execute arbitrary code
+- **Status**: Critical severity, patches available
 
 ## Affected Systems and Products
 
-- **Linux Distributions**: Multiple distributions affected by Fragnesia kernel vulnerability (CVE-2026-46300)
-- **NGINX Web Servers**: NGINX Plus and NGINX Open installations with rewrite module configurations
-- **Exim Mail Servers**: Specific configurations of the open-source mail transfer agent
-- **Microsoft Windows**: BitLocker-enabled systems vulnerable to YellowKey and GreenPlasma exploits
-- **Microsoft Exchange**: Enterprise Exchange servers targeted in sustained campaigns
-- **RubyGems Repository**: Over 150 malicious gems used for data exfiltration operations
-- **West Pharmaceutical Services**: Healthcare manufacturing systems compromised with data exfiltration and encryption
-- **Foxconn Manufacturing**: North American factories affected by Nitrogen ransomware attack
+- **Microsoft Windows**: BitLocker encryption systems, CTFMON service, Windows 11 systems experiencing BitLocker recovery issues
+- **PraisonAI Framework**: Open-source multi-agent orchestration platforms
+- **Linux Distributions**: Various distributions affected by Fragnesia kernel vulnerability
+- **NGINX**: NGINX Plus and NGINX Open web servers with rewrite module enabled
+- **Exim Mail Servers**: Open-source mail transfer agent installations with vulnerable configurations
+- **Microsoft Teams**: Corporate communication platforms targeted for social engineering
+- **Microsoft Exchange**: Email servers targeted by nation-state actors
+- **Dell SupportAssist**: Windows systems experiencing BSOD crashes
+- **Foxconn Manufacturing**: North American factory operations affected by ransomware
+- **West Pharmaceutical**: Systems encrypted and data exfiltrated in cyberattack
 
 ## Attack Vectors and Techniques
 
-- **Kernel Exploitation**: Page cache corruption techniques enabling privilege escalation in Linux systems
-- **Web Application Attacks**: Exploitation of 18-year-old NGINX rewrite module vulnerabilities for unauthenticated RCE
-- **Mail Server Compromise**: Remote code execution through Exim mail transfer agent vulnerabilities
-- **Encryption Bypass**: BitLocker protection circumvention using YellowKey exploit technique
-- **Supply Chain Attacks**: Abuse of RubyGems repository as data dead drop mechanism for exfiltrating scraped government data
-- **Exchange Server Exploitation**: Multi-wave intrusion campaigns leveraging Exchange vulnerabilities
-- **Ransomware Deployment**: Nitrogen ransomware group targeting manufacturing infrastructure
+- **Social Engineering via Teams**: KongTuke hackers using Microsoft Teams for initial access broker activities, achieving persistent access within five minutes
+- **Rapid Vulnerability Exploitation**: Threat actors targeting newly disclosed vulnerabilities within hours of public disclosure
+- **Authentication Bypass**: Exploiting authentication flaws in AI orchestration frameworks
+- **Privilege Escalation**: Using kernel vulnerabilities to gain root access on Linux systems
+- **BitLocker Bypass**: Circumventing Windows disk encryption through zero-day vulnerabilities
+- **Remote Code Execution**: Leveraging web server and mail server vulnerabilities for initial access
+- **Ransomware Deployment**: Nitrogen ransomware targeting manufacturing infrastructure
+- **Data Exfiltration**: Combining system encryption with sensitive data theft
+- **AI-Generated Tools**: LatAm threat actors using AI agents to generate custom hacking tools on demand
 
 ## Threat Actor Activities
 
-- **FamousSparrow (China-linked APT)**: Conducting sustained multi-wave intrusions against Azerbaijani oil and gas companies between December 2025 and February 2026, extending targeting beyond traditional hospitality and telecom sectors
-- **MuddyWater (Iran-linked)**: Launching broad cyber-espionage campaigns targeting at least nine high-profile organizations across multiple sectors including a major South Korean electronics manufacturer
-- **GemStuffer Campaign**: Threat actors publishing over 150 malicious RubyGems packages containing scrapers targeting UK government council portals for data exfiltration
-- **Nitrogen Ransomware Group**: Confirmed cyberattack against Foxconn's North American manufacturing facilities, disrupting operations at the world's largest electronics manufacturer
-- **LatAm Threat Groups**: Utilizing AI agents to generate custom hacking tools on-demand for attacks against entities in Mexico and Brazil
-- **The Gentlemen RaaS**: Ransomware-as-a-Service operation experiencing operational security failures leading to data leaks revealing organizational structure and affiliate models
+- **KongTuke Group**: Initial access broker expanding operations to Microsoft Teams-based social engineering campaigns targeting corporate networks
+- **Nitrogen Ransomware**: Successfully attacked Foxconn's North American facilities, part of broader manufacturing sector targeting with over 600 attacks this year
+- **MuddyWater (Seedworm/Static Kitten)**: Iran-linked group conducting cyber-espionage campaign against South Korean electronics manufacturers and multiple high-profile organizations
+- **FamousSparrow APT**: China-affiliated threat actor conducting multi-wave intrusions against Azerbaijani oil and gas companies using Microsoft Exchange exploitation
+- **The Gentlemen RaaS**: Ransomware-as-a-Service operation with generous affiliate model and effective organizational structure
+- **LatAm Threat Actors**: Groups leveraging AI agents to generate custom attack tools targeting entities in Mexico and Brazil
+- **Anonymous Researcher**: Individual responsible for disclosing multiple Microsoft Defender and Windows zero-day vulnerabilities
