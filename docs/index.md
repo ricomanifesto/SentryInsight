@@ -1,61 +1,74 @@
 # Exploitation Report
 
-Current threat intelligence reveals critical exploitation activity across multiple vectors, with threat actors rapidly targeting newly disclosed vulnerabilities and leveraging established attack techniques. Notable activity includes the PraisonAI authentication bypass vulnerability CVE-2026-44338 being exploited within hours of disclosure, Windows zero-day vulnerabilities affecting BitLocker security mechanisms, and a high-severity Linux kernel privilege escalation flaw CVE-2026-46300 known as Fragnesia. Manufacturing sectors face intensified targeting, with Foxconn confirming a Nitrogen ransomware attack while Iranian threat actors conduct broad cyber-espionage campaigns against major organizations including South Korean electronics manufacturers.
+Critical exploitation activity continues to surge with multiple high-severity vulnerabilities actively being targeted across diverse platforms. Most concerning are zero-day vulnerabilities affecting Windows BitLocker and privilege escalation mechanisms, an 18-year-old NGINX flaw enabling remote code execution, and rapid exploitation of recently disclosed authentication bypass vulnerabilities in AI frameworks. Threat actors are demonstrating sophisticated techniques including Microsoft Teams-based social engineering, AI-powered tool generation, and coordinated attacks against critical infrastructure sectors including energy and manufacturing.
 
 ## Active Exploitation Details
 
+### NGINX Rewrite Module Vulnerability
+- **Description**: An 18-year-old critical flaw in NGINX Plus and NGINX Open's rewrite module that remained undetected for nearly two decades
+- **Impact**: Enables unauthenticated remote code execution and denial of service attacks against web servers
+- **Status**: Recently discovered and disclosed, patches available
+
 ### PraisonAI Authentication Bypass
-- **Description**: Security vulnerability in PraisonAI, an open-source multi-agent orchestration framework, allowing authentication bypass
-- **Impact**: Unauthorized access to PraisonAI systems and potential compromise of AI orchestration infrastructure
+- **Description**: Security vulnerability in PraisonAI open-source multi-agent orchestration framework allowing authentication bypass
+- **Impact**: Unauthorized access to AI orchestration systems and potential system compromise
 - **Status**: Actively exploited within four hours of public disclosure
 - **CVE ID**: CVE-2026-44338
 
-### Windows BitLocker Zero-Day Vulnerabilities
-- **Description**: Two unpatched Windows vulnerabilities named YellowKey and GreenPlasma affecting BitLocker encryption and Windows privilege escalation
-- **Impact**: BitLocker bypass allowing access to encrypted drives and privilege escalation to gain elevated system access
-- **Status**: Zero-day vulnerabilities with proof-of-concept exploits publicly released
+### Windows BitLocker Zero-Day Bypass
+- **Description**: Unpatched vulnerability dubbed "YellowKey" that bypasses BitLocker encryption protection
+- **Impact**: Provides unauthorized access to encrypted drives and protected data
+- **Status**: Zero-day with proof-of-concept exploit publicly released, no patch available
 
-### Fragnesia Linux Kernel Privilege Escalation
-- **Description**: High-severity Linux kernel privilege escalation vulnerability affecting page cache corruption mechanisms
-- **Impact**: Local attackers can gain root access on affected Linux systems
+### Windows CTFMON Privilege Escalation
+- **Description**: Zero-day vulnerability dubbed "GreenPlasma" affecting Windows systems through CTFMON service
+- **Impact**: Allows local privilege escalation to gain elevated system access
+- **Status**: Zero-day with proof-of-concept exploit released, unpatched
+
+### Fragnesia Linux Kernel Vulnerability
+- **Description**: High-severity Linux kernel privilege escalation flaw enabling page cache corruption
+- **Impact**: Allows local attackers to gain root privileges on affected Linux systems
 - **Status**: Patches being rolled out by Linux distributions
 - **CVE ID**: CVE-2026-46300
 
-### NGINX Rewrite Module Remote Code Execution
-- **Description**: Critical vulnerability in NGINX Plus and NGINX Open affecting the rewrite module, undetected for 18 years
-- **Impact**: Unauthenticated remote code execution on affected NGINX servers
-- **Status**: Recently disclosed with patches available
+### Exim Mail Transfer Agent Vulnerability
+- **Description**: Critical flaw in Exim open-source mail transfer agent affecting certain configurations
+- **Impact**: Enables unauthenticated remote attackers to execute arbitrary code
+- **Status**: Recently disclosed, patches available
 
-### Critical Exim Mail Server Vulnerability
-- **Description**: Critical vulnerability in Exim open-source mail transfer agent affecting certain configurations
-- **Impact**: Unauthenticated remote attackers can execute arbitrary code on mail servers
-- **Status**: Patches available for affected configurations
+### Microsoft Exchange Exploitation
+- **Description**: Ongoing exploitation of Microsoft Exchange vulnerabilities in targeted attacks
+- **Impact**: Multi-wave intrusions enabling persistent access to corporate email systems
+- **Status**: Active exploitation observed against energy sector targets
 
 ## Affected Systems and Products
 
-- **PraisonAI Framework**: Open-source multi-agent orchestration systems running vulnerable versions
-- **Microsoft Windows**: BitLocker encryption systems and Windows privilege escalation mechanisms
-- **Linux Distributions**: Systems running vulnerable kernel versions affected by Fragnesia flaw
-- **NGINX Servers**: NGINX Plus and NGINX Open installations with rewrite module configurations
-- **Exim Mail Servers**: Mail transfer agents running vulnerable Exim configurations in specific setups
-- **Microsoft Teams**: Corporate environments targeted through social engineering attacks
-- **Foxconn Manufacturing**: North American factory operations affected by ransomware
-- **Microsoft Exchange**: Energy sector organizations targeted through Exchange exploitation
+- **NGINX Plus and NGINX Open**: Web servers with rewrite module enabled, 18-year exposure window
+- **PraisonAI Framework**: Multi-agent AI orchestration systems in enterprise environments
+- **Microsoft Windows**: All versions affected by BitLocker bypass and CTFMON privilege escalation zero-days
+- **Linux Distributions**: Multiple distributions affected by Fragnesia kernel vulnerability
+- **Exim Mail Servers**: Specific configurations vulnerable to remote code execution
+- **Microsoft Exchange Servers**: Corporate email infrastructure in energy and government sectors
+- **Microsoft Teams**: Enterprise communication platform targeted for social engineering
+- **Dell SupportAssist**: Windows systems experiencing BSOD crashes from software conflicts
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering via Microsoft Teams**: KongTuke threat actors using Microsoft Teams for corporate network infiltration with persistent access achieved in as little as five minutes
-- **Rapid Vulnerability Exploitation**: Threat actors targeting newly disclosed vulnerabilities within hours of public release
-- **Ransomware Operations**: Nitrogen ransomware gang targeting manufacturing facilities with low tolerance for downtime
-- **Multi-Wave Intrusions**: Sustained targeting of energy infrastructure through Microsoft Exchange exploitation
-- **AI-Generated Attack Tools**: LatAm Vibe hackers leveraging AI agents to generate custom hacking tools on-the-fly for attacks in Mexico and Brazil
-- **RubyGems Weaponization**: Threat actors publishing malicious RubyGems packages with scrapers targeting UK government servers
+- **Social Engineering via Microsoft Teams**: KongTuke threat group leveraging Teams for corporate network infiltration in under five minutes
+- **Geofenced PDF Phishing**: Ghostwriter group using location-restricted PDF documents to target Ukrainian government entities
+- **AI-Generated Custom Tools**: Latin American threat actors using AI agents to create bespoke hacking tools for Mexico and Brazil campaigns
+- **Supply Chain Targeting**: Cyber-enabled cargo crime using phishing and credential theft to reroute freight shipments
+- **RubyGems Package Weaponization**: Threat actors publishing malicious packages containing scrapers targeting UK government servers
+- **Ransomware Operations**: Nitrogen gang targeting manufacturing sector with focus on Foxconn North American facilities
+- **Zero-Day Chain Exploitation**: Coordinated use of multiple Windows zero-days for comprehensive system compromise
 
 ## Threat Actor Activities
 
-- **KongTuke Initial Access Broker**: Evolved tactics using Microsoft Teams for social engineering attacks against corporate networks with rapid persistent access deployment
-- **Nitrogen Ransomware Gang**: Confirmed attack on Foxconn's North American manufacturing facilities, part of broader targeting of manufacturing sector with 600 attacks this year
-- **MuddyWater (Iranian APT)**: Broad cyber-espionage campaign targeting at least nine high-profile organizations across multiple sectors including major South Korean electronics manufacturers
-- **FamousSparrow (Chinese APT)**: Multi-wave intrusion campaign targeting Azerbaijani oil and gas company between December 2025 and February 2026 through repeated Microsoft Exchange exploitation
-- **LatAm Vibe Hackers**: Advanced threat campaign leveraging AI agents to generate custom attack tools for operations against entities in Mexico and Brazil
-- **The Gentlemen RaaS Gang**: Ransomware-as-a-Service operation with exposed data revealing organizational structure, affiliate model, and opportunistic tactics
+- **Ghostwriter Group**: Belarus-aligned actors conducting geofenced phishing campaigns against Ukrainian government with Cobalt Strike deployment
+- **KongTuke Initial Access Broker**: Evolved tactics using Microsoft Teams for rapid corporate network compromise and persistent access establishment
+- **FamousSparrow APT**: China-linked group conducting multi-wave intrusions against Azerbaijani energy firm through Exchange exploitation
+- **MuddyWater/Seedworm**: Iran-linked cyber-espionage group targeting South Korean electronics manufacturers and multiple high-profile organizations
+- **Nitrogen Ransomware Gang**: Attacking manufacturing sector with particular focus on electronics giants like Foxconn
+- **The Gentlemen RaaS**: Ransomware-as-a-Service operation compromised by OPSEC failure revealing organizational structure and affiliate model
+- **Chinese APT Groups**: Sustained targeting of energy infrastructure in South Caucasus region with advanced persistent threat techniques
+- **Latin American Threat Actors**: Leveraging AI agents for automated tool generation in campaigns against Mexican and Brazilian entities
