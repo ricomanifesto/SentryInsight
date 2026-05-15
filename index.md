@@ -1,67 +1,78 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing a surge in critical exploitation activity, with attackers targeting maximum-severity vulnerabilities across enterprise infrastructure. Most notably, Cisco's SD-WAN Controller has been hit with zero-day attacks exploiting a critical authentication bypass flaw (CVE-2026-20182), while WordPress sites face active exploitation through the Burst Statistics plugin. Researchers have also discovered multiple zero-day vulnerabilities in Windows systems affecting BitLocker and privilege escalation mechanisms. Additionally, supply chain attacks continue to evolve with malicious packages targeting developer environments through npm repositories and sophisticated social engineering campaigns leveraging Microsoft Teams for initial access.
+The cybersecurity landscape is experiencing severe exploitation activity across multiple critical vulnerabilities. Microsoft Exchange Server environments face active attacks through crafted email exploitation, while Cisco's SD-WAN infrastructure has been compromised via maximum-severity authentication bypass flaws. Zero-day exploits are proliferating, with researchers demonstrating Windows and Microsoft Edge compromises at Pwn2Own Berlin 2026, and threat actors rapidly targeting newly disclosed vulnerabilities within hours of public disclosure. Supply chain attacks continue to pose significant risks, with malicious backdoors discovered in popular development packages and major organizations like OpenAI falling victim to sophisticated campaigns. Government entities in Eastern Europe remain prime targets for nation-state actors employing advanced spear-phishing and social engineering techniques.
 
 ## Active Exploitation Details
 
+### Microsoft Exchange Server Vulnerability
+- **Description**: Critical vulnerability affecting on-premise versions of Exchange Server that allows exploitation through crafted email attacks
+- **Impact**: Attackers can compromise Exchange servers and potentially gain unauthorized access to email systems and corporate communications
+- **Status**: Actively exploited in the wild according to Microsoft disclosure
+- **CVE ID**: CVE-2026-42897
+
 ### Cisco Catalyst SD-WAN Controller Authentication Bypass
-- **Description**: Maximum severity authentication bypass vulnerability in Cisco's network control system allowing unauthorized administrative access
-- **Impact**: Complete administrative control over SD-WAN infrastructure, potential for network-wide compromise
-- **Status**: Actively exploited in zero-day attacks, patches released by Cisco
+- **Description**: Maximum-severity authentication bypass flaw in Cisco Catalyst SD-WAN Controller allowing unauthenticated access
+- **Impact**: Attackers can gain administrative access to SD-WAN infrastructure without authentication credentials
+- **Status**: Actively exploited in limited zero-day attacks, patches available, added to CISA KEV catalog
 - **CVE ID**: CVE-2026-20182
 
-### Burst Statistics WordPress Plugin Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in the WordPress plugin allowing unauthorized access
-- **Impact**: Admin-level access to WordPress websites, potential for complete site compromise
-- **Status**: Currently being exploited by threat actors
+### WordPress Burst Statistics Plugin Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability in the WordPress Burst Statistics plugin
+- **Impact**: Attackers can obtain admin-level access to WordPress websites without proper authentication
+- **Status**: Actively exploited by threat actors
 
 ### PraisonAI Authentication Bypass
-- **Description**: Authentication bypass vulnerability in the open-source multi-agent orchestration framework
-- **Impact**: Unauthorized access to AI orchestration systems
-- **Status**: Targeted within hours of public disclosure
+- **Description**: Authentication bypass vulnerability in PraisonAI open-source multi-agent orchestration framework
+- **Impact**: Unauthorized access to AI orchestration systems and potential data exposure
+- **Status**: Targeted within four hours of public disclosure
 - **CVE ID**: CVE-2026-44338
 
-### Windows BitLocker Bypass Zero-Days
-- **Description**: Multiple zero-day vulnerabilities exposing BitLocker bypasses and CTFMON privilege escalation
-- **Impact**: Complete bypass of disk encryption protections and privilege escalation to system level
-- **Status**: Recently disclosed, no patches available
-
-### Linux Fragnesia Kernel Privilege Escalation
-- **Description**: High-severity kernel vulnerability allowing local privilege escalation through page cache corruption
-- **Impact**: Root access for local attackers
+### Linux Kernel Privilege Escalation (Fragnesia)
+- **Description**: High-severity kernel privilege escalation vulnerability affecting Linux distributions through page cache corruption
+- **Impact**: Local attackers can gain root privileges on affected Linux systems
 - **Status**: Patches being rolled out across Linux distributions
 - **CVE ID**: CVE-2026-46300
 
-### 18-Year-Old NGINX Vulnerability
-- **Description**: Long-standing vulnerability in NGINX rewrite module enabling unauthenticated remote code execution
-- **Impact**: Complete server compromise without authentication requirements
-- **Status**: Recently discovered, patches available
+### NGINX Rewrite Module Vulnerability
+- **Description**: 18-year-old critical flaw in NGINX rewrite module that remained undetected
+- **Impact**: Enables unauthenticated remote code execution and denial of service attacks
+- **Status**: Recently disclosed, affects both NGINX Plus and NGINX Open
+
+### Windows Zero-Days
+- **Description**: Multiple zero-day vulnerabilities affecting Windows systems, including BitLocker bypasses and CTFMON privilege escalation
+- **Impact**: Circumvention of Windows security features and privilege escalation attacks
+- **Status**: Disclosed by anonymous researcher, affecting current Windows versions
 
 ## Affected Systems and Products
 
-- **Cisco Catalyst SD-WAN Controller**: Enterprise network management systems vulnerable to authentication bypass
-- **WordPress Sites**: Websites using Burst Statistics plugin exposed to admin-level compromise
-- **PraisonAI Deployments**: AI orchestration frameworks susceptible to unauthorized access
-- **Windows Systems**: BitLocker-protected systems and CTFMON-enabled environments
-- **Linux Distributions**: Systems running affected kernel versions vulnerable to privilege escalation
-- **NGINX Servers**: Web servers using rewrite module functionality exposed to RCE attacks
-- **Node.js Applications**: Developer environments targeted through malicious npm packages
-- **Manufacturing Systems**: Foxconn and other manufacturers facing ransomware attacks
+- **Microsoft Exchange Server**: On-premise versions vulnerable to crafted email attacks
+- **Cisco Catalyst SD-WAN Controller**: Network infrastructure management systems
+- **WordPress Burst Statistics Plugin**: WordPress websites using the affected plugin
+- **PraisonAI Framework**: AI orchestration and automation platforms
+- **Linux Distributions**: Multiple distributions affected by Fragnesia kernel vulnerability
+- **NGINX Web Server**: Both NGINX Plus and NGINX Open versions affected by 18-year-old flaw
+- **Windows Operating Systems**: Windows 11 and other versions vulnerable to multiple zero-days
+- **Microsoft Edge**: Browser compromised at Pwn2Own security conference
+- **Node-IPC Package**: JavaScript development environments using compromised versions
+- **TanStack Ecosystem**: npm and PyPI packages affected in supply chain attack
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Attackers leveraging unknown vulnerabilities in critical infrastructure components
-- **Authentication Bypass**: Multiple vulnerabilities allowing complete circumvention of security controls
-- **Supply Chain Attacks**: Malicious packages injected into npm and PyPI repositories targeting developer secrets
-- **Social Engineering via Microsoft Teams**: KongTuke group using Teams for rapid corporate network access
-- **Geofenced PDF Phishing**: Sophisticated targeting using location-based payload delivery
-- **Software-Defined Radio**: Unconventional attack vectors targeting transportation infrastructure
+- **Crafted Email Exploitation**: Malicious emails targeting Exchange Server vulnerabilities
+- **Authentication Bypass**: Direct circumvention of authentication mechanisms in network infrastructure
+- **Supply Chain Attacks**: Injection of malicious code into legitimate software packages and dependencies
+- **Zero-Day Exploitation**: Rapid targeting of newly disclosed vulnerabilities within hours of publication
+- **Social Engineering via Microsoft Teams**: Use of corporate communication platforms for initial access
+- **Spear-Phishing with Geofencing**: Location-based targeting of government organizations with PDF attachments
+- **Privilege Escalation**: Local exploitation to gain elevated system privileges
+- **Web Application Attacks**: Targeting of WordPress plugins and web server configurations
 
 ## Threat Actor Activities
 
-- **KongTuke Initial Access Broker**: Transitioning to Microsoft Teams for social engineering, achieving persistent access in as little as five minutes
-- **TeamPCP Hacker Group**: Threatening to leak Mistral AI source code repositories unless ransom demands are met
-- **Ghostwriter (Belarus-aligned)**: Targeting Ukrainian government organizations with geofenced PDF phishing and Cobalt Strike deployments
-- **FrostyNeighbor APT**: Conducting targeted espionage against government organizations in Poland and Ukraine with sophisticated victim fingerprinting
-- **MuddyWater/Seedworm**: Iran-linked group launching broad cyber-espionage campaigns against South Korean electronics manufacturers and other high-profile targets
-- **Nitrogen Ransomware Group**: Attacking manufacturing sector including Foxconn's North American facilities, exploiting sector's low tolerance for downtime
+- **TeamPCP**: Threatening to leak Mistral AI source code repositories unless buyers are found
+- **KongTuke**: Initial access broker utilizing Microsoft Teams for rapid corporate network compromise within five minutes
+- **Ghostwriter (FrostyNeighbor)**: Belarus-aligned APT group targeting Ukrainian and Polish government organizations with sophisticated spear-phishing campaigns
+- **MuddyWater (Seedworm, Static Kitten)**: Iran-linked group conducting broad cyber-espionage campaign against South Korean electronics manufacturers and multiple high-profile organizations
+- **Nitrogen Ransomware**: Targeting manufacturing sector with attacks on companies like Foxconn
+- **Anonymous Security Researchers**: Disclosure of multiple Windows zero-days affecting BitLocker and system security features
+- **Various Threat Actors**: Rapid exploitation attempts against newly disclosed vulnerabilities in open-source frameworks
