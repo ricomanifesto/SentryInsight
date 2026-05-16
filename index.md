@@ -1,74 +1,78 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple high-value systems including Microsoft Exchange Server, Cisco SD-WAN infrastructure, and popular WordPress plugins. Microsoft Exchange Server vulnerabilities CVE-2026-42897 are being actively exploited through crafted emails to achieve arbitrary code execution. Cisco's SD-WAN Controller is under attack via CVE-2026-20182, a maximum severity authentication bypass flaw that grants administrative access. Supply chain attacks have compromised the node-ipc npm package and impacted OpenAI through the TanStack attack vector. WordPress ecosystems face ongoing exploitation through the Funnel Builder plugin for credit card theft and authentication bypass flaws in the Burst Statistics plugin. Zero-day demonstrations at Pwn2Own Berlin 2026 revealed 39 unique vulnerabilities across Windows 11, Microsoft Exchange, and other enterprise systems.
+Critical exploitation activity is escalating across multiple attack vectors, with threat actors actively targeting enterprise infrastructure, supply chain components, and web applications. The most severe incidents include active exploitation of Microsoft Exchange Server vulnerabilities allowing arbitrary code execution, a maximum-severity Cisco SD-WAN authentication bypass flaw (CVE-2026-20182) being exploited for administrative access, and widespread supply chain attacks targeting npm packages and developer environments. WordPress plugins continue to face active exploitation for credential theft and site compromise, while zero-day vulnerabilities demonstrated at security conferences highlight ongoing risks in Windows 11, Microsoft Exchange, and other enterprise systems. State-sponsored groups like Turla are evolving their tactics with modular peer-to-peer botnets, and emerging threats include AI-assisted vulnerability discovery and exploitation of legacy infrastructure components.
 
 ## Active Exploitation Details
 
 ### Microsoft Exchange Server Cross-Site Scripting Vulnerability
-- **Description**: High-severity vulnerability in on-premise Exchange Server versions allowing arbitrary code execution through cross-site scripting (XSS)
+- **Description**: High-severity vulnerability in on-premise Exchange Server allowing arbitrary code execution through cross-site scripting attacks
 - **Impact**: Threat actors can execute arbitrary code and gain unauthorized access to Exchange environments
-- **Status**: Actively exploited in the wild, Microsoft has provided mitigations
+- **Status**: Actively exploited in the wild, Microsoft has shared mitigations
 - **CVE ID**: CVE-2026-42897
 
 ### Cisco Catalyst SD-WAN Controller Authentication Bypass
-- **Description**: Maximum severity authentication bypass flaw in Cisco Catalyst SD-WAN Controller
-- **Impact**: Attackers gain full administrative access to network infrastructure without authentication
-- **Status**: Actively exploited in limited attacks, patches available
+- **Description**: Maximum-severity authentication bypass vulnerability in Cisco's SD-WAN Controller system
+- **Impact**: Attackers can gain complete administrative access to network control systems
+- **Status**: Actively exploited in limited attacks, patches available, added to CISA KEV catalog
 - **CVE ID**: CVE-2026-20182
 
-### Funnel Builder WordPress Plugin Vulnerability
-- **Description**: Critical vulnerability in the Funnel Builder plugin for WordPress allowing malicious JavaScript injection
-- **Impact**: Credit card theft through compromised WooCommerce checkout pages
-- **Status**: Actively exploited for financial fraud
+### Funnel Builder WordPress Plugin Critical Vulnerability
+- **Description**: Critical vulnerability in the Funnel Builder plugin for WordPress allowing malicious code injection
+- **Impact**: Attackers inject malicious JavaScript into WooCommerce checkout pages to steal credit card information
+- **Status**: Actively exploited for payment data theft
 
 ### Burst Statistics WordPress Plugin Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in WordPress Burst Statistics plugin
-- **Impact**: Admin-level access to websites without proper authentication
-- **Status**: Currently being exploited by attackers
+- **Description**: Critical authentication bypass vulnerability in the WordPress Burst Statistics plugin
+- **Impact**: Hackers obtain admin-level access to WordPress websites
+- **Status**: Actively exploited in the wild
 
-### Node-IPC Supply Chain Compromise
-- **Description**: Malicious code injected into three versions of the popular node-ipc npm package
-- **Impact**: Credential theft and unauthorized access to developer environments
-- **Status**: Active supply chain attack targeting developer credentials
+### Avada Builder WordPress Plugin Vulnerabilities
+- **Description**: Two vulnerabilities in the Avada Builder plugin affecting approximately one million active installations
+- **Impact**: Allows hackers to read arbitrary files and extract sensitive credentials and configuration data
+- **Status**: Actively exploited for credential theft
 
-### Avada Builder WordPress Plugin File Read Vulnerabilities
-- **Description**: Two vulnerabilities allowing arbitrary file reading and sensitive information extraction
-- **Impact**: Site credential theft and unauthorized access to sensitive data
-- **Status**: Disclosed vulnerabilities with one million active installations at risk
+### Node-IPC Supply Chain Attack
+- **Description**: Malicious backdoor injected into three versions of the popular node-ipc npm package
+- **Impact**: Steals developer credentials, environment variables, and other sensitive information from development systems
+- **Status**: Active supply chain attack targeting developer environments
+
+### TanStack Supply Chain Attack (Mini Shai-Hulud)
+- **Description**: Supply chain compromise affecting hundreds of npm and PyPI packages through TanStack
+- **Impact**: Compromised developer devices and forced certificate rotations at affected organizations
+- **Status**: Ongoing investigation, confirmed impact at OpenAI and other organizations
+
+### 18-Year-Old NGINX Vulnerability
+- **Description**: Legacy vulnerability in NGINX web server discovered through autonomous scanning
+- **Impact**: Enables denial of service attacks and potential remote code execution under certain conditions
+- **Status**: Recently disclosed, affects long-term installations
 
 ## Affected Systems and Products
 
-- **Microsoft Exchange Server**: On-premise versions vulnerable to crafted email attacks
-- **Cisco Catalyst SD-WAN Controller**: Network infrastructure systems with authentication bypass
-- **WordPress Sites**: Funnel Builder plugin installations processing e-commerce transactions
-- **WordPress Sites**: Burst Statistics plugin with over 400,000 active installations
-- **Node.js Applications**: Projects using compromised node-ipc package versions
-- **WordPress Sites**: Avada Builder plugin with approximately one million installations
-- **Windows 11**: Multiple zero-days demonstrated at Pwn2Own Berlin 2026
+- **Microsoft Exchange Server**: On-premise installations vulnerable to XSS-based code execution
+- **Cisco Catalyst SD-WAN Controller**: Network infrastructure systems with authentication bypass risks
+- **WordPress Plugins**: Funnel Builder, Burst Statistics, and Avada Builder plugins affecting millions of installations
+- **Node.js Ecosystem**: npm packages and development environments using node-ipc
+- **NGINX Web Servers**: 18-year-old installations potentially vulnerable to DoS and RCE
+- **Windows 11**: Multiple zero-day vulnerabilities demonstrated at Pwn2Own Berlin 2026
 - **Microsoft Edge**: Browser vulnerabilities exploited in security competitions
-- **TanStack Ecosystem**: Supply chain compromise affecting npm and PyPI packages
-- **OpenAI Infrastructure**: Two employee devices compromised through supply chain attack
+- **Red Hat Enterprise Linux**: Zero-day vulnerabilities shown at security conferences
 
 ## Attack Vectors and Techniques
 
-- **Crafted Email Exploitation**: Malicious emails targeting Exchange Server XSS vulnerabilities
-- **Authentication Bypass**: Direct access to administrative interfaces without credentials
-- **JavaScript Injection**: Malicious scripts inserted into e-commerce checkout processes
-- **Supply Chain Poisoning**: Compromised packages in npm and PyPI repositories
-- **Arbitrary File Reading**: Exploitation of file access controls in WordPress plugins
-- **Zero-Day Exploitation**: Advanced techniques demonstrated at security competitions
-- **Session Theft**: REMUS infostealer targeting browser sessions and authentication tokens
-- **P2P Botnet Operations**: Modular peer-to-peer networks for persistent access
+- **Cross-Site Scripting (XSS)**: Exchange Server vulnerability exploited via crafted emails
+- **Authentication Bypass**: Direct access to administrative interfaces without proper credentials
+- **Supply Chain Compromise**: Injection of malicious code into trusted package repositories
+- **Plugin Exploitation**: WordPress plugin vulnerabilities enabling site takeover
+- **Session Theft**: Advanced techniques using infostealers like REMUS to capture authentication tokens
+- **P2P Botnet Evolution**: Turla's transformation of Kazuar backdoor into modular peer-to-peer network
+- **Zero-Day Exploitation**: Multiple vulnerabilities demonstrated at security conferences
+- **Software-Defined Radio Attacks**: Novel attack vector targeting transportation infrastructure
 
 ## Threat Actor Activities
 
-- **Exchange Server Attackers**: Actively exploiting CVE-2026-42897 for code execution and system access
-- **Cisco Infrastructure Attackers**: Leveraging maximum severity SD-WAN vulnerabilities for network compromise
-- **WordPress Threat Actors**: Systematic exploitation of plugin vulnerabilities for financial gain and unauthorized access
-- **Supply Chain Attackers**: Sophisticated campaigns targeting developer tools and package repositories
-- **Turla Group**: Russian state-sponsored actors deploying modular P2P Kazuar backdoor for persistent access
-- **TeamPCP Group**: Threatening to leak Mistral AI source code repositories
-- **FrostyNeighbor APT**: Belarussian nation-state group targeting government organizations in Poland and Ukraine with spear-phishing
-- **Pwn2Own Researchers**: Security researchers demonstrating 39 unique zero-day vulnerabilities across enterprise systems
-- **TanStack Attackers**: Supply chain compromise affecting hundreds of packages and major organizations like OpenAI
-- **REMUS Operators**: Advanced infostealer campaigns focusing on session theft and Malware-as-a-Service operations
+- **Turla Group**: Russian state-sponsored actors evolving Kazuar backdoor into modular P2P botnet for persistent access and stealth operations
+- **TeamPCP**: Cybercriminal group threatening to leak Mistral AI source code unless buyers are found
+- **FrostyNeighbor APT**: Belarussian nation-state group conducting targeted espionage campaigns against government organizations in Poland and Ukraine using sophisticated fingerprinting techniques
+- **ShinyHunters**: Cybercriminal group responsible for Canvas platform attacks affecting educational institutions
+- **Supply Chain Attackers**: Unknown actors conducting sophisticated attacks against npm ecosystem and developer toolchains
+- **WordPress Threat Actors**: Coordinated exploitation campaigns targeting multiple WordPress plugins for credential theft and payment data compromise
