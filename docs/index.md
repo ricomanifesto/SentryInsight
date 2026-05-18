@@ -1,71 +1,69 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple systems with several active zero-day vulnerabilities and recently disclosed flaws being leveraged by threat actors. The most significant threats include a Windows privilege escalation zero-day dubbed "MiniPlasma" allowing SYSTEM access on fully patched systems, active exploitation of NGINX servers causing worker crashes and potential remote code execution via CVE-2026-42945, and ongoing attacks against Microsoft Exchange Server through CVE-2026-42897. Additional critical activity involves WordPress plugin vulnerabilities being exploited for credit card skimming, supply chain attacks targeting npm packages and AI codebases, and Russian state-sponsored actors evolving their Kazuar backdoor into a sophisticated P2P botnet infrastructure.
+Critical vulnerability exploitation activity is surging across multiple platforms, with several high-severity flaws being actively exploited in the wild. The most alarming developments include a maximum severity Cisco SD-WAN vulnerability (CVE-2026-20182) that grants administrative access, an NGINX vulnerability (CVE-2026-42945) causing worker crashes and potential remote code execution, and a Microsoft Exchange zero-day (CVE-2026-42897) being exploited via crafted emails. Additionally, Windows systems face a new privilege escalation threat from the "MiniPlasma" zero-day exploit, while WordPress sites are under active attack through Funnel Builder plugin vulnerabilities. The threat landscape is further complicated by advanced persistent threats like the Russian Turla group evolving their Kazuar backdoor into a modular P2P botnet, and supply chain attacks targeting popular development packages and AI companies.
 
 ## Active Exploitation Details
 
-### Windows MiniPlasma Privilege Escalation Zero-Day
-- **Description**: A privilege escalation vulnerability in Windows systems that allows attackers to gain SYSTEM privileges on fully patched Windows installations
-- **Impact**: Complete system compromise with highest level administrative access
-- **Status**: Zero-day vulnerability with proof-of-concept exploit publicly released, no patch currently available
+### Cisco SD-WAN Controller Vulnerability
+- **Description**: Maximum severity vulnerability in Cisco Catalyst SD-WAN Controller that allows unauthorized administrative access
+- **Impact**: Threat actors can gain complete administrative control over affected SD-WAN infrastructure
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
+- **CVE ID**: CVE-2026-20182
 
-### NGINX Server Vulnerability
-- **Description**: A security flaw affecting both NGINX Plus and NGINX Open that enables worker process crashes and potential remote code execution
-- **Impact**: Service disruption, denial of service, and possible complete server compromise
+### NGINX Worker Crash and RCE Vulnerability
+- **Description**: Security flaw affecting both NGINX Plus and NGINX Open that causes worker process crashes and enables potential remote code execution
+- **Impact**: Denial of service through worker crashes and possible remote code execution on affected web servers
 - **Status**: Under active exploitation in the wild following public disclosure
 - **CVE ID**: CVE-2026-42945
 
-### Microsoft Exchange Server Cross-Site Scripting Vulnerability
-- **Description**: A high-severity vulnerability in on-premise Exchange Server versions that allows arbitrary code execution through crafted email-based cross-site scripting attacks
-- **Impact**: Arbitrary code execution on Exchange servers through malicious email messages
-- **Status**: Actively exploited in attacks, mitigations available
+### Microsoft Exchange Zero-Day
+- **Description**: High-severity vulnerability in on-premise Exchange Server versions that allows arbitrary code execution via cross-site scripting
+- **Impact**: Threat actors can execute arbitrary code on Exchange servers through crafted email attacks
+- **Status**: Actively exploited in attacks, Microsoft has shared mitigations
 - **CVE ID**: CVE-2026-42897
 
-### Cisco SD-WAN Controller Authentication Bypass
-- **Description**: Maximum severity vulnerability in Cisco Catalyst SD-WAN Controller allowing unauthorized administrative access
-- **Impact**: Complete administrative control over network infrastructure
-- **Status**: Actively exploited, added to CISA's Known Exploited Vulnerabilities catalog
-- **CVE ID**: CVE-2026-20182
+### Windows MiniPlasma Zero-Day
+- **Description**: Privilege escalation zero-day vulnerability affecting fully patched Windows systems
+- **Impact**: Attackers can gain SYSTEM privileges on compromised Windows machines
+- **Status**: Proof-of-concept exploit publicly released, currently unpatched
 
-### Funnel Builder WordPress Plugin Critical Vulnerability
-- **Description**: Critical security flaw in the Funnel Builder plugin for WordPress enabling injection of malicious JavaScript into WooCommerce checkout pages
-- **Impact**: Credit card data theft and financial fraud through checkout page skimming
+### Linux DirtyDecrypt Root Escalation
+- **Description**: Local privilege escalation vulnerability in the Linux kernel's rxgk module
+- **Impact**: Allows attackers to gain root access on affected Linux systems
+- **Status**: Recently patched with proof-of-concept exploit now available
+
+### Funnel Builder WordPress Plugin Vulnerability
+- **Description**: Critical security flaw in the Funnel Builder plugin for WordPress enabling malicious JavaScript injection
+- **Impact**: Enables WooCommerce checkout skimming and credit card theft through injected malicious code
 - **Status**: Under active exploitation for payment card skimming attacks
-
-### Burst Statistics WordPress Plugin Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in the WordPress Burst Statistics plugin
-- **Impact**: Admin-level access to WordPress websites
-- **Status**: Actively exploited by hackers to gain unauthorized administrative access
 
 ## Affected Systems and Products
 
-- **Windows Systems**: All fully patched Windows installations vulnerable to MiniPlasma privilege escalation
-- **NGINX Servers**: Both NGINX Plus and NGINX Open installations affected by worker crash vulnerability
-- **Microsoft Exchange Server**: On-premise Exchange Server installations vulnerable to email-based XSS attacks
-- **Cisco SD-WAN Infrastructure**: Cisco Catalyst SD-WAN Controller systems experiencing unauthorized access
-- **WordPress Websites**: Sites using Funnel Builder and Burst Statistics plugins under active attack
-- **npm Package Ecosystem**: node-ipc package compromised affecting Node.js applications
-- **OpenAI Corporate Environment**: Two employee devices compromised through TanStack supply chain attack
-- **Avada Builder Plugin**: WordPress sites with estimated one million installations at risk of credential theft
+- **Cisco Catalyst SD-WAN Controller**: Network infrastructure management systems with administrative interface exposure
+- **NGINX Plus and NGINX Open**: Web server platforms across various deployment environments
+- **Microsoft Exchange Server**: On-premise email server installations vulnerable to crafted email attacks
+- **Windows Systems**: Fully patched Windows installations affected by MiniPlasma privilege escalation
+- **Linux Systems**: Distributions with rxgk module implementation vulnerable to DirtyDecrypt exploit
+- **WordPress Sites**: Websites using Funnel Builder plugin, particularly those with WooCommerce integration
+- **Avada Builder Plugin**: WordPress sites with approximately one million active installations at risk
+- **Node.js Applications**: Projects using compromised node-ipc npm package versions
+- **TanStack Framework**: Development environments affected by Mini Shai-Hulud supply chain attack
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: MiniPlasma zero-day exploit providing SYSTEM-level access on Windows
-- **Email-Based Exploitation**: Crafted emails targeting Exchange Server XSS vulnerability
-- **Supply Chain Attacks**: Compromised npm packages and JavaScript libraries targeting developer environments
-- **Web Application Injection**: Malicious JavaScript injection into WordPress e-commerce checkout processes
-- **Device Code Phishing**: Microsoft 365 account hijacking through Tycoon2FA phishing kit abuse
-- **Authentication Bypass**: Direct administrative access through plugin vulnerabilities
-- **P2P Botnet Infrastructure**: Modular peer-to-peer networks for persistent access and stealth operations
-- **Session Token Theft**: Browser session and authentication token stealing via REMUS infostealer
+- **Administrative Interface Exploitation**: Direct attacks against Cisco SD-WAN management interfaces to gain administrative control
+- **Web Server Targeting**: Exploitation of NGINX vulnerabilities for denial of service and potential code execution
+- **Email-Based Attacks**: Crafted email messages targeting Exchange Server vulnerabilities for code execution
+- **Local Privilege Escalation**: MiniPlasma and DirtyDecrypt exploits for gaining elevated system privileges
+- **Web Application Injection**: JavaScript injection attacks through WordPress plugin vulnerabilities for payment skimming
+- **Supply Chain Compromise**: Injection of malicious code into popular npm packages and development frameworks
+- **Device Code Phishing**: Advanced phishing techniques using Tycoon2FA kit for Microsoft 365 account hijacking
+- **Session Token Theft**: REMUS infostealer targeting browser sessions and authentication tokens
 
 ## Threat Actor Activities
 
-- **Turla/Secret Blizzard**: Russian state-sponsored group evolved Kazuar backdoor into modular P2P botnet for long-term persistence and data collection
-- **TeamPCP**: Hacker group threatening to leak Mistral AI source code repositories unless buyers are found
-- **Tycoon2FA Operators**: Enhanced phishing kit targeting Microsoft 365 accounts through device-code attacks and Trustifi URL abuse
-- **WordPress Plugin Attackers**: Multiple threat actors exploiting plugin vulnerabilities for financial gain through credit card skimming
-- **Supply Chain Attackers**: Targeting software development ecosystems through compromised packages and repositories
-- **REMUS Infostealer Operators**: Focus on session theft and authentication token harvesting for scalable credential access
-- **Exchange Server Attackers**: Leveraging email-based XSS vulnerabilities for server compromise
-- **Cisco Infrastructure Attackers**: Exploiting maximum severity SD-WAN vulnerabilities for network control
+- **Turla (Secret Blizzard)**: Russian state-sponsored group evolved Kazuar backdoor into modular P2P botnet for persistent access and stealth operations
+- **TeamPCP**: Hacker group advertising stolen Mistral AI source code repositories for sale following security breach
+- **Unknown Threat Actors**: Multiple groups actively exploiting Cisco SD-WAN, NGINX, and Exchange vulnerabilities for infrastructure compromise
+- **Cybercriminal Groups**: Leveraging WordPress plugin vulnerabilities for large-scale payment card skimming operations targeting e-commerce platforms
+- **Supply Chain Attackers**: Compromising popular development packages and frameworks to target downstream users and organizations
