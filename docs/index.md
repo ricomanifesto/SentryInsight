@@ -1,69 +1,69 @@
 # Exploitation Report
 
-The cybersecurity landscape is witnessing a surge in critical vulnerabilities being actively exploited across multiple platforms and systems. Most notably, CVE-2026-42945 affecting NGINX Plus and NGINX Open is under active exploitation causing worker crashes and potential remote code execution. Microsoft Exchange Server is experiencing active exploitation through CVE-2026-42897, where attackers use crafted emails to execute arbitrary code via cross-site scripting. Additionally, Cisco's SD-WAN Controller is being targeted through CVE-2026-20182, a maximum severity authentication bypass vulnerability that allows administrative access. WordPress ecosystems are under significant threat with multiple plugins including Funnel Builder, Burst Statistics, and Avada Builder being actively exploited for credential theft and malicious code injection. Supply chain attacks are escalating with compromises affecting TanStack (impacting OpenAI), node-ipc npm packages, and various JavaScript repositories.
+Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms, with attackers targeting everything from Microsoft Exchange servers to WordPress plugins. The most severe threats include CVE-2026-42897 affecting Microsoft Exchange Server, CVE-2026-20182 in Cisco SD-WAN controllers, and CVE-2026-42945 impacting NGINX servers. A new Windows privilege escalation zero-day dubbed "MiniPlasma" has emerged with public proof-of-concept code available. Threat actors are also heavily targeting WordPress environments, exploiting vulnerabilities in popular plugins like Funnel Builder, Avada Builder, and Burst Statistics to inject malicious code and steal credentials. Supply chain attacks continue to pose significant risks, with compromises affecting npm packages, GitHub tokens, and various development tools.
 
 ## Active Exploitation Details
 
-### NGINX Worker Crash Vulnerability
-- **Description**: A security flaw impacting both NGINX Plus and NGINX Open that causes worker process crashes and enables potential remote code execution
-- **Impact**: Attackers can crash NGINX worker processes and potentially achieve remote code execution on affected systems
-- **Status**: Under active exploitation in the wild, days after public disclosure
-- **CVE ID**: CVE-2026-42945
-
 ### Microsoft Exchange Server Cross-Site Scripting Vulnerability
-- **Description**: High-severity Exchange Server vulnerability that allows arbitrary code execution through cross-site scripting attacks via crafted emails
-- **Impact**: Threat actors can execute arbitrary code on on-premise Exchange Server installations
-- **Status**: Actively exploited in attacks, Microsoft has shared mitigations
+- **Description**: A high-severity vulnerability in on-premise Microsoft Exchange Server that allows arbitrary code execution via cross-site scripting (XSS)
+- **Impact**: Threat actors can execute arbitrary code on Exchange servers through crafted emails
+- **Status**: Currently being exploited in the wild, mitigations provided by Microsoft
 - **CVE ID**: CVE-2026-42897
 
 ### Cisco SD-WAN Controller Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in Cisco Catalyst SD-WAN Controller with maximum severity rating
-- **Impact**: Attackers gain administrative access to network control systems
-- **Status**: Actively exploited in zero-day attacks, added to CISA KEV catalog
+- **Description**: A maximum severity vulnerability (CVSS 10.0) affecting Cisco Catalyst SD-WAN Controller
+- **Impact**: Allows unauthorized administrative access to network control systems
+- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
 - **CVE ID**: CVE-2026-20182
 
-### Funnel Builder WordPress Plugin Vulnerability
-- **Description**: Critical security vulnerability in the Funnel Builder plugin for WordPress enabling malicious JavaScript injection
-- **Impact**: Attackers inject malicious JavaScript code into WooCommerce checkout pages to steal credit card information
-- **Status**: Under active exploitation for checkout skimming attacks
+### NGINX Server Vulnerability
+- **Description**: A newly disclosed security flaw impacting both NGINX Plus and NGINX Open Source
+- **Impact**: Causes worker crashes and potentially enables remote code execution
+- **Status**: Under active exploitation in the wild within days of public disclosure
+- **CVE ID**: CVE-2026-42945
 
-### Burst Statistics WordPress Plugin Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in the WordPress Burst Statistics plugin
-- **Impact**: Hackers obtain admin-level access to WordPress websites
-- **Status**: Currently being leveraged by attackers for administrative takeover
+### Windows MiniPlasma Privilege Escalation Zero-Day
+- **Description**: A Windows privilege escalation vulnerability that affects fully patched Windows systems
+- **Impact**: Allows attackers to gain SYSTEM privileges on compromised Windows machines
+- **Status**: Proof-of-concept exploit code publicly released
 
-### Avada Builder WordPress Plugin Vulnerabilities
-- **Description**: Two vulnerabilities in the Avada Builder plugin affecting approximately one million active WordPress installations
-- **Impact**: Allows attackers to read arbitrary files and extract sensitive credential information
-- **Status**: Vulnerable to credential theft attacks
+### WordPress Funnel Builder Plugin Vulnerability
+- **Description**: A critical security vulnerability in the Funnel Builder plugin for WordPress
+- **Impact**: Enables injection of malicious JavaScript code into WooCommerce checkout pages for credit card skimming
+- **Status**: Under active exploitation for stealing credit card information
+
+### WordPress Burst Statistics Plugin Authentication Bypass
+- **Description**: A critical authentication bypass vulnerability in the Burst Statistics WordPress plugin
+- **Impact**: Allows hackers to obtain admin-level access to websites
+- **Status**: Currently being leveraged by attackers
 
 ## Affected Systems and Products
 
-- **NGINX Plus and NGINX Open**: Web server software vulnerable to worker crashes and RCE
-- **Microsoft Exchange Server**: On-premise versions susceptible to XSS-based code execution
-- **Cisco Catalyst SD-WAN Controller**: Network management systems with authentication bypass flaws
-- **WordPress Funnel Builder Plugin**: E-commerce checkout systems vulnerable to JavaScript injection
-- **WordPress Burst Statistics Plugin**: Analytics plugins with authentication bypass issues
-- **WordPress Avada Builder Plugin**: Page builder plugins with file disclosure vulnerabilities
-- **TanStack JavaScript Packages**: Development frameworks affected by supply chain compromise
-- **node-ipc npm Package**: Inter-process communication libraries compromised with credential stealers
-- **OpenAI Corporate Environment**: Employee devices impacted through supply chain attacks
+- **Microsoft Exchange Server**: On-premise versions vulnerable to XSS attacks via crafted emails
+- **Cisco Catalyst SD-WAN Controller**: Network infrastructure devices with administrative access bypass
+- **NGINX Plus and NGINX Open Source**: Web servers experiencing worker crashes and potential RCE
+- **Windows Systems**: All versions affected by MiniPlasma privilege escalation vulnerability
+- **WordPress Sites**: Installations using vulnerable plugins (Funnel Builder, Avada Builder, Burst Statistics)
+- **WooCommerce Stores**: E-commerce sites targeted for checkout page skimming attacks
+- **Microsoft 365 Accounts**: Targeted by Tycoon2FA phishing kit using device-code attacks
+- **npm Ecosystem**: node-ipc package compromised with credential-stealing malware
+- **GitHub Repositories**: Grafana codebase downloaded after token compromise
 
 ## Attack Vectors and Techniques
 
-- **Crafted Email Exploitation**: Attackers send specially crafted emails to trigger Exchange Server vulnerabilities
-- **JavaScript Injection**: Malicious code injection into WordPress checkout pages for payment skimming
-- **Authentication Bypass**: Circumventing login mechanisms to gain unauthorized administrative access
-- **Supply Chain Compromise**: Injecting malicious code into popular development packages and repositories
-- **Device Code Phishing**: Using Microsoft 365 device-code authentication flows for account hijacking
-- **Credential Harvesting**: Extracting stored credentials from compromised WordPress installations
-- **Zero-Day Exploitation**: Leveraging previously unknown vulnerabilities before patches are available
+- **Cross-Site Scripting (XSS)**: Exploiting Exchange Server vulnerabilities through crafted emails
+- **Authentication Bypass**: Circumventing security controls in network infrastructure devices
+- **Privilege Escalation**: Using zero-day exploits to gain elevated system permissions
+- **JavaScript Injection**: Inserting malicious code into e-commerce checkout pages
+- **Device-Code Phishing**: Abusing Microsoft's device authorization flow to hijack accounts
+- **Supply Chain Attacks**: Compromising popular software packages and development tools
+- **Credit Card Skimming**: Stealing payment information from compromised websites
+- **Session Theft**: Using infostealers like REMUS to capture authentication tokens
 
 ## Threat Actor Activities
 
-- **Tycoon2FA Operations**: Conducting device-code phishing campaigns against Microsoft 365 accounts using Trustifi click-tracking URL abuse
-- **Russian Secret Blizzard/Turla**: Developing Kazuar backdoor into modular peer-to-peer botnet for persistent access and stealth operations
-- **TeamPCP Group**: Threatening to leak Mistral AI source code repositories unless buyers are found
-- **Supply Chain Attackers**: Compromising popular npm packages and JavaScript libraries for widespread credential theft
-- **WordPress Threat Actors**: Systematically exploiting multiple WordPress plugin vulnerabilities for site takeover and payment fraud
-- **Zero-Day Exploiters**: Rapidly weaponizing newly disclosed vulnerabilities in enterprise infrastructure
+- **Secret Blizzard/Turla**: Russian state-sponsored group developing Kazuar backdoor into modular P2P botnet for persistent access and stealth operations
+- **TeamPCP**: Hacker group threatening to leak Mistral AI source code repositories unless buyers are found
+- **Tycoon2FA Operators**: Cybercriminals using advanced phishing kits to hijack Microsoft 365 accounts through device-code attacks
+- **Unknown Threat Actors**: Multiple groups actively exploiting WordPress plugin vulnerabilities for credential theft and malicious code injection
+- **Supply Chain Attackers**: Threat actors compromising development tools and packages, including the TanStack attack affecting OpenAI employees
