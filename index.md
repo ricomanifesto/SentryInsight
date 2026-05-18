@@ -1,55 +1,64 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are under active exploitation across multiple platforms, with attackers targeting Windows systems, web servers, and cloud environments. The most significant threats include a Windows privilege escalation zero-day dubbed MiniPlasma that grants SYSTEM access on fully patched systems, an NGINX vulnerability (CVE-2026-42945) causing worker crashes and potential remote code execution, and a WordPress plugin flaw enabling credit card theft from WooCommerce sites. Supply chain attacks continue to plague the npm ecosystem with malicious packages delivering infostealers, while Russian state-sponsored groups have evolved their persistent access capabilities through modular P2P botnets.
+Current cybersecurity landscape reveals intense exploitation activity across multiple platforms, with particular focus on zero-day vulnerabilities, supply chain attacks, and infrastructure targeting. Critical exploitation includes a Windows privilege escalation zero-day dubbed "MiniPlasma" that enables SYSTEM access on fully patched systems, active exploitation of NGINX vulnerabilities causing worker crashes and potential RCE, and widespread npm supply chain attacks leveraging the leaked Shai-Hulud malware. WordPress plugin vulnerabilities are under active exploitation for credit card skimming, while Russian state-sponsored groups have evolved their infrastructure for persistent access. The exploitation landscape is further complicated by newly disclosed vulnerabilities in major enterprise software from Ivanti, Fortinet, SAP, and VMware.
 
 ## Active Exploitation Details
 
-### MiniPlasma Windows Zero-Day
-- **Description**: A Windows privilege escalation zero-day vulnerability that enables attackers to gain SYSTEM privileges on fully patched Windows systems
-- **Impact**: Complete system compromise with highest privilege level access, allowing attackers full control over affected Windows machines
-- **Status**: Zero-day with proof-of-concept exploit publicly released by security researcher Chaotic Eclipse
-
-### NGINX Worker Crash Vulnerability
-- **Description**: A security flaw in NGINX Plus and NGINX Open causing worker process crashes with potential for remote code execution
-- **Impact**: Service disruption through worker crashes and possible remote code execution on affected web servers
-- **Status**: Under active exploitation in the wild, recently disclosed
+### NGINX Vulnerability
+- **Description**: Security flaw impacting NGINX Plus and NGINX Open that causes worker process crashes and enables potential remote code execution
+- **Impact**: Attackers can crash NGINX worker processes and potentially achieve remote code execution on affected systems
+- **Status**: Under active exploitation in the wild, recently disclosed and patched
 - **CVE ID**: CVE-2026-42945
 
-### Funnel Builder WordPress Plugin Flaw
-- **Description**: A critical vulnerability in the Funnel Builder plugin for WordPress enabling injection of malicious JavaScript code
-- **Impact**: Credit card skimming attacks on WooCommerce checkout pages, leading to financial data theft
-- **Status**: Under active exploitation to steal customer payment information from e-commerce sites
+### MiniPlasma Windows Zero-Day
+- **Description**: Windows privilege escalation vulnerability that allows attackers to gain SYSTEM privileges on fully patched Windows systems
+- **Impact**: Complete system compromise with highest level privileges, enabling full control over affected Windows machines
+- **Status**: Zero-day with proof-of-concept exploit publicly released, no patch currently available
+
+### Funnel Builder WordPress Plugin Vulnerability
+- **Description**: Critical vulnerability in the Funnel Builder plugin for WordPress enabling malicious JavaScript injection
+- **Impact**: Credit card data theft through WooCommerce checkout page compromise and skimming attacks
+- **Status**: Under active exploitation for payment card skimming attacks
 
 ### DirtyDecrypt Linux Privilege Escalation
-- **Description**: A local privilege escalation vulnerability in the Linux kernel's rxgk module
-- **Impact**: Allows attackers to gain root access on affected Linux systems
-- **Status**: Recently patched with proof-of-concept exploit now available
+- **Description**: Local privilege escalation vulnerability in the Linux kernel's rxgk module
+- **Impact**: Allows attackers to gain root access on vulnerable Linux systems
+- **Status**: Recently patched with proof-of-concept exploit now publicly available
+
+### Avada Builder WordPress Plugin Flaws
+- **Description**: Two vulnerabilities in the Avada Builder plugin affecting approximately one million WordPress installations
+- **Impact**: Arbitrary file read capability and extraction of sensitive site credentials and information
+- **Status**: Actively being exploited for credential theft
 
 ## Affected Systems and Products
 
-- **Windows Systems**: All fully patched Windows versions vulnerable to MiniPlasma zero-day privilege escalation
-- **NGINX Plus and NGINX Open**: Web servers experiencing worker crashes and potential RCE exploitation
-- **WordPress Sites**: Sites using Funnel Builder plugin vulnerable to JavaScript injection and payment skimming
-- **Linux Systems**: Distributions with vulnerable rxgk module affected by DirtyDecrypt privilege escalation
-- **npm Ecosystem**: Four malicious packages identified delivering infostealers and DDoS malware
-- **Microsoft 365**: Accounts targeted by Tycoon2FA phishing kit using device-code attacks
-- **Grafana Labs**: Source code stolen through compromised GitHub token access
-- **node-ipc Package**: Popular npm package compromised to steal developer credentials
+- **NGINX Plus and NGINX Open**: Web server software vulnerable to worker crashes and RCE
+- **Windows Systems**: All versions affected by MiniPlasma zero-day privilege escalation
+- **WordPress Sites**: Installations using Funnel Builder and Avada Builder plugins
+- **Linux Systems**: Kernels with rxgk module vulnerable to DirtyDecrypt exploit
+- **npm Ecosystem**: Node.js packages and developers targeted by supply chain attacks
+- **Enterprise Software**: Ivanti, Fortinet, SAP, VMware, and n8n products with newly patched vulnerabilities
+- **Microsoft 365**: Accounts targeted by Tycoon2FA phishing campaigns
+- **WooCommerce**: E-commerce platforms vulnerable to checkout page skimming
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: MiniPlasma zero-day exploiting Windows kernel for SYSTEM access
-- **Web Server Exploitation**: NGINX vulnerability causing denial of service and potential code execution
-- **JavaScript Injection**: Malicious code inserted into WooCommerce checkout processes for payment theft
-- **Supply Chain Attacks**: Compromised npm packages including Shai-Hulud worm variants targeting developers
-- **Device-Code Phishing**: Tycoon2FA kit abusing Microsoft device authentication flow and Trustifi URLs
-- **Token Theft**: GitHub access tokens compromised to steal source code repositories
-- **Session Hijacking**: REMUS infostealer focusing on browser session and authentication token theft
+- **Supply Chain Attacks**: Malicious npm packages containing Shai-Hulud malware variants and infostealers
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Windows and NGINX
+- **Plugin Compromise**: WordPress plugin vulnerabilities exploited for JavaScript injection and file access
+- **Privilege Escalation**: Local exploitation techniques for gaining elevated system access
+- **Phishing Campaigns**: Device-code phishing attacks targeting Microsoft 365 accounts
+- **Token Theft**: GitHub access token compromise for source code exfiltration
+- **JavaScript Injection**: Malicious code injection into e-commerce checkout processes
+- **Botnet Operations**: P2P infrastructure for persistent access and data collection
 
 ## Threat Actor Activities
 
-- **Secret Blizzard (Turla)**: Russian state-sponsored group evolved Kazuar backdoor into modular P2P botnet for persistent access and stealth operations
-- **TeamPCP**: Released Shai-Hulud worm variants through malicious npm packages targeting developer environments
-- **Unknown Actors**: Exploiting WordPress plugin vulnerabilities for financial fraud through payment skimming
-- **Grafana Attackers**: Attempted extortion after stealing source code through compromised GitHub access
-- **npm Supply Chain Attackers**: Targeting developer workstations through poisoned packages to compromise software supply chain
+- **Secret Blizzard/Turla**: Russian state-sponsored group transforming Kazuar backdoor into modular P2P botnet for long-term persistence and stealth operations
+- **TeamPCP**: Group responsible for open-sourcing Shai-Hulud malware, now being leveraged in npm supply chain attacks
+- **Iranian Threat Actors**: Targeting fuel tank systems and expanding cyber offensive capabilities against infrastructure
+- **Chaotic Eclipse**: Security researcher releasing Windows zero-day proof-of-concept exploits including MiniPlasma
+- **npm Supply Chain Attackers**: Multiple threat actors deploying malicious packages containing infostealers and DDoS malware
+- **WordPress Plugin Exploiters**: Attackers actively exploiting plugin vulnerabilities for credit card theft and credential harvesting
+- **Tycoon2FA Operators**: Phishing kit operators targeting Microsoft 365 accounts with device-code attacks
+- **Grafana Breach Actors**: Unauthorized parties stealing GitHub tokens and attempting extortion after source code theft
