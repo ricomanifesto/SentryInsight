@@ -1,61 +1,60 @@
 # Exploitation Report
 
-The cybersecurity landscape is witnessing significant exploitation activity across multiple platforms and attack vectors. Critical zero-day vulnerabilities are being actively exploited in Windows systems, with the MiniPlasma privilege escalation flaw enabling SYSTEM access on fully patched systems. Microsoft Exchange servers face immediate threats from CVE-2026-42897, which allows arbitrary code execution via crafted emails. The NGINX web server vulnerability CVE-2026-42945 is under active exploitation causing worker crashes and potential remote code execution. Supply chain attacks continue to plague the development ecosystem, with malicious npm packages compromising node-ipc and targeting developers through poisoned packages. WordPress sites face multiple exploitation campaigns, particularly targeting the Funnel Builder plugin for WooCommerce checkout skimming attacks.
+Current threat activity reveals a diverse landscape of active exploitation targeting critical infrastructure and development environments. Zero-day vulnerabilities are being actively exploited across Windows systems, web applications, and enterprise software platforms. Notable active exploits include the Windows MiniPlasma privilege escalation zero-day enabling SYSTEM access on fully patched systems, and CVE-2026-42945 affecting NGINX platforms that has come under immediate exploitation following public disclosure. Supply chain attacks continue to target developer workstations and package repositories, with malicious npm packages delivering infostealers and sophisticated phishing campaigns targeting Microsoft 365 accounts. WordPress plugin vulnerabilities are being actively exploited for payment card skimming operations, while enterprise platforms from major vendors including Ivanti, Fortinet, VMware, and SAP have released patches for critical remote code execution and privilege escalation flaws.
 
 ## Active Exploitation Details
 
-### MiniPlasma Windows Privilege Escalation Zero-Day
-- **Description**: A Windows privilege escalation vulnerability that allows attackers to gain SYSTEM privileges on fully patched Windows systems
-- **Impact**: Complete system compromise with highest privilege level access
-- **Status**: Zero-day with proof-of-concept exploit publicly released by Chaotic Eclipse security researcher
+### MiniPlasma Windows Zero-Day
+- **Description**: A Windows privilege escalation zero-day vulnerability that enables attackers to gain SYSTEM privileges on fully patched Windows systems
+- **Impact**: Complete system compromise allowing attackers to execute arbitrary code with highest privileges
+- **Status**: Active zero-day with public proof-of-concept exploit released by security researcher Chaotic Eclipse
 
-### Microsoft Exchange Server Email Processing Vulnerability
-- **Description**: Security vulnerability in on-premise Exchange Server versions that allows arbitrary code execution via cross-site scripting (XSS)
-- **Impact**: Remote code execution and system compromise through crafted email attacks
-- **Status**: Actively exploited in the wild with mitigations provided by Microsoft
-- **CVE ID**: CVE-2026-42897
-
-### NGINX Worker Crash Vulnerability
-- **Description**: Security flaw affecting both NGINX Plus and NGINX Open that causes worker process crashes and potential remote code execution
-- **Impact**: Service disruption and possible remote code execution capabilities
-- **Status**: Under active exploitation in the wild days after public disclosure
+### NGINX Worker Process Vulnerability
+- **Description**: Security flaw affecting NGINX Plus and NGINX Open causing worker crashes and potential remote code execution
+- **Impact**: Service disruption and possible arbitrary code execution on web servers
+- **Status**: Under active exploitation in the wild following public disclosure
 - **CVE ID**: CVE-2026-42945
 
-### DirtyDecrypt Linux Root Escalation
+### DirtyDecrypt Linux Privilege Escalation
 - **Description**: Local privilege escalation vulnerability in the Linux kernel's rxgk module
-- **Impact**: Root access on affected Linux systems
-- **Status**: Recently patched with proof-of-concept exploit now available
+- **Impact**: Allows attackers to gain root access on affected Linux systems
+- **Status**: Recently patched with public proof-of-concept exploit available
 
-### Funnel Builder WordPress Plugin Vulnerability
-- **Description**: Critical security vulnerability in the Funnel Builder plugin for WordPress enabling malicious JavaScript injection
-- **Impact**: WooCommerce checkout page compromise and credit card data theft
-- **Status**: Under active exploitation for payment skimming attacks
+### Funnel Builder WordPress Plugin
+- **Description**: Critical vulnerability in the Funnel Builder plugin for WordPress enabling malicious JavaScript injection
+- **Impact**: Payment card skimming through WooCommerce checkout page manipulation
+- **Status**: Under active exploitation for credit card theft operations
 
 ## Affected Systems and Products
 
-- **Windows Systems**: All versions affected by MiniPlasma zero-day, fully patched systems vulnerable
-- **Microsoft Exchange Server**: On-premise installations vulnerable to email-based attacks
-- **NGINX Web Servers**: Both NGINX Plus and NGINX Open versions affected
-- **Linux Systems**: Systems with rxgk module vulnerable to DirtyDecrypt exploit
-- **WordPress Sites**: Sites using Funnel Builder plugin with estimated exposure to WooCommerce checkout attacks
-- **Node.js Development Environment**: npm packages node-ipc and TanStack affected by supply chain attacks
-- **OpenAI Corporate Environment**: Two employee devices compromised via TanStack supply chain attack
+- **Windows Systems**: All versions vulnerable to MiniPlasma zero-day privilege escalation
+- **NGINX Plus and NGINX Open**: Web server platforms affected by worker process vulnerability
+- **Linux Kernel**: Systems running vulnerable rxgk module implementations
+- **WordPress Sites**: Installations using Funnel Builder plugin vulnerable to checkout skimming
+- **Ivanti Products**: Multiple vulnerabilities patched including RCE and authentication bypass flaws
+- **Fortinet Systems**: Security appliances affected by SQL injection and privilege escalation issues
+- **VMware Platforms**: Enterprise virtualization products with remote code execution vulnerabilities
+- **SAP Applications**: Business software with various security flaws requiring immediate patching
+- **npm Package Registry**: Supply chain attacks targeting node-ipc and other popular packages
+- **Microsoft 365**: Cloud services targeted by Tycoon2FA phishing campaigns
+- **Avada Builder Plugin**: WordPress sites with over one million installations at risk
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: Windows MiniPlasma zero-day enabling local privilege escalation to SYSTEM level
-- **Email-Based Attacks**: Exchange Server exploitation through specially crafted email messages
-- **Web Server Exploitation**: Direct exploitation of NGINX vulnerabilities causing service disruption
-- **Supply Chain Attacks**: Compromise of popular npm packages including node-ipc with credential-stealing malware
-- **WordPress Plugin Exploitation**: Injection of malicious JavaScript into WooCommerce checkout processes
-- **Phishing Kit Evolution**: Tycoon2FA implementing device-code phishing attacks against Microsoft 365 accounts
-- **P2P Botnet Operations**: Kazuar backdoor evolution into modular peer-to-peer botnet infrastructure
+- **Zero-Day Exploitation**: Public release of Windows privilege escalation exploits enabling immediate system compromise
+- **Supply Chain Attacks**: Injection of malicious code into trusted software packages and developer tools
+- **Device-Code Phishing**: Advanced phishing techniques using Microsoft device authorization flows
+- **Package Repository Poisoning**: Compromise of popular npm packages to distribute credential-stealing malware
+- **JavaScript Injection**: Malicious code insertion into e-commerce checkout processes for payment card theft
+- **Token-Based Attacks**: GitHub token compromise enabling codebase theft and extortion attempts
+- **Peer-to-Peer Botnets**: Evolution of traditional backdoors into distributed P2P command networks
 
 ## Threat Actor Activities
 
-- **Chaotic Eclipse**: Security researcher responsible for releasing MiniPlasma zero-day proof-of-concept after previous Windows vulnerability disclosures (YellowKey and GreenPlasma)
-- **Secret Blizzard/Turla**: Russian state-sponsored group developing Kazuar backdoor into sophisticated P2P botnet for persistent access and data collection
-- **Supply Chain Attackers**: Multiple actors targeting npm ecosystem with malicious packages containing infostealers and DDoS capabilities, including Shai-Hulud worm variants
-- **WordPress Threat Actors**: Cybercriminals actively exploiting Funnel Builder vulnerabilities for payment card skimming operations
-- **ShinyHunters**: Cybercriminal group involved in Canvas/Instructure attacks leading to Congressional oversight
-- **Pwn2Own Participants**: Security researchers demonstrating 47 zero-day vulnerabilities across Windows 11, Microsoft Exchange, and Red Hat Enterprise Linux systems for $1,298,250 in rewards
+- **Chaotic Eclipse**: Security researcher responsible for discovering and releasing Windows zero-day exploits including MiniPlasma, YellowKey, and GreenPlasma
+- **Secret Blizzard (Turla)**: Russian state-sponsored group transforming Kazuar backdoor into modular P2P botnet for persistent access
+- **Supply Chain Attackers**: Multiple campaigns targeting developer workstations and trusted software distribution channels
+- **Tycoon2FA Operators**: Cybercriminal group operating advanced phishing-as-a-service platform targeting Microsoft 365 accounts
+- **npm Package Attackers**: Threat actors compromising popular JavaScript packages including node-ipc for credential theft
+- **WooCommerce Skimmers**: Cybercriminals exploiting WordPress plugin vulnerabilities for payment card data theft
+- **ShinyHunters**: Ransomware group involved in attacks against educational technology platforms including Instructure Canvas
