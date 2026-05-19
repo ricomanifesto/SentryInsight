@@ -1,59 +1,59 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple platforms, with several zero-day vulnerabilities and recently disclosed flaws being actively exploited in the wild. The most concerning activities include the exploitation of CVE-2026-42945 in NGINX systems causing worker crashes and potential remote code execution, active exploitation of a critical Funnel Builder WordPress plugin vulnerability enabling credit card theft through WooCommerce checkout skimming, and the release of a Windows privilege escalation zero-day dubbed "MiniPlasma" that provides SYSTEM access on fully patched systems. Additionally, the leak of Shai-Hulud malware source code has spawned multiple npm package poisoning campaigns, while threat actors are leveraging stolen GitHub tokens to compromise development environments and supply chains.
+Critical vulnerability exploitation is currently affecting multiple enterprise environments, with active zero-day exploitation targeting Microsoft Exchange servers through a cross-site scripting vulnerability that enables Outlook Web Access compromise. Simultaneously, threat actors are leveraging newly disclosed NGINX vulnerabilities for remote code execution attacks, while the public release of Windows privilege escalation exploits poses immediate risks to fully patched systems. The cybersecurity landscape is further complicated by sophisticated supply chain attacks targeting npm packages and developer workstations, alongside Iranian state-sponsored activities targeting critical infrastructure systems.
 
 ## Active Exploitation Details
 
-### NGINX Worker Crash and RCE Vulnerability
-- **Description**: A newly disclosed security flaw affecting NGINX Plus and NGINX Open Source that causes worker process crashes and enables potential remote code execution
-- **Impact**: Attackers can crash NGINX worker processes and potentially achieve remote code execution on affected systems
-- **Status**: Under active exploitation in the wild within days of public disclosure
+### Microsoft Exchange Zero-Day Vulnerability
+- **Description**: A cross-site scripting (XSS) vulnerability in Microsoft Exchange that allows attackers to compromise Outlook Web Access (OWA) mailboxes
+- **Impact**: Attackers can gain unauthorized access to corporate email systems and potentially escalate privileges within the Exchange environment
+- **Status**: Currently being exploited in the wild with no patch available
+- **CVE ID**: CVE-2026-42897
+
+### NGINX Worker Process Vulnerability
+- **Description**: A security flaw affecting both NGINX Plus and NGINX Open that causes worker process crashes and enables potential remote code execution
+- **Impact**: Attackers can crash NGINX worker processes and potentially achieve remote code execution on affected web servers
+- **Status**: Actively exploited in the wild following public disclosure
 - **CVE ID**: CVE-2026-42945
 
-### Funnel Builder WordPress Plugin Vulnerability
-- **Description**: Critical security vulnerability in the Funnel Builder plugin for WordPress enabling injection of malicious JavaScript code
-- **Impact**: Attackers can inject malicious scripts into WooCommerce checkout pages to steal credit card information and customer data
-- **Status**: Under active exploitation for checkout page skimming attacks
-
-### MiniPlasma Windows Zero-Day
-- **Description**: Windows privilege escalation zero-day vulnerability that enables SYSTEM-level access on fully patched Windows systems
-- **Impact**: Local attackers can escalate privileges to gain complete administrative control over Windows systems
-- **Status**: Proof-of-concept exploit publicly released by security researcher Chaotic Eclipse
+### MiniPlasma Windows Privilege Escalation
+- **Description**: A Windows privilege escalation zero-day vulnerability that allows attackers to gain SYSTEM-level privileges on fully patched Windows systems
+- **Impact**: Complete system compromise with highest level administrative access
+- **Status**: Proof-of-concept exploit publicly released, enabling widespread exploitation
 
 ### DirtyDecrypt Linux Privilege Escalation
-- **Description**: Local privilege escalation vulnerability in the Linux kernel's rxgk module
-- **Impact**: Attackers with local access can escalate privileges to gain root access on affected Linux systems
+- **Description**: A local privilege escalation vulnerability in the Linux kernel's rxgk module that allows attackers to gain root access
+- **Impact**: Complete compromise of affected Linux systems with root-level access
 - **Status**: Recently patched with proof-of-concept exploit now available
-
-### Shai-Hulud Malware Campaign
-- **Description**: Self-replicating worm malware targeting npm packages after source code was publicly released
-- **Impact**: Infects npm packages with information-stealing capabilities and spreads across development environments
-- **Status**: Multiple malicious npm packages identified containing Shai-Hulud clones and variations
 
 ## Affected Systems and Products
 
-- **NGINX Plus and NGINX Open Source**: Web server and reverse proxy systems vulnerable to worker crashes and RCE
-- **WordPress Sites**: Websites using the Funnel Builder plugin, particularly those with WooCommerce integration
-- **Windows Systems**: All Windows versions including fully patched systems vulnerable to MiniPlasma privilege escalation
-- **Linux Systems**: Systems running vulnerable versions of the Linux kernel with rxgk module
-- **npm Package Repository**: Node.js development environments and applications using compromised packages
-- **GitHub Repositories**: Development environments with exposed tokens, including CISA AWS GovCloud and Grafana codebases
-- **Automatic Tank Gauge (ATG) Systems**: Fuel tank monitoring systems exposed to internet-based tampering
+- **Microsoft Exchange Servers**: Outlook Web Access (OWA) components vulnerable to XSS attacks
+- **NGINX Web Servers**: Both NGINX Plus and NGINX Open versions affected by worker process vulnerabilities
+- **Windows Systems**: All fully patched Windows versions vulnerable to MiniPlasma privilege escalation
+- **Linux Systems**: Systems running affected kernel versions with rxgk module vulnerable to DirtyDecrypt
+- **npm Package Ecosystem**: Multiple malicious packages delivering infostealers and DDoS malware
+- **macOS Systems**: Targeted by SHub infostealer variants disguised as Apple security updates
+- **OpenClaw AI Framework**: Deployments affected by Claw Chain vulnerabilities
+- **GitHub Environments**: Developer repositories and source code exposed through token theft
+- **AWS GovCloud**: CISA contractor credentials exposed on public GitHub repository
 
 ## Attack Vectors and Techniques
 
-- **Web Application Exploitation**: Injection of malicious JavaScript into WordPress checkout pages via plugin vulnerabilities
-- **Supply Chain Attacks**: Poisoning of npm packages with information-stealing malware and self-replicating worms
-- **Privilege Escalation**: Local exploitation of kernel vulnerabilities to gain elevated system access
-- **Token Theft and Abuse**: Compromise of GitHub access tokens to steal source code and credentials
-- **Device-Code Phishing**: Tycoon2FA kit leveraging device authentication flows to bypass multi-factor authentication
-- **Infrastructure Targeting**: Exploitation of exposed industrial control systems and fuel tank gauges
+- **Cross-Site Scripting (XSS)**: Exploitation of Exchange servers to compromise OWA mailboxes
+- **Remote Code Execution**: NGINX vulnerabilities leveraged for server compromise
+- **Privilege Escalation**: Zero-day exploits targeting Windows and Linux systems for elevated access
+- **Supply Chain Attacks**: Malicious npm packages and compromised developer workstations
+- **Social Engineering**: Fake Apple security updates distributing macOS infostealers
+- **Token Theft**: GitHub access tokens stolen to download source code repositories
+- **Device-Code Phishing**: Microsoft 365 account hijacking through Tycoon2FA kit
+- **AppleScript Abuse**: Fake security update dialogs on macOS systems
 
 ## Threat Actor Activities
 
-- **Secret Blizzard (Russian APT)**: Evolved Kazuar backdoor into modular peer-to-peer botnet for long-term persistence and data collection
-- **Iranian Threat Actors**: Expanded cyber offensive operations targeting fuel tank infrastructure systems
-- **TeamPCP**: Released Shai-Hulud worm source code leading to widespread npm ecosystem compromise
-- **INTERPOL Operation Ramz**: Law enforcement disruption resulted in 201 arrests across Middle East and North Africa cybercrime networks
-- **ShinyHunters**: Conducted attacks against Instructure Canvas platform prompting Congressional oversight
-- **Unknown Supply Chain Attackers**: Multiple campaigns targeting developer workstations and trusted software repositories
+- **Iranian State-Sponsored Groups**: Targeting automatic tank gauge systems and critical infrastructure in fuel sector operations
+- **Supply Chain Attackers**: Compromising developer workstations and trusted software repositories
+- **Cybercrime Networks**: MENA region operations disrupted by INTERPOL with 201 arrests and 53 malware/phishing servers seized
+- **TeamPCP**: Open-sourced Shai-Hulud worm code enabling widespread copycat campaigns
+- **Extortion Groups**: Attempting to monetize stolen source code from GitHub repository breaches
+- **Phishing Operators**: Deploying Tycoon2FA kits for Microsoft 365 credential harvesting
