@@ -1,61 +1,63 @@
 # Exploitation Report
 
-The cybersecurity landscape is currently experiencing significant exploitation activity across multiple vectors, with critical zero-day vulnerabilities under active attack and widespread supply chain compromises targeting development environments. A Microsoft Exchange zero-day vulnerability (CVE-2026-42897) is being actively exploited with no patch available, enabling attackers to compromise Outlook Web Access mailboxes through cross-site scripting attacks. Simultaneously, multiple supply chain attacks are targeting software development ecosystems, including compromised npm packages, GitHub Actions workflows, and Visual Studio Code extensions, demonstrating sophisticated campaigns aimed at stealing developer credentials and infiltrating CI/CD pipelines. Additionally, a Windows privilege escalation zero-day called MiniPlasma allows attackers to achieve SYSTEM-level access on fully patched systems, while OAuth consent phishing attacks are successfully bypassing multi-factor authentication protections.
+The cybersecurity landscape is currently experiencing intense exploitation activity across multiple attack vectors, with particular focus on zero-day vulnerabilities, supply chain attacks, and privilege escalation flaws. Critical zero-day exploitation is occurring against Microsoft Exchange servers, while widespread supply chain campaigns are targeting npm packages and developer tools. Linux kernel vulnerabilities are being weaponized for privilege escalation, and threat actors are increasingly targeting developer environments as attack surfaces. Notable activities include the active exploitation of Exchange servers, massive npm package poisoning campaigns, and sophisticated attacks on development infrastructure including GitHub Actions and VS Code extensions.
 
 ## Active Exploitation Details
 
-### Microsoft Exchange Zero-Day
+### Microsoft Exchange Zero-Day Vulnerability
 - **Description**: Cross-site scripting (XSS) vulnerability affecting Microsoft Exchange servers
 - **Impact**: Allows attackers to compromise Outlook Web Access (OWA) mailboxes and potentially gain unauthorized access to email communications
-- **Status**: Currently under active exploitation with no patch available from Microsoft
+- **Status**: Currently under active attack with no patch available
 - **CVE ID**: CVE-2026-42897
 
-### MiniPlasma Windows Privilege Escalation
-- **Description**: A zero-day privilege escalation vulnerability in Windows operating systems that enables attackers to gain SYSTEM-level privileges
-- **Impact**: Allows threat actors to achieve the highest level of system access on fully patched Windows systems, enabling complete system compromise
-- **Status**: Proof-of-concept code has been publicly released by security researcher Chaotic Eclipse, increasing exploitation risk
+### DirtyDecrypt Linux Kernel Vulnerability
+- **Description**: Local privilege escalation vulnerability in the Linux kernel with recently released proof-of-concept exploit code
+- **Impact**: Enables attackers to escalate privileges on compromised Linux systems
+- **Status**: Patched but PoC exploit code now publicly available
+- **CVE ID**: CVE-2026-31635
 
 ### SEPPMail Secure E-Mail Gateway Vulnerabilities
-- **Description**: Critical security vulnerabilities in SEPPMail's enterprise email security solution
-- **Impact**: Could be exploited to achieve remote code execution and enable unauthorized access to mail traffic
-- **Status**: Vulnerabilities have been disclosed, requiring immediate patching
+- **Description**: Critical security vulnerabilities in enterprise-grade email security solution
+- **Impact**: Enable remote code execution and unauthorized access to mail traffic
+- **Status**: Vulnerabilities disclosed with exploitation potential
 
-### Claw Chain Vulnerabilities in OpenClaw Framework
-- **Description**: Multiple vulnerabilities affecting the rapidly growing AI agent framework OpenClaw
-- **Impact**: Allow attackers to steal credentials, escalate privileges, and maintain persistence within AI deployment environments
-- **Status**: Vulnerabilities have been patched, but previously deployed instances remain at risk
+### Claw Chain Vulnerabilities in OpenClaw
+- **Description**: Multiple vulnerabilities in the rapidly growing AI agent framework
+- **Impact**: Allow attackers to steal credentials, escalate privileges, and maintain persistence
+- **Status**: Now patched but previously exploitable
 
 ## Affected Systems and Products
 
-- **Microsoft Exchange Servers**: All versions vulnerable to CVE-2026-42897 XSS attacks through OWA
-- **Windows Operating Systems**: All current versions affected by MiniPlasma zero-day privilege escalation
-- **SEPPMail Secure E-Mail Gateway**: Enterprise email security installations at risk of RCE
-- **Visual Studio Code**: Developers using compromised Nx Console extension version 18.95.0
-- **npm Ecosystem**: Multiple malicious packages delivering infostealers and DDoS malware
-- **GitHub Actions**: Compromised actions-cool/issues-helper workflow targeting CI/CD credentials
-- **OpenClaw AI Framework**: Deployments vulnerable to credential theft and privilege escalation
+- **Microsoft Exchange Servers**: All versions vulnerable to XSS-based attacks through OWA
+- **Linux Kernel**: Systems running vulnerable kernel versions susceptible to privilege escalation
+- **Node Package Manager (npm)**: Over 600 malicious packages published in Shai-Hulud campaigns
+- **Visual Studio Code**: Compromised Nx Console extension version 18.95.0 targeting developers
+- **GitHub Actions**: Popular actions-cool/issues-helper workflow compromised
+- **SEPPMail Secure E-Mail Gateway**: Enterprise email security solutions affected by RCE vulnerabilities
+- **OpenClaw Framework**: AI agent deployments vulnerable to credential theft and privilege escalation
+- **@antv npm packages**: Various packages in the ecosystem compromised through maintainer account takeover
+- **AWS GovCloud**: CISA contractor exposed highly privileged credentials on public GitHub repository
 - **Drupal Core**: All supported branches requiring urgent security updates scheduled for May 20, 2026
-- **Microsoft 365 Organizations**: Over 340 organizations across five countries compromised by EvilTokens PhaaS platform
-- **macOS Systems**: Targets of SHub infostealer variant spoofing Apple security updates
+- **Automatic Tank Gauge (ATG) Systems**: Fuel tank monitoring systems in Iran targeted by cyber offensive
 
 ## Attack Vectors and Techniques
 
-- **Cross-Site Scripting (XSS)**: Microsoft Exchange vulnerability enabling OWA mailbox compromise
-- **OAuth Consent Phishing**: EvilTokens platform bypassing MFA through malicious OAuth applications
-- **Supply Chain Poisoning**: Compromised npm packages, GitHub Actions, and VS Code extensions
-- **Social Engineering**: Fake Apple security updates delivering SHub macOS infostealer
-- **Privilege Escalation**: MiniPlasma zero-day enabling SYSTEM-level access on Windows
-- **Credential Harvesting**: Multiple campaigns targeting developer workstations and CI/CD environments
-- **AppleScript Abuse**: macOS malware using legitimate scripting to display fake security prompts
-- **Repository Compromise**: Grafana source code theft through stolen GitHub tokens
-- **Tag Redirection**: GitHub Actions workflow compromise redirecting popular tags to malicious commits
+- **Supply Chain Poisoning**: Mass publication of malicious npm packages using compromised maintainer accounts
+- **Developer Tool Compromise**: Targeting VS Code extensions and GitHub Actions to steal credentials
+- **Cross-Site Scripting (XSS)**: Exploitation of Microsoft Exchange to compromise OWA mailboxes
+- **Local Privilege Escalation**: Using kernel vulnerabilities to gain elevated system access
+- **OAuth Consent Bypass**: EvilTokens platform compromising Microsoft 365 organizations by bypassing MFA
+- **Fake Security Updates**: SHub malware variant spoofing Apple security updates on macOS systems
+- **Credential Harvesting**: Stealing CI/CD credentials through compromised GitHub Actions workflows
+- **AppleScript Abuse**: Using scripting to display fake security messages and install backdoors
+- **Token Theft**: Stealing GitHub access tokens to compromise development environments
 
 ## Threat Actor Activities
 
-- **EvilTokens PhaaS Operators**: Successfully compromised 340+ Microsoft 365 organizations using OAuth consent phishing within five weeks of launching their platform
-- **Mini Shai-Hulud Campaign**: Ongoing software supply chain attack targeting @antv npm ecosystem through compromised maintainer accounts
-- **Chaotic Eclipse**: Security researcher who disclosed and released PoC code for multiple Windows vulnerabilities including MiniPlasma, YellowKey, and GreenPlasma
-- **Iranian Fuel Tank Attackers**: Expanding cyber offensive operations by targeting insecure automatic tank gauge systems exposed on the Internet
-- **Supply Chain Attackers**: Multiple coordinated campaigns targeting developer workstations and CI/CD pipelines through compromised extensions, packages, and workflows
-- **INTERPOL Operation Ramz Targets**: 201 arrests and 382 additional suspects identified across Middle East and North Africa cybercrime networks
-- **AWS GovCloud Credential Exposers**: CISA contractor inadvertently exposed highly privileged AWS Government Cloud credentials on public GitHub repository
+- **Shai-Hulud Operators**: Conducting massive npm supply chain attacks with over 600 compromised packages and self-replicating worm capabilities
+- **ShinyHunters Gang**: Confirmed breach of 7-Eleven systems with data theft claims
+- **EvilTokens Platform**: Phishing-as-a-Service operation compromising over 340 Microsoft 365 organizations across five countries within five weeks
+- **Iranian Cyber Groups**: Expanding offensive operations to target fuel tank gauge systems and critical infrastructure
+- **MENA Cybercrime Networks**: 201 arrests and 382 suspects identified during INTERPOL Operation Ramz, with 53 malware and phishing servers seized
+- **Unknown Supply Chain Attackers**: Targeting developer workstations and development infrastructure through multiple coordinated campaigns
+- **GitHub Token Thieves**: Compromising Grafana Labs' GitHub environment and stealing source code through stolen access tokens
