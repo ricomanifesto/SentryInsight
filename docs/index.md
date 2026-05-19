@@ -1,56 +1,67 @@
 # Exploitation Report
 
-Current threat activity demonstrates a significant escalation in supply chain attacks and zero-day exploitation targeting critical infrastructure. Notable active exploitation includes CVE-2026-42897, a Microsoft Exchange zero-day vulnerability with no available patch that enables compromise of Outlook Web Access mailboxes through cross-site scripting attacks. Additionally, multiple sophisticated supply chain campaigns are targeting developer environments, with compromised VS Code extensions, GitHub Actions, and npm packages delivering credential stealers. The emergence of the MiniPlasma Windows zero-day with publicly available proof-of-concept code poses immediate privilege escalation risks to fully patched systems, while the leaked Shai-Hulud malware source code has spawned numerous copycat attacks across package repositories.
+Critical zero-day vulnerabilities are currently under active exploitation, with attackers leveraging unpatched flaws in Microsoft Exchange Server and Windows systems to compromise organizations. Supply chain attacks have intensified through compromised npm packages, GitHub repositories, and developer tools, while threat actors are exploiting OAuth consent mechanisms to bypass multi-factor authentication. The cybersecurity landscape is experiencing significant threats from the leaked Shai-Hulud malware source code, which has enabled widespread infostealer campaigns across the npm ecosystem. Additionally, vulnerabilities in enterprise security solutions like SEPPMail are providing attackers with remote code execution capabilities and access to sensitive email traffic.
 
 ## Active Exploitation Details
 
-### Microsoft Exchange Zero-Day Vulnerability
-- **Description**: Cross-site scripting (XSS) vulnerability in Microsoft Exchange Server affecting Outlook Web Access
-- **Impact**: Allows attackers to compromise OWA mailboxes and potentially gain unauthorized access to email systems
-- **Status**: Currently under active attack with no patch available
+### Microsoft Exchange Server Zero-Day
+- **Description**: A cross-site scripting (XSS) vulnerability in Microsoft Exchange Server allowing attackers to compromise Outlook Web Access (OWA) mailboxes
+- **Impact**: Attackers can gain unauthorized access to email systems and potentially escalate privileges within the environment
+- **Status**: Currently under active exploitation with no patch available
 - **CVE ID**: CVE-2026-42897
 
-### MiniPlasma Windows Privilege Escalation Zero-Day
-- **Description**: Local privilege escalation vulnerability in Windows systems allowing attackers to gain SYSTEM privileges
-- **Impact**: Complete system compromise on fully patched Windows systems with highest privilege access
-- **Status**: Proof-of-concept exploit publicly released, actively exploitable
-- **CVE ID**: Not specified in articles
+### MiniPlasma Windows Zero-Day
+- **Description**: A privilege escalation vulnerability in Windows systems that affects fully patched installations
+- **Impact**: Enables attackers to escalate privileges to SYSTEM level, providing complete control over compromised systems
+- **Status**: Proof-of-concept code has been publicly released by security researcher Chaotic Eclipse
+- **CVE ID**: Not specified in source materials
 
-### Shai-Hulud Worm and Variants
-- **Description**: Self-replicating malware targeting npm package repositories with leaked source code enabling widespread adoption
-- **Impact**: Information stealing, credential harvesting, and supply chain compromise
-- **Status**: Source code leaked, multiple copycat attacks observed in wild
+### OAuth Consent Bypass Attacks
+- **Description**: Phishing-as-a-Service platform called EvilTokens exploiting OAuth consent mechanisms to bypass multi-factor authentication
+- **Impact**: Compromised more than 340 Microsoft 365 organizations across five countries within five weeks of operation
+- **Status**: Active exploitation campaign targeting enterprise environments
 
-### DirtyDecrypt Linux Privilege Escalation
-- **Description**: Local privilege escalation vulnerability in Linux kernel's rxgk module
-- **Impact**: Root access compromise on affected Linux systems
-- **Status**: Recently patched with proof-of-concept exploit available
+### SEPPMail Secure E-Mail Gateway Vulnerabilities
+- **Description**: Critical security vulnerabilities in SEPPMail's enterprise email security solution
+- **Impact**: Remote code execution capabilities and unauthorized access to mail traffic
+- **Status**: Vulnerabilities disclosed with patches available
+
+### Drupal Core Security Issues
+- **Description**: Urgent security vulnerabilities affecting all supported branches of Drupal
+- **Impact**: Potential for widespread website compromise
+- **Status**: Security updates scheduled for release on May 20, 2026
 
 ## Affected Systems and Products
 
-- **Microsoft Exchange Server**: Outlook Web Access components vulnerable to XSS attacks
-- **Windows Systems**: All versions affected by MiniPlasma zero-day privilege escalation
-- **Visual Studio Code**: Nx Console extension version 18.95.0 compromised with credential stealer
-- **GitHub Actions**: actions-cool/issues-helper workflow compromised for CI/CD credential theft
-- **npm Package Repository**: Multiple @antv ecosystem packages compromised via maintainer account breach
-- **Linux Systems**: Distributions with rxgk module vulnerable to DirtyDecrypt exploitation
-- **Grafana Labs**: Source code accessed through stolen GitHub token compromise
-- **OpenClaw AI Framework**: Multiple vulnerabilities in rapidly growing AI agent deployments
+- **Microsoft Exchange Server**: OWA mailboxes vulnerable to XSS-based attacks
+- **Windows 11**: Security update installation failures and privilege escalation vulnerabilities
+- **Microsoft 365**: Organizations targeted through OAuth consent bypass attacks
+- **VS Code Marketplace**: Compromised Nx Console extension version 18.95.0
+- **npm Package Repository**: Multiple malicious packages including Shai-Hulud variants and AntV ecosystem packages
+- **GitHub Actions**: Compromised actions-cool/issues-helper workflow
+- **SEPPMail Secure E-Mail Gateway**: Enterprise email security solution with RCE vulnerabilities
+- **Drupal CMS**: All supported branches requiring urgent security updates
+- **OpenClaw AI Framework**: "Claw Chain" vulnerabilities enabling credential theft
+- **macOS Systems**: SHub infostealer variant disguised as Apple security updates
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Targeting developer tools, package managers, and CI/CD pipelines for credential harvesting
-- **Extension Poisoning**: Malicious VS Code extensions delivering credential stealers to development environments
-- **Package Repository Attacks**: Compromised maintainer accounts pushing malicious packages to npm and other repositories
-- **Device-Code Phishing**: Tycoon2FA kit abusing Microsoft 365 authentication flows with Trustifi URL manipulation
-- **Cross-Site Scripting**: Exchange zero-day exploitation targeting web-based email access
-- **Privilege Escalation**: Local exploitation techniques for Windows and Linux systems
-- **AppleScript Spoofing**: SHub macOS infostealer masquerading as Apple security updates
+- **OAuth Consent Manipulation**: Attackers bypass MFA by exploiting OAuth consent flows in Microsoft 365 environments
+- **Supply Chain Compromise**: Malicious packages injected into npm repository, VS Code marketplace, and GitHub Actions
+- **Cross-Site Scripting**: XSS vulnerability in Exchange Server used to compromise OWA mailboxes
+- **Social Engineering**: Fake Apple security update messages used to install macOS infostealers
+- **Privilege Escalation**: Zero-day Windows vulnerability enabling SYSTEM-level access
+- **Credential Harvesting**: Malicious extensions and packages designed to steal developer credentials
+- **Repository Poisoning**: Legitimate packages compromised through maintainer account takeovers
+- **AppleScript Abuse**: macOS malware using AppleScript to display fake security prompts
 
 ## Threat Actor Activities
 
-- **Mini Shai-Hulud Campaign**: Compromising npm packages through maintainer account breaches targeting @antv ecosystem
-- **Iranian Cyber Operations**: Expanding offensive capabilities targeting automatic tank gauge systems in fuel infrastructure
-- **MENA Cybercrime Networks**: 201 arrests and 382 suspects identified in INTERPOL Operation Ramz targeting Middle East and North Africa
-- **Supply Chain Attackers**: Multiple coordinated campaigns targeting developer workstations and software distribution channels
-- **Tycoon2FA Operations**: Enhanced phishing kit targeting Microsoft 365 accounts through device-code manipulation techniques
+- **EvilTokens PhaaS Operators**: Compromised 340+ Microsoft 365 organizations using OAuth consent bypass techniques
+- **Mini Shai-Hulud Campaign**: Threat actors leveraging leaked malware source code to compromise npm packages
+- **Iranian Threat Groups**: Expanding cyber offensive operations to target fuel tank infrastructure systems
+- **Supply Chain Attackers**: Multiple campaigns targeting developer environments through compromised tools and repositories
+- **Cybercrime Networks**: INTERPOL Operation Ramz resulted in 201 arrests across Middle East and North Africa regions
+- **Repository Compromise Groups**: Attackers gaining access to GitHub tokens and stealing source code from organizations like Grafana Labs
+- **CISA Contractor Incident**: AWS GovCloud credentials inadvertently exposed on public GitHub repository
+- **TeamPCP**: Security research group that open-sourced Shai-Hulud malware, leading to widespread abuse by threat actors
