@@ -1,58 +1,65 @@
 # Exploitation Report
 
-The current threat landscape reveals a surge in critical exploitation activities across multiple attack vectors. Microsoft Exchange is experiencing active zero-day exploitation through CVE-2026-42897, a cross-site scripting vulnerability with no available patch. Simultaneously, Linux systems face elevated risks from CVE-2026-31635, a local privilege escalation vulnerability in the kernel dubbed "DirtyDecrypt" that now has publicly available proof-of-concept exploit code. The software supply chain ecosystem is under severe assault through massive npm package compromises, with threat actors deploying Shai-Hulud malware variants across hundreds of packages. Enterprise email security is compromised through SEPPMail gateway vulnerabilities enabling remote code execution, while development environments face targeted attacks through compromised VS Code extensions and GitHub Actions workflows.
+Critical exploitation activity is escalating across multiple platforms, with Windows zero-day vulnerabilities continuing to emerge after recent Patch Tuesday releases, while threat actors are simultaneously targeting macOS systems with sophisticated infostealers and compromising software supply chains through npm packages and GitHub Actions. A particularly concerning zero-day vulnerability (CVE-2026-42897) in Microsoft Exchange is under active attack with no patch currently available, while Linux kernel exploitation tools have been released for CVE-2026-31635. Supply chain attacks have intensified with over 600 malicious npm packages deployed in new Shai-Hulud campaigns, and credential theft operations are targeting developers through compromised VS Code extensions and GitHub repositories.
 
 ## Active Exploitation Details
 
 ### Microsoft Exchange Zero-Day Vulnerability
-- **Description**: Cross-site scripting vulnerability in Microsoft Exchange Server allowing attackers to compromise Outlook Web Access mailboxes
-- **Impact**: Attackers can gain unauthorized access to OWA mailboxes and potentially steal sensitive email communications
-- **Status**: Currently being actively exploited with no patch available
+- **Description**: Cross-site scripting (XSS) vulnerability affecting Microsoft Exchange servers
+- **Impact**: Attackers can compromise Outlook Web Access (OWA) mailboxes and potentially gain unauthorized access to email systems
+- **Status**: Currently under active attack with no patch available
 - **CVE ID**: CVE-2026-42897
 
-### DirtyDecrypt Linux Kernel Vulnerability
-- **Description**: Local privilege escalation vulnerability in the Linux kernel that allows attackers to gain elevated privileges
-- **Impact**: Local attackers can escalate their privileges to gain root access on affected Linux systems
-- **Status**: Recently patched but proof-of-concept exploit code has been publicly released
+### Windows Zero-Day Vulnerabilities
+- **Description**: Multiple zero-day vulnerabilities including YellowKey, GreenPlasma, and MiniPlasma discovered by security researchers
+- **Impact**: Various exploitation capabilities across Windows systems
+- **Status**: Disclosed over a six-week period following Patch Tuesday releases, exploitation status varies
+
+### Linux Kernel Local Privilege Escalation
+- **Description**: DirtyDecrypt vulnerability in the Linux kernel allowing local privilege escalation
+- **Impact**: Local attackers can escalate privileges on affected Linux systems
+- **Status**: Recently patched with proof-of-concept exploit code now publicly available
 - **CVE ID**: CVE-2026-31635
 
 ### SEPPMail Secure E-Mail Gateway Vulnerabilities
-- **Description**: Critical security vulnerabilities in SEPPMail Secure E-Mail Gateway enterprise email security solution
-- **Impact**: Remote code execution capabilities and unauthorized access to mail traffic
-- **Status**: Vulnerabilities disclosed with exploitation potential for RCE and mail interception
+- **Description**: Critical security vulnerabilities in enterprise-grade email security solution
+- **Impact**: Remote code execution and access to mail traffic
+- **Status**: Disclosed vulnerabilities requiring immediate patching
+
+### OAuth Consent Bypass Attacks
+- **Description**: EvilTokens phishing-as-a-service platform exploiting OAuth consent mechanisms
+- **Impact**: Bypasses multi-factor authentication and compromises Microsoft 365 organizations
+- **Status**: Active exploitation with over 340 organizations compromised across five countries within five weeks
 
 ## Affected Systems and Products
 
-- **Microsoft Exchange Server**: Outlook Web Access components vulnerable to XSS attacks
-- **Linux Kernel**: Multiple distributions affected by DirtyDecrypt privilege escalation flaw
-- **SEPPMail Secure E-Mail Gateway**: Enterprise-grade email security solution with RCE vulnerabilities
-- **npm Package Ecosystem**: Over 600 malicious packages deployed in Shai-Hulud campaign
-- **Visual Studio Code Marketplace**: Nx Console extension compromised with credential stealer
-- **GitHub Actions Workflows**: actions-cool/issues-helper workflow compromised for credential harvesting
-- **@antv npm Packages**: Multiple packages in the @antv ecosystem compromised through maintainer account breach
-- **macOS Systems**: SHub infostealer variant targeting users through fake Apple security updates
-- **Grafana Environment**: Source code accessed through stolen GitHub tokens
-- **7-Eleven Systems**: Customer data compromised in ShinyHunters extortion campaign
+- **Microsoft Exchange Servers**: Outlook Web Access (OWA) components vulnerable to XSS attacks
+- **Windows Operating Systems**: Multiple versions affected by zero-day vulnerabilities YellowKey, GreenPlasma, and MiniPlasma
+- **Linux Kernel**: Various distributions affected by DirtyDecrypt local privilege escalation vulnerability
+- **SEPPMail Secure E-Mail Gateway**: Enterprise email security solutions
+- **macOS Systems**: Targeted by SHub Reaper stealer variants spoofing Apple security updates
+- **npm Package Ecosystem**: Over 600 malicious packages deployed in supply chain attacks
+- **Visual Studio Code**: Compromised Nx Console extension targeting developers
+- **GitHub Actions**: Popular workflow actions-cool/issues-helper compromised
+- **Microsoft 365 and Azure**: Targeted through Self-Service Password Reset abuse
 
 ## Attack Vectors and Techniques
 
-- **Cross-Site Scripting (XSS)**: Exploitation of Exchange Server to compromise webmail access
-- **Local Privilege Escalation**: DirtyDecrypt technique targeting Linux kernel vulnerabilities
-- **Supply Chain Poisoning**: Massive npm package compromise campaigns using Shai-Hulud malware
-- **Extension Marketplace Compromise**: Malicious VS Code extensions with credential stealing capabilities
-- **GitHub Actions Manipulation**: Compromised workflow tags redirecting to malicious commits
-- **Social Engineering**: Fake Apple security updates distributing macOS infostealers
-- **Token Theft**: Stolen GitHub access tokens enabling unauthorized repository access
-- **OAuth Consent Bypass**: EvilTokens phishing-as-a-service platform bypassing MFA protections
-- **Maintainer Account Compromise**: Direct compromise of package maintainer accounts for malicious updates
+- **Cross-Site Scripting (XSS)**: Exploitation of Exchange servers to compromise OWA mailboxes
+- **Supply Chain Poisoning**: Compromised npm packages and VS Code extensions delivering malicious payloads
+- **Social Engineering**: SHub stealer variants masquerading as legitimate software updates from Google, Microsoft, and Apple
+- **OAuth Consent Manipulation**: EvilTokens platform bypassing MFA through malicious consent requests
+- **GitHub Repository Compromise**: Malicious code injection into popular GitHub Actions workflows
+- **Credential Harvesting**: Targeting CI/CD pipelines and developer environments
+- **AppleScript-Based Execution**: macOS malware using legitimate scripting capabilities for persistence
+- **Self-Service Feature Abuse**: Exploitation of legitimate Microsoft administrative features
 
 ## Threat Actor Activities
 
-- **ShinyHunters Gang**: Executed successful breach against 7-Eleven convenience store chain claiming customer data theft
-- **EvilTokens PhaaS Operators**: Compromised over 340 Microsoft 365 organizations across five countries within five weeks using OAuth consent bypass techniques
-- **Shai-Hulud Campaign Actors**: Deployed over 600 malicious npm packages in coordinated supply chain attacks, with leaked source code enabling copycat campaigns
-- **Linux Exploit Developers**: Released public proof-of-concept code for DirtyDecrypt vulnerability increasing exploitation risks
-- **VS Code Extension Attackers**: Targeted developers through compromised Nx Console extension containing credential stealing malware
-- **GitHub Actions Threat Actors**: Compromised popular GitHub workflow to harvest CI/CD credentials from development environments
-- **macOS Infostealer Operators**: Deployed SHub malware variant using AppleScript to mimic legitimate Apple security updates
-- **Iranian Cyber Groups**: Expanded offensive operations targeting fuel tank systems and critical infrastructure components
+- **ShinyHunters Gang**: Confirmed breach of 7-Eleven convenience store chain systems with data theft
+- **Shai-Hulud Operators**: Multiple waves of supply chain attacks targeting npm ecosystem with self-replicating worm capabilities
+- **SHub Reaper Operators**: Sophisticated macOS targeting campaign using fake installers and Apple script execution
+- **EvilTokens PhaaS Users**: Widespread Microsoft 365 compromise campaigns across multiple countries
+- **Mini Shai-Hulud Campaign**: Targeted compromise of @antv ecosystem packages through maintainer account takeover
+- **GitHub Actions Attackers**: Supply chain compromise of popular development workflows for credential theft
+- **Trapdoor Android Operators**: Ad fraud scheme affecting 659 million daily bid requests using 455 compromised applications
