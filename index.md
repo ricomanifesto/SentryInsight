@@ -1,57 +1,61 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity across multiple attack vectors, with critical vulnerabilities affecting AI infrastructure, Linux systems, and software supply chains. Notable incidents include a maximum severity vulnerability in ChromaDB allowing server hijacking, the disclosure of a Linux kernel privilege escalation flaw with published proof-of-concept code, and multiple sophisticated supply chain attacks targeting npm packages and GitHub Actions workflows. Additionally, threat actors are actively exploiting legitimate Microsoft services for unauthorized access, while ransomware operators continue to leverage malware-signing services to evade detection.
+The current threat landscape reveals a surge in supply chain attacks targeting developer environments and open-source ecosystems, alongside critical infrastructure vulnerabilities. Notable incidents include GitHub's internal repository breach claimed by TeamPCP affecting approximately 4,000 repositories, a maximum severity vulnerability in ChromaDB for AI applications allowing server hijacking, and multiple compromised development tools including the Nx Console VS Code extension and GitHub Actions workflows. Additionally, Windows systems face continued zero-day exploitation with new vulnerabilities YellowKey, GreenPlasma, and MiniPlasma following recent Patch Tuesday updates, while Linux kernel vulnerabilities are being actively targeted with proof-of-concept exploits.
 
 ## Active Exploitation Details
 
 ### ChromaDB Server Hijacking Vulnerability
-- **Description**: A maximum severity vulnerability in the latest Python FastAPI version of the ChromaDB project that allows unauthenticated attackers to execute arbitrary code
-- **Impact**: Complete server compromise and unauthorized code execution on exposed ChromaDB servers
-- **Status**: Recently disclosed, patch availability not specified in source material
+- **Description**: A maximum severity vulnerability in the latest Python FastAPI version of ChromaDB that allows unauthenticated attackers to run arbitrary code on exposed servers
+- **Impact**: Complete server compromise and arbitrary code execution without authentication
+- **Status**: Recently disclosed, patch status unclear
 
-### DirtyDecrypt Linux Kernel Privilege Escalation
-- **Description**: A security flaw in the Linux kernel that enables local privilege escalation attacks
-- **Impact**: Allows attackers with local access to escalate privileges to root level
-- **Status**: Recently patched with proof-of-concept exploit code now publicly available
+### DirtyDecrypt Linux Kernel Vulnerability
+- **Description**: A local privilege escalation vulnerability in the Linux kernel that has been recently patched
+- **Impact**: Allows attackers to escalate privileges on compromised Linux systems
+- **Status**: Patched but proof-of-concept exploit code has been released
 - **CVE ID**: CVE-2026-31635
 
-### SEPPMail Secure E-Mail Gateway Vulnerabilities
-- **Description**: Critical security vulnerabilities in the enterprise-grade email security solution
-- **Impact**: Remote code execution and unauthorized access to mail traffic
-- **Status**: Recently disclosed, enabling complete system compromise
-
 ### Windows Zero-Day Vulnerabilities
-- **Description**: Multiple zero-day vulnerabilities disclosed by security researchers, including YellowKey, GreenPlasma, and MiniPlasma
-- **Impact**: Various attack capabilities on Windows systems
-- **Status**: Active zero-day vulnerabilities continuing to be disclosed after recent Patch Tuesday
+- **Description**: Multiple Windows zero-day vulnerabilities discovered and disclosed by security researchers
+- **Impact**: Various impacts including potential system compromise and privilege escalation
+- **Status**: Actively exploited zero-day vulnerabilities disclosed after recent Patch Tuesday
+
+### SEPPMail Secure E-Mail Gateway Vulnerabilities
+- **Description**: Critical security vulnerabilities in SEPPMail Secure E-Mail Gateway enterprise email security solution
+- **Impact**: Remote code execution and unauthorized access to mail traffic
+- **Status**: Critical vulnerabilities recently disclosed
 
 ## Affected Systems and Products
 
+- **GitHub Platform**: Internal repositories and infrastructure compromised with approximately 4,000 repositories affected
 - **ChromaDB**: Latest Python FastAPI version vulnerable to unauthenticated remote code execution
-- **Linux Kernel**: Affected by privilege escalation vulnerability with public PoC available
-- **SEPPMail Secure E-Mail Gateway**: Enterprise email security solution with critical RCE vulnerabilities
-- **Windows Systems**: Multiple zero-day vulnerabilities affecting various Windows components
-- **npm Ecosystem**: Over 600 malicious packages in Shai-Hulud campaign targeting Node.js developers
-- **Visual Studio Code**: Compromised Nx Console extension version 18.95.0 containing credential stealer
-- **GitHub Actions**: actions-cool/issues-helper workflow compromised for credential harvesting
-- **Microsoft 365/Azure**: Production environments targeted through abuse of legitimate administration features
-- **Android Applications**: 455 apps involved in Trapdoor ad fraud scheme affecting 659 million daily bid requests
+- **Linux Kernel**: Systems running vulnerable kernel versions susceptible to local privilege escalation
+- **Windows Operating System**: Multiple versions affected by newly disclosed zero-day vulnerabilities
+- **VS Code Marketplace**: Nx Console extension version 18.95.0 compromised with credential stealer
+- **npm Package Registry**: Over 600 malicious packages published in Shai-Hulud supply chain campaign
+- **GitHub Actions**: Popular actions-cool/issues-helper workflow compromised
+- **SEPPMail Secure E-Mail Gateway**: Enterprise email security solutions vulnerable to RCE
+- **Microsoft 365 and Azure**: Production environments targeted through Self-Service Password Reset abuse
+- **7-Eleven Systems**: Corporate systems breached by ShinyHunters group
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Multiple sophisticated campaigns targeting npm packages, VS Code extensions, and GitHub Actions workflows
-- **Malware-as-a-Service**: Abuse of Microsoft's Artifact Signing service to generate fraudulent code-signing certificates for ransomware
-- **OAuth Consent Abuse**: Phishing-as-a-Service platform EvilTokens bypassing MFA through OAuth consent mechanisms
-- **Legitimate Service Abuse**: Exploitation of Microsoft Self-Service Password Reset and other legitimate administration features
-- **Social Engineering**: SHub Reaper stealer using fake WeChat and Miro installers to backdoor macOS systems
-- **Repository Infiltration**: Unauthorized access to internal GitHub repositories and exposure of sensitive credentials
+- **Supply Chain Attacks**: Compromised development tools, npm packages, VS Code extensions, and GitHub Actions workflows
+- **Repository Compromise**: Direct access to internal code repositories and development infrastructure
+- **Unauthenticated Remote Code Execution**: Exploitation of web application vulnerabilities in AI/ML platforms
+- **Social Engineering**: OAuth consent phishing bypassing multi-factor authentication through EvilTokens PhaaS platform
+- **Privilege Escalation**: Local privilege escalation through kernel vulnerabilities with available proof-of-concept exploits
+- **Malware-as-a-Service**: Abuse of Microsoft's Artifact Signing service for fraudulent code-signing certificates
+- **Credential Harvesting**: Targeting of CI/CD pipelines and development environments for sensitive credentials
+- **Ad Fraud Operations**: Trapdoor Android malware scheme affecting 659 million daily bid requests across 455 apps
 
 ## Threat Actor Activities
 
-- **TeamPCP**: Claimed breach of approximately 4,000 internal GitHub repositories, listing source code and internal organization data
-- **ShinyHunters**: Confirmed data breach of 7-Eleven convenience store chain systems
-- **EvilTokens Operators**: Compromised over 340 Microsoft 365 organizations across five countries within five weeks using OAuth consent bypass techniques
-- **Shai-Hulud Campaign**: Published over 600 malicious npm packages targeting Node.js developers in coordinated supply chain attack
-- **Mini Shai-Hulud**: Compromised @antv ecosystem npm packages through hijacked maintainer accounts
-- **Trapdoor Operators**: Conducted large-scale Android ad fraud operation affecting 455 applications and generating 659 million fraudulent daily bid requests
-- **SHub Reaper Operators**: Targeting macOS users with stealer malware disguised as legitimate applications from major tech companies
+- **TeamPCP**: Claimed breach of GitHub's internal repositories affecting approximately 4,000 repositories, listed platform's source code and internal organization data
+- **ShinyHunters**: Successfully breached 7-Eleven's corporate systems in confirmed cyberattack
+- **EvilTokens Operators**: Launched phishing-as-a-service platform compromising over 340 Microsoft 365 organizations across five countries within five weeks
+- **Shai-Hulud Campaign**: Published over 600 malicious npm packages in coordinated supply chain attack
+- **Microsoft 365 Threat Actors**: Actively abusing Self-Service Password Reset functionality and legitimate administration features for data theft in Azure environments
+- **Trapdoor Operators**: Conducting large-scale Android ad fraud operations through HUMAN's Satori Threat Intelligence detection
+- **Nx Console Attackers**: Compromised popular VS Code extension to steal developer credentials
+- **GitHub Actions Compromisers**: Redirected popular workflow tags to malicious commits for CI/CD credential harvesting
