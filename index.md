@@ -1,64 +1,67 @@
 # Exploitation Report
 
-Critical exploitation activity continues to surge with multiple significant breaches and zero-day vulnerabilities being actively exploited in the wild. The most severe incidents include the YellowKey BitLocker bypass vulnerability CVE-2026-45585 affecting Windows systems, GitHub's breach involving 3,800 internal repositories through a malicious VSCode extension, and ongoing SonicWall VPN multi-factor authentication bypasses enabling ransomware deployment. Additional concerns include a maximum severity vulnerability in ChromaDB for AI applications, privilege escalation flaws in Arch Linux systems, and sophisticated supply chain attacks targeting the TanStack npm ecosystem.
+Critical exploitation activity is currently dominated by supply chain attacks targeting development environments and infrastructure, with multiple high-profile breaches stemming from the TanStack npm attack. The most significant incidents include GitHub's breach of 3,800 internal repositories and related compromises at Grafana Labs, all linked to a malicious VS Code extension. Additionally, a highly critical Drupal Core vulnerability poses immediate remote code execution risks for PostgreSQL-backed sites, while threat actors are actively exploiting SonicWall VPN authentication bypass vulnerabilities and a new Windows BitLocker zero-day known as YellowKey. These incidents highlight the growing sophistication of attacks targeting developer tools and the critical need for immediate patching of newly disclosed vulnerabilities.
 
 ## Active Exploitation Details
 
+### TanStack npm Supply Chain Attack
+- **Description**: A sophisticated supply chain attack that compromised the TanStack npm package, leading to the distribution of malicious VS Code extensions including a poisoned version of Nx Console
+- **Impact**: Widespread compromise of developer environments, leading to breaches at GitHub (3,800+ repositories) and Grafana Labs, with potential access to sensitive source code and internal systems
+- **Status**: Active exploitation confirmed, with multiple organizations affected through compromised developer workstations
+
 ### YellowKey BitLocker Bypass Vulnerability
-- **Description**: A zero-day vulnerability in Windows BitLocker that allows attackers to bypass disk encryption protections and gain access to protected drives
-- **Impact**: Complete bypass of BitLocker encryption, providing unauthorized access to encrypted data and systems
-- **Status**: Recently disclosed with Microsoft releasing mitigation guidance; actively exploitable
+- **Description**: A zero-day vulnerability that allows attackers to bypass Windows BitLocker drive encryption protection
+- **Impact**: Unauthorized access to encrypted drives and sensitive data on protected systems
+- **Status**: Publicly disclosed with proof-of-concept available, Microsoft has released mitigations
 - **CVE ID**: CVE-2026-45585
 
+### Highly Critical Drupal Core Vulnerability
+- **Description**: A critical security flaw in Drupal Core affecting sites using PostgreSQL databases
+- **Impact**: Remote code execution, privilege escalation, and potential complete system compromise
+- **Status**: Patches released with urgent security advisory, high exploitation risk warned by Drupal team
+
 ### SonicWall VPN Multi-Factor Authentication Bypass
-- **Description**: Vulnerability allowing threat actors to brute-force VPN credentials and bypass multi-factor authentication on SonicWall Gen6 SSL-VPN appliances
-- **Impact**: Complete VPN access bypass leading to deployment of ransomware tools and network compromise
-- **Status**: Actively exploited due to incomplete patching by organizations
+- **Description**: Vulnerability allowing threat actors to bypass MFA protections on SonicWall Gen6 SSL-VPN appliances due to incomplete patching
+- **Impact**: Unauthorized VPN access leading to deployment of ransomware attack tools and lateral movement within networks
+- **Status**: Active exploitation observed in ransomware campaigns
 
 ### ChromaDB Server Hijacking Vulnerability
-- **Description**: Maximum severity vulnerability in the latest Python FastAPI version of ChromaDB project affecting AI applications
-- **Impact**: Allows unauthenticated attackers to execute arbitrary code and hijack servers running ChromaDB
-- **Status**: Critical vulnerability requiring immediate patching
+- **Description**: Maximum severity vulnerability in ChromaDB's Python FastAPI implementation affecting AI applications
+- **Impact**: Complete server compromise allowing arbitrary code execution by unauthenticated attackers
+- **Status**: Affects latest versions, immediate patching required
 
 ### PinTheft Linux Privilege Escalation
-- **Description**: Recently patched Linux privilege escalation vulnerability affecting Arch Linux systems
-- **Impact**: Allows local attackers to gain root privileges on vulnerable systems
-- **Status**: Proof-of-concept exploit now publicly available, increasing exploitation risk
-
-### Critical OT Robot OS Command Injection
-- **Description**: Unauthenticated command injection vulnerability in operational technology robot operating systems
-- **Impact**: Allows remote attackers to gain control of robotic systems, causing significant operational disruption
-- **Status**: Critical patch available, requires immediate application
-
-### Drupal High Exploitation Risk Vulnerability
-- **Description**: Critical security vulnerability in Drupal core requiring emergency patching
-- **Impact**: High risk of rapid exploitation with threat actors expected to develop exploits within hours of disclosure
-- **Status**: Core security release issued with urgent patching recommended
+- **Description**: Local privilege escalation vulnerability in Arch Linux systems
+- **Impact**: Allows local attackers to gain root privileges on affected systems
+- **Status**: Proof-of-concept exploit publicly available, patches released
 
 ## Affected Systems and Products
 
-- **Windows Systems**: BitLocker-protected drives vulnerable to YellowKey bypass attacks
-- **SonicWall Gen6 SSL-VPN**: Appliances with incomplete patching susceptible to MFA bypass
-- **ChromaDB Servers**: Python FastAPI implementations running exposed ChromaDB instances
-- **Arch Linux Systems**: Local privilege escalation via PinTheft vulnerability
-- **GitHub Enterprise**: Internal repositories accessed through malicious VSCode extensions
-- **Grafana Infrastructure**: Source code exposure following TanStack supply chain compromise
-- **OT/ICS Environments**: Robotic systems running vulnerable operating systems
-- **Drupal Websites**: Core installations requiring critical security updates
+- **GitHub Repositories**: 3,800+ internal repositories compromised via malicious VS Code extension
+- **Grafana Labs**: Source code repositories exposed through missed token rotation
+- **VS Code Extensions**: Nx Console extension compromised and distributed through TanStack attack
+- **Drupal Sites**: All Drupal Core installations using PostgreSQL databases
+- **Windows Systems**: All Windows versions with BitLocker encryption vulnerable to YellowKey attack
+- **SonicWall Appliances**: Gen6 SSL-VPN devices with incomplete MFA patches
+- **ChromaDB Deployments**: Python FastAPI versions of ChromaDB used in AI applications
+- **Arch Linux**: Systems vulnerable to PinTheft local privilege escalation
 
 ## Attack Vectors and Techniques
 
-- **Malicious Extensions**: Attackers deploying malicious VSCode extensions to compromise developer environments and access internal repositories
-- **Supply Chain Compromise**: TanStack npm package attacks leading to secondary breaches in downstream organizations
-- **Credential Brute-Force**: Systematic attacks against VPN endpoints to bypass multi-factor authentication
-- **Code Signing Abuse**: Malware-signing-as-a-service operations abusing legitimate Microsoft Artifact Signing systems
-- **Session Token Theft**: Infostealer malware operations targeting authentication tokens and credentials
-- **WebView Automation**: Fake Android applications using JavaScript injection and OTP interception for carrier billing fraud
+- **Supply Chain Poisoning**: Malicious npm packages and VS Code extensions distributed through trusted channels
+- **Developer Environment Compromise**: Targeting development tools and IDE extensions for initial access
+- **Token Hijacking**: Exploitation of unrotated GitHub workflow tokens following supply chain attacks
+- **Credential Brute-forcing**: Systematic attacks against VPN authentication systems
+- **MFA Bypass Techniques**: Exploitation of incomplete patching to circumvent multi-factor authentication
+- **WebView Automation**: Android apps using automated web interactions for carrier billing fraud
+- **JavaScript Injection**: Malicious code injection in mobile applications for fraud operations
+- **OTP Interception**: Capture and manipulation of one-time passwords for authentication bypass
 
 ## Threat Actor Activities
 
-- **TeamPCP**: High-profile breach of GitHub's internal infrastructure, accessing approximately 3,800-4,000 internal repositories through employee device compromise
-- **Webworm (China-aligned)**: Deploying custom EchoCreep and GraphWorm backdoors using Discord and Microsoft Graph API for command-and-control operations
-- **Ukrainian Infostealer Operator**: 18-year-old individual from Odesa suspected of operating infostealer malware targeting 28,000 stolen accounts
-- **MSaaS Operators**: Cybercriminal groups operating malware-signing-as-a-service platforms to legitimize ransomware and other malicious code
-- **Ransomware Groups**: Leveraging SonicWall VPN bypasses to deploy ransomware tools in compromised networks
+- **TeamPCP Group**: Claimed responsibility for GitHub breach, advertising stolen repositories and internal code on underground forums
+- **China-aligned Webworm**: Deployed custom backdoors (EchoCreep and GraphWorm) using Discord and Microsoft Graph API for command and control
+- **Ukrainian Infostealer Operator**: 18-year-old individual from Odesa linked to operation targeting 28,000 stolen accounts
+- **Ransomware Groups**: Exploiting SonicWall VPN vulnerabilities to deploy ransomware attack tools and infrastructure
+- **Mobile Fraud Operators**: Distributing fake Android applications for carrier billing fraud targeting premium services
+- **Malware-Signing-as-a-Service**: Criminal operation weaponizing Microsoft's Artifact Signing system for code signing malicious payloads
