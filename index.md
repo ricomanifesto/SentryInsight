@@ -1,64 +1,68 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity has intensified across multiple platforms and systems. Microsoft Defender is experiencing active zero-day exploitation through two vulnerabilities enabling privilege escalation and denial-of-service attacks. Additionally, CISA has added actively exploited flaws in Langflow and Trend Micro Apex One to their Known Exploited Vulnerabilities catalog, indicating widespread exploitation in the wild. The threat landscape is further complicated by maximum severity vulnerabilities in Ubiquiti UniFi OS and Cisco Secure Workload systems, along with a nine-year-old Linux kernel flaw that has remained undetected while potentially enabling root command execution. Supply chain attacks continue to pose significant risks, exemplified by the TanStack npm compromise that led to GitHub repository breaches and the Megalodon campaign targeting thousands of GitHub repositories.
+Critical exploitation activity is currently targeting enterprise infrastructure and security solutions worldwide. The most severe threats include zero-day vulnerabilities in Trend Micro Apex One endpoint security software being actively exploited in Windows environments, alongside maximum severity vulnerabilities in Cisco Secure Workload and Ubiquiti UniFi OS that grant attackers administrative privileges. Additionally, Microsoft Defender vulnerabilities are under active exploitation, while a highly critical Drupal SQL injection flaw is being targeted by hackers. Chinese APT groups continue sophisticated espionage campaigns against telecommunications providers using custom Linux and Windows malware, while automated attacks are compromising thousands of GitHub repositories through malicious CI/CD workflows.
 
 ## Active Exploitation Details
 
-### Microsoft Defender Privilege Escalation Vulnerability
-- **Description**: A privilege escalation flaw in Microsoft Defender that allows attackers to gain elevated system privileges
-- **Impact**: Attackers can escalate their privileges on compromised systems, potentially gaining administrative control
-- **Status**: Currently being actively exploited in zero-day attacks, with Microsoft rolling out patches
-- **CVE ID**: CVE-2026-41091
+### Trend Micro Apex One Zero-Day Vulnerability
+- **Description**: A zero-day vulnerability in Trend Micro's Apex One cybersecurity software affecting Windows systems
+- **Impact**: Attackers can exploit this vulnerability to compromise endpoint security solutions
+- **Status**: Currently being exploited in the wild, patches have been released by Trend Micro
+- **CVE ID**: Added to CISA's Known Exploited Vulnerabilities catalog
 
-### Microsoft Defender Denial-of-Service Vulnerability
-- **Description**: A denial-of-service vulnerability in Microsoft Defender that can disrupt system operations
-- **Impact**: Attackers can cause system instability and service disruptions
-- **Status**: Actively exploited in the wild alongside the privilege escalation flaw
+### Drupal SQL Injection Vulnerability
+- **Description**: A highly critical SQL injection vulnerability in Drupal content management system
+- **Impact**: Allows attackers to execute arbitrary SQL queries and potentially compromise entire websites
+- **Status**: Active exploitation attempts detected, patches available
+- **CVE ID**: Not specified in source articles
+
+### Microsoft Defender Vulnerabilities
+- **Description**: Two vulnerabilities affecting Microsoft Defender - a privilege escalation flaw and a denial-of-service vulnerability
+- **Impact**: Privilege escalation allows attackers to gain elevated system permissions; DoS vulnerability can disable security protections
+- **Status**: Both vulnerabilities are actively exploited in the wild
+- **CVE ID**: CVE-2026-41091 (privilege escalation flaw, CVSS 7.8)
+
+### Cisco Secure Workload REST API Vulnerability
+- **Description**: Maximum severity flaw in Cisco Secure Workload REST API
+- **Impact**: Unauthenticated remote attackers can access sensitive data and gain Site Admin privileges
+- **Status**: Patches released by Cisco
+- **CVE ID**: CVE-2026-20223 (CVSS 10.0)
 
 ### Langflow Vulnerability
-- **Description**: A security flaw in Langflow that has been actively exploited by threat actors
-- **Impact**: Unauthorized access and potential system compromise
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
-
-### Trend Micro Apex One Vulnerability
-- **Description**: A security vulnerability in Trend Micro Apex One endpoint security solution
-- **Impact**: Compromise of endpoint security systems and potential lateral movement
-- **Status**: Actively exploited and added to CISA's KEV catalog
-
-### Linux Kernel Root Execution Flaw
-- **Description**: A nine-year-old vulnerability in the Linux kernel that enables root command execution
-- **Impact**: Complete system compromise with root-level privileges on affected Linux distributions
-- **Status**: Recently disclosed after remaining undetected for nine years
-- **CVE ID**: CVE-2026-46333
+- **Description**: Security flaw in Langflow platform
+- **Impact**: Allows unauthorized access and potential system compromise
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog
 
 ## Affected Systems and Products
 
-- **Microsoft Defender**: All versions affected by the two zero-day vulnerabilities currently under attack
-- **Langflow**: Specific versions targeted in active exploitation campaigns
-- **Trend Micro Apex One**: Endpoint security platforms compromised through known vulnerabilities
-- **Linux Kernel**: Major Linux distributions affected by the nine-year-old root execution flaw
-- **Ubiquiti UniFi OS**: Network management systems with three maximum severity vulnerabilities
-- **Cisco Secure Workload**: Security platforms with CVSS 10.0 REST API vulnerability enabling unauthorized data access
-- **GitHub Repositories**: Over 5,500 repositories compromised in the Megalodon campaign
-- **TanStack npm**: JavaScript ecosystem affected by supply chain compromise
-- **Chromium Browser**: Unfixed vulnerability allowing persistent JavaScript execution
+- **Trend Micro Apex One**: Windows endpoint security systems
+- **Drupal**: Content management system websites and applications
+- **Microsoft Defender**: Windows security software and enterprise environments
+- **Cisco Secure Workload**: Network security and monitoring infrastructure
+- **Ubiquiti UniFi OS**: Network management and UniFi device systems
+- **Langflow**: AI/ML workflow platforms
+- **GitHub Repositories**: 5,561 repositories compromised through malicious CI/CD workflows
+- **Telecommunications Infrastructure**: Middle East and Central Asia providers targeted by Chinese APTs
+- **Chromium-based Browsers**: Background JavaScript execution vulnerability
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active exploitation of unpatched Microsoft Defender vulnerabilities
-- **Supply Chain Attacks**: Malicious CI/CD workflows injected into GitHub repositories and npm package compromises
-- **Privilege Escalation**: Local privilege escalation through Microsoft Defender and Linux kernel vulnerabilities
-- **API Exploitation**: Unauthenticated remote access through Cisco Secure Workload REST API flaws
-- **Botnet Operations**: DDoS attacks through IoT device compromise in the Kimwolf botnet
-- **Malware Deployment**: Linux malware targeting telecommunications providers in the Middle East
-- **Domain Fronting**: Underminr attacks leveraging trusted websites to cloak malicious activity
-- **Persistent Execution**: JavaScript code execution persistence even after browser closure
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in security software
+- **SQL Injection**: Database manipulation through malicious SQL queries in web applications
+- **Privilege Escalation**: Local attacks to gain elevated system permissions
+- **CI/CD Pipeline Compromise**: Automated injection of malicious commits into software repositories
+- **SOCKS5 Proxy Backdoors**: Network tunneling for persistent access and data exfiltration
+- **Domain Fronting**: Content delivery network exploitation for brand hijacking and traffic cloaking
+- **Social Engineering**: Advanced phishing and tech support scams targeting healthcare and other sectors
+- **API Key Persistence**: Exploitation of Google API keys remaining active after deletion
+- **Malicious Driver Exploitation**: BYOVD (Bring Your Own Vulnerable Driver) techniques for kernel-level access
 
 ## Threat Actor Activities
 
-- **Chinese APT Groups**: Targeting telecommunications providers with Showboat Linux malware and JFMBackdoor Windows malware for espionage operations
-- **Webworm (Chinese APT)**: Attacking EU government systems using Discord and Microsoft Graph APIs with SOCKS proxies
-- **Megalodon Campaign**: Automated attack pushing over 5,700 malicious commits to GitHub repositories within six hours
-- **Kimwolf Botnet Operator**: Canadian individual arrested for operating DDoS-for-hire service affecting nearly two million devices worldwide
-- **Supply Chain Attackers**: Compromising npm packages and VS Code extensions to gain access to development environments and repositories
-- **Crypto Drainer Operations**: Lucifer DaaS platform scaling wallet theft through phishing and automation targeting cryptocurrency users
+- **Chinese APT Groups**: Conducting sophisticated espionage campaigns against telecommunications providers using custom malware including Showboat Linux backdoor and JFMBackdoor for Windows
+- **Webworm APT Group**: Chinese advanced persistent threat targeting EU governments using Discord and Microsoft Graph APIs with SOCKS proxies and SoftEther VPN tunneling
+- **Megalodon Campaign**: Automated attack targeting 5,561 GitHub repositories with 5,718 malicious commits in a six-hour window
+- **Kimwolf Botnet Operator**: Canadian individual arrested for operating DDoS-for-hire service affecting nearly 2 million devices worldwide
+- **Tech Support Scammers**: Multi-year fraud scheme with former US executives pleading guilty to facilitating global tech support scams
+- **First VPN Operators**: Criminal VPN service used in ransomware and data theft attacks, seized by international law enforcement
+- **Crypto Drainer Groups**: Operating sophisticated wallet-draining services like Lucifer DaaS platform through phishing and transaction approval manipulation
