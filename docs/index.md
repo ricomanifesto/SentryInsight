@@ -1,72 +1,48 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms, with Microsoft Defender facing two actively exploited vulnerabilities including CVE-2026-41091, a privilege escalation flaw rated 7.8 CVSS. Google accidentally exposed details of an unfixed Chromium vulnerability allowing remote code execution through persistent JavaScript execution. Additionally, a highly critical Drupal Core vulnerability enables remote code execution on PostgreSQL sites, while SonicWall VPN appliances are being exploited to bypass multi-factor authentication in ransomware attacks. Chinese APT groups are leveraging new Linux and Windows malware in telecommunications targeting campaigns, and GitHub confirmed a significant breach affecting thousands of internal repositories through a supply chain attack.
+The current threat landscape reveals a concerning pattern of active zero-day exploits and critical vulnerability discoveries affecting major enterprise platforms. Most notably, Microsoft Defender is under active exploitation through two zero-day vulnerabilities, while CISA has added newly exploited flaws in Langflow and Trend Micro Apex One to their Known Exploited Vulnerabilities catalog. Additionally, a maximum-severity flaw in Cisco Secure Workload with a CVSS score of 10.0 poses immediate risks to enterprise networks. Chinese threat actors continue aggressive campaigns targeting telecommunications infrastructure with new Linux and Windows malware variants, while a nine-year-old Linux kernel vulnerability has been discovered that enables root command execution across major distributions.
 
 ## Active Exploitation Details
 
-### Microsoft Defender Privilege Escalation Vulnerability
-- **Description**: A privilege escalation vulnerability in Microsoft Defender that allows attackers to gain elevated privileges on affected systems
-- **Impact**: Attackers can escalate privileges and gain deeper system access
-- **Status**: Zero-day vulnerability actively exploited in the wild, patches being rolled out
-- **CVE ID**: CVE-2026-41091
+### Microsoft Defender Zero-Day Vulnerabilities
+- **Description**: Two critical vulnerabilities in Microsoft Defender have been confirmed as actively exploited in the wild, including a privilege escalation flaw and a denial-of-service vulnerability
+- **Impact**: Privilege escalation allowing attackers to gain elevated system access and denial-of-service capabilities that can disrupt security protections
+- **Status**: Microsoft has begun rolling out security patches on Wednesday
+- **CVE ID**: CVE-2026-41091 (privilege escalation vulnerability with CVSS score of 7.8)
 
-### Microsoft Defender Denial-of-Service Vulnerability
-- **Description**: A denial-of-service flaw in Microsoft Defender that can disrupt system operations
-- **Impact**: Attackers can cause system instability and service disruption
-- **Status**: Zero-day vulnerability actively exploited in attacks, security patches being deployed
-
-### Chromium JavaScript Persistence Vulnerability
-- **Description**: An unfixed Chromium vulnerability that keeps JavaScript running in the background even when the browser is closed
-- **Impact**: Enables remote code execution on affected devices through persistent JavaScript execution
-- **Status**: Unfixed vulnerability with details accidentally exposed by Google, currently exploitable
-
-### Drupal Core PostgreSQL Vulnerability
-- **Description**: A highly critical security vulnerability in Drupal Core affecting sites using PostgreSQL databases
-- **Impact**: Remote code execution, privilege escalation, and information disclosure
-- **Status**: Security updates released to address the vulnerability
+### Langflow and Trend Micro Apex One Vulnerabilities
+- **Description**: Two security flaws affecting Langflow and Trend Micro Apex One platforms have been confirmed as exploited in the wild
+- **Impact**: Successful exploitation can lead to unauthorized access and compromise of affected systems
+- **Status**: Added to CISA's Known Exploited Vulnerabilities (KEV) catalog, indicating active exploitation
 
 ### SonicWall VPN Multi-Factor Authentication Bypass
-- **Description**: Incomplete patching on SonicWall Gen6 SSL-VPN appliances allows bypassing multi-factor authentication
-- **Impact**: Threat actors can brute-force credentials and deploy ransomware tools
-- **Status**: Active exploitation observed in ransomware campaigns
-
-### Linux Kernel 9-Year-Old Vulnerability
-- **Description**: A vulnerability in the Linux kernel that remained undetected for nine years, enabling root command execution
-- **Impact**: Root-level command execution on major Linux distributions
-- **Status**: Recently discovered and disclosed
-- **CVE ID**: CVE-2026-46333
-
-### Cisco Secure Workload Maximum Severity Flaw
-- **Description**: A maximum-severity vulnerability in Cisco Secure Workload that grants Site Admin privileges
-- **Impact**: Attackers can gain full administrative privileges over Secure Workload deployments
-- **Status**: Security updates released by Cisco
+- **Description**: Threat actors have successfully bypassed multi-factor authentication on SonicWall Gen6 SSL-VPN appliances through brute-force attacks
+- **Impact**: Complete VPN access leading to deployment of ransomware attack tools
+- **Status**: Actively exploited due to incomplete patching implementations
 
 ## Affected Systems and Products
 
-- **Microsoft Defender**: Windows-based security solutions experiencing privilege escalation and DoS vulnerabilities
-- **Google Chrome/Chromium**: Browser platforms affected by JavaScript persistence vulnerability
-- **Drupal Core**: Content management systems using PostgreSQL databases
-- **SonicWall Gen6 SSL-VPN**: Virtual private network appliances with MFA bypass issues
-- **Linux Kernel**: Major Linux distributions affected by 9-year-old vulnerability
-- **Cisco Secure Workload**: Application dependency mapping and security policy enforcement platforms
-- **GitHub Repositories**: Internal code repositories compromised through supply chain attack
-- **Telecommunications Infrastructure**: Middle East and Central Asia telecom providers targeted by Chinese APTs
+- **Microsoft Defender**: All versions affected by the two zero-day vulnerabilities
+- **Cisco Secure Workload**: REST API component vulnerable to maximum-severity authentication bypass
+- **Linux Kernel**: Nine-year-old vulnerability affecting major distributions including Ubuntu, Red Hat, and SUSE
+- **Drupal Core**: PostgreSQL-based sites vulnerable to remote code execution attacks
+- **SonicWall Gen6 SSL-VPN**: Appliances with incomplete MFA patches
+- **Chromium Browser**: Unfixed vulnerability allowing JavaScript persistence after browser closure
+- **Google API Keys**: Remain active for 23 minutes after deletion despite claims of immediate deletion
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in Microsoft Defender
-- **Supply Chain Attacks**: Compromise of VS Code extensions and npm packages to breach developer environments
-- **Domain Fronting**: Underminr attack technique leveraging trusted websites to cloak malicious activity
-- **JavaScript Injection**: WebView automation and JavaScript injection for carrier billing fraud
-- **Brute Force Attacks**: Credential attacks against VPN systems with incomplete patching
-- **Linux Malware Deployment**: New Showboat and JFMBackdoor malware for telecommunications espionage
-- **Crypto Draining**: Social engineering tactics to trick users into approving malicious transactions
+- **Zero-Day Exploitation**: Active targeting of unpatched Microsoft Defender vulnerabilities
+- **Supply Chain Attacks**: Compromise of VS Code extensions leading to repository breaches affecting GitHub
+- **VPN Credential Brute-Forcing**: Systematic attacks against SonicWall VPN infrastructure with MFA bypass
+- **Domain Fronting**: Underminr attacks leveraging trusted websites to cloak malicious activity
+- **SOCKS5 Proxy Backdoors**: Deployment of Showboat Linux malware for persistent access
+- **Crypto Draining**: Lucifer DaaS platform automating wallet theft through phishing
 
 ## Threat Actor Activities
 
-- **Chinese APT Groups**: Targeting telecommunications providers in Middle East and Central Asia with Showboat Linux malware and JFMBackdoor Windows malware for espionage operations
-- **TeamPCP**: Threat actor claiming responsibility for GitHub breach affecting thousands of internal repositories
-- **Kimwolf Botmaster 'Dort'**: 23-year-old Ottawa resident arrested for operating IoT botnet enslaving millions of devices
-- **Ukrainian Infostealer Operator**: 18-year-old from Odesa suspected of operating malware targeting 28,000 stolen accounts
-- **First VPN Operators**: Criminal service providers facilitating ransomware and data theft attacks before law enforcement takedown
-- **Ransomware Groups**: Exploiting SonicWall VPN vulnerabilities to deploy ransomware tools in enterprise environments
+- **Chinese APT Groups**: Coordinated campaigns targeting telecommunications providers in Central Asia and the Middle East using Showboat Linux malware and JFMBackdoor Windows malware
+- **Webworm APT**: Advanced persistent threat group leveraging Discord and Microsoft Graph services to target European government entities, utilizing SoftEther VPN and tunneling tools
+- **Kimwolf Botmaster**: 23-year-old operator "Dort" arrested for building fast-spreading IoT botnet enslaving millions of devices
+- **First VPN Operators**: International law enforcement takedown of VPN service used in ransomware and data theft attacks
+- **GitHub Attackers**: Compromise of 3,800 internal repositories through malicious Nx Console VS Code extension
