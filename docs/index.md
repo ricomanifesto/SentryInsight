@@ -1,55 +1,58 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities in enterprise security solutions are being actively exploited alongside sophisticated attacks targeting government entities and telecommunications infrastructure. Trend Micro's Apex One security platform has been compromised through an actively exploited zero-day vulnerability, while attackers are targeting newly disclosed critical SQL injection flaws in Drupal installations. Chinese state-sponsored threat actors continue their espionage campaigns against telecommunications providers using custom Linux and Windows malware, and the Belarus-aligned Ghostwriter group is conducting targeted phishing operations against Ukrainian government entities.
+Critical vulnerabilities across multiple enterprise platforms are under active exploitation, posing significant risks to organizations worldwide. The most severe threats include a maximum-severity LiteSpeed cPanel plugin vulnerability (CVE-2026-48172) being exploited to achieve root-level access, a critical Drupal Core SQL injection flaw that has been added to CISA's Known Exploited Vulnerabilities catalog, and a zero-day vulnerability in Trend Micro Apex One security software. Additional high-severity vulnerabilities in Ubiquiti UniFi OS and Cisco Secure Workload have been patched, while threat actors continue to exploit infrastructure vulnerabilities through sophisticated campaigns targeting government entities and telecommunications providers.
 
 ## Active Exploitation Details
 
-### Trend Micro Apex One Zero-Day
-- **Description**: Critical zero-day vulnerability in Trend Micro's Apex One cybersecurity software affecting Windows systems
-- **Impact**: Remote attackers can exploit the vulnerability to compromise systems protected by the security software
-- **Status**: Actively exploited in the wild, security updates have been released by Trend Micro
+### LiteSpeed cPanel Plugin Vulnerability
+- **Description**: A maximum-severity security vulnerability in the LiteSpeed User-End cPanel Plugin that allows unauthorized script execution with root privileges
+- **Impact**: Attackers can gain complete administrative control over affected systems, execute arbitrary commands, and potentially compromise entire hosting infrastructure
+- **Status**: Under active exploitation in the wild
+- **CVE ID**: CVE-2026-48172
 
-### Drupal SQL Injection Vulnerability
-- **Description**: Highly critical SQL injection vulnerability in Drupal content management system
-- **Impact**: Attackers can execute arbitrary SQL queries, potentially leading to database compromise and data theft
-- **Status**: Actively targeted in attacks, critical security updates available
+### Drupal Core SQL Injection Vulnerability
+- **Description**: A critical SQL injection vulnerability in Drupal Core that allows attackers to manipulate database queries
+- **Impact**: Unauthorized database access, data exfiltration, potential complete system compromise
+- **Status**: Actively exploited and added to CISA KEV catalog, patch available
+- **CVE ID**: Not specified in articles
+
+### Trend Micro Apex One Zero-Day
+- **Description**: A zero-day vulnerability affecting Trend Micro's Apex One security software on Windows systems
+- **Impact**: Compromise of endpoint security solutions, potential bypass of security controls
+- **Status**: Actively exploited in attacks, security update released
+- **CVE ID**: Not specified in articles
 
 ### Langflow Vulnerability
-- **Description**: Security flaw in the Langflow platform that has been exploited in attacks
-- **Impact**: Allows unauthorized access and potential system compromise
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, indicating active exploitation
-
-### Cisco Secure Workload REST API Vulnerability
-- **Description**: Maximum severity authentication bypass flaw in Cisco Secure Workload REST API
-- **Impact**: Unauthenticated remote attackers can access sensitive data and gain Site Admin privileges
-- **Status**: Security updates released to address the vulnerability
-- **CVE ID**: CVE-2026-20223
+- **Description**: Security vulnerability in Langflow platform that has been added to CISA's KEV catalog
+- **Impact**: Unauthorized access and potential system compromise
+- **Status**: Under active exploitation
+- **CVE ID**: Not specified in articles
 
 ## Affected Systems and Products
 
-- **Trend Micro Apex One**: Windows-based systems running the cybersecurity platform
-- **Drupal CMS**: Web applications and sites using the Drupal content management system
-- **Langflow Platform**: Applications utilizing the Langflow development platform
-- **Cisco Secure Workload**: Enterprise workload security and analytics platforms
-- **Ubiquiti UniFi OS**: Three maximum severity vulnerabilities affecting network management systems
-- **GitHub Repositories**: Over 5,561 repositories compromised in the Megalodon campaign
-- **Telecommunications Infrastructure**: Middle East and Central Asia telecom providers targeted by Chinese APTs
+- **LiteSpeed User-End cPanel Plugin**: Web hosting management software with maximum severity vulnerability
+- **Drupal Core**: Content management system with critical SQL injection flaw
+- **Trend Micro Apex One**: Enterprise endpoint security solution on Windows systems
+- **Langflow Platform**: Development platform with exploited vulnerability
+- **Ubiquiti UniFi OS**: Network management platform with three maximum severity vulnerabilities
+- **Cisco Secure Workload**: REST API vulnerability with CVSS 10.0 rating
+- **Chromium Browser**: Unfixed vulnerability allowing background JavaScript execution
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of previously unknown vulnerabilities in security software
-- **SQL Injection Attacks**: Automated attempts to exploit critical database vulnerabilities in web applications
-- **Phishing Campaigns**: Sophisticated social engineering attacks using legitimate service lures
-- **Supply Chain Attacks**: Malicious CI/CD workflow injection targeting software development repositories
-- **Living-off-the-Land Techniques**: Abuse of legitimate services like Discord and Microsoft Graph APIs for command and control
-- **SOCKS Proxy Networks**: Use of tunneling tools and proxy services to obscure attack origins
-- **Custom Malware Deployment**: Linux and Windows backdoors specifically designed for telecommunications espionage
+- **SQL Injection**: Critical vulnerability in Drupal Core allowing database manipulation
+- **Root Privilege Escalation**: LiteSpeed plugin exploitation enabling administrative access
+- **Zero-Day Exploitation**: Active targeting of unpatched Trend Micro security software
+- **CI/CD Pipeline Attacks**: Megalodon campaign targeting 5,561 GitHub repositories with malicious workflows
+- **Phishing Campaigns**: Ghostwriter threat group using Prometheus platform lures against Ukrainian government
+- **API Exploitation**: Maximum severity Cisco Secure Workload REST API vulnerability
+- **Background Process Exploitation**: Chromium vulnerability maintaining JavaScript execution after browser closure
 
 ## Threat Actor Activities
 
-- **Ghostwriter (UAC-0057/UNC1151)**: Belarus-aligned group conducting phishing attacks against Ukrainian government entities using Prometheus-themed lures
-- **Chinese APT Groups**: Multiple Chinese state-sponsored actors targeting telecommunications providers with Showboat Linux malware and JFMBackdoor Windows malware
-- **Webworm**: Chinese APT group leveraging Discord and Microsoft Graph APIs to target European Union government entities
-- **Megalodon Campaign**: Automated attack campaign compromising thousands of GitHub repositories with malicious CI/CD workflows
-- **Kimwolf Botnet Operator**: Canadian national arrested for operating DDoS botnet that infected nearly two million devices worldwide
-- **Ransomware Groups**: 25 different ransomware groups utilizing dismantled First VPN service to obscure attack origins
+- **Ghostwriter (UAC-0057, UNC1151)**: Belarus-aligned group targeting Ukrainian government entities with Prometheus-themed phishing campaigns using malicious lures
+- **Webworm**: Chinese APT group leveraging Discord and Microsoft Graph APIs to target European Union government systems, utilizing SOCKS proxies and SoftEther VPN for tunneling
+- **Chinese Cyber-Espionage Groups**: Deploying Showboat Linux malware and JFMBackdoor Windows malware against Middle East telecommunications providers
+- **Megalodon Campaign**: Automated attack pushing 5,718 malicious commits to GitHub repositories within six hours
+- **Kimwolf Botnet Operators**: Canadian national arrested for operating DDoS botnet infecting nearly two million devices worldwide
+- **Criminal VPN Networks**: International takedown of VPN service used by 25 ransomware groups for attack obfuscation
