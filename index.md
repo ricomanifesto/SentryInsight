@@ -1,63 +1,70 @@
 # Exploitation Report
 
-Critical vulnerabilities are being actively exploited across multiple platforms, with several high-severity flaws receiving immediate attention from security agencies. A Ghost CMS SQL injection vulnerability (CVE-2026-26980) is being exploited in large-scale ClickFix campaigns, while a maximum-severity LiteSpeed cPanel Plugin vulnerability (CVE-2026-48172) allows attackers to execute scripts with root privileges. CISA has added multiple vulnerabilities to its Known Exploited Vulnerabilities catalog, including a Drupal Core SQL injection bug and flaws in Trend Micro Apex One and Langflow. Supply chain attacks are proliferating across development ecosystems, targeting Laravel Lang packages, Packagist repositories, and GitHub repositories through automated campaigns.
+Critical exploitation activity is currently targeting multiple high-severity vulnerabilities across popular content management systems and enterprise software. The most significant threats include active exploitation of SQL injection flaws in Ghost CMS (CVE-2026-26980) being leveraged in large-scale ClickFix campaigns, a zero-day vulnerability in Trend Micro Apex One being exploited in the wild, and a critical SQL injection flaw in Drupal Core that has been added to CISA's Known Exploited Vulnerabilities catalog. Additional maximum-severity vulnerabilities in LiteSpeed cPanel Plugin (CVE-2026-48172) and Cisco Secure Workload (CVE-2026-20223) are also under active exploitation, while sophisticated supply chain attacks have compromised Laravel Lang packages and multiple Packagist repositories to deploy credential-stealing malware.
 
 ## Active Exploitation Details
 
 ### Ghost CMS SQL Injection Vulnerability
-- **Description**: Critical SQL injection vulnerability in Ghost CMS being exploited to inject malicious JavaScript code
-- **Impact**: Enables ClickFix attack flows through malicious code injection
-- **Status**: Currently being exploited in large-scale campaigns
+- **Description**: Critical SQL injection vulnerability in Ghost content management system allowing injection of malicious JavaScript code
+- **Impact**: Attackers can inject malicious code that triggers ClickFix attack flows in large-scale campaigns
+- **Status**: Currently being exploited in active campaigns
 - **CVE ID**: CVE-2026-26980
+
+### Trend Micro Apex One Zero-Day
+- **Description**: Zero-day vulnerability in Trend Micro Apex One cybersecurity software targeting Windows systems
+- **Impact**: Allows attackers to compromise Windows systems running the security software
+- **Status**: Actively exploited in the wild, vulnerability has been addressed by Trend Micro
+
+### Drupal Core SQL Injection
+- **Description**: Critical SQL injection vulnerability in Drupal Core that has been recently patched
+- **Impact**: Enables attackers to execute malicious SQL queries and potentially gain unauthorized access
+- **Status**: Added to CISA KEV catalog due to active exploitation, patches available
 
 ### LiteSpeed cPanel Plugin Vulnerability
 - **Description**: Maximum-severity security vulnerability in LiteSpeed User-End cPanel Plugin
-- **Impact**: Allows attackers to execute scripts with root privileges
+- **Impact**: Allows attackers to run scripts with root privileges
 - **Status**: Under active exploitation in the wild
-- **CVE ID**: CVE-2026-48172
-
-### Drupal Core SQL Injection
-- **Description**: Critical SQL injection vulnerability in Drupal Core
-- **Status**: Added to CISA KEV catalog due to active exploitation, recently patched
-
-### Trend Micro Apex One Zero-Day
-- **Description**: Zero-day vulnerability in Trend Micro Apex One security software
-- **Impact**: Targets Windows systems
-- **Status**: Actively exploited, now patched by Trend Micro
+- **CVE ID**: CVE-2026-48172 (CVSS score: 10.0)
 
 ### Cisco Secure Workload REST API Flaw
-- **Description**: Maximum-severity vulnerability in Cisco Secure Workload REST API
-- **Impact**: Enables unauthenticated remote access to sensitive data
-- **Status**: Recently patched
-- **CVE ID**: CVE-2026-20223
+- **Description**: Maximum-severity security flaw in Cisco Secure Workload REST API
+- **Impact**: Enables unauthenticated remote attackers to access sensitive data
+- **Status**: Patches released by Cisco
+- **CVE ID**: CVE-2026-20223 (CVSS score: 10.0)
+
+### Langflow Vulnerability
+- **Description**: Security flaw in Langflow that has been actively exploited
+- **Impact**: Exploitation details not specified in source material
+- **Status**: Added to CISA KEV catalog due to active exploitation
 
 ## Affected Systems and Products
 
-- **Ghost CMS**: Content management system affected by SQL injection vulnerability
-- **LiteSpeed cPanel Plugin**: Web server plugin with root privilege escalation flaw
-- **Drupal Core**: Popular content management framework with SQL injection vulnerability
-- **Trend Micro Apex One**: Enterprise security software with zero-day exploitation
-- **Cisco Secure Workload**: Network security platform with REST API vulnerability
+- **Ghost CMS**: Content management system vulnerable to SQL injection attacks
+- **Trend Micro Apex One**: Windows cybersecurity software affected by zero-day exploitation
+- **Drupal Core**: Core Drupal installations vulnerable to SQL injection
+- **LiteSpeed User-End cPanel Plugin**: Web hosting control panel plugin with root privilege escalation
+- **Cisco Secure Workload**: Enterprise security platform with REST API data access vulnerability
+- **Langflow**: Platform added to CISA KEV due to active exploitation
 - **Laravel Lang Packages**: PHP localization packages compromised in supply chain attack
-- **Packagist Repositories**: Eight packages infected with Linux malware
-- **Ubiquiti UniFi OS**: Three maximum severity vulnerabilities patched
-- **Langflow Platform**: Added to CISA KEV catalog for active exploitation
+- **Packagist Repositories**: Eight packages infected with Linux malware in coordinated campaign
+- **Ubiquiti UniFi OS**: Three maximum severity vulnerabilities patched (no active exploitation reported)
 
 ## Attack Vectors and Techniques
 
-- **SQL Injection**: Ghost CMS and Drupal Core vulnerabilities enable database manipulation and code injection
-- **Supply Chain Poisoning**: Laravel Lang packages and Packagist repositories compromised to distribute credential-stealing malware
-- **GitHub Repository Compromise**: Megalodon campaign targeting 5,561 repositories with malicious CI/CD workflows
-- **Zero-Day Exploitation**: Trend Micro Apex One vulnerability exploited before patches were available
-- **API Authentication Bypass**: Cisco Secure Workload flaw allows unauthenticated data access
-- **ClickFix Social Engineering**: Ghost CMS exploits combined with social engineering techniques
-- **Cross-Platform Malware**: Laravel-Lang attack delivers comprehensive credential-stealing framework
+- **SQL Injection**: Primary attack vector for Ghost CMS and Drupal Core exploits enabling code injection and data access
+- **ClickFix Campaigns**: Malicious JavaScript injection technique used in Ghost CMS exploitation
+- **Zero-Day Exploitation**: Direct targeting of unpatched Trend Micro software
+- **Supply Chain Attacks**: Compromise of legitimate software packages in Laravel Lang and Packagist repositories
+- **Credential Theft**: Cross-platform malware deployment through compromised packages
+- **Root Privilege Escalation**: LiteSpeed plugin exploitation for maximum system access
+- **REST API Abuse**: Unauthenticated access to sensitive data through Cisco Secure Workload flaw
+- **Malicious CI/CD Workflows**: GitHub repositories targeted with automated malicious commits (Megalodon campaign)
 
 ## Threat Actor Activities
 
-- **Ghostwriter (UAC-0057/UNC1151)**: Belarus-aligned group targeting Ukrainian government entities using Prometheus phishing malware
-- **China's Webworm**: APT group using Discord and Microsoft Graph APIs to compromise EU government systems, employing SOCKS proxies and SoftEther VPN for tunneling
-- **Supply Chain Attackers**: Coordinated campaigns targeting multiple package repositories including Laravel Lang and Packagist ecosystems
-- **Megalodon Campaign**: Automated GitHub attack pushing 5,718 malicious commits across thousands of repositories within six hours
-- **Kimwolf Botnet Operator**: Canadian national arrested for operating DDoS-for-hire service infecting nearly two million devices worldwide
-- **CINEMAGOAL Operators**: Italian authorities disrupted piracy ecosystem stealing streaming authentication codes from Netflix, Disney+, and Spotify
+- **ClickFix Campaign Operators**: Large-scale exploitation of Ghost CMS vulnerability for JavaScript injection attacks
+- **Supply Chain Attackers**: Coordinated compromise of Laravel Lang packages and Packagist repositories deploying credential-stealing malware
+- **Ghostwriter (UAC-0057/UNC1151)**: Belarus-aligned threat actor targeting Ukrainian government entities with Prometheus phishing malware
+- **Webworm**: China-linked APT group using Discord and Microsoft Graph APIs to target EU governments
+- **Megalodon Campaign**: Automated GitHub attack targeting over 5,500 repositories with malicious CI/CD workflows
+- **Kimwolf Botnet Operator**: Canadian individual arrested for operating DDoS botnet affecting nearly 2 million devices worldwide
