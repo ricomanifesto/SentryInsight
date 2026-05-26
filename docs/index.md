@@ -1,58 +1,58 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting multiple platforms and content management systems, with threat actors actively exploiting vulnerabilities in Ghost CMS, Drupal, SharePoint, and KnowledgeDeliver LMS. The most concerning developments include large-scale campaigns leveraging Ghost CMS vulnerabilities for ClickFix attacks affecting over 700 sites, CISA's urgent directive for federal agencies to patch actively exploited Drupal vulnerabilities, and sophisticated supply chain attacks targeting multiple package repositories. Iranian state-sponsored actors and the North Korean Lazarus Group are conducting targeted campaigns against aviation, financial, and cryptocurrency sectors, while coordinated supply chain attacks are compromising developer environments across npm, PyPI, and other repositories.
+Critical exploitation activity continues to surge across multiple platforms and systems, with threat actors leveraging both newly discovered vulnerabilities and sophisticated supply chain attacks. The most significant developments include active exploitation of a Drupal SQL injection vulnerability flagged by CISA, a zero-day attack against KnowledgeDeliver LMS that deployed advanced malware, and the widespread abuse of Ghost CMS affecting over 700 websites. Iranian state-sponsored groups, including MuddyWater and Nimbus Manticore, are conducting extensive espionage campaigns using DLL side-loading and phishing techniques, while the North Korean Lazarus Group has deployed new memory-only malware against financial institutions. Multiple coordinated supply chain attacks have compromised popular package repositories including npm, PyPI, and Packagist, exposing developers to credential-stealing malware.
 
 ## Active Exploitation Details
 
-### Ghost CMS SQL Injection Vulnerability
-- **Description**: A critical SQL injection vulnerability in Ghost CMS that allows attackers to inject malicious JavaScript code into websites
-- **Impact**: Over 700 websites have been compromised to fuel ClickFix attacks, enabling credential theft and further malware distribution
-- **Status**: Being actively exploited in large-scale campaigns
+### Drupal SQL Injection Vulnerability
+- **Description**: A critical SQL injection vulnerability in the Drupal content management system that allows remote code execution
+- **Impact**: Attackers can execute arbitrary SQL commands and potentially gain full system access
+- **Status**: Actively exploited in the wild; CISA has ordered federal agencies to patch by Wednesday evening
+
+### KnowledgeDeliver LMS Zero-Day
+- **Description**: A high-severity security flaw in Digital Knowledge KnowledgeDeliver, a Learning Management System popular in Japan
+- **Impact**: Enables deployment of Godzilla web shell and Cobalt Strike for persistent access and lateral movement
+- **Status**: Previously zero-day vulnerability, now patched; was actively exploited before disclosure
+
+### Ghost CMS SQL Injection
+- **Description**: A critical SQL injection vulnerability in Ghost CMS enabling malicious JavaScript injection
+- **Impact**: Allows injection of malicious code to conduct ClickFix attacks and compromise website visitors
+- **Status**: Actively exploited in large-scale campaign affecting 700+ websites
 - **CVE ID**: CVE-2026-26980
 
-### Drupal Vulnerability
-- **Description**: An SQL injection vulnerability in the Drupal content management system that poses immediate risk to government systems
-- **Impact**: Allows attackers to compromise servers and potentially gain unauthorized access to sensitive government data
-- **Status**: Actively exploited in the wild, with CISA mandating federal agencies patch by Wednesday evening
-- **CVE ID**: Not specified in articles
-
 ### SharePoint Remote Code Execution
-- **Description**: A remote code execution vulnerability affecting SharePoint that can be exploited without requiring specialized conditions
-- **Impact**: Allows attackers to execute arbitrary code on affected SharePoint servers
-- **Status**: Recently patched by Microsoft across multiple server versions
+- **Description**: A remote code execution vulnerability affecting multiple SharePoint Server versions
+- **Impact**: Attackers can execute arbitrary code without specialized conditions or requirements
+- **Status**: Recently patched by Microsoft across affected server versions
 - **CVE ID**: CVE-2026-45659
-
-### KnowledgeDeliver LMS Vulnerability
-- **Description**: A high-severity security flaw affecting Digital Knowledge KnowledgeDeliver Learning Management System popular in Japan
-- **Impact**: Exploited as a zero-day to deploy Godzilla web shell and Cobalt Strike for persistent access
-- **Status**: Now patched, but was actively exploited before disclosure
 
 ## Affected Systems and Products
 
-- **Ghost CMS**: Content management system with over 700 compromised sites used for ClickFix campaigns
-- **Drupal CMS**: Content management systems in federal government environments requiring immediate patching
-- **Microsoft SharePoint**: Server versions across multiple releases affected by remote code execution vulnerability
-- **Digital Knowledge KnowledgeDeliver**: Learning Management System popular in Japanese organizations
-- **Windows Server 2016**: Domain controller lookup failures after May 2026 security updates
-- **Laravel-Lang PHP Packages**: Localization packages compromised in supply chain attack
-- **npm, PyPI, CratesIO**: Package repositories targeted in coordinated TrapDoor supply chain campaign
-- **Packagist**: Eight packages infected with GitHub-hosted Linux malware
+- **Drupal CMS**: Content management systems with internet-facing exposure
+- **KnowledgeDeliver LMS**: Learning management systems, particularly popular in Japanese organizations
+- **Ghost CMS**: Content management platforms running vulnerable versions
+- **SharePoint Server**: Multiple versions across enterprise environments
+- **Windows Server 2016**: Domain controller functionality affected by recent security updates
+- **npm, PyPI, Crates.io**: Package repositories and dependent development environments
+- **Packagist**: PHP package repository and Composer-based applications
+- **Laravel Lang packages**: Localization packages in Laravel development frameworks
 
 ## Attack Vectors and Techniques
 
-- **SQL Injection**: Exploitation of Ghost CMS and Drupal vulnerabilities to inject malicious code and gain unauthorized access
-- **ClickFix Attacks**: Malicious JavaScript injection through compromised Ghost CMS sites to trick users into downloading malware
-- **Supply Chain Poisoning**: Compromise of legitimate software packages across multiple repositories (npm, PyPI, CratesIO, Packagist)
-- **Phishing and SEO Poisoning**: Iranian actors using aviation industry lures and search engine optimization manipulation
+- **DLL Side-Loading**: Iranian MuddyWater group using legitimate applications to load malicious DLLs for stealth
+- **SQL Injection**: Direct database manipulation through vulnerable input validation in web applications
+- **Supply Chain Attacks**: Coordinated campaigns targeting multiple package repositories with malicious code
+- **Phishing and SEO Poisoning**: Iranian Nimbus Manticore using aviation industry lures and search engine manipulation
+- **Memory-Only Malware**: RemotePE RAT executing entirely in memory to evade detection
 - **OAuth Device Code Abuse**: Kali365 phishing service exploiting Microsoft 365 authentication mechanisms
-- **Memory-Only Execution**: RemotePE RAT operating entirely in memory to evade detection
-- **MFA Prompt Bombing**: Overwhelming users with authentication prompts to bypass multi-factor authentication
+- **ClickFix Campaigns**: JavaScript injection leading to fake error pages prompting malicious downloads
+- **Package Hijacking**: Abuse of GitHub version tags and repository takeover for malware distribution
 
 ## Threat Actor Activities
 
-- **Nimbus Manticore (Screening Serpens/UNC1549)**: Iranian state-sponsored group deploying MiniFast and MiniJunk V2 malware through phishing campaigns targeting aviation sector organizations
-- **Lazarus Group**: North Korean threat actor using RemotePE memory-only RAT to target financial institutions and cryptocurrency firms
-- **ShinyHunters**: Extortion gang responsible for 7-Eleven data breach exposing personal information of 185,000 individuals
-- **TrapDoor Campaign Actors**: Coordinated threat actors targeting npm, PyPI, and CratesIO with credential-stealing malware across multiple ecosystems
-- **Laravel-Lang Attackers**: Sophisticated actors compromising PHP packages to deliver cross-platform credential stealers through GitHub version tag manipulation
-- **Kali365 Operators**: Phishing-as-a-service platform operators targeting Microsoft 365 accounts through OAuth exploitation
+- **MuddyWater (Iranian APT)**: Conducting espionage campaigns across nine countries using DLL side-loading techniques targeting government and critical infrastructure
+- **Nimbus Manticore (Iranian APT)**: Deploying MiniFast and MiniJunk V2 malware through aviation industry phishing lures and SEO poisoning
+- **Lazarus Group (North Korean APT)**: Targeting financial and cryptocurrency firms with cross-platform RemotePE memory-only RAT for persistent access
+- **ShinyHunters**: Extortion gang responsible for 7-Eleven data breach affecting 185,000 individuals
+- **TrapDoor Campaign**: Coordinated supply chain attackers distributing credential-stealing malware across npm, PyPI, and Crates.io ecosystems
+- **CINEMAGOAL Operators**: Piracy network dismantled by Italian authorities that was stealing streaming service authentication codes
