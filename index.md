@@ -1,56 +1,64 @@
 # Exploitation Report
 
-Critical exploitation activity is currently centered around several high-severity vulnerabilities being actively exploited in the wild. The most severe incidents include a zero-day vulnerability in Trend Micro Apex One being exploited in targeted attacks, a maximum-severity LiteSpeed cPanel Plugin flaw allowing root-level script execution, and widespread exploitation of Ghost CMS and Drupal Core SQL injection vulnerabilities. Additionally, sophisticated supply chain attacks are targeting multiple package managers including npm, PyPI, and Laravel-Lang packages, while the Lazarus Group continues deploying advanced memory-only malware against financial institutions.
+Critical exploitation activity is currently targeting web platforms and supply chain components with multiple high-severity vulnerabilities under active attack. Threat actors are leveraging SQL injection flaws in popular content management systems, exploiting zero-day vulnerabilities in enterprise security products, and conducting sophisticated supply chain attacks across multiple package repositories. The most concerning activities include the exploitation of Ghost CMS and Drupal Core SQL injection vulnerabilities affecting hundreds of websites, a zero-day attack against Trend Micro Apex One security software, and coordinated supply chain compromises targeting npm, PyPI, and other developer repositories with credential-stealing malware.
 
 ## Active Exploitation Details
 
-### Trend Micro Apex One Zero-Day Vulnerability
-- **Description**: An actively exploited zero-day vulnerability in Trend Micro's Apex One cybersecurity software targeting Windows systems
-- **Impact**: Allows attackers to compromise Windows systems protected by Apex One security software
-- **Status**: Zero-day vulnerability with active exploitation confirmed; patches have been released
-
-### LiteSpeed cPanel Plugin Critical Vulnerability
-- **Description**: A maximum-severity security vulnerability in LiteSpeed User-End cPanel Plugin
-- **Impact**: Enables attackers to execute scripts with root privileges on affected systems
-- **Status**: Currently under active exploitation in the wild
-- **CVE ID**: CVE-2026-48172
-
 ### Ghost CMS SQL Injection Vulnerability
 - **Description**: Critical SQL injection vulnerability in Ghost CMS being exploited to inject malicious JavaScript code
-- **Impact**: Allows attackers to hijack websites and launch ClickFix attack campaigns targeting over 700 sites
-- **Status**: Under active exploitation in large-scale campaigns
+- **Impact**: Attackers can hijack websites and launch ClickFix attacks against visitors, with over 700 sites reportedly compromised
+- **Status**: Actively exploited in large-scale campaigns
 - **CVE ID**: CVE-2026-26980
 
-### Drupal Core SQL Injection Vulnerability
-- **Description**: Critical SQL injection vulnerability in Drupal Core that was recently patched
-- **Impact**: Allows unauthorized database access and potential site compromise
-- **Status**: Added to CISA KEV catalog due to confirmed active exploitation
+### Drupal Core SQL Injection Flaw
+- **Description**: Highly critical SQL injection vulnerability in Drupal Core that allows remote code execution
+- **Impact**: Attackers can gain unauthorized access to databases and execute arbitrary commands on affected systems
+- **Status**: Added to CISA KEV catalog due to active exploitation
+- **CVE ID**: Not specified in articles
+
+### LiteSpeed cPanel Plugin Root Privilege Escalation
+- **Description**: Maximum severity vulnerability in LiteSpeed User-End cPanel Plugin allowing arbitrary script execution
+- **Impact**: Attackers can execute scripts with root privileges on affected web servers
+- **Status**: Under active exploitation in the wild
+- **CVE ID**: CVE-2026-48172
+
+### Trend Micro Apex One Zero-Day
+- **Description**: Zero-day vulnerability in Trend Micro Apex One security software
+- **Impact**: Allows attackers to compromise Windows systems protected by the security solution
+- **Status**: Actively exploited, patches have been released
+- **CVE ID**: Not specified in articles
+
+### Ubiquiti UniFi OS Critical Vulnerabilities
+- **Description**: Three maximum severity vulnerabilities in UniFi OS affecting network management systems
+- **Impact**: Remote attackers can exploit these flaws without authentication to compromise network infrastructure
+- **Status**: Patches released by Ubiquiti
+- **CVE ID**: Not specified in articles
 
 ## Affected Systems and Products
 
-- **Ghost CMS**: Content management system vulnerable to SQL injection attacks affecting 700+ sites
-- **Trend Micro Apex One**: Cybersecurity software for Windows environments experiencing zero-day exploitation
-- **LiteSpeed cPanel Plugin**: Web hosting control panel plugin with root privilege escalation
-- **Drupal Core**: Open-source content management framework with SQL injection vulnerability
-- **npm, PyPI, CratesIO Packages**: Software package repositories targeted in TrapDoor supply chain attacks
-- **Laravel-Lang PHP Packages**: Localization packages compromised to deliver credential-stealing malware
-- **Packagist Packages**: Eight PHP packages infected with Linux malware hosted on GitHub
-- **Ubiquiti UniFi OS**: Network management platform with three maximum severity vulnerabilities
+- **Ghost CMS**: Content management system with over 700 compromised sites
+- **Drupal Core**: Popular web development framework used across enterprise and government sectors
+- **LiteSpeed cPanel Plugin**: Web server control panel plugin for hosting environments
+- **Trend Micro Apex One**: Enterprise endpoint security solution protecting Windows systems
+- **Ubiquiti UniFi OS**: Network management platform for enterprise networking equipment
+- **Laravel-Lang PHP Packages**: Localization packages for Laravel web framework
+- **npm, PyPI, CratesIO**: Major software package repositories for JavaScript, Python, and Rust
+- **Packagist**: PHP package repository with 8 compromised packages
 
 ## Attack Vectors and Techniques
 
-- **SQL Injection Attacks**: Exploitation of database vulnerabilities in Ghost CMS and Drupal Core to inject malicious code
-- **ClickFix Campaigns**: JavaScript injection techniques used to trigger malicious download flows on compromised websites
-- **Supply Chain Poisoning**: Coordinated attacks across multiple package managers (npm, PyPI, CratesIO) to distribute malware
-- **Memory-Only Malware**: RemotePE RAT deployment by Lazarus Group using fileless persistence techniques
-- **OAuth Device Code Abuse**: Kali365 phishing service exploiting Microsoft 365 authentication mechanisms
-- **Package Version Manipulation**: Abuse of GitHub version tags to distribute malicious updates through legitimate packages
-- **Zero-Day Exploitation**: Direct targeting of unpatched vulnerabilities in security software
+- **SQL Injection Attacks**: Exploiting database vulnerabilities in web applications to inject malicious code and gain unauthorized access
+- **ClickFix Social Engineering**: Using compromised websites to display fake error messages that trick users into executing malicious commands
+- **Supply Chain Poisoning**: Compromising legitimate software packages with credential-stealing malware across multiple ecosystems
+- **Zero-Day Exploitation**: Targeting previously unknown vulnerabilities in security products before patches are available
+- **OAuth Device Code Abuse**: Exploiting Microsoft 365 authentication flows through phishing-as-a-service platforms
+- **Memory-Only RAT Deployment**: Using fileless malware techniques to avoid detection while maintaining persistent access
 
 ## Threat Actor Activities
 
-- **Lazarus Group**: North Korea-linked APT deploying RemotePE memory-only RAT against financial and cryptocurrency firms using cross-platform malware capabilities
-- **Ghostwriter (UAC-0057/UNC1151)**: Belarus-aligned threat actor targeting Ukrainian government entities with Prometheus phishing malware campaigns
-- **TrapDoor Campaign Operators**: Coordinated attackers conducting cross-ecosystem supply chain attacks spanning npm, PyPI, and Crates.io to distribute credential-stealing malware
-- **Kali365 Service Operators**: Phishing-as-a-Service platform operators targeting Microsoft 365 accounts through OAuth exploitation
-- **ClickFix Campaign Actors**: Large-scale operators exploiting Ghost CMS vulnerabilities to inject malicious JavaScript across hundreds of compromised websites
+- **Lazarus Group**: North Korean APT deploying RemotePE memory-only RAT against financial and cryptocurrency organizations
+- **Ghostwriter (UAC-0057/UNC1151)**: Belarus-aligned group targeting Ukrainian government entities with Prometheus-themed phishing campaigns
+- **Kali365 Operators**: Cybercriminals running phishing-as-a-service platform specifically targeting Microsoft 365 accounts
+- **TrapDoor Campaign**: Coordinated supply chain attackers distributing credential-stealing malware across npm, PyPI, and CratesIO repositories
+- **First VPN Criminal Network**: Dismantled VPN service that facilitated operations for 25 different ransomware groups
+- **Dutch Hosting Infrastructure**: Criminal hosting providers enabling cyberattacks and disinformation campaigns for Russian threat actors
