@@ -1,63 +1,55 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently being actively exploited across multiple platforms, with CISA issuing urgent patching directives for federal agencies. The most significant threats include a zero-day vulnerability in the KnowledgeDeliver learning management system being exploited to install web shells, a critical LiteSpeed cPanel plugin flaw requiring immediate patching, an actively exploited Drupal SQL injection vulnerability, and a SharePoint remote code execution vulnerability addressed by Microsoft's out-of-band patch. Additionally, threat actors are leveraging AI chatbots for cryptojacking campaigns and conducting supply chain attacks through GitHub repository compromises.
+The cybersecurity landscape is experiencing significant exploitation activity across multiple fronts, with critical vulnerabilities being actively targeted by threat actors. CISA has issued urgent patching directives for a critical cPanel plugin vulnerability that is under active exploitation, giving federal agencies only four days to secure their systems. Meanwhile, multiple zero-day vulnerabilities have been discovered and exploited, including a critical flaw in the KnowledgeDeliver learning management system that was used to install web shells. The threat landscape is further complicated by sophisticated malware campaigns like GlassWorm targeting software supply chains, and the emergence of AI-assisted cryptojacking operations that leverage chatbot interactions to redirect users to malicious sites.
 
 ## Active Exploitation Details
 
-### KnowledgeDeliver Zero-Day Vulnerability
-- **Description**: A critical zero-day vulnerability in the KnowledgeDeliver learning management system (LMS) that allows unauthorized access to servers
-- **Impact**: Attackers can deploy web shells, including the Godzilla web shell, providing persistent remote access to compromised systems
-- **Status**: Actively exploited in the wild as a zero-day attack
+### LiteSpeed cPanel User-End Plugin Vulnerability
+- **Description**: A critical vulnerability in the LiteSpeed cPanel user-end plugin that is being actively exploited in the wild
+- **Impact**: Allows attackers to compromise servers running the vulnerable plugin
+- **Status**: CISA has mandated federal agencies patch within 4 days due to active exploitation
 
-### LiteSpeed cPanel Plugin Vulnerability
-- **Description**: A critical security flaw in the LiteSpeed cPanel user-end plugin that affects server security
-- **Impact**: Allows attackers to compromise servers and potentially gain administrative access
-- **Status**: Actively exploited - CISA has ordered federal agencies to patch within 4 days
-
-### Drupal SQL Injection Vulnerability
-- **Description**: An SQL injection vulnerability in the Drupal content management system that affects database security
-- **Impact**: Enables attackers to execute unauthorized database queries and potentially extract sensitive information
-- **Status**: Actively exploited - CISA has mandated federal agencies patch by Wednesday evening
+### KnowledgeDeliver Learning Management System Zero-Day
+- **Description**: A critical zero-day vulnerability in the KnowledgeDeliver learning management system that was exploited before patches were available
+- **Impact**: Attackers successfully deployed Godzilla web shells on compromised servers
+- **Status**: Previously unknown vulnerability that has been exploited to install web shells
 
 ### SharePoint Remote Code Execution Vulnerability
-- **Description**: A remote code execution flaw in Microsoft SharePoint that can be exploited without specialized conditions
-- **Impact**: Allows attackers to execute arbitrary code on affected SharePoint servers
-- **Status**: Patched by Microsoft in an out-of-band update
+- **Description**: A remote code execution vulnerability in SharePoint that can be exploited without specialized conditions
+- **Impact**: Allows attackers to execute arbitrary code on SharePoint servers
+- **Status**: Microsoft has released patches across multiple SharePoint server versions
 - **CVE ID**: CVE-2026-45659
 
-### Gitea Container Image Exposure
+### Gitea Private Container Image Exposure
 - **Description**: A security flaw in Gitea that allows unauthenticated remote attackers to access private container images
-- **Impact**: Unauthorized access to private container images without authentication
-- **Status**: Disclosed vulnerability requiring immediate attention
+- **Impact**: Unauthorized access to private container repositories without authentication
+- **Status**: Disclosed vulnerability affecting self-hosted Git repositories
 
 ## Affected Systems and Products
 
-- **KnowledgeDeliver Learning Management System**: Servers running this LMS platform vulnerable to zero-day exploitation
-- **LiteSpeed cPanel Plugin**: Web hosting environments using the LiteSpeed cPanel user-end plugin
-- **Drupal CMS**: Websites and applications built on the Drupal content management system
-- **Microsoft SharePoint**: SharePoint servers across multiple versions affected by RCE vulnerability
-- **Gitea**: Self-hosted Git service platforms running vulnerable versions
-- **GitHub Repositories**: Over 5,500 repositories infected by the Megalodon malware campaign
-- **AI Chatbot Platforms**: Various AI chatbot services being exploited for cryptojacking redirects
+- **LiteSpeed cPanel Plugin**: User-end plugin component with critical security flaw under active exploitation
+- **KnowledgeDeliver LMS**: Learning management system servers vulnerable to web shell installation
+- **Microsoft SharePoint**: Multiple server versions affected by remote code execution vulnerability
+- **Gitea Platforms**: Self-hosted Git repository systems exposing private container images
+- **GitHub Repositories**: Over 5,500 repositories infected by Megalodon malware in coordinated supply chain attack
+- **Developer Environments**: Software development infrastructure targeted by GlassWorm botnet operations
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in KnowledgeDeliver systems
-- **Web Shell Deployment**: Installation of Godzilla and other web shells for persistent access
-- **SQL Injection**: Database compromise through Drupal vulnerability exploitation
-- **AI Chatbot Manipulation**: Using AI chatbot recommendations to redirect users to cryptojacking sites
-- **Supply Chain Attacks**: Malicious commits pushed to GitHub repositories for credential theft
-- **DLL Side-Loading**: Advanced technique used by MuddyWater group in espionage campaigns
-- **Phishing and SEO Poisoning**: Iranian threat actors using these methods to deploy malware
-- **In-Person Data Theft**: Physical attacks by Silent Ransom Group targeting law firms
+- **Web Shell Deployment**: Exploitation of KnowledgeDeliver zero-day to install Godzilla web shells for persistent access
+- **Supply Chain Compromise**: Megalodon malware campaign infected thousands of GitHub repositories in coordinated attack
+- **Blockchain C2 Infrastructure**: GlassWorm botnet utilized Solana blockchain for resilient command and control operations
+- **AI Chatbot Manipulation**: Cryptojacking campaigns using AI chatbot interactions to redirect users to malicious download sites
+- **DLL Side-Loading**: Advanced technique employed by MuddyWater group in espionage operations across multiple countries
+- **Unauthenticated Access**: Direct exploitation of Gitea vulnerability to access private container images without credentials
+- **In-Person Data Theft**: Silent Ransom Group conducting physical attacks on law firm premises to steal sensitive data
 
 ## Threat Actor Activities
 
-- **Silent Ransom Group (SRG)**: Conducting in-person data theft attacks targeting U.S. law firms with physical infiltration tactics
-- **ShinyHunters**: Extortion group threatening Charter Communications with data leak unless ransom is paid
-- **MuddyWater**: Iranian hacking group conducting espionage campaigns across 9 countries using DLL side-loading techniques
-- **Nimbus Manticore**: Iranian state-sponsored actor deploying MiniFast and MiniJunk V2 malware via phishing
-- **TeamPCP**: Cybercrime group behind the Shai-Hulud worm causing significant damage to open source ecosystem
-- **GlassWorm Operators**: Persistent malware campaign disrupted by CrowdStrike, Google, and Shadowserver Foundation
-- **Megalodon Campaign Actors**: Attackers who compromised over 5,500 GitHub repositories in just six hours
-- **Ajax Football Club Hackers**: Cybercriminals who compromised the professional football club's systems
+- **Silent Ransom Group (SRG)**: Conducting in-person data theft attacks specifically targeting U.S.-based law firms with physical breach tactics
+- **MuddyWater APT**: Iranian state-sponsored group conducting espionage campaign using DLL side-loading techniques across nine countries and four continents
+- **ShinyHunters**: Extortion group responsible for Charter Communications data breach with ransom demands
+- **TeamPCP**: Cybercrime group behind Shai-Hulud worm campaigns causing significant damage to open source ecosystem
+- **GlassWorm Operators**: Sophisticated actors targeting software developers in supply chain attacks using blockchain-based infrastructure
+- **Megalodon Campaign**: Coordinated malware distribution affecting thousands of GitHub repositories to steal developer credentials and secrets
+- **Cryptojacking Groups**: Leveraging AI chatbot technologies to distribute cryptocurrency mining malware through social engineering
