@@ -1,52 +1,57 @@
 # Exploitation Report
 
-Critical exploitation activity is currently centered around multiple zero-day vulnerabilities and ongoing malware campaigns targeting diverse systems. Most concerning are the active zero-day exploits against KnowledgeDeliver learning management systems and LiteSpeed cPanel plugins, which are being used to install web shells and compromise server infrastructure. Simultaneously, sophisticated supply chain attacks are targeting developers through npm packages and GitHub repositories, while banking trojans continue to plague Windows and Android users across Latin America and Europe. These activities represent a significant escalation in both the sophistication and scope of current cyber threats.
+The current threat landscape reveals several critical actively exploited vulnerabilities requiring immediate attention. Most notably, CISA has issued a 4-day emergency directive for federal agencies to patch a critical vulnerability in the LiteSpeed cPanel user-end plugin that is being actively exploited in the wild. Additionally, a zero-day vulnerability in the KnowledgeDeliver learning management system has been exploited to deploy Godzilla web shells, while Microsoft has released an out-of-band patch for a SharePoint vulnerability. The threat environment is further complicated by sophisticated campaigns including GPU mining malware distributed through AI chatbot manipulation, the Silent Ransom Group conducting physical data theft attacks, and banking trojans targeting Windows and Android users across Latin America and Europe.
 
 ## Active Exploitation Details
 
+### LiteSpeed cPanel Plugin Vulnerability
+- **Description**: Critical vulnerability in the LiteSpeed cPanel user-end plugin affecting web hosting infrastructure
+- **Impact**: Allows attackers to compromise web servers and hosting platforms, potentially affecting multiple customer sites
+- **Status**: Actively exploited in the wild; CISA has given federal agencies 4 days to apply patches
+
 ### KnowledgeDeliver Zero-Day Vulnerability
-- **Description**: A critical zero-day vulnerability in the KnowledgeDeliver learning management system (LMS) that allows remote code execution
-- **Impact**: Attackers can deploy the Godzilla web shell to maintain persistent access and execute arbitrary commands on compromised servers
-- **Status**: Actively exploited in the wild as a zero-day; patch status unknown
+- **Description**: Critical zero-day flaw in the KnowledgeDeliver learning management system (LMS)
+- **Impact**: Enables attackers to install web shells for persistent access and control over compromised servers
+- **Status**: Exploited as zero-day to deploy Godzilla web shells; patch status unknown
 
-### LiteSpeed cPanel Plugin Critical Vulnerability
-- **Description**: A critical vulnerability in the LiteSpeed cPanel user-end plugin that enables unauthorized access
-- **Impact**: Allows attackers to compromise web hosting control panels and potentially gain administrative access to hosted websites
-- **Status**: Actively exploited; CISA has mandated federal agencies patch within 4 days
+### Microsoft SharePoint Vulnerability
+- **Description**: Critical vulnerability in Microsoft SharePoint requiring out-of-band patching
+- **Impact**: SharePoint access often provides extensive organizational data access, making this a high-value target for attackers
+- **Status**: Microsoft has issued an emergency out-of-band patch
 
-### Gitea Container Registry Authentication Bypass
-- **Description**: A security flaw in Gitea's self-hosted version control platform that bypasses authentication for container registries
-- **Impact**: Unauthenticated remote attackers can pull private container images, potentially exposing sensitive source code and credentials
-- **Status**: Recently disclosed vulnerability affecting organizations using Gitea for container management
+### Gitea Container Image Exposure
+- **Description**: Security flaw in Gitea self-hosted version control platform that exposes private container images
+- **Impact**: Allows unauthenticated remote attackers to access and pull private container images without proper authorization
+- **Status**: Vulnerability disclosed; exploitation status in wild unclear
 
 ## Affected Systems and Products
 
-- **KnowledgeDeliver LMS**: Learning management systems running vulnerable versions
-- **LiteSpeed cPanel Plugin**: Web hosting environments using the affected plugin
-- **Gitea Platform**: Self-hosted Git services with container registry functionality
-- **Windows Systems**: Targets of Grandoreiro banking trojan and Megalodon malware campaigns
-- **Android Devices**: Infected with BTMOB RAT through targeted campaigns
-- **GitHub Repositories**: Over 5,500 repositories compromised in Megalodon supply chain attack
-- **npm Registry**: Developers using mouse5212-super package and other malicious packages
-- **Claude AI Users**: Directory theft via malicious npm packages
-- **SharePoint Servers**: Microsoft issued out-of-band patches for critical vulnerabilities
+- **LiteSpeed cPanel Plugin**: Web hosting servers using the vulnerable plugin component
+- **KnowledgeDeliver LMS**: Learning management system servers running the affected software
+- **Microsoft SharePoint**: Enterprise SharePoint deployments across organizations
+- **Gitea Platforms**: Self-hosted Gitea version control systems with container registry functionality
+- **Windows and Android Devices**: Systems targeted by Grandoreiro and BTMOB banking trojans
+- **GitHub Repositories**: Over 5,500 repositories infected by Megalodon malware campaign
+- **npm Registry**: Packages containing information-stealing malware targeting Claude AI users
+- **High-Performance Computing Systems**: GPU-equipped systems targeted by cryptojacking malware
 
 ## Attack Vectors and Techniques
 
-- **Web Shell Deployment**: Godzilla web shell installation through KnowledgeDeliver zero-day exploitation
-- **Supply Chain Poisoning**: Malicious npm packages targeting Claude AI user directories and developer environments
-- **Repository Compromise**: Mass GitHub repository infection with credential-stealing malware
-- **DLL Side-Loading**: MuddyWater espionage group using legitimate executables to load malicious libraries
-- **AI Chatbot Manipulation**: Cryptojacking campaigns leveraging AI chatbot recommendations to redirect users to malicious sites
-- **In-Person Data Theft**: Silent Ransom Group conducting physical breaches of law firm offices
-- **Blockchain C2 Infrastructure**: GlassWorm botnet utilizing Solana blockchain for resilient command and control
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in KnowledgeDeliver LMS
+- **Web Shell Deployment**: Installation of Godzilla web shells for persistent access and control
+- **SEO Poisoning**: Manipulation of search engine results to redirect users to malicious sites
+- **AI Chatbot Manipulation**: Exploiting AI chatbot recommendations to surface malicious download sites
+- **Social Engineering**: Silent Ransom Group using in-person tactics to gain physical access to law firm systems
+- **DLL Side-Loading**: MuddyWater group using DLL side-loading techniques in espionage campaigns
+- **Supply Chain Attacks**: Malicious npm packages and GitHub repository infections targeting developers
+- **Banking Trojans**: Grandoreiro and BTMOB malware campaigns targeting financial credentials
 
 ## Threat Actor Activities
 
-- **MuddyWater (Iranian APT)**: Conducting espionage campaigns across nine countries using DLL side-loading techniques targeting government and critical infrastructure
-- **Silent Ransom Group (SRG)**: Escalating to in-person data theft attacks against U.S. law firms, representing a significant tactical evolution
-- **ShinyHunters**: Extorting Charter Communications after successful data breach, continuing their pattern of high-profile corporate targeting
-- **TeamPCP**: Orchestrating the Shai-Hulud worm campaigns affecting open-source ecosystems through repository poisoning
-- **Latin American Cybercriminals**: Systematically targeting government agencies to monetize citizen data, with recent focus on Uruguayan government systems
-- **Grandoreiro Operators**: Deploying banking trojans across Latin America and Europe targeting both Windows and Android platforms
-- **GlassWorm Campaign**: Sophisticated supply chain attacks targeting developers before recent infrastructure takedown by security researchers
+- **Silent Ransom Group**: Conducting physical, in-person data theft attacks specifically targeting U.S. law firms through social engineering tactics
+- **MuddyWater (Iranian APT)**: Executing espionage campaigns using DLL side-loading techniques against organizations in nine countries across four continents
+- **ShinyHunters**: Extortion group threatening Charter Communications with data leak unless ransom demands are met
+- **Megalodon Campaign Operators**: Pushing thousands of malicious commits to over 5,500 GitHub repositories in coordinated six-hour attack window
+- **TeamPCP**: Cybercrime group behind Shai-Hulud worm causing significant damage to open source ecosystem
+- **Latin American Banking Trojan Operators**: Deploying Grandoreiro and BTMOB malware against Windows and Android users
+- **Cryptojacking Groups**: Targeting high-performance systems through coordinated SEO poisoning and AI chatbot manipulation campaigns
