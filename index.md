@@ -1,44 +1,48 @@
 # Exploitation Report
 
-Current threat landscapes reveal critical active exploitation across multiple high-impact vulnerabilities. The most significant ongoing exploitation involves a zero-day vulnerability in Gogs Git service enabling remote code execution for authenticated users, and the active exploitation of CVE-2026-35616 in FortiClient Enterprise Management Server being leveraged to deploy credential-stealing malware. Advanced threat actors including North Korean Kimsuky group and Russian-affiliated GreyVibe cluster are deploying sophisticated new tools and AI-powered attack campaigns targeting military, corporate, and cryptocurrency organizations across multiple regions.
+Critical exploitation activity continues to escalate with multiple vulnerabilities being actively exploited in the wild. The most significant threats include an authentication bypass vulnerability in FortiClient Enterprise Management Server being exploited to deploy credential-stealing malware, and an unpatched zero-day vulnerability in the Gogs self-hosted Git service allowing remote code execution. Additionally, sophisticated threat actors are leveraging AI-powered tools and custom malware arsenals to target financial institutions, cryptocurrency firms, and government networks across multiple regions.
 
 ## Active Exploitation Details
 
 ### FortiClient EMS Authentication Bypass Vulnerability
-- **Description**: Critical authentication bypass vulnerability in FortiClient Enterprise Management Server allowing unauthorized access to enterprise management functions
-- **Impact**: Attackers can bypass authentication mechanisms and deploy credential-stealing malware, specifically an undocumented infostealer called EKZ
-- **Status**: Actively exploited in the wild, patch available
+- **Description**: Authentication bypass vulnerability in FortiClient Enterprise Management Server that allows unauthorized access to enterprise systems
+- **Impact**: Threat actors can deploy credential-stealing malware and gain unauthorized access to enterprise networks
+- **Status**: Patched, but actively being exploited in ongoing campaigns
 - **CVE ID**: CVE-2026-35616
 
-### Gogs Git Service Zero-Day Vulnerability
-- **Description**: Critical zero-day remote code execution vulnerability in Gogs self-hosted Git service affecting authenticated users under certain conditions
-- **Impact**: Any authenticated user can execute arbitrary code on vulnerable Gogs instances, leading to complete system compromise
-- **Status**: Unpatched zero-day actively being exploited on Internet-facing instances
+### Gogs Remote Code Execution Zero-Day
+- **Description**: Unpatched zero-day vulnerability in Gogs self-hosted Git service that allows authenticated users to execute arbitrary code
+- **Impact**: Attackers can achieve remote code execution on Internet-facing Gogs instances under certain conditions
+- **Status**: Zero-day vulnerability with no patch available, actively exploitable
 
 ## Affected Systems and Products
 
-- **FortiClient Enterprise Management Server**: All vulnerable versions affected by authentication bypass allowing credential theft
-- **Gogs Git Service**: Self-hosted Git service instances exposed to Internet facing critical RCE risk
-- **Android Devices**: Targeted by BTMOB RAT and Grandoreiro banking trojan campaigns across Latin America and Europe
-- **Windows Systems**: Affected by Grandoreiro banking malware and GPU mining malware campaigns
-- **macOS Platforms**: Targeted by JINX-0164 threat actor using fake recruiter lures against cryptocurrency firms
-- **South Korean Military and Corporate Systems**: Targeted by Kimsuky group using HTTPSpy, HelloDoor, and VS Code tunnels
+- **FortiClient Enterprise Management Server (EMS)**: All versions affected by the authentication bypass vulnerability
+- **Gogs Self-Hosted Git Service**: Internet-facing instances vulnerable to zero-day RCE exploit
+- **Charter Communications**: 4.9 million customer accounts compromised in data breach
+- **Carnival Corporation**: Nearly 6 million people affected by confirmed data breach
+- **Android Devices**: Targeted by BTMOB remote access trojan through phishing campaigns
+- **macOS Systems**: Cryptocurrency firms targeted with fake recruiter lures and custom malware
+- **Ukrainian Organizations**: Military and corporate entities targeted by Kimsuky threat actor
+- **Brazilian Financial Systems**: Sicoob cooperative banking customers targeted through malicious NuGet packages
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass Exploitation**: FortiClient EMS vulnerability leveraged to deploy credential stealers without proper authentication
-- **Zero-Day Remote Code Execution**: Gogs Git service compromise enabling arbitrary code execution for authenticated attackers
-- **Social Engineering with AI-Generated Content**: GreyVibe actors using ChatGPT and Gemini to create convincing phishing lures and campaign materials
-- **Fake Recruitment Campaigns**: JINX-0164 targeting cryptocurrency firms with macOS malware delivered through fraudulent job opportunities
-- **SEO Poisoning and AI Chatbot Manipulation**: GPU mining malware distributed through coordinated search engine optimization attacks and manipulated AI recommendations
-- **Physical Infiltration**: Silent Ransom Group conducting in-person social engineering attacks against law firms to access servers and databases
-- **MaaS Distribution Models**: BTMOB RAT offered through malware-as-a-service with builder interfaces for custom payload generation
+- **Social Engineering**: Fake recruitment campaigns targeting cryptocurrency firms with macOS malware
+- **Phishing**: Custom Android malware payloads delivered through BTMOB builder interface
+- **Supply Chain Attacks**: Malicious NuGet packages masquerading as legitimate banking SDKs
+- **SEO Poisoning**: GPU mining malware spread through manipulated search results and AI chatbot recommendations
+- **AI-Generated Content**: GreyVibe threat cluster using ChatGPT and Gemini to create convincing lures
+- **Package Repository Abuse**: npm packages targeting cloud secrets and credentials
+- **Authentication Bypass**: Direct exploitation of FortiClient EMS vulnerabilities to deploy malware
+- **Zero-Day Exploitation**: Remote code execution attacks against unpatched Gogs instances
 
 ## Threat Actor Activities
 
-- **Kimsuky (Velvet Chollima)**: North Korean state-sponsored group expanding arsenal with HTTPSpy backdoor, HelloDoor malware, and Visual Studio Code tunnels for persistence against South Korean targets
-- **GreyVibe**: Russian-affiliated threat cluster leveraging AI tools including ChatGPT and Gemini to enhance cyberattack effectiveness against Ukrainian entities with custom malware toolkit
-- **JINX-0164**: Previously undocumented threat actor conducting targeted campaigns against cryptocurrency organizations using recruitment-themed social engineering and macOS malware for digital asset theft
-- **Silent Ransom Group**: Ransomware operation conducting physical infiltration attacks against law firms, combining traditional extortion with in-person social engineering tactics
-- **ShinyHunters**: Extortion gang claiming responsibility for Carnival Corporation breach affecting nearly 6 million people
-- **Latin American Cybercriminal Groups**: Multiple actors targeting government agencies across Latin America to monetize citizen data, including recent 5.8 million record exposure from Uruguay
+- **Kimsuky (Velvet Chollima)**: North Korean state-sponsored group deploying HTTPSpy malware, HelloDoor backdoor, and abusing VS Code tunnels to target South Korean military and corporate entities
+- **ShinyHunters Extortion Gang**: Responsible for major data breaches affecting Charter Communications (4.9M accounts) and Carnival Corporation (6M people)
+- **GreyVibe**: Likely Russian threat cluster using AI-generated lures and custom malware tools to target Ukrainian entities
+- **JINX-0164**: Previously undocumented threat actor targeting cryptocurrency organizations with recruitment-themed social engineering and digital asset theft
+- **Silent Ransom Group**: Ransomware actors physically infiltrating law firm premises to steal data and social-engineer access to servers and databases
+- **EKZ Operators**: Deploying undocumented credential stealer malware through FortiClient EMS exploitation
+- **BTMOB Operators**: Running Android malware-as-a-service targeting Brazilian and Latin American users with custom phishing payloads
