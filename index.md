@@ -1,50 +1,50 @@
 # Exploitation Report
 
-The current threat landscape reveals active exploitation of critical vulnerabilities across multiple platforms and technologies. Most notably, threat actors are exploiting an authentication bypass vulnerability in FortiClient Enterprise Management Server to deploy credential stealing malware, while a zero-day vulnerability in the Gogs Git service allows authenticated users to execute arbitrary code. Additionally, sophisticated threat actors like GREYVIBE are leveraging AI technologies including ChatGPT and Gemini to enhance their cyberattacks against Ukrainian entities, while the North Korean group Kimsuky continues expanding their arsenal with new malware tools targeting South Korean organizations. The exploitation landscape also includes malicious package repositories targeting cloud secrets and banking credentials, highlighting the evolving nature of supply chain attacks.
+Recent security reports reveal a concerning landscape of active exploitation targeting multiple platforms and technologies. Critical vulnerabilities are being exploited in FortiClient EMS systems through CVE-2026-35616, allowing threat actors to deploy credential-stealing malware. A zero-day vulnerability in the Gogs Git service is actively being exploited to achieve remote code execution, while attackers are leveraging CVE-2026-39987 in Marimo systems for post-exploitation activities using AI-powered tools. Nation-state actors, particularly the Russian-linked GREYVIBE group, are conducting persistent attacks against Ukrainian entities using AI-enhanced techniques. Additionally, massive botnets comprising 17 million infected devices have been disrupted, and various threat actors are exploiting cloud misconfigurations and supply chain vulnerabilities through malicious packages.
 
 ## Active Exploitation Details
 
 ### FortiClient EMS Authentication Bypass
-- **Description**: Critical authentication bypass vulnerability in FortiClient Enterprise Management Server allowing unauthorized access
-- **Impact**: Threat actors can deploy credential stealing malware, specifically an undocumented stealer called EKZ
-- **Status**: Vulnerability is patched but continues to be actively exploited
+- **Description**: Critical authentication bypass vulnerability in FortiClient Enterprise Management Server
+- **Impact**: Allows threat actors to deploy credential-stealing malware, specifically an undocumented stealer called EKZ
+- **Status**: Currently being exploited in active campaigns, patch available
 - **CVE ID**: CVE-2026-35616
 
 ### Gogs Remote Code Execution Zero-Day
 - **Description**: Unpatched zero-day vulnerability in the Gogs self-hosted Git service
-- **Impact**: Allows any authenticated user to execute arbitrary code under certain conditions, leading to full system compromise
-- **Status**: Currently unpatched and actively exploitable on Internet-facing instances
+- **Impact**: Enables attackers to execute arbitrary code remotely on Internet-facing instances
+- **Status**: Actively exploited zero-day, no patch currently available
 
-### Cloud Infrastructure Misconfigurations
-- **Description**: Complex exploit chain combining over-permissioned roles, secrets discovery, and non-human identities
-- **Impact**: Could compromise popular automation services and cloud environments
-- **Status**: Ongoing research reveals widespread vulnerability in cloud integrations
+### Marimo Post-Exploitation Framework
+- **Description**: Vulnerability in Marimo allowing post-compromise exploitation
+- **Impact**: Threat actors use large language model agents for automated post-exploitation activities
+- **Status**: Active exploitation observed with AI-enhanced techniques
+- **CVE ID**: CVE-2026-39987
 
 ## Affected Systems and Products
 
-- **FortiClient Enterprise Management Server**: Systems vulnerable to authentication bypass leading to credential theft
-- **Gogs Git Service**: Self-hosted Git installations exposed to remote code execution
-- **Cloud Automation Services**: Popular automation platforms with misconfigured permissions and exposed secrets
-- **Android Devices**: Targeted by BTMOB malware service generating custom phishing payloads
-- **NuGet Package Repositories**: Compromised with malicious packages targeting Sicoob banking systems
-- **npm Package Repositories**: Infected packages designed to steal cloud secrets and credentials
-- **Visual Studio Code**: Exploited through tunneling capabilities by Kimsuky threat actors
+- **FortiClient Enterprise Management Server**: Authentication bypass vulnerability affecting credential management
+- **Gogs Git Service**: Self-hosted Git service instances exposed to the internet
+- **Marimo Framework**: Python-based data science platform vulnerable to post-exploitation
+- **Android Devices**: Targeted by BTMOB remote access trojan with custom payload generation
+- **Cloud Applications**: Over 2,000 AI-coded applications exposed with security vulnerabilities
+- **Charter Communications**: 4.9 million customer accounts compromised by ShinyHunters group
+- **Ukrainian Government and Corporate Systems**: Targeted by Russian state-sponsored actors
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Exploiting FortiClient EMS vulnerabilities to gain unauthorized access
-- **Supply Chain Attacks**: Malicious packages in NuGet and npm repositories masquerading as legitimate SDKs
-- **AI-Powered Social Engineering**: Use of ChatGPT and Gemini to generate convincing lures and attack content
-- **Remote Access Trojans**: BTMOB service providing custom Android malware generation
-- **Visual Studio Code Tunnels**: Legitimate development tools repurposed for malicious access
-- **Session Cookie Theft**: Ongoing attacks targeting session credentials despite new Chrome protections
-- **Phishing Infrastructure**: Fake FIFA websites and fraudulent ticket sales targeting World Cup fans
+- **AI-Enhanced Social Engineering**: GREYVIBE using ChatGPT and Gemini to generate convincing lure content
+- **Supply Chain Attacks**: Malicious NuGet and npm packages targeting banking credentials and cloud secrets
+- **Zero-Day Exploitation**: Immediate weaponization of unpatched vulnerabilities in popular services
+- **LLM Agent Automation**: Post-exploitation activities automated using large language model agents
+- **Botnet Infrastructure**: Massive networks of 17 million compromised devices for distributed attacks
+- **Cloud Misconfiguration Exploitation**: Targeting over-permissioned roles and exposed secrets in cloud environments
 
 ## Threat Actor Activities
 
-- **GREYVIBE**: Russian-linked threat cluster targeting Ukrainian entities with AI-generated lures and custom malware tools since August 2025
-- **Kimsuky (Velvet Chollima)**: North Korean state-sponsored group deploying HTTPSpy malware and expanding arsenal with HelloDoor and VS Code tunnels against South Korean military and corporate entities
-- **ShinyHunters**: Extortion gang responsible for major data breaches affecting Charter Communications (4.9 million accounts) and Carnival Corporation (6 million people)
-- **The Com**: Neo-Nazi-infested criminal gang using cyber winnings to support violence and sexploitation activities
-- **Romanian Cybercriminals**: Operators targeting U.S. government networks, including Oregon state systems
-- **Brazilian Banking Threats**: Groups deploying malicious Sicoob NuGet packages to steal banking credentials
+- **GREYVIBE (Russian-linked)**: Persistent attacks against Ukrainian entities since August 2025 using AI-powered techniques and custom malware including HTTPSpy and HelloDoor
+- **Kimsuky (North Korean)**: Targeting South Korean military and corporate entities with expanded arsenal including HTTPSpy, HelloDoor, and VS Code tunnels
+- **ShinyHunters**: Extortion gang responsible for Charter Communications breach affecting 4.9 million accounts
+- **"The Com" Criminal Gang**: Neo-Nazi-affiliated cybercriminal group using proceeds to support violence and exploitation activities
+- **Unknown LLM-Powered Actors**: Leveraging AI agents for automated post-exploitation following CVE-2026-39987 compromise
+- **BTMOB Operators**: Offering Android malware-as-a-service with custom payload generation capabilities
