@@ -1,54 +1,54 @@
 # Exploitation Report
 
-Current threat activity shows active exploitation of critical vulnerabilities across enterprise infrastructure and consumer applications. Attackers are leveraging authentication bypass flaws in FortiClient EMS (CVE-2026-35616) to deploy credential-stealing malware, while a zero-day remote code execution vulnerability in Gogs Git service poses immediate risk to self-hosted repositories. Additionally, threat actors are exploiting a Marimo vulnerability (CVE-2026-39987) and utilizing AI services for both offensive operations and as attack surfaces. Nation-state groups, particularly Russian-linked GREYVIBE, are incorporating AI tools into their attack campaigns, while cybercriminals are abusing legitimate platforms like ChatGPT for malware distribution and phishing operations.
+Recent security intelligence reveals significant exploitation activity across multiple attack vectors, with threat actors leveraging both known vulnerabilities and novel techniques. Critical exploitation activity centers around FortiClient EMS authentication bypass vulnerabilities being actively exploited to deliver credential-stealing malware, alongside the discovery of a severe remote code execution flaw in the Gogs Git service. Additionally, threat actors are increasingly utilizing AI platforms like ChatGPT for sophisticated phishing campaigns and post-exploitation activities, while the Marimo framework has been targeted through newly identified vulnerabilities. The landscape also shows continued supply chain attacks through malicious NuGet and npm packages, and the emergence of AI-powered threat groups conducting sustained campaigns against critical infrastructure.
 
 ## Active Exploitation Details
 
-### FortiClient EMS Authentication Bypass Vulnerability
-- **Description**: Critical authentication bypass flaw in FortiClient Enterprise Management Server allowing unauthorized access to enterprise endpoint management systems
-- **Impact**: Attackers can deploy credential-stealing malware (EKZ infostealer) and gain unauthorized access to enterprise endpoints
-- **Status**: Actively exploited in the wild with ongoing campaigns observed
+### FortiClient EMS Authentication Bypass
+- **Description**: Critical authentication bypass vulnerability in FortiClient Enterprise Management Server allowing unauthorized access
+- **Impact**: Attackers can deploy credential-stealing malware and gain unauthorized access to enterprise management systems
+- **Status**: Actively exploited in the wild with documented campaigns deploying EKZ credential stealer
 - **CVE ID**: CVE-2026-35616
 
-### Gogs Remote Code Execution Zero-Day
-- **Description**: Unpatched zero-day vulnerability in the Gogs self-hosted Git service that allows authenticated users to execute arbitrary code under certain conditions
-- **Impact**: Complete compromise of Git repositories and underlying server infrastructure with remote code execution capabilities
-- **Status**: Zero-day vulnerability with no current patch available, actively being disclosed
+### Gogs Remote Code Execution
+- **Description**: Critical vulnerability in Gogs open-source self-hosted Git service allowing authenticated users to execute arbitrary code
+- **Impact**: Any authenticated user can achieve full system compromise and execute arbitrary commands
+- **Status**: Recently disclosed vulnerability with high severity rating
 
-### Marimo Post-Exploitation Vulnerability
-- **Description**: Vulnerability in Marimo platform being exploited to gain initial access for subsequent LLM-powered post-compromise activities
-- **Impact**: Initial access vector leading to AI-enhanced post-exploitation activities and lateral movement
-- **Status**: Actively exploited with threat actors using LLM agents for post-compromise operations
+### Marimo Framework Vulnerability
+- **Description**: Publicly accessible vulnerability in the Marimo framework being exploited for initial access
+- **Impact**: Enables threat actors to gain initial foothold for subsequent AI-powered post-exploitation activities
+- **Status**: Actively exploited by unknown threat actors using LLM agents for post-compromise operations
 - **CVE ID**: CVE-2026-39987
 
-### ChatGPT Content-Sharing Abuse
-- **Description**: Exploitation of ChatGPT's content-sharing feature to host fake outage pages and phishing content
-- **Impact**: Malware distribution disguised as legitimate ChatGPT desktop applications and credential theft through fake service pages
-- **Status**: Ongoing abuse of legitimate platform features for malicious purposes
+### ChatGPT Content Sharing Abuse (ChatGPhish)
+- **Description**: Vulnerability leveraging ChatGPT's implicit trust in Markdown links and web summary features for phishing
+- **Impact**: Enables sophisticated phishing campaigns using trusted AI platforms as attack vectors
+- **Status**: Active exploitation through fake outage pages and malicious content hosting
 
 ## Affected Systems and Products
 
-- **FortiClient Enterprise Management Server**: Enterprise endpoint management systems vulnerable to authentication bypass
-- **Gogs Git Service**: Self-hosted Git repositories exposed to remote code execution
-- **Marimo Platform**: Initial access vector for AI-enhanced attacks
-- **ChatGPT Platform**: Legitimate service being abused for malware hosting and phishing
-- **Android Devices**: Targeted by BTMOB remote access trojan with custom phishing payloads
-- **NuGet Package Ecosystem**: Malicious Sicoob packages targeting Brazilian banking credentials
-- **npm Package Registry**: Packages designed to steal cloud secrets and credentials
+- **FortiClient Enterprise Management Server**: All versions prior to security update addressing CVE-2026-35616
+- **Gogs Git Service**: Open-source self-hosted Git installations allowing authenticated user access
+- **Marimo Framework**: Publicly accessible instances vulnerable to exploitation
+- **ChatGPT Platform**: Content sharing and web summary features being abused for phishing
+- **NuGet Package Repository**: Malicious packages targeting Brazilian banking credentials
+- **npm Package Repository**: Supply chain attacks targeting cloud secrets and credentials
+- **Android Devices**: BTMOB malware targeting mobile platforms with custom payloads
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Exploitation of FortiClient EMS to bypass security controls and deploy malware
-- **Zero-Day Exploitation**: Unpatched Gogs vulnerability providing immediate RCE capabilities
-- **Platform Abuse**: Leveraging legitimate ChatGPT sharing features for malicious content hosting
-- **AI-Powered Post-Exploitation**: Using LLM agents to conduct sophisticated post-compromise activities
-- **Supply Chain Attacks**: Malicious packages in software repositories targeting developers and organizations
-- **Phishing-as-a-Service**: BTMOB malware builder providing customized Android trojans for phishing campaigns
+- **Authentication Bypass**: Exploitation of FortiClient EMS to circumvent security controls
+- **Supply Chain Poisoning**: Malicious packages in NuGet and npm repositories masquerading as legitimate SDKs
+- **AI-Powered Phishing**: Leveraging ChatGPT and Google Gemini for content generation and social engineering
+- **Mobile Malware Distribution**: Custom Android trojan builders creating targeted phishing payloads
+- **Post-Exploitation Automation**: LLM agents conducting automated post-compromise activities
+- **Markdown Link Manipulation**: Abuse of trusted AI platforms for hosting malicious content
 
 ## Threat Actor Activities
 
-- **GREYVIBE (Russian-linked)**: Targeting Ukrainian entities with AI-generated lures and custom malware tools since August 2025, incorporating ChatGPT and Gemini into attack workflows
-- **Kimsuky (North Korean)**: Deploying HTTPSpy malware and expanding arsenal with HelloDoor and VS Code tunnels against South Korean military and corporate entities
-- **Unknown Threat Actor**: Exploiting Marimo vulnerability and using LLM agents for post-exploitation activities
-- **Cybercriminal Groups**: Operating BTMOB Android malware-as-a-service with builder interface for custom payload generation
+- **GREYVIBE Group**: Russian-linked threat actor conducting AI-powered cyberattacks against Ukrainian entities since August 2025, utilizing ChatGPT and Google Gemini for attack automation
+- **Kimsuky (Velvet Chollima)**: North Korean state-sponsored group deploying HTTPSpy malware and expanding arsenal with HelloDoor tools and VS Code tunnels targeting South Korean military and corporate entities
 - **ShinyHunters**: Extortion gang responsible for Charter Communications breach affecting 4.9 million accounts
+- **Unknown LLM-Using Actors**: Threat actors leveraging large language models for post-exploitation activities following Marimo framework compromises
+- **Supply Chain Attackers**: Multiple groups targeting NuGet and npm repositories with banking credential theft and cloud secret extraction capabilities
