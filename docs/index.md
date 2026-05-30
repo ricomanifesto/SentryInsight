@@ -1,55 +1,64 @@
 # Exploitation Report
 
-Current threat activity reveals several critical exploitation campaigns targeting enterprise infrastructure and AI systems. Attackers are actively exploiting vulnerabilities in FortiClient Enterprise Management Server to deploy credential stealing malware, while a new vulnerability in the Marimo platform is being leveraged for post-exploitation activities using AI agents. Additionally, threat actors are abusing legitimate AI services like ChatGPT for phishing operations and malware distribution. The emergence of state-sponsored groups like GREYVIBE using AI-powered attack techniques represents a significant evolution in cyber warfare tactics, particularly targeting Ukrainian entities with sophisticated AI-generated lures and custom malware arsenals.
+Critical security vulnerabilities are under active exploitation across multiple platforms, with threat actors leveraging both technical vulnerabilities and social engineering techniques. The most concerning activities include authentication bypass vulnerabilities in enterprise security solutions, AI-powered attack campaigns, and sophisticated malware distribution through legitimate platforms. Notable threats include exploitation of FortiClient EMS authentication flaws, PAN-OS GlobalProtect bypasses, and innovative attacks leveraging AI tools for enhanced targeting and post-exploitation activities.
 
 ## Active Exploitation Details
 
-### FortiClient EMS Authentication Bypass Vulnerability
-- **Description**: Authentication bypass vulnerability in FortiClient Enterprise Management Server allowing unauthorized access to enterprise systems
-- **Impact**: Attackers can deploy credential stealing malware, specifically the undocumented EKZ infostealer, compromising enterprise credentials and sensitive data
-- **Status**: Actively exploited in the wild with ongoing campaign activity
+### PAN-OS GlobalProtect Authentication Bypass
+- **Description**: A medium-severity authentication bypass vulnerability affecting Palo Alto Networks PAN-OS and Prisma Access systems
+- **Impact**: Allows attackers to bypass authentication mechanisms and gain unauthorized access to protected networks
+- **Status**: Currently under active exploitation in the wild
+- **CVE ID**: CVE-2026-0257
+
+### FortiClient EMS Authentication Bypass
+- **Description**: Authentication bypass vulnerability in FortiClient Enterprise Management Server allowing unauthorized access
+- **Impact**: Enables attackers to deliver credential-stealing malware and compromise enterprise environments
+- **Status**: Actively exploited to distribute EKZ infostealer malware
 - **CVE ID**: CVE-2026-35616
 
-### Marimo Platform Remote Code Execution
-- **Description**: Vulnerability in publicly-accessible Marimo platform installations allowing initial access and exploitation
-- **Impact**: Enables threat actors to gain initial system access and conduct post-compromise activities using large language model agents for automated exploitation
-- **Status**: Actively exploited with confirmed post-exploitation LLM agent usage
+### Marimo Code Execution Vulnerability
+- **Description**: Vulnerability in publicly-accessible Marimo systems allowing initial access
+- **Impact**: Provides attackers with initial foothold for advanced post-exploitation activities using AI agents
+- **Status**: Exploited by unknown threat actors for sophisticated post-compromise operations
 - **CVE ID**: CVE-2026-39987
 
-### Gogs Git Service Remote Code Execution
-- **Description**: Critical security vulnerability in Gogs open-source self-hosted Git service allowing authenticated users to execute arbitrary code
-- **Impact**: Any authenticated user can execute arbitrary code on the system under certain conditions, leading to complete system compromise
-- **Status**: Critical vulnerability disclosed, patch status unknown
+### Gogs Remote Code Execution
+- **Description**: Critical vulnerability in Gogs self-hosted Git service allowing authenticated users to execute arbitrary code
+- **Impact**: Complete system compromise for any authenticated user under specific conditions
+- **Status**: Recently disclosed critical vulnerability requiring immediate attention
 
-### ChatGPT Content Sharing Abuse
-- **Description**: Abuse of ChatGPT's content-sharing feature and web summary functionality to host malicious content and phishing pages
-- **Impact**: Users directed to download malware disguised as legitimate ChatGPT desktop applications through fake outage pages and markdown link manipulation
-- **Status**: Ongoing abuse of legitimate AI service features for malware distribution
+### ChatGPhish Vulnerability
+- **Description**: Vulnerability in OpenAI ChatGPT web summaries leveraging implicit trust in Markdown links and images
+- **Impact**: Enables phishing attacks through ChatGPT's content-sharing features and web summary functionality
+- **Status**: Actively abused by threat actors to host fake outage pages and deliver malware
 
 ## Affected Systems and Products
 
-- **FortiClient Enterprise Management Server**: Enterprise endpoint management deployments vulnerable to authentication bypass attacks
-- **Marimo Platform**: Publicly-accessible installations used for data science and analytics workflows
-- **Gogs Git Service**: Open-source self-hosted Git service installations across various environments
-- **ChatGPT Platform**: AI assistant service being abused through content-sharing and web summary features
-- **Android Devices**: Targeted by BTMOB malware service with custom phishing payloads
-- **NuGet Package Ecosystem**: C# development environments targeted by malicious Sicoob SDK packages
-- **npm Package Registry**: Cloud environments with exposed secrets targeted through malicious packages
+- **Palo Alto Networks PAN-OS**: GlobalProtect components affected by authentication bypass
+- **Fortinet FortiClient EMS**: Enterprise Management Server vulnerable to authentication bypass
+- **Marimo**: Publicly-accessible instances targeted for initial access
+- **Gogs**: Self-hosted Git service installations with critical RCE vulnerability
+- **OpenAI ChatGPT**: Content-sharing and web summary features exploited for phishing
+- **Android Systems**: BTMOB malware targeting mobile devices with custom payloads
+- **Cloud Infrastructure**: Over 2,000 AI-coded applications exposed in production environments
+- **Charter Communications**: 4.9 million customer accounts compromised by ShinyHunters
+- **23andMe**: Genetic and personal information exposed in 2023 breach under legal scrutiny
 
 ## Attack Vectors and Techniques
 
-- **Authentication Bypass**: Exploitation of FortiClient EMS vulnerability to bypass security controls and deploy malware
-- **AI-Powered Social Engineering**: Use of ChatGPT and Google Gemini to generate convincing phishing lures and attack content
-- **Supply Chain Poisoning**: Injection of malicious packages into NuGet and npm repositories to target developers and cloud infrastructure
-- **Legitimate Service Abuse**: Manipulation of ChatGPT sharing features and markdown rendering to host malicious content
-- **Post-Exploitation Automation**: Deployment of LLM agents for automated post-compromise activities and lateral movement
-- **Custom Malware Generation**: BTMOB service providing tailored Android malware payloads for specific phishing campaigns
+- **AI-Powered Campaigns**: GREYVIBE threat actors using ChatGPT and Gemini for enhanced attack operations
+- **LLM Agent Post-Exploitation**: Advanced post-compromise activities using large language model agents for automated reconnaissance
+- **Malicious Package Distribution**: Sicoob NuGet packages targeting banking credentials and npm packages stealing cloud secrets
+- **Fake Application Distribution**: ChatGPT share links hosting fraudulent OpenAI outage pages to deliver malware
+- **Mobile Malware-as-a-Service**: BTMOB Android RAT with builder interface for custom phishing payloads
+- **Supply Chain Attacks**: Malicious packages in software repositories targeting developers and cloud environments
+- **Social Engineering**: FIFA World Cup fraud schemes using fake websites to steal credentials and financial data
 
 ## Threat Actor Activities
 
-- **GREYVIBE (Russia-linked)**: Conducting persistent attacks against Ukraine and Ukraine-related entities since August 2025, utilizing AI-generated lures and sophisticated custom malware including HTTPSpy backdoors
-- **Kimsuky (North Korean APT)**: Expanding arsenal with HTTPSpy, HelloDoor, and VS Code tunnels to target South Korean military and corporate entities
-- **ShinyHunters Extortion Gang**: Successfully breached Charter Communications, compromising 4.9 million customer accounts in April attack
-- **Unknown Threat Actors**: Actively exploiting FortiClient EMS vulnerability (CVE-2026-35616) to deploy EKZ credential stealer across enterprise environments
-- **The Com Criminal Gang**: Neo-Nazi-affiliated cybercriminal organization using cyber attack proceeds to support violent crimes and exploitation activities
-- **BTMOB Operators**: Providing Android malware-as-a-service with custom payload generation capabilities for targeted phishing operations
+- **GREYVIBE**: Russia-linked threat actor targeting Ukraine with AI-powered cyberattacks since August 2025, leveraging ChatGPT and Gemini for enhanced operations
+- **Kimsuky**: North Korean state-sponsored group deploying HTTPSpy malware and expanding arsenal with HelloDoor and VS Code tunnels targeting South Korean entities
+- **ShinyHunters**: Extortion gang responsible for Charter Communications breach affecting 4.9 million accounts
+- **The Com**: Neo-Nazi-affiliated criminal gang using cyber proceeds to fund violent activities and exploitation operations
+- **Unknown Threat Actors**: Sophisticated groups exploiting Marimo vulnerabilities and using AI agents for post-exploitation activities
+- **Mobile Malware Operators**: Cybercriminals offering BTMOB Android RAT as a service with custom payload generation capabilities
