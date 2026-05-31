@@ -1,54 +1,57 @@
 # Exploitation Report
 
-Critical exploitation activity is currently targeting enterprise infrastructure through multiple vectors. The most severe ongoing threats include active exploitation of a Palo Alto Networks GlobalProtect authentication bypass vulnerability (CVE-2026-0257) allowing unauthorized network access, a local privilege escalation flaw dubbed "CIFSwitch" in the Linux kernel enabling root access across multiple distributions, and exploitation of FortiClient Enterprise Management Server authentication bypass (CVE-2026-35616) to deploy infostealer malware. Additionally, threat actors are leveraging AI-powered tools and exploiting a Marimo vulnerability (CVE-2026-39987) for post-exploitation activities, while abusing legitimate platforms like ChatGPT for malicious purposes.
+Critical exploitation activity is currently targeting multiple enterprise infrastructure components, with attackers leveraging authentication bypass vulnerabilities and privilege escalation flaws to compromise corporate networks. The most severe ongoing exploitation involves Palo Alto Networks GlobalProtect VPN systems through CVE-2026-0257, which allows attackers to bypass authentication mechanisms and gain unauthorized network access. Additionally, threat actors are exploiting FortiClient Enterprise Management Server vulnerabilities (CVE-2026-35616) to deploy credential-stealing malware, while a newly discovered Linux kernel privilege escalation vulnerability dubbed 'CIFSwitch' poses significant risks across multiple distributions. State-sponsored groups, including the newly identified Russian-linked GREYVIBE cluster, are incorporating AI-powered tools into their attack campaigns, demonstrating the evolving sophistication of modern cyber operations.
 
 ## Active Exploitation Details
 
-### PAN-OS GlobalProtect Authentication Bypass
-- **Description**: A medium-severity authentication bypass vulnerability in Palo Alto Networks PAN-OS and Prisma Access that allows attackers to circumvent authentication mechanisms
-- **Impact**: Unauthorized access to corporate networks through VPN infrastructure, enabling potential lateral movement and data exfiltration
-- **Status**: Under active exploitation in the wild with patches available from vendor
+### Palo Alto GlobalProtect Authentication Bypass
+- **Description**: Authentication bypass vulnerability in PAN-OS GlobalProtect and Prisma Access that allows attackers to circumvent authentication mechanisms
+- **Impact**: Unauthorized access to corporate VPN infrastructure and potential lateral movement within enterprise networks
+- **Status**: Under active exploitation in the wild, patches available from Palo Alto Networks
 - **CVE ID**: CVE-2026-0257
 
-### CIFSwitch Linux Kernel Privilege Escalation
-- **Description**: A newly discovered local privilege escalation vulnerability in the Linux kernel that allows attackers to forge CIFS authentication key descriptions and abuse the kernel's key request mechanism
-- **Impact**: Attackers can escalate privileges to root access on multiple Linux distributions
-- **Status**: Actively exploitable across multiple Linux distributions
-
 ### FortiClient EMS Authentication Bypass
-- **Description**: Authentication bypass vulnerability in FortiClient Enterprise Management Server allowing unauthorized access to management functions
-- **Impact**: Deployment of infostealer malware (EKZ) through compromised enterprise management infrastructure
-- **Status**: Under active exploitation with undocumented malware deployment
+- **Description**: Authentication bypass flaw in FortiClient Enterprise Management Server that enables unauthorized access to management functions
+- **Impact**: Deployment of credential-stealing malware and compromise of endpoint management infrastructure
+- **Status**: Actively exploited to deliver EKZ infostealer malware
 - **CVE ID**: CVE-2026-35616
 
-### Marimo Post-Exploitation Vulnerability
-- **Description**: A publicly-accessible vulnerability being exploited for initial access followed by LLM-powered post-compromise activities
-- **Impact**: Initial system compromise with AI-enhanced post-exploitation capabilities for persistence and lateral movement
-- **Status**: Actively exploited with threat actors using large language model agents for automated post-compromise actions
+### CIFSwitch Linux Privilege Escalation
+- **Description**: Local privilege escalation vulnerability in the Linux kernel that allows attackers to forge CIFS authentication key descriptions and abuse kernel key request mechanisms
+- **Impact**: Root-level access on multiple Linux distributions, complete system compromise
+- **Status**: Newly discovered vulnerability affecting multiple Linux distributions
+
+### Marimo Application Vulnerability
+- **Description**: Security flaw in publicly-accessible Marimo applications that allows initial access compromise
+- **Impact**: Initial foothold for attackers to conduct post-exploitation activities using AI agents
+- **Status**: Exploited by unknown threat actors for post-compromise operations
 - **CVE ID**: CVE-2026-39987
 
 ## Affected Systems and Products
 
-- **Palo Alto Networks PAN-OS**: GlobalProtect VPN infrastructure and Prisma Access cloud security services
-- **Linux Distributions**: Multiple distributions affected by CIFSwitch kernel vulnerability enabling root access
-- **FortiClient EMS**: Enterprise Management Server installations vulnerable to authentication bypass attacks
-- **Marimo Platforms**: Publicly-accessible instances being exploited for initial access
-- **ChatGPT Platform**: Content-sharing features being abused to host fake outage pages and phishing content
-- **OpenAI ChatGPT**: Web summary functionality vulnerable to markdown-based phishing attacks (ChatGPhish)
+- **Palo Alto Networks PAN-OS**: GlobalProtect VPN and Prisma Access implementations
+- **FortiClient Enterprise Management Server**: Endpoint management infrastructure
+- **Linux Kernel**: Multiple distributions affected by CIFSwitch vulnerability
+- **Marimo Applications**: Publicly-accessible instances vulnerable to exploitation
+- **ChatGPT Shared Links**: Abused for hosting fake outage pages and malware distribution
+- **NuGet Packages**: Malicious packages targeting Brazilian financial systems
+- **NPM Packages**: Malicious packages targeting cloud secrets and credentials
 
 ## Attack Vectors and Techniques
 
-- **VPN Authentication Bypass**: Exploitation of GlobalProtect authentication mechanisms to gain unauthorized network access
-- **Local Privilege Escalation**: CIFSwitch vulnerability abuse through CIFS authentication key manipulation
-- **AI-Powered Social Engineering**: Use of ChatGPT and Google Gemini by GreyVibe threat actors to generate convincing phishing lures
-- **LLM Agent Automation**: Deployment of large language model agents for automated post-exploitation activities
-- **Platform Abuse**: Leveraging legitimate ChatGPT sharing features to host malicious content and phishing pages
-- **Enterprise Management Compromise**: Exploitation of FortiClient EMS to deploy custom infostealer malware
-- **Markdown Injection**: ChatGPhish technique using AI assistant's trust in markdown links for phishing attacks
+- **VPN Authentication Bypass**: Exploitation of GlobalProtect authentication mechanisms to gain network access
+- **Management Server Compromise**: Targeting enterprise management servers to deploy malware
+- **Privilege Escalation**: Using kernel vulnerabilities to gain root access on Linux systems
+- **AI-Powered Social Engineering**: Using ChatGPT and Gemini to generate convincing phishing lures
+- **Package Repository Poisoning**: Deploying malicious packages in NuGet and NPM repositories
+- **Shared Link Abuse**: Leveraging ChatGPT content-sharing features for malware distribution
+- **Post-Exploitation AI Agents**: Using large language models for automated post-compromise activities
 
 ## Threat Actor Activities
 
-- **GreyVibe (Russia-linked)**: Conducting persistent AI-powered attacks against Ukraine and Ukrainian entities since August 2025, utilizing ChatGPT and Google Gemini for generating phishing content and deploying custom malware tools
-- **Unknown LLM-Using Actors**: Exploiting Marimo vulnerabilities (CVE-2026-39987) and employing large language model agents for sophisticated post-compromise operations including automated reconnaissance and persistence
-- **Enterprise-Targeting Groups**: Actively exploiting FortiClient EMS vulnerabilities to deploy EKZ infostealer malware through compromised enterprise management infrastructure
-- **VPN-Focused Attackers**: Exploiting PAN-OS GlobalProtect authentication bypass to gain unauthorized access to corporate networks worldwide
+- **GREYVIBE**: Russian-linked threat cluster targeting Ukrainian entities using AI-generated lures and custom malware tools, operating since August 2025
+- **Kimsuky (Velvet Chollima)**: North Korean state-sponsored group deploying HTTPSpy, HelloDoor, and VS Code Tunnels against South Korean military and corporate targets
+- **ShinyHunters**: Extortion gang responsible for Charter Communications breach affecting 4.9 million accounts
+- **Unknown LLM-Using Actors**: Threat actors leveraging large language model agents for post-exploitation activities following Marimo application compromises
+- **Brazilian Banking Malware Operators**: Cybercriminals deploying malicious Sicoob NuGet packages to steal banking credentials
+- **The Com Criminal Gang**: Neo-Nazi-affiliated cybercriminal organization supporting violence and exploitation through cyber operations
