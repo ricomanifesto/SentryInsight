@@ -1,59 +1,61 @@
 # Exploitation Report
 
-Critical vulnerabilities are being actively exploited across multiple platforms and products, creating urgent security risks for organizations worldwide. The most severe threats include a Windows Netlogon remote code execution vulnerability, an Android zero-day flaw, and authentication bypass issues in Palo Alto Networks GlobalProtect VPN systems. Additional concerns involve a WordPress plugin vulnerability being exploited to create administrator accounts, and a two-year-old Oracle WebLogic Server flaw that CISA has flagged for government remediation due to active exploitation. Supply chain attacks are also escalating, with compromised npm packages targeting Red Hat services and OpenAI Codex users.
+Critical exploitation activity is currently targeting multiple platforms and systems, with attackers focusing on authentication bypass vulnerabilities, zero-day exploits, and supply chain attacks. Notable active exploitations include a two-year-old Oracle WebLogic Server vulnerability that CISA has flagged for immediate remediation by federal agencies, an Android zero-day being exploited in targeted attacks, and a Palo Alto Networks PAN-OS GlobalProtect authentication bypass vulnerability under active exploitation. Additionally, threat actors are conducting large-scale supply chain attacks targeting npm packages and leveraging AI-driven techniques to accelerate vulnerability weaponization. WordPress sites are experiencing widespread attacks through plugin vulnerabilities, while password managers face sophisticated brute-force campaigns.
 
 ## Active Exploitation Details
 
-### Windows Netlogon Remote Code Execution Vulnerability
-- **Description**: A critical vulnerability affecting Windows Netlogon service that allows remote code execution
-- **Impact**: Threat actors can execute arbitrary code remotely on affected Windows systems
-- **Status**: Recently patched but now being actively exploited by threat actors
+### Oracle WebLogic Server Vulnerability
+- **Description**: A high-severity vulnerability in Oracle WebLogic Server that was patched two years ago but is now being actively exploited
+- **Impact**: Allows attackers to compromise WebLogic Server installations
+- **Status**: Actively exploited in the wild; CISA has ordered federal agencies to patch immediately
 
 ### Android Zero-Day Vulnerability
 - **Description**: A zero-day flaw in Android systems being exploited in targeted attacks
-- **Impact**: Allows attackers to exploit Android devices in focused campaigns
-- **Status**: Patched in June 2026 Android security updates addressing 124 total vulnerabilities
+- **Impact**: Enables attackers to compromise Android devices in focused campaigns
+- **Status**: Actively exploited; patched in June 2026 security update alongside 124 other vulnerabilities
 
-### Palo Alto Networks GlobalProtect VPN Authentication Bypass
-- **Description**: An authentication bypass vulnerability in PAN-OS GlobalProtect VPN systems
-- **Impact**: Attackers can bypass authentication mechanisms to gain unauthorized access
-- **Status**: Under active exploitation in two attack waves beginning in mid-May, requires specific conditions
+### Palo Alto Networks PAN-OS GlobalProtect Authentication Bypass
+- **Description**: Authentication bypass vulnerability in PAN-OS GlobalProtect VPN that allows unauthorized access
+- **Impact**: Attackers can bypass authentication mechanisms to gain unauthorized access to VPN services
+- **Status**: Under active exploitation in two attack waves starting mid-May; requires specific conditions to exploit
 
-### WP Maps Pro WordPress Plugin Critical Flaw
-- **Description**: A critical security vulnerability in the WP Maps Pro WordPress plugin
-- **Impact**: Allows threat actors to create malicious administrator accounts on affected WordPress sites
-- **Status**: Actively being exploited to compromise WordPress installations
+### Windows Netlogon Remote Code Execution Vulnerability
+- **Description**: Critical remote code execution flaw in Windows Netlogon service
+- **Impact**: Allows attackers to execute arbitrary code remotely on affected Windows systems
+- **Status**: Recently patched but now actively exploited by threat actors
 
-### Oracle WebLogic Server Vulnerability
-- **Description**: A high-severity vulnerability in Oracle WebLogic Server that was patched two years ago
-- **Impact**: Enables attackers to compromise WebLogic Server installations
-- **Status**: CISA has ordered federal agencies to patch due to confirmed active exploitation
+### WP Maps Pro WordPress Plugin Vulnerability
+- **Description**: Critical security flaw in WP Maps Pro WordPress plugin affecting over 15,000 installations
+- **Impact**: Enables creation of malicious administrator accounts on affected WordPress sites
+- **Status**: Actively exploited to compromise WordPress websites
 
 ## Affected Systems and Products
 
-- **Android Devices**: All Android systems vulnerable to the patched zero-day flaw
-- **Windows Systems**: Windows installations with Netlogon service exposed to the critical RCE vulnerability
-- **Palo Alto Networks**: PAN-OS GlobalProtect VPN systems susceptible to authentication bypass
-- **WordPress Sites**: Installations using WP Maps Pro plugin (over 15,000 sales on Envato Market)
-- **Oracle WebLogic**: WebLogic Server installations still unpatched from two-year-old vulnerability
+- **Oracle WebLogic Server**: Legacy installations requiring immediate patching per CISA directive
+- **Android Devices**: All Android versions prior to June 2026 security update
+- **Palo Alto Networks PAN-OS**: GlobalProtect VPN implementations meeting specific exploitation conditions
+- **Windows Systems**: Installations with vulnerable Netlogon service components
+- **WordPress Sites**: Websites using WP Maps Pro plugin with over 15,000 affected installations
 - **Red Hat npm Packages**: Over 30 packages under '@redhat-cloud-services' namespace compromised
-- **Steam Community**: WordPress malware campaign using Steam profiles for C2 infrastructure
-- **Meta AI Support**: Instagram accounts compromised through AI support bot manipulation
+- **Steam Community**: Nearly 2,000 WordPress sites infected through Steam profile-based C2 infrastructure
+- **Dashlane Users**: Password manager accounts targeted in brute-force campaigns
+- **Instagram Accounts**: High-profile accounts including Obama White House and U.S. Space Force compromised
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Attacks**: Miasma campaign compromising Red Hat npm packages with Shai-Hulud credential-stealing malware
-- **Social Engineering**: Exploitation of Meta's AI support bot to seize Instagram accounts including Obama White House and U.S. Space Force accounts
-- **Brute Force Attacks**: Targeted attacks against Dashlane password manager users with encrypted vault downloads
-- **Spear Phishing**: SideCopy group targeting Afghanistan's Ministry of Finance with Xeno RAT
-- **ClickFix and FakeUpdate**: DriveSurge threat actor operating large-scale malware distribution on compromised websites
-- **WordPress Malware**: Campaign infecting nearly 2,000 sites using Steam Community profiles to hide C2 data
-- **npm Package Compromise**: codexui-android package targeting OpenAI Codex authentication tokens
+- **ClickFix and FakeUpdate Campaigns**: Large-scale malware distribution through compromised websites using social engineering techniques
+- **Supply Chain Attacks**: Targeting npm packages with credential-stealing malware variants including Shai-Hulud and Mini Shai-Hulud
+- **AI-Driven Exploitation**: Accelerated vulnerability discovery, reproduction, and weaponization processes
+- **Steam Profile C2**: Novel command-and-control infrastructure hiding payloads in Steam Community profile comments
+- **Brute-Force Authentication**: Sophisticated attacks against password managers and user authentication systems
+- **Meta AI Support Bot Manipulation**: Exploitation of AI support systems to seize social media accounts
+- **Spear-Phishing with RAT Deployment**: Targeted campaigns delivering remote access trojans to government entities
 
 ## Threat Actor Activities
 
-- **SideCopy**: Pakistan-aligned group conducting spear-phishing campaigns against Afghanistan's Ministry of Finance using open-source remote access tools
-- **DriveSurge**: Threat actor conducting large-scale malware distribution through compromised websites using ClickFix and FakeUpdates techniques
-- **Dragon Weave Operation**: China-aligned groups targeting Czech Republic and Taiwan officials with AdaptixC2 agent delivery
-- **Supply Chain Attackers**: Multiple threat actors targeting developer environments through compromised npm packages and malicious tools
-- **WordPress Attackers**: Threat actors actively exploiting WP Maps Pro vulnerability to create unauthorized administrator accounts on WordPress installations
+- **DriveSurge**: Operating large-scale malware distribution campaigns using ClickFix and FakeUpdates techniques on thousands of compromised sites
+- **SideCopy (Pakistan-aligned)**: Targeting Afghanistan's Ministry of Finance with Xeno RAT through spear-phishing campaigns
+- **China-Aligned Groups**: Conducting Operation Dragon Weave targeting Czech Republic and Taiwan officials with AdaptixC2 agent
+- **Miasma Campaign Operators**: Compromising Red Hat npm packages with Mini Shai-Hulud credential-stealing worm for supply chain attacks
+- **Iranian-Affiliated Actors**: Defacing high-profile Instagram accounts including government and military profiles using AI support bot manipulation
+- **Spanish Government Data Doxer**: Individual arrested for leaking sensitive information of key state organization members including INCIBE
