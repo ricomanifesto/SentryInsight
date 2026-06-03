@@ -1,84 +1,75 @@
 # Exploitation Report
 
-The current threat landscape reveals a concerning escalation in exploitation activities targeting diverse platforms and technologies. Critical zero-day vulnerabilities are being actively exploited across multiple vectors, including a Visual Studio Code vulnerability enabling GitHub token theft through social engineering, maximum-severity zero-days in Acer Wave 7 routers, and an unpatched Windows Search URI vulnerability exposing NTLMv2 hashes. Simultaneously, established vulnerabilities continue to be weaponized by threat actors, with Russian-linked Gamaredon exploiting WinRAR flaws and Oracle WebLogic servers being targeted in active campaigns. The emergence of AI-assisted attack toolkits and novel attack vectors like HTTP/2 bomb exploits demonstrates the evolving sophistication of modern cyber threats, while large-scale malware campaigns are successfully compromising hundreds of thousands of systems through gaming platforms and compromised websites.
+The current threat landscape reveals several critical zero-day vulnerabilities and active exploitation campaigns targeting high-value systems and users. Most concerning are zero-day attacks affecting Visual Studio Code that enable GitHub token theft through one-click exploitation, maximum-severity zero-days in Acer Wave 7 routers, and an actively exploited Android Framework vulnerability. Additionally, threat actors are leveraging AI-powered tools and automated attack frameworks to accelerate exploitation timelines, while established groups like Gamaredon continue exploiting known WinRAR vulnerabilities and emerging campaigns target WordPress installations through privilege escalation flaws.
 
 ## Active Exploitation Details
 
 ### Visual Studio Code GitHub Token Theft Zero-Day
-- **Description**: A one-click attack vulnerability in Microsoft Visual Studio Code that allows attackers to steal GitHub OAuth tokens by tricking users into clicking malicious links
-- **Impact**: Complete compromise of GitHub authentication tokens, potentially leading to unauthorized repository access and code theft
-- **Status**: Zero-day vulnerability with exploit code publicly released; no patch available
+- **Description**: A zero-day vulnerability in Microsoft Visual Studio Code that allows attackers to steal GitHub OAuth tokens through a one-click attack vector
+- **Impact**: Complete theft of GitHub authentication tokens, potentially providing attackers with full access to victims' repositories and associated resources
+- **Status**: Currently unpatched zero-day vulnerability with publicly available exploit code
 
 ### Acer Wave 7 Router Zero-Days
 - **Description**: Two maximum-severity zero-day vulnerabilities affecting Acer Wave 7 mesh routers
-- **Impact**: Complete system compromise with maximum CVSS severity rating
-- **Status**: Actively exploitable; Acer working on patches
-
-### Windows Search URI NTLMv2 Hash Disclosure
-- **Description**: Unpatched vulnerability in Windows Search URI handling that can be exploited to disclose user NTLMv2 hashes to attackers
-- **Impact**: Credential theft enabling lateral movement and privilege escalation
-- **Status**: Unpatched and actively exploitable
-- **CVE ID**: CVE-2026-33829
+- **Impact**: Complete compromise of router devices, potentially enabling network infiltration and lateral movement
+- **Status**: Acer is working to patch these vulnerabilities, but fixes are not yet available
 
 ### Android Framework Zero-Day
-- **Description**: High-severity vulnerability in Android Framework component being exploited in targeted attacks
-- **Impact**: Potential for privilege escalation and unauthorized access on affected Android devices
-- **Status**: Patched in June 2026 Android security update but previously exploited in the wild
+- **Description**: High-severity vulnerability in Android's Framework component being actively exploited in targeted attacks
+- **Impact**: System compromise on Android devices through targeted exploitation
+- **Status**: Patched in Google's June 2026 Android security update
 
 ### Oracle WebLogic Server Vulnerability
-- **Description**: High-severity vulnerability in Oracle WebLogic Server that has been added to CISA's KEV catalog
-- **Impact**: Remote code execution and system compromise
-- **Status**: Actively exploited despite being patched two years ago
+- **Description**: High-severity flaw in Oracle WebLogic Server that has been actively exploited in attacks
+- **Impact**: Server compromise and potential lateral movement within enterprise environments
+- **Status**: Previously patched vulnerability now confirmed as actively exploited, added to CISA's KEV catalog
 - **CVE ID**: CVE-2024-21182
 
-### WordPress Kirki Plugin Privilege Escalation
-- **Description**: Critical privilege escalation vulnerability in the Kirki plugin for WordPress enabling account takeover
-- **Impact**: Complete takeover of WordPress administrator accounts and site compromise
-- **Status**: Actively exploited in the wild
+### Kirki WordPress Plugin Privilege Escalation
+- **Description**: Critical privilege escalation vulnerability in the Kirki plugin for WordPress
+- **Impact**: Complete takeover of WordPress user accounts, including administrator accounts
+- **Status**: Actively exploited in the wild to hijack WordPress admin accounts
 - **CVE ID**: CVE-2026-8206
 
-### HTTP/2 Bomb DoS Vulnerability
-- **Description**: Remote denial-of-service exploit affecting major web servers through HTTP/2 protocol manipulation
-- **Impact**: Service disruption and potential server crashes
-- **Status**: Affects multiple major web server platforms including NGINX, Apache, IIS, Envoy, and Cloudflare
+### Windows Search URI Hash Disclosure
+- **Description**: Unpatched vulnerability in Windows Search URI functionality that allows attackers to steal NTLMv2 hashes
+- **Impact**: Credential theft enabling further network compromise and lateral movement
+- **Status**: Currently unpatched with active exploitation potential
 
-### WinRAR Vulnerability
-- **Description**: Vulnerability in WinRAR being exploited by Russian threat actors to deliver malware
-- **Impact**: Malware delivery and system compromise targeting Ukrainian entities
-- **Status**: Actively exploited by Gamaredon group
+### HTTP/2 Bomb DoS Vulnerability
+- **Description**: Remote denial-of-service vulnerability affecting major web servers including NGINX, Apache HTTPD, Microsoft IIS, Envoy, and Cloudflare Pingora
+- **Impact**: Service disruption through remote DoS attacks on web infrastructure
+- **Status**: Active exploitation capability demonstrated against multiple major web server platforms
 
 ## Affected Systems and Products
 
 - **Microsoft Visual Studio Code**: All versions vulnerable to GitHub token theft attack
-- **Acer Wave 7 Mesh Routers**: All models affected by maximum-severity zero-days
-- **Windows Operating Systems**: All versions with Search URI functionality vulnerable to NTLMv2 hash disclosure
-- **Android Devices**: Framework component affected in targeted attacks, patched in June 2026
-- **Oracle WebLogic Server**: All unpatched versions vulnerable to remote exploitation
-- **WordPress Kirki Plugin**: All versions prior to security update vulnerable to privilege escalation
-- **Web Servers**: NGINX, Apache HTTPD, Microsoft IIS, Envoy, and Cloudflare Pingora affected by HTTP/2 bomb
-- **WinRAR Applications**: Versions vulnerable to exploitation by Gamaredon group
-- **Red Hat npm Packages**: @redhat-cloud-services packages compromised in supply chain attack
-- **Minecraft Gaming Platform**: Over 116,000 systems infected through WeedHack campaign
+- **Acer Wave 7 Routers**: All models affected by maximum-severity zero-day vulnerabilities
+- **Android Framework**: Devices running vulnerable versions prior to June 2026 security patches
+- **Oracle WebLogic Server**: Servers running unpatched versions vulnerable to active exploitation
+- **WordPress with Kirki Plugin**: Sites using vulnerable Kirki plugin versions face privilege escalation risks
+- **Windows Systems**: All Windows versions with Search URI functionality vulnerable to hash disclosure
+- **Web Servers**: NGINX, Apache HTTPD, Microsoft IIS, Envoy, and Cloudflare Pingora affected by HTTP/2 DoS vulnerability
+- **WinRAR**: Continued exploitation by threat actors for malware delivery
+- **Minecraft Gaming Platforms**: Over 116,000 systems infected through targeted malware campaigns
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering via VS Code**: One-click attacks through malicious links targeting developer workflows
-- **Router Exploitation**: Direct targeting of consumer networking equipment with zero-day exploits
-- **Protocol Manipulation**: HTTP/2 bomb attacks causing denial-of-service through protocol abuse
-- **Supply Chain Attacks**: Compromise of legitimate npm packages to deliver credential-stealing worms
-- **Gaming Platform Targeting**: Malware distribution through Minecraft-focused campaigns on YouTube
-- **AI-Assisted Social Engineering**: Abuse of Meta's AI support systems to hijack Instagram accounts
-- **Brute Force Attacks**: Password vault targeting through automated credential attacks
-- **Website Compromise**: Large-scale injection of ClickFix and FakeUpdate attack scripts
-- **Archive File Exploitation**: WinRAR vulnerability exploitation for malware delivery
-- **WordPress Plugin Attacks**: Direct exploitation of CMS plugin vulnerabilities for privilege escalation
+- **One-Click Exploitation**: VS Code vulnerability exploited through malicious links requiring single user interaction
+- **Supply Chain Attacks**: Miasma campaign compromising Red Hat npm packages with credential-stealing worms
+- **Social Engineering**: ClickFix and FakeUpdate campaigns using compromised websites for malware distribution
+- **AI-Powered Automation**: Ransomware toolkits using artificial intelligence for EDR evasion and Active Directory discovery
+- **Malware-as-a-Service**: WeedHack campaign targeting Minecraft players through YouTube-distributed malware
+- **Archive Exploitation**: Continued use of WinRAR vulnerabilities for malware delivery and system compromise
+- **HTTP/2 Protocol Abuse**: Denial-of-service attacks targeting web server implementations
+- **AI Support Tool Manipulation**: Abuse of Meta's AI support systems to hijack Instagram accounts
 
 ## Threat Actor Activities
 
-- **Gamaredon (Russian APT)**: Continued exploitation of WinRAR vulnerabilities to deliver GammaWorm and GammaSteel malware targeting Ukrainian infrastructure
-- **SideCopy (Pakistan-linked)**: Spear-phishing campaign against Afghanistan's Ministry of Finance using Xeno RAT malware
-- **DriveSurge**: Large-scale malware distribution using ClickFix and FakeUpdate techniques across thousands of compromised websites
-- **WeedHack Campaign**: Targeting Minecraft players through YouTube with over 116,000 systems infected since January
-- **AI-Enhanced Ransomware Groups**: Development of automated attack toolkits using artificial intelligence for EDR evasion and Active Directory discovery
-- **Miasma Campaign**: Supply chain attack targeting Red Hat npm packages with credential-stealing capabilities
-- **Instagram Account Hijackers**: Exploitation of Meta's AI support systems to gain unauthorized access to high-profile accounts including Obama White House and U.S. Space Force accounts
+- **Gamaredon Group**: Russian-aligned group continuing to exploit WinRAR vulnerabilities to deliver GammaWorm and GammaSteel malware against Ukrainian targets
+- **SideCopy Group**: Pakistan-linked actors targeting Afghanistan's Ministry of Finance with Xeno RAT through spear-phishing campaigns
+- **DriveSurge Campaign**: Large-scale malware distribution using ClickFix and FakeUpdates techniques across thousands of compromised websites
+- **WeedHack Operators**: Malware-as-a-service campaign infecting over 116,000 Minecraft gaming systems since January
+- **Miasma Campaign**: Mini Shai-Hulud supply chain attackers compromising developer environments through poisoned npm packages
+- **AI-Enhanced Threat Actors**: Various groups adopting artificial intelligence tools for automated reconnaissance, evasion, and attack execution
+- **Instagram Account Hijackers**: Attackers manipulating Meta's AI-powered support tools to seize high-profile social media accounts
