@@ -1,57 +1,63 @@
 # Exploitation Report
 
-Multiple critical vulnerabilities are currently under active exploitation, presenting significant risks to organizations worldwide. The most severe incidents include a privilege escalation vulnerability in the Kirki WordPress plugin (CVE-2026-8206) being exploited to hijack administrator accounts, an actively exploited Android zero-day vulnerability, and a two-year-old Oracle WebLogic Server flaw (CVE-2024-21182) that CISA has now flagged as actively exploited. Additionally, threat actors are leveraging WinRAR vulnerabilities and conducting sophisticated supply chain attacks against npm packages, while AI-powered attack toolkits are emerging to automate ransomware deployment and EDR evasion techniques.
+Critical exploitation activity is currently targeting multiple platforms and systems, with several zero-day vulnerabilities and actively exploited flaws posing significant threats to organizations worldwide. The most severe activities include a Visual Studio Code zero-day allowing GitHub token theft, widespread exploitation of a WordPress Kirki plugin vulnerability for admin account takeover, and active exploitation of Oracle WebLogic Server flaws that have been added to CISA's Known Exploited Vulnerabilities catalog. Additionally, a high-severity Android zero-day is being exploited in targeted attacks, while threat actors continue leveraging WinRAR vulnerabilities and conducting large-scale malware campaigns targeting gaming communities and enterprise environments.
 
 ## Active Exploitation Details
 
+### Visual Studio Code Zero-Day Vulnerability
+- **Description**: A zero-day vulnerability in Visual Studio Code that allows attackers to steal GitHub authentication tokens through social engineering
+- **Impact**: Attackers can steal GitHub authentication tokens by tricking users into clicking malicious content, potentially leading to source code theft and unauthorized repository access
+- **Status**: Actively exploited with public exploit code available
+
 ### Kirki WordPress Plugin Privilege Escalation
-- **Description**: A critical privilege escalation vulnerability in the Kirki plugin for WordPress that allows attackers to take over any user account
-- **Impact**: Complete account takeover including administrator accounts, potentially leading to full website compromise
-- **Status**: Currently being actively exploited by hackers
+- **Description**: Critical privilege escalation vulnerability in the Kirki plugin for WordPress allowing account takeover
+- **Impact**: Attackers can take over any user account, including administrator accounts, leading to complete website compromise
+- **Status**: Currently being exploited in the wild
 - **CVE ID**: CVE-2026-8206
 
-### Android Framework Zero-Day Vulnerability
-- **Description**: A high-severity zero-day flaw in the Android Framework component
-- **Impact**: Targeted attacks against Android devices with potential for privilege escalation or unauthorized access
-- **Status**: Actively exploited in the wild, patched in June 2026 Android security update
-
 ### Oracle WebLogic Server Vulnerability
-- **Description**: A high-severity security flaw in Oracle WebLogic Server that was patched two years ago but is now seeing active exploitation
-- **Impact**: Potential remote code execution and unauthorized access to enterprise applications
-- **Status**: Added to CISA's Known Exploited Vulnerabilities (KEV) catalog due to confirmed active exploitation
+- **Description**: High-severity security flaw in Oracle WebLogic Server that was patched two years ago but is now seeing active exploitation
+- **Impact**: Allows attackers to compromise WebLogic Server installations and potentially gain unauthorized access to enterprise systems
+- **Status**: Added to CISA's Known Exploited Vulnerabilities (KEV) Catalog due to active exploitation
 - **CVE ID**: CVE-2024-21182
 
-### WinRAR Vulnerability
-- **Description**: A vulnerability in WinRAR being exploited by the Gamaredon threat group
-- **Impact**: Delivery of GammaWorm and GammaSteel malware families for data theft and lateral movement
-- **Status**: Continuously exploited by Russian-aligned threat actors targeting Ukraine
+### Android Framework Zero-Day
+- **Description**: High-severity zero-day vulnerability in the Android Framework component
+- **Impact**: Exploitation allows attackers to compromise Android devices in targeted attacks
+- **Status**: Actively exploited in targeted attacks, patched in June 2026 Android security update
+
+### WinRAR Vulnerability (Gamaredon Exploitation)
+- **Description**: Known vulnerability in WinRAR being continuously exploited by Russian threat actors
+- **Impact**: Used to deliver multiple malware families including GammaWorm and GammaSteel for data theft and lateral movement
+- **Status**: Ongoing exploitation by Gamaredon group targeting Ukrainian entities
 
 ## Affected Systems and Products
 
-- **WordPress Sites**: Running the Kirki plugin, vulnerable to privilege escalation attacks
-- **Android Devices**: All Android versions prior to June 2026 security patches
-- **Oracle WebLogic Server**: Enterprise deployments running vulnerable versions
-- **WinRAR Applications**: Used as attack vector for malware delivery
+- **Visual Studio Code**: All versions prior to latest security update
+- **WordPress Kirki Plugin**: Sites using vulnerable versions of the Kirki customization plugin
+- **Oracle WebLogic Server**: Enterprise installations running vulnerable versions
+- **Android Devices**: Android Framework component in devices prior to June 2026 security patch
+- **WinRAR**: Archive utility being exploited for malware delivery
 - **Red Hat npm Packages**: Over 30 packages under '@redhat-cloud-services' namespace compromised
-- **Minecraft Gaming Systems**: Over 116,000 systems infected through WeedHack campaign
-- **Instagram Accounts**: Multiple accounts compromised through Meta AI support tool abuse
-- **Dashlane Password Manager**: Fewer than 20 personal subscription users affected by brute-force attacks
+- **Minecraft Gaming Platforms**: Over 116,000 systems infected through WeedHack campaign
+- **Instagram/Meta Platforms**: Accounts compromised through AI support tool abuse
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: WordPress plugin vulnerabilities exploited for admin account takeover
-- **Supply Chain Attacks**: Compromised npm packages distributing Shai-Hulud credential-stealing malware
-- **Spear-Phishing**: Multi-layered campaigns using Azureveil malware and device code phishing
-- **Social Engineering**: Abuse of AI-powered support tools to convince systems of legitimate ownership
-- **ClickFix and FakeUpdate Techniques**: Large-scale malware distribution through compromised websites
-- **AI-Powered Ransomware**: Automated toolkits for EDR evasion and Active Directory discovery
-- **Phishing-as-a-Service**: Kali365 platform expanding beyond Microsoft 365 to target AWS and Okta
+- **Social Engineering via VS Code**: Attackers trick users into clicking malicious content to steal GitHub tokens
+- **Privilege Escalation**: Exploitation of WordPress Kirki plugin for admin account takeover
+- **Spear-Phishing**: Targeted email campaigns delivering malware payloads
+- **Malware-as-a-Service**: WeedHack targeting Minecraft players through YouTube distribution
+- **Supply Chain Attacks**: Compromised npm packages distributing credential-stealing malware
+- **AI Support Tool Abuse**: Attackers convincing Meta's AI systems they are legitimate account owners
+- **ClickFix and FakeUpdate Campaigns**: DriveSurge operation redirecting users to malware distribution sites
+- **Traffic Distribution Systems**: Malicious TDS used to hijack thousands of legitimate websites
 
 ## Threat Actor Activities
 
-- **Gamaredon Group**: Russian-aligned actors exploiting WinRAR vulnerabilities to deliver GammaWorm and GammaSteel malware against Ukrainian targets
-- **SideCopy Group**: Pakistan-linked threat actors targeting Afghanistan's Ministry of Finance with Xeno RAT through spear-phishing campaigns
-- **DriveSurge Operators**: Large-scale traffic distribution system compromising thousands of websites for malware delivery
-- **Chinese State Actors**: Conducting dual-method cyberattacks against Czech organizations and Taiwan using sophisticated spear-phishing with Azureveil malware
-- **WeedHack Campaign**: Targeting Minecraft players with malware, successfully infecting over 116,000 systems since January
-- **Unknown Threat Actors**: Developing AI-built ransomware toolkits with automated capabilities for enterprise network compromise
+- **Gamaredon (Russian APT)**: Continuously exploiting WinRAR vulnerability to deliver GammaWorm and GammaSteel malware against Ukrainian targets
+- **SideCopy (Pakistan-linked)**: Targeting Afghanistan's Ministry of Finance with Xeno RAT through spear-phishing campaigns
+- **Chinese APT Groups**: Conducting dual-method cyberattacks against Czech and Taiwanese organizations using Azureveil malware
+- **DriveSurge**: Operating large-scale initial access broker (IAB) campaigns using malicious traffic distribution systems
+- **WeedHack Operators**: Conducting malware-as-a-service campaigns targeting over 116,000 Minecraft systems since January
+- **Unknown Threat Actors**: Exploiting Meta AI support systems for Instagram account hijacking and developing AI-powered ransomware toolkits
