@@ -1,69 +1,62 @@
 # Exploitation Report
 
-Multiple critical vulnerabilities are currently being exploited in the wild, with CISA adding several flaws to its Known Exploited Vulnerabilities (KEV) catalog. The most concerning activity includes active exploitation of Android and Linux kernel vulnerabilities, a critical Magento extension flaw (CVE-2026-45247), and maximum-severity zero-day vulnerabilities in Acer Wave 7 routers. Additional threats include Chinese threat actors expanding operations across Europe with new malware, critical Cisco Unified CM vulnerabilities with public proof-of-concept code, and authentication bypass flaws in Microsoft 365 Android applications. A newly discovered Redis vulnerability (CVE-2026-23479) allows remote code execution, while novel attack techniques target HTTP/2 implementations and Google Gemini voice assistants.
+Current threat activity shows a diverse landscape of exploitation targeting multiple platforms and attack vectors. Critical vulnerabilities are being actively exploited across enterprise infrastructure, with particular focus on supply chain attacks, cloud services, and development platforms. Notable activity includes active exploitation of Linux kernel and Android vulnerabilities, critical Cisco Unified Communications Manager flaws with available proof-of-concept code, and a newly discovered Redis remote code execution vulnerability. Supply chain attacks continue to evolve with malicious npm packages and GitHub Action vulnerabilities, while threat actors leverage sophisticated malware delivery through legitimate advertising platforms and social engineering techniques.
 
 ## Active Exploitation Details
 
-### Magento Cache Warmer RCE Vulnerability
-- **Description**: Critical remote code execution flaw in Mirasvit Cache Warmer extension for Magento
-- **Impact**: Attackers can execute arbitrary code on affected Magento installations
-- **Status**: Actively exploited in the wild, added to CISA KEV catalog
-- **CVE ID**: CVE-2026-45247
+### Linux Kernel and Android Vulnerabilities
+- **Description**: Multiple vulnerabilities in the Linux kernel and Android operating system are being actively exploited by threat actors
+- **Impact**: Attackers can gain elevated privileges and execute arbitrary code on affected systems
+- **Status**: Active exploitation confirmed by CISA, patches available
 
-### Android and Linux Kernel Vulnerabilities
-- **Description**: Multiple vulnerabilities affecting Linux kernel and Android operating system
-- **Impact**: System compromise and privilege escalation capabilities
-- **Status**: CISA warning of active exploitation attacks
-- **CVE ID**: Not specified in source articles
+### Cisco Unified Communications Manager Privilege Escalation
+- **Description**: Critical vulnerability in Cisco Unified CM allows attackers to gain root privileges on affected systems
+- **Impact**: Complete system compromise and administrative control over communication infrastructure
+- **Status**: Security updates released, proof-of-concept exploit code publicly available
 
-### Acer Wave 7 Router Zero-Days
-- **Description**: Two maximum-severity zero-day vulnerabilities in Acer Wave 7 mesh routers
-- **Impact**: Complete router compromise and network infiltration potential
-- **Status**: Unpatched zero-days, Acer working on fixes
-- **CVE ID**: Not specified in source articles
-
-### Redis Use-After-Free Vulnerability
-- **Description**: Use-after-free vulnerability in Redis blocking-client code
-- **Impact**: Authenticated users can execute arbitrary OS commands on the database host
-- **Status**: Recently patched by Redis
+### Redis Remote Code Execution Vulnerability
+- **Description**: Use-after-free vulnerability in Redis blocking-client code allows authenticated users to execute arbitrary OS commands
+- **Impact**: Complete server compromise through remote code execution
+- **Status**: Patched by Redis, discovered by autonomous AI security tool
 - **CVE ID**: CVE-2026-23479
 
-### Cisco Unified CM Critical Flaw
-- **Description**: Critical vulnerability in Cisco Unified Communications Manager
-- **Impact**: Allows attackers to gain root privileges on affected systems
-- **Status**: Proof-of-concept exploit code available publicly
-- **CVE ID**: Not specified in source articles
+### Magento Cache Warmer Remote Code Execution
+- **Description**: Critical flaw in Mirasvit Cache Warmer extension for Magento enables remote code execution
+- **Impact**: Complete compromise of e-commerce platforms and associated data
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog, active exploitation confirmed
+- **CVE ID**: CVE-2026-45247
 
 ## Affected Systems and Products
 
-- **Magento E-commerce Platforms**: Sites using Mirasvit Cache Warmer extension vulnerable to RCE
-- **Android Devices**: Multiple Android versions affected by kernel vulnerabilities
-- **Linux Systems**: Various Linux distributions impacted by kernel flaws
-- **Acer Wave 7 Routers**: All Wave 7 mesh router models affected by zero-days
-- **Redis Database Servers**: Authenticated users can exploit RCE vulnerability
-- **Cisco Unified CM**: Communications Manager installations at risk of privilege escalation
-- **Microsoft 365 Android Apps**: Word, PowerPoint, Excel apps with authentication bypass
-- **Google Gemini**: Android voice assistant vulnerable to notification hijacking
+- **Cisco Unified Communications Manager**: All versions prior to latest security updates
+- **Redis Database**: Versions affected by blocking-client vulnerability
+- **Magento E-commerce Platforms**: Systems using Mirasvit Cache Warmer extension
+- **Linux Kernel**: Multiple distributions and versions
+- **Android Operating System**: Various versions with kernel vulnerabilities
+- **npm Package Registry**: 36 packages infected with IronWorm malware
+- **Microsoft 365**: Android applications with disabled authentication security
+- **GitHub Repositories**: Public repositories using Claude Code GitHub Action
+- **Google Gemini**: Android voice assistant functionality
+- **Visual Studio Code**: Development environments with GitHub integration
 
 ## Attack Vectors and Techniques
 
-- **Web Application Exploitation**: Targeting Magento cache extension vulnerabilities for RCE
-- **Kernel Exploitation**: Leveraging Linux and Android kernel flaws for system compromise
-- **Router Compromise**: Exploiting zero-day vulnerabilities in mesh networking equipment
-- **Malvertising Campaigns**: Using Google and YouTube ads to distribute FlutterShell backdoor on macOS
-- **Phishing Operations**: China-linked TA4922 expanding targeting to European organizations
-- **Traffic Distribution Systems**: Fake open-source tool sites funneling users to malware
-- **HTTP/2 Bomb Attacks**: New denial-of-service technique crashing web servers in under a minute
-- **Notification Hijacking**: Poisoned notifications targeting Google Gemini voice assistant
-- **OAuth Token Theft**: One-click attacks via Visual Studio Code to steal GitHub tokens
-- **EDR Evasion**: AI-powered automation for testing malware against endpoint detection systems
+- **Supply Chain Poisoning**: Malicious packages injected into npm registry with IronWorm infostealer malware
+- **Malvertising Campaigns**: Fake websites mimicking open-source tools ranking high on Google search results
+- **GitHub Action Exploitation**: Single malicious issue capable of hijacking repositories using Claude Code action
+- **AI-Assisted Evasion**: Python scripts used to automate testing against endpoint detection and response systems
+- **HTTP/2 Bomb DoS**: New denial-of-service attack capable of crashing web servers within one minute
+- **Notification Hijacking**: Poisoned notifications from messaging apps exploiting Google Gemini voice assistant
+- **OAuth Token Theft**: One-click attacks through Visual Studio Code to steal GitHub authentication tokens
+- **Traffic Distribution Systems**: Sophisticated redirection systems delivering malware through legitimate-appearing websites
 
 ## Threat Actor Activities
 
-- **China-linked TA4922**: Expanding phishing operations to target UK, Germany, Italy, and South Africa organizations
-- **Chinese APT Groups**: Deploying new Atlas RAT malware in European cyberattacks and conducting espionage across Latin America
-- **Pakistan-based Actors**: Conducting surveillance operations against Afghan Finance Ministry using Xeno RAT
-- **Unknown Stock Exchange Attackers**: Five-month persistent access to senior executive's Outlook mailbox with data exfiltration
-- **Iranian Ransomware Groups**: Utilizing Nobitex cryptocurrency exchange for payment processing
-- **Fuel Infrastructure Attackers**: Targeting automatic tank gauge systems in critical infrastructure
-- **Southeast Asian Fraud Networks**: Operating cryptocurrency fraud schemes disrupted by DOJ action
+- **TA4922 (China-linked)**: Expanded phishing operations targeting organizations in UK, Germany, Italy, and South Africa
+- **Chinese APT Groups**: Deployment of Atlas RAT malware and new backdoor tools in European cyberattacks
+- **Pakistani Intelligence**: Surveillance operations against Afghan Finance Ministry using Xeno RAT
+- **Iranian Ransomware Actors**: Utilizing Nobitex cryptocurrency exchange for payment processing (now sanctioned)
+- **Unknown Stock Exchange Attackers**: Five-month persistence in executive Outlook mailbox with data exfiltration
+- **FlutterBridge Operation**: macOS malvertising campaign distributing FlutterShell backdoor through Google and YouTube ads
+- **Southeast Asian Fraud Networks**: Crypto fraud operations disrupted by DoJ with $3.8 million in assets frozen
+- **Critical Infrastructure Attackers**: Targeting automatic tank gauge systems for fuel monitoring across multiple sectors
