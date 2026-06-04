@@ -1,69 +1,76 @@
 # Exploitation Report
 
-Critical security vulnerabilities are currently being actively exploited across multiple platforms and applications. CISA has issued warnings about ongoing attacks targeting Linux kernel and Android operating system vulnerabilities. Zero-day vulnerabilities have been discovered in Acer Wave 7 routers with maximum severity ratings, while Microsoft 365 Android applications contain a serious authentication bypass flaw. Additional significant threats include a new HTTP/2 DoS attack affecting major web servers, exploitation targeting automatic tank gauge systems, and various social engineering attacks leveraging AI-generated content and malicious notifications.
+CISA has issued urgent warnings about active exploitation targeting critical vulnerabilities in Android and Linux systems, while multiple zero-day vulnerabilities continue to emerge across widely-used platforms. Chinese threat actors are deploying new malware including the Atlas RAT in expanded European operations, and attackers are leveraging AI to automate evasion techniques against endpoint detection systems. Critical infrastructure faces ongoing threats with attacks targeting fuel tank monitoring systems and web servers vulnerable to the new HTTP/2 Bomb denial-of-service attack. Additionally, coding errors in Microsoft 365 Android applications and Google Gemini voice assistant have created significant attack vectors for credential theft and system compromise.
 
 ## Active Exploitation Details
 
-### Linux Kernel and Android Vulnerabilities
-- **Description**: CISA warns of active exploitation targeting vulnerabilities in the Linux kernel and Android operating system
-- **Impact**: Attackers can potentially gain unauthorized access to affected Linux and Android systems
-- **Status**: Currently being actively exploited in the wild; organizations urged to apply patches immediately
+### Android and Linux Kernel Vulnerabilities
+- **Description**: CISA has confirmed active exploitation of vulnerabilities affecting the Linux kernel and Android operating system
+- **Impact**: Attackers can gain unauthorized access to affected Android and Linux systems
+- **Status**: Currently being exploited in the wild; patches may be available depending on specific vulnerability
 
 ### Acer Wave 7 Router Zero-Days
 - **Description**: Two maximum-severity zero-day vulnerabilities affecting Acer Wave 7 mesh routers
 - **Impact**: Complete compromise of affected router systems with maximum severity rating
-- **Status**: Zero-day vulnerabilities with patches in development by Acer
-
-### Microsoft 365 Android Authentication Bypass
-- **Description**: A leftover debug flag in Microsoft 365 Android apps disabled security checks that limit account-token sharing to trusted Microsoft apps
-- **Impact**: Any Android app on the same device can steal Microsoft 365 account tokens and access user data
-- **Status**: Authentication security controls bypassed in production builds
-
-### Redis Remote Code Execution Flaw
-- **Description**: Use-after-free vulnerability in Redis blocking-client code discovered by autonomous AI tool
-- **Impact**: Authenticated users can execute arbitrary OS commands on the machine hosting the Redis database
-- **Status**: Patched by Redis
-- **CVE ID**: CVE-2026-23479
-
-### Windows Search URI NTLM Hash Disclosure
-- **Description**: Unpatched vulnerability in Windows Search URI functionality that can be exploited to steal user credentials
-- **Impact**: Attackers can steal NTLMv2 hashes from victims
-- **Status**: Currently unpatched
+- **Status**: Zero-day vulnerabilities with no patches currently available; Acer working on fixes
 
 ### Visual Studio Code GitHub Token Theft
-- **Description**: Zero-day vulnerability in Microsoft Visual Studio Code that enables one-click attacks to steal GitHub authentication tokens
-- **Impact**: Complete theft of GitHub OAuth tokens through social engineering
-- **Status**: Zero-day with public exploit code released
+- **Description**: Zero-day vulnerability in Microsoft Visual Studio Code that allows attackers to steal GitHub authentication tokens through a one-click attack
+- **Impact**: Complete theft of GitHub OAuth tokens and potential repository access
+- **Status**: Zero-day vulnerability with active exploitation possible
+
+### Redis Remote Code Execution Flaw
+- **Description**: Use-after-free vulnerability in Redis blocking-client code that allows authenticated users to execute arbitrary OS commands
+- **Impact**: Full system compromise on machines hosting Redis databases
+- **Status**: Recently patched by Redis
+- **CVE ID**: CVE-2026-23479
+
+### Microsoft 365 Android Apps Token Stealing
+- **Description**: Development debug flag left enabled in production builds of Microsoft 365 Android apps, disabling security checks for account token sharing
+- **Impact**: Any malicious app on the same device can steal Microsoft 365 account tokens
+- **Status**: Security flaw affecting current production builds
+
+### Windows Search URI NTLM Hash Disclosure
+- **Description**: Unpatched vulnerability in Windows Search URI functionality that allows attackers to steal NTLMv2 hashes
+- **Impact**: Credential theft enabling potential lateral movement and privilege escalation
+- **Status**: Currently unpatched and exploitable
+
+### Google Gemini Voice Assistant Hijacking
+- **Description**: Prompt injection vulnerability in Google Gemini's voice assistant that allows malicious notifications to execute hidden commands
+- **Impact**: Social engineering attacks and unauthorized actions through voice assistant manipulation
+- **Status**: Active vulnerability affecting Android users
 
 ## Affected Systems and Products
 
-- **Acer Wave 7 Mesh Routers**: All models affected by maximum-severity zero-day vulnerabilities
-- **Linux Systems**: Kernel vulnerabilities actively exploited across distributions
-- **Android Devices**: Operating system vulnerabilities and Microsoft 365 app authentication bypass
-- **Microsoft 365 Android Apps**: Word, PowerPoint, Excel, and other Office applications with disabled security settings
-- **Redis Database**: Use-after-free vulnerability in blocking-client code
-- **Windows Systems**: Search URI functionality vulnerable to credential theft
-- **Visual Studio Code**: GitHub integration vulnerable to token theft
-- **Web Servers**: NGINX, Apache HTTPD, Microsoft IIS, Envoy, and Cloudflare Pingora affected by HTTP/2 DoS
-- **Automatic Tank Gauge Systems**: Internet-exposed fuel monitoring systems targeted by attackers
-- **Google Gemini**: Android voice assistant vulnerable to notification-based prompt injection
+- **Acer Wave 7 Mesh Routers**: All models affected by two maximum-severity zero-day vulnerabilities
+- **Android Operating System**: Multiple versions affected by actively exploited vulnerabilities
+- **Linux Kernel**: Various distributions and versions under active attack
+- **Microsoft Visual Studio Code**: All versions vulnerable to GitHub token theft attack
+- **Redis Database**: Versions affected by CVE-2026-23479 remote code execution flaw
+- **Microsoft 365 Android Apps**: Word, PowerPoint, Excel, and other apps with disabled security settings
+- **Windows Search**: All Windows versions with Search URI functionality
+- **Google Gemini Voice Assistant**: Android implementations vulnerable to prompt injection
+- **Major Web Servers**: NGINX, Apache HTTPD, Microsoft IIS, Envoy, and Cloudflare Pingora affected by HTTP/2 Bomb attack
+- **Automatic Tank Gauge Systems**: Internet-exposed fuel monitoring systems targeted in attacks
 
 ## Attack Vectors and Techniques
 
-- **Social Engineering via Notifications**: Malicious WhatsApp, Slack, SMS, Signal, Instagram, or Messenger notifications used to hijack Google Gemini voice assistant
-- **HTTP/2 Bomb DoS Attack**: Single-machine denial-of-service attack that can crash web servers within seconds using HTTP/2 protocol vulnerabilities
-- **Malicious App Installation**: Android malware exploiting Microsoft 365 authentication bypass through simple app installation
-- **One-Click GitHub Token Theft**: Social engineering attacks using Visual Studio Code links to steal developer credentials
-- **AI-Powered EDR Evasion**: Python scripts used to automatically test malware against endpoint detection systems from Sophos, CrowdStrike, and Windows Defender
-- **DoubleClick Domain Abuse**: Google's DoubleClick domain used in malspam campaigns to deliver DesckVB RAT while evading detection
-- **Atlas RAT Deployment**: Chinese threat actors using new backdoor malware in European cyberattacks
+- **One-Click Exploitation**: Attackers use specially crafted links in VS Code to steal GitHub tokens instantly
+- **Malicious Notifications**: Poisoned notifications from WhatsApp, Slack, SMS, and other messaging apps hijack Google Gemini
+- **AI-Powered EDR Evasion**: Python scripts automatically test malware against Sophos, CrowdStrike, and Windows Defender
+- **HTTP/2 Bomb DoS**: Single-machine attacks crash web servers within seconds using HTTP/2 protocol vulnerabilities
+- **Debug Flag Abuse**: Production applications with leftover development flags bypass security controls
+- **Search URI Exploitation**: Windows Search functionality manipulated to leak NTLM credentials
+- **Remote Access Trojan Deployment**: Atlas RAT and other malware spread through sophisticated campaigns
+- **Infrastructure Targeting**: Direct attacks against fuel tank monitoring and critical infrastructure systems
+- **Malspam Campaigns**: DesckVB RAT delivered through Google DoubleClick domain abuse
 
 ## Threat Actor Activities
 
-- **Chinese-Speaking Cybercrime Groups**: Expanded targeting to European organizations using previously undocumented Atlas backdoor malware and other custom tools
-- **China-Linked Espionage Groups**: Attacked at least a dozen Latin American nations gathering intelligence on maritime shipping, oil production, and geopolitical interests
-- **Minecraft-Focused Malware Operators**: Weedhack campaign targeting Minecraft players via YouTube to distribute system control malware
-- **Fuel Infrastructure Attackers**: Threat actors specifically targeting internet-exposed automatic tank gauge systems used in fuel monitoring
-- **Financial Sector Attackers**: Monthslong email campaign against global stock exchange providing continuous access to executive communications
-- **CountLoader Campaign**: Malware operation affecting over 86,000 victims through pirated content distribution
-- **Cryptocurrency Miners**: Spreading malware through pirated content to deploy mining operations on victim systems
+- **Chinese-Speaking Groups**: Expanded targeting to European organizations using Atlas RAT and previously undocumented malware
+- **China-Linked Espionage Groups**: Attacked at least twelve Latin American nations, gathering intelligence on maritime shipping, oil production, and geopolitical interests
+- **Cybercriminal Organizations**: Nine organized crime groups dismantled in illegal streaming operations across Europe
+- **Finance-Targeting Actors**: Monthslong email campaign against global stock exchange executive using legitimate Windows tools
+- **Minecraft-Targeting Campaigns**: Weedhack malware-as-a-service targeting gaming communities through YouTube
+- **CountLoader Operations**: Malware affecting 86,000 victims through pirated content distribution
+- **Critical Infrastructure Attackers**: Targeting internet-exposed automatic tank gauge systems used for fuel monitoring
