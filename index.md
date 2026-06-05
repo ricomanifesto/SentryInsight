@@ -1,61 +1,65 @@
 # Exploitation Report
 
-The current threat landscape reveals several critical exploitation activities targeting enterprise infrastructure and supply chain components. Most notably, Cisco has addressed a critical vulnerability in its Unified Communications Manager platform as exploit code has become publicly available, enabling unauthenticated attackers to achieve root-level system compromise. Additionally, multiple supply chain attacks have compromised software distribution channels, including the Hola Browser for Windows and 36 npm packages infected with IronWorm malware. Threat actors are also leveraging legitimate services like Stripe's API infrastructure for payment card theft operations and exploiting GitHub Actions workflows to hijack repositories through malicious issues.
+Critical exploitation activity is currently targeting multiple platforms and systems across enterprise and consumer environments. Active attacks are exploiting vulnerabilities in Cisco Unified Communications Manager, Redis databases, Magento extensions, Android and Linux kernel components, with several supply chain compromises affecting browsers and npm packages. Threat actors are leveraging sophisticated techniques including AI-powered GitHub repository hijacking, malvertising campaigns, and advanced persistent access to corporate email systems. The emergence of new malware families and the abuse of legitimate platforms for malicious purposes highlight the evolving threat landscape facing organizations globally.
 
 ## Active Exploitation Details
 
-### Cisco Unified Communications Manager Critical Vulnerability
-- **Description**: A critical vulnerability in Cisco Unified Communications Manager allows unauthenticated attackers on the network to write arbitrary files to the system and escalate privileges to root
-- **Impact**: Complete system compromise with root-level access, enabling full control over the communications infrastructure
-- **Status**: Patched by Cisco, but proof-of-concept exploit code is now publicly available
+### Cisco Unified Communications Manager Vulnerability
+- **Description**: Critical vulnerability in Cisco Unified CM that allows unauthenticated attackers on the network to write files to the system and escalate privileges to root
+- **Impact**: Complete system compromise, root-level access, potential lateral movement within enterprise networks
+- **Status**: Patched by Cisco, exploit code is publicly available
 - **CVE ID**: CVE-2026-20230
 
-### Hola Browser Supply Chain Compromise
-- **Description**: The Windows version of Hola Browser was compromised in a supply chain attack that delivered an undeclared cryptocurrency mining executable
-- **Impact**: Unauthorized cryptocurrency mining on victim systems, potential performance degradation and increased power consumption
-- **Status**: Actively compromised browser distribution, ongoing threat to users
+### Redis Remote Code Execution Flaw
+- **Description**: Use-after-free vulnerability in Redis blocking-client code discovered by autonomous AI tools
+- **Impact**: Authenticated users can execute arbitrary OS commands on the database host system
+- **Status**: Patched by Redis, vulnerability existed for approximately 2 years
+- **CVE ID**: CVE-2026-23479
 
-### IronWorm npm Supply Chain Attack
-- **Description**: A sophisticated supply chain attack infected 36 packages on the Node Package Manager (npm) index with infostealer malware
-- **Impact**: Data exfiltration and credential theft from developer environments and applications using the compromised packages
-- **Status**: Active threat to Node.js development environments and applications
+### Magento Cache Warmer RCE Vulnerability
+- **Description**: Critical remote code execution flaw in Mirasvit Cache Warmer extension for Magento
+- **Impact**: Attackers can execute arbitrary code on affected e-commerce platforms
+- **Status**: Actively exploited in the wild, added to CISA's Known Exploited Vulnerabilities catalog
+- **CVE ID**: CVE-2026-45247
 
-### Claude Code GitHub Action Repository Hijacking
-- **Description**: A vulnerability in Anthropic's Claude Code GitHub Action allows attackers to take over vulnerable public repositories through a single malicious GitHub issue
-- **Impact**: Complete repository compromise, potential for code injection and supply chain attacks on dependent projects
-- **Status**: Active exploitation vector for GitHub repositories using the vulnerable action
-
-### Google Gemini Android Voice Assistant Hijacking
-- **Description**: Poisoned notifications from popular messaging applications could hijack Google Gemini's voice assistant functionality on Android devices
-- **Impact**: Unauthorized access to connected applications and potential data exposure through voice assistant manipulation
-- **Status**: Vulnerability disclosed, affects Android devices with Google Gemini integration
+### Android and Linux Kernel Vulnerabilities
+- **Description**: Multiple vulnerabilities affecting Android operating system and Linux kernel components
+- **Impact**: System compromise, privilege escalation, potential device takeover
+- **Status**: CISA confirms active exploitation in the wild, patches available
 
 ## Affected Systems and Products
 
-- **Cisco Unified Communications Manager**: All versions prior to the latest security update containing CVE-2026-20230 patch
-- **Hola Browser for Windows**: Windows version compromised with cryptocurrency mining malware
-- **Node.js Development Environment**: 36 npm packages infected with IronWorm infostealer malware
-- **GitHub Repositories**: Public repositories using Anthropic's Claude Code GitHub Action
-- **Android Devices**: Devices running Google Gemini voice assistant with messaging app integrations
-- **E-commerce Platforms**: Checkout systems vulnerable to Magecart attacks using Stripe API infrastructure
-- **Automatic Tank Gauge Systems**: Internet-exposed fuel monitoring systems in critical infrastructure
-- **macOS Systems**: Devices targeted by FlutterShell backdoor through malicious Google and YouTube advertisements
+- **Cisco Unified Communications Manager**: Enterprise communication systems vulnerable to privilege escalation
+- **Redis Database**: Database servers running vulnerable versions susceptible to RCE attacks
+- **Magento E-commerce Platforms**: Online stores using Mirasvit Cache Warmer extension
+- **Android Devices**: Mobile devices running vulnerable Android OS versions
+- **Linux Systems**: Servers and workstations with unpatched kernel vulnerabilities
+- **Hola Browser for Windows**: Compromised in supply chain attack delivering cryptocurrency miners
+- **npm Packages**: 36 packages infected with IronWorm malware in supply chain attack
+- **GitHub Repositories**: Public repositories using Claude Code GitHub Action vulnerable to hijacking
+- **Google Gemini on Android**: Voice assistant vulnerable to notification-based hijacking
+- **Visual Studio Code**: Developer environment vulnerable to OAuth token theft
+- **macOS Systems**: Targeted by FlutterShell backdoor via malicious advertising
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Poisoning**: Compromising legitimate software distribution channels including browsers and npm packages
-- **Repository Hijacking**: Exploiting GitHub Actions workflows through malicious issue creation
-- **Malvertising Campaigns**: Distributing FlutterShell backdoor through compromised advertisements on major platforms
-- **API Abuse**: Leveraging Stripe's legitimate API infrastructure to host payment card theft payloads
-- **Traffic Distribution Systems**: Using sophisticated TDS networks to deliver malware through fake open-source project websites
-- **Notification Poisoning**: Exploiting Android notification systems to hijack voice assistant functionality
-- **Phishing Infrastructure**: Deploying fake websites mimicking legitimate open-source tools with high Google search rankings
+- **Supply Chain Attacks**: Compromise of legitimate software distributions including browsers and npm packages
+- **Malvertising Campaigns**: Use of malicious Google and YouTube advertisements to distribute FlutterShell backdoor
+- **GitHub Repository Hijacking**: Exploitation of Claude Code GitHub Action flaws to take over repositories with single malicious issues
+- **Traffic Distribution Systems (TDS)**: Fake websites mimicking open-source tools ranking high on Google search results
+- **Notification Hijacking**: Poisoned notifications from messaging apps used to compromise Google Gemini voice assistant
+- **One-Click Attacks**: VS Code vulnerability allowing GitHub OAuth token theft through malicious links
+- **HTTP/2 Bomb DoS**: New denial-of-service technique capable of crashing web servers within seconds
+- **Email Persistence**: Long-term unauthorized access to corporate email systems with data exfiltration
+- **Magecart Campaigns**: Abuse of Stripe API infrastructure to host credit card stealing payloads
 
 ## Threat Actor Activities
 
-- **TA4922 (China-linked)**: Expanded phishing operations targeting organizations in the U.K., Germany, Italy, and South Africa with sophisticated social engineering campaigns
-- **Magecart Groups**: Conducting credit card theft operations by abusing Stripe's API infrastructure to host malicious payloads and exfiltrated data
-- **Pakistani State Actors**: Conducting espionage operations against Afghan Finance Ministry using Xeno RAT malware for intelligence gathering
-- **Chinese Cybercrime Groups**: Deploying Atlas RAT malware and other undocumented tools in targeted attacks against European organizations
-- **Operation FlutterBridge**: Distributing FlutterShell backdoor to macOS systems through malicious advertisements on Google and YouTube platforms
-- **IronWorm Operators**: Conducting large-scale supply chain attacks against Node.js ecosystem with sophisticated infostealer malware targeting developer credentials
+- **TA4922 (China-linked)**: Expanded phishing operations targeting organizations in U.K., Germany, Italy, and South Africa
+- **Chinese-speaking Groups**: Deployment of Atlas RAT malware and other undocumented tools in European cyberattacks
+- **Operation FlutterBridge**: Sophisticated malvertising campaign distributing FlutterShell backdoor to macOS users
+- **IronWorm Campaign**: Supply chain attackers targeting npm ecosystem with infostealer malware
+- **Stock Exchange Attackers**: Unknown actors maintaining five-month persistence in executive email accounts
+- **Iranian Ransomware Groups**: Utilizing sanctioned Nobitex cryptocurrency exchange for payment processing
+- **Fuel Infrastructure Attackers**: Targeting internet-exposed automatic tank gauge systems in critical infrastructure
+- **Southeast Asia Crypto Fraud Networks**: Multi-million dollar cryptocurrency fraud operations disrupted by DoJ
