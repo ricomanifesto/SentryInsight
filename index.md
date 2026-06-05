@@ -1,51 +1,56 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity is currently dominated by several high-severity flaws across enterprise infrastructure and software supply chains. The most severe threats include a zero-day vulnerability in Cisco's SD-WAN infrastructure that is being actively exploited in the wild, enabling attackers to achieve root privilege escalation. Additionally, threat actors are exploiting a critical WordPress plugin vulnerability to completely compromise websites, while sophisticated supply chain attacks are targeting developer ecosystems through malicious npm packages and compromised browser software. These exploitation campaigns demonstrate the continued focus on enterprise networking equipment, content management systems, and software distribution channels as primary attack vectors.
+Current cybersecurity landscape reveals critical exploitation activity targeting enterprise infrastructure and software supply chains. Most concerning is the active exploitation of CVE-2026-20245, an unpatched zero-day vulnerability in Cisco Catalyst SD-WAN Manager enabling root privilege escalation. Additional active threats include exploitation of a critical WordPress plugin flaw leading to complete site compromise, ongoing supply chain attacks targeting npm packages with IronWorm malware, and sophisticated web shell frameworks targeting Microsoft IIS servers. The threat landscape is further complicated by AI-powered attack vectors and malvertising campaigns deploying advanced backdoors across multiple platforms.
 
 ## Active Exploitation Details
 
 ### Cisco Catalyst SD-WAN Manager Zero-Day
-- **Description**: A high-severity, unpatched zero-day vulnerability in Cisco Catalyst SD-WAN Manager that allows privilege escalation
-- **Impact**: Attackers can achieve root privilege escalation on affected systems
+- **Description**: High-severity vulnerability in Cisco Catalyst SD-WAN Manager allowing unauthorized privilege escalation
+- **Impact**: Attackers can gain root-level access to network infrastructure devices
 - **Status**: Currently unpatched and actively exploited in the wild
 - **CVE ID**: CVE-2026-20245
 
 ### Everest Forms Pro WordPress Plugin Critical Flaw
-- **Description**: A critical security vulnerability in the Everest Forms Pro WordPress plugin affecting approximately 4,000 active installations
+- **Description**: Critical security vulnerability in WordPress plugin with approximately 4,000 active installations
 - **Impact**: Complete site compromise through arbitrary code execution
-- **Status**: Actively exploited by threat actors to take over WordPress websites
+- **Status**: Actively exploited by threat actors
 
 ### Cisco Unified Communications Manager File Write Vulnerability
-- **Description**: A vulnerability that allows unauthenticated attackers on the network to write files to the system and escalate to root privileges
-- **Impact**: Complete system compromise with root access from network-based attacks
-- **Status**: Patched by Cisco, but exploit code has gone public
+- **Description**: Authentication bypass vulnerability allowing file write operations leading to root access
+- **Impact**: Unauthenticated attackers can write files and escalate to root privileges
+- **Status**: Recently patched with public exploit code available
 - **CVE ID**: CVE-2026-20230
+
+### Claude Code GitHub Action Repository Hijacking
+- **Description**: Vulnerability in Anthropic's Claude Code GitHub Action
+- **Impact**: Complete repository takeover through malicious GitHub issues
+- **Status**: Actively exploitable against public repositories
 
 ## Affected Systems and Products
 
-- **Cisco Catalyst SD-WAN Manager**: Enterprise SD-WAN infrastructure vulnerable to zero-day exploitation
-- **WordPress Everest Forms Pro Plugin**: Approximately 4,000 websites using this plugin are at risk
-- **Cisco Unified Communications Manager**: Enterprise communication systems affected by file write vulnerability
-- **npm Package Repository**: 36 packages infected with IronWorm malware targeting developers
+- **Cisco Catalyst SD-WAN Manager**: Zero-day vulnerability enabling root access
+- **WordPress Everest Forms Pro Plugin**: Critical flaw affecting ~4,000 installations
+- **Cisco Unified Communications Manager**: File write vulnerability with public exploits
+- **Microsoft Internet Information Services (IIS)**: Targeted by OP-512 threat cluster
+- **npm Package Registry**: 36 packages infected with IronWorm malware
 - **Hola Browser for Windows**: Compromised in supply chain attack delivering cryptocurrency miners
-- **Cloud Infrastructure**: AWS, Google Cloud, and Azure servers hijacked by PCPJack threat actor
-- **Anthropic Claude Code GitHub Action**: Vulnerable to repository hijacking attacks
+- **GitHub Repositories**: Vulnerable to takeover via Claude Code Action flaw
+- **Automatic Tank Gauge (ATG) Systems**: Over 900 US gas station systems exposed online
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched Cisco SD-WAN vulnerabilities for privilege escalation
-- **WordPress Plugin Exploitation**: Targeting critical vulnerabilities in popular plugins for website takeover
-- **Supply Chain Attacks**: Compromising legitimate software packages and browsers to deliver malware
-- **Cloud Server Hijacking**: Compromising cloud infrastructure to create covert SMTP relay networks
-- **Malvertising Campaigns**: Using malicious Google and YouTube ads to distribute FlutterShell backdoor to macOS users
-- **GitHub Repository Hijacking**: Exploiting GitHub Actions to take control of public repositories
-- **Traffic Distribution Systems (TDS)**: Using fake websites mimicking open-source tools to funnel users to malware
+- **Zero-Day Exploitation**: Unpatched Cisco SD-WAN vulnerability being actively exploited
+- **Supply Chain Attacks**: IronWorm malware targeting npm ecosystem and browser software
+- **Web Shell Deployment**: Custom framework targeting IIS servers for persistent access
+- **Malvertising Campaigns**: FlutterShell backdoor distributed via malicious Google and YouTube ads
+- **Phishing Operations**: TA4922 expanding global reach with sophisticated campaigns
+- **Repository Hijacking**: Single malicious GitHub issues compromising entire repositories
+- **Magecart Campaigns**: Credit card theft using Stripe API infrastructure for hosting payloads
 
 ## Threat Actor Activities
 
-- **PCPJack**: Hijacked 230 cloud servers across AWS, Google Cloud, and Azure to create a covert SMTP email relay network for malicious activities
-- **TA4922 (China-linked)**: Expanded phishing operations globally, now targeting organizations in the U.K., Germany, Italy, and South Africa with diverse cybercrime activities
-- **IronWorm Campaign**: Conducted sophisticated supply chain attack against npm ecosystem, compromising 36 packages with credential-stealing malware written in Rust
-- **FlutterBridge Operation**: Executed macOS malvertising campaign distributing FlutterShell backdoor through malicious Google and YouTube advertisements
-- **Magecart Groups**: Abusing Stripe's API infrastructure to host credit card-stealing payloads and exfiltrate data from compromised checkout pages
-- **FIFA-themed Scammers**: Launching fraudulent campaigns targeting World Cup 2026 fans with fake websites, banking malware, and credential theft operations
+- **OP-512 Threat Cluster**: Previously unreported group targeting Microsoft IIS servers with custom web shell frameworks for persistent access and lateral movement
+- **PCPJack**: Hijacked 230 cloud servers across AWS, Google Cloud, and Azure to create covert SMTP relay networks for malicious email operations
+- **TA4922 (China-linked)**: Expanded phishing attacks from East Asia to UK, Germany, Italy, and South Africa, demonstrating global operational capabilities
+- **Operation FlutterBridge**: macOS malvertising campaign deploying FlutterShell backdoor through compromised Google and YouTube advertisements
+- **IronWorm Campaign**: Rust-written malware targeting developers through npm supply chain, stealing credentials for further propagation across software development environments
