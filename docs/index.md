@@ -1,56 +1,64 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity across multiple vectors, with critical zero-day vulnerabilities, sophisticated supply chain attacks, and advanced persistent threat campaigns targeting organizations globally. The most severe threats include active exploitation of unpatched Cisco SD-WAN infrastructure vulnerabilities, widespread supply chain compromises affecting npm packages and browser distributions, and coordinated attacks by state-sponsored actors using advanced malware frameworks. These exploitation campaigns demonstrate attackers' evolving tactics, from leveraging AI-driven automation to bypass security controls to deploying sophisticated backdoors through legitimate advertising platforms and compromised software distribution channels.
+Critical exploitation activity is currently targeting multiple high-value systems across enterprise and cloud environments. Active threats include zero-day exploitation of Cisco SD-WAN infrastructure enabling root privilege escalation, widespread compromise of WordPress sites through a plugin vulnerability, and sophisticated supply chain attacks targeting both npm packages and browser applications. Additionally, threat actors are leveraging cloud infrastructure for covert operations while exploiting recently patched Cisco Unified Communications systems where proof-of-concept code has become publicly available.
 
 ## Active Exploitation Details
 
-### Cisco SD-WAN Manager Zero-Day Vulnerability
-- **Description**: High-severity unpatched zero-day vulnerability in Cisco Catalyst SD-WAN Manager allowing root privilege escalation
-- **Impact**: Attackers can gain complete administrative control over affected SD-WAN infrastructure
-- **Status**: Actively exploited in the wild, remains unpatched
+### **Cisco Catalyst SD-WAN Manager Zero-Day**
+- **Description**: High-severity unpatched zero-day vulnerability in Cisco Catalyst SD-WAN Manager
+- **Impact**: Enables root privilege escalation on compromised systems
+- **Status**: Currently unpatched and actively exploited in the wild
 - **CVE ID**: CVE-2026-20245
 
-### Cisco Unified Communications Manager Critical Flaw
-- **Description**: Critical-severity vulnerability in Unified CM allowing unauthenticated attackers to write files and escalate to root privileges
-- **Impact**: Complete system compromise from network-accessible position without authentication
-- **Status**: Patched by Cisco, but public exploit code available
+### **Everest Forms Pro WordPress Plugin Critical Flaw**
+- **Description**: Critical security vulnerability in Everest Forms Pro WordPress plugin affecting approximately 4,000 active installations
+- **Impact**: Allows threat actors to execute arbitrary code leading to complete site compromise
+- **Status**: Actively exploited by threat actors
+
+### **Cisco Unified Communications Manager Vulnerability**
+- **Description**: Critical flaw allowing unauthenticated network attackers to write files to the system and escalate to root privileges
+- **Impact**: Complete system compromise with root access
+- **Status**: Recently patched but proof-of-concept exploit code is now publicly available
 - **CVE ID**: CVE-2026-20230
 
-### IronWorm Supply Chain Attack
-- **Description**: Rust-written malware targeting npm supply chain through 36 compromised packages
-- **Impact**: Credential theft and lateral propagation across development environments
-- **Status**: Active campaign targeting developers and software supply chains
-
-### FlutterShell Backdoor Campaign
-- **Description**: macOS-targeting backdoor distributed through malicious Google and YouTube advertisements
-- **Impact**: Remote access and control of compromised macOS systems
-- **Status**: Active malvertising campaign codenamed Operation FlutterBridge
+### **Redis Use-After-Free Vulnerability**
+- **Description**: Two-year-old use-after-free vulnerability in Redis blocking-client code discovered by autonomous AI tool
+- **Impact**: Allows authenticated users to execute arbitrary OS commands on the hosting machine
+- **Status**: Recently patched after discovery
+- **CVE ID**: CVE-2026-23479
 
 ## Affected Systems and Products
 
-- **Cisco Catalyst SD-WAN Manager**: All versions affected by unpatched zero-day vulnerability
-- **Cisco Unified Communications Manager**: Specific versions vulnerable to file write and privilege escalation
-- **npm Package Ecosystem**: 36 packages infected with IronWorm malware targeting Node.js developers
-- **Hola Browser for Windows**: Compromised distribution delivering cryptocurrency mining malware
-- **macOS Systems**: Targeted by FlutterShell backdoor through malicious advertising campaigns
-- **Cloud Infrastructure**: AWS, Google Cloud, and Azure servers hijacked by PCPJack for SMTP relay networks
-- **GitHub Repositories**: Public repositories vulnerable through Claude Code GitHub Action flaw
+- **Cisco Catalyst SD-WAN Manager**: Zero-day vulnerability with active exploitation
+- **Everest Forms Pro WordPress Plugin**: Approximately 4,000 active installations at risk
+- **Cisco Unified Communications Manager**: Systems vulnerable to file write and privilege escalation
+- **Redis Database**: Use-after-free vulnerability in blocking-client functionality
+- **AWS, Google Cloud, and Azure Servers**: 230 cloud servers compromised by PCPJack threat actor
+- **Hola Browser for Windows**: Compromised in supply chain attack delivering cryptocurrency miners
+- **npm Packages**: 36 packages infected with IronWorm malware
+- **GitHub Repositories**: Vulnerable to hijacking via Claude Code GitHub Action flaw
+- **macOS Systems**: Targeted by FlutterShell backdoor via malicious Google and YouTube ads
+- **Automatic Tank Gauge (ATG) Systems**: Internet-exposed fuel monitoring systems under attack
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active exploitation of unpatched Cisco SD-WAN vulnerabilities for infrastructure compromise
-- **Supply Chain Compromise**: Multi-stage attacks targeting software distribution channels and package repositories
-- **Malvertising Campaigns**: Sophisticated ad-based delivery of backdoors through legitimate advertising platforms
-- **Traffic Distribution Systems**: Large-scale operations using TDS to funnel users to malware through fake open-source project sites
-- **Cloud Resource Hijacking**: Compromised cloud servers repurposed for covert SMTP relay operations
-- **AI-Automated Evasion**: Python scripts leveraging artificial intelligence to test and bypass EDR solutions
-- **Repository Hijacking**: Single malicious GitHub issues exploiting GitHub Actions to compromise entire repositories
+- **Zero-Day Exploitation**: Active exploitation of unpatched Cisco SD-WAN vulnerability for privilege escalation
+- **Supply Chain Attacks**: Compromise of npm packages with IronWorm malware and Hola Browser with cryptocurrency miners
+- **Malvertising Campaigns**: FlutterShell backdoor distribution via malicious Google and YouTube advertisements
+- **Cloud Infrastructure Hijacking**: PCPJack actor compromising cloud servers for SMTP relay networks
+- **Social Engineering**: FIFA World Cup 2026-themed scams targeting fans with fake websites and banking malware
+- **GitHub Repository Hijacking**: Single malicious GitHub issues exploiting Claude Code Action vulnerabilities
+- **Traffic Distribution Systems**: Fake websites impersonating open-source tools to deliver malware
+- **One-Click Attacks**: VS Code-based attacks to steal GitHub OAuth tokens
+- **HTTP/2 Bomb DoS**: New denial-of-service technique capable of crashing web servers within minutes
+- **Magecart Campaigns**: Credit card theft using Stripe API infrastructure to host stolen payment data
 
 ## Threat Actor Activities
 
-- **TA4922 (China-linked)**: Expanded phishing campaigns targeting organizations in the U.K., Germany, Italy, and South Africa with diverse attack methodologies
-- **PCPJack**: Orchestrated hijacking of 230 cloud servers across major providers to establish covert SMTP relay infrastructure
-- **Pakistani APT Groups**: Deployed Xeno RAT malware in targeted espionage operations against Afghan Finance Ministry
-- **Chinese-speaking Cybercrime Groups**: Utilized new Atlas RAT malware in European cyberattacks with previously undocumented toolsets
-- **Operation FlutterBridge**: Coordinated macOS malvertising campaign distributing FlutterShell backdoor through legitimate advertising channels
-- **Magecart Groups**: Abused Stripe API infrastructure to host credit card-stealing payloads and exfiltrate payment data from compromised checkout pages
+- **PCPJack**: Hijacked 230 cloud servers across AWS, Google Cloud, and Azure to create covert SMTP email relay network for malicious activities
+- **TA4922 (China-linked)**: Expanded phishing operations targeting organizations in the U.K., Germany, Italy, and South Africa
+- **Chinese-speaking Cybercrime Groups**: Deploying Atlas RAT malware and previously undocumented tools in European cyberattacks
+- **Operation FlutterBridge**: macOS malvertising campaign distributing FlutterShell backdoor through compromised advertisements
+- **IronWorm Operators**: Conducted supply chain attack against 36 npm packages with infostealer malware
+- **Southeast Asia Crypto Fraud Networks**: Multi-million dollar cryptocurrency fraud operations disrupted by DoJ with $3.8 million in assets frozen
+- **Stock Exchange Infiltrators**: Unknown attackers maintained five-month persistence in major stock exchange executive's Outlook mailbox
