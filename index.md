@@ -1,57 +1,58 @@
 # Exploitation Report
 
-Current exploitation activity shows a concerning pattern of attacks targeting critical infrastructure and enterprise systems. Most notably, CISA has warned of active exploitation of a recently patched SolarWinds Serv-U vulnerability being used to crash servers. Additionally, Cisco has disclosed CVE-2026-20245, a high-severity zero-day in SD-WAN Manager enabling root privilege escalation that is currently being exploited in the wild. Threat actors are also actively exploiting a critical WordPress plugin flaw and targeting over 900 exposed gas station tank gauge systems across the United States. Supply chain attacks continue to pose significant threats, with multiple npm packages compromised by the IronWorm malware campaign and the Hola Browser suffering a supply chain compromise that delivered cryptocurrency mining malware.
+Critical exploitation activity is currently targeting multiple platforms and systems across various sectors. Threat actors are actively exploiting a zero-day vulnerability in Cisco Catalyst SD-WAN Manager that enables root privilege escalation, with no patch currently available. Simultaneously, attackers are leveraging recently patched flaws in SolarWinds Serv-U to crash servers and exploiting a critical WordPress plugin vulnerability to achieve complete site compromise. Supply chain attacks have intensified with new malware campaigns targeting the npm ecosystem, while Chinese APT groups continue deploying sophisticated backdoors to maintain persistent access to Microsoft 365 environments.
 
 ## Active Exploitation Details
 
-### SolarWinds Serv-U Vulnerability
-- **Description**: A recently patched high-severity flaw in SolarWinds Serv-U that allows attackers to crash servers
-- **Impact**: Denial of service attacks causing server crashes and potential service disruption
-- **Status**: Actively exploited in the wild despite recent patches being available
-
-### Cisco SD-WAN Manager Zero-Day
-- **Description**: A high-severity unpatched vulnerability in Cisco Catalyst SD-WAN Manager enabling privilege escalation
-- **Impact**: Attackers can gain root access to affected systems
-- **Status**: Actively exploited in attacks with no patch currently available
+### Cisco Catalyst SD-WAN Manager Zero-Day
+- **Description**: High-severity unpatched zero-day vulnerability in Cisco Catalyst SD-WAN Manager allowing privilege escalation
+- **Impact**: Attackers can gain root-level access to affected systems
+- **Status**: Actively exploited with no patch available
 - **CVE ID**: CVE-2026-20245
 
-### Everest Forms Pro WordPress Plugin
-- **Description**: Critical security flaw in the WordPress plugin allowing arbitrary code execution
-- **Impact**: Complete site compromise and takeover
-- **Status**: Actively exploited against sites with approximately 4,000 active installations
+### SolarWinds Serv-U Server Crash Vulnerability
+- **Description**: Recently patched high-severity flaw in SolarWinds Serv-U that allows attackers to crash servers
+- **Impact**: Service disruption and denial of service attacks
+- **Status**: Actively exploited despite patch availability
 
-### Cisco Unified Communications Manager
-- **Description**: Vulnerability allowing unauthenticated attackers to write files and escalate to root privileges
-- **Impact**: Complete system compromise with root access
-- **Status**: Recently patched as exploit code has gone public
+### Everest Forms Pro WordPress Plugin Critical Flaw
+- **Description**: Critical security vulnerability in Everest Forms Pro WordPress plugin affecting approximately 4,000 active installations
+- **Impact**: Complete site compromise through arbitrary code execution
+- **Status**: Actively exploited in the wild
+
+### Cisco Unified Communications Manager File Write Vulnerability
+- **Description**: Bug allowing unauthenticated attackers on the network to write files and escalate to root privileges
+- **Impact**: Full system compromise from network-accessible position
+- **Status**: Patched after exploit code became public
 - **CVE ID**: CVE-2026-20230
 
 ## Affected Systems and Products
 
-- **SolarWinds Serv-U**: File transfer server software vulnerable to denial of service attacks
-- **Cisco Catalyst SD-WAN Manager**: Network management platform with unpatched zero-day vulnerability
-- **Everest Forms Pro WordPress Plugin**: Form builder plugin with approximately 4,000 active installations
-- **Gas Station Tank Gauges**: Over 900 automatic tank gauge systems exposed online across US critical infrastructure
-- **npm Package Repository**: Multiple packages compromised in IronWorm supply chain attack
-- **Hola Browser**: Windows version compromised to deliver cryptocurrency mining malware
-- **Microsoft IIS Servers**: Targeted by OP-512 threat cluster using custom web shell framework
-- **Amazon AWS, Google Cloud, Microsoft Azure**: Cloud servers hijacked by PCPJack for SMTP relay network
+- **Cisco Catalyst SD-WAN Manager**: Zero-day vulnerability with active exploitation
+- **SolarWinds Serv-U**: Recently patched server crash vulnerability under active attack
+- **WordPress Installations**: Sites using Everest Forms Pro plugin (4,000 active installations)
+- **Cisco Unified Communications Manager**: Systems vulnerable to file write and privilege escalation
+- **Microsoft 365 Environments**: Targeted by Chinese APT groups using custom backdoors
+- **npm Ecosystem**: 36+ packages infected with IronWorm malware in supply chain attacks
+- **Automatic Tank Gauge Systems**: Over 900 exposed systems across US critical infrastructure
+- **Hola Browser for Windows**: Compromised in supply chain attack delivering cryptocurrency miners
+- **GitHub Repositories**: Vulnerable to takeover through Claude Code GitHub Action flaw
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active exploitation of unpatched Cisco SD-WAN vulnerability for privilege escalation
-- **Supply Chain Attacks**: IronWorm malware targeting npm packages and browser software compromise
-- **Web Shell Deployment**: OP-512 cluster using custom frameworks to maintain persistence on IIS servers
-- **Credential Theft**: Polyfill-based attacks displaying fake login prompts on major websites
-- **Cloud Infrastructure Hijacking**: PCPJack compromising 230 cloud servers across major providers
-- **Critical Infrastructure Targeting**: Direct attacks on exposed gas station fuel monitoring systems
-- **WordPress Plugin Exploitation**: Targeting vulnerable form plugins for site takeover
+- **Zero-Day Exploitation**: Direct exploitation of unpatched Cisco SD-WAN vulnerabilities for privilege escalation
+- **Supply Chain Attacks**: Malicious npm packages distributing IronWorm and Miasma worm variants targeting developer credentials
+- **Web Shell Deployment**: OP-512 threat cluster deploying custom web shell frameworks on Microsoft IIS servers
+- **Browser Compromise**: Hola Browser supply chain attack delivering undeclared cryptocurrency mining executables
+- **Credential Theft**: Polyfill-based attacks presenting fake login prompts on legitimate websites like Toshiba and Muji
+- **Repository Hijacking**: GitHub Action vulnerabilities allowing single malicious issues to compromise entire repositories
+- **SMTP Relay Abuse**: PCPJack hijacking cloud servers to create covert email relay networks
 
 ## Threat Actor Activities
 
-- **UNC5221**: Chinese espionage group deploying Brickstorm backdoor, Plenet, and AgentPSD malware for persistent Microsoft 365 access
-- **OP-512**: Previously unreported threat cluster targeting Microsoft IIS servers with sophisticated web shell frameworks
-- **PCPJack**: Threat actor hijacking cloud infrastructure to create covert SMTP email relay networks across AWS, Google Cloud, and Azure
-- **TA4922**: Chinese cybercrime group expanding operations globally beyond traditional East Asian targets
-- **IronWorm Campaign**: Rust-based malware operation targeting npm supply chain with credential theft capabilities
-- **Magecart Campaign**: Credit card theft operation abusing Stripe's API infrastructure to host stolen payment information
+- **UNC5221 (Chinese APT)**: Deploying Brickstorm backdoor alongside previously undocumented Plenet and AgentPSD malware for persistent Microsoft 365 access
+- **OP-512**: New threat cluster targeting Microsoft IIS servers with custom web shell frameworks for persistent access
+- **PCPJack**: Hijacking 230+ cloud servers across AWS, Google Cloud, and Azure to establish covert SMTP relay networks
+- **TA4922 (Chinese Group)**: Expanding cybercrime operations globally beyond traditional East Asian targets with diverse attack methodologies
+- **Supply Chain Attackers**: Multiple campaigns targeting npm ecosystem with both malicious and poisoned versions of legitimate packages
+- **Asin Spyware Operators**: Targeting Arabic-speaking users through fake news, PDF, and war map applications on Android platforms
