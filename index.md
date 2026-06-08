@@ -1,58 +1,60 @@
 # Exploitation Report
 
-Critical vulnerabilities are currently under active exploitation across multiple platforms and systems. The most significant threats include a high-severity zero-day vulnerability in Cisco Catalyst SD-WAN Manager that enables root privilege escalation, and a critical flaw in the Everest Forms Pro WordPress plugin allowing complete website takeover. Additional concerning exploitation activity includes the deployment of the C0XMO botnet targeting DD-WRT router firmware vulnerabilities, active exploitation of SolarWinds Serv-U denial-of-service flaws, and sophisticated supply chain attacks including the Miasma worm targeting GitHub repositories and the IronWorm campaign affecting npm packages.
+Current threat landscape demonstrates significant exploitation activity across multiple attack vectors, with attackers focusing on WordPress plugins, network infrastructure, and supply chain attacks. Critical zero-day vulnerabilities in Cisco Catalyst SD-WAN Manager and WordPress Everest Forms Pro plugin are being actively exploited in the wild, while threat actors are leveraging router firmware flaws and social engineering tactics to compromise enterprise environments. The C0XMO botnet continues spreading through DD-WRT router vulnerabilities, and sophisticated supply chain attacks like Miasma worm are targeting major repositories including Microsoft's GitHub infrastructure. Additionally, SolarWinds Serv-U servers face active exploitation for denial-of-service attacks, and Meta's AI support system was compromised to hijack thousands of Instagram accounts.
 
 ## Active Exploitation Details
 
 ### Cisco Catalyst SD-WAN Manager Zero-Day Vulnerability
-- **Description**: A high-severity unpatched vulnerability in Cisco Catalyst SD-WAN Manager that allows privilege escalation to root level
-- **Impact**: Attackers can gain complete administrative control of affected SD-WAN management systems
-- **Status**: Currently being actively exploited in the wild with no patch available
+- **Description**: High-severity unpatched zero-day vulnerability in Cisco Catalyst SD-WAN Manager allowing privilege escalation
+- **Impact**: Attackers can achieve root privilege escalation on affected systems
+- **Status**: Currently being exploited in active attacks with no patch available
 - **CVE ID**: CVE-2026-20245
 
 ### Everest Forms Pro WordPress Plugin Critical Flaw
-- **Description**: A critical vulnerability in the Everest Forms Pro plugin affecting WordPress installations with approximately 4,000 active deployments
-- **Impact**: Enables arbitrary code execution leading to complete website compromise and takeover
-- **Status**: Under active exploitation by threat actors targeting WordPress sites
+- **Description**: Critical vulnerability in the Everest Forms Pro WordPress plugin affecting approximately 4,000 active installations
+- **Impact**: Complete site compromise through arbitrary code execution, allowing attackers full control of WordPress websites
+- **Status**: Actively exploited by threat actors for complete site takeover
 - **CVE ID**: CVE-2026-3300
 
-### SolarWinds Serv-U Denial of Service Vulnerability
-- **Description**: A high-severity flaw in SolarWinds Serv-U multi-protocol file server software that can cause server crashes
-- **Impact**: Attackers can crash affected servers, causing denial of service conditions
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
+### SolarWinds Serv-U Denial-of-Service Vulnerability
+- **Description**: High-severity security flaw in SolarWinds Serv-U multi-protocol file server software
+- **Impact**: Attackers can crash servers through denial-of-service attacks
+- **Status**: Recently patched but actively exploited, added to CISA's Known Exploited Vulnerabilities catalog
 
 ### DD-WRT Router Firmware Vulnerability
 - **Description**: Security flaw in DD-WRT router firmware being exploited by the C0XMO botnet variant
-- **Impact**: Allows botnet infection and can spread to devices with various CPU architectures
-- **Status**: Currently being exploited to build botnet infrastructure that also eliminates rival malware
+- **Impact**: Router compromise and botnet recruitment across various CPU architectures
+- **Status**: Actively exploited for botnet propagation with capability to eliminate rival malware
 
 ## Affected Systems and Products
 
-- **Cisco Catalyst SD-WAN Manager**: Network management systems vulnerable to privilege escalation attacks
-- **WordPress Sites with Everest Forms Pro Plugin**: Approximately 4,000 active installations at risk of complete compromise
-- **SolarWinds Serv-U**: Multi-protocol file server software susceptible to denial of service attacks
-- **DD-WRT Router Firmware**: Network infrastructure devices being compromised for botnet operations
-- **FFmpeg Media Library**: 21 newly discovered zero-day vulnerabilities affecting video processing systems
-- **GitHub Repositories**: 73 Microsoft repositories compromised in Miasma worm supply chain attack
-- **npm Package Ecosystem**: Over 50 legitimate packages poisoned in IronWorm and Miasma variant attacks
-- **Gas Station Tank Gauge Systems**: Over 900 automatic tank gauge systems exposed online across US critical infrastructure
+- **WordPress Sites**: Websites using Everest Forms Pro plugin (approximately 4,000 installations)
+- **Cisco Network Infrastructure**: Catalyst SD-WAN Manager deployments
+- **SolarWinds Serv-U**: Multi-protocol file server installations
+- **DD-WRT Routers**: Various router models running DD-WRT firmware
+- **Instagram Accounts**: Over 20,000 accounts compromised through Meta AI support system
+- **Microsoft GitHub Repositories**: 73 repositories across four organizations affected by Miasma worm
+- **npm Ecosystem**: Over 50 legitimate packages targeted in supply chain attacks
+- **Cloud Infrastructure**: 230 AWS, Google Cloud, and Azure servers compromised by PCPJack
+- **Fuel Tank Monitoring Systems**: Over 900 automatic tank gauge systems exposed across US infrastructure
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in Cisco SD-WAN systems for privilege escalation
-- **WordPress Plugin Exploitation**: Code injection attacks through vulnerable form processing functionality
-- **Botnet Propagation**: Automated scanning and exploitation of router firmware vulnerabilities for malware distribution
-- **Supply Chain Poisoning**: Injection of malicious code into legitimate software packages and repositories
-- **Social Engineering**: Fake IT support calls targeting law firms and professional services organizations
-- **AI-Powered Support System Abuse**: Exploitation of Meta's AI support system to reset Instagram account passwords
-- **Credential Phishing**: Suspicious login prompts deployed through compromised polyfill services on legitimate websites
+- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in network management systems
+- **WordPress Plugin Exploitation**: Targeting critical flaws in popular plugins for site takeover
+- **Botnet Propagation**: Automated spreading through router firmware vulnerabilities
+- **Social Engineering**: Fake IT support calls targeting law firms and professional services
+- **AI System Abuse**: Exploitation of Meta's AI-powered support system for account hijacking
+- **Supply Chain Attacks**: Self-replicating worms targeting software repositories and package managers
+- **Cloud Infrastructure Hijacking**: Compromising cloud servers to create covert SMTP relay networks
+- **Polyfill Injection**: Malicious code injection on legitimate websites to display fake login prompts
 
 ## Threat Actor Activities
 
-- **C0XMO Botnet Operators**: Targeting DD-WRT routers while actively removing competing malware from infected systems
-- **Silent Ransom Group**: Conducting sophisticated social engineering campaigns against US law firms with rapid data exfiltration capabilities
-- **UNC5221 (Chinese APT)**: Deploying new malware including Brickstorm backdoor, Plenet, and AgentPSD to maintain persistent access to Microsoft 365 environments
+- **C0XMO Botnet Operators**: Deploying Gafgyt botnet variant through DD-WRT router vulnerabilities while eliminating competing malware
+- **Silent Ransom Group**: Conducting targeted social engineering campaigns against US law firms using fake IT support calls
+- **UNC5221 (Chinese APT)**: Deploying Brickstorm backdoor and new malware variants (Plenet, AgentPSD) to maintain persistence in Microsoft 365 environments
 - **OP-512 Threat Cluster**: Targeting Microsoft IIS servers with custom web shell frameworks for persistent access
-- **PCPJack**: Hijacking cloud servers from AWS, Google Cloud, and Azure to create covert SMTP relay networks for email-based attacks
-- **Miasma Worm Operators**: Executing self-replicating supply chain attacks affecting major repositories including Microsoft's GitHub presence
-- **Meta AI Support Attackers**: Successfully compromising over 20,000 Instagram accounts through AI support system manipulation
+- **PCPJack**: Hijacking cloud infrastructure to establish covert SMTP relay networks across major cloud providers
+- **Miasma Worm Campaign**: Self-replicating supply chain attacks affecting Microsoft GitHub repositories and npm ecosystem
+- **Meta AI Support Attackers**: Sophisticated exploitation of AI-powered support systems for large-scale account compromise
