@@ -1,62 +1,73 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are under active exploitation across multiple platforms, with threat actors targeting enterprise VPN infrastructure, web browsers, and development platforms. The most severe activity involves a Check Point VPN zero-day (CVE-2026-42271) exploited by the Qilin ransomware group, a Chrome zero-day marking the fifth such flaw this year, and a LiteLLM vulnerability leading to unauthenticated remote code execution. Supply chain attacks continue to plague the development ecosystem, with the Shai-Hulud campaign compromising 19 PyPI packages and a new Linux kernel flaw enabling local privilege escalation with public exploits now available.
+Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms, creating significant security risks for organizations worldwide. The most severe threats include CVE-2026-11645 affecting Chrome's V8 engine, CVE-2026-42271 in LiteLLM enabling remote code execution, and an unnamed Check Point VPN vulnerability being exploited by the Qilin ransomware group. Additional concerns include supply chain attacks targeting PyPI packages, ongoing exploitation of WinRAR vulnerabilities by Russia-aligned groups, and a Linux kernel flaw that enables local privilege escalation. These vulnerabilities span critical infrastructure, web browsers, development tools, and enterprise VPN systems, requiring immediate attention from security teams.
 
 ## Active Exploitation Details
 
-### Check Point VPN Zero-Day Vulnerability
-- **Description**: Critical authentication bypass vulnerability in Check Point Remote Access VPN and Mobile Access deployments configured with deprecated IKEv1 key exchange protocol
-- **Impact**: Attackers can bypass password authentication and gain unauthorized access to VPN infrastructure
-- **Status**: Zero-day exploitation ongoing since early May 2024; CISA has ordered federal agencies to patch within 3 days
+### Chrome V8 Zero-Day Vulnerability
+- **Description**: High-severity vulnerability in Google Chrome's V8 JavaScript engine
+- **Impact**: Active exploitation in the wild allowing attackers to compromise web browsers
+- **Status**: Patched by Google as part of security updates addressing 74 vulnerabilities
+- **CVE ID**: CVE-2026-11645
+
+### Check Point VPN Authentication Bypass
+- **Description**: Critical vulnerability in Remote Access VPN and Mobile Access deployments using deprecated IKEv1 protocol
+- **Impact**: Enables attackers to bypass password authentication and gain unauthorized network access
+- **Status**: Actively exploited since early May; CISA ordered federal agencies to patch within 3 days
+- **CVE ID**: Not specified in articles
+
+### LiteLLM Remote Code Execution
+- **Description**: High-severity vulnerability in BerriAI LiteLLM that chains to unauthenticated remote code execution
+- **Impact**: Allows attackers to execute arbitrary code without authentication
+- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog; actively exploited
 - **CVE ID**: CVE-2026-42271
 
-### Chrome Zero-Day Vulnerability
-- **Description**: Fifth Chrome zero-day vulnerability exploited in attacks this year, requiring emergency security updates
-- **Impact**: Remote code execution and system compromise through browser exploitation
-- **Status**: Google has released emergency patches; active exploitation confirmed in the wild
+### WinRAR Security Flaw
+- **Description**: Security vulnerability in WinRAR archive software
+- **Impact**: Enables deployment of credential stealers and malware
+- **Status**: Exploited by Russia-aligned groups targeting Ukrainian organizations; patches available for nearly a year
+- **CVE ID**: Not specified in articles
 
-### LiteLLM Vulnerability
-- **Description**: High-severity flaw in BerriAI LiteLLM that can be chained to achieve unauthenticated remote code execution
-- **Impact**: Complete system compromise without authentication requirements
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog; exploitation confirmed in the wild
-- **CVE ID**: CVE-2026-42271
+### Linux Kernel Use-After-Free
+- **Description**: One-character flaw in Linux kernel causing use-after-free vulnerability
+- **Impact**: Enables unprivileged local users to escalate to root access and break out of containers
+- **Status**: Working exploits published publicly
+- **CVE ID**: CVE-202[number cut off in article]
 
-### Gogs Zero-Day Vulnerability
-- **Description**: Critical security flaw in Gogs Git service enabling remote code execution
-- **Impact**: Attackers can compromise Internet-facing instances and access any repositories, including private ones
-- **Status**: Patches released; zero-day exploitation confirmed
-
-### Linux Kernel Use-After-Free Vulnerability
-- **Description**: Single-character flaw in Linux kernel enabling local privilege escalation
-- **Impact**: Unprivileged local users can escalate to root privileges and break out of containers
-- **Status**: Working exploits now publicly available
-- **CVE ID**: CVE-202[REDACTED - incomplete in source]
+### Gogs Remote Code Execution
+- **Description**: Critical zero-day vulnerability in Gogs Git service
+- **Impact**: Allows attackers to compromise Internet-facing instances and access any repositories including private ones
+- **Status**: Recently patched after zero-day exploitation
+- **CVE ID**: Not specified in articles
 
 ## Affected Systems and Products
 
-- **Check Point Remote Access VPN**: IKEv1-configured deployments vulnerable to authentication bypass
-- **Google Chrome**: All versions prior to emergency security update affected by zero-day
-- **BerriAI LiteLLM**: AI model proxy service vulnerable to RCE exploitation
-- **Gogs Git Service**: Internet-facing instances vulnerable to repository compromise
-- **Linux Kernel**: Systems vulnerable to local privilege escalation attacks
-- **PyPI Packages**: 19 science-focused packages trojanized in Shai-Hulud campaign
-- **DD-WRT Routers**: Firmware vulnerable to C0XMO botnet exploitation
-- **UniFi OS**: Three chained vulnerabilities enable unauthenticated root access
+- **Google Chrome**: V8 JavaScript engine vulnerability affecting all Chrome installations
+- **Check Point VPN**: Remote Access VPN and Mobile Access systems using IKEv1 protocol
+- **BerriAI LiteLLM**: AI model management platform vulnerable to RCE attacks
+- **WinRAR**: Archive software used by organizations in Ukraine and other regions
+- **Linux Kernel**: Systems running vulnerable kernel versions enabling privilege escalation
+- **Gogs**: Self-hosted Git service installations exposed to the internet
+- **Python Package Index (PyPI)**: 19 packages compromised in Hades campaign and 19 additional packages in Shai-Hulud attack
+- **Ubiquiti UniFi OS**: Server deployments vulnerable to chained exploitation for root access
+- **French Government Tchap**: Encrypted messaging platform compromised through account hijacking
 
 ## Attack Vectors and Techniques
 
-- **VPN Authentication Bypass**: Exploitation of deprecated IKEv1 protocol implementations to circumvent password requirements
-- **Browser Zero-Day Exploitation**: Active exploitation of Chrome vulnerabilities for system compromise
-- **Supply Chain Poisoning**: Trojanizing legitimate PyPI packages to steal developer credentials and secrets
-- **Social Engineering**: Vishing campaigns combined with physical office intrusions for data theft
-- **Container Escape**: Linux kernel exploits enabling privilege escalation and container breakout
-- **Phishing Evolution**: AI-powered spear-phishing campaigns through WhatsApp and other platforms
-- **Botnet Propagation**: Router firmware exploitation to spread malware across network infrastructure
+- **Zero-Day Exploitation**: Multiple zero-day vulnerabilities exploited before patches were available
+- **Supply Chain Poisoning**: Malicious packages uploaded to PyPI containing credential stealers and backdoors
+- **VPN Authentication Bypass**: Exploitation of IKEv1 protocol weaknesses to bypass password requirements
+- **Social Engineering**: NSO Group conducting spear-phishing campaigns via WhatsApp
+- **Container Escape**: Linux kernel exploits enabling breakout from containerized environments
+- **Account Hijacking**: Compromise of legitimate user accounts to breach government messaging systems
+- **AI-Enhanced Phishing**: Use of AI to create sophisticated phishing campaigns with increased volume
+- **GitHub Malware Distribution**: Fake banking app updates distributed through GitHub repositories
 
 ## Threat Actor Activities
 
-- **Qilin Ransomware Group**: Actively exploiting Check Point VPN zero-day since early May for network infiltration and ransomware deployment
-- **NSO Group**: Conducting sophisticated spear-phishing campaigns through WhatsApp to deploy Pegasus spyware
-- **Silent Ransom Group (UNC3753)**: Targeting U.S. law firms using vishing, IT impersonation, and physical office intrusions for data theft extortion
-- **VerdantBamboo (China-nexus)**: Deploying BSD variants of BRICKSTORM backdoor along with PLENET and AGENTPSD malware on Linux appliances
-- **C0XMO Botnet Operators**: Exploiting DD-WRT router vulnerabilities while eliminating competing malware from infected systems
+- **Russia-Aligned Groups**: Continuing exploitation of WinRAR vulnerabilities to target Ukrainian organizations with credential stealers
+- **Qilin Ransomware**: Exploiting Check Point VPN zero-day vulnerability for initial access to corporate networks
+- **NSO Group**: Conducting new spear-phishing campaigns via WhatsApp despite legal restrictions
+- **Silent Ransom Group**: Targeting US law firms using combination of vishing, IT impersonation, and physical office intrusions
+- **Supply Chain Attackers**: Multiple campaigns (Hades, Shai-Hulud, Miasma) targeting Python developers through poisoned packages
+- **Iranian Cyber Groups**: Continuing cyber operations despite ceasefire agreements, maintaining persistent threat activities
