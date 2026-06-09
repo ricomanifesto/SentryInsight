@@ -1,63 +1,69 @@
 # Exploitation Report
 
-Critical vulnerability exploitation activity is currently focused on several high-impact zero-day vulnerabilities and supply chain attacks. A Check Point VPN zero-day vulnerability is being actively exploited by the Qilin ransomware gang to bypass authentication in IKEv1 deployments, while a critical Linux kernel flaw enabling local root access has public exploits available. Additionally, the Gogs Git service patched a critical zero-day that allowed remote code execution, and the Everest Forms Pro WordPress plugin is under active exploitation for complete site takeover. Supply chain attacks continue with the Shai-Hulud campaign compromising PyPI packages and a sophisticated botnet exploiting DD-WRT router vulnerabilities.
+The current threat landscape shows significant active exploitation across multiple critical vulnerabilities, with several zero-day attacks targeting enterprise infrastructure and consumer software. The most concerning activities include a Chrome zero-day marking the fifth such vulnerability exploited this year, a critical Check Point VPN flaw linked to Qilin ransomware operations, and a BerriAI LiteLLM vulnerability enabling unauthenticated remote code execution that has been added to CISA's Known Exploited Vulnerabilities catalog. Additional zero-day exploits have been identified in Gogs git service and various Android platforms, while sophisticated threat actors are employing novel attack vectors including supply chain poisoning of PyPI packages and advanced social engineering campaigns.
 
 ## Active Exploitation Details
 
-### Check Point VPN Zero-Day Vulnerability
-- **Description**: Critical vulnerability affecting Remote Access VPN and Mobile Access deployments configured with deprecated IKEv1 key exchange protocol that allows authentication bypass
-- **Impact**: Attackers can bypass password authentication and gain unauthorized access to VPN networks
-- **Status**: Under active exploitation since early May 2026, patches have been released by Check Point
+### Chrome Zero-Day Vulnerability
+- **Description**: Fifth Chrome zero-day vulnerability exploited in attacks this year, requiring emergency security updates from Google
+- **Impact**: Enables attackers to compromise user systems through web browser exploitation
+- **Status**: Patched with emergency Chrome updates, actively exploited in the wild
+
+### BerriAI LiteLLM Authentication Bypass
+- **Description**: High-severity vulnerability in BerriAI LiteLLM that chains to enable unauthenticated remote code execution
+- **Impact**: Allows attackers to execute arbitrary code without authentication
+- **Status**: Added to CISA KEV catalog due to evidence of active exploitation
+- **CVE ID**: CVE-2026-42271
+
+### Check Point VPN Zero-Day
+- **Description**: Critical vulnerability affecting Remote Access VPN and Mobile Access deployments configured with deprecated IKEv1 key exchange protocol
+- **Impact**: Enables password bypass and unauthorized VPN access
+- **Status**: Actively exploited since early May, now patched
+
+### Gogs Git Service Zero-Day
+- **Description**: Critical security flaw in Gogs git service allowing compromise of Internet-facing instances
+- **Impact**: Provides attackers access to any repositories including private ones, enables remote code execution
+- **Status**: Recently patched after active exploitation
 
 ### Linux Kernel Use-After-Free Vulnerability
-- **Description**: One-character flaw in the Linux kernel that creates a use-after-free condition
-- **Impact**: Unprivileged local users can escalate privileges to root and break out of containers
-- **Status**: Detailed working exploits have been published publicly
+- **Description**: One-character flaw in Linux kernel that enables local privilege escalation
+- **Impact**: Allows unprivileged local users to escalate to root and break out of containers
+- **Status**: Working exploits now publicly available
 - **CVE ID**: CVE-202[truncated in source]
-
-### Gogs Zero-Day Remote Code Execution
-- **Description**: Critical security flaw in the Gogs Git service that enables remote code execution
-- **Impact**: Attackers can compromise Internet-facing instances and access any repositories, including private ones
-- **Status**: Zero-day has been patched, but was previously under exploitation
-
-### Everest Forms Pro WordPress Vulnerability
-- **Description**: Critical vulnerability in the Everest Forms Pro plugin for WordPress
-- **Impact**: Complete takeover of WordPress websites
-- **Status**: Currently under active exploitation
-- **CVE ID**: CVE-2026-3300
-
-### UniFi OS Vulnerability Chain
-- **Description**: Three chained vulnerabilities in Ubiquiti UniFi OS server
-- **Impact**: Remote code execution with root privileges without authentication
-- **Status**: All three vulnerabilities have been fixed but can be chained together
 
 ## Affected Systems and Products
 
-- **Check Point Remote Access VPN**: IKEv1-configured deployments vulnerable to authentication bypass
-- **Check Point Mobile Access**: IKEv1-configured systems affected by zero-day exploitation
-- **Linux Kernel**: All systems running vulnerable kernel versions susceptible to local privilege escalation
-- **Gogs Git Service**: Internet-facing instances vulnerable to remote code execution
-- **WordPress Sites**: Sites using Everest Forms Pro plugin at risk of complete compromise
-- **Ubiquiti UniFi OS**: Servers vulnerable to authentication bypass and remote code execution
-- **DD-WRT Routers**: Firmware vulnerable to C0XMO botnet exploitation
-- **PyPI Packages**: 19 science-focused packages compromised in Shai-Hulud supply chain attack
-- **Meta AI Support System**: Used to compromise over 20,000 Instagram accounts
+- **Google Chrome**: All versions prior to latest emergency update
+- **BerriAI LiteLLM**: Unspecified versions vulnerable to authentication bypass
+- **Check Point Remote Access VPN**: Deployments using IKEv1 protocol configuration
+- **Check Point Mobile Access**: IKEv1 configured systems
+- **Gogs Git Service**: Internet-facing instances running vulnerable versions
+- **Linux Kernel**: Systems running affected kernel versions
+- **Android Devices**: Multiple variants affected by NFCShare malware and zero-day exploits
+- **Ubiquiti UniFi OS**: Server deployments vulnerable to chained exploitation
+- **DD-WRT Router Firmware**: Devices targeted by C0XMO botnet
+- **PyPI Packages**: 19 science-focused packages compromised in Shai-Hulud attack, 37 additional packages in Hades campaign
 
 ## Attack Vectors and Techniques
 
-- **VPN Authentication Bypass**: Exploitation of IKEv1 protocol weaknesses to bypass password requirements
-- **Container Escape**: Local privilege escalation from unprivileged user to root with container breakout capabilities
-- **Supply Chain Poisoning**: Trojanizing legitimate PyPI packages to steal developer credentials and secrets
-- **Social Engineering**: Vishing attacks combined with physical office intrusions for data theft
-- **Phishing Campaigns**: NSO Group spear-phishing attempts targeting WhatsApp users
-- **Botnet Propagation**: Router firmware exploitation with capability to eliminate competing malware
-- **WordPress Plugin Exploitation**: Direct website takeover through vulnerable form processing plugins
+- **Zero-Day Web Browser Exploitation**: Targeting Chrome users through malicious web content
+- **VPN Protocol Exploitation**: Bypassing authentication in IKEv1 configurations
+- **Supply Chain Poisoning**: Trojanizing legitimate PyPI packages with malware
+- **Social Engineering**: Vishing campaigns and fake IT support calls targeting law firms
+- **Physical Intrusion**: In-person office access combined with digital attacks
+- **Malware Distribution**: Fake banking app updates hosted on GitHub repositories
+- **Container Escape**: Kernel exploitation enabling escape from containerized environments
+- **Botnet Propagation**: Router firmware exploitation for botnet expansion
+- **Spear-Phishing**: NSO Group campaigns targeting WhatsApp users
+- **AI-Powered Support System Abuse**: Exploiting Meta's AI support for Instagram account takeover
 
 ## Threat Actor Activities
 
-- **Qilin Ransomware Gang**: Actively exploiting Check Point VPN zero-day vulnerability for network access and ransomware deployment
-- **Silent Ransom Group (UNC3753)**: Targeting U.S. law firms and professional services with vishing, IT impersonation, and physical intrusions for data theft and extortion
+- **Qilin Ransomware Gang**: Actively exploiting Check Point VPN zero-day vulnerabilities for initial access
 - **NSO Group**: Conducting spear-phishing campaigns against WhatsApp users despite legal restrictions
-- **VerdantBamboo (China-nexus)**: Deploying BSD variants of BRICKSTORM backdoor and other malware on Linux appliances
-- **Shai-Hulud Campaign Operators**: Compromising Python package repositories to steal developer credentials in ongoing supply chain attacks
-- **C0XMO Botnet Operators**: Exploiting DD-WRT router vulnerabilities and actively removing competing malware from infected systems
+- **Silent Ransom Group/UNC3753**: Targeting U.S. law firms and professional services with vishing, IT impersonation, and physical intrusion tactics
+- **VerdantBamboo (China-nexus)**: Deploying BSD variant of BRICKSTORM backdoor on Linux appliances along with PLENET and AGENTPSD malware
+- **Shai-Hulud/Hades Campaign Operators**: Compromising Python package repositories to distribute malware targeting developers
+- **NFCShare Malware Distributors**: Using fake banking app updates on GitHub to spread Android malware
+- **C0XMO Botnet Operators**: Exploiting DD-WRT router vulnerabilities while eliminating competing malware
+- **Instagram Account Hijackers**: Abusing Meta AI support systems to compromise over 20,000 accounts
