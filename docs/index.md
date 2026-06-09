@@ -1,64 +1,63 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are under active exploitation across multiple platforms, with attackers targeting enterprise infrastructure, supply chain components, and consumer applications. The most severe incidents involve a Check Point VPN zero-day being exploited by the Qilin ransomware group, a one-character Linux kernel flaw enabling local root access with public exploits available, and a critical Gogs zero-day allowing remote code execution. Additionally, widespread supply chain attacks are targeting Python package repositories, while sophisticated social engineering campaigns are compromising thousands of Instagram accounts and targeting law firms with multi-vector attacks.
+A significant wave of zero-day vulnerabilities and active exploitation campaigns has emerged across multiple critical systems and platforms. Check Point VPN systems are under active attack through a critical zero-day vulnerability affecting IKEv1 configurations, with the Qilin ransomware group confirmed as one of the threat actors. Linux kernel systems face immediate risk from CVE-2026-0985, a one-character flaw enabling local privilege escalation with public exploits now available. The Gogs Git service has been compromised through a critical zero-day allowing remote code execution, while WordPress sites are being actively exploited through CVE-2026-3300 in the Everest Forms Pro plugin. Supply chain attacks continue to escalate with the Shai-Hulud campaign compromising 19 PyPI packages and Meta's AI support system being exploited to hijack over 20,000 Instagram accounts.
 
 ## Active Exploitation Details
 
 ### Check Point VPN Zero-Day
-- **Description**: Critical vulnerability in Remote Access VPN and Mobile Access deployments configured with deprecated IKEv1 key exchange protocol that allows authentication bypass
-- **Impact**: Attackers can bypass password authentication and gain unauthorized access to VPN infrastructure
-- **Status**: Under active exploitation since early May 2026, patches have been released
-- **CVE ID**: CVE information not provided in source articles
+- **Description**: Critical vulnerability affecting Remote Access VPN and Mobile Access deployments configured with deprecated IKEv1 key exchange protocol
+- **Impact**: Attackers can bypass password authentication and gain unauthorized VPN access
+- **Status**: Under active exploitation since early May 2025; patches available
 
 ### Linux Kernel Use-After-Free Vulnerability
-- **Description**: One-character flaw in the Linux kernel that creates a use-after-free condition
+- **Description**: A single character flaw in the Linux kernel creating a use-after-free condition
 - **Impact**: Unprivileged local users can escalate to root privileges and break out of containers
-- **Status**: Working exploits have been published publicly, making this vulnerability extremely dangerous
-- **CVE ID**: CVE-202 (article appears truncated)
+- **Status**: Public exploits available; actively exploited
+- **CVE ID**: CVE-2026-0985
 
-### Gogs Remote Code Execution Zero-Day
-- **Description**: Critical security flaw in Gogs Git service that enables remote code execution
+### Gogs Git Service Zero-Day
+- **Description**: Critical security flaw in Gogs Git service allowing remote code execution
 - **Impact**: Attackers can compromise Internet-facing instances and access any repositories including private ones
-- **Status**: Zero-day that has been patched, but exploitation status unclear
+- **Status**: Zero-day vulnerability recently patched after active exploitation
 
-### Everest Forms Pro WordPress Vulnerability
-- **Description**: Critical flaw in Everest Forms Pro WordPress plugin
+### Everest Forms Pro WordPress Plugin Vulnerability
+- **Description**: Critical vulnerability in the Everest Forms Pro WordPress plugin
 - **Impact**: Complete takeover of WordPress websites
-- **Status**: Actively being exploited in the wild
+- **Status**: Under active exploitation
 - **CVE ID**: CVE-2026-3300
 
-### UniFi OS Authentication Bypass Chain
-- **Description**: Chain of three previously fixed vulnerabilities in Ubiquiti UniFi OS server
-- **Impact**: Remote code execution with root privileges without authentication
-- **Status**: Vulnerabilities are already fixed but can be chained for exploitation
+### Meta AI Support System Exploitation
+- **Description**: Attackers exploited Meta's AI-powered support system to reset passwords
+- **Impact**: 20,225 Instagram accounts hijacked through automated password resets
+- **Status**: Incident contained; accounts affected
 
 ## Affected Systems and Products
 
-- **Check Point VPN**: Remote Access VPN and Mobile Access deployments using IKEv1 protocol
-- **Linux Kernel**: Systems running affected kernel versions with local user access
-- **Gogs**: Internet-facing Git service instances
-- **WordPress Sites**: Sites using Everest Forms Pro plugin
-- **Ubiquiti UniFi OS**: UniFi OS server installations
-- **PyPI Packages**: 19 science-focused packages and 37 additional wheels compromised
-- **Instagram**: Over 20,000 user accounts compromised through Meta AI support system
-- **Android Devices**: Targeted by NFCShare malware via fake banking app updates
-- **DD-WRT Routers**: Targeted by C0XMO botnet variant
+- **Check Point Remote Access VPN**: Systems configured with IKEv1 key exchange protocol
+- **Linux Kernel**: Multiple distributions affected by use-after-free vulnerability
+- **Gogs Git Service**: Internet-facing instances vulnerable to remote code execution
+- **WordPress Sites**: Sites using Everest Forms Pro plugin vulnerable to complete takeover
+- **Instagram Accounts**: Over 20,000 accounts compromised through AI support system exploitation
+- **PyPI Packages**: 19 science-focused packages compromised in supply chain attack
+- **DD-WRT Routers**: Firmware vulnerable to C0XMO botnet exploitation
+- **UniFi OS Servers**: Ubiquiti systems vulnerable to root access through vulnerability chaining
 
 ## Attack Vectors and Techniques
 
-- **VPN Authentication Bypass**: Exploitation of IKEv1 protocol weaknesses to bypass authentication
-- **Container Escape**: Local privilege escalation combined with container breakout techniques
-- **Supply Chain Poisoning**: Compromising legitimate Python packages to deliver malware
-- **Social Engineering**: Multi-vector attacks combining vishing, IT impersonation, and physical intrusions
-- **Malicious Package Distribution**: Using GitHub to host fake banking app updates containing malware
-- **AI-Assisted Phishing**: Leveraging AI systems to conduct spear-phishing attacks
-- **Botnet Propagation**: Exploiting router firmware flaws to spread malware and eliminate competing infections
+- **VPN Authentication Bypass**: Exploitation of IKEv1 protocol weaknesses to bypass password requirements
+- **Local Privilege Escalation**: Use-after-free exploitation in Linux kernel for root access
+- **Remote Code Execution**: Direct exploitation of Gogs service vulnerabilities
+- **AI System Manipulation**: Abuse of automated support systems for credential theft
+- **Supply Chain Poisoning**: Trojanizing legitimate software packages with malicious code
+- **Social Engineering**: Vishing attacks combined with physical intrusions
+- **Phishing Campaigns**: NSO Group spear-phishing through WhatsApp
+- **Botnet Propagation**: Router firmware exploitation for botnet expansion
 
 ## Threat Actor Activities
 
-- **Qilin Ransomware Group**: Exploiting Check Point VPN zero-day for initial access to corporate networks
-- **NSO Group**: Conducting sophisticated spear-phishing campaigns targeting WhatsApp users despite legal restrictions
-- **Silent Ransom Group (UNC3753)**: Targeting US law firms and professional services with vishing attacks, IT impersonation, and physical office intrusions for data theft and extortion
-- **VerdantBamboo**: China-nexus group deploying BSD variants of BRICKSTORM backdoor along with PLENET and AGENTPSD malware on Linux appliances
-- **Shai-Hulud Operators**: Conducting "Hades" campaign against PyPI, compromising multiple Python packages to steal developer secrets
-- **C0XMO Botnet**: Targeting DD-WRT routers and expanding to multiple CPU architectures while eliminating rival malware
+- **Qilin Ransomware Group**: Actively exploiting Check Point VPN zero-day for initial access
+- **Silent Ransom Group (UNC3753)**: Targeting US law firms through vishing, IT impersonation, and physical intrusions
+- **NSO Group**: Conducting spear-phishing campaigns through WhatsApp despite legal restrictions
+- **VerdantBamboo (China-nexus)**: Deploying BSD variants of BRICKSTORM backdoor on Linux appliances
+- **C0XMO Botnet Operators**: Spreading malware through DD-WRT router vulnerabilities while eliminating competing malware
+- **Shai-Hulud Campaign Actors**: Compromising PyPI packages to steal developer secrets through supply chain attacks
