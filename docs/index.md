@@ -1,71 +1,78 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are currently under active exploitation across multiple platforms, with threat actors targeting enterprise infrastructure and popular software systems. The most significant active exploits include a Check Point VPN zero-day being exploited by the Qilin ransomware gang, a critical Gogs Git service vulnerability enabling remote code execution, and widespread attacks against WordPress sites through an Everest Forms Pro flaw. Additional concerns include active exploitation of SolarWinds Serv-U servers for denial-of-service attacks and a Cisco SD-WAN Manager vulnerability with no available patch. Supply chain attacks are also proliferating through GitHub repositories and npm packages, while various APT groups continue deploying sophisticated backdoors to maintain persistent access to compromised networks.
+Current threat activity reveals a concerning landscape of active exploitation targeting critical infrastructure, enterprise software, and supply chain components. Several zero-day vulnerabilities are being actively exploited, including a critical Check Point VPN flaw linked to the Qilin ransomware gang and a Gogs zero-day enabling remote code execution. Notable incidents include NSO Group's renewed spear-phishing campaigns against WhatsApp users, widespread exploitation of WordPress plugins, and sophisticated supply chain attacks targeting software repositories. The exploitation of fuel tank monitoring systems and Internet-facing network appliances demonstrates the expanding attack surface threatening critical infrastructure operations.
 
 ## Active Exploitation Details
 
-### Check Point VPN Zero-Day
-- **Description**: Critical vulnerability in Check Point Remote Access VPN and Mobile Access deployments configured to use the deprecated IKEv1 key exchange protocol that allows password bypass
-- **Impact**: Attackers can bypass authentication mechanisms and gain unauthorized access to VPN networks
-- **Status**: Currently being exploited in zero-day attacks; patches have been released by Check Point
+### Check Point VPN Zero-Day Vulnerability
+- **Description**: Critical vulnerability affecting Remote Access VPN and Mobile Access deployments configured with deprecated IKEv1 key exchange protocol
+- **Impact**: Attackers can bypass password authentication mechanisms in VPN setups
+- **Status**: Actively exploited in zero-day attacks, security updates now available
+- **CVE ID**: Currently being exploited as zero-day, patches released
 
-### Gogs Git Service Zero-Day
-- **Description**: Critical zero-day vulnerability in the Gogs Git service platform that enables remote code execution
+### Gogs Remote Code Execution Zero-Day
+- **Description**: Critical zero-day flaw in the Gogs Git service that allows remote code execution
 - **Impact**: Attackers can compromise Internet-facing instances and access any repositories, including private ones
-- **Status**: Critical zero-day flaw that has been patched by Gogs
+- **Status**: Zero-day vulnerability, patches have been released
 
-### Everest Forms Pro WordPress Plugin
-- **Description**: Critical vulnerability in the Everest Forms Pro plugin for WordPress that allows complete website takeover
-- **Impact**: Hackers can gain full administrative control of WordPress websites
-- **Status**: Currently being actively exploited
-- **CVE ID**: CVE-2026-3300
+### SolarWinds Serv-U Denial of Service Vulnerability
+- **Description**: High-severity flaw in SolarWinds Serv-U multi-protocol file server software
+- **Impact**: Attackers can crash servers and cause denial of service
+- **Status**: Actively exploited, added to CISA's Known Exploited Vulnerabilities catalog
+- **CVE ID**: Added to KEV catalog due to active exploitation
 
-### SolarWinds Serv-U Denial of Service
-- **Description**: High-severity security flaw in SolarWinds Serv-U multi-protocol file server software that can cause system crashes
-- **Impact**: Attackers can crash servers and disrupt file transfer services
-- **Status**: Added to CISA's Known Exploited Vulnerabilities catalog; actively being exploited
-
-### Cisco Catalyst SD-WAN Manager
-- **Description**: High-severity security flaw in Cisco Catalyst SD-WAN Manager with active exploitation
-- **Impact**: Potential for unauthorized access and system compromise
-- **Status**: Currently under active exploitation with no patch available
+### Cisco Catalyst SD-WAN Manager Vulnerability
+- **Description**: High-severity security flaw in Cisco Catalyst SD-WAN Manager
+- **Impact**: Allows attackers to compromise SD-WAN management infrastructure
+- **Status**: Actively exploited with no patch currently available
 - **CVE ID**: CVE-2026-20245
 
-### UniFi OS Server Vulnerabilities
-- **Description**: Chain of three previously fixed vulnerabilities in Ubiquiti UniFi OS server that can be combined for exploitation
+### Everest Forms Pro WordPress Plugin Vulnerability
+- **Description**: Critical vulnerability in the Everest Forms Pro WordPress plugin
+- **Impact**: Complete takeover of WordPress websites
+- **Status**: Actively exploited
+- **CVE ID**: CVE-2026-3300
+
+### UniFi OS Vulnerability Chain
+- **Description**: Three chained vulnerabilities in Ubiquiti UniFi OS server
 - **Impact**: Remote code execution with root privileges without authentication
-- **Status**: Vulnerabilities are already fixed but can be chained together for attack
+- **Status**: Vulnerabilities have been fixed but can be chained together
 
 ## Affected Systems and Products
 
-- **Check Point VPN Systems**: Remote Access VPN and Mobile Access deployments using IKEv1 protocol
-- **Gogs Git Service**: Internet-facing instances of the self-hosted Git service
-- **WordPress Sites**: Websites using the Everest Forms Pro plugin
-- **SolarWinds Infrastructure**: Servers running Serv-U multi-protocol file server software
-- **Cisco Network Equipment**: Catalyst SD-WAN Manager deployments
-- **Ubiquiti Network Devices**: UniFi OS server installations
-- **DD-WRT Routers**: Router firmware vulnerable to C0XMO botnet attacks
-- **GitHub Repositories**: Microsoft repositories and other GitHub projects affected by Miasma worm
-- **npm Ecosystem**: Over 50 legitimate packages compromised in supply chain attacks
-- **Meta AI Systems**: Instagram accounts accessed through AI support system exploitation
+- **Check Point Remote Access VPN**: IKEv1 configurations specifically vulnerable
+- **Gogs Git Service**: Internet-facing instances allowing repository access
+- **SolarWinds Serv-U**: Multi-protocol file server installations
+- **Cisco Catalyst SD-WAN Manager**: Network management infrastructure
+- **WordPress Sites**: Using Everest Forms Pro plugin
+- **Ubiquiti UniFi OS**: Network management appliances
+- **DD-WRT Routers**: Targeted by C0XMO botnet variant
+- **Fuel Tank Monitoring Systems**: Internet-exposed gauge systems in US gas stations
+- **GitHub Repositories**: Microsoft repositories affected by Miasma worm
+- **PyPI Package Repository**: 37 wheels and 19 code packages compromised
+- **Instagram Accounts**: 20,225 accounts compromised through Meta AI support system
+- **Oxford University CareerConnect**: Third-party career services platform
+- **Smart TVs and Consumer Devices**: Used as proxies for web scraping operations
 
 ## Attack Vectors and Techniques
 
-- **VPN Protocol Exploitation**: Targeting deprecated IKEv1 implementations to bypass authentication
-- **Remote Code Execution**: Exploiting web application vulnerabilities for system compromise
-- **Supply Chain Attacks**: Compromising legitimate software packages and repositories with malicious code
-- **Social Engineering**: Using fake IT support calls and vishing techniques to gain initial access
+- **VPN Authentication Bypass**: Exploiting deprecated IKEv1 protocol implementations
+- **Remote Code Execution**: Direct exploitation of Git service vulnerabilities
+- **Supply Chain Attacks**: Poisoning package repositories and software dependencies
+- **Social Engineering**: Spear-phishing campaigns and vishing attacks
+- **Physical Intrusion**: Combined with digital attacks for data theft extortion
+- **AI-Powered Social Engineering**: Enhanced phishing using artificial intelligence
 - **Botnet Propagation**: Spreading malware through router firmware vulnerabilities
-- **AI System Manipulation**: Exploiting AI-powered support systems to reset user passwords
-- **Physical Intrusion**: Combining vishing with physical access attempts for data theft
-- **Repository Worm Attacks**: Self-replicating malware spreading through Git repositories
+- **Worm-Based Repository Infection**: Self-replicating attacks targeting code repositories
+- **IoT Device Exploitation**: Targeting Internet-exposed industrial control systems
 
 ## Threat Actor Activities
 
-- **Qilin Ransomware Gang**: Actively exploiting Check Point VPN zero-day vulnerabilities for network infiltration
-- **UNC3753**: Conducting financially motivated data theft extortion campaigns targeting professional services using vishing and physical intrusion techniques
-- **VerdantBamboo (Chinese APT)**: Deploying BSD variants of BRICKSTORM backdoor along with PLENET and AGENTPSD malware on Linux appliances
-- **UNC5221 (Chinese Espionage Group)**: Accessing Microsoft 365 environments using Brickstorm backdoor and undocumented malware for persistent access
-- **Silent Ransom Group**: Targeting U.S. law firms with fake IT support calls leading to rapid data theft within hours
-- **C0XMO Botnet Operators**: Spreading Gafgyt botnet variants through DD-WRT router vulnerabilities while eliminating competing malware
-- **Supply Chain Attackers**: Distributing IronWorm and Miasma worm variants through npm packages and GitHub repositories for information stealing
+- **NSO Group**: Conducting spear-phishing campaigns against WhatsApp users, violating court orders
+- **Qilin Ransomware Gang**: Linked to exploitation of Check Point VPN zero-day vulnerabilities
+- **VerdantBamboo (China-nexus)**: Deploying BSD variant of BRICKSTORM backdoor on Linux appliances
+- **UNC3753**: Conducting data theft extortion campaigns using vishing and physical intrusions against US organizations
+- **Silent Ransom Group**: Targeting law firms with fake IT support social engineering calls
+- **C0XMO Botnet Operators**: Spreading through DD-WRT router vulnerabilities and eliminating competing malware
+- **Hades Campaign Actors**: Targeting PyPI with evolved Shai-Hulud supply chain attacks
+- **Miasma Worm Operators**: Conducting self-replicating supply chain attacks against GitHub repositories
