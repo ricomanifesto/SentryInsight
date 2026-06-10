@@ -1,71 +1,68 @@
 # Exploitation Report
 
-Multiple critical zero-day vulnerabilities are currently being exploited in active attack campaigns, including CVE-2026-11645 in Chrome's V8 engine, CVE-2026-42271 in BerriAI LiteLLM, and CVE-2025-8088 in WinRAR. Microsoft has addressed three zero-day vulnerabilities and nearly 200 total flaws in their June 2026 Patch Tuesday release, marking a record-breaking security update cycle. Threat actors are actively targeting enterprise infrastructure through Check Point VPN systems, Veeam backup servers, and SAP enterprise applications, while supply chain attacks continue to compromise software repositories and package registries.
+Critical exploitation activity is ongoing across multiple enterprise platforms, with attackers leveraging both zero-day vulnerabilities and known flaws against high-value targets. Active exploits include CVE-2026-11645, a Chrome V8 zero-day under active attack, CVE-2026-44963 affecting Veeam backup infrastructure, and CVE-2025-8088 in WinRAR being weaponized by Russia-aligned groups against Ukrainian organizations. ServiceNow instances have been compromised through an unauthenticated API vulnerability, while Microsoft Defender faces a new zero-day dubbed "RoguePlanet" that grants SYSTEM privileges. Supply chain attacks have also escalated, with the Miasma worm compromising 73 Microsoft repositories and injecting credential-stealing malware.
 
 ## Active Exploitation Details
 
-### Chrome V8 Engine Zero-Day
-- **Description**: High-severity vulnerability in Google Chrome's V8 JavaScript engine that allows arbitrary code execution
-- **Impact**: Attackers can execute malicious code within the browser context, potentially leading to system compromise
-- **Status**: Actively exploited in the wild, patches released by Google
+### Chrome V8 Zero-Day
+- **Description**: High-severity vulnerability in Google Chrome's V8 JavaScript engine being actively exploited in the wild
+- **Impact**: Allows attackers to execute arbitrary code through browser exploitation
+- **Status**: Google has released security patches; actively being exploited
 - **CVE ID**: CVE-2026-11645
 
-### BerriAI LiteLLM Authentication Bypass
-- **Description**: High-severity flaw in BerriAI LiteLLM that can be chained with other vulnerabilities for unauthenticated remote code execution
-- **Impact**: Complete system compromise through unauthenticated access and code execution
-- **Status**: Actively exploited and added to CISA's Known Exploited Vulnerabilities catalog
-- **CVE ID**: CVE-2026-42271
+### ServiceNow Unauthenticated Access Flaw
+- **Description**: Security vulnerability allowing unauthorized access through vulnerable API endpoints without authentication
+- **Impact**: Enables attackers to query and access customer instance data, potentially exposing sensitive organizational information
+- **Status**: ServiceNow applied security patches on June 5, 2026; actively exploited by unknown threat actors
 
-### WinRAR Archive Processing Vulnerability
-- **Description**: Security flaw in WinRAR archive processing that allows malicious code execution
-- **Impact**: Deployment of credential stealers and data theft malware
-- **Status**: Actively exploited by Russia-aligned threat actors despite patches being available since July 2025
-- **CVE ID**: CVE-2025-8088
-
-### Check Point VPN Zero-Day
-- **Description**: Critical vulnerability in Check Point Remote Access VPN and Mobile Access systems
-- **Impact**: Ransomware deployment and network infiltration
-- **Status**: Exploited as zero-day by Qilin ransomware operators, CISA has mandated federal agencies patch within 3 days
-
-### Veeam Backup & Replication RCE
-- **Description**: Critical remote code execution vulnerability in Veeam Backup & Replication software affecting domain-joined systems
-- **Impact**: Domain users can execute remote code on backup servers
-- **Status**: Recently patched, high risk for enterprise environments
+### Veeam Backup & Replication Remote Code Execution
+- **Description**: Critical vulnerability in Veeam's backup software allowing remote code execution by domain users
+- **Impact**: Compromises backup infrastructure integrity and could lead to ransomware deployment or data theft
+- **Status**: Security patches released by Veeam
 - **CVE ID**: CVE-2026-44963
 
+### WinRAR Archive Processing Vulnerability
+- **Description**: Security flaw in WinRAR archive processing being exploited nearly a year after patch release
+- **Impact**: Enables deployment of credential-stealing malware and data exfiltration capabilities
+- **Status**: Patches available since July 2025; actively exploited by Russia-aligned groups
+- **CVE ID**: CVE-2025-8088
+
 ### Microsoft Defender RoguePlanet Zero-Day
-- **Description**: Zero-day vulnerability in Microsoft Defender that allows privilege escalation
-- **Impact**: Attackers can gain SYSTEM-level privileges on compromised systems
-- **Status**: Recently disclosed zero-day vulnerability
+- **Description**: Newly disclosed zero-day vulnerability in Microsoft Defender with proof-of-concept exploit released
+- **Impact**: Grants SYSTEM-level privileges on updated Windows systems, bypassing security controls
+- **Status**: Actively exploitable; proof-of-concept publicly available
+
+### Ivanti Sentry Maximum Severity Flaw
+- **Description**: Critical vulnerability in Ivanti's Sentry secure mobile gateway solution
+- **Impact**: Enables remote code execution with root privileges on affected systems
+- **Status**: Patches released by Ivanti
 
 ## Affected Systems and Products
 
-- **Google Chrome**: All versions prior to latest security update containing V8 engine fix
-- **BerriAI LiteLLM**: AI/ML infrastructure platforms using vulnerable versions
-- **WinRAR**: Archive processing software used in Ukrainian government and military organizations
-- **Check Point VPN**: Remote Access VPN and Mobile Access deployments in federal agencies
-- **Veeam Backup & Replication**: Domain-joined backup server infrastructure
-- **Microsoft Defender**: Windows endpoint protection systems
-- **Microsoft Windows**: Nearly 200 vulnerabilities across Windows operating systems and supported software
-- **SAP NetWeaver and Commerce Cloud**: Enterprise application platforms with 4 critical-severity flaws
-- **ServiceNow**: Customer instances exposed through vulnerable API endpoints
-- **Microsoft Exchange**: Email spoofing vulnerability in hybrid configurations
+- **Google Chrome**: V8 JavaScript engine vulnerable to zero-day exploitation
+- **ServiceNow Instances**: Customer instances exposed through API vulnerability
+- **Veeam Backup & Replication**: Domain-joined backup servers at risk of remote code execution
+- **WinRAR Software**: Archive processing functionality vulnerable to malware injection
+- **Microsoft Defender**: Windows endpoint protection with privilege escalation vulnerability
+- **Ivanti Sentry**: Secure mobile gateway solutions with root-level compromise risk
+- **SAP NetWeaver and Commerce Cloud**: Enterprise applications with critical security flaws
+- **Microsoft Exchange**: Email spoofing vulnerabilities in hybrid configurations
+- **protobuf.js**: Node.js applications using JavaScript Protocol Buffers implementation
 
 ## Attack Vectors and Techniques
 
-- **Browser-based Exploitation**: Malicious websites leveraging Chrome V8 zero-day for code execution
-- **Supply Chain Poisoning**: Miasma and Hades campaigns targeting GitHub repositories and PyPI packages
-- **Email Spoofing**: Ghost-Sender technique using Microsoft Exchange vulnerabilities
-- **VPN Infiltration**: Zero-day exploitation of Check Point VPN systems for ransomware deployment
-- **Archive-based Delivery**: Malicious WinRAR archives distributing credential stealers
+- **Browser-Based Exploitation**: Zero-day attacks through Chrome V8 engine targeting web users
 - **API Exploitation**: Unauthenticated access through vulnerable ServiceNow API endpoints
-- **SSD Timing Attacks**: FROST attack technique using JavaScript to track user activity via SSD timing
-- **AI Agent Manipulation**: Phishing attacks successfully targeting AI agents like OpenClaw
+- **Supply Chain Compromise**: Miasma worm injecting malicious code into Microsoft repositories on GitHub
+- **Spear Phishing with Malicious Archives**: WinRAR exploitation targeting Ukrainian organizations with weaponized archives
+- **Privilege Escalation**: Microsoft Defender exploitation for SYSTEM-level access
+- **Email Spoofing**: "Ghost-Sender" technique using Exchange hybrid configurations
+- **SSD Timing Attacks**: FROST attack using JavaScript to track user activity via storage timing analysis
 
 ## Threat Actor Activities
 
-- **Russia-aligned Groups**: Conducting sustained campaigns against Ukrainian government and military targets using WinRAR exploits for data theft and cyberespionage
-- **Qilin Ransomware**: Exploiting Check Point VPN zero-day vulnerabilities to deploy ransomware in enterprise networks
-- **Miasma Campaign Actors**: Compromising Microsoft GitHub repositories and expanding into PyPI package poisoning through the Hades campaign
-- **Supply Chain Attackers**: Targeting 73 Microsoft repositories and 19 PyPI packages with credential-stealing malware
-- **Unknown Threat Actors**: Actively exploiting Chrome and LiteLLM zero-days in ongoing attack campaigns
+- **Russia-Aligned Groups**: Conducting sustained campaigns against Ukrainian military and government targets using WinRAR exploits for data theft and cyberespionage operations
+- **Unknown ServiceNow Attackers**: Exploiting API vulnerabilities to gain unauthorized access to customer instances and data
+- **Miasma Supply Chain Attackers**: Compromising Microsoft repositories to inject credential-stealing malware affecting development pipelines
+- **Chaotic Eclipse (Nightmare-Eclipse)**: Anonymous security researcher releasing Microsoft Defender zero-day exploits with public proof-of-concept code
+- **Chrome Exploitation Groups**: Actively exploiting V8 zero-day vulnerability against web users in targeted campaigns
