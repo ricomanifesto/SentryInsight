@@ -1,89 +1,65 @@
 # Exploitation Report
 
-Multiple critical zero-day vulnerabilities and active exploitation campaigns have been identified across major enterprise platforms. Microsoft's June 2026 Patch Tuesday addressed a record 206 vulnerabilities including three actively exploited zero-days (YellowKey, GreenPlasma, and MiniPlasma) that allow privilege escalation to SYSTEM level on fully patched Windows systems. A new Microsoft Defender zero-day called RoguePlanet was disclosed immediately after the patch release, demonstrating ongoing security researcher discoveries of critical flaws. ServiceNow confirmed unauthorized access to customer instances through an exploited API vulnerability, while Russian threat actors are weaponizing a WinRAR vulnerability in targeted campaigns against Ukrainian organizations. Additional critical vulnerabilities have been identified in Ivanti Sentry, Veeam Backup & Replication, and protobuf.js that enable remote code execution.
+Microsoft released a record-breaking 206 security fixes in June 2026, addressing three actively exploited zero-day vulnerabilities alongside critical remote code execution flaws. The most significant exploitation activity includes zero-day vulnerabilities in Microsoft Defender granting SYSTEM-level access, ServiceNow API flaws enabling unauthorized customer data access, and a newly disclosed Microsoft Defender zero-day called "RoguePlanet." Additional critical exploitation includes supply chain attacks against Microsoft GitHub repositories, WinRAR vulnerabilities being weaponized by Russian threat actors against Ukrainian targets, and critical remote code execution flaws in enterprise software including Veeam Backup & Replication, Ivanti Sentry, and SAP products.
 
 ## Active Exploitation Details
 
-### YellowKey Zero-Day
-- **Description**: Microsoft Defender vulnerability allowing privilege escalation to SYSTEM level
-- **Impact**: Attackers gain full administrative control on fully patched Windows systems
-- **Status**: Patched in Microsoft's June 2026 Patch Tuesday release
+### Microsoft Defender Zero-Day Vulnerabilities (YellowKey, GreenPlasma, MiniPlasma)
+- **Description**: Three zero-day vulnerabilities in Microsoft Defender that allow privilege escalation and unauthorized access to encrypted drives
+- **Impact**: Attackers can gain SYSTEM privileges on fully patched Windows systems and access BitLocker-protected drives
+- **Status**: Patched by Microsoft during June 2026 Patch Tuesday
 
-### GreenPlasma Zero-Day  
-- **Description**: Windows privilege escalation vulnerability
-- **Impact**: Enables attackers to gain SYSTEM privileges on updated Windows systems
-- **Status**: Fixed in June 2026 security updates
+### Microsoft Defender RoguePlanet Zero-Day
+- **Description**: A newly disclosed zero-day vulnerability in Microsoft Defender released by security researcher Chaotic Eclipse
+- **Impact**: Grants SYSTEM access on updated Windows systems
+- **Status**: Currently unpatched, proof-of-concept exploit publicly available
 
-### MiniPlasma Zero-Day
-- **Description**: BitLocker protection bypass vulnerability
-- **Impact**: Grants unauthorized access to BitLocker-protected drives
-- **Status**: Patched by Microsoft in June 2026
-
-### RoguePlanet Zero-Day
-- **Description**: New Microsoft Defender vulnerability granting SYSTEM access
-- **Impact**: Allows privilege escalation to SYSTEM level on updated Windows systems
-- **Status**: Active zero-day with proof-of-concept exploit released publicly
-
-### ServiceNow API Vulnerability
-- **Description**: Unauthenticated access flaw in ServiceNow API endpoint
+### ServiceNow API Access Flaw
+- **Description**: Unauthenticated access vulnerability through a vulnerable API endpoint
 - **Impact**: Unauthorized access to customer instances and data exposure
-- **Status**: Security patch applied by ServiceNow on June 5, 2026
+- **Status**: Security patch applied on June 5, 2026
 
 ### WinRAR Vulnerability
-- **Description**: Security flaw in WinRAR being exploited in targeted campaigns
-- **Impact**: Data theft and cyberespionage capabilities
-- **Status**: Previously fixed in July but actively exploited by Russian threat actors
+- **Description**: Previously patched vulnerability being actively exploited in targeted campaigns
+- **Impact**: Used for data theft and cyberespionage operations
+- **Status**: Fixed in July 2025, but still being exploited against unpatched systems
 - **CVE ID**: CVE-2025-8088
 
-### Ivanti Sentry Critical Vulnerabilities
-- **Description**: Two critical flaws in Ivanti Sentry secure mobile gateway, including maximum severity issue
+### Ivanti Sentry Maximum Severity Flaw
+- **Description**: Critical vulnerability in Ivanti's Sentry secure mobile gateway solution
 - **Impact**: Remote code execution with root privileges
-- **Status**: Patches released by Ivanti
+- **Status**: Recently patched by Ivanti
 
-### Veeam Backup & Replication RCE
-- **Description**: Critical remote code execution vulnerability in backup software
-- **Impact**: Domain users can execute remote code on backup servers
+### Veeam Backup & Replication RCE Vulnerability
+- **Description**: Critical flaw affecting domain-joined backup servers
+- **Impact**: Remote code execution by domain users
 - **Status**: Security patches released
 - **CVE ID**: CVE-2026-44963
 
-### Microsoft Exchange Spoofing Flaw
-- **Description**: "Ghost-Sender" vulnerability allowing email address spoofing
-- **Impact**: Enables spoofing of any email address for phishing attacks
-- **Status**: Widespread misconfiguration being actively abused
-
-### Protobuf.js Vulnerabilities
-- **Description**: Six vulnerabilities in JavaScript/TypeScript Protocol Buffers implementation
-- **Impact**: Remote code execution and denial of service in Node.js applications
-- **Status**: Vulnerabilities flagged by researchers
-
 ## Affected Systems and Products
 
-- **Microsoft Windows**: All versions affected by zero-day vulnerabilities, with patches available for YellowKey, GreenPlasma, and MiniPlasma
-- **Microsoft Defender**: Vulnerable to RoguePlanet zero-day exploit
-- **ServiceNow Instances**: Customer environments affected by unauthorized API access
-- **WinRAR**: Versions vulnerable to CVE-2025-8088 being targeted
-- **Ivanti Sentry**: Secure mobile gateway solution with maximum severity flaws
-- **Veeam Backup & Replication**: Domain-joined backup servers exposed to RCE
-- **Microsoft Exchange**: Servers vulnerable to email spoofing attacks
-- **Node.js Applications**: Using protobuf.js library exposed to RCE and DoS
-- **SAP NetWeaver**: Critical vulnerabilities in enterprise platform
-- **SAP Commerce Cloud**: Critical security flaws requiring immediate patching
+- **Microsoft Windows**: All versions affected by Defender zero-days, record 206 vulnerabilities patched
+- **Microsoft Defender**: Multiple zero-day vulnerabilities granting SYSTEM access
+- **ServiceNow Instances**: Customer data exposed through API vulnerability
+- **Ivanti Sentry**: Secure mobile gateway solution vulnerable to root-level code execution
+- **Veeam Backup & Replication**: Enterprise backup software exposed to RCE attacks
+- **SAP NetWeaver and Commerce Cloud**: Four critical-severity vulnerabilities patched
+- **protobuf.js**: Six vulnerabilities exposing Node.js applications to RCE and DoS
+- **WinRAR**: Legacy vulnerability still being exploited in targeted campaigns
+- **Microsoft GitHub Repositories**: 73 repositories compromised in supply chain attack
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation**: Multiple zero-days enabling SYSTEM level access on Windows
-- **API Exploitation**: Unauthenticated access through vulnerable ServiceNow endpoints
-- **Email Spoofing**: Ghost-Sender technique for bypassing email authentication
-- **Archive File Exploitation**: Weaponized WinRAR files for malware delivery
-- **Supply Chain Attacks**: Miasma worm compromising Microsoft GitHub repositories
-- **Remote Code Execution**: Critical vulnerabilities in backup and enterprise software
-- **BitLocker Bypass**: Direct access to encrypted drive contents
-- **Phishing Simulation**: AI agents vulnerable to traditional phishing tactics
+- **Privilege Escalation**: Zero-day exploits targeting Microsoft Defender to gain SYSTEM privileges
+- **API Exploitation**: Unauthenticated access through vulnerable ServiceNow API endpoints
+- **Supply Chain Attacks**: Miasma worm compromising Microsoft GitHub repositories with malicious code injection
+- **Targeted Phishing**: WinRAR exploits delivered through targeted campaigns against specific organizations
+- **Remote Code Execution**: Critical vulnerabilities in enterprise software allowing unauthorized code execution
+- **Email Spoofing**: Microsoft Exchange "Ghost-Sender" misconfiguration enabling email address spoofing
 
 ## Threat Actor Activities
 
-- **Russian Attackers**: Conducting targeted campaigns against Ukrainian military and government organizations using CVE-2025-8088
-- **Unknown Actors**: Exploiting ServiceNow vulnerability for unauthorized customer data access
-- **Chaotic Eclipse/Nightmare-Eclipse**: Security researcher releasing proof-of-concept for RoguePlanet zero-day
-- **Supply Chain Attackers**: Miasma campaign compromising 73 Microsoft GitHub repositories
-- **Cybercriminals**: Actively exploiting Exchange Ghost-Sender vulnerability for email spoofing campaigns
+- **Russian Threat Actors**: Actively exploiting WinRAR vulnerability in targeted campaigns against Ukrainian military and government organizations
+- **Chaotic Eclipse (Nightmare-Eclipse)**: Security researcher releasing proof-of-concept exploits for Microsoft Defender zero-days
+- **Miasma Campaign Operators**: Compromising Microsoft GitHub repositories through supply chain attacks, affecting continuous integration pipelines
+- **Unknown ServiceNow Attackers**: Exploiting API vulnerabilities to gain unauthorized access to customer instances and sensitive data
