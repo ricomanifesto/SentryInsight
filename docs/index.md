@@ -1,77 +1,73 @@
 # Exploitation Report
 
-Multiple critical zero-day vulnerabilities are currently under active exploitation, with Chrome V8 engine flaw CVE-2026-11645, Check Point VPN vulnerability, and LiteLLM flaw CVE-2026-42271 being the most severe. Russian-aligned groups continue exploiting the WinRAR vulnerability CVE-2025-8088 against Ukrainian targets nearly a year after patches were released. Meanwhile, supply chain attacks have intensified with the Miasma and Hades campaigns targeting Microsoft repositories and PyPI packages. Government agencies face a three-day deadline to patch Check Point systems following ransomware gang exploitation, while French government messaging systems have suffered account hijacking attacks.
+The current threat landscape reveals intense exploitation activity across multiple platforms, with attackers targeting zero-day vulnerabilities and leveraging supply chain attacks to compromise critical infrastructure. Most concerning is the active exploitation of Chrome V8 zero-day CVE-2026-11645, a Check Point VPN vulnerability being exploited by ransomware groups, and the widespread LiteLLM flaw CVE-2026-42271 that enables unauthenticated remote code execution. Microsoft's June 2026 Patch Tuesday addressed three actively exploited zero-day vulnerabilities among 200 total flaws, while Russian-aligned threat actors continue exploiting a patched WinRAR vulnerability CVE-2025-8088 against Ukrainian targets. Supply chain attacks have reached unprecedented scale with the Miasma campaign compromising 73 Microsoft repositories and spawning the related Hades campaign targeting PyPI packages.
 
 ## Active Exploitation Details
 
-### Chrome V8 Zero-Day Vulnerability
-- **Description**: High-severity vulnerability in Google Chrome's V8 JavaScript engine
-- **Impact**: Remote code execution allowing attackers to compromise victim systems through web browsers
-- **Status**: Actively exploited in the wild, patches released by Google
+### Chrome V8 Zero-Day
+- **Description**: High-severity vulnerability in Chrome's V8 JavaScript engine that allows attackers to exploit browser users
+- **Impact**: Attackers can achieve code execution and potentially compromise user systems through malicious websites
+- **Status**: Actively exploited in the wild, patches available in Chrome security update
 - **CVE ID**: CVE-2026-11645
 
 ### Check Point VPN Critical Vulnerability
 - **Description**: Critical security flaw in Check Point Remote Access VPN and Mobile Access deployments
-- **Impact**: Used by Qilin ransomware operators for zero-day attacks against government systems
-- **Status**: Actively exploited as zero-day, CISA has ordered federal agencies to patch within 3 days
+- **Impact**: Enables unauthorized access to corporate networks and systems
+- **Status**: Actively exploited by Qilin ransomware operators, CISA has mandated federal agencies patch within 3 days
+- **Status**: Zero-day exploitation confirmed
 
 ### LiteLLM Authentication Bypass
-- **Description**: High-severity authentication bypass vulnerability in BerriAI LiteLLM
-- **Impact**: Can be chained to achieve unauthenticated remote code execution
+- **Description**: High-severity flaw in BerriAI LiteLLM that can be chained for unauthenticated remote code execution
+- **Impact**: Complete system compromise without authentication requirements
 - **Status**: Added to CISA's Known Exploited Vulnerabilities catalog due to active exploitation
 - **CVE ID**: CVE-2026-42271
 
-### WinRAR Archive Processing Vulnerability
-- **Description**: Security flaw in WinRAR's archive processing functionality
-- **Impact**: Remote code execution allowing deployment of credential stealers and data theft malware
-- **Status**: Exploited by Russia-aligned groups targeting Ukrainian organizations, patches available since July 2025
+### WinRAR Path Traversal Vulnerability
+- **Description**: Security flaw in WinRAR archive extraction functionality allowing arbitrary file writes
+- **Impact**: Enables malware deployment and system compromise through malicious archives
+- **Status**: Patched in July 2025 but still being actively exploited by Russian threat actors
 - **CVE ID**: CVE-2025-8088
 
+### Microsoft Defender RoguePlanet Zero-Day
+- **Description**: Zero-day vulnerability in Microsoft Defender that allows privilege escalation
+- **Impact**: Attackers can gain SYSTEM-level privileges on compromised Windows systems
+- **Status**: Publicly disclosed zero-day vulnerability
+
 ### Veeam Backup & Replication RCE Flaw
-- **Description**: Critical remote code execution vulnerability in Veeam's Backup & Replication software
-- **Impact**: Allows domain users to execute remote code on backup servers
+- **Description**: Critical remote code execution vulnerability in Veeam's backup software
+- **Impact**: Domain users can execute arbitrary code on backup servers
 - **Status**: Patches released by Veeam
 - **CVE ID**: CVE-2026-44963
 
-### ServiceNow Unauthenticated Access Flaw
-- **Description**: Unauthenticated access vulnerability through vulnerable API endpoint
-- **Impact**: Allows attackers to query and access customer instance data
-- **Status**: Security incident disclosed, affecting customer data
-
-### Microsoft Exchange Email Spoofing Vulnerability
-- **Description**: "Ghost-Sender" vulnerability in Microsoft Exchange Online and hybrid configurations
-- **Impact**: Enables attackers to spoof any email address using third-party mail servers or spam filters
-- **Status**: Under investigation and exploitation
-
 ## Affected Systems and Products
 
-- **Google Chrome**: V8 JavaScript engine vulnerability affecting all Chrome installations
-- **Check Point VPN Systems**: Remote Access VPN and Mobile Access products vulnerable to ransomware attacks
-- **BerriAI LiteLLM**: Authentication bypass leading to remote code execution
-- **WinRAR**: Archive processing vulnerability in versions prior to July 2025 patches
-- **Veeam Backup & Replication**: Critical RCE affecting domain-joined backup servers
-- **ServiceNow**: Customer instances exposed through API vulnerability
-- **Microsoft Exchange**: Online and hybrid configurations with third-party integrations
-- **SAP NetWeaver**: Critical vulnerabilities requiring immediate patching
-- **SAP Commerce Cloud**: Critical-severity flaws in e-commerce platform
-- **French Government Tchap**: Encrypted messaging platform compromised via account hijacking
+- **Google Chrome**: All versions prior to latest security update vulnerable to V8 zero-day
+- **Check Point VPN Products**: Remote Access VPN and Mobile Access deployments
+- **BerriAI LiteLLM**: AI proxy service vulnerable to authentication bypass
+- **WinRAR**: Archive utility used in targeted attacks against Ukrainian organizations
+- **Microsoft Defender**: Windows security solution affected by privilege escalation flaw
+- **Veeam Backup & Replication**: Enterprise backup software with domain-joined server exposure
+- **Microsoft Windows**: 200 vulnerabilities addressed in June 2026 Patch Tuesday including three zero-days
+- **SAP NetWeaver and Commerce Cloud**: Four critical-severity flaws requiring immediate patching
+- **ServiceNow Platform**: Customer data exposed through unauthenticated API endpoint vulnerability
+- **Microsoft Exchange**: Email spoofing vulnerability enables "Ghost-Sender" attacks
 
 ## Attack Vectors and Techniques
 
-- **Web-Based Exploitation**: Chrome zero-day delivered through malicious websites
-- **VPN Infrastructure Attacks**: Check Point systems targeted by ransomware operators for initial access
-- **Supply Chain Poisoning**: Miasma and Hades campaigns targeting GitHub repositories and PyPI packages
-- **Archive-Based Delivery**: WinRAR exploits distributed through malicious archive files
-- **Email Spoofing**: Ghost-Sender technique using Exchange hybrid configurations
-- **API Abuse**: Unauthenticated access through vulnerable ServiceNow endpoints
-- **Account Hijacking**: Compromised user accounts used to breach government messaging systems
-- **Malicious Package Distribution**: Fake banking app updates hosted on GitHub repositories
+- **Supply Chain Poisoning**: Miasma campaign compromised 73 Microsoft GitHub repositories with malicious code injection
+- **Package Repository Attacks**: Hades campaign deployed 37 malicious wheel artifacts across 19 PyPI packages
+- **Zero-Day Browser Exploitation**: Chrome V8 vulnerability exploited through malicious websites
+- **VPN Infrastructure Targeting**: Check Point vulnerabilities exploited for network infiltration
+- **Email Spoofing Attacks**: Exchange flaw enables sophisticated phishing campaigns with spoofed sender addresses
+- **Archive-Based Malware Delivery**: WinRAR vulnerability used to deploy credential stealers through malicious archives
+- **API Endpoint Abuse**: ServiceNow vulnerability exploited through unauthenticated data queries
+- **Privilege Escalation**: Microsoft Defender zero-day grants SYSTEM-level access
+- **Mobile Malware Distribution**: NFCShare Android malware distributed via fake banking app updates on GitHub
 
 ## Threat Actor Activities
 
-- **Russia-Aligned Groups**: Continued targeting of Ukrainian military and government organizations using WinRAR exploits for data theft and cyberespionage operations
-- **Qilin Ransomware**: Exploiting Check Point VPN zero-day for initial access to government networks
-- **Miasma Campaign Operators**: Supply chain attacks compromising 73 Microsoft GitHub repositories with password-stealing malware
-- **Hades Campaign**: Follow-up supply chain attack targeting PyPI with 37 malicious wheel artifacts across 19 packages
-- **Silent Ransom Group**: Targeting US law firms through vishing, IT impersonation, and physical office intrusions
-- **NFCShare Malware Distributors**: Spreading Android malware through fake banking application updates on GitHub
+- **Russian-Aligned Groups**: Conducting sustained campaigns against Ukrainian military and government targets using WinRAR exploits for data theft and cyberespionage operations
+- **Qilin Ransomware Operators**: Actively exploiting Check Point VPN vulnerabilities to gain initial network access for ransomware deployment
+- **Supply Chain Attackers**: Orchestrating sophisticated Miasma campaign targeting Microsoft's development infrastructure and extending to PyPI ecosystem through Hades operations
+- **Credential Harvesting Campaigns**: Deploying NFCShare malware through fake banking applications to steal financial credentials from Android users
+- **State-Sponsored Activities**: Targeting critical infrastructure and government systems through coordinated exploitation of zero-day vulnerabilities and supply chain compromises
