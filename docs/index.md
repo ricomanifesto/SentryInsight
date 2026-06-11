@@ -1,76 +1,56 @@
 # Exploitation Report
 
-Current threat landscape reveals unprecedented exploitation activity with Microsoft systems under siege from multiple fronts. Critical zero-day vulnerabilities are being actively exploited across Exchange Server, Windows Defender, and core Windows systems, enabling everything from email spoofing to SYSTEM-level privilege escalation. The Langflow platform faces active exploitation through CVE-2026-5027, allowing unauthenticated remote code execution. Meanwhile, CISA has added three new vulnerabilities to its Known Exploited Vulnerabilities catalog, affecting Cisco, Chrome, and Arista systems. Chinese state-sponsored actors continue expanding their reconnaissance capabilities through the JDY botnet, while ransomware groups like ShinyHunters target Oracle PeopleSoft servers and The Gentlemen emerge as a major threat actor.
+The cybersecurity landscape is experiencing a surge in critical vulnerabilities and active exploitation campaigns targeting enterprise infrastructure. Most notably, CVE-2026-5027 in Langflow is being actively exploited for unauthenticated remote code execution, while Microsoft's June 2026 Patch Tuesday addressed a record-breaking 206 vulnerabilities including three zero-day exploits. Significant threat actor activity includes the ShinyHunters gang targeting Oracle PeopleSoft servers and the expansion of China-linked JDY botnet operations against U.S. military networks. Additional critical vulnerabilities have been disclosed in Microsoft Defender, Ivanti Sentry, ServiceNow, and multiple enterprise platforms.
 
 ## Active Exploitation Details
 
-### Microsoft Exchange Server Zero-Day
-- **Description**: Cross-site scripting vulnerability in Exchange Server allowing execution of arbitrary JavaScript code
-- **Impact**: Attackers can execute malicious JavaScript in Outlook Web Access, potentially leading to credential theft and session hijacking
-- **Status**: Actively exploited in the wild, now patched by Microsoft
-
-### Microsoft Defender RoguePlanet Zero-Day
-- **Description**: Windows Defender vulnerability that allows privilege escalation to SYSTEM level access
-- **Impact**: Complete system takeover on fully patched Windows systems
-- **Status**: Currently unpatched with proof-of-concept exploit publicly available
-
-### Langflow Remote Code Execution
-- **Description**: Unauthenticated remote code execution vulnerability in the open-source AI application platform
-- **Impact**: Complete system compromise without authentication requirements
-- **Status**: Actively exploited in the wild, remains unpatched
+### Langflow Path Traversal Vulnerability
+- **Description**: A high-severity path traversal vulnerability in the AI development platform Langflow that allows arbitrary file writing on exposed servers
+- **Impact**: Unauthenticated remote code execution enabling complete system compromise
+- **Status**: Currently unpatched and under active exploitation in the wild
 - **CVE ID**: CVE-2026-5027
 
-### YellowKey and GreenPlasma Zero-Days
-- **Description**: Two zero-day vulnerabilities allowing SYSTEM privilege escalation on Windows systems
-- **Impact**: Full administrative control over compromised Windows machines
-- **Status**: Recently patched by Microsoft after active exploitation
+### Microsoft Exchange Server Cross-Site Scripting
+- **Description**: A zero-day vulnerability in Exchange Server allowing arbitrary JavaScript code execution
+- **Impact**: Cross-site scripting attacks targeting Outlook Web Access users
+- **Status**: Actively exploited zero-day, now patched by Microsoft
+- **Status**: Patched in Microsoft's June 2026 security updates
 
-### MiniPlasma Zero-Day
-- **Description**: Zero-day vulnerability providing access to BitLocker-protected drives
-- **Impact**: Bypass of BitLocker encryption protection, exposing sensitive data
-- **Status**: Recently patched by Microsoft
+### Microsoft Defender Zero-Day Exploits
+- **Description**: Multiple zero-day vulnerabilities in Windows Defender including YellowKey, GreenPlasma, MiniPlasma, and the newly disclosed RoguePlanet
+- **Impact**: Privilege escalation to SYSTEM level access on fully patched Windows systems, and access to BitLocker-protected drives
+- **Status**: YellowKey, GreenPlasma, and MiniPlasma patched; RoguePlanet remains unpatched with public proof-of-concept available
 
-### ServiceNow API Vulnerability
-- **Description**: Unauthenticated access flaw through vulnerable API endpoint
-- **Impact**: Unauthorized access to customer instances and data exposure
-- **Status**: Security incident disclosed, patch applied by ServiceNow
-
-### CISA KEV Catalog Additions
-- **Description**: Three new vulnerabilities affecting Cisco, Chrome, and Arista systems
-- **Impact**: Various attack vectors depending on specific vulnerability
-- **Status**: Added to Known Exploited Vulnerabilities catalog due to active exploitation
+### ServiceNow Unauthorized Access
+- **Description**: A security flaw allowing unauthorized deeper access to ServiceNow customer instances
+- **Impact**: Unauthorized access to sensitive customer data and systems
+- **Status**: Security patch applied on June 5, 2026, after exploitation by unknown threat actors
 
 ## Affected Systems and Products
 
-- **Microsoft Exchange Server**: All versions vulnerable to cross-site scripting attacks
-- **Microsoft Windows Defender**: Multiple versions affected by RoguePlanet exploit
-- **Windows Operating Systems**: All versions susceptible to privilege escalation vulnerabilities
-- **Langflow Platform**: Open-source AI application building platform
-- **Oracle PeopleSoft**: Enterprise resource planning servers
-- **ServiceNow**: Cloud computing platform instances
-- **SAP NetWeaver**: Enterprise application platform
-- **SAP Commerce Cloud**: E-commerce platform solutions
-- **Ivanti Sentry**: Secure mobile gateway solution
-- **Cisco Systems**: Various network infrastructure products
-- **Google Chrome**: Web browser platform
-- **Arista Networks**: Network switching and routing equipment
+- **Langflow AI Platform**: Open-source low-code AI application development platform with unpatched path traversal vulnerability
+- **Microsoft Exchange Server**: Email server platform vulnerable to XSS attacks via zero-day exploit
+- **Microsoft Windows Systems**: Multiple Windows versions affected by Defender zero-days granting SYSTEM privileges
+- **Oracle PeopleSoft**: Enterprise resource planning servers targeted in data theft campaigns
+- **ServiceNow Instances**: Customer instances vulnerable to unauthorized access exploitation
+- **Ivanti Sentry**: Secure mobile gateway solution with maximum-severity remote code execution flaw
+- **Cisco, Chrome, and Arista Products**: Multiple products added to CISA's Known Exploited Vulnerabilities catalog
+- **protobuf.js Library**: JavaScript/TypeScript Protocol Buffers implementation with six vulnerabilities affecting Node.js applications
 
 ## Attack Vectors and Techniques
 
-- **Cross-Site Scripting (XSS)**: Exploitation of Exchange Server vulnerabilities to execute malicious JavaScript
-- **Privilege Escalation**: Multiple Windows vulnerabilities allowing elevation to SYSTEM privileges
-- **Unauthenticated Remote Code Execution**: Direct system compromise without authentication via Langflow vulnerability
-- **API Exploitation**: Unauthorized access through vulnerable ServiceNow API endpoints
-- **Botnet Infrastructure**: JDY botnet utilizing compromised SOHO devices for reconnaissance
-- **Supply Chain Attacks**: Miasma worm targeting Microsoft repositories
-- **Email Spoofing**: Ghost-Sender technique exploiting Exchange misconfigurations
-- **Data Theft Operations**: Large-scale data exfiltration by threat groups
+- **Path Traversal Exploitation**: Attackers leveraging directory traversal to write arbitrary files and achieve remote code execution
+- **Cross-Site Scripting**: JavaScript injection attacks targeting web-based email access portals
+- **Privilege Escalation**: Zero-day exploits enabling attackers to gain highest system privileges on Windows machines
+- **Supply Chain Attacks**: Miasma worm targeting open-source ecosystems through compromised package repositories
+- **Data Theft Operations**: Large-scale data extraction campaigns targeting enterprise systems
+- **Botnet Reconnaissance**: Expanded targeting of military and critical infrastructure networks for intelligence gathering
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Actively targeting Oracle PeopleSoft servers, claiming data theft from over 100 organizations
-- **The Gentlemen**: Emerging as second most active ransomware group by victim count with aggressive recruitment strategies
-- **Chinese State-Sponsored Actors**: Operating JDY botnet with over 1,500 compromised devices targeting U.S. military networks
-- **Volt Typhoon**: Associated with expanded JDY botnet operations and reconnaissance activities
-- **Nightmare-Eclipse (Chaotic Eclipse)**: Security researcher releasing multiple Microsoft zero-day exploits including RoguePlanet
-- **Miasma Attackers**: Conducting supply chain attacks against Microsoft repositories through compromised GitHub accounts
+- **ShinyHunters Gang**: Conducting ongoing data theft attacks against Oracle PeopleSoft servers, claiming over 100 organizational victims
+- **China-Linked JDY Botnet**: Expanded operations targeting U.S. military networks with over 1,500 compromised SOHO devices for cyber reconnaissance
+- **The Gentlemen Ransomware Group**: Emerged as second most active ransomware operation by victim count with aggressive recruitment strategies
+- **Miasma Framework Operators**: Credential-stealing attacks targeting open-source software supply chains
+- **Chaotic Eclipse (Nightmare-Eclipse)**: Anonymous researcher releasing multiple Microsoft Defender zero-day exploits including RoguePlanet
+- **Unknown ServiceNow Attackers**: Threat actors who exploited ServiceNow vulnerability for unauthorized customer instance access
