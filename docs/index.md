@@ -1,57 +1,47 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity, with multiple critical vulnerabilities being actively exploited in the wild. The most severe threats include a zero-day vulnerability in Oracle PeopleSoft (CVE-2026-35273) exploited by the ShinyHunters extortion crew, and a maximum-severity Ivanti Sentry flaw being targeted within 24 hours of its disclosure. Additionally, multiple AI agent platforms including LangGraph and OpenClaw have been compromised through vulnerability chains enabling remote code execution, while threat actors continue to leverage sophisticated attack techniques to breach enterprise systems and educational institutions.
+Critical zero-day exploitation is dominating the current threat landscape, with the ShinyHunters extortion crew actively exploiting CVE-2026-35273, an Oracle PeopleSoft zero-day vulnerability that enables unauthenticated remote code execution. This campaign has specifically targeted universities for data theft operations. Simultaneously, CISA has issued emergency directives requiring federal agencies to patch an actively exploited Ivanti Sentry flaw within 72 hours, highlighting the severity of ongoing attacks. The threat environment is further complicated by emerging AI-focused attack vectors, including Agentjacking attacks targeting AI coding agents and exploitation techniques against LangGraph and OpenClaw AI systems, demonstrating how threat actors are rapidly adapting to target AI-driven infrastructure.
 
 ## Active Exploitation Details
 
 ### Oracle PeopleSoft Zero-Day Vulnerability
-- **Description**: A critical unpatched flaw in Oracle PeopleSoft that allows unauthenticated remote code execution
-- **Impact**: Enables attackers to break into enterprise systems, steal data, and conduct extortion campaigns
-- **Status**: Actively exploited by ShinyHunters crew; Oracle has issued mitigations
+- **Description**: Critical zero-day vulnerability in Oracle PeopleSoft Suite that allows unauthenticated remote code execution
+- **Impact**: Complete system compromise, data theft, and unauthorized access to enterprise systems
+- **Status**: Actively exploited by ShinyHunters extortion crew; Oracle has issued mitigations
 - **CVE ID**: CVE-2026-35273
 
-### Ivanti Sentry Maximum Severity Vulnerability
-- **Description**: A critical flaw in Ivanti Sentry secure mobile gateways that enables remote code execution with root privileges
-- **Impact**: Allows attackers to execute code with root privileges on Internet-exposed secure mobile gateways
-- **Status**: Actively exploited in attacks within 24 hours of disclosure; CISA has mandated federal agencies patch within 3 days
+### Ivanti Sentry Critical Vulnerability
+- **Description**: Maximum severity vulnerability in Ivanti Sentry that was exploited within 24 hours of public disclosure
+- **Impact**: Complete system compromise with evidence of rapid exploitation following disclosure
+- **Status**: Under active exploitation; CISA has mandated federal agencies patch within 3 days under new Binding Operational Directive 26-04
 
-### LangGraph Security Flaw Chain
-- **Description**: Three security flaws impacting LangGraph AI agents, including a critical vulnerability chain
-- **Impact**: Results in remote code execution on self-hosted AI agents
-- **Status**: Patched vulnerabilities that were previously exploitable
-
-### OpenClaw AI Agent Vulnerabilities
-- **Description**: Multiple attack vectors targeting the popular self-hosted AI agent platform
-- **Impact**: Enables attackers to run controlled code or extract sensitive data from AI agents
-- **Status**: Multiple security teams have demonstrated successful exploitation techniques
-
-### Windows BitLocker GreatXML Bypass
-- **Description**: A new exploitation technique that bypasses Windows BitLocker encryption via recovery partition XML files
-- **Impact**: Allows unauthorized access to BitLocker-protected systems
-- **Status**: Exploit code released publicly by security researcher
+### LangGraph Remote Code Execution Chain
+- **Description**: Critical vulnerability chain in LangGraph affecting self-hosted AI agents
+- **Impact**: Remote code execution on systems running LangGraph AI agents
+- **Status**: Now patched, but was exploitable in self-hosted environments
 
 ## Affected Systems and Products
 
-- **Oracle PeopleSoft Suite**: Enterprise resource planning systems, particularly affecting universities and large organizations
-- **Ivanti Sentry**: Secure mobile gateway appliances exposed to the internet
-- **LangGraph**: Self-hosted AI agent development platforms
-- **OpenClaw**: Popular self-hosted AI agent systems
-- **Windows BitLocker**: Microsoft's disk encryption technology across Windows systems
-- **npm Ecosystem**: JavaScript package management system vulnerable to supply chain attacks
+- **Oracle PeopleSoft Suite**: Enterprise systems across universities and organizations, particularly vulnerable to data theft attacks
+- **Ivanti Sentry**: Federal government systems and enterprise infrastructure requiring immediate patching
+- **AI Coding Agents**: Development environments using AI coding assistants susceptible to Agentjacking attacks
+- **LangGraph AI Systems**: Self-hosted AI agent deployments vulnerable to remote code execution
+- **OpenClaw AI Agent**: Popular self-hosted AI agents vulnerable to code execution and data exfiltration
+- **Windows BitLocker**: Systems vulnerable to GreatXML bypass technique via recovery partition XML files
+- **Microsoft Defender**: Systems affected by new exploit techniques from security researcher
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Remote Code Execution**: Exploiting web application vulnerabilities in enterprise systems without requiring credentials
-- **AI Agent Manipulation**: Tricking AI agents into executing malicious code or revealing sensitive information through crafted prompts
-- **BitLocker Bypass**: Leveraging recovery partition XML files to circumvent disk encryption
-- **Supply Chain Attacks**: Targeting software installation scripts and package managers to compromise downstream systems
-- **Phishing-as-a-Service**: Utilizing platforms like Sniper Dz for large-scale credential harvesting operations
-- **Worm-like Propagation**: Implementing self-spreading capabilities in ransomware operations
+- **Agentjacking**: New attack class that tricks AI coding agents into executing arbitrary code on developer machines
+- **Zero-Day Exploitation**: Rapid weaponization of Oracle PeopleSoft vulnerability for data theft campaigns
+- **AI Agent Manipulation**: Techniques to trick OpenClaw and other AI agents into running attacker-controlled code or leaking sensitive data
+- **GreatXML BitLocker Bypass**: Novel technique exploiting Windows recovery partition XML files to bypass BitLocker encryption
+- **Worm-Like Propagation**: The Gentlemen ransomware demonstrating self-propagating capabilities across networks
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Actively exploiting Oracle PeopleSoft zero-day (CVE-2026-35273) to breach universities and steal data for extortion
-- **The Gentlemen Ransomware**: Operating as affiliates conducting double extortion attacks with worm-like spreading capabilities, claiming 478 victims
-- **OceanLotus (APT32)**: Conducting SPECTRALVIPER campaigns targeting Vietnamese domestic entities and stock investors through FireAnt attacks
-- **Sniper Dz Operators**: Running decade-long phishing-as-a-service platform before disruption by INTERPOL Operation Ramz
-- **AudiA6 Service**: Providing cryptocurrency laundering services for ransomware gangs and cybercriminals, processing over $380 million before law enforcement disruption
+- **ShinyHunters Extortion Crew**: Actively exploiting CVE-2026-35273 to breach university systems, steal data, and demand payment for data privacy
+- **OceanLotus (Vietnam-aligned)**: Conducting SPECTRALVIPER backdoor campaigns targeting domestic Vietnamese entities and stock investors through FireAnt attacks
+- **The Gentlemen Ransomware Group**: Operating double extortion attacks with 478 claimed victims, utilizing worm-like spreading capabilities
+- **INTERPOL Operation Ramz**: Successful takedown of Sniper Dz phishing-as-a-service platform that operated for over a decade
+- **Europol AudiA6 Disruption**: Dismantling of cryptocurrency laundering service used by ransomware gangs to process over $380 million in illicit funds
