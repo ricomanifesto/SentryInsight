@@ -1,60 +1,63 @@
 # Exploitation Report
 
-Critical zero-day vulnerabilities are being actively exploited across enterprise systems, with CVE-2026-35273 in Oracle PeopleSoft being leveraged by ShinyHunters to breach university networks and steal sensitive data. A maximum severity Ivanti Sentry flaw was exploited within 24 hours of disclosure, prompting CISA emergency directives. Additionally, authentication bypass vulnerabilities in enterprise software, Linux package repository compromises affecting 400+ Arch Linux AUR packages, and sophisticated long-term persistence attacks by Chinese threat actors highlight the evolving threat landscape across multiple platforms and industries.
+The cybersecurity landscape is experiencing significant exploitation activity across multiple platforms and products. Critical vulnerabilities are being actively exploited in Oracle PeopleSoft systems, Ivanti Sentry solutions, and Splunk Enterprise platforms, with threat actors moving rapidly to capitalize on newly disclosed flaws. Notable campaigns include ShinyHunters leveraging a zero-day vulnerability to target educational institutions, Chinese-linked threat actors maintaining decade-long persistence in authentication systems, and widespread compromise of Linux package repositories. The rapid exploitation of vulnerabilities within 24 hours of disclosure demonstrates attackers' sophisticated preparation and monitoring capabilities.
 
 ## Active Exploitation Details
 
-### Oracle PeopleSoft Zero-Day
-- **Description**: Critical zero-day vulnerability in Oracle PeopleSoft Suite allowing unauthenticated remote code execution
-- **Impact**: Complete system compromise, data theft, and enterprise network breaches
-- **Status**: Oracle has issued mitigation guidance; actively exploited by ShinyHunters
+### Oracle PeopleSoft Zero-Day Vulnerability
+- **Description**: Critical vulnerability in Oracle PeopleSoft Suite allowing unauthenticated remote code execution
+- **Impact**: Attackers can break into enterprise systems, steal data, and demand payment to keep information private
+- **Status**: Actively exploited by ShinyHunters extortion crew; Oracle has implemented mitigations
 - **CVE ID**: CVE-2026-35273
 
 ### Ivanti Sentry Maximum Severity Flaw
-- **Description**: Maximum severity vulnerability in Ivanti Sentry with rapid exploitation timeline
-- **Impact**: System compromise and unauthorized access to enterprise environments
-- **Status**: Exploited within 24 hours of disclosure; CISA mandates federal patching by Sunday
-- **CVE ID**: Not specified in source articles
+- **Description**: Critical vulnerability in Ivanti Sentry solutions with maximum severity rating
+- **Impact**: Allows attackers to compromise systems and gain unauthorized access
+- **Status**: Actively exploited within 24 hours of disclosure; CISA has mandated federal agencies patch within three days
+- **CVE ID**: Not specified in the articles
 
-### Splunk Enterprise Critical Vulnerability
-- **Description**: Critical security flaw enabling unauthenticated file operations and remote code execution
-- **Impact**: Complete system compromise without authentication requirements
-- **Status**: Security updates released by Splunk
+### Splunk Enterprise Critical Flaw
+- **Description**: Critical security vulnerability in Splunk Enterprise enabling unauthenticated file operations
+- **Impact**: Allows remote code execution without authentication requirements
+- **Status**: Security updates released by Splunk to address the vulnerability
+- **CVE ID**: Not specified in the articles
 
 ### phpBB Authentication Bypass
 - **Description**: 10-year-old authentication bypass vulnerability in phpBB forum software
-- **Impact**: Attackers can log in as any user, including administrators
-- **Status**: Recently patched after decade-long exposure
+- **Impact**: Allows attackers to log in as any user, including administrators
+- **Status**: Fixed in recent phpBB security update
+- **CVE ID**: Not specified in the articles
 
-### LangGraph Self-Hosted AI Agent Vulnerabilities
-- **Description**: Critical vulnerability chain in LangGraph affecting self-hosted AI agents
-- **Impact**: Remote code execution on AI agent systems
-- **Status**: Three security flaws now patched
+### LangGraph Security Flaws
+- **Description**: Chain of three security vulnerabilities in LangGraph affecting self-hosted AI agents
+- **Impact**: Could result in remote code execution on systems running AI agents
+- **Status**: All vulnerabilities have been patched
+- **CVE ID**: Not specified in the articles
 
 ## Affected Systems and Products
 
 - **Oracle PeopleSoft Suite**: Enterprise resource planning software, particularly affecting American universities
-- **Ivanti Sentry**: Enterprise security solutions with federal government deployments
-- **Splunk Enterprise**: Data analytics and monitoring platforms
-- **phpBB Forum Software**: Web-based bulletin board systems across various organizations
-- **Arch Linux AUR**: Over 400 packages in the Arch User Repository compromised
-- **LangGraph**: Self-hosted artificial intelligence coding agents
-- **Linux Login Systems**: Authentication mechanisms backdoored for nearly a decade
+- **Ivanti Sentry**: Security solutions used by federal agencies and enterprises
+- **Splunk Enterprise**: Data analytics and monitoring platform
+- **phpBB Forum Software**: Open-source forum platform with decade-old vulnerability
+- **Arch User Repository (AUR)**: Over 400 packages compromised to distribute malware
+- **LangGraph**: AI agent framework for self-hosted deployments
+- **Linux Authentication Systems**: PAM modules targeted for long-term persistence
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Immediate weaponization of undisclosed vulnerabilities within hours of discovery
-- **Supply Chain Attacks**: Compromise of software repositories and package managers to distribute malware
-- **Authentication Stack Hijacking**: Long-term persistence through compromised authentication systems
-- **Package Repository Poisoning**: Malicious modification of legitimate software packages to include rootkits and infostealers
-- **AI Agent Manipulation**: Agentjacking attacks that trick AI coding agents into executing malicious code
-- **eBPF Rootkit Deployment**: Advanced Linux rootkits using extended Berkeley Packet Filter technology
+- **Zero-Day Exploitation**: Rapid exploitation of previously unknown vulnerabilities in Oracle PeopleSoft
+- **Authentication Hijacking**: Chinese threat actors compromising authentication stacks for persistent access
+- **Supply Chain Attacks**: Compromise of AUR packages to distribute rootkits and infostealers
+- **Package Repository Hijacking**: Rewriting build scripts in legitimate software packages
+- **AI Agent Manipulation**: Agentjacking attacks tricking AI coding agents into running malicious code
+- **Phishing-as-a-Service**: Use of platforms like Sniper Dz for coordinated phishing campaigns
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Actively exploiting Oracle PeopleSoft zero-day to target higher education institutions for data theft and extortion
-- **Chinese APT Groups**: Maintaining decade-long persistence in isolated networks through authentication system compromises and Linux backdoors
-- **Ransomware Operations**: Continued activities including Conti ransomware operations with Ukrainian national prosecution
-- **Cryptocurrency Laundering Networks**: AudiA6 service disrupted by Europol after facilitating ransomware gang money laundering
-- **Phishing-as-a-Service Operators**: Sniper Dz platform disrupted after decade of operation, with administrator arrested
-- **Chinese Smishing Networks**: Using Google's Gemini AI for enhanced phishing campaigns targeting American users
+- **ShinyHunters**: Actively exploiting Oracle PeopleSoft zero-day to target universities and steal data for extortion
+- **Chinese-Linked Groups**: Maintaining decade-long persistence in authentication systems and Linux login software
+- **Conti Ransomware Operation**: Ukrainian national pleading guilty to conspiracy charges related to ransomware activities
+- **Chinese Smishing Network**: Using Google's Gemini AI to enhance phishing text message campaigns
+- **AudiA6 Operators**: Running cryptocurrency laundering service for ransomware gangs before Europol disruption
+- **Sniper Dz Administrators**: Operating decade-long phishing-as-a-service platform before INTERPOL takedown
