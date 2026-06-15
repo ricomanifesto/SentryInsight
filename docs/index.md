@@ -1,62 +1,59 @@
 # Exploitation Report
 
-The cybersecurity landscape is experiencing significant exploitation activity across multiple attack vectors, with particular emphasis on zero-day vulnerabilities and supply chain attacks. ShinyHunters has successfully exploited a zero-day vulnerability in Oracle PeopleSoft systems to breach multiple universities, while attackers have compromised over 400 Arch Linux packages to distribute rootkits and infostealers. Additionally, critical vulnerabilities in Splunk Enterprise and phpBB forum software are being actively targeted, alongside sophisticated AI-powered phishing campaigns and long-term persistence attacks against authentication systems.
+Current exploitation activity shows a concerning mix of zero-day attacks, supply chain compromises, and long-term persistent threats. The ShinyHunters group has actively exploited a critical Oracle PeopleSoft zero-day vulnerability (CVE-2026-35273) to breach numerous universities, while Chinese-linked threat actors have maintained decade-long persistence through backdoored Linux authentication systems. Additionally, over 400 Arch Linux packages have been compromised to distribute rootkits and infostealers, and critical vulnerabilities in Splunk Enterprise and phpBB forum software pose significant risks to organizational security. CISA has issued urgent patching directives for an actively exploited Ivanti Sentry vulnerability, highlighting the immediate threat landscape facing federal agencies.
 
 ## Active Exploitation Details
 
 ### Oracle PeopleSoft Zero-Day Vulnerability
-- **Description**: An unpatched zero-day vulnerability in Oracle PeopleSoft enterprise systems allowing unauthorized access and data theft
-- **Impact**: Enables attackers to break into enterprise systems, steal sensitive data, and conduct extortion campaigns
-- **Status**: Currently unpatched, actively exploited by ShinyHunters group
+- **Description**: Critical unpatched flaw in Oracle's PeopleSoft ERP software that allows unauthorized access to enterprise systems
+- **Impact**: Attackers can break into systems, steal sensitive data, and conduct extortion campaigns
+- **Status**: Actively exploited by ShinyHunters group, primarily targeting American universities
 - **CVE ID**: CVE-2026-35273
 
-### Splunk Enterprise Critical Vulnerability
-- **Description**: A critical security flaw in Splunk Enterprise allowing unauthenticated file operations and remote code execution
-- **Impact**: Attackers can execute code without authentication and perform unauthorized file operations
-- **Status**: Security updates have been released by Splunk
-
-### phpBB Authentication Bypass Vulnerability
-- **Description**: A 10-year-old authentication bypass vulnerability in phpBB forum software
-- **Impact**: Allows attackers to log in as any user, including administrators
-- **Status**: Recently patched after being present for a decade
-
 ### Ivanti Sentry Vulnerability
-- **Description**: An actively exploited vulnerability in Ivanti Sentry systems
-- **Impact**: Allows unauthorized access to federal systems
-- **Status**: Actively exploited, CISA has ordered federal agencies to patch within three days
+- **Description**: Critical security flaw in Ivanti Sentry platform being actively exploited in the wild
+- **Impact**: Allows attackers to compromise federal government systems
+- **Status**: Under active exploitation with CISA mandating emergency patching within three days
+
+### Splunk Enterprise Critical Flaw
+- **Description**: Critical security vulnerability enabling unauthenticated file operations and remote code execution
+- **Impact**: Complete system compromise without authentication requirements
+- **Status**: Security updates released by Splunk to address the vulnerability
+
+### phpBB Authentication Bypass
+- **Description**: 10-year-old authentication bypass vulnerability in phpBB forum software
+- **Impact**: Allows attackers to log in as any user, including administrators
+- **Status**: Recently patched after lurking undetected for a decade
 
 ### LangGraph Vulnerability Chain
 - **Description**: Three security flaws in LangGraph affecting self-hosted AI agents
-- **Impact**: Critical vulnerability chain could result in remote code execution
-- **Status**: Now patched
+- **Impact**: Remote code execution on systems running AI coding agents
+- **Status**: Now patched but previously exposed AI development environments
 
 ## Affected Systems and Products
 
-- **Oracle PeopleSoft**: Enterprise resource planning systems, particularly affecting American universities
-- **Splunk Enterprise**: Data analytics and monitoring platform vulnerable to unauthenticated attacks
-- **phpBB Forum Software**: Community forum platform with decade-old authentication bypass
-- **Arch Linux AUR**: Over 400 packages in Arch User Repository compromised with malicious build scripts
-- **Ivanti Sentry**: Enterprise security management systems in federal environments
-- **LangGraph**: AI agent development framework for self-hosted implementations
-- **Linux Authentication Systems**: Login software backdoored for nearly a decade
-- **Tchap Messenger**: French government encrypted messaging platform affecting 73,000+ employees
+- **Oracle PeopleSoft ERP**: Critical zero-day affecting enterprise resource planning systems, disproportionately impacting American universities
+- **Ivanti Sentry**: Federal government systems under active attack requiring emergency patching
+- **Splunk Enterprise**: Enterprise logging and analytics platform vulnerable to unauthenticated attacks
+- **phpBB Forum Software**: Decade-old authentication bypass affecting forum administrators
+- **Arch Linux AUR Packages**: Over 400 packages compromised in the Arch User Repository
+- **LangGraph AI Framework**: Self-hosted AI agent platforms vulnerable to remote code execution
+- **Linux Authentication Systems**: Long-term backdoors in login software affecting enterprise environments
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Direct exploitation of unpatched vulnerabilities in enterprise software
-- **Supply Chain Poisoning**: Hijacking of legitimate software repositories to distribute malware
-- **Authentication Flow Hijacking**: Long-term compromise of authentication systems for persistent access
-- **AI-Powered Phishing**: Use of artificial intelligence to enhance phishing campaign effectiveness
-- **Package Repository Compromise**: Modification of build scripts in software repositories to install malware
-- **Agentjacking**: New attack class targeting AI coding agents to execute malicious code on developer systems
-- **Backdoor Installation**: Long-term persistence mechanisms in critical system components
+- **Zero-Day Exploitation**: ShinyHunters leveraging unpatched Oracle vulnerability for data theft and extortion
+- **Supply Chain Poisoning**: Mass compromise of Arch Linux packages to distribute rootkits and credential stealers
+- **Authentication Hijacking**: Chinese hackers maintaining decade-long persistence through backdoored Linux login systems
+- **eBPF Rootkit Deployment**: Advanced Linux rootkit technology deployed through compromised AUR packages
+- **AI Agent Manipulation**: Agentjacking attacks tricking AI coding agents into executing malicious code
+- **Phishing-as-a-Service**: FBI disruption of massive AI-powered phishing operations using over one million URLs
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Actively exploiting Oracle PeopleSoft zero-day to breach universities and conduct data extortion campaigns
-- **Chinese Threat Groups**: Maintaining decade-long persistence in authentication systems and isolated networks through backdoored login software
-- **Outsider Enterprise**: Chinese phishing-as-a-service operation using AI and managing over a million phishing URLs before FBI disruption
-- **Sniper Dz Operators**: Decade-long phishing-as-a-service platform disrupted by INTERPOL Operation Ramz
-- **AudiA6 Service**: Cryptocurrency laundering service used by ransomware gangs, disrupted by European authorities
-- **Conti Ransomware Affiliates**: Ukrainian national pleading guilty to conspiracy charges related to ransomware operations
-- **Arch Linux Package Hijackers**: Attackers compromising over 400 AUR packages to deploy eBPF rootkits and credential stealers
+- **ShinyHunters**: Actively exploiting Oracle PeopleSoft zero-day (CVE-2026-35273) to breach universities and conduct data extortion campaigns
+- **Chinese APT Groups**: Maintaining nearly decade-long persistence through backdoored Linux authentication systems with full administrative visibility
+- **Chinese Phishing Networks**: Operating massive AI-powered phishing services and using Gemini AI for SMS phishing campaigns targeting Americans
+- **Arch Linux Package Hijackers**: Compromised over 400 AUR packages to deploy sophisticated rootkits and infostealers targeting credentials and access tokens
+- **Conti Ransomware Operation**: Ukrainian national pleaded guilty to conspiracy charges in connection with the notorious ransomware group
+- **Sniper Dz PhaaS**: Decade-long phishing-as-a-service platform disrupted by INTERPOL Operation Ramz with administrator arrested
