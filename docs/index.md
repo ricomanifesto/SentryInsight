@@ -1,69 +1,65 @@
 # Exploitation Report
 
-Critical vulnerabilities are being actively exploited across multiple platforms, with particularly severe activity targeting enterprise infrastructure. The most significant threats include an Oracle zero-day being exploited by the ShinyHunters group to target higher education institutions, active exploitation of Palo Alto Networks PAN-OS GlobalProtect VPN vulnerabilities, and the compromise of over 400 Arch Linux packages distributing rootkits and infostealers. Additionally, sophisticated threat actors have demonstrated advanced persistence techniques, including a Chinese group that maintained access to authentication systems for nearly a decade and compromised Linux login software for long-term stealth operations.
+Critical exploitation activity is currently targeting multiple platforms with sophisticated attack campaigns. The most severe threats include active exploitation of Palo Alto Networks' PAN-OS GlobalProtect VPN infrastructure, a critical Splunk Enterprise vulnerability allowing unauthenticated remote code execution, and supply chain attacks compromising over 400 Arch Linux packages. Additionally, threat actors are exploiting an Oracle zero-day vulnerability to target educational institutions, while Chinese-linked groups have maintained persistent access to authentication systems for nearly a decade and are actively breaching REDCap servers to steal medical research data.
 
 ## Active Exploitation Details
 
-### Oracle ERP Software Zero-Day
-- **Description**: A major vulnerability in Oracle's Enterprise Resource Planning (ERP) software that disproportionately affects American universities
-- **Impact**: Allows attackers to steal sensitive data from educational institutions
-- **Status**: Actively being exploited by ShinyHunters group
-
 ### PAN-OS GlobalProtect VPN Vulnerability
-- **Description**: A recently disclosed vulnerability in Palo Alto Networks PAN-OS affecting GlobalProtect portal functionality
-- **Impact**: Enables unauthorized access to VPN infrastructure and potential lateral movement
-- **Status**: Active exploitation observed by Palo Alto Networks
+- **Description**: Recently disclosed vulnerability in Palo Alto Networks' PAN-OS affecting GlobalProtect portal systems
+- **Impact**: Allows unknown threat actors to obtain unauthorized access to GlobalProtect portal infrastructure
+- **Status**: Currently under active exploitation by threat actors; recently disclosed with patches available
+
+### Oracle ERP Zero-Day Vulnerability
+- **Description**: Major security flaw in Oracle's Enterprise Resource Planning (ERP) software
+- **Impact**: Enables complete system compromise and data theft, particularly affecting American universities
+- **Status**: Zero-day exploitation ongoing; disproportionately impacts higher education sector
 
 ### Splunk Enterprise Critical Vulnerability
-- **Description**: A critical security flaw allowing unauthenticated file operations and remote code execution
-- **Impact**: Attackers can execute arbitrary code without authentication credentials
-- **Status**: Security updates released by Splunk
-
-### Ivanti Sentry Vulnerability
-- **Description**: A vulnerability in Ivanti Sentry that is being actively exploited in the wild
-- **Impact**: Allows unauthorized access to affected systems
-- **Status**: CISA has mandated federal agencies patch within three days
+- **Description**: Critical security flaw in Splunk Enterprise platform
+- **Impact**: Allows attackers to conduct unauthenticated file operations and achieve remote code execution
+- **Status**: Security updates released; exploitation possible without authentication
 
 ### phpBB Authentication Bypass
-- **Description**: A 10-year-old authentication bypass vulnerability in phpBB forum software
+- **Description**: 10-year-old authentication bypass vulnerability in phpBB forum software
 - **Impact**: Allows attackers to log in as any user, including administrators
-- **Status**: Recently patched after decade-long exposure
+- **Status**: Recently patched after a decade of exposure
 
-### LangGraph Security Flaws
-- **Description**: Three security vulnerabilities in LangGraph affecting self-hosted AI agents
-- **Impact**: Critical vulnerability chain that could result in remote code execution
-- **Status**: All three vulnerabilities have been patched
+### Microsoft 365 Copilot SearchLeak Vulnerability Chain
+- **Description**: Critical vulnerability chain in Microsoft 365 Copilot Enterprise
+- **Impact**: Enables one-click data theft from target's mailbox, OneDrive, or SharePoint accounts
+- **Status**: Active vulnerability requiring immediate attention
 
 ## Affected Systems and Products
 
-- **Oracle ERP Software**: American universities disproportionately affected
-- **Palo Alto Networks PAN-OS**: GlobalProtect portal and VPN infrastructure
-- **Splunk Enterprise**: All versions vulnerable to unauthenticated attacks
-- **Arch Linux AUR**: Over 400 packages compromised with malicious build scripts
-- **Ivanti Sentry**: Federal agencies required to patch immediately
-- **phpBB Forums**: All installations running vulnerable versions for past decade
-- **Linux Authentication Systems**: Login software backdoored by Chinese threat actors
-- **LangGraph AI Frameworks**: Self-hosted AI agent deployments
-- **French Government Systems**: Tchap encrypted messaging platform affecting 73,000+ accounts
+- **REDCap Servers**: Medical research data management systems targeted for data theft
+- **Palo Alto Networks PAN-OS**: GlobalProtect VPN portal infrastructure under active attack
+- **Oracle ERP Software**: Enterprise systems primarily affecting educational institutions
+- **Splunk Enterprise**: Data analytics platform vulnerable to unauthenticated attacks
+- **Arch User Repository (AUR)**: Over 400 Linux packages compromised with malware
+- **WordPress Sites**: PushEngage, OptinMonster, and TrustPulse plugins backdoored
+- **Chrome Extensions**: 152 wallpaper extensions with 105,000 installations distributing adware
+- **phpBB Forums**: Authentication systems vulnerable to decade-old bypass flaw
+- **Microsoft 365 Copilot**: Enterprise AI assistant vulnerable to data exfiltration
+- **Salesforce Systems**: Infinite Campus K-12 student information systems breached
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise**: Hijacking of Arch Linux AUR packages to deploy rootkits and credential stealers
-- **Authentication Bypass**: Exploitation of decade-old phpBB vulnerability for administrative access
-- **VPN Infrastructure Targeting**: Active exploitation of PAN-OS GlobalProtect vulnerabilities
-- **Phishing-as-a-Service**: AI-powered phishing operations using legitimate platforms like Gemini AI
-- **Authentication Stack Hijacking**: Chinese threat actors taking control of entire authentication systems
-- **Backdoored Login Systems**: Persistent access through compromised Linux login software
-- **AI Agent Exploitation**: Agentjacking attacks tricking AI coding agents into executing malicious code
-- **eBPF Rootkit Deployment**: Advanced rootkit techniques targeting Linux systems through compromised packages
+- **Supply Chain Compromise**: Tampering with trusted JavaScript files in WordPress plugins to create backdoors
+- **Package Repository Hijacking**: Compromising AUR packages to deploy rootkits and infostealers
+- **Authentication Stack Hijacking**: Long-term persistence through compromised login systems
+- **AI-Powered Phishing**: Using Gemini AI to generate convincing phishing text messages
+- **Browser Extension Abuse**: Distribution of potentially unwanted programs through Chrome extensions
+- **Vulnerability Chaining**: Combining multiple flaws in Microsoft 365 Copilot for data theft
+- **Unauthenticated Exploitation**: Direct access to critical systems without credentials
+- **Social Engineering**: Fake Facebook offers targeting MENA region users
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Actively exploiting Oracle zero-day to target higher education institutions and steal data
-- **Chinese APT Groups**: Long-term persistence operations including decade-long authentication system compromise and Linux login software backdoors
-- **Unknown PAN-OS Exploiters**: Active exploitation of Palo Alto Networks GlobalProtect VPN infrastructure
-- **Sniper Dz Operators**: Decade-long phishing-as-a-service platform disrupted by INTERPOL Operation Ramz
-- **AUR Package Compromisers**: Mass compromise of 400+ Arch Linux packages to distribute malware
-- **Chinese Smishing Networks**: Using AI services like Gemini for sophisticated phishing campaigns targeting Americans
-- **Conti Ransomware Affiliates**: Ukrainian national pleading guilty to conspiracy charges in ransomware operations
-- **AudiA6 Operators**: Cryptocurrency laundering service supporting ransomware gangs disrupted by Europol
+- **Chinese Espionage Groups**: Targeting REDCap servers for medical research theft using InfiniteRed malware
+- **Voltron Group**: Maintaining decade-long persistence in Linux authentication systems through backdoored login software
+- **ShinyHunters**: Exploiting Oracle zero-day to breach educational institutions and steal data from 137,000 school staff accounts
+- **Unknown PAN-OS Attackers**: Actively exploiting GlobalProtect VPN vulnerabilities for unauthorized access
+- **Ransomware Operations**: Conti ransomware group continuing criminal activities despite law enforcement actions
+- **Chinese Smishing Networks**: Using AI tools for large-scale phishing campaigns targeting American users
+- **Outsider Enterprise**: Dismantled Chinese phishing-as-a-service operation utilizing over one million URLs
+- **Sniper Dz Scammers**: Targeting Middle East and North Africa users through fraudulent Facebook campaigns
