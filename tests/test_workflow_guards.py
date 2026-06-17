@@ -99,8 +99,7 @@ class WorkflowGuardTests(unittest.TestCase):
             state = {
                 "analysis_results": {
                     "exploitation_report": (
-                        "# Error Generating Exploitation Report\n\n"
-                        "Error code: 404"
+                        "# Error Generating Exploitation Report\n\n" "Error code: 404"
                     )
                 },
                 "config": {"output_path": str(output_path)},

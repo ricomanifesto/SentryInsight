@@ -5,7 +5,6 @@ from pathlib import Path
 
 from src.services.publish import publish_to_github_pages
 
-
 VALID_REPORT = """# Exploitation Report
 
 Recent exploitation activity is concentrated in edge systems.

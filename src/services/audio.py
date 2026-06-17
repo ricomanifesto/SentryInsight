@@ -34,7 +34,9 @@ def extract_executive_summary(report_markdown: str) -> str:
     return " ".join(summary_lines)
 
 
-async def generate_executive_summary_audio(report_markdown: str, output_path: str) -> bool:
+async def generate_executive_summary_audio(
+    report_markdown: str, output_path: str
+) -> bool:
     """Generate an MP3 narration of the executive summary using Eleven Labs TTS."""
     api_key = os.getenv("ELEVENLABS_API_KEY")
     if not api_key:
@@ -43,7 +45,9 @@ async def generate_executive_summary_audio(report_markdown: str, output_path: st
 
     summary_text = extract_executive_summary(report_markdown)
     if not summary_text:
-        logger.warning("Could not extract executive summary from report — skipping audio generation")
+        logger.warning(
+            "Could not extract executive summary from report — skipping audio generation"
+        )
         return False
 
     logger.info(f"Generating audio for executive summary ({len(summary_text)} chars)")

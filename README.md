@@ -26,7 +26,7 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 
 1. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   uv sync --group dev
    ```
 
 2. Add Anthropic API key:
@@ -43,7 +43,7 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 ## Usage
 
 ```bash
-python main.py
+uv run python main.py
 ```
 
 Fetches articles, filters for exploitation content, analyzes threats, and saves reports to `index.md`.
@@ -51,5 +51,5 @@ Fetches articles, filters for exploitation content, analyzes threats, and saves 
 Validate a generated report before publishing:
 
 ```bash
-python scripts/validate_report.py index.md
+bash scripts/local_validation.sh
 ```

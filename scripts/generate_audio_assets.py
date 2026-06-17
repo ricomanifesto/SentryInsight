@@ -2,18 +2,25 @@
 
 import os
 from pathlib import Path
+from typing import TypedDict
+
 from dotenv import load_dotenv
+from elevenlabs.client import ElevenLabs
 
 load_dotenv()
-
-from elevenlabs.client import ElevenLabs
 
 ASSETS_DIR = Path("assets/audio")
 ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
 client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
 
-ASSETS = {
+
+class AudioAsset(TypedDict):
+    text: str
+    duration: float
+
+
+ASSETS: dict[str, AudioAsset] = {
     "intro.mp3": {
         "text": "Dark electronic cybersecurity podcast intro jingle, synthesizer, tension building, tech atmosphere, professional, cinematic",
         "duration": 8.0,

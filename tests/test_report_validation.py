@@ -2,7 +2,6 @@ import unittest
 
 from src.core.report_validation import validate_report_content
 
-
 VALID_REPORT = """# Exploitation Report
 
 Recent exploitation activity is concentrated in edge systems.

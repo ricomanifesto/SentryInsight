@@ -1,0 +1,49 @@
+[project]
+name = "sentryinsight"
+version = "0.1.0"
+description = "Automated cybersecurity threat intelligence report generation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic",
+    "elevenlabs",
+    "feedparser",
+    "httpx",
+    "langchain>=0.1.0",
+    "langchain-anthropic",
+    "langchain-core",
+    "langgraph>=0.0.20",
+    "mcp-python>=0.1.0",
+    "pydantic>=2.0.0",
+    "pydub",
+    "python-dotenv",
+    "tiktoken",
+]
+
+[dependency-groups]
+dev = [
+    "black",
+    "pytest",
+    "ruff",
+    "ty",
+]
+
+[tool.uv]
+package = false
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.src]
+include = ["main.py", "scripts", "src"]

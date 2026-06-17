@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Validate generated report markdown before publishing."""
 
+# ruff: noqa: E402
+
 import argparse
 import sys
 from pathlib import Path
