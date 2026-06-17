@@ -4,6 +4,11 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any
 
+from src.core.report_validation import (
+    format_report_validation_issues,
+    validate_report_content,
+)
+
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -37,6 +42,13 @@ async def publish_to_github_pages(
         # Extract the exploitation report and date
         exploitation_report = analysis_results.get("exploitation_report", "No exploitation report available.")
         report_date = analysis_results.get("date", datetime.now().strftime("%Y-%m-%d"))
+        validation_issues = validate_report_content(exploitation_report)
+        if validation_issues:
+            logger.error(
+                "Refusing to publish invalid report:\n%s",
+                format_report_validation_issues(validation_issues),
+            )
+            return False
         
         # Create the main index.html file
         index_path = repo_path / "index.md"

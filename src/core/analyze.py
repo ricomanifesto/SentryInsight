@@ -9,6 +9,8 @@ import tiktoken
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 
+from .model_config import resolve_anthropic_model, validate_anthropic_model
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -75,8 +77,17 @@ async def analyze_exploitation(articles: List[Dict[str, Any]], config: Dict[str,
     
     # Initialize the AI model (Anthropic Claude)
     api_key = os.getenv("ANTHROPIC_API_KEY")
-    model_name = config.get("analysis", {}).get("model", "claude-sonnet-4-20250514")
+    model_name = resolve_anthropic_model(config)
     max_tokens = config.get("analysis", {}).get("max_tokens", 4000)
+    try:
+        validate_anthropic_model(model_name)
+    except ValueError as e:
+        logger.error(f"Invalid Anthropic model configuration: {e}")
+        return {
+            "exploitation_report": f"# Error: Invalid Anthropic Model\n\n{str(e)}",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "error": str(e)
+        }
     
     if not api_key:
         logger.error("No Anthropic API key provided")
