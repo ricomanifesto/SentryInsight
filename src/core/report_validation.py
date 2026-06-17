@@ -15,7 +15,7 @@ ERROR_MARKERS = (
     "# Error",
     "Error code:",
     "Error Generating Exploitation Report",
-    "No Anthropic API Key",
+    "Invalid Model",
     "credit balance is too low",
     "authentication_error",
     "not_found_error",
