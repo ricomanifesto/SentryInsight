@@ -1,13 +1,15 @@
 """MCP RSS feed parser for SentryDigest."""
 
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 from mcp.server.fastmcp import FastMCP
 from ..core.tools import RSSTools
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Initialize FastMCP server for RSS operations only
@@ -16,10 +18,11 @@ rss_mcp = FastMCP("sentrydigest-rss")
 # Initialize tools
 rss_tools = RSSTools()
 
+
 @rss_mcp.tool()
 async def fetch_rss_feed(feed_url: str) -> Dict[str, Any]:
     """Fetch an RSS feed and return the parsed content.
-    
+
     Args:
         feed_url: URL of the RSS feed to fetch
     """
@@ -31,10 +34,11 @@ async def fetch_rss_feed(feed_url: str) -> Dict[str, Any]:
         logger.error(f"Error fetching RSS feed: {e}")
         return {"error": str(e), "entries": []}
 
+
 @rss_mcp.tool()
 async def enrich_rss_articles(articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Enrich RSS articles with full content.
-    
+
     Args:
         articles: List of article dictionaries to enrich
     """
@@ -49,5 +53,6 @@ async def enrich_rss_articles(articles: List[Dict[str, Any]]) -> List[Dict[str, 
         logger.error(f"Error enriching articles: {e}")
         return articles  # Return original articles if enrichment fails
 
+
 # Export the MCP application
-mcp_app = rss_mcp 
+mcp_app = rss_mcp

@@ -25,17 +25,18 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
       
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        run: uv sync --group dev --frozen
 
       - name: Run local validation
         run: bash scripts/local_validation.sh
       
       - name: Generate exploitation report
-        run: python main.py
+        run: uv run python main.py
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           SENTRYINSIGHT_ANTHROPIC_MODEL: ${{ vars.SENTRYINSIGHT_ANTHROPIC_MODEL || 'claude-sonnet-4-6' }}
@@ -47,7 +48,7 @@ jobs:
           GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
       
       - name: Validate report content before publishing
-        run: python scripts/validate_report.py index.md
+        run: uv run python scripts/validate_report.py index.md
 
       - name: Commit and push updated report
         if: github.ref == 'refs/heads/main'
