@@ -34,7 +34,11 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
    echo "ANTHROPIC_API_KEY=your-api-key-here" > .env
    ```
 
-3. Configure feeds and output paths in `config/config.json`
+3. Configure feeds, output paths, and the default Anthropic model in `config/config.json`.
+   Override the model for a single environment with:
+   ```bash
+   export SENTRYINSIGHT_ANTHROPIC_MODEL=claude-sonnet-4-6
+   ```
 
 ## Usage
 
@@ -43,3 +47,9 @@ python main.py
 ```
 
 Fetches articles, filters for exploitation content, analyzes threats, and saves reports to `index.md`.
+
+Validate a generated report before publishing:
+
+```bash
+python scripts/validate_report.py index.md
+```

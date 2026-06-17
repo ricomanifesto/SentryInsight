@@ -11,3 +11,4 @@ mcp-python>=0.1.0
 anthropic
 elevenlabs
 pydub
+pytest

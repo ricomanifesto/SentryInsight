@@ -9,6 +9,10 @@ from pathlib import Path
 
 from ..services.rss_mcp import fetch_rss_feed, enrich_rss_articles  # Import the MCP tools
 from .analyze import filter_exploitation_articles, analyze_exploitation
+from .report_validation import (
+    format_report_validation_issues,
+    validate_report_content,
+)
 from ..services.publish import publish_to_github_pages
 from ..services.audio import (
     generate_executive_summary_audio,
@@ -119,6 +123,9 @@ async def analyze_articles(state: ExploitationAnalysisState) -> ExploitationAnal
     # Analyze the filtered articles
     analysis_results = await analyze_exploitation(filtered_articles, config)
     state["analysis_results"] = analysis_results
+    if analysis_results.get("error"):
+        logger.error(f"Analysis failed: {analysis_results['error']}")
+        state["status"] = "failed"
     
     logger.info("Completed article analysis")
     return state
@@ -141,6 +148,17 @@ async def generate_report(state: ExploitationAnalysisState) -> ExploitationAnaly
     # Since the exploitation_report already contains the full formatted report,
     # we should use it directly instead of the template
     report = exploitation_report
+    validation_issues = validate_report_content(report)
+    if validation_issues:
+        logger.error(
+            "Report validation failed:\n%s",
+            format_report_validation_issues(validation_issues),
+        )
+        state["report_validation_errors"] = [
+            issue.message for issue in validation_issues
+        ]
+        state["status"] = "failed"
+        return state
     
     # Save the report
     output_path = config.get("output_path", "index.md")
@@ -162,6 +180,10 @@ async def generate_audio(state: ExploitationAnalysisState) -> ExploitationAnalys
     """Generate audio narration of the executive summary using Eleven Labs."""
     logger.info("Generating executive summary audio")
 
+    if state.get("status") == "failed":
+        logger.warning("Skipping audio generation because report generation failed")
+        return state
+
     analysis_results = state.get("analysis_results", {})
     report = analysis_results.get("exploitation_report", "")
 
@@ -182,6 +204,10 @@ async def generate_audio(state: ExploitationAnalysisState) -> ExploitationAnalys
 async def publish_results(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
     """Publish results to GitHub Pages or local file"""
     logger.info("Publishing results")
+
+    if state.get("status") == "failed":
+        logger.warning("Skipping publishing because workflow status is failed")
+        return state
     
     config = state["config"]
     analysis_results = state["analysis_results"]
