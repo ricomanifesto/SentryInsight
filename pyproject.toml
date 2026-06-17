@@ -5,12 +5,10 @@ description = "Automated cybersecurity threat intelligence report generation"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "anthropic",
     "elevenlabs",
     "feedparser",
     "httpx",
     "langchain>=0.1.0",
-    "langchain-anthropic",
     "langchain-core",
     "langgraph>=0.0.20",
     "mcp-python>=0.1.0",

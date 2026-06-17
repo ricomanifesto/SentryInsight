@@ -11,7 +11,7 @@ try:
 except ImportError:
     pass
 
-# Anthropic API key should be set via environment variable ANTHROPIC_API_KEY
+# OpenCode should be running with access to the configured model provider.
 
 # Import the LangGraph workflow
 from src.core.workflow import run_exploitation_analysis

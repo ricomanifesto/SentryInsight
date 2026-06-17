@@ -1,14 +1,11 @@
 import logging
-import os
 from typing import List, Dict, Any
 from datetime import datetime
 
 import tiktoken
-from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import HumanMessage, SystemMessage
-from pydantic import SecretStr
 
-from .model_config import resolve_anthropic_model, validate_anthropic_model
+from .model_config import resolve_model, validate_model
+from .opencode_client import OpenCodeClient, parse_model_selection
 
 # Configure logging
 logging.basicConfig(
@@ -87,33 +84,19 @@ async def analyze_exploitation(
     """
     logger.info(f"Analyzing exploitation in {len(articles)} articles")
 
-    # Initialize the AI model (Anthropic Claude)
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    model_name = resolve_anthropic_model(config)
+    # Initialize the AI model through OpenCode.
+    model_name = resolve_model(config)
     max_tokens = int(config.get("analysis", {}).get("max_tokens", 4000))
     try:
-        validate_anthropic_model(model_name)
+        validate_model(model_name)
+        model_selection = parse_model_selection(model_name)
     except ValueError as e:
-        logger.error(f"Invalid Anthropic model configuration: {e}")
+        logger.error(f"Invalid model configuration: {e}")
         return {
-            "exploitation_report": f"# Error: Invalid Anthropic Model\n\n{str(e)}",
+            "exploitation_report": f"# Error: Invalid Model\n\n{str(e)}",
             "date": datetime.now().strftime("%Y-%m-%d"),
             "error": str(e),
         }
-
-    if not api_key:
-        logger.error("No Anthropic API key provided")
-        return {
-            "exploitation_report": "# Error: No Anthropic API Key\n\nPlease set the ANTHROPIC_API_KEY environment variable.",
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "error": "No API key",
-        }
-
-    model = ChatAnthropic(
-        api_key=SecretStr(api_key),
-        model_name=model_name,
-        max_tokens_to_sample=max_tokens,
-    )
 
     # Prepare all article summaries
     all_article_summaries = []
@@ -217,17 +200,13 @@ Generate a well-formatted exploitation report following the structure above. Be 
 
     # Call the AI model
     try:
-        messages = [
-            SystemMessage(
-                content="You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild."
-            ),
-            HumanMessage(content=prompt),
-        ]
-
-        response = await model.ainvoke(messages)
-
-        # Extract the exploitation report
-        exploitation_report = response.content
+        client = OpenCodeClient(timeout=max(120.0, float(max_tokens) / 20))
+        exploitation_report = await client.generate(
+            system_prompt="You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild.",
+            user_prompt=prompt,
+            model=model_selection,
+            title="SentryInsight exploitation report",
+        )
 
         return {
             "exploitation_report": exploitation_report,

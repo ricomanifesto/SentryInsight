@@ -19,8 +19,7 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 
 - **LangGraph**: Orchestrates workflow state and conditional logic
 - **FastMCP**: Code organization with decorators for RSS tools
-- **LangChain**: AI model integration and text processing
-- **Anthropic Claude**: Content analysis and report generation
+- **OpenCode**: Provider-switchable report generation
 
 ## Setup
 
@@ -29,15 +28,20 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
    uv sync --group dev
    ```
 
-2. Add Anthropic API key:
+2. Start an OpenCode server with access to your preferred model provider:
    ```bash
-   echo "ANTHROPIC_API_KEY=your-api-key-here" > .env
+   opencode serve --port 4096
    ```
 
-3. Configure feeds, output paths, and the default Anthropic model in `config/config.json`.
-   Override the model for a single environment with:
+3. Configure feeds, output paths, and the default model in `config/config.json`.
+   Model IDs use `provider/model` format. Override the model for one
+   environment with:
    ```bash
-   export SENTRYINSIGHT_ANTHROPIC_MODEL=claude-sonnet-4-6
+   export SENTRYINSIGHT_MODEL=anthropic/claude-sonnet-4-6
+   ```
+   If OpenCode is not listening on `http://127.0.0.1:4096`, set:
+   ```bash
+   export OPENCODE_BASE_URL=http://127.0.0.1:4096
    ```
 
 ## Usage
