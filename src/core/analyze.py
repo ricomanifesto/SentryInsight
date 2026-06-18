@@ -6,7 +6,7 @@ from datetime import datetime
 import tiktoken
 
 from .model_config import resolve_model, validate_model
-from .opencode_client import OpenCodeClient, parse_model_selection
+from .opencode_client import OpenCodeClient, OpenCodeUnavailable, parse_model_selection
 
 # Configure logging
 logging.basicConfig(
@@ -214,6 +214,16 @@ Generate a well-formatted exploitation report following the structure above. Be 
             "date": datetime.now().strftime("%Y-%m-%d"),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
+        }
+    except OpenCodeUnavailable as e:
+        logger.warning(f"Skipping exploitation analysis: {e}")
+        return {
+            "exploitation_report": "",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "analyzed_article_count": len(articles),
+            "cves_identified": list(all_cves),
+            "skipped": True,
+            "skip_reason": str(e),
         }
     except Exception as e:
         logger.error(f"Error during exploitation analysis: {e}")

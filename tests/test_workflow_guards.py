@@ -112,6 +112,26 @@ class WorkflowGuardTests(unittest.TestCase):
             self.assertIn("report_validation_errors", result)
             self.assertFalse(output_path.exists())
 
+    def test_skipped_analysis_does_not_write_output_file(self):
+        workflow = import_workflow_with_stubs()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            state = {
+                "analysis_results": {
+                    "skipped": True,
+                    "skip_reason": "OpenCode server unavailable",
+                    "exploitation_report": "",
+                },
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.generate_report(state))
+
+            self.assertEqual(result["status"], "completed_with_warnings")
+            self.assertFalse(output_path.exists())
+
     def test_failed_state_skips_audio_generation(self):
         workflow = import_workflow_with_stubs()
         state = {
@@ -134,6 +154,23 @@ class WorkflowGuardTests(unittest.TestCase):
         result = asyncio.run(workflow.publish_results(state))
 
         self.assertIs(result, state)
+
+    def test_skipped_analysis_skips_publish(self):
+        workflow = import_workflow_with_stubs()
+        state = {
+            "analysis_results": {
+                "skipped": True,
+                "skip_reason": "OpenCode server unavailable",
+                "exploitation_report": "",
+            },
+            "config": {"github_pages": {"enabled": True}},
+            "status": "completed_with_warnings",
+        }
+
+        result = asyncio.run(workflow.publish_results(state))
+
+        self.assertIs(result, state)
+        self.assertEqual(result["status"], "completed_with_warnings")
 
 
 if __name__ == "__main__":
