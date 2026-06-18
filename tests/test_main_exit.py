@@ -18,14 +18,10 @@ def import_main_with_workflow(result=None, error=None):
 
     workflow_module.run_exploitation_analysis = run_exploitation_analysis
 
-    rss_module = types.ModuleType("src.services.rss_mcp")
-    rss_module.mcp_app = types.SimpleNamespace(run=lambda **_kwargs: None)
-
     with patch.dict(
         sys.modules,
         {
             "src.core.workflow": workflow_module,
-            "src.services.rss_mcp": rss_module,
         },
     ):
         return importlib.import_module("main")
