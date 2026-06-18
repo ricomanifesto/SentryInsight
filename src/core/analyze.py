@@ -70,6 +70,33 @@ def filter_exploitation_articles(
     return articles
 
 
+def format_article_summary(article: Dict[str, Any]) -> str:
+    def clean_text(value: Any, default: str = "") -> str:
+        if value is None:
+            return default
+        return str(value).strip()
+
+    title = clean_text(article.get("title"), "Untitled article") or "Untitled article"
+    source = clean_text(article.get("source"))
+    link = clean_text(article.get("link"))
+    content = clean_text(
+        article.get("content", article.get("summary")),
+        "No content available",
+    )
+
+    metadata = []
+    if source:
+        metadata.append(f"Source: {source}")
+    if link:
+        metadata.append(f"URL: {link}")
+
+    heading = f"**{title}**"
+    if metadata:
+        heading = f"{heading} ({'; '.join(metadata)})"
+
+    return f"{heading}\n\n{content[:500]}...\n\n"
+
+
 async def analyze_exploitation(
     articles: List[Dict[str, Any]], config: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -106,19 +133,7 @@ async def analyze_exploitation(
     all_attack_vectors = set()
 
     for article in articles:
-        # Get article metadata
-        title = article.get("title", "")
-        source = article.get("source", "")
-        link = article.get("link", "")
-
-        # Get article content or summary
-        content = article.get("content", article.get("summary", "No content available"))
-
-        # Create summary
-        summary = (
-            f"**{title}** (Source: {source})\n\nURL: {link}\n\n{content[:500]}...\n\n"
-        )
-        all_article_summaries.append(summary)
+        all_article_summaries.append(format_article_summary(article))
 
         # Extract CVEs and affected systems
         if "cves" in article:

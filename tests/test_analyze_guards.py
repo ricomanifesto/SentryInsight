@@ -104,6 +104,44 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertEqual(result["skip_reason"], "OpenCode server unavailable")
         self.assertNotIn("error", result)
 
+    def test_article_prompt_omits_empty_source_and_url_fields(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **kwargs):
+                user_prompt = kwargs["user_prompt"]
+                self.__class__.user_prompt = user_prompt
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": None,
+                            "source": None,
+                            "link": None,
+                            "summary": "Summary only",
+                        }
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertIn("**Untitled article**", FakeOpenCodeClient.user_prompt)
+        self.assertIn("Summary only...", FakeOpenCodeClient.user_prompt)
+        self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
+        self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
+
 
 if __name__ == "__main__":
     unittest.main()
