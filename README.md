@@ -37,7 +37,7 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
    Model IDs use `provider/model` format. Override the model for one
    environment with:
    ```bash
-   export SENTRYINSIGHT_MODEL=anthropic/claude-sonnet-4-6
+   export SENTRYINSIGHT_MODEL=openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
    ```
    If OpenCode is not listening on `http://127.0.0.1:4096`, set:
    ```bash

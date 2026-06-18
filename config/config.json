@@ -2,7 +2,7 @@
     "feed_url": "https://ricomanifesto.github.io/SentryDigest/feed.xml",
     "output_path": "index.md",
     "analysis": {
-        "model": "anthropic/claude-sonnet-4-6",
+        "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
         "max_tokens": 4000,
         "temperature": 1,
         "analysis_focus": [

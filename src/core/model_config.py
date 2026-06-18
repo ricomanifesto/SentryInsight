@@ -4,12 +4,10 @@ import os
 import re
 from typing import Any, Dict
 
-DEFAULT_MODEL = "anthropic/claude-sonnet-4-6"
+DEFAULT_MODEL = "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
 MODEL_ENV_VAR = "SENTRYINSIGHT_MODEL"
 
-_MODEL_ID_PATTERN = re.compile(
-    r"^[a-z][a-z0-9_-]*/[a-z][a-z0-9._-]*(?:-[a-z0-9._-]+)*$"
-)
+_MODEL_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_-]*/[a-z0-9._:/-]+$")
 _KNOWN_UNAVAILABLE_MODELS = {
     "claude-sonnet-4-20250514",
 }
