@@ -36,9 +36,19 @@ def import_workflow_with_stubs(analysis_result=None):
     langgraph_module = types.ModuleType("langgraph")
     langgraph_module.graph = graph_module
 
-    rss_module = types.ModuleType("src.services.rss_mcp")
-    rss_module.fetch_rss_feed = None
-    rss_module.enrich_rss_articles = None
+    fetch_module = types.ModuleType("src.services.fetch")
+
+    class FakeSentryDigestFeedClient:
+        def __init__(self, *_args, **_kwargs):
+            pass
+
+        async def fetch_articles(self):
+            return []
+
+        async def enrich_article_content(self, articles):
+            return articles
+
+    fetch_module.SentryDigestFeedClient = FakeSentryDigestFeedClient
 
     analyze_module = types.ModuleType("src.core.analyze")
     analyze_module.filter_exploitation_articles = lambda articles: articles
@@ -67,7 +77,7 @@ def import_workflow_with_stubs(analysis_result=None):
         {
             "langgraph": langgraph_module,
             "langgraph.graph": graph_module,
-            "src.services.rss_mcp": rss_module,
+            "src.services.fetch": fetch_module,
             "src.core.analyze": analyze_module,
             "src.services.publish": publish_module,
             "src.services.audio": audio_module,

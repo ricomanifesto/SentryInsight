@@ -1,4 +1,4 @@
-"""SentryDigest Exploitation Report Generator using LangGraph workflow with MCP RSS tools."""
+"""SentryDigest Exploitation Report Generator using LangGraph workflow."""
 
 import asyncio
 import logging
@@ -15,9 +15,6 @@ except ImportError:
 
 # Import the LangGraph workflow
 from src.core.workflow import run_exploitation_analysis
-
-# Import MCP server for RSS operations
-from src.services.rss_mcp import mcp_app
 
 logger = logging.getLogger(__name__)
 
@@ -36,13 +33,6 @@ def configure_logging():
             logging.StreamHandler(),
         ],
     )
-
-
-def run_mcp_server():
-    """Run the MCP server in a separate thread."""
-    configure_logging()
-    logger.info("Starting RSS MCP Server")
-    mcp_app.run(transport="stdio")
 
 
 async def main():

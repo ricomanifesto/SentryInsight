@@ -11,9 +11,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class SentryDigestFetcher:
+class SentryDigestFeedClient:
     """
-    Class for fetching articles from SentryDigest RSS feed
+    Client for fetching articles from the SentryDigest RSS feed.
     """
 
     def __init__(self, feed_url: str):

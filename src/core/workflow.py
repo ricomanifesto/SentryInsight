@@ -6,10 +6,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from ..services.rss_mcp import (
-    fetch_rss_feed,
-    enrich_rss_articles,
-)  # Import the MCP tools
+from ..services.fetch import SentryDigestFeedClient
 from .analyze import filter_exploitation_articles, analyze_exploitation
 from .report_validation import (
     format_report_validation_issues,
@@ -51,8 +48,8 @@ def load_config(config_path: str = "config/config.json") -> Dict[str, Any]:
 
 # Define the workflow steps
 async def fetch_articles(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
-    """Fetch articles from SentryDigest using MCP RSS tools"""
-    logger.info("Starting article fetching with MCP")
+    """Fetch articles from SentryDigest."""
+    logger.info("Starting article fetching")
 
     config = state["config"]
     rss_feed_url = config.get("feed_url", "")
@@ -62,27 +59,13 @@ async def fetch_articles(state: ExploitationAnalysisState) -> ExploitationAnalys
         state["status"] = "failed"
         return state
 
-    # Use the MCP RSS tool to fetch the feed
-    feed_data = await fetch_rss_feed(rss_feed_url)
-
-    if "error" in feed_data:
-        logger.error(f"Error in RSS feed: {feed_data['error']}")
+    feed_client = SentryDigestFeedClient(rss_feed_url)
+    try:
+        articles = await feed_client.fetch_articles()
+    except Exception as e:
+        logger.error(f"Error in RSS feed: {e}")
         state["status"] = "failed"
         return state
-
-    # Extract articles from feed data
-    articles = []
-    for entry in feed_data.get("entries", []):
-        # Basic article extraction
-        article = {
-            "title": entry.get("title", ""),
-            "link": entry.get("link", ""),
-            "summary": entry.get("description", ""),
-            "published": entry.get("published", ""),
-            "source": entry.get("source", {}).get("title", "Unknown Source"),
-            "date": entry.get("published_parsed", datetime.now().strftime("%Y-%m-%d")),
-        }
-        articles.append(article)
 
     state["articles"] = articles
     logger.info(f"Fetched {len(articles)} articles")
@@ -93,13 +76,12 @@ async def fetch_articles(state: ExploitationAnalysisState) -> ExploitationAnalys
 async def enrich_articles(
     state: ExploitationAnalysisState,
 ) -> ExploitationAnalysisState:
-    """Enrich articles with full content using MCP RSS tools"""
-    logger.info("Enriching articles with MCP")
+    """Enrich articles with full content."""
+    logger.info("Enriching articles")
 
     articles = state["articles"]
-
-    # Use the MCP RSS tool to enrich articles
-    enriched_articles = await enrich_rss_articles(articles)
+    feed_client = SentryDigestFeedClient(state["config"].get("feed_url", ""))
+    enriched_articles = await feed_client.enrich_article_content(articles)
 
     state["articles"] = enriched_articles
 
