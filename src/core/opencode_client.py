@@ -108,9 +108,7 @@ class OpenCodeClient:
     def _raise_for_status(self, response: httpx.Response, action: str) -> None:
         if response.is_success:
             return
-        raise OpenCodeError(
-            f"Failed to {action}: HTTP {response.status_code} {response.text}"
-        )
+        raise OpenCodeError(f"Failed to {action}: HTTP {response.status_code}")
 
     def _extract_text(self, payload: dict[str, Any]) -> str:
         parts = payload.get("parts", [])
