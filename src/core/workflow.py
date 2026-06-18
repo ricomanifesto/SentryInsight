@@ -141,6 +141,10 @@ async def analyze_articles(
     # Analyze the filtered articles
     analysis_results = await analyze_exploitation(filtered_articles, config)
     state["analysis_results"] = analysis_results
+    if analysis_results.get("skipped"):
+        logger.warning(f"Analysis skipped: {analysis_results['skip_reason']}")
+        state["status"] = "completed_with_warnings"
+        return state
     if analysis_results.get("error"):
         logger.error(f"Analysis failed: {analysis_results['error']}")
         state["status"] = "failed"
@@ -160,6 +164,10 @@ async def generate_report(
 
     if not analysis_results:
         logger.warning("No analysis results to generate report")
+        state["status"] = "completed_with_warnings"
+        return state
+    if analysis_results.get("skipped"):
+        logger.warning(f"Skipping report generation: {analysis_results['skip_reason']}")
         state["status"] = "completed_with_warnings"
         return state
 
@@ -246,6 +254,10 @@ async def publish_results(
 
     if not analysis_results:
         logger.warning("No analysis results to publish")
+        state["status"] = "completed_with_warnings"
+        return state
+    if analysis_results.get("skipped"):
+        logger.warning(f"Skipping publishing: {analysis_results['skip_reason']}")
         state["status"] = "completed_with_warnings"
         return state
 

@@ -76,6 +76,34 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertNotIn("error", result)
         self.assertIn("Generated through OpenCode", result["exploitation_report"])
 
+    def test_unavailable_opencode_server_returns_skip_result(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **_kwargs):
+                raise analyze.OpenCodeUnavailable("OpenCode server unavailable")
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            result = asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertTrue(result["skipped"])
+        self.assertEqual(result["skip_reason"], "OpenCode server unavailable")
+        self.assertNotIn("error", result)
+
 
 if __name__ == "__main__":
     unittest.main()

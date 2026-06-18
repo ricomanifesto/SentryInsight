@@ -4,7 +4,11 @@ import unittest
 
 import httpx
 
-from src.core.opencode_client import OpenCodeClient, parse_model_selection
+from src.core.opencode_client import (
+    OpenCodeUnavailable,
+    OpenCodeClient,
+    parse_model_selection,
+)
 
 
 class OpenCodeClientTests(unittest.TestCase):
@@ -73,6 +77,29 @@ class OpenCodeClientTests(unittest.TestCase):
             )
 
         self.assertNotIn("secret prompt fragment", str(raised.exception))
+
+    def test_generate_classifies_connection_failure_as_unavailable(self):
+        def handler(request):
+            raise httpx.ConnectError("secret connection detail", request=request)
+
+        client = OpenCodeClient(
+            base_url="http://opencode.test",
+            transport=httpx.MockTransport(handler),
+        )
+
+        with self.assertRaisesRegex(
+            OpenCodeUnavailable,
+            "OpenCode server unavailable",
+        ) as raised:
+            asyncio.run(
+                client.generate(
+                    system_prompt="system",
+                    user_prompt="user",
+                    model=parse_model_selection("openrouter/nex-agi/nex-n2-pro:free"),
+                )
+            )
+
+        self.assertNotIn("secret connection detail", str(raised.exception))
 
 
 if __name__ == "__main__":

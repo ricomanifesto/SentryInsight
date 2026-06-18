@@ -18,6 +18,10 @@ class OpenCodeError(RuntimeError):
     """Raised when OpenCode cannot return usable model output."""
 
 
+class OpenCodeUnavailable(OpenCodeError):
+    """Raised when the configured OpenCode server cannot be reached."""
+
+
 @dataclass(frozen=True)
 class ModelSelection:
     """Provider and model IDs accepted by the OpenCode message API."""
@@ -72,31 +76,34 @@ class OpenCodeClient:
     ) -> str:
         """Generate text through an OpenCode server session."""
         auth = self._auth()
-        async with httpx.AsyncClient(
-            base_url=self.base_url,
-            timeout=self.timeout,
-            transport=self.transport,
-            auth=auth,
-        ) as client:
-            session_response = await client.post("/session", json={"title": title})
-            self._raise_for_status(session_response, "create OpenCode session")
-            session_id = session_response.json().get("id")
-            if not session_id:
-                raise OpenCodeError("OpenCode did not return a session id")
+        try:
+            async with httpx.AsyncClient(
+                base_url=self.base_url,
+                timeout=self.timeout,
+                transport=self.transport,
+                auth=auth,
+            ) as client:
+                session_response = await client.post("/session", json={"title": title})
+                self._raise_for_status(session_response, "create OpenCode session")
+                session_id = session_response.json().get("id")
+                if not session_id:
+                    raise OpenCodeError("OpenCode did not return a session id")
 
-            body: dict[str, Any] = {
-                "system": system_prompt,
-                "parts": [{"type": "text", "text": user_prompt}],
-            }
-            if model is not None:
-                body["model"] = model.as_payload()
+                body: dict[str, Any] = {
+                    "system": system_prompt,
+                    "parts": [{"type": "text", "text": user_prompt}],
+                }
+                if model is not None:
+                    body["model"] = model.as_payload()
 
-            message_response = await client.post(
-                f"/session/{session_id}/message",
-                json=body,
-            )
-            self._raise_for_status(message_response, "generate OpenCode message")
-            return self._extract_text(message_response.json())
+                message_response = await client.post(
+                    f"/session/{session_id}/message",
+                    json=body,
+                )
+                self._raise_for_status(message_response, "generate OpenCode message")
+                return self._extract_text(message_response.json())
+        except httpx.TransportError as e:
+            raise OpenCodeUnavailable("OpenCode server unavailable") from e
 
     def _auth(self) -> tuple[str, str] | None:
         password = os.getenv(OPENCODE_SERVER_PASSWORD_ENV_VAR, "")
