@@ -43,8 +43,9 @@ def validate_report_content(markdown: str) -> List[ReportValidationIssue]:
             )
         ]
 
+    normalized_content = content.casefold()
     for marker in ERROR_MARKERS:
-        if marker in content:
+        if marker.casefold() in normalized_content:
             issues.append(
                 ReportValidationIssue(
                     code="error_marker",

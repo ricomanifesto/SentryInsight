@@ -38,6 +38,13 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "error_marker" for issue in issues))
 
+    def test_api_error_marker_matching_is_case_insensitive(self):
+        issues = validate_report_content(
+            "# exploitation report\n\nupstream response returned error code: 404"
+        )
+
+        self.assertTrue(any(issue.code == "error_marker" for issue in issues))
+
     def test_missing_required_section_fails(self):
         issues = validate_report_content("# Exploitation Report\n\nSummary only")
 
