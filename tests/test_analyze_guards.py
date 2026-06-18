@@ -53,8 +53,10 @@ class AnalyzeGuardTests(unittest.TestCase):
 
             async def generate(self, **kwargs):
                 self.kwargs = kwargs
-                assert kwargs["model"].provider_id == "anthropic"
-                assert kwargs["model"].model_id == "claude-sonnet-4-6"
+                assert kwargs["model"].provider_id == "openrouter"
+                assert (
+                    kwargs["model"].model_id == "nvidia/nemotron-3-ultra-550b-a55b:free"
+                )
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
         analyze.OpenCodeClient = FakeOpenCodeClient
@@ -63,7 +65,11 @@ class AnalyzeGuardTests(unittest.TestCase):
             result = asyncio.run(
                 analyze.analyze_exploitation(
                     articles=[],
-                    config={"analysis": {"model": "anthropic/claude-sonnet-4-6"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 

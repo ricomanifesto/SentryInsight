@@ -19,7 +19,7 @@ class OpenCodeClientTests(unittest.TestCase):
                 payload = json.loads(request.content.decode())
                 self.assertEqual(
                     payload["model"],
-                    {"providerID": "openai", "modelID": "gpt-5"},
+                    {"providerID": "openrouter", "modelID": "nex-agi/nex-n2-pro:free"},
                 )
                 return httpx.Response(
                     200,
@@ -39,7 +39,7 @@ class OpenCodeClientTests(unittest.TestCase):
             client.generate(
                 system_prompt="system",
                 user_prompt="user",
-                model=parse_model_selection("openai/gpt-5"),
+                model=parse_model_selection("openrouter/nex-agi/nex-n2-pro:free"),
             )
         )
 
@@ -68,7 +68,7 @@ class OpenCodeClientTests(unittest.TestCase):
                 client.generate(
                     system_prompt="system",
                     user_prompt="user",
-                    model=parse_model_selection("openai/gpt-5"),
+                    model=parse_model_selection("openrouter/nex-agi/nex-n2-pro:free"),
                 )
             )
 
