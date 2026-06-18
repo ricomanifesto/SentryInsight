@@ -98,14 +98,20 @@ class SentryDigestFeedClient:
             if "summary" in article and article["summary"]:
                 full_content += article["summary"] + "\n"
 
+            article_link = article.get("link", "")
+            if not article_link:
+                article["content"] = full_content
+                enriched_articles.append(article)
+                continue
+
             # Use async fetch for full article content
             try:
                 timeout = httpx.Timeout(10.0, connect=5.0)
                 async with httpx.AsyncClient(
                     timeout=timeout, follow_redirects=True
                 ) as client:
-                    logger.info(f"Fetching full content for: {article.get('link', '')}")
-                    response = await client.get(article.get("link", ""))
+                    logger.info(f"Fetching full content for: {article_link}")
+                    response = await client.get(article_link)
 
                     if response.status_code == 200:
                         # Add full article content
