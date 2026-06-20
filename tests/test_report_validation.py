@@ -97,6 +97,20 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "active_content" for issue in issues))
 
+    def test_wrapped_reference_javascript_link_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n[malicious link][x]\n\n[x]:\n java&#115;cript:alert(1)\n"
+        )
+
+        self.assertTrue(any(issue.code == "active_content" for issue in issues))
+
+    def test_unindented_wrapped_reference_javascript_link_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n[malicious link][x]\n\n[x]:\njava&#115;cript:alert(1)\n"
+        )
+
+        self.assertTrue(any(issue.code == "active_content" for issue in issues))
+
     def test_entity_encoded_control_character_javascript_link_fails(self):
         issues = validate_report_content(
             VALID_REPORT + '\n<a href="jav&#x09;ascript:alert(1)">click</a>\n'
@@ -155,6 +169,14 @@ class ReportValidationTests(unittest.TestCase):
         issues = validate_report_content(
             VALID_REPORT
             + "\n- Example\n\n       ```html\n<img src=x onerror=alert(1)>\n```\n"
+        )
+
+        self.assertTrue(any(issue.code == "active_content" for issue in issues))
+
+    def test_list_code_indented_fence_does_not_hide_active_html(self):
+        issues = validate_report_content(
+            VALID_REPORT
+            + "\n- Example\n\n      ```html\n<img src=x onerror=alert(1)>\n```\n"
         )
 
         self.assertTrue(any(issue.code == "active_content" for issue in issues))
