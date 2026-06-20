@@ -39,7 +39,8 @@ MARKDOWN_LINK_DESTINATION_PATTERN = re.compile(
     r"\]\(\s*(?P<destination><[^>\n]*>|[^)\s]+)"
 )
 MARKDOWN_REFERENCE_DESTINATION_PATTERN = re.compile(
-    r"^[ \t]{0,3}\[[^\]\n]+\]:[ \t]*(?P<destination><[^>\n]*>|[^\s]+)",
+    r"^[ \t]{0,3}\[[^\]\n]+\]:[ \t]*(?:\r?\n[ \t]*)?"
+    r"(?P<destination><[^>\n]*>|[^\s]+)",
     re.MULTILINE,
 )
 HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
@@ -138,7 +139,7 @@ def strip_fenced_code_blocks(markdown: str) -> str:
         is_indented = line_content.startswith(" ") or line_content.startswith("\t")
 
         max_fence_indent = (
-            list_content_indent + 4 if list_content_indent is not None else 3
+            list_content_indent + 3 if list_content_indent is not None else 3
         )
         if not html_block_stack and (
             fence := parse_fence_opener(line, max_indent=max_fence_indent)
