@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="/SentryInsight/assets/logo.png">
     <link rel="shortcut icon" type="image/png" href="/SentryInsight/assets/logo.png">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
     <style>
         :root {
@@ -622,7 +623,7 @@
           .then(response => response.text())
           .then(text => {
                 markdownCache = text;
-                let html = marked.parse(text);
+                let html = DOMPurify.sanitize(marked.parse(text));
                 contentEl.innerHTML = html;
 
                 // Extract executive summary (first paragraph after H1)
