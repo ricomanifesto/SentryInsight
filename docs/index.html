@@ -502,9 +502,47 @@
         }
 
         function linkifyCVEs() {
-            const re = /CVE-\d{4}-\d{4,7}/g;
+            const cveTextPattern = /CVE-\d{4}-\d{4,7}/i;
+            const cveLinkPattern = /CVE-\d{4}-\d{4,7}/gi;
             contentEl.querySelectorAll('p, li').forEach(el => {
-                el.innerHTML = el.innerHTML.replace(re, (m) => `<a href="https://nvd.nist.gov/vuln/detail/${m}" target="_blank" rel="noopener">${m}</a>`);
+                const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+                    acceptNode: (node) => {
+                        const parent = node.parentElement;
+                        if (!parent || parent.closest('a, code, pre')) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        return cveTextPattern.test(node.nodeValue)
+                            ? NodeFilter.FILTER_ACCEPT
+                            : NodeFilter.FILTER_SKIP;
+                    }
+                });
+                const textNodes = [];
+                let node = walker.nextNode();
+                while (node) {
+                    textNodes.push(node);
+                    node = walker.nextNode();
+                }
+                textNodes.forEach(textNode => {
+                    cveLinkPattern.lastIndex = 0;
+                    const fragment = document.createDocumentFragment();
+                    let lastIndex = 0;
+                    textNode.nodeValue.replace(cveLinkPattern, (match, offset) => {
+                        fragment.appendChild(
+                            document.createTextNode(textNode.nodeValue.slice(lastIndex, offset))
+                        );
+                        const link = document.createElement('a');
+                        link.href = `https://nvd.nist.gov/vuln/detail/${match}`;
+                        link.target = '_blank';
+                        link.rel = 'noopener';
+                        link.textContent = match;
+                        fragment.appendChild(link);
+                        lastIndex = offset + match.length;
+                    });
+                    fragment.appendChild(
+                        document.createTextNode(textNode.nodeValue.slice(lastIndex))
+                    );
+                    textNode.replaceWith(fragment);
+                });
             });
         }
 
