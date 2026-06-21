@@ -33,6 +33,10 @@
             min-height: 100vh;
         }
 
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         @media (max-width: 767px) {
             body {
                 padding: 0;
@@ -98,6 +102,9 @@
             align-items: start;
             margin-top: 16px;
         }
+        .layout > *, main, aside#toc, #content {
+            min-width: 0;
+        }
         @media (max-width: 960px) {
             .layout { grid-template-columns: 1fr; }
             aside#toc { position: static; }
@@ -115,10 +122,13 @@
         }
         aside#toc.hidden { display: none; }
         #toc h4 { margin: 6px 8px 8px; color: var(--text-secondary); }
-        #toc a { color: var(--text-secondary); text-decoration: none; display: block; padding: 4px 8px; border-radius: 6px; }
+        #toc a { color: var(--text-secondary); text-decoration: none; display: block; padding: 4px 8px; border-radius: 6px; overflow-wrap: anywhere; word-break: break-word; white-space: normal; }
         #toc a:hover { background: #f1f5f9; color: var(--text-primary); }
         #toc .lvl-2 { font-weight: 600; }
         #toc .lvl-3 { padding-left: 16px; font-size: 0.95rem; }
+        #toc, #toc-list, #toc a {
+            max-width: 100%;
+        }
 
         #content {
             background: white;
@@ -126,6 +136,22 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             border: 1px solid var(--border-color);
+        }
+        .markdown-body {
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 767px) {
+            html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+            .app { padding: 12px; max-width: 100%; width: 100%; overflow-x: hidden; }
+            header.topbar { padding: 12px; }
+            .brand { min-width: 0; }
+            .brand .subtitle { overflow-wrap: anywhere; }
+            .layout { width: 100%; }
+            main, .exec, #content { width: 100%; max-width: calc(100vw - 24px); overflow-x: hidden; }
+            #content p, #content li, .exec p { overflow-wrap: anywhere; word-break: break-word; }
+            aside#toc { display: none; width: 100%; overflow-x: hidden; }
+            #content { padding: 1.25em; }
         }
 
         /* Header styling */
@@ -137,6 +163,14 @@
             margin: -1rem -1rem 2rem -1rem;
             border-left: 6px solid #991b1b;
             box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+        }
+
+        @media (max-width: 767px) {
+            .markdown-body h1 {
+                margin: -0.25rem -0.25rem 1.5rem -0.25rem;
+                padding: 1.1rem 1rem;
+                font-size: 1.75rem;
+            }
         }
 
         .markdown-body h2 {
