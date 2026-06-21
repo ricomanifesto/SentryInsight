@@ -48,7 +48,9 @@ jobs:
           GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
       
       - name: Validate report content before publishing
-        run: uv run python scripts/validate_report.py index.md
+        run: |
+          uv run python scripts/validate_report.py index.md
+          uv run python scripts/validate_report.py docs/index.md
 
       - name: Commit and push updated report
         if: github.ref == 'refs/heads/main'
