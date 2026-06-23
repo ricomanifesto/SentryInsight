@@ -23,8 +23,9 @@ URL_CONTINUATION_CHARS = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789"
-    "-._~:/?#[]@!$&'()*+,;=%"
+    "-_~:/?#[]@!$&'*+=%"
 )
+URL_TERMINATOR_CHARS = frozenset(").,;:")
 
 ERROR_MARKERS = (
     "# Error",
@@ -611,10 +612,18 @@ def get_source_attribution_entries(markdown: str) -> list[str]:
     return entries
 
 
-def is_url_delimited(value: str, end_index: int) -> bool:
+def is_url_delimited(value: str, matched_url: str, end_index: int) -> bool:
     if end_index >= len(value):
         return True
-    return value[end_index] not in URL_CONTINUATION_CHARS
+    next_char = value[end_index]
+    if next_char in URL_CONTINUATION_CHARS:
+        return False
+    if next_char in URL_TERMINATOR_CHARS:
+        if matched_url.endswith(next_char):
+            return False
+        next_index = end_index + 1
+        return next_index >= len(value) or value[next_index].isspace()
+    return True
 
 
 def entry_contains_exact_url(entry: str, url: str) -> bool:
@@ -630,7 +639,7 @@ def entry_contains_exact_url(entry: str, url: str) -> bool:
             return False
 
         match_end = match_start + len(normalized_url)
-        if is_url_delimited(normalized_entry, match_end):
+        if is_url_delimited(normalized_entry, normalized_url, match_end):
             return True
 
         search_start = match_start + 1

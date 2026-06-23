@@ -196,6 +196,52 @@ https://example.test/report
             any(issue.code == "missing_source_attribution" for issue in issues)
         )
 
+    def test_url_requirement_rejects_extension_prefix_match(self):
+        issues = validate_report_content(
+            VALID_REPORT
+            + """
+## Source Attribution
+
+- **Extension URL report**: Example Source - https://example.test/report.txt
+""",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_url_requirement_allows_markdown_link_delimiter(self):
+        self.assertEqual(
+            validate_report_content(
+                VALID_REPORT
+                + """
+## Source Attribution
+
+- **Markdown URL report**: [Example Source](https://example.test/report)
+""",
+                require_source_attribution=True,
+                source_attribution_requirements=[["https://example.test/report"]],
+            ),
+            [],
+        )
+
+    def test_url_requirement_allows_sentence_punctuation(self):
+        self.assertEqual(
+            validate_report_content(
+                VALID_REPORT
+                + """
+## Source Attribution
+
+- **Sentence URL report**: Example Source - https://example.test/report.
+""",
+                require_source_attribution=True,
+                source_attribution_requirements=[["https://example.test/report"]],
+            ),
+            [],
+        )
+
     def test_url_requirement_allows_parentheses_in_url(self):
         self.assertEqual(
             validate_report_content(
