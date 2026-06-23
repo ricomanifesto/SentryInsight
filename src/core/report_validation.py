@@ -13,6 +13,11 @@ REQUIRED_SECTIONS = (
     "## Attack Vectors and Techniques",
     "## Threat Actor Activities",
 )
+SOURCE_ATTRIBUTION_SECTION = "## Source Attribution"
+SOURCE_ATTRIBUTION_SECTION_PATTERN = re.compile(
+    rf"^{re.escape(SOURCE_ATTRIBUTION_SECTION)}\s*$",
+    re.MULTILINE,
+)
 
 ERROR_MARKERS = (
     "# Error",
@@ -553,7 +558,44 @@ def contains_active_markdown_link(markdown: str) -> bool:
     return False
 
 
-def validate_report_content(markdown: str) -> List[ReportValidationIssue]:
+def get_source_attribution_section_body(markdown: str) -> str:
+    section_match = SOURCE_ATTRIBUTION_SECTION_PATTERN.search(markdown)
+    if not section_match:
+        return ""
+
+    section_body_start = section_match.end()
+    next_section = re.search(r"^##\s+", markdown[section_body_start:], re.MULTILINE)
+    return (
+        markdown[section_body_start : section_body_start + next_section.start()]
+        if next_section
+        else markdown[section_body_start:]
+    )
+
+
+def source_attribution_requirements_met(
+    markdown: str, source_attribution_requirements: Iterable[Iterable[str]]
+) -> bool:
+    section_body = strip_markdown_code(
+        get_source_attribution_section_body(markdown)
+    ).casefold()
+    requirements = [
+        [marker.strip().casefold() for marker in group if marker and marker.strip()]
+        for group in source_attribution_requirements
+    ]
+    requirements = [group for group in requirements if group]
+    if not requirements:
+        return False
+
+    return all(
+        all(marker in section_body for marker in group) for group in requirements
+    )
+
+
+def validate_report_content(
+    markdown: str,
+    require_source_attribution: bool = False,
+    source_attribution_requirements: Iterable[Iterable[str]] | None = None,
+) -> List[ReportValidationIssue]:
     """Return validation issues that should block publishing."""
     issues: List[ReportValidationIssue] = []
     content = markdown.strip()
@@ -623,6 +665,19 @@ def validate_report_content(markdown: str) -> List[ReportValidationIssue]:
                     message=f"Report is missing required section: {section}",
                 )
             )
+
+    if require_source_attribution and not source_attribution_requirements_met(
+        content, source_attribution_requirements or []
+    ):
+        issues.append(
+            ReportValidationIssue(
+                code="missing_source_attribution",
+                message=(
+                    "Report is missing required source attribution entries in section: "
+                    f"{SOURCE_ATTRIBUTION_SECTION}"
+                ),
+            )
+        )
 
     return issues
 

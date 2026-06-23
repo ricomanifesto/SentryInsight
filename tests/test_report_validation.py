@@ -26,10 +26,166 @@ Recent exploitation activity is concentrated in edge systems.
 - **Unknown actor**: Opportunistic exploitation.
 """
 
+VALID_REPORT_WITH_SOURCE_ATTRIBUTION = VALID_REPORT + """
+## Source Attribution
+
+- **Example exploitation report**: Example Source - https://example.test/report
+- **Second exploitation report**: Example Source - https://example.test/second
+- **Source-only exploitation report**: Example Source
+"""
+
 
 class ReportValidationTests(unittest.TestCase):
     def test_valid_report_passes(self):
         self.assertEqual(validate_report_content(VALID_REPORT), [])
+
+    def test_required_source_attribution_without_requirements_fails(self):
+        issues = validate_report_content(VALID_REPORT, require_source_attribution=True)
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_missing_required_source_attribution_section_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT,
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_blank_required_source_attribution_section_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n## Source Attribution\n\n",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_source_attribution_heading_mention_does_not_satisfy_requirement(self):
+        issues = validate_report_content(
+            VALID_REPORT
+            + "\nThis report should include ## Source Attribution with https://example.test/report.\n",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_source_attribution_inside_code_block_does_not_satisfy_requirement(self):
+        issues = validate_report_content(
+            VALID_REPORT + """
+## Source Attribution
+
+```text
+https://example.test/report
+```
+""",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_placeholder_source_attribution_entry_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT
+            + "\n## Source Attribution\n\n- **Article Title**: Source name - URL\n",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_negative_source_attribution_entry_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n## Source Attribution\n\n- No sources were provided.\n",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_source_name_only_fails_when_url_is_required(self):
+        issues = validate_report_content(
+            VALID_REPORT
+            + "\n## Source Attribution\n\n- **Example exploitation report**: Example Source\n",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_repeated_source_name_requires_each_url(self):
+        partial_report = VALID_REPORT + """
+## Source Attribution
+
+- **Example exploitation report**: Example Source - https://example.test/report
+"""
+
+        issues = validate_report_content(
+            partial_report,
+            require_source_attribution=True,
+            source_attribution_requirements=[
+                ["https://example.test/report"],
+                ["https://example.test/second"],
+            ],
+        )
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+        self.assertEqual(
+            validate_report_content(
+                VALID_REPORT_WITH_SOURCE_ATTRIBUTION,
+                require_source_attribution=True,
+                source_attribution_requirements=[
+                    ["https://example.test/report"],
+                    ["https://example.test/second"],
+                ],
+            ),
+            [],
+        )
+
+    def test_source_only_article_requires_source_and_title(self):
+        issues = validate_report_content(
+            VALID_REPORT
+            + "\n## Source Attribution\n\n- **Different report**: Example Source\n",
+            require_source_attribution=True,
+            source_attribution_requirements=[
+                ["Example Source", "Source-only exploitation report"]
+            ],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+        self.assertEqual(
+            validate_report_content(
+                VALID_REPORT_WITH_SOURCE_ATTRIBUTION,
+                require_source_attribution=True,
+                source_attribution_requirements=[
+                    ["Example Source", "Source-only exploitation report"]
+                ],
+            ),
+            [],
+        )
 
     def test_api_error_marker_fails(self):
         issues = validate_report_content(

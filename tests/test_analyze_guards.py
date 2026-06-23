@@ -142,6 +142,92 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
 
+    def test_prompt_requires_source_attribution_from_article_metadata(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **kwargs):
+                self.__class__.user_prompt = kwargs["user_prompt"]
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": "Example exploitation report",
+                            "source": "Example Source",
+                            "link": "https://example.test/report",
+                            "summary": "Summary only",
+                        }
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertIn("## Source Attribution", FakeOpenCodeClient.user_prompt)
+        self.assertIn(
+            "Only use source names and URLs provided",
+            FakeOpenCodeClient.user_prompt,
+        )
+        self.assertIn("Example exploitation report", FakeOpenCodeClient.user_prompt)
+        self.assertIn("Example Source", FakeOpenCodeClient.user_prompt)
+        self.assertIn("https://example.test/report", FakeOpenCodeClient.user_prompt)
+
+    def test_analysis_result_carries_url_first_source_attribution_requirements(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **_kwargs):
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            result = asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": "Example exploitation report",
+                            "source": "Example Source",
+                            "link": "https://example.test/report",
+                            "summary": "Summary only",
+                        },
+                        {
+                            "title": "Source-only exploitation report",
+                            "source": "Example Source",
+                            "summary": "Summary only",
+                        },
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertTrue(result["source_attribution_required"])
+        self.assertEqual(
+            result["source_attribution_requirements"],
+            [
+                ["https://example.test/report"],
+                ["Example Source", "Source-only exploitation report"],
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
