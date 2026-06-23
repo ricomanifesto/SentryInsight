@@ -387,10 +387,10 @@
             <aside id="toc">
                 <h4>On this page</h4>
                 <nav id="toc-list"></nav>
-                <div id="summary" class="summary"></div>
             </aside>
             <main>
                 <div class="meta" id="meta"></div>
+                <div id="summary" class="summary"></div>
                 <div id="exec" class="exec"></div>
                 <div id="content" class="markdown-body"></div>
             </main>
@@ -668,6 +668,9 @@
 
             const html = `
                 <div class="card"><h5>CVEs Mentioned</h5><div class="value">${uniqueCVEs.length}</div><div class="chips">${uniqueCVEs.slice(0,6).map(c => `<a class="chip" href="https://nvd.nist.gov/vuln/detail/${c}" target="_blank" rel="noopener">${c}</a>`).join('')}</div></div>
+                <div class="card"><h5>Active Items</h5><div class="value">${activeCount}</div></div>
+                <div class="card"><h5>Affected Products</h5><div class="value">${products}</div></div>
+                <div class="card"><h5>Report Sections</h5><div class="value">${sections}</div></div>
             `;
             summaryEl.innerHTML = html;
         }

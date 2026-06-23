@@ -44,3 +44,17 @@ def test_report_viewers_include_mobile_overflow_guards():
         )
         assert "aside#toc { display: none; width: 100%; overflow-x: hidden; }" in viewer
         assert "#content { padding: 1.25em;" in viewer
+
+
+def test_report_viewers_render_full_summary_cards():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert (
+            '<div class="meta" id="meta"></div>\n                <div id="summary" class="summary"></div>'
+            in viewer
+        )
+        assert "CVEs Mentioned" in viewer
+        assert "Active Items" in viewer
+        assert "Affected Products" in viewer
+        assert "Report Sections" in viewer
