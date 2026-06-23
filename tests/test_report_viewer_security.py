@@ -58,3 +58,22 @@ def test_report_viewers_render_full_summary_cards():
         assert "Active Items" in viewer
         assert "Affected Products" in viewer
         assert "Report Sections" in viewer
+
+
+def test_report_viewers_include_section_filter_controls():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert 'id="section-filter"' in viewer
+        assert 'id="section-filter-count"' in viewer
+        assert 'id="section-filter-empty"' in viewer
+        assert "filterSections" in viewer
+        assert "buildFilterGroups" in viewer
+        assert "flushDirectGroup" in viewer
+        assert "h2.report-filter-heading" in viewer
+        assert "visibleHeadings" in viewer
+        assert "visibleTocIds" in viewer
+        assert "tocEl.querySelectorAll('a[href^=\"#\"]')" in viewer
+        assert "contentEl.querySelectorAll('.section-collapsible')" in viewer
+        assert "section-filter-hidden" in viewer
+        assert "sectionFilterEl.addEventListener('input', filterSections)" in viewer

@@ -293,6 +293,47 @@
         body.dark .exec h4 { color: #cbd5e1; }
         body.dark .exec p { color: #e5e7eb; }
 
+        .section-filter {
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 0 0 16px;
+        }
+        .section-filter label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .section-filter input {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 9px 10px;
+            color: var(--text-primary);
+            background: #ffffff;
+            font: inherit;
+        }
+        .section-filter .filter-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+        .section-filter-empty {
+            display: none;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .section-filter-hidden { display: none !important; }
+        body.dark .section-filter { background: var(--dark-elev); border-color: #1f2937; }
+        body.dark .section-filter input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
+
         /* Add loading animation */
         .loading {
             text-align: center;
@@ -391,6 +432,12 @@
             <main>
                 <div class="meta" id="meta"></div>
                 <div id="summary" class="summary"></div>
+                <div class="section-filter">
+                    <label for="section-filter">Filter report sections</label>
+                    <input id="section-filter" type="search" autocomplete="off" placeholder="Search vulnerabilities, products, actors, or techniques" />
+                    <div class="filter-meta" id="section-filter-count"></div>
+                </div>
+                <div class="section-filter-empty" id="section-filter-empty">No matching report sections.</div>
                 <div id="exec" class="exec"></div>
                 <div id="content" class="markdown-body"></div>
             </main>
@@ -404,6 +451,9 @@
         const summaryEl = document.getElementById('summary');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const execEl = document.getElementById('exec');
+        const sectionFilterEl = document.getElementById('section-filter');
+        const sectionFilterCountEl = document.getElementById('section-filter-count');
+        const sectionFilterEmptyEl = document.getElementById('section-filter-empty');
 
         // Initial UI state
         contentEl.innerHTML = '<div class="loading">Loading exploitation report...</div>';
@@ -675,6 +725,85 @@
             summaryEl.innerHTML = html;
         }
 
+        function buildFilterGroups() {
+            const groups = [];
+            let currentHeading = null;
+            let directNodes = [];
+
+            function flushDirectGroup() {
+                if (!currentHeading || !directNodes.length) return;
+                groups.push({
+                    heading: currentHeading,
+                    nodes: [...directNodes],
+                });
+                directNodes = [];
+            }
+
+            Array.from(contentEl.children).forEach(el => {
+                if (el.tagName === 'H2') {
+                    flushDirectGroup();
+                    el.classList.add('report-filter-heading');
+                    currentHeading = el;
+                    return;
+                }
+                if (!currentHeading) return;
+                if (el.classList.contains('section-collapsible')) {
+                    flushDirectGroup();
+                    groups.push({
+                        heading: currentHeading,
+                        nodes: [el],
+                    });
+                    return;
+                }
+                directNodes.push(el);
+            });
+            flushDirectGroup();
+            if (groups.length) return groups;
+            return Array.from(contentEl.querySelectorAll('.section-collapsible')).map(sec => ({
+                heading: sec.querySelector('h3'),
+                nodes: [sec],
+            }));
+        }
+
+        function filterSections() {
+            const query = sectionFilterEl.value.trim().toLowerCase();
+            const sections = buildFilterGroups();
+            let visibleCount = 0;
+            const headings = Array.from(contentEl.querySelectorAll('h2.report-filter-heading'));
+            const visibleHeadings = new Set();
+            const visibleTocIds = new Set();
+            sections.forEach(group => {
+                const text = [group.heading, ...group.nodes]
+                    .filter(Boolean)
+                    .map(node => node.textContent)
+                    .join(' ')
+                    .toLowerCase();
+                const matches = !query || text.includes(query);
+                group.nodes.forEach(node => node.classList.toggle('section-filter-hidden', !matches));
+                if (matches) {
+                    visibleCount++;
+                    if (group.heading) {
+                        visibleHeadings.add(group.heading);
+                        if (group.heading.id) visibleTocIds.add(group.heading.id);
+                    }
+                    group.nodes.forEach(node => {
+                        node.querySelectorAll('h2[id], h3[id]').forEach(heading => visibleTocIds.add(heading.id));
+                    });
+                }
+            });
+            headings.forEach(heading => {
+                heading.classList.toggle('section-filter-hidden', Boolean(query) && !visibleHeadings.has(heading));
+            });
+            tocEl.querySelectorAll('a[href^="#"]').forEach(link => {
+                const targetId = decodeURIComponent((link.getAttribute('href') || '').slice(1));
+                link.classList.toggle('section-filter-hidden', Boolean(query) && !visibleTocIds.has(targetId));
+            });
+            sectionFilterCountEl.textContent = query
+                ? `${visibleCount} of ${sections.length} sections match`
+                : `${sections.length} sections`;
+            sectionFilterEmptyEl.style.display = query && visibleCount === 0 ? 'block' : 'none';
+        }
+
         function wireShortcuts() {
             document.addEventListener('keydown', (e) => {
                 if (e.target && ['input','textarea'].includes((e.target.tagName||'').toLowerCase())) return;
@@ -738,6 +867,7 @@
                 enhanceActiveExploitationTags();
                 buildTOC();
                 computeSummary();
+                filterSections();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 setMeta(m ? m[1] : '');
           })
@@ -755,6 +885,7 @@
             const mode = document.body.classList.contains('dark') ? 'dark' : 'light';
             localStorage.setItem('sentryinsight:theme', mode);
         });
+        sectionFilterEl.addEventListener('input', filterSections);
         wireShortcuts();
 
         // Copy heading link via anchor click
