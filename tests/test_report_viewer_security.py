@@ -100,6 +100,13 @@ def test_report_archive_route_has_static_index():
     assert "Report Archive" in archive
     assert "../index.html" in archive
     assert "index.md" in archive
+    assert 'id="archive-filter"' in archive
+    assert 'id="archive-count"' in archive
+    assert 'id="archive-empty"' in archive
+    assert "filterArchive" in archive
+    assert "data-search" in archive
+    assert "CVE-2025-5777" in archive
+    assert "archiveEmptyEl.hidden = visible !== 0" in archive
 
 
 def test_report_viewers_include_source_provenance_panel():
