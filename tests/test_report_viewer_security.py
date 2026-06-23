@@ -111,6 +111,8 @@ def test_report_viewers_include_source_provenance_panel():
         assert "Source entries" in viewer
         assert "isPlaceholderSourceAttributionEntry" in viewer
         assert "no sources were provided" in viewer
+        assert "article title: source name - url" in viewer
+        assert "n/a" in viewer
         assert "extractSourceAttributionEntries" in viewer
         assert "renderProvenance" in viewer
         assert "findSourceAttributionHeading" in viewer

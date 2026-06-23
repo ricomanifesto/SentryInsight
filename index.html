@@ -784,6 +784,10 @@
             const normalized = text.trim().toLowerCase().replace(/\s+/g, ' ');
             return normalized === 'no sources were provided.' ||
                 normalized === 'no sources were provided' ||
+                normalized === 'none' ||
+                normalized === 'n/a' ||
+                normalized === '**article title**: source name - url' ||
+                normalized === 'article title: source name - url' ||
                 normalized.startsWith('no source attribution') ||
                 normalized.startsWith('no sources available') ||
                 normalized.startsWith('source attribution unavailable');
