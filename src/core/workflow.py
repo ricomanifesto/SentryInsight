@@ -161,7 +161,14 @@ async def generate_report(
     # Since the exploitation_report already contains the full formatted report,
     # we should use it directly instead of the template
     report = exploitation_report
-    validation_issues = validate_report_content(report)
+    validation_issues = validate_report_content(
+        report,
+        require_source_attribution=bool(
+            analysis_results.get("source_attribution_required")
+        ),
+        source_attribution_markers=analysis_results.get("source_attribution_markers"),
+        source_attribution_groups=analysis_results.get("source_attribution_groups"),
+    )
     if validation_issues:
         logger.error(
             "Report validation failed:\n%s",

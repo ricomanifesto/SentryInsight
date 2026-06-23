@@ -97,6 +97,35 @@ def format_article_summary(article: Dict[str, Any]) -> str:
     return f"{heading}\n\n{content[:500]}...\n\n"
 
 
+def article_source_metadata_available(articles: list[Dict[str, Any]]) -> bool:
+    return any(article.get("source") or article.get("link") for article in articles)
+
+
+def collect_source_attribution_markers(articles: list[Dict[str, Any]]) -> list[str]:
+    markers = {
+        str(value).strip()
+        for article in articles
+        for value in (article.get("source"), article.get("link"))
+        if value and str(value).strip()
+    }
+    return sorted(markers)
+
+
+def collect_source_attribution_marker_groups(
+    articles: list[Dict[str, Any]],
+) -> list[list[str]]:
+    groups = []
+    for article in articles:
+        markers = [
+            str(value).strip()
+            for value in (article.get("source"), article.get("link"))
+            if value and str(value).strip()
+        ]
+        if markers:
+            groups.append(markers)
+    return groups
+
+
 async def analyze_exploitation(
     articles: List[Dict[str, Any]], config: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -188,6 +217,13 @@ Generate a report following this EXACT structure with professional markdown form
 - **Campaign**: Operation descriptions and impacts
 ]
 
+## Source Attribution
+
+[List the source articles used for this report:
+- **Article Title**: Source name - URL
+Only use source names and URLs provided in the article metadata. Do not invent
+or infer sources.]
+
 Formatting requirements:
 - Use proper markdown with **bold** for emphasis
 - Create clear bullet points with good spacing
@@ -195,6 +231,7 @@ Formatting requirements:
 - Write professional, well-structured content
 - Only mention CVE IDs when they are actually provided in the source articles
 - Do NOT mention missing or unavailable CVE information
+- Include the Source Attribution section when article source metadata or URLs are available
 
 Focus specifically on:
 - Zero-day vulnerabilities being actively exploited
@@ -224,11 +261,18 @@ Generate a well-formatted exploitation report following the structure above. Be 
             title="SentryInsight exploitation report",
         )
 
+        source_attribution_groups = collect_source_attribution_marker_groups(articles)
+        source_attribution_markers = sorted(
+            {marker for group in source_attribution_groups for marker in group}
+        )
         return {
             "exploitation_report": exploitation_report,
             "date": datetime.now().strftime("%Y-%m-%d"),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
+            "source_attribution_required": bool(source_attribution_markers),
+            "source_attribution_groups": source_attribution_groups,
+            "source_attribution_markers": source_attribution_markers,
         }
     except OpenCodeUnavailable as e:
         logger.warning(f"Skipping exploitation analysis: {e}")

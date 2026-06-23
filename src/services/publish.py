@@ -45,7 +45,16 @@ async def publish_to_github_pages(
             "exploitation_report", "No exploitation report available."
         )
         report_date = analysis_results.get("date", datetime.now().strftime("%Y-%m-%d"))
-        validation_issues = validate_report_content(exploitation_report)
+        validation_issues = validate_report_content(
+            exploitation_report,
+            require_source_attribution=bool(
+                analysis_results.get("source_attribution_required")
+            ),
+            source_attribution_markers=analysis_results.get(
+                "source_attribution_markers"
+            ),
+            source_attribution_groups=analysis_results.get("source_attribution_groups"),
+        )
         if validation_issues:
             logger.error(
                 "Refusing to publish invalid report:\n%s",

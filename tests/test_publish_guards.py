@@ -51,6 +51,31 @@ class PublishGuardTests(unittest.TestCase):
             self.assertTrue(repo_dir.exists())
             self.assertFalse((repo_dir / "index.md").exists())
 
+    def test_missing_required_source_attribution_is_not_published(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "docs"
+            result = asyncio.run(
+                publish_to_github_pages(
+                    {
+                        "exploitation_report": VALID_REPORT,
+                        "date": "2026-06-17",
+                        "source_attribution_required": True,
+                        "source_attribution_markers": [
+                            "Example Source",
+                            "https://example.test/report",
+                        ],
+                        "source_attribution_groups": [
+                            ["Example Source", "https://example.test/report"]
+                        ],
+                    },
+                    {"enabled": True, "repo_directory": str(repo_dir)},
+                )
+            )
+
+            self.assertFalse(result)
+            self.assertTrue(repo_dir.exists())
+            self.assertFalse((repo_dir / "index.md").exists())
+
     def test_valid_report_writes_pages_files(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir) / "docs"

@@ -26,10 +26,124 @@ Recent exploitation activity is concentrated in edge systems.
 - **Unknown actor**: Opportunistic exploitation.
 """
 
+VALID_REPORT_WITH_SOURCE_ATTRIBUTION = VALID_REPORT + """
+## Source Attribution
+
+- **Example Vulnerability Report**: Example Source - https://example.test/report
+"""
+
 
 class ReportValidationTests(unittest.TestCase):
     def test_valid_report_passes(self):
         self.assertEqual(validate_report_content(VALID_REPORT), [])
+
+    def test_missing_source_attribution_fails_when_required(self):
+        issues = validate_report_content(VALID_REPORT, require_source_attribution=True)
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_empty_source_attribution_section_fails_when_required(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n## Source Attribution\n\n",
+            require_source_attribution=True,
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_source_attribution_section_without_entry_fails_when_required(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n## Source Attribution\n\nNo sources were provided.\n",
+            require_source_attribution=True,
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_placeholder_source_attribution_fails_when_markers_are_expected(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n## Source Attribution\n\n"
+            "- **Article Title**: Source name - URL\n",
+            require_source_attribution=True,
+            source_attribution_markers=[
+                "Example Source",
+                "https://example.test/report",
+            ],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_no_sources_list_item_fails_when_markers_are_expected(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n## Source Attribution\n\n- No sources were provided.\n",
+            require_source_attribution=True,
+            source_attribution_markers=[
+                "Example Source",
+                "https://example.test/report",
+            ],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_source_attribution_requirement_passes_when_section_exists(self):
+        self.assertEqual(
+            validate_report_content(
+                VALID_REPORT_WITH_SOURCE_ATTRIBUTION,
+                require_source_attribution=True,
+            ),
+            [],
+        )
+
+    def test_source_attribution_requirement_passes_when_marker_matches(self):
+        self.assertEqual(
+            validate_report_content(
+                VALID_REPORT_WITH_SOURCE_ATTRIBUTION,
+                require_source_attribution=True,
+                source_attribution_markers=[
+                    "Example Source",
+                    "https://example.test/report",
+                ],
+            ),
+            [],
+        )
+
+    def test_source_attribution_fails_when_any_expected_group_is_missing(self):
+        issues = validate_report_content(
+            VALID_REPORT + "\n## Source Attribution\n\n"
+            "- **First Report**: First Source - https://example.test/first\n",
+            require_source_attribution=True,
+            source_attribution_groups=[
+                ["First Source", "https://example.test/first"],
+                ["Second Source", "https://example.test/second"],
+            ],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_source_attribution_passes_when_each_expected_group_matches(self):
+        self.assertEqual(
+            validate_report_content(
+                VALID_REPORT + "\n## Source Attribution\n\n"
+                "- **First Report**: First Source - https://example.test/first\n"
+                "- **Second Report**: Second Source - https://example.test/second\n",
+                require_source_attribution=True,
+                source_attribution_groups=[
+                    ["First Source", "https://example.test/first"],
+                    ["Second Source", "https://example.test/second"],
+                ],
+            ),
+            [],
+        )
 
     def test_api_error_marker_fails(self):
         issues = validate_report_content(

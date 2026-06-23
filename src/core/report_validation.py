@@ -13,6 +13,7 @@ REQUIRED_SECTIONS = (
     "## Attack Vectors and Techniques",
     "## Threat Actor Activities",
 )
+SOURCE_ATTRIBUTION_SECTION = "## Source Attribution"
 
 ERROR_MARKERS = (
     "# Error",
@@ -84,6 +85,7 @@ ACTIVE_CONTENT_PATTERNS = (
         re.IGNORECASE,
     ),
 )
+URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -553,7 +555,64 @@ def contains_active_markdown_link(markdown: str) -> bool:
     return False
 
 
-def validate_report_content(markdown: str) -> List[ReportValidationIssue]:
+def get_source_attribution_section_body(markdown: str) -> str:
+    section_start = markdown.find(SOURCE_ATTRIBUTION_SECTION)
+    if section_start == -1:
+        return ""
+
+    section_body_start = section_start + len(SOURCE_ATTRIBUTION_SECTION)
+    next_section = re.search(r"^##\s+", markdown[section_body_start:], re.MULTILINE)
+    return (
+        markdown[section_body_start : section_body_start + next_section.start()]
+        if next_section
+        else markdown[section_body_start:]
+    )
+
+
+def source_attribution_section_has_entry(markdown: str) -> bool:
+    section_body = get_source_attribution_section_body(markdown)
+    for line in section_body.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if LIST_ITEM_PATTERN.match(stripped) or URL_PATTERN.search(stripped):
+            return True
+
+    return False
+
+
+def source_attribution_section_matches_marker(
+    markdown: str, source_attribution_markers: Iterable[str]
+) -> bool:
+    section_body = get_source_attribution_section_body(markdown).casefold()
+    return any(
+        marker.strip().casefold() in section_body
+        for marker in source_attribution_markers
+        if marker and marker.strip()
+    )
+
+
+def source_attribution_section_matches_groups(
+    markdown: str, source_attribution_groups: Iterable[Iterable[str]]
+) -> bool:
+    section_body = get_source_attribution_section_body(markdown).casefold()
+    groups = [
+        [marker.strip().casefold() for marker in group if marker and marker.strip()]
+        for group in source_attribution_groups
+    ]
+    groups = [group for group in groups if group]
+    if not groups:
+        return False
+
+    return all(any(marker in section_body for marker in group) for group in groups)
+
+
+def validate_report_content(
+    markdown: str,
+    require_source_attribution: bool = False,
+    source_attribution_markers: Iterable[str] | None = None,
+    source_attribution_groups: Iterable[Iterable[str]] | None = None,
+) -> List[ReportValidationIssue]:
     """Return validation issues that should block publishing."""
     issues: List[ReportValidationIssue] = []
     content = markdown.strip()
@@ -623,6 +682,27 @@ def validate_report_content(markdown: str) -> List[ReportValidationIssue]:
                     message=f"Report is missing required section: {section}",
                 )
             )
+
+    if source_attribution_groups:
+        has_expected_source_attribution = source_attribution_section_matches_groups(
+            content, source_attribution_groups
+        )
+    elif source_attribution_markers:
+        has_expected_source_attribution = source_attribution_section_matches_marker(
+            content, source_attribution_markers
+        )
+    else:
+        has_expected_source_attribution = source_attribution_section_has_entry(content)
+    if require_source_attribution and not has_expected_source_attribution:
+        issues.append(
+            ReportValidationIssue(
+                code="missing_source_attribution",
+                message=(
+                    "Report is missing required source attribution entries in section: "
+                    f"{SOURCE_ATTRIBUTION_SECTION}"
+                ),
+            )
+        )
 
     return issues
 

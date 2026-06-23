@@ -122,6 +122,45 @@ class WorkflowGuardTests(unittest.TestCase):
             self.assertIn("report_validation_errors", result)
             self.assertFalse(output_path.exists())
 
+    def test_missing_required_source_attribution_does_not_write_output_file(self):
+        workflow = import_workflow_with_stubs()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            state = {
+                "analysis_results": {
+                    "exploitation_report": (
+                        "# Exploitation Report\n\n"
+                        "Recent exploitation activity is concentrated in edge systems.\n\n"
+                        "## Active Exploitation Details\n\n"
+                        "### Example Vulnerability\n"
+                        "- **Description**: Attackers are exploiting a vulnerable service.\n\n"
+                        "## Affected Systems and Products\n\n"
+                        "- **Example Product**: Affected versions are exposed.\n\n"
+                        "## Attack Vectors and Techniques\n\n"
+                        "- **Internet-facing service**: Attackers send crafted requests.\n\n"
+                        "## Threat Actor Activities\n\n"
+                        "- **Unknown actor**: Opportunistic exploitation.\n"
+                    ),
+                    "source_attribution_required": True,
+                    "source_attribution_markers": [
+                        "Example Source",
+                        "https://example.test/report",
+                    ],
+                    "source_attribution_groups": [
+                        ["Example Source", "https://example.test/report"]
+                    ],
+                },
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.generate_report(state))
+
+            self.assertEqual(result["status"], "failed")
+            self.assertIn("report_validation_errors", result)
+            self.assertFalse(output_path.exists())
+
     def test_skipped_analysis_does_not_write_output_file(self):
         workflow = import_workflow_with_stubs()
 
