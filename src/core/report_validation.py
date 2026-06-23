@@ -19,6 +19,7 @@ SOURCE_ATTRIBUTION_SECTION_PATTERN = re.compile(
     re.MULTILINE,
 )
 SOURCE_ATTRIBUTION_ENTRY_PATTERN = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)")
+SOURCE_ATTRIBUTION_URL_PATTERN = re.compile(r"https?://[^\s<>()\[\]\"']+")
 
 ERROR_MARKERS = (
     "# Error",
@@ -605,6 +606,38 @@ def get_source_attribution_entries(markdown: str) -> list[str]:
     return entries
 
 
+def normalize_source_url(value: str) -> str:
+    return html.unescape(value.strip()).rstrip(".,;:")
+
+
+def source_attribution_entry_urls(entry: str) -> set[str]:
+    return {
+        normalize_source_url(match.group(0)).casefold()
+        for match in SOURCE_ATTRIBUTION_URL_PATTERN.finditer(entry)
+    }
+
+
+def source_attribution_requirement_matches(
+    entry: str, marker_group: Iterable[str]
+) -> bool:
+    entry_urls = source_attribution_entry_urls(entry)
+    for marker in marker_group:
+        normalized_marker = marker.strip()
+        if not normalized_marker:
+            continue
+
+        normalized_marker = html.unescape(normalized_marker)
+        if normalized_marker.casefold().startswith(("http://", "https://")):
+            if normalize_source_url(normalized_marker).casefold() not in entry_urls:
+                return False
+            continue
+
+        if normalized_marker.casefold() not in entry:
+            return False
+
+    return True
+
+
 def source_attribution_requirements_met(
     markdown: str, source_attribution_requirements: Iterable[Iterable[str]]
 ) -> bool:
@@ -618,7 +651,7 @@ def source_attribution_requirements_met(
         return False
 
     return all(
-        any(all(marker in entry for marker in group) for entry in entries)
+        any(source_attribution_requirement_matches(entry, group) for entry in entries)
         for group in requirements
     )
 

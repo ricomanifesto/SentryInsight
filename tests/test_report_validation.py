@@ -180,6 +180,22 @@ https://example.test/report
             [],
         )
 
+    def test_url_requirement_requires_exact_url_match(self):
+        issues = validate_report_content(
+            VALID_REPORT
+            + """
+## Source Attribution
+
+- **Longer URL report**: Example Source - https://example.test/reporting
+""",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
     def test_source_only_article_requires_source_and_title(self):
         issues = validate_report_content(
             VALID_REPORT
