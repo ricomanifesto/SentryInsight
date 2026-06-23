@@ -13,6 +13,12 @@ REQUIRED_SECTIONS = (
     "## Attack Vectors and Techniques",
     "## Threat Actor Activities",
 )
+SOURCE_ATTRIBUTION_SECTION = "## Source Attribution"
+SOURCE_ATTRIBUTION_SECTION_PATTERN = re.compile(
+    rf"^{re.escape(SOURCE_ATTRIBUTION_SECTION)}\s*$",
+    re.MULTILINE,
+)
+SOURCE_ATTRIBUTION_ENTRY_PATTERN = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)")
 
 ERROR_MARKERS = (
     "# Error",
@@ -553,7 +559,122 @@ def contains_active_markdown_link(markdown: str) -> bool:
     return False
 
 
-def validate_report_content(markdown: str) -> List[ReportValidationIssue]:
+def get_source_attribution_section_body(markdown: str) -> str:
+    searchable_markdown = strip_markdown_code(markdown)
+    section_match = SOURCE_ATTRIBUTION_SECTION_PATTERN.search(searchable_markdown)
+    if not section_match:
+        return ""
+
+    section_body_start = section_match.end()
+    next_section = re.search(
+        r"^##\s+", searchable_markdown[section_body_start:], re.MULTILINE
+    )
+    return (
+        searchable_markdown[
+            section_body_start : section_body_start + next_section.start()
+        ]
+        if next_section
+        else searchable_markdown[section_body_start:]
+    )
+
+
+def remove_source_attribution_section(markdown: str) -> str:
+    lines = markdown.splitlines(keepends=True)
+    retained_lines: list[str] = []
+    fence: str | None = None
+    skipping_section = False
+
+    for line in lines:
+        if fence is not None:
+            if is_fence_closer(line, fence):
+                fence = None
+            if not skipping_section:
+                retained_lines.append(line)
+            continue
+
+        if fence_opener := parse_fence_opener(line):
+            fence = fence_opener
+            if not skipping_section:
+                retained_lines.append(line)
+            continue
+
+        if SOURCE_ATTRIBUTION_SECTION_PATTERN.match(line):
+            skipping_section = True
+            continue
+
+        if skipping_section and re.match(r"^##\s+", line):
+            skipping_section = False
+
+        if not skipping_section:
+            retained_lines.append(line)
+
+    return "".join(retained_lines).rstrip()
+
+
+def render_source_attribution_section(source_attribution_entries: Iterable[str]) -> str:
+    entries = [entry.strip() for entry in source_attribution_entries if entry.strip()]
+    if not entries:
+        return ""
+    return f"{SOURCE_ATTRIBUTION_SECTION}\n\n" + "\n".join(entries) + "\n"
+
+
+def ensure_source_attribution_section(
+    markdown: str, source_attribution_entries: Iterable[str]
+) -> str:
+    section = render_source_attribution_section(source_attribution_entries)
+    if not section:
+        return markdown
+
+    report_without_source_attribution = remove_source_attribution_section(markdown)
+    return f"{report_without_source_attribution.rstrip()}\n\n{section}"
+
+
+def get_source_attribution_entries(markdown: str) -> list[str]:
+    section_body = get_source_attribution_section_body(markdown)
+    entries: list[str] = []
+    current_entry: list[str] = []
+
+    for line in section_body.splitlines():
+        stripped_line = line.strip()
+        if not stripped_line:
+            continue
+
+        if SOURCE_ATTRIBUTION_ENTRY_PATTERN.match(line):
+            if current_entry:
+                entries.append(" ".join(current_entry))
+            current_entry = [stripped_line]
+            continue
+
+        if current_entry:
+            current_entry.append(stripped_line)
+        else:
+            entries.append(stripped_line)
+
+    if current_entry:
+        entries.append(" ".join(current_entry))
+
+    return entries
+
+
+def exact_source_attribution_entries_present(
+    markdown: str, source_attribution_entries: Iterable[str]
+) -> bool:
+    expected_entries = {
+        html.unescape(entry.strip())
+        for entry in source_attribution_entries
+        if entry.strip()
+    }
+    actual_entries = {
+        html.unescape(entry) for entry in get_source_attribution_entries(markdown)
+    }
+    return bool(expected_entries) and expected_entries.issubset(actual_entries)
+
+
+def validate_report_content(
+    markdown: str,
+    require_source_attribution: bool = False,
+    source_attribution_entries: Iterable[str] | None = None,
+) -> List[ReportValidationIssue]:
     """Return validation issues that should block publishing."""
     issues: List[ReportValidationIssue] = []
     content = markdown.strip()
@@ -623,6 +744,22 @@ def validate_report_content(markdown: str) -> List[ReportValidationIssue]:
                     message=f"Report is missing required section: {section}",
                 )
             )
+
+    source_attribution_is_valid = (
+        exact_source_attribution_entries_present(content, source_attribution_entries)
+        if source_attribution_entries is not None
+        else False
+    )
+    if require_source_attribution and not source_attribution_is_valid:
+        issues.append(
+            ReportValidationIssue(
+                code="missing_source_attribution",
+                message=(
+                    "Report is missing required source attribution entries in section: "
+                    f"{SOURCE_ATTRIBUTION_SECTION}"
+                ),
+            )
+        )
 
     return issues
 

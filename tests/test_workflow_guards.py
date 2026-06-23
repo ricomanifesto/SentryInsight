@@ -109,7 +109,7 @@ class WorkflowGuardTests(unittest.TestCase):
             state = {
                 "analysis_results": {
                     "exploitation_report": (
-                        "# Error Generating Exploitation Report\n\n" "Error code: 404"
+                        "# Error Generating Exploitation Report\n\nError code: 404"
                     )
                 },
                 "config": {"output_path": str(output_path)},
@@ -140,6 +140,48 @@ class WorkflowGuardTests(unittest.TestCase):
             result = asyncio.run(workflow.generate_report(state))
 
             self.assertEqual(result["status"], "completed_with_warnings")
+            self.assertFalse(output_path.exists())
+
+    def test_missing_required_source_attribution_does_not_write_output_file(self):
+        workflow = import_workflow_with_stubs()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            state = {
+                "analysis_results": {
+                    "exploitation_report": """# Exploitation Report
+
+Recent exploitation activity is concentrated in edge systems.
+
+## Active Exploitation Details
+
+### Example Vulnerability
+- **Description**: Attackers are exploiting a vulnerable service.
+- **Impact**: Remote access.
+- **Status**: Active exploitation observed.
+
+## Affected Systems and Products
+
+- **Example Product**: Affected versions are exposed.
+
+## Attack Vectors and Techniques
+
+- **Internet-facing service**: Attackers send crafted requests.
+
+## Threat Actor Activities
+
+- **Unknown actor**: Opportunistic exploitation.
+""",
+                    "source_attribution_required": True,
+                },
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.generate_report(state))
+
+            self.assertEqual(result["status"], "failed")
+            self.assertIn("report_validation_errors", result)
             self.assertFalse(output_path.exists())
 
     def test_failed_state_skips_audio_generation(self):

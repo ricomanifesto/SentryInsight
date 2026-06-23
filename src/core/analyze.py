@@ -7,6 +7,10 @@ import tiktoken
 
 from .model_config import resolve_model, validate_model
 from .opencode_client import OpenCodeClient, OpenCodeUnavailable, parse_model_selection
+from .source_attribution import (
+    clean_article_source,
+    collect_source_attribution_entries,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -77,7 +81,7 @@ def format_article_summary(article: Dict[str, Any]) -> str:
         return str(value).strip()
 
     title = clean_text(article.get("title"), "Untitled article") or "Untitled article"
-    source = clean_text(article.get("source"))
+    source = clean_article_source(article.get("source"))
     link = clean_text(article.get("link"))
     content = clean_text(
         article.get("content", article.get("summary")),
@@ -188,6 +192,13 @@ Generate a report following this EXACT structure with professional markdown form
 - **Campaign**: Operation descriptions and impacts
 ]
 
+## Source Attribution
+
+[List the source articles used for this report:
+- **Article Title**: Source name - URL
+Only use source names and URLs provided in the article metadata. Do not invent
+or infer sources.]
+
 Formatting requirements:
 - Use proper markdown with **bold** for emphasis
 - Create clear bullet points with good spacing
@@ -195,6 +206,7 @@ Formatting requirements:
 - Write professional, well-structured content
 - Only mention CVE IDs when they are actually provided in the source articles
 - Do NOT mention missing or unavailable CVE information
+- Include the Source Attribution section when article source metadata or URLs are available
 
 Focus specifically on:
 - Zero-day vulnerabilities being actively exploited
@@ -205,7 +217,7 @@ Focus specifically on:
 
 Here are the articles:
 
-{''.join(all_article_summaries)}
+{"".join(all_article_summaries)}
 
 Generate a well-formatted exploitation report following the structure above. Be comprehensive but only include CVE IDs when they are explicitly mentioned in the articles.
 """
@@ -224,11 +236,14 @@ Generate a well-formatted exploitation report following the structure above. Be 
             title="SentryInsight exploitation report",
         )
 
+        source_attribution_entries = collect_source_attribution_entries(articles)
         return {
             "exploitation_report": exploitation_report,
             "date": datetime.now().strftime("%Y-%m-%d"),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
+            "source_attribution_required": bool(source_attribution_entries),
+            "source_attribution_entries": source_attribution_entries,
         }
     except OpenCodeUnavailable as e:
         logger.warning(f"Skipping exploitation analysis: {e}")

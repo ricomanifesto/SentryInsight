@@ -15,9 +15,26 @@ def import_analyze_with_stubs():
         encode=lambda value: value.split()
     )
 
+    opencode_client_module = types.ModuleType("src.core.opencode_client")
+
+    class OpenCodeUnavailable(RuntimeError):
+        pass
+
+    class OpenCodeClient:
+        pass
+
+    def parse_model_selection(model_name):
+        provider_id, model_id = model_name.split("/", 1)
+        return types.SimpleNamespace(provider_id=provider_id, model_id=model_id)
+
+    opencode_client_module.OpenCodeClient = OpenCodeClient
+    opencode_client_module.OpenCodeUnavailable = OpenCodeUnavailable
+    opencode_client_module.parse_model_selection = parse_model_selection
+
     with patch.dict(
         sys.modules,
         {
+            "src.core.opencode_client": opencode_client_module,
             "tiktoken": tiktoken_module,
         },
     ):
@@ -141,6 +158,93 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertIn("Summary only...", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
+
+    def test_prompt_requires_source_attribution_from_article_metadata(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **kwargs):
+                self.__class__.user_prompt = kwargs["user_prompt"]
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": "Example exploitation report",
+                            "source": "Example Source",
+                            "link": "https://example.test/report",
+                            "summary": "Summary only",
+                        }
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertIn("## Source Attribution", FakeOpenCodeClient.user_prompt)
+        self.assertIn(
+            "Only use source names and URLs provided",
+            FakeOpenCodeClient.user_prompt,
+        )
+        self.assertIn("Example exploitation report", FakeOpenCodeClient.user_prompt)
+        self.assertIn("Example Source", FakeOpenCodeClient.user_prompt)
+        self.assertIn("https://example.test/report", FakeOpenCodeClient.user_prompt)
+
+    def test_analysis_result_carries_canonical_source_attribution_entries(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **_kwargs):
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            result = asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": "Example exploitation report",
+                            "source": "Example Source",
+                            "link": "https://example.test/report",
+                            "summary": "Summary only",
+                        },
+                        {
+                            "title": "Source-only exploitation report",
+                            "source": "Example Source",
+                            "summary": "Summary only",
+                        },
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertTrue(result["source_attribution_required"])
+        self.assertEqual(
+            result["source_attribution_entries"],
+            [
+                "- **Example exploitation report**: Example Source - https://example.test/report",
+                "- **Source-only exploitation report**: Example Source",
+            ],
+        )
+        self.assertNotIn("source_attribution_requirements", result)
 
 
 if __name__ == "__main__":
