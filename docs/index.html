@@ -334,6 +334,30 @@
         body.dark .section-filter { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .section-filter input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
 
+        .provenance {
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 0 0 16px;
+        }
+        .provenance h4 {
+            margin: 0 0 6px;
+            color: var(--text-secondary);
+        }
+        .provenance p {
+            margin: 0;
+            color: var(--text-primary);
+        }
+        .provenance .provenance-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+        body.dark .provenance { background: var(--dark-elev); border-color: #1f2937; }
+        body.dark .provenance h4 { color: #cbd5e1; }
+        body.dark .provenance p { color: #e5e7eb; }
+
         /* Add loading animation */
         .loading {
             text-align: center;
@@ -433,6 +457,7 @@
             <main>
                 <div class="meta" id="meta"></div>
                 <div id="summary" class="summary"></div>
+                <div id="provenance" class="provenance" hidden></div>
                 <div class="section-filter">
                     <label for="section-filter">Filter report sections</label>
                     <input id="section-filter" type="search" autocomplete="off" placeholder="Search vulnerabilities, products, actors, or techniques" />
@@ -450,6 +475,7 @@
         const tocEl = document.getElementById('toc-list');
         const metaEl = document.getElementById('meta');
         const summaryEl = document.getElementById('summary');
+        const provenanceEl = document.getElementById('provenance');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
@@ -750,6 +776,43 @@
             summaryEl.innerHTML = html;
         }
 
+        function findSourceAttributionHeading() {
+            return Array.from(contentEl.querySelectorAll('h2')).find(h => /source attribution/i.test(h.textContent));
+        }
+
+        function extractSourceAttributionEntries() {
+            const heading = findSourceAttributionHeading();
+            if (!heading) return [];
+            const entries = [];
+            let el = heading.nextElementSibling;
+            while (el && el.tagName !== 'H2') {
+                if (el.tagName === 'UL' || el.tagName === 'OL') {
+                    el.querySelectorAll('li').forEach(li => {
+                        const text = li.textContent.trim().replace(/\s+/g, ' ');
+                        if (text) entries.push(text);
+                    });
+                }
+                el = el.nextElementSibling;
+            }
+            return entries;
+        }
+
+        function renderProvenance() {
+            const sourceEntries = extractSourceAttributionEntries();
+            if (!sourceEntries.length) {
+                provenanceEl.hidden = true;
+                provenanceEl.innerHTML = '';
+                return;
+            }
+            provenanceEl.hidden = false;
+            const label = sourceEntries.length === 1 ? 'Source entry' : 'Source entries';
+            provenanceEl.innerHTML = `
+                <h4>Report Provenance</h4>
+                <p>${sourceEntries.length} ${label.toLowerCase()} cited in this report.</p>
+                <div class="provenance-meta">Source entries are rendered from the report's Source Attribution section.</div>
+            `;
+        }
+
         function buildFilterGroups() {
             const groups = [];
             let currentHeading = null;
@@ -907,6 +970,7 @@
                 enhanceActiveExploitationTags();
                 buildTOC();
                 computeSummary();
+                renderProvenance();
                 filterSections();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 setMeta(m ? m[1] : '');
