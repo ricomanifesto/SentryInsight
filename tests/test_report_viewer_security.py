@@ -100,3 +100,21 @@ def test_report_archive_route_has_static_index():
     assert "Report Archive" in archive
     assert "../index.html" in archive
     assert "index.md" in archive
+
+
+def test_report_viewers_include_source_provenance_panel():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert 'id="provenance"' in viewer
+        assert "Report Provenance" in viewer
+        assert "Source entries" in viewer
+        assert "isPlaceholderSourceAttributionEntry" in viewer
+        assert "no sources were provided" in viewer
+        assert "article title: source name - url" in viewer
+        assert "n/a" in viewer
+        assert "extractSourceAttributionEntries" in viewer
+        assert "renderProvenance" in viewer
+        assert "findSourceAttributionHeading" in viewer
+        assert "provenanceEl.hidden = true" in viewer
+        assert "provenanceEl.hidden = false" in viewer
