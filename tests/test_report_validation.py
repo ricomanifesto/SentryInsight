@@ -187,6 +187,25 @@ https://example.test/report
             [],
         )
 
+    def test_source_only_markers_must_appear_in_same_attribution_entry(self):
+        issues = validate_report_content(
+            VALID_REPORT
+            + """
+## Source Attribution
+
+- **Source-only exploitation report**: Different Source
+- **Different report**: Example Source
+""",
+            require_source_attribution=True,
+            source_attribution_requirements=[
+                ["Example Source", "Source-only exploitation report"]
+            ],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
     def test_api_error_marker_fails(self):
         issues = validate_report_content(
             "# Error Generating Exploitation Report\n\nError code: 404"

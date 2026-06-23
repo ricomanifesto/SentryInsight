@@ -18,6 +18,7 @@ SOURCE_ATTRIBUTION_SECTION_PATTERN = re.compile(
     rf"^{re.escape(SOURCE_ATTRIBUTION_SECTION)}\s*$",
     re.MULTILINE,
 )
+SOURCE_ATTRIBUTION_ENTRY_PATTERN = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)")
 
 ERROR_MARKERS = (
     "# Error",
@@ -572,12 +573,37 @@ def get_source_attribution_section_body(markdown: str) -> str:
     )
 
 
+def get_source_attribution_entries(markdown: str) -> list[str]:
+    section_body = strip_markdown_code(get_source_attribution_section_body(markdown))
+    entries: list[str] = []
+    current_entry: list[str] = []
+
+    for line in section_body.splitlines():
+        stripped_line = line.strip()
+        if not stripped_line:
+            continue
+
+        if SOURCE_ATTRIBUTION_ENTRY_PATTERN.match(line):
+            if current_entry:
+                entries.append(" ".join(current_entry).casefold())
+            current_entry = [stripped_line]
+            continue
+
+        if current_entry:
+            current_entry.append(stripped_line)
+        else:
+            entries.append(stripped_line.casefold())
+
+    if current_entry:
+        entries.append(" ".join(current_entry).casefold())
+
+    return entries
+
+
 def source_attribution_requirements_met(
     markdown: str, source_attribution_requirements: Iterable[Iterable[str]]
 ) -> bool:
-    section_body = strip_markdown_code(
-        get_source_attribution_section_body(markdown)
-    ).casefold()
+    entries = get_source_attribution_entries(markdown)
     requirements = [
         [marker.strip().casefold() for marker in group if marker and marker.strip()]
         for group in source_attribution_requirements
@@ -587,7 +613,8 @@ def source_attribution_requirements_met(
         return False
 
     return all(
-        all(marker in section_body for marker in group) for group in requirements
+        any(all(marker in entry for marker in group) for entry in entries)
+        for group in requirements
     )
 
 
