@@ -358,6 +358,30 @@
         body.dark .provenance h4 { color: #cbd5e1; }
         body.dark .provenance p { color: #e5e7eb; }
 
+        .uncertainty {
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 0 0 16px;
+        }
+        .uncertainty h4 {
+            margin: 0 0 6px;
+            color: var(--text-secondary);
+        }
+        .uncertainty p {
+            margin: 0;
+            color: var(--text-primary);
+        }
+        .uncertainty .uncertainty-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+        body.dark .uncertainty { background: var(--dark-elev); border-color: #1f2937; }
+        body.dark .uncertainty h4 { color: #cbd5e1; }
+        body.dark .uncertainty p { color: #e5e7eb; }
+
         /* Add loading animation */
         .loading {
             text-align: center;
@@ -458,6 +482,7 @@
                 <div class="meta" id="meta"></div>
                 <div id="summary" class="summary"></div>
                 <div id="provenance" class="provenance" hidden></div>
+                <div id="uncertainty" class="uncertainty" hidden></div>
                 <div class="section-filter">
                     <label for="section-filter">Filter report sections</label>
                     <input id="section-filter" type="search" autocomplete="off" placeholder="Search vulnerabilities, products, actors, or techniques" />
@@ -476,6 +501,7 @@
         const metaEl = document.getElementById('meta');
         const summaryEl = document.getElementById('summary');
         const provenanceEl = document.getElementById('provenance');
+        const uncertaintyEl = document.getElementById('uncertainty');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
@@ -826,6 +852,27 @@
             `;
         }
 
+        function countUncertaintySignals() {
+            const matches = markdownCache.match(/\b(unknown|uncertain|suspected|likely|possible|potential|could)\b/gi) || [];
+            return matches.length;
+        }
+
+        function renderUncertaintySignals() {
+            const signalCount = countUncertaintySignals();
+            if (!signalCount) {
+                uncertaintyEl.hidden = true;
+                uncertaintyEl.innerHTML = '';
+                return;
+            }
+            uncertaintyEl.hidden = false;
+            const label = signalCount === 1 ? 'uncertainty signal' : 'uncertainty signals';
+            uncertaintyEl.innerHTML = `
+                <h4>Uncertainty Signals</h4>
+                <p>${signalCount} ${label} detected in this report.</p>
+                <div class="uncertainty-meta">Counted from report wording such as unknown, suspected, likely, possible, potential, or could.</div>
+            `;
+        }
+
         function buildFilterGroups() {
             const groups = [];
             let currentHeading = null;
@@ -984,6 +1031,7 @@
                 buildTOC();
                 computeSummary();
                 renderProvenance();
+                renderUncertaintySignals();
                 filterSections();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 setMeta(m ? m[1] : '');
