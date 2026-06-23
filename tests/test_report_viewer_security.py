@@ -109,6 +109,8 @@ def test_report_viewers_include_source_provenance_panel():
         assert 'id="provenance"' in viewer
         assert "Report Provenance" in viewer
         assert "Source entries" in viewer
+        assert "isPlaceholderSourceAttributionEntry" in viewer
+        assert "no sources were provided" in viewer
         assert "extractSourceAttributionEntries" in viewer
         assert "renderProvenance" in viewer
         assert "findSourceAttributionHeading" in viewer

@@ -780,6 +780,15 @@
             return Array.from(contentEl.querySelectorAll('h2')).find(h => /source attribution/i.test(h.textContent));
         }
 
+        function isPlaceholderSourceAttributionEntry(text) {
+            const normalized = text.trim().toLowerCase().replace(/\s+/g, ' ');
+            return normalized === 'no sources were provided.' ||
+                normalized === 'no sources were provided' ||
+                normalized.startsWith('no source attribution') ||
+                normalized.startsWith('no sources available') ||
+                normalized.startsWith('source attribution unavailable');
+        }
+
         function extractSourceAttributionEntries() {
             const heading = findSourceAttributionHeading();
             if (!heading) return [];
@@ -789,7 +798,7 @@
                 if (el.tagName === 'UL' || el.tagName === 'OL') {
                     el.querySelectorAll('li').forEach(li => {
                         const text = li.textContent.trim().replace(/\s+/g, ' ');
-                        if (text) entries.push(text);
+                        if (text && !isPlaceholderSourceAttributionEntry(text)) entries.push(text);
                     });
                 }
                 el = el.nextElementSibling;
