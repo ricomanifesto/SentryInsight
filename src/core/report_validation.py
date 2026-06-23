@@ -19,7 +19,12 @@ SOURCE_ATTRIBUTION_SECTION_PATTERN = re.compile(
     re.MULTILINE,
 )
 SOURCE_ATTRIBUTION_ENTRY_PATTERN = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)")
-SOURCE_ATTRIBUTION_URL_PATTERN = re.compile(r"https?://[^\s<>()\[\]\"']+")
+URL_CONTINUATION_CHARS = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789"
+    "-._~:/?#[]@!$&'()*+,;=%"
+)
 
 ERROR_MARKERS = (
     "# Error",
@@ -606,21 +611,34 @@ def get_source_attribution_entries(markdown: str) -> list[str]:
     return entries
 
 
-def normalize_source_url(value: str) -> str:
-    return html.unescape(value.strip()).rstrip(".,;:")
+def is_url_delimited(value: str, end_index: int) -> bool:
+    if end_index >= len(value):
+        return True
+    return value[end_index] not in URL_CONTINUATION_CHARS
 
 
-def source_attribution_entry_urls(entry: str) -> set[str]:
-    return {
-        normalize_source_url(match.group(0)).casefold()
-        for match in SOURCE_ATTRIBUTION_URL_PATTERN.finditer(entry)
-    }
+def entry_contains_exact_url(entry: str, url: str) -> bool:
+    normalized_entry = html.unescape(entry).casefold()
+    normalized_url = html.unescape(url.strip()).casefold()
+    if not normalized_url:
+        return False
+
+    search_start = 0
+    while True:
+        match_start = normalized_entry.find(normalized_url, search_start)
+        if match_start == -1:
+            return False
+
+        match_end = match_start + len(normalized_url)
+        if is_url_delimited(normalized_entry, match_end):
+            return True
+
+        search_start = match_start + 1
 
 
 def source_attribution_requirement_matches(
     entry: str, marker_group: Iterable[str]
 ) -> bool:
-    entry_urls = source_attribution_entry_urls(entry)
     for marker in marker_group:
         normalized_marker = marker.strip()
         if not normalized_marker:
@@ -628,7 +646,7 @@ def source_attribution_requirement_matches(
 
         normalized_marker = html.unescape(normalized_marker)
         if normalized_marker.casefold().startswith(("http://", "https://")):
-            if normalize_source_url(normalized_marker).casefold() not in entry_urls:
+            if not entry_contains_exact_url(entry, normalized_marker):
                 return False
             continue
 

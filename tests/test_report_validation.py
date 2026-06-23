@@ -196,6 +196,21 @@ https://example.test/report
             any(issue.code == "missing_source_attribution" for issue in issues)
         )
 
+    def test_url_requirement_allows_parentheses_in_url(self):
+        self.assertEqual(
+            validate_report_content(
+                VALID_REPORT
+                + """
+## Source Attribution
+
+- **Parenthesized URL report**: Example Source - https://example.test/report(1)
+""",
+                require_source_attribution=True,
+                source_attribution_requirements=[["https://example.test/report(1)"]],
+            ),
+            [],
+        )
+
     def test_source_only_article_requires_source_and_title(self):
         issues = validate_report_content(
             VALID_REPORT
