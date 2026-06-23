@@ -420,6 +420,7 @@
             </div>
             <div class="spacer"></div>
             <div class="toolbar">
+                <a id="archive-link" class="btn" href="reports/" hidden>Archive</a>
                 <button id="toggle-dark" class="btn" title="Toggle theme">Theme</button>
             </div>
         </header>
@@ -450,6 +451,7 @@
         const metaEl = document.getElementById('meta');
         const summaryEl = document.getElementById('summary');
         const toggleDarkEl = document.getElementById('toggle-dark');
+        const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
         const sectionFilterEl = document.getElementById('section-filter');
         const sectionFilterCountEl = document.getElementById('section-filter-count');
@@ -459,6 +461,7 @@
         contentEl.innerHTML = '<div class="loading">Loading exploitation report...</div>';
         const preferDark = localStorage.getItem('sentryinsight:theme') === 'dark' || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         if (preferDark) document.body.classList.add('dark');
+        resolveArchiveLink();
 
         // Optional UI config for easier customization
         let UI_CONF = null;
@@ -466,6 +469,28 @@
 
         function slugify(text) {
             return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').substring(0, 80);
+        }
+
+        function resolveArchiveLink() {
+            const candidates = ['reports/', 'docs/reports/'];
+            function probe(index) {
+                if (index >= candidates.length) {
+                    archiveLinkEl.hidden = true;
+                    return;
+                }
+                const url = candidates[index];
+                fetch(url, { method: 'HEAD', cache: 'no-store' })
+                    .then(response => {
+                        if (!response.ok) {
+                            probe(index + 1);
+                            return;
+                        }
+                        archiveLinkEl.href = url;
+                        archiveLinkEl.hidden = false;
+                    })
+                    .catch(() => probe(index + 1));
+            }
+            probe(0);
         }
 
         function addHeadingAnchors() {
