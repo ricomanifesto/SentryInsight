@@ -4,6 +4,7 @@ REPORT_VIEWERS = (
     Path("index.html"),
     Path("docs/index.html"),
 )
+ARCHIVE_INDEX = Path("docs/reports/index.html")
 
 
 def test_report_viewers_sanitize_marked_output_before_rendering():
@@ -77,3 +78,25 @@ def test_report_viewers_include_section_filter_controls():
         assert "contentEl.querySelectorAll('.section-collapsible')" in viewer
         assert "section-filter-hidden" in viewer
         assert "sectionFilterEl.addEventListener('input', filterSections)" in viewer
+
+
+def test_report_viewers_include_archive_navigation_affordance():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert 'id="archive-link"' in viewer
+        assert "resolveArchiveLink" in viewer
+        assert "reports/" in viewer
+        assert "docs/reports/" in viewer
+        assert "Promise.any" not in viewer
+        assert "function probe(index)" in viewer
+        assert "probe(index + 1)" in viewer
+        assert "archiveLinkEl.hidden = false" in viewer
+
+
+def test_report_archive_route_has_static_index():
+    archive = ARCHIVE_INDEX.read_text()
+
+    assert "Report Archive" in archive
+    assert "../index.html" in archive
+    assert "index.md" in archive
