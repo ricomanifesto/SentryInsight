@@ -853,7 +853,8 @@
         }
 
         function countUncertaintySignals() {
-            const matches = markdownCache.match(/\b(unknown|uncertain|suspected|likely|possible|potential|could)\b/gi) || [];
+            const reportText = contentEl.textContent || '';
+            const matches = reportText.match(/\b(unknown|uncertain|suspected|likely|possible|potential|could)\b/gi) || [];
             return matches.length;
         }
 
