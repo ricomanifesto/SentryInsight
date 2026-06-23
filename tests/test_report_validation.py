@@ -97,6 +97,23 @@ https://example.test/report
             any(issue.code == "missing_source_attribution" for issue in issues)
         )
 
+    def test_fenced_source_attribution_section_does_not_satisfy_requirement(self):
+        issues = validate_report_content(
+            VALID_REPORT + """
+```markdown
+## Source Attribution
+
+- **Example exploitation report**: Example Source - https://example.test/report
+```
+""",
+            require_source_attribution=True,
+            source_attribution_requirements=[["https://example.test/report"]],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
     def test_placeholder_source_attribution_entry_fails(self):
         issues = validate_report_content(
             VALID_REPORT

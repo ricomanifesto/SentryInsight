@@ -560,21 +560,26 @@ def contains_active_markdown_link(markdown: str) -> bool:
 
 
 def get_source_attribution_section_body(markdown: str) -> str:
-    section_match = SOURCE_ATTRIBUTION_SECTION_PATTERN.search(markdown)
+    searchable_markdown = strip_markdown_code(markdown)
+    section_match = SOURCE_ATTRIBUTION_SECTION_PATTERN.search(searchable_markdown)
     if not section_match:
         return ""
 
     section_body_start = section_match.end()
-    next_section = re.search(r"^##\s+", markdown[section_body_start:], re.MULTILINE)
+    next_section = re.search(
+        r"^##\s+", searchable_markdown[section_body_start:], re.MULTILINE
+    )
     return (
-        markdown[section_body_start : section_body_start + next_section.start()]
+        searchable_markdown[
+            section_body_start : section_body_start + next_section.start()
+        ]
         if next_section
-        else markdown[section_body_start:]
+        else searchable_markdown[section_body_start:]
     )
 
 
 def get_source_attribution_entries(markdown: str) -> list[str]:
-    section_body = strip_markdown_code(get_source_attribution_section_body(markdown))
+    section_body = get_source_attribution_section_body(markdown)
     entries: list[str] = []
     current_entry: list[str] = []
 
