@@ -42,6 +42,21 @@
             color: var(--muted);
             margin: 8px 0 0;
         }
+        label {
+            color: var(--muted);
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        input {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font: inherit;
+            padding: 10px 12px;
+            width: 100%;
+        }
         a {
             color: var(--accent);
             font-weight: 600;
@@ -60,6 +75,18 @@
             gap: 12px;
             margin-top: 16px;
         }
+        .archive-filter {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 0 0 16px;
+            padding: 14px;
+        }
+        .archive-count {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
         .archive-item {
             background: var(--panel);
             border: 1px solid var(--border);
@@ -71,6 +98,30 @@
             margin: 0 0 4px;
         }
         .archive-item p { margin: 0; }
+        .archive-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .archive-tag {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 999px;
+            color: #991b1b;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 3px 8px;
+        }
+        .archive-empty {
+            background: var(--panel);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            margin-top: 12px;
+            padding: 16px;
+        }
+        [hidden] { display: none !important; }
         @media (max-width: 560px) {
             header {
                 align-items: flex-start;
@@ -89,12 +140,46 @@
             </div>
             <a class="back" href="../index.html">Latest report</a>
         </header>
+        <div class="archive-filter">
+            <label for="archive-filter">Filter archived reports</label>
+            <input id="archive-filter" type="search" autocomplete="off" placeholder="Search CVEs, vendors, products, or campaigns" />
+            <div class="archive-count" id="archive-count">1 report available</div>
+        </div>
         <section class="archive-list" aria-label="Available reports">
-            <article class="archive-item">
-                <h2><a href="index.md">Exploitation report archive entry</a></h2>
-                <p>Archived report artifact preserved from the generated report output.</p>
+            <article class="archive-item" data-search="exploitation report citrixbleed netscaler cve-2025-5777 lapdogs soho routers moveit transfer">
+                <h2><a href="index.md">Exploitation report: CitrixBleed 2, LapDogs routers, and MOVEit scanning</a></h2>
+                <p>Archived generated report covering active exploitation of network-edge infrastructure and file-transfer systems.</p>
+                <div class="archive-tags" aria-label="Report topics">
+                    <span class="archive-tag">CVE-2025-5777</span>
+                    <span class="archive-tag">NetScaler</span>
+                    <span class="archive-tag">LapDogs</span>
+                    <span class="archive-tag">MOVEit</span>
+                </div>
             </article>
         </section>
+        <div class="archive-empty" id="archive-empty" hidden>No archived reports match that filter.</div>
     </main>
+    <script>
+        const archiveFilterEl = document.getElementById('archive-filter');
+        const archiveCountEl = document.getElementById('archive-count');
+        const archiveEmptyEl = document.getElementById('archive-empty');
+        const archiveItems = Array.from(document.querySelectorAll('.archive-item'));
+
+        function filterArchive() {
+            const query = archiveFilterEl.value.trim().toLowerCase();
+            let visible = 0;
+            archiveItems.forEach(item => {
+                const haystack = `${item.textContent} ${item.dataset.search || ''}`.toLowerCase();
+                const match = !query || haystack.includes(query);
+                item.hidden = !match;
+                if (match) visible += 1;
+            });
+            archiveCountEl.textContent = `${visible} ${visible === 1 ? 'report' : 'reports'} shown`;
+            archiveEmptyEl.hidden = visible !== 0;
+        }
+
+        archiveFilterEl.addEventListener('input', filterArchive);
+        filterArchive();
+    </script>
 </body>
 </html>
