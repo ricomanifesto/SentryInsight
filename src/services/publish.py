@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 from src.core.report_validation import (
+    ensure_source_attribution_section,
     format_report_validation_issues,
     validate_report_content,
 )
@@ -44,6 +45,10 @@ async def publish_to_github_pages(
         exploitation_report = analysis_results.get(
             "exploitation_report", "No exploitation report available."
         )
+        exploitation_report = ensure_source_attribution_section(
+            exploitation_report,
+            analysis_results.get("source_attribution_entries") or [],
+        )
         report_date = analysis_results.get("date", datetime.now().strftime("%Y-%m-%d"))
         validation_issues = validate_report_content(
             exploitation_report,
@@ -52,6 +57,9 @@ async def publish_to_github_pages(
             ),
             source_attribution_requirements=analysis_results.get(
                 "source_attribution_requirements"
+            ),
+            source_attribution_entries=analysis_results.get(
+                "source_attribution_entries"
             ),
         )
         if validation_issues:

@@ -1,6 +1,9 @@
 import unittest
 
-from src.core.report_validation import validate_report_content
+from src.core.report_validation import (
+    ensure_source_attribution_section,
+    validate_report_content,
+)
 
 VALID_REPORT = """# Exploitation Report
 
@@ -39,6 +42,79 @@ class ReportValidationTests(unittest.TestCase):
     def test_valid_report_passes(self):
         self.assertEqual(validate_report_content(VALID_REPORT), [])
 
+    def test_ensure_source_attribution_section_appends_canonical_entries(self):
+        report = ensure_source_attribution_section(
+            VALID_REPORT,
+            [
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
+        )
+
+        self.assertIn(
+            "\n## Source Attribution\n\n"
+            "- **Example exploitation report**: Example Source - https://example.test/report\n",
+            report,
+        )
+        self.assertEqual(
+            validate_report_content(
+                report,
+                require_source_attribution=True,
+                source_attribution_entries=[
+                    "- **Example exploitation report**: Example Source - https://example.test/report"
+                ],
+            ),
+            [],
+        )
+
+    def test_ensure_source_attribution_section_replaces_existing_section(self):
+        report = ensure_source_attribution_section(
+            VALID_REPORT
+            + "\n## Source Attribution\n\n- **Article Title**: Source name - URL\n",
+            [
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
+        )
+
+        self.assertNotIn("Article Title", report)
+        self.assertIn(
+            "- **Example exploitation report**: Example Source - https://example.test/report",
+            report,
+        )
+
+    def test_exact_source_attribution_entries_reject_embedded_url(self):
+        issues = validate_report_content(
+            VALID_REPORT + """
+## Source Attribution
+
+- **Aggregator URL report**: Example Source - https://aggregator.test/?u=https://vendor.test/advisory
+""",
+            require_source_attribution=True,
+            source_attribution_entries=[
+                "- **Vendor advisory**: Vendor - https://vendor.test/advisory"
+            ],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_exact_source_attribution_entries_preserve_url_case(self):
+        issues = validate_report_content(
+            VALID_REPORT + """
+## Source Attribution
+
+- **Vendor advisory**: Vendor - https://vendor.test/Fix
+""",
+            require_source_attribution=True,
+            source_attribution_entries=[
+                "- **Vendor advisory**: Vendor - https://vendor.test/fix"
+            ],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
     def test_required_source_attribution_without_requirements_fails(self):
         issues = validate_report_content(VALID_REPORT, require_source_attribution=True)
 
@@ -50,7 +126,9 @@ class ReportValidationTests(unittest.TestCase):
         issues = validate_report_content(
             VALID_REPORT,
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -61,7 +139,9 @@ class ReportValidationTests(unittest.TestCase):
         issues = validate_report_content(
             VALID_REPORT + "\n## Source Attribution\n\n",
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -73,7 +153,9 @@ class ReportValidationTests(unittest.TestCase):
             VALID_REPORT
             + "\nThis report should include ## Source Attribution with https://example.test/report.\n",
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -90,7 +172,9 @@ https://example.test/report
 ```
 """,
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -107,7 +191,9 @@ https://example.test/report
 ```
 """,
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -119,7 +205,9 @@ https://example.test/report
             VALID_REPORT
             + "\n## Source Attribution\n\n- **Article Title**: Source name - URL\n",
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -130,7 +218,9 @@ https://example.test/report
         issues = validate_report_content(
             VALID_REPORT + "\n## Source Attribution\n\n- No sources were provided.\n",
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -142,7 +232,9 @@ https://example.test/report
             VALID_REPORT
             + "\n## Source Attribution\n\n- **Example exploitation report**: Example Source\n",
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -159,9 +251,9 @@ https://example.test/report
         issues = validate_report_content(
             partial_report,
             require_source_attribution=True,
-            source_attribution_requirements=[
-                ["https://example.test/report"],
-                ["https://example.test/second"],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report",
+                "- **Second exploitation report**: Example Source - https://example.test/second",
             ],
         )
         self.assertTrue(
@@ -172,9 +264,9 @@ https://example.test/report
             validate_report_content(
                 VALID_REPORT_WITH_SOURCE_ATTRIBUTION,
                 require_source_attribution=True,
-                source_attribution_requirements=[
-                    ["https://example.test/report"],
-                    ["https://example.test/second"],
+                source_attribution_entries=[
+                    "- **Example exploitation report**: Example Source - https://example.test/report",
+                    "- **Second exploitation report**: Example Source - https://example.test/second",
                 ],
             ),
             [],
@@ -182,14 +274,15 @@ https://example.test/report
 
     def test_url_requirement_requires_exact_url_match(self):
         issues = validate_report_content(
-            VALID_REPORT
-            + """
+            VALID_REPORT + """
 ## Source Attribution
 
 - **Longer URL report**: Example Source - https://example.test/reporting
 """,
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
@@ -198,61 +291,67 @@ https://example.test/report
 
     def test_url_requirement_rejects_extension_prefix_match(self):
         issues = validate_report_content(
-            VALID_REPORT
-            + """
+            VALID_REPORT + """
 ## Source Attribution
 
 - **Extension URL report**: Example Source - https://example.test/report.txt
 """,
             require_source_attribution=True,
-            source_attribution_requirements=[["https://example.test/report"]],
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
         self.assertTrue(
             any(issue.code == "missing_source_attribution" for issue in issues)
         )
 
-    def test_url_requirement_allows_markdown_link_delimiter(self):
-        self.assertEqual(
-            validate_report_content(
-                VALID_REPORT
-                + """
+    def test_noncanonical_markdown_link_attribution_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT + """
 ## Source Attribution
 
 - **Markdown URL report**: [Example Source](https://example.test/report)
 """,
-                require_source_attribution=True,
-                source_attribution_requirements=[["https://example.test/report"]],
-            ),
-            [],
+            require_source_attribution=True,
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
         )
 
-    def test_url_requirement_allows_sentence_punctuation(self):
-        self.assertEqual(
-            validate_report_content(
-                VALID_REPORT
-                + """
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
+        )
+
+    def test_noncanonical_sentence_punctuation_attribution_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT + """
 ## Source Attribution
 
 - **Sentence URL report**: Example Source - https://example.test/report.
 """,
-                require_source_attribution=True,
-                source_attribution_requirements=[["https://example.test/report"]],
-            ),
-            [],
+            require_source_attribution=True,
+            source_attribution_entries=[
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
+        )
+
+        self.assertTrue(
+            any(issue.code == "missing_source_attribution" for issue in issues)
         )
 
     def test_url_requirement_allows_parentheses_in_url(self):
         self.assertEqual(
             validate_report_content(
-                VALID_REPORT
-                + """
+                VALID_REPORT + """
 ## Source Attribution
 
 - **Parenthesized URL report**: Example Source - https://example.test/report(1)
 """,
                 require_source_attribution=True,
-                source_attribution_requirements=[["https://example.test/report(1)"]],
+                source_attribution_entries=[
+                    "- **Parenthesized URL report**: Example Source - https://example.test/report(1)"
+                ],
             ),
             [],
         )
@@ -262,8 +361,8 @@ https://example.test/report
             VALID_REPORT
             + "\n## Source Attribution\n\n- **Different report**: Example Source\n",
             require_source_attribution=True,
-            source_attribution_requirements=[
-                ["Example Source", "Source-only exploitation report"]
+            source_attribution_entries=[
+                "- **Source-only exploitation report**: Example Source"
             ],
         )
 
@@ -274,8 +373,8 @@ https://example.test/report
             validate_report_content(
                 VALID_REPORT_WITH_SOURCE_ATTRIBUTION,
                 require_source_attribution=True,
-                source_attribution_requirements=[
-                    ["Example Source", "Source-only exploitation report"]
+                source_attribution_entries=[
+                    "- **Source-only exploitation report**: Example Source"
                 ],
             ),
             [],
@@ -283,16 +382,15 @@ https://example.test/report
 
     def test_source_only_markers_must_appear_in_same_attribution_entry(self):
         issues = validate_report_content(
-            VALID_REPORT
-            + """
+            VALID_REPORT + """
 ## Source Attribution
 
 - **Source-only exploitation report**: Different Source
 - **Different report**: Example Source
 """,
             require_source_attribution=True,
-            source_attribution_requirements=[
-                ["Example Source", "Source-only exploitation report"]
+            source_attribution_entries=[
+                "- **Source-only exploitation report**: Example Source"
             ],
         )
 

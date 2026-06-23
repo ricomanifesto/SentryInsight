@@ -69,6 +69,34 @@ class PublishGuardTests(unittest.TestCase):
             self.assertTrue((repo_dir / "navigation.md").exists())
             self.assertTrue((repo_dir / "_config.yml").exists())
 
+    def test_source_attribution_entries_are_written_canonically(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "docs"
+            result = asyncio.run(
+                publish_to_github_pages(
+                    {
+                        "exploitation_report": (
+                            VALID_REPORT + "\n## Source Attribution\n\n"
+                            "- **Article Title**: Source name - URL\n"
+                        ),
+                        "date": "2026-06-17",
+                        "source_attribution_required": True,
+                        "source_attribution_entries": [
+                            "- **Vendor advisory**: Vendor - https://vendor.test/Fix"
+                        ],
+                    },
+                    {"enabled": True, "repo_directory": str(repo_dir)},
+                )
+            )
+
+            self.assertTrue(result)
+            report = (repo_dir / "index.md").read_text()
+            self.assertIn(
+                "- **Vendor advisory**: Vendor - https://vendor.test/Fix",
+                report,
+            )
+            self.assertNotIn("Article Title", report)
+
     def test_missing_required_source_attribution_is_not_written(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir) / "docs"

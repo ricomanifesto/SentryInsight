@@ -19,13 +19,6 @@ SOURCE_ATTRIBUTION_SECTION_PATTERN = re.compile(
     re.MULTILINE,
 )
 SOURCE_ATTRIBUTION_ENTRY_PATTERN = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)")
-URL_CONTINUATION_CHARS = frozenset(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz"
-    "0123456789"
-    "-_~:/?#[]@!$&'*+=%"
-)
-URL_TERMINATOR_CHARS = frozenset(").,;:")
 
 ERROR_MARKERS = (
     "# Error",
@@ -585,6 +578,37 @@ def get_source_attribution_section_body(markdown: str) -> str:
     )
 
 
+def remove_source_attribution_section(markdown: str) -> str:
+    section_match = SOURCE_ATTRIBUTION_SECTION_PATTERN.search(markdown)
+    if not section_match:
+        return markdown
+
+    section_start = section_match.start()
+    next_section = re.search(r"^##\s+", markdown[section_match.end() :], re.MULTILINE)
+    section_end = (
+        section_match.end() + next_section.start() if next_section else len(markdown)
+    )
+    return markdown[:section_start].rstrip() + "\n\n" + markdown[section_end:].lstrip()
+
+
+def render_source_attribution_section(source_attribution_entries: Iterable[str]) -> str:
+    entries = [entry.strip() for entry in source_attribution_entries if entry.strip()]
+    if not entries:
+        return ""
+    return f"{SOURCE_ATTRIBUTION_SECTION}\n\n" + "\n".join(entries) + "\n"
+
+
+def ensure_source_attribution_section(
+    markdown: str, source_attribution_entries: Iterable[str]
+) -> str:
+    section = render_source_attribution_section(source_attribution_entries)
+    if not section:
+        return markdown
+
+    report_without_source_attribution = remove_source_attribution_section(markdown)
+    return f"{report_without_source_attribution.rstrip()}\n\n{section}"
+
+
 def get_source_attribution_entries(markdown: str) -> list[str]:
     section_body = get_source_attribution_section_body(markdown)
     entries: list[str] = []
@@ -597,96 +621,40 @@ def get_source_attribution_entries(markdown: str) -> list[str]:
 
         if SOURCE_ATTRIBUTION_ENTRY_PATTERN.match(line):
             if current_entry:
-                entries.append(" ".join(current_entry).casefold())
+                entries.append(" ".join(current_entry))
             current_entry = [stripped_line]
             continue
 
         if current_entry:
             current_entry.append(stripped_line)
         else:
-            entries.append(stripped_line.casefold())
+            entries.append(stripped_line)
 
     if current_entry:
-        entries.append(" ".join(current_entry).casefold())
+        entries.append(" ".join(current_entry))
 
     return entries
 
 
-def is_url_delimited(value: str, matched_url: str, end_index: int) -> bool:
-    if end_index >= len(value):
-        return True
-    next_char = value[end_index]
-    if next_char in URL_CONTINUATION_CHARS:
-        return False
-    if next_char in URL_TERMINATOR_CHARS:
-        if matched_url.endswith(next_char):
-            return False
-        next_index = end_index + 1
-        return next_index >= len(value) or value[next_index].isspace()
-    return True
-
-
-def entry_contains_exact_url(entry: str, url: str) -> bool:
-    normalized_entry = html.unescape(entry).casefold()
-    normalized_url = html.unescape(url.strip()).casefold()
-    if not normalized_url:
-        return False
-
-    search_start = 0
-    while True:
-        match_start = normalized_entry.find(normalized_url, search_start)
-        if match_start == -1:
-            return False
-
-        match_end = match_start + len(normalized_url)
-        if is_url_delimited(normalized_entry, normalized_url, match_end):
-            return True
-
-        search_start = match_start + 1
-
-
-def source_attribution_requirement_matches(
-    entry: str, marker_group: Iterable[str]
+def exact_source_attribution_entries_present(
+    markdown: str, source_attribution_entries: Iterable[str]
 ) -> bool:
-    for marker in marker_group:
-        normalized_marker = marker.strip()
-        if not normalized_marker:
-            continue
-
-        normalized_marker = html.unescape(normalized_marker)
-        if normalized_marker.casefold().startswith(("http://", "https://")):
-            if not entry_contains_exact_url(entry, normalized_marker):
-                return False
-            continue
-
-        if normalized_marker.casefold() not in entry:
-            return False
-
-    return True
-
-
-def source_attribution_requirements_met(
-    markdown: str, source_attribution_requirements: Iterable[Iterable[str]]
-) -> bool:
-    entries = get_source_attribution_entries(markdown)
-    requirements = [
-        [marker.strip().casefold() for marker in group if marker and marker.strip()]
-        for group in source_attribution_requirements
-    ]
-    requirements = [group for group in requirements if group]
-    if not requirements:
-        return False
-
-    return all(
-        any(source_attribution_requirement_matches(entry, group) for entry in entries)
-        for group in requirements
-    )
+    expected_entries = {
+        html.unescape(entry.strip())
+        for entry in source_attribution_entries
+        if entry.strip()
+    }
+    actual_entries = {
+        html.unescape(entry) for entry in get_source_attribution_entries(markdown)
+    }
+    return bool(expected_entries) and expected_entries.issubset(actual_entries)
 
 
 def validate_report_content(
     markdown: str,
     require_source_attribution: bool = False,
     source_attribution_requirements: Iterable[Iterable[str]] | None = None,
+    source_attribution_entries: Iterable[str] | None = None,
 ) -> List[ReportValidationIssue]:
     """Return validation issues that should block publishing."""
     issues: List[ReportValidationIssue] = []
@@ -758,9 +726,12 @@ def validate_report_content(
                 )
             )
 
-    if require_source_attribution and not source_attribution_requirements_met(
-        content, source_attribution_requirements or []
-    ):
+    source_attribution_is_valid = (
+        exact_source_attribution_entries_present(content, source_attribution_entries)
+        if source_attribution_entries is not None
+        else False
+    )
+    if require_source_attribution and not source_attribution_is_valid:
         issues.append(
             ReportValidationIssue(
                 code="missing_source_attribution",

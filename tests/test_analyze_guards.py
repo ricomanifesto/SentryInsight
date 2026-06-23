@@ -221,6 +221,13 @@ class AnalyzeGuardTests(unittest.TestCase):
 
         self.assertTrue(result["source_attribution_required"])
         self.assertEqual(
+            result["source_attribution_entries"],
+            [
+                "- **Example exploitation report**: Example Source - https://example.test/report",
+                "- **Source-only exploitation report**: Example Source",
+            ],
+        )
+        self.assertEqual(
             result["source_attribution_requirements"],
             [
                 ["https://example.test/report"],

@@ -122,6 +122,24 @@ def collect_source_attribution_requirements(
     return requirements
 
 
+def collect_source_attribution_entries(articles: list[Dict[str, Any]]) -> list[str]:
+    entries: list[str] = []
+    for article in articles:
+        title = clean_article_text(article.get("title"), "Untitled article")
+        title = title or "Untitled article"
+        source = clean_article_text(article.get("source"))
+        link = clean_article_text(article.get("link"))
+
+        if link and source:
+            entries.append(f"- **{title}**: {source} - {link}")
+        elif link:
+            entries.append(f"- **{title}**: {link}")
+        elif source:
+            entries.append(f"- **{title}**: {source}")
+
+    return entries
+
+
 async def analyze_exploitation(
     articles: List[Dict[str, Any]], config: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -257,6 +275,7 @@ Generate a well-formatted exploitation report following the structure above. Be 
             title="SentryInsight exploitation report",
         )
 
+        source_attribution_entries = collect_source_attribution_entries(articles)
         source_attribution_requirements = collect_source_attribution_requirements(
             articles
         )
@@ -265,7 +284,8 @@ Generate a well-formatted exploitation report following the structure above. Be 
             "date": datetime.now().strftime("%Y-%m-%d"),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
-            "source_attribution_required": bool(source_attribution_requirements),
+            "source_attribution_required": bool(source_attribution_entries),
+            "source_attribution_entries": source_attribution_entries,
             "source_attribution_requirements": source_attribution_requirements,
         }
     except OpenCodeUnavailable as e:
