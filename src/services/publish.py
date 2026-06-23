@@ -55,9 +55,6 @@ async def publish_to_github_pages(
             require_source_attribution=bool(
                 analysis_results.get("source_attribution_required")
             ),
-            source_attribution_requirements=analysis_results.get(
-                "source_attribution_requirements"
-            ),
             source_attribution_entries=analysis_results.get(
                 "source_attribution_entries"
             ),

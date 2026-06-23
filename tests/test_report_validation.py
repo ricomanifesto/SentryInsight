@@ -105,6 +105,39 @@ class ReportValidationTests(unittest.TestCase):
             [],
         )
 
+    def test_ensure_source_attribution_section_preserves_tilde_fenced_headings(self):
+        report = ensure_source_attribution_section(
+            VALID_REPORT + """
+~~~markdown
+## Source Attribution
+
+- Example text inside a code block
+~~~
+
+## Source Attribution
+
+- No sources were provided.
+""",
+            [
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
+        )
+
+        self.assertIn("~~~markdown\n## Source Attribution", report)
+        self.assertIn("- Example text inside a code block", report)
+        self.assertNotIn("No sources were provided", report)
+        self.assertEqual(report.count("## Source Attribution"), 2)
+        self.assertEqual(
+            validate_report_content(
+                report,
+                require_source_attribution=True,
+                source_attribution_entries=[
+                    "- **Example exploitation report**: Example Source - https://example.test/report"
+                ],
+            ),
+            [],
+        )
+
     def test_exact_source_attribution_entries_reject_embedded_url(self):
         issues = validate_report_content(
             VALID_REPORT + """

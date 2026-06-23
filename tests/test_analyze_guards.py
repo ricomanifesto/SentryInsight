@@ -183,7 +183,7 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertIn("Example Source", FakeOpenCodeClient.user_prompt)
         self.assertIn("https://example.test/report", FakeOpenCodeClient.user_prompt)
 
-    def test_analysis_result_carries_url_first_source_attribution_requirements(self):
+    def test_analysis_result_carries_canonical_source_attribution_entries(self):
         analyze = import_analyze_with_stubs()
 
         class FakeOpenCodeClient:
@@ -227,13 +227,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 "- **Source-only exploitation report**: Example Source",
             ],
         )
-        self.assertEqual(
-            result["source_attribution_requirements"],
-            [
-                ["https://example.test/report"],
-                ["Example Source", "Source-only exploitation report"],
-            ],
-        )
+        self.assertNotIn("source_attribution_requirements", result)
 
 
 if __name__ == "__main__":

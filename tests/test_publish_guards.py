@@ -38,8 +38,7 @@ class PublishGuardTests(unittest.TestCase):
                 publish_to_github_pages(
                     {
                         "exploitation_report": (
-                            "# Error Generating Exploitation Report\n\n"
-                            "Error code: 404"
+                            "# Error Generating Exploitation Report\n\nError code: 404"
                         ),
                         "date": "2026-06-17",
                     },
@@ -106,9 +105,6 @@ class PublishGuardTests(unittest.TestCase):
                         "exploitation_report": VALID_REPORT,
                         "date": "2026-06-17",
                         "source_attribution_required": True,
-                        "source_attribution_requirements": [
-                            ["https://example.test/report"]
-                        ],
                     },
                     {"enabled": True, "repo_directory": str(repo_dir)},
                 )

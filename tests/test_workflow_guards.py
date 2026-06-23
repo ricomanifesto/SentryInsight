@@ -109,7 +109,7 @@ class WorkflowGuardTests(unittest.TestCase):
             state = {
                 "analysis_results": {
                     "exploitation_report": (
-                        "# Error Generating Exploitation Report\n\n" "Error code: 404"
+                        "# Error Generating Exploitation Report\n\nError code: 404"
                     )
                 },
                 "config": {"output_path": str(output_path)},
@@ -173,9 +173,6 @@ Recent exploitation activity is concentrated in edge systems.
 - **Unknown actor**: Opportunistic exploitation.
 """,
                     "source_attribution_required": True,
-                    "source_attribution_requirements": [
-                        ["https://example.test/report"]
-                    ],
                 },
                 "config": {"output_path": str(output_path)},
                 "status": "started",

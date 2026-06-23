@@ -103,25 +103,6 @@ def clean_article_text(value: Any, default: str = "") -> str:
     return str(value).strip()
 
 
-def collect_source_attribution_requirements(
-    articles: list[Dict[str, Any]],
-) -> list[list[str]]:
-    """Build per-article markers that must appear in source attribution."""
-    requirements: list[list[str]] = []
-    for article in articles:
-        title = clean_article_text(article.get("title"), "Untitled article")
-        source = clean_article_text(article.get("source"))
-        link = clean_article_text(article.get("link"))
-        if link:
-            requirements.append([link])
-        elif source:
-            markers = [source]
-            if title:
-                markers.append(title)
-            requirements.append(markers)
-    return requirements
-
-
 def collect_source_attribution_entries(articles: list[Dict[str, Any]]) -> list[str]:
     entries: list[str] = []
     for article in articles:
@@ -256,7 +237,7 @@ Focus specifically on:
 
 Here are the articles:
 
-{''.join(all_article_summaries)}
+{"".join(all_article_summaries)}
 
 Generate a well-formatted exploitation report following the structure above. Be comprehensive but only include CVE IDs when they are explicitly mentioned in the articles.
 """
@@ -276,9 +257,6 @@ Generate a well-formatted exploitation report following the structure above. Be 
         )
 
         source_attribution_entries = collect_source_attribution_entries(articles)
-        source_attribution_requirements = collect_source_attribution_requirements(
-            articles
-        )
         return {
             "exploitation_report": exploitation_report,
             "date": datetime.now().strftime("%Y-%m-%d"),
@@ -286,7 +264,6 @@ Generate a well-formatted exploitation report following the structure above. Be 
             "cves_identified": list(all_cves),
             "source_attribution_required": bool(source_attribution_entries),
             "source_attribution_entries": source_attribution_entries,
-            "source_attribution_requirements": source_attribution_requirements,
         }
     except OpenCodeUnavailable as e:
         logger.warning(f"Skipping exploitation analysis: {e}")

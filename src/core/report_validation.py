@@ -579,27 +579,36 @@ def get_source_attribution_section_body(markdown: str) -> str:
 
 
 def remove_source_attribution_section(markdown: str) -> str:
-    lines = markdown.splitlines()
+    lines = markdown.splitlines(keepends=True)
     retained_lines: list[str] = []
-    in_fenced_code = False
+    fence: str | None = None
     skipping_section = False
 
     for line in lines:
-        stripped_line = line.lstrip()
-        if stripped_line.startswith("```"):
-            in_fenced_code = not in_fenced_code
+        if fence is not None:
+            if is_fence_closer(line, fence):
+                fence = None
+            if not skipping_section:
+                retained_lines.append(line)
+            continue
 
-        if not in_fenced_code and SOURCE_ATTRIBUTION_SECTION_PATTERN.match(line):
+        if fence_opener := parse_fence_opener(line):
+            fence = fence_opener
+            if not skipping_section:
+                retained_lines.append(line)
+            continue
+
+        if SOURCE_ATTRIBUTION_SECTION_PATTERN.match(line):
             skipping_section = True
             continue
 
-        if skipping_section and not in_fenced_code and re.match(r"^##\s+", line):
+        if skipping_section and re.match(r"^##\s+", line):
             skipping_section = False
 
         if not skipping_section:
             retained_lines.append(line)
 
-    return "\n".join(retained_lines).rstrip()
+    return "".join(retained_lines).rstrip()
 
 
 def render_source_attribution_section(source_attribution_entries: Iterable[str]) -> str:
@@ -664,7 +673,6 @@ def exact_source_attribution_entries_present(
 def validate_report_content(
     markdown: str,
     require_source_attribution: bool = False,
-    source_attribution_requirements: Iterable[Iterable[str]] | None = None,
     source_attribution_entries: Iterable[str] | None = None,
 ) -> List[ReportValidationIssue]:
     """Return validation issues that should block publishing."""
