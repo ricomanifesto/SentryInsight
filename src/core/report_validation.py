@@ -579,16 +579,27 @@ def get_source_attribution_section_body(markdown: str) -> str:
 
 
 def remove_source_attribution_section(markdown: str) -> str:
-    section_match = SOURCE_ATTRIBUTION_SECTION_PATTERN.search(markdown)
-    if not section_match:
-        return markdown
+    lines = markdown.splitlines()
+    retained_lines: list[str] = []
+    in_fenced_code = False
+    skipping_section = False
 
-    section_start = section_match.start()
-    next_section = re.search(r"^##\s+", markdown[section_match.end() :], re.MULTILINE)
-    section_end = (
-        section_match.end() + next_section.start() if next_section else len(markdown)
-    )
-    return markdown[:section_start].rstrip() + "\n\n" + markdown[section_end:].lstrip()
+    for line in lines:
+        stripped_line = line.lstrip()
+        if stripped_line.startswith("```"):
+            in_fenced_code = not in_fenced_code
+
+        if not in_fenced_code and SOURCE_ATTRIBUTION_SECTION_PATTERN.match(line):
+            skipping_section = True
+            continue
+
+        if skipping_section and not in_fenced_code and re.match(r"^##\s+", line):
+            skipping_section = False
+
+        if not skipping_section:
+            retained_lines.append(line)
+
+    return "\n".join(retained_lines).rstrip()
 
 
 def render_source_attribution_section(source_attribution_entries: Iterable[str]) -> str:

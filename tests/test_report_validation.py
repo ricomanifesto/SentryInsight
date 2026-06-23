@@ -81,6 +81,30 @@ class ReportValidationTests(unittest.TestCase):
             report,
         )
 
+    def test_ensure_source_attribution_section_removes_duplicate_stale_sections(self):
+        report = ensure_source_attribution_section(
+            VALID_REPORT
+            + "\n## Source Attribution\n\n- No sources were provided.\n"
+            + "\n## Source Attribution\n\n- **Article Title**: Source name - URL\n",
+            [
+                "- **Example exploitation report**: Example Source - https://example.test/report"
+            ],
+        )
+
+        self.assertNotIn("No sources were provided", report)
+        self.assertNotIn("Article Title", report)
+        self.assertEqual(report.count("## Source Attribution"), 1)
+        self.assertEqual(
+            validate_report_content(
+                report,
+                require_source_attribution=True,
+                source_attribution_entries=[
+                    "- **Example exploitation report**: Example Source - https://example.test/report"
+                ],
+            ),
+            [],
+        )
+
     def test_exact_source_attribution_entries_reject_embedded_url(self):
         issues = validate_report_content(
             VALID_REPORT + """
