@@ -15,9 +15,26 @@ def import_analyze_with_stubs():
         encode=lambda value: value.split()
     )
 
+    opencode_client_module = types.ModuleType("src.core.opencode_client")
+
+    class OpenCodeUnavailable(RuntimeError):
+        pass
+
+    class OpenCodeClient:
+        pass
+
+    def parse_model_selection(model_name):
+        provider_id, model_id = model_name.split("/", 1)
+        return types.SimpleNamespace(provider_id=provider_id, model_id=model_id)
+
+    opencode_client_module.OpenCodeClient = OpenCodeClient
+    opencode_client_module.OpenCodeUnavailable = OpenCodeUnavailable
+    opencode_client_module.parse_model_selection = parse_model_selection
+
     with patch.dict(
         sys.modules,
         {
+            "src.core.opencode_client": opencode_client_module,
             "tiktoken": tiktoken_module,
         },
     ):

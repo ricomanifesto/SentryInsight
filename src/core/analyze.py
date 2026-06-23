@@ -7,6 +7,10 @@ import tiktoken
 
 from .model_config import resolve_model, validate_model
 from .opencode_client import OpenCodeClient, OpenCodeUnavailable, parse_model_selection
+from .source_attribution import (
+    clean_article_source,
+    collect_source_attribution_entries,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -77,7 +81,7 @@ def format_article_summary(article: Dict[str, Any]) -> str:
         return str(value).strip()
 
     title = clean_text(article.get("title"), "Untitled article") or "Untitled article"
-    source = clean_text(article.get("source"))
+    source = clean_article_source(article.get("source"))
     link = clean_text(article.get("link"))
     content = clean_text(
         article.get("content", article.get("summary")),
@@ -95,30 +99,6 @@ def format_article_summary(article: Dict[str, Any]) -> str:
         heading = f"{heading} ({'; '.join(metadata)})"
 
     return f"{heading}\n\n{content[:500]}...\n\n"
-
-
-def clean_article_text(value: Any, default: str = "") -> str:
-    if value is None:
-        return default
-    return str(value).strip()
-
-
-def collect_source_attribution_entries(articles: list[Dict[str, Any]]) -> list[str]:
-    entries: list[str] = []
-    for article in articles:
-        title = clean_article_text(article.get("title"), "Untitled article")
-        title = title or "Untitled article"
-        source = clean_article_text(article.get("source"))
-        link = clean_article_text(article.get("link"))
-
-        if link and source:
-            entries.append(f"- **{title}**: {source} - {link}")
-        elif link:
-            entries.append(f"- **{title}**: {link}")
-        elif source:
-            entries.append(f"- **{title}**: {source}")
-
-    return entries
 
 
 async def analyze_exploitation(
