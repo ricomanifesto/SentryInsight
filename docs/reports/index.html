@@ -254,7 +254,14 @@
             const topics = new Set(archiveReports.flatMap(report => report.topics));
             const reportTotal = archiveReports.length;
             const topicTotal = topics.size;
-            archiveSummaryEl.textContent = `${reportTotal} ${reportTotal === 1 ? 'archived report' : 'archived reports'} · ${topicTotal} ${topicTotal === 1 ? 'tracked topic' : 'tracked topics'}`;
+            const latestReport = archiveReports
+                .slice()
+                .sort((a, b) => b.archivedAt.localeCompare(a.archivedAt))[0];
+            if (!latestReport) {
+                archiveSummaryEl.textContent = 'No archived reports yet';
+                return;
+            }
+            archiveSummaryEl.textContent = `${reportTotal} ${reportTotal === 1 ? 'archived report' : 'archived reports'} · ${topicTotal} ${topicTotal === 1 ? 'tracked topic' : 'tracked topics'} · Latest archive: ${latestReport.archivedLabel}`;
         }
 
         function renderArchiveTopicFilters() {
