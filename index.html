@@ -852,8 +852,17 @@
             `;
         }
 
+        function getVisibleReportText() {
+            const textRoots = [execEl, contentEl];
+            return textRoots.map(root => {
+                const clone = root.cloneNode(true);
+                clone.querySelectorAll('code, pre, script, style, noscript').forEach(node => node.remove());
+                return clone.textContent || '';
+            }).join(' ');
+        }
+
         function countUncertaintySignals() {
-            const reportText = contentEl.textContent || '';
+            const reportText = getVisibleReportText();
             const matches = reportText.match(/\b(unknown|uncertain|suspected|likely|possible|potential|could)\b/gi) || [];
             return matches.length;
         }

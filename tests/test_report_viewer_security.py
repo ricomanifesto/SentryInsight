@@ -135,7 +135,11 @@ def test_report_viewers_include_uncertainty_signal_panel():
         assert "Uncertainty Signals" in viewer
         assert "countUncertaintySignals" in viewer
         assert "renderUncertaintySignals" in viewer
-        assert "const reportText = contentEl.textContent || ''" in viewer
+        assert "getVisibleReportText" in viewer
+        assert "const textRoots = [execEl, contentEl]" in viewer
+        assert "code, pre, script, style, noscript" in viewer
+        assert "const reportText = getVisibleReportText()" in viewer
+        assert "const reportText = contentEl.textContent || ''" not in viewer
         assert "markdownCache.match(/\\b(unknown|uncertain" not in viewer
         assert "uncertaintyEl.hidden = true" in viewer
         assert "uncertaintyEl.hidden = false" in viewer
