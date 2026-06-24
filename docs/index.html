@@ -548,9 +548,11 @@
                 !requestedReport.includes('..') &&
                 !requestedReport.includes('?') &&
                 !requestedReport.includes('#') &&
+                !requestedReport.includes('%') &&
                 !requestedReport.startsWith('/') &&
                 !requestedReport.includes(':') &&
-                (requestedReport.startsWith('reports/') || requestedReport.startsWith('docs/reports/'))
+                (requestedReport.startsWith('reports/') || requestedReport.startsWith('docs/reports/')) &&
+                requestedReport.split('/').every(segment => segment && segment !== '.' && segment !== '..')
             ) {
                 return requestedReport;
             }
@@ -1127,7 +1129,7 @@
             const a = e.target.closest('a.heading-anchor');
             if (!a) return;
             e.preventDefault();
-            const url = `${location.origin}${location.pathname}${a.getAttribute('href')}`;
+            const url = `${location.origin}${location.pathname}${location.search}${a.getAttribute('href')}`;
             navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard'));
         });
 
