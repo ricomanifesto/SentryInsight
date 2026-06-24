@@ -190,41 +190,102 @@
         <div class="archive-filter">
             <label for="archive-filter">Filter archived reports</label>
             <input id="archive-filter" type="search" autocomplete="off" placeholder="Search CVEs, vendors, products, or campaigns" />
-            <div class="archive-topic-filters" id="archive-topic-filters" aria-label="Filter by report topic">
-                <button type="button" data-topic="" aria-pressed="true">All</button>
-                <button type="button" data-topic="CVE-2025-5777" aria-pressed="false">CVE-2025-5777</button>
-                <button type="button" data-topic="NetScaler" aria-pressed="false">NetScaler</button>
-                <button type="button" data-topic="LapDogs" aria-pressed="false">LapDogs</button>
-                <button type="button" data-topic="MOVEit" aria-pressed="false">MOVEit</button>
-            </div>
+            <div class="archive-topic-filters" id="archive-topic-filters" aria-label="Filter by report topic"></div>
             <button class="archive-clear-filters" id="archive-clear-filters" type="button" disabled>Clear filters</button>
             <div class="archive-count" id="archive-count">1 report available</div>
         </div>
-        <section class="archive-list" id="archive-list" aria-label="Available reports">
-            <article class="archive-item" data-date="2026-06-23" data-search="exploitation report citrixbleed netscaler cve-2025-5777 lapdogs soho routers moveit transfer">
-                <h2><a href="../index.html?report=reports/index.md">Exploitation report: CitrixBleed 2, LapDogs routers, and MOVEit scanning</a></h2>
-                <div class="archive-meta">Archived <time datetime="2026-06-23">Jun 23, 2026</time></div>
-                <p>Archived generated report covering active exploitation of network-edge infrastructure and file-transfer systems.</p>
-                <div class="archive-tags" aria-label="Report topics">
-                    <span class="archive-tag">CVE-2025-5777</span>
-                    <span class="archive-tag">NetScaler</span>
-                    <span class="archive-tag">LapDogs</span>
-                    <span class="archive-tag">MOVEit</span>
-                </div>
-            </article>
-        </section>
+        <section class="archive-list" id="archive-list" aria-label="Available reports"></section>
         <div class="archive-empty" id="archive-empty" hidden>No archived reports match that filter.</div>
     </main>
     <script>
+        const archiveReports = [
+            {
+                title: 'Exploitation report: CitrixBleed 2, LapDogs routers, and MOVEit scanning',
+                href: '../index.html?report=reports/index.md',
+                path: 'reports/index.md',
+                archivedAt: '2026-06-23',
+                archivedLabel: 'Jun 23, 2026',
+                summary: 'Archived generated report covering active exploitation of network-edge infrastructure and file-transfer systems.',
+                topics: ['CVE-2025-5777', 'NetScaler', 'LapDogs', 'MOVEit'],
+                search: 'exploitation report citrixbleed netscaler cve-2025-5777 lapdogs soho routers moveit transfer',
+            },
+        ];
         const archiveFilterEl = document.getElementById('archive-filter');
         const archiveCountEl = document.getElementById('archive-count');
         const archiveEmptyEl = document.getElementById('archive-empty');
         const archiveListEl = document.getElementById('archive-list');
         const archiveTopicFiltersEl = document.getElementById('archive-topic-filters');
         const archiveClearFiltersEl = document.getElementById('archive-clear-filters');
-        const archiveTopicButtons = Array.from(archiveTopicFiltersEl.querySelectorAll('button'));
-        const archiveItems = Array.from(document.querySelectorAll('.archive-item'));
+        let archiveTopicButtons = [];
+        let archiveItems = [];
         let activeTopic = '';
+
+        function createArchiveTopicButton(topic, pressed) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.topic = topic;
+            button.setAttribute('aria-pressed', String(pressed));
+            button.textContent = topic || 'All';
+            return button;
+        }
+
+        function renderArchiveTopicFilters() {
+            const topics = Array.from(new Set(archiveReports.flatMap(report => report.topics)));
+            const fragment = document.createDocumentFragment();
+            fragment.appendChild(createArchiveTopicButton('', true));
+            topics.forEach(topic => fragment.appendChild(createArchiveTopicButton(topic, false)));
+            archiveTopicFiltersEl.innerHTML = '';
+            archiveTopicFiltersEl.appendChild(fragment);
+            archiveTopicButtons = Array.from(archiveTopicFiltersEl.querySelectorAll('button'));
+            archiveTopicButtons.forEach(button => {
+                button.addEventListener('click', () => filterArchiveByTopic(button.dataset.topic || ''));
+            });
+        }
+
+        function renderArchiveReports() {
+            const fragment = document.createDocumentFragment();
+            archiveReports.forEach(report => {
+                const article = document.createElement('article');
+                article.className = 'archive-item';
+                article.dataset.date = report.archivedAt;
+                article.dataset.search = `${report.title} ${report.summary} ${report.topics.join(' ')} ${report.search}`;
+
+                const heading = document.createElement('h2');
+                const link = document.createElement('a');
+                link.href = report.href;
+                link.textContent = report.title;
+                heading.appendChild(link);
+                article.appendChild(heading);
+
+                const meta = document.createElement('div');
+                meta.className = 'archive-meta';
+                meta.append('Archived ');
+                const time = document.createElement('time');
+                time.dateTime = report.archivedAt;
+                time.textContent = report.archivedLabel;
+                meta.appendChild(time);
+                article.appendChild(meta);
+
+                const summary = document.createElement('p');
+                summary.textContent = report.summary;
+                article.appendChild(summary);
+
+                const tags = document.createElement('div');
+                tags.className = 'archive-tags';
+                tags.setAttribute('aria-label', 'Report topics');
+                report.topics.forEach(topic => {
+                    const tag = document.createElement('span');
+                    tag.className = 'archive-tag';
+                    tag.textContent = topic;
+                    tags.appendChild(tag);
+                });
+                article.appendChild(tags);
+                fragment.appendChild(article);
+            });
+            archiveListEl.innerHTML = '';
+            archiveListEl.appendChild(fragment);
+            archiveItems = Array.from(document.querySelectorAll('.archive-item'));
+        }
 
         function sortNewestFirst() {
             archiveItems
@@ -264,9 +325,8 @@
 
         archiveFilterEl.addEventListener('input', filterArchive);
         archiveClearFiltersEl.addEventListener('click', clearArchiveFilters);
-        archiveTopicButtons.forEach(button => {
-            button.addEventListener('click', () => filterArchiveByTopic(button.dataset.topic || ''));
-        });
+        renderArchiveReports();
+        renderArchiveTopicFilters();
         sortNewestFirst();
         filterArchive();
     </script>
