@@ -125,3 +125,23 @@ def test_report_viewers_include_source_provenance_panel():
         assert "findSourceAttributionHeading" in viewer
         assert "provenanceEl.hidden = true" in viewer
         assert "provenanceEl.hidden = false" in viewer
+
+
+def test_report_viewers_include_uncertainty_signal_panel():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert 'id="uncertainty"' in viewer
+        assert "Uncertainty Signals" in viewer
+        assert "countUncertaintySignals" in viewer
+        assert "renderUncertaintySignals" in viewer
+        assert "getVisibleReportText" in viewer
+        assert "const textRoots = [execEl, contentEl]" in viewer
+        assert "code, pre, script, style, noscript" in viewer
+        assert "const reportText = getVisibleReportText()" in viewer
+        assert "const reportText = contentEl.textContent || ''" not in viewer
+        assert "markdownCache.match(/\\b(unknown|uncertain" not in viewer
+        assert "uncertaintyEl.hidden = true" in viewer
+        assert "uncertaintyEl.hidden = false" in viewer
+        assert "unknown|uncertain|suspected|likely|possible|potential|could" in viewer
+        assert "potential, or could" in viewer
