@@ -127,9 +127,12 @@ def test_report_archive_route_has_static_index():
     assert "../index.html?report=reports/index.md" in archive
     assert "index.md" in archive
     assert 'id="archive-filter"' in archive
+    assert 'id="archive-summary"' in archive
     assert 'id="archive-count"' in archive
     assert 'id="archive-empty"' in archive
     assert "filterArchive" in archive
+    assert "renderArchiveSummary" in archive
+    assert "archiveSummaryEl.textContent" in archive
     assert "dataset.search" in archive
     assert "archivedAt: '2026-06-23'" in archive
     assert "time.dateTime = report.archivedAt" in archive
