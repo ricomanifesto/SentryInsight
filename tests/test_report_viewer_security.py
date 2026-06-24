@@ -90,7 +90,12 @@ def test_report_viewers_include_archive_navigation_affordance():
         assert "requestedReport.startsWith('reports/')" in viewer
         assert "requestedReport.startsWith('docs/reports/')" in viewer
         assert "requestedReport.endsWith('.md')" in viewer
+        assert "!requestedReport.includes('?')" in viewer
+        assert "!requestedReport.includes('#')" in viewer
         assert "return 'index.md'" in viewer
+        assert "const reportPath = resolveReportPath()" in viewer
+        assert "const isArchiveReport = reportPath !== 'index.md'" in viewer
+        assert "if (!isArchiveReport)" in viewer
         assert "resolveArchiveLink" in viewer
         assert "reports/" in viewer
         assert "docs/reports/" in viewer
