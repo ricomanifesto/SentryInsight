@@ -540,6 +540,21 @@
             return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').substring(0, 80);
         }
 
+        function resolveReportPath() {
+            const params = new URLSearchParams(window.location.search);
+            const requestedReport = (params.get('report') || '').trim();
+            if (
+                requestedReport.endsWith('.md') &&
+                !requestedReport.includes('..') &&
+                !requestedReport.startsWith('/') &&
+                !requestedReport.includes(':') &&
+                (requestedReport.startsWith('reports/') || requestedReport.startsWith('docs/reports/'))
+            ) {
+                return requestedReport;
+            }
+            return 'index.md';
+        }
+
         function resolveArchiveLink() {
             const candidates = ['reports/', 'docs/reports/'];
             function probe(index) {
@@ -1019,7 +1034,7 @@
         // Fetch and render the markdown content (after UI config)
         let markdownCache = '';
         Promise.all([configPromise])
-          .then(() => fetch('index.md?v=' + Date.now(), { cache: 'no-store' }))
+          .then(() => fetch(resolveReportPath() + '?v=' + Date.now(), { cache: 'no-store' }))
           .then(response => response.text())
           .then(text => {
                 markdownCache = text;

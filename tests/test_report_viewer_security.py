@@ -85,6 +85,12 @@ def test_report_viewers_include_archive_navigation_affordance():
         viewer = viewer_path.read_text()
 
         assert 'id="archive-link"' in viewer
+        assert "resolveReportPath" in viewer
+        assert "new URLSearchParams(window.location.search)" in viewer
+        assert "requestedReport.startsWith('reports/')" in viewer
+        assert "requestedReport.startsWith('docs/reports/')" in viewer
+        assert "requestedReport.endsWith('.md')" in viewer
+        assert "return 'index.md'" in viewer
         assert "resolveArchiveLink" in viewer
         assert "reports/" in viewer
         assert "docs/reports/" in viewer
@@ -99,6 +105,7 @@ def test_report_archive_route_has_static_index():
 
     assert "Report Archive" in archive
     assert "../index.html" in archive
+    assert "../index.html?report=reports/index.md" in archive
     assert "index.md" in archive
     assert 'id="archive-filter"' in archive
     assert 'id="archive-count"' in archive
