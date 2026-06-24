@@ -130,8 +130,9 @@ def test_report_archive_route_has_static_index():
     assert 'id="archive-count"' in archive
     assert 'id="archive-empty"' in archive
     assert "filterArchive" in archive
-    assert "data-search" in archive
-    assert 'datetime="2026-06-23"' in archive
+    assert "dataset.search" in archive
+    assert "archivedAt: '2026-06-23'" in archive
+    assert "time.dateTime = report.archivedAt" in archive
     assert "Archived" in archive
     assert "sortNewestFirst" in archive
     assert 'id="archive-topic-filters"' in archive
@@ -140,6 +141,10 @@ def test_report_archive_route_has_static_index():
     assert 'id="archive-clear-filters"' in archive
     assert "clearArchiveFilters" in archive
     assert "archiveClearFiltersEl.disabled" in archive
+    assert "const archiveReports = [" in archive
+    assert "renderArchiveReports" in archive
+    assert "renderArchiveTopicFilters" in archive
+    assert "createElement('article')" in archive
     assert "CVE-2025-5777" in archive
     assert "archiveEmptyEl.hidden = visible !== 0" in archive
 
