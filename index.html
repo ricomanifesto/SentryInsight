@@ -540,6 +540,25 @@
             return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').substring(0, 80);
         }
 
+        function resolveReportPath() {
+            const params = new URLSearchParams(window.location.search);
+            const requestedReport = (params.get('report') || '').trim();
+            if (
+                requestedReport.endsWith('.md') &&
+                !requestedReport.includes('..') &&
+                !requestedReport.includes('?') &&
+                !requestedReport.includes('#') &&
+                !requestedReport.includes('%') &&
+                !requestedReport.startsWith('/') &&
+                !requestedReport.includes(':') &&
+                (requestedReport.startsWith('reports/') || requestedReport.startsWith('docs/reports/')) &&
+                requestedReport.split('/').every(segment => segment && segment !== '.' && segment !== '..')
+            ) {
+                return requestedReport;
+            }
+            return 'index.md';
+        }
+
         function resolveArchiveLink() {
             const candidates = ['reports/', 'docs/reports/'];
             function probe(index) {
@@ -1018,8 +1037,10 @@
 
         // Fetch and render the markdown content (after UI config)
         let markdownCache = '';
+        const reportPath = resolveReportPath();
+        const isArchiveReport = reportPath !== 'index.md';
         Promise.all([configPromise])
-          .then(() => fetch('index.md?v=' + Date.now(), { cache: 'no-store' }))
+          .then(() => fetch(reportPath + '?v=' + Date.now(), { cache: 'no-store' }))
           .then(response => response.text())
           .then(text => {
                 markdownCache = text;
@@ -1035,21 +1056,23 @@
                         execEl.innerHTML = `<h4>Executive Summary</h4>`;
                         execEl.appendChild(next.cloneNode(true));
                         next.remove();
-                        // Add audio player only if the file exists and has content
-                        const audioSrc = 'executive_summary.mp3?v=' + Date.now();
-                        fetch('executive_summary.mp3', { method: 'HEAD' }).then(r => {
-                            if (!r.ok) return;
-                            const len = parseInt(r.headers.get('Content-Length') || '0');
-                            if (len === 0) return;
-                            const audioDiv = document.createElement('div');
-                            audioDiv.className = 'audio-player';
-                            const audioEl = document.createElement('audio');
-                            audioEl.controls = true;
-                            audioEl.preload = 'none';
-                            audioEl.src = audioSrc;
-                            audioDiv.appendChild(audioEl);
-                            execEl.appendChild(audioDiv);
-                        }).catch(() => {});
+                        if (!isArchiveReport) {
+                            // Add audio player only if the file exists and has content
+                            const audioSrc = 'executive_summary.mp3?v=' + Date.now();
+                            fetch('executive_summary.mp3', { method: 'HEAD' }).then(r => {
+                                if (!r.ok) return;
+                                const len = parseInt(r.headers.get('Content-Length') || '0');
+                                if (len === 0) return;
+                                const audioDiv = document.createElement('div');
+                                audioDiv.className = 'audio-player';
+                                const audioEl = document.createElement('audio');
+                                audioEl.controls = true;
+                                audioEl.preload = 'none';
+                                audioEl.src = audioSrc;
+                                audioDiv.appendChild(audioEl);
+                                execEl.appendChild(audioDiv);
+                            }).catch(() => {});
+                        }
                     }
                 }
 
@@ -1091,7 +1114,7 @@
             const a = e.target.closest('a.heading-anchor');
             if (!a) return;
             e.preventDefault();
-            const url = `${location.origin}${location.pathname}${a.getAttribute('href')}`;
+            const url = `${location.origin}${location.pathname}${location.search}${a.getAttribute('href')}`;
             navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard'));
         });
 

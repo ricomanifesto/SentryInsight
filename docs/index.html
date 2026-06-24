@@ -540,6 +540,25 @@
             return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').substring(0, 80);
         }
 
+        function resolveReportPath() {
+            const params = new URLSearchParams(window.location.search);
+            const requestedReport = (params.get('report') || '').trim();
+            if (
+                requestedReport.endsWith('.md') &&
+                !requestedReport.includes('..') &&
+                !requestedReport.includes('?') &&
+                !requestedReport.includes('#') &&
+                !requestedReport.includes('%') &&
+                !requestedReport.startsWith('/') &&
+                !requestedReport.includes(':') &&
+                (requestedReport.startsWith('reports/') || requestedReport.startsWith('docs/reports/')) &&
+                requestedReport.split('/').every(segment => segment && segment !== '.' && segment !== '..')
+            ) {
+                return requestedReport;
+            }
+            return 'index.md';
+        }
+
         function resolveArchiveLink() {
             const candidates = ['reports/', 'docs/reports/'];
             function probe(index) {
@@ -1018,8 +1037,10 @@
 
         // Fetch and render the markdown content (after UI config)
         let markdownCache = '';
+        const reportPath = resolveReportPath();
+        const isArchiveReport = reportPath !== 'index.md';
         Promise.all([configPromise])
-          .then(() => fetch('index.md?v=' + Date.now(), { cache: 'no-store' }))
+          .then(() => fetch(reportPath + '?v=' + Date.now(), { cache: 'no-store' }))
           .then(response => response.text())
           .then(text => {
                 markdownCache = text;
@@ -1035,23 +1056,25 @@
                         execEl.innerHTML = `<h4>Executive Summary</h4>`;
                         execEl.appendChild(next.cloneNode(true));
                         next.remove();
-                        // Add audio player for narrated executive summary
-                        const audioDiv = document.createElement('div');
-                        audioDiv.className = 'audio-player';
-                        const audioEl = document.createElement('audio');
-                        audioEl.controls = true;
-                        audioEl.preload = 'none';
-                        audioEl.src = 'executive_summary.mp3?v=' + Date.now();
-                        // Only show the player if the audio file exists
-                        audioEl.addEventListener('error', () => { audioDiv.style.display = 'none'; });
-                        audioDiv.appendChild(audioEl);
-                        execEl.appendChild(audioDiv);
+                        if (!isArchiveReport) {
+                            // Add audio player for narrated executive summary
+                            const audioDiv = document.createElement('div');
+                            audioDiv.className = 'audio-player';
+                            const audioEl = document.createElement('audio');
+                            audioEl.controls = true;
+                            audioEl.preload = 'none';
+                            audioEl.src = 'executive_summary.mp3?v=' + Date.now();
+                            // Only show the player if the audio file exists
+                            audioEl.addEventListener('error', () => { audioDiv.style.display = 'none'; });
+                            audioDiv.appendChild(audioEl);
+                            execEl.appendChild(audioDiv);
+                        }
                     }
                 }
 
                 // Inject podcast player after Threat Actor Activities heading
                 const threatH2 = Array.from(contentEl.querySelectorAll('h2')).find(h => /threat actor activities/i.test(h.textContent));
-                if (threatH2) {
+                if (!isArchiveReport && threatH2) {
                     const podDiv = document.createElement('div');
                     podDiv.className = 'audio-player';
                     podDiv.style.margin = '8px 0 16px';
@@ -1106,7 +1129,7 @@
             const a = e.target.closest('a.heading-anchor');
             if (!a) return;
             e.preventDefault();
-            const url = `${location.origin}${location.pathname}${a.getAttribute('href')}`;
+            const url = `${location.origin}${location.pathname}${location.search}${a.getAttribute('href')}`;
             navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard'));
         });
 
