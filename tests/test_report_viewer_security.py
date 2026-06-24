@@ -135,6 +135,8 @@ def test_report_archive_route_has_static_index():
     assert "archiveSummaryEl.textContent" in archive
     assert "latestReport.archivedLabel" in archive
     assert "Latest archive:" in archive
+    assert "latestArchiveLink.href = latestReport.href" in archive
+    assert "latestArchiveLink.textContent = latestReport.archivedLabel" in archive
     assert "if (!latestReport)" in archive
     assert "No archived reports yet" in archive
     assert "dataset.search" in archive
