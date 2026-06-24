@@ -261,7 +261,11 @@
                 archiveSummaryEl.textContent = 'No archived reports yet';
                 return;
             }
-            archiveSummaryEl.textContent = `${reportTotal} ${reportTotal === 1 ? 'archived report' : 'archived reports'} · ${topicTotal} ${topicTotal === 1 ? 'tracked topic' : 'tracked topics'} · Latest archive: ${latestReport.archivedLabel}`;
+            archiveSummaryEl.textContent = `${reportTotal} ${reportTotal === 1 ? 'archived report' : 'archived reports'} · ${topicTotal} ${topicTotal === 1 ? 'tracked topic' : 'tracked topics'} · Latest archive: `;
+            const latestArchiveLink = document.createElement('a');
+            latestArchiveLink.href = latestReport.href;
+            latestArchiveLink.textContent = latestReport.archivedLabel;
+            archiveSummaryEl.appendChild(latestArchiveLink);
         }
 
         function renderArchiveTopicFilters() {
