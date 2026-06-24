@@ -87,6 +87,28 @@
             font-size: 0.9rem;
             margin-top: 8px;
         }
+        .archive-topic-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0 0;
+        }
+        .archive-topic-filters button {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text);
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 5px 10px;
+        }
+        .archive-topic-filters button[aria-pressed="true"] {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
         .archive-item {
             background: var(--panel);
             border: 1px solid var(--border);
@@ -152,6 +174,13 @@
         <div class="archive-filter">
             <label for="archive-filter">Filter archived reports</label>
             <input id="archive-filter" type="search" autocomplete="off" placeholder="Search CVEs, vendors, products, or campaigns" />
+            <div class="archive-topic-filters" id="archive-topic-filters" aria-label="Filter by report topic">
+                <button type="button" data-topic="" aria-pressed="true">All</button>
+                <button type="button" data-topic="CVE-2025-5777" aria-pressed="false">CVE-2025-5777</button>
+                <button type="button" data-topic="NetScaler" aria-pressed="false">NetScaler</button>
+                <button type="button" data-topic="LapDogs" aria-pressed="false">LapDogs</button>
+                <button type="button" data-topic="MOVEit" aria-pressed="false">MOVEit</button>
+            </div>
             <div class="archive-count" id="archive-count">1 report available</div>
         </div>
         <section class="archive-list" id="archive-list" aria-label="Available reports">
@@ -174,7 +203,10 @@
         const archiveCountEl = document.getElementById('archive-count');
         const archiveEmptyEl = document.getElementById('archive-empty');
         const archiveListEl = document.getElementById('archive-list');
+        const archiveTopicFiltersEl = document.getElementById('archive-topic-filters');
+        const archiveTopicButtons = Array.from(archiveTopicFiltersEl.querySelectorAll('button'));
         const archiveItems = Array.from(document.querySelectorAll('.archive-item'));
+        let activeTopic = '';
 
         function sortNewestFirst() {
             archiveItems
@@ -188,7 +220,9 @@
             let visible = 0;
             archiveItems.forEach(item => {
                 const haystack = `${item.textContent} ${item.dataset.search || ''}`.toLowerCase();
-                const match = !query || haystack.includes(query);
+                const matchesQuery = !query || haystack.includes(query);
+                const matchesTopic = !activeTopic || haystack.includes(activeTopic.toLowerCase());
+                const match = matchesQuery && matchesTopic;
                 item.hidden = !match;
                 if (match) visible += 1;
             });
@@ -196,7 +230,18 @@
             archiveEmptyEl.hidden = visible !== 0;
         }
 
+        function filterArchiveByTopic(topic) {
+            activeTopic = topic;
+            archiveTopicButtons.forEach(button => {
+                button.setAttribute('aria-pressed', String(button.dataset.topic === activeTopic));
+            });
+            filterArchive();
+        }
+
         archiveFilterEl.addEventListener('input', filterArchive);
+        archiveTopicButtons.forEach(button => {
+            button.addEventListener('click', () => filterArchiveByTopic(button.dataset.topic || ''));
+        });
         sortNewestFirst();
         filterArchive();
     </script>
