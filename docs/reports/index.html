@@ -97,6 +97,15 @@
             font-size: 1.1rem;
             margin: 0 0 4px;
         }
+        .archive-meta {
+            color: var(--muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            margin: 0 0 8px;
+        }
         .archive-item p { margin: 0; }
         .archive-tags {
             display: flex;
@@ -145,9 +154,10 @@
             <input id="archive-filter" type="search" autocomplete="off" placeholder="Search CVEs, vendors, products, or campaigns" />
             <div class="archive-count" id="archive-count">1 report available</div>
         </div>
-        <section class="archive-list" aria-label="Available reports">
-            <article class="archive-item" data-search="exploitation report citrixbleed netscaler cve-2025-5777 lapdogs soho routers moveit transfer">
+        <section class="archive-list" id="archive-list" aria-label="Available reports">
+            <article class="archive-item" data-date="2026-06-23" data-search="exploitation report citrixbleed netscaler cve-2025-5777 lapdogs soho routers moveit transfer">
                 <h2><a href="../index.html?report=reports/index.md">Exploitation report: CitrixBleed 2, LapDogs routers, and MOVEit scanning</a></h2>
+                <div class="archive-meta">Archived <time datetime="2026-06-23">Jun 23, 2026</time></div>
                 <p>Archived generated report covering active exploitation of network-edge infrastructure and file-transfer systems.</p>
                 <div class="archive-tags" aria-label="Report topics">
                     <span class="archive-tag">CVE-2025-5777</span>
@@ -163,7 +173,15 @@
         const archiveFilterEl = document.getElementById('archive-filter');
         const archiveCountEl = document.getElementById('archive-count');
         const archiveEmptyEl = document.getElementById('archive-empty');
+        const archiveListEl = document.getElementById('archive-list');
         const archiveItems = Array.from(document.querySelectorAll('.archive-item'));
+
+        function sortNewestFirst() {
+            archiveItems
+                .slice()
+                .sort((a, b) => (b.dataset.date || '').localeCompare(a.dataset.date || ''))
+                .forEach(item => archiveListEl.appendChild(item));
+        }
 
         function filterArchive() {
             const query = archiveFilterEl.value.trim().toLowerCase();
@@ -179,6 +197,7 @@
         }
 
         archiveFilterEl.addEventListener('input', filterArchive);
+        sortNewestFirst();
         filterArchive();
     </script>
 </body>
