@@ -121,6 +121,9 @@ def test_report_archive_route_has_static_index():
     assert 'id="archive-empty"' in archive
     assert "filterArchive" in archive
     assert "data-search" in archive
+    assert 'datetime="2026-06-23"' in archive
+    assert "Archived" in archive
+    assert "sortNewestFirst" in archive
     assert "CVE-2025-5777" in archive
     assert "archiveEmptyEl.hidden = visible !== 0" in archive
 
