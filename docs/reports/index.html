@@ -109,6 +109,13 @@
             border-color: #fca5a5;
             color: #991b1b;
         }
+        .archive-topic-count {
+            color: var(--muted);
+            margin-left: 4px;
+        }
+        .archive-topic-filters button[aria-pressed="true"] .archive-topic-count {
+            color: #991b1b;
+        }
         .archive-clear-filters {
             background: transparent;
             border: 0;
@@ -220,20 +227,34 @@
         let archiveItems = [];
         let activeTopic = '';
 
-        function createArchiveTopicButton(topic, pressed) {
+        function createArchiveTopicButton(topic, total, pressed) {
             const button = document.createElement('button');
             button.type = 'button';
             button.dataset.topic = topic;
             button.setAttribute('aria-pressed', String(pressed));
-            button.textContent = topic || 'All';
+            const label = document.createElement('span');
+            label.textContent = topic || 'All';
+            const count = document.createElement('span');
+            count.className = 'archive-topic-count';
+            count.setAttribute('aria-label', `${total} ${total === 1 ? 'report' : 'reports'}`);
+            count.textContent = String(total);
+            button.append(label, ' ', count);
             return button;
         }
 
         function renderArchiveTopicFilters() {
             const topics = Array.from(new Set(archiveReports.flatMap(report => report.topics)));
+            const topicCounts = new Map();
+            archiveReports.forEach(report => {
+                report.topics.forEach(topic => {
+                    topicCounts.set(topic, (topicCounts.get(topic) || 0) + 1);
+                });
+            });
             const fragment = document.createDocumentFragment();
-            fragment.appendChild(createArchiveTopicButton('', true));
-            topics.forEach(topic => fragment.appendChild(createArchiveTopicButton(topic, false)));
+            fragment.appendChild(createArchiveTopicButton('', archiveReports.length, true));
+            topics.forEach(topic => {
+                fragment.appendChild(createArchiveTopicButton(topic, topicCounts.get(topic) || 0, false));
+            });
             archiveTopicFiltersEl.innerHTML = '';
             archiveTopicFiltersEl.appendChild(fragment);
             archiveTopicButtons = Array.from(archiveTopicFiltersEl.querySelectorAll('button'));
