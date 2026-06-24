@@ -122,6 +122,11 @@ def test_report_viewers_include_source_provenance_panel():
         assert "n/a" in viewer
         assert "extractSourceAttributionEntries" in viewer
         assert "renderProvenance" in viewer
+        assert "renderSourcePreview" in viewer
+        assert "source-preview" in viewer
+        assert "sourcePreviewList" in viewer
+        assert "entryEl.textContent = entry" in viewer
+        assert "sourcePreviewList.innerHTML = ''" in viewer
         assert "findSourceAttributionHeading" in viewer
         assert "provenanceEl.hidden = true" in viewer
         assert "provenanceEl.hidden = false" in viewer

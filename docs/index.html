@@ -354,6 +354,23 @@
             font-size: 0.85rem;
             margin-top: 6px;
         }
+        .source-preview {
+            margin-top: 10px;
+        }
+        .source-preview summary {
+            cursor: pointer;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        .source-preview ul {
+            margin: 8px 0 0;
+            padding-left: 20px;
+            color: var(--text-primary);
+        }
+        .source-preview li {
+            margin: 4px 0;
+            overflow-wrap: anywhere;
+        }
         body.dark .provenance { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .provenance h4 { color: #cbd5e1; }
         body.dark .provenance p { color: #e5e7eb; }
@@ -836,6 +853,26 @@
             return entries;
         }
 
+        function renderSourcePreview(sourceEntries) {
+            const preview = document.createElement('details');
+            preview.className = 'source-preview';
+
+            const summary = document.createElement('summary');
+            summary.textContent = 'View source entries';
+            preview.appendChild(summary);
+
+            const sourcePreviewList = document.createElement('ul');
+            sourcePreviewList.innerHTML = '';
+            sourceEntries.forEach(entry => {
+                const entryEl = document.createElement('li');
+                entryEl.textContent = entry;
+                sourcePreviewList.appendChild(entryEl);
+            });
+            preview.appendChild(sourcePreviewList);
+
+            return preview;
+        }
+
         function renderProvenance() {
             const sourceEntries = extractSourceAttributionEntries();
             if (!sourceEntries.length) {
@@ -850,6 +887,7 @@
                 <p>${sourceEntries.length} ${label.toLowerCase()} cited in this report.</p>
                 <div class="provenance-meta">Source entries are rendered from the report's Source Attribution section.</div>
             `;
+            provenanceEl.appendChild(renderSourcePreview(sourceEntries));
         }
 
         function getVisibleReportText() {
