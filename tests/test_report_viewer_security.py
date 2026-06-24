@@ -109,6 +109,16 @@ def test_report_viewers_include_archive_navigation_affordance():
         assert "location.search" in viewer
 
 
+def test_report_viewers_label_archived_report_metadata():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert "renderReportMetadata" in viewer
+        assert "Archived report" in viewer
+        assert "Latest report" in viewer
+        assert "metaEl.textContent = `Last updated:" not in viewer
+
+
 def test_report_archive_route_has_static_index():
     archive = ARCHIVE_INDEX.read_text()
 

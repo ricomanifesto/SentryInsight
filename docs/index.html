@@ -802,10 +802,14 @@
             });
         }
 
-        function setMeta(dateStr) {
+        function renderReportMetadata(dateStr, archiveReport) {
             const d = new Date();
             const now = d.toLocaleString();
-            metaEl.textContent = `Last updated: ${dateStr || now}`;
+            if (archiveReport) {
+                metaEl.textContent = 'Archived report';
+                return;
+            }
+            metaEl.textContent = `Latest report · Last updated: ${dateStr || now}`;
         }
 
         function computeSummary() {
@@ -1105,7 +1109,7 @@
                 renderUncertaintySignals();
                 filterSections();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
-                setMeta(m ? m[1] : '');
+                renderReportMetadata(m ? m[1] : '', isArchiveReport);
           })
             .catch(error => {
                 contentEl.innerHTML = `
