@@ -75,6 +75,12 @@
             gap: 12px;
             margin-top: 16px;
         }
+        .archive-summary {
+            color: var(--muted);
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 12px 0 16px;
+        }
         .archive-filter {
             background: var(--panel);
             border: 1px solid var(--border);
@@ -191,6 +197,7 @@
             <div>
                 <h1>Report Archive</h1>
                 <p>Previous SentryInsight exploitation reports.</p>
+                <div class="archive-summary" id="archive-summary"></div>
             </div>
             <a class="back" href="../index.html">Latest report</a>
         </header>
@@ -218,6 +225,7 @@
             },
         ];
         const archiveFilterEl = document.getElementById('archive-filter');
+        const archiveSummaryEl = document.getElementById('archive-summary');
         const archiveCountEl = document.getElementById('archive-count');
         const archiveEmptyEl = document.getElementById('archive-empty');
         const archiveListEl = document.getElementById('archive-list');
@@ -240,6 +248,13 @@
             count.textContent = String(total);
             button.append(label, ' ', count);
             return button;
+        }
+
+        function renderArchiveSummary() {
+            const topics = new Set(archiveReports.flatMap(report => report.topics));
+            const reportTotal = archiveReports.length;
+            const topicTotal = topics.size;
+            archiveSummaryEl.textContent = `${reportTotal} ${reportTotal === 1 ? 'archived report' : 'archived reports'} · ${topicTotal} ${topicTotal === 1 ? 'tracked topic' : 'tracked topics'}`;
         }
 
         function renderArchiveTopicFilters() {
@@ -346,6 +361,7 @@
 
         archiveFilterEl.addEventListener('input', filterArchive);
         archiveClearFiltersEl.addEventListener('click', clearArchiveFilters);
+        renderArchiveSummary();
         renderArchiveReports();
         renderArchiveTopicFilters();
         sortNewestFirst();
