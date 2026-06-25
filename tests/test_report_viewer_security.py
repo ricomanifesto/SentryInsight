@@ -206,6 +206,21 @@ def test_report_archive_entries_render_canonical_metric_chips():
     assert "article.appendChild(buildArchiveMetricChips(report))" in archive
 
 
+def test_report_archive_entries_render_canonical_action_links():
+    archive = ARCHIVE_INDEX.read_text()
+
+    assert "links: {" in archive
+    assert "report: '../index.html?report=reports/index.md'" in archive
+    assert "markdown: 'index.md'" in archive
+    assert "function buildArchiveActionLinks(report)" in archive
+    assert "archive-actions" in archive
+    assert "archive-action" in archive
+    assert "Open report" in archive
+    assert "Source markdown" in archive
+    assert "action.href = href" in archive
+    assert "article.appendChild(buildArchiveActionLinks(report))" in archive
+
+
 def test_report_viewers_include_source_provenance_panel():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()
