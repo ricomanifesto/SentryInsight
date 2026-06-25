@@ -163,10 +163,17 @@
         }
         .archive-item p { margin: 0; }
         .archive-tags {
+            align-items: center;
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             margin-top: 12px;
+        }
+        .archive-tag-label {
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-right: 2px;
         }
         .archive-tag {
             background: #fee2e2;
@@ -332,6 +339,10 @@
                 const tags = document.createElement('div');
                 tags.className = 'archive-tags';
                 tags.setAttribute('aria-label', 'Report topics');
+                const archiveTagLabel = document.createElement('span');
+                archiveTagLabel.className = 'archive-tag-label';
+                archiveTagLabel.textContent = 'Topics';
+                tags.appendChild(archiveTagLabel);
                 report.topics.forEach(topic => {
                     const tag = document.createElement('button');
                     tag.className = 'archive-tag';
