@@ -221,6 +221,20 @@ def test_report_archive_entries_render_canonical_action_links():
     assert "article.appendChild(buildArchiveActionLinks(report))" in archive
 
 
+def test_report_archive_entries_render_canonical_coverage_signals():
+    archive = ARCHIVE_INDEX.read_text()
+
+    assert "coverage: [" in archive
+    assert "label: 'Source attribution'" in archive
+    assert "label: 'Archived artifact'" in archive
+    assert "function buildArchiveCoverageNotes(report)" in archive
+    assert "archive-coverage" in archive
+    assert "archive-coverage-note" in archive
+    assert "Coverage" in archive
+    assert "coverage.forEach" in archive
+    assert "article.appendChild(buildArchiveCoverageNotes(report))" in archive
+
+
 def test_report_viewers_include_source_provenance_panel():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()

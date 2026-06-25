@@ -199,6 +199,27 @@
         .archive-action:hover {
             text-decoration: none;
         }
+        .archive-coverage {
+            border-left: 3px solid var(--border);
+            display: grid;
+            gap: 6px;
+            margin: 12px 0 0;
+            padding-left: 10px;
+        }
+        .archive-coverage-heading {
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .archive-coverage-note {
+            color: var(--muted);
+            font-size: 0.86rem;
+            margin: 0;
+        }
+        .archive-coverage-note strong {
+            color: var(--text);
+        }
         .archive-tags {
             align-items: center;
             display: flex;
@@ -283,6 +304,16 @@
                     report: '../index.html?report=reports/index.md',
                     markdown: 'index.md',
                 },
+                coverage: [
+                    {
+                        label: 'Source attribution',
+                        detail: 'No source attribution section is present in this archived markdown.',
+                    },
+                    {
+                        label: 'Archived artifact',
+                        detail: 'Rendered report and source markdown are both available from this archive card.',
+                    },
+                ],
                 search: 'exploitation report citrixbleed netscaler cve-2025-5777 lapdogs soho routers moveit transfer',
             },
         ];
@@ -391,6 +422,27 @@
             return actions;
         }
 
+        function buildArchiveCoverageNotes(report) {
+            const coverage = report.coverage || [];
+            const notes = document.createElement('div');
+            notes.className = 'archive-coverage';
+            if (!coverage.length) return notes;
+            const heading = document.createElement('div');
+            heading.className = 'archive-coverage-heading';
+            heading.textContent = 'Coverage';
+            notes.appendChild(heading);
+            coverage.forEach(({ label, detail }) => {
+                if (!label || !detail) return;
+                const note = document.createElement('p');
+                note.className = 'archive-coverage-note';
+                const strong = document.createElement('strong');
+                strong.textContent = `${label}: `;
+                note.append(strong, detail);
+                notes.appendChild(note);
+            });
+            return notes;
+        }
+
         function renderArchiveReports() {
             const fragment = document.createDocumentFragment();
             archiveReports.forEach(report => {
@@ -420,6 +472,7 @@
                 summary.textContent = report.summary;
                 article.appendChild(summary);
                 article.appendChild(buildArchiveMetricChips(report));
+                article.appendChild(buildArchiveCoverageNotes(report));
                 article.appendChild(buildArchiveActionLinks(report));
 
                 const tags = document.createElement('div');
