@@ -367,7 +367,39 @@
                 .forEach(item => archiveListEl.appendChild(item));
         }
 
-        function filterArchive() {
+        function readArchiveQueryState() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                query: (params.get('q') || '').trim(),
+                topic: (params.get('topic') || '').trim(),
+            };
+        }
+
+        function writeArchiveQueryState() {
+            const query = archiveFilterEl.value.trim();
+            const params = new URLSearchParams(window.location.search);
+            if (query) {
+                params.set('q', query);
+            } else {
+                params.delete('q');
+            }
+            if (activeTopic) {
+                params.set('topic', activeTopic);
+            } else {
+                params.delete('topic');
+            }
+            const nextSearch = params.toString();
+            const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;
+            history.replaceState(null, '', nextUrl);
+        }
+
+        function normalizeArchiveTopic(topic) {
+            if (!topic) return '';
+            return archiveReports.some(report => report.topics.includes(topic)) ? topic : '';
+        }
+
+        function filterArchive(options = {}) {
+            const { syncQuery = true } = options;
             const query = archiveFilterEl.value.trim().toLowerCase();
             let visible = 0;
             archiveItems.forEach(item => {
@@ -381,14 +413,21 @@
             archiveCountEl.textContent = `${visible} ${visible === 1 ? 'report' : 'reports'} shown`;
             archiveEmptyEl.hidden = visible !== 0;
             archiveClearFiltersEl.disabled = !query && !activeTopic;
+            if (syncQuery) writeArchiveQueryState();
         }
 
-        function filterArchiveByTopic(topic) {
-            activeTopic = topic;
+        function filterArchiveByTopic(topic, options = {}) {
+            activeTopic = normalizeArchiveTopic(topic);
             archiveTopicButtons.forEach(button => {
                 button.setAttribute('aria-pressed', String(button.dataset.topic === activeTopic));
             });
-            filterArchive();
+            filterArchive(options);
+        }
+
+        function applyArchiveQueryState() {
+            const { query, topic } = readArchiveQueryState();
+            archiveFilterEl.value = query;
+            filterArchiveByTopic(topic, { syncQuery: false });
         }
 
         function clearArchiveFilters() {
@@ -396,13 +435,13 @@
             filterArchiveByTopic('');
         }
 
-        archiveFilterEl.addEventListener('input', filterArchive);
+        archiveFilterEl.addEventListener('input', () => filterArchive());
         archiveClearFiltersEl.addEventListener('click', clearArchiveFilters);
         renderArchiveSummary();
         renderArchiveReports();
         renderArchiveTopicFilters();
         sortNewestFirst();
-        filterArchive();
+        applyArchiveQueryState();
     </script>
 </body>
 </html>
