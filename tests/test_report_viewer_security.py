@@ -157,6 +157,9 @@ def test_report_archive_route_has_static_index():
     assert "label.textContent = topic || 'All'" in archive
     assert "count.textContent = String(total)" in archive
     assert "createElement('article')" in archive
+    assert "createElement('button')" in archive
+    assert "tag.type = 'button'" in archive
+    assert "filterArchiveByTopic(topic)" in archive
     assert "CVE-2025-5777" in archive
     assert "archiveEmptyEl.hidden = visible !== 0" in archive
 

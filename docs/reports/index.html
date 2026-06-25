@@ -169,9 +169,14 @@
             border: 1px solid #fecaca;
             border-radius: 999px;
             color: #991b1b;
+            cursor: pointer;
+            font: inherit;
             font-size: 0.78rem;
             font-weight: 700;
             padding: 3px 8px;
+        }
+        .archive-tag:hover {
+            background: #fecaca;
         }
         .archive-empty {
             background: var(--panel);
@@ -321,9 +326,11 @@
                 tags.className = 'archive-tags';
                 tags.setAttribute('aria-label', 'Report topics');
                 report.topics.forEach(topic => {
-                    const tag = document.createElement('span');
+                    const tag = document.createElement('button');
                     tag.className = 'archive-tag';
+                    tag.type = 'button';
                     tag.textContent = topic;
+                    tag.addEventListener('click', () => filterArchiveByTopic(topic));
                     tags.appendChild(tag);
                 });
                 article.appendChild(tags);
