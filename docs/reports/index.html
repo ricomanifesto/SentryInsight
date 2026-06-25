@@ -85,6 +85,24 @@
             font-weight: 700;
             margin: 12px 0 16px;
         }
+        .archive-section-index {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: -8px 0 18px;
+        }
+        .archive-section-index a {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 5px 9px;
+        }
+        .archive-section-index a:hover {
+            text-decoration: none;
+        }
         .archive-filter {
             background: var(--panel);
             border: 1px solid var(--border);
@@ -313,7 +331,11 @@
             </div>
             <a class="back" href="../index.html">Latest report</a>
         </header>
-        <div class="archive-filter">
+        <nav class="archive-section-index" aria-label="Archive sections">
+            <a class="archive-focus-target" href="#archive-filter-panel">Filter</a>
+            <a class="archive-focus-target" href="#archive-list">Reports</a>
+        </nav>
+        <div class="archive-filter" id="archive-filter-panel">
             <label for="archive-filter">Filter archived reports</label>
             <input id="archive-filter" type="search" autocomplete="off" placeholder="Search CVEs, vendors, products, or campaigns" />
             <div class="archive-topic-filters" id="archive-topic-filters" aria-label="Filter by report topic"></div>
