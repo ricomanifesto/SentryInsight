@@ -188,6 +188,24 @@ def test_report_archive_filter_state_uses_canonical_query_params():
     assert "archiveFilterEl.addEventListener('input', () => filterArchive())" in archive
 
 
+def test_report_archive_entries_render_canonical_metric_chips():
+    archive = ARCHIVE_INDEX.read_text()
+
+    assert "metrics: {" in archive
+    assert "sections: 6" in archive
+    assert "topics: 4" in archive
+    assert "uncertaintySignals: 1" in archive
+    assert "function buildArchiveMetricChips(report)" in archive
+    assert "Object.entries(report.metrics || {})" in archive
+    assert "archive-metrics" in archive
+    assert "archive-metric" in archive
+    assert "archiveMetricLabels" in archive
+    assert "Archive sections" in archive
+    assert "Tracked topics" in archive
+    assert "Uncertainty signals" in archive
+    assert "article.appendChild(buildArchiveMetricChips(report))" in archive
+
+
 def test_report_viewers_include_source_provenance_panel():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()
