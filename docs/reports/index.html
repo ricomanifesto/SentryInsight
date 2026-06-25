@@ -162,6 +162,21 @@
             margin: 0 0 8px;
         }
         .archive-item p { margin: 0; }
+        .archive-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 12px 0 0;
+        }
+        .archive-metric {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 3px 8px;
+        }
         .archive-tags {
             align-items: center;
             display: flex;
@@ -237,6 +252,11 @@
                 archivedLabel: 'Jun 23, 2026',
                 summary: 'Archived generated report covering active exploitation of network-edge infrastructure and file-transfer systems.',
                 topics: ['CVE-2025-5777', 'NetScaler', 'LapDogs', 'MOVEit'],
+                metrics: {
+                    sections: 6,
+                    topics: 4,
+                    uncertaintySignals: 1,
+                },
                 search: 'exploitation report citrixbleed netscaler cve-2025-5777 lapdogs soho routers moveit transfer',
             },
         ];
@@ -307,6 +327,26 @@
             });
         }
 
+        const archiveMetricLabels = {
+            sections: 'Archive sections',
+            topics: 'Tracked topics',
+            uncertaintySignals: 'Uncertainty signals',
+        };
+
+        function buildArchiveMetricChips(report) {
+            const metrics = document.createElement('div');
+            metrics.className = 'archive-metrics';
+            Object.entries(report.metrics || {}).forEach(([key, value]) => {
+                const label = archiveMetricLabels[key];
+                if (!label && label !== '') return;
+                const chip = document.createElement('span');
+                chip.className = 'archive-metric';
+                chip.textContent = `${label}: ${value}`;
+                metrics.appendChild(chip);
+            });
+            return metrics;
+        }
+
         function renderArchiveReports() {
             const fragment = document.createDocumentFragment();
             archiveReports.forEach(report => {
@@ -335,6 +375,7 @@
                 const summary = document.createElement('p');
                 summary.textContent = report.summary;
                 article.appendChild(summary);
+                article.appendChild(buildArchiveMetricChips(report));
 
                 const tags = document.createElement('div');
                 tags.className = 'archive-tags';
