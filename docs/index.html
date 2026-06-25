@@ -398,6 +398,31 @@
         body.dark .uncertainty { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .uncertainty h4 { color: #cbd5e1; }
         body.dark .uncertainty p { color: #e5e7eb; }
+        .coverage-notes {
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 0 0 16px;
+        }
+        .coverage-notes h4 {
+            margin: 0 0 6px;
+            color: var(--text-secondary);
+        }
+        .coverage-notes ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .coverage-notes li {
+            color: var(--text-primary);
+            margin: 4px 0;
+        }
+        .coverage-notes strong {
+            color: var(--text-secondary);
+        }
+        body.dark .coverage-notes { background: var(--dark-elev); border-color: #1f2937; }
+        body.dark .coverage-notes h4 { color: #cbd5e1; }
+        body.dark .coverage-notes li { color: #e5e7eb; }
 
         /* Add loading animation */
         .loading {
@@ -500,6 +525,7 @@
                 <div id="summary" class="summary"></div>
                 <div id="provenance" class="provenance" hidden></div>
                 <div id="uncertainty" class="uncertainty" hidden></div>
+                <div id="coverage-notes" class="coverage-notes" hidden></div>
                 <div class="section-filter">
                     <label for="section-filter">Filter report sections</label>
                     <input id="section-filter" type="search" autocomplete="off" placeholder="Search vulnerabilities, products, actors, or techniques" />
@@ -519,6 +545,7 @@
         const summaryEl = document.getElementById('summary');
         const provenanceEl = document.getElementById('provenance');
         const uncertaintyEl = document.getElementById('uncertainty');
+        const coverageNotesEl = document.getElementById('coverage-notes');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
@@ -944,6 +971,42 @@
             `;
         }
 
+        function buildCoverageNote(label, detail) {
+            const item = document.createElement('li');
+            const labelEl = document.createElement('strong');
+            labelEl.textContent = `${label}: `;
+            item.appendChild(labelEl);
+            item.appendChild(document.createTextNode(detail));
+            return item;
+        }
+
+        function renderCoverageNotes() {
+            const sections = buildFilterGroups().length;
+            const sourceEntries = extractSourceAttributionEntries().length;
+            const uncertaintySignals = countUncertaintySignals();
+            if (!sections && !sourceEntries && !uncertaintySignals) {
+                coverageNotesEl.hidden = true;
+                coverageNotesEl.innerHTML = '';
+                return;
+            }
+            const notes = [
+                buildCoverageNote('Section index', `${sections} rendered report sections are included in the page index and section filter.`),
+                buildCoverageNote('Source coverage', sourceEntries
+                    ? `${sourceEntries} source attribution entries are available in the provenance panel.`
+                    : 'No source attribution entries were found in this rendered report.'),
+                buildCoverageNote('Uncertainty coverage', uncertaintySignals
+                    ? `${uncertaintySignals} uncertainty wording signals are surfaced above the report.`
+                    : 'No uncertainty wording signals were detected in this rendered report.'),
+            ];
+            coverageNotesEl.hidden = false;
+            coverageNotesEl.innerHTML = '';
+            const heading = document.createElement('h4');
+            heading.textContent = 'Report Coverage';
+            const list = document.createElement('ul');
+            notes.forEach(note => list.appendChild(note));
+            coverageNotesEl.append(heading, list);
+        }
+
         function buildFilterGroups() {
             const groups = [];
             let currentHeading = null;
@@ -1107,6 +1170,7 @@
                 computeSummary();
                 renderProvenance();
                 renderUncertaintySignals();
+                renderCoverageNotes();
                 filterSections();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 renderReportMetadata(m ? m[1] : '', isArchiveReport);
