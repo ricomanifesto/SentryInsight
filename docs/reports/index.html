@@ -177,6 +177,28 @@
             font-weight: 700;
             padding: 3px 8px;
         }
+        .archive-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0 0;
+        }
+        .archive-action {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.86rem;
+            font-weight: 700;
+            padding: 5px 9px;
+        }
+        .archive-action:first-child {
+            background: #0f172a;
+            border-color: #0f172a;
+            color: #ffffff;
+        }
+        .archive-action:hover {
+            text-decoration: none;
+        }
         .archive-tags {
             align-items: center;
             display: flex;
@@ -256,6 +278,10 @@
                     sections: 6,
                     topics: 4,
                     uncertaintySignals: 1,
+                },
+                links: {
+                    report: '../index.html?report=reports/index.md',
+                    markdown: 'index.md',
                 },
                 search: 'exploitation report citrixbleed netscaler cve-2025-5777 lapdogs soho routers moveit transfer',
             },
@@ -347,6 +373,24 @@
             return metrics;
         }
 
+        function buildArchiveActionLinks(report) {
+            const actions = document.createElement('div');
+            actions.className = 'archive-actions';
+            [
+                ['Open report', report.links?.report],
+                ['Source markdown', report.links?.markdown],
+            ].forEach(([label, href]) => {
+                if (!href) return;
+                const action = document.createElement('a');
+                action.className = 'archive-action';
+                action.classList.add('archive-focus-target');
+                action.href = href;
+                action.textContent = label;
+                actions.appendChild(action);
+            });
+            return actions;
+        }
+
         function renderArchiveReports() {
             const fragment = document.createDocumentFragment();
             archiveReports.forEach(report => {
@@ -376,6 +420,7 @@
                 summary.textContent = report.summary;
                 article.appendChild(summary);
                 article.appendChild(buildArchiveMetricChips(report));
+                article.appendChild(buildArchiveActionLinks(report));
 
                 const tags = document.createElement('div');
                 tags.className = 'archive-tags';
