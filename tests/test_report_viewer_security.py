@@ -158,6 +158,8 @@ def test_report_archive_route_has_static_index():
     assert "count.textContent = String(total)" in archive
     assert "createElement('article')" in archive
     assert "createElement('button')" in archive
+    assert "archiveTagLabel.className = 'archive-tag-label'" in archive
+    assert "archiveTagLabel.textContent = 'Topics'" in archive
     assert "tag.type = 'button'" in archive
     assert "filterArchiveByTopic(topic)" in archive
     assert ".archive-focus-target:focus-visible" in archive
