@@ -235,6 +235,21 @@ def test_report_archive_entries_render_canonical_coverage_signals():
     assert "article.appendChild(buildArchiveCoverageNotes(report))" in archive
 
 
+def test_report_archive_entries_render_artifact_rows_from_links():
+    archive = ARCHIVE_INDEX.read_text()
+
+    assert "function buildArchiveArtifactRows(report)" in archive
+    assert "archive-artifacts" in archive
+    assert "archive-artifact-table" in archive
+    assert "archiveArtifactLabels" in archive
+    assert "Object.entries(report.links || {})" in archive
+    assert "Artifact" in archive
+    assert "Path" in archive
+    assert "Rendered report" in archive
+    assert "Source markdown" in archive
+    assert "article.appendChild(buildArchiveArtifactRows(report))" in archive
+
+
 def test_report_viewers_include_source_provenance_panel():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()

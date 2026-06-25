@@ -220,6 +220,38 @@
         .archive-coverage-note strong {
             color: var(--text);
         }
+        .archive-artifacts {
+            margin: 12px 0 0;
+            overflow-x: auto;
+        }
+        .archive-artifact-table {
+            border-collapse: collapse;
+            font-size: 0.84rem;
+            min-width: 320px;
+            width: 100%;
+        }
+        .archive-artifact-table th,
+        .archive-artifact-table td {
+            border-bottom: 1px solid var(--border);
+            padding: 6px 0;
+            text-align: left;
+            vertical-align: top;
+        }
+        .archive-artifact-table th {
+            color: var(--muted);
+            font-size: 0.76rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .archive-artifact-table td:first-child {
+            color: var(--text);
+            font-weight: 700;
+            padding-right: 12px;
+            white-space: nowrap;
+        }
+        .archive-artifact-table a {
+            overflow-wrap: anywhere;
+        }
         .archive-tags {
             align-items: center;
             display: flex;
@@ -443,6 +475,46 @@
             return notes;
         }
 
+        const archiveArtifactLabels = {
+            report: 'Rendered report',
+            markdown: 'Source markdown',
+        };
+
+        function buildArchiveArtifactRows(report) {
+            const artifacts = document.createElement('div');
+            artifacts.className = 'archive-artifacts';
+            const table = document.createElement('table');
+            table.className = 'archive-artifact-table';
+            const thead = document.createElement('thead');
+            const header = document.createElement('tr');
+            ['Artifact', 'Path'].forEach(label => {
+                const cell = document.createElement('th');
+                cell.scope = 'col';
+                cell.textContent = label;
+                header.appendChild(cell);
+            });
+            thead.appendChild(header);
+            const tbody = document.createElement('tbody');
+            Object.entries(report.links || {}).forEach(([key, href]) => {
+                const label = archiveArtifactLabels[key];
+                if (!label || !href) return;
+                const row = document.createElement('tr');
+                const labelCell = document.createElement('td');
+                labelCell.textContent = label;
+                const pathCell = document.createElement('td');
+                const link = document.createElement('a');
+                link.classList.add('archive-focus-target');
+                link.href = href;
+                link.textContent = href;
+                pathCell.appendChild(link);
+                row.append(labelCell, pathCell);
+                tbody.appendChild(row);
+            });
+            table.append(thead, tbody);
+            artifacts.appendChild(table);
+            return artifacts;
+        }
+
         function renderArchiveReports() {
             const fragment = document.createDocumentFragment();
             archiveReports.forEach(report => {
@@ -473,6 +545,7 @@
                 article.appendChild(summary);
                 article.appendChild(buildArchiveMetricChips(report));
                 article.appendChild(buildArchiveCoverageNotes(report));
+                article.appendChild(buildArchiveArtifactRows(report));
                 article.appendChild(buildArchiveActionLinks(report));
 
                 const tags = document.createElement('div');
