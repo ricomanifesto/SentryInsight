@@ -97,6 +97,12 @@
             font-size: 0.9rem;
             margin-top: 8px;
         }
+        .archive-filter-summary {
+            color: var(--muted);
+            font-size: 0.86rem;
+            line-height: 1.45;
+            margin-top: 6px;
+        }
         .archive-topic-filters {
             display: flex;
             flex-wrap: wrap;
@@ -313,6 +319,7 @@
             <div class="archive-topic-filters" id="archive-topic-filters" aria-label="Filter by report topic"></div>
             <button class="archive-clear-filters" id="archive-clear-filters" type="button" disabled>Clear filters</button>
             <div class="archive-count" id="archive-count">1 report available</div>
+            <div class="archive-filter-summary" id="archive-filter-summary" aria-live="polite">Showing all archived reports.</div>
         </div>
         <section class="archive-list" id="archive-list" aria-label="Available reports"></section>
         <div class="archive-empty" id="archive-empty" hidden>No archived reports match that filter.</div>
@@ -350,6 +357,7 @@
             },
         ];
         const archiveFilterEl = document.getElementById('archive-filter');
+        const archiveFilterSummaryEl = document.getElementById('archive-filter-summary');
         const archiveSummaryEl = document.getElementById('archive-summary');
         const archiveCountEl = document.getElementById('archive-count');
         const archiveEmptyEl = document.getElementById('archive-empty');
@@ -610,6 +618,17 @@
             return archiveReports.some(report => report.topics.includes(topic)) ? topic : '';
         }
 
+        function renderArchiveFilterSummary(query, visible, total) {
+            if (!query && !activeTopic) {
+                archiveFilterSummaryEl.textContent = 'Showing all archived reports.';
+                return;
+            }
+            const filters = [];
+            if (activeTopic) filters.push(`topic ${activeTopic}`);
+            if (query) filters.push(`search "${query}"`);
+            archiveFilterSummaryEl.textContent = `Filtering by ${filters.join(' and ')}. ${visible} of ${total} ${total === 1 ? 'report' : 'reports'} visible.`;
+        }
+
         function filterArchive(options = {}) {
             const { syncQuery = true } = options;
             const query = archiveFilterEl.value.trim().toLowerCase();
@@ -623,6 +642,7 @@
                 if (match) visible += 1;
             });
             archiveCountEl.textContent = `${visible} ${visible === 1 ? 'report' : 'reports'} shown`;
+            renderArchiveFilterSummary(query, visible, archiveItems.length);
             archiveEmptyEl.hidden = visible !== 0;
             archiveClearFiltersEl.disabled = !query && !activeTopic;
             if (syncQuery) writeArchiveQueryState();

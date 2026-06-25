@@ -175,6 +175,16 @@ def test_report_archive_filter_state_uses_canonical_query_params():
 
     assert "function readArchiveQueryState()" in archive
     assert "function writeArchiveQueryState()" in archive
+    assert 'id="archive-filter-summary"' in archive
+    assert (
+        "const archiveFilterSummaryEl = document.getElementById('archive-filter-summary')"
+        in archive
+    )
+    assert "function renderArchiveFilterSummary(query, visible, total)" in archive
+    assert "archiveFilterSummaryEl.textContent" in archive
+    assert "Filtering by" in archive
+    assert "Showing all archived reports." in archive
+    assert "renderArchiveFilterSummary(query, visible, archiveItems.length)" in archive
     assert "new URLSearchParams(window.location.search)" in archive
     assert "params.get('q')" in archive
     assert "params.get('topic')" in archive
