@@ -211,3 +211,21 @@ def test_report_viewers_include_uncertainty_signal_panel():
         assert "uncertaintyEl.hidden = false" in viewer
         assert "unknown|uncertain|suspected|likely|possible|potential|could" in viewer
         assert "potential, or could" in viewer
+
+
+def test_report_viewers_include_coverage_notes_panel():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert 'id="coverage-notes"' in viewer
+        assert "Report Coverage" in viewer
+        assert "renderCoverageNotes" in viewer
+        assert "buildCoverageNote" in viewer
+        assert "coverageNotesEl.hidden = true" in viewer
+        assert "coverageNotesEl.hidden = false" in viewer
+        assert "const sections = buildFilterGroups().length" in viewer
+        assert "extractSourceAttributionEntries().length" in viewer
+        assert "countUncertaintySignals()" in viewer
+        assert "Section index" in viewer
+        assert "Source coverage" in viewer
+        assert "Uncertainty coverage" in viewer
