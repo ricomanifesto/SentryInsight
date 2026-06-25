@@ -333,6 +333,36 @@
         .section-filter-hidden { display: none !important; }
         body.dark .section-filter { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .section-filter input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
+        .reading-index {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0 0 16px;
+        }
+        .reading-index a {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 5px 9px;
+            text-decoration: none;
+        }
+        .reading-index a:hover {
+            background: #f1f5f9;
+        }
+        #provenance, #coverage-notes, #section-filter-panel, #content {
+            scroll-margin-top: 80px;
+        }
+        body.dark .reading-index a {
+            background: #111827;
+            border-color: #1f2937;
+            color: #e5e7eb;
+        }
+        body.dark .reading-index a:hover {
+            background: #0b1220;
+        }
 
         .provenance {
             border: 1px solid var(--border-color);
@@ -523,10 +553,16 @@
             <main>
                 <div class="meta" id="meta"></div>
                 <div id="summary" class="summary"></div>
+                <nav class="reading-index" aria-label="Report reading sections">
+                    <a id="reading-index-sources" hidden href="#provenance">Sources</a>
+                    <a href="#coverage-notes">Coverage</a>
+                    <a href="#section-filter-panel">Filter</a>
+                    <a href="#content">Report</a>
+                </nav>
                 <div id="provenance" class="provenance" hidden></div>
                 <div id="uncertainty" class="uncertainty" hidden></div>
                 <div id="coverage-notes" class="coverage-notes" hidden></div>
-                <div class="section-filter">
+                <div class="section-filter" id="section-filter-panel">
                     <label for="section-filter">Filter report sections</label>
                     <input id="section-filter" type="search" autocomplete="off" placeholder="Search vulnerabilities, products, actors, or techniques" />
                     <div class="filter-meta" id="section-filter-count"></div>
@@ -546,6 +582,7 @@
         const provenanceEl = document.getElementById('provenance');
         const uncertaintyEl = document.getElementById('uncertainty');
         const coverageNotesEl = document.getElementById('coverage-notes');
+        const readingIndexSourceEl = document.getElementById('reading-index-sources');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
@@ -940,6 +977,10 @@
             provenanceEl.appendChild(renderSourcePreview(sourceEntries));
         }
 
+        function syncReadingIndex() {
+            readingIndexSourceEl.hidden = provenanceEl.hidden;
+        }
+
         function getVisibleReportText() {
             const textRoots = [execEl, contentEl];
             return textRoots.map(root => {
@@ -1156,6 +1197,7 @@
                 renderProvenance();
                 renderUncertaintySignals();
                 renderCoverageNotes();
+                syncReadingIndex();
                 filterSections();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 renderReportMetadata(m ? m[1] : '', isArchiveReport);
