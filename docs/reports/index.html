@@ -63,6 +63,10 @@
             text-decoration: none;
         }
         a:hover { text-decoration: underline; }
+        .archive-focus-target:focus-visible {
+            outline: 3px solid #2563eb;
+            outline-offset: 3px;
+        }
         .back {
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -243,6 +247,7 @@
         function createArchiveTopicButton(topic, total, pressed) {
             const button = document.createElement('button');
             button.type = 'button';
+            button.classList.add('archive-focus-target');
             button.dataset.topic = topic;
             button.setAttribute('aria-pressed', String(pressed));
             const label = document.createElement('span');
@@ -268,6 +273,7 @@
             }
             archiveSummaryEl.textContent = `${reportTotal} ${reportTotal === 1 ? 'archived report' : 'archived reports'} · ${topicTotal} ${topicTotal === 1 ? 'tracked topic' : 'tracked topics'} · Latest archive: `;
             const latestArchiveLink = document.createElement('a');
+            latestArchiveLink.classList.add('archive-focus-target');
             latestArchiveLink.href = latestReport.href;
             latestArchiveLink.textContent = latestReport.archivedLabel;
             archiveSummaryEl.appendChild(latestArchiveLink);
@@ -304,6 +310,7 @@
 
                 const heading = document.createElement('h2');
                 const link = document.createElement('a');
+                link.classList.add('archive-focus-target');
                 link.href = report.href;
                 link.textContent = report.title;
                 heading.appendChild(link);
@@ -328,6 +335,7 @@
                 report.topics.forEach(topic => {
                     const tag = document.createElement('button');
                     tag.className = 'archive-tag';
+                    tag.classList.add('archive-focus-target');
                     tag.type = 'button';
                     tag.textContent = topic;
                     tag.addEventListener('click', () => filterArchiveByTopic(topic));
