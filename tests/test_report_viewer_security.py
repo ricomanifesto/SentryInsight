@@ -80,6 +80,38 @@ def test_report_viewers_include_section_filter_controls():
         assert "sectionFilterEl.addEventListener('input', filterSections)" in viewer
 
 
+def test_report_viewers_expose_static_reading_index():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert 'class="reading-index"' in viewer
+        assert 'aria-label="Report reading sections"' in viewer
+        assert 'id="reading-index-sources"' in viewer
+        assert 'id="reading-index-sources" hidden href="#provenance"' in viewer
+        assert 'href="#provenance"' in viewer
+        assert 'href="#coverage-notes"' in viewer
+        assert 'href="#section-filter-panel"' in viewer
+        assert 'href="#content"' in viewer
+        assert 'id="section-filter-panel"' in viewer
+        assert 'id="provenance"' in viewer
+        assert 'id="coverage-notes"' in viewer
+        assert "#provenance, #coverage-notes, #section-filter-panel, #content" in viewer
+        assert "scroll-margin-top: 80px" in viewer
+        assert (
+            "const readingIndexSourceEl = document.getElementById('reading-index-sources')"
+            in viewer
+        )
+        assert "function syncReadingIndex()" in viewer
+        assert "readingIndexSourceEl.hidden = provenanceEl.hidden" in viewer
+        assert "syncReadingIndex()" in viewer
+        assert ".reading-index" in viewer
+        assert ".reading-index a" in viewer
+        assert "Sources" in viewer
+        assert "Coverage" in viewer
+        assert "Filter" in viewer
+        assert "Report" in viewer
+
+
 def test_report_viewers_include_archive_navigation_affordance():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()
