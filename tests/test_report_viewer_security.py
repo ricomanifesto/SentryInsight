@@ -170,6 +170,24 @@ def test_report_archive_route_has_static_index():
     assert "archiveEmptyEl.hidden = visible !== 0" in archive
 
 
+def test_report_archive_filter_state_uses_canonical_query_params():
+    archive = ARCHIVE_INDEX.read_text()
+
+    assert "function readArchiveQueryState()" in archive
+    assert "function writeArchiveQueryState()" in archive
+    assert "new URLSearchParams(window.location.search)" in archive
+    assert "params.get('q')" in archive
+    assert "params.get('topic')" in archive
+    assert "params.set('q', query)" in archive
+    assert "params.set('topic', activeTopic)" in archive
+    assert "history.replaceState" in archive
+    assert "readArchiveQueryState()" in archive
+    assert "writeArchiveQueryState()" in archive
+    assert "archiveFilterEl.value = query" in archive
+    assert "filterArchiveByTopic(topic, { syncQuery: false })" in archive
+    assert "archiveFilterEl.addEventListener('input', () => filterArchive())" in archive
+
+
 def test_report_viewers_include_source_provenance_panel():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()
