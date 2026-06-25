@@ -160,6 +160,10 @@ def test_report_archive_route_has_static_index():
     assert "createElement('button')" in archive
     assert "tag.type = 'button'" in archive
     assert "filterArchiveByTopic(topic)" in archive
+    assert ".archive-focus-target:focus-visible" in archive
+    assert "outline: 3px solid #2563eb" in archive
+    assert "outline-offset: 3px" in archive
+    assert "classList.add('archive-focus-target')" in archive
     assert "CVE-2025-5777" in archive
     assert "archiveEmptyEl.hidden = visible !== 0" in archive
 
