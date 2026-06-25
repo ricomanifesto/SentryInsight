@@ -198,6 +198,21 @@ def test_report_archive_filter_state_uses_canonical_query_params():
     assert "archiveFilterEl.addEventListener('input', () => filterArchive())" in archive
 
 
+def test_report_archive_exposes_static_section_index():
+    archive = ARCHIVE_INDEX.read_text()
+
+    assert 'class="archive-section-index"' in archive
+    assert 'aria-label="Archive sections"' in archive
+    assert 'href="#archive-filter-panel"' in archive
+    assert 'href="#archive-list"' in archive
+    assert 'id="archive-filter-panel"' in archive
+    assert 'id="archive-list"' in archive
+    assert "Filter" in archive
+    assert "Reports" in archive
+    assert ".archive-section-index" in archive
+    assert ".archive-section-index a" in archive
+
+
 def test_report_archive_entries_render_canonical_metric_chips():
     archive = ARCHIVE_INDEX.read_text()
 
