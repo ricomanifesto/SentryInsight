@@ -439,7 +439,6 @@
             label.textContent = topic || 'All';
             const count = document.createElement('span');
             count.className = 'archive-topic-count';
-            count.setAttribute('aria-label', `${total} ${total === 1 ? 'report' : 'reports'}`);
             count.textContent = String(total);
             button.append(label, ' ', count);
             return button;
