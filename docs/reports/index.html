@@ -435,6 +435,8 @@
             button.classList.add('archive-focus-target');
             button.dataset.topic = topic;
             button.setAttribute('aria-pressed', String(pressed));
+            button.setAttribute('aria-controls', 'archive-results');
+            button.setAttribute('aria-describedby', 'archive-count archive-filter-summary');
             const label = document.createElement('span');
             label.textContent = topic || 'All';
             const count = document.createElement('span');
