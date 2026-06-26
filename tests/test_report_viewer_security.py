@@ -355,6 +355,10 @@ def test_report_archive_route_has_static_index():
     assert 'id="archive-summary"' in archive
     assert 'href="#archive-summary"' in archive
     assert 'id="archive-count"' in archive
+    assert (
+        'id="archive-count" role="status" aria-live="polite" aria-atomic="true"'
+        in archive
+    )
     assert 'href="#archive-results"' in archive
     assert 'class="archive-results" id="archive-results"' in archive
     assert 'id="archive-empty"' in archive
