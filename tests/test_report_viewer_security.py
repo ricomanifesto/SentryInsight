@@ -561,6 +561,8 @@ def test_report_viewers_include_coverage_notes_panel():
         assert "buildCoverageSummaryChip" in viewer
         assert "coverage-summary" in viewer
         assert "coverage-chip" in viewer
+        assert "chip.setAttribute('aria-label'" not in viewer
+        assert "chip.append(valueEl, document.createTextNode(` ${label}`))" in viewer
         assert "coverageNotesEl.hidden = true" in viewer
         assert "coverageNotesEl.hidden = false" in viewer
         assert "const sections = buildFilterGroups().length" in viewer

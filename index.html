@@ -1182,7 +1182,7 @@
             chip.className = 'coverage-chip';
             const valueEl = document.createElement('strong');
             valueEl.textContent = value;
-            chip.append(valueEl, document.createTextNode(label));
+            chip.append(valueEl, document.createTextNode(` ${label}`));
             return chip;
         }
 
