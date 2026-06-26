@@ -479,6 +479,30 @@
             margin: 0 0 6px;
             color: var(--text-secondary);
         }
+        .coverage-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0 0 10px;
+        }
+        .coverage-chip {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 6px;
+            min-width: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 5px 9px;
+            background: #f8fafc;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            line-height: 1.2;
+            white-space: normal;
+        }
+        .coverage-chip strong {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
         .coverage-notes ul {
             margin: 0;
             padding-left: 18px;
@@ -493,6 +517,8 @@
         body.dark .coverage-notes { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .coverage-notes h4 { color: #cbd5e1; }
         body.dark .coverage-notes li { color: #e5e7eb; }
+        body.dark .coverage-chip { background: #0b1220; border-color: #1f2937; color: #cbd5e1; }
+        body.dark .coverage-chip strong { color: #e5e7eb; }
 
         /* Add loading animation */
         .loading {
@@ -1151,6 +1177,15 @@
             return item;
         }
 
+        function buildCoverageSummaryChip(label, value) {
+            const chip = document.createElement('span');
+            chip.className = 'coverage-chip';
+            const valueEl = document.createElement('strong');
+            valueEl.textContent = value;
+            chip.append(valueEl, document.createTextNode(label));
+            return chip;
+        }
+
         function renderCoverageNotes() {
             const sections = buildFilterGroups().length;
             const sourceEntries = extractSourceAttributionEntries().length;
@@ -1174,9 +1209,16 @@
             coverageNotesEl.innerHTML = '';
             const heading = document.createElement('h4');
             heading.textContent = 'Report Coverage';
+            const summary = document.createElement('div');
+            summary.className = 'coverage-summary';
+            summary.append(
+                buildCoverageSummaryChip('Sections', String(sections)),
+                buildCoverageSummaryChip('Sources', String(sourceEntries)),
+                buildCoverageSummaryChip('Uncertainty', String(uncertaintySignals))
+            );
             const list = document.createElement('ul');
             notes.forEach(note => list.appendChild(note));
-            coverageNotesEl.append(heading, list);
+            coverageNotesEl.append(heading, summary, list);
         }
 
         function buildFilterGroups() {

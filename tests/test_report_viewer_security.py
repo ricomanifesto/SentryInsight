@@ -558,14 +558,21 @@ def test_report_viewers_include_coverage_notes_panel():
         assert "Report Coverage" in viewer
         assert "renderCoverageNotes" in viewer
         assert "buildCoverageNote" in viewer
+        assert "buildCoverageSummaryChip" in viewer
+        assert "coverage-summary" in viewer
+        assert "coverage-chip" in viewer
         assert "coverageNotesEl.hidden = true" in viewer
         assert "coverageNotesEl.hidden = false" in viewer
         assert "const sections = buildFilterGroups().length" in viewer
         assert "extractSourceAttributionEntries().length" in viewer
         assert "countUncertaintySignals()" in viewer
+        assert "Sections" in viewer
+        assert "Sources" in viewer
+        assert "Uncertainty" in viewer
         assert "Section index" in viewer
         assert "Source coverage" in viewer
         assert "Uncertainty coverage" in viewer
+        assert "coverageNotesEl.append(heading, summary, list)" in viewer
 
 
 def test_report_viewers_include_loaded_artifact_in_coverage_notes():
