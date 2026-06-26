@@ -425,6 +425,32 @@ def test_report_viewers_include_source_provenance_panel():
         assert "provenanceEl.hidden = false" in viewer
 
 
+def test_report_viewers_render_source_entries_as_evidence_rows():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert "function parseSourceAttributionEntry(entry)" in viewer
+        assert "function renderSourceEvidenceRows(sourceEntries)" in viewer
+        assert "const titleEl = li.querySelector('strong')" in viewer
+        assert "entries.push({ raw, title, attribution })" in viewer
+        assert "const titleFromMarkup = entry.title || ''" in viewer
+        assert r"attribution.match(/\bhttps?:\/\/\S+/i)" in viewer
+        assert r"replace(/[.,;]+$/, '')" in viewer
+        assert "source-evidence-table" in viewer
+        assert "source-evidence-row" in viewer
+        assert "Source" in viewer
+        assert "Evidence" in viewer
+        assert "Link" in viewer
+        assert "row.link ? 'Available' : 'Not provided'" in viewer
+        assert "link.rel = 'noopener noreferrer'" in viewer
+        assert "link.target = '_blank'" in viewer
+        assert "raw: entry" in viewer
+        assert (
+            "provenanceEl.appendChild(renderSourceEvidenceRows(sourceEntries))"
+            in viewer
+        )
+
+
 def test_report_viewers_include_uncertainty_signal_panel():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()
