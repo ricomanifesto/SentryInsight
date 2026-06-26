@@ -26,6 +26,7 @@ def clean_article_link(value: Any) -> str:
 
 def collect_source_attribution_entries(articles: list[Dict[str, Any]]) -> list[str]:
     entries: list[str] = []
+    seen_entries: set[str] = set()
     for article in articles:
         title = clean_article_text(article.get("title"), "Untitled article")
         title = title or "Untitled article"
@@ -33,10 +34,16 @@ def collect_source_attribution_entries(articles: list[Dict[str, Any]]) -> list[s
         link = clean_article_link(article.get("link"))
 
         if link and source:
-            entries.append(f"- **{title}**: {source} - {link}")
+            entry = f"- **{title}**: {source} - {link}"
         elif link:
-            entries.append(f"- **{title}**: {link}")
+            entry = f"- **{title}**: {link}"
         elif source:
-            entries.append(f"- **{title}**: {source}")
+            entry = f"- **{title}**: {source}"
+        else:
+            continue
+
+        if entry not in seen_entries:
+            entries.append(entry)
+            seen_entries.add(entry)
 
     return entries

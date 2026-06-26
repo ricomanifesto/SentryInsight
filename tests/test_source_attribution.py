@@ -52,6 +52,33 @@ class SourceAttributionTests(unittest.TestCase):
             ],
         )
 
+    def test_source_attribution_entries_deduplicate_canonical_rows(self):
+        self.assertEqual(
+            collect_source_attribution_entries(
+                [
+                    {
+                        "title": "First report",
+                        "source": "Example Source",
+                        "link": "https://example.test/first",
+                    },
+                    {
+                        "title": "First report",
+                        "source": "Example Source",
+                        "link": "https://example.test/first",
+                    },
+                    {
+                        "title": "Second report",
+                        "source": "Example Source",
+                        "link": "https://example.test/second",
+                    },
+                ]
+            ),
+            [
+                "- **First report**: Example Source - https://example.test/first",
+                "- **Second report**: Example Source - https://example.test/second",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
