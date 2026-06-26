@@ -119,6 +119,10 @@ def test_report_viewers_include_section_filter_controls():
 
         assert 'id="section-filter"' in viewer
         assert 'id="section-filter-count"' in viewer
+        assert (
+            'id="section-filter-count" role="status" aria-live="polite" aria-atomic="true"'
+            in viewer
+        )
         assert 'id="section-filter-empty"' in viewer
         assert 'id="section-filter-clear-empty"' in viewer
         assert "filterSections" in viewer
