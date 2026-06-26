@@ -26,6 +26,17 @@ def main() -> int:
         default="index.md",
         help="Path to the generated markdown report.",
     )
+    parser.add_argument(
+        "--require-source-attribution",
+        action="store_true",
+        help="Fail unless the report contains the expected Source Attribution rows.",
+    )
+    parser.add_argument(
+        "--source-attribution-entry",
+        action="append",
+        default=[],
+        help="Expected canonical Source Attribution row. May be repeated.",
+    )
     args = parser.parse_args()
 
     report_path = Path(args.report_path)
@@ -33,7 +44,13 @@ def main() -> int:
         print(f"Report does not exist: {report_path}")
         return 1
 
-    issues = validate_report_content(report_path.read_text())
+    issues = validate_report_content(
+        report_path.read_text(),
+        require_source_attribution=args.require_source_attribution,
+        source_attribution_entries=(
+            args.source_attribution_entry if args.source_attribution_entry else None
+        ),
+    )
     if issues:
         print("Report content validation failed:")
         print(format_report_validation_issues(issues))
