@@ -277,6 +277,32 @@ def test_report_viewers_render_load_error_details_as_text():
         assert "<pre>${error}</pre>" not in viewer
 
 
+def test_report_viewers_reset_report_chrome_on_load_error():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert "metaEl.textContent = 'Report unavailable'" in viewer
+        assert "summaryEl.textContent = ''" in viewer
+        assert "tocEl.textContent = ''" in viewer
+        assert "execEl.textContent = ''" in viewer
+        assert "sectionFilterCountEl.textContent = ''" in viewer
+        assert "sectionFilterEmptyEl.style.display = 'none'" in viewer
+        assert "provenanceEl.hidden = true" in viewer
+        assert "provenanceEl.textContent = ''" in viewer
+        assert "uncertaintyEl.hidden = true" in viewer
+        assert "uncertaintyEl.textContent = ''" in viewer
+        assert "coverageNotesEl.hidden = true" in viewer
+        assert "coverageNotesEl.textContent = ''" in viewer
+        assert (
+            "syncReadingIndex()"
+            in viewer[
+                viewer.index("function renderReportLoadError(error)") : viewer.index(
+                    "Promise.all([configPromise])"
+                )
+            ]
+        )
+
+
 def test_report_archive_route_has_static_index():
     archive = ARCHIVE_INDEX.read_text()
 

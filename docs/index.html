@@ -1322,6 +1322,19 @@
         const isArchiveReport = reportPath !== 'index.md';
         markdownLinkEl.href = reportPath;
         function renderReportLoadError(error) {
+            metaEl.textContent = 'Report unavailable';
+            summaryEl.textContent = '';
+            tocEl.textContent = '';
+            execEl.textContent = '';
+            sectionFilterCountEl.textContent = '';
+            sectionFilterEmptyEl.style.display = 'none';
+            provenanceEl.hidden = true;
+            provenanceEl.textContent = '';
+            uncertaintyEl.hidden = true;
+            uncertaintyEl.textContent = '';
+            coverageNotesEl.hidden = true;
+            coverageNotesEl.textContent = '';
+            syncReadingIndex();
             const heading = document.createElement('h1');
             heading.textContent = 'Error Loading Report';
             const message = document.createElement('p');
