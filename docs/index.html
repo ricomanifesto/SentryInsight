@@ -102,6 +102,12 @@
             align-items: start;
             margin-top: 16px;
         }
+        .layout.report-unavailable {
+            grid-template-columns: minmax(0, 1fr);
+        }
+        .layout.report-unavailable main {
+            grid-column: 1;
+        }
         .layout > *, main, aside#toc, #content {
             min-width: 0;
         }
@@ -354,6 +360,9 @@
             flex-wrap: wrap;
             gap: 8px;
             margin: 0 0 16px;
+        }
+        .reading-index[hidden] {
+            display: none;
         }
         .reading-index a {
             border: 1px solid var(--border-color);
@@ -648,19 +657,23 @@
     </div>
 
     <script>
+        const layoutEl = document.querySelector('.layout');
         const contentEl = document.getElementById('content');
         const tocEl = document.getElementById('toc-list');
+        const tocAsideEl = document.getElementById('toc');
         const metaEl = document.getElementById('meta');
         const summaryEl = document.getElementById('summary');
         const provenanceEl = document.getElementById('provenance');
         const uncertaintyEl = document.getElementById('uncertainty');
         const coverageNotesEl = document.getElementById('coverage-notes');
+        const readingIndexEl = document.querySelector('.reading-index');
         const readingIndexSourceEl = document.getElementById('reading-index-sources');
         const readingIndexUncertaintyEl = document.getElementById('reading-index-uncertainty');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const markdownLinkEl = document.getElementById('markdown-link');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
+        const sectionFilterPanelEl = document.getElementById('section-filter-panel');
         const sectionFilterEl = document.getElementById('section-filter');
         const sectionFilterCountEl = document.getElementById('section-filter-count');
         const sectionFilterEmptyEl = document.getElementById('section-filter-empty');
@@ -1322,10 +1335,15 @@
         const isArchiveReport = reportPath !== 'index.md';
         markdownLinkEl.href = reportPath;
         function renderReportLoadError(error) {
+            layoutEl.classList.add('report-unavailable');
             metaEl.textContent = 'Report unavailable';
             summaryEl.textContent = '';
             tocEl.textContent = '';
+            tocAsideEl.classList.add('hidden');
             execEl.textContent = '';
+            readingIndexEl.hidden = true;
+            sectionFilterPanelEl.hidden = true;
+            sectionFilterEl.value = '';
             sectionFilterCountEl.textContent = '';
             sectionFilterEmptyEl.style.display = 'none';
             provenanceEl.hidden = true;
@@ -1356,6 +1374,10 @@
             }));
           })
           .then(({ text, lastModified }) => {
+                layoutEl.classList.remove('report-unavailable');
+                tocAsideEl.classList.remove('hidden');
+                readingIndexEl.hidden = false;
+                sectionFilterPanelEl.hidden = false;
                 markdownCache = text;
                 let html = DOMPurify.sanitize(marked.parse(text));
                 contentEl.innerHTML = html;
