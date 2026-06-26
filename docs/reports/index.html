@@ -646,6 +646,8 @@
                     tag.className = 'archive-tag';
                     tag.classList.add('archive-focus-target');
                     tag.type = 'button';
+                    tag.setAttribute('aria-controls', 'archive-results');
+                    tag.setAttribute('aria-describedby', 'archive-count archive-filter-summary');
                     tag.textContent = topic;
                     tag.addEventListener('click', () => filterArchiveByTopic(topic));
                     tags.appendChild(tag);
