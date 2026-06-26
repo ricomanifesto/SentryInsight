@@ -330,6 +330,21 @@
             margin: 12px 0;
             text-align: center;
         }
+        .section-filter-empty p {
+            margin: 0;
+        }
+        .section-filter-empty button {
+            background: var(--text-primary);
+            border: 1px solid var(--text-primary);
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.86rem;
+            font-weight: 600;
+            margin-top: 10px;
+            padding: 6px 10px;
+        }
         .section-filter-hidden { display: none !important; }
         body.dark .section-filter { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .section-filter input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
@@ -567,7 +582,10 @@
                     <input id="section-filter" type="search" autocomplete="off" placeholder="Search vulnerabilities, products, actors, or techniques" />
                     <div class="filter-meta" id="section-filter-count"></div>
                 </div>
-                <div class="section-filter-empty" id="section-filter-empty">No matching report sections.</div>
+                <div class="section-filter-empty" id="section-filter-empty">
+                    <p>No matching report sections.</p>
+                    <button id="section-filter-clear-empty" type="button">Clear filter</button>
+                </div>
                 <div id="exec" class="exec"></div>
                 <div id="content" class="markdown-body"></div>
             </main>
@@ -589,6 +607,7 @@
         const sectionFilterEl = document.getElementById('section-filter');
         const sectionFilterCountEl = document.getElementById('section-filter-count');
         const sectionFilterEmptyEl = document.getElementById('section-filter-empty');
+        const sectionFilterClearEmptyEl = document.getElementById('section-filter-clear-empty');
 
         // Initial UI state
         contentEl.innerHTML = '<div class="loading">Loading exploitation report...</div>';
@@ -1217,6 +1236,11 @@
             localStorage.setItem('sentryinsight:theme', mode);
         });
         sectionFilterEl.addEventListener('input', filterSections);
+        sectionFilterClearEmptyEl.addEventListener('click', () => {
+            sectionFilterEl.value = '';
+            filterSections();
+            sectionFilterEl.focus();
+        });
         wireShortcuts();
 
         // Copy heading link via anchor click

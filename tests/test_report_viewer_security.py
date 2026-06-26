@@ -68,6 +68,7 @@ def test_report_viewers_include_section_filter_controls():
         assert 'id="section-filter"' in viewer
         assert 'id="section-filter-count"' in viewer
         assert 'id="section-filter-empty"' in viewer
+        assert 'id="section-filter-clear-empty"' in viewer
         assert "filterSections" in viewer
         assert "buildFilterGroups" in viewer
         assert "flushDirectGroup" in viewer
@@ -78,6 +79,9 @@ def test_report_viewers_include_section_filter_controls():
         assert "contentEl.querySelectorAll('.section-collapsible')" in viewer
         assert "section-filter-hidden" in viewer
         assert "sectionFilterEl.addEventListener('input', filterSections)" in viewer
+        assert "sectionFilterClearEmptyEl.addEventListener('click'" in viewer
+        assert "sectionFilterEl.value = ''" in viewer
+        assert "sectionFilterEl.focus()" in viewer
 
 
 def test_report_viewers_expose_static_reading_index():
