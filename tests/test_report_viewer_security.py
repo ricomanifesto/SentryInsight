@@ -39,6 +39,11 @@ def run_source_attribution_parser(viewer):
             "title": "Parenthesized URL report",
             "attribution": "Example Source - https://example.test/report(1)",
         },
+        {
+            "raw": "- **Critical **edge** [gateway] _update_ \\ <em>`advisory`</em> & ~~notes~~**: Vendor **Research** [Team] _analysis_ \\ <desk>`notes`</desk> & ~~feed~~ - https://example.test/report(1)",
+            "title": "Critical **edge** [gateway] _update_ \\ <em>`advisory`</em> & ~~notes~~",
+            "attribution": "Vendor **Research** [Team] _analysis_ \\ <desk>`notes`</desk> & ~~feed~~ - https://example.test/report(1)",
+        },
     ]
     script = textwrap.dedent(f"""
         {parser}
@@ -511,6 +516,12 @@ def test_report_viewers_parse_source_entries_behaviorally():
             "source": "Example Source",
             "link": "https://example.test/report(1)",
             "raw": "- **Parenthesized URL report**: Example Source - https://example.test/report(1)",
+        },
+        {
+            "title": "Critical **edge** [gateway] _update_ \\ <em>`advisory`</em> & ~~notes~~",
+            "source": "Vendor **Research** [Team] _analysis_ \\ <desk>`notes`</desk> & ~~feed~~",
+            "link": "https://example.test/report(1)",
+            "raw": "- **Critical **edge** [gateway] _update_ \\ <em>`advisory`</em> & ~~notes~~**: Vendor **Research** [Team] _analysis_ \\ <desk>`notes`</desk> & ~~feed~~ - https://example.test/report(1)",
         },
     ]
     for viewer_path in REPORT_VIEWERS:
