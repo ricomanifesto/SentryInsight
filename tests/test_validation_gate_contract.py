@@ -10,6 +10,28 @@ def test_local_validation_checks_root_and_docs_report_markdown():
     assert "scripts/validate_report.py docs/index.md" in script
 
 
+def test_local_validation_checks_source_attribution_fixture():
+    script = (REPO_ROOT / "scripts" / "local_validation.sh").read_text()
+
+    assert (
+        "scripts/validate_report.py tests/fixtures/source_attribution_report.md"
+        in script
+    )
+    assert "--require-source-attribution" in script
+    assert (
+        "--source-attribution-entry '- **CISA: exploited KEV update**: "
+        "Example Research - https://example.test/kev'"
+    ) in script
+    assert (
+        "--source-attribution-entry '- **Parenthesized URL report**: "
+        "Example Source - https://example.test/report(1)'"
+    ) in script
+    assert (
+        "--source-attribution-entry '- **Source-only exploitation report**: "
+        "Example Source'"
+    ) in script
+
+
 def test_generate_report_workflow_checks_root_and_docs_report_markdown():
     workflow = (REPO_ROOT / ".github" / "workflows" / "generate-report.yml").read_text()
 
