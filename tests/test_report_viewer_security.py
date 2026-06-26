@@ -438,3 +438,16 @@ def test_report_viewers_include_coverage_notes_panel():
         assert "Section index" in viewer
         assert "Source coverage" in viewer
         assert "Uncertainty coverage" in viewer
+
+
+def test_report_viewers_include_loaded_artifact_in_coverage_notes():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert "Report artifact" in viewer
+        assert "reportPath" in viewer
+        assert "Loaded markdown artifact: ${reportPath}." in viewer
+        assert (
+            "buildCoverageNote('Report artifact', `Loaded markdown artifact: ${reportPath}.`)"
+            in viewer
+        )
