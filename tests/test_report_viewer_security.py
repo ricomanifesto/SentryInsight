@@ -200,6 +200,7 @@ def test_report_archive_route_has_static_index():
     assert "index.md" in archive
     assert 'id="archive-filter"' in archive
     assert 'id="archive-summary"' in archive
+    assert 'href="#archive-summary"' in archive
     assert 'id="archive-count"' in archive
     assert 'href="#archive-results"' in archive
     assert 'class="archive-results" id="archive-results"' in archive
@@ -284,11 +285,16 @@ def test_report_archive_exposes_static_section_index():
 
     assert 'class="archive-section-index"' in archive
     assert 'aria-label="Archive sections"' in archive
+    assert 'href="#archive-summary"' in archive
     assert 'href="#archive-filter-panel"' in archive
     assert 'href="#archive-results"' in archive
+    assert 'id="archive-summary"' in archive
     assert 'id="archive-filter-panel"' in archive
     assert 'id="archive-results"' in archive
     assert 'id="archive-list"' in archive
+    assert "#archive-summary, #archive-filter-panel, #archive-results" in archive
+    assert "scroll-margin-top: 32px" in archive
+    assert "Latest" in archive
     assert "Filter" in archive
     assert "Reports" in archive
     assert ".archive-section-index" in archive
