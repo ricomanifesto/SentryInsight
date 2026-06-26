@@ -95,11 +95,21 @@ def test_report_viewers_expose_static_reading_index():
         assert 'href="#provenance"' in viewer
         assert 'href="#coverage-notes"' in viewer
         assert 'href="#section-filter-panel"' in viewer
-        assert 'href="#content"' in viewer
+        assert 'href="#report-results"' in viewer
         assert 'id="section-filter-panel"' in viewer
+        assert 'id="report-results"' in viewer
+        assert 'aria-label="Report sections"' in viewer
+        assert 'id="content"' in viewer
+        assert viewer.index('id="report-results"') < viewer.index(
+            'id="section-filter-empty"'
+        )
+        assert viewer.index('id="report-results"') < viewer.index('id="content"')
         assert 'id="provenance"' in viewer
         assert 'id="coverage-notes"' in viewer
-        assert "#provenance, #coverage-notes, #section-filter-panel, #content" in viewer
+        assert (
+            "#provenance, #coverage-notes, #section-filter-panel, #report-results, #content"
+            in viewer
+        )
         assert "scroll-margin-top: 80px" in viewer
         assert (
             "const readingIndexSourceEl = document.getElementById('reading-index-sources')"
