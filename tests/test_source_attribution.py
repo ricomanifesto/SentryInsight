@@ -79,6 +79,26 @@ class SourceAttributionTests(unittest.TestCase):
             ],
         )
 
+    def test_source_attribution_entries_escape_markdown_text_metadata(self):
+        self.assertEqual(
+            collect_source_attribution_entries(
+                [
+                    {
+                        "title": r"Critical **edge** [gateway] _update_ \ <em>`advisory`</em> & ~~notes~~",
+                        "source": r"Vendor **Research** [Team] _analysis_ \ <desk>`notes`</desk> & ~~feed~~",
+                        "link": "https://example.test/report(1)",
+                    }
+                ]
+            ),
+            [
+                r"- **Critical \*\*edge\*\* \[gateway\] \_update\_ \\ "
+                r"\<em\>\`advisory\`\</em\> \& \~\~notes\~\~**: "
+                r"Vendor \*\*Research\*\* \[Team\] \_analysis\_ \\ "
+                r"\<desk\>\`notes\`\</desk\> \& \~\~feed\~\~ - "
+                "https://example.test/report(1)"
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
