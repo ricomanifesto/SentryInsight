@@ -317,6 +317,7 @@ def test_report_viewers_hide_report_navigation_on_load_error():
             )
         ]
 
+        assert "const tocAsideEl = document.getElementById('toc')" in viewer
         assert (
             "const readingIndexEl = document.querySelector('.reading-index')" in viewer
         )
@@ -324,9 +325,11 @@ def test_report_viewers_hide_report_navigation_on_load_error():
             "const sectionFilterPanelEl = document.getElementById('section-filter-panel')"
             in viewer
         )
+        assert "tocAsideEl.classList.add('hidden')" in load_error_helper
         assert "readingIndexEl.hidden = true" in load_error_helper
         assert "sectionFilterPanelEl.hidden = true" in load_error_helper
         assert "sectionFilterEl.value = ''" in load_error_helper
+        assert "tocAsideEl.classList.remove('hidden')" in success_path
         assert "readingIndexEl.hidden = false" in success_path
         assert "sectionFilterPanelEl.hidden = false" in success_path
 

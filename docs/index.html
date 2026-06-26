@@ -650,6 +650,7 @@
     <script>
         const contentEl = document.getElementById('content');
         const tocEl = document.getElementById('toc-list');
+        const tocAsideEl = document.getElementById('toc');
         const metaEl = document.getElementById('meta');
         const summaryEl = document.getElementById('summary');
         const provenanceEl = document.getElementById('provenance');
@@ -1327,6 +1328,7 @@
             metaEl.textContent = 'Report unavailable';
             summaryEl.textContent = '';
             tocEl.textContent = '';
+            tocAsideEl.classList.add('hidden');
             execEl.textContent = '';
             readingIndexEl.hidden = true;
             sectionFilterPanelEl.hidden = true;
@@ -1361,6 +1363,7 @@
             }));
           })
           .then(({ text, lastModified }) => {
+                tocAsideEl.classList.remove('hidden');
                 readingIndexEl.hidden = false;
                 sectionFilterPanelEl.hidden = false;
                 markdownCache = text;
