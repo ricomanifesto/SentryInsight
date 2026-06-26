@@ -655,12 +655,14 @@
         const provenanceEl = document.getElementById('provenance');
         const uncertaintyEl = document.getElementById('uncertainty');
         const coverageNotesEl = document.getElementById('coverage-notes');
+        const readingIndexEl = document.querySelector('.reading-index');
         const readingIndexSourceEl = document.getElementById('reading-index-sources');
         const readingIndexUncertaintyEl = document.getElementById('reading-index-uncertainty');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const markdownLinkEl = document.getElementById('markdown-link');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
+        const sectionFilterPanelEl = document.getElementById('section-filter-panel');
         const sectionFilterEl = document.getElementById('section-filter');
         const sectionFilterCountEl = document.getElementById('section-filter-count');
         const sectionFilterEmptyEl = document.getElementById('section-filter-empty');
@@ -1326,6 +1328,9 @@
             summaryEl.textContent = '';
             tocEl.textContent = '';
             execEl.textContent = '';
+            readingIndexEl.hidden = true;
+            sectionFilterPanelEl.hidden = true;
+            sectionFilterEl.value = '';
             sectionFilterCountEl.textContent = '';
             sectionFilterEmptyEl.style.display = 'none';
             provenanceEl.hidden = true;
@@ -1356,6 +1361,8 @@
             }));
           })
           .then(({ text, lastModified }) => {
+                readingIndexEl.hidden = false;
+                sectionFilterPanelEl.hidden = false;
                 markdownCache = text;
                 let html = DOMPurify.sanitize(marked.parse(text));
                 contentEl.innerHTML = html;

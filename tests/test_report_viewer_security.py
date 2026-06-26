@@ -303,6 +303,34 @@ def test_report_viewers_reset_report_chrome_on_load_error():
         )
 
 
+def test_report_viewers_hide_report_navigation_on_load_error():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+        load_error_helper = viewer[
+            viewer.index("function renderReportLoadError(error)") : viewer.index(
+                "Promise.all([configPromise])"
+            )
+        ]
+        success_path = viewer[
+            viewer.index(".then(({ text, lastModified }) => {") : viewer.index(
+                "markdownCache = text;"
+            )
+        ]
+
+        assert (
+            "const readingIndexEl = document.querySelector('.reading-index')" in viewer
+        )
+        assert (
+            "const sectionFilterPanelEl = document.getElementById('section-filter-panel')"
+            in viewer
+        )
+        assert "readingIndexEl.hidden = true" in load_error_helper
+        assert "sectionFilterPanelEl.hidden = true" in load_error_helper
+        assert "sectionFilterEl.value = ''" in load_error_helper
+        assert "readingIndexEl.hidden = false" in success_path
+        assert "sectionFilterPanelEl.hidden = false" in success_path
+
+
 def test_report_archive_route_has_static_index():
     archive = ARCHIVE_INDEX.read_text()
 
