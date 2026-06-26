@@ -186,9 +186,21 @@ def test_report_viewers_label_archived_report_metadata():
         viewer = viewer_path.read_text()
 
         assert "renderReportMetadata" in viewer
+        assert (
+            "function renderReportMetadata(dateStr, archiveReport, fallbackDateStr = '')"
+            in viewer
+        )
         assert "Archived report" in viewer
         assert "Latest report" in viewer
         assert "metaEl.textContent = `Last updated:" not in viewer
+        assert "const d = new Date()" not in viewer
+        assert "dateStr || now" not in viewer
+        assert "response.headers.get('Last-Modified') || ''" in viewer
+        assert (
+            "renderReportMetadata(m ? m[1] : '', isArchiveReport, lastModified)"
+            in viewer
+        )
+        assert "fallbackDateStr ? new Date(fallbackDateStr) : null" in viewer
 
 
 def test_report_archive_route_has_static_index():

@@ -894,14 +894,19 @@
             });
         }
 
-        function renderReportMetadata(dateStr, archiveReport) {
-            const d = new Date();
-            const now = d.toLocaleString();
+        function renderReportMetadata(dateStr, archiveReport, fallbackDateStr = '') {
             if (archiveReport) {
                 metaEl.textContent = 'Archived report';
                 return;
             }
-            metaEl.textContent = `Latest report · Last updated: ${dateStr || now}`;
+            const fallbackDate = fallbackDateStr ? new Date(fallbackDateStr) : null;
+            const fallbackLabel = fallbackDate && !Number.isNaN(fallbackDate.getTime())
+                ? fallbackDate.toLocaleString()
+                : '';
+            const dateLabel = dateStr || fallbackLabel;
+            metaEl.textContent = dateLabel
+                ? `Latest report · Last updated: ${dateLabel}`
+                : 'Latest report';
         }
 
         function computeSummary() {
@@ -1180,8 +1185,11 @@
         markdownLinkEl.href = reportPath;
         Promise.all([configPromise])
           .then(() => fetch(reportPath + '?v=' + Date.now(), { cache: 'no-store' }))
-          .then(response => response.text())
-          .then(text => {
+          .then(response => response.text().then(text => ({
+                text,
+                lastModified: response.headers.get('Last-Modified') || '',
+          })))
+          .then(({ text, lastModified }) => {
                 markdownCache = text;
                 let html = DOMPurify.sanitize(marked.parse(text));
                 contentEl.innerHTML = html;
@@ -1246,7 +1254,7 @@
                 syncReadingIndex();
                 filterSections();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
-                renderReportMetadata(m ? m[1] : '', isArchiveReport);
+                renderReportMetadata(m ? m[1] : '', isArchiveReport, lastModified);
           })
             .catch(error => {
                 contentEl.innerHTML = `
