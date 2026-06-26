@@ -313,6 +313,8 @@ def test_report_archive_route_has_static_index():
     assert "topicCounts" in archive
     assert "label.textContent = topic || 'All'" in archive
     assert "count.textContent = String(total)" in archive
+    assert "count.setAttribute('aria-label'" not in archive
+    assert "button.append(label, ' ', count)" in archive
     assert "createElement('article')" in archive
     assert "createElement('button')" in archive
     assert "archiveTagLabel.className = 'archive-tag-label'" in archive
