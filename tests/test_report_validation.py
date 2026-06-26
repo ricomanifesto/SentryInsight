@@ -3,6 +3,7 @@ from pathlib import Path
 
 from src.core.report_validation import (
     ensure_source_attribution_section,
+    render_source_attribution_section,
     validate_report_content,
 )
 
@@ -87,6 +88,29 @@ class ReportValidationTests(unittest.TestCase):
                 ],
             ),
             [],
+        )
+
+    def test_render_source_attribution_section_deduplicates_entries(self):
+        section = render_source_attribution_section(
+            [
+                "- **Example exploitation report**: Example Source - https://example.test/report",
+                "  - **Example exploitation report**: Example Source - https://example.test/report  ",
+                "",
+                "- **Second exploitation report**: Example Source - https://example.test/second",
+            ]
+        )
+
+        self.assertEqual(
+            section,
+            "\n".join(
+                [
+                    "## Source Attribution",
+                    "",
+                    "- **Example exploitation report**: Example Source - https://example.test/report",
+                    "- **Second exploitation report**: Example Source - https://example.test/second",
+                    "",
+                ]
+            ),
         )
 
     def test_ensure_source_attribution_section_replaces_existing_section(self):

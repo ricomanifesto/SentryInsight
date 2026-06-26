@@ -612,7 +612,15 @@ def remove_source_attribution_section(markdown: str) -> str:
 
 
 def render_source_attribution_section(source_attribution_entries: Iterable[str]) -> str:
-    entries = [entry.strip() for entry in source_attribution_entries if entry.strip()]
+    entries: list[str] = []
+    seen_entries: set[str] = set()
+    for entry in source_attribution_entries:
+        cleaned_entry = entry.strip()
+        if not cleaned_entry or cleaned_entry in seen_entries:
+            continue
+        entries.append(cleaned_entry)
+        seen_entries.add(cleaned_entry)
+
     if not entries:
         return ""
     return f"{SOURCE_ATTRIBUTION_SECTION}\n\n" + "\n".join(entries) + "\n"
