@@ -266,6 +266,17 @@ def test_report_viewers_reject_failed_markdown_fetches_before_rendering():
         assert "DOMPurify.sanitize(marked.parse(text))" in viewer
 
 
+def test_report_viewers_render_load_error_details_as_text():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert "function renderReportLoadError(error)" in viewer
+        assert "contentEl.textContent = ''" in viewer
+        assert "pre.textContent = String(error)" in viewer
+        assert "renderReportLoadError(error)" in viewer
+        assert "<pre>${error}</pre>" not in viewer
+
+
 def test_report_archive_route_has_static_index():
     archive = ARCHIVE_INDEX.read_text()
 
