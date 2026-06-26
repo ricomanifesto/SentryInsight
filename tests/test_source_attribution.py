@@ -35,6 +35,23 @@ class SourceAttributionTests(unittest.TestCase):
             ["- **URL-backed report**: https://example.test/report"],
         )
 
+    def test_source_attribution_entries_collapse_metadata_whitespace(self):
+        self.assertEqual(
+            collect_source_attribution_entries(
+                [
+                    {
+                        "title": "Multiline\n exploitation\t report",
+                        "source": "Example\n Research\tTeam",
+                        "link": "https://example.test/\n report",
+                    }
+                ]
+            ),
+            [
+                "- **Multiline exploitation report**: "
+                "Example Research Team - https://example.test/report"
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
