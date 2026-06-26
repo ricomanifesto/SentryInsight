@@ -66,5 +66,10 @@ jobs:
             git add -f docs/index.html || true
             git add -f docs/executive_summary.mp3 || true
           fi
-          git commit -m "Update exploitation report [automated]" || echo "No changes to commit"
-          git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git
+          if git diff --cached --quiet; then
+            echo "No report changes to commit"
+            exit 0
+          fi
+          git commit -m "Update exploitation report [automated]"
+          git pull --rebase origin main
+          git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git HEAD:main
