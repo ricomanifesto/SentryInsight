@@ -1,10 +1,57 @@
 from pathlib import Path
+import json
+import subprocess
+import textwrap
 
 REPORT_VIEWERS = (
     Path("index.html"),
     Path("docs/index.html"),
 )
 ARCHIVE_INDEX = Path("docs/reports/index.html")
+
+
+def extract_js_function(source, function_name):
+    signature = f"function {function_name}"
+    start = source.index(signature)
+    body_start = source.index("{", start)
+    depth = 0
+    for index in range(body_start, len(source)):
+        char = source[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return source[start : index + 1]
+    raise AssertionError(f"Could not extract {function_name}")
+
+
+def run_source_attribution_parser(viewer):
+    parser = extract_js_function(viewer, "parseSourceAttributionEntry")
+    cases = [
+        {
+            "raw": "- **CISA: exploited KEV update**: Example Research - https://example.test/kev",
+            "title": "CISA: exploited KEV update",
+            "attribution": "Example Research - https://example.test/kev",
+        },
+        {
+            "raw": "- **Parenthesized URL report**: Example Source - https://example.test/report(1)",
+            "title": "Parenthesized URL report",
+            "attribution": "Example Source - https://example.test/report(1)",
+        },
+    ]
+    script = textwrap.dedent(f"""
+        {parser}
+        const cases = {json.dumps(cases)};
+        process.stdout.write(JSON.stringify(cases.map(parseSourceAttributionEntry)));
+        """)
+    result = subprocess.run(
+        ["node", "-e", script],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return json.loads(result.stdout)
 
 
 def test_report_viewers_sanitize_marked_output_before_rendering():
@@ -444,11 +491,32 @@ def test_report_viewers_render_source_entries_as_evidence_rows():
         assert "row.link ? 'Available' : 'Not provided'" in viewer
         assert "link.rel = 'noopener noreferrer'" in viewer
         assert "link.target = '_blank'" in viewer
-        assert "raw: entry" in viewer
+        assert "raw," in viewer
         assert (
             "provenanceEl.appendChild(renderSourceEvidenceRows(sourceEntries))"
             in viewer
         )
+
+
+def test_report_viewers_parse_source_entries_behaviorally():
+    expected = [
+        {
+            "title": "CISA: exploited KEV update",
+            "source": "Example Research",
+            "link": "https://example.test/kev",
+            "raw": "- **CISA: exploited KEV update**: Example Research - https://example.test/kev",
+        },
+        {
+            "title": "Parenthesized URL report",
+            "source": "Example Source",
+            "link": "https://example.test/report(1)",
+            "raw": "- **Parenthesized URL report**: Example Source - https://example.test/report(1)",
+        },
+    ]
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert run_source_attribution_parser(viewer) == expected
 
 
 def test_report_viewers_include_uncertainty_signal_panel():
