@@ -92,7 +92,9 @@ def test_report_viewers_expose_static_reading_index():
         assert 'aria-label="Report reading sections"' in viewer
         assert 'id="reading-index-sources"' in viewer
         assert 'id="reading-index-sources" hidden href="#provenance"' in viewer
+        assert 'id="reading-index-uncertainty" hidden href="#uncertainty"' in viewer
         assert 'href="#provenance"' in viewer
+        assert 'href="#uncertainty"' in viewer
         assert 'href="#coverage-notes"' in viewer
         assert 'href="#section-filter-panel"' in viewer
         assert 'href="#report-results"' in viewer
@@ -105,9 +107,10 @@ def test_report_viewers_expose_static_reading_index():
         )
         assert viewer.index('id="report-results"') < viewer.index('id="content"')
         assert 'id="provenance"' in viewer
+        assert 'id="uncertainty"' in viewer
         assert 'id="coverage-notes"' in viewer
         assert (
-            "#provenance, #coverage-notes, #section-filter-panel, #report-results, #content"
+            "#provenance, #uncertainty, #coverage-notes, #section-filter-panel, #report-results, #content"
             in viewer
         )
         assert "scroll-margin-top: 80px" in viewer
@@ -115,12 +118,18 @@ def test_report_viewers_expose_static_reading_index():
             "const readingIndexSourceEl = document.getElementById('reading-index-sources')"
             in viewer
         )
+        assert (
+            "const readingIndexUncertaintyEl = document.getElementById('reading-index-uncertainty')"
+            in viewer
+        )
         assert "function syncReadingIndex()" in viewer
         assert "readingIndexSourceEl.hidden = provenanceEl.hidden" in viewer
+        assert "readingIndexUncertaintyEl.hidden = uncertaintyEl.hidden" in viewer
         assert "syncReadingIndex()" in viewer
         assert ".reading-index" in viewer
         assert ".reading-index a" in viewer
         assert "Sources" in viewer
+        assert "Uncertainty" in viewer
         assert "Coverage" in viewer
         assert "Filter" in viewer
         assert "Report" in viewer

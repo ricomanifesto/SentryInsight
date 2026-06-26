@@ -370,7 +370,7 @@
         .report-results {
             min-width: 0;
         }
-        #provenance, #coverage-notes, #section-filter-panel, #report-results, #content {
+        #provenance, #uncertainty, #coverage-notes, #section-filter-panel, #report-results, #content {
             scroll-margin-top: 80px;
         }
         body.dark .reading-index a {
@@ -573,6 +573,7 @@
                 <div id="summary" class="summary"></div>
                 <nav class="reading-index" aria-label="Report reading sections">
                     <a id="reading-index-sources" hidden href="#provenance">Sources</a>
+                    <a id="reading-index-uncertainty" hidden href="#uncertainty">Uncertainty</a>
                     <a href="#coverage-notes">Coverage</a>
                     <a href="#section-filter-panel">Filter</a>
                     <a href="#report-results">Report</a>
@@ -606,6 +607,7 @@
         const uncertaintyEl = document.getElementById('uncertainty');
         const coverageNotesEl = document.getElementById('coverage-notes');
         const readingIndexSourceEl = document.getElementById('reading-index-sources');
+        const readingIndexUncertaintyEl = document.getElementById('reading-index-uncertainty');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
@@ -1003,6 +1005,7 @@
 
         function syncReadingIndex() {
             readingIndexSourceEl.hidden = provenanceEl.hidden;
+            readingIndexUncertaintyEl.hidden = uncertaintyEl.hidden;
         }
 
         function getVisibleReportText() {
