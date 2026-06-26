@@ -558,6 +558,7 @@
             </div>
             <div class="spacer"></div>
             <div class="toolbar">
+                <a id="markdown-link" class="btn" href="index.md">Markdown</a>
                 <a id="archive-link" class="btn" href="reports/" hidden>Archive</a>
                 <button id="toggle-dark" class="btn" title="Toggle theme">Theme</button>
             </div>
@@ -609,6 +610,7 @@
         const readingIndexSourceEl = document.getElementById('reading-index-sources');
         const readingIndexUncertaintyEl = document.getElementById('reading-index-uncertainty');
         const toggleDarkEl = document.getElementById('toggle-dark');
+        const markdownLinkEl = document.getElementById('markdown-link');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
         const sectionFilterEl = document.getElementById('section-filter');
@@ -1174,6 +1176,7 @@
         let markdownCache = '';
         const reportPath = resolveReportPath();
         const isArchiveReport = reportPath !== 'index.md';
+        markdownLinkEl.href = reportPath;
         Promise.all([configPromise])
           .then(() => fetch(reportPath + '?v=' + Date.now(), { cache: 'no-store' }))
           .then(response => response.text())

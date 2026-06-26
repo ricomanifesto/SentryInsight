@@ -164,6 +164,23 @@ def test_report_viewers_include_archive_navigation_affordance():
         assert "location.search" in viewer
 
 
+def test_report_viewers_expose_loaded_markdown_action_link():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert 'id="markdown-link"' in viewer
+        assert 'href="index.md"' in viewer
+        assert "Markdown" in viewer
+        assert (
+            "const markdownLinkEl = document.getElementById('markdown-link')" in viewer
+        )
+        assert "const reportPath = resolveReportPath()" in viewer
+        assert "markdownLinkEl.href = reportPath" in viewer
+        assert viewer.index("const reportPath = resolveReportPath()") < viewer.index(
+            "markdownLinkEl.href = reportPath"
+        )
+
+
 def test_report_viewers_label_archived_report_metadata():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()
