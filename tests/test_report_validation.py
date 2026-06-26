@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 from src.core.report_validation import (
     ensure_source_attribution_section,
@@ -37,10 +38,32 @@ VALID_REPORT_WITH_SOURCE_ATTRIBUTION = VALID_REPORT + """
 - **Source-only exploitation report**: Example Source
 """
 
+SOURCE_ATTRIBUTION_FIXTURE = (
+    Path(__file__).parent / "fixtures" / "source_attribution_report.md"
+)
+
 
 class ReportValidationTests(unittest.TestCase):
     def test_valid_report_passes(self):
         self.assertEqual(validate_report_content(VALID_REPORT), [])
+
+    def test_source_attribution_report_fixture_validates_expected_rows(self):
+        expected_entries = [
+            "- **CISA: exploited KEV update**: Example Research - https://example.test/kev",
+            "- **Parenthesized URL report**: Example Source - https://example.test/report(1)",
+            "- **Source-only exploitation report**: Example Source",
+        ]
+
+        fixture_markdown = SOURCE_ATTRIBUTION_FIXTURE.read_text(encoding="utf-8")
+
+        self.assertEqual(
+            validate_report_content(
+                fixture_markdown,
+                require_source_attribution=True,
+                source_attribution_entries=expected_entries,
+            ),
+            [],
+        )
 
     def test_ensure_source_attribution_section_appends_canonical_entries(self):
         report = ensure_source_attribution_section(
