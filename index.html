@@ -1321,6 +1321,16 @@
         const reportPath = resolveReportPath();
         const isArchiveReport = reportPath !== 'index.md';
         markdownLinkEl.href = reportPath;
+        function renderReportLoadError(error) {
+            const heading = document.createElement('h1');
+            heading.textContent = 'Error Loading Report';
+            const message = document.createElement('p');
+            message.textContent = 'Unable to load the exploitation report. Please check back later.';
+            const pre = document.createElement('pre');
+            pre.textContent = String(error);
+            contentEl.textContent = '';
+            contentEl.append(heading, message, pre);
+        }
         Promise.all([configPromise])
           .then(() => fetch(reportPath + '?v=' + Date.now(), { cache: 'no-store' }))
           .then(response => {
@@ -1385,11 +1395,7 @@
                 renderReportMetadata(m ? m[1] : '', isArchiveReport, lastModified);
           })
             .catch(error => {
-                contentEl.innerHTML = `
-                    <h1>Error Loading Report</h1>
-                    <p>Unable to load the exploitation report. Please check back later.</p>
-                    <pre>${error}</pre>
-                `;
+                renderReportLoadError(error);
             });
 
         // Controls
