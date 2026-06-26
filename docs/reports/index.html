@@ -91,6 +91,12 @@
             font-weight: 700;
             margin: 12px 0 16px;
         }
+        .archive-coverage-summary {
+            color: var(--muted);
+            font-size: 0.88rem;
+            margin-top: -8px;
+            max-width: 680px;
+        }
         .archive-section-index {
             align-items: center;
             display: flex;
@@ -352,6 +358,7 @@
                 <h1>Report Archive</h1>
                 <p>Previous SentryInsight exploitation reports.</p>
                 <div class="archive-summary" id="archive-summary"></div>
+                <div class="archive-coverage-summary" id="archive-coverage-summary"></div>
             </div>
             <a class="back" href="../index.html">Latest report</a>
         </header>
@@ -411,6 +418,7 @@
         const archiveFilterEl = document.getElementById('archive-filter');
         const archiveFilterSummaryEl = document.getElementById('archive-filter-summary');
         const archiveSummaryEl = document.getElementById('archive-summary');
+        const archiveCoverageSummaryEl = document.getElementById('archive-coverage-summary');
         const archiveCountEl = document.getElementById('archive-count');
         const archiveEmptyEl = document.getElementById('archive-empty');
         const archiveEmptyClearEl = document.getElementById('archive-empty-clear');
@@ -454,6 +462,22 @@
             latestArchiveLink.href = latestReport.href;
             latestArchiveLink.textContent = latestReport.archivedLabel;
             archiveSummaryEl.appendChild(latestArchiveLink);
+        }
+
+        function renderArchiveCoverageSummary() {
+            if (!archiveReports.length) {
+                archiveCoverageSummaryEl.textContent = 'Coverage notes will appear when archived reports are available.';
+                return;
+            }
+            const sourceAttributionGaps = archiveReports.filter(report =>
+                (report.coverage || []).some(({ label, detail }) =>
+                    label === 'Source attribution' && /no source attribution/i.test(detail || '')
+                )
+            ).length;
+            const artifactTotal = archiveReports.reduce((total, report) => total + Object.keys(report.links || {}).length, 0);
+            const gapText = `${sourceAttributionGaps} ${sourceAttributionGaps === 1 ? 'source attribution gap' : 'source attribution gaps'}`;
+            const artifactText = `${artifactTotal} ${artifactTotal === 1 ? 'archive artifact tracked' : 'archive artifacts tracked'}`;
+            archiveCoverageSummaryEl.textContent = `Coverage: ${gapText} · ${artifactText}.`;
         }
 
         function renderArchiveTopicFilters() {
@@ -724,6 +748,7 @@
         archiveClearFiltersEl.addEventListener('click', clearArchiveFilters);
         archiveEmptyClearEl.addEventListener('click', clearArchiveFilters);
         renderArchiveSummary();
+        renderArchiveCoverageSummary();
         renderArchiveReports();
         renderArchiveTopicFilters();
         sortNewestFirst();
