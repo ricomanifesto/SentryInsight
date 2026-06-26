@@ -182,6 +182,11 @@ def test_report_archive_route_has_static_index():
     assert 'id="archive-clear-filters"' in archive
     assert "clearArchiveFilters" in archive
     assert "archiveClearFiltersEl.disabled" in archive
+    assert 'id="archive-empty-clear"' in archive
+    assert (
+        "archiveEmptyClearEl.addEventListener('click', clearArchiveFilters)" in archive
+    )
+    assert "archive-empty-clear archive-focus-target" in archive
     assert "const archiveReports = [" in archive
     assert "renderArchiveReports" in archive
     assert "renderArchiveTopicFilters" in archive

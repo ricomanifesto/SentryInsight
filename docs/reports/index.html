@@ -311,6 +311,21 @@
             margin-top: 12px;
             padding: 16px;
         }
+        .archive-empty p {
+            margin: 0;
+        }
+        .archive-empty-clear {
+            background: #0f172a;
+            border: 1px solid #0f172a;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.86rem;
+            font-weight: 700;
+            margin-top: 10px;
+            padding: 6px 10px;
+        }
         [hidden] { display: none !important; }
         @media (max-width: 560px) {
             header {
@@ -344,7 +359,10 @@
             <div class="archive-filter-summary" id="archive-filter-summary" aria-live="polite">Showing all archived reports.</div>
         </div>
         <section class="archive-list" id="archive-list" aria-label="Available reports"></section>
-        <div class="archive-empty" id="archive-empty" hidden>No archived reports match that filter.</div>
+        <div class="archive-empty" id="archive-empty" hidden>
+            <p>No archived reports match that filter.</p>
+            <button class="archive-empty-clear archive-focus-target" id="archive-empty-clear" type="button">Clear filters</button>
+        </div>
     </main>
     <script>
         const archiveReports = [
@@ -383,6 +401,7 @@
         const archiveSummaryEl = document.getElementById('archive-summary');
         const archiveCountEl = document.getElementById('archive-count');
         const archiveEmptyEl = document.getElementById('archive-empty');
+        const archiveEmptyClearEl = document.getElementById('archive-empty-clear');
         const archiveListEl = document.getElementById('archive-list');
         const archiveTopicFiltersEl = document.getElementById('archive-topic-filters');
         const archiveClearFiltersEl = document.getElementById('archive-clear-filters');
@@ -691,6 +710,7 @@
 
         archiveFilterEl.addEventListener('input', () => filterArchive());
         archiveClearFiltersEl.addEventListener('click', clearArchiveFilters);
+        archiveEmptyClearEl.addEventListener('click', clearArchiveFilters);
         renderArchiveSummary();
         renderArchiveReports();
         renderArchiveTopicFilters();
