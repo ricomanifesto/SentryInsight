@@ -418,6 +418,10 @@ def test_report_archive_filter_state_uses_canonical_query_params():
     assert "function writeArchiveQueryState()" in archive
     assert 'id="archive-filter-summary"' in archive
     assert (
+        'id="archive-filter-summary" role="status" aria-live="polite" aria-atomic="true"'
+        in archive
+    )
+    assert (
         "const archiveFilterSummaryEl = document.getElementById('archive-filter-summary')"
         in archive
     )
