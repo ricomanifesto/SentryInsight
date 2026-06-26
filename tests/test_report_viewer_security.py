@@ -318,6 +318,7 @@ def test_report_viewers_hide_report_navigation_on_load_error():
         ]
 
         assert "const tocAsideEl = document.getElementById('toc')" in viewer
+        assert ".reading-index[hidden]" in viewer
         assert (
             "const readingIndexEl = document.querySelector('.reading-index')" in viewer
         )
