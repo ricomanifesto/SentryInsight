@@ -109,6 +109,9 @@
         .archive-section-index a:hover {
             text-decoration: none;
         }
+        #archive-summary, #archive-filter-panel, #archive-results {
+            scroll-margin-top: 32px;
+        }
         .archive-filter {
             background: var(--panel);
             border: 1px solid var(--border);
@@ -353,6 +356,7 @@
             <a class="back" href="../index.html">Latest report</a>
         </header>
         <nav class="archive-section-index" aria-label="Archive sections">
+            <a class="archive-focus-target" href="#archive-summary">Latest</a>
             <a class="archive-focus-target" href="#archive-filter-panel">Filter</a>
             <a class="archive-focus-target" href="#archive-results">Reports</a>
         </nav>
