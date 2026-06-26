@@ -361,6 +361,7 @@ def test_report_archive_route_has_static_index():
         'id="archive-filter" type="search" autocomplete="off" aria-controls="archive-results"'
         in archive
     )
+    assert 'aria-describedby="archive-count archive-filter-summary"' in archive
     assert 'id="archive-summary"' in archive
     assert 'href="#archive-summary"' in archive
     assert 'id="archive-count"' in archive
