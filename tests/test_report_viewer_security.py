@@ -317,6 +317,9 @@ def test_report_viewers_hide_report_navigation_on_load_error():
             )
         ]
 
+        assert ".layout.report-unavailable" in viewer
+        assert ".layout.report-unavailable main" in viewer
+        assert "const layoutEl = document.querySelector('.layout')" in viewer
         assert "const tocAsideEl = document.getElementById('toc')" in viewer
         assert ".reading-index[hidden]" in viewer
         assert (
@@ -326,10 +329,12 @@ def test_report_viewers_hide_report_navigation_on_load_error():
             "const sectionFilterPanelEl = document.getElementById('section-filter-panel')"
             in viewer
         )
+        assert "layoutEl.classList.add('report-unavailable')" in load_error_helper
         assert "tocAsideEl.classList.add('hidden')" in load_error_helper
         assert "readingIndexEl.hidden = true" in load_error_helper
         assert "sectionFilterPanelEl.hidden = true" in load_error_helper
         assert "sectionFilterEl.value = ''" in load_error_helper
+        assert "layoutEl.classList.remove('report-unavailable')" in success_path
         assert "tocAsideEl.classList.remove('hidden')" in success_path
         assert "readingIndexEl.hidden = false" in success_path
         assert "sectionFilterPanelEl.hidden = false" in success_path
