@@ -79,6 +79,12 @@
             gap: 12px;
             margin-top: 16px;
         }
+        .archive-results {
+            margin-top: 16px;
+        }
+        .archive-results .archive-list {
+            margin-top: 0;
+        }
         .archive-summary {
             color: var(--muted);
             font-size: 0.95rem;
@@ -348,7 +354,7 @@
         </header>
         <nav class="archive-section-index" aria-label="Archive sections">
             <a class="archive-focus-target" href="#archive-filter-panel">Filter</a>
-            <a class="archive-focus-target" href="#archive-list">Reports</a>
+            <a class="archive-focus-target" href="#archive-results">Reports</a>
         </nav>
         <div class="archive-filter" id="archive-filter-panel">
             <label for="archive-filter">Filter archived reports</label>
@@ -358,11 +364,13 @@
             <div class="archive-count" id="archive-count">1 report available</div>
             <div class="archive-filter-summary" id="archive-filter-summary" aria-live="polite">Showing all archived reports.</div>
         </div>
-        <section class="archive-list" id="archive-list" aria-label="Available reports"></section>
-        <div class="archive-empty" id="archive-empty" hidden>
-            <p>No archived reports match that filter.</p>
-            <button class="archive-empty-clear archive-focus-target" id="archive-empty-clear" type="button">Clear filters</button>
-        </div>
+        <section class="archive-results" id="archive-results" aria-label="Available reports">
+            <div class="archive-list" id="archive-list"></div>
+            <div class="archive-empty" id="archive-empty" hidden>
+                <p>No archived reports match that filter.</p>
+                <button class="archive-empty-clear archive-focus-target" id="archive-empty-clear" type="button">Clear filters</button>
+            </div>
+        </section>
     </main>
     <script>
         const archiveReports = [
