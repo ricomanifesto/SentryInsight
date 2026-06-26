@@ -122,6 +122,7 @@ def test_report_viewers_include_section_filter_controls():
             'id="section-filter" type="search" autocomplete="off" aria-controls="report-results"'
             in viewer
         )
+        assert 'aria-describedby="section-filter-count"' in viewer
         assert 'id="section-filter-count"' in viewer
         assert (
             'id="section-filter-count" role="status" aria-live="polite" aria-atomic="true"'
