@@ -1060,6 +1060,7 @@
                 return;
             }
             const notes = [
+                buildCoverageNote('Report artifact', `Loaded markdown artifact: ${reportPath}.`),
                 buildCoverageNote('Section index', `${sections} rendered report sections are included in the page index and section filter.`),
                 buildCoverageNote('Source coverage', sourceEntries
                     ? `${sourceEntries} source attribution entries are available in the provenance panel.`
