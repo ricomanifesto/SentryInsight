@@ -419,6 +419,28 @@
             margin: 4px 0;
             overflow-wrap: anywhere;
         }
+        .source-evidence-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: .9rem;
+        }
+        .source-evidence-table th,
+        .source-evidence-table td {
+            border-top: 1px solid var(--border-color);
+            padding: 8px 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .source-evidence-table th {
+            color: var(--text-secondary);
+            font-size: .78rem;
+            text-transform: uppercase;
+        }
+        .source-evidence-table a {
+            color: var(--accent-color);
+            overflow-wrap: anywhere;
+        }
         body.dark .provenance { background: var(--dark-elev); border-color: #1f2937; }
         body.dark .provenance h4 { color: #cbd5e1; }
         body.dark .provenance p { color: #e5e7eb; }
@@ -964,8 +986,16 @@
             while (el && el.tagName !== 'H2') {
                 if (el.tagName === 'UL' || el.tagName === 'OL') {
                     el.querySelectorAll('li').forEach(li => {
-                        const text = li.textContent.trim().replace(/\s+/g, ' ');
-                        if (text && !isPlaceholderSourceAttributionEntry(text)) entries.push(text);
+                        const raw = li.textContent.trim().replace(/\s+/g, ' ');
+                        const titleEl = li.querySelector('strong');
+                        const title = titleEl ? titleEl.textContent.trim().replace(/\s+/g, ' ') : '';
+                        const titleIndex = title ? raw.indexOf(title) : -1;
+                        const attribution = titleIndex >= 0
+                            ? raw.slice(titleIndex + title.length).trim().replace(/^:\s*/, '')
+                            : raw;
+                        if (raw && !isPlaceholderSourceAttributionEntry(raw)) {
+                            entries.push({ raw, title, attribution });
+                        }
                     });
                 }
                 el = el.nextElementSibling;
@@ -985,12 +1015,77 @@
             sourcePreviewList.innerHTML = '';
             sourceEntries.forEach(entry => {
                 const entryEl = document.createElement('li');
-                entryEl.textContent = entry;
+                entryEl.textContent = entry.raw || entry;
                 sourcePreviewList.appendChild(entryEl);
             });
             preview.appendChild(sourcePreviewList);
 
             return preview;
+        }
+
+        function parseSourceAttributionEntry(entry) {
+            const raw = (entry.raw || entry).trim();
+            const titleFromMarkup = entry.title || '';
+            const attribution = (entry.attribution || raw).trim();
+            const urlMatch = attribution.match(/\bhttps?:\/\/\S+/i);
+            const link = urlMatch ? urlMatch[0].replace(/[.,;]+$/, '') : '';
+            const withoutLink = link
+                ? attribution.replace(urlMatch[0], '').replace(/\s+-\s*$/, '').trim()
+                : attribution;
+            const parts = withoutLink.match(/^(.+?):\s*(.*)$/);
+            const title = titleFromMarkup || (parts ? parts[1].trim() : withoutLink);
+            const source = titleFromMarkup
+                ? withoutLink.replace(/\s+-\s*$/, '')
+                : parts ? parts[2].trim().replace(/\s+-\s*$/, '') : '';
+            return {
+                title: title || 'Untitled evidence',
+                source: source || 'Source not provided',
+                link,
+                raw: entry,
+            };
+        }
+
+        function renderSourceEvidenceRows(sourceEntries) {
+            const rows = sourceEntries.map(parseSourceAttributionEntry);
+            const table = document.createElement('table');
+            table.className = 'source-evidence-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th scope="col">Evidence</th>
+                        <th scope="col">Source</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            const body = table.querySelector('tbody');
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'source-evidence-row';
+
+                const evidence = document.createElement('td');
+                evidence.textContent = row.title || row.raw;
+
+                const source = document.createElement('td');
+                source.textContent = row.source;
+
+                const linkCell = document.createElement('td');
+                if (row.link) {
+                    const link = document.createElement('a');
+                    link.href = row.link;
+                    link.textContent = 'Available';
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    linkCell.appendChild(link);
+                } else {
+                    linkCell.textContent = row.link ? 'Available' : 'Not provided';
+                }
+
+                tr.append(evidence, source, linkCell);
+                body.appendChild(tr);
+            });
+            return table;
         }
 
         function renderProvenance() {
@@ -1007,6 +1102,7 @@
                 <p>${sourceEntries.length} ${label.toLowerCase()} cited in this report.</p>
                 <div class="provenance-meta">Source entries are rendered from the report's Source Attribution section.</div>
             `;
+            provenanceEl.appendChild(renderSourceEvidenceRows(sourceEntries));
             provenanceEl.appendChild(renderSourcePreview(sourceEntries));
         }
 
