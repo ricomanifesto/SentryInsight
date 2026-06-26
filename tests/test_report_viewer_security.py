@@ -203,6 +203,17 @@ def test_report_viewers_label_archived_report_metadata():
         assert "fallbackDateStr ? new Date(fallbackDateStr) : null" in viewer
 
 
+def test_report_viewers_reject_failed_markdown_fetches_before_rendering():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert "if (!response.ok)" in viewer
+        assert "Report fetch failed: ${response.status}" in viewer
+        assert "return response.text().then(text => ({" in viewer
+        assert "lastModified: response.headers.get('Last-Modified') || ''" in viewer
+        assert "DOMPurify.sanitize(marked.parse(text))" in viewer
+
+
 def test_report_archive_route_has_static_index():
     archive = ARCHIVE_INDEX.read_text()
 

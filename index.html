@@ -1185,10 +1185,15 @@
         markdownLinkEl.href = reportPath;
         Promise.all([configPromise])
           .then(() => fetch(reportPath + '?v=' + Date.now(), { cache: 'no-store' }))
-          .then(response => response.text().then(text => ({
+          .then(response => {
+            if (!response.ok) {
+                throw new Error(`Report fetch failed: ${response.status}`);
+            }
+            return response.text().then(text => ({
                 text,
                 lastModified: response.headers.get('Last-Modified') || '',
-          })))
+            }));
+          })
           .then(({ text, lastModified }) => {
                 markdownCache = text;
                 let html = DOMPurify.sanitize(marked.parse(text));
