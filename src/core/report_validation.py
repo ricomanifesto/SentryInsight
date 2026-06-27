@@ -51,6 +51,7 @@ MARKDOWN_REFERENCE_DESTINATION_PATTERN = re.compile(
 )
 HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
 LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
+NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
 STRONG_MARKER = "**"
 HTML_BLOCK_OPEN_PATTERN = re.compile(
     r"^<(?P<tag>[A-Za-z][A-Za-z0-9:-]*)(?:\s|>|/)",
@@ -498,7 +499,7 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
     searchable_markdown = strip_markdown_block_code(markdown)
     lines = searchable_markdown.splitlines()
     for index, line in enumerate(lines):
-        list_item_match = LIST_ITEM_PATTERN.match(line)
+        list_item_match = NESTED_LIST_ITEM_PATTERN.match(line)
         if not list_item_match:
             continue
 

@@ -96,6 +96,25 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_report_content(report), [])
 
+    def test_four_space_nested_dangling_bold_list_item_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **Parent actor**: Coordinated exploitation.\n" "    - **FishMonger",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_four_space_nested_bold_list_item_with_description_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Parent actor**: Coordinated exploitation.\n"
+            "    - **FishMonger**: Deployed a Windows backdoor.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_bold_heading_with_continuation_list_passes(self):
         report = VALID_REPORT.replace(
             "- **Unknown actor**: Opportunistic exploitation.",
