@@ -401,8 +401,17 @@ def test_report_archive_route_has_static_index():
     assert "archiveClearFiltersEl.disabled" in archive
     assert 'id="archive-empty-clear"' in archive
     assert (
+        'id="archive-clear-filters" type="button" aria-controls="archive-results"'
+        in archive
+    )
+    assert (
+        'id="archive-empty-clear" type="button" aria-controls="archive-results"'
+        in archive
+    )
+    assert (
         "archiveEmptyClearEl.addEventListener('click', clearArchiveFilters)" in archive
     )
+    assert archive.count('aria-describedby="archive-count archive-filter-summary"') >= 3
     assert "archive-empty-clear archive-focus-target" in archive
     assert "const archiveReports = [" in archive
     assert "renderArchiveReports" in archive
