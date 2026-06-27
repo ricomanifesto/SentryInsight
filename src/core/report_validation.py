@@ -491,7 +491,8 @@ def normalize_markdown_escapes(markdown: str) -> str:
 def has_malformed_bold_list_item(markdown: str) -> bool:
     """Return True for list items that are only a broken or empty bold label."""
     searchable_markdown = strip_markdown_code(markdown)
-    for line in searchable_markdown.splitlines():
+    lines = searchable_markdown.splitlines()
+    for index, line in enumerate(lines):
         list_item_match = LIST_ITEM_PATTERN.match(line)
         if not list_item_match:
             continue
@@ -505,8 +506,23 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
             return True
 
         remaining_item = item[closing_marker_index + len(STRONG_MARKER) :].strip()
-        if not remaining_item:
+        if not remaining_item and not has_indented_list_continuation(lines, index):
             return True
+
+    return False
+
+
+def has_indented_list_continuation(lines: list[str], index: int) -> bool:
+    item_indent = indentation_columns(lines[index])
+    for continuation_line in lines[index + 1 :]:
+        if not continuation_line.strip():
+            continue
+
+        continuation_indent = indentation_columns(continuation_line)
+        if continuation_indent <= item_indent:
+            return False
+
+        return True
 
     return False
 

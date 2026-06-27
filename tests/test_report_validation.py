@@ -68,6 +68,15 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
 
+    def test_bold_heading_with_continuation_list_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **FishMonger**\n"
+            "  - **Campaign**: Deployed a Windows variant of the SprySOCKS backdoor.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_source_attribution_report_fixture_validates_expected_rows(self):
         expected_entries = [
             "- **CISA: exploited KEV update**: Example Research - https://example.test/kev",
