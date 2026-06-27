@@ -135,6 +135,14 @@ class ReportValidationTests(unittest.TestCase):
             )
         )
 
+    def test_single_generic_threat_actor_phrase_does_not_fail(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Threat actors are exploiting edge systems.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_dangling_bold_list_item_fails(self):
         issues = validate_report_content(
             VALID_REPORT.replace(

@@ -159,6 +159,42 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
 
+    def test_analysis_result_extracts_cves_from_article_text(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **_kwargs):
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            result = asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": "Vendor patch for CVE-2026-1111",
+                            "summary": "Exploitation observed for CVE 2026 2222.",
+                            "content": "Older text repeats cve-2026-1111.",
+                            "link": "https://example.test/CVE-2026-3333",
+                        }
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertEqual(
+            sorted(result["cves_identified"]),
+            ["CVE-2026-1111", "CVE-2026-2222", "CVE-2026-3333"],
+        )
+
     def test_prompt_requires_source_attribution_from_article_metadata(self):
         analyze = import_analyze_with_stubs()
 

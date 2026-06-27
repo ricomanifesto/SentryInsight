@@ -7,6 +7,7 @@ import tiktoken
 
 from .model_config import resolve_model, validate_model
 from .opencode_client import OpenCodeClient, OpenCodeUnavailable, parse_model_selection
+from .entities import extract_cve_ids
 from .source_attribution import (
     clean_article_source,
     collect_source_attribution_entries,
@@ -101,6 +102,31 @@ def format_article_summary(article: Dict[str, Any]) -> str:
     return f"{heading}\n\n{content[:500]}...\n\n"
 
 
+def collect_article_cves(article: Dict[str, Any]) -> list[str]:
+    """Collect CVE IDs from structured article metadata and text fields."""
+    cves: list[str] = []
+    cves.extend(str(cve).strip() for cve in article.get("cves", []) if str(cve).strip())
+
+    text_fields = [
+        article.get("title", ""),
+        article.get("summary", ""),
+        article.get("content", ""),
+        article.get("link", ""),
+    ]
+    cves.extend(extract_cve_ids("\n".join(str(value) for value in text_fields)))
+
+    seen: set[str] = set()
+    unique_cves: list[str] = []
+    for cve in cves:
+        normalized_cve = cve.upper()
+        if normalized_cve in seen:
+            continue
+        seen.add(normalized_cve)
+        unique_cves.append(normalized_cve)
+
+    return unique_cves
+
+
 async def analyze_exploitation(
     articles: List[Dict[str, Any]], config: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -140,9 +166,8 @@ async def analyze_exploitation(
         all_article_summaries.append(format_article_summary(article))
 
         # Extract CVEs and affected systems
-        if "cves" in article:
-            for cve in article.get("cves", []):
-                all_cves.add(cve)
+        for cve in collect_article_cves(article):
+            all_cves.add(cve)
         if "affected_systems" in article:
             for system in article.get("affected_systems", []):
                 all_systems.add(system)

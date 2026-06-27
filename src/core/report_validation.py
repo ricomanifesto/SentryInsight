@@ -58,6 +58,10 @@ NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
 CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,7}\b", re.IGNORECASE)
 SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
 SENTENCE_END_PATTERN = re.compile(r"[.!?](?:\s+|$)")
+THREAT_ACTIVITY_MARKER_PATTERN = re.compile(
+    r"\b(?:campaigns?|threat actors?)\b",
+    re.IGNORECASE,
+)
 STRONG_MARKER = "**"
 MARKDOWN_PARSER = MarkdownIt("commonmark")
 HTML_BLOCK_OPEN_PATTERN = re.compile(
@@ -953,13 +957,15 @@ def has_underpopulated_threat_actor_activities(markdown: str) -> bool:
         return False
 
     report_without_section = markdown.replace(threat_actor_body, "")
-    normalized_report = report_without_section.casefold()
-    broader_activity_markers = (
-        normalized_report.count("campaign")
-        + normalized_report.count("threat actor")
-        + normalized_report.count("threat actors")
+    body_without_headings = "\n".join(
+        line
+        for line in report_without_section.splitlines()
+        if not line.lstrip().startswith("#")
     )
-    return broader_activity_markers >= 2
+    broader_activity_markers = THREAT_ACTIVITY_MARKER_PATTERN.findall(
+        body_without_headings
+    )
+    return len(broader_activity_markers) >= 2
 
 
 def validate_report_content(
