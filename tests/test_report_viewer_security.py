@@ -516,6 +516,10 @@ def test_report_archive_exposes_static_section_index():
     )
     assert 'id="archive-filter-title" for="archive-filter"' in archive
     assert 'id="archive-results"' in archive
+    assert (
+        'class="archive-results" id="archive-results" role="region" '
+        'aria-label="Available reports"' in archive
+    )
     assert 'id="archive-list"' in archive
     assert "#archive-summary, #archive-filter-panel, #archive-results" in archive
     assert "scroll-margin-top: 32px" in archive
