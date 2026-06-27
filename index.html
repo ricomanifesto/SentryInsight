@@ -645,7 +645,7 @@
                     <a href="#report-results">Report</a>
                 </nav>
                 <div id="provenance" class="provenance" role="region" aria-labelledby="provenance-title" hidden></div>
-                <div id="uncertainty" class="uncertainty" hidden></div>
+                <div id="uncertainty" class="uncertainty" role="region" aria-labelledby="uncertainty-title" hidden></div>
                 <div id="coverage-notes" class="coverage-notes" role="region" aria-labelledby="coverage-notes-title" hidden></div>
                 <div class="section-filter" id="section-filter-panel">
                     <label for="section-filter">Filter report sections</label>
@@ -1203,7 +1203,7 @@
             uncertaintyEl.hidden = false;
             const label = signalCount === 1 ? 'uncertainty signal' : 'uncertainty signals';
             uncertaintyEl.innerHTML = `
-                <h4>Uncertainty Signals</h4>
+                <h4 id="uncertainty-title">Uncertainty Signals</h4>
                 <p>${signalCount} ${label} detected in this report.</p>
                 <div class="uncertainty-meta">Counted from report wording such as unknown, suspected, likely, possible, potential, or could.</div>
             `;

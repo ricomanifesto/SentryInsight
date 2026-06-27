@@ -681,7 +681,12 @@ def test_report_viewers_include_uncertainty_signal_panel():
         viewer = viewer_path.read_text()
 
         assert 'id="uncertainty"' in viewer
+        assert (
+            'id="uncertainty" class="uncertainty" role="region" '
+            'aria-labelledby="uncertainty-title" hidden'
+        ) in viewer
         assert "Uncertainty Signals" in viewer
+        assert 'id="uncertainty-title"' in viewer
         assert "countUncertaintySignals" in viewer
         assert "renderUncertaintySignals" in viewer
         assert "getVisibleReportText" in viewer
