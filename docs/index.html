@@ -646,7 +646,7 @@
                 </nav>
                 <div id="provenance" class="provenance" role="region" aria-labelledby="provenance-title" hidden></div>
                 <div id="uncertainty" class="uncertainty" hidden></div>
-                <div id="coverage-notes" class="coverage-notes" hidden></div>
+                <div id="coverage-notes" class="coverage-notes" role="region" aria-labelledby="coverage-notes-title" hidden></div>
                 <div class="section-filter" id="section-filter-panel">
                     <label for="section-filter">Filter report sections</label>
                     <input id="section-filter" type="search" autocomplete="off" aria-controls="report-results" aria-describedby="section-filter-count" placeholder="Search vulnerabilities, products, actors, or techniques" />
@@ -1249,6 +1249,7 @@
             coverageNotesEl.hidden = false;
             coverageNotesEl.innerHTML = '';
             const heading = document.createElement('h4');
+            heading.id = 'coverage-notes-title';
             heading.textContent = 'Report Coverage';
             const summary = document.createElement('div');
             summary.className = 'coverage-summary';

@@ -701,7 +701,12 @@ def test_report_viewers_include_coverage_notes_panel():
         viewer = viewer_path.read_text()
 
         assert 'id="coverage-notes"' in viewer
+        assert (
+            'id="coverage-notes" class="coverage-notes" role="region" '
+            'aria-labelledby="coverage-notes-title" hidden'
+        ) in viewer
         assert "Report Coverage" in viewer
+        assert "heading.id = 'coverage-notes-title'" in viewer
         assert "renderCoverageNotes" in viewer
         assert "buildCoverageNote" in viewer
         assert "buildCoverageSummaryChip" in viewer
