@@ -134,6 +134,44 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
 
+    def test_inline_code_strong_marker_does_not_close_broken_label(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **Package `@scope/**`: affected versions require review.",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_inline_code_strong_marker_with_closed_label_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Package `@scope/**`**: affected versions require review.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_html_entity_punctuation_only_suffix_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**: &mdash;",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_numeric_html_entity_punctuation_only_suffix_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**: &#8212;",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
     def test_bold_heading_with_continuation_list_passes(self):
         report = VALID_REPORT.replace(
             "- **Unknown actor**: Opportunistic exploitation.",

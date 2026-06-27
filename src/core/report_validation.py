@@ -524,7 +524,8 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
 
 
 def has_meaningful_list_suffix(suffix: str) -> bool:
-    return any(character.isalnum() for character in suffix)
+    rendered_suffix = html.unescape(normalize_markdown_escapes(suffix))
+    return any(character.isalnum() for character in rendered_suffix)
 
 
 def collect_list_item_text(lines: list[str], index: int, item: str) -> str:
@@ -564,13 +565,44 @@ def has_indented_list_continuation(lines: list[str], index: int) -> bool:
 
 def find_unescaped_strong_marker(markdown: str, start: int = 0) -> int | None:
     cursor = start
+    while cursor < len(markdown):
+        if markdown[cursor] == "`" and not has_odd_backslash_escape(markdown, cursor):
+            delimiter_length = 1
+            while (
+                cursor + delimiter_length < len(markdown)
+                and markdown[cursor + delimiter_length] == "`"
+            ):
+                delimiter_length += 1
+
+            delimiter = "`" * delimiter_length
+            closing_delimiter_index = find_closing_inline_code_delimiter(
+                markdown, delimiter, cursor + delimiter_length
+            )
+            if closing_delimiter_index != -1:
+                cursor = closing_delimiter_index + delimiter_length
+                continue
+
+        if markdown.startswith(STRONG_MARKER, cursor) and not has_odd_backslash_escape(
+            markdown, cursor
+        ):
+            return cursor
+
+        cursor += 1
+
+    return None
+
+
+def find_closing_inline_code_delimiter(
+    markdown: str, delimiter: str, start: int
+) -> int:
+    cursor = start
     while True:
-        marker_index = markdown.find(STRONG_MARKER, cursor)
-        if marker_index == -1:
-            return None
-        if not has_odd_backslash_escape(markdown, marker_index):
-            return marker_index
-        cursor = marker_index + len(STRONG_MARKER)
+        delimiter_index = markdown.find(delimiter, cursor)
+        if delimiter_index == -1:
+            return -1
+        if not has_odd_backslash_escape(markdown, delimiter_index):
+            return delimiter_index
+        cursor = delimiter_index + len(delimiter)
 
 
 def preserve_markdown_escaped_html(markdown: str) -> str:
