@@ -6,6 +6,8 @@ from html.parser import HTMLParser
 import re
 from typing import Iterable, List
 
+from markdown_it import MarkdownIt
+
 REQUIRED_SECTIONS = (
     "# Exploitation Report",
     "## Active Exploitation Details",
@@ -53,6 +55,7 @@ HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
 LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
 NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
 STRONG_MARKER = "**"
+MARKDOWN_PARSER = MarkdownIt("commonmark")
 HTML_BLOCK_OPEN_PATTERN = re.compile(
     r"^<(?P<tag>[A-Za-z][A-Za-z0-9:-]*)(?:\s|>|/)",
     re.IGNORECASE,
@@ -497,28 +500,90 @@ def normalize_markdown_escapes(markdown: str) -> str:
 def has_malformed_bold_list_item(markdown: str) -> bool:
     """Return True for list items that are only a broken or empty bold label."""
     searchable_markdown = strip_markdown_block_code(markdown)
-    lines = searchable_markdown.splitlines()
-    for index, line in enumerate(lines):
-        list_item_match = NESTED_LIST_ITEM_PATTERN.match(line)
-        if not list_item_match:
+    tokens = MARKDOWN_PARSER.parse(searchable_markdown)
+    for index, token in enumerate(tokens):
+        if token.type != "inline" or not token.content.lstrip().startswith(
+            STRONG_MARKER
+        ):
             continue
 
-        item = line[list_item_match.end() :].strip()
-        if not item.startswith(STRONG_MARKER):
+        if not is_list_item_inline_token(tokens, index):
             continue
 
-        item_text = collect_list_item_text(lines, index, item)
-        closing_marker_index = find_list_label_closing_marker(
-            item_text, len(STRONG_MARKER)
-        )
-        if closing_marker_index is None:
+        if not inline_token_starts_with_strong(token):
             return True
 
-        remaining_item = item_text[closing_marker_index + len(STRONG_MARKER) :].strip()
+        remaining_text = text_after_first_strong_token(token)
         if not has_meaningful_list_suffix(
-            remaining_item
-        ) and not has_indented_list_continuation(lines, index):
+            remaining_text
+        ) and not list_item_has_nested_list(tokens, index):
             return True
+
+    return False
+
+
+def is_list_item_inline_token(tokens: list, inline_index: int) -> bool:
+    parent_stack: list[str] = []
+    for token in tokens[:inline_index]:
+        if token.type == "list_item_open":
+            parent_stack.append(token.type)
+        elif token.type == "list_item_close" and parent_stack:
+            parent_stack.pop()
+
+    return bool(parent_stack)
+
+
+def inline_token_starts_with_strong(token) -> bool:
+    for child in token.children or []:
+        if child.type == "text" and not child.content:
+            continue
+        return child.type == "strong_open"
+
+    return False
+
+
+def text_after_first_strong_token(token) -> str:
+    strong_depth = 0
+    found_first_strong = False
+    output: list[str] = []
+    for child in token.children or []:
+        if child.type == "strong_open":
+            strong_depth += 1
+            found_first_strong = True
+            continue
+        if child.type == "strong_close" and strong_depth:
+            strong_depth -= 1
+            continue
+        if found_first_strong and strong_depth == 0:
+            output.append(child.content)
+
+    return "".join(output).strip()
+
+
+def list_item_has_nested_list(tokens: list, inline_index: int) -> bool:
+    list_item_depth = 0
+    for token in reversed(tokens[: inline_index + 1]):
+        if token.type == "list_item_close":
+            list_item_depth += 1
+        elif token.type == "list_item_open":
+            if list_item_depth == 0:
+                break
+            list_item_depth -= 1
+
+    nested_list_depth = 0
+    for token in tokens[inline_index + 1 :]:
+        if token.type == "list_item_open":
+            list_item_depth += 1
+        elif token.type == "list_item_close":
+            if list_item_depth == 0:
+                return False
+            list_item_depth -= 1
+        elif token.type in {"bullet_list_open", "ordered_list_open"}:
+            if nested_list_depth == 0:
+                return True
+            nested_list_depth += 1
+        elif token.type in {"bullet_list_close", "ordered_list_close"}:
+            nested_list_depth = max(nested_list_depth - 1, 0)
 
     return False
 

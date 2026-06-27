@@ -182,6 +182,16 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
 
+    def test_description_emphasis_with_punctuation_does_not_close_broken_label(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger\n" "  deployed **SprySOCKS**: backdoor",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
     def test_bold_heading_with_continuation_list_passes(self):
         report = VALID_REPORT.replace(
             "- **Unknown actor**: Opportunistic exploitation.",
