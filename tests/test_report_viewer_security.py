@@ -165,6 +165,11 @@ def test_report_viewers_expose_static_reading_index():
         assert 'href="#section-filter-panel"' in viewer
         assert 'href="#report-results"' in viewer
         assert 'id="section-filter-panel"' in viewer
+        assert (
+            'id="section-filter-panel" role="region" '
+            'aria-labelledby="section-filter-title"' in viewer
+        )
+        assert 'id="section-filter-title" for="section-filter"' in viewer
         assert 'id="report-results"' in viewer
         assert (
             'id="report-results" role="region" aria-label="Report sections"' in viewer
