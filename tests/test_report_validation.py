@@ -48,6 +48,26 @@ class ReportValidationTests(unittest.TestCase):
     def test_valid_report_passes(self):
         self.assertEqual(validate_report_content(VALID_REPORT), [])
 
+    def test_dangling_bold_list_item_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_bold_only_list_item_without_description_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
     def test_source_attribution_report_fixture_validates_expected_rows(self):
         expected_entries = [
             "- **CISA: exploited KEV update**: Example Research - https://example.test/kev",

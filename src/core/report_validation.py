@@ -51,6 +51,7 @@ MARKDOWN_REFERENCE_DESTINATION_PATTERN = re.compile(
 )
 HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
 LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
+STRONG_MARKER = "**"
 HTML_BLOCK_OPEN_PATTERN = re.compile(
     r"^<(?P<tag>[A-Za-z][A-Za-z0-9:-]*)(?:\s|>|/)",
     re.IGNORECASE,
@@ -487,6 +488,40 @@ def normalize_markdown_escapes(markdown: str) -> str:
     return MARKDOWN_ESCAPE_PATTERN.sub(r"\1", markdown)
 
 
+def has_malformed_bold_list_item(markdown: str) -> bool:
+    """Return True for list items that are only a broken or empty bold label."""
+    searchable_markdown = strip_markdown_code(markdown)
+    for line in searchable_markdown.splitlines():
+        list_item_match = LIST_ITEM_PATTERN.match(line)
+        if not list_item_match:
+            continue
+
+        item = line[list_item_match.end() :].strip()
+        if not item.startswith(STRONG_MARKER):
+            continue
+
+        closing_marker_index = find_unescaped_strong_marker(item, len(STRONG_MARKER))
+        if closing_marker_index is None:
+            return True
+
+        remaining_item = item[closing_marker_index + len(STRONG_MARKER) :].strip()
+        if not remaining_item:
+            return True
+
+    return False
+
+
+def find_unescaped_strong_marker(markdown: str, start: int = 0) -> int | None:
+    cursor = start
+    while True:
+        marker_index = markdown.find(STRONG_MARKER, cursor)
+        if marker_index == -1:
+            return None
+        if not has_odd_backslash_escape(markdown, marker_index):
+            return marker_index
+        cursor = marker_index + len(STRONG_MARKER)
+
+
 def preserve_markdown_escaped_html(markdown: str) -> str:
     lines = markdown.splitlines(keepends=True)
     output: list[str] = []
@@ -741,6 +776,17 @@ def validate_report_content(
             ReportValidationIssue(
                 code="active_content",
                 message="Report contains blocked JavaScript URL.",
+            )
+        )
+
+    if has_malformed_bold_list_item(content):
+        issues.append(
+            ReportValidationIssue(
+                code="malformed_markdown",
+                message=(
+                    "Report contains a malformed bold list item without a "
+                    "description."
+                ),
             )
         )
 

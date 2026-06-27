@@ -152,4 +152,4 @@ The current threat landscape reflects an exceptionally dangerous convergence of 
 
 ## Threat Actor Activities
 
-- **FishMonger
+- **FishMonger**: China-nexus advanced persistent threat group observed deploying a Windows variant of the SprySOCKS backdoor and abusing legitimate Windows kernel drivers for stealth.
