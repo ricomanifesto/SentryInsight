@@ -605,6 +605,9 @@ def test_report_viewers_render_source_entries_as_evidence_rows():
 
         assert "function parseSourceAttributionEntry(entry)" in viewer
         assert "function renderSourceEvidenceRows(sourceEntries)" in viewer
+        assert "const caption = document.createElement('caption')" in viewer
+        assert "caption.textContent = 'Source Attribution evidence rows'" in viewer
+        assert "table.appendChild(caption)" in viewer
         assert "const titleEl = li.querySelector('strong')" in viewer
         assert "entries.push({ raw, title, attribution })" in viewer
         assert "const titleFromMarkup = entry.title || ''" in viewer

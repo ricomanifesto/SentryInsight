@@ -434,6 +434,14 @@
             margin-top: 12px;
             font-size: .9rem;
         }
+        .source-evidence-table caption {
+            color: var(--text-secondary);
+            font-size: .78rem;
+            font-weight: 700;
+            padding-bottom: 6px;
+            text-align: left;
+            text-transform: uppercase;
+        }
         .source-evidence-table th,
         .source-evidence-table td {
             border-top: 1px solid var(--border-color);
@@ -1088,7 +1096,10 @@
             const rows = sourceEntries.map(parseSourceAttributionEntry);
             const table = document.createElement('table');
             table.className = 'source-evidence-table';
-            table.innerHTML = `
+            const caption = document.createElement('caption');
+            caption.textContent = 'Source Attribution evidence rows';
+            table.appendChild(caption);
+            table.insertAdjacentHTML('beforeend', `
                 <thead>
                     <tr>
                         <th scope="col">Evidence</th>
@@ -1097,7 +1108,7 @@
                     </tr>
                 </thead>
                 <tbody></tbody>
-            `;
+            `);
             const body = table.querySelector('tbody');
             rows.forEach(row => {
                 const tr = document.createElement('tr');
