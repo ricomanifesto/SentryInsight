@@ -96,6 +96,14 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_report_content(report), [])
 
+    def test_bold_description_after_bold_list_label_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Status**: **Active**",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_four_space_nested_dangling_bold_list_item_fails(self):
         issues = validate_report_content(
             VALID_REPORT.replace(

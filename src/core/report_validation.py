@@ -543,17 +543,17 @@ def inline_token_starts_with_strong(token) -> bool:
 
 def text_after_first_strong_token(token) -> str:
     strong_depth = 0
-    found_first_strong = False
+    label_closed = False
     output: list[str] = []
     for child in token.children or []:
-        if child.type == "strong_open":
+        if not label_closed and child.type == "strong_open":
             strong_depth += 1
-            found_first_strong = True
             continue
-        if child.type == "strong_close" and strong_depth:
+        if not label_closed and child.type == "strong_close" and strong_depth:
             strong_depth -= 1
+            label_closed = strong_depth == 0
             continue
-        if found_first_strong and strong_depth == 0:
+        if label_closed:
             output.append(child.content)
 
     return "".join(output).strip()
