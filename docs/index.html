@@ -1055,7 +1055,8 @@
             preview.className = 'source-preview';
 
             const summary = document.createElement('summary');
-            summary.textContent = 'View source entries';
+            const entryLabel = sourceEntries.length === 1 ? 'entry' : 'entries';
+            summary.textContent = `View ${sourceEntries.length} source ${entryLabel}`;
             preview.appendChild(summary);
 
             const sourcePreviewList = document.createElement('ul');
