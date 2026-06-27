@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SentryInsight Exploitation Report</title>
-    <link rel="icon" type="image/png" href="/SentryInsight/assets/logo.png">
-    <link rel="shortcut icon" type="image/png" href="/SentryInsight/assets/logo.png">
+    <link rel="icon" type="image/png" data-logo-asset="icon">
+    <link rel="shortcut icon" type="image/png" data-logo-asset="shortcut-icon">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
@@ -615,7 +615,7 @@
     <div class="app">
         <header class="topbar">
             <div class="brand">
-                <img src="/SentryInsight/assets/logo.png" alt="SentryInsight" />
+                <img data-logo-asset="header-logo" alt="SentryInsight" />
                 <div>
                     <div class="title">SentryInsight</div>
                     <div class="subtitle">Exploitation Intelligence Report</div>
@@ -666,6 +666,7 @@
 
     <script>
         const layoutEl = document.querySelector('.layout');
+        const logoAssetEls = document.querySelectorAll('[data-logo-asset]');
         const contentEl = document.getElementById('content');
         const tocEl = document.getElementById('toc-list');
         const tocAsideEl = document.getElementById('toc');
@@ -687,7 +688,25 @@
         const sectionFilterEmptyEl = document.getElementById('section-filter-empty');
         const sectionFilterClearEmptyEl = document.getElementById('section-filter-clear-empty');
 
+        function resolveLogoAssetPath() {
+            return location.pathname.includes('/docs/')
+                ? '../assets/logo.png'
+                : 'assets/logo.png';
+        }
+
+        function applyLogoAssetPath() {
+            const logoPath = resolveLogoAssetPath();
+            logoAssetEls.forEach((element) => {
+                if (element.tagName === 'LINK') {
+                    element.href = logoPath;
+                } else {
+                    element.src = logoPath;
+                }
+            });
+        }
+
         // Initial UI state
+        applyLogoAssetPath();
         contentEl.innerHTML = '<div class="loading">Loading exploitation report...</div>';
         const preferDark = localStorage.getItem('sentryinsight:theme') === 'dark' || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         if (preferDark) document.body.classList.add('dark');
