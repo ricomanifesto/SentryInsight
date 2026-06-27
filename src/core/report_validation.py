@@ -507,11 +507,14 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
         if not item.startswith(STRONG_MARKER):
             continue
 
-        closing_marker_index = find_unescaped_strong_marker(item, len(STRONG_MARKER))
+        item_text = collect_list_item_text(lines, index, item)
+        closing_marker_index = find_unescaped_strong_marker(
+            item_text, len(STRONG_MARKER)
+        )
         if closing_marker_index is None:
             return True
 
-        remaining_item = item[closing_marker_index + len(STRONG_MARKER) :].strip()
+        remaining_item = item_text[closing_marker_index + len(STRONG_MARKER) :].strip()
         if not has_meaningful_list_suffix(
             remaining_item
         ) and not has_indented_list_continuation(lines, index):
@@ -522,6 +525,26 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
 
 def has_meaningful_list_suffix(suffix: str) -> bool:
     return any(character.isalnum() for character in suffix)
+
+
+def collect_list_item_text(lines: list[str], index: int, item: str) -> str:
+    item_parts = [item]
+    item_indent = indentation_columns(lines[index])
+    for continuation_line in lines[index + 1 :]:
+        stripped_continuation = continuation_line.strip()
+        if not stripped_continuation:
+            break
+
+        continuation_indent = indentation_columns(continuation_line)
+        if continuation_indent <= item_indent:
+            break
+
+        if NESTED_LIST_ITEM_PATTERN.match(continuation_line):
+            break
+
+        item_parts.append(stripped_continuation)
+
+    return " ".join(item_parts)
 
 
 def has_indented_list_continuation(lines: list[str], index: int) -> bool:

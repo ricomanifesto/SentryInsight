@@ -115,6 +115,25 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_report_content(report), [])
 
+    def test_wrapped_bold_list_label_with_description_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Microsoft Defender for Endpoint and Windows Defender\n"
+            "  Antivirus**: Affected versions require mitigation.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_nested_bold_marker_does_not_close_broken_parent_label(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger\n" "  - **Campaign**: Deployed a Windows backdoor.",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
     def test_bold_heading_with_continuation_list_passes(self):
         report = VALID_REPORT.replace(
             "- **Unknown actor**: Opportunistic exploitation.",
