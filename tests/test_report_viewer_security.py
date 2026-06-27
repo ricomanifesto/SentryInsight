@@ -589,6 +589,13 @@ def test_report_viewers_include_source_provenance_panel():
         assert "n/a" in viewer
         assert "extractSourceAttributionEntries" in viewer
         assert "renderProvenance" in viewer
+        assert "function renderNoSourceProvenance()" in viewer
+        assert "provenance-empty" in viewer
+        assert (
+            "No source attribution entries were found in this rendered report."
+            in viewer
+        )
+        assert "provenanceEl.appendChild(renderNoSourceProvenance())" in viewer
         assert "renderSourcePreview" in viewer
         assert "source-preview" in viewer
         assert "sourcePreviewList" in viewer

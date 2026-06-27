@@ -1139,11 +1139,26 @@
             return table;
         }
 
+        function renderNoSourceProvenance() {
+            const notice = document.createElement('div');
+            notice.className = 'provenance-empty';
+
+            const heading = document.createElement('h4');
+            heading.textContent = 'Report Provenance';
+
+            const message = document.createElement('p');
+            message.textContent = 'No source attribution entries were found in this rendered report.';
+
+            notice.append(heading, message);
+            return notice;
+        }
+
         function renderProvenance() {
             const sourceEntries = extractSourceAttributionEntries();
             if (!sourceEntries.length) {
-                provenanceEl.hidden = true;
+                provenanceEl.hidden = false;
                 provenanceEl.innerHTML = '';
+                provenanceEl.appendChild(renderNoSourceProvenance());
                 return;
             }
             provenanceEl.hidden = false;
