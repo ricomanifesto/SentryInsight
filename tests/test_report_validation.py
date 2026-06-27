@@ -93,6 +93,17 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
 
+    def test_source_attribution_cve_does_not_satisfy_expected_cve(self):
+        report = (
+            VALID_REPORT
+            + "\n## Source Attribution\n\n"
+            + "- **CVE-2026-1111 advisory**: Vendor - https://example.test/CVE-2026-1111\n"
+        )
+
+        issues = validate_report_content(report, expected_cves=["CVE-2026-1111"])
+
+        self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
+
     def test_expected_cves_pass_when_present(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",

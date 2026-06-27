@@ -912,7 +912,8 @@ def missing_expected_cve_ids(
     if not expected:
         return []
 
-    return sorted(expected - find_report_cve_ids(markdown))
+    report_body = remove_source_attribution_section(markdown)
+    return sorted(expected - find_report_cve_ids(report_body))
 
 
 def get_nonempty_paragraphs(markdown: str) -> list[str]:

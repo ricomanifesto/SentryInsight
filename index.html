@@ -292,7 +292,8 @@
         /* Executive Summary */
         .exec { border: 1px solid var(--border-color); background: #ffffff; border-radius: 12px; padding: 12px 16px; margin: 8px 0 16px; }
         .exec h4 { margin: 0 0 6px; color: var(--text-secondary); }
-        .exec p { margin: 0; color: var(--text-primary); }
+        .exec p { margin: 0 0 0.75rem; color: var(--text-primary); }
+        .exec p:last-of-type { margin-bottom: 0; }
         .exec .audio-player { margin-top: 10px; }
         .exec audio { width: 100%; border-radius: 8px; height: 36px; }
         body.dark .exec { background: var(--dark-elev); border-color: #1f2937; }
@@ -1410,6 +1411,60 @@
             contentEl.textContent = '';
             contentEl.append(heading, message, pre);
         }
+
+        function extractExecutiveSummaryNodes() {
+            const h1 = contentEl.querySelector('h1');
+            if (!h1) return [];
+
+            const summaryHeading = Array.from(contentEl.querySelectorAll('h2')).find(heading => {
+                const label = heading.textContent.replace('#', '').trim().toLowerCase();
+                return label === 'executive summary';
+            });
+            if (summaryHeading) {
+                const nodes = [summaryHeading];
+                let next = summaryHeading.nextElementSibling;
+                while (next && next.tagName !== 'H2') {
+                    nodes.push(next);
+                    next = next.nextElementSibling;
+                }
+                return nodes;
+            }
+
+            const next = h1.nextElementSibling;
+            return next && next.tagName === 'P' ? [next] : [];
+        }
+
+        function appendExecutiveSummaryAudio() {
+            if (!isArchiveReport) {
+                const audioSrc = 'executive_summary.mp3?v=' + Date.now();
+                fetch('executive_summary.mp3', { method: 'HEAD' }).then(r => {
+                    if (!r.ok) return;
+                    const len = parseInt(r.headers.get('Content-Length') || '0');
+                    if (len === 0) return;
+                    const audioDiv = document.createElement('div');
+                    audioDiv.className = 'audio-player';
+                    const audioEl = document.createElement('audio');
+                    audioEl.controls = true;
+                    audioEl.preload = 'none';
+                    audioEl.src = audioSrc;
+                    audioDiv.appendChild(audioEl);
+                    execEl.appendChild(audioDiv);
+                }).catch(() => {});
+            }
+        }
+
+        function renderExecutiveSummary() {
+            execEl.innerHTML = '';
+            const summaryNodes = extractExecutiveSummaryNodes();
+            const paragraphs = summaryNodes.filter(node => node.tagName === 'P');
+            if (!paragraphs.length) return;
+
+            execEl.innerHTML = `<h4>Executive Summary</h4>`;
+            paragraphs.forEach(paragraph => execEl.appendChild(paragraph.cloneNode(true)));
+            summaryNodes.forEach(node => node.remove());
+            appendExecutiveSummaryAudio();
+        }
+
         Promise.all([configPromise])
           .then(() => fetch(reportPath + '?v=' + Date.now(), { cache: 'no-store' }))
           .then(response => {
@@ -1430,34 +1485,7 @@
                 let html = DOMPurify.sanitize(marked.parse(text));
                 contentEl.innerHTML = html;
 
-                // Extract executive summary (first paragraph after H1)
-                execEl.innerHTML = '';
-                const h1 = contentEl.querySelector('h1');
-                if (h1) {
-                    let next = h1.nextElementSibling;
-                    if (next && next.tagName === 'P') {
-                        execEl.innerHTML = `<h4>Executive Summary</h4>`;
-                        execEl.appendChild(next.cloneNode(true));
-                        next.remove();
-                        if (!isArchiveReport) {
-                            // Add audio player only if the file exists and has content
-                            const audioSrc = 'executive_summary.mp3?v=' + Date.now();
-                            fetch('executive_summary.mp3', { method: 'HEAD' }).then(r => {
-                                if (!r.ok) return;
-                                const len = parseInt(r.headers.get('Content-Length') || '0');
-                                if (len === 0) return;
-                                const audioDiv = document.createElement('div');
-                                audioDiv.className = 'audio-player';
-                                const audioEl = document.createElement('audio');
-                                audioEl.controls = true;
-                                audioEl.preload = 'none';
-                                audioEl.src = audioSrc;
-                                audioDiv.appendChild(audioEl);
-                                execEl.appendChild(audioDiv);
-                            }).catch(() => {});
-                        }
-                    }
-                }
+                renderExecutiveSummary();
 
                 // Post-processing
                 addHeadingAnchors();

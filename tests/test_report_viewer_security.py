@@ -113,6 +113,27 @@ def test_report_viewers_render_full_summary_cards():
         assert "Report Sections" in viewer
 
 
+def test_report_viewers_extract_named_executive_summary_section():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert "function extractExecutiveSummaryNodes()" in viewer
+        assert "function renderExecutiveSummary()" in viewer
+        assert "function appendExecutiveSummaryAudio()" in viewer
+        assert (
+            "const summaryHeading = Array.from(contentEl.querySelectorAll('h2')).find"
+            in viewer
+        )
+        assert "label === 'executive summary'" in viewer
+        assert (
+            "paragraphs.forEach(paragraph => execEl.appendChild(paragraph.cloneNode(true)))"
+            in viewer
+        )
+        assert "summaryNodes.forEach(node => node.remove())" in viewer
+        assert "renderExecutiveSummary()" in viewer
+        assert "first paragraph after H1" not in viewer
+
+
 def test_report_viewers_include_section_filter_controls():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()

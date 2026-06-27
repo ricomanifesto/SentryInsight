@@ -12,7 +12,36 @@ OUTPUT_FORMAT = "mp3_44100_128"
 
 
 def extract_executive_summary(report_markdown: str) -> str:
-    """Extract the executive summary paragraph from the exploitation report markdown."""
+    """Extract executive summary text from the exploitation report markdown."""
+    section_summary = extract_named_executive_summary(report_markdown)
+    if section_summary:
+        return section_summary
+
+    return extract_legacy_executive_summary(report_markdown)
+
+
+def extract_named_executive_summary(report_markdown: str) -> str:
+    """Extract paragraphs under the explicit Executive Summary section."""
+    lines = report_markdown.split("\n")
+    found_heading = False
+    summary_lines = []
+
+    for line in lines:
+        stripped = line.strip()
+        if re.match(r"^##\s+Executive Summary\s*$", stripped, re.IGNORECASE):
+            found_heading = True
+            continue
+        if found_heading:
+            if stripped.startswith("##"):
+                break
+            if stripped and stripped != "---":
+                summary_lines.append(stripped)
+
+    return " ".join(summary_lines)
+
+
+def extract_legacy_executive_summary(report_markdown: str) -> str:
+    """Extract the legacy first paragraph after the report heading."""
     lines = report_markdown.split("\n")
     found_heading = False
     summary_lines = []
