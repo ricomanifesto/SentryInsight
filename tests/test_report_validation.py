@@ -201,6 +201,14 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_report_content(report), [])
 
+    def test_bold_heading_with_indented_paragraph_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **FishMonger**\n\n" "  Deployed a Windows variant of SprySOCKS.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_source_attribution_report_fixture_validates_expected_rows(self):
         expected_entries = [
             "- **CISA: exploited KEV update**: Example Research - https://example.test/kev",

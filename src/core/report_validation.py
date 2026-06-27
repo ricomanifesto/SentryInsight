@@ -516,7 +516,7 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
         remaining_text = text_after_first_strong_token(token)
         if not has_meaningful_list_suffix(
             remaining_text
-        ) and not list_item_has_nested_list(tokens, index):
+        ) and not list_item_has_following_content(tokens, index):
             return True
 
     return False
@@ -560,7 +560,7 @@ def text_after_first_strong_token(token) -> str:
     return "".join(output).strip()
 
 
-def list_item_has_nested_list(tokens: list, inline_index: int) -> bool:
+def list_item_has_following_content(tokens: list, inline_index: int) -> bool:
     list_item_depth = 0
     for token in reversed(tokens[: inline_index + 1]):
         if token.type == "list_item_close":
@@ -584,6 +584,8 @@ def list_item_has_nested_list(tokens: list, inline_index: int) -> bool:
             nested_list_depth += 1
         elif token.type in {"bullet_list_close", "ordered_list_close"}:
             nested_list_depth = max(nested_list_depth - 1, 0)
+        elif token.type == "inline" and has_meaningful_list_suffix(token.content):
+            return True
 
     return False
 
