@@ -94,6 +94,8 @@ def format_article_summary(article: Dict[str, Any]) -> str:
         metadata.append(f"Source: {source}")
     if link:
         metadata.append(f"URL: {link}")
+    if article_cves := collect_structured_cves(article):
+        metadata.append(f"CVEs: {', '.join(article_cves)}")
 
     heading = f"**{title}**"
     if metadata:
@@ -102,18 +104,11 @@ def format_article_summary(article: Dict[str, Any]) -> str:
     return f"{heading}\n\n{content[:500]}...\n\n"
 
 
-def collect_article_cves(article: Dict[str, Any]) -> list[str]:
-    """Collect CVE IDs from structured article metadata and text fields."""
+def collect_structured_cves(article: Dict[str, Any]) -> list[str]:
+    """Collect CVE IDs from structured article metadata."""
     cves: list[str] = []
     cves.extend(str(cve).strip() for cve in article.get("cves", []) if str(cve).strip())
-
-    text_fields = [
-        article.get("title", ""),
-        article.get("summary", ""),
-        article.get("content", ""),
-        article.get("link", ""),
-    ]
-    cves.extend(extract_cve_ids("\n".join(str(value) for value in text_fields)))
+    cves.extend(extract_cve_ids("\n".join(cves)))
 
     seen: set[str] = set()
     unique_cves: list[str] = []
@@ -125,6 +120,11 @@ def collect_article_cves(article: Dict[str, Any]) -> list[str]:
         unique_cves.append(normalized_cve)
 
     return unique_cves
+
+
+def collect_prompt_cves(article_summary: str) -> list[str]:
+    """Collect CVE IDs from the exact article text sent to the model."""
+    return [cve.upper() for cve in extract_cve_ids(article_summary)]
 
 
 async def analyze_exploitation(
@@ -163,10 +163,11 @@ async def analyze_exploitation(
     all_attack_vectors = set()
 
     for article in articles:
-        all_article_summaries.append(format_article_summary(article))
+        article_summary = format_article_summary(article)
+        all_article_summaries.append(article_summary)
 
-        # Extract CVEs and affected systems
-        for cve in collect_article_cves(article):
+        # Extract CVEs from the same text the model sees.
+        for cve in collect_prompt_cves(article_summary):
             all_cves.add(cve)
         if "affected_systems" in article:
             for system in article.get("affected_systems", []):

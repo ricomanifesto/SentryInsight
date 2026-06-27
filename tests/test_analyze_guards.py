@@ -177,9 +177,12 @@ class AnalyzeGuardTests(unittest.TestCase):
                     articles=[
                         {
                             "title": "Vendor patch for CVE-2026-1111",
-                            "summary": "Exploitation observed for CVE 2026 2222.",
-                            "content": "Older text repeats cve-2026-1111.",
+                            "summary": "Summary text is not used when content is present.",
+                            "content": "Exploitation observed for CVE 2026 2222. "
+                            + ("padding " * 80)
+                            + "Late content mentions CVE-2026-4444.",
                             "link": "https://example.test/CVE-2026-3333",
+                            "cves": ["CVE-2026-5555"],
                         }
                     ],
                     config={
@@ -192,8 +195,14 @@ class AnalyzeGuardTests(unittest.TestCase):
 
         self.assertEqual(
             sorted(result["cves_identified"]),
-            ["CVE-2026-1111", "CVE-2026-2222", "CVE-2026-3333"],
+            [
+                "CVE-2026-1111",
+                "CVE-2026-2222",
+                "CVE-2026-3333",
+                "CVE-2026-5555",
+            ],
         )
+        self.assertNotIn("CVE-2026-4444", result["cves_identified"])
 
     def test_prompt_requires_source_attribution_from_article_metadata(self):
         analyze = import_analyze_with_stubs()
