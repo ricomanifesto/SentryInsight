@@ -138,6 +138,21 @@ class ReportValidationTests(unittest.TestCase):
             [],
         )
 
+    def test_expected_cve_allows_long_sequence_numbers(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity is concentrated in edge systems. "
+            "CVE-2026-12345678 is included in source metadata.",
+        )
+
+        self.assertEqual(
+            validate_report_content(
+                report,
+                expected_cves=["CVE-2026-12345678"],
+            ),
+            [],
+        )
+
     def test_single_threat_actor_item_with_broader_campaigns_fails(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",
