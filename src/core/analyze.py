@@ -249,11 +249,14 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
 
     structured_cves = collect_structured_prompt_cves(article_summary)
     if (
-        len(structured_cves) == 1
+        structured_cves
         and has_positive_exploitation_sentence(article_summary)
-        and not has_negated_cve_sentence(article_summary, structured_cves[0])
+        and not any(
+            has_negated_cve_sentence(article_summary, cve) for cve in structured_cves
+        )
     ):
-        add_cve(structured_cves[0])
+        for cve in structured_cves:
+            add_cve(cve)
 
     for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
         cve_context = sentence_containing_position(article_summary, match.start())
