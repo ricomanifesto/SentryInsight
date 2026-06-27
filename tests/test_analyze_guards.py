@@ -196,10 +196,7 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertEqual(
             sorted(result["cves_identified"]),
             [
-                "CVE-2026-1111",
                 "CVE-2026-2222",
-                "CVE-2026-3333",
-                "CVE-2026-5555",
             ],
         )
         self.assertNotIn("CVE-2026-4444", result["cves_identified"])
@@ -282,6 +279,41 @@ class AnalyzeGuardTests(unittest.TestCase):
             )
 
         self.assertEqual(result["cves_identified"], ["CVE-2026-2222"])
+
+    def test_analysis_result_keeps_exploited_cve_near_unrelated_negation(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **_kwargs):
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            result = asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": "Active exploitation of CVE-2026-1111",
+                            "summary": (
+                                "Attackers are exploiting CVE-2026-1111 in the wild. "
+                                "No evidence that CVE-2026-2222 has been exploited."
+                            ),
+                            "link": "https://example.test/report",
+                        }
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertEqual(result["cves_identified"], ["CVE-2026-1111"])
 
     def test_prompt_requires_source_attribution_from_article_metadata(self):
         analyze = import_analyze_with_stubs()

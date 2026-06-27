@@ -41,7 +41,7 @@ EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 CVE_CONTEXT_PATTERN = re.compile(r"CVE[-\s]?(\d{4})[-\s]?(\d{1,})", re.IGNORECASE)
-STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
+SENTENCE_PATTERN = re.compile(r"[^.!?\n]+(?:[.!?]+|$)")
 NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
     r"no evidence(?:\s+(?:of|that))?|"
@@ -180,11 +180,18 @@ def normalize_cve_match(match: re.Match[str]) -> str:
     return f"CVE-{match.group(1)}-{match.group(2)}".upper()
 
 
-def collect_structured_prompt_cves(article_summary: str) -> list[str]:
-    structured_cves: list[str] = []
-    for metadata_match in STRUCTURED_CVES_PATTERN.finditer(article_summary):
-        structured_cves.extend(collect_prompt_cves(metadata_match.group(1)))
-    return structured_cves
+def sentence_containing_position(text: str, position: int) -> str:
+    line_start = text.rfind("\n", 0, position) + 1
+    line_end = text.find("\n", position)
+    if line_end == -1:
+        line_end = len(text)
+
+    line = text[line_start:line_end]
+    line_position = position - line_start
+    for sentence_match in SENTENCE_PATTERN.finditer(line):
+        if sentence_match.start() <= line_position < sentence_match.end():
+            return sentence_match.group(0)
+    return line
 
 
 def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]:
@@ -199,16 +206,8 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         seen.add(normalized_cve)
         cves.append(normalized_cve)
 
-    if has_exploitation_relevance(
-        article_summary
-    ) and not has_negated_exploitation_relevance(article_summary):
-        for cve in collect_structured_prompt_cves(article_summary):
-            add_cve(cve)
-
     for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
-        start = max(0, match.start() - 160)
-        end = min(len(article_summary), match.end() + 160)
-        cve_context = article_summary[start:end]
+        cve_context = sentence_containing_position(article_summary, match.start())
         if has_exploitation_relevance(
             cve_context
         ) and not has_negated_exploitation_relevance(cve_context):
