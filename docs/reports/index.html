@@ -367,8 +367,8 @@
             <a class="archive-focus-target" href="#archive-filter-panel">Filter</a>
             <a class="archive-focus-target" href="#archive-results">Reports</a>
         </nav>
-        <div class="archive-filter" id="archive-filter-panel">
-            <label for="archive-filter">Filter archived reports</label>
+        <div class="archive-filter" id="archive-filter-panel" role="region" aria-labelledby="archive-filter-title">
+            <label id="archive-filter-title" for="archive-filter">Filter archived reports</label>
             <input id="archive-filter" type="search" autocomplete="off" aria-controls="archive-results" aria-describedby="archive-count archive-filter-summary" placeholder="Search CVEs, vendors, products, or campaigns" />
             <div class="archive-topic-filters" id="archive-topic-filters" aria-label="Filter by report topic"></div>
             <button class="archive-clear-filters" id="archive-clear-filters" type="button" aria-controls="archive-results" aria-describedby="archive-count archive-filter-summary" disabled>Clear filters</button>
