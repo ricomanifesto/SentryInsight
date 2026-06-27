@@ -204,6 +204,21 @@ def test_report_viewers_expose_static_reading_index():
         assert "Report" in viewer
 
 
+def test_report_viewers_resolve_logo_assets_without_project_path_lock():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert "/SentryInsight/assets/logo.png" not in viewer
+        assert 'data-logo-asset="icon"' in viewer
+        assert 'data-logo-asset="shortcut-icon"' in viewer
+        assert 'data-logo-asset="header-logo"' in viewer
+        assert "function resolveLogoAssetPath()" in viewer
+        assert "function applyLogoAssetPath()" in viewer
+        assert "location.pathname.includes('/docs/')" in viewer
+        assert "const logoPath = resolveLogoAssetPath()" in viewer
+        assert "applyLogoAssetPath()" in viewer
+
+
 def test_report_viewers_include_archive_navigation_affordance():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()
