@@ -212,6 +212,15 @@ def has_positive_exploitation_sentence(article_summary: str) -> bool:
     )
 
 
+def has_negated_cve_sentence(article_summary: str, cve: str) -> bool:
+    normalized_cve = cve.upper()
+    return any(
+        normalized_cve in collect_prompt_cves(sentence)
+        and has_negated_exploitation_relevance(sentence)
+        for sentence in iter_line_sentences(article_summary)
+    )
+
+
 def sentence_containing_position(text: str, position: int) -> str:
     line_start = text.rfind("\n", 0, position) + 1
     line_end = text.find("\n", position)
@@ -238,9 +247,13 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         seen.add(normalized_cve)
         cves.append(normalized_cve)
 
-    if has_positive_exploitation_sentence(article_summary):
-        for cve in collect_structured_prompt_cves(article_summary):
-            add_cve(cve)
+    structured_cves = collect_structured_prompt_cves(article_summary)
+    if (
+        len(structured_cves) == 1
+        and has_positive_exploitation_sentence(article_summary)
+        and not has_negated_cve_sentence(article_summary, structured_cves[0])
+    ):
+        add_cve(structured_cves[0])
 
     for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
         cve_context = sentence_containing_position(article_summary, match.start())
