@@ -37,6 +37,12 @@ def main() -> int:
         default=[],
         help="Expected canonical Source Attribution row. May be repeated.",
     )
+    parser.add_argument(
+        "--expected-cve",
+        action="append",
+        default=[],
+        help="Expected CVE ID that must appear in the report. May be repeated.",
+    )
     args = parser.parse_args()
 
     report_path = Path(args.report_path)
@@ -50,6 +56,7 @@ def main() -> int:
         source_attribution_entries=(
             args.source_attribution_entry if args.source_attribution_entry else None
         ),
+        expected_cves=args.expected_cve if args.expected_cve else None,
     )
     if issues:
         print("Report content validation failed:")

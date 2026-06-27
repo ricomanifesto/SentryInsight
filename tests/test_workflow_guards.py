@@ -151,6 +151,8 @@ class WorkflowGuardTests(unittest.TestCase):
                 "analysis_results": {
                     "exploitation_report": """# Exploitation Report
 
+## Executive Summary
+
 Recent exploitation activity is concentrated in edge systems.
 
 ## Active Exploitation Details
@@ -173,6 +175,50 @@ Recent exploitation activity is concentrated in edge systems.
 - **Unknown actor**: Opportunistic exploitation.
 """,
                     "source_attribution_required": True,
+                },
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.generate_report(state))
+
+            self.assertEqual(result["status"], "failed")
+            self.assertIn("report_validation_errors", result)
+            self.assertFalse(output_path.exists())
+
+    def test_missing_expected_cve_does_not_write_output_file(self):
+        workflow = import_workflow_with_stubs()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            state = {
+                "analysis_results": {
+                    "exploitation_report": """# Exploitation Report
+
+## Executive Summary
+
+Recent exploitation activity is concentrated in edge systems.
+
+## Active Exploitation Details
+
+### Example Vulnerability
+- **Description**: Attackers are exploiting a vulnerable service.
+- **Impact**: Remote access.
+- **Status**: Active exploitation observed.
+
+## Affected Systems and Products
+
+- **Example Product**: Affected versions are exposed.
+
+## Attack Vectors and Techniques
+
+- **Internet-facing service**: Attackers send crafted requests.
+
+## Threat Actor Activities
+
+- **Unknown actor**: Opportunistic exploitation.
+""",
+                    "cves_identified": ["CVE-2026-1111"],
                 },
                 "config": {"output_path": str(output_path)},
                 "status": "started",

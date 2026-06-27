@@ -1,6 +1,12 @@
 # Exploitation Report
 
-The current threat landscape reflects an exceptionally dangerous convergence of active zero-day exploitation, large-scale credential harvesting, and sophisticated malware campaigns targeting organizations across nearly every sector and geography. Most critically, Microsoft is actively working to patch **CVE-2026-50656**, a Defender zero-day dubbed **RoguePlanet** that remains unpatched and actively exploited. Simultaneously, CISA has issued an emergency directive ordering federal agencies to immediately patch a maximum-severity flaw in the Joomla JCE plugin enabling arbitrary PHP code execution. The **FortiBleed** data leak has exposed VPN credentials for over 73,000 Fortinet firewall devices worldwide, with active credential-harvesting campaigns sweeping across nearly 200 countries. Supply chain integrity is under severe strain, with 144 Mastra npm packages compromised via a hijacked contributor account and 15 malicious JetBrains Marketplace plugins actively stealing AI API keys from developers. Compounding these threats, novel techniques including the **GhostTree** attack abusing recursive Windows NTFS junctions to blind Defender scans, the **Fileless Phantom Stealer** executing entirely in memory, and the **Rokarolla** Android trojan targeting 217 banking and cryptocurrency applications underscore the breadth and technical sophistication of current adversarial activity.
+## Executive Summary
+
+The current threat landscape reflects an exceptionally dangerous convergence of active zero-day exploitation, large-scale credential harvesting, and sophisticated malware campaigns targeting organizations across nearly every sector and geography. Most critically, Microsoft is actively working to patch **CVE-2026-50656**, a Defender zero-day dubbed **RoguePlanet** that remains unpatched and actively exploited. Simultaneously, CISA has issued an emergency directive ordering federal agencies to immediately patch a maximum-severity flaw in the Joomla JCE plugin enabling arbitrary PHP code execution.
+
+The **FortiBleed** data leak has exposed VPN credentials for over 73,000 Fortinet firewall devices worldwide, with active credential-harvesting campaigns sweeping across nearly 200 countries. Supply chain integrity is under severe strain, with 144 Mastra npm packages compromised via a hijacked contributor account and 15 malicious JetBrains Marketplace plugins actively stealing AI API keys from developers.
+
+Compounding these threats, novel techniques including the **GhostTree** attack abusing recursive Windows NTFS junctions to blind Defender scans, the **Fileless Phantom Stealer** executing entirely in memory, and the **Rokarolla** Android trojan targeting 217 banking and cryptocurrency applications underscore the breadth and technical sophistication of current adversarial activity.
 
 ---
 
@@ -153,3 +159,8 @@ The current threat landscape reflects an exceptionally dangerous convergence of 
 ## Threat Actor Activities
 
 - **FishMonger**: China-nexus advanced persistent threat group observed deploying a Windows variant of the SprySOCKS backdoor and abusing legitimate Windows kernel drivers for stealth.
+- **FortiBleed credential-harvesting operators**: Unknown operators are weaponizing exposed Fortinet VPN credentials across a large global target set.
+- **Mastra package compromise actor**: An unknown threat actor hijacked a contributor account to publish malicious packages under the legitimate `@mastra/*` namespace.
+- **JetBrains Marketplace plugin operators**: Unknown operators published malicious developer plugins and companion browser extensions to steal AI API keys and chatbot data.
+- **Crypto clipper campaign operators**: Unknown operators are using promoted content, fake software reviews, and public platform abuse to distribute cryptocurrency clipper malware.
+- **ClickFix campaign operators**: Operators are expanding copy-paste social engineering delivery through compromised WordPress sites and multiple loader families.

@@ -158,7 +158,9 @@ Generate a report following this EXACT structure with professional markdown form
 
 # Exploitation Report
 
-[Write a comprehensive summary paragraph of the most critical exploitation activity. Only mention CVE IDs if they are explicitly provided in the articles. Do not mention when CVE IDs are missing or unavailable.]
+## Executive Summary
+
+[Write two to three concise executive-readable paragraphs covering the most critical exploitation activity. Do not emit one long block of text. Only mention CVE IDs if they are explicitly provided in the articles. Do not mention when CVE IDs are missing or unavailable.]
 
 ## Active Exploitation Details
 
@@ -203,10 +205,13 @@ Formatting requirements:
 - Use proper markdown with **bold** for emphasis
 - Create clear bullet points with good spacing
 - Use ### for subsections within main sections
+- Include the ## Executive Summary section and split it into multiple paragraphs
 - Write professional, well-structured content
 - Only mention CVE IDs when they are actually provided in the source articles
+- Include every CVE ID extracted from the article metadata when it is relevant to exploitation details
 - Do NOT mention missing or unavailable CVE information
 - Include the Source Attribution section when article source metadata or URLs are available
+- Do not leave Threat Actor Activities as a single stale-looking item when broader actor or campaign activity appears elsewhere in the report; include the relevant actor, campaign, or unknown-operator roll-ups grounded in the articles
 
 Focus specifically on:
 - Zero-day vulnerabilities being actively exploited

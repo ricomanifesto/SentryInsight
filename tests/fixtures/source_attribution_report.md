@@ -1,5 +1,7 @@
 # Exploitation Report
 
+## Executive Summary
+
 Recent exploitation activity is concentrated in edge systems and package supply
 chains.
 
