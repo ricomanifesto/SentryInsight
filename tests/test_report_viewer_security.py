@@ -592,7 +592,15 @@ def test_report_viewers_include_source_provenance_panel():
         assert "renderSourcePreview" in viewer
         assert "source-preview" in viewer
         assert "sourcePreviewList" in viewer
-        assert "entryEl.textContent = entry" in viewer
+        assert (
+            "const entryLabel = sourceEntries.length === 1 ? 'entry' : 'entries'"
+            in viewer
+        )
+        assert (
+            "summary.textContent = `View ${sourceEntries.length} source ${entryLabel}`"
+            in viewer
+        )
+        assert "entryEl.textContent = entry.raw || entry" in viewer
         assert "sourcePreviewList.innerHTML = ''" in viewer
         assert "findSourceAttributionHeading" in viewer
         assert "provenanceEl.hidden = true" in viewer
