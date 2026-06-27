@@ -209,6 +209,25 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_report_content(report), [])
 
+    def test_bold_heading_with_fenced_code_details_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **FishMonger**\n\n"
+            "  ```powershell\n"
+            "  Start-Process SprySOCKS\n"
+            "  ```",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_bold_heading_with_indented_code_details_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **FishMonger**\n\n" "      Start-Process SprySOCKS",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_source_attribution_report_fixture_validates_expected_rows(self):
         expected_entries = [
             "- **CISA: exploited KEV update**: Example Research - https://example.test/kev",

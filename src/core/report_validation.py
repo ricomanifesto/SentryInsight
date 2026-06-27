@@ -499,8 +499,7 @@ def normalize_markdown_escapes(markdown: str) -> str:
 
 def has_malformed_bold_list_item(markdown: str) -> bool:
     """Return True for list items that are only a broken or empty bold label."""
-    searchable_markdown = strip_markdown_block_code(markdown)
-    tokens = MARKDOWN_PARSER.parse(searchable_markdown)
+    tokens = MARKDOWN_PARSER.parse(markdown)
     for index, token in enumerate(tokens):
         if token.type != "inline" or not token.content.lstrip().startswith(
             STRONG_MARKER
@@ -585,6 +584,8 @@ def list_item_has_following_content(tokens: list, inline_index: int) -> bool:
         elif token.type in {"bullet_list_close", "ordered_list_close"}:
             nested_list_depth = max(nested_list_depth - 1, 0)
         elif token.type == "inline" and has_meaningful_list_suffix(token.content):
+            return True
+        elif token.type in {"code_block", "fence"} and token.content.strip():
             return True
 
     return False
