@@ -130,6 +130,11 @@ def test_report_viewers_include_section_filter_controls():
         )
         assert 'id="section-filter-empty"' in viewer
         assert 'id="section-filter-clear-empty"' in viewer
+        assert (
+            'id="section-filter-clear-empty" type="button" aria-controls="report-results"'
+            in viewer
+        )
+        assert 'aria-describedby="section-filter-count">Clear filter</button>' in viewer
         assert "filterSections" in viewer
         assert "buildFilterGroups" in viewer
         assert "flushDirectGroup" in viewer
