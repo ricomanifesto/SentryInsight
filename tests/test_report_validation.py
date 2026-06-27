@@ -175,6 +175,25 @@ class ReportValidationTests(unittest.TestCase):
             )
         )
 
+    def test_indented_top_level_threat_actor_item_still_counts(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity includes a malware campaign and a "
+            "credential-harvesting campaign.",
+        ).replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "  - **Unknown actor**: Opportunistic exploitation.",
+        )
+
+        issues = validate_report_content(report)
+
+        self.assertTrue(
+            any(
+                issue.code == "underpopulated_threat_actor_activities"
+                for issue in issues
+            )
+        )
+
     def test_single_generic_threat_actor_phrase_does_not_fail(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",

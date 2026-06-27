@@ -53,7 +53,7 @@ MARKDOWN_REFERENCE_DESTINATION_PATTERN = re.compile(
     re.MULTILINE,
 )
 HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
-LIST_ITEM_PATTERN = re.compile(r"^(?:[-+*]|\d+[.)])\s+")
+LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
 NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
 CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,7}\b", re.IGNORECASE)
 SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
@@ -944,9 +944,16 @@ def has_single_overlong_executive_summary(markdown: str) -> bool:
 
 
 def get_top_level_list_items(markdown: str) -> list[str]:
-    return [
-        line.strip() for line in markdown.splitlines() if LIST_ITEM_PATTERN.match(line)
-    ]
+    lines = markdown.splitlines()
+    items: list[str] = []
+    for token in MARKDOWN_PARSER.parse(markdown):
+        if token.type != "list_item_open" or token.level != 1:
+            continue
+        if token.map:
+            items.append(lines[token.map[0]].strip())
+        else:
+            items.append("")
+    return items
 
 
 def has_underpopulated_threat_actor_activities(markdown: str) -> bool:
