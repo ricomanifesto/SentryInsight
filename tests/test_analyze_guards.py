@@ -226,6 +226,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/CVE-2026-1111",
                         },
                         {
+                            "title": "Patch fixes RCE in CVE-2026-3333",
+                            "summary": "Remote code execution issue fixed in a routine update.",
+                            "link": "https://example.test/CVE-2026-3333",
+                        },
+                        {
                             "title": "Active exploitation of CVE-2026-2222",
                             "summary": "Attackers are exploiting the issue in the wild.",
                             "link": "https://example.test/CVE-2026-2222",
