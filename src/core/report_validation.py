@@ -536,6 +536,8 @@ def inline_token_starts_with_strong(token) -> bool:
     for child in token.children or []:
         if child.type == "text" and not child.content:
             continue
+        if child.type == "em_open":
+            continue
         return child.type == "strong_open"
 
     return False
