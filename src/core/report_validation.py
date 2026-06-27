@@ -508,7 +508,7 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
             continue
 
         item_text = collect_list_item_text(lines, index, item)
-        closing_marker_index = find_unescaped_strong_marker(
+        closing_marker_index = find_list_label_closing_marker(
             item_text, len(STRONG_MARKER)
         )
         if closing_marker_index is None:
@@ -563,7 +563,7 @@ def has_indented_list_continuation(lines: list[str], index: int) -> bool:
     return False
 
 
-def find_unescaped_strong_marker(markdown: str, start: int = 0) -> int | None:
+def find_list_label_closing_marker(markdown: str, start: int = 0) -> int | None:
     cursor = start
     while cursor < len(markdown):
         if markdown[cursor] == "`" and not has_odd_backslash_escape(markdown, cursor):
@@ -585,11 +585,21 @@ def find_unescaped_strong_marker(markdown: str, start: int = 0) -> int | None:
         if markdown.startswith(STRONG_MARKER, cursor) and not has_odd_backslash_escape(
             markdown, cursor
         ):
-            return cursor
+            remaining_text = markdown[cursor + len(STRONG_MARKER) :].lstrip()
+            if has_plausible_list_label_suffix(remaining_text):
+                return cursor
+            cursor += len(STRONG_MARKER)
+            continue
 
         cursor += 1
 
     return None
+
+
+def has_plausible_list_label_suffix(suffix: str) -> bool:
+    if not suffix:
+        return True
+    return suffix[0] in ":;-.,()"
 
 
 def find_closing_inline_code_delimiter(
