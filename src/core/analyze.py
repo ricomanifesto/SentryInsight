@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from typing import List, Dict, Any
 from datetime import datetime
 
@@ -21,6 +22,26 @@ logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
+
+EXPLOITATION_RELEVANCE_PATTERN = re.compile(
+    r"\b(?:"
+    r"active(?:ly)? exploit(?:ed|ing|ation)?|"
+    r"exploit(?:ed|ing|ation)|"
+    r"in the wild|"
+    r"zero[\s-]?day|"
+    r"0day|"
+    r"remote code execution|"
+    r"RCE|"
+    r"command injection|"
+    r"arbitrary code|"
+    r"authentication bypass|"
+    r"backdoor|"
+    r"malware|"
+    r"threat actor|"
+    r"campaign"
+    r")\b",
+    re.IGNORECASE,
+)
 
 
 def load_template() -> str:
@@ -127,6 +148,11 @@ def collect_prompt_cves(article_summary: str) -> list[str]:
     return [cve.upper() for cve in extract_cve_ids(article_summary)]
 
 
+def has_exploitation_relevance(article_summary: str) -> bool:
+    """Return whether prompt-visible article text describes exploit activity."""
+    return bool(EXPLOITATION_RELEVANCE_PATTERN.search(article_summary))
+
+
 async def analyze_exploitation(
     articles: List[Dict[str, Any]], config: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -166,9 +192,10 @@ async def analyze_exploitation(
         article_summary = format_article_summary(article)
         all_article_summaries.append(article_summary)
 
-        # Extract CVEs from the same text the model sees.
-        for cve in collect_prompt_cves(article_summary):
-            all_cves.add(cve)
+        # Extract expected CVEs only from prompt text that carries exploit relevance.
+        if has_exploitation_relevance(article_summary):
+            for cve in collect_prompt_cves(article_summary):
+                all_cves.add(cve)
         if "affected_systems" in article:
             for system in article.get("affected_systems", []):
                 all_systems.add(system)
