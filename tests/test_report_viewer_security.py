@@ -581,7 +581,13 @@ def test_report_viewers_include_source_provenance_panel():
         viewer = viewer_path.read_text()
 
         assert 'id="provenance"' in viewer
+        assert (
+            'id="provenance" class="provenance" role="region" '
+            'aria-labelledby="provenance-title" hidden'
+        ) in viewer
         assert "Report Provenance" in viewer
+        assert 'id="provenance-title"' in viewer
+        assert "heading.id = 'provenance-title'" in viewer
         assert "Source entries" in viewer
         assert "isPlaceholderSourceAttributionEntry" in viewer
         assert "no sources were provided" in viewer

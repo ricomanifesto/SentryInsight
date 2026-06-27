@@ -644,7 +644,7 @@
                     <a href="#section-filter-panel">Filter</a>
                     <a href="#report-results">Report</a>
                 </nav>
-                <div id="provenance" class="provenance" hidden></div>
+                <div id="provenance" class="provenance" role="region" aria-labelledby="provenance-title" hidden></div>
                 <div id="uncertainty" class="uncertainty" hidden></div>
                 <div id="coverage-notes" class="coverage-notes" hidden></div>
                 <div class="section-filter" id="section-filter-panel">
@@ -1144,6 +1144,7 @@
             notice.className = 'provenance-empty';
 
             const heading = document.createElement('h4');
+            heading.id = 'provenance-title';
             heading.textContent = 'Report Provenance';
 
             const message = document.createElement('p');
@@ -1164,7 +1165,7 @@
             provenanceEl.hidden = false;
             const label = sourceEntries.length === 1 ? 'Source entry' : 'Source entries';
             provenanceEl.innerHTML = `
-                <h4>Report Provenance</h4>
+                <h4 id="provenance-title">Report Provenance</h4>
                 <p>${sourceEntries.length} ${label.toLowerCase()} cited in this report.</p>
                 <div class="provenance-meta">Source entries are rendered from the report's Source Attribution section.</div>
             `;
