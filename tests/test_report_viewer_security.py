@@ -417,6 +417,11 @@ def test_report_archive_route_has_static_index():
     assert "archiveTagLabel.className = 'archive-tag-label'" in archive
     assert "archiveTagLabel.textContent = 'Topics'" in archive
     assert "tag.type = 'button'" in archive
+    assert "tag.setAttribute('aria-controls', 'archive-results')" in archive
+    assert (
+        "tag.setAttribute('aria-describedby', 'archive-count archive-filter-summary')"
+        in archive
+    )
     assert "filterArchiveByTopic(topic)" in archive
     assert ".archive-focus-target:focus-visible" in archive
     assert "outline: 3px solid #2563eb" in archive
