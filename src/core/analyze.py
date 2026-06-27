@@ -41,7 +41,9 @@ EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 CVE_CONTEXT_PATTERN = re.compile(r"CVE[-\s]?(\d{4})[-\s]?(\d{1,})", re.IGNORECASE)
+STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
 SENTENCE_PATTERN = re.compile(r"[^.!?\n]+(?:[.!?]+|$)")
+URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
     r"no evidence(?:\s+(?:of|that))?|"
@@ -180,6 +182,36 @@ def normalize_cve_match(match: re.Match[str]) -> str:
     return f"CVE-{match.group(1)}-{match.group(2)}".upper()
 
 
+def collect_structured_prompt_cves(article_summary: str) -> list[str]:
+    structured_cves: list[str] = []
+    for metadata_match in STRUCTURED_CVES_PATTERN.finditer(article_summary):
+        structured_cves.extend(collect_prompt_cves(metadata_match.group(1)))
+    return structured_cves
+
+
+def iter_line_sentences(text: str) -> list[str]:
+    sentences: list[str] = []
+    for line in text.splitlines():
+        for sentence_match in SENTENCE_PATTERN.finditer(line):
+            sentence = sentence_match.group(0).strip()
+            if sentence:
+                sentences.append(sentence)
+    return sentences
+
+
+def strip_cve_metadata_noise(article_summary: str) -> str:
+    without_urls = URL_PATTERN.sub("", article_summary)
+    return STRUCTURED_CVES_PATTERN.sub("", without_urls)
+
+
+def has_positive_exploitation_sentence(article_summary: str) -> bool:
+    return any(
+        has_exploitation_relevance(sentence)
+        and not has_negated_exploitation_relevance(sentence)
+        for sentence in iter_line_sentences(strip_cve_metadata_noise(article_summary))
+    )
+
+
 def sentence_containing_position(text: str, position: int) -> str:
     line_start = text.rfind("\n", 0, position) + 1
     line_end = text.find("\n", position)
@@ -205,6 +237,10 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             return
         seen.add(normalized_cve)
         cves.append(normalized_cve)
+
+    if has_positive_exploitation_sentence(article_summary):
+        for cve in collect_structured_prompt_cves(article_summary):
+            add_cve(cve)
 
     for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
         cve_context = sentence_containing_position(article_summary, match.start())
