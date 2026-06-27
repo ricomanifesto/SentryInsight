@@ -6,6 +6,8 @@ from html.parser import HTMLParser
 import re
 from typing import Iterable, List
 
+from markdown_it import MarkdownIt
+
 REQUIRED_SECTIONS = (
     "# Exploitation Report",
     "## Active Exploitation Details",
@@ -51,6 +53,9 @@ MARKDOWN_REFERENCE_DESTINATION_PATTERN = re.compile(
 )
 HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
 LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
+NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
+STRONG_MARKER = "**"
+MARKDOWN_PARSER = MarkdownIt("commonmark")
 HTML_BLOCK_OPEN_PATTERN = re.compile(
     r"^<(?P<tag>[A-Za-z][A-Za-z0-9:-]*)(?:\s|>|/)",
     re.IGNORECASE,
@@ -125,9 +130,14 @@ class ActiveContentHTMLParser(HTMLParser):
 
 def strip_markdown_code(markdown: str) -> str:
     """Remove code regions before active-content validation."""
+    without_block_code = strip_markdown_block_code(markdown)
+    return strip_inline_code_spans(without_block_code)
+
+
+def strip_markdown_block_code(markdown: str) -> str:
+    """Remove Markdown code blocks while preserving inline code spans."""
     without_fenced_code = strip_fenced_code_blocks(markdown)
-    without_indented_code = strip_indented_code_blocks(without_fenced_code)
-    return strip_inline_code_spans(without_indented_code)
+    return strip_indented_code_blocks(without_fenced_code)
 
 
 def strip_fenced_code_blocks(markdown: str) -> str:
@@ -487,6 +497,194 @@ def normalize_markdown_escapes(markdown: str) -> str:
     return MARKDOWN_ESCAPE_PATTERN.sub(r"\1", markdown)
 
 
+def has_malformed_bold_list_item(markdown: str) -> bool:
+    """Return True for list items that are only a broken or empty bold label."""
+    tokens = MARKDOWN_PARSER.parse(markdown)
+    for index, token in enumerate(tokens):
+        if token.type != "inline" or not token.content.lstrip().startswith(
+            STRONG_MARKER
+        ):
+            continue
+
+        if not is_list_item_inline_token(tokens, index):
+            continue
+
+        if not inline_token_starts_with_strong(token):
+            return True
+
+        remaining_text = text_after_first_strong_token(token)
+        if not has_meaningful_list_suffix(
+            remaining_text
+        ) and not list_item_has_following_content(tokens, index):
+            return True
+
+    return False
+
+
+def is_list_item_inline_token(tokens: list, inline_index: int) -> bool:
+    parent_stack: list[str] = []
+    for token in tokens[:inline_index]:
+        if token.type == "list_item_open":
+            parent_stack.append(token.type)
+        elif token.type == "list_item_close" and parent_stack:
+            parent_stack.pop()
+
+    return bool(parent_stack)
+
+
+def inline_token_starts_with_strong(token) -> bool:
+    for child in token.children or []:
+        if child.type == "text" and not child.content:
+            continue
+        if child.type == "em_open":
+            continue
+        return child.type == "strong_open"
+
+    return False
+
+
+def text_after_first_strong_token(token) -> str:
+    strong_depth = 0
+    label_closed = False
+    output: list[str] = []
+    for child in token.children or []:
+        if not label_closed and child.type == "strong_open":
+            strong_depth += 1
+            continue
+        if not label_closed and child.type == "strong_close" and strong_depth:
+            strong_depth -= 1
+            label_closed = strong_depth == 0
+            continue
+        if label_closed:
+            output.append(child.content)
+
+    return "".join(output).strip()
+
+
+def list_item_has_following_content(tokens: list, inline_index: int) -> bool:
+    list_item_depth = 0
+    for token in reversed(tokens[: inline_index + 1]):
+        if token.type == "list_item_close":
+            list_item_depth += 1
+        elif token.type == "list_item_open":
+            if list_item_depth == 0:
+                break
+            list_item_depth -= 1
+
+    nested_list_depth = 0
+    for token in tokens[inline_index + 1 :]:
+        if token.type == "list_item_open":
+            list_item_depth += 1
+        elif token.type == "list_item_close":
+            if list_item_depth == 0:
+                return False
+            list_item_depth -= 1
+        elif token.type in {"bullet_list_open", "ordered_list_open"}:
+            if nested_list_depth == 0:
+                return True
+            nested_list_depth += 1
+        elif token.type in {"bullet_list_close", "ordered_list_close"}:
+            nested_list_depth = max(nested_list_depth - 1, 0)
+        elif token.type == "inline" and has_meaningful_list_suffix(token.content):
+            return True
+        elif token.type in {"code_block", "fence"} and token.content.strip():
+            return True
+
+    return False
+
+
+def has_meaningful_list_suffix(suffix: str) -> bool:
+    rendered_suffix = html.unescape(normalize_markdown_escapes(suffix))
+    return any(character.isalnum() for character in rendered_suffix)
+
+
+def collect_list_item_text(lines: list[str], index: int, item: str) -> str:
+    item_parts = [item]
+    item_indent = indentation_columns(lines[index])
+    for continuation_line in lines[index + 1 :]:
+        stripped_continuation = continuation_line.strip()
+        if not stripped_continuation:
+            break
+
+        continuation_indent = indentation_columns(continuation_line)
+        if continuation_indent <= item_indent:
+            break
+
+        if NESTED_LIST_ITEM_PATTERN.match(continuation_line):
+            break
+
+        item_parts.append(stripped_continuation)
+
+    return " ".join(item_parts)
+
+
+def has_indented_list_continuation(lines: list[str], index: int) -> bool:
+    item_indent = indentation_columns(lines[index])
+    for continuation_line in lines[index + 1 :]:
+        if not continuation_line.strip():
+            continue
+
+        continuation_indent = indentation_columns(continuation_line)
+        if continuation_indent <= item_indent:
+            return False
+
+        return True
+
+    return False
+
+
+def find_list_label_closing_marker(markdown: str, start: int = 0) -> int | None:
+    cursor = start
+    while cursor < len(markdown):
+        if markdown[cursor] == "`" and not has_odd_backslash_escape(markdown, cursor):
+            delimiter_length = 1
+            while (
+                cursor + delimiter_length < len(markdown)
+                and markdown[cursor + delimiter_length] == "`"
+            ):
+                delimiter_length += 1
+
+            delimiter = "`" * delimiter_length
+            closing_delimiter_index = find_closing_inline_code_delimiter(
+                markdown, delimiter, cursor + delimiter_length
+            )
+            if closing_delimiter_index != -1:
+                cursor = closing_delimiter_index + delimiter_length
+                continue
+
+        if markdown.startswith(STRONG_MARKER, cursor) and not has_odd_backslash_escape(
+            markdown, cursor
+        ):
+            remaining_text = markdown[cursor + len(STRONG_MARKER) :].lstrip()
+            if has_plausible_list_label_suffix(remaining_text):
+                return cursor
+            cursor += len(STRONG_MARKER)
+            continue
+
+        cursor += 1
+
+    return None
+
+
+def has_plausible_list_label_suffix(suffix: str) -> bool:
+    if not suffix:
+        return True
+    return suffix[0] in ":;-.,()"
+
+
+def find_closing_inline_code_delimiter(
+    markdown: str, delimiter: str, start: int
+) -> int:
+    cursor = start
+    while True:
+        delimiter_index = markdown.find(delimiter, cursor)
+        if delimiter_index == -1:
+            return -1
+        if not has_odd_backslash_escape(markdown, delimiter_index):
+            return delimiter_index
+        cursor = delimiter_index + len(delimiter)
+
+
 def preserve_markdown_escaped_html(markdown: str) -> str:
     lines = markdown.splitlines(keepends=True)
     output: list[str] = []
@@ -741,6 +939,17 @@ def validate_report_content(
             ReportValidationIssue(
                 code="active_content",
                 message="Report contains blocked JavaScript URL.",
+            )
+        )
+
+    if has_malformed_bold_list_item(content):
+        issues.append(
+            ReportValidationIssue(
+                code="malformed_markdown",
+                message=(
+                    "Report contains a malformed bold list item without a "
+                    "description."
+                ),
             )
         )
 

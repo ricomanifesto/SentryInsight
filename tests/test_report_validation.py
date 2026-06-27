@@ -48,6 +48,212 @@ class ReportValidationTests(unittest.TestCase):
     def test_valid_report_passes(self):
         self.assertEqual(validate_report_content(VALID_REPORT), [])
 
+    def test_dangling_bold_list_item_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_bold_only_list_item_without_description_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_colon_only_bold_list_item_without_description_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**:",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_punctuation_only_bold_list_item_without_description_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**: --",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_inline_code_bold_list_item_description_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Example Package**: `@mastra/*`",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_bold_description_after_bold_list_label_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Status**: **Active**",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_combined_emphasis_list_label_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- ***Critical***: actively exploited",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_four_space_nested_dangling_bold_list_item_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **Parent actor**: Coordinated exploitation.\n" "    - **FishMonger",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_four_space_nested_bold_list_item_with_description_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Parent actor**: Coordinated exploitation.\n"
+            "    - **FishMonger**: Deployed a Windows backdoor.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_wrapped_bold_list_label_with_description_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Microsoft Defender for Endpoint and Windows Defender\n"
+            "  Antivirus**: Affected versions require mitigation.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_nested_bold_marker_does_not_close_broken_parent_label(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger\n" "  - **Campaign**: Deployed a Windows backdoor.",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_inline_code_strong_marker_does_not_close_broken_label(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **Package `@scope/**`: affected versions require review.",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_inline_code_strong_marker_with_closed_label_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Package `@scope/**`**: affected versions require review.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_html_entity_punctuation_only_suffix_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**: &mdash;",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_numeric_html_entity_punctuation_only_suffix_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**: &#8212;",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_description_emphasis_does_not_close_broken_label(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger\n" "  deployed **SprySOCKS** to targets.",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_capitalized_description_emphasis_does_not_close_broken_label(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger\n" "  Deployed **SprySOCKS** to targets.",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_description_emphasis_with_punctuation_does_not_close_broken_label(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger\n" "  deployed **SprySOCKS**: backdoor",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_bold_heading_with_continuation_list_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **FishMonger**\n"
+            "  - **Campaign**: Deployed a Windows variant of the SprySOCKS backdoor.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_bold_heading_with_indented_paragraph_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **FishMonger**\n\n" "  Deployed a Windows variant of SprySOCKS.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_bold_heading_with_fenced_code_details_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **FishMonger**\n\n"
+            "  ```powershell\n"
+            "  Start-Process SprySOCKS\n"
+            "  ```",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_bold_heading_with_indented_code_details_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **FishMonger**\n\n" "      Start-Process SprySOCKS",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_source_attribution_report_fixture_validates_expected_rows(self):
         expected_entries = [
             "- **CISA: exploited KEV update**: Example Research - https://example.test/kev",
