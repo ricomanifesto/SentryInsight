@@ -126,9 +126,14 @@ class ActiveContentHTMLParser(HTMLParser):
 
 def strip_markdown_code(markdown: str) -> str:
     """Remove code regions before active-content validation."""
+    without_block_code = strip_markdown_block_code(markdown)
+    return strip_inline_code_spans(without_block_code)
+
+
+def strip_markdown_block_code(markdown: str) -> str:
+    """Remove Markdown code blocks while preserving inline code spans."""
     without_fenced_code = strip_fenced_code_blocks(markdown)
-    without_indented_code = strip_indented_code_blocks(without_fenced_code)
-    return strip_inline_code_spans(without_indented_code)
+    return strip_indented_code_blocks(without_fenced_code)
 
 
 def strip_fenced_code_blocks(markdown: str) -> str:
@@ -490,7 +495,7 @@ def normalize_markdown_escapes(markdown: str) -> str:
 
 def has_malformed_bold_list_item(markdown: str) -> bool:
     """Return True for list items that are only a broken or empty bold label."""
-    searchable_markdown = strip_markdown_code(markdown)
+    searchable_markdown = strip_markdown_block_code(markdown)
     lines = searchable_markdown.splitlines()
     for index, line in enumerate(lines):
         list_item_match = LIST_ITEM_PATTERN.match(line)

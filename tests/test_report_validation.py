@@ -78,6 +78,24 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
 
+    def test_punctuation_only_bold_list_item_without_description_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "- **Unknown actor**: Opportunistic exploitation.",
+                "- **FishMonger**: --",
+            )
+        )
+
+        self.assertTrue(any(issue.code == "malformed_markdown" for issue in issues))
+
+    def test_inline_code_bold_list_item_description_passes(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Example Package**: `@mastra/*`",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_bold_heading_with_continuation_list_passes(self):
         report = VALID_REPORT.replace(
             "- **Unknown actor**: Opportunistic exploitation.",
