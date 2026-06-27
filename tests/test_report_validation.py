@@ -76,6 +76,25 @@ class ReportValidationTests(unittest.TestCase):
             any(issue.code == "executive_summary_readability" for issue in issues)
         )
 
+    def test_single_overlong_executive_summary_with_thematic_break_fails(self):
+        long_summary = (
+            "Attackers are exploiting multiple exposed systems across sectors. "
+            "Credential theft and remote code execution remain the dominant risks. "
+            "Supply chain compromise is expanding across developer ecosystems. "
+            "Security teams should prioritize patching, credential rotation, and "
+            "monitoring for follow-on access attempts across internet-facing systems."
+        )
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "Recent exploitation activity is concentrated in edge systems.",
+                long_summary + "\n\n---",
+            )
+        )
+
+        self.assertTrue(
+            any(issue.code == "executive_summary_readability" for issue in issues)
+        )
+
     def test_multi_paragraph_executive_summary_passes(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",
@@ -124,6 +143,27 @@ class ReportValidationTests(unittest.TestCase):
             "Recent exploitation activity is concentrated in edge systems.",
             "Recent exploitation activity includes a malware campaign and a "
             "credential-harvesting campaign.",
+        )
+
+        issues = validate_report_content(report)
+
+        self.assertTrue(
+            any(
+                issue.code == "underpopulated_threat_actor_activities"
+                for issue in issues
+            )
+        )
+
+    def test_nested_threat_actor_bullets_do_not_count_as_top_level_items(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity includes a malware campaign and a "
+            "credential-harvesting campaign.",
+        ).replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Unknown actor**: Opportunistic exploitation.\n"
+            "  - Initial access against exposed services.\n"
+            "  - Follow-on credential theft.",
         )
 
         issues = validate_report_content(report)

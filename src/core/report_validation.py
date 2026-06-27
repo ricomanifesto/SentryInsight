@@ -53,11 +53,12 @@ MARKDOWN_REFERENCE_DESTINATION_PATTERN = re.compile(
     re.MULTILINE,
 )
 HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
-LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
+LIST_ITEM_PATTERN = re.compile(r"^(?:[-+*]|\d+[.)])\s+")
 NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
 CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,7}\b", re.IGNORECASE)
 SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
 SENTENCE_END_PATTERN = re.compile(r"[.!?](?:\s+|$)")
+THEMATIC_BREAK_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-*_][ \t]*){3,}$")
 THREAT_ACTIVITY_MARKER_PATTERN = re.compile(
     r"\b(?:campaigns?|threat actors?)\b",
     re.IGNORECASE,
@@ -924,7 +925,7 @@ def get_nonempty_paragraphs(markdown: str) -> list[str]:
     return [
         paragraph.strip()
         for paragraph in re.split(r"\n\s*\n", markdown.strip())
-        if paragraph.strip()
+        if paragraph.strip() and not THEMATIC_BREAK_PATTERN.fullmatch(paragraph.strip())
     ]
 
 
