@@ -956,7 +956,8 @@ def has_underpopulated_threat_actor_activities(markdown: str) -> bool:
     if len(threat_actor_items) != 1:
         return False
 
-    report_without_section = markdown.replace(threat_actor_body, "")
+    report_without_attribution = remove_source_attribution_section(markdown)
+    report_without_section = report_without_attribution.replace(threat_actor_body, "")
     body_without_headings = "\n".join(
         line
         for line in report_without_section.splitlines()

@@ -143,6 +143,16 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_report_content(report), [])
 
+    def test_source_attribution_activity_markers_do_not_fail_single_actor_item(self):
+        report = (
+            VALID_REPORT
+            + "\n## Source Attribution\n\n"
+            + "- **Malware campaign expands edge exploitation**: Example Source\n"
+            + "- **Credential harvesting campaign targets VPN users**: Example Source\n"
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
     def test_dangling_bold_list_item_fails(self):
         issues = validate_report_content(
             VALID_REPORT.replace(
