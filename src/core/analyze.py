@@ -40,6 +40,26 @@ EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+CVE_CONTEXT_PATTERN = re.compile(r"CVE[-\s]?(\d{4})[-\s]?(\d{1,})", re.IGNORECASE)
+STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
+NEGATED_EXPLOITATION_PATTERN = re.compile(
+    r"\b(?:"
+    r"no evidence(?:\s+(?:of|that))?|"
+    r"not|"
+    r"without|"
+    r"has not been|"
+    r"have not been|"
+    r"not known to be|"
+    r"no signs? of|"
+    r"no reports? of"
+    r")\b.{0,120}\b(?:"
+    r"exploit(?:ed|ing|ation)?|"
+    r"in the wild|"
+    r"weaponiz(?:ed|ation)|"
+    r"under attack"
+    r")\b",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 def load_template() -> str:
@@ -151,6 +171,52 @@ def has_exploitation_relevance(article_summary: str) -> bool:
     return bool(EXPLOITATION_RELEVANCE_PATTERN.search(article_summary))
 
 
+def has_negated_exploitation_relevance(article_summary: str) -> bool:
+    """Return whether prompt-visible text negates exploitation activity."""
+    return bool(NEGATED_EXPLOITATION_PATTERN.search(article_summary))
+
+
+def normalize_cve_match(match: re.Match[str]) -> str:
+    return f"CVE-{match.group(1)}-{match.group(2)}".upper()
+
+
+def collect_structured_prompt_cves(article_summary: str) -> list[str]:
+    structured_cves: list[str] = []
+    for metadata_match in STRUCTURED_CVES_PATTERN.finditer(article_summary):
+        structured_cves.extend(collect_prompt_cves(metadata_match.group(1)))
+    return structured_cves
+
+
+def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]:
+    """Collect prompt CVEs that are tied to non-negated exploit activity."""
+    cves: list[str] = []
+    seen: set[str] = set()
+
+    def add_cve(cve: str) -> None:
+        normalized_cve = cve.upper()
+        if normalized_cve in seen:
+            return
+        seen.add(normalized_cve)
+        cves.append(normalized_cve)
+
+    if has_exploitation_relevance(
+        article_summary
+    ) and not has_negated_exploitation_relevance(article_summary):
+        for cve in collect_structured_prompt_cves(article_summary):
+            add_cve(cve)
+
+    for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
+        start = max(0, match.start() - 160)
+        end = min(len(article_summary), match.end() + 160)
+        cve_context = article_summary[start:end]
+        if has_exploitation_relevance(
+            cve_context
+        ) and not has_negated_exploitation_relevance(cve_context):
+            add_cve(normalize_cve_match(match))
+
+    return cves
+
+
 async def analyze_exploitation(
     articles: List[Dict[str, Any]], config: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -190,10 +256,9 @@ async def analyze_exploitation(
         article_summary = format_article_summary(article)
         all_article_summaries.append(article_summary)
 
-        # Extract expected CVEs only from prompt text that carries exploit relevance.
-        if has_exploitation_relevance(article_summary):
-            for cve in collect_prompt_cves(article_summary):
-                all_cves.add(cve)
+        # Extract expected CVEs only when prompt text ties them to exploit activity.
+        for cve in collect_exploitation_relevant_prompt_cves(article_summary):
+            all_cves.add(cve)
         if "affected_systems" in article:
             for system in article.get("affected_systems", []):
                 all_systems.add(system)
