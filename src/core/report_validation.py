@@ -506,10 +506,16 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
             return True
 
         remaining_item = item[closing_marker_index + len(STRONG_MARKER) :].strip()
-        if not remaining_item and not has_indented_list_continuation(lines, index):
+        if not has_meaningful_list_suffix(
+            remaining_item
+        ) and not has_indented_list_continuation(lines, index):
             return True
 
     return False
+
+
+def has_meaningful_list_suffix(suffix: str) -> bool:
+    return any(character.isalnum() for character in suffix)
 
 
 def has_indented_list_continuation(lines: list[str], index: int) -> bool:
