@@ -9,6 +9,8 @@ from src.core.report_validation import (
 
 VALID_REPORT = """# Exploitation Report
 
+## Executive Summary
+
 Recent exploitation activity is concentrated in edge systems.
 
 ## Active Exploitation Details
@@ -47,6 +49,183 @@ SOURCE_ATTRIBUTION_FIXTURE = (
 class ReportValidationTests(unittest.TestCase):
     def test_valid_report_passes(self):
         self.assertEqual(validate_report_content(VALID_REPORT), [])
+
+    def test_missing_executive_summary_heading_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT.replace("## Executive Summary\n\n", "")
+        )
+
+        self.assertTrue(any(issue.code == "missing_section" for issue in issues))
+
+    def test_single_overlong_executive_summary_paragraph_fails(self):
+        long_summary = (
+            "Attackers are exploiting multiple exposed systems across sectors. "
+            "Credential theft and remote code execution remain the dominant risks. "
+            "Supply chain compromise is expanding across developer ecosystems. "
+            "Security teams should prioritize patching, credential rotation, and "
+            "monitoring for follow-on access attempts across internet-facing systems."
+        )
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "Recent exploitation activity is concentrated in edge systems.",
+                long_summary,
+            )
+        )
+
+        self.assertTrue(
+            any(issue.code == "executive_summary_readability" for issue in issues)
+        )
+
+    def test_single_overlong_executive_summary_with_thematic_break_fails(self):
+        long_summary = (
+            "Attackers are exploiting multiple exposed systems across sectors. "
+            "Credential theft and remote code execution remain the dominant risks. "
+            "Supply chain compromise is expanding across developer ecosystems. "
+            "Security teams should prioritize patching, credential rotation, and "
+            "monitoring for follow-on access attempts across internet-facing systems."
+        )
+        issues = validate_report_content(
+            VALID_REPORT.replace(
+                "Recent exploitation activity is concentrated in edge systems.",
+                long_summary + "\n\n---",
+            )
+        )
+
+        self.assertTrue(
+            any(issue.code == "executive_summary_readability" for issue in issues)
+        )
+
+    def test_multi_paragraph_executive_summary_passes(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity is concentrated in edge systems.\n\n"
+            "Security teams should prioritize exposed services first.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_missing_expected_cve_fails(self):
+        issues = validate_report_content(
+            VALID_REPORT,
+            expected_cves=["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
+        self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
+
+    def test_source_attribution_cve_does_not_satisfy_expected_cve(self):
+        report = (
+            VALID_REPORT
+            + "\n## Source Attribution\n\n"
+            + "- **CVE-2026-1111 advisory**: Vendor - https://example.test/CVE-2026-1111\n"
+        )
+
+        issues = validate_report_content(report, expected_cves=["CVE-2026-1111"])
+
+        self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
+
+    def test_expected_cves_pass_when_present(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity is concentrated in edge systems. "
+            "CVE-2026-1111 and CVE-2026-2222 are included in source metadata.",
+        )
+
+        self.assertEqual(
+            validate_report_content(
+                report,
+                expected_cves=["CVE-2026-1111", "CVE-2026-2222"],
+            ),
+            [],
+        )
+
+    def test_expected_cve_allows_long_sequence_numbers(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity is concentrated in edge systems. "
+            "CVE-2026-12345678 is included in source metadata.",
+        )
+
+        self.assertEqual(
+            validate_report_content(
+                report,
+                expected_cves=["CVE-2026-12345678"],
+            ),
+            [],
+        )
+
+    def test_single_threat_actor_item_with_broader_campaigns_fails(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity includes a malware campaign and a "
+            "credential-harvesting campaign.",
+        )
+
+        issues = validate_report_content(report)
+
+        self.assertTrue(
+            any(
+                issue.code == "underpopulated_threat_actor_activities"
+                for issue in issues
+            )
+        )
+
+    def test_nested_threat_actor_bullets_do_not_count_as_top_level_items(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity includes a malware campaign and a "
+            "credential-harvesting campaign.",
+        ).replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Unknown actor**: Opportunistic exploitation.\n"
+            "  - Initial access against exposed services.\n"
+            "  - Follow-on credential theft.",
+        )
+
+        issues = validate_report_content(report)
+
+        self.assertTrue(
+            any(
+                issue.code == "underpopulated_threat_actor_activities"
+                for issue in issues
+            )
+        )
+
+    def test_indented_top_level_threat_actor_item_still_counts(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity includes a malware campaign and a "
+            "credential-harvesting campaign.",
+        ).replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "  - **Unknown actor**: Opportunistic exploitation.",
+        )
+
+        issues = validate_report_content(report)
+
+        self.assertTrue(
+            any(
+                issue.code == "underpopulated_threat_actor_activities"
+                for issue in issues
+            )
+        )
+
+    def test_single_generic_threat_actor_phrase_does_not_fail(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Threat actors are exploiting edge systems.",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_source_attribution_activity_markers_do_not_fail_single_actor_item(self):
+        report = (
+            VALID_REPORT
+            + "\n## Source Attribution\n\n"
+            + "- **Malware campaign expands edge exploitation**: Example Source\n"
+            + "- **Credential harvesting campaign targets VPN users**: Example Source\n"
+        )
+
+        self.assertEqual(validate_report_content(report), [])
 
     def test_dangling_bold_list_item_fails(self):
         issues = validate_report_content(

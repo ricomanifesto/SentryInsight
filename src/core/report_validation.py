@@ -10,6 +10,7 @@ from markdown_it import MarkdownIt
 
 REQUIRED_SECTIONS = (
     "# Exploitation Report",
+    "## Executive Summary",
     "## Active Exploitation Details",
     "## Affected Systems and Products",
     "## Attack Vectors and Techniques",
@@ -54,6 +55,14 @@ MARKDOWN_REFERENCE_DESTINATION_PATTERN = re.compile(
 HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
 LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
 NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
+CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
+SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
+SENTENCE_END_PATTERN = re.compile(r"[.!?](?:\s+|$)")
+THEMATIC_BREAK_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-*_][ \t]*){3,}$")
+THREAT_ACTIVITY_MARKER_PATTERN = re.compile(
+    r"\b(?:campaigns?|threat actors?)\b",
+    re.IGNORECASE,
+)
 STRONG_MARKER = "**"
 MARKDOWN_PARSER = MarkdownIt("commonmark")
 HTML_BLOCK_OPEN_PATTERN = re.compile(
@@ -757,15 +766,19 @@ def contains_active_markdown_link(markdown: str) -> bool:
     return False
 
 
-def get_source_attribution_section_body(markdown: str) -> str:
+def get_markdown_section_body(markdown: str, section_heading: str) -> str:
     searchable_markdown = strip_markdown_code(markdown)
-    section_match = SOURCE_ATTRIBUTION_SECTION_PATTERN.search(searchable_markdown)
+    section_pattern = re.compile(
+        rf"^{re.escape(section_heading)}\s*$",
+        re.MULTILINE,
+    )
+    section_match = section_pattern.search(searchable_markdown)
     if not section_match:
         return ""
 
     section_body_start = section_match.end()
-    next_section = re.search(
-        r"^##\s+", searchable_markdown[section_body_start:], re.MULTILINE
+    next_section = SECTION_HEADING_PATTERN.search(
+        searchable_markdown[section_body_start:]
     )
     return (
         searchable_markdown[
@@ -774,6 +787,10 @@ def get_source_attribution_section_body(markdown: str) -> str:
         if next_section
         else searchable_markdown[section_body_start:]
     )
+
+
+def get_source_attribution_section_body(markdown: str) -> str:
+    return get_markdown_section_body(markdown, SOURCE_ATTRIBUTION_SECTION)
 
 
 def remove_source_attribution_section(markdown: str) -> str:
@@ -876,10 +893,95 @@ def exact_source_attribution_entries_present(
     return bool(expected_entries) and expected_entries.issubset(actual_entries)
 
 
+def normalize_cve_id(cve_id: str) -> str:
+    return cve_id.upper()
+
+
+def find_report_cve_ids(markdown: str) -> set[str]:
+    return {
+        normalize_cve_id(match.group(0)) for match in CVE_ID_PATTERN.finditer(markdown)
+    }
+
+
+def missing_expected_cve_ids(
+    markdown: str, expected_cves: Iterable[str] | None
+) -> list[str]:
+    if expected_cves is None:
+        return []
+
+    expected = {
+        normalize_cve_id(cve.strip())
+        for cve in expected_cves
+        if CVE_ID_PATTERN.fullmatch(cve.strip())
+    }
+    if not expected:
+        return []
+
+    report_body = remove_source_attribution_section(markdown)
+    return sorted(expected - find_report_cve_ids(report_body))
+
+
+def get_nonempty_paragraphs(markdown: str) -> list[str]:
+    return [
+        paragraph.strip()
+        for paragraph in re.split(r"\n\s*\n", markdown.strip())
+        if paragraph.strip() and not THEMATIC_BREAK_PATTERN.fullmatch(paragraph.strip())
+    ]
+
+
+def has_single_overlong_executive_summary(markdown: str) -> bool:
+    summary_body = get_markdown_section_body(markdown, "## Executive Summary")
+    if not summary_body.strip():
+        return False
+
+    paragraphs = get_nonempty_paragraphs(summary_body)
+    if len(paragraphs) != 1:
+        return False
+
+    paragraph = paragraphs[0]
+    sentence_count = len(SENTENCE_END_PATTERN.findall(paragraph))
+    return len(paragraph) >= 500 or sentence_count >= 4
+
+
+def get_top_level_list_items(markdown: str) -> list[str]:
+    lines = markdown.splitlines()
+    items: list[str] = []
+    for token in MARKDOWN_PARSER.parse(markdown):
+        if token.type != "list_item_open" or token.level != 1:
+            continue
+        if token.map:
+            items.append(lines[token.map[0]].strip())
+        else:
+            items.append("")
+    return items
+
+
+def has_underpopulated_threat_actor_activities(markdown: str) -> bool:
+    threat_actor_body = get_markdown_section_body(
+        markdown, "## Threat Actor Activities"
+    )
+    threat_actor_items = get_top_level_list_items(threat_actor_body)
+    if len(threat_actor_items) != 1:
+        return False
+
+    report_without_attribution = remove_source_attribution_section(markdown)
+    report_without_section = report_without_attribution.replace(threat_actor_body, "")
+    body_without_headings = "\n".join(
+        line
+        for line in report_without_section.splitlines()
+        if not line.lstrip().startswith("#")
+    )
+    broader_activity_markers = THREAT_ACTIVITY_MARKER_PATTERN.findall(
+        body_without_headings
+    )
+    return len(broader_activity_markers) >= 2
+
+
 def validate_report_content(
     markdown: str,
     require_source_attribution: bool = False,
     source_attribution_entries: Iterable[str] | None = None,
+    expected_cves: Iterable[str] | None = None,
 ) -> List[ReportValidationIssue]:
     """Return validation issues that should block publishing."""
     issues: List[ReportValidationIssue] = []
@@ -949,6 +1051,40 @@ def validate_report_content(
                 message=(
                     "Report contains a malformed bold list item without a "
                     "description."
+                ),
+            )
+        )
+
+    if has_single_overlong_executive_summary(content):
+        issues.append(
+            ReportValidationIssue(
+                code="executive_summary_readability",
+                message=(
+                    "Executive Summary is a long single paragraph; split it "
+                    "into shorter executive-readable paragraphs."
+                ),
+            )
+        )
+
+    if has_underpopulated_threat_actor_activities(content):
+        issues.append(
+            ReportValidationIssue(
+                code="underpopulated_threat_actor_activities",
+                message=(
+                    "Threat Actor Activities has only one item even though the "
+                    "report contains broader actor or campaign activity."
+                ),
+            )
+        )
+
+    missing_cves = missing_expected_cve_ids(content, expected_cves)
+    if missing_cves:
+        issues.append(
+            ReportValidationIssue(
+                code="missing_expected_cves",
+                message=(
+                    "Report is missing expected CVE IDs from source metadata: "
+                    + ", ".join(missing_cves)
                 ),
             )
         )

@@ -58,6 +58,7 @@ async def publish_to_github_pages(
             source_attribution_entries=analysis_results.get(
                 "source_attribution_entries"
             ),
+            expected_cves=analysis_results.get("cves_identified"),
         )
         if validation_issues:
             logger.error(

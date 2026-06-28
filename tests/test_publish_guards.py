@@ -7,6 +7,8 @@ from src.services.publish import publish_to_github_pages
 
 VALID_REPORT = """# Exploitation Report
 
+## Executive Summary
+
 Recent exploitation activity is concentrated in edge systems.
 
 ## Active Exploitation Details
@@ -105,6 +107,24 @@ class PublishGuardTests(unittest.TestCase):
                         "exploitation_report": VALID_REPORT,
                         "date": "2026-06-17",
                         "source_attribution_required": True,
+                    },
+                    {"enabled": True, "repo_directory": str(repo_dir)},
+                )
+            )
+
+            self.assertFalse(result)
+            self.assertTrue(repo_dir.exists())
+            self.assertFalse((repo_dir / "index.md").exists())
+
+    def test_missing_expected_cve_is_not_written(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "docs"
+            result = asyncio.run(
+                publish_to_github_pages(
+                    {
+                        "exploitation_report": VALID_REPORT,
+                        "date": "2026-06-17",
+                        "cves_identified": ["CVE-2026-1111"],
                     },
                     {"enabled": True, "repo_directory": str(repo_dir)},
                 )

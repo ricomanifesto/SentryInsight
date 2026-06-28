@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from typing import List, Dict, Any
 from datetime import datetime
 
@@ -7,6 +8,7 @@ import tiktoken
 
 from .model_config import resolve_model, validate_model
 from .opencode_client import OpenCodeClient, OpenCodeUnavailable, parse_model_selection
+from .entities import extract_cve_ids
 from .source_attribution import (
     clean_article_source,
     collect_source_attribution_entries,
@@ -20,6 +22,49 @@ logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
+
+EXPLOITATION_RELEVANCE_PATTERN = re.compile(
+    r"\b(?:"
+    r"active(?:ly)? exploit(?:s|ed|ing|ation)?|"
+    r"exploit(?:s|ed|ing|ation)?|"
+    r"in the wild|"
+    r"zero[\s-]?day|"
+    r"0day|"
+    r"weaponiz(?:ed|ation)|"
+    r"under attack|"
+    r"attackers? (?:are )?exploit(?:s|ed|ing)?|"
+    r"backdoor|"
+    r"malware|"
+    r"threat actor|"
+    r"campaign"
+    r")\b",
+    re.IGNORECASE,
+)
+CVE_CONTEXT_PATTERN = re.compile(r"CVE[-\s]?(\d{4})[-\s]?(\d{1,})", re.IGNORECASE)
+STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
+SENTENCE_PATTERN = re.compile(r"[^.!?\n]+(?:[.!?]+|$)")
+URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
+NEGATED_EXPLOITATION_PATTERN = re.compile(
+    r"\b(?:"
+    r"no evidence(?:\s+(?:of|that))?|"
+    r"not\s+(?:actively\s+|being\s+)?(?=exploit)|"
+    r"without\s+(?:evidence|signs?|reports?)(?:\s+of)?|"
+    r"has not been|"
+    r"have not been|"
+    r"not known to be|"
+    r"not reported to be|"
+    r"not observed to be|"
+    r"not detected as|"
+    r"no signs? of|"
+    r"no reports? of"
+    r")\b.{0,120}\b(?:"
+    r"exploit(?:ed|ing|ation)?|"
+    r"in the wild|"
+    r"weaponiz(?:ed|ation)|"
+    r"under attack"
+    r")\b",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 def load_template() -> str:
@@ -93,12 +138,140 @@ def format_article_summary(article: Dict[str, Any]) -> str:
         metadata.append(f"Source: {source}")
     if link:
         metadata.append(f"URL: {link}")
+    if article_cves := collect_structured_cves(article):
+        metadata.append(f"CVEs: {', '.join(article_cves)}")
 
     heading = f"**{title}**"
     if metadata:
         heading = f"{heading} ({'; '.join(metadata)})"
 
     return f"{heading}\n\n{content[:500]}...\n\n"
+
+
+def collect_structured_cves(article: Dict[str, Any]) -> list[str]:
+    """Collect CVE IDs from structured article metadata."""
+    cves: list[str] = []
+    cves.extend(str(cve).strip() for cve in article.get("cves", []) if str(cve).strip())
+    cves.extend(extract_cve_ids("\n".join(cves)))
+
+    seen: set[str] = set()
+    unique_cves: list[str] = []
+    for cve in cves:
+        normalized_cve = cve.upper()
+        if normalized_cve in seen:
+            continue
+        seen.add(normalized_cve)
+        unique_cves.append(normalized_cve)
+
+    return unique_cves
+
+
+def collect_prompt_cves(article_summary: str) -> list[str]:
+    """Collect CVE IDs from the exact article text sent to the model."""
+    return [cve.upper() for cve in extract_cve_ids(article_summary)]
+
+
+def has_exploitation_relevance(article_summary: str) -> bool:
+    """Return whether prompt-visible article text describes exploit activity."""
+    return bool(EXPLOITATION_RELEVANCE_PATTERN.search(article_summary))
+
+
+def has_negated_exploitation_relevance(article_summary: str) -> bool:
+    """Return whether prompt-visible text negates exploitation activity."""
+    return bool(NEGATED_EXPLOITATION_PATTERN.search(article_summary))
+
+
+def normalize_cve_match(match: re.Match[str]) -> str:
+    return f"CVE-{match.group(1)}-{match.group(2)}".upper()
+
+
+def collect_structured_prompt_cves(article_summary: str) -> list[str]:
+    structured_cves: list[str] = []
+    for metadata_match in STRUCTURED_CVES_PATTERN.finditer(article_summary):
+        structured_cves.extend(collect_prompt_cves(metadata_match.group(1)))
+    return structured_cves
+
+
+def collect_url_prompt_cves(article_summary: str) -> list[str]:
+    url_cves: list[str] = []
+    for url_match in URL_PATTERN.finditer(article_summary):
+        url_cves.extend(collect_prompt_cves(url_match.group(0)))
+    return url_cves
+
+
+def iter_line_sentences(text: str) -> list[str]:
+    sentences: list[str] = []
+    for line in text.splitlines():
+        for sentence_match in SENTENCE_PATTERN.finditer(line):
+            sentence = sentence_match.group(0).strip()
+            if sentence:
+                sentences.append(sentence)
+    return sentences
+
+
+def strip_cve_metadata_noise(article_summary: str) -> str:
+    without_urls = URL_PATTERN.sub("", article_summary)
+    return STRUCTURED_CVES_PATTERN.sub("", without_urls)
+
+
+def has_positive_exploitation_sentence(article_summary: str) -> bool:
+    return any(
+        has_exploitation_relevance(sentence)
+        and not has_negated_exploitation_relevance(sentence)
+        for sentence in iter_line_sentences(strip_cve_metadata_noise(article_summary))
+    )
+
+
+def has_negated_cve_sentence(article_summary: str, cve: str) -> bool:
+    normalized_cve = cve.upper()
+    return any(
+        normalized_cve in collect_prompt_cves(sentence)
+        and has_negated_exploitation_relevance(sentence)
+        for sentence in iter_line_sentences(article_summary)
+    )
+
+
+def sentence_containing_position(text: str, position: int) -> str:
+    line_start = text.rfind("\n", 0, position) + 1
+    line_end = text.find("\n", position)
+    if line_end == -1:
+        line_end = len(text)
+
+    line = text[line_start:line_end]
+    line_position = position - line_start
+    for sentence_match in SENTENCE_PATTERN.finditer(line):
+        if sentence_match.start() <= line_position < sentence_match.end():
+            return sentence_match.group(0)
+    return line
+
+
+def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]:
+    """Collect prompt CVEs that are tied to non-negated exploit activity."""
+    cves: list[str] = []
+    seen: set[str] = set()
+
+    def add_cve(cve: str) -> None:
+        normalized_cve = cve.upper()
+        if normalized_cve in seen:
+            return
+        seen.add(normalized_cve)
+        cves.append(normalized_cve)
+
+    structured_cves = collect_structured_prompt_cves(article_summary)
+    metadata_context_cves = structured_cves or collect_url_prompt_cves(article_summary)
+    if metadata_context_cves and has_positive_exploitation_sentence(article_summary):
+        for cve in metadata_context_cves:
+            if not has_negated_cve_sentence(article_summary, cve):
+                add_cve(cve)
+
+    for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
+        cve_context = sentence_containing_position(article_summary, match.start())
+        if has_exploitation_relevance(
+            cve_context
+        ) and not has_negated_exploitation_relevance(cve_context):
+            add_cve(normalize_cve_match(match))
+
+    return cves
 
 
 async def analyze_exploitation(
@@ -137,12 +310,12 @@ async def analyze_exploitation(
     all_attack_vectors = set()
 
     for article in articles:
-        all_article_summaries.append(format_article_summary(article))
+        article_summary = format_article_summary(article)
+        all_article_summaries.append(article_summary)
 
-        # Extract CVEs and affected systems
-        if "cves" in article:
-            for cve in article.get("cves", []):
-                all_cves.add(cve)
+        # Extract expected CVEs only when prompt text ties them to exploit activity.
+        for cve in collect_exploitation_relevant_prompt_cves(article_summary):
+            all_cves.add(cve)
         if "affected_systems" in article:
             for system in article.get("affected_systems", []):
                 all_systems.add(system)
@@ -158,7 +331,9 @@ Generate a report following this EXACT structure with professional markdown form
 
 # Exploitation Report
 
-[Write a comprehensive summary paragraph of the most critical exploitation activity. Only mention CVE IDs if they are explicitly provided in the articles. Do not mention when CVE IDs are missing or unavailable.]
+## Executive Summary
+
+[Write two to three concise executive-readable paragraphs covering the most critical exploitation activity. Do not emit one long block of text. Only mention CVE IDs if they are explicitly provided in the articles. Do not mention when CVE IDs are missing or unavailable.]
 
 ## Active Exploitation Details
 
@@ -203,10 +378,13 @@ Formatting requirements:
 - Use proper markdown with **bold** for emphasis
 - Create clear bullet points with good spacing
 - Use ### for subsections within main sections
+- Include the ## Executive Summary section and split it into multiple paragraphs
 - Write professional, well-structured content
 - Only mention CVE IDs when they are actually provided in the source articles
+- Include every CVE ID extracted from the article metadata when it is relevant to exploitation details
 - Do NOT mention missing or unavailable CVE information
 - Include the Source Attribution section when article source metadata or URLs are available
+- Do not leave Threat Actor Activities as a single stale-looking item when broader actor or campaign activity appears elsewhere in the report; include the relevant actor, campaign, or unknown-operator roll-ups grounded in the articles
 
 Focus specifically on:
 - Zero-day vulnerabilities being actively exploited
