@@ -192,6 +192,13 @@ def collect_structured_prompt_cves(article_summary: str) -> list[str]:
     return structured_cves
 
 
+def collect_url_prompt_cves(article_summary: str) -> list[str]:
+    url_cves: list[str] = []
+    for url_match in URL_PATTERN.finditer(article_summary):
+        url_cves.extend(collect_prompt_cves(url_match.group(0)))
+    return url_cves
+
+
 def iter_line_sentences(text: str) -> list[str]:
     sentences: list[str] = []
     for line in text.splitlines():
@@ -251,8 +258,9 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         cves.append(normalized_cve)
 
     structured_cves = collect_structured_prompt_cves(article_summary)
-    if structured_cves and has_positive_exploitation_sentence(article_summary):
-        for cve in structured_cves:
+    metadata_context_cves = structured_cves or collect_url_prompt_cves(article_summary)
+    if metadata_context_cves and has_positive_exploitation_sentence(article_summary):
+        for cve in metadata_context_cves:
             if not has_negated_cve_sentence(article_summary, cve):
                 add_cve(cve)
 

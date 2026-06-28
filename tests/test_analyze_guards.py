@@ -518,6 +518,38 @@ class AnalyzeGuardTests(unittest.TestCase):
 
         self.assertEqual(result["cves_identified"], ["CVE-2026-1111"])
 
+    def test_analysis_result_includes_url_cve_for_exploited_article(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **_kwargs):
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.OpenCodeClient = FakeOpenCodeClient
+
+        with patch.dict(os.environ, {}, clear=True):
+            result = asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": "Vendor product exploited in the wild",
+                            "summary": "Attackers are exploiting the product.",
+                            "link": "https://example.test/CVE-2026-1111",
+                        }
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertEqual(result["cves_identified"], ["CVE-2026-1111"])
+
     def test_analysis_result_does_not_require_all_mixed_metadata_cves(self):
         analyze = import_analyze_with_stubs()
 
