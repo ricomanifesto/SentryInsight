@@ -25,14 +25,14 @@ tokenizer = tiktoken.get_encoding("cl100k_base")
 
 EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r"\b(?:"
-    r"active(?:ly)? exploit(?:ed|ing|ation)?|"
-    r"exploit(?:ed|ing|ation)|"
+    r"active(?:ly)? exploit(?:s|ed|ing|ation)?|"
+    r"exploit(?:s|ed|ing|ation)?|"
     r"in the wild|"
     r"zero[\s-]?day|"
     r"0day|"
     r"weaponiz(?:ed|ation)|"
     r"under attack|"
-    r"attackers? (?:are )?exploit(?:ed|ing)|"
+    r"attackers? (?:are )?exploit(?:s|ed|ing)?|"
     r"backdoor|"
     r"malware|"
     r"threat actor|"
