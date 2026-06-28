@@ -251,15 +251,10 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         cves.append(normalized_cve)
 
     structured_cves = collect_structured_prompt_cves(article_summary)
-    if (
-        structured_cves
-        and has_positive_exploitation_sentence(article_summary)
-        and not any(
-            has_negated_cve_sentence(article_summary, cve) for cve in structured_cves
-        )
-    ):
+    if structured_cves and has_positive_exploitation_sentence(article_summary):
         for cve in structured_cves:
-            add_cve(cve)
+            if not has_negated_cve_sentence(article_summary, cve):
+                add_cve(cve)
 
     for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
         cve_context = sentence_containing_position(article_summary, match.start())
