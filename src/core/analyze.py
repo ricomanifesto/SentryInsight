@@ -7,7 +7,8 @@ from datetime import datetime
 import tiktoken
 
 from .model_config import resolve_model, validate_model
-from .opencode_client import OpenCodeClient, OpenCodeUnavailable, parse_model_selection
+from .model_client import build_model_client
+from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .entities import extract_cve_ids
 from .source_attribution import (
     clean_article_source,
@@ -406,7 +407,9 @@ Generate a well-formatted exploitation report following the structure above. Be 
 
     # Call the AI model
     try:
-        client = OpenCodeClient(timeout=max(120.0, float(max_tokens) / 20))
+        client = build_model_client(
+            timeout=max(120.0, float(max_tokens) / 20), max_tokens=max_tokens
+        )
         exploitation_report = await client.generate(
             system_prompt="You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild.",
             user_prompt=prompt,
