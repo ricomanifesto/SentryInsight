@@ -300,244 +300,12 @@
         body.dark .exec h4 { color: #cbd5e1; }
         body.dark .exec p { color: #e5e7eb; }
 
-        .section-filter {
-            border: 1px solid var(--border-color);
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 0 0 16px;
-        }
-        .section-filter label {
-            display: block;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-        .section-filter input {
-            width: 100%;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 9px 10px;
-            color: var(--text-primary);
-            background: #ffffff;
-            font: inherit;
-        }
-        .section-filter .filter-meta {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: 6px;
-        }
-        .section-filter-empty {
-            display: none;
-            border: 1px dashed var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            padding: 12px;
-            margin: 12px 0;
-            text-align: center;
-        }
-        .section-filter-empty p {
-            margin: 0;
-        }
-        .section-filter-empty button {
-            background: var(--text-primary);
-            border: 1px solid var(--text-primary);
-            border-radius: 8px;
-            color: #ffffff;
-            cursor: pointer;
-            font: inherit;
-            font-size: 0.86rem;
-            font-weight: 600;
-            margin-top: 10px;
-            padding: 6px 10px;
-        }
-        .section-filter-hidden { display: none !important; }
-        body.dark .section-filter { background: var(--dark-elev); border-color: #1f2937; }
-        body.dark .section-filter input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
-        .reading-index {
-            align-items: center;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 0 0 16px;
-        }
-        .reading-index[hidden] {
-            display: none;
-        }
-        .reading-index a {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 0.84rem;
-            font-weight: 700;
-            padding: 5px 9px;
-            text-decoration: none;
-        }
-        .reading-index a:hover {
-            background: #f1f5f9;
-        }
         .report-results {
             min-width: 0;
         }
-        #provenance, #uncertainty, #coverage-notes, #section-filter-panel, #report-results, #content {
+        #report-results, #content {
             scroll-margin-top: 80px;
         }
-        body.dark .reading-index a {
-            background: #111827;
-            border-color: #1f2937;
-            color: #e5e7eb;
-        }
-        body.dark .reading-index a:hover {
-            background: #0b1220;
-        }
-
-        .provenance {
-            border: 1px solid var(--border-color);
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 0 0 16px;
-        }
-        .provenance h4 {
-            margin: 0 0 6px;
-            color: var(--text-secondary);
-        }
-        .provenance p {
-            margin: 0;
-            color: var(--text-primary);
-        }
-        .provenance .provenance-meta {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: 6px;
-        }
-        .source-preview {
-            margin-top: 10px;
-        }
-        .source-preview summary {
-            cursor: pointer;
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-        .source-preview ul {
-            margin: 8px 0 0;
-            padding-left: 20px;
-            color: var(--text-primary);
-        }
-        .source-preview li {
-            margin: 4px 0;
-            overflow-wrap: anywhere;
-        }
-        .source-evidence-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-            font-size: .9rem;
-        }
-        .source-evidence-table caption {
-            color: var(--text-secondary);
-            font-size: .78rem;
-            font-weight: 700;
-            padding-bottom: 6px;
-            text-align: left;
-            text-transform: uppercase;
-        }
-        .source-evidence-table th,
-        .source-evidence-table td {
-            border-top: 1px solid var(--border-color);
-            padding: 8px 6px;
-            text-align: left;
-            vertical-align: top;
-        }
-        .source-evidence-table th {
-            color: var(--text-secondary);
-            font-size: .78rem;
-            text-transform: uppercase;
-        }
-        .source-evidence-table a {
-            color: var(--accent-color);
-            overflow-wrap: anywhere;
-        }
-        body.dark .provenance { background: var(--dark-elev); border-color: #1f2937; }
-        body.dark .provenance h4 { color: #cbd5e1; }
-        body.dark .provenance p { color: #e5e7eb; }
-
-        .uncertainty {
-            border: 1px solid var(--border-color);
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 0 0 16px;
-        }
-        .uncertainty h4 {
-            margin: 0 0 6px;
-            color: var(--text-secondary);
-        }
-        .uncertainty p {
-            margin: 0;
-            color: var(--text-primary);
-        }
-        .uncertainty .uncertainty-meta {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: 6px;
-        }
-        body.dark .uncertainty { background: var(--dark-elev); border-color: #1f2937; }
-        body.dark .uncertainty h4 { color: #cbd5e1; }
-        body.dark .uncertainty p { color: #e5e7eb; }
-        .coverage-notes {
-            border: 1px solid var(--border-color);
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 0 0 16px;
-        }
-        .coverage-notes h4 {
-            margin: 0 0 6px;
-            color: var(--text-secondary);
-        }
-        .coverage-summary {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 0 0 10px;
-        }
-        .coverage-chip {
-            display: inline-flex;
-            align-items: baseline;
-            gap: 6px;
-            min-width: 0;
-            border: 1px solid var(--border-color);
-            border-radius: 999px;
-            padding: 5px 9px;
-            background: #f8fafc;
-            color: var(--text-secondary);
-            font-size: 0.82rem;
-            line-height: 1.2;
-            white-space: normal;
-        }
-        .coverage-chip strong {
-            color: var(--text-primary);
-            font-size: 0.95rem;
-        }
-        .coverage-notes ul {
-            margin: 0;
-            padding-left: 18px;
-        }
-        .coverage-notes li {
-            color: var(--text-primary);
-            margin: 4px 0;
-        }
-        .coverage-notes strong {
-            color: var(--text-secondary);
-        }
-        body.dark .coverage-notes { background: var(--dark-elev); border-color: #1f2937; }
-        body.dark .coverage-notes h4 { color: #cbd5e1; }
-        body.dark .coverage-notes li { color: #e5e7eb; }
-        body.dark .coverage-chip { background: #0b1220; border-color: #1f2937; color: #cbd5e1; }
-        body.dark .coverage-chip strong { color: #e5e7eb; }
-
         /* Add loading animation */
         .loading {
             text-align: center;
@@ -578,7 +346,6 @@
     </style>
     <style>
         /* Additions: summary, status badges, toast, print */
-        .summary { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin: 8px 0 16px; }
         .card { border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; background: #fff; }
         .card h5 { margin: 0 0 6px; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
         .card .value { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
@@ -590,9 +357,6 @@
         .status-monitor { background: #2563eb; }
         .toast { position: fixed; right: 16px; bottom: 16px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 8px; opacity: 0; transform: translateY(8px); transition: all .2s ease; z-index: 100; }
         .toast.show { opacity: 1; transform: translateY(0); }
-        @media (max-width: 767px) { .summary { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-        /* Sidebar summary layout */
-        aside .summary { grid-template-columns: 1fr; margin-top: 12px; }
         /* TOC active */
         #toc a.active { background: #e2e8f0; color: var(--text-primary); font-weight: 600; }
         body.dark #toc a.active { background: #0b1220; }
@@ -637,27 +401,7 @@
             </aside>
             <main>
                 <div class="meta" id="meta"></div>
-                <div id="summary" class="summary"></div>
-                <nav class="reading-index" aria-label="Report reading sections">
-                    <a id="reading-index-sources" hidden href="#provenance">Sources</a>
-                    <a id="reading-index-uncertainty" hidden href="#uncertainty">Uncertainty</a>
-                    <a href="#coverage-notes">Coverage</a>
-                    <a href="#section-filter-panel">Filter</a>
-                    <a href="#report-results">Report</a>
-                </nav>
-                <div id="provenance" class="provenance" role="region" aria-labelledby="provenance-title" hidden></div>
-                <div id="uncertainty" class="uncertainty" role="region" aria-labelledby="uncertainty-title" hidden></div>
-                <div id="coverage-notes" class="coverage-notes" role="region" aria-labelledby="coverage-notes-title" hidden></div>
-                <div class="section-filter" id="section-filter-panel" role="region" aria-labelledby="section-filter-title">
-                    <label id="section-filter-title" for="section-filter">Filter report sections</label>
-                    <input id="section-filter" type="search" autocomplete="off" aria-controls="report-results" aria-describedby="section-filter-count" placeholder="Search vulnerabilities, products, actors, or techniques" />
-                    <div class="filter-meta" id="section-filter-count" role="status" aria-live="polite" aria-atomic="true"></div>
-                </div>
                 <section class="report-results" id="report-results" role="region" aria-label="Report sections">
-                    <div class="section-filter-empty" id="section-filter-empty">
-                        <p>No matching report sections.</p>
-                        <button id="section-filter-clear-empty" type="button" aria-controls="report-results" aria-describedby="section-filter-count">Clear filter</button>
-                    </div>
                     <div id="exec" class="exec"></div>
                     <div id="content" class="markdown-body"></div>
                 </section>
@@ -672,23 +416,10 @@
         const tocEl = document.getElementById('toc-list');
         const tocAsideEl = document.getElementById('toc');
         const metaEl = document.getElementById('meta');
-        const summaryEl = document.getElementById('summary');
-        const provenanceEl = document.getElementById('provenance');
-        const uncertaintyEl = document.getElementById('uncertainty');
-        const coverageNotesEl = document.getElementById('coverage-notes');
-        const readingIndexEl = document.querySelector('.reading-index');
-        const readingIndexSourceEl = document.getElementById('reading-index-sources');
-        const readingIndexUncertaintyEl = document.getElementById('reading-index-uncertainty');
         const toggleDarkEl = document.getElementById('toggle-dark');
         const markdownLinkEl = document.getElementById('markdown-link');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
-        const sectionFilterPanelEl = document.getElementById('section-filter-panel');
-        const sectionFilterEl = document.getElementById('section-filter');
-        const sectionFilterCountEl = document.getElementById('section-filter-count');
-        const sectionFilterEmptyEl = document.getElementById('section-filter-empty');
-        const sectionFilterClearEmptyEl = document.getElementById('section-filter-clear-empty');
-
         function resolveLogoAssetPath() {
             return location.pathname.includes('/docs/')
                 ? '../assets/logo.png'
@@ -998,370 +729,6 @@
                 : 'Latest report';
         }
 
-        function computeSummary() {
-            const cveMatches = markdownCache.match(/CVE-\d{4}-\d{4,7}/g) || [];
-            const uniqueCVEs = Array.from(new Set(cveMatches));
-            const sections = contentEl.querySelectorAll('h3').length;
-            let activeCount = 0;
-            contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
-                const txt = sec.textContent.toLowerCase();
-                if (/(status).*?(active|exploited|in the wild)/.test(txt)) activeCount++;
-            });
-            // Count products from the Affected Systems and Products section
-            let products = 0;
-            const h2s = Array.from(contentEl.querySelectorAll('h2'));
-            const target = h2s.find(h => /affected systems? and products/i.test(h.textContent));
-            if (target) {
-                let el = target.nextElementSibling;
-                while (el && el.tagName !== 'H2') {
-                    if (el.tagName === 'UL') products += el.querySelectorAll('li').length;
-                    el = el.nextElementSibling;
-                }
-            }
-
-            const html = `
-                <div class="card"><h5>CVEs Mentioned</h5><div class="value">${uniqueCVEs.length}</div><div class="chips">${uniqueCVEs.slice(0,6).map(c => `<a class="chip" href="https://nvd.nist.gov/vuln/detail/${c}" target="_blank" rel="noopener">${c}</a>`).join('')}</div></div>
-                <div class="card"><h5>Active Items</h5><div class="value">${activeCount}</div></div>
-                <div class="card"><h5>Affected Products</h5><div class="value">${products}</div></div>
-                <div class="card"><h5>Report Sections</h5><div class="value">${sections}</div></div>
-            `;
-            summaryEl.innerHTML = html;
-        }
-
-        function findSourceAttributionHeading() {
-            return Array.from(contentEl.querySelectorAll('h2')).find(h => /source attribution/i.test(h.textContent));
-        }
-
-        function isPlaceholderSourceAttributionEntry(text) {
-            const normalized = text.trim().toLowerCase().replace(/\s+/g, ' ');
-            return normalized === 'no sources were provided.' ||
-                normalized === 'no sources were provided' ||
-                normalized === 'none' ||
-                normalized === 'n/a' ||
-                normalized === '**article title**: source name - url' ||
-                normalized === 'article title: source name - url' ||
-                normalized.startsWith('no source attribution') ||
-                normalized.startsWith('no sources available') ||
-                normalized.startsWith('source attribution unavailable');
-        }
-
-        function extractSourceAttributionEntries() {
-            const heading = findSourceAttributionHeading();
-            if (!heading) return [];
-            const entries = [];
-            let el = heading.nextElementSibling;
-            while (el && el.tagName !== 'H2') {
-                if (el.tagName === 'UL' || el.tagName === 'OL') {
-                    el.querySelectorAll('li').forEach(li => {
-                        const raw = li.textContent.trim().replace(/\s+/g, ' ');
-                        const titleEl = li.querySelector('strong');
-                        const title = titleEl ? titleEl.textContent.trim().replace(/\s+/g, ' ') : '';
-                        const titleIndex = title ? raw.indexOf(title) : -1;
-                        const attribution = titleIndex >= 0
-                            ? raw.slice(titleIndex + title.length).trim().replace(/^:\s*/, '')
-                            : raw;
-                        if (raw && !isPlaceholderSourceAttributionEntry(raw)) {
-                            entries.push({ raw, title, attribution });
-                        }
-                    });
-                }
-                el = el.nextElementSibling;
-            }
-            return entries;
-        }
-
-        function renderSourcePreview(sourceEntries) {
-            const preview = document.createElement('details');
-            preview.className = 'source-preview';
-
-            const summary = document.createElement('summary');
-            const entryLabel = sourceEntries.length === 1 ? 'entry' : 'entries';
-            summary.textContent = `View ${sourceEntries.length} source ${entryLabel}`;
-            preview.appendChild(summary);
-
-            const sourcePreviewList = document.createElement('ul');
-            sourcePreviewList.innerHTML = '';
-            sourceEntries.forEach(entry => {
-                const entryEl = document.createElement('li');
-                entryEl.textContent = entry.raw || entry;
-                sourcePreviewList.appendChild(entryEl);
-            });
-            preview.appendChild(sourcePreviewList);
-
-            return preview;
-        }
-
-        function parseSourceAttributionEntry(entry) {
-            const raw = (entry.raw || entry).trim();
-            const titleFromMarkup = entry.title || '';
-            const attribution = (entry.attribution || raw).trim();
-            const urlMatch = attribution.match(/\bhttps?:\/\/\S+/i);
-            const link = urlMatch ? urlMatch[0].replace(/[.,;]+$/, '') : '';
-            const withoutLink = link
-                ? attribution.replace(urlMatch[0], '').replace(/\s+-\s*$/, '').trim()
-                : attribution;
-            const parts = withoutLink.match(/^(.+?):\s*(.*)$/);
-            const title = titleFromMarkup || (parts ? parts[1].trim() : withoutLink);
-            const source = titleFromMarkup
-                ? withoutLink.replace(/\s+-\s*$/, '')
-                : parts ? parts[2].trim().replace(/\s+-\s*$/, '') : '';
-            return {
-                title: title || 'Untitled evidence',
-                source: source || 'Source not provided',
-                link,
-                raw,
-            };
-        }
-
-        function renderSourceEvidenceRows(sourceEntries) {
-            const rows = sourceEntries.map(parseSourceAttributionEntry);
-            const table = document.createElement('table');
-            table.className = 'source-evidence-table';
-            const caption = document.createElement('caption');
-            caption.textContent = 'Source Attribution evidence rows';
-            table.appendChild(caption);
-            table.insertAdjacentHTML('beforeend', `
-                <thead>
-                    <tr>
-                        <th scope="col">Evidence</th>
-                        <th scope="col">Source</th>
-                        <th scope="col">Link</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            `);
-            const body = table.querySelector('tbody');
-            rows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = 'source-evidence-row';
-
-                const evidence = document.createElement('td');
-                evidence.textContent = row.title || row.raw;
-
-                const source = document.createElement('td');
-                source.textContent = row.source;
-
-                const linkCell = document.createElement('td');
-                if (row.link) {
-                    const link = document.createElement('a');
-                    link.href = row.link;
-                    link.textContent = 'Available';
-                    link.target = '_blank';
-                    link.rel = 'noopener noreferrer';
-                    linkCell.appendChild(link);
-                } else {
-                    linkCell.textContent = row.link ? 'Available' : 'Not provided';
-                }
-
-                tr.append(evidence, source, linkCell);
-                body.appendChild(tr);
-            });
-            return table;
-        }
-
-        function renderNoSourceProvenance() {
-            const notice = document.createElement('div');
-            notice.className = 'provenance-empty';
-
-            const heading = document.createElement('h4');
-            heading.id = 'provenance-title';
-            heading.textContent = 'Report Provenance';
-
-            const message = document.createElement('p');
-            message.textContent = 'No source attribution entries were found in this rendered report.';
-
-            notice.append(heading, message);
-            return notice;
-        }
-
-        function renderProvenance() {
-            const sourceEntries = extractSourceAttributionEntries();
-            if (!sourceEntries.length) {
-                provenanceEl.hidden = false;
-                provenanceEl.innerHTML = '';
-                provenanceEl.appendChild(renderNoSourceProvenance());
-                return;
-            }
-            provenanceEl.hidden = false;
-            const label = sourceEntries.length === 1 ? 'Source entry' : 'Source entries';
-            provenanceEl.innerHTML = `
-                <h4 id="provenance-title">Report Provenance</h4>
-                <p>${sourceEntries.length} ${label.toLowerCase()} cited in this report.</p>
-                <div class="provenance-meta">Source entries are rendered from the report's Source Attribution section.</div>
-            `;
-            provenanceEl.appendChild(renderSourceEvidenceRows(sourceEntries));
-            provenanceEl.appendChild(renderSourcePreview(sourceEntries));
-        }
-
-        function syncReadingIndex() {
-            readingIndexSourceEl.hidden = provenanceEl.hidden;
-            readingIndexUncertaintyEl.hidden = uncertaintyEl.hidden;
-        }
-
-        function getVisibleReportText() {
-            const textRoots = [execEl, contentEl];
-            return textRoots.map(root => {
-                const clone = root.cloneNode(true);
-                clone.querySelectorAll('code, pre, script, style, noscript').forEach(node => node.remove());
-                return clone.textContent || '';
-            }).join(' ');
-        }
-
-        function countUncertaintySignals() {
-            const reportText = getVisibleReportText();
-            const matches = reportText.match(/\b(unknown|uncertain|suspected|likely|possible|potential|could)\b/gi) || [];
-            return matches.length;
-        }
-
-        function renderUncertaintySignals() {
-            const signalCount = countUncertaintySignals();
-            if (!signalCount) {
-                uncertaintyEl.hidden = true;
-                uncertaintyEl.innerHTML = '';
-                return;
-            }
-            uncertaintyEl.hidden = false;
-            const label = signalCount === 1 ? 'uncertainty signal' : 'uncertainty signals';
-            uncertaintyEl.innerHTML = `
-                <h4 id="uncertainty-title">Uncertainty Signals</h4>
-                <p>${signalCount} ${label} detected in this report.</p>
-                <div class="uncertainty-meta">Counted from report wording such as unknown, suspected, likely, possible, potential, or could.</div>
-            `;
-        }
-
-        function buildCoverageNote(label, detail) {
-            const item = document.createElement('li');
-            const labelEl = document.createElement('strong');
-            labelEl.textContent = `${label}: `;
-            item.appendChild(labelEl);
-            item.appendChild(document.createTextNode(detail));
-            return item;
-        }
-
-        function buildCoverageSummaryChip(label, value) {
-            const chip = document.createElement('span');
-            chip.className = 'coverage-chip';
-            const valueEl = document.createElement('strong');
-            valueEl.textContent = value;
-            chip.append(valueEl, document.createTextNode(` ${label}`));
-            return chip;
-        }
-
-        function renderCoverageNotes() {
-            const sections = buildFilterGroups().length;
-            const sourceEntries = extractSourceAttributionEntries().length;
-            const uncertaintySignals = countUncertaintySignals();
-            if (!sections && !sourceEntries && !uncertaintySignals) {
-                coverageNotesEl.hidden = true;
-                coverageNotesEl.innerHTML = '';
-                return;
-            }
-            const notes = [
-                buildCoverageNote('Report artifact', `Loaded markdown artifact: ${reportPath}.`),
-                buildCoverageNote('Section index', `${sections} rendered report sections are included in the page index and section filter.`),
-                buildCoverageNote('Source coverage', sourceEntries
-                    ? `${sourceEntries} source attribution entries are available in the provenance panel.`
-                    : 'No source attribution entries were found in this rendered report.'),
-                buildCoverageNote('Uncertainty coverage', uncertaintySignals
-                    ? `${uncertaintySignals} uncertainty wording signals are surfaced above the report.`
-                    : 'No uncertainty wording signals were detected in this rendered report.'),
-            ];
-            coverageNotesEl.hidden = false;
-            coverageNotesEl.innerHTML = '';
-            const heading = document.createElement('h4');
-            heading.id = 'coverage-notes-title';
-            heading.textContent = 'Report Coverage';
-            const summary = document.createElement('div');
-            summary.className = 'coverage-summary';
-            summary.append(
-                buildCoverageSummaryChip('Sections', String(sections)),
-                buildCoverageSummaryChip('Sources', String(sourceEntries)),
-                buildCoverageSummaryChip('Uncertainty', String(uncertaintySignals))
-            );
-            const list = document.createElement('ul');
-            notes.forEach(note => list.appendChild(note));
-            coverageNotesEl.append(heading, summary, list);
-        }
-
-        function buildFilterGroups() {
-            const groups = [];
-            let currentHeading = null;
-            let directNodes = [];
-
-            function flushDirectGroup() {
-                if (!currentHeading || !directNodes.length) return;
-                groups.push({
-                    heading: currentHeading,
-                    nodes: [...directNodes],
-                });
-                directNodes = [];
-            }
-
-            Array.from(contentEl.children).forEach(el => {
-                if (el.tagName === 'H2') {
-                    flushDirectGroup();
-                    el.classList.add('report-filter-heading');
-                    currentHeading = el;
-                    return;
-                }
-                if (!currentHeading) return;
-                if (el.classList.contains('section-collapsible')) {
-                    flushDirectGroup();
-                    groups.push({
-                        heading: currentHeading,
-                        nodes: [el],
-                    });
-                    return;
-                }
-                directNodes.push(el);
-            });
-            flushDirectGroup();
-            if (groups.length) return groups;
-            return Array.from(contentEl.querySelectorAll('.section-collapsible')).map(sec => ({
-                heading: sec.querySelector('h3'),
-                nodes: [sec],
-            }));
-        }
-
-        function filterSections() {
-            const query = sectionFilterEl.value.trim().toLowerCase();
-            const sections = buildFilterGroups();
-            let visibleCount = 0;
-            const headings = Array.from(contentEl.querySelectorAll('h2.report-filter-heading'));
-            const visibleHeadings = new Set();
-            const visibleTocIds = new Set();
-            sections.forEach(group => {
-                const text = [group.heading, ...group.nodes]
-                    .filter(Boolean)
-                    .map(node => node.textContent)
-                    .join(' ')
-                    .toLowerCase();
-                const matches = !query || text.includes(query);
-                group.nodes.forEach(node => node.classList.toggle('section-filter-hidden', !matches));
-                if (matches) {
-                    visibleCount++;
-                    if (group.heading) {
-                        visibleHeadings.add(group.heading);
-                        if (group.heading.id) visibleTocIds.add(group.heading.id);
-                    }
-                    group.nodes.forEach(node => {
-                        node.querySelectorAll('h2[id], h3[id]').forEach(heading => visibleTocIds.add(heading.id));
-                    });
-                }
-            });
-            headings.forEach(heading => {
-                heading.classList.toggle('section-filter-hidden', Boolean(query) && !visibleHeadings.has(heading));
-            });
-            tocEl.querySelectorAll('a[href^="#"]').forEach(link => {
-                const targetId = decodeURIComponent((link.getAttribute('href') || '').slice(1));
-                link.classList.toggle('section-filter-hidden', Boolean(query) && !visibleTocIds.has(targetId));
-            });
-            sectionFilterCountEl.textContent = query
-                ? `${visibleCount} of ${sections.length} sections match`
-                : `${sections.length} sections`;
-            sectionFilterEmptyEl.style.display = query && visibleCount === 0 ? 'block' : 'none';
-        }
-
         function wireShortcuts() {
             document.addEventListener('keydown', (e) => {
                 if (e.target && ['input','textarea'].includes((e.target.tagName||'').toLowerCase())) return;
@@ -1386,22 +753,9 @@
         function renderReportLoadError(error) {
             layoutEl.classList.add('report-unavailable');
             metaEl.textContent = 'Report unavailable';
-            summaryEl.textContent = '';
             tocEl.textContent = '';
             tocAsideEl.classList.add('hidden');
             execEl.textContent = '';
-            readingIndexEl.hidden = true;
-            sectionFilterPanelEl.hidden = true;
-            sectionFilterEl.value = '';
-            sectionFilterCountEl.textContent = '';
-            sectionFilterEmptyEl.style.display = 'none';
-            provenanceEl.hidden = true;
-            provenanceEl.textContent = '';
-            uncertaintyEl.hidden = true;
-            uncertaintyEl.textContent = '';
-            coverageNotesEl.hidden = true;
-            coverageNotesEl.textContent = '';
-            syncReadingIndex();
             const heading = document.createElement('h1');
             heading.textContent = 'Error Loading Report';
             const message = document.createElement('p');
@@ -1479,8 +833,6 @@
           .then(({ text, lastModified }) => {
                 layoutEl.classList.remove('report-unavailable');
                 tocAsideEl.classList.remove('hidden');
-                readingIndexEl.hidden = false;
-                sectionFilterPanelEl.hidden = false;
                 markdownCache = text;
                 let html = DOMPurify.sanitize(marked.parse(text));
                 contentEl.innerHTML = html;
@@ -1515,12 +867,6 @@
                 addStatusBadges();
                 enhanceActiveExploitationTags();
                 buildTOC();
-                computeSummary();
-                renderProvenance();
-                renderUncertaintySignals();
-                renderCoverageNotes();
-                syncReadingIndex();
-                filterSections();
                 const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
                 renderReportMetadata(m ? m[1] : '', isArchiveReport, lastModified);
           })
@@ -1533,12 +879,6 @@
             document.body.classList.toggle('dark');
             const mode = document.body.classList.contains('dark') ? 'dark' : 'light';
             localStorage.setItem('sentryinsight:theme', mode);
-        });
-        sectionFilterEl.addEventListener('input', filterSections);
-        sectionFilterClearEmptyEl.addEventListener('click', () => {
-            sectionFilterEl.value = '';
-            filterSections();
-            sectionFilterEl.focus();
         });
         wireShortcuts();
 
