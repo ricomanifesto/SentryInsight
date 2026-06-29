@@ -23,12 +23,18 @@ def import_analyze_with_stubs():
     class OpenCodeClient:
         pass
 
+    class ModelSelection:
+        def __init__(self, provider_id="", model_id=""):
+            self.provider_id = provider_id
+            self.model_id = model_id
+
     def parse_model_selection(model_name):
         provider_id, model_id = model_name.split("/", 1)
         return types.SimpleNamespace(provider_id=provider_id, model_id=model_id)
 
     opencode_client_module.OpenCodeClient = OpenCodeClient
     opencode_client_module.OpenCodeUnavailable = OpenCodeUnavailable
+    opencode_client_module.ModelSelection = ModelSelection
     opencode_client_module.parse_model_selection = parse_model_selection
 
     with patch.dict(
@@ -76,7 +82,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 )
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -103,7 +109,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 raise analyze.OpenCodeUnavailable("OpenCode server unavailable")
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -133,7 +139,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 self.__class__.user_prompt = user_prompt
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             asyncio.run(
@@ -169,7 +175,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -212,7 +218,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -254,7 +260,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -291,7 +297,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -326,7 +332,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -361,7 +367,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -393,7 +399,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -428,7 +434,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -460,7 +466,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -495,7 +501,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -528,7 +534,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -560,7 +566,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -596,7 +602,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -632,7 +638,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -669,7 +675,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 self.__class__.user_prompt = kwargs["user_prompt"]
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             asyncio.run(
@@ -709,7 +715,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             async def generate(self, **_kwargs):
                 return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.OpenCodeClient = FakeOpenCodeClient
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(

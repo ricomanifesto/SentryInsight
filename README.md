@@ -19,7 +19,9 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 
 - **LangGraph**: Orchestrates workflow state and conditional logic
 - **FastMCP**: Code organization with decorators for RSS tools
-- **OpenCode**: Provider-switchable report generation
+- **Model access**: Calls OpenRouter directly when `OPENROUTER_API_KEY` is set
+  (used in CI; no local server required); otherwise routes through a local
+  OpenCode gateway for development
 
 ## Setup
 
@@ -28,7 +30,11 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
    uv sync --group dev
    ```
 
-2. Start an OpenCode server with access to your preferred model provider:
+2. Provide model access. Either call OpenRouter directly (also how CI runs):
+   ```bash
+   export OPENROUTER_API_KEY=...   # free model default; no local server needed
+   ```
+   or start a local OpenCode server with access to your preferred provider:
    ```bash
    opencode serve --port 4096
    ```
