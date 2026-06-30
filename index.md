@@ -2,114 +2,136 @@
 
 ## Executive Summary
 
-Critical exploitation activity continues to accelerate across multiple vectors, with three actively exploited vulnerabilities bearing CVE identifiers now confirmed in the wild. Attackers are leveraging a critical SimpleHelp remote access flaw (CVE-2026-48558) to deploy a novel cross-platform information stealer, while a separate critical Oracle E-Business Suite vulnerability (CVE-2026-46817) is under active exploitation against financial applications. A public proof-of-concept for a critical libssh2 client-side flaw (CVE-2026-55200) has been released, significantly lowering the barrier for SSH-based client compromise. Simultaneously, nation-state actors from China, Russia, and Iran are conducting sustained campaigns against government, critical infrastructure, and messaging platforms, increasingly abusing legitimate cloud services for command-and-control and data exfiltration.
+Active exploitation campaigns are accelerating across multiple vectors, with threat actors leveraging critical vulnerabilities in enterprise software, cloud services, and development toolchains. A cluster of recently disclosed flaws—including authentication bypasses in SimpleHelp (CVE-2026-48558) and Oracle E-Business Suite (CVE-2026-46817)—are being weaponized within days of public disclosure to deploy novel infostealers and access sensitive financial systems. Simultaneously, supply chain attacks targeting developer ecosystems have surged, with hijacked npm/Go packages, malicious browser extensions, and compromised GitHub repositories delivering cross-platform credential theft capabilities.
 
-Supply chain attacks have emerged as a dominant theme, with hijacked npm and Go packages weaponizing VS Code tasks to deploy Python infostealers, malicious browser extensions infiltrating both Chrome and Edge stores to harvest credentials and search data, and clean-appearing GitHub repositories exploiting AI coding agents to execute hidden payloads. The ShinyHunters extortion group has breached multiple organizations via Oracle PeopleSoft zero-day vulnerabilities, while Russian intelligence services (tracked as UNC5792 and UNC4221) have evolved their phishing campaigns to target Signal backup recovery keys, prompting a $10 million U.S. State Department reward offer. Water and wastewater systems remain exposed to sabotage through basic hygiene failures rather than sophisticated exploits.
+Nation-state actors remain highly active across strategic sectors. China-aligned Mustang Panda has weaponized legitimate cloud services (Zoho WorkDrive) as command channels against Indian government and hydropower targets, while Russian APT Gamaredon continues expanding its malware arsenal against Ukrainian infrastructure. Iranian, Russian, and Chinese actors are collectively targeting water utility OT environments through basic hygiene failures rather than sophisticated exploits. The ShinyHunters extortion group has breached Oracle PeopleSoft instances at multiple organizations including Nissan and NAIC, demonstrating the ongoing impact of zero-day exploitation in widely deployed enterprise platforms.
+
+The convergence of AI-assisted development tooling and identity-based attack surfaces represents an emerging frontier. Vulnerabilities in Amazon Q's VS Code extension and the demonstrated ability to trick AI coding agents into executing malicious code from "clean" repositories signal a shift toward poisoning the automated developer workflow. Meanwhile, a public proof-of-concept for a critical libssh2 client-side flaw (CVE-2026-55200) and the removal of 119 malicious Edge extensions hiding payloads in fonts and images highlight the breadth of client-side and supply chain risk facing enterprises today.
 
 ## Active Exploitation Details
 
-### SimpleHelp Critical Vulnerability (CVE-2026-48558)
-- **Description**: A recently disclosed critical vulnerability in SimpleHelp remote support software that allows unauthenticated attackers to execute arbitrary code on affected servers.
-- **Impact**: Attackers are actively exploiting this flaw to deploy Djinn Stealer, a previously undocumented cross-platform information stealer targeting Windows, Linux, and macOS systems, along with TaskWeaver malware for persistence and lateral movement.
-- **Status**: Actively exploited in the wild. Patch availability depends on SimpleHelp vendor updates; organizations using SimpleHelp should prioritize immediate patching.
+### SimpleHelp Authentication Bypass (CVE-2026-48558)
+- **Description**: A critical authentication bypass vulnerability in SimpleHelp remote support software that allows unauthenticated attackers to gain administrative access to the SimpleHelp server.
+- **Impact**: Attackers achieve full control over the SimpleHelp server, enabling deployment of arbitrary payloads, lateral movement into connected customer environments, and theft of credentials linking development and administrative systems to broader enterprise infrastructure.
+- **Status**: Actively exploited in the wild to deploy Djinn Stealer, a previously undocumented cross-platform information stealer targeting Windows, Linux, and macOS. Patches are available from the vendor.
 - **CVE ID**: CVE-2026-48558
 
-### Oracle E-Business Suite Critical Vulnerability (CVE-2026-46817)
-- **Description**: A critical vulnerability in the Oracle E-Business Suite (EBS) financial application suite that enables unauthorized access and potential data manipulation.
-- **Impact**: Attackers can exploit this flaw to compromise financial systems, potentially leading to fraudulent transactions, financial data theft, and disruption of enterprise resource planning operations.
-- **Status**: Actively exploited in attacks according to threat intelligence firm Defused. Oracle has released patches; immediate application is critical for organizations running EBS.
+### Oracle E-Business Suite Vulnerability (CVE-2026-46817)
+- **Description**: A critical vulnerability in Oracle E-Business Suite (EBS) financial application that allows unauthenticated remote code execution.
+- **Impact**: Attackers can compromise financial systems, access sensitive financial data, manipulate transactions, and establish persistent access to core ERP infrastructure.
+- **Status**: Actively exploited in attacks according to threat intelligence company Defused. Exploitation observed shortly after disclosure.
 - **CVE ID**: CVE-2026-46817
+
+### Oracle PeopleSoft Zero-Day
+- **Description**: An Oracle PeopleSoft vulnerability exploited as a zero-day in data theft attacks targeting multiple organizations.
+- **Impact**: Theft of employee and customer data from PeopleSoft HR and financial modules. Linked to breaches at Nissan (current and former employee data) and NAIC (publicly available data, outdated logs, and configuration files).
+- **Status**: Actively exploited by ShinyHunters extortion group. Oracle has not publicly disclosed a patch at time of reporting.
+- **CVE ID**: Not explicitly provided in source articles
 
 ### libssh2 Client-Side SSH Flaw (CVE-2026-55200)
 - **Description**: A critical memory corruption vulnerability in libssh2 that allows a malicious or compromised SSH server to trigger code execution on a connecting client.
-- **Impact**: Any client using vulnerable libssh2 versions that connects to an attacker-controlled SSH server can be compromised, reversing the typical trust model of SSH connections.
-- **Status**: Public proof-of-concept exploit has been released, significantly increasing exploitation risk. Patches are available in updated libssh2 versions.
+- **Impact**: Client-side code execution when connecting to a malicious SSH server, enabling compromise of developer workstations, CI/CD pipelines, and automated systems that initiate SSH connections.
+- **Status**: Public proof-of-concept exploit released, significantly increasing exploitation risk. No patch information provided in source articles.
 - **CVE ID**: CVE-2026-55200
 
-### Oracle PeopleSoft Zero-Day Vulnerabilities
-- **Description**: One or more zero-day vulnerabilities in Oracle PeopleSoft applications exploited by the ShinyHunters extortion group and other threat actors.
-- **Impact**: Enabled data theft attacks against multiple organizations including Nissan (employee data breach) and the National Association of Insurance Commissioners (NAIC). Attackers accessed employee records, configuration files, and logs.
-- **Status**: Actively exploited as zero-days. Oracle has not publicly disclosed patches in the reporting period. Organizations using PeopleSoft should implement compensating controls and monitor for Oracle security advisories.
+### Amazon Q VS Code Extension Flaw
+- **Description**: A vulnerability in the Amazon Q Visual Studio Code extension that allows adversaries to plant malicious repositories capable of executing arbitrary code.
+- **Impact**: Cloud credential theft and arbitrary code execution on developer machines. Demonstrates growing risk in Model Context Protocol (MCP) implementations and AI-assisted development tooling.
+- **Status**: Actively exploitable; showcases emerging attack surface in AI coding assistants.
+- **CVE ID**: Not explicitly provided in source articles
 
-### Amazon Q VS Extension Vulnerability
-- **Description**: A vulnerability in the Amazon Q Visual Studio Code extension that allows adversaries to plant malicious repositories capable of executing arbitrary code and stealing cloud credentials.
-- **Impact**: Developers using the extension could have their cloud credentials stolen and arbitrary code executed on their development machines, highlighting growing risks in Model Context Protocol (MCP) integrations.
-- **Status**: Vulnerability disclosed; patch status unclear from reporting. Users should update to the latest extension version and audit cloud credential access.
-
-### Malicious Perplexity Chrome Extension
-- **Description**: A malicious Chrome extension masquerading as the Perplexity AI search engine that intercepted all search queries and address bar input.
-- **Impact**: Complete surveillance of user browsing activity, search history, and typed URLs. The extension routed all queries and keystrokes to attacker-controlled infrastructure.
-- **Status**: Discovered by Microsoft; removed from Chrome Web Store. Users who installed the extension should remove it immediately and rotate any credentials entered during the compromise window.
-
-### Malicious Edge Extensions (119 Extensions)
-- **Description**: A long-running malicious extension operation on the Microsoft Edge Add-ons store that hid payloads inside image and font files, activating days after installation to steal credentials.
-- **Impact**: Credential theft from compromised browsers, with delayed activation evading initial security scans. Extensions appeared legitimate and passed store review processes.
-- **Status**: Microsoft has removed all 119 extensions from the Edge store. Affected users should remove suspicious extensions and rotate credentials.
-
-### Hijacked npm and Go Packages
-- **Description**: Two hijacked npm packages and a cluster of Go packages designed to deploy a Python-based information stealer via VS Code tasks functionality.
-- **Impact**: Cross-platform information stealing on Windows, Linux, and macOS developer machines. The attack leverages legitimate VS Code task automation to execute malicious payloads during development workflows.
-- **Status**: Packages identified and reported. Developers should audit dependencies, check for suspicious VS Code task configurations, and scan for the Python infostealer.
-
-### Clean GitHub Repository AI Agent Exploitation
-- **Description**: Seemingly benign GitHub repositories crafted to trick agentic AI coding tools into executing malicious payloads invisible to security scanners, AI agents, and human reviewers.
-- **Impact**: Arbitrary code execution in development environments using AI coding assistants, bypassing traditional code review and static analysis protections.
-- **Status**: Novel attack technique demonstrated; no specific campaign attributed. Organizations using AI coding agents should implement sandboxing and output validation.
-
-### DCloud Uni-App Investment Scam Templates
-- **Description**: Over 236,000 websites using investment scam templates built with the legitimate DCloud Uni-App cross-platform development framework.
-- **Impact**: Large-scale cryptocurrency scams, phishing campaigns, and wallet drainers targeting users through seemingly legitimate applications.
-- **Status**: Active campaign identified by Infoblox. The legitimate framework is being abused at scale; takedown efforts complicated by the volume of sites.
+### Indian Government Portal Critical Vulnerability
+- **Description**: A critical vulnerability in a national government portal that could allow unauthorized takeover of the system.
+- **Impact**: Potential access to private citizen data and government systems. Discovered among multiple vulnerabilities by a security researcher.
+- **Status**: Disclosed by researcher; exploitation status unclear but potential for compromise is high.
+- **CVE ID**: Not explicitly provided in source articles
 
 ## Affected Systems and Products
 
-- **SimpleHelp Remote Support Software**: All versions prior to patched release; critical patch; cross-platform (Windows, Linux, macOS servers)
-- **Oracle E-Business Suite (EBS)**: Financial application modules; specific affected versions per Oracle security advisory
-- **Oracle PeopleSoft**: Enterprise HR, finance, and campus solutions; multiple organizations confirmed breached including Nissan and NAIC
-- **libssh2 Library**: All versions prior to patched release; affects any SSH client application linking against vulnerable libssh2 (widely embedded in network devices, IoT, and applications)
-- **Amazon Q VS Code Extension**: Visual Studio Code extension; developers using AWS cloud credentials
-- **Google Chrome / Microsoft Edge Browsers**: Users who installed malicious Perplexity extension (Chrome) or any of 119 malicious Edge extensions
-- **npm and Go Package Ecosystems**: Developers consuming hijacked packages; VS Code users with task automation enabled
-- **GitHub Repositories**: Developers and AI coding agents cloning malicious repositories
-- **DCloud Uni-App Framework Sites**: 236,000+ websites built with the framework hosting scam templates
-- **Water/Wastewater SCADA Systems**: PLCs and control systems with weak passwords, exposed interfaces, and poor network segmentation
-- **Signal Messaging Application**: Users targeted for backup recovery key phishing; affects both mobile and desktop clients
-- **WhatsApp Messaging Platform**: Users targeted by UNC5792/UNC4221; new username privacy feature rolling out as mitigation
-- **KDDI Corporation Email Systems**: Japanese ISP email infrastructure affecting 5 downstream ISPs and 14.2 million email logins
-- **Zoho WorkDrive**: Legitimate cloud storage service abused as C2 channel by Mustang Panda
-- **Microsoft Edge Add-ons Store**: Platform hosting malicious extensions for extended periods
-- **Chrome Web Store**: Platform hosting malicious Perplexity impersonation extension
+- **SimpleHelp Remote Support Software**: Versions prior to patched release; cross-platform (Windows, Linux, macOS) server component
+- **Oracle E-Business Suite (EBS)**: Financial application modules; specific affected versions not detailed in source articles
+- **Oracle PeopleSoft**: HR and financial modules; deployed at Nissan, NAIC, and potentially other organizations
+- **libssh2 Library**: Client-side implementations across Linux, macOS, Windows, and embedded systems using libssh2 for SSH connections
+- **Amazon Q VS Code Extension**: Visual Studio Code extension for Amazon Q AI coding assistant; affects developers using the extension
+- **Indian Government National Portal**: Specific platform not named; national government web portal infrastructure
+- **Zoho WorkDrive**: Legitimate cloud storage/service abused as command-and-control channel
+- **DCloud Uni-App Framework**: Open-source cross-platform application development framework; 236,000+ sites using investment scam templates
+- **Microsoft Edge Browser Extensions**: 119 malicious extensions distributed via official Edge Add-ons store
+- **Google Chrome Extensions**: Malicious "Perplexity" extension intercepting searches and address bar input
+- **npm Registry Packages**: Two hijacked npm packages deploying Python infostealer
+- **Go Module Proxy/Packages**: Cluster of Go packages deploying Python infostealer on Windows, Linux, macOS
+- **GitHub Repositories**: Seemingly benign repositories crafted to trick AI coding agents into executing malicious payloads
+- **Water Utility OT Systems**: PLCs, SCADA systems, and network infrastructure at water treatment and distribution facilities
+- **KDDI Corporation Email Systems**: Email infrastructure used by KDDI and five other Japanese ISPs
 
 ## Attack Vectors and Techniques
 
-- **Remote Code Execution via Remote Support Software**: Exploitation of CVE-2026-48558 in SimpleHelp for initial access and Djinn Stealer/TaskWeaver deployment
-- **Financial Application Exploitation**: Active exploitation of CVE-2026-46817 in Oracle E-Business Suite targeting financial modules
-- **Client-Side SSH Compromise**: Malicious SSH server exploiting CVE-2026-55200 in libssh2 to achieve RCE on connecting clients (PoC publicly available)
-- **Zero-Day ERP Exploitation**: Oracle PeopleSoft zero-days leveraged for data theft by ShinyHunters and other actors
-- **IDE/Extension Supply Chain Compromise**: Malicious VS Code extension (Amazon Q flaw) and hijacked npm/Go packages using VS Code tasks for Python infostealer deployment
-- **Browser Extension Impersonation**: Typosquatting/brandjacking as legitimate AI tools (Perplexity) to harvest search queries and address bar input
-- **Steganographic Payload Delivery**: Malicious Edge extensions hiding executable payloads in image/font files with delayed execution (days post-install)
-- **AI Agent Poisoning**: Clean-appearing GitHub repositories crafted to exploit agentic AI coding tools' automatic execution behaviors
-- **Legitimate Cloud Service Abuse**: Zoho WorkDrive repurposed as command-and-control channel by Mustang Panda for Indian government targeting
-- **Mass Scam Template Deployment**: Automated generation of 236,000+ scam sites using legitimate cross-platform framework (DCloud Uni-App)
-- **Basic Hygiene Exploitation of OT**: Weak passwords, exposed PLCs, and flat networks exploited for water system access (no sophisticated malware required)
-- **Phishing for Backup Recovery Keys**: Evolution of Signal phishing to target backup recovery keys enabling full message history decryption
-- **Fake Support Social Engineering**: Russian intelligence using fraudulent support texts to steal messaging credentials (SSU/FBI uncovered campaign)
-- **Third-Party/Supply Chain Breach**: KDDI email system compromise cascading to 5 downstream ISPs exposing 14.2 million credentials
-- **Credential Theft via Infostealers**: Cross-platform stealers (Djinn Stealer, Python infostealer) deployed via multiple vectors
+- **Authentication Bypass via CVE-2026-48558**: Unauthenticated remote access to SimpleHelp server administrative interface, used as initial access vector for Djinn Stealer deployment
+  - **Vector**: Internet-exposed SimpleHelp servers with unpatched vulnerability
+
+- **Unauthenticated RCE in Oracle EBS (CVE-2026-46817)**: Direct exploitation of financial application without credentials
+  - **Vector**: Internet-accessible Oracle E-Business Suite instances
+
+- **Zero-Day Exploitation of Oracle PeopleSoft**: Leveraging undisclosed vulnerability for data exfiltration
+  - **Vector**: Internet-facing PeopleSoft portals; post-exploitation data theft and extortion
+
+- **Client-Side SSH Compromise (CVE-2026-55200)**: Malicious SSH server triggers memory corruption on connecting client
+  - **Vector**: Developers/CI systems connecting to compromised or attacker-controlled SSH servers; supply chain compromise of trusted servers
+
+- **AI Coding Agent Poisoning**: Clean-appearing GitHub repositories with hidden malicious payloads executed by autonomous AI coding agents during repository setup/analysis
+  - **Vector**: AI-assisted development workflows (e.g., GitHub Copilot, Cursor, other agentic tools) that automatically clone, analyze, and execute code from repositories
+
+- **Malicious IDE Extension (Amazon Q VS Code)**: Exploitation of extension vulnerability via malicious repository content
+  - **Vector**: Developers using Amazon Q extension who open or interact with crafted repositories
+
+- **Legitimate Cloud Service Abuse (Zoho WorkDrive)**: Mustang Panda uses valid cloud storage API as C2 channel for malware communication
+  - **Vector**: Compromised hosts beaconing to Zoho WorkDrive via legitimate API tokens; blends with normal traffic
+
+- **Browser Extension Hijacking**: Malicious extensions published to official stores (Chrome Web Store, Edge Add-ons) masquerading as legitimate tools (Perplexity AI)
+  - **Vector**: User installation of malicious extensions; 119 Edge extensions used steganography (malware hidden in image/font files) with delayed activation
+
+- **Supply Chain Compromise (npm/Go Packages)**: Hijacked legitimate packages or typosquatted packages deploying Python-based infostealer
+  - **Vector**: Developers installing compromised packages; VS Code Tasks feature abused for automatic execution
+
+- **Steganographic Payload Delivery**: Malware hidden inside image and font files within browser extensions, activating days after installation
+  - **Vector**: Edge Add-ons store; evades static analysis by hiding executable content in benign-appearing assets
+
+- **Credential Harvesting via Fake Support SMS**: Russian intelligence (UNC5792/UNC4221) sending fraudulent support texts to steal messaging app credentials
+  - **Vector**: SMS phishing (smishing targeting WhatsApp, Signal users; social engineering impersonating platform support
+
+- **Basic OT Hygiene Exploitation**: Nation-state access to water systems via weak/default passwords, internet-exposed PLCs, and flat network segmentation
+  - **Vector**: Internet-connected operational technology with inadequate authentication and network segregation
+
+- **Investment Scam Template Abuse**: 236,000+ sites using DCloud Uni-App framework templates for crypto scams, phishing, and wallet drainers
+  - **Vector**: Legitimate cross-platform development framework repurposed for mass deployment of fraudulent financial applications
 
 ## Threat Actor Activities
 
-- **ShinyHunters (Extortion Group)**: Breached Nissan and NAIC via Oracle PeopleSoft zero-day exploits; exfiltrated employee data, configuration files, and logs; operating as data theft and extortion operation
-- **Mustang Panda (China-Aligned APT)**: Running two campaigns against Indian government and hydropower targets; deploying new malware families; abusing Zoho WorkDrive as C2 channel; leveraging legitimate cloud infrastructure for stealth
-- **UNC5792 and UNC4221 (Russian Intelligence-Linked)**: Targeting WhatsApp and Signal users; evolved phishing to steal Signal backup recovery keys; subject of $10M U.S. State Department reward; tied to Russian intelligence services per FBI/CISA
-- **Gamaredon (Russian APT)**: Expanding Ukraine attacks throughout 2025; evolving malware arsenal; abusing cloud services for infrastructure; ongoing cyber onslaught per Slovakian cybersecurity research
-- **Turla (Russian APT)**: Referenced in weekly recap for backdoor activity; continued operations alongside other Russian groups
-- **Iran, Russia, China (Nation-State Actors)**: Collectively targeting water/wastewater systems for sabotage; using basic access techniques (weak passwords, exposed PLCs) rather than advanced exploits; coordinated or parallel critical infrastructure targeting
-- **Unknown/Unattributed Actors**: SimpleHelp exploitation (Djinn Stealer deployment); Oracle EBS exploitation (per Defused intelligence); libssh2 PoC release; malicious browser extension campaigns; npm/Go package hijacking; GitHub AI agent poisoning; DCloud Uni-App scam operators; KDDI breach actors
+- **ShinyHunters (Extortion Group)**: Breached Oracle PeopleSoft instances at Nissan and NAIC; exfiltrated employee data and configuration files; conducting extortion operations; linked to previous high-profile data theft campaigns
+
+- **Mustang Panda (China-Aligned APT)**: Running two campaigns against Indian government and hydropower sector; deploying new malware families (including "Toner" and "PubLoad" loaders); abusing Zoho WorkDrive as legitimate C2 channel; leveraging cloud service APIs to evade detection
+
+- **Gamaredon (Russian APT)**: Expanding malware arsenal throughout 2025 against Ukrainian targets; abusing cloud services for infrastructure; evolving tooling for persistent access; Slovakian cybersecurity firm ESET tracking ongoing operations
+
+- **UNC5792 / UNC4221 (Russian Intelligence-Linked)**: Targeting WhatsApp and Signal users via fake support SMS messages to steal messaging credentials; long-running campaign uncovered by Ukraine SSU and FBI; U.S. State Department offering $10M reward for identification
+
+- **Iranian, Russian, Chinese Nation-State Actors (Collective)**: Targeting water and wastewater systems globally; exploiting basic security failures (weak passwords, exposed PLCs, poor segmentation) rather than sophisticated malware; conducting reconnaissance and pre-positioning for potential sabotage
+
+- **Unknown Operators (Djinn Stealer Campaign)**: Exploiting CVE-2026-48558 in SimpleHelp to deploy novel cross-platform infostealer (Djinn) targeting cloud credentials, AI service credentials, browser data, and cryptocurrency wallets; attribution not established in source articles
+
+- **Unknown Operators (Oracle EBS Exploitation)**: Actively exploiting CVE-2026-46817 in Oracle E-Business Suite; identified by threat intelligence firm Defused; attribution not established
+
+- **Unknown Operators (Malicious Browser Extensions)**: Published 119 malicious Edge extensions over long-running campaign; used steganography in images/fonts; delayed activation to evade review; Microsoft removed all from store
+
+- **Unknown Operators (Perplexity Chrome Extension)**: Published malicious Chrome extension impersonating Perplexity AI; intercepted all searches and address bar input; Microsoft discovered and reported
+
+- **Unknown Operators (npm/Go Supply Chain)**: Hijacked or typosquatted npm and Go packages; abused VS Code Tasks for automatic Python infostealer deployment; targeting Windows, Linux, macOS developers
+
+- **Unknown Operators (AI Agent Poisoning)**: Crafted GitHub repositories designed to exploit autonomous AI coding agents; payload invisible to scanners, AI agents, and human reviewers; demonstrates novel attack surface in agentic development workflows
 
 ## Source Attribution
 
+- **'Djinn' Stealer Targets Cloud, AI Credentials**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/djinn-stealer-targets-cloud-ai-credentials
 - **Vulnerabilities Expose Private Data in Indian Government Systems**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/vulnerabilities-private-data-indian-government-systems
 - **Nissan discloses employee data breach linked to Oracle zero-day attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/nissan-discloses-employee-data-breach-linked-to-oracle-zero-day-attacks/
 - **NAIC says public data stolen in ShinyHunters' PeopleSoft breach**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/naic-says-public-data-stolen-in-shinyhunters-peoplesoft-breach/
@@ -139,4 +161,3 @@ Supply chain attacks have emerged as a dominant theme, with hijacked npm and Go 
 - **Clean GitHub repo tricks AI coding agents into running malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/clean-github-repo-tricks-ai-coding-agents-into-running-malware/
 - **OpenAI Previews GPT-5.6 Sol With Restricted Access and Stronger Cyber Safeguards**: The Hacker News - https://thehackernews.com/2026/06/openai-limits-gpt-56-rollout-as-sol.html
 - **Third-Party Breaches Teach Education Sector a Costly Lesson in Vendor Risk**: Dark Reading - https://www.darkreading.com/cyber-risk/third-party-breaches-teaches-education-lesson-vendor-risk
-- **FBI: Russian hackers now target Signal backup recovery keys**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/fbi-russian-hackers-now-target-signal-backup-recovery-keys/
