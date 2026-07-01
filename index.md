@@ -2,116 +2,125 @@
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, ranging from enterprise software and AI infrastructure to consumer devices and developer supply chains. Ransomware gangs have adopted a Microsoft Defender privilege escalation flaw dubbed BlueHammer, while unknown threat actors are weaponizing a maximum-severity SimpleHelp RCE (CVE-2026-48558) to deploy novel malware families TaskWeaver and Djinn Stealer. Simultaneously, Oracle E-Business Suite environments face active exploitation of CVE-2026-46817 (CVSS 9.8), and the Langflow AI framework vulnerability continues to be leveraged for cryptocurrency mining campaigns.
+Critical exploitation activity is accelerating across multiple vectors, with ransomware gangs and nation-state actors leveraging both newly disclosed vulnerabilities and supply chain compromises. CISA has confirmed that the Windows BlueHammer privilege escalation flaw in Microsoft Defender—previously exploited as a zero-day—is now actively weaponized by ransomware groups. Simultaneously, a maximum-severity authentication bypass in SimpleHelp (CVE-2026-48558) is being exploited to deploy previously unknown malware families including TaskWeaver and the Djinn stealer, which specifically targets cloud and AI credentials. Oracle E-Business Suite faces active exploitation of CVE-2026-46817 (CVSS 9.8), while a suspected Oracle PeopleSoft zero-day has already compromised Nissan and the NAIC, with the ShinyHunters extortion group claiming responsibility.
 
-A parallel surge in AI-focused attack vectors demonstrates rapid adversary adaptation to emerging technologies. The "BioShocking" prompt injection technique successfully bypassed safety guardrails across six AI-powered browsers, while "Agentjacking" exploits the inability of AI coding agents to distinguish between content and instructions. Malicious browser extensions masquerading as legitimate AI tools—including fake Perplexity and Google Notes extensions—are harvesting credentials and hijacking cryptocurrency transactions. Exposed AI endpoints are being hijacked without authentication to power offensive operations, and poisoned MCP tool descriptions are manipulating AI agents into exfiltrating corporate data.
+AI-powered systems have emerged as a significant new attack surface. The "BioShocking" prompt injection technique successfully manipulates six major AI browsers into bypassing safety controls and exfiltrating user credentials by framing malicious actions as fictional scenarios. Microsoft research demonstrates that poisoned MCP tool descriptions can hijack AI agents to silently leak corporate data. Additionally, the GuardFall research exposes decades-old shell injection risks in open-source AI coding agents, and 282 iOS AI applications were found leaking API keys and proxy access in network traffic.
 
-Supply chain and infrastructure threats remain persistent. A China-linked group has compromised at least ten Southeast Asian organizations, including two state-owned entities, deploying a previously undocumented backdoor. The RustDuck botnet, rewritten in Rust, is enslaving routers, IP cameras, Android boxes, and poorly secured servers for DDoS operations. Malicious PyPI packages trojanizing Pyrogram have targeted Telegram bot developers since November, while 282 iOS AI applications were found leaking API keys and proxy access in network traffic. Blackfield ransomware has demanded $2 million from Japanese manufacturer Nidec Corporation, and Aflac disclosed a breach originating from its Japan subsidiary.
+Supply chain and infrastructure attacks continue to expand. The RustDuck botnet, rewritten in Rust, is hijacking routers, IP cameras, Android boxes, and poorly secured servers for DDoS operations. Malicious PyPI packages masquerading as Pyrogram forks have targeted Telegram bot developers since November, providing attackers arbitrary file read access. Browser extension campaigns—including a fake Perplexity extension and the Silent Swap crypto clipper disguised as Google Notes—are actively harvesting search data and replacing cryptocurrency wallet addresses. Nation-state actors from Iran, Russia, and China are targeting water systems through weak passwords, exposed PLCs, and poor network segmentation rather than sophisticated malware.
 
 ## Active Exploitation Details
 
-### SimpleHelp RCE (CVE-2026-48558)
-- **Description**: A maximum-severity security flaw in SimpleHelp remote support software that allows unauthenticated attackers to achieve remote code execution.
-- **Impact**: Attackers gain full control over affected SimpleHelp servers, enabling deployment of arbitrary payloads. Observed payloads include two previously unreported malware families: TaskWeaver and Djinn Stealer.
-- **Status**: Actively exploited in the wild by an unknown threat actor. Patch availability should be verified with SimpleHelp vendor advisories.
+### SimpleHelp Authentication Bypass (CVE-2026-48558)
+- **Description**: A maximum-severity authentication bypass vulnerability in SimpleHelp remote support software that allows unauthenticated attackers to gain access to the management interface.
+- **Impact**: Attackers achieve full control over SimpleHelp servers, enabling deployment of arbitrary payloads. Currently being used to deliver two previously unreported malware families: TaskWeaver (a loader/framework) and Djinn Stealer (an infostealer targeting cloud credentials, AI service credentials, and development/admin environment access tokens).
+- **Status**: Actively exploited in the wild by an unknown threat actor. Patch availability not specified in source articles.
 - **CVE ID**: CVE-2026-48558
 
-### Oracle E-Business Suite Vulnerability (CVE-2026-46817)
-- **Description**: Critical security flaw impacting Oracle E-Business Suite with a CVSS score of 9.8, indicating near-maximum severity.
-- **Impact**: Allows attackers to compromise Oracle E-Business Suite environments, potentially leading to full system takeover, data exfiltration, and financial fraud given the ERP nature of the platform.
-- **Status**: Actively exploited in the wild as confirmed by Defused Cyber. Organizations running Oracle E-Business Suite should prioritize emergency patching.
+### Oracle E-Business Suite Critical Flaw (CVE-2026-46817)
+- **Description**: A critical security vulnerability in Oracle E-Business Suite with a CVSS score of 9.8, identified by Defused Cyber as actively exploited in the wild.
+- **Impact**: Allows unauthenticated attackers to compromise Oracle E-Business Suite installations, potentially leading to full system takeover, data exfiltration, and lateral movement within enterprise environments.
+- **Status**: Actively exploited in the wild per Defused Cyber reporting. Oracle patch status not specified in source articles.
 - **CVE ID**: CVE-2026-46817
 
 ### Langflow Remote Code Execution
-- **Description**: Critical vulnerability in the Langflow AI application framework that enables remote code execution on exposed endpoints.
-- **Impact**: Threat actors are weaponizing this flaw to deploy Monero cryptocurrency miners on compromised AI application infrastructure, consuming compute resources for illicit profit.
-- **Status**: Actively exploited as part of fresh attacks targeting exposed AI app endpoints. The vulnerability is tracked under a CVE-2026 identifier.
-- **CVE ID**: CVE-2026-xxxx (full identifier referenced as CVE-2026... in source)
+- **Description**: A critical remote code execution vulnerability in Langflow, an open-source platform for building AI applications and workflows.
+- **Impact**: Threat actors are weaponizing this flaw to deploy Monero cryptocurrency miners on exposed AI application endpoints. The vulnerability allows unauthenticated code execution on servers running vulnerable Langflow instances.
+- **Status**: Actively exploited in fresh attacks targeting exposed AI app endpoints.
+- **CVE ID**: CVE-2026 (partial identifier referenced in source; full CVE ID not completely visible in article snippet)
 
-### Microsoft Defender BlueHammer Privilege Escalation
-- **Description**: A privilege escalation vulnerability in Microsoft Defender, dubbed "BlueHammer," that was previously abused in zero-day attacks.
-- **Impact**: Allows attackers to escalate privileges on compromised Windows systems, facilitating lateral movement, persistence, and deployment of ransomware payloads.
-- **Status**: CISA has confirmed ransomware gangs are now actively exploiting this flaw. Microsoft has released patches; immediate application is critical.
-- **CVE ID**: CVE identifier not explicitly provided in source articles
+### Windows BlueHammer (Microsoft Defender Privilege Escalation)
+- **Description**: A privilege escalation vulnerability in Microsoft Defender, dubbed "BlueHammer," that was previously exploited in zero-day attacks.
+- **Impact**: Provides attackers with elevated privileges on Windows systems, enabling ransomware gangs to deploy payloads with SYSTEM-level access, disable security controls, and propagate laterally.
+- **Status**: CISA confirmed on Monday that ransomware gangs are now actively exploiting this flaw. Previously abused in zero-day attacks; now adopted by criminal ransomware operations.
+- **CVE ID**: Not explicitly provided in source article
 
 ### Progress Kemp LoadMaster Pre-Auth RCE
-- **Description**: Critical vulnerability in Progress Kemp LoadMaster load balancer appliances allowing unauthenticated attackers to execute arbitrary commands as root via crafted API requests.
-- **Impact**: Full root compromise of the load balancer appliance, enabling traffic interception, certificate theft, lateral movement, and persistent network foothold.
-- **Status**: Vulnerability disclosed with technical details; exploitation risk is high given pre-authentication nature and root-level impact. Patch status should be verified with Progress Software.
-- **CVE ID**: CVE identifier not explicitly provided in source articles
+- **Description**: A critical vulnerability in Progress Kemp LoadMaster load balancer appliances that allows unauthenticated attackers to execute arbitrary commands as root via a crafted API request.
+- **Impact**: Full root-level compromise of the load balancer appliance, enabling traffic interception, credential theft, lateral movement, and persistence in critical network infrastructure.
+- **Status**: Vulnerability disclosed with technical details; exploitation status in wild not explicitly confirmed but high risk given pre-auth root RCE nature.
+- **CVE ID**: Not explicitly provided in source article (described as "tracked as" but identifier not visible in snippet)
 
-### AirDrop and Quick Share Wireless Flaws
-- **Description**: Six security flaws discovered in Apple AirDrop and Android/Chrome OS Quick Share wireless file transfer features.
-- **Impact**: Nearby attackers within wireless range can trigger crashes and bypass security checks, potentially leading to denial of service or further exploitation chaining.
-- **Status**: Vulnerabilities disclosed by researchers; patch availability depends on Apple and Google/Chrome OS vendor timelines.
-- **CVE ID**: CVE identifiers not explicitly provided in source articles
+### Oracle PeopleSoft Zero-Day
+- **Description**: A zero-day vulnerability in Oracle PeopleSoft exploited in data theft attacks, linked to the ShinyHunters extortion group.
+- **Impact**: Enables unauthorized access to PeopleSoft systems, resulting in employee data breaches. Confirmed victims include Nissan (current and former employee data) and the National Association of Insurance Commissioners (public data, outdated logs, and configuration files).
+- **Status**: Actively exploited in the wild as a zero-day. Attributed to ShinyHunters extortion group.
+- **CVE ID**: Not explicitly provided in source articles (described as "Oracle zero-day" and "Oracle PeopleSoft vulnerability")
+
+### BioShocking Prompt Injection
+- **Description**: A novel prompt injection technique that manipulates AI-powered browsers by convincing them that risky real-world actions are part of a fictional game or scenario, causing themed narrative.
+- **Impact**: Bypasses all safety guardrails in six tested AI browsers, enabling theft of user credentials, login details, and sensitive browser data. Demonstrated by LayerX security researchers.
+- **Status**: Proof-of-concept demonstrated against six major AI browsers; active exploitation status not confirmed but technique is publicly disclosed and reproducible.
+- **CVE ID**: Not applicable (technique/class of vulnerability, not a specific CVE)
+
+### Poisoned MCP Tool Descriptions
+- **Description**: An attack vector where malicious tool descriptions in the Model Context Protocol (MCP) hijack AI agents acting on users' behalf, causing them to silently exfiltrate company data to attacker-controlled destinations.
+- **Impact**: AI agents with access to corporate data can be tricked into leaking sensitive information without user awareness or consent, bypassing traditional access controls.
+- **Status**: Microsoft research disclosure; active exploitation status not confirmed but represents a critical architectural risk in AI agent deployments.
+- **CVE ID**: Not applicable (protocol/design weakness)
+
+### GuardFall Shell Injection in AI Coding Agents
+- **Description**: A bypass of safety checks in open-source AI coding agents using decades-old shell injection techniques (command substitution, argument injection) that have been publicly known for years.
+- **Impact**: Attackers can execute arbitrary shell commands on the host system through the AI coding agent, achieving full system compromise in development environments.
+- **Status**: Research disclosure from Adversa AI; affects multiple open-source AI coding agents. Exploitation in wild not confirmed but trivial to reproduce.
+- **CVE ID**: Not applicable (class of vulnerability across multiple products)
 
 ## Affected Systems and Products
 
-- **SimpleHelp Remote Support Software**: Versions affected by CVE-2026-48558; all unpatched instances exposed to unauthenticated RCE
-- **Oracle E-Business Suite**: Enterprise ERP deployments running vulnerable versions; CVE-2026-46817 actively exploited
-- **Langflow AI Framework**: Exposed AI application endpoints running vulnerable Langflow versions; targeted for Monero miner deployment
-- **Microsoft Defender / Windows**: Systems with unpatched BlueHammer privilege escalation vulnerability; actively targeted by ransomware gangs
-- **Progress Kemp LoadMaster**: Load balancer appliances with API interface exposed; pre-auth RCE as root
-- **Apple AirDrop**: iOS, iPadOS, macOS devices with AirDrop enabled; six flaws allowing nearby crash/ bypass
-- **Android Quick Share / Chrome OS Quick Share**: Android devices and Chromebooks with Quick Share enabled; similar wireless attack surface
-- **PyPI / Pyrogram Forks**: Python developers installing trojanized Pyrogram packages for Telegram bot development; campaign active since November 2025
-- **iOS AI Chatbot Applications**: 282 of 444 tested iOS AI apps (nearly two-thirds) leaking LLM API keys and proxy access in network traffic
-- **Chrome Browser Extensions**: Users who installed fake Perplexity AI extension or fake Google Notes extension from Chrome Web Store
-- **AI-Powered Browsers**: Six AI browsers tested vulnerable to BioShocking prompt injection technique (specific products not named in sources)
-- **Open-Source AI Coding Agents**: Agents vulnerable to GuardFall shell injection bypass and Agentjacking via fake bug reports
-- **Exposed AI/ML Model Endpoints**: Unauthenticated endpoints (MCP, LLM APIs) hijacked for offensive operations
-- **Home Routers, IP Cameras, Android Boxes, Poorly Secured Servers**: Devices enslaved by RustDuck botnet for DDoS infrastructure
-- **Southeast Asian Critical Infrastructure**: At least 10 regional organizations including 2 state-owned entities compromised by China-linked group
-- **Nidec Corporation**: Japanese electronic components manufacturer targeted by Blackfield ransomware ($2M demand)
-- **Aflac Japan Subsidiary**: Systems breached resulting in personal and bank account data theft
-- **EU and Asia Hospitality Organizations**: Targeted by phishing campaigns using malicious zip files, blockchain abuse, and social engineering
+- **SimpleHelp Remote Support Software**: All versions vulnerable to CVE-2026-48558 authentication bypass; management server component primarily targeted
+- **Oracle E-Business Suite**: Enterprise ERP installations exposed to CVE-2026-46817 unauthenticated attack
+- **Oracle PeopleSoft**: Human capital management and campus solutions platforms; zero-day exploitation confirmed against Nissan and NAIC
+- **Langflow AI Application Framework**: Exposed instances of the open-source AI workflow builder; endpoints accessible over network
+- **Microsoft Defender on Windows**: Systems with vulnerable Defender versions susceptible to BlueHammer privilege escalation
+- **Progress Kemp LoadMaster**: Load balancer appliances with vulnerable firmware versions; management API exposed
+- **AI-Powered Browsers (6+ major products)**: Vulnerable to BioShocking prompt injection; specific products not named in source articles
+- **AI Agents using Model Context Protocol (MCP)**: Any deployment utilizing MCP tool descriptions from untrusted sources
+- **Open-Source AI Coding Agents**: Multiple projects affected by GuardFall shell injection bypasses; specific tools not enumerated in source
+- **Telegram Bot Developer Environments**: Python developers using Pyrogram library; compromised via trojanized PyPI packages (malicious forks)
+- **iOS AI Chatbot Applications**: 282 of 444 tested apps leaking API keys and proxy access credentials in network traffic
+- **Chrome Browser Extensions**: Users installing fake Perplexity AI extension and Silent Swap/Google Notes crypto clipper extensions
+- **Home Routers, IP Cameras, Android Boxes, Poorly Secured Servers**: Targeted by RustDuck botnet for DDoS recruitment
+- **Water Treatment/Industrial Control Systems**: PLCs and SCADA systems with weak passwords, exposed interfaces, poor segmentation targeted by Iran, Russia, China
+- **AirDrop (Apple) and Quick Share (Android/Google)**: Wireless file transfer features on mobile devices and laptops with six identified flaws
 
 ## Attack Vectors and Techniques
 
-- **BioShocking Prompt Injection**: Attackers convince AI browsers they are participating in a fictional scenario/game, causing the AI to ignore safety guardrails and leak user credentials or perform risky actions. Successfully demonstrated against six AI browsers by LayerX researchers.
-- **Agentjacking via Fake Bug Reports**: Malicious bug reports or issue submissions contain hidden instructions that AI coding agents interpret as commands, bypassing the content/instruction boundary. Demonstrated at scale against AI coding agents.
-- **Poisoned MCP Tool Descriptions**: Attackers craft malicious tool descriptions for Model Context Protocol (MCP) interfaces that instruct AI agents to exfiltrate data or perform unauthorized actions when the tool is invoked.
-- **GuardFall Shell Injection Bypass**: Decades-old shell injection techniques (command substitution, argument injection) bypass safety checks in AI coding agents designed to prevent dangerous command execution.
-- **Exposed AI Endpoint Hijacking**: Attackers locate and connect to unauthenticated AI/ML model endpoints (including MCP servers) to harness compute for offensive operations—no credentials required, only endpoint discovery.
-- **Malicious Browser Extensions**: Fake extensions masquerading as legitimate AI tools (Perplexity, Google Notes) distributed via Chrome Web Store; intercept search traffic, harvest browsing data, and replace cryptocurrency wallet addresses in clipboard/transaction flows.
-- **Trojanized PyPI Packages**: Attackers publish malicious forks of popular Python libraries (Pyrogram for Telegram bots) that exfiltrate arbitrary files from developer systems when installed.
-- **Langflow RCE Weaponization**: Exploiting CVE-2026-xxxx in Langflow to achieve RCE on exposed AI app endpoints, followed by Monero miner deployment for cryptojacking.
-- **SimpleHelp RCE Exploitation**: Unauthenticated exploitation of CVE-2026-48558 to deploy TaskWeaver (novel malware) and Djinn Stealer (credential/data stealer) on SimpleHelp servers.
-- **Oracle E-Business Suite Exploitation**: Active exploitation of CVE-2026-46817 (CVSS 9.8) against internet-accessible or internally reachable ERP instances.
-- **BlueHammer Privilege Escalation**: Ransomware gangs leveraging Microsoft Defender flaw for local privilege escalation post-initial access, enabling ransomware deployment.
-- **RustDuck Botnet Recruitment**: Two-stage Rust-based malware infecting routers, IP cameras, Android boxes, and poorly secured servers via weak/default credentials or exposed services; stitching devices into DDoS botnet.
-- **Phishing with Malicious Archives**: Social engineering emails delivering malicious zip files containing malware; obfuscation techniques and blockchain abuse (e.g., using blockchain for C2 or payload staging) to evade detection.
-- **Supply Chain Credential Leakage**: 282 iOS AI apps leaking paid API keys and proxy credentials in plaintext network traffic, enabling unauthorized AI access and cost theft.
-- **Wireless Proximity Attacks**: Attackers within wireless range exploit AirDrop/Quick Share flaws to trigger crashes or bypass security checks on nearby devices without user interaction.
+- **Authentication Bypass via SimpleHelp (CVE-2026-48558)**: Unauthenticated access to management console → deployment of TaskWeaver loader → execution of Djinn Stealer for credential harvesting targeting cloud/AI/dev credentials
+- **Pre-Auth Root RCE via Kemp LoadMaster API**: Crafted API request → arbitrary command execution as root → full appliance compromise
+- **Prompt Injection / BioShocking**: Adversarial prompts framing malicious actions as fictional game scenarios → AI browser safety bypass → credential exfiltration and arbitrary action execution
+- **MCP Tool Description Poisoning**: Malicious tool description in Model Context Protocol → AI agent interprets description as instruction → silent data exfiltration to attacker destination
+- **Shell Injection in AI Coding Agents**: Command substitution/argument injection in agent-generated or user-supplied commands → bypass of safety filters → arbitrary shell execution on host
+- **Supply Chain Compromise (PyPI)**: Trojanized Pyrogram forks published to PyPI → developers install malicious package → arbitrary file read on build/deployment servers → Telegram bot token theft
+- **Browser Extension Impersonation**: Fake Perplexity extension on Chrome Web Store → intercepts search traffic, collects browsing data; Silent Swap clipper disguised as Google Notes → clipboard monitoring → crypto wallet address replacement
+- **Botnet Recruitment (RustDuck)**: Two-stage infection → compromise of IoT devices (routers, cameras, Android boxes) and servers → Rust-based C2 infrastructure → DDoS-for-hire or targeted disruption
+- **AI Application Data Leakage**: Network traffic analysis of iOS AI apps → extraction of hardcoded/transmitted API keys and proxy credentials → unauthorized AI service access and cost abuse
+- **Zero-Day Exploitation (Oracle PeopleSoft)**: Unknown vulnerability in PeopleSoft → data exfiltration → extortion by ShinyHunters group
+- **Ransomware Privilege Escalation (BlueHammer)**: Initial access → Microsoft Defender BlueHammer exploit → SYSTEM privileges → security tool disablement → ransomware deployment
+- **Cryptocurrency Mining (Langflow RCE)**: Exposed Langflow endpoint → RCE exploit → Monero miner deployment → resource hijacking
+- **Nation-State Water System Intrusion**: Weak/default credentials on PLCs → exposed management interfaces → poor network segmentation → lateral movement in OT environment → sabotage positioning
+- **AirDrop/Quick Share Proximity Attacks**: Wireless proximity → crafted frames → denial of service (crashes) or authentication bypass → unauthorized file transfer or device interaction
 
 ## Threat Actor Activities
 
-- **China-Linked APT Group**: Compromised at least 10 organizations in Southeast Asia, including two state-owned entities. Deployed a previously undocumented backdoor. Targeting critical systems and infrastructure in the region.
-- **Unknown Threat Actor (SimpleHelp Campaign)**: Exploiting CVE-2026-48558 in SimpleHelp to deploy two novel malware families—TaskWeaver and Djinn Stealer. No attribution to known groups provided in source.
-- **Ransomware Gangs (Multiple)**: Adopted exploitation of Microsoft Defender BlueHammer privilege escalation (previously zero-day) for ransomware deployment. CISA confirms active use by multiple ransomware operations.
-- **Blackfield Ransomware Gang**: Targeted Nidec Corporation (Japanese electronic components manufacturer for automotive/computing) with $2 million ransom demand. Active extortion operation.
-- **RustDuck Botnet Operators**: Unknown group operating a rewritten-in-Rust botnet (two-stage malware) enslaving routers, IP cameras, Android boxes, and servers for DDoS-for-hire or direct attack infrastructure.
-- **PyPI Supply Chain Attackers**: Campaign active since November 2025 targeting Python developers building Telegram bots via trojanized Pyrogram forks. Exfiltrates arbitrary files from compromised development servers.
-- **Phishing Campaign Operators (Per Microsoft & Trend Micro)**: Separate but similar campaigns targeting EU and Asia hospitality organizations. Using malicious zip files, social engineering, obfuscation, and blockchain abuse for persistence and evasion.
-- **Malicious Extension Developers**: Published fake Perplexity AI extension and fake Google Notes extension to Chrome Web Store. Perplexity variant intercepted searches and collected browsing data; Google Notes variant (Silent Swap) replaces cryptocurrency wallet addresses during transactions.
-- **LayerX Researchers (Defensive/Offensive Research)**: Discovered and demonstrated BioShocking prompt injection technique against six AI browsers, proving credential leakage via fictional scenario manipulation.
-- **Adversa Researchers (Defensive/Offensive Research)**: Discovered GuardFall shell injection bypasses against open-source AI coding agents, demonstrating decades-old techniques defeat modern AI safety checks.
-- **Defused Cyber (Threat Intelligence)**: Reported active exploitation of Oracle E-Business Suite CVE-2026-46817 in the wild.
-- **Aflac Breach Actors (Unattributed)**: Breached Aflac's Japan subsidiary systems, exfiltrating personal and bank account information. No claimed responsibility or attribution in source.
+- **Unknown Threat Actor (SimpleHelp Campaign)**: Exploiting CVE-2026-48558 since disclosure to deploy TaskWeaver and Djinn Stealer; targeting development and admin environments for cloud/AI credential theft; attribution not established
+- **ShinyHunters Extortion Group**: Claimed responsibility for Oracle PeopleSoft zero-day breaches at Nissan (employee data) and NAIC (public data, logs, configs); operating as data theft and extortion operation
+- **Ransomware Gangs (Multiple)**: Adopting Windows BlueHammer (Microsoft Defender) privilege escalation post-CISA alert; integrating zero-day/exploit into ransomware deployment chains for faster domain dominance
+- **RustDuck Botnet Operators**: New two-stage Rust-based malware family; building DDoS infrastructure from compromised routers, IP cameras, Android boxes, and servers; capability for hire or targeted attacks
+- **PyPI Supply Chain Attackers**: Campaign active since November 2025; publishing trojanized Pyrogram forks targeting Python developers building Telegram bots; goal: server compromise and bot token theft
+- **LayerX Researchers (BioShocking)**: Disclosed prompt injection technique against six AI browsers; defensive research demonstrating critical safety bypass in AI-integrated browsers
+- **Microsoft Research (MCP Poisoning)**: Disclosed architectural vulnerability in Model Context Protocol enabling AI agent hijacking via poisoned tool descriptions
+- **Adversa AI Researchers (GuardFall)**: Disclosed shell injection bypasses in open-source AI coding agents using decades-known techniques
+- **Iran, Russia, China (Nation-State Actors)**: Targeting water/wastewater systems for sabotage positioning; using basic hygiene failures (weak passwords, exposed PLCs, flat networks) rather than advanced malware; strategic pre-positioning for potential disruption
+- **Blackfield Ransomware Gang**: Demanding $2 million from Nidec Corporation (Japanese automotive/electronics manufacturer); active ransomware operation
+- **Aflac Breach Actors**: Compromised Aflac Japan subsidiary systems; stole personal and bank account information; attribution not specified
+- **FIFA 2026 Fraud Infrastructure Operators**: Check Point Research identified pre-staged fraud infrastructure targeting World Cup; threat actors building phishing, ticketing, and merchandise scams
 
 ## Source Attribution
 
-- **China-Linked Group Targets Southeast Asia Critical Systems**: Dark Reading - https://www.darkreading.com/threat-intelligence/china-linked-group-targets-southeast-asia-critical-systems
 - **Anthropic to restore Claude Fable access on Wednesday**: Bleeping Computer - https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-to-restore-claude-fable-access-on-wednesday/
 - **Anthropic rolls out Sonnet 5 with near-Opus 4.8 performance at a lower price**: Bleeping Computer - https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-rolls-out-sonnet-5-with-near-opus-48-performance-at-a-lower-price/
 - **New BioShocking attack manipulates AI browser into data theft**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-bioshocking-attack-manipulates-ai-browser-into-data-theft/
-- **Fake Bug Report Hijacks AI Coding Agents at Scale**: Dark Reading - https://www.darkreading.com/cyber-risk/fake-bug-report-hijacks-ai-coding-agents
 - **Microsoft accelerates quantum-safe roadmap as risks grow**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-accelerates-quantum-safe-roadmap-as-risks-grow/
 - **Malicious PyPI packages give hackers control of Telegram bot servers**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/malicious-pypi-packages-give-hackers-control-of-telegram-bot-servers/
-- **Attackers Hijack Exposed AI Endpoints to Power Offensive Ops**: Dark Reading - https://www.darkreading.com/cloud-security/attackers-hijack-exposed-ai-endpoints-power-offensive-ops
-- **Why Identity Security Is Your Cyber Career Entry Point**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/identity-security-cyber-career-entry-point
-- **Phishers Gain Persistence at EU, Asia Hospitality Orgs**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/phishers-persistence-eu-asia-hospitality-orgs
 - **Microsoft Warns Poisoned MCP Tool Descriptions Can Make AI Agents Leak Data**: The Hacker News - https://thehackernews.com/2026/06/microsoft-warns-poisoned-mcp-tool.html
 - **RustDuck Botnet Rebuilds in Rust to Hijack Routers and Servers for DDoS**: The Hacker News - https://thehackernews.com/2026/06/rustduck-botnet-rebuilds-in-rust-to.html
 - **Langflow RCE Exploited to Deploy Monero Miner on Exposed AI App Endpoints**: The Hacker News - https://thehackernews.com/2026/06/langflow-rce-exploited-to-deploy-monero.html
@@ -120,7 +129,6 @@ Supply chain and infrastructure threats remain persistent. A China-linked group 
 - **GuardFall Exposes Open-Source AI Coding Agents to Decades-Old Shell Injection Risks**: The Hacker News - https://thehackernews.com/2026/06/guardfall-exposes-open-source-ai-coding.html
 - **Lessons from the Underground: How to Combat Business Email Compromise**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/lessons-from-the-underground-how-to-combat-business-email-compromise/
 - **282 iOS AI Apps Leak API Keys and Open AI Proxy Access in Network Traffic Study**: The Hacker News - https://thehackernews.com/2026/06/282-ios-apps-found-leaking-llm-api-keys.html
-- **AI-Generated Workflows Are a Silent Security Disaster**: Dark Reading - https://www.darkreading.com/cyber-risk/ai-generated-workflows-silent-security-disaster
 - **What the Numbers Say About FIFA 2026 Cyber Risk**: The Hacker News - https://thehackernews.com/2026/06/what-numbers-say-about-fifa-2026-cyber.html
 - **Attackers Exploit SimpleHelp CVE-2026-48558 to Deploy TaskWeaver and Djinn Stealer**: The Hacker News - https://thehackernews.com/2026/06/attackers-exploit-simplehelp-cve-2026.html
 - **Insurance giant Aflac discloses data breach after subsidiary hack**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/insurance-giant-aflac-discloses-data-breach-after-subsidiary-hack/
@@ -132,3 +140,9 @@ Supply chain and infrastructure threats remain persistent. A China-linked group 
 - **New BioShocking Attack Tricks AI Browsers Into Leaking User Credentials**: The Hacker News - https://thehackernews.com/2026/06/new-bioshocking-attack-tricks-ai.html
 - **Progress Kemp LoadMaster Flaw Could Let Attackers Run Root Commands Pre-Auth**: The Hacker News - https://thehackernews.com/2026/06/progress-kemp-loadmaster-flaw-could-let.html
 - **Oracle E-Business Suite Flaw CVE-2026-46817 Actively Exploited in the Wild**: The Hacker News - https://thehackernews.com/2026/06/oracle-e-business-suite-flaw-cve-2026.html
+- **'Djinn' Stealer Targets Cloud, AI Credentials**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/djinn-stealer-targets-cloud-ai-credentials
+- **Vulnerabilities Expose Private Data in Indian Government Systems**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/vulnerabilities-private-data-indian-government-systems
+- **Nissan discloses employee data breach linked to Oracle zero-day attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/nissan-discloses-employee-data-breach-linked-to-oracle-zero-day-attacks/
+- **NAIC says public data stolen in ShinyHunters' PeopleSoft breach**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/naic-says-public-data-stolen-in-shinyhunters-peoplesoft-breach/
+- **Can Clothes Make You Invisible to Facial Recognition?**: Dark Reading - https://www.darkreading.com/cyber-risk/clothes-invisible-facial-recognition
+- **Iran, Russia, China Target Water Systems for Sabotage**: Dark Reading - https://www.darkreading.com/ics-ot-security/iran-russia-china-target-water-systems-sabotage
