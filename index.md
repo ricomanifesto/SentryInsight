@@ -2,153 +2,126 @@
 
 ## Executive Summary
 
-Critical exploitation activity spans multiple vectors this period, with actively exploited vulnerabilities in enterprise infrastructure, large-scale credential attacks against cloud identities, and emerging AI-driven attack techniques. The Progress Kemp LoadMaster pre-authentication RCE flaw is under active exploitation attempts per eSentire's Threat Response Unit, while over 900 Oracle E-Business Suite instances remain exposed to ongoing attacks leveraging a critical security flaw. Simultaneously, a massive Azure CLI password spray campaign has compromised at least 78 Microsoft accounts across more than 81 million attempts, demonstrating the continued effectiveness of credential-based attacks against cloud infrastructure.
+Multiple high-impact exploitation campaigns are actively targeting critical infrastructure, enterprise platforms, and end-users across diverse sectors. A pre-authentication remote code execution flaw in Progress Kemp LoadMaster is under active exploitation, while over 900 Oracle E-Business Suite instances face ongoing attacks leveraging a critical vulnerability. Simultaneously, a massive password-spraying campaign against Microsoft 365 and Azure CLI has generated more than 81 million login attempts, compromising at least 78 accounts. These infrastructure-level attacks are complemented by sophisticated social engineering operations abusing legitimate services including ScreenConnect, Blogger, and SEO-poisoned software download sites to deploy AsyncRAT, PureLogs stealer, and the Ousaban banking trojan.
 
-Threat actors are rapidly adopting AI-enabled techniques across the kill chain. The Ousaban banking trojan campaigns target Spanish and Portuguese financial institutions using sophisticated PDF lures, while a China-linked group has compromised at least ten Southeast Asian organizations—including two state-owned entities—deploying a novel backdoor. Supply chain attacks persist through malicious PyPI packages trojanizing Pyrogram forks to steal arbitrary files from Telegram bot developers, a campaign active since November 2025. The ClickFix social engineering framework has evolved an API-driven backend managing over 3,000 live payloads, and "Phantom Squatting" leverages LLM-hallucinated domains for near-undetectable phishing infrastructure.
+Threat actors are rapidly adopting AI-driven techniques to expand their attack surface. The emergence of "Phantom Squatting" sees operators registering domains hallucinated by LLMs to host phishing and malware payloads, while novel prompt injection methods—including "BioShocking" and "Agentjacking"—demonstrate the ability to manipulate AI-powered browsers and coding agents into bypassing safety controls. A China-linked group has compromised at least ten organizations in Southeast Asia, including two state-owned entities, deploying a previously undocumented backdoor. Meanwhile, analysis of 3,000 live ClickFix payloads reveals an API-driven malware delivery backend scaling social engineering operations.
 
-New AI-specific attack surfaces are being weaponized at speed. Critical flaws in the Cursor AI code editor allow prompt injection to escape sandboxes and execute arbitrary commands. The "BioShocking" prompt injection technique manipulates AI browsers into treating dangerous actions as fictional scenarios, bypassing safety controls. "Agentjacking" via fake bug reports hijacks AI coding agents at scale, while poisoned MCP tool descriptions silently exfiltrate data from AI agents. Attackers are also seizing exposed, unauthenticated AI endpoints to power offensive operations, and DeepSeek-generated browser ransomware abuses Chromium APIs across Windows and Android.
+The convergence of infrastructure exploitation, credential attacks, AI-enabled supply chain abuse, and legitimate-service misuse signals a significant escalation in both volume and sophistication. Organizations must prioritize patching of exposed load balancers and ERP instances, enforce phishing-resistant authentication for cloud identities, and implement controls to detect and block AI-generated attack infrastructure.
 
 ## Active Exploitation Details
 
 ### Progress Kemp LoadMaster Pre-Auth RCE
-- **Description**: A critical pre-authentication remote code execution vulnerability affecting Progress Kemp LoadMaster load balancing appliances. The flaw allows unauthenticated attackers to execute arbitrary code on affected devices.
-- **Impact**: Full compromise of load balancer appliances, potential lateral movement into internal networks, traffic interception, and persistence in critical network infrastructure.
-- **Status**: Actively exploited in the wild. eSentire's Threat Response Unit has observed active exploitation attempts. Progress has released security advisories and patches.
+- **Description**: A critical pre-authentication remote code execution vulnerability affecting Progress Kemp LoadMaster load balancing appliances. The flaw allows unauthenticated attackers to execute arbitrary code on vulnerable systems.
+- **Impact**: Full system compromise of load balancers, LoadMaster appliances, potential lateral movement into internal networks, and disruption of critical application delivery infrastructure.
+- **Status**: Active exploitation attempts observed by eSentire's Threat Response Unit (TRU). Advisory issued warning of ongoing attacks.
+- **CVE ID**: Not specified in source article
 
-### Oracle E-Business Suite Critical Flaw Exploitation
-- **Description**: A critical security flaw in Oracle E-Business Suite (EBS) being actively exploited against internet-exposed instances.
-- **Impact**: Over 900 EBS instances found exposed online with ongoing attacks. Successful exploitation could lead to unauthorized access to enterprise ERP data, financial systems, and sensitive business operations.
-- **Status**: Ongoing attacks against exposed instances. Organizations urged to apply patches and restrict network access immediately.
+### Oracle E-Business Suite Critical Vulnerability
+- **Description**: A critical security flaw in Oracle E-Business Suite (EBS) enabling remote exploitation of exposed instances.
+- **Impact**: Compromise of ERP systems containing financial, HR, and supply chain data. Over 900 instances found exposed online amid ongoing attacks.
+- **Status**: Ongoing attacks against exposed instances. Organizations with internet-facing EBS deployments at immediate risk.
+- **CVE ID**: Not specified in source article
 
-### Azure CLI Password Spray Campaign
-- **Description**: Massive, ongoing automated password spray attack targeting Microsoft's Azure Command-Line Interface (CLI) authentication endpoints.
-- **Impact**: At least 78 Microsoft accounts compromised across more than 81 million authentication attempts. Provides attackers initial access to Azure tenants and associated cloud resources.
-- **Status**: Active, ongoing campaign. Microsoft and security researchers tracking the activity.
+### ScreenConnect Abuse for AsyncRAT Deployment
+- **Description**: Unknown threat actors leveraging the legitimate ScreenConnect (ConnectWise) remote access tool through SEO-poisoned software download sites to deploy AsyncRAT payloads.
+- **Impact**: Full remote access to victim systems, credential theft, lateral movement, and persistent foothold via legitimate RMM tool abuse.
+- **Status**: Described as a "massive, multi-domain, multi-language" campaign by Kaspersky. Active across numerous compromised software distribution sites.
+- **CVE ID**: Not specified in source article
+
+### Microsoft 365 / Azure CLI Password Spray Campaign
+- **Description**: Large-scale automated password spraying targeting Microsoft 365 environments and Azure command-line interface (CLI) authentication endpoints.
+- **Impact**: At least 78 Microsoft accounts compromised from over 81 million login attempts over a two-week period. Credential theft, data access, and potential Business Email Compromise (BEC) enablement.
+- **Status**: Massive, ongoing, automated campaign. Researchers warn of continued activity against cloud identities.
+- **CVE ID**: Not specified in source article
+
+### VEIL#DROP Malware Chain (PureLogs Stealer)
+- **Description**: Multi-stage malware delivery chain using social engineering and compromised Blogger pages to deliver the PureLogs information stealer.
+- **Impact**: Exfiltration of browser credentials, cryptocurrency wallets, system information, and sensitive files. Abuse of Google's Blogger platform for payload hosting evades reputation-based defenses.
+- **Status**: Active campaign identified by researchers. Blogger platform abused as legitimate content delivery mechanism.
+- **CVE ID**: Not specified in source article
 
 ### Ousaban Banking Trojan Campaign
-- **Description**: Brazilian-origin banking trojan targeting Windows users of financial institutions in Spain and Portugal. Delivered via phishing emails containing malicious PDF lures that execute the payload.
-- **Impact**: Credential theft, session hijacking, financial fraud against Iberian banking customers. Persistent access to compromised systems for follow-on operations.
-- **Status**: Active campaign identified by Fortinet FortiGuard Labs in May 2026. Ongoing targeting of Spanish and Portuguese banking sectors.
+- **Description**: Brazilian-origin banking trojan targeting Windows users of financial institutions in Spain and Portugal via phishing PDF lures.
+- **Impact**: Financial fraud, credential theft for Iberian banking portals, webinject capabilities for transaction manipulation, and persistent system access.
+- **Status**: Campaign identified by Fortinet FortiGuard Labs in May 2026. Active targeting of Spanish and Portuguese banking customers.
+- **CVE ID**: Not specified in source article
 
-### China-Linked Southeast Asia Critical Infrastructure Campaign
-- **Description**: China-nexus threat group conducting targeted intrusions against critical systems in Southeast Asia, compromising at least 10 regional organizations including two state-owned entities.
-- **Impact**: Deployment of a previously undocumented backdoor providing persistent access to strategic organizations. Potential espionage, intellectual property theft, and pre-positioning for disruptive operations.
-- **Status**: Active campaign reported by Dark Reading. Attribution to China-linked actors based on TTPs and infrastructure.
+### AI-Generated Browser Ransomware
+- **Description**: Novel ransomware artifact generated using DeepSeek AI that abuses Chromium APIs on Windows and Android to achieve browser-based encryption and data theft.
+- **Impact**: File encryption, data exfiltration, and system compromise via browser sandbox escape. Cross-platform capability across desktop and mobile Chromium-based browsers.
+- **Status**: Proof-of-concept or early-stage malware demonstrating AI-assisted novel attack path construction.
+- **CVE ID**: Not specified in source article
 
-### Malicious PyPI Supply Chain Attack (Trojanized Pyrogram)
-- **Description**: Campaign distributing trojanized forks of the Pyrogram Telegram bot library via PyPI. Active since November 2025, targeting Python developers building Telegram bots.
-- **Impact**: Arbitrary file read on compromised developer servers and build systems. Potential supply chain contamination of downstream applications. Access to Telegram bot tokens and communications.
-- **Status**: Active campaign ongoing since November 2025. Multiple malicious packages identified and reported.
+### China-Linked Group Southeast Asia Campaign
+- **Description**: State-nexus threat group compromising critical infrastructure organizations across Southeast Asia, deploying a previously unknown backdoor.
+- **Impact**: At least 10 organizations compromised including two state-owned entities. Persistent access to critical systems, espionage positioning, and potential disruptive capability.
+- **Status**: Active campaign with confirmed intrusions. New backdoor indicates continued tooling development.
+- **CVE ID**: Not specified in source article
 
 ### ClickFix API-Driven Malware Delivery
-- **Description**: Evolution of the ClickFix social engineering technique (fake "prove you're human" pages) now backed by an API-driven command-and-control infrastructure managing payload delivery.
-- **Impact**: Automated, scalable malware delivery to victims who manually execute commands. Researchers analyzed 3,000 live payloads revealing diverse malware families and dynamic payload selection.
-- **Status**: Active infrastructure with 3,000+ live payloads analyzed. Ongoing campaigns targeting diverse sectors.
+- **Description**: Social engineering technique ("ClickFix") tricking users into executing malicious commands manually, now backed by API-driven command-and-control infrastructure delivering payloads at scale.
+- **Impact**: Bypasses traditional email and web filters by using legitimate user interaction. Analysis of 3,000 live payloads reveals automated backend operations.
+- **Status**: Active and growing campaign with industrialized delivery infrastructure.
+- **CVE ID**: Not specified in source article
 
-### Phantom Squatting (AI-Hallucinated Domain Attacks)
-- **Description**: Attackers register domains hallucinated by LLMs when referencing legitimate brands. These domains receive traffic from users and AI systems that inadvertently reference the fabricated URLs.
-- **Impact**: Difficult-to-detect phishing and malware distribution. Exploits trust in AI-generated content and brand recognition. Bypasses traditional typo-squatting detection.
-- **Status**: Emerging active threat vector. Multiple security vendors reporting increasing registration and weaponization of hallucinated domains.
-
-### AI-Generated Browser Ransomware (Chromium API Abuse)
-- **Description**: Novel ransomware artifact generated using DeepSeek AI that abuses Chromium browser APIs on Windows and Android to encrypt files and extort victims.
-- **Impact**: Cross-platform browser-based ransomware leveraging legitimate browser capabilities. Demonstrates AI-accelerated malware development with novel attack paths.
-- **Status**: Proof-of-concept/early-stage artifact identified by researchers. Represents new class of AI-generated browser malware.
-
-### Cursor AI Editor Sandbox Escape
-- **Description**: Two vulnerabilities in the Cursor AI code editor allowing prompt injection to break out of the editor's safety sandbox and execute arbitrary commands on the developer's machine.
-- **Impact**: Remote code execution on developer workstations via malicious prompts in code context. Supply chain risk through compromised development environments.
-- **Status**: Vulnerabilities disclosed. No patch status confirmed in source articles.
-
-### BioShocking Prompt Injection Attack
-- **Description**: Novel prompt injection technique that manipulates AI-powered browsers into treating real-world risky actions as fictional scenarios, bypassing safety guardrails to enable data theft.
-- **Impact**: Data exfiltration from AI browser sessions. Bypass of safety controls designed to prevent dangerous actions. Exploits the blurring of fiction/reality in LLM reasoning.
-- **Status**: Newly disclosed attack technique. Active research into mitigations.
-
-### Agentjacking (Fake Bug Report AI Agent Hijacking)
-- **Description**: Attack technique exploiting AI coding agents' inability to distinguish between content and instructions. Malicious bug reports or issues contain injected prompts that hijack the agent's behavior.
-- **Impact**: Large-scale hijacking of AI coding assistants. Potential code injection, data exfiltration, and supply chain compromise through automated development workflows.
-- **Status**: Demonstrated at scale. Emerging threat to AI-assisted development pipelines.
-
-### Poisoned MCP Tool Description Attacks
-- **Description**: Attack vector where malicious tool descriptions in Model Context Protocol (MCP) configurations cause AI agents to silently exfiltrate data to attacker-controlled destinations.
-- **Impact**: Covert data leakage from AI agents acting on user behalf. Exploits trust in tool definitions. No user interaction required beyond agent invocation.
-- **Status**: Microsoft research disclosure. Active threat to MCP-enabled AI agent deployments.
-
-### Exposed AI Endpoint Hijacking
-- **Description**: Attackers locate and seize unauthenticated AI model endpoints exposed to the internet, using them to power offensive operations without authorization.
-- **Impact**: Free compute for threat actors. Attribution obfuscation. Potential data poisoning of models. Unauthorized use of organizational AI infrastructure.
-- **Status**: Active technique. Dark Reading reports threat actors actively scanning for and exploiting exposed endpoints.
-
-### EU/Asia Hospitality Sector Phishing Campaigns
-- **Description**: Separate but similar campaigns by Microsoft and Trend Micro tracking phishing targeting hospitality organizations in Europe and Asia using malicious zip files, social engineering, obfuscation, and blockchain abuse for persistence.
-- **Impact**: Persistent access to hospitality networks. Credential theft, payment data exposure, potential lateral movement to corporate systems.
-- **Status**: Active campaigns. Multiple threat actors or shared TTPs across campaigns.
-
-### Adobe ColdFusion and Campaign Classic Maximum Severity Flaws
-- **Description**: Adobe released patches for seven CVSS 10.0 (maximum severity) vulnerabilities across ColdFusion (web application platform) and Campaign Classic (marketing automation).
-- **Impact**: Potential remote code execution, authentication bypass, and full system compromise of affected servers. Critical internet-facing infrastructure at risk.
-- **Status**: Patches released. Exploitation status in wild not explicitly confirmed in source articles.
-
-### Citrix NetScaler File Read and DoS Vulnerabilities
-- **Description**: Six vulnerabilities in NetScaler ADC and NetScaler Gateway allowing unauthorized file read and denial-of-service conditions.
-- **Impact**: Information disclosure of sensitive files on ADC appliances. Service disruption through DoS. Potential chaining with other vulnerabilities.
-- **Status**: Patches released by Citrix. Exploitation status not explicitly confirmed in source articles.
+### Phantom Squatting (AI-Hallucinated Domain Abuse)
+- **Description**: Attackers registering domain names hallucinated by large language models when referencing legitimate brands, then hosting phishing pages and malware on these typosquatted domains.
+- **Impact**: Difficult-to-detect supply chain attack vector exploiting developer and user trust in AI-generated code and references. Credential harvesting and malware delivery.
+- **Status**: Emerging threat vector with active domain registrations and malicious hosting observed.
+- **CVE ID**: Not specified in source article
 
 ## Affected Systems and Products
 
-- **Progress Kemp LoadMaster**: Load balancing appliances; pre-auth RCE vulnerability; network infrastructure layer
-- **Oracle E-Business Suite (EBS)**: ERP platform; 900+ internet-exposed instances under active attack; enterprise business applications
-- **Microsoft Azure CLI**: Cloud management interface; password spray targeting authentication endpoints; Azure tenant identities
-- **Windows (Spain/Portugal banking users)**: Ousaban banking trojan targeting via malicious PDF lures; financial sector endpoints
-- **Southeast Asian Critical Infrastructure**: State-owned and critical private entities; novel backdoor deployment; strategic organizational networks
-- **Python/PyPI Ecosystem**: Pyrogram Telegram library forks; developer build systems and servers; software supply chain
-- **ClickFix Victims**: Users tricked by fake verification pages; diverse sectors; endpoint execution via social engineering
-- **LLM-Hallucinated Domains**: Any brand referenced by LLMs; users and AI systems following fabricated links; web infrastructure
-- **Chromium-Based Browsers (Windows/Android)**: AI-generated ransomware abusing browser APIs; cross-platform browser capabilities
-- **Cursor AI Code Editor**: Developer workstations; sandbox escape via prompt injection; development environments
-- **AI-Powered Browsers**: BioShocking prompt injection targets; data theft via safety bypass; AI browser sessions
-- **AI Coding Agents (GitHub Copilot, etc.)**: Agentjacking via fake bug reports; automated development pipelines; source code repositories
-- **MCP-Enabled AI Agents**: Agents using Model Context Protocol; enterprise AI assistants; data accessible to agents
-- **Exposed AI Model Endpoints**: Unauthenticated inference APIs; organizational AI infrastructure; cloud and on-prem deployments
-- **Hospitality Sector Systems (EU/Asia)**: Property management, booking, payment systems; persistent phishing access; service industry networks
-- **Adobe ColdFusion**: Web application development platform; CVSS 10.0 flaws; internet-facing application servers
-- **Adobe Campaign Classic**: Marketing automation platform; CVSS 10.0 flaws; customer engagement infrastructure
-- **Citrix NetScaler ADC/Gateway**: Application delivery controllers and gateways; file read and DoS flaws; network edge infrastructure
+- **Progress Kemp LoadMaster**: Load balancing appliances (all versions prior to patched release) — **Platform**: On-premises and virtual appliance deployments exposed to management interfaces
+- **Oracle E-Business Suite**: ERP platform instances (specific vulnerable modules not detailed) — **Platform**: Internet-facing EBS deployments across enterprise environments
+- **ScreenConnect (ConnectWise)**: Remote monitoring and management software — **Platform**: Windows, Linux, macOS endpoints where agent is installed via malicious download
+- **Microsoft 365 / Azure CLI**: Cloud identity and management platforms — **Platform**: Entra ID (Azure AD) tenants with accounts lacking phishing-resistant MFA
+- **Blogger (Google)**: Content hosting platform abused for payload delivery — **Platform**: Web-based, accessible globally; PureLogs stealer targets Windows endpoints
+- **Windows**: Primary target for AsyncRAT, PureLogs, Ousaban, and browser ransomware — **Platform**: Windows 10/11 endpoints in enterprise and consumer environments
+- **Android**: Target for AI-generated browser ransomware via Chromium API abuse — **Platform**: Android devices running Chromium-based browsers
+- **Chromium-Based Browsers**: Chrome, Edge, Brave, and derivatives — **Platform**: Windows, Android, and potentially Linux/macOS via API abuse vectors
+- **Cursor AI Code Editor**: Versions vulnerable to prompt injection sandbox escape — **Platform**: Windows, macOS, Linux developer workstations
+- **NetScaler ADC / NetScaler Gateway**: Patched for file read and DoS flaws — **Platform**: On-premises and cloud ADC appliances (exploitation not reported active)
+- **Adobe ColdFusion / Campaign Classic**: Patched for CVSS 10.0 flaws — **Platform**: Web application servers and marketing automation platforms (exploitation not reported active)
+- **Homeland Security Information Network (HSIN)**: Federal information-sharing platform — **Platform**: DHS-operated sensitive but unclassified collaboration environment
 
 ## Attack Vectors and Techniques
 
-- **Pre-Authentication RCE**: Unauthenticated remote code execution on network infrastructure (Kemp LoadMaster); network-level access without credentials
-- **Credential Spraying at Scale**: Automated password spray against Azure CLI (81M+ attempts); cloud identity compromise; low-and-slow evasion
-- **Phishing with Malicious Documents**: PDF lures delivering banking trojans (Ousaban); social engineering targeting financial sector; Windows malware execution
-- **Novel Backdoor Deployment**: Custom malware for persistent access (China-linked group); strategic targeting; critical infrastructure focus
-- **Supply Chain Compromise via Package Repositories**: Trojanized PyPI packages (Pyrogram forks); developer machine compromise; arbitrary file read
-- **Social Engineering with Fake Verification**: ClickFix "prove you're human" pages; manual command execution by victims; API-driven payload delivery
-- **AI-Hallucinated Domain Registration**: Phantom Squatting registering LLM-fabricated URLs; phishing/malware hosting; detection evasion via legitimacy appearance
-- **AI-Generated Malware Development**: DeepSeek-created browser ransomware; Chromium API abuse; cross-platform (Windows/Android) capability
-- **Prompt Injection Sandbox Escape**: Malicious prompts breaking AI editor isolation (Cursor); arbitrary command execution on developer machines
-- **Fictional Scenario Manipulation**: BioShocking attack framing dangerous actions as fiction; AI browser safety bypass; data exfiltration
-- **Content/Instruction Confusion in AI Agents**: Agentjacking via fake bug reports; hijacking automated coding assistants; scale exploitation
-- **Poisoned Tool Definitions**: Malicious MCP tool descriptions causing data leakage; covert exfiltration via trusted agent workflows
-- **Unauthenticated AI Endpoint Abuse**: Scanning for and seizing open AI inference APIs; free compute for offensive ops; attribution hiding
-- **Multi-Stage Phishing with Persistence**: Malicious zip files, obfuscation, blockchain abuse (hospitality campaigns); long-term access maintenance
-- **Maximum Severity Web App Exploitation**: CVSS 10.0 flaws in ColdFusion/Campaign Classic; potential RCE and auth bypass; internet-facing servers
-- **File Read and DoS on Network Edge**: NetScaler ADC/Gateway vulnerabilities; information disclosure and service disruption; network perimeter
+- **SEO Poisoning**: Malicious actors compromise or create software download sites optimized for search rankings, delivering trojanized installers that deploy ScreenConnect and AsyncRAT — **Vector**: Web search → malicious download → RMM agent installation → C2 establishment
+- **Password Spraying**: Automated, low-volume credential guessing against Microsoft 365 and Azure CLI endpoints across thousands of tenants — **Vector**: Auth endpoints (login.microsoftonline.com, Azure CLI token requests) using common password lists
+- **Legitimate Service Abuse (ScreenConnect)**: Valid RMM tool deployed via social engineering to gain persistent remote access — **Vector**: User executes installer → ScreenConnect service registers with attacker-controlled relay → interactive session
+- **Legitimate Service Abuse (Blogger)**: Google's trusted Blogger platform used to host malware staging pages and payloads — **Vector**: Social engineering link → Blogger page → PureLogs download/execution
+- **Phishing with PDF Lures**: Banking trojan delivered via deceptive PDF documents mimicking financial communications — **Vector**: Email/web → PDF open → embedded exploit or social engineering → Ousaban installation
+- **Prompt Injection Sandbox Escape**: Malicious prompts crafted to bypass AI safety controls and execute arbitrary commands — **Vector**: Cursor editor chat interface, AI browser chat, coding agent issue trackers
+- **AI-Hallucinated Domain Registration (Phantom Squatting)**: Domains invented by LLMs registered by attackers before legitimate entities claim them — **Vector**: Developer/user follows AI-suggested import/reference → resolves to attacker-controlled server → payload delivery
+- **ClickFix Social Engineering**: Fake verification pages (CAPTCHA, "prove you're human") instruct victims to run PowerShell commands — **Vector**: Compromised/typosquatted site → fake verification → clipboard injection → user executes → API-driven payload fetch
+- **API-Driven Malware Delivery Backend**: Automated infrastructure serving unique payloads per victim interaction — **Vector**: ClickFix execution → API call → tailored payload delivery → execution
+- **Pre-Auth RCE Exploitation**: Unauthenticated code execution on exposed load balancer management interfaces — **Vector**: Internet-accessible management port → exploit payload → root-level code execution
+- **ERP Vulnerability Exploitation**: Critical flaw in Oracle EBS exploited for unauthorized access — **Vector**: Internet-facing EBS portal → exploit → application/server compromise
+- **Backdoor Deployment (China-Linked Group)**: Custom malware implanted for persistent access to critical infrastructure — **Vector**: Initial access (unspecified) → backdoor installation → C2 communications
+- **Chromium API Abuse**: Malicious use of browser extension/API capabilities for ransomware encryption — **Vector**: Malicious extension or compromised site → browser API calls → file system encryption/data theft
 
 ## Threat Actor Activities
 
-- **Ousaban Operators (Brazilian Nexus)**: Banking trojan campaigns targeting Spanish and Portuguese financial institutions; active since at least May 2026; PDF-based delivery; financial fraud focus
-- **China-Linked APT Group**: Southeast Asia critical infrastructure targeting; 10+ organizations compromised including 2 state-owned entities; novel backdoor deployment; espionage/pre-positioning objectives
-- **PyPI Supply Chain Actors**: Active since November 2025; trojanized Pyrogram packages targeting Telegram bot developers; arbitrary file read on dev servers; Python ecosystem focus
-- **ClickFix Infrastructure Operators**: API-driven malware delivery backend managing 3,000+ live payloads; automated payload selection; diverse malware distribution; social engineering at scale
-- **Phantom Squatters**: Registering LLM-hallucinated brand domains; phishing and malware hosting; exploiting AI hallucination phenomenon; difficult attribution
-- **Azure CLI Password Spray Actors**: Massive automated campaign (81M+ attempts, 78+ compromises); cloud identity targeting; likely credential reuse/credential stuffing operations
-- **AI Malware Developers**: Using DeepSeek for browser ransomware generation; novel Chromium API abuse; cross-platform malware innovation
-- **Hospitality Sector Phishing Groups**: Microsoft and Trend Micro tracking separate campaigns; EU and Asia targeting; malicious zip delivery; blockchain abuse for persistence; potential shared TTPs or actors
-- **Exposed AI Endpoint Hijackers**: Opportunistic scanning for unauthenticated AI APIs; offensive compute theft; attribution obfuscation; infrastructure abuse
+- **Unknown Operators (ScreenConnect/AsyncRAT Campaign)**: Conducting massive, multi-language SEO poisoning operation distributing AsyncRAT via trojanized ScreenConnect installers. Broad targeting across geographies and languages suggests opportunistic, high-volume approach.
+- **Unknown Operators (HSIN Breach)**: Successfully infiltrated the Homeland Security Information Network, a sensitive federal information-sharing platform. Attribution not disclosed; investigation ongoing by DHS.
+- **Unknown Operators (VEIL#DROP/PureLogs)**: Operating multi-stage delivery chain leveraging Blogger for hosting. PureLogs stealer indicates financially motivated data theft operation.
+- **Unknown Operators (Microsoft 365/Azure Password Spray)**: Executing industrial-scale credential attack (81M+ attempts) with focus on Azure CLI authentication. Compromise of 78+ accounts suggests downstream BEC and data theft objectives.
+- **Ousaban Banking Trojan Operators**: Brazilian threat group targeting Iberian Peninsula financial sector. Campaign active since at least May 2026 with localized lures for Spanish and Portuguese banks.
+- **China-Linked APT Group**: Conducting espionage-focused intrusion campaign against Southeast Asian critical infrastructure. Minimum 10 organizations compromised including 2 state-owned entities. Deployment of novel backdoor indicates dedicated tooling development.
+- **Unknown Operators (ClickFix Infrastructure)**: Running API-backed social engineering campaign at scale (3,000+ live payloads analyzed). Industrialized backend suggests organized criminal operation.
+- **Unknown Operators (Phantom Squatting)**: Registering AI-hallucinated domains for phishing and malware hosting. Opportunistic exploitation of LLM supply chain trust.
+- **Unknown Operators (Progress Kemp LoadMaster Exploitation)**: Actively scanning for and exploiting pre-auth RCE on exposed LoadMaster appliances. eSentire TRU tracking exploitation attempts.
+- **Unknown Operators (Oracle EBS Attacks)**: Targeting 900+ exposed EBS instances with critical vulnerability exploit. Ongoing campaign against enterprise ERP systems.
+- **AI-Assisted Malware Author (DeepSeek-Generated Ransomware)**: Demonstrated novel browser-based ransomware construction using AI coding assistance. Cross-platform Chromium API abuse technique.
 
 ## Source Attribution
 
+- **SEO-Poisoned Software Sites Abuse ScreenConnect to Deploy AsyncRAT**: The Hacker News - https://thehackernews.com/2026/07/seo-poisoned-software-sites-abuse.html
+- **DHS confirms hackers breached HSIN info-sharing platform**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/dhs-confirms-hackers-breached-hsin-info-sharing-platform/
+- **VEIL#DROP Malware Chain Uses Blogger Platform to Deliver PureLogs Stealer**: The Hacker News - https://thehackernews.com/2026/07/veildrop-malware-chain-uses-blogger.html
+- **Webinar: Why traditional email security is no longer enough**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/webinar-why-traditional-email-security-is-no-longer-enough/
+- **Hackers target Microsoft 365 accounts with 81 million login attempts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-target-microsoft-365-accounts-with-81-million-login-attempts/
 - **Ousaban Banking Trojan Targets Iberian Bank Users with Fake PDF Lures**: The Hacker News - https://thehackernews.com/2026/07/ousaban-banking-trojan-targets-iberian.html
 - **Adobe Patches 7 CVSS 10.0 Flaws in ColdFusion and Campaign Classic**: The Hacker News - https://thehackernews.com/2026/07/adobe-patches-7-cvss-100-flaws-in.html
 - **'Phantom Squatting': An Emerging AI-Driven Supply Chain Threat**: Dark Reading - https://www.darkreading.com/endpoint-security/phantom-squatting-ai-driven-supply-chain-threat
@@ -174,8 +147,3 @@ New AI-specific attack surfaces are being weaponized at speed. Critical flaws in
 - **New BioShocking attack manipulates AI browser into data theft**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-bioshocking-attack-manipulates-ai-browser-into-data-theft/
 - **Fake Bug Report Hijacks AI Coding Agents at Scale**: Dark Reading - https://www.darkreading.com/cyber-risk/fake-bug-report-hijacks-ai-coding-agents
 - **Microsoft accelerates quantum-safe roadmap as risks grow**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-accelerates-quantum-safe-roadmap-as-risks-grow/
-- **Malicious PyPI packages give hackers control of Telegram bot servers**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/malicious-pypi-packages-give-hackers-control-of-telegram-bot-servers/
-- **Attackers Seize Exposed AI Endpoints to Power Offensive Ops**: Dark Reading - https://www.darkreading.com/cloud-security/attackers-hijack-exposed-ai-endpoints-power-offensive-ops
-- **Why Identity Security Is Your Cyber Career Entry Point**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/identity-security-cyber-career-entry-point
-- **Phishers Gain Persistence at EU, Asia Hospitality Orgs**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/phishers-persistence-eu-asia-hospitality-orgs
-- **Microsoft Warns Poisoned MCP Tool Descriptions Can Make AI Agents Leak Data**: The Hacker News - https://thehackernews.com/2026/06/microsoft-warns-poisoned-mcp-tool.html
