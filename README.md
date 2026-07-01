@@ -4,51 +4,68 @@
   <img src="assets/logo.png" alt="SentryInsight Logo" width="400"/>
 </div>
 
-Automated cybersecurity threat intelligence that monitors RSS feeds and generates exploitation reports using AI analysis.
+SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.
 
 [![Latest Exploitation Report](https://img.shields.io/badge/View-Latest%20Report-blue)](https://ricomanifesto.github.io/SentryInsight/)
 
-## Features
+## What It Does
 
-- Monitors security RSS feeds for exploitation content
-- Extracts and correlates CVE mentions
-- Generates reports with executive summaries, affected systems, attack vectors, and threat actor activities
-- Integrates with [SentryDigest](https://github.com/ricomanifesto/SentryDigest) for automated analysis triggers
+SentryInsight monitors security feeds for exploitation activity, extracts relevant vulnerability signals, and generates a published report for review. The reports are shaped for fast triage: what is being exploited, what systems are affected, how the attack works, and what threat activity is visible.
+
+## Report Coverage
+
+Generated reports can include:
+
+- executive summaries
+- CVE extraction and correlation
+- affected systems and technologies
+- attack vectors
+- threat actor activity
+- exploitation context from monitored feeds
+
+## Relationship to SentryDigest
+
+SentryInsight can be triggered by updates from [SentryDigest](https://github.com/ricomanifesto/SentryDigest), using the security-news feed as an input for exploitation-focused analysis.
 
 ## Architecture
 
-- **LangGraph**: Orchestrates workflow state and conditional logic
-- **FastMCP**: Code organization with decorators for RSS tools
-- **Model access**: Calls OpenRouter directly when `OPENROUTER_API_KEY` is set
-  (used in CI; no local server required); otherwise routes through a local
-  OpenCode gateway for development
+- **LangGraph** orchestrates workflow state and conditional logic.
+- **FastMCP** organizes RSS tooling with decorators.
+- **Model access** calls OpenRouter directly when `OPENROUTER_API_KEY` is set. Local development can route through an OpenCode gateway.
 
 ## Setup
 
-1. Install dependencies:
-   ```bash
-   uv sync --group dev
-   ```
+Install dependencies:
 
-2. Provide model access. Either call OpenRouter directly (also how CI runs):
-   ```bash
-   export OPENROUTER_API_KEY=...   # free model default; no local server needed
-   ```
-   or start a local OpenCode server with access to your preferred provider:
-   ```bash
-   opencode serve --port 4096
-   ```
+```bash
+uv sync --group dev
+```
 
-3. Configure feeds, output paths, and the default model in `config/config.json`.
-   Model IDs use `provider/model` format. Override the model for one
-   environment with:
-   ```bash
-   export SENTRYINSIGHT_MODEL=openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
-   ```
-   If OpenCode is not listening on `http://127.0.0.1:4096`, set:
-   ```bash
-   export OPENCODE_BASE_URL=http://127.0.0.1:4096
-   ```
+Provide model access with OpenRouter:
+
+```bash
+export OPENROUTER_API_KEY=...
+```
+
+Or run a local OpenCode server:
+
+```bash
+opencode serve --port 4096
+```
+
+Configure feeds, output paths, and the default model in `config/config.json`. Model IDs use `provider/model` format.
+
+Override the model for one environment:
+
+```bash
+export SENTRYINSIGHT_MODEL=openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
+```
+
+If OpenCode is not listening on `http://127.0.0.1:4096`, set:
+
+```bash
+export OPENCODE_BASE_URL=http://127.0.0.1:4096
+```
 
 ## Usage
 
@@ -56,7 +73,9 @@ Automated cybersecurity threat intelligence that monitors RSS feeds and generate
 uv run python main.py
 ```
 
-Fetches articles, filters for exploitation content, analyzes threats, and saves reports to `index.md`.
+This fetches articles, filters for exploitation content, analyzes threats, and saves reports to `index.md`.
+
+## Validation
 
 Validate a generated report before publishing:
 
