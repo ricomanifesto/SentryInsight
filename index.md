@@ -2,101 +2,118 @@
 
 ## Executive Summary
 
-Active exploitation activity has surged across multiple vectors this period, with threat actors leveraging both newly disclosed vulnerabilities and mature social engineering techniques. The most critical development is the confirmed active exploitation of CVE-2026-45659, a high-severity Microsoft SharePoint Server remote code execution flaw patched in May, which CISA has added to its Known Exploited Vulnerabilities catalog. Simultaneously, Cisco has acknowledged that attackers are exploiting a Unified Communications Manager vulnerability patched in early June. These incidents underscore the persistent risk of delayed patching for internet-facing enterprise applications.
+Law enforcement and industry partners have disrupted the NetNut residential proxy platform and Popa botnet, seizing hundreds of domains used to route malicious traffic through approximately two million compromised home devices. This takedown coincides with Google's independent degradation of the same network, marking a significant blow to a service that enabled threat actors to anonymize attacks, scrape data, and evade detection at massive scale.
 
-Social engineering remains the dominant initial access method, with ClickFix and ConsentFix techniques now characterized as the rule rather than the exception for malware delivery. These attacks hijack Microsoft 365 accounts in seconds by abusing legitimate OAuth consent flows and tricking users into executing malicious commands. Threat actors are also weaponizing the software supply chain, distributing the ChocoPoC remote access trojan through trojanized proof-of-concept exploit repositories on GitHub to target vulnerability researchers. Meanwhile, an AI agent dubbed JADEPUFFER has been observed autonomously exploiting a Langflow RCE to execute a full database ransomware chain, marking a significant evolution in offensive automation.
+Ransomware operations are rapidly adopting new initial-access techniques. The Anubis gang is actively exploiting Citrix Bleed 2 (CVE-2025-5777) for entry, while the FortiBleed credential-theft campaign—linked to INC and Lynx ransomware groups—has harvested thousands of Fortinet VPN credentials and is now leveraging a Nextcloud zero-day to expand compromise. Simultaneously, CISA has added a Microsoft SharePoint RCE (CVE-2026-45659) to its Known Exploited Vulnerabilities catalog after confirming active exploitation, and Cisco has acknowledged attackers targeting a Unified CM flaw patched in early June.
 
-Threat actor activity spans both nation-state and financially motivated groups. The China-nexus APT ToddyCat has deployed the Umbrij malware to abuse OAuth tokens for persistent Gmail access via the Google API. The FortiBleed credential-harvesting campaign has been attributed to the INC and Lynx ransomware operations, indicating stolen Fortinet credentials are fueling follow-on intrusions. Scattered Spider continues to face law enforcement pressure with a member extradited from Finland, while SEO-poisoned software sites are distributing AsyncRAT through abused ScreenConnect instances in a massive, multi-language campaign. Additional incidents include the breach of the DHS Homeland Security Information Network, a month-long intrusion at Kubota North America, and the Medtronic data breach linked to ShinyHunters.
+Social engineering has evolved into the dominant delivery mechanism. ClickFix and ConsentFix campaigns now hijack Microsoft 365 tokens in seconds through fake OAuth prompts, while SEO-poisoned software sites abuse legitimate remote-access tools like ScreenConnect to deploy AsyncRAT. Threat actors including ToddyCat are weaponizing OAuth flows to access Gmail via the Google API, and a novel AI agent dubbed JADEPUFFER has been observed autonomously exploiting a Langflow RCE to execute end-to-end database ransomware attacks. Researchers themselves are being targeted through trojanized proof-of-concept exploits (ChocoPoC RAT) hosted on GitHub.
 
 ## Active Exploitation Details
 
-### Microsoft SharePoint Server Remote Code Execution (CVE-2026-45659)
-- **Description**: A high-severity remote code execution vulnerability in Microsoft SharePoint Server that was patched in May 2026. The flaw allows unauthenticated attackers to execute arbitrary code on affected servers.
-- **Impact**: Attackers can achieve full system compromise of SharePoint servers, enabling data theft, lateral movement, and persistent access to enterprise environments.
-- **Status**: Actively exploited in the wild. CISA added this vulnerability to its Known Exploited Vulnerabilities (KEV) catalog on July 16, 2026, mandating federal agencies to patch by August 6, 2026. Patches have been available since May 2026.
+### Citrix Bleed 2
+- **Description**: A critical vulnerability in Citrix NetScaler ADC and Gateway appliances that allows unauthenticated attackers to obtain active session cookies and bypass authentication, leading to full administrative access.
+- **Impact**: Attackers gain initial access to corporate networks, enabling lateral movement, data exfiltration, and ransomware deployment. The Anubis ransomware operation has been observed exploiting this flaw for initial access.
+- **Status**: Actively exploited in the wild. Patches are available from Citrix.
+- **CVE ID**: CVE-2025-5777
+
+### FortiBleed Credential Theft Campaign
+- **Description**: A large-scale campaign targeting Fortinet FortiGate VPN appliances to steal valid credentials. The campaign has compromised thousands of devices and is now expanding exploitation to include a Nextcloud zero-day vulnerability.
+- **Impact**: Stolen VPN credentials provide persistent remote access to corporate networks. Credentials are being monetized through collaboration with INC and Lynx ransomware operations for follow-on intrusion and ransomware deployment.
+- **Status**: Active exploitation ongoing. Fortinet patches available for known vulnerabilities; Nextcloud zero-day remains unpatched at time of reporting.
+
+### Microsoft SharePoint Remote Code Execution
+- **Description**: A high-severity remote code execution vulnerability in Microsoft SharePoint Server that allows authenticated attackers to execute arbitrary code in the context of the SharePoint application pool.
+- **Impact**: Successful exploitation leads to full compromise of the SharePoint server, potential lateral movement within the network, and access to sensitive organizational data stored in SharePoint.
+- **Status**: Actively exploited in the wild. CISA added to Known Exploited Vulnerabilities catalog. Patched in May 2026.
 - **CVE ID**: CVE-2026-45659
 
 ### Cisco Unified Communications Manager Vulnerability
-- **Description**: A vulnerability in Cisco Unified Communications Manager (Unified CM) that Cisco patched in early June 2026. Cisco has confirmed that attackers are actively exploiting this flaw.
-- **Impact**: Successful exploitation could allow attackers to compromise the Unified CM platform, potentially enabling eavesdropping on communications, call manipulation, and lateral movement within voice/video infrastructure.
-- **Status**: Actively exploited. Cisco has released patches and confirmed exploitation activity. Organizations running Unified CM should apply updates immediately.
-- **CVE ID**: [CVE ID not provided in source articles]
+- **Description**: A vulnerability in Cisco Unified Communications Manager (Unified CM) that allows attackers to exploit the call processing component.
+- **Impact**: Attackers can achieve remote code execution or denial of service on affected Unified CM deployments, potentially disrupting communications and gaining a foothold in voice infrastructure.
+- **Status**: Cisco confirmed active exploitation. Patched in early June 2026.
 
-### Langflow Remote Code Execution
-- **Description**: A remote code execution vulnerability in Langflow, an open-source framework for building AI agents and applications. The flaw was exploited by an autonomous AI agent to deploy ransomware.
-- **Impact**: Attackers can achieve arbitrary code execution on systems running Langflow. In the observed attack, an AI agent (JADEPUFFER) automated the entire ransomware chain from initial access to database encryption.
-- **Status**: Actively exploited by an AI-driven operator. This represents the first documented case of an AI agent executing a complete ransomware attack autonomously. Patch status unclear from available reports.
-- **CVE ID**: [CVE ID not provided in source articles]
+### Langflow RCE Exploitation by AI Agent
+- **Description**: A remote code execution vulnerability in Langflow, a visual framework for building AI applications, which allows unauthenticated attackers to execute arbitrary code.
+- **Impact**: The JADEPUFFER threat actor deployed an AI agent that autonomously exploited this vulnerability to conduct end-to-end database ransomware attacks—the first observed case of an AI agent executing a complete ransomware operation from initial access to encryption.
+- **Status**: Actively exploited. Patch status varies by deployment.
 
 ### Argo CD Repo-Server Flaw
-- **Description**: An unpatched vulnerability in the repo-server component of Argo CD, a widely used GitOps continuous delivery tool for Kubernetes. The flaw allows unauthenticated remote code execution.
-- **Impact**: An unauthenticated attacker who can reach the repo-server component can execute arbitrary code, potentially leading to full takeover of Kubernetes clusters managed by Argo CD.
-- **Status**: Unpatched as of the reporting period. No fix is currently available. Organizations using Argo CD should restrict network access to the repo-server component and monitor for suspicious activity.
-- **CVE ID**: [CVE ID not provided in source articles]
+- **Description**: An unpatched vulnerability in the Argo CD repo-server component that allows unauthenticated attackers to execute arbitrary code, provided they can reach the component.
+- **Impact**: Full compromise of Kubernetes clusters managed by Argo CD, enabling supply chain attacks, workload manipulation, and cluster takeover.
+- **Status**: Unpatched at time of reporting. No official fix available. Mitigation requires network-level restrictions on repo-server access.
 
-### ClickFix and ConsentFix Microsoft 365 Account Hijacking
-- **Description**: Social engineering techniques that abuse legitimate OAuth consent flows and fake verification prompts to steal Microsoft 365 authentication tokens. ClickFix tricks users into executing malicious commands (often via PowerShell) while ConsentFix manipulates OAuth consent screens to grant attackers persistent access.
-- **Impact**: Attackers can hijack Microsoft 365 accounts in seconds, bypassing multi-factor authentication. Compromised accounts provide access to email, SharePoint, Teams, and other Microsoft 365 services for business email compromise, data exfiltration, and further phishing.
-- **Status**: Actively exploited at scale. ClickFix is now described as the dominant malware delivery technique. Opera has introduced a "Paste Protect" feature to mitigate ClickFix-style attacks. Microsoft 365 environments face concurrent password-spraying campaigns (81 million login attempts over two weeks).
-- **CVE ID**: [Not a CVE-tracked vulnerability; social engineering technique]
+### NetNut Residential Proxy Platform / Popa Botnet
+- **Description**: A sprawling residential proxy service (NetNut) and associated botnet (Popa) that turned approximately two million home devices into rented relays for malicious traffic.
+- **Impact**: Enabled threat actors to anonymize attacks, conduct credential stuffing, scrape data, evade geo-blocking, and hide malicious infrastructure behind legitimate residential IPs.
+- **Status**: Disrupted. FBI seized hundreds of domains; Google independently degraded the network in coordination with FBI and Lumen.
 
-### FortiBleed Credential Theft Campaign
-- **Description**: A large-scale credential harvesting campaign targeting Fortinet VPN appliances. Stolen credentials are being used by INC and Lynx ransomware operations for initial access in follow-on intrusions.
-- **Impact**: Compromised Fortinet credentials enable attackers to authenticate to VPN portals, bypass perimeter defenses, and deploy ransomware or establish persistent access in victim networks.
-- **Status**: Active campaign attributed to INC and Lynx ransomware groups. The campaign suggests systematic exploitation of Fortinet vulnerabilities (likely including CVE-2024-55591 or similar, though not explicitly named in sources) for credential collection.
-- **CVE ID**: [CVE ID not explicitly provided in source articles]
+### Nextcloud Zero-Day
+- **Description**: An unpatched vulnerability in Nextcloud being exploited by FortiBleed actors to expand their compromise beyond Fortinet devices.
+- **Impact**: Provides additional attack surface for credential theft and lateral movement within organizations using Nextcloud for file sharing and collaboration.
+- **Status**: Actively exploited. Zero-day—no patch available at time of reporting.
 
-### ChocoPoC Remote Access Trojan
-- **Description**: A Python-based remote access trojan distributed through weaponized proof-of-concept exploit repositories on GitHub. Attackers create fake PoC exploits for recent vulnerabilities that actually deliver the ChocoPoC RAT.
-- **Impact**: Targets vulnerability researchers and security professionals who execute PoC code. The RAT provides command execution, data theft, and persistent access to researcher systems, potentially compromising sensitive vulnerability research.
-- **Status**: Active campaign with multiple weaponized repositories identified on GitHub. Researchers are advised to verify PoC authenticity and execute code only in isolated environments.
-- **CVE ID**: [Not a CVE-tracked vulnerability; supply chain attack technique]
+### Apple Email Flaw
+- **Description**: A vulnerability in Apple's email infrastructure referenced in threat intelligence reporting.
+- **Impact**: Details limited in available reporting; potential for email interception, spoofing, or account compromise.
+- **Status**: Referenced in threat intelligence summaries; patch status unclear from available sources.
+
+### BlueHammer Ransomware
+- **Description**: A ransomware variant observed in recent threat activity.
+- **Impact**: Data encryption and extortion targeting organizations across multiple sectors.
+- **Status**: Active campaigns observed in threat intelligence reporting.
 
 ## Affected Systems and Products
 
-- **Microsoft SharePoint Server**: Versions affected by CVE-2026-45659 (patched in May 2026 updates)
-- **Cisco Unified Communications Manager**: Versions prior to the early June 2026 security patches
-- **Langflow**: Versions vulnerable to the RCE exploited by JADEPUFFER (specific versions not identified in sources)
-- **Argo CD**: All versions with exposed repo-server component (unpatched as of reporting)
-- **Microsoft 365 / Entra ID**: Tenants targeted by ClickFix, ConsentFix, and password-spraying campaigns
-- **Fortinet FortiGate / FortiOS VPN appliances**: Devices targeted by FortiBleed credential harvesting (likely versions affected by recent Fortinet CVEs)
-- **GitHub / Public code repositories**: Platforms hosting trojanized PoC exploits delivering ChocoPoC
-- **Google Workspace / Gmail**: Accounts targeted by ToddyCat's Umbrij malware via OAuth token abuse
-- **ScreenConnect (ConnectWise)**: Instances abused by SEO-poisoned sites to deploy AsyncRAT
-- **DHS Homeland Security Information Network (HSIN)**: Federal information-sharing platform breached
-- **Kubota North America network systems**: Internal systems accessed for over one month
-- **Adobe ColdFusion and Campaign Classic**: Versions prior to July 2026 patches for seven CVSS 10.0 flaws (patches released, exploitation status unclear)
+- **Citrix NetScaler ADC and Gateway**: Versions vulnerable to CVE-2025-5777 (Citrix Bleed 2)
+- **Fortinet FortiGate VPN Appliances**: Multiple models and firmware versions targeted by FortiBleed campaign
+- **Microsoft SharePoint Server**: Versions vulnerable to CVE-2026-45659 (patched May 2026)
+- **Cisco Unified Communications Manager**: Versions prior to June 2026 security updates
+- **Langflow**: AI application framework deployments exposed to internet or internal networks
+- **Argo CD**: Kubernetes deployments using the repo-server component (all current versions potentially affected)
+- **Nextcloud**: Self-hosted and managed instances (zero-day exploitation reported)
+- **NetNut Proxy Client Software**: Home devices enrolled in the residential proxy network (approx. 2 million devices)
+- **Apple Email Infrastructure**: Affected versions unspecified in available reporting
+- **ScreenConnect Remote Access Tool**: Legitimate tool abused via SEO-poisoned downloads to deploy AsyncRAT
+- **Microsoft 365 / Entra ID**: Tenants targeted by ClickFix and ConsentFix OAuth token theft campaigns
+- **Google Workspace / Gmail**: Accounts targeted by ToddyCat's Umbrij malware via OAuth API abuse
+- **GitHub / Python Package Repositories**: Researchers downloading trojanized PoC exploits delivering ChocoPoC RAT
 
 ## Attack Vectors and Techniques
 
-- **OAuth Consent Phishing (ConsentFix)**: Attackers create malicious Azure AD applications that request permissions via legitimate Microsoft consent screens. Users are tricked into granting access, providing attackers with persistent OAuth tokens that bypass MFA.
-- **ClickFix Social Engineering**: Fake verification pages (CAPTCHA, "I'm not a robot", browser error pages) instruct users to press Win+R, paste a malicious PowerShell command, and hit Enter. The command downloads and executes malware or steals tokens.
-- **AI-Automated Exploitation**: An AI agent (JADEPUFFER) autonomously discovered, exploited, and weaponized a Langflow RCE to deploy database ransomware without human intervention, demonstrating end-to-end offensive automation.
-- **Trojanized Proof-of-Concept Exploits**: Attackers publish fake PoC code for recent vulnerabilities on GitHub. When researchers execute the code, it installs the ChocoPoC RAT instead of demonstrating the vulnerability.
-- **SEO Poisoning with Legitimate Tool Abuse**: Threat actors compromise or create software download sites optimized for search rankings. Victims download legitimate remote access tools (ScreenConnect) that are configured to connect to attacker-controlled servers, deploying AsyncRAT.
-- **Password Spraying at Scale**: Distributed login attempts against Microsoft 365 accounts using common passwords across many usernames (81 million attempts in two weeks), evading account lockout policies.
-- **Supply Chain / Software Download Hijacking**: Malicious installers or updates delivered through compromised software distribution channels (e.g., SEO-poisoned sites, fake repositories).
-- **OAuth Token Theft via Malware (Umbrij)**: Malware steals stored OAuth refresh/access tokens for Google APIs, enabling persistent, MFA-bypassing access to Gmail and Google Workspace data.
-- **Credential Harvesting from VPN Appliances**: Exploitation of Fortinet vulnerabilities to extract VPN credentials, which are then used by ransomware affiliates for initial access.
-- **Multi-Stage Malware Delivery via Blogger (VEIL#DROP)**: Attackers use Google Blogger pages to host intermediate payloads, delivering the PureLogs information stealer through a chain of redirects and downloaders.
-- **Device/OS Fingerprinting for Adaptive Phishing**: Phishing campaigns automatically detect victim user-agent strings to serve OS-specific payloads (Windows vs. macOS vs. mobile), increasing compromise rates.
+- **ClickFix / ConsentFix Social Engineering**: Attackers present fake CAPTCHA verification, browser update, or error prompts that trick users into copying and executing malicious PowerShell commands. The commands abuse legitimate Windows features (mshta, clipboard manipulation) to steal Microsoft 365 OAuth tokens and bypass MFA in seconds.
+- **Residential Proxy Abuse**: Threat actors rent access to the NetNut/Popa network to route malicious traffic through compromised home routers and IoT devices, masking true origin and evading IP-based blocking.
+- **SEO Poisoning with Legitimate Tool Abuse**: Attackers compromise or create software download sites optimized for search rankings, distributing legitimate remote-access tools (ScreenConnect) trojanized to deploy AsyncRAT silently during installation.
+- **OAuth Token Theft and API Abuse**: ToddyCat's Umbrij malware steals OAuth refresh tokens to access Google APIs (Gmail, Drive) without triggering MFA, enabling persistent email surveillance.
+- **Supply Chain Credential Theft**: Ransomware groups harvest credentials from compromised vendors, MSPs, and software supply chains to gain trusted access to downstream targets.
+- **BYOVD (Bring Your Own Vulnerable Driver)**: Attackers load known vulnerable kernel drivers to disable security products and escalate privileges on compromised endpoints.
+- **AI-Automated Exploitation**: The JADEPUFFER operator deployed an autonomous AI agent that discovered, exploited, and weaponized a Langflow RCE to execute database ransomware without human intervention.
+- **Trojanized Proof-of-Concept Exploits**: ChocoPoC RAT is embedded in fake Python PoC repositories on GitHub, targeting vulnerability researchers who execute the code during analysis.
+- **Interpol-Themed Phishing**: Ransomware campaigns use law-enforcement impersonation (Interpol branding) to pressure small businesses into executing payloads.
+- **Unpatched Component Exploitation**: Attackers target exposed Argo CD repo-server instances for unauthenticated Kubernetes cluster takeover.
 
 ## Threat Actor Activities
 
-- **ToddyCat (APT)**: China-nexus advanced persistent threat group attributed to the Umbrij malware campaign. Umbrij abuses OAuth tokens to access Gmail via the Google API, enabling long-term email surveillance. The group continues to target high-value entities in government and private sectors.
-- **INC Ransomware / Lynx Ransomware**: Financially motivated ransomware operations linked to the FortiBleed credential theft campaign. Stolen Fortinet VPN credentials are used for initial access in ransomware deployments. Both groups operate as affiliates or partners in the ransomware ecosystem.
-- **Scattered Spider (UNC3944 / 0ktapus)**: Financially motivated threat group known for social engineering, SIM swapping, and Okta/identity provider targeting. A 19-year-old dual US/Estonian citizen and alleged member was extradited from Finland to face U.S. charges of conspiracy, computer intrusion, and fraud. The group remains active despite law enforcement actions.
-- **JADEPUFFER**: Operator name assigned by Sysdig to an AI agent observed conducting fully autonomous ransomware attacks. The agent exploited a Langflow RCE, performed reconnaissance, moved laterally, and encrypted databases without human direction. Represents a new class of AI-driven threat actor.
-- **ShinyHunters**: Data extortion group responsible for the Medtronic breach. Known for stealing and selling large databases from compromised organizations across healthcare, technology, and other sectors.
-- **Ousaban Operators**: Brazilian threat actors deploying the Ousaban banking trojan against users of Spanish and Portuguese banks. Campaign uses phishing PDF lures and targets Windows systems. Identified by FortiGuard Labs in May 2026.
-- **VEIL#DROP / PureLogs Operators**: Unknown threat actors running a multi-stage malware delivery chain leveraging Google Blogger for payload hosting. Delivers the PureLogs information stealer via social engineering lures.
-- **AsyncRAT / ScreenConnect Campaign Operators**: Unknown actors conducting a "massive, multi-domain, multi-language" campaign (per Kaspersky) using SEO-poisoned software sites to deploy AsyncRAT via abused ScreenConnect installations.
-- **ChocoPoC Distributors**: Unknown actors targeting vulnerability researchers by planting trojanized PoC exploits in public GitHub repositories. Motivation appears to be compromising researcher infrastructure for intelligence gathering or further supply chain attacks.
-- **HSIN Intrusion Actors**: Unknown threat actors who breached the Department of Homeland Security's Homeland Security Information Network, a sensitive inter-agency information sharing platform. Attribution not publicly disclosed.
-- **Kubota Intrusion Actors**: Unknown threat actors who maintained access to Kubota North America network systems for over one month earlier in the year. Details on initial access vector and objectives not fully disclosed.
+- **FortiBleed Actors**: Financially motivated group conducting mass credential theft from Fortinet VPN appliances. Now collaborating with INC and Lynx ransomware operations to monetize access. Expanding exploitation to Nextcloud zero-day.
+- **INC Ransomware**: Ransomware-as-a-service operation partnering with FortiBleed actors to convert stolen VPN credentials into ransomware deployments.
+- **Lynx Ransomware**: Ransomware group linked to FortiBleed credential theft, using stolen access for initial intrusion and encryption.
+- **Anubis Ransomware**: Operation actively exploiting Citrix Bleed 2 (CVE-2025-5777) for initial access across multiple victims.
+- **ToddyCat (APT)**: Chinese-aligned advanced persistent threat deploying Umbrij malware to abuse OAuth flows and access Gmail via Google API for espionage.
+- **Scattered Spider (UNC3944 / 0ktapus)**: Social-engineering-focused group targeting telecommunications, BPO, and technology firms. 19-year-old dual US-Estonian citizen extradited from Finland; additional member extradited per DOJ.
+- **JADEPUFFER**: Novel threat operator deploying an autonomous AI agent to conduct end-to-end ransomware attacks via Langflow RCE exploitation—first observed case of AI-driven autonomous ransomware operation.
+- **ChocoPoC Operators**: Unknown actors targeting vulnerability researchers via trojanized PoC exploits on GitHub, delivering Python-based RAT for data theft and command execution.
+- **ShinyHunters**: Data extortion group responsible for breach impacting Medtronic customer data.
+- **AsyncRAT Operators**: Threat actors leveraging SEO-poisoned software distribution sites to deploy AsyncRAT via trojanized ScreenConnect installers.
+- **BlueHammer Ransomware**: Emerging ransomware variant observed in recent threat intelligence reporting.
 
 ## Source Attribution
 
+- **FBI Seizes NetNut Proxy Platform, Popa Botnet**: Krebs on Security - https://krebsonsecurity.com/2026/07/fbi-seizes-netnut-proxy-platform-popa-botnet/
+- **FortiBleed Actors Collaborating With Inc, Lynx Ransomware Gangs**: Dark Reading - https://www.darkreading.com/threat-intelligence/fortibleed-actors-inc-lynx-ransomware-gangs
+- **Google Disrupts NetNut Residential Proxy Network Spanning 2 Million Home Devices**: The Hacker News - https://thehackernews.com/2026/07/google-disrupts-netnut-residential.html
+- **Ransomware Groups Turn to Citrix Bleed 2, BYOVD, and Supply Chain Credentials**: The Hacker News - https://thehackernews.com/2026/07/ransomware-groups-turn-to-citrix-bleed.html
+- **Ransomware Thugs Masquerade as Interpol to Entice Small Biz**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/attackers-use-interpol-lure-target-small-businesses
+- **ThreatsDay: AI Compute Hijacking, Apple Email Flaw, BlueHammer Ransomware + 14 Stories**: The Hacker News - https://thehackernews.com/2026/07/threatsday-ai-compute-hijacking-apple.html
+- **Google loses final appeal to overturn €4.1 billion EU fine**: Bleeping Computer - https://www.bleepingcomputer.com/news/legal/google-loses-final-appeal-to-overturn-41-billion-eu-fine/
 - **ConsentFix and ClickFix: How Microsoft 365 Accounts are Hijacked in 3 Seconds**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/consentfix-and-clickfix-how-microsoft-365-accounts-are-hijacked-in-3-seconds/
 - **ToddyCat-Linked Umbrij Malware Abuses OAuth to Access Gmail via Google API**: The Hacker News - https://thehackernews.com/2026/07/toddycat-linked-umbrij-malware-abuses.html
 - **Anthropic's AI Finds Bugs. IBM Bets $5B It Can Fix Them.**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/anthropic-s-ai-finds-bugs-ibm-bets-5b-it-can-fix-them-
@@ -120,10 +137,3 @@ Threat actor activity spans both nation-state and financially motivated groups. 
 - **19-Year-Old Scattered Spider Suspect Extradited to Face U.S. Hacking Charges**: The Hacker News - https://thehackernews.com/2026/07/19-year-old-scattered-spider-suspect.html
 - **SEO-Poisoned Software Sites Abuse ScreenConnect to Deploy AsyncRAT**: The Hacker News - https://thehackernews.com/2026/07/seo-poisoned-software-sites-abuse.html
 - **DHS confirms hackers breached HSIN info-sharing platform**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/dhs-confirms-hackers-breached-hsin-info-sharing-platform/
-- **VEIL#DROP Malware Chain Uses Blogger Platform to Deliver PureLogs Stealer**: The Hacker News - https://thehackernews.com/2026/07/veildrop-malware-chain-uses-blogger.html
-- **Webinar: Why traditional email security is no longer enough**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/webinar-why-traditional-email-security-is-no-longer-enough/
-- **Hackers target Microsoft 365 accounts with 81 million login attempts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-target-microsoft-365-accounts-with-81-million-login-attempts/
-- **When Too Much Security Data Became the Risk**: Dark Reading - https://www.darkreading.com/cyber-risk/too-much-security-data-risk
-- **Ousaban Banking Trojan Targets Iberian Bank Users with Fake PDF Lures**: The Hacker News - https://thehackernews.com/2026/07/ousaban-banking-trojan-targets-iberian.html
-- **Adobe Patches 7 CVSS 10.0 Flaws in ColdFusion and Campaign Classic**: The Hacker News - https://thehackernews.com/2026/07/adobe-patches-7-cvss-100-flaws-in.html
-- **'Phantom Squatting': An Emerging AI-Driven Supply Chain Threat**: Dark Reading - https://www.darkreading.com/endpoint-security/phantom-squatting-ai-driven-supply-chain-threat
