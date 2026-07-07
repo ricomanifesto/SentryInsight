@@ -2,105 +2,129 @@
 
 ## Executive Summary
 
-Active exploitation of maximum-severity vulnerabilities has intensified across enterprise software and operating system kernels. Adobe ColdFusion instances are under active attack leveraging CVE-2026-48282, while a newly disclosed Linux kernel flaw tracked as CVE-2026-46242 ("Bad Epoll") enables unprivileged local users to achieve full root compromise on desktops, servers, and Android devices. Both vulnerabilities are confirmed exploited in the wild, demanding immediate patching.
+Active exploitation activity spans multiple critical vectors this reporting period, with threat actors rapidly weaponizing newly disclosed vulnerabilities across enterprise software, infrastructure components, and emerging AI-driven attack surfaces. Chinese-aligned operators are conducting targeted campaigns against academic institutions and Indian financial sectors, while Iranian MOIS-affiliated groups deploy novel command-and-control frameworks against Israeli organizations. North Korean actors continue large-scale software supply chain poisoning through the PolinRider campaign. Critically, the first fully LLM-automated ransomware operation (JadePuffer) has been documented, marking a significant evolution in offensive AI capabilities.
 
-Simultaneously, threat actor operations have diversified in both technique and targeting. North Korean actors linked to the Contagious Interview campaign have flooded open-source registries with 108 malicious packages spanning npm, Packagist, Go, and Chrome extensions under the PolinRider operation, while a suspected China-nexus cluster deploys DcRAT through a trojanized Indian tax filing utility. The JadePuffer ransomware operation marks a milestone as the first documented case of an end-to-end attack orchestrated entirely by an LLM agent. A U.S. government entity paid $1 million to the Kairos extortion group, and the Armored Likho actor targets government and energy infrastructure across Russia, Brazil, and Kazakhstan with the novel BusySnake stealer.
+Multiple high-severity vulnerabilities are under active exploitation or immediate probing. Adobe ColdFusion CVE-2026-48282 (maximum severity) is being exploited in the wild. Gitea Docker CVE-2026-20896 drew attacker attention within 13 days of disclosure. The "Bad Epoll" Linux kernel flaw (CVE-2026-46242) provides unprivileged root access on desktops, servers, and Android. BeyondTrust's remote access products contain critical authentication bypass flaws requiring immediate patching. A 16-year-old Linux KVM escape vulnerability (Januscape) affects virtualized environments on Intel and AMD x86 systems.
 
-Infrastructure takedowns and supply-chain risks round out the threat landscape. A multi-party operation led by Google and the FBI disrupted the NetNut residential proxy network, severing connectivity for approximately two million compromised Android devices including smart TVs and streaming boxes. Seven unpatched vulnerabilities in the FatFs filesystem library affect millions of embedded devices handling FAT/exFAT storage. The FortiBleed threat actors, having established persistent access to thousands of Fortinet firewalls, are now monetizing that foothold through collaboration with the Inc and Lynx ransomware gangs while also exploiting a Nextcloud zero-day. Pegasus spyware continues to target high-profile political figures, as confirmed by Citizen Lab's finding of repeated infections against a former European Parliament member investigating spyware abuses.
+Threat actor diversification continues with financially motivated groups like Armored Likho (BusySnake) compromising critical infrastructure across Russia, Brazil, and Kazakhstan, and the Kairos extortion group extracting seven-figure payments from a U.S. government entity. Social engineering campaigns leverage Microsoft Teams voice calls (EtherRAT delivery) and multi-brand job interview phishing (Google credential harvesting). Novel data exfiltration techniques (TrojPix) demonstrate air-gap bypass via video cable emissions, while AI agent skill obfuscation (SkillCloak) evades static analysis.
 
 ## Active Exploitation Details
 
-### Adobe ColdFusion CVE-2026-48282
-- **Description**: A maximum-severity vulnerability in Adobe ColdFusion that allows remote attackers to execute arbitrary code or achieve full system compromise. The flaw has been assigned the highest CVSS severity rating.
-- **Impact**: Attackers can achieve complete control over affected ColdFusion servers, leading to data theft, lateral movement, ransomware deployment, and persistent access to enterprise environments.
-- **Status**: Actively exploited in the wild as confirmed by vulnerability intelligence company KEVIntel. Adobe has released patches; immediate application is critical.
+### Adobe ColdFusion Critical Vulnerability (CVE-2026-48282)
+- **Description**: Maximum-severity vulnerability in Adobe ColdFusion actively exploited in attacks according to vulnerability intelligence company KEVIntel.
+- **Impact**: Attackers can achieve remote code execution and full system compromise on affected ColdFusion servers.
+- **Status**: Actively exploited in the wild. Adobe has released patches; immediate application is critical.
 - **CVE ID**: CVE-2026-48282
 
-### Linux Kernel "Bad Epoll" CVE-2026-46242
-- **Description**: A Linux kernel vulnerability in the epoll subsystem that allows an unprivileged local user to escalate privileges to root. The flaw stems from improper handling of file descriptor references in the epoll mechanism.
-- **Impact**: Any local user on an affected system can gain full root privileges, resulting in complete system compromise, container escape, and persistence establishment. The vulnerability affects Linux desktops, servers, and Android devices.
-- **Status**: Publicly disclosed with exploit code available. Actively exploitable on unpatched kernels across distributions and Android versions.
+### Gitea Docker Critical Flaw (CVE-2026-20896)
+- **Description**: Critical security flaw in Gitea Docker images disclosed and patched recently. Threat actors began probing for exploitation within 13 days of disclosure according to Sysdig observations.
+- **Impact**: Successful exploitation could allow unauthorized access to source code repositories, supply chain manipulation, and lateral movement within development environments.
+- **Status**: Actively probed by threat actors. Patches available; Docker images must be updated immediately.
+- **CVE ID**: CVE-2026-20896
+
+### Linux Kernel "Bad Epoll" Privilege Escalation (CVE-2026-46242)
+- **Description**: Newly disclosed Linux kernel flaw dubbed "Bad Epoll" allows an ordinary unprivileged user to gain full root control of the machine.
+- **Impact**: Complete system compromise on affected Linux desktops, servers, and Android devices. Attackers can escalate from any user context to root without authentication.
+- **Status**: Recently disclosed with proof-of-concept likely available. Patches expected in kernel updates; Android vendor patches required for mobile devices.
 - **CVE ID**: CVE-2026-46242
 
-### Fortinet FortiBleed Firewall Exploitation
-- **Description**: Threat actors tracked as FortiBleed have compromised thousands of Fortinet firewall appliances, establishing persistent footholds in victim networks. The initial access vector leverages vulnerabilities in FortiOS/FortiProxy SSL-VPN components.
-- **Impact**: Full network perimeter compromise enabling traffic interception, credential harvesting, lateral movement, and deployment of follow-on payloads including ransomware.
-- **Status**: Ongoing campaign. FortiBleed actors are now monetizing access through collaboration with Inc Ransomware and Lynx Ransomware gangs. Actors are also exploiting a Nextcloud zero-day vulnerability to expand compromise.
-- **CVE ID**: CVE-2026-46242
+### Linux KVM Hypervisor Escape (Januscape)
+- **Description**: A 16-year-old use-after-free bug in Linux's KVM hypervisor that can be triggered from a guest virtual machine to corrupt the shadow-page state of the host kernel.
+- **Impact**: Guest VM escape to host kernel on Intel and AMD x86 systems, enabling compromise of the hypervisor and all other guest VMs on the same host.
+- **Status**: Tracked as CVE-2026-XXXXX (CVE number truncated in source). Long-standing vulnerability now publicly disclosed; kernel patches required.
+- **CVE ID**: CVE-2026-XXXXX
+
+### BeyondTrust Remote Support and PRA Authentication Bypass
+- **Description**: Two critical security flaws in BeyondTrust Remote Support (RS) and Privileged Remote Access (PRA) software that allow attackers to bypass authentication mechanisms.
+- **Impact**: Unauthenticated attackers can gain administrative access to remote support and privileged access management systems, potentially compromising entire enterprise environments.
+- **Status**: BeyondTrust has released updates addressing both flaws. Immediate patching required for all RS and PRA deployments.
+- **CVE ID**: CVE-2026-XXXXX
+
+### Roundcube Webmail Vulnerabilities
+- **Description**: Vulnerabilities in Roundcube webmail software exploited by suspected China-aligned threat actors targeting physics and engineering departments at U.S. and Canadian universities.
+- **Impact**: Unauthorized access to email communications, credential harvesting, and potential lateral movement within academic networks.
+- **Status**: Actively exploited in targeted campaign. Roundcube patches should be applied; network monitoring for suspicious webmail access recommended.
+
+### Citrix NetScaler Memory Disclosure Flaw
+- **Description**: Latest memory disclosure vulnerability in Citrix NetScaler products (ADC and Gateway) being actively targeted after researchers published a proof-of-concept exploit.
+- **Impact**: Memory disclosure enabling information leakage, potential session hijacking, and credential theft from affected NetScaler appliances.
+- **Status**: Actively exploited post-PoC publication. Citrix has released mitigations; immediate application recommended.
+
+### Tenda Router Hidden Admin Backdoor
+- **Description**: Undocumented authentication backdoor embedded in several firmware versions from Chinese manufacturer Tenda, enabling administrative access to device web interfaces.
+- **Impact**: Full administrative control of affected routers, network traffic interception, DNS manipulation, and persistent foothold in network infrastructure.
+- **Status**: CERT/CC warning issued. No vendor patch available; mitigation requires firmware replacement or device isolation.
+
+### Langflow Vulnerability (JadePuffer Campaign)
+- **Description**: Flaw in Langflow (AI agent workflow framework) exploited by the JadePuffer ransomware operation—the first documented fully LLM-driven ransomware attack.
+- **Impact**: Data exfiltration from production database servers and encryption of other systems, all orchestrated autonomously by an LLM agent.
+- **Status**: Actively exploited in novel AI-driven campaign. Langflow users should update immediately and audit AI agent permissions.
 
 ### Opera GX Browser Extension Auto-Install Flaw
-- **Description**: A vulnerability in Opera GX (gaming-focused Opera browser variant) that allows malicious websites to silently install browser add-ons (mods) without user interaction or consent prompts.
-- **Impact**: Installed malicious mods can extract specific data from any web page the victim visits, including credentials, session tokens, PII, and corporate data. The attack is invisible to the user.
-- **Status**: Vulnerability disclosed by researchers. Patch status should be verified with Opera; users should update immediately.
-
-### Nextcloud Zero-Day Exploitation
-- **Description**: An undisclosed zero-day vulnerability in Nextcloud collaboration platform being actively exploited by FortiBleed actors as a secondary expansion vector after initial firewall compromise.
-- **Impact**: Compromise of file sharing and collaboration instances, leading to data exfiltration, malware hosting, and further lateral movement within organizational networks.
-- **Status**: Actively exploited in conjunction with FortiBleed firewall access. No patch available at time of reporting; mitigations should be applied.
-
-### FatFs Filesystem Library Vulnerabilities (7 Flaws)
-- **Description**: Seven vulnerabilities disclosed by runZero in FatFs, a lightweight filesystem library implementing FAT/exFAT support for embedded devices. The library is bundled into millions of devices including USB drives, SD cards, IoT sensors, industrial controllers, and automotive systems.
-- **Impact**: Vulnerabilities range from denial of service to potential code execution when processing malformed filesystem structures. Given the ubiquity of FatFs in embedded firmware, the attack surface is vast and largely unpatchable in deployed devices.
-- **Status**: Unpatched as of disclosure. Vendors of affected embedded devices must incorporate fixes into firmware updates; many devices will never receive patches.
-
-### Pegasus Spyware Deployment
-- **Description**: NSO Group's Pegasus spyware deployed against high-value political targets via zero-click or one-click exploits targeting mobile operating systems (iOS and Android).
-- **Impact**: Full device compromise including message interception, call recording, location tracking, camera/microphone activation, and credential theft. Persistent surveillance capability.
-- **Status**: Confirmed by Citizen Lab investigation targeting former European Parliament member Stelios Kouloglou during his tenure investigating spyware abuses. Repeated infections observed.
+- **Description**: Flaw in Opera GX gaming browser allowing malicious websites to silently install browser add-ons (mods) and use them to steal specific data from visited pages.
+- **Impact**: Data theft from any page visited by the user, including credentials, session tokens, and sensitive personal information, without user interaction.
+- **Status**: Actively exploitable. Opera has released patches; users should update browser immediately.
 
 ## Affected Systems and Products
 
-- **Adobe ColdFusion**: All versions prior to the patched releases addressing CVE-2026-48282. Enterprise application servers running ColdFusion web applications.
-- **Linux Kernel**: All kernel versions containing the vulnerable epoll implementation prior to patched releases for CVE-2026-46242. Affected platforms include Linux desktop distributions, server installations, container hosts, and Android devices across multiple versions.
-- **Opera GX Browser**: Gaming-focused Opera browser versions prior to the security fix. Windows, macOS, and Linux installations.
-- **FatFs Filesystem Library**: Embedded devices incorporating FatFs for FAT/exFAT filesystem support. Affected device categories include USB mass storage devices, SD card controllers, IoT sensors, industrial control systems, automotive infotainment, medical devices, and consumer electronics. Millions of deployed units across vendors.
-- **Fortinet FortiGate/FortiProxy**: Firewall and secure access appliances running vulnerable FortiOS versions. SSL-VPN endpoints exposed to internet.
-- **Nextcloud**: Self-hosted and managed Nextcloud collaboration platform instances. All versions potentially affected pending zero-day disclosure.
-- **Android Devices**: Smartphones, smart TVs, streaming boxes, and other Android-powered devices compromised into the NetNut residential proxy botnet (approximately 2 million devices).
-- **iOS/macOS Devices**: Targets of Pegasus spyware deployment. Specific versions depend on exploit chain used.
-- **Windows, Linux, macOS**: Platforms targeted by QuimaRAT cross-platform Java-based RAT (Malware-as-a-Service).
-- **npm, Packagist, Go Module Proxy, Chrome Web Store**: Supply chain registries hosting 108 malicious packages published by North Korean actors in the PolinRider campaign.
+- **Adobe ColdFusion**: All versions affected by CVE-2026-48282; maximum severity rating indicates critical risk for web application servers
+- **Gitea Docker Images**: Containerized deployments of Gitea self-hosted Git service; CVE-2026-20896 affects recent versions prior to patch
+- **Linux Kernel**: All Linux distributions running vulnerable kernel versions (desktops, servers, embedded); Android devices across multiple OEMs affected by CVE-2026-46242
+- **Linux KVM Hypervisor**: Virtualization hosts running Linux KVM on Intel and AMD x86 processors; affects cloud providers, on-premises virtualization, and development environments
+- **BeyondTrust Remote Support (RS)**: Enterprise remote support software deployments; versions prior to security update release
+- **BeyondTrust Privileged Remote Access (PRA)**: Privileged access management solutions; versions prior to security update release
+- **Roundcube Webmail**: Self-hosted webmail deployments at educational institutions and enterprises; specific versions targeted in academic campaign
+- **Citrix NetScaler ADC and Gateway**: Application delivery controllers and secure access gateways; memory disclosure flaw affects current supported versions
+- **Tenda Routers**: Multiple firmware versions across Tenda router product lines; embedded devices in home and small business networks
+- **Langflow**: AI agent workflow framework deployments; production instances with database connectivity
+- **Opera GX Browser**: Gaming-focused browser versions prior to security patch; Windows and macOS platforms
 
 ## Attack Vectors and Techniques
 
-- **Local Privilege Escalation via Kernel epoll Flaw**: **Technique Name**: Bad Epoll (CVE-2026-46242) — **Vector**: Local authenticated access; unprivileged user triggers race condition / reference count error in epoll subsystem to corrupt kernel memory and execute code as root.
-- **Remote Code Execution via ColdFusion Deserialization/Injection**: **Technique Name**: CVE-2026-48282 exploitation — **Vector**: Unauthenticated or authenticated HTTP requests to vulnerable ColdFusion endpoints; likely involves deserialization, template injection, or access control bypass leading to arbitrary code execution.
-- **Browser Extension Silent Installation**: **Technique Name**: Opera GX mods auto-install — **Vector**: Victim visits attacker-controlled website; malicious script leverages browser flaw to install extension/mod without user prompts; extension then reads cross-origin page data.
-- **Trojanized Legitimate Utility (Supply Chain / Social Engineering)**: **Technique Name**: Fake Indian tax filing utility — **Vector**: Attackers distribute trojanized tax preparation software mimicking legitimate government utility; victims download and execute, deploying DcRAT remote access trojan.
-- **Malicious Open-Source Package Publication (Supply Chain)**: **Technique Name**: PolinRider campaign package planting — **Vector**: Threat actors publish 108 typosquatted or brand-jacked packages across npm, Packagist (PHP), Go module proxy, and Chrome Web Store; developers install packages believing them legitimate, executing embedded malware.
-- **Air-Gapped Data Exfiltration via Video Emissions**: **Technique Name**: TrojPix — **Vector**: Malware on air-gapped system modulates pixel values on display output; emissions from video cable (HDMI/VGA/DisplayPort) carry encoded data receivable by nearby SDR or antenna-equipped receiver.
-- **AI Agent Skill Obfuscation via Self-Extracting Packing**: **Technique Name**: SkillCloak — **Vector**: Malicious AI agent skills (plugins) packed with self-extracting stubs that evade static analysis scanners; payload extracts and executes at runtime within AI coding agent environment.
-- **Cross-Platform Java RAT Deployment (MaaS)**: **Technique Name**: QuimaRAT — **Vector**: Java-based remote access trojan delivered via phishing, drive-by download, or secondary payload; runs on Windows, Linux, macOS with consistent capability set; offered as Malware-as-a-Service.
-- **macOS Credential Theft via PAM Abuse and Typosquatting**: **Technique Name**: PamStealer — **Vector**: Victims lured to fake Maccy (clipboard manager) download sites; installer executes PAM (Pluggable Authentication Module) checks to harvest login passwords; exfiltration via C2.
-- **Multi-Stage Phishing to Modular Malware Framework**: **Technique Name**: Avalon / CrownX deployment — **Vector**: Phishing emails deliver staged payloads; initial dropper evades traditional defenses; modular framework Avalon loads CrownX ransomware module for encryption and extortion.
-- **Residential Proxy Botnet Enrollment**: **Technique Name**: NetNut / Popa botnet — **Vector**: Android devices (phones, smart TVs, streaming boxes) compromised via malicious apps or firmware supply chain; enrolled into residential proxy network selling bandwidth to threat actors for anonymization.
-- **Phishing-as-a-Service (PhaaS) Microsoft 365 Credential Harvesting**: **Technique Name**: ARToken / EvilTokens toolkit — **Vector**: Affiliate PhaaS platform provides turnkey phishing infrastructure targeting Microsoft 365 credentials; includes proxy pages, MFA bypass, and credential management.
-- **Zero-Click Mobile Exploit Chain (Pegasus)**: **Technique Name**: Pegasus spyware deployment — **Vector**: Zero-click or one-click exploits targeting iOS Safari, iMessage, or Android Chrome/messaging apps; no user interaction required for zero-click variants; installs full-featured surveillance implant.
+- **Vulnerability Exploitation (Public-Facing Applications)**: Rapid weaponization of CVEs (CVE-2026-48282, CVE-2026-20896, CVE-2026-46242) within days of disclosure or PoC publication
+- **Virtual Machine Escape**: Guest-to-host kernel corruption via KVM use-after-free (Januscape) enabling hypervisor compromise
+- **Authentication Bypass**: Unauthenticated administrative access to BeyondTrust RS/PRA and Tenda router web interfaces via embedded backdoors
+- **Memory Disclosure**: Citrix NetScaler information leakage enabling session hijacking and credential theft
+- **AI-Agent Orchestrated Attacks**: Fully autonomous ransomware operation (JadePuffer) using LLM to exploit Langflow, exfiltrate data, and encrypt systems
+- **Software Supply Chain Compromise**: North Korean PolinRider campaign publishing 108 malicious packages across npm, Packagist, Go, and Chrome Web Store
+- **Social Engineering via Collaboration Platforms**: Microsoft Teams voice calls impersonating IT support to deliver EtherRAT malware
+- **Multi-Brand Phishing Campaigns**: Fake job interview lures impersonating 30+ major brands (Adobe, Netflix, Coca-Cola, OpenAI) targeting marketing professionals for Google credential theft
+- **Trojanized Legitimate Utilities**: Fake Indian tax filing utility distributing DcRAT remote access trojan to taxpayers and finance teams
+- **Air-Gap Data Exfiltration**: TrojPix technique manipulating video cable emissions to leak data from isolated systems
+- **AI Agent Skill Obfuscation**: SkillCloak self-extracting packing technique evading static scanners for malicious AI coding agent add-ons
+- **Modular C2 Frameworks**: Iranian Cavern (C2F) framework providing flexible command-and-control for Israeli targeting
+- **Infostealer Deployment**: BusySnake malware targeting government and electrical power entities across multiple countries
+- **Ransomware with Data-Theft Extortion**: Kairos group extracting $1M payment from U.S. government entity under threat of data leak
 
 ## Threat Actor Activities
 
-- **FortiBleed Actors**: **Activities**: Initial access via Fortinet SSL-VPN vulnerabilities; persistent foothold in thousands of firewalls globally. **Campaign**: Monetizing access through partnership with Inc Ransomware and Lynx Ransomware gangs for ransomware deployment; leveraging Nextcloud zero-day for lateral expansion. Targeting enterprise networks across sectors.
-
-- **North Korean Actors (Contagious Interview / PolinRider Cluster)**: **Activities**: Large-scale supply chain poisoning via malicious package publication; developer targeting for credential theft and environment compromise. **Campaign**: PolinRider — 108 unique malicious packages across npm, Packagist, Go, and Chrome Web Store mimicking legitimate libraries (including Rollup polyfills); additional npm packages targeting developers via typosquatting. Attribution to DPRK-linked threat groups.
-
-- **Suspected China-Nexus Threat Cluster**: **Activities**: Social engineering via localized lure (Indian tax filing); deployment of DcRAT for persistent remote access and data theft. **Campaign**: Targeting Indian taxpayers, tax professionals, and corporate finance teams; trojanized utility distributed through phishing or fake download portals.
-
-- **JadePuffer Ransomware Operators**: **Activities**: First documented fully AI-agent-orchestrated ransomware operation. **Campaign**: LLM agent autonomously executed reconnaissance, initial access, lateral movement, data exfiltration, encryption, and extortion negotiation without human operator intervention.
-
-- **Kairos Ransomware / Extortion Group**: **Activities**: Data theft extortion with encryption; direct negotiation with victims. **Campaign**: Compromised U.S. government entity; exfiltrated sensitive files; collected $1 million ransom payment to prevent leak per leaked negotiation logs analyzed by Ransom-ISAC.
-
-- **Armored Likho**: **Activities**: Previously undocumented threat actor deploying custom BusySnake information stealer. **Campaign**: Targeting government agencies and electric power sector organizations in Russia, Brazil, and Kazakhstan; focused on credential theft, system enumeration, and potential OT/ICS reconnaissance.
-
-- **NetNut / Popa Botnet Operators**: **Activities**: Operation of massive residential proxy service built on compromised consumer Android devices. **Campaign**: Infected approximately 2 million devices (smartphones, smart TVs, streaming boxes); sold proxy access to cybercriminals for credential stuffing, ad fraud, scraping, and anonymized attack infrastructure. Disrupted by Google/FBI/Lumen joint operation.
-
-- **EvilTokens / ARToken PhaaS Operators**: **Activities**: Development and operation of Phishing-as-a-Service platform targeting Microsoft 365. **Campaign**: ARToken operates as EvilTokens affiliate; provides comprehensive toolkit including reverse-proxy phishing pages, MFA interception, session token capture, and affiliate management dashboard.
-
-- **Pegasus Spyware Operators (NSO Group customers)**: **Activities**: Targeted surveillance of high-profile political figures. **Campaign**: Repeated infection of former European Parliament member Stelios Kouloglou's mobile devices during his legislative work investigating spyware abuses; confirmed by Citizen Lab forensic analysis.
-
-- **QuimaRAT MaaS Operators (LevelBlue-tracked)**: **Activities**: Development and sale of cross-platform Java RAT. **Campaign**: Offering QuimaRAT as subscription service; capability includes file management, command execution, keylogging, screen capture, and persistence across Windows, Linux, macOS.
+- **China-Aligned Threat Activity Cluster (Academic Targeting)**: Exploiting Roundcube flaws against physics and engineering departments at U.S. and Canadian universities; likely intelligence collection on sensitive research
+- **China-Nexus Threat Activity Cluster (Indian Financial Targeting)**: Deploying fake Indian tax filing utility to deliver DcRAT to taxpayers, tax professionals, and corporate finance teams; credential theft and financial espionage
+- **Iranian MOIS-Affiliated Group**: Utilizing novel Cavern (C2F) modular command-and-control framework to target Israeli organizations; previously undocumented C2 infrastructure
+- **Armored Likho (BusySnake Operators)**: Compromising government agencies and electrical power entities in Russia, Brazil, and Kazakhstan; critical infrastructure targeting with infostealer malware
+- **North Korean Contagious Interview / PolinRider Campaign**: Publishing 108 malicious packages and browser extensions across npm, Packagist, Go, and Chrome Web Store; large-scale software supply chain poisoning
+- **JadePuffer Operator (Agentic Threat Actor)**: First documented fully LLM-autonomous ransomware operation; exploited Langflow flaw for data theft and encryption without human intervention
+- **Kairos Extortion Group**: Conducted data-theft extortion against U.S. government entity resulting in ~$1M payment; negotiation chat leaked via Ransom-ISAC case study
+- **EtherRAT Operators**: Abusing Microsoft Teams voice calling functionality to impersonate corporate IT support and deliver remote access trojan
+- **Multi-Brand Job Interview Phishing Actors**: Operating large-scale credential harvesting campaign impersonating 30+ major brands targeting marketing professionals' Google accounts
 
 ## Source Attribution
 
+- **Microsoft to enable Windows settings backup by default for orgs**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-to-enable-windows-backup-for-organizations-by-default/
+- **Suspected China-Aligned Hackers Exploit Roundcube Flaws Against Universities**: The Hacker News - https://thehackernews.com/2026/07/suspected-china-aligned-hackers-exploit.html
+- **BeyondTrust warns of critical flaws in remote access software**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/beyondtrust-warns-of-critical-flaws-in-remote-access-software/
+- **Microsoft testing new Cloud Rebuild Windows 11 recovery feature**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-testing-new-cloud-rebuild-windows-11-recovery-feature/
+- **CERT/CC Warns of Hidden Admin Backdoor in Tenda Router Firmware**: The Hacker News - https://thehackernews.com/2026/07/certcc-warns-of-hidden-admin-backdoor.html
+- **BeyondTrust Patches Critical Auth Bypass Flaws in Remote Support and PRA**: The Hacker News - https://thehackernews.com/2026/07/beyondtrust-patches-critical-auth.html
+- **'BusySnake' Infostealer Slithers into Critical Infrastructure Networks**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/busysnake-infostealer-critical-infrastructure-networks
+- **CitrixBleed-ing Again? NetScaler Vulnerability Under Attack**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/citrixbleed-ing-again-netscaler-vulnerability-under-attack
+- **Phishing poses as big-brand job interview to steal Google accounts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/phishing-poses-as-big-brand-job-interview-to-steal-google-accounts/
+- **Fake IT support calls on Microsoft Teams push EtherRAT malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/fake-it-support-calls-on-microsoft-teams-push-etherrat-malware/
+- **Iran-Linked Hackers Use New Cavern C2 Framework to Target Israeli Organizations**: The Hacker News - https://thehackernews.com/2026/07/iran-linked-hackers-use-new-cavern-c2.html
+- **Vietnam arrests suspects behind HiAnime anime piracy service**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/vietnam-arrests-suspects-behind-hianime-anime-piracy-service/
+- **16-Year-Old Linux KVM Flaw Lets Guest VMs Escape to Host on Intel and AMD x86 Systems**: The Hacker News - https://thehackernews.com/2026/07/16-year-old-linux-kvm-flaw-lets-guest.html
+- **JadePuffer: The First Complete LLM-Driven Ransomware Attack**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/jadepuffer-first-complete-llm-driven-ransomware-attack
+- **Threat Actors Probe Gitea Docker Flaw CVE-2026-20896 13 Days After Disclosure**: The Hacker News - https://thehackernews.com/2026/07/threat-actors-probe-gitea-docker-flaw.html
 - **Software Is Now Written at the Speed of Thought. Security Isn't.**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/software-is-now-written-at-the-speed-of-thought-security-isnt/
 - **Max severity Adobe ColdFusion flaw now exploited in attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/max-severity-adobe-coldfusion-flaw-now-exploited-in-attacks/
 - **⚡ Weekly Recap: Proxy Botnets, Browser Ransomware, AI Agent Tricks, Fake PoC Malware and More**: The Hacker News - https://thehackernews.com/2026/07/monday-recap-proxy-botnets-browser.html
@@ -116,18 +140,3 @@ Infrastructure takedowns and supply-chain risks round out the threat landscape. 
 - **North Korean Hackers Publish 108 Malicious Packages and Extensions in PolinRider Campaign**: The Hacker News - https://thehackernews.com/2026/07/north-korean-hackers-publish-108.html
 - **Unpatched Flaws Disclosed in Filesystem Bundled Into Millions of Embedded Devices**: The Hacker News - https://thehackernews.com/2026/07/unpatched-flaws-disclosed-in-filesystem.html
 - **New "Bad Epoll" Linux Kernel Flaw Lets Unprivileged Users Gain Root, Hits Android**: The Hacker News - https://thehackernews.com/2026/07/new-bad-epoll-linux-kernel-flaw-lets.html
-- **New Avalon Malware Framework Packs CrownX Ransomware Capabilities**: The Hacker News - https://thehackernews.com/2026/07/new-avalon-malware-framework-packs.html
-- **NetNut proxy network disrupted, 2 million infected devices cut off**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/netnut-proxy-network-disrupted-2-million-infected-devices-cut-off/
-- **North Korea-Linked npm Packages Mimic Rollup Polyfills to Steal Developer Secrets**: The Hacker News - https://thehackernews.com/2026/07/north-korea-linked-npm-packages-mimic.html
-- **ARToken PhaaS exposes EvilTokens' Microsoft 365 phishing toolkit**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/artoken-phaas-exposes-eviltokens-microsoft-365-phishing-toolkit/
-- **Armored Likho Targets Government Agencies, Power Sector with BusySnake Stealer**: The Hacker News - https://thehackernews.com/2026/07/armored-likho-targets-government.html
-- **Chinese LLMs Broaden the Gap Between Attackers \&amp; Defenders**: Dark Reading - https://www.darkreading.com/cyber-risk/chinese-llms-broaden-gap-between-attackers-and-defenders
-- **European Parliament Member Investigating Spyware Was Hacked With Pegasus**: The Hacker News - https://thehackernews.com/2026/07/european-parliament-member.html
-- **PamStealer Uses Fake Maccy Sites and PAM Checks to Steal Mac Login Passwords**: The Hacker News - https://thehackernews.com/2026/07/pamstealer-uses-fake-maccy-sites-and.html
-- **Claude Fable 5 isn’t permanently leaving subscriptions, Anthropic says**: Bleeping Computer - https://www.bleepingcomputer.com/news/artificial-intelligence/claude-fable-5-isnt-permanently-leaving-subscriptions-anthropic-says/
-- **Claude Fable relaunch disappoints users with nerfed performance**: Bleeping Computer - https://www.bleepingcomputer.com/news/artificial-intelligence/claude-fable-relaunch-disappoints-users-with-nerfed-performance/
-- **Aussies Face Reduced Cybercrime Risk, as Pressure Shifts to SMBs**: Dark Reading - https://www.darkreading.com/cybersecurity-analytics/aussies-face-reduced-cybercrime-risk-pressure-shifts-smbs
-- **Apple Reverses Age-Old Patch Policy to Keep Up With AI**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/apple-patch-policy-ai
-- **FBI Seizes NetNut Proxy Platform, Popa Botnet**: Krebs on Security - https://krebsonsecurity.com/2026/07/fbi-seizes-netnut-proxy-platform-popa-botnet/
-- **FortiBleed Actors Collaborating With Inc, Lynx Ransomware Gangs**: Dark Reading - https://www.darkreading.com/threat-intelligence/fortibleed-actors-inc-lynx-ransomware-gangs
-- **Google Disrupts NetNut Residential Proxy Network Spanning 2 Million Home Devices**: The Hacker News - https://thehackernews.com/2026/07/google-disrupts-netnut-residential.html
