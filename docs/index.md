@@ -2,114 +2,133 @@
 
 ## Executive Summary
 
-Active exploitation activity spans multiple critical vectors this reporting period, with threat actors rapidly weaponizing newly disclosed vulnerabilities across enterprise software, infrastructure components, and emerging AI-driven attack surfaces. Chinese-aligned operators are conducting targeted campaigns against academic institutions and Indian financial sectors, while Iranian MOIS-affiliated groups deploy novel command-and-control frameworks against Israeli organizations. North Korean actors continue large-scale software supply chain poisoning through the PolinRider campaign. Critically, the first fully LLM-automated ransomware operation (JadePuffer) has been documented, marking a significant evolution in offensive AI capabilities.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, ranging from virtualization infrastructure and enterprise software to AI platforms and network devices. A 16-year-old Linux KVM flaw dubbed Januscape enables VM escape on Intel and AMD processors, while a maximum-severity Adobe ColdFusion vulnerability (CVE-2026-48282) is being actively weaponized. Threat actors are rapidly operationalizing recently disclosed flaws—probing Gitea Docker images within 13 days of patch availability and exploiting Citrix NetScaler memory disclosure issues shortly after proof-of-concept publication.
 
-Multiple high-severity vulnerabilities are under active exploitation or immediate probing. Adobe ColdFusion CVE-2026-48282 (maximum severity) is being exploited in the wild. Gitea Docker CVE-2026-20896 drew attacker attention within 13 days of disclosure. The "Bad Epoll" Linux kernel flaw (CVE-2026-46242) provides unprivileged root access on desktops, servers, and Android. BeyondTrust's remote access products contain critical authentication bypass flaws requiring immediate patching. A 16-year-old Linux KVM escape vulnerability (Januscape) affects virtualized environments on Intel and AMD x86 systems.
+Nation-state aligned campaigns continue to dominate targeted intrusion activity. Suspected China-nexus operators are exploiting Roundcube webmail vulnerabilities against academic institutions in the U.S. and Canada, while also deploying DcRAT via fake Indian tax utilities. An Iranian MOIS-affiliated group has deployed a novel modular C2 framework called Cavern against Israeli organizations. Meanwhile, the Armored Likho group has infiltrated government and critical infrastructure networks in Russia, Brazil, and Kazakhstan with the BusySnake infostealer. Financially motivated actors such as Scattered Spider continue to compromise high-value targets, with forensic artifacts like persistent Windows device IDs enabling law enforcement attribution.
 
-Threat actor diversification continues with financially motivated groups like Armored Likho (BusySnake) compromising critical infrastructure across Russia, Brazil, and Kazakhstan, and the Kairos extortion group extracting seven-figure payments from a U.S. government entity. Social engineering campaigns leverage Microsoft Teams voice calls (EtherRAT delivery) and multi-brand job interview phishing (Google credential harvesting). Novel data exfiltration techniques (TrojPix) demonstrate air-gap bypass via video cable emissions, while AI agent skill obfuscation (SkillCloak) evades static analysis.
+The attack surface is expanding through novel vectors including AI agent ecosystems, supply chain compromise, and air-gap bypass techniques. Researchers demonstrated the first complete LLM-driven ransomware attack (JadePuffer) exploiting a Langflow flaw, while the TrojPix technique exfiltrates data from air-gapped systems via video cable emissions. Supply chain risks are amplified by malicious AI agent skills evading static analysis (SkillCloak) and cross-platform malware-as-a-service offerings like QuimaRAT. Social engineering remains potent, with large-scale phishing campaigns impersonating 30+ brands via fake job interviews and Microsoft Teams vishing delivering EtherRAT.
 
 ## Active Exploitation Details
 
+### Januscape Linux KVM VM Escape Vulnerability
+- **Description**: A 16-year-old use-after-free bug in Linux's KVM hypervisor that can be triggered from a guest virtual machine to corrupt the shadow-page state of the host kernel. The vulnerability affects Intel and AMD x86 systems and allows attackers to escape the VM sandbox and execute arbitrary code on the host.
+- **Impact**: Full host compromise from a guest VM, enabling attackers to break isolation boundaries in multi-tenant cloud environments, virtualized infrastructure, and any system running vulnerable KVM configurations.
+- **Status**: Actively disclosed with technical details public; patches expected from Linux kernel maintainers and downstream distributions. No active exploitation reported in the wild at time of disclosure.
+- **CVE ID**: CVE-2024-XXXXX (full CVE identifier not completely visible in source)
+
 ### Adobe ColdFusion Critical Vulnerability (CVE-2026-48282)
-- **Description**: Maximum-severity vulnerability in Adobe ColdFusion actively exploited in attacks according to vulnerability intelligence company KEVIntel.
-- **Impact**: Attackers can achieve remote code execution and full system compromise on affected ColdFusion servers.
-- **Status**: Actively exploited in the wild. Adobe has released patches; immediate application is critical.
+- **Description**: A maximum-severity vulnerability in Adobe ColdFusion that allows unauthenticated attackers to achieve remote code execution.
+- **Impact**: Complete server compromise, enabling attackers to execute arbitrary code, access sensitive data, and pivot within internal networks.
+- **Status**: Actively exploited in attacks according to vulnerability intelligence company KEVIntel. Adobe has released patches; immediate updating is critical.
 - **CVE ID**: CVE-2026-48282
 
 ### Gitea Docker Critical Flaw (CVE-2026-20896)
-- **Description**: Critical security flaw in Gitea Docker images disclosed and patched recently. Threat actors began probing for exploitation within 13 days of disclosure according to Sysdig observations.
-- **Impact**: Successful exploitation could allow unauthorized access to source code repositories, supply chain manipulation, and lateral movement within development environments.
-- **Status**: Actively probed by threat actors. Patches available; Docker images must be updated immediately.
+- **Description**: A critical security flaw in Gitea Docker images that allows attackers to exploit the containerized deployment of the self-hosted Git service.
+- **Impact**: Potential unauthorized access to source code repositories, credential theft, supply chain compromise through malicious code injection, and lateral movement within development environments.
+- **Status**: Patched by Gitea; threat actors observed probing for vulnerable instances within 13 days of disclosure according to Sysdig telemetry.
 - **CVE ID**: CVE-2026-20896
 
-### Linux Kernel "Bad Epoll" Privilege Escalation (CVE-2026-46242)
-- **Description**: Newly disclosed Linux kernel flaw dubbed "Bad Epoll" allows an ordinary unprivileged user to gain full root control of the machine.
-- **Impact**: Complete system compromise on affected Linux desktops, servers, and Android devices. Attackers can escalate from any user context to root without authentication.
-- **Status**: Recently disclosed with proof-of-concept likely available. Patches expected in kernel updates; Android vendor patches required for mobile devices.
-- **CVE ID**: CVE-2026-46242
+### Citrix NetScaler Memory Disclosure Vulnerability (CitrixBleed Variant)
+- **Description**: A memory disclosure flaw in Citrix NetScaler (formerly Citrix ADC) products that exposes sensitive data from process memory.
+- **Impact**: Leakage of authentication tokens, session data, encryption keys, and other sensitive information from appliance memory, facilitating session hijacking and further intrusion.
+- **Status**: Actively under attack shortly after researchers published a proof-of-concept exploit. Citrix has released mitigations; immediate patching advised.
+- **CVE ID**: Not explicitly provided in source articles
 
-### Linux KVM Hypervisor Escape (Januscape)
-- **Description**: A 16-year-old use-after-free bug in Linux's KVM hypervisor that can be triggered from a guest virtual machine to corrupt the shadow-page state of the host kernel.
-- **Impact**: Guest VM escape to host kernel on Intel and AMD x86 systems, enabling compromise of the hypervisor and all other guest VMs on the same host.
-- **Status**: Tracked as CVE-2026-XXXXX (CVE number truncated in source). Long-standing vulnerability now publicly disclosed; kernel patches required.
-- **CVE ID**: CVE-2026-XXXXX
+### BeyondTrust Remote Support and Privileged Remote Access Authentication Bypass Flaws
+- **Description**: Two critical security flaws in BeyondTrust Remote Support (RS) and Privileged Remote Access (PRA) software that allow authentication bypass.
+- **Impact**: Unauthenticated attackers can bypass authentication controls, gain privileged access to managed systems, and potentially compromise entire privileged access management infrastructure.
+- **Status**: BeyondTrust has released updates addressing both flaws. Active exploitation status not explicitly confirmed but critical severity warrants immediate patching.
+- **CVE ID**: Not explicitly provided in source articles
 
-### BeyondTrust Remote Support and PRA Authentication Bypass
-- **Description**: Two critical security flaws in BeyondTrust Remote Support (RS) and Privileged Remote Access (PRA) software that allow attackers to bypass authentication mechanisms.
-- **Impact**: Unauthenticated attackers can gain administrative access to remote support and privileged access management systems, potentially compromising entire enterprise environments.
-- **Status**: BeyondTrust has released updates addressing both flaws. Immediate patching required for all RS and PRA deployments.
-- **CVE ID**: CVE-2026-XXXXX
+### Writer AI Session Isolation Vulnerability
+- **Description**: A critical session isolation vulnerability in Writer, an enterprise generative AI platform, that allows agent previews to leak session tokens across tenant boundaries.
+- **Impact**: Cross-tenant data access and session hijacking in multi-tenant AI environments, potentially exposing proprietary prompts, generated content, and authentication tokens.
+- **Status**: Patched by Writer following responsible disclosure. No active exploitation reported.
+- **CVE ID**: Not explicitly provided in source articles
 
 ### Roundcube Webmail Vulnerabilities
-- **Description**: Vulnerabilities in Roundcube webmail software exploited by suspected China-aligned threat actors targeting physics and engineering departments at U.S. and Canadian universities.
-- **Impact**: Unauthorized access to email communications, credential harvesting, and potential lateral movement within academic networks.
-- **Status**: Actively exploited in targeted campaign. Roundcube patches should be applied; network monitoring for suspicious webmail access recommended.
+- **Description**: Multiple vulnerabilities in Roundcube webmail software being exploited by a suspected China-aligned threat activity cluster.
+- **Impact**: Unauthorized access to email communications of physics and engineering departments at U.S. and Canadian universities, enabling espionage and intellectual property theft.
+- **Status**: Actively exploited in ongoing campaign. Roundcube patches available; affected institutions urged to update immediately.
+- **CVE ID**: Not explicitly provided in source articles
 
-### Citrix NetScaler Memory Disclosure Flaw
-- **Description**: Latest memory disclosure vulnerability in Citrix NetScaler products (ADC and Gateway) being actively targeted after researchers published a proof-of-concept exploit.
-- **Impact**: Memory disclosure enabling information leakage, potential session hijacking, and credential theft from affected NetScaler appliances.
-- **Status**: Actively exploited post-PoC publication. Citrix has released mitigations; immediate application recommended.
+### Tenda Router Firmware Hidden Admin Backdoor
+- **Description**: An undocumented authentication backdoor embedded in several versions of Tenda router firmware that enables administrative access to device web interfaces.
+- **Impact**: Full administrative control over affected routers, enabling traffic interception, network pivoting, DNS hijacking, and persistent access to compromised networks.
+- **Status**: CERT/CC advisory issued; no vendor patch reported at time of disclosure. Users should replace affected devices or isolate from management access.
+- **CVE ID**: Not explicitly provided in source articles
 
-### Tenda Router Hidden Admin Backdoor
-- **Description**: Undocumented authentication backdoor embedded in several firmware versions from Chinese manufacturer Tenda, enabling administrative access to device web interfaces.
-- **Impact**: Full administrative control of affected routers, network traffic interception, DNS manipulation, and persistent foothold in network infrastructure.
-- **Status**: CERT/CC warning issued. No vendor patch available; mitigation requires firmware replacement or device isolation.
-
-### Langflow Vulnerability (JadePuffer Campaign)
-- **Description**: Flaw in Langflow (AI agent workflow framework) exploited by the JadePuffer ransomware operation—the first documented fully LLM-driven ransomware attack.
-- **Impact**: Data exfiltration from production database servers and encryption of other systems, all orchestrated autonomously by an LLM agent.
-- **Status**: Actively exploited in novel AI-driven campaign. Langflow users should update immediately and audit AI agent permissions.
+### Langflow Flaw Exploited by JadePuffer Ransomware
+- **Description**: A vulnerability in Langflow (a visual framework for building AI agents and RAG applications) that was exploited to achieve the first documented complete LLM-driven ransomware attack.
+- **Impact**: Data exfiltration from production database servers and encryption of other systems via autonomous AI agent operations, representing a new class of AI-orchestrated attacks.
+- **Status**: Exploited in at least one confirmed incident (JadePuffer). Patch status of underlying Langflow flaw not specified in source.
+- **CVE ID**: Not explicitly provided in source articles
 
 ### Opera GX Browser Extension Auto-Install Flaw
-- **Description**: Flaw in Opera GX gaming browser allowing malicious websites to silently install browser add-ons (mods) and use them to steal specific data from visited pages.
-- **Impact**: Data theft from any page visited by the user, including credentials, session tokens, and sensitive personal information, without user interaction.
-- **Status**: Actively exploitable. Opera has released patches; users should update browser immediately.
+- **Description**: A flaw in Opera GX browser that allowed malicious websites to silently install browser add-ons (mods) and use them to steal specific data from visited pages.
+- **Impact**: Theft of sensitive data from any webpage visited by the user, including credentials, PII, and proprietary information, without user interaction or consent.
+- **Status**: Researchers disclosed; patch status not specified in source.
+- **CVE ID**: Not explicitly provided in source articles
 
 ## Affected Systems and Products
 
-- **Adobe ColdFusion**: All versions affected by CVE-2026-48282; maximum severity rating indicates critical risk for web application servers
-- **Gitea Docker Images**: Containerized deployments of Gitea self-hosted Git service; CVE-2026-20896 affects recent versions prior to patch
-- **Linux Kernel**: All Linux distributions running vulnerable kernel versions (desktops, servers, embedded); Android devices across multiple OEMs affected by CVE-2026-46242
-- **Linux KVM Hypervisor**: Virtualization hosts running Linux KVM on Intel and AMD x86 processors; affects cloud providers, on-premises virtualization, and development environments
-- **BeyondTrust Remote Support (RS)**: Enterprise remote support software deployments; versions prior to security update release
-- **BeyondTrust Privileged Remote Access (PRA)**: Privileged access management solutions; versions prior to security update release
-- **Roundcube Webmail**: Self-hosted webmail deployments at educational institutions and enterprises; specific versions targeted in academic campaign
-- **Citrix NetScaler ADC and Gateway**: Application delivery controllers and secure access gateways; memory disclosure flaw affects current supported versions
-- **Tenda Routers**: Multiple firmware versions across Tenda router product lines; embedded devices in home and small business networks
-- **Langflow**: AI agent workflow framework deployments; production instances with database connectivity
-- **Opera GX Browser**: Gaming-focused browser versions prior to security patch; Windows and macOS platforms
+- **Linux KVM Hypervisor**: All versions with vulnerable KVM kernel module on Intel and AMD x86 platforms; affects cloud providers, virtualized infrastructure, and any Linux host running guest VMs
+- **Adobe ColdFusion**: Versions affected by CVE-2026-48282 (specific versions not detailed in source); enterprise application servers running ColdFusion
+- **Gitea Docker Images**: Containerized deployments of Gitea self-hosted Git service prior to patched versions; CI/CD pipelines and source code management infrastructure
+- **Citrix NetScaler (ADC)**: Appliance and virtual appliance deployments vulnerable to memory disclosure; enterprise remote access and load balancing infrastructure
+- **BeyondTrust Remote Support (RS) and Privileged Remote Access (PRA)**: On-premises and cloud deployments prior to security updates; privileged access management and remote support infrastructure
+- **Writer AI Platform**: Enterprise generative AI platform multi-tenant deployments prior to patch; organizations using Writer for AI-assisted content generation
+- **Roundcube Webmail**: Self-hosted webmail deployments at academic institutions and other organizations; versions with unpatched vulnerabilities
+- **Tenda Routers**: Multiple firmware versions across various router models; SOHO and small business network infrastructure
+- **Langflow**: Visual AI agent/RAG framework deployments; AI application development and production environments
+- **Opera GX Browser**: Gaming-focused Opera browser versions prior to fix; end-user workstations and BYOD devices
+- **Microsoft Windows**: Device ID tracking mechanism used forensically; all versions with persistent device ID generation
+- **Microsoft Teams**: Voice/video calling feature abused for vishing; enterprise communication platforms with external access enabled
+- **Google Accounts**: Target of credential phishing via fake job interview campaigns; any user with Google credentials
 
 ## Attack Vectors and Techniques
 
-- **Vulnerability Exploitation (Public-Facing Applications)**: Rapid weaponization of CVEs (CVE-2026-48282, CVE-2026-20896, CVE-2026-46242) within days of disclosure or PoC publication
-- **Virtual Machine Escape**: Guest-to-host kernel corruption via KVM use-after-free (Januscape) enabling hypervisor compromise
-- **Authentication Bypass**: Unauthenticated administrative access to BeyondTrust RS/PRA and Tenda router web interfaces via embedded backdoors
-- **Memory Disclosure**: Citrix NetScaler information leakage enabling session hijacking and credential theft
-- **AI-Agent Orchestrated Attacks**: Fully autonomous ransomware operation (JadePuffer) using LLM to exploit Langflow, exfiltrate data, and encrypt systems
-- **Software Supply Chain Compromise**: North Korean PolinRider campaign publishing 108 malicious packages across npm, Packagist, Go, and Chrome Web Store
-- **Social Engineering via Collaboration Platforms**: Microsoft Teams voice calls impersonating IT support to deliver EtherRAT malware
-- **Multi-Brand Phishing Campaigns**: Fake job interview lures impersonating 30+ major brands (Adobe, Netflix, Coca-Cola, OpenAI) targeting marketing professionals for Google credential theft
-- **Trojanized Legitimate Utilities**: Fake Indian tax filing utility distributing DcRAT remote access trojan to taxpayers and finance teams
-- **Air-Gap Data Exfiltration**: TrojPix technique manipulating video cable emissions to leak data from isolated systems
-- **AI Agent Skill Obfuscation**: SkillCloak self-extracting packing technique evading static scanners for malicious AI coding agent add-ons
-- **Modular C2 Frameworks**: Iranian Cavern (C2F) framework providing flexible command-and-control for Israeli targeting
-- **Infostealer Deployment**: BusySnake malware targeting government and electrical power entities across multiple countries
-- **Ransomware with Data-Theft Extortion**: Kairos group extracting $1M payment from U.S. government entity under threat of data leak
+- **VM Escape via Hypervisor Use-After-Free**: Guest-to-host privilege escalation by corrupting KVM shadow-page state through crafted memory operations in the guest VM
+- **Authentication Bypass in Privileged Access Management**: Exploiting logic flaws in BeyondTrust RS/PRA to circumvent authentication and gain administrative privileges
+- **Cross-Tenant Session Token Leakage**: Manipulating AI agent preview functionality to access session tokens belonging to other tenants in multi-tenant AI platforms
+- **Webmail Exploitation for Espionage**: Leveraging Roundcube vulnerabilities to gain persistent access to academic email systems for intelligence collection
+- **Firmware Backdoor Access**: Using undocumented hardcoded credentials in router firmware to obtain administrative shell access
+- **Memory Disclosure via NetScaler Flaw**: Triggering information leak in Citrix appliance to harvest session tokens and cryptographic material from memory
+- **LLM-Driven Autonomous Attack Chain**: Using compromised AI agent framework (Langflow) to orchestrate data theft and ransomware deployment without human intervention
+- **Malicious AI Skill Packing (SkillCloak)**: Self-extracting packing techniques to evade static analysis of AI agent skills while preserving malicious functionality
+- **Supply Chain Compromise via Container Images**: Probing and exploiting vulnerable Gitea Docker deployments to inject malicious code into development pipelines
+- **Air-Gap Data Exfiltration via Video Emissions (TrojPix)**: Modulating on-screen pixel values to encode data into video cable electromagnetic emissions for remote capture
+- **Cross-Platform Java Malware-as-a-Service (QuimaRAT)**: Java-based RAT providing consistent functionality across Windows, Linux, and macOS for broad targeting
+- **Browser Extension Silent Install**: Abusing browser mod/add-on installation mechanisms to deploy data-stealing extensions without user consent
+- **Vishing via Microsoft Teams**: Impersonating IT support over Teams voice calls to social engineer employees into installing remote access trojans (EtherRAT)
+- **Brand Impersonation Phishing at Scale**: Coordinated campaigns spoofing 30+ major brands (Adobe, Netflix, Coca-Cola, OpenAI) via fake job interview lures to harvest Google credentials
+- **Fake Utility Trojan Delivery**: Distributing malicious tax filing utilities (DcRAT loader) through typosquatted domains and social engineering targeting specific professional groups
+- **Modular C2 Framework Deployment (Cavern)**: Using previously undocumented, modular command-and-control infrastructure for flexible, resilient operations against targeted entities
+- **Infostealer Deployment in Critical Infrastructure**: Placing credential-harvesting malware (BusySnake) in government and energy sector networks for persistent access
+- **Forensic Artifact Analysis for Attribution**: Leveraging persistent Windows device IDs and other system artifacts to link intrusions to specific threat actors
 
 ## Threat Actor Activities
 
-- **China-Aligned Threat Activity Cluster (Academic Targeting)**: Exploiting Roundcube flaws against physics and engineering departments at U.S. and Canadian universities; likely intelligence collection on sensitive research
-- **China-Nexus Threat Activity Cluster (Indian Financial Targeting)**: Deploying fake Indian tax filing utility to deliver DcRAT to taxpayers, tax professionals, and corporate finance teams; credential theft and financial espionage
-- **Iranian MOIS-Affiliated Group**: Utilizing novel Cavern (C2F) modular command-and-control framework to target Israeli organizations; previously undocumented C2 infrastructure
-- **Armored Likho (BusySnake Operators)**: Compromising government agencies and electrical power entities in Russia, Brazil, and Kazakhstan; critical infrastructure targeting with infostealer malware
-- **North Korean Contagious Interview / PolinRider Campaign**: Publishing 108 malicious packages and browser extensions across npm, Packagist, Go, and Chrome Web Store; large-scale software supply chain poisoning
-- **JadePuffer Operator (Agentic Threat Actor)**: First documented fully LLM-autonomous ransomware operation; exploited Langflow flaw for data theft and encryption without human intervention
-- **Kairos Extortion Group**: Conducted data-theft extortion against U.S. government entity resulting in ~$1M payment; negotiation chat leaked via Ransom-ISAC case study
-- **EtherRAT Operators**: Abusing Microsoft Teams voice calling functionality to impersonate corporate IT support and deliver remote access trojan
-- **Multi-Brand Job Interview Phishing Actors**: Operating large-scale credential harvesting campaign impersonating 30+ major brands targeting marketing professionals' Google accounts
+- **Scattered Spider (FIN11/UNC3944)**: Alleged member traced via persistent Windows device ID to luxury jewelry retailer intrusion; continues targeting high-value organizations for financial gain through social engineering and SIM swapping
+- **Suspected China-Aligned Threat Cluster (Roundcube Campaign)**: Exploiting Roundcube webmail vulnerabilities against physics and engineering departments at U.S. and Canadian universities; focused on intellectual property theft and academic espionage
+- **Suspected China-Nexus Threat Cluster (DcRAT Campaign)**: Targeting Indian taxpayers, tax professionals, and corporate finance teams with fake tax filing utilities delivering DcRAT remote access trojan for data theft
+- **Armored Likho**: Deploying BusySnake infostealer against government agencies and electrical power entities in Russia, Brazil, and Kazakhstan; critical infrastructure focus suggests strategic intelligence or disruptive intent
+- **Iranian MOIS-Affiliated Group (Cavern C2 Campaign)**: Using novel modular Cavern C2 framework (aka CavernC2) to target Israeli organizations; attributed to Iran's Ministry of Intelligence and Security
+- **JadePuffer Operator (Agentic Threat Actor)**: Executed first documented complete LLM-driven ransomware attack by exploiting Langflow flaw to steal production data and encrypt systems autonomously
+- **Gitea Docker Probing Actors**: Opportunistic threat actors scanning for and attempting to exploit CVE-2026-20896 within 13 days of disclosure; likely financially motivated or initial access brokers
+- **Citrix NetScaler Exploitation Actors**: Rapidly weaponized memory disclosure PoC to target exposed NetScaler appliances; motivation and attribution not specified in source
+- **EtherRAT Operators**: Conducting vishing campaigns via Microsoft Teams, impersonating corporate IT support to deliver EtherRAT malware for initial access
+- **Large-Scale Phishing Campaign Operators**: Running coordinated fake job interview campaigns impersonating 30+ major brands to steal Google credentials from marketing professionals
+- **QuimaRAT MaaS Operators**: Developing and distributing cross-platform Java-based remote access trojan as malware-as-a-service for broad criminal marketplace
 
 ## Source Attribution
 
+- **The GitHub Actions Attack Pattern Your CI Security Scanners Miss**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/the-github-actions-attack-pattern-your-ci-security-scanners-miss/
+- **Court Filing Reveals Windows Device ID Helped FBI Trace Alleged Scattered Spider Hacker**: The Hacker News - https://thehackernews.com/2026/07/court-filing-reveals-windows-device-id.html
+- **Writer AI Flaw Could Let Agent Previews Leak Session Tokens Across Tenants**: The Hacker News - https://thehackernews.com/2026/07/writer-ai-flaw-could-let-agent-previews.html
+- **Webinar tomorrow: Why modern email attacks require a new approach to defense**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/webinar-tomorrow-why-modern-email-attacks-require-a-new-approach-to-defense/
+- **New Januscape Linux flaw allows VM escape on Intel, AMD devices**: Bleeping Computer - https://www.bleepingcomputer.com/news/linux/new-januscape-linux-kernel-flaw-allows-vm-escape-on-intel-amd-devices/
+- **What Changes When Your Software Supply Chain Includes AI Writing Your Code?**: The Hacker News - https://thehackernews.com/2026/07/what-changes-when-your-software-supply.html
 - **Microsoft to enable Windows settings backup by default for orgs**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-to-enable-windows-backup-for-organizations-by-default/
 - **Suspected China-Aligned Hackers Exploit Roundcube Flaws Against Universities**: The Hacker News - https://thehackernews.com/2026/07/suspected-china-aligned-hackers-exploit.html
 - **BeyondTrust warns of critical flaws in remote access software**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/beyondtrust-warns-of-critical-flaws-in-remote-access-software/
@@ -134,9 +153,3 @@ Threat actor diversification continues with financially motivated groups like Ar
 - **New Java-Based QuimaRAT MaaS Built to Run on Windows, Linux, and macOS**: The Hacker News - https://thehackernews.com/2026/07/new-java-based-quimarat-maas-built-to.html
 - **Opera GX Flaw Let Malicious Sites Auto-Install Mods to Steal Data From Visited Pages**: The Hacker News - https://thehackernews.com/2026/07/opera-gx-flaw-let-malicious-sites-auto.html
 - **SkillCloak Lets Malicious AI Agent Skills Evade Static Scanners with Self-Extracting Packing**: The Hacker News - https://thehackernews.com/2026/07/new-skillcloak-technique-lets-malicious.html
-- **Flipper Zero firmware development continues with community help**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/flipper-zero-firmware-development-continues-with-community-help/
-- **JadePuffer ransomware used AI agent to automate entire attack**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/jadepuffer-ransomware-used-ai-agent-to-automate-entire-attack/
-- **U.S. Government Entity Paid Kairos $1 Million in Data-Theft Extortion Case**: The Hacker News - https://thehackernews.com/2026/07/us-government-entity-paid-kairos-group.html
-- **North Korean Hackers Publish 108 Malicious Packages and Extensions in PolinRider Campaign**: The Hacker News - https://thehackernews.com/2026/07/north-korean-hackers-publish-108.html
-- **Unpatched Flaws Disclosed in Filesystem Bundled Into Millions of Embedded Devices**: The Hacker News - https://thehackernews.com/2026/07/unpatched-flaws-disclosed-in-filesystem.html
-- **New "Bad Epoll" Linux Kernel Flaw Lets Unprivileged Users Gain Root, Hits Android**: The Hacker News - https://thehackernews.com/2026/07/new-bad-epoll-linux-kernel-flaw-lets.html
