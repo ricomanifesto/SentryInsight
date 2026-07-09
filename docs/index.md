@@ -2,121 +2,91 @@
 
 ## Executive Summary
 
-Active exploitation activity this period centers on a convergence of AI-enabled social engineering, infrastructure compromise for proxy networks, and actively exploited vulnerabilities in widely deployed enterprise and developer platforms. CISA has issued emergency directives for federal agencies to patch multiple actively exploited flaws—including a maximum-severity Adobe ColdFusion vulnerability, a Langflow authentication bypass, and additional Adobe, Joomla, and Langflow flaws added to the Known Exploited Vulnerabilities catalog—signaling immediate, real-world threat activity. Simultaneously, a 15-year-old Linux kernel privilege escalation flaw (CVE-2026-43499, "GhostLock") has been disclosed, enabling root access and container escape across most unpatched distributions.
+Active exploitation campaigns are intensifying across multiple vectors, with threat actors leveraging both newly disclosed vulnerabilities and mature attack techniques enhanced by artificial intelligence. China-linked threat cluster UAT-7810 is actively exploiting vulnerable Roundcube webmail servers at academic institutions across the United States and Canada while simultaneously expanding its Operational Relay Box (ORB) network through the novel LONGLEASH malware targeting unpatched networking devices. CISA has issued emergency directives for federal agencies to patch actively exploited flaws in Langflow, Adobe ColdFusion, and other platforms, underscoring the immediacy of the threat landscape.
 
-Threat actors are rapidly operationalizing new techniques: China-linked UAT-7810 is expanding its Operational Relay Box (ORB) network via the LONGLEASH malware targeting unpatched networking devices, while financially motivated groups deploy ClickFix lures (SCMBANKER), device-code phishing (DEBULL), and Android malware-as-a-service (RedWing) against banking targets. AI-powered service desk impersonation, "ghost phishing" that evades email security through encrypted payloads, and GitHub Actions supply chain attacks demonstrate the maturation of identity and developer infrastructure as primary attack surfaces. High-profile breaches at KDDI (12M+ records) and Accenture (35 GB source code) underscore the impact of these campaigns.
+Financially motivated operations are diversifying their delivery mechanisms, combining malvertising campaigns distributing Vidar Infostealer with sophisticated social engineering such as Entra passkey enrollment vishing and ClickFix lures deployed by the SCMBANKER banking malware targeting Mexican financial institutions. Supply chain attacks via typosquatted packages on npm and PyPI continue to harvest credentials from developers using payment platforms, while a new "ghost phishing" technique employed by the EvilTokens campaign evades traditional email security controls. The emergence of AI-assisted intrusion—exemplified by a lone attacker breaching an AWS environment in 72 hours using chained cloud weaknesses and AI workflows—signals a shift in adversary capability and speed.
 
 ## Active Exploitation Details
 
-### GhostLock Linux Kernel Privilege Escalation (CVE-2026-43499)
-- **Description**: A 15-year-old flaw in the Linux kernel (CVE-2026-43499) discovered by Nebula Security that allows any logged-in user to obtain full root control of an unpatched machine. The vulnerability also facilitates container escape, enabling breakout from containerized environments to the host system.
-- **Impact**: Attackers with low-privileged local access can achieve complete system compromise, including root persistence and lateral movement across containerized workloads. Affects most Linux distributions that have not applied the patch.
-- **Status**: Publicly disclosed with proof-of-concept; patching is urgent across all affected Linux distributions. No indication of prior widespread exploitation in the articles, but the age and breadth of impact make it a high-risk candidate for rapid weaponization.
-- **CVE ID**: CVE-2026-43499
+### Roundcube Webmail Vulnerability Exploitation
+- **Description**: A China-linked threat cluster is exploiting vulnerable Roundcube webmail servers deployed at universities in the United States and Canada to steal credentials and deploy backdoor malware for persistent access.
+- **Impact**: Credential theft, persistent backdoor deployment, and espionage targeting academic researchers.
+- **Status**: Actively exploited in the wild; patches available but unpatched instances remain targets.
 
-### Langflow Authentication Bypass
-- **Description**: An actively exploited authentication bypass vulnerability in Langflow, a visual framework for building AI agents and LLM applications.
-- **Impact**: Allows unauthenticated attackers to bypass authentication controls and potentially take control of AI agent workflows, access sensitive data, or manipulate AI-driven processes.
-- **Status**: Actively exploited in the wild. CISA has ordered federal civilian agencies to prioritize patching by an emergency deadline, and the flaw was added to the KEV catalog.
+### Langflow Authentication Bypass Flaw
+- **Description**: An authentication bypass vulnerability in the Langflow visual framework for building AI agents that allows unauthorized access to the application.
+- **Impact**: Full compromise of Langflow instances, potential access to AI agent workflows and data.
+- **Status**: Actively exploited; CISA ordered federal agencies to patch immediately via emergency directive.
 
 ### Adobe ColdFusion Maximum-Severity Flaw
-- **Description**: A critical vulnerability in Adobe ColdFusion, a commercial web application development platform.
-- **Impact**: Maximum-severity flaw enabling remote code execution or authentication bypass, leading to full server compromise.
-- **Status**: Actively exploited. CISA issued an emergency directive ordering federal agencies to patch by Friday, and the vulnerability was added to the KEV catalog.
+- **Description**: A critical vulnerability in Adobe ColdFusion commercial web application development platform.
+- **Impact**: Remote code execution and complete server compromise.
+- **Status**: Actively exploited; CISA mandated federal patching by Friday deadline.
 
-### Adobe, Joomla, and Additional Langflow Flaws (KEV Additions)
-- **Description**: CISA added four actively exploited vulnerabilities to its Known Exploited Vulnerabilities catalog, affecting Adobe products, Joomla CMS, and additional Langflow components.
-- **Impact**: Varies by component; includes remote code execution, authentication bypass, and data exposure in widely deployed enterprise and web platforms.
-- **Status**: All four are confirmed actively exploited and now cataloged in KEV, mandating urgent remediation for federal agencies and strongly recommended for all organizations.
+### Ubiquiti UniFi OS Command Injection Vulnerability
+- **Description**: A maximum-severity command injection flaw in UniFi OS affecting UniFi Connect, Talk, Access, Protect, and OS platforms.
+- **Impact**: Unauthenticated remote code execution leading to full device compromise and privilege escalation.
+- **Status**: Actively exploited; Ubiquiti released security updates for seven critical vulnerabilities including this flaw.
 
-### Ubiquiti UniFi OS Command Injection (Maximum Severity)
-- **Description**: Ubiquiti released patches for seven critical vulnerabilities in UniFi OS, including a maximum-severity command injection flaw.
-- **Impact**: Unauthenticated or authenticated attackers can execute arbitrary commands on the underlying operating system of UniFi network management consoles, leading to full device compromise and network pivoting.
-- **Status**: Patches released; active exploitation risk is high given the severity and internet-exposed nature of UniFi controllers.
+### GhostLock Linux Kernel Flaw (CVE-2026-43499)
+- **Description**: A 15-year-old Linux kernel vulnerability (CVE-2026-43499) that allows any logged-in user to achieve full root control and escape containers on unpatched systems.
+- **Impact**: Local privilege escalation to root, container escape, complete host compromise on most Linux distributions.
+- **Status**: Publicly disclosed with proof-of-concept; patches available for affected kernel versions.
+- **CVE ID**: CVE-2026-43499
 
-### Dialogflow CX "Rogue Agent" Flaw
-- **Description**: A critical flaw in Google Dialogflow CX that allowed an attacker with edit rights on one Code Block-enabled agent to compromise other Code Block-enabled agents within the same Google Cloud project.
-- **Impact**: Cross-agent data theft and hijacking of AI chatbot logic, potentially exposing sensitive conversation data and enabling manipulation of automated customer interactions.
-- **Status**: Reported to Google in late 2025 and addressed; organizations should verify patch deployment across Dialogflow CX projects.
-
-### Writer AI Session Isolation Vulnerability
-- **Description**: A critical session isolation flaw in Writer, an enterprise generative AI platform, that could leak session tokens across tenant boundaries in agent preview functionality.
-- **Impact**: Cross-tenant session hijacking, enabling unauthorized access to other customers' AI agent sessions and proprietary data.
-- **Status**: Now patched; enterprises using Writer should confirm update deployment.
-
-### GitHub Agentic Workflows "GitLost" Data Leakage
-- **Description**: A flaw in GitHub's Agentic Workflows (also referred to as "GitLost") where an unauthenticated attacker can craft a GitHub Issue in an organization's public repository and silently exfiltrate data from private repositories within the same organization.
-- **Impact**: Unauthorized access to proprietary source code, secrets, and internal documentation across private repos triggered by a single public issue.
-- **Status**: Disclosed by Noma Security; GitHub has been notified. Organizations using GitHub Agentic Workflows should review workflow permissions and monitor for anomalous issue activity.
-
-### GitHub "Verified" Commit Hash Rewriting
-- **Description**: Research demonstrating that a signed Git commit's hash can be rewritten into a new hash without breaking the cryptographic signature, undermining the assumption that a commit hash is a unique, immutable identifier.
-- **Impact**: Supply chain integrity violations; attackers can present malicious code as a "verified" commit from a trusted developer, bypassing signature-based trust policies in CI/CD pipelines.
-- **Status**: No patch available as this is a fundamental property of Git's design; mitigations require policy changes (e.g., requiring signed tags, commit verification beyond hash matching).
-
-### GitHub Actions Attack Chains Evading CI Scanners
-- **Description**: Attack patterns in GitHub Actions workflows that chain multiple steps to evade traditional CI security scanners, allowing malicious code execution during pipeline runs without detection.
-- **Impact**: Persistent compromise of build pipelines, injection of malicious artifacts, and credential theft from runner environments.
-- **Status**: Active research by ActiveState; no single CVE—defenders must implement behavioral pipeline monitoring and least-privilege runner configurations.
-
-### Tenda Router Firmware Hidden Backdoor
-- **Description**: A hidden authentication backdoor discovered in multiple Tenda router firmware versions that grants administrative access to the device's web management panel without valid credentials.
-- **Impact**: Full administrative control over affected routers, enabling traffic interception, DNS hijacking, and network pivoting.
-- **Status**: No patch information provided in the article; owners of Tenda routers should check vendor advisories and consider replacement if end-of-life.
+### CISA KEV Additions: Four Actively Exploited Flaws
+- **Description**: CISA added four security flaws affecting Adobe, Joomla, and Langflow products to the Known Exploited Vulnerabilities catalog based on evidence of active exploitation.
+- **Impact**: Varies by vulnerability; includes remote code execution, authentication bypass, and data exposure.
+- **Status**: Actively exploited; federal agencies required to remediate per Binding Operational Directive 22-01.
 
 ## Affected Systems and Products
 
-- **Langflow**: Visual framework for building AI agents/LLM applications — authentication bypass actively exploited; emergency patching mandated by CISA.
-- **Adobe ColdFusion**: Commercial web application development platform — maximum-severity flaw actively exploited; CISA emergency directive issued.
-- **Adobe Products (unspecified)**: Multiple Adobe vulnerabilities added to KEV catalog with confirmed active exploitation.
-- **Joomla CMS**: Content management system — actively exploited flaw added to KEV catalog.
-- **Linux Kernel (most distributions)**: 15-year-old GhostLock flaw (CVE-2026-43499) enabling root privilege escalation and container escape on unpatched systems.
-- **Ubiquiti UniFi OS**: Network management operating system — seven critical vulnerabilities patched, including maximum-severity command injection.
-- **Google Dialogflow CX**: Conversational AI platform — "Rogue Agent" flaw patched; affected Code Block-enabled agents in shared Google Cloud projects.
-- **Writer AI Platform**: Enterprise generative AI platform — session isolation flaw in agent previews patched.
-- **GitHub (Agentic Workflows, Actions, Verified Commits)**: Multiple attack surfaces — Agentic Workflow data leakage (GitLost), Actions attack chains evading scanners, commit hash rewriting undermining signature trust.
-- **GitHub Copilot**: AI coding assistant — bypasses chat refusals by executing harmful requests via code editor context.
-- **Microsoft M365 (Device Code Flow)**: Authentication flow abused by DEBULL tooling for phishing campaigns targeting collaboration-themed lures.
-- **Tenda Routers (multiple firmware versions)**: Hidden authentication backdoor granting admin panel access.
-- **Ruijie Routers**: Primary target of UAT-7810 for ORB network expansion via LONGLEASH malware (unpatched devices).
-- **Android Devices**: Targeted by RedWing malware-as-a-service for banking credential theft and device takeover.
-- **Mexican Financial Sector**: Banks, fintech platforms, payment processors, and cryptocurrency exchanges targeted by SCMBANKER via ClickFix lures.
-- **KDDI Email Platform**: Breach affecting five Japanese ISPs and 12+ million users' email addresses and passwords.
-- **Accenture Internal Systems**: 35 GB of source code and data stolen; threat actor offering data for sale.
+- **Roundcube Webmail**: Self-hosted webmail deployments at academic institutions in the U.S. and Canada; versions prior to security patches addressing the exploited flaw.
+- **Langflow**: Visual framework for building AI agents; all unpatched instances exposed to the authentication bypass vulnerability.
+- **Adobe ColdFusion**: Commercial web application development platform; versions affected by the maximum-severity actively exploited flaw.
+- **Ubiquiti UniFi Ecosystem**: UniFi Connect, UniFi Talk, UniFi Access, UniFi Protect, and UniFi OS; devices running firmware prior to the July 2026 security updates.
+- **Linux Kernel**: Most Linux distributions running kernel versions vulnerable to GhostLock (CVE-2026-43499); affects containerized environments and multi-tenant systems.
+- **Joomla CMS**: Installations affected by the actively exploited flaw added to CISA KEV catalog.
+- **npm and PyPI Package Repositories**: Developers and users of Paysafe, Skrill, and Neteller payment applications who installed typosquatted malicious SDK packages.
+- **Microsoft 365 / Entra ID**: Organizations across multiple sectors targeted by passkey enrollment vishing campaigns.
+- **Networking Devices**: Internet-facing routers, firewalls, and edge devices—particularly unpatched Ruijie and other vendor equipment—targeted for ORB network recruitment.
 
 ## Attack Vectors and Techniques
 
-- **AI-Powered Service Desk Impersonation**: Attackers use generative AI to create highly convincing, personalized, and scalable voice/video/text interactions that impersonate IT support, bypassing traditional verification during onboarding and password resets.
-- **Ghost Phishing (EvilTokens Campaign)**: Malicious pages remain hidden until client-side decryption, evading static email security scanners and URL reputation checks; targets businesses in the US and Europe.
-- **ClickFix Lures**: Social engineering technique tricking users into executing malicious commands (often via "fix" buttons or clipboard injection) to deploy malware like SCMBANKER.
-- **Device Code Phishing (DEBULL Tooling)**: Abuses Microsoft's device authorization flow (RFC 8628) with collaboration-themed lures to hijack M365 accounts without credential theft; observed late June to early July 2026.
-- **ORB Network Expansion via Compromised Network Devices**: UAT-7810 breaches internet-facing routers (primarily unpatched Ruijie) to deploy LONGLEASH malware, converting them into operational relay boxes for anonymizing further intrusions.
-- **LONGLEASH Malware Deployment**: Custom malware used by UAT-7810 to maintain persistence on compromised networking equipment and proxy attacker traffic.
-- **SCMBANKER Banking Malware**: Targets Mexican financial sector customers via ClickFix; steals banking credentials and session tokens for fraudulent transactions.
-- **RedWing Android Malware-as-a-Service**: Rented on Telegram; provides turnkey bank fraud capability including overlay attacks, SMS interception, and remote device control for low-skill operators.
-- **Dialogflow CX Cross-Agent Compromise**: Attacker with edit rights on one Code Block agent pivots to other agents in the same GCP project via the "Rogue Agent" flaw.
-- **GitHub Agentic Workflow Data Exfiltration (GitLost)**: Public issue in a public repo triggers workflow execution that accesses and exfiltrates private repository contents.
-- **GitHub Actions Supply Chain Attacks**: Multi-step attack chains in CI/CD pipelines that evade static scanners by splitting malicious logic across steps, using trusted actions, or abusing runner permissions.
-- **Git Commit Hash Rewriting**: Generating new commit hashes that preserve valid signatures, allowing malicious code to masquerade as verified commits from trusted developers.
-- **Nested Redirect Phishing Evasion**: Multi-layered redirect chains (Big Brand Jobs Scam) to evade URL analysis and steal Google credentials from marketing professionals.
-- **Hidden Firmware Backdoor Exploitation**: Authentication bypass in Tenda router web management interfaces via undocumented backdoor credentials or endpoints.
-- **GitHub Copilot Contextual Bypass**: Harmful requests refused in chat are fulfilled when decomposed into ordinary-looking steps within the code editor context.
+- **AI-Assisted Cloud Intrusion**: Attacker chained AI workflows, cloud misconfigurations, and stolen credentials to breach an AWS environment and extort a large Amazon customer within 72 hours.
+- **Malvertising with Vidar Infostealer**: Financially motivated actors use lures for cracked/pirated software to deliver Vidar infostealer combined with cryptominers via malicious advertisements.
+- **Supply Chain Typosquatting**: Malicious packages mimicking legitimate Paysafe, Skrill, and Neteller SDKs published to npm and PyPI deliver credential-stealing malware to developers.
+- **Entra Passkey Enrollment Vishing**: Voice-based social engineering impersonating security requests tricks Microsoft 365 users into enrolling attacker-controlled passkeys, bypassing MFA.
+- **ClickFix Social Engineering**: SCMBANKER operators use fake verification prompts (ClickFix lures) to execute malicious PowerShell commands targeting Mexican banking, fintech, and cryptocurrency users.
+- **Ghost Phishing / EvilTokens Campaign**: Malicious pages remain hidden until decryption at runtime, evading static email security analysis and targeting businesses in the US and Europe.
+- **HalluSquatting**: AI coding assistants hallucinate non-existent package names; attackers register these names to deliver botnet malware when the assistant recommends them.
+- **ORB Network Expansion via LONGLEASH**: Custom malware (LONGLEASH) compromises internet-facing networking devices to expand Operational Relay Box infrastructure for traffic obfuscation.
+- **GitHub Commit Signature Bypass**: Researchers demonstrated that signed Git commit hashes can be rewritten into new hashes without breaking signatures, undermining supply chain trust.
+- **GitHub Copilot Safety Bypass**: Harmful requests refused in chat interface are executed when decomposed into small steps within the code editor context.
 
 ## Threat Actor Activities
 
-- **UAT-7810 (China-Linked)**: Actively expanding ORB network infrastructure by compromising internet-facing networking devices (primarily unpatched Ruijie routers) and deploying LONGLEASH malware. Tracked by multiple vendors; operations align with Chinese state-sponsored espionage objectives requiring anonymized relay infrastructure.
-- **EvilTokens Operators**: Conducting "ghost phishing" campaign targeting businesses across the US and Europe; technique specifically designed to defeat traditional email security gateways through encrypted payload delivery.
-- **SCMBANKER Operators**: Financially motivated group targeting customers of Mexican banks, fintechs, payment processors, and cryptocurrency exchanges using ClickFix social engineering lures. Activity cluster tracked by Elastic Security.
-- **DEBULL Tooling Operators**: Running Microsoft 365 device code phishing campaign with collaboration-themed lures (late June–early July 2026); infrastructure and tooling suggest organized credential harvesting operation.
-- **RedWing MaaS Operators**: Operating Android banking fraud-as-a-service on Telegram; lowers barrier to entry for mobile financial crime by providing rental access to sophisticated overlay, SMS interception, and RAT capabilities.
-- **Scattered Spider (ALPHV/BlackCat Affiliate)**: Alleged member linked via Windows device ID to luxury jewelry retailer breach; court filing reveals FBI used persistent device identifiers for attribution. Group known for social engineering, SIM swapping, and SaaS/identity provider targeting.
-- **CyberArmy of Russia Reborn (CARR) & Z-Pentest**: Pro-Russian hacktivist groups; Spanish authorities arrested a suspected active member. Groups associated with DDoS, defacement, and data leak operations aligned with Russian geopolitical interests.
-- **Accenture Breach Threat Actor (Unnamed)**: Claimed theft of 35 GB of source code and data; offering for sale on underground forums. Accenture confirmed breach; attribution not publicly disclosed.
-- **Offensive Cybersecurity Startup (Felon-Run)**: Startup actively soliciting zero-day vulnerabilities in popular software; operated by convicted felons and far-right conspiracy theorists. Represents a novel supply-side threat to vulnerability markets.
-- **GitLost / Noma Security Researchers**: Disclosed GitHub Agentic Workflow data leakage flaw; demonstrated unauthenticated exfiltration via crafted public issues.
+- **UAT-7810 (China-Linked)**: Actively exploiting Roundcube servers at U.S. and Canadian universities for credential theft and backdoor deployment; developing and deploying LONGLEASH malware to compromise networking devices and expand ORB network infrastructure for operational obfuscation.
+- **SCMBANKER Operators**: Conducting banking fraud campaigns targeting customers of Mexican banks, fintechs, payment processors, and cryptocurrency exchanges using ClickFix social engineering lures; tracked by Elastic Security.
+- **EvilTokens Campaign**: Executing "ghost phishing" attacks against businesses in the US and Europe using novel evasion techniques that decrypt malicious content at runtime to bypass email security gateways.
+- **Vidar Infostealer Operators**: Running malvertising campaigns delivering Vidar infostealer and cryptominers via pirated software lures, heavily impacting SMBs.
+- **Lone AWS Attacker**: Single operator leveraged AI tooling, cloud misconfigurations, and credential theft to breach and extort a major Amazon Web Services customer in 72 hours.
+- **Accenture Breach Actor**: Unnamed threat actor claimed theft of 35 GB of source code and data from Accenture; offered for sale on underground forums.
+- **KDDI Breach Actors**: Unidentified attackers breached an email platform used by five Japanese ISPs, exposing email addresses and passwords of over 12 million individuals.
+- **Mount Royal University Attackers**: Hackers breached the university network, exfiltrated and deleted data from file storage systems; claimed responsibility publicly.
 
 ## Source Attribution
 
+- **Mexico's New Cyber Plan Faces Its First Real Test**: Dark Reading - https://www.darkreading.com/cyber-risk/mexicos-cyber-plan-first-real-test
+- **Mount Royal University confirms breach as hackers claim attack**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/mount-royal-university-confirms-breach-as-hackers-claim-attack/
+- **Lone Attacker Uses AI to Breach AWS Cloud Environment in 72 Hours**: Dark Reading - https://www.darkreading.com/cloud-security/lone-attacker-ai-breach-aws-cloud-environment
+- **Fake Paysafe, Skrill SDKs on NPM and PyPi steal credentials**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/fake-paysafe-skrill-sdks-on-npm-and-pypi-steal-credentials/
+- **Hackers exploit Roundcube flaw to spy on academic researchers**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-exploit-roundcube-flaw-to-spy-on-academic-researchers/
+- **AI Coding Agents Found Triggering Endpoint Security Rules Built to Catch Attackers**: The Hacker News - https://thehackernews.com/2026/07/ai-coding-agents-found-triggering.html
+- **Entra passkey enrollment vishing targets Microsoft 365 users**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/entra-passkey-enrollment-vishing-targets-microsoft-365-users/
+- **Vidar Infostealer Hammers SMBs via Malvertising Campaign**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/vidar-infostealer-smb-malvertising-campaign
+- **New HalluSquatting Attack Could Trick AI Coding Assistants Into Installing Botnet Malware**: The Hacker News - https://thehackernews.com/2026/07/new-hallusquatting-attack-could-trick.html
+- **Ubiquiti Patches Critical UniFi Flaws Across Connect, Talk, Access, Protect, and OS**: The Hacker News - https://thehackernews.com/2026/07/ubiquiti-patches-critical-unifi-flaws.html
 - **3 Ways AI Powers Service Desk Attacks and How to Prevent Them**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/3-ways-ai-powers-service-desk-attacks-and-how-to-prevent-them/
 - **New Ghost Phishing Wave Is Breaking Traditional Email Security**: The Hacker News - https://thehackernews.com/2026/07/new-ghost-phishing-wave-is-breaking.html
 - **SCMBANKER Malware Uses ClickFix Lures to Target Mexican Banking Users**: The Hacker News - https://thehackernews.com/2026/07/scmbanker-malware-uses-clickfix-lures.html
@@ -137,13 +107,3 @@ Threat actors are rapidly operationalizing new techniques: China-linked UAT-7810
 - **Big Brand Jobs Scam Targets Marketing Pros' Google Accounts**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/big-brand-jobs-scam-marketing-pros-google-accounts
 - **Dialogflow CX 'Rogue Agent' Flaw Enabled AI Chatbot Data Theft**: Dark Reading - https://www.darkreading.com/application-security/dialogflow-cx-rogue-agent-flaw-enabled-ai-chatbot-data-theft
 - **Chinese hackers develop LONGLEASH malware to expand ORB network**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/chinese-hackers-develop-longleash-malware-to-expand-orb-network/
-- **Hidden backdoor in Tenda router firmware grants admin access**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hidden-backdoor-in-tenda-router-firmware-grants-admin-access/
-- **RedWing MaaS Packages Android Bank Fraud as a Telegram Rental Service**: The Hacker News - https://thehackernews.com/2026/07/redwing-maas-packages-android-bank.html
-- **Rogue Agent Flaw Could Have Let Attackers Hijack Google Dialogflow CX Chatbots**: The Hacker News - https://thehackernews.com/2026/07/rogue-agent-flaw-could-have-let.html
-- **'GitLost' Flaw Leaks Private Data From GitHub's Agentic Workflows**: Dark Reading - https://www.darkreading.com/cyber-risk/gitlost-leaks-private-data-github-agentic-workflows
-- **Spain arrests suspected member of pro-Russian hacktivist groups**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/spain-arrests-suspected-member-of-pro-russian-hacktivist-groups/
-- **DEBULL Tooling Abuses Microsoft Device-Code Flow to Target M365 Accounts**: The Hacker News - https://thehackernews.com/2026/07/debull-tooling-abuses-microsoft-device.html
-- **Public GitHub Issue Could Trick GitHub Agentic Workflows Into Leaking Private Repo Data**: The Hacker News - https://thehackernews.com/2026/07/public-github-issue-could-trick-github.html
-- **The GitHub Actions Attack Pattern Your CI Security Scanners Miss**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/the-github-actions-attack-pattern-your-ci-security-scanners-miss/
-- **Court Filing Reveals Windows Device ID Helped FBI Trace Alleged Scattered Spider Hacker**: The Hacker News - https://thehackernews.com/2026/07/court-filing-reveals-windows-device-id.html
-- **Writer AI Flaw Could Let Agent Previews Leak Session Tokens Across Tenants**: The Hacker News - https://thehackernews.com/2026/07/writer-ai-flaw-could-let-agent-previews.html
