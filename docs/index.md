@@ -2,90 +2,128 @@
 
 ## Executive Summary
 
-Active exploitation campaigns this period span cryptocurrency wallet drainage, supply chain compromise, ransomware evolution with kernel-level defense evasion, and identity-focused attacks against Microsoft 365 environments. The most critical vulnerability is CVE-2026-50656 (RoguePlanet), a Windows Defender zero-day granting SYSTEM privileges that was publicly exploited before Microsoft's July patch. Simultaneously, the "Ill Bloom" flaw in cryptocurrency wallet recovery phrase generation has enabled $3.1 million in theft, while a supply chain attack on the Injective SDK npm package demonstrates ongoing risks in software dependencies.
+Active exploitation activity has surged across multiple fronts in July 2026, with threat actors targeting critical infrastructure, software supply chains, cryptocurrency infrastructure, and identity systems. China-linked group Silver Fox has deployed a new Rust-based remote access trojan called MODBEACON that leverages gRPC streaming for encrypted command-and-control, while a new data-extortion group named Helix is conducting voice phishing and device code phishing campaigns against SharePoint environments. Perhaps most critically, researchers have demonstrated an unpatchable laser fault-injection attack against Tangem hardware wallets, and attackers are actively exploiting a cryptographic flaw dubbed "Ill Bloom" in wallet recovery phrase generation to drain millions in cryptocurrency.
 
-Ransomware operators continue advancing defense evasion techniques, with the GodDamn family employing a Microsoft-signed PoisonX kernel driver (BYOVD) to disable endpoint protections across U.S. targets. Identity-based attacks have surged through new phishing-as-a-service platforms like Forg365, which combines adversary-in-the-middle and device code phishing with AI-generated lures, while the Helix data-extortion group leverages vishing and MFA abuse for SharePoint data theft. Reconnaissance campaigns systematically enumerate corporate GitHub organizations via dormant accounts and the GitHub API, and attackers are exploiting AI gateways to access cloud infrastructure and cryptomining resources.
+Simultaneously, multiple zero-day and recently disclosed vulnerabilities are under active exploitation. A Windows Defender zero-day tracked as RoguePlanet has had proof-of-concept code published by researcher Nightmare-Eclipse, while hackers are actively exploiting a critical authentication bypass in the official Gitea Docker image that allows full administrator impersonation. Progress Software has issued an emergency directive for ShareFile Storage Zone Controller administrators to immediately shut down servers due to a credible active threat. The XQUIC library contains an unpatched "XRING" flaw allowing remote HTTP/3 server crashes, and Zimbra has released patches for a critical cross-site scripting vulnerability in its Classic Web Client.
+
+Supply chain attacks remain a dominant vector, with the Injective Labs SDK compromised via GitHub to deliver a malicious npm package stealing cryptocurrency wallet keys, and the WP-SHELLSTORM campaign exposed after operators left a command server unsecured—revealing thousands of backdoored WordPress sites. Iranian threat actors have expanded targeting beyond critical infrastructure, while multiple overlapping campaigns are systematically enumerating corporate GitHub organizations through the API using dormant accounts. Healthcare service providers have seen attacks more than double in the first half of 2026, signaling a strategic shift toward the extended healthcare ecosystem.
 
 ## Active Exploitation Details
 
-### Ill Bloom Cryptocurrency Wallet Vulnerability
-- **Description**: A flaw in how certain cryptocurrency wallet software generates recovery phrases (seed mnemonics). The vulnerability allows attackers to predict or derive recovery phrases, granting full control over victims' wallets and funds.
-- **Impact**: Attackers have drained approximately $3.1 million from compromised cryptocurrency wallets. Victims lose complete control of their crypto assets with no recovery mechanism.
-- **Status**: Actively exploited in the wild. Disclosed by security firm Coinspect. Patch status varies by wallet vendor; users should verify their wallet software has been updated.
+### Gitea Docker Image Authentication Bypass
+- **Description**: A critical vulnerability in the official Docker image for the Gitea self-hosted Git service allows attackers to bypass authentication and impersonate any user, including administrators. The flaw resides in the Docker image configuration rather than the core Gitea application code.
+- **Impact**: Attackers can gain full administrative control over affected Gitea instances, access all repositories, modify code, inject malicious commits, and pivot to connected CI/CD pipelines and infrastructure.
+- **Status**: Actively exploited in the wild. Users of the official Gitea Docker image should immediately update to a patched image version and rotate all credentials.
 
-### RoguePlanet Windows Defender Zero-Day (CVE-2026-50656)
-- **Description**: A vulnerability in Windows Defender that allows local privilege escalation to SYSTEM privileges. The flaw was publicly disclosed by researcher "Nightmare-Eclipse" who published a proof-of-concept exploit in early June 2026, alongside several other Microsoft zero-days.
-- **Impact**: Attackers can escalate from standard user to SYSTEM privileges, achieving full control over the affected Windows system. This enables defense evasion, persistence, and deployment of additional payloads.
-- **Status**: Microsoft released a security patch in July 2026, nearly one month after public disclosure and PoC availability. The vulnerability was actively exploited as a zero-day prior to patching.
-- **CVE ID**: CVE-2026-50656
+### Windows Defender RoguePlanet Zero-Day
+- **Description**: A zero-day vulnerability in Windows Defender (tracked as RoguePlanet) for which researcher "Nightmare-Eclipse" published a proof-of-concept exploit in early June 2026. This follows the researcher's disclosure of several other Microsoft zero-days.
+- **Impact**: The vulnerability allows attackers to bypass or disable Windows Defender protections, enabling subsequent malware deployment and persistence on compromised endpoints.
+- **Status**: PoC publicly available; active exploitation likely. Microsoft has acknowledged the threat and is working on mitigations.
 
-### Injective SDK npm Supply Chain Attack
-- **Description**: Attackers compromised the Injective Labs SDK project's GitHub repository and published a malicious package to the npm registry. The package contains a cryptocurrency wallet stealer that exfiltrates private keys and mnemonic phrases.
-- **Impact**: Developers and projects incorporating the compromised Injective SDK package inadvertently install malware that steals cryptocurrency wallet credentials, leading to unauthorized fund transfers.
-- **Status**: Active supply chain compromise. The malicious package was distributed via npm; affected developers must rotate all exposed keys and audit dependencies.
+### Ill Bloom Cryptocurrency Wallet Flaw
+- **Description**: A cryptographic vulnerability in how certain wallet software generates recovery phrases (seed mnemonics), disclosed by security firm Coinspect and dubbed "Ill Bloom." The flaw creates predictable or weak entropy in seed generation.
+- **Impact**: Attackers can brute-force or predict recovery phrases, gaining full control over affected cryptocurrency wallets. Over $5 million has already been drained from victim wallets.
+- **Status**: Actively exploited at scale. Wallet vendors using vulnerable generation libraries must patch immediately; users should migrate funds to wallets with verified secure entropy sources.
 
-### GodDamn Ransomware with PoisonX BYOVD
-- **Description**: A new ransomware family (GodDamn) that employs a Bring Your Own Vulnerable Driver (BYOVD) technique using the PoisonX kernel driver. Notably, the malicious driver was signed by Microsoft, allowing it to load and neutralize security software.
-- **Impact**: Ransomware operators disable endpoint detection and response (EDR) and antivirus solutions, then encrypt data and extort victims. Campaigns have targeted U.S. companies.
-- **Status**: Actively deployed in ransomware attacks. Microsoft's signing of the malicious driver represents a significant supply chain trust failure; revocation and detection challenge.
+### XRING Flaw in XQUIC HTTP/3 Library
+- **Description**: A single incorrect variable in XQUIC (Alibaba's QUIC and HTTP/3 library) allows any remote client to crash the server with a short burst of completely valid traffic. The flaw is triggered by legitimate protocol messages.
+- **Impact**: Denial of service against any service using XQUIC for HTTP/3, including web servers, API gateways, and load balancers. No authentication or special privileges required.
+- **Status**: Unpatched as of publication. No workaround available other than disabling HTTP/3 or switching libraries. FoxIO researchers disclosed the vulnerability.
 
-### GigaWiper Windows Backdoor
-- **Description**: A destructive Windows backdoor analyzed by Microsoft that combines three older destructive programs into a single modular tool. It offers disk wiping, fake ransomware encryption, and spyware capabilities as selectable commands.
-- **Impact**: Provides attackers with flexible destructive capabilities—data destruction, ransomware-style encryption for extortion, and persistent espionage access—all from one implant.
-- **Status**: Active malware family observed in the wild. Microsoft has published analysis; detection signatures and behavioral indicators available.
+### Zimbra Classic Web Client Cross-Site Scripting
+- **Description**: A critical cross-site scripting (XSS) vulnerability affecting the Classic Web Client of the Zimbra Collaboration Suite. The flaw allows malicious script execution in the context of authenticated users.
+- **Impact**: Attackers can hijack user sessions, steal credentials, access emails and attachments, and perform actions as the victim user within the Zimbra environment.
+- **Status**: Patch available. Zimbra security team has urged all customers to apply updates immediately.
 
-### Helix Data-Extortion Group Operations
-- **Description**: A newly identified data-extortion group (Helix) conducting identity-focused attacks against Microsoft SharePoint environments. The group uses voice phishing (vishing), device code phishing, and multi-factor authentication (MFA) abuse/fatigue techniques.
-- **Impact**: Unauthorized access to SharePoint data repositories, leading to data theft and extortion. Bypasses MFA protections through social engineering and protocol abuse.
-- **Status**: Active campaign observed targeting organizations using Microsoft 365/SharePoint.
+### OpenClaw AI Assistant Vulnerability Chain
+- **Description**: Three security flaws in the OpenClaw personal AI assistant that, when chained together, enable credential theft and privilege escalation from a compromised WhatsApp integration to the host system. The vulnerabilities have been patched.
+- **Impact**: Full compromise of the host system running OpenClaw, including access to local files, clipboard, and other integrated services.
+- **Status**: Patched in recent versions. Organizations using OpenClaw should verify they are on a fixed release.
 
-### Forg365 Phishing-as-a-Service Platform
-- **Description**: A new PhaaS operation (Forg365) targeting Microsoft 365 accounts. It combines adversary-in-the-middle (AiTM) phishing and device code authentication flows with AI-assisted lure generation for highly convincing credential harvesting.
-- **Impact**: Compromise of Microsoft 365 account credentials and session tokens, enabling business email compromise, data access, and further lateral movement.
-- **Status**: Active PhaaS platform available to threat actors; campaigns actively targeting organizations.
+### Tangem Wallet Laser Fault Injection
+- **Description**: Researchers at Ledger's Donjon security team demonstrated that a precisely timed laser pulse aimed at the secure element chip inside a Tangem hardware wallet card can reset the card's password to an attacker-chosen value.
+- **Impact**: Physical attackers with brief access to a Tangem card can bypass all PIN protection and gain full control of the wallet's private keys and funds.
+- **Status**: Unpatchable hardware flaw. The attack requires physical access and specialized equipment but leaves no trace. Tangem users must rely on physical security controls.
+
+### ShareFile Storage Zone Controller Emergency
+- **Description**: Progress Software has identified a "credible external security threat" targeting ShareFile customers who use Storage Zone Controllers, urging immediate server shutdown.
+- **Impact**: Potential full compromise of file storage and sharing infrastructure, with access to sensitive documents and data shared through ShareFile.
+- **Status**: Active threat ongoing. Progress has not yet released detailed technical information; administrators are directed to shut down controllers until patches are available.
+
+### Injective SDK Supply Chain Compromise
+- **Description**: Attackers compromised the Injective Labs SDK project's GitHub repository and published a malicious version to npm containing a cryptocurrency wallet stealer that exfiltrates private keys and mnemonics.
+- **Impact**: Any project or developer installing the compromised Injective SDK package has their cryptocurrency wallet credentials stolen. The malicious package was available on npm for an undisclosed period.
+- **Status**: Malicious package identified and reported. Injective Labs is investigating the GitHub compromise. Affected developers must rotate all wallet credentials.
+
+### WP-SHELLSTORM WordPress Backdoor Campaign
+- **Description**: A cybercrime operation backdooring thousands of WordPress sites, exposed when operators left a command-and-control server unsecured on the internet for three weeks. The exposed server revealed hacking tools, activity logs, and target lists.
+- **Impact**: Persistent access to compromised WordPress sites, enabling data theft, SEO spam, malware distribution, and lateral movement to hosting infrastructure.
+- **Status**: Campaign infrastructure exposed and likely disrupted. Thousands of sites require forensic investigation and cleanup.
 
 ## Affected Systems and Products
 
-- **Windows Defender / Microsoft Defender Antivirus**: Vulnerable to CVE-2026-50656 (RoguePlanet) on unpatched Windows systems; grants SYSTEM privileges via local exploitation.
-- **Cryptocurrency Wallet Software (Multiple Vendors)**: Affected by Ill Bloom recovery phrase generation flaw; specific wallet applications not named in disclosure but flaw class affects implementations using vulnerable entropy/derivation methods.
-- **Injective Labs SDK / npm Package `injective-sdk`**: Compromised GitHub repository led to malicious npm publishes; all versions published during compromise window are affected.
-- **Windows Operating Systems**: Targeted by GigaWiper backdoor and GodDamn ransomware (which uses PoisonX driver on Windows).
-- **Microsoft 365 / SharePoint / Entra ID**: Targeted by Helix group (vishing, device code phishing, MFA abuse) and Forg365 PhaaS (AiTM, device code, AI lures).
-- **GitHub Organizations and Repositories**: Enumerated via GitHub API using dormant/compromised accounts for reconnaissance across corporate organizations.
-- **AI Gateways / Cloud Infrastructure / IAM Systems**: Exploited for unauthorized access to AI models, cloud resources, and identity data; leveraged for cryptomining campaigns.
-- **AI Coding Agents / Development Environments**: Proof-of-concept demonstrates that AI agents designed to scan code for vulnerabilities can be tricked into executing malicious code on the host machine.
+- **Gitea Docker Image**: Official Docker Hub images prior to patched version; all self-hosted Git service deployments using containerized Gitea
+- **Windows Defender**: All supported Windows versions with Windows Defender enabled; RoguePlanet zero-day affects core antimalware engine
+- **Cryptocurrency Wallets**: Multiple wallet applications using vulnerable seed phrase generation libraries; specific vendors not yet fully enumerated
+- **XQUIC Library**: Alibaba's QUIC/HTTP/3 library; all services and applications embedding XQUIC for HTTP/3 support
+- **Zimbra Collaboration Suite**: Classic Web Client component; all versions prior to security patch release
+- **OpenClaw AI Assistant**: All versions prior to the patched release addressing the three chained vulnerabilities
+- **Tangem Hardware Wallets**: All Tangem card models; hardware-level flaw cannot be patched via firmware update
+- **Progress ShareFile Storage Zone Controllers**: On-premises storage controller components; all versions pending emergency patch
+- **Injective Labs SDK**: npm package versions published during compromise window; projects using @injectivelabs/sdk or related packages
+- **WordPress Sites**: Thousands of sites compromised by WP-SHELLSTORM backdoors; exact versions and plugins exploited not fully disclosed
+- **Microsoft BitLocker Security Wrapper**: ATM and embedded systems relying on the vulnerable wrapper component; specific versions under investigation
+- **Corporate GitHub Organizations**: All organizations with public repositories or accessible API endpoints; campaigns enumerate users, repos, and permissions
 
 ## Attack Vectors and Techniques
 
-- **Recovery Phrase Prediction/Derivation (Ill Bloom)**: Exploits insufficient entropy or flawed implementation in BIP-39 mnemonic generation, allowing attackers to reconstruct wallet seeds.
-- **Local Privilege Escalation via Windows Defender (CVE-2026-50656)**: Exploits a Defender component flaw to escalate from standard user to SYSTEM; PoC publicly available pre-patch.
-- **Software Supply Chain Compromise (GitHub → npm)**: Attackers gain write access to a legitimate project's GitHub repository, inject malicious code, and publish to npm for downstream consumption.
-- **Bring Your Own Vulnerable Driver (BYOVD) with PoisonX**: Malicious but Microsoft-signed kernel driver loads legitimately, then exploits vulnerable driver patterns to kill security processes (EDR/AV).
-- **Multi-Module Destructive Malware (GigaWiper)**: Single backdoor bundles disk wiper, fake ransomware encryptor, and spyware; operators select capability per objective.
-- **Voice Phishing (Vishing)**: Helix group uses phone-based social engineering to manipulate victims into approving authentication requests or disclosing credentials.
-- **Device Code Phishing**: Abuses OAuth device authorization flow (RFC 8628) to trick users into authorizing attacker-controlled sessions on legitimate identity providers.
-- **MFA Fatigue / Abuse**: Repeated MFA push notifications or exploitation of MFA protocol weaknesses to wear down victim resistance or bypass controls.
-- **Adversary-in-the-Middle (AiTM) Phishing**: Forg365 proxies authentication through attacker infrastructure, capturing credentials and session cookies in real time.
-- **AI-Assisted Lure Generation**: Automated creation of highly personalized, context-aware phishing content at scale using large language models.
-- **GitHub API Reconnaissance via Dormant Accounts**: Attackers leverage inactive but valid GitHub accounts to enumerate organizations, repositories, and members without triggering anomaly detection.
-- **AI Gateway Exploitation for Resource Hijacking**: Compromised AI gateway credentials provide access to hosted models, cloud compute, and IAM data; used for cryptomining and lateral movement.
-- **AI Coding Agent Code Execution**: Malicious code embedded in repositories tricks AI security-scanning agents into executing payloads during analysis runs.
+- **Authentication Bypass via Container Misconfiguration**: Exploitation of the Gitea Docker image flaw leverages improper default configuration in the official container image to bypass authentication entirely without credential theft.
+- **Zero-Day Exploitation with Public PoC**: The RoguePlanet Windows Defender vulnerability demonstrates the danger of researcher-published proof-of-concept code for unpatched zero-days, enabling rapid weaponization by threat actors.
+- **Cryptographic Entropy Weakness Exploitation**: Ill Bloom attacks target weak randomness in BIP-39 seed phrase generation, allowing offline brute-force recovery of wallet mnemonics without interacting with the target system.
+- **Protocol-Level Denial of Service**: The XRING flaw exploits a logic error in QUIC connection handling, allowing valid HTTP/3 packets to trigger server crashes—no malformed packets or amplification required.
+- **Cross-Site Scripting in Webmail Clients**: Zimbra's Classic Web Client XSS enables session hijacking through malicious emails or shared content, a classic but highly effective vector in collaboration platforms.
+- **AI Assistant Privilege Escalation Chains**: The OpenClaw vulnerabilities demonstrate how integrated AI assistants with broad system access can become privilege escalation pathways when parsing untrusted input from messaging platforms.
+- **Laser Fault Injection Against Secure Elements**: The Tangem attack uses precise electromagnetic fault injection (laser glitching) to manipulate secure element state during password verification, bypassing hardware protections.
+- **Supply Chain Compromise via CI/CD and Package Registries**: Both the Injective SDK and WP-SHELLSTORM campaigns show attackers targeting developer infrastructure—GitHub repositories and npm—to distribute malicious code to downstream users.
+- **Voice Phishing (Vishing) for Identity Compromise**: Helix group and the Entra passkey enrollment campaign use telephone-based social engineering to trick users into approving MFA requests or enrolling attacker-controlled authenticators.
+- **Device Code Phishing and MFA Abuse**: Attackers exploit OAuth device authorization flows and MFA fatigue to gain access to SharePoint and Microsoft 365 environments without credential theft.
+- **GitHub API Enumeration via Dormant Accounts**: Multiple campaigns use compromised or dormant GitHub accounts to quietly map organizational structure, repositories, and team memberships through legitimate API calls.
+- **gRPC Streaming for Encrypted C2**: Silver Fox's MODBEACON RAT uses gRPC bidirectional streaming to blend command-and-control traffic with legitimate microservice communication, evading network inspection.
 
 ## Threat Actor Activities
 
-- **Nightmare-Eclipse (Researcher/Operator)**: Published proof-of-concept exploits for multiple Microsoft zero-days in June 2026, including RoguePlanet (CVE-2026-50656). Activity blurred line between research disclosure and weaponization.
-- **BlackCat / ALPHV Ransomware Gang**: Although the group is described as "now-defunct," a former DigitalMint ransomware negotiator was sentenced to 70 months for conspiring with BlackCat operators in attacks against U.S. companies, confirming the group's prior extensive victimology.
-- **GodDamn Ransomware Operators**: New ransomware family actively targeting U.S. companies using BYOVD (PoisonX driver) for defense evasion. Represents evolution in ransomware tooling leveraging code-signing abuse.
-- **Helix Data-Extortion Group**: Newly emerged group specializing in identity-centric attacks (vishing, device code phishing, MFA abuse) against Microsoft 365/SharePoint for data theft and extortion.
-- **Forg365 PhaaS Operators**: Run a phishing-as-a-service platform targeting Microsoft 365 with AiTM, device code flows, and AI-generated lures; service lowers barrier for credential theft campaigns.
-- **GitHub Enumeration Campaign Operators (Unknown)**: Datadog Security Labs identified "several overlapping campaigns" systematically mapping corporate GitHub organizations via dormant accounts and API access; attribution not publicly assigned.
-- **Injective SDK Supply Chain Attackers (Unknown)**: Compromised Injective Labs' GitHub repository to inject wallet-stealing malware into npm packages; infrastructure and actor identity not disclosed.
-- **Iranian State-Sponsored Actors**: Dark Reading reports Iran's cyber operations expanding beyond critical infrastructure to any organization with Internet-facing vulnerabilities; broad opportunistic targeting posture.
-- **AI Gateway Cryptomining Actors (Unknown)**: Exploited exposed AI gateway credentials to access cloud infrastructure for cryptomining, demonstrating secondary abuse of AI/ML platform access.
+- **Silver Fox (China-linked cybercrime group)**: Deploying MODBEACON, a new Rust-based RAT using gRPC streaming for encrypted C2. QiAnXin attributes this group to the campaign. MODBEACON combines remote access, file operations, and shell capabilities in a modern framework designed for stealth.
+- **Helix (new data-extortion group)**: Conducting vishing, device code phishing, and MFA abuse campaigns targeting SharePoint data theft. Focuses on identity-centric tactics rather than vulnerability exploitation, using social engineering to gain legitimate access.
+- **Nightmare-Eclipse (independent researcher)**: Publishing proof-of-concept exploits for multiple Microsoft zero-days including the RoguePlanet Windows Defender vulnerability. Activity suggests either responsible disclosure pressure or not-for-profit vulnerability research.
+- **WP-SHELLSTORM Operators (cybercrime crew)**: Backdooring thousands of WordPress sites for persistent access. Exposed after leaving C2 server unsecured, revealing tools including automated exploitation frameworks, credential harvesters, and target lists spanning multiple industries.
+- **BlackCat/ALPHV Ransomware Affiliates**: Former DigitalMint negotiator sentenced to 70 months for participating in BlackCat attacks. Indicates ongoing law enforcement pressure on ransomware ecosystem, though affiliates continue operating under new brands.
+- **Iranian Threat Actors (state-sponsored)**: Expanding targeting beyond critical infrastructure to broader internet-facing organizations. Dark Reading reports "multiple threats" exploiting any available vulnerability in internet-exposed assets.
+- **Dutch Hackers (suspected in Odido breach)**: Dutch National Police have "strong indications" of Dutch national involvement in the February 2026 breach of telecommunications provider Odido. Investigation ongoing.
+- **GigaWiper Operators (unattributed)**: Deploying a destructive Windows backdoor combining disk wiping, fake ransomware, and spyware modules. Microsoft analysis reveals three older destructive programs bolted together, suggesting code reuse from prior campaigns.
+- **Injective SDK Compromise Actors (unattributed)**: Compromised GitHub repository to inject malicious code into npm package. Sophisticated supply chain attack targeting cryptocurrency developers and projects.
+- **Multiple Overlapping GitHub Enumeration Campaigns (unattributed)**: Datadog Security Labs identifies "several overlapping campaigns" systematically mapping corporate GitHub organizations using dormant accounts. Attribution not established; likely multiple actors conducting reconnaissance.
 
 ## Source Attribution
 
-- **Attackers Exploit 'Ill Bloom' Vulnerability to Drain $3.1 Million From Cryptocurrency Wallets**: The Hacker News - https://thehackernews.com/2026/07/attackers-exploit-ill-bloom.html
+- **Cybercriminals Flock to Healthcare Businesses as Attacks Surge**: Dark Reading - https://www.darkreading.com/threat-intelligence/cybercriminals-healthcare-businesses-attacks-surge
+- **Police suspects Dutch hackers were involved in Odido breach**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/police-suspects-dutch-hackers-were-involved-in-odido-breach/
+- **Progress urges ShareFile admins to shut down servers over “credible” threat**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/progress-urges-sharefile-customers-to-shut-down-servers-over-credible-threat/
+- **Hackers exploit critical auth bypass in Gitea Docker image**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-exploit-critical-auth-bypass-in-gitea-docker-image/
+- **Money launderer accused of stealing seized crypto while in prison**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/money-launderer-accused-of-stealing-seized-crypto-while-in-prison/
+- **Laser Attack Resets Tangem Wallet Passwords on Cards That Can't Be Patched**: The Hacker News - https://thehackernews.com/2026/07/laser-attack-resets-tangem-wallet.html
+- **Researcher Details WhatsApp-to-Host Attack Chain Using Three OpenClaw Flaws**: The Hacker News - https://thehackernews.com/2026/07/researcher-details-whatsapp-to-host.html
+- **The Replicant in Your Directory: AI Agents and the Identity Security Gap**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/the-replicant-in-your-directory-ai-agents-and-the-identity-security-gap/
+- **Fresh ATM Crypto Software Bugs: Jackpot or Bust?**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/atm-crypto-software-bugs-jackpot-bust
+- **More Countries Jump on the Social Media Ban Wagon**: Dark Reading - https://www.darkreading.com/cyber-risk/more-countries-jump-on-the-social-media-ban-wagon
+- **New MODBEACON RAT Uses gRPC Streaming for Encrypted C2 Traffic**: The Hacker News - https://thehackernews.com/2026/07/new-modbeacon-rat-uses-grpc-streaming.html
+- **AI Coding: Do Security Risks Outweigh Productivity Gains?**: Dark Reading - https://www.darkreading.com/application-security/ai-coding-security-risks-productivity-gains
+- **Unpatched XRING Flaw in XQUIC Lets Remote Clients Crash HTTP/3 Servers**: The Hacker News - https://thehackernews.com/2026/07/unpatched-xring-flaw-in-xquic-lets.html
+- **Zimbra urges customers to patch critical web client XSS flaw**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/zimbra-urges-customers-to-patch-critical-web-client-xss-flaw/
+- **From 17,000 to 1.1 Million Assets: How Lumen Technologies Rebuilt Exposure Management at Scale**: The Hacker News - https://thehackernews.com/2026/07/from-17000-to-11-million-assets-how.html
+- **Exposed Hacker Server Reveals WP-SHELLSTORM Backdooring Thousands of WordPress Sites**: The Hacker News - https://thehackernews.com/2026/07/exposed-hacker-server-reveals-wp.html
+- **Study of 281 Free Android VPN Apps Finds Traffic Leaks, Unencrypted Data, and Tracking**: The Hacker News - https://thehackernews.com/2026/07/study-of-281-free-android-vpn-apps.html
+- **Hackers Use Fake Microsoft Entra Passkey Enrollment to Gain Microsoft 365 Access**: The Hacker News - https://thehackernews.com/2026/07/hackers-use-fake-microsoft-entra.html
+- **Attackers Exploit 'Ill Bloom' Vulnerability to Drain Over $5 Million From Cryptocurrency Wallets**: The Hacker News - https://thehackernews.com/2026/07/attackers-exploit-ill-bloom.html
 - **Former ransomware negotiator gets 4 years for BlackCat attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/us-ransomware-negotiator-gets-4-years-in-prison-for-blackcat-attacks/
 - **Ransomware Negotiator Gets 70 Months in Prison for Aiding BlackCat Attacks**: The Hacker News - https://thehackernews.com/2026/07/ransomware-negotiator-gets-70-months-in.html
 - **OpenMandriva Linux says contributor tried to sabotage the project**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/openmandriva-linux-says-contributor-tried-to-sabotage-the-project/
@@ -97,21 +135,3 @@ Ransomware operators continue advancing defense evasion techniques, with the God
 - **New GigaWiper Windows Backdoor Bundles Disk Wiping, Fake Ransomware, and Spyware**: The Hacker News - https://thehackernews.com/2026/07/new-gigawiper-windows-backdoor-bundles.html
 - **New Helix vishing group emerges in SharePoint data theft attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-helix-vishing-group-emerges-in-sharepoint-data-theft-attacks/
 - **Microsoft expects more Windows security updates from AI-discovered flaws**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-expects-more-windows-security-updates-from-ai-discovered-flaws/
-- **npm 12 Disables Install Scripts by Default to Reduce Supply Chain Risk**: The Hacker News - https://thehackernews.com/2026/07/npm-12-disables-install-scripts-by.html
-- **ThreatsDay: Cloud Bucket Hijacking, Windows LPE Chain, Global Fraud Bust + 17 More Stories**: The Hacker News - https://thehackernews.com/2026/07/threatsday-cloud-bucket-hijacking.html
-- **New Forg365 phishing platform uses AI to target Microsoft 365 accounts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-forg365-phishing-platform-uses-ai-to-target-microsoft-365-accounts/
-- **As Global Conflicts Go Digital, Businesses Need Wartime Gameplans**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/businesses-wartime-cybersecurity-gameplans
-- **The Hidden Security Risks of Reduced Summer IT Coverage**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/the-hidden-security-risks-of-reduced-summer-it-coverage/
-- **AI Gateways Offer Attackers the Keys to the Kingdom**: Dark Reading - https://www.darkreading.com/cyber-risk/ai-gateways-keys-kingdom
-- **AI Attacks Move in Minutes. Join This Webinar on Building a Defense That Keeps Up**: The Hacker News - https://thehackernews.com/2026/07/ai-attacks-move-in-minutes-join-this.html
-- **Microsoft to retire the OWA Light client in Exchange Server**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-announces-owa-light-retirement-in-exchange-server/
-- **Summer of Clearinghouses**: The Hacker News - https://thehackernews.com/2026/07/summer-of-clearinghouses.html
-- **GodDamn Ransomware Uses PoisonX Driver to Disable Endpoint Defenses**: The Hacker News - https://thehackernews.com/2026/07/goddamn-ransomware-uses-poisonx-driver.html
-- **'GodDamn' Ransomware Uses BYOVD to Smite US Companies**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/goddamn-ransomware-byovd-smite-companies
-- **Police arrests 5,800 suspects in global anti-fraud crackdown**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/police-arrests-5-800-suspects-in-global-anti-fraud-crackdown/
-- **Microsoft Patches RoguePlanet Defender Flaw That Can Grant SYSTEM Privileges**: The Hacker News - https://thehackernews.com/2026/07/microsoft-patches-rogueplanet-defender.html
-- **European Organizations Have a Collaboration Security Confidence Gap**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/european-organizations-collaboration-security-confidence-gap
-- **AssuranceAmerica data breach exposes records of 6.9 million drivers**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/assuranceamerica-data-breach-exposes-records-of-69-million-drivers/
-- **Meta's New AI Image Tool Lets Others Use Your Public Instagram Photos in AI Images**: The Hacker News - https://thehackernews.com/2026/07/metas-new-ai-image-tool-lets-others-use.html
-- **Microsoft patches RoguePlanet Defender zero-day vulnerability**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-patches-rogueplanet-defender-zero-day-vulnerability/
-- **Top AI Agents Built to Catch Malicious Code Can Be Tricked Into Running It**: The Hacker News - https://thehackernews.com/2026/07/friendly-fire-ai-agents-built-to-catch.html
