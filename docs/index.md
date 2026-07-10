@@ -2,106 +2,121 @@
 
 ## Executive Summary
 
-Microsoft's Windows Defender zero-day vulnerability, tracked as CVE-2026-50656 and dubbed "RoguePlanet," represents the most critical active exploitation event in this reporting period. The flaw, which allows privilege escalation to SYSTEM, was publicly disclosed with proof-of-concept code by researcher "Nightmare-Eclipse" in early June 2026, nearly a month before Microsoft released a patch. Multiple Microsoft zero-days were dropped by the same researcher, indicating a sustained campaign targeting Windows defensive mechanisms.
+Microsoft has patched a critical Windows Defender zero-day vulnerability tracked as CVE-2026-50656, known as "RoguePlanet," which allows attackers to gain SYSTEM privileges. The flaw was publicly disclosed with a proof-of-concept exploit by researcher "Nightmare-Eclipse" in early June, nearly a month before Microsoft released the fix. This vulnerability represents a significant privilege escalation risk for Windows systems and was actively exploitable before patching.
 
-Supply chain attacks continue to escalate across multiple vectors. The Injective Labs SDK compromise on npm demonstrates the persistent risk of GitHub repository takeovers leading to malicious package distribution, this time targeting cryptocurrency wallet credentials. Simultaneously, the "Lurking Lizard" threat actor operates a full residential proxy business through trojanized 7-Zip installers, while the new "Helix" data extortion group leverages sophisticated identity-focused tactics—including vishing, device code phishing, and MFA abuse—to exfiltrate SharePoint data. A separate phishing-as-a-service platform, Forg365, combines adversary-in-the-middle and device code techniques with AI-generated lures to target Microsoft 365 accounts at scale.
+Supply chain attacks continue to escalate across multiple vectors. The Injective Labs SDK on npm was compromised to distribute a cryptocurrency wallet stealer, while a new threat actor dubbed "Lurking Lizard" distributes fake 7-Zip installers that convert victim devices into residential proxy nodes. Additionally, researchers uncovered "GhostApproval" symlink flaws affecting six popular AI coding assistants that allow malicious repositories to execute arbitrary code on developers' machines, and demonstrated that AI coding agents designed to detect vulnerabilities can be tricked into executing malicious code instead.
 
-Ransomware operations are adopting increasingly aggressive defense evasion techniques. The "GodDamn" ransomware family employs a Microsoft-signed malicious kernel driver (PoisonX) in a bring-your-own-vulnerable-driver (BYOVD) approach to disable endpoint protection products, actively targeting U.S. organizations. Microsoft has also dissected "GigaWiper," a destructive Windows backdoor that bundles disk wiping, fake ransomware, and spyware capabilities from three older tools into a single modular framework. Meanwhile, Datadog Security Labs has identified multiple overlapping campaigns systematically enumerating corporate GitHub organizations through dormant accounts, and researchers at Wiz have uncovered symlink vulnerabilities in six popular AI coding assistants that could allow malicious repositories to achieve code execution on developers' machines.
+Iranian threat actors are expanding targeting beyond critical infrastructure to any organization with internet-facing vulnerabilities. Meanwhile, a new data extortion group called "Helix" employs sophisticated identity-focused tactics including voice phishing (vishing), device code phishing, and MFA abuse to steal data from SharePoint environments. The GodDamn ransomware family leverages a Microsoft-signed malicious kernel driver (PoisonX) in a BYOVD attack to disable endpoint defenses before encrypting systems, primarily targeting US companies. Datadog Security Labs has also identified overlapping campaigns systematically enumerating corporate GitHub organizations, repositories, and user accounts through the GitHub API using dormant accounts to blend in.
 
 ## Active Exploitation Details
 
 ### RoguePlanet Windows Defender Zero-Day (CVE-2026-50656)
-- **Description**: A privilege escalation vulnerability in Windows Defender that allows attackers to gain SYSTEM-level privileges. The flaw was publicly disclosed with proof-of-concept exploit code by researcher "Nightmare-Eclipse" in early June 2026, following the disclosure of several other Microsoft zero-days by the same researcher.
-- **Impact**: Attackers can escalate privileges to SYSTEM, achieving full control over the affected Windows system and bypassing security controls including Defender itself.
-- **Status**: Actively exploited as a zero-day for nearly a month before Microsoft released a patch in July 2026. The vulnerability was disclosed after the June 2026 Patch Tuesday, leaving a significant exposure window.
+- **Description**: A zero-day vulnerability in Windows Defender that allows local privilege escalation to SYSTEM privileges. The flaw was discovered and publicly disclosed with a proof-of-concept exploit by researcher "Nightmare-Eclipse" in early June 2026, before Microsoft released a patch.
+- **Impact**: Attackers can exploit this vulnerability to gain SYSTEM-level privileges on affected Windows systems, effectively achieving full control over the compromised host.
+- **Status**: Microsoft released a security patch in July 2026, nearly a month after public disclosure. The vulnerability was actively exploitable during the disclosure-to-patch window.
 - **CVE ID**: CVE-2026-50656
 
-### GodDamn Ransomware BYOVD via PoisonX Driver
-- **Description**: The GodDamn ransomware family employs a bring-your-own-vulnerable-driver (BYOVD) technique using a malicious kernel driver named PoisonX that was signed by Microsoft. The driver is used to neutralize security software as part of the ransomware's defense evasion strategy.
-- **Impact**: Complete disablement of endpoint detection and response (EDR) and antivirus products, allowing unhindered ransomware encryption and data theft operations against targeted U.S. companies.
-- **Status**: Actively deployed in attacks against U.S. organizations. Microsoft's signing of the malicious driver represents a significant supply chain trust failure.
+### GodDamn Ransomware BYOVD Attack
+- **Description**: The GodDamn ransomware family employs a Bring Your Own Vulnerable Driver (BYOVD) technique using a malicious kernel driver called PoisonX to disable endpoint security solutions. Notably, Microsoft had signed this malicious driver, allowing it to load on Windows systems.
+- **Impact**: Attackers can neutralize security software including EDR and antivirus solutions before deploying ransomware payloads, significantly increasing the success rate of encryption and data theft operations.
+- **Status**: Actively used in attacks targeting US companies. Microsoft's signing of the malicious driver represents a significant supply chain trust failure.
 
-### Injective Labs SDK npm Supply Chain Compromise
-- **Description**: Attackers compromised the Injective Labs SDK project's GitHub repository and published a malicious package to the Node Package Manager (npm) registry. The package contains a cryptocurrency wallet stealer designed to exfiltrate private keys and mnemonics.
-- **Impact**: Theft of cryptocurrency wallet credentials from developers and users who installed the compromised SDK package, leading to direct financial loss.
-- **Status**: Active supply chain attack via compromised GitHub repository and npm publication. The malicious package was available for download before detection.
+### Injective SDK npm Supply Chain Attack
+- **Description**: Attackers compromised the Injective Labs SDK project's GitHub repository and published a malicious package on npm containing a cryptocurrency wallet stealer designed to extract private keys and mnemonics.
+- **Impact**: Developers and projects incorporating the compromised SDK package had their cryptocurrency wallet credentials stolen, leading to potential financial loss and further compromise of blockchain assets.
+- **Status**: Malicious package was published to npm and available for download before detection and removal.
 
-### GigaWiper Destructive Windows Backdoor
-- **Description**: A modular Windows backdoor analyzed by Microsoft that combines three older destructive programs into a single toolset offering disk wiping, fake ransomware encryption, and spyware capabilities. The components are bolted together and offered as commands within the backdoor.
-- **Impact**: Data destruction, operational disruption, credential theft, and potential espionage. The fake ransomware component may serve as a distraction or destruction mechanism while spyware exfiltrates data.
-- **Status**: Actively analyzed by Microsoft; deployment status in the wild indicates active threat actor use.
+### GigaWiper Windows Backdoor
+- **Description**: A destructive Windows backdoor that combines three older destructive programs into a single toolkit offering disk wiping, fake ransomware, and spyware capabilities as modular commands.
+- **Impact**: Provides attackers with a versatile destructive toolkit capable of data exfiltration, system destruction via disk wiping, and deception through fake ransomware operations.
+- **Status**: Analyzed by Microsoft; active deployment status not explicitly confirmed but tooling exists and is operational.
 
-### Helix Data Extortion Group Operations
-- **Description**: A newly identified data extortion group ("Helix") conducting SharePoint data theft attacks using identity-focused tactics including voice phishing (vishing), device code phishing, and multi-factor authentication (MFA) abuse.
-- **Impact**: Unauthorized access to corporate SharePoint environments, data exfiltration, and extortion leverage through threatened data publication.
-- **Status**: Active campaigns ongoing, leveraging social engineering and identity compromise rather than traditional vulnerability exploitation.
+### Helix Vishing and SharePoint Data Theft
+- **Description**: A new data extortion group (Helix) uses identity-focused attack chains combining voice phishing (vishing), device code phishing, and multi-factor authentication (MFA) abuse to gain access to SharePoint environments for data theft.
+- **Impact**: Successful attacks result in unauthorized access to SharePoint data repositories, enabling data exfiltration and extortion without deploying traditional malware.
+- **Status**: Actively operating as a phishing-as-a-service (PhaaS) or data extortion group targeting organizations using Microsoft 365/SharePoint.
 
 ### Forg365 Phishing-as-a-Service Platform
-- **Description**: A phishing-as-a-service (PhaaS) operation targeting Microsoft 365 accounts that combines adversary-in-the-middle (AiTM) techniques, device code phishing, and AI-assisted lure generation to bypass defenses and harvest credentials.
-- **Impact**: Large-scale Microsoft 365 account compromise, business email compromise enablement, and downstream access to corporate data and resources.
-- **Status**: Active PhaaS platform available to affiliates, indicating commoditized attack infrastructure.
+- **Description**: A new PhaaS operation called Forg365 that combines adversary-in-the-middle (AiTM) techniques with device code phishing and AI-assisted lure generation to steal Microsoft 365 credentials.
+- **Impact**: Lowers the barrier for credential theft against Microsoft 365 accounts by providing a managed service with AI-enhanced social engineering lures.
+- **Status**: Actively operating as a commercial phishing service targeting Microsoft 365 users.
 
-### AI Coding Assistant Symlink Vulnerabilities (GhostApproval)
-- **Description**: Researchers at Wiz discovered symlink-related flaws in six popular AI coding assistants that allow a booby-trapped code repository to silently take control of a developer's computer. The assistant requests permission to edit one harmless file but exploits symlinks to modify sensitive files instead.
-- **Impact**: Arbitrary code execution on developers' machines, potential supply chain compromise through poisoned development environments, and lateral movement into production systems.
-- **Status**: Proof-of-concept demonstrated; affects six AI coding assistant products. Remediation status varies by vendor.
+### GhostApproval Symlink Flaws in AI Coding Assistants
+- **Description**: Researchers at Wiz discovered a flaw in six popular AI coding assistants where a booby-trapped code project can exploit symlink handling to execute arbitrary code on a developer's machine when the assistant requests permission to edit a harmless-appearing file.
+- **Impact**: Developers using affected AI coding assistants can have their systems compromised simply by opening a malicious repository, bypassing typical code review safeguards.
+- **Status**: Proof-of-concept demonstrated; affects six major AI coding assistant platforms.
+
+### AI Coding Agents Tricked into Executing Malicious Code
+- **Description**: A proof-of-concept demonstrating that AI coding agents designed to scan code for security vulnerabilities can be manipulated into executing attacker-controlled code on the host machine during analysis.
+- **Impact**: Security tools themselves become attack vectors, turning defensive automation into offensive capability for adversaries.
+- **Status**: Proof-of-concept published; represents emerging risk class as AI agents gain more autonomous execution capabilities.
+
+### Lurking Lizard Fake 7-Zip Installer Campaign
+- **Description**: Threat actor "Lurking Lizard" operates an end-to-end malicious residential proxy business using fake 7-Zip installers that convert victim devices into proxy nodes within a larger infrastructure.
+- **Impact**: Victims unknowingly participate in proxy networks used for credential stuffing, web scraping, and other abusive traffic, while attackers monetize the residential IP reputation.
+- **Status**: Active campaign with established infrastructure for distribution and proxy management.
 
 ### Dormant GitHub Account Enumeration Campaigns
-- **Description**: Datadog Security Labs identified several overlapping campaigns systematically enumerating corporate GitHub organizations, repositories, and user accounts through the GitHub API using dormant or compromised accounts to blend in with normal traffic.
-- **Impact**: Reconnaissance at scale enabling targeted attacks, credential stuffing, supply chain poisoning opportunities, and organizational mapping for future intrusion.
-- **Status**: Multiple active campaigns ongoing; organizations largely unaware of enumeration activity.
+- **Description**: Multiple overlapping campaigns systematically enumerate corporate GitHub organizations, repositories, and user accounts through the GitHub API, leveraging dormant or compromised accounts to blend in with legitimate traffic.
+- **Impact**: Attackers gain comprehensive intelligence on corporate codebases, team structures, and potential attack surfaces for subsequent supply chain or targeted attacks.
+- **Status**: Ongoing campaigns identified by Datadog Security Labs; active enumeration operations.
 
-### Lurking Lizard Residential Proxy Malware
-- **Description**: Threat actor "Lurking Lizard" operates an end-to-end malicious residential proxy business using trojanized 7-Zip installers to convert victim devices into proxy exit nodes.
-- **Impact**: Victim devices used for anonymizing malicious traffic, credential stuffing, ad fraud, and bypassing geo-restrictions; bandwidth theft and potential legal liability for proxy exit node operators.
-- **Status**: Active distribution via fake 7-Zip installers; full infrastructure including management panel identified.
+### AI Gateway Cryptomining Incident
+- **Description**: Attackers exploited an AI gateway to gain access to AI models, cloud infrastructure, and identity and access management (IAM) data, subsequently deploying cryptomining operations.
+- **Impact**: Compromise of AI infrastructure abuse of AI infrastructure for resource theft, potential lateral movement to cloud environments, and exposure of sensitive IAM configurations.
+- **Status**: Documented incident demonstrating AI gateways as high-value targets for initial access and privilege escalation.
 
-### Windows Local Privilege Escalation Chain
-- **Description**: A Windows local privilege escalation (LPE) chain referenced in threat intelligence reporting, indicating active exploitation of chained vulnerabilities to achieve elevated privileges.
-- **Impact**: Privilege escalation from standard user to administrator or SYSTEM, enabling persistence, defense evasion, and credential access.
-- **Status**: Active exploitation noted in recent threat activity summaries; specific vulnerabilities in the chain not individually detailed in source articles.
+### OpenMandriva Internal Sabotage Attempt
+- **Description**: A contributor to the OpenMandriva Linux project attempted to sabotage the distribution following a dispute among contributors, representing an insider threat to software supply chain integrity.
+- **Impact**: Potential introduction of malicious code or build process manipulation affecting downstream users of the Linux distribution.
+- **Status**: Detected and disclosed by the OpenMandriva project; specific technical details of the sabotage attempt not fully public.
+
+### AssuranceAmerica Data Breach
+- **Description**: Attackers gained unauthorized access to systems at American insurance company AssuranceAmerica, exposing records of approximately 6.9 million drivers.
+- **Impact**: Large-scale personal data exposure including driver information, enabling identity theft, fraud, and targeted phishing.
+- **Status**: Breach disclosed; initial access occurred earlier in 2026, with notification and investigation ongoing.
 
 ## Affected Systems and Products
 
-- **Windows Defender / Microsoft Defender**: All supported Windows versions prior to July 2026 security update (CVE-2026-50656)
-- **Windows Operating System**: Targeted by GodDamn ransomware (BYOVD), GigaWiper backdoor, and LPE chain exploitation
-- **Injective Labs SDK (npm package)**: Compromised versions published to npm registry; all users who installed affected versions
-- **GitHub / GitHub API**: Corporate organizations, repositories, and user accounts targeted by enumeration campaigns via dormant accounts
-- **Microsoft 365 / SharePoint**: Targeted by Helix vishing/group and Forg365 PhaaS platform for credential theft and data exfiltration
-- **AI Coding Assistants (6 products)**: Vulnerable to GhostApproval symlink flaws allowing malicious repository code execution (specific product names not disclosed in source)
-- **7-Zip (Installers)**: Trojanized installers distributed by Lurking Lizard threat actor; legitimate 7-Zip software not vulnerable
-- **npm Ecosystem**: Supply chain risk from compromised packages; npm v12 mitigates by disabling install scripts by default
-- **Microsoft Kernel Driver Signing Process**: Trust chain compromised by Microsoft signing of malicious PoisonX driver used by GodDamn ransomware
+- **Windows Defender / Microsoft Defender**: Affected by CVE-2026-50656 (RoguePlanet) privilege escalation vulnerability; all supported Windows versions with Defender enabled prior to July 2026 patch
+- **Windows Kernel Driver Signing**: Compromised trust chain allowing Microsoft-signed malicious driver (PoisonX) to load on Windows systems for BYOVD attacks
+- **Injective Labs SDK (npm package)**: Compromised GitHub repository leading to malicious npm publishes affecting all downstream consumers of the SDK
+- **AI Coding Assistants (6 platforms)**: Vulnerable to GhostApproval symlink flaws allowing arbitrary code execution via malicious repositories; specific platforms not named in source
+- **GitHub Enterprise / GitHub.com Organizations**: Targeted by systematic enumeration campaigns via GitHub API using dormant accounts
+- **Microsoft 365 / SharePoint Online**: Targeted by Helix vishing group and Forg365 PhaaS platform using AiTM, device code phishing, and MFA bypass techniques
+- **7-Zip (Impersonated)**: Legitimate utility brand abused by Lurking Lizard for fake installer distribution converting systems to residential proxy nodes
+- **AI Gateways**: Emerging attack surface providing access to AI models, cloud infrastructure, and IAM data as demonstrated by cryptomining incident
+- **OpenMandriva Linux Distribution**: Targeted by internal contributor sabotage attempt affecting build integrity
+- **AssuranceAmerica Insurance Systems**: Compromised leading to 6.9 million driver records exposed
 
 ## Attack Vectors and Techniques
 
-- **Privilege Escalation via Defender Flaw**: Exploitation of CVE-2026-50656 to achieve SYSTEM privileges from lower-privileged contexts
-- **Bring Your Own Vulnerable Driver (BYOVD)**: GodDamn ransomware deploys Microsoft-signed PoisonX kernel driver to kill security agents
-- **Supply Chain Compromise (GitHub → npm)**: Repository takeover leading to malicious package publication targeting cryptocurrency users
-- **Modular Destructive Malware**: GigaWiper combines wiper, fake ransomware, and spyware modules in a single backdoor framework
-- **Voice Phishing (Vishing)**: Helix group uses phone-based social engineering to initiate identity compromise chains
-- **Device Code Phishing**: Abuse of OAuth device authorization flow to capture authentication tokens without traditional credential harvesting
-- **MFA Abuse / Fatigue**: Helix and Forg365 leverage MFA push fatigue and token replay to bypass multi-factor authentication
-- **Adversary-in-the-Middle (AiTM)**: Forg365 PhaaS uses reverse proxy techniques to capture credentials and session cookies in real time
-- **AI-Assisted Lure Generation**: Forg365 employs AI to create convincing phishing content at scale
-- **Symlink File System Manipulation**: GhostApproval flaws trick AI coding assistants into following symbolic links to sensitive files
-- **Dormant Account Reconnaissance**: Attackers leverage inactive GitHub accounts to enumerate corporate assets via API without triggering alerts
-- **Trojanized Legitimate Software**: Lurking Lizard distributes malware via fake 7-Zip installers mimicking legitimate utility distribution
-- **Residential Proxy Botnet**: Compromised devices recruited into commercial proxy infrastructure for malicious traffic anonymization
-- **AI Gateway Exploitation**: Attackers target AI gateway infrastructure to access models, cloud credentials, and IAM data (cryptomining incident)
+- **Local Privilege Escalation via Defender Vulnerability**: Exploitation of CVE-2026-50656 in Windows Defender to achieve SYSTEM privileges from lower-privileged context
+- **Bring Your Own Vulnerable Driver (BYOVD)**: Use of Microsoft-signed malicious kernel driver (PoisonX) to disable endpoint security solutions before ransomware deployment
+- **Software Supply Chain Compromise**: GitHub repository takeover leading to malicious npm package publication (Injective SDK); insider sabotage attempt (OpenMandriva)
+- **AI/ML Supply Chain Attacks**: Malicious repositories exploiting symlink handling in AI coding assistants (GhostApproval); AI agents tricked into executing code during analysis
+- **Voice Phishing (Vishing)**: Telephone-based social engineering used by Helix group as initial access vector for SharePoint compromise
+- **Device Code Phishing**: Exploitation of OAuth device authorization flow to bypass MFA and gain access to Microsoft 365/SharePoint resources
+- **Adversary-in-the-Middle (AiTM) Phishing**: Real-time credential and session token interception used by Forg365 PhaaS platform
+- **Multi-Factor Authentication Abuse**: MFA fatigue, token replay, and bypass techniques employed by Helix group for persistent access
+- **Fake Software Installers**: Trojanized 7-Zip installers deploying residential proxy malware (Lurking Lizard campaign)
+- **GitHub API Enumeration**: Automated reconnaissance of corporate GitHub organizations, repositories, and users via legitimate API endpoints using dormant accounts for stealth
+- **AI Gateway Exploitation**: Targeting AI inference infrastructure to access models, cloud resources, and identity management systems
+- **AI-Assisted Social Engineering**: Forg365 platform uses AI to generate tailored phishing lures at scale
+- **Residential Proxy Botnet Creation**: Conversion of victim devices into proxy exit nodes for anonymizing malicious traffic (Lurking Lizard)
 
 ## Threat Actor Activities
 
-- **Nightmare-Eclipse (Researcher/Threat Actor)**: Published proof-of-concept exploits for multiple Microsoft zero-days including RoguePlanet (CVE-2026-50656) in early June 2026, enabling exploitation before patch availability
-- **GodDamn Ransomware Operators**: Deploy BYOVD technique with Microsoft-signed PoisonX driver to disable endpoint defenses; actively targeting U.S. companies in ransomware campaigns
-- **Helix Data Extortion Group**: New identity-focused threat group conducting SharePoint data theft via vishing, device code phishing, and MFA abuse; operating as data extortion rather than traditional ransomware
-- **Forg365 PhaaS Operators**: Run phishing-as-a-service platform targeting Microsoft 365 with AiTM, device code phishing, and AI-generated lures; affiliate model enables broad distribution
-- **Lurking Lizard**: Operates end-to-end residential proxy business using trojanized 7-Zip installers; manages infrastructure including proxy nodes and customer panel
-- **Injective Labs Supply Chain Attackers**: Compromised GitHub repository to publish malicious npm package stealing cryptocurrency wallet credentials; attribution unknown
-- **GigaWiper Operators**: Deploy modular destructive backdoor combining wiper, fake ransomware, and spyware; attribution not specified in Microsoft analysis
-- **GitHub Enumeration Campaign Operators**: Multiple overlapping campaigns identified by Datadog using dormant accounts to map corporate GitHub organizations via API; attribution unknown
-- **GhostApproval Researchers (Wiz)**: Discovered and disclosed symlink vulnerabilities in six AI coding assistants; defensive research leading to vendor notifications
-- **AssuranceAmerica Breach Actors**: Gained unauthorized access to insurance systems exposing 6.9 million driver records earlier in 2026; attribution unknown
+- **Nightmare-Eclipse (Researcher)**: Published proof-of-concept exploit for Windows Defender zero-day (RoguePlanet/CVE-2026-50656) in early June 2026, along with several other Microsoft zero-days; responsible disclosure status unclear given public PoC release before patch
+- **Helix (Data Extortion Group)**: New group employing sophisticated identity-focused attack chain (vishing, device code phishing, MFA abuse) targeting SharePoint for data theft and extortion; operates with PhaaS-like capabilities
+- **Forg365 Operators (PhaaS Provider)**: Runs commercial phishing-as-a-service platform targeting Microsoft 365 with AiTM, device code phishing, and AI-generated lures; enables less-skilled attackers to conduct credential theft campaigns
+- **Lurking Lizard (Threat Actor)**: Operates end-to-end residential proxy business using fake 7-Zip installers; maintains distribution infrastructure and proxy management platform for monetizing compromised devices
+- **GodDamn Ransomware Operators**: Deploys GodDamn ransomware family using PoisonX BYOVD technique to disable defenses; primarily targets US companies; leverages Microsoft-signed malicious driver
+- **Iranian State-Sponsored Actors**: Expanding targeting beyond critical infrastructure to any organization with internet-facing vulnerabilities; leveraging broad vulnerability scanning and exploitation
+- **Datadog-Tracked GitHub Enumeration Campaigns (Unknown Operators)**: Multiple overlapping campaigns systematically mapping corporate GitHub assets via API using dormant accounts; likely reconnaissance for future supply chain or targeted attacks
+- **OpenMandriva Saboteur (Insider)**: Project contributor who attempted sabotage following internal dispute; represents insider threat to open-source supply chain
+- **AssuranceAmerica Breach Actors (Unattributed)**: Gained access to insurance systems earlier in 2026, exfiltrating 6.9 million driver records; attribution not publicly disclosed
+- **AI Gateway Cryptominers (Unattributed)**: Exploited AI gateway access to deploy cryptomining operations and access cloud/IAM resources; demonstrates emerging targeting of AI infrastructure
 
 ## Source Attribution
 
