@@ -2,116 +2,101 @@
 
 ## Executive Summary
 
-Multiple critical exploitation campaigns are currently active across diverse technology stacks, ranging from AI-powered development tools and firmware bootloaders to cryptocurrency wallets and enterprise file-sharing platforms. The most immediately dangerous activity involves active exploitation of a critical authentication bypass in the official Gitea Docker image, allowing attackers to impersonate any user including administrators, and the "Ill Bloom" vulnerability in cryptocurrency wallet software that has already enabled theft of over $5 million in digital assets. Progress Software has issued an emergency directive for ShareFile customers to immediately shut down Storage Zone Controllers due to a credible external security threat, while researchers have demonstrated a novel "Ghostcommit" technique hiding prompt injections in PNG images that bypasses AI code reviewers to steal repository secrets.
+Multiple critical exploitation campaigns are actively underway across diverse technology stacks, from content management systems and collaboration platforms to firmware bootloaders and cryptocurrency infrastructure. The Australian Cyber Security Centre has warned of a global campaign targeting vulnerable CMS platforms and plugins at scale, while threat actors are actively exploiting a critical authentication bypass in the official Gitea Docker image to impersonate administrators. Progress Software has taken the extraordinary step of urging ShareFile customers to immediately shut down Storage Zone Controllers due to a credible external security threat. Simultaneously, six newly disclosed vulnerabilities in the ubiquitous U-Boot bootloader could enable stealthy firmware-level attacks across routers, cameras, and enterprise hardware management chips.
 
-Supply chain attacks remain prevalent, with unknown threat actors compromising the Injective Labs GitHub repository to publish malicious npm packages targeting cryptocurrency wallet private keys. The China-linked Silver Fox group has deployed a new Rust-based MODBEACON RAT using gRPC streaming for encrypted command-and-control communications. Meanwhile, an exposed attacker server revealed the WP-SHELLSTORM campaign backdooring thousands of WordPress sites. Physical attack vectors are also emerging, as demonstrated by unrecoverable laser fault injection attacks against Tangem hardware wallets. Several critical vulnerabilities remain unpatched, including the XRING flaw in Alibaba's XQUIC library allowing remote HTTP/3 server crashes.
+Cryptocurrency and supply chain attacks feature prominently in recent activity. Attackers are exploiting the "Ill Bloom" vulnerability in wallet recovery phrase generation to drain over $5 million from cryptocurrency wallets, while unknown actors compromised the Injective Labs GitHub repository to publish malicious npm packages designed to steal wallet private keys. A China-linked cybercrime group, Silver Fox, has deployed a new Rust-based remote access trojan called MODBEACON that uses gRPC streaming for encrypted command-and-control communications. Social engineering campaigns are also evolving, with threat actors using voice-based fake Microsoft Entra passkey enrollment requests to gain Microsoft 365 access across multiple sectors.
 
 ## Active Exploitation Details
 
-### Gitea Docker Image Authentication Bypass
-- **Description**: A critical vulnerability in the official Docker image for Gitea, the self-hosted Git service, allows attackers to bypass authentication and impersonate any user including administrators. The flaw resides in the Docker image configuration rather than the core Gitea application code.
-- **Impact**: Attackers gain full administrative access to Gitea instances, enabling repository manipulation, source code theft, supply chain compromise, and potential lateral movement within development environments.
-- **Status**: Actively exploited in the wild. Users of the official Gitea Docker image should update immediately to patched versions.
+### Global CMS Platform Exploitation Campaign
+- **Description**: The Australian Cyber Security Centre (ACSC) has issued an alert about a widespread exploitation campaign targeting vulnerable content management systems (CMS) and associated plugins. The campaign operates at global scale, leveraging known vulnerabilities in unpatched CMS installations.
+- **Impact**: Attackers can compromise websites, inject malicious code, steal data, and use compromised sites as infrastructure for further attacks. Thousands of sites may be affected given the global scope.
+- **Status**: Actively exploited in the wild. ACSC recommends immediate patching of all CMS platforms and plugins, removal of unused components, and implementation of web application firewalls.
 
-### Ill Bloom Cryptocurrency Wallet Vulnerability
-- **Description**: A flaw in how certain cryptocurrency wallet software generates recovery phrases (seed phrases), discovered and named "Ill Bloom" by security firm Coinspect. The vulnerability affects the entropy or generation process of mnemonic recovery phrases.
-- **Impact**: Attackers can derive or predict wallet recovery phrases, enabling complete takeover of cryptocurrency wallets and drainage of funds. Over $5 million has already been stolen through active exploitation.
-- **Status**: Actively exploited. Affected wallet software vendors need to implement patches and users should migrate funds to secure wallets.
+### Gitea Docker Image Authentication Bypass
+- **Description**: A critical vulnerability in the official Docker image for Gitea, the self-hosted Git service, allows attackers to bypass authentication and impersonate any user, including administrators.
+- **Impact**: Full administrative access to Gitea instances, enabling source code theft, supply chain poisoning via malicious commits, repository manipulation, and lateral movement within development environments.
+- **Status**: Actively exploited by hackers. Users of the official Gitea Docker image should update immediately and review access logs for unauthorized administrative activity.
 
 ### Progress ShareFile Storage Zone Controller Threat
-- **Description**: Progress Software has identified a "credible external security threat" affecting ShareFile Storage Zone Controllers running on Windows servers. The exact technical details have not been publicly disclosed, but the severity warranted an emergency shutdown directive.
-- **Impact**: Potential compromise of enterprise file sharing infrastructure, data exfiltration, and lateral movement within corporate networks.
-- **Status**: Active threat response in progress. Progress Software has instructed all affected customers to immediately shut down Windows servers running Storage Zone Controllers while investigation and remediation proceed.
-
-### Ghostcommit AI Prompt Injection via Images
-- **Description**: A novel attack technique where malicious prompt injections are hidden within PNG image files. When AI code review agents (specifically CodeRabbit and Bugbot) process pull requests containing these images, the hidden prompts execute, causing the AI to exfiltrate repository secrets.
-- **Impact**: Theft of API keys, credentials, tokens, and other sensitive data from code repositories. The attack bypasses traditional code scanning because the payload resides in image metadata rather than source code.
-- **Status**: Demonstrated as proof-of-concept by researchers. No patch available for the fundamental issue; mitigation requires AI agents to sanitize or ignore image content during code review.
-
-### Injective Labs GitHub Repository Compromise
-- **Description**: Unknown threat actors compromised the Injective Labs SDK project's GitHub repository and used it to publish a malicious package to the npm registry. The package was designed to steal cryptocurrency wallet private keys from developers who installed it.
-- **Impact**: Supply chain compromise affecting developers using the Injective Labs SDK. Theft of private keys leads to cryptocurrency wallet drainage.
-- **Status**: Active campaign. The malicious package has been identified and removed, but developers who installed it must rotate all keys and audit systems.
-
-### WP-SHELLSTORM WordPress Backdoor Campaign
-- **Description**: A cybercrime operation deploying the WP-SHELLSTORM backdoor across thousands of WordPress sites. An exposed attacker server revealed hacking tools, activity logs, and target lists documenting the campaign's scope.
-- **Impact**: Persistent remote access to compromised WordPress sites, enabling data theft, SEO spam, malware distribution, and use as infrastructure for further attacks.
-- **Status**: Active campaign discovered via OPSEC failure. Thousands of sites confirmed compromised; cleanup and remediation ongoing.
+- **Description**: Progress Software has identified a credible external security threat targeting ShareFile Storage Zone Controllers and is instructing customers to immediately shut down the Windows servers running these controllers.
+- **Impact**: Potential compromise of file sharing infrastructure, data exfiltration, and unauthorized access to sensitive corporate documents stored in ShareFile.
+- **Status**: Active threat confirmed by vendor. Emergency mitigation requires immediate server shutdown while investigation and patches are developed. No workaround short of shutdown has been provided.
 
 ### U-Boot Bootloader Vulnerabilities (Six Flaws)
-- **Description**: Six vulnerabilities discovered by Binarly researchers in U-Boot, the universal bootloader used across embedded devices including home routers, smart cameras, and data center management controllers (BMCs). Flaws allow malicious firmware images to execute code during the boot process.
-- **Impact**: Stealthy firmware-level persistence surviving OS reinstallation and disk replacement. Pre-OS execution enables hypervisor/detected malware deployment, hardware manipulation, and supply chain attacks.
-- **Status**: Vulnerabilities disclosed; patch availability varies by vendor and device. Long deployment cycles for firmware updates create extended exposure windows.
+- **Description**: Researchers at firmware security firm Binarly discovered six vulnerabilities in U-Boot, the universal bootloader used across a vast range of embedded devices including home routers, smart cameras, and management chips inside data center servers.
+- **Impact**: Attackers with physical access or supply chain access can execute malicious code during the boot process, enabling persistent firmware implants that survive operating system reinstallation and hard drive replacement.
+- **Status**: Vulnerabilities disclosed; patches under development. Exploitation requires access to boot media or supply chain interception. No confirmed in-the-wild exploitation reported yet, but the attack surface is enormous.
 
-### XRING Flaw in XQUIC HTTP/3 Library
-- **Description**: A single-variable bug in XQUIC (Alibaba's QUIC and HTTP/3 library) allows any remote client to crash an HTTP/3 server with a short burst of completely valid, protocol-compliant traffic. The flaw is in the XRING component.
-- **Impact**: Denial of service for any service using XQUIC for HTTP/3. No authentication or malformed packets required; attack traffic appears legitimate.
-- **Status**: Unpatched. No fix available at time of reporting. FoxIO researchers disclosed the vulnerability.
+### Ill Bloom Cryptocurrency Wallet Vulnerability
+- **Description**: A flaw dubbed "Ill Bloom" exists in how certain cryptocurrency wallet software generates recovery phrases (seed words). The vulnerability reduces entropy in the generation process, making recovery phrases predictable.
+- **Impact**: Attackers can derive private keys and drain wallet contents. Over $5 million has already been stolen from affected wallets. The flaw affects wallet software implementations, not the underlying blockchain protocols.
+- **Status**: Actively exploited. Disclosed by security firm Coinspect. Wallet vendors are issuing updates; users must migrate funds to new wallets with securely generated seeds.
+
+### Injective Labs Supply Chain Attack
+- **Description**: Unknown threat actors compromised the Injective Labs SDK project's GitHub repository and leveraged it to publish a malicious package on the npm registry.
+- **Impact**: The malicious npm package steals cryptocurrency wallet private keys from developers and applications that incorporate the compromised SDK. This represents a software supply chain attack targeting the blockchain ecosystem.
+- **Status**: Active compromise detected. Injective Labs has regained control; malicious packages have been removed from npm. Downstream users must audit dependencies and rotate any exposed keys.
+
+### OpenClaw AI Assistant Vulnerability Chain (Three Flaws)
+- **Description**: Three now-patched security flaws in the OpenClaw personal AI assistant could be chained together in a WhatsApp-to-host attack sequence.
+- **Impact**: Successful exploitation enables credential theft, privilege escalation, and potential host compromise originating from a WhatsApp message processed by the AI assistant.
+- **Status**: Vulnerabilities patched. The attack chain demonstrates the emerging risk of AI assistants processing untrusted input from messaging platforms.
 
 ### Tangem Wallet Laser Fault Injection
 - **Description**: Researchers at Ledger's Donjon security team demonstrated that a precisely timed laser pulse aimed at the chip inside a Tangem crypto wallet card can reset the card's password to an attacker-chosen value.
-- **Impact**: Complete bypass of hardware wallet authentication. The attack is unpatchable as it exploits physical hardware characteristics.
-- **Status**: Proof-of-concept demonstrated. No firmware or software mitigation possible; requires physical security controls.
+- **Impact**: Physical attackers with brief access to the card can take full control of the wallet without knowing the original password. The vulnerability is unpatchable as it exists in the hardware design.
+- **Status**: Proof-of-concept demonstrated; no confirmed in-the-wild exploitation. Highlights physical security limitations of hardware wallets.
 
-### OpenClaw AI Assistant Vulnerabilities (Patched)
-- **Description**: Three now-patched security flaws in the OpenClaw personal AI assistant that formed an attack chain from WhatsApp message processing to host system compromise.
-- **Impact**: Credential theft, privilege escalation, and potential full host compromise via malicious WhatsApp messages processed by the AI assistant.
-- **Status**: Patched. Users should update to latest versions.
-
-### Fake Microsoft Entra Passkey Enrollment (Vishing Campaign)
-- **Description**: Threat actors conduct voice-based social engineering (vishing) campaigns impersonating Microsoft security requests, prompting Microsoft 365 users to enroll a new Entra passkey under attacker control.
-- **Impact**: Full Microsoft 365 account takeover bypassing MFA. Attackers gain persistent access to email, SharePoint, Teams, and connected services.
-- **Status**: Active campaign targeting multiple sectors. Mitigation requires user education and conditional access policies restricting passkey enrollment.
-
-### MODBEACON RAT Deployment by Silver Fox
-- **Description**: The China-linked cybercrime group Silver Fox has deployed a new Rust-based remote access trojan (RAT) called MODBEACON, which uses gRPC streaming for encrypted command-and-control communications.
-- **Impact**: Stealthy persistent access with encrypted C2 evading network inspection. Rust implementation provides cross-platform capability and analysis resistance.
-- **Status**: Active deployment. Attributed to Silver Fox by QiAnXin researchers.
+### XQUIC XRING Denial-of-Service Flaw
+- **Description**: An unpatched flaw in XQUIC (Alibaba's QUIC and HTTP/3 library), dubbed "XRING," allows any remote client to crash the server with a short burst of completely legitimate traffic.
+- **Impact**: Remote denial-of-service against any server using the affected library. No authentication or malformed packets required—standard protocol traffic triggers the crash.
+- **Status**: Unpatched as of disclosure. No mitigation available other than disabling HTTP/3 or switching libraries. High impact for services relying on XQUIC.
 
 ## Affected Systems and Products
 
-- **Gitea Docker Image**: Official Docker Hub images for Gitea self-hosted Git service; all versions prior to patched releases
-- **Cryptocurrency Wallets (Ill Bloom)**: Multiple wallet software implementations with flawed recovery phrase generation; specific vendors not publicly named pending coordinated disclosure
-- **Progress ShareFile Storage Zone Controllers**: Windows servers running Storage Zone Controller components for on-premises/hybrid ShareFile deployments
-- **AI Code Review Agents**: CodeRabbit and Bugbot (confirmed vulnerable); potentially other AI agents processing image content in pull requests
-- **Injective Labs SDK / npm Registry**: Developers who installed the compromised npm package published from the hijacked GitHub repository
-- **WordPress Sites**: Thousands of sites compromised with WP-SHELLSTORM backdoor; all WordPress versions potentially affected if vulnerable plugins/themes or weak credentials present
-- **U-Boot Bootloader Devices**: Home routers, IoT devices, smart cameras, data center BMCs, and embedded systems using vulnerable U-Boot versions
-- **XQUIC Library Users**: Any service or application using Alibaba's XQUIC library for HTTP/3/QUIC implementation
-- **Tangem Hardware Wallets**: Tangem crypto wallet cards (all versions; hardware-level flaw cannot be patched)
-- **OpenClaw AI Assistant**: All versions prior to security patches addressing the three disclosed flaws
-- **Microsoft 365 / Entra ID**: Organizations using Microsoft Entra passkey authentication; users targeted by vishing campaigns
-- **MODBEACON RAT Targets**: Organizations targeted by Silver Fox group; cross-platform (Windows, Linux, macOS) due to Rust implementation
+- **Gitea (Official Docker Image)**: All versions using the official Docker image prior to patched release. Self-hosted Git service deployments in containerized environments.
+- **Progress ShareFile Storage Zone Controllers**: Windows servers running Storage Zone Controller components for on-premises or hybrid ShareFile deployments.
+- **U-Boot Bootloader**: Embedded devices across multiple vendors including home routers, IP cameras, IoT devices, and server management controllers (BMC/IPMI) that use U-Boot for hardware initialization.
+- **Zimbra Collaboration Suite (Classic Web Client)**: Zimbra deployments using the Classic Web Client interface. Critical vulnerability allowing arbitrary code execution via crafted emails.
+- **Cryptocurrency Wallets (Multiple Vendors)**: Wallet software implementations vulnerable to the "Ill Bloom" recovery phrase generation flaw. Specific vendors not named in disclosure.
+- **Injective Labs SDK / npm Packages**: Projects depending on the compromised Injective Labs SDK packages published to the npm registry during the GitHub repository compromise.
+- **OpenClaw AI Assistant**: Deployments of the OpenClaw personal AI assistant prior to patching. Systems processing WhatsApp or other messaging platform inputs.
+- **Tangem Hardware Wallets**: Tangem crypto wallet cards (all versions). Unpatchable hardware vulnerability requiring physical replacement.
+- **XQUIC / Alibaba QUIC Library**: Servers and applications using XQUIC for HTTP/3 and QUIC protocol handling. Includes Alibaba Cloud services and third-party adopters.
+- **WordPress Sites (WP-SHELLSTORM Campaign)**: Thousands of WordPress installations backdoored by the WP-SHELLSTORM campaign. Compromised sites span multiple hosting providers and geographies.
+- **Microsoft 365 / Entra ID**: Organizations targeted by fake passkey enrollment social engineering campaigns. Users with passkey enrollment permissions.
 
 ## Attack Vectors and Techniques
 
-- **Docker Image Supply Chain Compromise**: Exploitation of misconfigured or vulnerable official Docker images to bypass authentication (Gitea)
-- **Cryptographic Entropy Failure**: Flawed randomness in mnemonic phrase generation enabling seed phrase prediction (Ill Bloom)
-- **Emergency Shutdown Advisory**: Vendor-directed infrastructure shutdown indicating active exploitation or imminent threat (ShareFile)
-- **Steganographic Prompt Injection**: Malicious instructions hidden in PNG image metadata/pixel data executed by multimodal AI agents (Ghostcommit)
-- **GitHub Repository Hijacking**: Compromise of legitimate project repositories to publish malicious packages to package registries (Injective Labs)
-- **WordPress Backdoor Deployment**: Automated exploitation of vulnerable plugins, themes, or credentials to install persistent PHP backdoors (WP-SHELLSTORM)
-- **Firmware/Bootloader Exploitation**: Malicious firmware images exploiting bootloader parsing flaws for pre-OS code execution (U-Boot)
-- **Protocol-Compliant DoS**: Valid protocol traffic triggering logic flaws to crash servers without malformed packets (XRING/XQUIC)
-- **Laser Fault Injection**: Physical hardware attack using precisely timed laser pulses to induce computational errors (Tangem Wallet)
-- **AI Assistant Attack Chain**: Chained vulnerabilities in AI message processing enabling host compromise from messaging platform input (OpenClaw)
-- **Voice Phishing (Vishing) for MFA Bypass**: Social engineering via phone calls tricking users into enrolling attacker-controlled passkeys (Entra Passkey)
-- **gRPC Streaming C2**: Encrypted command-and-control using gRPC bidirectional streaming for traffic analysis resistance (MODBEACON RAT)
+- **CMS Plugin Exploitation**: Automated scanning and exploitation of known vulnerabilities in unpatched CMS platforms (WordPress, Joomla, Drupal) and their plugin ecosystems. Used for initial access and persistent backdoor deployment.
+- **Docker Image Authentication Bypass**: Exploitation of misconfigured or vulnerable official container images to bypass authentication controls and escalate to administrator privileges without credentials.
+- **Supply Chain Compromise (GitHub → npm)**: Compromise of legitimate developer GitHub repositories to publish malicious packages to public registries, targeting downstream dependencies in cryptocurrency and blockchain projects.
+- **Firmware-Level Implants via Bootloader**: Exploitation of U-Boot vulnerabilities during the boot process to install persistent firmware implants that survive OS reinstallation and disk replacement.
+- **Recovery Phrase Entropy Reduction (Ill Bloom)**: Exploitation of flawed cryptographic randomness in wallet seed generation to predict or brute-force recovery phrases and derive private keys.
+- **AI Prompt Injection via Steganography (Ghostcommit)**: Embedding malicious prompt injections within PNG images that are processed by AI code review agents (CodeRabbit, Bugbot), causing them to exfiltrate repository secrets without opening the images directly.
+- **WhatsApp-to-Host Attack Chain**: Chaining multiple vulnerabilities in an AI assistant that processes WhatsApp messages to achieve credential theft and host compromise from a single message.
+- **Laser Fault Injection**: Precise physical laser pulses targeting hardware wallet chips to induce faults that reset authentication credentials to attacker-controlled values.
+- **HTTP/3 Denial-of-Service via Legitimate Traffic**: Sending standard-compliant QUIC/HTTP/3 traffic patterns that trigger a logic flaw in XQUIC, causing server crashes without malformed packets.
+- **Voice-Based Social Engineering (Vishing) for MFA Bypass**: Attackers use phone calls impersonating security teams to trick users into enrolling attacker-controlled Microsoft Entra passkeys, bypassing MFA and gaining persistent Microsoft 365 access.
+- **WP-SHELLSTORM Backdoor Deployment**: Automated deployment of persistent backdoors on compromised WordPress sites, with command-and-control infrastructure exposed via an operational security failure (exposed hacker server).
+- **gRPC Streaming for Encrypted C2 (MODBEACON)**: Use of gRPC bidirectional streaming with TLS encryption for command-and-control communications, evading traditional network inspection and proxy-based detection.
 
 ## Threat Actor Activities
 
-- **Silver Fox (China-linked cybercrime group)**: Deploying MODBEACON RAT with gRPC streaming C2; attributed by QiAnXin researchers; active campaign
-- **Unknown Actors - Injective Labs Compromise**: Compromised GitHub repository credentials or supply chain to publish wallet-stealing npm package; cryptocurrency-focused
-- **WP-SHELLSTORM Operators**: Cybercrime crew operating automated WordPress compromise infrastructure; OPSEC failure exposed server with tools, logs, and target lists
-- **Ill Bloom Exploiters**: Active threat group(s) exploiting wallet seed phrase flaw; over $5 million in cryptocurrency stolen per Coinspect
-- **Gitea Docker Exploiters**: Actively scanning for and exploiting vulnerable Gitea Docker deployments for administrative access
-- **Vishing Campaign Operators**: Conducting voice-based social engineering targeting Microsoft 365 users across multiple sectors for Entra passkey enrollment fraud
-- **Ryuk/BlackCat Ransomware Affiliates**: Armenian national pleaded guilty to Ryuk deployments; former DigitalMint negotiator sentenced for BlackCat (ALPHV) attacks; demonstrates ongoing ransomware ecosystem activity
-- **Dutch Hackers (Odido Breach)**: Suspected by Dutch National Police in February 2026 breach of telecommunications provider Odido
-- **OpenMandriva Saboteur**: Internal contributor attempted project sabotage following dispute; insider threat example
+- **Silver Fox (China-linked Cybercrime Group)**: Attributed to the development and deployment of MODBEACON, a new Rust-based remote access trojan using gRPC streaming for encrypted command-and-control. QiAnXin researchers note the group operates as cybercrime with possible state tolerance or overlap.
+- **WP-SHELLSTORM Operators**: Cybercrime crew responsible for backdooring thousands of WordPress sites. An exposed operational server revealed hacking tools, activity logs, and target lists over a three-week period, indicating large-scale automated compromise operations.
+- **Ryuk Ransomware Affiliate**: A 34-year-old Armenian national pleaded guilty to hacking U.S. companies and deploying Ryuk ransomware. Sentencing faces up to 15 years in prison. Indicates ongoing law enforcement pressure on ransomware affiliates.
+- **BlackCat (ALPHV) Ransomware Network**: Former ransomware negotiator for DigitalMint sentenced to 70 months for conspiring with BlackCat operators to target U.S. companies. Demonstrates insider threat from incident response personnel.
+- **Unknown Actors (Injective Labs Compromise)**: Unidentified threat actors compromised the Injective Labs GitHub repository to execute a software supply chain attack via malicious npm packages targeting cryptocurrency wallet keys.
+- **Unknown Actors (Gitea Exploitation)**: Active exploitation of the Gitea Docker authentication bypass. Attribution not publicly disclosed; likely multiple threat actors given the critical nature and ease of exploitation.
+- **Vishing Campaign Operators**: Threat actors conducting voice-based social engineering across multiple sectors to enroll malicious Microsoft Entra passkeys. Campaign uses fake security requests and urgency tactics.
+- **Dutch Hackers (Odido Breach)**: Dutch National Police have "strong indications" that Dutch hackers were involved in the February 2026 breach of telecommunications provider Odido. Investigation ongoing.
+- **Ill Bloom Exploiters**: Unknown actors actively exploiting the wallet seed generation flaw to drain over $5 million in cryptocurrency. Likely financially motivated cybercriminals with cryptographic expertise.
 
 ## Source Attribution
 
+- **Australia warns of global campaign targeting vulnerable CMS platforms**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/australia-warns-of-global-campaign-targeting-vulnerable-cms-platforms/
 - **'Ghostcommit' hides prompt injection in images to fool AI agents, steal secrets**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/ghostcommit-hides-prompt-injection-in-images-to-fool-ai-agents-steal-secrets/
 - **Critical Zimbra Flaw Could Let Crafted Emails Run Malicious Code in User Sessions**: The Hacker News - https://thehackernews.com/2026/07/critical-zimbra-flaw-could-let-crafted_0483473395.html
 - **New U-Boot flaws could enable stealthy firmware attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-u-boot-flaws-could-enable-stealthy-firmware-attacks/
@@ -141,4 +126,3 @@ Supply chain attacks remain prevalent, with unknown threat actors compromising t
 - **Attackers Exploit 'Ill Bloom' Vulnerability to Drain Over $5 Million From Cryptocurrency Wallets**: The Hacker News - https://thehackernews.com/2026/07/attackers-exploit-ill-bloom.html
 - **Former ransomware negotiator gets 4 years for BlackCat attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/us-ransomware-negotiator-gets-4-years-in-prison-for-blackcat-attacks/
 - **Ransomware Negotiator Gets 70 Months in Prison for Aiding BlackCat Attacks**: The Hacker News - https://thehackernews.com/2026/07/ransomware-negotiator-gets-70-months-in.html
-- **OpenMandriva Linux says contributor tried to sabotage the project**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/openmandriva-linux-says-contributor-tried-to-sabotage-the-project/
