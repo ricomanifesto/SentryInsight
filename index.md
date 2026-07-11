@@ -2,114 +2,123 @@
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are being actively exploited across diverse technology stacks, from firmware and bootloaders to cloud storage and cryptocurrency infrastructure. The most pervasive threat involves six vulnerabilities in the ubiquitous U-Boot bootloader, which underpins millions of embedded devices including routers, cameras, and server management controllers, enabling persistent firmware-level compromise. Simultaneously, Progress Software has issued an urgent directive for ShareFile customers to immediately shut down Storage Zone Controllers due to a credible active exploitation threat, while attackers are leveraging a critical authentication bypass in the official Gitea Docker image to seize administrative control of source code repositories.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, from firmware and container infrastructure to cryptocurrency wallets and collaboration platforms. The most urgent threats include a critical authentication bypass in the official Gitea Docker image allowing full administrative impersonation, a "credible external security threat" forcing Progress Software to demand immediate shutdown of ShareFile Storage Zone Controllers, and the Ill Bloom cryptocurrency wallet flaw actively draining over $5 million in assets. Supply chain compromise struck Injective Labs' GitHub repository to deliver wallet-stealing npm packages, while the WP-SHELLSTORM campaign has backdoored thousands of WordPress sites. Researchers disclosed six U-Boot bootloader vulnerabilities enabling stealthy firmware persistence, an unpatchable laser fault injection attack against Tangem hardware wallets, and a zero-day in Windows Defender (RoguePlanet) with public proof-of-concept code.
 
-Supply chain attacks have escalated with the compromise of Injective Labs' GitHub repository to distribute wallet-stealing npm packages, and the discovery of the WP-SHELLSTORM campaign backdooring thousands of WordPress sites through an exposed operator server. Cryptocurrency targeting remains intense: the "Ill Bloom" wallet flaw has already facilitated over $5 million in theft, a laser fault-injection attack defeats Tangem hardware wallets irreversibly, and the China-linked Silver Fox group deploys the novel MODBEACON RAT using gRPC streaming for encrypted command-and-control. A Windows Defender zero-day dubbed "RoguePlanet" has seen public proof-of-concept exploitation, and an unpatched XRING flaw in Alibaba's XQUIC library allows trivial HTTP/3 server crashes.
+Threat actor activity spans financially motivated cybercrime and state-linked operations. The China-linked Silver Fox group deployed the new MODBEACON RAT using gRPC streaming for encrypted command-and-control. Dutch hackers are suspected in the February breach of telecommunications provider Odido. Voice-based social engineering campaigns are exploiting fake Microsoft Entra passkey enrollment to compromise Microsoft 365 tenants. Healthcare service providers saw attacks more than double in the first half of 2026. Legal actions concluded against Ryuk and BlackCat/ALPHV ransomware affiliates, while an insider sabotage attempt targeted the OpenMandriva Linux project.
 
 ## Active Exploitation Details
 
-### U-Boot Bootloader Vulnerabilities (Six Flaws)
-- **Description**: Researchers at firmware security firm Binarly discovered six vulnerabilities in U-Boot, the widely deployed open-source bootloader used across home routers, smart cameras, industrial controllers, and server baseboard management controllers (BMCs). The flaws reside in image parsing and verification logic during the boot process.
-- **Impact**: Attackers with physical access or supply chain positioning can craft malicious boot images that execute arbitrary code at the earliest boot stage, before the operating system loads. This enables persistent, stealthy firmware implants that survive OS reinstallation and disk replacement.
-- **Status**: Actively exploitable; patches are being developed but deployment across the vast and fragmented embedded device ecosystem will be slow and incomplete. Many affected devices may never receive updates.
-
-### Progress ShareFile Storage Zone Controllers
-- **Description**: A critical security threat affecting the Windows servers running ShareFile Storage Zone Controllers, which handle file storage and transfer for enterprise customers. Progress Software confirmed a "credible external security threat" and directed immediate shutdown.
-- **Impact**: Successful exploitation could lead to unauthorized access to sensitive corporate files, data exfiltration, and potential lateral movement within connected networks. The urgency of the shutdown directive suggests active exploitation or imminent weaponization.
-- **Status**: Emergency mitigation in progress; customers instructed to power down controllers immediately. No patch available at time of advisory; investigation ongoing.
-
 ### Gitea Docker Image Authentication Bypass
-- **Description**: A critical vulnerability in the official Docker image for Gitea, a self-hosted Git service, allows attackers to bypass authentication and impersonate any user, including administrators.
-- **Impact**: Full administrative takeover of source code repositories, enabling source code theft, malicious code injection, supply chain poisoning, and credential harvesting from CI/CD pipelines.
-- **Status**: Actively exploited in the wild. Administrators must update to patched Docker images immediately and rotate all credentials.
+- **Description**: A critical vulnerability in the official Docker image for Gitea, the self-hosted Git service, allows attackers to bypass authentication and impersonate any user, including administrators.
+- **Impact**: Full administrative access to Gitea instances, enabling source code theft, supply chain poisoning, and lateral movement within development environments.
+- **Status**: Actively exploited in the wild. The vulnerability resides in the Docker image configuration rather than Gitea core code.
+
+### Progress ShareFile Storage Zone Controllers Threat
+- **Description**: Progress Software identified a "credible external security threat" targeting ShareFile Storage Zone Controllers running on Windows servers, prompting an urgent directive for customers to immediately shut down affected servers.
+- **Impact**: Potential compromise of file sharing and storage infrastructure used by enterprises for sensitive data exchange.
+- **Status**: Active threat response in progress. No patch available at time of advisory; mitigation requires service shutdown.
 
 ### Injective Labs GitHub Repository Compromise
-- **Description**: Unknown threat actors compromised the Injective Labs SDK project's GitHub repository and published a malicious npm package designed to steal cryptocurrency wallet private keys from developers integrating the SDK.
-- **Impact**: Developers who installed the poisoned package had their wallet keys exfiltrated, leading to direct cryptocurrency theft. The attack demonstrates the growing risk of supply chain compromise through trusted developer accounts.
-- **Status**: Malicious package identified and removed; investigation into initial compromise vector ongoing. Affected developers must rotate all keys and audit dependencies.
-
-### Tangem Wallet Laser Fault Injection
-- **Description**: Researchers at Ledger's Donjon team demonstrated that a precisely timed laser pulse targeting the chip inside a Tangem hardware wallet card can reset the device's password to an attacker-chosen value.
-- **Impact**: Physical attackers can bypass all authentication and gain full control of the wallet's funds. The vulnerability is hardware-based and cannot be patched via firmware update.
-- **Status**: Unpatchable physical vulnerability; proof-of-concept demonstrated. Users must assume physical possession of the card equals compromise.
-
-### OpenClaw AI Assistant Vulnerabilities (Three Flaws)
-- **Description**: Three now-patched security flaws in the OpenClaw personal AI assistant could be chained together in a WhatsApp-to-host attack chain, enabling credential theft and privilege escalation.
-- **Impact**: Attackers could leverage the AI assistant's access to user communications and system functions to escalate from a messaging context to full host compromise.
-- **Status**: Patched in recent updates; users should ensure they are running the latest version.
-
-### XRING Flaw in XQUIC HTTP/3 Library
-- **Description**: A single incorrect variable in XQUIC, Alibaba's QUIC and HTTP/3 library, allows any remote client to crash the server with a short burst of completely legitimate traffic.
-- **Impact**: Trivial denial-of-service against any service using the vulnerable library. No authentication or malformed packets required.
-- **Status**: Unpatched as of publication; no fix available. Services using XQUIC are exposed to trivial DoS.
-
-### Zimbra Classic Web Client XSS
-- **Description**: A critical cross-site scripting (XSS) vulnerability in the Zimbra Collaboration Suite's Classic Web Client allows attackers to execute arbitrary JavaScript in victims' browsers.
-- **Impact**: Session hijacking, credential theft, and full account takeover for users accessing Zimbra via the affected web client.
-- **Status**: Patch available; Zimbra security team urges immediate application.
-
-### Ill Bloom Cryptocurrency Wallet Flaw
-- **Description**: A flaw in how certain wallet software generates recovery phrases (seed words), dubbed "Ill Bloom" by security firm Coinspect, creates predictable or weak entropy.
-- **Impact**: Attackers can brute-force or predict recovery phrases, draining wallet funds. Over $5 million already stolen through active exploitation.
-- **Status**: Actively exploited; affected wallet providers must patch entropy generation and users must migrate funds to new wallets.
+- **Description**: Unknown threat actors compromised the Injective Labs SDK project's GitHub repository and published a malicious package to the npm registry designed to steal cryptocurrency wallet private keys.
+- **Impact**: Developers integrating the compromised SDK risk exposure of wallet credentials and cryptocurrency assets. Supply chain impact extends to downstream projects.
+- **Status**: Active compromise discovered; malicious package published to npm. Repository and package remediation underway.
 
 ### WP-SHELLSTORM WordPress Backdoor Campaign
-- **Description**: A cybercrime operation backdooring thousands of WordPress sites using a toolkit dubbed WP-SHELLSTORM. An exposed operator server revealed hacking tools, activity logs, and target lists.
-- **Impact**: Persistent access to compromised websites for malware distribution, SEO spam, credential harvesting, and further lateral movement.
-- **Status**: Active campaign; exposed infrastructure provides attribution and IOC data for defenders.
+- **Description**: A cybercrime operation backdoored thousands of WordPress sites using the WP-SHELLSTORM toolkit. An exposed attacker server revealed hacking tools, activity logs, and target lists over a three-week period.
+- **Impact**: Persistent access to compromised WordPress installations, enabling data theft, SEO poisoning, and further malware distribution.
+- **Status**: Active campaign exposed via operational security failure. Thousands of sites confirmed compromised.
 
-### Fake Microsoft Entra Passkey Enrollment
-- **Description**: Threat actors use voice-based social engineering (vishing) to trick Microsoft 365 users into enrolling a malicious Entra passkey, granting persistent authentication access.
-- **Impact**: Full account takeover bypassing MFA, with persistence through legitimate passkey infrastructure. Difficult to detect as enrollment appears authorized.
-- **Status**: Active campaign targeting multiple sectors; user education and conditional access policies are primary mitigations.
+### Ill Bloom Cryptocurrency Wallet Vulnerability
+- **Description**: A flaw in how certain wallet software generates recovery phrases (seed words) allows attackers to derive private keys and drain funds. Disclosed by Coinspect as "Ill Bloom."
+- **Impact**: Over $5 million stolen from cryptocurrency wallets to date. Affected wallets generate predictable or weak entropy in seed phrase generation.
+- **Status**: Actively exploited. Wallet vendors urged to audit seed generation implementations.
+
+### Fake Microsoft Entra Passkey Enrollment Campaign
+- **Description**: Threat actors conduct voice-based social engineering (vishing) posing as security requests, prompting Microsoft 365 users to enroll a new Entra passkey controlled by the attacker.
+- **Impact**: Full account takeover of Microsoft 365 identities, bypassing multi-factor authentication and enabling business email compromise, data exfiltration, and lateral movement.
+- **Status**: Active campaign targeting organizations across multiple sectors.
+
+### U-Boot Bootloader Vulnerabilities (Six Flaws)
+- **Description**: Researchers at Binarly discovered six vulnerabilities in U-Boot, the universal bootloader used in routers, smart cameras, management controllers, and embedded devices. Flaws allow malicious firmware images to execute code at boot or crash devices.
+- **Impact**: Pre-OS code execution enabling persistent, stealthy firmware implants that survive OS reinstallation and disk replacement. Affects a vast ecosystem of embedded and IoT devices.
+- **Status**: Disclosed by Binarly. Patch availability varies by vendor and device downstream integration.
+
+### XRING Flaw in XQUIC HTTP/3 Library
+- **Description**: A single incorrect variable in XQUIC (Alibaba's QUIC and HTTP/3 library) allows any remote client to crash the server with a short burst of legitimate traffic. No patch available.
+- **Impact**: Denial of service for any service using XQUIC for HTTP/3. Triggerable by unauthenticated remote clients.
+- **Status**: Unpatched. FoxIO researchers disclosed the flaw; upstream fix pending.
+
+### Zimbra Classic Web Client XSS Vulnerability
+- **Description**: A critical cross-site scripting (XSS) vulnerability affects the Classic Web Client of the Zimbra Collaboration suite.
+- **Impact**: Attackers can execute arbitrary JavaScript in victims' browsers, leading to session hijacking, credential theft, and full account compromise.
+- **Status**: Zimbra security team urgently advising customers to patch. Exploitation likelihood high given critical severity.
+
+### Tangem Wallet Laser Fault Injection Attack
+- **Description**: Ledger Donjon researchers demonstrated that a precisely timed laser pulse targeting the chip in a Tangem crypto wallet card can reset the device password to an attacker-chosen value.
+- **Impact**: Physical access enables complete wallet takeover. The vulnerability is unpatchable due to hardware design.
+- **Status**: Proof-of-concept demonstrated. No software mitigation possible; requires hardware revision.
+
+### OpenClaw AI Assistant Vulnerability Chain
+- **Description**: Three now-patched flaws in the OpenClaw personal AI assistant could be chained for a WhatsApp-to-host attack, enabling credential theft and privilege escalation.
+- **Impact**: Compromise of AI assistant host system via malicious WhatsApp message processing.
+- **Status**: Patched. Research details published demonstrating exploit chain.
 
 ### RoguePlanet Windows Defender Zero-Day
-- **Description**: A zero-day vulnerability in Windows Defender, publicly disclosed with proof-of-concept exploit code by researcher "Nightmare-Eclipse" in early June 2026.
-- **Impact**: Potential bypass of Windows Defender protections, enabling malware execution without detection. Part of a series of Microsoft zero-days from the same researcher.
-- **Status**: Microsoft has addressed the threat; defenders should ensure Defender definitions and OS patches are current.
+- **Description**: Researcher "Nightmare-Eclipse" published a proof-of-concept exploit for a Windows Defender vulnerability after previously disclosing other Microsoft zero-days.
+- **Impact**: Potential bypass or disablement of Windows Defender protections, facilitating malware execution and persistence.
+- **Status**: PoC public. Microsoft response in progress.
+
+### MODBEACON RAT Deployment by Silver Fox
+- **Description**: The China-linked Silver Fox cybercrime group deployed MODBEACON, a new Rust-based remote access trojan using gRPC streaming for encrypted command-and-control traffic.
+- **Impact**: Stealthy persistent access with modern encrypted C2 resistant to traditional network inspection.
+- **Status**: Active deployment attributed to Silver Fox by QiAnXin.
 
 ## Affected Systems and Products
 
-- **U-Boot Bootloader**: All devices using vulnerable U-Boot versions, including home routers, IP cameras, IoT gateways, server BMCs, industrial controllers, and embedded Linux systems across vendors
-- **Progress ShareFile Storage Zone Controllers**: Windows servers running Storage Zone Controller components for on-premises or hybrid ShareFile deployments
-- **Gitea Docker Image**: Official `gitea/gitea` Docker images prior to patched versions; affects all self-hosted Gitea instances deployed via Docker
-- **Injective Labs SDK / npm**: Developers who installed the compromised `@injectivelabs/sdk` or related packages from npm registry
-- **Tangem Hardware Wallets**: All Tangem wallet card versions; hardware flaw affects entire product line irreversibly
-- **OpenClaw AI Assistant**: All versions prior to the security patch release; affects users of the personal AI assistant software
-- **XQUIC Library**: Services and applications using Alibaba's XQUIC library for QUIC/HTTP/3 implementation, including FoxIO and other downstream consumers
-- **Zimbra Collaboration Suite**: Deployments using the Classic Web Client; Modern Web Client reportedly unaffected
-- **Cryptocurrency Wallets (Ill Bloom)**: Specific wallet implementations with flawed recovery phrase generation; exact products under investigation by Coinspect
-- **WordPress Sites**: Thousands of sites compromised via WP-SHELLSTORM backdoors; primarily sites with vulnerable plugins, weak credentials, or unpatched core
-- **Microsoft 365 / Entra ID**: Organizations using Microsoft Entra passkey authentication; users targeted via vishing social engineering
-- **Windows Defender**: Windows 10/11 and Server systems prior to June 2026 Defender updates addressing RoguePlanet
+- **Gitea (Official Docker Image)**: All deployments using the official Docker image; self-hosted Git service instances exposed to authentication bypass.
+- **Progress ShareFile Storage Zone Controllers**: Windows servers hosting Storage Zone Controllers for ShareFile file sharing platform; immediate shutdown advised.
+- **Injective Labs SDK / npm Package**: Developers and projects using the compromised Injective Labs SDK package from npm registry.
+- **WordPress Sites (WP-SHELLSTORM Campaign)**: Thousands of WordPress installations backdoored via WP-SHELLSTORM toolkit; global targeting observed.
+- **Cryptocurrency Wallets (Ill Bloom)**: Wallet software implementations with flawed seed phrase / recovery phrase generation entropy; multiple vendors potentially affected.
+- **Microsoft Entra / Microsoft 365**: Organizations using Microsoft Entra ID passkey authentication; users targeted via vishing social engineering.
+- **U-Boot Bootloader Devices**: Embedded devices, routers, IP cameras, baseboard management controllers (BMCs), and IoT hardware using U-Boot; vast vendor ecosystem downstream.
+- **XQUIC / Alibaba QUIC Library**: Services and applications using XQUIC for HTTP/3 and QUIC transport; server-side deployments vulnerable to DoS.
+- **Zimbra Collaboration Suite (Classic Web Client)**: Zimbra deployments using the Classic Web Client interface; critical XSS in web mail component.
+- **Tangem Hardware Wallet Cards**: Tangem crypto wallet cards (hardware); unhardened against laser fault injection; unpatchable in field.
+- **OpenClaw AI Assistant**: Deployments of OpenClaw personal AI assistant prior to patch; WhatsApp integration attack surface.
+- **Windows Defender**: Windows systems potentially affected by RoguePlanet zero-day; PoC exploit public.
+- **MODBEACON RAT Targets**: Organizations targeted by Silver Fox group; gRPC-based C2 indicates modern infrastructure targeting.
 
 ## Attack Vectors and Techniques
 
-- **Firmware/Supply Chain Implantation**: Malicious boot images crafted to exploit U-Boot parsing flaws, enabling persistent pre-OS code execution surviving disk wipes
-- **Emergency Shutdown Bypass**: Attackers targeting the window between vulnerability disclosure and Storage Zone Controller shutdown to exfiltrate data
-- **Container Image Authentication Bypass**: Exploiting misconfiguration or logic flaw in Gitea's Docker entrypoint to assume arbitrary user identities including admin
-- **Supply Chain Poisoning via Compromised Developer Account**: GitHub repository takeover used to publish malicious npm packages signed with legitimate maintainer credentials
-- **Physical Fault Injection**: Laser glitching targeting secure element during authentication to force password reset to known value
-- **AI Assistant Attack Chaining**: Combining multiple vulnerabilities in OpenClaw to escalate from messaging platform (WhatsApp) to host system compromise
-- **Protocol Logic DoS**: Sending legitimate but crafted HTTP/3 packets triggering integer/variable error in XQUIC causing server crash without malformed traffic
-- **Cross-Site Scripting in Webmail**: Classic reflected/stored XSS in Zimbra web client executed in victim browser context during email viewing
-- **Entropy Reduction in Key Derivation**: Exploiting weak randomness in BIP-39 mnemonic generation to brute-force wallet recovery phrases
-- **Automated CMS Backdooring**: WP-SHELLSTORM toolkit automates WordPress compromise, backdoor installation, and C2 registration at scale
-- **Voice Phishing for Passkey Enrollment**: Social engineering via phone calls impersonating IT support to trick users into registering attacker-controlled FIDO2 credentials
-- **Public Zero-Day Exploitation**: Researcher "Nightmare-Eclipse" publishing functional PoC for Windows Defender flaw enabling immediate weaponization
-- **gRPC Streaming for Encrypted C2**: MODBEACON RAT uses gRPC bidirectional streaming to blend C2 traffic with legitimate service mesh traffic
+- **Container Image Supply Chain Compromise**: Malicious configuration in official Gitea Docker image enables authentication bypass without code modification to upstream project.
+- **Service Shutdown as Emergency Mitigation**: Progress ShareFile advisory demonstrates "pull the plug" response when patch unavailable and active exploitation credible.
+- **GitHub Repository Hijacking for npm Poisoning**: Compromise of legitimate developer repository to publish malicious package to public registry (Injective Labs).
+- **Automated WordPress Mass Compromise**: WP-SHELLSTORM toolkit enables large-scale backdoor deployment across thousands of WordPress sites with persistent access.
+- **Cryptographic Entropy Failure Exploitation**: Ill Bloom exploits weak randomness in BIP-39 seed phrase generation to derive private keys and drain wallets.
+- **Voice Phishing (Vishing) for MFA Bypass**: Social engineering via phone calls manipulates users into enrolling attacker-controlled passkeys in Microsoft Entra.
+- **Firmware-Level Implant via Bootloader**: U-Boot vulnerabilities allow malicious firmware images to achieve code execution before OS load, enabling persistent stealthy implants.
+- **HTTP/3 Protocol DoS via Single-Variable Bug**: XQUIC flaw triggers server crash with legitimate QUIC packets; no authentication or malformed traffic required.
+- **Cross-Site Scripting in Collaboration Web Client**: Zimbra Classic Web Client XSS enables session hijacking via malicious email or shared content.
+- **Laser Fault Injection Against Secure Hardware**: Precise laser glitching resets Tangem wallet password; physical attack bypasses all software controls.
+- **AI Assistant Prompt Injection Chain**: OpenClaw flaws chained via WhatsApp message processing to escape sandbox and compromise host system.
+- **Zero-Day Exploit Publication**: Nightmare-Eclipse publishes PoC for Windows Defender vulnerability (RoguePlanet) after prior Microsoft zero-day drops.
+- **gRPC Streaming for Encrypted C2**: MODBEACON RAT uses gRPC streaming to hide command-and-control traffic within legitimate-looking encrypted RPC streams.
 
 ## Threat Actor Activities
 
-- **Silver Fox (China-linked cybercrime group)**: Deploying MODBEACON, a new Rust-based RAT using gRPC streaming for encrypted command-and-control. Attributed by QiAnXin. Targets unclear but consistent with opportunistic cybercrime and potential espionage.
-- **WP-SHELLSTORM Operators**: Cybercrime crew operating at scale, backdooring thousands of WordPress sites. Exposed server revealed tools, logs, and target lists. Identity unknown; infrastructure compromise provides rare visibility into operations.
-- **Injective Labs Compromise Actor**: Unknown threat actor(s) who gained write access to Injective Labs GitHub repository and npm publishing credentials. Motivation: cryptocurrency theft via developer wallet compromise.
-- **Ryuk/BlackCat Ransomware Affiliates**: Armenian national pleaded guilty to deploying Ryuk ransomware against U.S. companies; former DigitalMint negotiator sentenced to 70 months for conspiring with BlackCat (ALPHV) operators. Demonstrates continued prosecution of ransomware ecosystem participants.
-- **Iranian Threat Actors**: Per Dark Reading analysis, Iranian cyber operations expanding beyond critical infrastructure to target any organization with internet-facing vulnerabilities. Broad opportunistic targeting posture.
-- **Nightmare-Eclipse (Independent Researcher)**: Published PoC exploits for multiple Microsoft zero-days including RoguePlanet (Windows Defender). Activity blurs line between research and irresponsible disclosure; enables script-kiddie weaponization.
-- **Dutch Hackers (Odido Breach)**: Dutch National Police found "strong indications" of Dutch nationals involved in February 2026 breach of telecommunications provider Odido. Investigation ongoing.
-- **OpenMandriva Saboteur**: Internal contributor attempted to sabotage the OpenMandriva Linux project following a dispute. Insider threat to software supply chain; caught before malicious code merged.
-- **Bulgarian Money Launderer**: Charged with stealing $290,000 in government-seized cryptocurrency while incarcerated. Demonstrates persistent criminal access to seized asset wallets.
+- **Silver Fox (China-Linked Cybercrime Group)**: Deploying MODBEACON RAT with gRPC streaming C2; attributed by QiAnXin. Active development of Rust-based tooling for stealthy persistence.
+- **Nightmare-Eclipse (Independent Researcher/Operator)**: Publishing proof-of-concept exploits for Microsoft zero-days including RoguePlanet Windows Defender vulnerability; history of multiple zero-day disclosures.
+- **WP-SHELLSTORM Operators (Unidentified Cybercrime Crew)**: Running large-scale WordPress compromise campaign; exposed server revealed tools, logs, and target lists over three-week operational window.
+- **Injective Labs Compromise Actors (Unknown)**: Sophisticated supply chain attack compromising GitHub repository to publish wallet-stealing npm package; infrastructure and attribution not publicly disclosed.
+- **Gitea Docker Exploitation Actors (Unknown)**: Actively scanning and exploiting authentication bypass in Gitea Docker deployments; targeting development infrastructure.
+- **Ill Bloom Exploitation Actors (Unknown)**: Actively draining cryptocurrency wallets (>$5M stolen) by exploiting weak seed phrase generation; ongoing financial motivation.
+- **Entra Passkey Vishing Group (Unknown)**: Conducting voice-based social engineering campaigns across multiple sectors to enroll attacker-controlled passkeys; MFA bypass via social manipulation.
+- **Dutch Hackers (Suspected in Odido Breach)**: Dutch National Police found "strong indications" of Dutch threat actors involved in February breach of telecommunications provider Odido.
+- **Ryuk Ransomware Affiliate (Armenian National, 34)**: Pleaded guilty in U.S. court to hacking companies and deploying Ryuk ransomware; faces 15 years imprisonment.
+- **BlackCat/ALPHV Ransomware Insider (Former DigitalMint Negotiator)**: Sentenced to 70 months for conspiring with BlackCat operator to target U.S. companies; insider abuse of incident response access.
+- **Iran-Linked Threat Actors**: Expanding targeting beyond critical infrastructure; any Internet-facing vulnerability exploited per Dark Reading analysis.
+- **OpenMandriva Saboteur (Internal Contributor)**: Attempted project sabotage following contributor dispute; insider threat to Linux distribution supply chain.
 
 ## Source Attribution
 
