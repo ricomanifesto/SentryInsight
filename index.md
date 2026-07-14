@@ -2,100 +2,102 @@
 
 ## Executive Summary
 
-Russian state-sponsored threat actors continue to dominate the threat landscape with coordinated campaigns targeting critical infrastructure across Europe and NATO allies. The UK and EU have jointly imposed first-of-their-kind sanctions on Russian GRU military hackers and associated entities, while a multinational advisory from the US and eight partner nations warns of active exploitation of vulnerable and misconfigured routers to infiltrate critical infrastructure networks. These operations leverage weak security postures, default credentials, and unpatched network devices to establish persistent access for espionage and potential disruptive attacks.
+A significant wave of supply chain and identity-based attacks has dominated recent threat activity, with multiple high-impact campaigns targeting developer ecosystems, cloud identity platforms, and enterprise SaaS environments. The compromise of the Jscrambler npm package—downloaded nearly 1,500 times before detection—demonstrates the continuing potency of software supply chain injection, while the discovery of a covert data collector in the ModHeader browser extension with 1.6 million installations highlights the risk posed by seemingly legitimate productivity tools. Simultaneously, threat actors are bypassing traditional vulnerability exploitation in favor of credential theft, misconfiguration abuse, and adversary-in-the-middle phishing frameworks such as Evilginx and the newly observed Forg365 PhaaS, which combine device code phishing with AiTM session hijacking to compromise Microsoft 365 tenants at scale.
 
-Supply chain compromise has emerged as a critical vector this period, with two significant npm package incidents demonstrating the ongoing risk to software development pipelines. The Jscrambler client-side security package was compromised at version 8.14.0, embedding a Rust-based infostealer in a preinstall hook that executed on every installation—amassing nearly 1,500 downloads before detection. Simultaneously, the popular ModHeader browser extension with 1.6 million installs across Chrome and Edge was removed from both stores after researchers discovered a dormant browsing-history collector. These incidents highlight how trusted developer tools and browser extensions are being weaponized for credential theft and reconnaissance.
-
-Active exploitation of content management systems has surged, with CISA adding two maximum-severity remote code execution flaws in Joomla extensions—iCagenda and Balbooa Forms—to its Known Exploited Vulnerabilities catalog following reports of zero-day exploitation. Australia's ACSC has concurrently warned of a global campaign targeting vulnerable CMS platforms and plugins broadly. On the macOS front, the new CrashStealer malware employs a notarized dropper to bypass Gatekeeper protections, masquerading as Apple's crash reporter to harvest credentials, keychain data, and cryptocurrency wallets. Phishing-as-a-service operations continue to evolve, with Forg365 combining device code phishing, adversary-in-the-middle session theft, and AI-assisted antibot evasion to target Microsoft 365 environments at scale.
+Russian state-sponsored activity remains a primary strategic threat, with joint sanctions from the UK, EU, and a nine-nation coalition attributing critical infrastructure targeting to GRU-linked actors exploiting poorly configured routers. CISA has added two maximum-severity Joomla extension flaws—in iCagenda and Balbooa Forms—to its Known Exploited Vulnerabilities catalog, confirming active zero-day exploitation in the wild. On the malware front, macOS faces a novel information stealer dubbed CrashStealer that abuses a notarized dropper to bypass Gatekeeper, while Android malware RedHook leverages Wireless ADB for unauthorized shell access. A year-long Salesforce data theft campaign linked to ShinyHunters succeeded entirely through credential reuse, misconfigured permissions, and third-party integration abuse—without exploiting a single platform vulnerability.
 
 ## Active Exploitation Details
 
-### Joomla iCagenda and Balbooa Forms RCE Vulnerabilities
-- **Description**: Two maximum-severity remote code execution vulnerabilities affecting the iCagenda and Balbooa Forms extensions for Joomla content management systems. The flaws allow unauthenticated attackers to execute arbitrary code on affected installations.
-- **Impact**: Full compromise of Joomla websites, enabling data theft, defacement, lateral movement, and deployment of additional payloads such as web shells or ransomware.
-- **Status**: Actively exploited in the wild as zero-days. CISA has added both vulnerabilities to its Known Exploited Vulnerabilities catalog, mandating federal agencies to patch immediately. Patches are available from the extension vendors.
-- **CVE ID**: CVE-2026-XXXX (iCagenda), CVE-2026-XXXX (Balbooa Forms)
+### Jscrambler npm Package Supply Chain Compromise
+- **Description**: Attackers published a malicious version (8.14.0) of the legitimate Jscrambler client-side security npm package containing a preinstall hook that executes a Rust-based infostealer during installation. The compromised package was published on July 11, 2026, and downloaded approximately 1,500 times before removal.
+- **Impact**: Full infostealer execution on developer and CI/CD machines during routine dependency installation, enabling credential theft, environment variable exfiltration, and potential lateral movement into build pipelines.
+- **Status**: Malicious version 8.14.0 identified and removed; users advised to audit installations and rotate credentials used in affected environments.
 
-### Jscrambler npm Package Supply Chain Compromise (v8.14.0)
-- **Description**: Threat actors compromised the Jscrambler client-side web security npm package, publishing version 8.14.0 with a malicious preinstall hook that executes a Rust-based infostealer during installation. The compromised package was available for download on July 11, 2026.
-- **Impact**: Any developer or CI/CD pipeline installing jscrambler@8.14.0 executes the infostealer, which harvests credentials, environment variables, SSH keys, cryptocurrency wallet data, and browser data from the build machine or developer workstation.
-- **Status**: Malicious version identified and flagged. Package downloaded approximately 1,500 times before detection. Users advised to audit systems where v8.14.0 was installed and rotate all credentials.
-- **CVE ID**: CVE-2026-XXXX
+### ModHeader Browser Extension Covert Data Collection
+- **Description**: The popular ModHeader header-editing extension (approximately 1.6 million installs across Chrome and Edge) contained a dormant browsing-history collector that activated under specific conditions, silently harvesting user browsing data.
+- **Impact**: Mass-scale surveillance of browsing activity for over a million users, potentially exposing sensitive URLs, authentication tokens in query parameters, and internal application endpoints.
+- **Status**: Google and Microsoft have removed the extension from both Chrome Web Store and Microsoft Edge Add-ons store; users should uninstall immediately and clear browsing data.
 
-### ModHeader Browser Extension Data Collection
-- **Description**: The ModHeader browser extension (approximately 1.6 million installs across Chrome and Edge) contained a hidden browsing-history collector that remained dormant before exfiltrating user browsing data. The functionality was not disclosed in the extension's description or permissions.
-- **Impact**: Comprehensive browsing history collection from 1.6 million users across enterprise and personal environments, enabling profiling, credential inference, and targeted follow-on attacks.
-- **Status**: Google and Microsoft have removed the extension from both the Chrome Web Store and Microsoft Edge Add-ons store. Users should uninstall immediately and review browser data exposure.
-- **CVE ID**: CVE-2026-XXXX
+### CISA KEV Addition: iCagenda and Balbooa Forms Joomla Extensions
+- **Description**: CISA added two maximum-severity remote code execution vulnerabilities affecting the iCagenda and Balbooa Forms extensions for Joomla to its Known Exploited Vulnerabilities catalog, confirming active exploitation in the wild as zero-days prior to patch availability.
+- **Impact**: Unauthenticated remote code execution on Joomla sites running vulnerable extensions, leading to full server compromise, data exfiltration, and persistence.
+- **Status**: Actively exploited; patches reportedly available; organizations using Joomla with these extensions should apply updates immediately and hunt for indicators of compromise.
 
 ### CrashStealer macOS Information Stealer
-- **Description**: A new macOS malware family named CrashStealer that masquerades as Apple's legitimate crash reporting tool. The malware uses a notarized dropper—signed by Apple's notarization service—to pass Gatekeeper checks and execute on target systems without security warnings.
-- **Impact**: Theft of system credentials, keychain contents (including stored passwords and certificates), cryptocurrency wallet data, browser cookies and autofill data, and other sensitive information from compromised macOS devices.
-- **Status**: Actively distributed. The notarized dropper technique represents a significant evasion capability against macOS built-in protections. No patch available; detection relies on behavioral analysis and threat intelligence.
-- **CVE ID**: CVE-2026-XXXX
+- **Description**: A new macOS malware family masquerading as Apple's crash reporting tool (Crash Reporter) that uses a notarized dropper to pass Gatekeeper checks, enabling installation without security warnings. The payload harvests credentials, keychain data, and cryptocurrency wallet information.
+- **Impact**: Credential theft, keychain compromise, cryptocurrency wallet drainage, and potential access to enterprise resources via stolen authentication material.
+- **Status**: Active in the wild; notarized dropper indicates Apple Developer Program abuse or certificate theft; detection signatures being deployed.
 
-### Forg365 Phishing-as-a-Service Platform
-- **Description**: A commercial phishing-as-a-service (PhaaS) operation targeting Microsoft 365 environments. Forg365 combines device code phishing (abusing the OAuth device authorization flow), adversary-in-the-middle (AitM) session hijacking, antibot evasion techniques, and AI-assisted content generation to defeat security controls.
-- **Impact**: Full account takeover of Microsoft 365 users including MFA bypass via session token theft, access to Exchange, SharePoint, Teams, and OneDrive data, and persistent access through registered devices or malicious OAuth applications.
-- **Status**: Actively operational and advertised in underground markets. Represents an evolution in PhaaS capabilities with sophisticated evasion and automation.
-- **CVE ID**: CVE-2026-XXXX
+### Forg365 Phishing-as-a-Service (PhaaS) Platform
+- **Description**: A new PhaaS operation targeting Microsoft 365 that combines device code phishing (abusing the OAuth device authorization flow) with adversary-in-the-middle (AiTM) session theft, antibot evasion, and AI-assisted lure generation.
+- **Impact**: Bypass of MFA protections, full session token capture, persistent access to Microsoft 365 mailboxes and SharePoint/OneDrive data, and credential harvesting.
+- **Status**: Actively operated; campaigns observed targeting enterprise Microsoft 365 tenants.
 
-### GigaWiper Modular Destructive Malware
-- **Description**: A modular implant that combines backdoor functionality with wiper capabilities, borrowing code and techniques from multiple known malware families. The architecture allows threat actors to select specific destructive payloads based on operational objectives.
-- **Impact**: Flexible attack platform supporting both persistent espionage access and destructive wiping operations. Can target specific files, directories, or entire filesystems while maintaining command and control for follow-on activity.
-- **Status**: Active in the wild. Modular design suggests use by sophisticated actors capable of tailoring attacks per victim.
-- **CVE ID**: CVE-2026-XXXX
+### Evilginx Phishing Operations Targeting Microsoft 365
+- **Description**: Three distinct Evilginx-based phishing campaigns exposed via a misconfigured Python web server (directory listing enabled on port 8080) that revealed phishing kits, captured credentials, and operational infrastructure.
+- **Impact**: Credential and session token theft from Microsoft 365 users; AiTM proxy enables real-time MFA bypass and account takeover.
+- **Status**: Active campaigns disrupted by exposure; infrastructure indicators available for blocking and hunting.
 
-### RedHook Android Malware Wireless ADB Exploitation
-- **Description**: Updated version of the RedHook Android banking trojan that abuses the Wireless Debugging (Wireless ADB) feature to gain shell-level access on target devices without requiring a physical USB connection or computer.
-- **Impact**: Full shell access on compromised Android devices, enabling credential theft, SMS interception, overlay attacks, cryptocurrency wallet drainage, and persistent device control.
-- **Status**: Actively distributed. Novel exploitation of a legitimate developer feature represents an evolution in mobile malware capabilities.
-- **CVE ID**: CVE-2026-XXXX
+### RedHook Android Malware Wireless ADB Abuse
+- **Description**: Updated version of RedHook Android malware that exploits the Wireless Debugging (Wireless ADB) feature to gain shell-level access without requiring a physical USB connection to a computer.
+- **Impact**: Remote shell access on infected devices, enabling data exfiltration, app injection, keystroke logging, and persistent control.
+- **Status**: Active distribution; users with Wireless Debugging enabled on untrusted networks at elevated risk.
+
+### GigaWiper Modular Destructive Implant
+- **Description**: A modular malware framework combining backdoor functionality with wiper capabilities, borrowing code from multiple malware families to maximize operational flexibility and destructive impact.
+- **Impact**: Data theft and espionage via backdoor; selective or mass data destruction via wiper module; designed for high-impact sabotage operations.
+- **Status**: Observed in threat actor toolkits; modular design suggests adaptability for varied targets.
+
+### MemGhost AI Agent Memory Poisoning Attack
+- **Description**: A novel attack technique where a single malicious email causes an AI agent with memory capabilities to store persistent false "facts" about the user, which subsequently influence the agent's behavior and responses in future interactions.
+- **Impact**: Long-term manipulation of AI assistant behavior, potential privilege escalation through confused deputy scenarios, and persistent misdirection of automated workflows.
+- **Status**: Proof-of-concept demonstrated; represents emerging attack surface in AI-integrated environments.
 
 ## Affected Systems and Products
 
-- **Joomla CMS with iCagenda Extension**: All versions prior to patched release; Joomla 3.x, 4.x, and 5.x sites using the iCagenda event management component
-- **Joomla CMS with Balbooa Forms Extension**: All versions prior to patched release; Joomla sites using the Balbooa Forms Builder component for form creation
-- **npm/Jscrambler Package**: Version 8.14.0 specifically; any Node.js project, CI/CD pipeline, or developer workstation that installed this version
-- **ModHeader Browser Extension**: All versions prior to removal from stores; Chrome and Edge browsers with the extension installed (approximately 1.6 million users)
-- **macOS Systems**: All versions supporting notarized applications; macOS Gatekeeper bypass via legitimate Apple notarization process
-- **Microsoft 365 / Entra ID Tenants**: Organizations using device code authentication flow; all tenants with default OAuth settings permitting device code grants
-- **Android Devices**: Devices with Wireless Debugging (Wireless ADB) enabled; Android 11+ where the feature is available
-- **Network Infrastructure Devices**: Routers, firewalls, VPN gateways, and other edge devices with default credentials, weak passwords, or unpatched vulnerabilities—specifically those exposed to internet-accessible management interfaces
-- **Content Management Systems (Broad)**: WordPress, Drupal, Joomla, and other CMS platforms with outdated core versions, vulnerable plugins/extensions, or weak administrative credentials—targeted in global exploitation campaign
+- **Jscrambler npm package v8.14.0**: JavaScript/Node.js development environments; CI/CD pipelines using npm dependencies
+- **ModHeader browser extension (Chrome/Edge)**: ~1.6 million installations across Chrome Web Store and Microsoft Edge Add-ons
+- **Joomla CMS with iCagenda extension**: Sites using iCagenda event management component (all versions prior to patched release)
+- **Joomla CMS with Balbooa Forms extension**: Sites using Balbooa Forms builder component (all versions prior to patched release)
+- **macOS systems**: All versions supporting notarized applications and Gatekeeper; CrashStealer dropper bypasses both
+- **Microsoft 365 tenants**: Enterprise and business subscriptions targeted by Forg365 PhaaS and Evilginx campaigns
+- **Android devices**: Devices with Wireless Debugging (Wireless ADB) enabled, particularly on untrusted networks
+- **Salesforce environments**: Organizations with compromised credentials, misconfigured sharing settings, or vulnerable third-party AppExchange integrations
+- **Network routers and edge devices**: Poorly configured or vulnerable routers targeted by Russian state actors for critical infrastructure access
+- **AI agents with persistent memory**: Systems integrating long-term memory stores with email/message ingestion capabilities
 
 ## Attack Vectors and Techniques
 
-- **Supply Chain Compromise (npm)**: Malicious code injection into legitimate package preinstall hooks; executes automatically during `npm install` without user interaction beyond running the install command
-- **Supply Chain Compromise (Browser Extensions)**: Hidden data collection functionality in popular browser extensions; leverages extensive permission grants and automatic update mechanisms
-- **Zero-Day Exploitation of CMS Extensions**: Unauthenticated RCE via vulnerable Joomla components; exploited before vendor patches available
-- **Notarized Malware Dropper (macOS)**: Abuse of Apple's notarization service to sign malicious droppers; bypasses Gatekeeper and user consent prompts
-- **Device Code Phishing (OAuth)**: Abuse of OAuth 2.0 Device Authorization Grant (RFC 8628); attacker initiates flow, sends user code to victim, victim enters code on legitimate Microsoft login page, attacker receives tokens
-- **Adversary-in-the-Middle (AitM) Phishing**: Reverse proxy toolkits (Evilginx, Modlishka) intercepting session cookies and MFA tokens; real-time credential and session harvesting
-- **AI-Generated Attack Scripts**: Suspected LLM-generated PowerShell scripts for Active Directory enumeration; "vibe-coded" scripts with characteristic structure and comments
-- **Wireless ADB Exploitation (Android)**: Abuse of Wireless Debugging feature over local network; enables shell access without physical connection or USB debugging authorization
-- **Router/Edge Device Compromise**: Exploitation of default credentials, known vulnerabilities, and misconfigurations on internet-exposed management interfaces; used as initial access for critical infrastructure targeting
-- **Evilginx Phishing Infrastructure**: Misconfigured phishing servers (directory listing enabled) revealing active campaigns; Python HTTP servers hosting phishing kits targeting Microsoft 365
-- **Modular Wiper/Backdoor Architecture**: GigaWiper's plugin-based design allowing dynamic payload selection; code reuse from multiple malware families for operational flexibility
-- **Caller ID Spoofing Platform (Russian Coms)**: Infrastructure-as-a-service for vishing/smishing; 1.8M+ scam calls facilitated through automated platform
+- **Software Supply Chain Injection**: Malicious code injected into legitimate npm package (Jscrambler) via compromised publish credentials or build pipeline; executed via preinstall hook during `npm install`
+- **Browser Extension Data Exfiltration**: Dormant collector embedded in popular extension (ModHeader) activates silently to harvest browsing history and sensitive URL parameters
+- **Remote Code Execution via Web Application Flaws**: Unauthenticated RCE in Joomla extensions (iCagenda, Balbooa Forms) exploited as zero-days for initial access and server takeover
+- **Notarized Malware Dropper Abuse**: Legitimate Apple notarization process subverted to sign malicious dropper (CrashStealer) that bypasses Gatekeeper and executes unsigned payload
+- **Device Code Phishing (OAuth Device Authorization Flow)**: Attacker initiates device code flow, tricks user into entering code on legitimate Microsoft login page, captures resulting tokens (Forg365)
+- **Adversary-in-the-Middle (AiTM) Phishing**: Evilginx and Forg365 deploy reverse-proxy phishing sites that relay credentials and MFA challenges in real-time, capturing session cookies
+- **Credential Reuse and Stuffing**: ShinyHunters campaign accessed Salesforce via leaked/reused credentials without exploiting platform vulnerabilities
+- **Misconfigured Cloud/SaaS Permissions**: Excessive sharing settings, over-permissive third-party integrations, and weak access controls in Salesforce and Microsoft 365
+- **Wireless ADB Exploitation**: RedHook abuses Android's Wireless Debugging feature to establish unauthenticated shell access over local network
+- **AI-Generated Offensive Tooling**: Suspected AI-generated PowerShell scripts used for Active Directory enumeration and reconnaissance
+- **Memory Poisoning in AI Agents**: Single malicious email injects persistent false memories into AI agents with long-term memory, manipulating future behavior
+- **Router and Edge Device Exploitation**: Russian actors target vulnerable/misconfigured routers for initial access to critical infrastructure networks
 
 ## Threat Actor Activities
 
-- **Russian GRU / APT28 / Fancy Bear / Forest Blizzard**: Coordinated cyberattacks and disinformation campaigns across Europe; targeting government, military, critical infrastructure, and political entities; subject of first-ever joint UK-EU cyber sanctions package
-- **Russian State Hackers (Critical Infrastructure)**: Targeting vulnerable routers and edge devices across NATO allies and partners; joint advisory from US, UK, Canada, Australia, New Zealand, Germany, France, Netherlands, and Poland; focused on persistent access for espionage and pre-positioning
-- **Unknown Threat Actor (Jscrambler Supply Chain)**: Compromised legitimate npm package publishing pipeline; sophisticated Rust infostealer with anti-analysis capabilities; targeting software developers and build systems
-- **Unknown Threat Actor (ModHeader)**: Maintained malicious browser extension for extended period; dormant collector activated post-install; 1.6M user data exposure
-- **Forg365 PhaaS Operators**: Commercial phishing service offering device code phishing, AitM, AI-assisted evasion; targeting Microsoft 365 enterprise environments at scale
-- **Evilginx Campaign Operators (Three Distinct Campaigns)**: Active Microsoft 365 phishing operations revealed by misconfigured server; using Evilginx framework for AitM session theft; operational security failure exposed infrastructure
-- **AI-Assisted Intrusion Actor**: Used suspected LLM-generated PowerShell for Active Directory reconnaissance; novel use of generative AI for offensive scripting
-- **RedHook Android Malware Operators**: Evolving banking trojan with novel Wireless ADB exploitation; targeting financial credentials and cryptocurrency wallets
-- **China-Aligned and India-Aligned APT Groups (Balochistan Campaign)**: Multi-group espionage against Pakistani law enforcement organizations; weaponized Balochistan Police portal; sustained campaign with multiple threat actor clusters
-- **Global CMS Exploitation Campaign Actors**: Coordinated targeting of vulnerable CMS platforms worldwide per ACSC alert; automated scanning and exploitation of known plugin/component vulnerabilities
-- **Russian Coms Operators**: Five individuals charged by UK NCA for operating caller ID spoofing platform; facilitated 1.8M+ scam calls; infrastructure supporting financial fraud and social engineering
-- **GigaWiper Operators**: Sophisticated actor(s) deploying modular destructive malware; combining espionage and sabotage capabilities; code sharing with multiple malware families suggests collaboration or code marketplace usage
+- **ShinyHunters (Data Extortion Group)**: Year-long campaign targeting Salesforce environments across multiple organizations; three distinct access paths—credential compromise, misconfigured permissions, and third-party integration abuse; no platform vulnerabilities exploited; data theft for extortion purposes
+- **Russian GRU / State-Sponsored Actors**: Coordinated targeting of critical infrastructure across Europe and North America; exploitation of poorly configured routers; joint attribution and sanctions by UK, EU, US, and eight allies; linked to disinformation campaigns alongside cyber operations
+- **Russian Coms Platform Operators**: Five individuals charged by UK NCA for operating caller ID spoofing platform used for 1.8 million scam calls; demonstrates industrialization of social engineering infrastructure
+- **China- and India-Aligned Espionage Actors**: Multi-group campaigns targeting Pakistani law enforcement (Balochistan Police Portal); sustained cyber espionage with suspected state alignment; portal weaponized for credential harvesting and lateral movement
+- **Forg365 PhaaS Operators**: Commercial phishing-as-a-service offering targeting Microsoft 365; combines device code phishing, AiTM, antibot evasion, and AI-assisted lure generation; subscription-based criminal business model
+- **Evilginx Campaign Operators (Three Distinct Groups)**: Separate phishing operations using Evilginx framework exposed via misconfigured server; each targeting Microsoft 365 with customized phishing kits and infrastructure
+- **Unknown Threat Actor (AI-Generated PowerShell)**: Intrusion featuring suspected AI-generated ("vibe-coded") PowerShell script for Active Directory enumeration; indicates adoption of generative AI for offensive tooling development
+- **Jscrambler Supply Chain Attacker**: Unknown actor who compromised npm publish pipeline or credentials for Jscrambler; deployed Rust infostealer via preinstall hook; financially motivated or espionage
+- **ModHeader Extension Compromise Actor**: Unknown actor who injected dormant browsing-history collector into popular browser extension; large-scale surveillance capability; attribution pending
+- **CrashStealer Developers**: Unknown group producing macOS info-stealer with notarized dropper; suggests access to Apple Developer Program or stolen certificates; financially motivated (credential/crypto theft)
+- **RedHook Malware Authors**: Android malware developers adding Wireless ADB exploitation; evolving capability for remote device compromise without physical access
 
 ## Source Attribution
 
+- **Microsoft Maps Year-Long ShinyHunters-Linked Salesforce Data Theft Across Three Paths**: The Hacker News - https://thehackernews.com/2026/07/microsoft-maps-year-long-shinyhunters.html
 - **Weak Security Continues to Fuel Russian Cyberattacks**: Dark Reading - https://www.darkreading.com/endpoint-security/weak-security-fuel-russian-cyberattacks
 - **Japan's largest taxi operator shuts systems after cyberattack**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/japans-largest-taxi-operator-shuts-systems-after-cyberattack/
 - **Hackers backdoor Jscrambler npm package with infostealer malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-backdoor-jscrambler-npm-package-with-infostealer-malware/
@@ -125,4 +127,3 @@ Active exploitation of content management systems has surged, with CISA adding t
 - **RedHook Android malware now uses Wireless ADB for shell access**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/redhook-android-malware-now-uses-wireless-adb-for-shell-access/
 - **Compromised jscrambler 8.14.0 npm Release Drops Rust Infostealer During Install**: The Hacker News - https://thehackernews.com/2026/07/compromised-jscrambler-8140-npm-release.html
 - **Hackers Weaponize Balochistan Police Portal in Multi-Group Espionage Campaigns**: The Hacker News - https://thehackernews.com/2026/07/hackers-weaponize-balochistan-police.html
-- **Australia warns of global campaign targeting vulnerable CMS platforms**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/australia-warns-of-global-campaign-targeting-vulnerable-cms-platforms/
