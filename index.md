@@ -2,133 +2,103 @@
 
 ## Executive Summary
 
-Progress Software confirmed a high-severity zero-day vulnerability in ShareFile Storage Zone Controllers that forced an emergency shutdown of the service last week. The flaw is actively exploited in the wild, and Progress has released security updates to address the issue. This incident highlights the ongoing risk to file transfer and collaboration platforms, which remain prime targets for threat actors seeking initial access to corporate networks.
+Microsoft's July 2026 Patch Tuesday addressed a record-breaking 570 vulnerabilities, including two actively exploited zero-days and one publicly disclosed zero-day. Simultaneously, Progress Software confirmed a high-severity zero-day in ShareFile Storage Zone Controllers that forced an emergency shutdown before patches were released. These events underscore a continued pattern of attackers leveraging zero-day vulnerabilities in widely deployed enterprise software before defenders can respond.
 
-Multiple active exploitation campaigns are leveraging novel techniques to bypass modern defenses. At least two distinct threat actors are weaponizing OAuth client ID spoofing to validate stolen Microsoft Entra credentials in cloud environments, evading telemetry while enumerating valid accounts. Simultaneously, CISA has warned of active exploitation of remote code execution flaws in Joomla extensions (iCagenda and Balbooa Forms), and a supply chain compromise of the Jscrambler npm package delivered infostealer malware to nearly 1,500 downstream consumers. New phishing kits—Jalisco and OmegaLord—are defeating multi-factor authentication protections on Microsoft 365 accounts at scale.
+Supply chain attacks have surged across multiple ecosystems. Nearly 300 malicious GitHub repositories impersonate legitimate software to distribute infostealers, while 148 npm packages disguised as student proxies covertly turned visitors' browsers into a DDoS botnet for two weeks. The Jscrambler npm package was backdoored with infostealer malware and downloaded approximately 1,500 times. Additionally, the Cursor IDE retains an unpatched vulnerability—reported in December—that allows auto-execution of malicious code from poisoned repositories, representing an ongoing risk to developers.
 
-The threat landscape continues to evolve with modular, multi-capability malware and abuse of trusted platforms. CrashStealer macOS malware uses a notarized dropper to bypass Gatekeeper while harvesting credentials, keychain data, and cryptocurrency wallets. The GigaWiper implant combines backdoor and wiper functionality in a modular framework. A campaign of 148 malicious npm packages disguised as student proxies turned visitors' browsers into a DDoS botnet for two weeks. Meanwhile, the ShinyHunters data-extortion group has spent a year accessing corporate Salesforce environments through misconfigurations and credential abuse rather than platform vulnerabilities, and U.S. sanctions have targeted VPN providers and malware cryptor services enabling ransomware operations.
+Credential theft and identity-focused attacks are evolving rapidly. Two new phishing kits, Jalisco and OmegaLord, target Microsoft 365 accounts with MFA-evading techniques. At least two distinct threat actors are weaponizing OAuth client ID spoofing to validate stolen Microsoft Entra credentials in cloud campaigns while evading telemetry. The ShinyHunters data-extortion group has spent a year exploiting misconfigured Salesforce environments across three attack paths without exploiting a single platform vulnerability, demonstrating that identity and configuration weaknesses remain more exploitable than code flaws.
 
 ## Active Exploitation Details
 
+### Microsoft July 2026 Patch Tuesday Zero-Days
+- **Description**: Microsoft's monthly security update addressed 570 vulnerabilities across Windows and associated products. Two of these vulnerabilities were zero-days actively exploited in attacks at the time of patching, and a third zero-day had been publicly disclosed prior to the update.
+- **Impact**: Attackers leveraging the exploited zero-days could achieve remote code execution, privilege escalation, or security feature bypass on unpatched Windows systems. The scale of 570 flaws indicates broad attack surface exposure across the Windows ecosystem.
+- **Status**: Patches released as part of July 2026 Patch Tuesday. Organizations should prioritize immediate deployment given confirmed exploitation of two vulnerabilities.
+- **CVE ID**: CVE IDs not specified in source articles.
+
 ### Progress ShareFile Storage Zone Controller Zero-Day
-- **Description**: A high-severity zero-day vulnerability in Progress Software's ShareFile Storage Zone Controllers that prompted an emergency shutdown of the service. The flaw allows attackers to compromise the storage zone infrastructure.
-- **Impact**: Full compromise of ShareFile Storage Zone Controllers, potentially exposing sensitive file transfer data and providing a foothold into organizational networks.
-- **Status**: Actively exploited in the wild. Progress Software has released security updates to patch the vulnerability. Organizations running Storage Zone Controllers must apply updates immediately.
-- **CVE ID**: Not specified in source article
-
-### Joomla iCagenda and Balbooa Forms RCE Vulnerabilities
-- **Description**: Remote code execution vulnerabilities in the iCagenda and Balbooa Forms extensions for Joomla content management system.
-- **Impact**: Attackers can achieve remote code execution on affected Joomla installations, leading to full server compromise.
-- **Status**: Actively exploited in the wild. CISA has issued a warning urging immediate patching.
-- **CVE ID**: Not specified in source article
-
-### Jscrambler npm Package Supply Chain Compromise
-- **Description**: Threat actors published a malicious version of the Jscrambler client-side web security npm package containing infostealer malware.
-- **Impact**: Nearly 1,500 downloads of the backdoored package, potentially compromising development environments and build pipelines of organizations using Jscrambler.
-- **Status**: Actively exploited via supply chain. Malicious package has been identified and reported.
-- **CVE ID**: Not specified in source article
-
-### OAuth Client ID Spoofing Campaign
-- **Description**: A novel evasion technique where attackers spoof OAuth client IDs to validate stolen Microsoft Entra credentials while evading telemetry and detection.
-- **Impact**: Enables threat actors to enumerate valid credentials in cloud environments, facilitating unauthorized access to Microsoft Entra ID (formerly Azure AD) tenants.
-- **Status**: Actively weaponized by at least two distinct threat actors in ongoing cloud campaigns.
-- **CVE ID**: Not specified in source article
+- **Description**: A high-severity zero-day vulnerability in Progress Software's ShareFile Storage Zone Controllers triggered an emergency shutdown of the service. Progress confirmed the flaw was actively exploited and released security updates to remediate it.
+- **Impact**: Successful exploitation likely allows unauthorized access to sensitive file storage, data exfiltration, or further lateral movement within connected environments.
+- **Status**: Security updates released by Progress Software following emergency shutdown. Customers must apply patches immediately.
+- **CVE ID**: CVE ID not specified in source articles.
 
 ### Cursor IDE Poisoned Repository Code Execution
-- **Description**: Vulnerability in Cursor IDE that allows automatic execution of malicious code when developers interact with poisoned repositories. Reported to Cursor in December but remains unpatched.
-- **Impact**: Arbitrary code execution in developer environments when opening or interacting with compromised repositories, potentially leading to supply chain attacks or credential theft.
-- **Status**: Unpatched as of reporting. Actively exploitable in poisoned repository attacks.
-- **CVE ID**: Not specified in source article
-
-### Microsoft 365 Phishing Kits (Jalisco and OmegaLord)
-- **Description**: Two new phishing kits specifically designed to target Microsoft 365 accounts with techniques that defeat multi-factor authentication protections.
-- **Impact**: Credential theft and account takeover of Microsoft 365 users despite MFA enforcement, enabling business email compromise and data exfiltration.
-- **Status**: Actively deployed in phishing campaigns targeting Microsoft 365 tenants.
-- **CVE ID**: Not specified in source article
-
-### ClickFix Attack Ecosystem
-- **Description**: The ClickFix attack vector has matured into a rental ecosystem available at scale, employing techniques that evade traditional AV and EDR solutions.
-- **Impact**: Social engineering attacks that trick users into executing malicious commands, leading to malware installation and system compromise.
-- **Status**: Actively available for rent and deployed in campaigns. YARA analysis identified as best detection option.
-- **CVE ID**: Not specified in source article
+- **Description**: A vulnerability in the Cursor AI coding platform allows automatic execution of malicious code when a developer interacts with a poisoned repository. Researchers reported the flaw to Cursor in December 2025, but it remains unpatched as of the reporting period.
+- **Impact**: Attackers can compromise developer machines and potentially inject malicious code into software projects by luring developers to interact with compromised repositories.
+- **Status**: Unpatched despite responsible disclosure. Active exploitation vector in poisoned repository attacks.
+- **CVE ID**: CVE ID not specified in source articles.
 
 ### RabbitMQ Access Control Flaws
-- **Description**: Two access control-related vulnerabilities in RabbitMQ message broker that could leak OAuth client secrets and expose cross-tenant queue metadata.
-- **Impact**: Unauthorized access to sensitive OAuth client secret leakage enabling impersonation attacks, and cross-tenant data exposure in multi-tenant RabbitMQ deployments.
-- **Status**: Disclosed by researchers. Exploitation status not confirmed as active in the wild.
-- **CVE ID**: Not specified in source article
+- **Description**: Two access control vulnerabilities in the RabbitMQ message broker service could allow attackers to leak OAuth client secrets and expose cross-tenant queue metadata. Researchers disclosed the flaws publicly.
+- **Impact**: Compromise of OAuth secrets enables credential theft and unauthorized API access. Cross-tenant metadata exposure violates isolation guarantees in multi-tenant deployments.
+- **Status**: Details disclosed by researchers; patch status not specified in source article.
+- **CVE ID**: CVE IDs not specified in source articles.
 
-### 11 Legacy Microsoft-Signed UEFI Shim Secure Boot Bypass
-- **Description**: Eleven old Microsoft-signed UEFI applications that can be abused to bypass Secure Boot protections on modern systems.
-- **Impact**: Secure Boot bypass enabling bootkit and rootkit installation, persistence at firmware level, and evasion of UEFI security controls.
-- **Status**: Vulnerable shims identified. Active exploitation not confirmed in source article.
-- **CVE ID**: Not specified in source article
+### Microsoft-Signed Linux UEFI Shim Secure Boot Bypass
+- **Description**: Eleven old Microsoft-signed UEFI applications (shims) can be abused to bypass Secure Boot on most systems using the modern UEFI Secure Boot standard. These legacy shims remain trusted by the Microsoft UEFI certificate authority.
+- **Impact**: Attackers with physical access or administrative privileges can load unsigned bootloaders or rootkits, defeating a foundational platform security control.
+- **Status**: No mitigation specified in source article; requires UEFI revocation updates or configuration changes.
+- **CVE ID**: CVE IDs not specified in source articles.
 
-### SAP NetWeaver and Commerce Cloud Critical Flaws
-- **Description**: Three critical vulnerabilities among 16 total flaws addressed in SAP's July 2026 security updates, affecting NetWeaver, Commerce Cloud, and AppRouter.
-- **Impact**: Potential for critical business system compromise, data theft, and disruption of ERP and commerce operations.
-- **Status**: Patches released in July 2026 security updates. Exploitation status not confirmed as active in the wild.
-- **CVE ID**: Not specified in source article
+### OAuth Client ID Spoofing in Microsoft Entra ID
+- **Description**: A novel evasion technique allows attackers to spoof OAuth client IDs, enabling validation of stolen Microsoft Entra (formerly Azure AD) credentials while slipping past telemetry and detection systems. At least two distinct threat actors are actively weaponizing this in cloud campaigns.
+- **Impact**: Attackers can silently verify compromised credentials, enumerate valid accounts, and conduct credential stuffing or password spray attacks without triggering standard alerts.
+- **Status**: Active exploitation by multiple threat actors. No patch available as this abuses legitimate OAuth protocol behavior; detection requires behavioral analytics.
+- **CVE ID**: CVE ID not specified in source articles.
 
 ## Affected Systems and Products
 
-- **Progress ShareFile Storage Zone Controllers**: All versions prior to the emergency security update. On-premises storage zone components for ShareFile file sharing platform.
-- **Joomla CMS with iCagenda Extension**: Joomla installations using the iCagenda event management extension. Specific affected versions not detailed in source.
-- **Joomla CMS with Balbooa Forms Extension**: Joomla installations using the Balbooa Forms extension. Specific affected versions not detailed in source.
-- **Jscrambler npm Package**: Version(s) containing the backdoored infostealer malware. Downloaded approximately 1,500 times before detection.
-- **Cursor IDE**: All current versions as of reporting. AI-powered code editor vulnerable to poisoned repository attacks.
-- **Microsoft Entra ID / Azure AD**: Tenants targeted by OAuth client ID spoofing campaigns for credential validation and enumeration.
-- **Microsoft 365 / Office 365**: Accounts targeted by Jalisco and OmegaLord phishing kits with MFA bypass capabilities.
-- **RabbitMQ Message Broker**: Deployments with affected access control configurations, particularly multi-tenant environments.
-- **Systems with Legacy Microsoft-Signed UEFI Shims**: Most modern systems using UEFI Secure Boot with any of the 11 identified legacy shim binaries.
-- **SAP NetWeaver**: Enterprise application platform installations requiring July 2026 security patches.
-- **SAP Commerce Cloud**: Cloud commerce platform deployments requiring July 2026 security patches.
-- **SAP AppRouter**: Application router component requiring July 2026 security patches.
-- **macOS Systems**: Targeted by CrashStealer malware posing as Apple's crash reporting tool.
-- **npm Ecosystem**: 148 malicious packages disguised as student web proxies, affecting browsers visiting compromised sites.
-- **Salesforce Environments**: Corporate instances targeted by ShinyHunters through misconfiguration and credential abuse.
-- **Google Chrome and Microsoft Edge**: Browsers with ModHeader extension (1.6 million installs) containing hidden browsing history collector.
-- **Linux UEFI Boot Systems**: Systems relying on Microsoft-signed shims for Secure Boot compatibility.
+- **Windows 10 and Windows 11**: All supported versions affected by July 2026 Patch Tuesday vulnerabilities (570 flaws). Windows 10 KB5099539 extended security update and Windows 11 KB5101650/KB5099414 cumulative updates address these.
+- **Progress ShareFile Storage Zone Controllers**: On-premises storage controllers affected by zero-day vulnerability requiring emergency patching.
+- **Cursor IDE**: AI-powered code editor (all versions as of reporting) vulnerable to auto-execution from poisoned repositories.
+- **RabbitMQ**: Message broker deployments using affected versions; multi-tenant environments at heightened risk for cross-tenant data exposure.
+- **Linux Systems with UEFI Secure Boot**: Most distributions using Microsoft-signed shims vulnerable to Secure Boot bypass via 11 legacy UEFI applications.
+- **Microsoft Entra ID / Azure AD**: Tenants targeted by OAuth client ID spoofing campaigns validating stolen credentials.
+- **Microsoft 365**: Accounts targeted by Jalisco and OmegaLord phishing kits with MFA evasion capabilities.
+- **GitHub**: Platform hosting nearly 300 malicious repositories impersonating legitimate software projects.
+- **npm Registry**: 148 malicious packages (student proxy disguises) and Jscrambler backdoored package distributed via the registry.
+- **SAP NetWeaver, Commerce Cloud, and AppRouter**: Three critical vulnerabilities among 16 total flaws addressed in July 2026 security updates.
+- **Salesforce**: Environments targeted by ShinyHunters via misconfiguration abuse across three attack paths (no platform vulnerabilities exploited).
+- **NVIDIA Software**: Brand impersonated by LabubaRAT malware for Windows host compromise.
+- **Apple Crash Reporter**: Impersonated by CrashStealer macOS malware for credential, keychain, and crypto wallet theft.
+- **LastPass and Bitwarden**: Users targeted by phishing campaigns using fake security alerts.
+- **Jscrambler**: Client-side security company's npm package supply chain compromised.
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation of File Transfer Infrastructure**: Targeting Progress ShareFile Storage Zone Controllers for initial access and data theft.
-- **Remote Code Execution via CMS Extensions**: Exploiting vulnerable Joomla extensions (iCagenda, Balbooa Forms) for server compromise.
-- **Software Supply Chain Compromise**: Injecting infostealer malware into legitimate npm packages (Jscrambler) to compromise downstream consumers.
-- **OAuth Client ID Spoofing**: Novel technique to validate stolen Microsoft Entra credentials while evading telemetry and detection systems.
-- **Poisoned Repository Attacks**: Malicious code in repositories that auto-executes in vulnerable AI-powered IDEs (Cursor) when developers interact with them.
-- **MFA-Bypassing Phishing Kits**: Jalisco and OmegaLord kits using advanced techniques to defeat multi-factor authentication on Microsoft 365.
-- **ClickFix Social Engineering**: Tricking users into executing malicious commands via fake verification pages, evading AV/EDR through living-off-the-land techniques.
-- **OAuth Secret Leakage via Message Broker Misconfiguration**: Exploiting RabbitMQ access control flaws to harvest OAuth client secrets and cross-tenant metadata.
-- **Secure Boot Bypass via Legacy UEFI Shims**: Abusing 11 old Microsoft-signed UEFI applications to disable Secure Boot protections.
-- **Notarized Dropper Abuse**: CrashStealer malware using Apple-notarized dropper to pass Gatekeeper checks on macOS.
-- **Browser-Based DDoS Botnet**: 148 malicious npm packages disguised as student proxies converting visitors' browsers into distributed denial-of-service nodes.
-- **Salesforce Misconfiguration and Credential Abuse**: ShinyHunters accessing corporate Salesforce environments without exploiting platform vulnerabilities.
-- **Malicious Browser Extension Data Collection**: ModHeader extension with hidden browsing history collector affecting 1.6 million users across Chrome and Edge.
-- **Modular Wiper/Backdoor Implant**: GigaWiper combining destructive wiper capabilities with persistent backdoor access in a configurable framework.
-- **Fake Security Alert Phishing**: Campaigns impersonating LastPass and Bitwarden security notices to steal password manager credentials.
-- **VPN and Malware Infrastructure for Ransomware**: Sanctioned entities providing VPN services and malware cryptors to enable ransomware operations.
+- **Zero-Day Exploitation**: Attackers leveraging unpatched vulnerabilities in Windows (2 exploited zero-days) and ShareFile before or at patch release.
+- **Supply Chain Compromise**: Malicious packages published to npm (148 DDoS botnet packages, Jscrambler backdoor) and fake GitHub repositories (nearly 300) impersonating legitimate software.
+- **Poisoned Repository Attacks**: Developers lured to interact with compromised repositories triggering auto-execution in vulnerable IDEs (Cursor).
+- **OAuth Client ID Spoofing**: Novel technique abusing OAuth protocol to validate stolen Entra credentials while evading telemetry; used by at least two threat actor groups.
+- **MFA-Evading Phishing**: Jalisco and OmegaLord phishing kits defeat multi-factor authentication for Microsoft 365 accounts.
+- **Brand Impersonation Malware Delivery**: LabubaRAT masquerades as NVIDIA software; CrashStealer poses as Apple crash reporter; fake GitHub repos impersonate legitimate projects.
+- **Browser-Based DDoS Botnet**: Malicious npm packages execute JavaScript in visitors' browsers to create distributed denial-of-service capacity.
+- **Salesforce Misconfiguration Abuse**: ShinyHunters exploits three attack paths involving excessive permissions, exposed APIs, and weak access controls—no code vulnerabilities required.
+- **UEFI Secure Boot Bypass**: Legacy Microsoft-signed shims used to load unsigned code at boot time, defeating hardware-rooted trust.
+- **Credential Validation via OAuth**: Stolen credentials silently verified against Entra ID using spoofed client IDs, enabling efficient credential stuffing.
 
 ## Threat Actor Activities
 
-- **ShinyHunters (Data-Extortion Group)**: Conducted a year-long campaign accessing corporate Salesforce environments through three distinct attack paths involving misconfigurations, credential reuse, and excessive permissions—without exploiting any Salesforce platform vulnerabilities. Microsoft has mapped their activity across multiple victim organizations.
-- **Two Distinct Threat Actors (OAuth Client ID Spoofing)**: At least two separate groups actively weaponizing OAuth client ID spoofing in cloud campaigns against Microsoft Entra ID tenants for credential validation and enumeration.
-- **Jscrambler Supply Chain Attacker**: Unknown threat actor who compromised the Jscrambler npm package publishing pipeline to distribute infostealer malware to nearly 1,500 downstream consumers.
-- **ClickFix Operators**: Threat actors operating the ClickFix attack ecosystem as a rental service, continuously evolving techniques to evade AV/EDR detection.
-- **Phishing Kit Operators (Jalisco/OmegaLord)**: Groups deploying advanced phishing kits targeting Microsoft 365 with MFA bypass capabilities.
-- **CISA-Tracked Joomla Exploiters**: Unknown actors actively exploiting iCagenda and Balbooa Forms RCE vulnerabilities in Joomla installations.
-- **Russian Cyber Actors**: Individuals and entities sanctioned jointly by UK and EU for cyberattacks and disinformation campaigns in the region.
-- **Nihon Kotsu Attackers**: Unknown threat actors who compromised Japan's largest taxi operator, forcing infrastructure shutdown.
-- **CrashStealer Operators**: Developers and distributors of macOS information stealer using notarized dropper to bypass Gatekeeper, targeting credentials, keychain data, and cryptocurrency wallets.
-- **npm DDoS Botnet Operators**: Campaign operators who published 148 malicious packages disguised as student proxies, operating a browser-based DDoS botnet for approximately two weeks in May.
-- **Sanctioned Ransomware Enablers**: Two individuals and one VPN service provider designated by OFAC for providing infrastructure (VPN services, malware cryptors) to ransomware actors and cybercriminals.
-- **LastPass/Bitwarden Phishing Campaign Operators**: Unknown actors running ongoing phishing campaigns using fake security alerts to target password manager users.
-- **ModHeader Extension Developer**: Party responsible for embedding hidden browsing history collector in popular header-editing extension with 1.6 million installs.
+- **ShinyHunters**: Data-extortion group active for at least one year targeting corporate Salesforce environments. Mapped to three distinct attack paths involving misconfigurations rather than vulnerabilities. Focus on data theft and extortion over ransomware deployment.
+- **OAuth Client ID Spoofing Operators**: At least two distinct threat actor groups weaponizing OAuth client ID spoofing in cloud campaigns against Microsoft Entra ID. Demonstrates sophisticated understanding of identity protocols and telemetry evasion.
+- **GitHub Repository Impersonation Actor**: Single threat actor or group publishing nearly 300 fake repositories to distribute infostealer malware. Broad targeting of developers and software users.
+- **npm Supply Chain Attackers**: Operators behind 148 malicious packages (DDoS botnet campaign, May 2026, ~2 weeks duration) and the Jscrambler package backdoor (infostealer, ~1,500 downloads). JFrog researchers attributed the proxy campaign.
+- **LabubaRAT Operators**: Deploying previously undocumented Rust-based RAT masquerading as NVIDIA software. Targeting Windows hosts for remote access and control.
+- **CrashStealer Operators**: Distributing macOS infostealer posing as Apple crash reporter to harvest credentials, keychain data, and cryptocurrency wallets.
+- **Phishing Kit Operators (Jalisco/OmegaLord)**: Deploying advanced MFA-evading phishing infrastructure targeting Microsoft 365 credentials at scale.
+- **Russian Cyber Actors**: Sanctioned jointly by UK and EU for cyberattacks and disinformation campaigns. Specific groups not named in source articles.
+- **Ransomware Enablers**: Two individuals and one VPN service provider sanctioned by OFAC for enabling ransomware attacks against U.S. organizations. Includes a malware cryptor seller.
 
 ## Source Attribution
 
+- **Nearly 300 GitHub repos pose as legit software to push malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/nearly-300-github-repos-pose-as-legit-software-to-push-malware/
+- **Microsoft releases Windows 10 KB5099539 extended security update**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-releases-windows-10-kb5099539-extended-security-update/
+- **Microsoft July 2026 Patch Tuesday fixes massive 570 flaws, 3 zero-days**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-july-2026-patch-tuesday-fixes-massive-570-flaws-3-zero-days/
+- **Manage Vendor Risk in a Few Practical Steps**: Dark Reading - https://www.darkreading.com/cyber-risk/manage-vendor-risk-in-a-few-practical-steps
+- **Windows 11 KB5101650 \& KB5099414 cumulative updates released**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/windows-11-kb5101650-and-kb5099414-cumulative-updates-released/
+- **LabubaRAT Masquerades as NVIDIA Software to Control Windows Hosts**: The Hacker News - https://thehackernews.com/2026/07/labubarat-masquerades-as-nvidia.html
 - **Progress confirms ShareFile zero-day flaw behind Storage Zone shutdown**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/progress-confirms-sharefile-zero-day-flaw-behind-storage-zone-shutdown/
-- **Frontier AI: The Genie's Out of the Bottle, But Where's the Rulebook?**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/frontier-ai-genie-out-of-bottle-where-rulebook
+- **Frontier AI: The Genie's Out of the Bottle, but Where's the Rulebook?**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/frontier-ai-genie-out-of-bottle-where-rulebook
 - **ClickFix's Mushrooming Ecosystem Demands New Defense Tactics**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/clickfixs-ecosystem-demands-new-defense
 - **LastPass, Bitwarden users targeted with fake security alerts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/lastpass-bitwarden-users-targeted-with-fake-security-alerts/
 - **You Don't Have to Run an Exploit to Know If You're Vulnerable**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/you-dont-have-to-run-an-exploit-to-know-if-youre-vulnerable/
@@ -151,9 +121,3 @@ The threat landscape continues to evolve with modular, multi-capability malware 
 - **Japan's largest taxi operator shuts systems after cyberattack**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/japans-largest-taxi-operator-shuts-systems-after-cyberattack/
 - **Hackers backdoor Jscrambler npm package with infostealer malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-backdoor-jscrambler-npm-package-with-infostealer-malware/
 - **New CrashStealer malware poses as Apple crash reporting tool**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-crashstealer-malware-poses-as-apple-crash-reporting-tool/
-- **'Yellow Teams' Are Defining the Future of AI Security**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/yellow-teams-defining-future-ai-security
-- **CrashStealer macOS Malware Uses Notarized Dropper to Pass Gatekeeper Checks**: The Hacker News - https://thehackernews.com/2026/07/crashstealer-macos-malware-uses.html
-- **Google and Microsoft Pull ModHeader With 1.6 Million Installs After Dormant Collector Found**: The Hacker News - https://thehackernews.com/2026/07/google-and-microsoft-pull-modheader.html
-- **GigaWiper Lets Threat Actors Choose Their Own Destructive Attack**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/gigawiper-threat-actors-choose-their-own-destructive-attack
-- **CISA warns of actively exploited RCE flaws in Joomla extensions**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisa-warns-of-actively-exploited-rce-flaws-in-joomla-extensions/
-- **⚡ Weekly Recap: ShareFile Threat, Citrix Bleed 2 Ransomware, AI Coding Attacks, and More**: The Hacker News - https://thehackernews.com/2026/07/weekly-recap-sharefile-threat-citrix.html
