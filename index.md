@@ -2,122 +2,127 @@
 
 ## Executive Summary
 
-Critical exploitation activity surged in July 2026 with multiple zero-day vulnerabilities under active attack across diverse platforms. SonicWall SMA 1000 appliances face two actively exploited zero-days (CVE-2026-15409 and CVE-2026-15410), one enabling arbitrary command execution as administrator. Microsoft's record-breaking Patch Tuesday addressed 570–622 vulnerabilities including three zero-days, two of which were already exploited in the wild. CISA issued an urgent warning for three actively exploited flaws in on-premises SharePoint Server, while Progress Software confirmed a high-severity zero-day behind the emergency shutdown of ShareFile Storage Zone Controllers.
+Critical exploitation activity surged in July 2026 with multiple zero-day vulnerabilities under active attack across diverse technology stacks. Microsoft's record-breaking Patch Tuesday addressed 570–622 flaws including two to three actively exploited zero-days, while SonicWall confirmed active exploitation of two SMA 1000 zero-days (CVE-2026-15409 and CVE-2026-15410) enabling arbitrary command execution. CISA issued urgent warnings for three actively exploited SharePoint Server vulnerabilities, and Progress Software confirmed a high-severity zero-day behind the emergency shutdown of ShareFile Storage Zone Controllers.
 
-Supply chain and social engineering campaigns continue to expand in sophistication. Four compromised npm packages in the @asyncapi namespace delivered multi-stage botnet malware, while nearly 300 fake GitHub repositories impersonated legitimate software to distribute infostealers. The ClickFix attack ecosystem has matured into a rented service that evades AV and EDR, and new phishing kits (Jalisco and OmegaLord) now defeat MFA protections targeting Microsoft 365 accounts. A previously undocumented Rust-based RAT dubbed LabubaRAT masquerades as NVIDIA software, and the Cursor IDE remains vulnerable to auto-execution of malicious code from poisoned repositories months after disclosure.
+Supply chain attacks intensified with four compromised @asyncapi npm packages delivering multi-stage botnet malware and nearly 300 fake GitHub repositories distributing infostealers. Developer environments emerged as prime targets: Cursor's automatic execution of git.exe in project roots enables zero-click code execution, while a separate two-click exploit grants access to secrets and source code. Threat actors continue leveraging bulletproof hosting services—three Russian nationals were charged for facilitating over $62 million in ransomware damage—while Spanish authorities dismantled a €140 million cyber fraud ring conducting investment fraud and BEC attacks.
 
-Law enforcement actions disrupted significant criminal infrastructure. U.S. prosecutors charged three Russian nationals for operating bulletproof hosting services that facilitated over $62 million in ransomware damage. Spanish police dismantled a cybercrime ring responsible for €140 million in investment fraud and business email compromise attacks. These developments underscore the convergence of vulnerability exploitation, supply chain compromise, and organized cybercrime as dominant threat vectors.
+New attack vectors include the ClickFix ecosystem now available for rent at scale with AV/EDR evasion capabilities, phishing campaigns targeting LastPass and Bitwarden users via fake security alerts, and a previously undocumented Rust-based RAT (LabubaRAT) masquerading as NVIDIA software. Researchers also disclosed a Claude for Chrome extension flaw allowing rogue extensions to access Gmail, Google Docs, and Calendar data, while a Windows User Profile Service zero-day (LegacyHive) received public PoC code hours after Patch Tuesday.
 
 ## Active Exploitation Details
 
 ### SonicWall SMA 1000 Zero-Day Vulnerabilities
 - **Description**: Two zero-day vulnerabilities affecting SonicWall Secure Mobile Access (SMA) 1000 series appliances. One vulnerability enables arbitrary command execution with administrative privileges.
-- **Impact**: Attackers can achieve full administrative control over affected SMA 1000 appliances, potentially compromising VPN access, network segmentation, and sensitive corporate resources.
-- **Status**: Actively exploited in zero-day attacks. SonicWall has released security updates and urges immediate patching.
-- **CVE ID**: CVE-2026-15409, CVE-2026-15410
+- **Impact**: Attackers can achieve full administrative control over affected SMA 1000 appliances, potentially pivoting into internal networks behind the VPN gateway.
+- **Status**: Actively exploited in zero-day attacks. SonicWall has released emergency patches and urges immediate installation.
+- **CVE ID**: CVE-2026-15409
+- **CVE ID**: CVE-2026-15410
 
 ### Microsoft July 2026 Patch Tuesday Zero-Days
-- **Description**: Microsoft's largest Patch Tuesday on record addressed 570–622 vulnerabilities, including three zero-days. Two zero-days were under active exploitation at the time of patch release, and one was publicly disclosed but not yet exploited.
-- **Impact**: The exploited zero-days allow attackers to compromise Windows systems and other Microsoft products. Specific impact varies by vulnerability but includes remote code execution and privilege escalation.
-- **Status**: Patches released July 2026. Two zero-days confirmed exploited in the wild; one publicly disclosed zero-day patched preemptively.
-- **CVE ID**: CVE-2026-15409, CVE-2026-15410
+- **Description**: Microsoft's largest Patch Tuesday on record addressed 570–622 vulnerabilities, including two to three zero-days confirmed under active exploitation and one publicly disclosed zero-day.
+- **Impact**: Varies by vulnerability; active exploitation indicates weaponized capabilities in threat actor arsenals targeting Windows and associated Microsoft products.
+- **Status**: Patches released July 2026. Two to three zero-days were actively exploited at time of patch release; one additional zero-day was publicly disclosed but not yet exploited.
+- **CVE ID**: [Specific CVE IDs not provided in source articles]
 
-### SharePoint Server Actively Exploited Flaws
-- **Description**: CISA warned that attackers are actively exploiting three vulnerabilities in Internet-exposed on-premises SharePoint Server installations.
-- **Impact**: Successful exploitation allows attackers to compromise SharePoint servers, potentially leading to data theft, lateral movement, and persistence in organizational networks.
-- **Status**: Actively exploited. CISA added these vulnerabilities to the Known Exploited Vulnerabilities (KEV) catalog, mandating federal agency patching and urging all organizations to apply updates immediately.
+### SharePoint Server Actively Exploited Vulnerabilities
+- **Description**: Three vulnerabilities in Internet-exposed on-premises SharePoint Server installations are being actively exploited by threat actors.
+- **Impact**: Remote code execution and potential compromise of SharePoint servers exposed to the internet, leading to data theft and lateral movement.
+- **Status**: Actively exploited. CISA has added these to the Known Exploited Vulnerabilities catalog and mandated federal agencies to patch immediately.
+- **CVE ID**: [Specific CVE IDs not provided in source articles]
 
-### Progress ShareFile Zero-Day Vulnerability
-- **Description**: A high-severity zero-day vulnerability in Progress ShareFile Storage Zone Controllers triggered an emergency shutdown of the service. Progress Software confirmed the flaw and released security updates.
-- **Impact**: The vulnerability could allow attackers to compromise Storage Zone Controllers, potentially accessing or exfiltrating sensitive file transfer data.
-- **Status**: Zero-day exploited in the wild. Emergency patches released following service shutdown.
+### Progress ShareFile Storage Zone Controller Zero-Day
+- **Description**: A high-severity zero-day vulnerability in ShareFile Storage Zone Controllers triggered an emergency shutdown of the service last week.
+- **Impact**: Likely remote code execution or authentication bypass enabling unauthorized access to managed file transfer infrastructure.
+- **Status**: Actively exploited (prompted emergency shutdown). Progress Software has released security updates to patch the flaw.
+- **CVE ID**: [Specific CVE ID not provided in source articles]
 
-### Compromised @asyncapi npm Packages
-- **Description**: Four npm packages in the @asyncapi namespace were compromised and weaponized to deliver a multi-stage botnet loader. The supply chain attack was discovered by OX Security, SafeDep, Socket, and StepSecurity.
-- **Impact**: Organizations installing the compromised packages inadvertently deploy a multi-stage botnet capable of persistent access, command execution, and lateral movement.
-- **Status**: Actively exploited via supply chain. Malicious packages identified and reported; developers urged to audit dependencies and rotate credentials.
+### SAP NetWeaver Application Server ABAP Critical Flaw
+- **Description**: A critical vulnerability in SAP NetWeaver Application Server ABAP with a CVSS score of 9.9, addressed in SAP's July 2026 security updates.
+- **Impact**: Could allow attackers to expose or modify sensitive business data processed by the ABAP application server.
+- **Status**: Patched in July 2026 SAP security updates. Exploitation status not explicitly confirmed in source articles.
+- **CVE ID**: [Specific CVE ID not provided in source articles]
 
-### Fake GitHub Repository Campaign
-- **Description**: A threat actor published nearly 300 fake GitHub repositories impersonating legitimate software and security projects to distribute infostealer malware.
-- **Impact**: Developers and security researchers cloning or executing code from these repositories risk credential theft, session hijacking, and system compromise via infostealer payloads.
-- **Status**: Active campaign. Repositories mimic legitimate projects with convincing documentation and release artifacts.
+### Cursor Automatic Code Execution via git.exe
+- **Description**: Cursor IDE on Windows automatically executes any file named git.exe present in a project root when the repository is opened, with no user interaction, approval dialog, or warning.
+- **Impact**: Zero-click remote code execution when developers clone and open malicious repositories. Attackers can place malicious git.exe binaries in repositories distributed via GitHub or other sources.
+- **Status**: Unpatched as of reporting. No mitigation beyond avoiding untrusted repositories.
+- **CVE ID**: [CVE ID not provided in source articles]
 
-### LabubaRAT Campaign
-- **Description**: A previously undocumented Rust-based remote access trojan (RAT) codenamed LabubaRAT masquerades as NVIDIA software to blend into target environments.
-- **Impact**: Provides attackers with full remote control over infected Windows hosts, including command execution, file management, and persistence capabilities.
-- **Status**: Active in the wild. Rust implementation suggests modern tooling and potential evasion of traditional detection signatures.
+### Cursor Two-Click Dev Environment Takeover
+- **Description**: A two-click exploit chain targeting Cursor IDE that leverages "simple age-old bugs" to access developers' secrets and source code-rich environments.
+- **Impact**: Full compromise of developer environments including access to API keys, credentials, source code, and potentially production infrastructure access.
+- **Status**: Actively exploitable. Details suggest low complexity exploitation.
+- **CVE ID**: [CVE ID not provided in source articles]
 
-### Cursor IDE Poisoned Repository Vulnerability
-- **Description**: The Cursor AI coding platform auto-executes malicious code from poisoned repositories. The vulnerability was reported to Cursor in December 2025 but remains unpatched as of July 2026.
-- **Impact**: Developers opening or interacting with malicious repositories in Cursor IDE can trigger arbitrary code execution without explicit user action.
-- **Status**: Unpatched zero-day (reported December 2025). Active exploitation possible via supply chain or social engineering.
+### Windows User Profile Service Zero-Day (LegacyHive)
+- **Description**: Security researcher Chaotic Eclipse (aka Nightmare-Eclipse) released a proof-of-concept exploit called LegacyHive targeting the Windows User Profile Service arbitrary hive load vulnerability, hours after Microsoft's July Patch Tuesday.
+- **Impact**: Potential privilege escalation or arbitrary code execution via malicious registry hive loading.
+- **Status**: Public PoC available. Microsoft patched 570–622 vulnerabilities in July Patch Tuesday; unclear if this specific flaw was addressed.
+- **CVE ID**: [CVE ID not provided in source articles]
 
 ### Claude for Chrome Extension Flaw
-- **Description**: A flaw in the Claude for Chrome extension allows any other browser extension with script execution capabilities on claude.ai to trigger Claude tasks targeting Gmail, Google Docs, and Calendar data.
-- **Impact**: Rogue or compromised extensions can exfiltrate sensitive email content, document data, and calendar information without user consent.
-- **Status**: Vulnerability disclosed by researchers. Exploitation requires a malicious or compromised co-installed extension.
-
-### ClickFix Attack Ecosystem
-- **Description**: The ClickFix attack vector has evolved into a mature ecosystem available for rent at scale. The technique evades antivirus and EDR solutions, with YARA analysis identified as the primary detection method.
-- **Impact**: Lowers barrier to entry for attackers; enables widespread deployment of social engineering lures that bypass modern endpoint protections.
-- **Status**: Actively offered as a service. Ongoing campaigns leveraging ClickFix infrastructure.
-
-### Jalisco and OmegaLord Phishing Kits
-- **Description**: Two new phishing kits (Jalisco and OmegaLord) target Microsoft 365 accounts using techniques that defeat multi-factor authentication (MFA).
-- **Impact**: Attackers can compromise MFA-protected Microsoft 365 accounts, gaining access to email, SharePoint, Teams, and associated cloud resources.
-- **Status**: Active in the wild. Kits distributed via underground markets and used in ongoing credential harvesting campaigns.
+- **Description**: Any browser extension capable of running scripts on claude.ai can trigger Claude for Chrome tasks targeting users' Gmail, Google Docs (including comments), and Calendar data.
+- **Impact**: Cross-extension data theft enabling access to email communications, documents, and scheduling information without user consent.
+- **Status**: Disclosed by researchers. Remediation status not specified in source articles.
+- **CVE ID**: [CVE ID not provided in source articles]
 
 ## Affected Systems and Products
 
-- **SonicWall SMA 1000 Series Appliances**: Secure Mobile Access 1000 series firmware versions prior to the July 2026 security update. Affected platforms include SMA 1002, 1004, 1008, and 1010 appliances.
-- **Microsoft Windows and Software Ecosystem**: Windows 10, Windows 11 (versions 23H2, 24H2, 25H2), Windows Server, Microsoft Office, SharePoint Server (on-premises), and related Microsoft products covered by the July 2026 Patch Tuesday release (570–622 CVEs).
-- **Progress ShareFile Storage Zone Controllers**: On-premises Storage Zone Controller versions prior to the emergency July 2026 security update. Cloud-hosted zones not affected.
-- **@asyncapi npm Packages**: Four specific packages in the @asyncapi namespace (package names and versions detailed in OX Security, SafeDep, Socket, and StepSecurity advisories). All projects using these packages as dependencies.
-- **GitHub Repository Consumers**: Developers, CI/CD pipelines, and automated tooling cloning or executing code from the nearly 300 identified malicious repositories impersonating legitimate projects.
-- **Cursor IDE Users**: All versions of the Cursor AI coding platform that have not received a fix for the auto-execution vulnerability (reported December 2025, unpatched as of July 2026).
-- **Claude for Chrome Extension Users**: Users with the Claude for Chrome extension installed alongside any other extension capable of running scripts on claude.ai.
-- **Microsoft 365 Tenants**: Organizations using Microsoft 365 with MFA enabled, targeted by Jalisco and OmegaLord phishing kits employing MFA-bypass techniques.
-- **NVIDIA Software Environments**: Windows hosts where LabubaRAT masquerades as legitimate NVIDIA processes (e.g., NVIDIA GeForce Experience, NVIDIA Container Toolkit components).
-- **RabbitMQ Message Broker Deployments**: Instances affected by two access control flaws allowing OAuth secret leakage and cross-tenant queue metadata exposure (CVEs not specified in source articles).
-- **SAP NetWeaver Application Server ABAP**: Versions affected by the CVSS 9.9 critical flaw patched in SAP July 2026 security updates (specific CVE not provided in source article).
-- **Linux Systems with UEFI Secure Boot**: Systems using any of the 11 old Microsoft-signed UEFI shims that could be abused to bypass Secure Boot protections.
+- **SonicWall SMA 1000 Series Appliances**: Secure Mobile Access 1000 series VPN appliances running vulnerable firmware versions prior to emergency patches for CVE-2026-15409 and CVE-2026-15410
+- **Microsoft Windows and Associated Products**: All supported Windows versions (Windows 10, Windows 11 23H2/24H2/25H2), Windows Server, Office, and other Microsoft software covered by the 570–622 CVE July 2026 Patch Tuesday release
+- **On-Premises SharePoint Server**: Internet-exposed SharePoint Server installations (versions not specified in source articles) vulnerable to three actively exploited flaws
+- **Progress ShareFile Storage Zone Controllers**: On-premises Storage Zone Controller deployments affected by the high-severity zero-day prompting emergency shutdown
+- **SAP NetWeaver Application Server ABAP**: ABAP-based SAP NetWeaver Application Server installations prior to July 2026 security patch release
+- **Cursor IDE on Windows**: All Windows versions of Cursor IDE vulnerable to automatic git.exe execution and two-click exploit chain
+- **Google Chrome with Claude Extension**: Chrome browsers with the Claude for Chrome extension installed, exposed to cross-extension data access from any script-capable extension
+- **@asyncapi npm Packages**: Four compromised packages in the @asyncapi namespace on npm registry distributing multi-stage botnet loader
+- **GitHub Repository Ecosystem**: Nearly 300 fake repositories impersonating legitimate software and security projects to distribute infostealer malware
+- **LastPass and Bitwarden Users**: Users of both password managers targeted by phishing campaigns using fake security alerts
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation of Network Edge Devices**: Attackers target Internet-exposed SonicWall SMA 1000 appliances using two zero-days (CVE-2026-15409, CVE-2026-15410) for unauthenticated remote code execution and administrative command execution.
-- **Supply Chain Compromise via npm Registry**: Malicious actors compromised legitimate @asyncapi namespace packages, injecting multi-stage botnet loaders that execute upon installation via standard dependency management workflows.
-- **Typosquatting and Impersonation on GitHub**: Threat actors create hundreds of repositories mimicking legitimate software projects with convincing metadata, README files, and release artifacts to trick developers into downloading infostealer malware.
-- **Poisoned Repository Auto-Execution in AI IDEs**: The Cursor IDE automatically executes code from repository contents (e.g., configuration files, scripts) without explicit user consent, enabling drive-by compromise when developers open malicious repositories.
-- **Browser Extension Cross-Origin Abuse**: A flaw in the Claude for Chrome extension allows any co-installed extension with script access to claude.ai to trigger privileged actions targeting Gmail, Google Docs, and Calendar data.
-- **MFA-Bypass Phishing Kits**: Jalisco and OmegaLord phishing kits employ advanced techniques (likely adversary-in-the-middle or session hijacking) to defeat multi-factor authentication protecting Microsoft 365 accounts.
-- **ClickFix Social Engineering at Scale**: Attackers rent ClickFix infrastructure to deploy fake verification pages (e.g., "I'm not a robot," CAPTCHA mimics) that trick users into executing malicious PowerShell commands via clipboard manipulation.
-- **Rust-Based Malware Masquerading as Legitimate Software**: LabubaRAT uses Rust for memory safety and evasion benefits, disguising its processes and files as NVIDIA software components to avoid suspicion in process lists and file system inspections.
-- **Bulletproof Hosting for Ransomware Operations**: Russian nationals allegedly operated hosting infrastructure specifically designed to resist takedown and law enforcement action, enabling ransomware gangs to maintain C2, payment portals, and data leak sites.
-- **Business Email Compromise and Investment Fraud**: Spanish cybercrime ring combined BEC tactics with investment fraud schemes, leveraging social engineering and compromised email accounts to authorize fraudulent transfers totaling €140 million.
-- **SharePoint Server Exploitation via Internet Exposure**: Attackers scan for and exploit on-premises SharePoint servers directly exposed to the Internet, leveraging three actively exploited vulnerabilities for initial access and lateral movement.
-- **ShareFile Storage Zone Controller Zero-Day Exploitation**: Attackers exploited a high-severity zero-day in Progress ShareFile Storage Zone Controllers, prompting an emergency service shutdown and patch deployment.
+- **Zero-Day Exploitation of VPN/Remote Access Gateways**: Active exploitation of SonicWall SMA 1000 zero-days (CVE-2026-15409, CVE-2026-15410) for initial access and administrative command execution on network perimeter devices
+- **Supply Chain Compromise via npm Packages**: Four @asyncapi namespace packages compromised to deliver multi-stage botnet malware, leveraging developer trust in official organizational packages
+- **Typosquatting/Impersonation on GitHub**: Nearly 300 fake repositories mimicking legitimate software and security projects to distribute infostealer malware to developers and security practitioners
+- **Developer Environment Targeting via IDE Flaws**: 
+  - Zero-click code execution via malicious git.exe in cloned repositories (Cursor on Windows)
+  - Two-click exploit chain leveraging "age-old bugs" in Cursor for secrets and source code theft
+- **Cross-Extension Data Theft in Browser**: Malicious or compromised Chrome extensions exploiting Claude for Chrome's overly permissive message passing to access Gmail, Google Docs, and Calendar data
+- **Phishing via Fake Security Alerts**: Campaigns impersonating LastPass and Bitwarden security notifications to credential-harvesting pages
+- **ClickFix Attack Ecosystem**: Social engineering technique now available "for rent at scale" that evades AV/EDR, requiring YARA-based detection approaches
+- **Bulletproof Hosting for Ransomware Operations**: Russian bulletproof hosting service (charged by US prosecutors) providing infrastructure for ransomware gangs causing over $62 million in damages
+- **Business Email Compromise and Investment Fraud**: Spanish police dismantled operation generating €140 million ($160 million) through BEC and investment fraud schemes
+- **Rust-Based RAT Masquerading as Legitimate Software**: LabubaRAT disguises itself as NVIDIA software to blend into target environments and maintain persistence
+- **Public PoC Release for Windows Kernel Vulnerability**: LegacyHive exploit for Windows User Profile Service arbitrary hive load released immediately post-Patch Tuesday
+- **Automated Frequency Coordination Spoofing**: 6 GHz Wi-Fi AFC systems trusting client-side data enabling location spoofing attacks (theoretical/research stage)
 
 ## Threat Actor Activities
 
-- **Russian Bulletproof Hosting Operators (Three Charged Nationals)**: U.S. prosecutors unsealed charges against three Russian nationals for providing bulletproof hosting services to ransomware gangs. Their infrastructure facilitated over $62 million in ransomware damage. The operators deliberately configured hosting to resist legal process, abuse complaints, and takedown efforts.
-- **Spanish Cyber Fraud Ring (Four Arrested)**: Spanish Police dismantled a cybercrime and money-laundering organization responsible for €140 million ($160 million) in losses from investment fraud and business email compromise attacks. The group used sophisticated social engineering and compromised corporate email accounts to authorize fraudulent wire transfers.
-- **AsyncAPI Supply Chain Attackers (Unknown Operators)**: Unknown threat actors compromised four npm packages in the @asyncapi namespace, injecting a multi-stage botnet loader. The attack demonstrates advanced supply chain tradecraft targeting developer tooling ecosystems.
-- **GitHub Impersonation Campaign Operator (Unknown Actor)**: A single threat actor or group created nearly 300 fake repositories impersonating legitimate software and security projects. The campaign distributes infostealer malware targeting developer credentials and sensitive data.
-- **LabubaRAT Operators (Unknown)**: Operators of the previously undocumented Rust-based RAT LabubaRAT, which masquerades as NVIDIA software. The use of Rust and deliberate masquerading suggests a capability-focused actor investing in custom tooling.
-- **ClickFix Ecosystem Operators (Service Providers)**: The ClickFix attack vector has been commoditized into a rented service. Operators maintain the infrastructure (phishing pages, command delivery, evasion techniques) and lease access to affiliates or customers.
-- **Jalisco and OmegaLord Phishing Kit Operators**: Developers and distributors of two new MFA-bypass phishing kits targeting Microsoft 365. Kits are sold or leased on underground markets and used by multiple threat actors in credential harvesting campaigns.
-- **SonicWall SMA 1000 Zero-Day Exploiters (Unknown)**: Threat actors actively exploiting CVE-2026-15409 and CVE-2026-15410 in the wild prior to patch availability. Targeting suggests focus on VPN edge infrastructure for initial access.
-- **SharePoint Server Exploiters (Unknown)**: Actors exploiting three vulnerabilities in Internet-exposed on-premises SharePoint Server instances. CISA's KEV catalog addition indicates confirmed exploitation activity.
-- **ShareFile Zero-Day Exploiters (Unknown)**: Attackers who exploited the high-severity zero-day in Progress ShareFile Storage Zone Controllers, triggering the emergency shutdown. Identity and attribution not publicly disclosed.
+- **Chaotic Eclipse / Nightmare-Eclipse**: Security researcher who released the LegacyHive PoC exploit for Windows User Profile Service vulnerability hours after Microsoft's July 2026 Patch Tuesday
+- **Russian Bulletproof Hosting Operators**: Three Russian nationals charged by US federal prosecutors for providing bulletproof hosting services to ransomware gangs responsible for over $62 million in damages
+- **AsyncAPI Supply Chain Attackers**: Unknown threat actors who compromised four @asyncapi npm packages to distribute multi-stage botnet loader (attribution per OX Security, SafeDep, Socket, StepSecurity findings)
+- **GitHub Repository Impersonation Campaign**: Unknown threat actor operating nearly 300 fake repositories impersonating legitimate software and security projects to distribute infostealer malware
+- **Spanish Cyber Fraud Ring**: Dismantled organization conducting investment fraud and business email compromise (BEC) attacks generating €140 million ($160 million) in illicit proceeds; four arrests made by Spanish Police
+- **ClickFix Ecosystem Operators**: Threat actors offering ClickFix social engineering attack infrastructure "for rent at scale" with built-in AV/EDR evasion capabilities
+- **Password Manager Phishing Actors**: Unknown operators conducting phishing campaigns using fake security alerts targeting LastPass and Bitwarden users
+- **LabubaRAT Operators**: Unknown threat actors deploying previously undocumented Rust-based RAT masquerading as NVIDIA software for Windows host control
+- **SonicWall SMA 1000 Exploitation Actors**: Unknown threat actors actively exploiting CVE-2026-15409 and CVE-2026-15410 in zero-day attacks against SMA 1000 appliances
+- **SharePoint Exploitation Actors**: Unknown threat actors actively exploiting three vulnerabilities in Internet-exposed on-premises SharePoint Server installations
+- **ShareFile Zero-Day Exploitation Actors**: Unknown threat actors leveraging high-severity zero-day in ShareFile Storage Zone Controllers prompting emergency shutdown
 
 ## Source Attribution
 
+- **2-Click Cursor Exploit Enables Dev Environment Takeover**: Dark Reading - https://www.darkreading.com/application-security/2-click-cursor-exploit-dev-environment-takeover
+- **SASE Has An AI Blind Spot. Inspecting Packets Is No Longer Enough.**: The Hacker News - https://thehackernews.com/2026/07/sase-has-ai-blind-spot-inspecting.html
+- **Researcher Drops New Windows Zero-Day PoC Hours After Microsoft Patch Tuesday**: The Hacker News - https://thehackernews.com/2026/07/researcher-drops-new-windows-zero-day.html
+- **New Webinar: Closing the Approval Gap in AI-Era Ad Tech**: The Hacker News - https://thehackernews.com/2026/07/new-webinar-closing-approval-gap-in-ai.html
+- **Cursor Flaw Lets Malicious Cloned Repositories Trigger Windows Code Execution**: The Hacker News - https://thehackernews.com/2026/07/cursor-flaw-lets-malicious-cloned.html
 - **CISA warns admins to patch actively exploited SharePoint flaws**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisa-warns-admins-to-patch-actively-exploited-sharepoint-flaws/
 - **Compromised AsyncAPI npm Packages Deliver Multi-Stage Botnet Malware**: The Hacker News - https://thehackernews.com/2026/07/compromised-asyncapi-npm-packages.html
 - **Microsoft: Some Dell PCs shut down after recent Windows updates**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-some-dell-devices-shut-down-after-windows-update/
 - **Nigeria Deepens Cybersecurity Efforts as Cybercriminals See More Profits**: Dark Reading - https://www.darkreading.com/cyber-risk/nigeria-cybersecurity-efforts-cybercriminals-profits
 - **US charges alleged operators of Russian bulletproof hosting service**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/us-charges-alleged-russian-bulletproof-hosting-service-operators/
 - **Two SonicWall SMA 1000 Zero-Days Exploited, One Could Enable Admin Commands**: The Hacker News - https://thehackernews.com/2026/07/two-sonicwall-sma-1000-zero-days.html
+- **Cribl Adds Agentic Detection Engineering \&amp; Boosts SecOps With CardinalOps Deal**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/cribl-adds-agentic-detection-engineering-boosts-secops-with-cardinalops-deal
 - **Records Are Made to Be Broken: Patch Tuesday Raises Triage Stakes**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/records-broken-patch-tuesday-raises-triage-stakes
 - **SonicWall warns of SMA1000 flaws exploited in zero-day attacks, patch now**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/sonicwall-warns-of-sma1000-flaws-exploited-in-zero-day-attacks-patch-now/
 - **Microsoft Patches Record 622 Flaws, Including Two Zero-Days Under Active Attack**: The Hacker News - https://thehackernews.com/2026/07/microsoft-patches-record-622-flaws.html
@@ -136,9 +141,3 @@ Law enforcement actions disrupted significant criminal infrastructure. U.S. pros
 - **Frontier AI: The Genie's Out of the Bottle, but Where's the Rulebook?**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/frontier-ai-genie-out-of-bottle-where-rulebook
 - **ClickFix's Mushrooming Ecosystem Demands New Defense Tactics**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/clickfixs-ecosystem-demands-new-defense
 - **LastPass, Bitwarden users targeted with fake security alerts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/lastpass-bitwarden-users-targeted-with-fake-security-alerts/
-- **You Don't Have to Run an Exploit to Know If You're Vulnerable**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/you-dont-have-to-run-an-exploit-to-know-if-youre-vulnerable/
-- **RabbitMQ Flaws Could Leak OAuth Secrets and Expose Cross-Tenant Queue Metadata**: The Hacker News - https://thehackernews.com/2026/07/rabbitmq-flaws-could-leak-oauth-secrets.html
-- **Cursor IDE Auto-Executes Malicious Code in Poisoned Repos**: Dark Reading - https://www.darkreading.com/application-security/cursor-ide-malicious-code-poisoned-repos
-- **Microsoft Entra ID gets passkeys default authentication starting September**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-entra-id-gets-passkeys-default-authentication-starting-september/
-- **New phishing kits target Microsoft 365 accounts, evade MFA**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-phishing-kits-target-microsoft-365-accounts-evade-mfa/
-- **11 Old Microsoft-Signed Linux UEFI Shims Could Let Attackers Bypass Secure Boot**: The Hacker News - https://thehackernews.com/2026/07/11-old-microsoft-signed-linux-uefi.html
