@@ -2,85 +2,90 @@
 
 ## Executive Summary
 
-Microsoft's July 2026 Patch Tuesday has set a new record with 570 to 622 vulnerabilities addressed across its product ecosystem, including three zero-day flaws—two confirmed under active exploitation and one publicly disclosed. This massive release, complemented by critical patches from SonicWall, Progress Software, and SAP, signals an escalation in both the volume and severity of vulnerabilities requiring immediate triage. Organizations face a compressed patching window as threat actors move quickly to weaponize disclosed flaws.
+Microsoft's July 2026 Patch Tuesday has set a new record with 570 to 622 vulnerabilities addressed, including three zero-day flaws—two confirmed under active exploitation and one publicly disclosed. This unprecedented volume significantly raises the stakes for vulnerability triage and patch deployment across enterprise environments. Simultaneously, active zero-day exploitation campaigns targeting SonicWall SMA1000 appliances and Progress ShareFile Storage Zone Controllers demand immediate remediation, as threat actors are leveraging these vulnerabilities in real-world attacks.
 
-Active exploitation campaigns are diversifying beyond traditional vulnerability exploitation. At least two distinct threat actors are leveraging a novel OAuth client ID spoofing technique to validate stolen Microsoft Entra ID credentials while evading telemetry. Meanwhile, the ClickFix attack framework has matured into a rental ecosystem that bypasses AV and EDR solutions, and two new phishing kits (Jalisco and OmegaLord) are defeating MFA protections on Microsoft 365 accounts. A large-scale GitHub supply chain campaign has deployed nearly 300 malicious repositories impersonating legitimate software to distribute infostealers, and the previously undocumented LabubaRAT masquerades as NVIDIA software to maintain persistence on compromised Windows hosts.
+Beyond vendor patches, the threat landscape shows a surge in identity-focused and supply-chain attack vectors. At least two distinct threat actors are weaponizing OAuth client ID spoofing to validate stolen Microsoft Entra credentials, while new phishing kits—Jalisco and OmegaLord—are defeating multi-factor authentication to compromise Microsoft 365 accounts. A massive campaign involving nearly 300 malicious GitHub repositories impersonating legitimate software delivers infostealer malware, and the Cursor AI coding platform remains vulnerable to poisoned repository attacks that auto-execute malicious code.
 
-Law enforcement and regulatory actions are also accelerating. Spanish authorities dismantled a €140 million cyber fraud ring combining investment scams and business email compromise, arresting four operators. The U.S. Treasury Department sanctioned two individuals and one entity for providing VPN and malware infrastructure that enabled ransomware attacks against American organizations. These developments underscore the convergence of state-level response with the operational tempo of financially motivated threat groups.
+Law enforcement and regulatory actions underscore the scale of cybercrime operations. Spanish authorities dismantled a €140 million fraud ring combining investment scams and business email compromise, while the U.S. Treasury sanctioned VPN and malware providers facilitating ransomware attacks. Emerging research highlights systemic risks in 6 GHz Wi-Fi automated frequency coordination, legacy Microsoft-signed UEFI shims bypassing Secure Boot, and RabbitMQ access control flaws exposing OAuth secrets across tenant boundaries.
 
 ## Active Exploitation Details
 
 ### Microsoft July 2026 Patch Tuesday Zero-Days
-- **Description**: Microsoft's largest Patch Tuesday on record addressed 570–622 CVEs across Windows, Office, Exchange, and related products. Three zero-day vulnerabilities were patched: two actively exploited in the wild and one publicly disclosed prior to patch release. More than 60 vulnerabilities received Critical severity ratings.
-- **Impact**: Attackers exploiting the two active zero-days can achieve remote code execution, privilege escalation, or security feature bypass depending on the specific component. The sheer volume of critical flaws significantly expands the attack surface for organizations delaying patch deployment.
-- **Status**: Patches released July 2026. Active exploitation confirmed for two zero-days; one publicly disclosed. Organizations should prioritize deployment based on asset criticality and exposure.
+- **Description**: Microsoft's record-breaking Patch Tuesday release addressed 570–622 vulnerabilities across Windows and other Microsoft products. Three zero-day vulnerabilities were patched, with two confirmed as actively exploited in the wild and one publicly disclosed prior to the patch.
+- **Impact**: Attackers exploiting the two active zero-days could achieve remote code execution, privilege escalation, or security feature bypass depending on the specific component affected. The breadth of the release—spanning Windows OS, Office, Azure, and development tools—means a wide attack surface is exposed until patches are applied.
+- **Status**: Patches released July 2026. Active exploitation confirmed for two zero-days; one publicly disclosed. Organizations should prioritize deployment given the confirmed exploitation activity.
 - **CVE ID**: Specific CVE IDs for the zero-days were not disclosed in the source articles.
 
 ### SonicWall SMA1000 Zero-Day Vulnerabilities
-- **Description**: Two vulnerabilities in SonicWall SMA1000 series appliances are being exploited in zero-day attacks. The flaws affect the SSL-VPN management interface and could allow unauthenticated attackers to execute arbitrary commands.
-- **Impact**: Successful exploitation grants attackers administrative access to the appliance, enabling network pivoting, credential harvesting, and persistent foothold in victim environments.
-- **Status**: Actively exploited in the wild. SonicWall has released emergency firmware updates and urges immediate installation.
+- **Description**: SonicWall disclosed two vulnerabilities in SMA1000 series appliances that are being exploited in zero-day attacks. The flaws affect the management interface of the secure mobile access appliances.
+- **Impact**: Successful exploitation could allow unauthenticated attackers to execute arbitrary code, bypass authentication, or gain administrative access to the appliance, potentially providing a foothold into corporate networks via VPN access.
+- **Status**: Actively exploited in the wild. SonicWall has released security updates and urges immediate patching.
 - **CVE ID**: CVE-2026-15409, CVE-2026-15410
 
 ### Progress ShareFile Storage Zone Controller Zero-Day
-- **Description**: A high-severity zero-day vulnerability in Progress ShareFile Storage Zone Controllers triggered an emergency shutdown of the service last week. The flaw allows unauthenticated attackers to compromise the storage controller.
-- **Impact**: Attackers can access, modify, or exfiltrate sensitive files stored in ShareFile zones, potentially exposing confidential enterprise data shared with partners and customers.
-- **Status**: Actively exploited (triggered emergency shutdown). Progress Software has released security updates to patch the vulnerability.
+- **Description**: Progress Software confirmed a high-severity zero-day vulnerability in ShareFile Storage Zone Controllers that prompted an emergency shutdown of the service last week. The flaw allows attackers to compromise the storage zone infrastructure.
+- **Impact**: Exploitation could lead to unauthorized access to sensitive file shares, data exfiltration, or lateral movement within connected environments. The emergency shutdown indicates active, credible exploitation.
+- **Status**: Security updates released following the emergency shutdown. Customers must apply patches and verify Storage Zone Controller integrity.
 - **CVE ID**: Specific CVE ID not disclosed in the source article.
 
-### SAP NetWeaver ABAP Critical Flaw
-- **Description**: A CVSS 9.9 critical vulnerability in SAP NetWeaver Application Server ABAP, patched as part of SAP's July 2026 security updates addressing 16 total vulnerabilities across NetWeaver, Commerce Cloud, and AppRouter.
-- **Impact**: The flaw could allow attackers to expose or modify sensitive business data processed by the ABAP stack, including financial, HR, and supply chain records.
-- **Status**: Patched in July 2026 release. Three critical vulnerabilities addressed across the SAP portfolio.
-- **CVE ID**: Specific CVE ID not disclosed in the source articles.
+### OAuth Client ID Spoofing in Microsoft Entra ID
+- **Description**: A novel evasion technique allowing attackers to spoof OAuth client IDs, enabling validation of stolen Microsoft Entra credentials while evading telemetry and detection. The technique abuses the OAuth authentication flow to enumerate and verify compromised credentials.
+- **Impact**: Attackers can silently validate large volumes of stolen credentials, identify high-value accounts, and bypass conditional access policies without triggering standard authentication alerts.
+- **Status**: Actively weaponized by at least two distinct threat actors in ongoing cloud campaigns. No patch available; requires detection logic updates and conditional access hardening.
+- **CVE ID**: No CVE ID assigned; this is a technique exploiting protocol behavior.
 
 ### Cursor IDE Poisoned Repository Code Execution
-- **Description**: The Cursor AI coding platform auto-executes malicious code embedded in poisoned repositories. The vulnerability was reported to Cursor in December 2025 but remains unpatched as of July 2026.
-- **Impact**: Developers cloning or interacting with malicious repositories can inadvertently execute attacker-controlled code on their workstations, leading to full system compromise, credential theft, and supply chain contamination.
-- **Status**: Unpatched, actively exploitable. No fix released despite responsible disclosure.
-- **CVE ID**: Specific CVE ID not disclosed in the source article.
+- **Description**: The Cursor AI-powered IDE automatically executes code from repository configuration files (e.g., `.cursor/rules` or similar) when a repository is opened, without user interaction or explicit approval. Researchers reported the issue in December 2025; it remains unpatched as of July 2026.
+- **Impact**: Developers cloning or opening malicious repositories—such as the nearly 300 fake GitHub repos distributing infostealers—trigger automatic code execution, leading to full system compromise, credential theft, and supply chain contamination.
+- **Status**: Unpatched vulnerability. Cursor has not released a fix despite responsible disclosure. Mitigation requires disabling auto-execution features or avoiding untrusted repositories.
+- **CVE ID**: No CVE ID disclosed in the source article.
+
+### SonicWall SMA1000 Zero-Day Vulnerabilities
+- **Description**: SonicWall disclosed two vulnerabilities in SMA1000 series appliances that are being exploited in zero-day attacks. The flaws affect the management interface of the secure mobile access appliances.
+- **Impact**: Successful exploitation could allow unauthenticated attackers to execute arbitrary code, bypass authentication, or gain administrative access to the appliance, potentially providing a foothold into corporate networks via VPN access.
+- **Status**: Actively exploited in the wild. SonicWall has released security updates and urges immediate patching.
+- **CVE ID**: CVE-2026-15409, CVE-2026-15410
 
 ## Affected Systems and Products
 
-- **Microsoft Windows (all supported versions)**: 570–622 vulnerabilities patched in July 2026 Patch Tuesday, including two actively exploited zero-days and 60+ critical flaws
-- **Microsoft Office, Exchange, SharePoint, and related productivity suite**: Included in the record Patch Tuesday release
-- **Windows 10 (Extended Security Updates)**: KB5099539 includes all July 2026 fixes for 570 vulnerabilities plus additional security updates
-- **Windows 11 (versions 25H2, 24H2, 23H2)**: KB5101650 and KB5099414 cumulative updates addressing 570+ security issues
-- **SonicWall SMA1000 Series Appliances**: Firmware versions prior to the emergency July 2026 release vulnerable to CVE-2026-15409 and CVE-2026-15410
-- **Progress ShareFile Storage Zone Controllers**: All versions prior to the emergency security update released after the zero-day exploitation
-- **SAP NetWeaver Application Server ABAP**: Versions affected by the CVSS 9.9 flaw and two additional critical vulnerabilities in Commerce Cloud and AppRouter
-- **Cursor IDE (AI Coding Platform)**: All current versions vulnerable to auto-execution of malicious code in poisoned repositories
-- **RabbitMQ Message Broker**: Versions with access control flaws allowing OAuth secret leakage and cross-tenant queue metadata exposure
-- **6 GHz Wi-Fi Automated Frequency Coordination (AFC) Systems**: Systems trusting client-side location data by default, enabling spoofing attacks
-- **Microsoft Entra ID**: Tenants vulnerable to OAuth client ID spoofing used to validate stolen credentials
-- **Microsoft 365 Accounts**: Targeted by Jalisco and OmegaLord phishing kits that defeat MFA
-- **Linux Systems with UEFI Secure Boot**: Systems using any of 11 old Microsoft-signed UEFI shims vulnerable to Secure Boot bypass
-- **Chrome Browser with Claude Extension**: Users vulnerable to rogue extensions triggering unauthorized Gmail, Google Docs, and Calendar access
-- **LastPass and Bitwarden Users**: Targeted by phishing campaigns using fake security alerts
+- **Microsoft Windows (all supported versions)**: July 2026 Patch Tuesday covers 570–622 CVEs across Windows 10, Windows 11 (23H2, 24H2, 25H2), Windows Server, and associated components. Extended Security Updates (ESU) for Windows 10 delivered via KB5099539.
+- **Microsoft Office and Microsoft 365 Apps**: Included in the Patch Tuesday release; phishing kits Jalisco and OmegaLord specifically target Microsoft 365 accounts with MFA evasion.
+- **Microsoft Entra ID (Azure AD)**: Targeted by OAuth client ID spoofing campaigns validating stolen credentials; passkeys becoming default authentication method starting September 2026.
+- **SonicWall SMA1000 Series Appliances**: Firmware versions prior to the July 2026 security update are vulnerable to CVE-2026-15409 and CVE-2026-15410 active exploitation.
+- **Progress ShareFile Storage Zone Controllers**: On-premises storage zone components affected by the zero-day behind the emergency shutdown; all versions prior to the July 2026 patch.
+- **SAP NetWeaver Application Server ABAP**: Critical CVSS 9.9 flaw addressed in July 2026 security updates; also affects SAP Commerce Cloud and AppRouter.
+- **Cursor IDE (AI Coding Platform)**: All versions supporting automatic rule/configuration execution from repositories; vulnerability unpatched since December 2025 disclosure.
+- **Claude for Chrome Browser Extension**: Vulnerable to cross-extension scripting attacks allowing rogue extensions to trigger Gmail, Google Docs, and Calendar access.
+- **RabbitMQ Message Broker**: Versions with flawed access controls allowing OAuth client secret leakage and cross-tenant queue metadata exposure.
+- **Linux Systems Using UEFI Secure Boot**: Systems trusting any of 11 legacy Microsoft-signed UEFI shims (GRUB2, shim loaders) that can be abused to bypass Secure Boot protections.
+- **6 GHz Wi-Fi / AFC Systems**: Automated Frequency Coordination systems and client devices relying on unvalidated client-side location data.
+- **GitHub / Software Supply Chain**: Nearly 300 malicious repositories impersonating legitimate tools (security scanners, CLI utilities, dev tools) distributing infostealer malware (Lumma, RedLine, etc.).
+- **LastPass and Bitwarden Users**: Targeted by phishing campaigns using fake security alert emails directing to credential-harvesting sites.
 
 ## Attack Vectors and Techniques
 
-- **OAuth Client ID Spoofing**: Attackers spoof legitimate OAuth client IDs to validate stolen Microsoft Entra ID credentials against Microsoft's authentication endpoints. The technique evades standard telemetry by mimicking legitimate application behavior, allowing threat actors to enumerate valid credentials without triggering alerts.
-- **ClickFix Attack Framework**: A social engineering technique where victims are tricked into executing malicious PowerShell commands via "fix" prompts (e.g., fake CAPTCHA verifications, error dialogs). The framework is now available as a rented service at scale, with built-in AV/EDR evasion. YARA rule analysis remains the most reliable detection method.
-- **MFA-Bypassing Phishing Kits (Jalisco & OmegaLord)**: Purpose-built phishing frameworks targeting Microsoft 365 that use adversary-in-the-middle (AiTM) techniques, real-time session hijacking, and token replay to defeat multi-factor authentication protections.
-- **GitHub Repository Impersonation & Typosquatting**: Nearly 300 malicious repositories mimic legitimate software projects and security tools. Attackers leverage typo-squatted names, copied READMEs, and fake release artifacts to trick developers into downloading infostealer malware.
-- **Fake Security Alert Phishing**: Campaigns targeting password manager users (LastPass, Bitwarden) with fraudulent security notifications directing victims to credential-harvesting sites that mimic official login portals.
-- **LabubaRAT Masquerading**: Rust-based remote access trojan disguises itself as legitimate NVIDIA software (filenames, metadata, installation paths) to blend into gaming and workstation environments, evading heuristic analysis.
-- **Claude for Chrome Extension Abuse**: Any browser extension with script execution permission on claude.ai can trigger the Claude extension to read Gmail, access Google Docs and comments, and view Calendar data—no direct compromise of the Claude extension required.
-- **UEFI Secure Boot Bypass via Legacy Shims**: Attackers chain 11 old Microsoft-signed UEFI applications (shims) to bypass Secure Boot on modern systems, enabling bootkit installation and pre-OS persistence.
-- **RabbitMQ Access Control Bypass**: Two flaws in RabbitMQ's permission model allow unauthorized users to read OAuth client secrets from other vhosts and enumerate queue metadata across tenant boundaries in multi-tenant deployments.
-- **6 GHz Wi-Fi AFC Location Spoofing**: Automated Frequency Coordination systems accept client-reported location data without server-side validation, enabling attackers to spoof coordinates and disrupt incumbent protection mechanisms for critical infrastructure.
-- **Poisoned Repository Supply Chain Attack**: Malicious code embedded in repository files (e.g., configuration, documentation, test data) auto-executes when opened in Cursor IDE, turning code review and dependency inspection into attack vectors.
+- **Zero-Day Exploitation of Network Edge Devices**: Threat actors actively exploit unpatched vulnerabilities in VPN/appliance interfaces (SonicWall SMA1000, ShareFile Storage Zones) for initial access and persistence.
+- **OAuth Client ID Spoofing**: Attackers register or manipulate OAuth application identities to mimic legitimate Microsoft first-party or trusted apps, enabling silent validation of stolen Entra credentials without triggering MFA or conditional access alerts.
+- **MFA-Bypassing Phishing Kits (Jalisco, OmegaLord)**: Adversary-in-the-middle (AiTM) frameworks proxy authentication sessions in real time, capturing session tokens and bypassing Microsoft 365 MFA including number matching and FIDO2.
+- **Fake Security Alert Phishing**: Social engineering emails impersonating LastPass/Bitwarden security notices lure users to credential-harvesting pages; leverages urgency and brand trust.
+- **Supply Chain / Repository Poisoning**: Mass creation of typosquatted or branded GitHub repositories (300+) distributing trojanized software that delivers infostealers; combined with Cursor IDE auto-execution for developer targeting.
+- **Cross-Extension Browser Exploitation**: Malicious Chrome extensions exploit over-permissive messaging APIs in legitimate extensions (Claude for Chrome) to exfiltrate Gmail, Docs, and Calendar data.
+- **UEFI Secure Boot Bypass via Legacy Shims**: Attackers with local/admin access chain vulnerable Microsoft-signed UEFI applications (shims, GRUB2) to disable Secure Boot and deploy bootkits.
+- **Automated Frequency Coordination (AFC) Spoofing**: Malicious 6 GHz Wi-Fi clients submit falsified geolocation data to AFC systems, causing incumbent protection failures and spectrum interference.
+- **Business Email Compromise (BEC) at Scale**: Organized fraud ring combined investment scams with BEC, generating €140 million; leveraged credential harvesting, invoice manipulation, and money mule networks.
+- **Ransomware Enablement via Bulletproof Services**: Sanctioned VPN providers (e.g., VPNLab-style) and malware developers (e.g., LockBit affiliates) offer infrastructure and tooling for ransomware deployment.
 
 ## Threat Actor Activities
 
-- **Spanish Cyber Fraud Organization (Dismantled)**: A structured cybercrime and money-laundering group generated €140 million ($160 million) through investment fraud schemes and business email compromise (BEC) attacks. Spanish National Police arrested four core members and seized infrastructure in a coordinated takedown.
-- **OAuth Client ID Spoofing Operators (Two Distinct Groups)**: At least two separate threat actors independently weaponized OAuth client ID spoofing in cloud-focused campaigns against Microsoft Entra ID tenants. Both groups use the technique for credential validation and enumeration while avoiding detection by standard identity telemetry.
-- **GitHub Supply Chain Campaign Operator**: A single threat actor or group created and maintained nearly 300 fake repositories over an extended period, systematically impersonating legitimate open-source projects and security tools to distribute infostealer payloads to developers.
-- **LabubaRAT Operators**: Deploy a previously undocumented Rust-based RAT masquerading as NVIDIA software. The malware's use of Rust and legitimate software disguise suggests a sophistication level above commodity malware, potentially indicating a targeted espionage or high-value financial crime group.
-- **Jalisco & OmegaLord Phishing Kit Operators**: Developers and affiliates behind two new phishing-as-a-service kits specifically engineered to defeat MFA on Microsoft 365. The kits' modular design suggests an ecosystem model with kit authors, infrastructure providers, and campaign operators.
-- **Ransomware Enablers (Sanctioned by OFAC)**: Two individuals and one entity designated by the U.S. Treasury Department's Office of Foreign Assets Control for providing bulletproof VPN hosting and malware development services that directly facilitated ransomware attacks against U.S. critical infrastructure and private sector organizations.
-- **ClickFix Framework Affiliates**: Multiple threat groups renting access to the ClickFix social engineering platform, which provides template generation, hosting, and evasion tooling as a managed service—lowering the barrier for credential theft and initial access operations.
+- **Unknown Threat Actors (SonicWall SMA1000 Exploitation)**: Actively exploiting CVE-2026-15409 and CVE-2026-15410 in the wild against unpatched SMA1000 appliances; targeting VPN endpoints for network ingress.
+- **Unknown Threat Actors (ShareFile Zero-Day)**: Exploited the high-severity ShareFile Storage Zone flaw prior to public disclosure, forcing Progress to emergency-shutdown the service; likely targeting sensitive file repositories.
+- **Two Distinct Threat Actors (OAuth Client ID Spoofing)**: Separate campaigns weaponizing OAuth client ID spoofing to validate stolen Microsoft Entra credentials at scale; operating in cloud environments, evading telemetry via legitimate OAuth flows.
+- **Jalisco and OmegaLord Phishing Kit Operators**: Deploying AiTM phishing infrastructure targeting Microsoft 365 enterprise accounts; kits sold/rented on underground forums with MFA-bypass capabilities.
+- **GitHub Repository Poisoning Campaign Operator**: Single threat actor or group created nearly 300 fake repositories impersonating legitimate security and development tools; distributing Lumma, RedLine, and other infostealers to developers and CI/CD pipelines.
+- **LabubaRAT Operators**: Deploying a novel Rust-based RAT masquerading as NVIDIA software (filenames, icons, metadata); targeting Windows hosts for persistent remote access and data theft.
+- **Spanish Cyber Fraud Ring (Dismantled)**: Organized crime group conducting investment fraud ("pig butchering") and BEC attacks; stole €140 million ($160M); four arrests made, infrastructure seized.
+- **Sanctioned Ransomware Enablers**: Two individuals and one entity designated by OFAC for providing VPN infrastructure and malware tooling to ransomware gangs (e.g., LockBit, Conti affiliates) targeting U.S. organizations.
+- **ClickFix Ecosystem Operators**: Running a "phishing-as-a-service" platform renting fake CAPTCHA/verification pages that deliver malware via clipboard injection and script execution; evades AV/EDR through living-off-the-land techniques.
 
 ## Source Attribution
 
