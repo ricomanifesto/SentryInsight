@@ -2,135 +2,119 @@
 
 ## Executive Summary
 
-Critical zero-day exploitation activity surged this period with active attacks targeting SonicWall SMA 1000 appliances, Microsoft Windows and SharePoint Server, and Mozilla Firefox. CISA issued an urgent warning for three actively exploited SharePoint vulnerabilities affecting internet-exposed on-premises servers, while SonicWall confirmed two zero-days (CVE-2026-15409 and CVE-2026-15410) under active exploitation—one enabling arbitrary command execution. Microsoft's record-breaking Patch Tuesday addressed 622 vulnerabilities including two zero-days already under attack, and Mozilla warned that exploit code has been published for CVE-2026-15718 in Firefox.
+Critical exploitation activity surged in July 2026 with multiple zero-day vulnerabilities under active attack across diverse platforms. SonicWall SMA 1000 appliances face exploitation of two zero-day flaws (CVE-2026-15409 and CVE-2026-15410), with one enabling arbitrary command execution as administrator. Microsoft's record-breaking Patch Tuesday addressed 622 vulnerabilities including two actively exploited zero-days, while Mozilla confirmed exploit code exists for critical Firefox flaws including CVE-2026-15718. CISA simultaneously warned of active exploitation targeting three vulnerabilities in internet-exposed on-premises SharePoint Server instances.
 
-Simultaneously, supply chain and identity-based attacks continue to dominate the threat landscape. A compromise of AsyncAPI npm packages delivered multi-stage botnet malware through the Node Package Manager, while credential theft and MFA bypass have overtaken exploits as the leading ransomware root cause—with MFA present in 97% of compromised credential incidents. Threat actors are increasingly weaponizing AI tools, evidenced by the "bandcampro" group's use of Google's Gemini CLI as a hacking agent and botnet operator, and the emergence of LLM-assisted IoT botnet development in TuxBot v3 Evolution.
+Supply chain attacks and AI-enabled threat activity represent escalating risks. A compromised AsyncAPI npm package campaign delivered multi-stage botnet malware through the official registry, while a Russian-speaking actor ("bandcampro") weaponized Google's Gemini CLI as both a hacking agent and botnet command infrastructure. Researchers demonstrated an AI-powered "vulnerability vending machine" capable of automatically discovering complex flaws, and a new Windows zero-day PoC (LegacyHive) was released hours after Patch Tuesday by researcher Chaotic Eclipse.
 
-Law enforcement actions disrupted major cybercrime infrastructure: Dutch police dismantled a €100 million investment fraud ring with tens of thousands of victims, Spanish authorities took down a €140 million cyber fraud operation combining investment scams and business email compromise, and U.S. prosecutors charged three Russian nationals for operating bulletproof hosting services that facilitated over $62 million in ransomware damage. Meanwhile, researchers disclosed a Windows User Profile Service zero-day (LegacyHive PoC), critical flaws in Zoom and Cursor IDE enabling account takeover and developer environment compromise, and a Secure Boot bypass via revoked but still-trusted UEFI shim bootloaders.
+Identity-based attacks have overtaken exploitation as the primary ransomware root cause, with MFA failing to prevent compromise in 97% of credential-based incidents. Law enforcement achieved significant victories: Dutch police dismantled a €100 million investment fraud ring, Spanish authorities took down a €140 million cyber fraud operation combining investment scams and business email compromise, and U.S. prosecutors charged three Russian nationals for operating bulletproof hosting services enabling over $62 million in ransomware damages.
 
 ## Active Exploitation Details
 
 ### SonicWall SMA 1000 Zero-Day Vulnerabilities
-- **Description**: Two zero-day vulnerabilities affecting SonicWall Secure Mobile Access (SMA) 1000 series appliances. One vulnerability enables arbitrary command execution with administrative privileges.
-- **Impact**: Attackers can achieve full administrative control over affected SMA 1000 appliances, potentially compromising VPN access and network segmentation.
-- **Status**: Actively exploited in zero-day attacks. SonicWall has released patches and urges immediate installation.
-- **CVE ID**: CVE-2026-15409, CVE-2026-15410
+- **Description**: Two zero-day vulnerabilities affecting SonicWall Secure Mobile Access (SMA) 1000 series appliances. One vulnerability allows arbitrary command execution with administrative privileges, while the second provides an additional attack vector. Both flaws were exploited in the wild before patches were available.
+- **Impact**: Attackers can achieve full administrative control over affected SMA 1000 appliances, enabling network access, traffic interception, credential theft, and lateral movement into connected environments.
+- **Status**: Actively exploited in zero-day attacks. SonicWall has released emergency patches and urges immediate installation. CISA and vendor advisories recommend prioritizing deployment.
+- **CVE ID**: CVE-2026-15409
+- **CVE ID**: CVE-2026-15410
 
-### Microsoft SharePoint Server Vulnerabilities
-- **Description**: Three vulnerabilities affecting internet-exposed on-premises SharePoint Server installations.
-- **Impact**: Attackers are actively exploiting these flaws to compromise SharePoint servers, potentially leading to data theft, lateral movement, and persistent access.
-- **Status**: Actively exploited in the wild. CISA has issued an urgent warning for administrators to patch immediately.
-- **CVE ID**: [CVE IDs not specified in source article snippets]
+### Microsoft July Patch Tuesday Zero-Days
+- **Description**: Two zero-day vulnerabilities among 622 total CVEs patched in Microsoft's largest Patch Tuesday release on record. Specific vulnerability types not disclosed in available reporting, but confirmed under active exploitation at time of patch release.
+- **Impact**: Active exploitation confirmed; impact varies by vulnerability but includes potential for remote code execution, privilege escalation, and security feature bypass across Windows and Microsoft product ecosystem.
+- **Status**: Patched in July 2026 security updates. Three total zero-days addressed in this release (two under active attack, one publicly known). More than 60 critical vulnerabilities included in the 622-fix release.
+- **CVE ID**: Specific CVE IDs for the two actively exploited zero-days not provided in source articles.
 
-### Microsoft Windows Zero-Days (Patch Tuesday July 2026)
-- **Description**: Two zero-day vulnerabilities among 622 total CVEs patched in Microsoft's largest Patch Tuesday on record. Over 60 vulnerabilities rated critical.
-- **Impact**: Active exploitation confirmed for two zero-days; critical vulnerabilities across Windows components, Office, and other Microsoft products.
-- **Status**: Patches released. Two zero-days were under active attack at time of patch release.
-- **CVE ID**: [Specific zero-day CVE IDs not provided in source article snippets]
-
-### Mozilla Firefox Critical Vulnerability
-- **Description**: Critical vulnerability in Firefox for which exploit code has been published. Mozilla warned of active exploit availability.
-- **Impact**: Remote code execution potential through crafted web content.
-- **Status**: Exploit code published. Mozilla has released updates addressing this and another critical flaw.
+### Firefox Critical Vulnerabilities with Published Exploit Code
+- **Description**: Mozilla released emergency updates addressing two critical vulnerabilities in Firefox for which exploit code has been publicly published. One identified flaw involves an invalid pointer handling issue.
+- **Impact**: Remote code execution potential through malicious web content. Published exploit code significantly increases risk for unpatched installations.
+- **Status**: Patched in latest Firefox releases. Mozilla explicitly warned that exploit code exists for these vulnerabilities.
 - **CVE ID**: CVE-2026-15718
 
-### Zoom Account Takeover Vulnerability
-- **Description**: Critical vulnerability in Zoom desktop client and software development kit for Windows allowing unauthenticated account hijacking.
-- **Impact**: Unauthenticated attackers can take over user accounts, potentially accessing meetings, recordings, and contact lists.
-- **Status**: Zoom has issued warnings; patch status should be verified.
-- **CVE ID**: [CVE ID not specified in source article snippet]
+### Actively Exploited SharePoint Server Vulnerabilities
+- **Description**: Three vulnerabilities in on-premises Microsoft SharePoint Server that are being actively exploited against internet-exposed instances. CISA issued an emergency directive urging immediate patching.
+- **Impact**: Compromise of SharePoint servers accessible from the internet, potentially leading to data exfiltration, credential theft, and internal network access.
+- **Status**: Actively exploited per CISA warning. Patches available; administrators urged to apply immediately or restrict internet exposure.
+- **CVE ID**: Specific CVE IDs not provided in source article excerpt.
 
-### Windows User Profile Service Zero-Day (LegacyHive)
-- **Description**: Proof-of-concept exploit called "LegacyHive" released by researcher Chaotic Eclipse (Nightmare-Eclipse) targeting Windows User Profile Service arbitrary hive loading.
-- **Impact**: Potential privilege escalation and persistence through malicious profile hive manipulation.
-- **Status**: PoC released publicly hours after July Patch Tuesday; exploitation risk elevated.
-- **CVE ID**: [CVE ID not specified in source article snippet]
+### Zoom Critical Account Takeover Vulnerability
+- **Description**: Critical vulnerability in Zoom's desktop client and Software Development Kit (SDK) for Windows that allows unauthenticated attackers to hijack user accounts.
+- **Impact**: Full account takeover without authentication, enabling access to meetings, recordings, contacts, and potential further social engineering or data theft.
+- **Status**: Zoom has issued warnings and patches. Vulnerability affects Windows desktop client and SDK implementations.
 
-### Cursor IDE Code Execution Flaws
-- **Description**: Two distinct vulnerabilities in Cursor IDE on Windows: (1) a "2-click" exploit enabling developer environment takeover, and (2) automatic execution of `git.exe` if placed in a cloned repository root—no user interaction required.
-- **Impact**: Attackers can steal developer secrets, source code, and execute arbitrary code via malicious repositories.
-- **Status**: Active exploitation vector; developers opening cloned repositories at risk.
-- **CVE ID**: [CVE IDs not specified in source article snippets]
+### Cursor IDE Repository Code Execution Flaw
+- **Description**: Design flaw in Cursor (AI-powered code editor) on Windows where the application automatically executes any file named `git.exe` present in a cloned repository's root directory, without user interaction, approval dialogs, or warnings.
+- **Impact**: Arbitrary code execution when developers open malicious repositories. Attackers can embed malicious `git.exe` binaries in repositories distributed via GitHub, GitLab, or other sources.
+- **Status**: Active exploitation vector demonstrated. Related "2-click" exploit variant also enables developer environment takeover through simple bugs.
 
 ### AsyncAPI npm Supply Chain Attack
-- **Description**: Five malicious versions of AsyncAPI packages published to npm delivering a remote access trojan with credential-stealing and botnet capabilities. Four packages in the `@asyncapi` namespace confirmed compromised.
-- **Impact**: Multi-stage botnet loader installation, credential theft, persistent access to development environments and CI/CD pipelines.
-- **Status**: Malicious packages identified and reported by OX Security, SafeDep, Socket, and StepSecurity; removal from npm in progress.
-- **CVE ID**: [CVE IDs not specified in source article snippets]
-
-### UEFI Secure Boot Bypass via Revoked Shim Bootloaders
-- **Description**: Nearly a dozen vulnerable and revoked UEFI shim bootloaders remained trusted in UEFI databases for years, creating a persistent Secure Boot bypass path.
-- **Impact**: Attackers with physical or administrative access can boot unsigned code, deploy bootkits, and persist below the OS level despite Secure Boot being enabled.
-- **Status**: Bootloaders now revoked; however, historical trust creates risk for systems not updated with latest dbx revocations.
-- **CVE ID**: [CVE IDs not specified in source article snippet]
+- **Description**: Five malicious versions of AsyncAPI packages published to the npm registry under the `@asyncapi` namespace, delivering a multi-stage remote access trojan with credential-stealing and botnet capabilities.
+- **Impact**: Compromise of development environments and build systems. Info-stealing capabilities target credentials, tokens, and sensitive data. Botnet functionality enables persistent access and further payload deployment.
+- **Status**: Malicious packages identified and reported by OX Security, SafeDep, Socket, and StepSecurity. Four compromised packages confirmed in `@asyncapi` namespace.
 
 ### OkoBot Hardware Wallet Phishing Framework
-- **Description**: Malware framework active since April 2025 with a module that injects seed phrase phishing prompts into Ledger Live and Trezor Suite applications on infected Windows machines.
-- **Impact**: Theft of cryptocurrency wallet recovery phrases, leading to complete wallet compromise and fund drainage.
-- **Status**: Active malware campaign targeting hardware wallet users.
-- **CVE ID**: [CVE ID not specified in source article snippet]
+- **Description**: Malware framework active since April 2025 targeting Windows users of Ledger and Trezor hardware wallets. Injects seed phrase phishing prompts into legitimate wallet applications to steal recovery phrases.
+- **Impact**: Complete cryptocurrency wallet compromise. Recovery phrase theft enables full control of victim's digital assets across all supported blockchains.
+- **Status**: Active in the wild since April 2025. Targets users of major hardware wallet vendors through application injection techniques.
 
-### Google Gemini CLI Abuse by Threat Actor
-- **Description**: Russian-speaking threat actor "bandcampro" weaponized Google's open-source Gemini CLI AI tool as an autonomous hacking agent and botnet command-and-control mechanism.
-- **Impact**: AI-assisted vulnerability scanning, exploitation, and botnet operations at scale with reduced operator overhead.
-- **Status**: Active misuse of legitimate AI tooling; demonstrates emerging trend of LLM-assisted offensive operations.
-- **CVE ID**: [CVE ID not applicable—abuse of legitimate tool]
+### TuxBot v3 IoT Botnet with LLM-Assisted Development
+- **Description**: Previously unreported IoT botnet framework showing indicators of large language model (LLM) assistance in its development. Represents evolution in automated malware creation capabilities.
+- **Impact**: Compromise of Internet-of-Things devices for DDoS, proxy networks, credential harvesting, and lateral movement. LLM-assisted development suggests accelerating malware sophistication.
+- **Status**: Active botnet framework under observation by researchers. Indicates emerging trend of AI-augmented threat actor tooling.
 
-### TuxBot v3 Evolution IoT Botnet
-- **Description**: Previously unreported IoT botnet framework showing indicators of LLM-assisted development, targeting Internet-of-Things devices for botnet recruitment.
-- **Impact**: Compromise of IoT devices for DDoS, proxy networks, and lateral movement into adjacent networks.
-- **Status**: Active development and deployment; represents evolution of AI-augmented malware authoring.
-- **CVE ID**: [CVE IDs not specified in source article snippet]
+### Google Gemini CLI Weaponization
+- **Description**: Russian-speaking threat actor "bandcampro" abused Google's open-source Gemini CLI (command-line interface) AI tool as both an automated hacking agent and as command-and-control infrastructure for a small-scale botnet operation.
+- **Impact**: Legitimate AI development tool repurposed for vulnerability scanning, exploitation, and botnet management. Demonstrates dual-use risk of accessible AI coding agents.
+- **Status**: Observed in active operations. Highlights growing threat of AI tool misuse by threat actors.
 
-### Claude "PromptFiction" Vulnerability
-- **Description**: Fixed vulnerability in Anthropic's Claude that could automatically send malicious prompts to connected AI agents, enabling end-to-end attack chains when combined with other exploits.
-- **Impact**: Prompt injection leading to unauthorized actions by AI agents with system access.
-- **Status**: Patched by Anthropic; demonstrates emerging AI agent attack surface.
-- **CVE ID**: [CVE ID not specified in source article snippet]
+### Windows LegacyHive Zero-Day PoC
+- **Description**: Security researcher Chaotic Eclipse (aka Nightmare-Eclipse) released a proof-of-concept exploit called "LegacyHive" targeting the Windows User Profile Service arbitrary hive loading functionality, hours after Microsoft's July Patch Tuesday.
+- **Impact**: Potential privilege escalation and arbitrary code execution through manipulation of user profile hive loading mechanisms.
+- **Status**: PoC publicly released. No patch mentioned in source; likely unpatched at time of disclosure.
+
+### Claude "PromptFiction" AI Agent Vulnerability
+- **Description**: Vulnerability dubbed "PromptFiction" in Anthropic's Claude that could automatically send malicious prompts to connected AI agents. When chained with another exploit, enables end-to-end system compromise.
+- **Impact**: AI agent manipulation leading to unauthorized actions, data access, or system compromise in environments using Claude with agent frameworks.
+- **Status**: Fixed per reporting. Demonstrates emerging attack surface in AI agent architectures.
 
 ## Affected Systems and Products
 
-- **SonicWall SMA 1000 Series Appliances**: Secure Mobile Access 1000 series firmware versions prior to patched releases; both CVE-2026-15409 and CVE-2026-15410 affect the appliance management interface.
-- **Microsoft SharePoint Server**: On-premises SharePoint Server installations exposed to the internet; specific affected versions include SharePoint Server 2016, 2019, and Subscription Edition per CISA guidance.
-- **Microsoft Windows**: Broad impact across Windows 10, Windows 11, Windows Server 2016/2019/2022; 622 CVEs patched including kernel, networking, Office, Hyper-V, and cryptographic components.
-- **Mozilla Firefox**: Firefox desktop versions prior to the July 2026 security update; CVE-2026-15718 specifically affects the browser rendering engine.
-- **Zoom Desktop Client and SDK**: Windows versions of Zoom Client for Meetings and the Windows SDK; unauthenticated remote attack vector.
-- **Cursor IDE**: Windows versions of the Cursor AI-powered code editor; affects developers cloning untrusted repositories.
-- **AsyncAPI npm Packages**: `@asyncapi` namespace packages versions 2.6.0, 2.6.1, 2.6.2, 2.6.3, 2.6.4 (malicious versions); Node.js development environments and CI/CD pipelines consuming these packages.
-- **UEFI Shim Bootloaders**: Revoked shim bootloaders from multiple vendors (including but not limited to Canonical, Red Hat, SUSE, Debian) that remained in UEFI trusted databases; affects x64 and ARM64 systems with Secure Boot enabled.
-- **Ledger Live and Trezor Suite**: Desktop companion applications for Ledger and Trezor hardware wallets on Windows; targeted by OkoBot's seed phrase phishing module.
-- **Google Gemini CLI**: Open-source command-line interface for Google Gemini AI; abused as offensive tooling rather than vulnerability in the tool itself.
-- **IoT Devices (TuxBot v3 Targets)**: Linux-based IoT devices (routers, cameras, DVRs, smart appliances) with exposed management interfaces or default credentials.
-- **Anthropic Claude AI Agents**: Systems integrating Claude with agent frameworks allowing autonomous tool use; patched server-side.
+- **SonicWall SMA 1000 Series Appliances**: Secure Mobile Access 1000 series firmware versions prior to emergency patches for CVE-2026-15409 and CVE-2026-15410
+- **Microsoft Windows and Server Ecosystem**: All supported Windows versions, SharePoint Server on-premises (internet-exposed instances), and Microsoft 365 components covered by July 2026 Patch Tuesday (622 CVEs)
+- **Mozilla Firefox**: All Firefox desktop versions prior to critical security updates addressing CVE-2026-15718 and companion critical flaw
+- **Zoom Desktop Client and SDK for Windows**: Zoom Windows desktop application and Software Development Kit implementations vulnerable to unauthenticated account takeover
+- **Cursor AI Code Editor (Windows)**: All Windows versions of Cursor IDE that automatically execute `git.exe` from repository root directories
+- **AsyncAPI npm Packages**: `@asyncapi` namespace packages versions 1.0.0 through 1.0.4 (malicious versions published to npm registry)
+- **Ledger and Trezor Hardware Wallet Desktop Applications**: Windows desktop companion apps for Ledger and Trezor hardware wallets targeted by OkoBot seed phrase injection
+- **IoT Devices Running Vulnerable Firmware**: Broad range of Internet-of-Things devices susceptible to TuxBot v3 botnet recruitment
+- **Google Gemini CLI Users**: Developers and organizations using Google's open-source Gemini CLI tool, particularly in automated CI/CD or agent workflows
+- **Anthropic Claude AI Agent Integrations**: Systems utilizing Claude with autonomous agent frameworks prior to PromptFiction fix
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Active exploitation of unpatched vulnerabilities in SonicWall SMA 1000 (CVE-2026-15409, CVE-2026-15410), Microsoft Windows (two zero-days), and Firefox (CVE-2026-15718 with public exploit code).
-- **Supply Chain Compromise**: Malicious publication of AsyncAPI npm packages to the official Node Package Manager registry, delivering multi-stage botnet loaders to downstream consumers.
-- **AI Tool Weaponization**: Repurposing of Google's Gemini CLI as an autonomous hacking agent for vulnerability scanning, exploitation, and botnet C2 by threat actor "bandcampro."
-- **LLM-Assisted Malware Development**: Use of large language models to accelerate IoT botnet framework development (TuxBot v3 Evolution), reducing time-to-weaponization.
-- **Developer Environment Targeting**: Exploitation of Cursor IDE flaws via malicious cloned repositories (automatic `git.exe` execution) and 2-click attacks to steal secrets and source code.
-- **Secure Boot Bypass**: Leveraging revoked but still-trusted UEFI shim bootloaders to load unsigned kernels/bootkits, persisting below OS security controls.
-- **Identity-Based Attacks**: Credential theft, phishing, and MFA bypass (including MFA fatigue, token theft, and adversary-in-the-middle) now the primary ransomware initial access vector—MFA deployed in 97% of compromised credential incidents.
-- **Hardware Wallet Phishing**: Malware-injected prompts in legitimate Ledger Live/Trezor Suite applications tricking users into entering seed phrases on compromised hosts.
-- **Prompt Injection / AI Agent Manipulation**: "PromptFiction" vulnerability enabling malicious prompt chaining to AI agents with tool-use capabilities.
-- **Bulletproof Hosting Infrastructure**: Russian-hosted resilient infrastructure (charged operators) providing ransomware gangs with attack hosting, C2, and data exfiltration services.
-- **Business Email Compromise (BEC)**: Combined with investment fraud in Spanish and Dutch law enforcement cases; social engineering for financial transfer fraud.
-- **Investment Fraud / Pig Butchering**: Large-scale social engineering campaigns (€100M+ and €140M+ rings) using fake investment platforms and romance/trust-building tactics.
+- **Zero-Day Exploitation of Network Edge Devices**: Active targeting of SonicWall SMA 1000 VPN/appliance endpoints using two previously unknown vulnerabilities (CVE-2026-15409, CVE-2026-15410) for initial access and administrative command execution
+- **Supply Chain Compromise via Package Registry**: Malicious code injection into legitimate AsyncAPI npm packages published to official registry, delivering multi-stage botnet loader to downstream developers and build systems
+- **AI Tool Weaponization**: Repurposing of Google Gemini CLI as autonomous hacking agent for vulnerability discovery, exploitation, and botnet command-and-control by threat actor "bandcampro"
+- **Developer Environment Targeting**: Exploitation of Cursor IDE's automatic `git.exe` execution behavior to achieve code execution when developers clone malicious repositories
+- **Identity-Based Ransomware Access**: Credential theft, phishing, and MFA bypass (97% failure rate in credential attacks) now surpassing vulnerability exploitation as primary ransomware initial access vector
+- **Hardware Wallet Application Injection**: OkoBot malware injects phishing prompts into legitimate Ledger/Trezor desktop applications to extract cryptocurrency seed phrases
+- **AI Agent Prompt Injection**: "PromptFiction" vulnerability enabling malicious prompt chaining to compromise AI agent autonomy and connected system access
+- **LLM-Assisted Malware Development**: TuxBot v3 botnet shows indicators of large language model usage in code generation, accelerating IoT malware sophistication
+- **Automated Vulnerability Discovery**: AI-powered "vulnerability vending machine" combining code slicing with LLMs to automatically discover complex software vulnerabilities
+- **Business Email Compromise (BEC) and Investment Fraud**: Large-scale social engineering operations (€100M+ and €140M+ rings) combining impersonation, financial fraud, and money laundering
+- **Bulletproof Hosting Infrastructure**: Russian-hosted resilient infrastructure enabling ransomware operations causing $62M+ in documented damages
+- **Secure Boot Bypass via Revoked Bootloaders**: Exploitation of nearly a dozen vulnerable UEFI shim bootloaders that remained trusted for years despite revocation
 
 ## Threat Actor Activities
 
-- **bandcampro**: Russian-speaking threat actor abusing Google Gemini CLI as a hacking agent and botnet operator; demonstrates AI tool repurposing for offensive automation.
-- **Russian Bulletproof Hosting Operators**: Three charged Russian nationals (names not disclosed in snippets) providing bulletproof hosting services to ransomware gangs; infrastructure linked to over $62 million in ransomware damage.
-- **Dutch Investment Fraud Ring**: International fraud network arrested by Dutch Police; estimated tens of thousands of victims, €100 million+ stolen through fake investment platforms.
-- **Spanish Cyber Fraud Organization**: Dismantled by Spanish Police; €140 million ($160 million) from combined investment fraud and business email compromise operations; four arrests reported.
-- **TuxBot v3 Developers**: Unknown operators behind LLM-assisted IoT botnet framework; code artifacts suggest AI-augmented development workflow.
-- **OkoBot Operators**: Active since April 2025; Windows malware framework operators targeting cryptocurrency holders via hardware wallet seed phrase phishing.
-- **AsyncAPI Supply Chain Attackers**: Unknown threat actor(s) who compromised npm publishing credentials for the `@asyncapi` scope; delivered multi-stage botnet malware to developers.
-- **Chaotic Eclipse / Nightmare-Eclipse**: Security researcher who publicly released the "LegacyHive" Windows User Profile Service zero-day PoC hours after July Patch Tuesday.
-- **SonicWall SMA 1000 Exploiters**: Unidentified threat actors actively exploiting CVE-2026-15409 and CVE-2026-15410 in zero-day attacks against internet-exposed appliances.
-- **SharePoint Exploiters**: Unidentified actors actively targeting internet-exposed on-premises SharePoint servers per CISA alert; likely initial access brokers or ransomware affiliates.
-- **Microsoft Zero-Day Exploiters**: Unidentified actors exploiting two zero-days patched in July 2026 Patch Tuesday; active exploitation confirmed prior to patch release.
+- **bandcampro (Russian-speaking)**: Weaponized Google Gemini CLI as automated hacking agent and botnet operator. Demonstrates individual actor leveraging accessible AI tools for end-to-end attack automation including vulnerability scanning, exploitation, and C2 management.
+- **Chaotic Eclipse / Nightmare-Eclipse (Security Researcher)**: Released LegacyHive Windows zero-day PoC hours after Microsoft Patch Tuesday. Researcher disclosure timing raises questions about responsible disclosure vs. public weaponization.
+- **OkoBot Operators (Unknown)**: Deployed persistent Windows malware framework since April 2025 targeting cryptocurrency hardware wallet users through application injection and seed phrase phishing. Financially motivated.
+- **TuxBot v3 Developers (Unknown, likely LLM-assisted)**: Created sophisticated IoT botnet framework showing hallmarks of AI-assisted code generation. Represents potential shift toward automated malware development pipelines.
+- **AsyncAPI Supply Chain Attackers (Unknown)**: Compromised npm publishing credentials or CI/CD pipeline to inject malicious code into legitimate `@asyncapi` packages. Multi-stage botnet deployment suggests organized operation.
+- **SonicWall SMA Exploiters (Unknown)**: Actively exploiting two zero-day vulnerabilities (CVE-2026-15409, CVE-2026-15410) against internet-exposed SMA 1000 appliances. Capability suggests advanced actor with zero-day access.
+- **SharePoint Exploitation Actors (Unknown)**: Targeting internet-exposed on-premises SharePoint Server instances per CISA warning. Three vulnerabilities under active exploitation.
+- **Dutch Investment Fraud Ring (Dismantled)**: International operation with tens of thousands of victims, €100M+ stolen. Multiple arrests by Dutch police.
+- **Spanish Cyber Fraud Organization (Dismantled)**: Combined investment fraud and business email compromise (BEC) netting €140M ($160M). Four arrests by Spanish National Police.
+- **Russian Bulletproof Hosting Operators (Charged)**: Three Russian nationals charged by U.S. prosecutors for providing resilient hosting infrastructure to ransomware gangs causing $62M+ in damages. Enabler ecosystem for ransomware-as-a-service.
 
 ## Source Attribution
 
