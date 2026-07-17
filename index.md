@@ -2,94 +2,81 @@
 
 ## Executive Summary
 
-A critical Windows zero-day exploit dubbed **LegacyHive** has been publicly released, granting attackers administrative privileges on fully patched Windows systems. The exploit, published by a researcher using the handle "Nightmare Eclipse," represents an immediate elevation-of-privilege threat across current Windows versions. Simultaneously, CISA has added **CVE-2026-58644**—a Microsoft SharePoint Server remote code execution zero-day—to its Known Exploited Vulnerabilities catalog, confirming active exploitation in the wild and mandating urgent federal patching.
+A significant wave of active exploitation activity has emerged across multiple platforms, with CISA adding two critical zero-day vulnerabilities to its Known Exploited Vulnerabilities catalog. Microsoft SharePoint Server faces active exploitation of a remote code execution flaw (CVE-2026-58644), while two Fortinet FortiSandbox vulnerabilities are being leveraged in the wild, prompting emergency patching directives for federal agencies. Simultaneously, a newly disclosed Windows zero-day exploit dubbed LegacyHive enables privilege escalation to SYSTEM on fully patched systems, with proof-of-concept code publicly released by a researcher operating under the "Nightmare Eclipse" handle.
 
-Multiple active exploitation campaigns are underway across diverse vectors. CISA has ordered federal agencies to patch two actively exploited vulnerabilities in Fortinet FortiSandbox threat detection platforms. The **PhantomEnigma** campaign has compromised over 20 Brazilian government websites, converting them into malware delivery channels. China-linked threat actors have resurfaced the **Daxin** malware alongside a previously undocumented **Stupig** pre-login SYSTEM backdoor targeting a Taiwan manufacturing firm. Meanwhile, the **Scattered Spider** cybercrime collective faces legal consequences with two members sentenced for the 2024 Transport for London breach, while ransomware disrupts operations at Coca-Cola's Fairlife subsidiary.
+The threat landscape continues to evolve with sophisticated malware frameworks and novel attack techniques targeting both traditional and AI-augmented environments. Multiple infostealer families—including ACR Stealer, ClickLock, TELEPUZ, and the OkoBot framework—are actively harvesting credentials, browser tokens, cryptocurrency wallets, and Microsoft 365 data using ClickFix social engineering lures and innovative macOS persistence mechanisms. A China-linked threat actor has resurfaced the Daxin malware alongside a previously undocumented Stupig pre-login SYSTEM backdoor in Taiwanese manufacturing networks, while the PhantomEnigma campaign has compromised over 20 Brazilian government websites for malware distribution. Notably, the Scattered Spider cybercrime collective has faced legal consequences with two members sentenced for the 2024 Transport for London breach, though the group's broader activity persists.
 
-The threat landscape continues to evolve with novel attack techniques targeting AI-driven environments. A new **Agent Data Injection** attack method can manipulate AI agents into executing unintended actions—including unauthorized purchases or code execution—by poisoning data sources. ClickFix social engineering lures remain highly effective, distributing **ACR Stealer**, **TELEPUZ**, and the new **ClickLock** macOS stealer that aggressively terminates applications until victims surrender credentials. The **OkoBot** framework deploys over 20 payloads for cryptocurrency theft, while **GoSerpent** conducts espionage against Southeast Asian governments. A flaw in Anthropic's **Claude Chrome extension** allows malicious extensions to simulate user clicks and trigger AI actions, and an **n8n token exchange vulnerability** enables cross-issuer account takeover on misconfigured enterprise instances.
+Emerging attack vectors now explicitly target AI agents and LLM-integrated systems, with researchers demonstrating data injection attacks that can manipulate autonomous agents into executing unintended actions—including unauthorized purchases and code execution. Phishing campaigns at scale are employing text salting techniques to evade AI-powered security filters, with over one million malicious emails observed using hidden text manipulation. Meanwhile, vulnerabilities in AI-adjacent tooling such as the Claude Chrome extension and n8n workflow automation platform reveal expanding attack surface in the AI supply chain. Organizations must prioritize patching of the actively exploited Fortinet and SharePoint vulnerabilities while deploying behavioral detection for the novel infostealer techniques and AI-agent manipulation methods now observed in active campaigns.
 
 ## Active Exploitation Details
 
 ### Windows LegacyHive Zero-Day Privilege Escalation
-- **Description**: A security researcher using the handle "Nightmare Eclipse" has publicly released a Windows zero-day exploit named LegacyHive that enables privilege escalation to SYSTEM on up-to-date Windows installations. The exploit targets a previously unknown vulnerability in the Windows kernel.
-- **Impact**: Attackers can escalate from standard user privileges to full administrative/SYSTEM control on affected Windows systems, enabling complete system compromise, persistence, and lateral movement.
-- **Status**: Zero-day exploit publicly released; no patch available at time of reporting. Active exploitation risk is immediate and high.
-- **CVE ID**: Not yet assigned in source article
-
-### Microsoft SharePoint Server RCE Zero-Day (CVE-2026-58644)
-- **Description**: A remote code execution vulnerability in Microsoft SharePoint Server that has been exploited in the wild as a zero-day. The flaw allows unauthenticated attackers to execute arbitrary code on vulnerable SharePoint servers.
-- **Impact**: Full server compromise, potential access to sensitive organizational documents, lateral movement into internal networks, and data exfiltration.
-- **Status**: Actively exploited in the wild. CISA added to Known Exploited Vulnerabilities (KEV) catalog. Microsoft has released patches; immediate application mandated for federal agencies.
-- **CVE ID**: CVE-2026-58644
+- **Description**: A Windows zero-day exploit dubbed "LegacyHive" allows attackers to escalate privileges to SYSTEM on up-to-date Windows systems. The exploit was publicly released by a security researcher using the "Nightmare Eclipse" handle, providing attackers with immediate weaponization capability.
+- **Impact**: Attackers can achieve full administrative control over affected Windows systems, bypassing security controls and enabling persistence, lateral movement, and deployment of additional payloads.
+- **Status**: Actively exploitable with public proof-of-concept code available. No patch mentioned in source articles at time of reporting.
 
 ### Fortinet FortiSandbox Actively Exploited Vulnerabilities
-- **Description**: Two vulnerabilities in the Fortinet FortiSandbox threat detection platform are being actively exploited in the wild. Specific technical details were not disclosed in the source article.
-- **Impact**: Compromise of the threat detection infrastructure itself, potential bypass of security controls, and use as a pivot point for deeper network intrusion.
-- **Status**: Actively exploited. CISA issued emergency directive ordering federal civilian agencies to prioritize patching by a specified deadline.
-- **CVE ID**: Not provided in source article
+- **Description**: Two vulnerabilities in the Fortinet FortiSandbox threat detection platform are being actively exploited in the wild. CISA has issued an emergency directive ordering federal civilian executive branch agencies to prioritize patching.
+- **Impact**: Exploitation of these flaws in a security appliance designed to detect threats could allow attackers to compromise network monitoring infrastructure, evade detection, and pivot to internal networks.
+- **Status**: Actively exploited. CISA mandated immediate patching for federal agencies. Patches presumed available from Fortinet.
 
-### Anthropic Claude Chrome Extension Flaw
-- **Description**: A vulnerability in the Claude for Chrome browser extension that allows a malicious extension to simulate user clicks and trigger predefined AI actions, potentially abusing Claude's access to browser content and permissions.
-- **Impact**: Unauthorized invocation of AI capabilities, potential access to sensitive browser data, and execution of actions within the context of the user's Claude session.
-- **Status**: Vulnerability disclosed; patch status not specified in source article.
-- **CVE ID**: Not provided in source article
+### Microsoft SharePoint Server RCE Zero-Day (CVE-2026-58644)
+- **Description**: A remote code execution vulnerability in Microsoft SharePoint Server that has been exploited in the wild as a zero-day. CISA added this vulnerability to its Known Exploited Vulnerabilities (KEV) catalog following confirmation of active exploitation.
+- **Impact**: Remote attackers can execute arbitrary code on SharePoint servers, potentially leading to full server compromise, data exfiltration, and lateral movement within organizational networks.
+- **Status**: Actively exploited zero-day. Microsoft has released patches. CISA KEV inclusion mandates federal agency remediation.
+- **CVE ID**: CVE-2026-58644
 
-### n8n Token Exchange Vulnerability
-- **Description**: A flaw in the n8n workflow automation platform's Enterprise edition where, when configured to trust multiple external token issuers, the system incorrectly matches an incoming JWT to a local user account from a different issuer.
-- **Impact**: Authentication bypass allowing attackers to log in as arbitrary users from another trusted identity provider, leading to full account takeover and access to workflow automation capabilities.
-- **Status**: Vulnerability disclosed; affects Enterprise instances with multi-issuer configurations.
-- **CVE ID**: Not provided in source article
+### n8n Token Exchange Authentication Bypass
+- **Description**: A flaw in the n8n workflow automation platform's token exchange mechanism on Enterprise instances configured with multiple external token issuers. The vulnerability causes improper JWT matching, allowing authentication as users from different identity providers.
+- **Impact**: Attackers can authenticate as arbitrary users across trusted identity providers, leading to unauthorized access to workflows, credentials, and automated processes.
+- **Status**: Vulnerability disclosed. Patch status not specified in source articles.
 
-### Agent Data Injection Attack Technique
-- **Description**: A novel attack method where malicious data planted in sources consumed by AI agents causes them to execute unintended actions—such as clicking "Buy Now" instead of summarizing reviews, or applying malicious code from a compromised GitHub thread.
-- **Impact**: Subversion of AI agent autonomy leading to unauthorized transactions, code execution, data exfiltration, or privilege escalation depending on the agent's permissions and integrations.
-- **Status**: New attack technique demonstrated; no specific CVE as it represents a class of vulnerabilities in AI agent architectures.
-- **CVE ID**: Not applicable (attack technique class)
+### Claude Chrome Extension Click Simulation Flaw
+- **Description**: A vulnerability in Anthropic's Claude for Chrome browser extension that allows malicious extensions to simulate user clicks and trigger predefined AI actions, potentially abusing Claude's access to browser content and permissions.
+- **Impact**: Malicious extensions can invoke AI actions without user consent, potentially accessing sensitive page content, executing automated workflows, or exfiltrating data through Claude's capabilities.
+- **Status**: Vulnerability disclosed. Remediation status not specified in source articles.
 
 ## Affected Systems and Products
 
-- **Microsoft Windows (all current versions)**: Affected by LegacyHive zero-day privilege escalation exploit; impacts up-to-date installations
-- **Microsoft SharePoint Server**: Affected by CVE-2026-58644 RCE zero-day; specific versions not detailed in source
-- **Fortinet FortiSandbox**: Two actively exploited vulnerabilities; specific versions not detailed in source
-- **Anthropic Claude for Chrome Extension**: Flaw allowing malicious extension interaction; version details not specified
-- **n8n Workflow Automation Platform (Enterprise)**: Token exchange flaw affecting instances configured with multiple external token issuers
-- **macOS Systems**: Targeted by ClickLock stealer malware; specific versions not detailed
-- **Brazilian Government Websites (20+)**: Compromised and repurposed as malware delivery infrastructure in PhantomEnigma campaign
-- **Taiwan Manufacturing Firm**: Targeted by Daxin malware and Stupig backdoor; specific systems not detailed
-- **Southeast Asian Government and Diplomatic Entities**: Targeted by GoSerpent espionage malware since late 2025
-- **Coca-Cola Fairlife Subsidiary**: US dairy production systems disrupted by ransomware attack
-- **Transport for London (TfL)**: Previously breached by Scattered Spider in 2024; £29 million impact
+- **Microsoft Windows (all supported versions)**: LegacyHive zero-day privilege escalation affects up-to-date Windows systems; proof-of-concept exploit publicly available
+- **Fortinet FortiSandbox**: Threat detection appliance with two actively exploited vulnerabilities requiring immediate patching per CISA directive
+- **Microsoft SharePoint Server**: On-premises SharePoint installations vulnerable to CVE-2026-58644 remote code execution; patches released
+- **n8n Workflow Automation Platform (Enterprise)**: Instances configured with multiple external token issuers (OIDC/SAML) vulnerable to authentication bypass
+- **Anthropic Claude for Chrome Extension**: Browser extension users exposed to click-simulation attacks from malicious co-installed extensions
+- **macOS Systems**: Targeted by ClickLock infostealer employing novel process-termination persistence techniques
+- **Brazilian Government Web Infrastructure**: 20+ government websites compromised and repurposed as malware delivery channels in PhantomEnigma campaign
+- **Taiwanese Manufacturing Networks**: Targeted by Daxin malware and Stupig pre-login SYSTEM backdoor attributed to China-linked threat actor
+- **Transport for London (TfL) Infrastructure**: Previously compromised in 2024 by Scattered Spider cybercrime collective; perpetrators sentenced
+- **Coca-Cola Fairlife Subsidiary**: US dairy production halted by ransomware attack on operational systems
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Privilege Escalation (LegacyHive)**: Local exploitation of unknown Windows kernel vulnerability to achieve SYSTEM privileges from standard user context
-- **Remote Code Execution (CVE-2026-58644)**: Unauthenticated network-based exploitation of SharePoint Server for initial access and code execution
-- **Security Appliance Exploitation**: Active targeting of Fortinet FortiSandbox vulnerabilities to compromise defensive infrastructure
-- **ClickFix Social Engineering**: Deceptive web lures that trick users into executing malicious commands (typically via "verify you are human" prompts), delivering ACR Stealer, TELEPUZ, and ClickLock
-- **Agent Data Injection**: Poisoning data sources consumed by AI agents (product reviews, GitHub threads, documentation) to induce malicious actions
-- **Malicious Browser Extension Abuse**: Exploiting Claude Chrome extension flaw to simulate user clicks and trigger unauthorized AI actions
-- **JWT Token Confusion**: Exploiting n8n's incorrect issuer validation in multi-tenant Enterprise configurations for cross-issuer account takeover
-- **Aggressive Credential Phishing (ClickLock)**: macOS malware that kills all visible processes every 210ms until victim enters system login password
-- **Website Compromise & Repurposing**: Hijacking legitimate government websites (PhantomEnigma campaign) to serve malware to trusted visitors
-- **Multi-Payload Modular Frameworks**: OkoBot deploying 20+ payloads for cryptocurrency wallet theft, credential harvesting, and data exfiltration
-- **Pre-Authentication Backdoor (Stupig)**: SYSTEM-level backdoor accessible before user login, deployed alongside Daxin malware
-- **Ransomware Deployment**: Encryption and operational disruption of critical production systems (Fairlife/Coca-Cola)
-- **AI Security Filter Evasion**: Text salting/hidden text techniques bypassing LLM-based phishing detection in over 1 million emails
+- **ClickFix Social Engineering Lures**: Used by ACR Stealer (since 2024), TELEPUZ malware (since April 2026), and OkoBot framework to trick users into executing malicious commands via fake verification pages, CAPTCHAs, and browser-based prompts
+- **LegacyHive Privilege Escalation**: Windows kernel exploit leveraging legacy hive registry handling to achieve SYSTEM privileges from standard user context; public exploit code released
+- **SharePoint RCE Exploitation (CVE-2026-58644)**: Remote code execution against on-premises SharePoint Server instances; exploited in the wild prior to patching
+- **FortiSandbox Appliance Exploitation**: Targeting of network security monitoring infrastructure to disable detection capabilities and establish persistence
+- **n8n JWT Token Confusion**: Authentication bypass via improper token issuer validation in multi-identity-provider Enterprise configurations
+- **Chrome Extension Click Simulation**: Malicious extensions simulating user interactions to trigger AI actions in Claude browser extension without consent
+- **ClickLock macOS Process Persistence**: Terminates all visible processes every 210ms in a loop, forcing victims to enter system login password to regain control; delivered via Terminal command paste
+- **Text Salting / Hidden Text Injection**: Over 1 million phishing emails using invisible Unicode characters and hidden text to evade AI-powered security filters and LLM-based email analysis
+- **Agent Data Injection Attacks**: Malicious content planted in data sources (reviews, GitHub threads, documentation) that manipulates AI agents into executing unintended actions—clicking "Buy Now," applying malicious code changes, or exfiltrating data
+- **PhantomEnigma Watering Hole / Supply Chain**: Compromise of 20+ legitimate Brazilian government websites to serve as malware distribution channels for unsuspecting visitors
+- **Daxin/Stupig Pre-Login Backdoor**: China-linked advanced persistent threat deploying SYSTEM-level backdoor active before user authentication, alongside Daxin malware framework for long-term espionage
+- **OkoBot Multi-Payload Framework**: Modular framework deploying 20+ payloads for cryptocurrency wallet seed phrase theft, credential harvesting, and sensitive data exfiltration
+- **REvil Ransomware Operations**: Continued attribution of ransomware activity to REvil affiliates; law enforcement pursuing suspects internationally
 
 ## Threat Actor Activities
 
-- **Nightmare Eclipse (Researcher/Handle)**: Publicly released the LegacyHive Windows zero-day exploit; motivation appears to be vulnerability disclosure via full exploit publication
-- **Scattered Spider (Cybercrime Collective)**: Conducted 2024 Transport for London breach causing £29M damage and 148 station disruptions; two members (Owen Flowers, 18; Thalha Jubair, 20) sentenced to 5.5 years each in July 2026
-- **REvil Ransomware Affiliate (Aleksandr Ermakov)**: Russian national detained in Armenia on U.S. extradition warrant; lawyers claim mistaken identity
-- **China-Linked APT (Daxin/Stupig Operators)**: Resurfaced Daxin malware after 4+ year hiatus alongside new Stupig pre-login SYSTEM backdoor targeting Taiwan manufacturing sector
-- **PhantomEnigma Campaign Operators**: Compromised 20+ Brazilian government websites, converting them into malware delivery channels; discovered by ANY.RUN researchers
-- **GoSerpent Operators**: Conducting cyber espionage against Southeast Asian governments and diplomats since late 2025 using previously undocumented GoSerpent malware
-- **ACR Stealer Operators**: Distributing infostealer since 2024 via ClickFix lures; harvesting browser passwords, session tokens, PDFs, Microsoft 365 documents, and OneDrive files
-- **TELEPUZ Operators**: Deploying modular malware via ClickFix-infected websites since April 2026; full-featured data theft and command execution capabilities
-- **ClickLock Operators**: Distributing aggressive macOS stealer via Terminal command pastes; unique kill-loop mechanism forces credential entry
-- **OkoBot Operators**: Utilizing framework with 20+ payloads focused on cryptocurrency wallet seed phrases, credentials, and sensitive data theft
-- **Fairlife Ransomware Actors**: Unidentified ransomware group disrupted US dairy production at Coca-Cola subsidiary; attribution not specified in source
-- **Investment Fraud Money Launderers (2 charged)**: New York man and woman charged with laundering $43M from cyber investment fraud scams
+- **Scattered Spider (UNC3944/Scatter Swine)**: Cybercrime collective responsible for 2024 Transport for London breach causing £29 million in damages and disrupting services for 148 stations. Two members (Owen Flowers, 18; Thalha Jubair, 20) sentenced to 5.5 years each in July 2026. Group known for social engineering, SIM swapping, and cloud environment targeting.
+- **PhantomEnigma**: Threat actor operating campaign compromising 20+ Brazilian government websites since at least early 2026, repurposing them as malware delivery channels. Uncovered by ANY.RUN interactive malware analysis platform.
+- **China-Linked APT (Daxin/Stupig Operators)**: Advanced persistent threat attributed to Chinese intelligence services resurfacing Daxin malware after four-year hiatus. Deployed alongside novel "Stupig" pre-login SYSTEM backdoor in Taiwanese manufacturing firm for espionage. Demonstrates long-term access maintenance and sophisticated kernel-level tooling.
+- **ACR Stealer Operators**: Infostealer campaign active since 2024 using ClickFix lures to harvest browser passwords, live session tokens, PDFs, Microsoft 365 documents, and OneDrive-synced files from enterprise networks.
+- **TELEPUZ Operators**: Modular malware campaign spreading via ClickFix-infected websites since late April 2026. Full-featured backdoor capable of data theft, command execution, and persistent access.
+- **OkoBot Framework Operators**: Deploying 20+ payload framework focused on cryptocurrency wallet seed phrases, credentials, and sensitive data theft. Modular architecture suggests organized development and distribution.
+- **ClickLock Developers**: macOS infostealer employing novel denial-of-service persistence (killing apps every 210ms) to coerce password entry. Delivered via social engineering (Terminal command paste).
+- **GoSerpent Operators**: Previously undocumented malware targeting Southeast Asian governments and diplomats for espionage since late 2025. Attribution not publicly assigned in source articles.
+- **REvil Ransomware Affiliates**: Continued law enforcement action against REvil infrastructure; Russian national Aleksandr Ermakov detained in Armenia on U.S. extradition request (defense claims mistaken identity).
+- **Fairlife Ransomware Actors**: Unattributed ransomware group disrupting Coca-Cola's Fairlife dairy production across US facilities. Actor identity and ransomware variant not disclosed in source articles.
 
 ## Source Attribution
 
