@@ -2,71 +2,105 @@
 
 ## Executive Summary
 
-Critical exploitation activity spans multiple vectors this period, with a confirmed actively exploited vulnerability in Zoom's Windows client (CVE-2026-53412) driving urgent patching, while CISA has mandated federal agencies to remediate an Oracle E-Business Suite flaw under active attack. Simultaneously, a surge in macOS-targeted information stealers—ClickLock and OkoBot—demonstrates evolving social engineering and multi-payload frameworks designed to harvest credentials and cryptocurrency assets. Ransomware operations remain aggressive, exemplified by the Spirals group achieving full encryption in under 24 hours and the Fairlife (Coca-Cola) incident halting production, while law enforcement actions against Scattered Spider and European fraud rings signal continued pressure on cybercrime ecosystems.
+Critical exploitation activity spans multiple vectors this reporting period, with federal agencies ordered to patch an actively exploited Oracle E-Business Suite flaw under emergency CISA directive. A new macOS information stealer called ClickLock employs aggressive process termination every 210 milliseconds to coerce victims into surrendering login credentials, while the OkoBot framework deploys over 20 payloads targeting cryptocurrency wallets and sensitive data. Ransomware operations continue accelerating, with the new Spirals actor completing full intrusion-to-encryption cycles in under 24 hours, and a Fairlife ransomware attack halting Coca-Cola's US dairy production.
 
-Supply-chain and living-off-the-land techniques are prominent, with Russian actor UAT-11795 trojanizing legitimate WebEx and Zoom installers to deploy the Starland RAT, and the PhantomEnigma campaign compromising over 20 Brazilian government websites for malware delivery. Emerging AI-focused attack surfaces are also being weaponized: hidden-text salting defeats AI-driven email filters at scale, a data-injection technique manipulates AI agents into unauthorized actions, and a flaw in Anthropic's Claude Chrome extension permits malicious extensions to trigger AI capabilities. Unpatched vulnerabilities in n8n's token exchange and Shark robot vacuums further widen the attack surface across automation platforms and IoT devices.
+Multiple critical vulnerabilities have been identified in widely deployed software. Zoom patched CVE-2026-53412, a critical account takeover flaw in Zoom Workplace for Windows. The n8n workflow automation platform contains a token exchange vulnerability allowing cross-issuer authentication bypass on Enterprise instances. Russian threat actor UAT-11795 distributes the Starland RAT through trojanized WebEx and Zoom installers, while China-linked actors have resurfaced the Daxin malware alongside a novel Stupig pre-login SYSTEM backdoor in Taiwan manufacturing environments.
+
+Threat actor accountability advances with two Scattered Spider members sentenced to 5.5 years each for the £29 million Transport for London breach. Law enforcement disrupted a €140 million cyber fraud ring in Spain and a €100 million investment fraud operation in the Netherlands. Meanwhile, over 20 Brazilian government websites were hijacked into malware delivery channels by the PhantomEnigma campaign, and more than one million phishing emails leveraged hidden text salting to evade AI security filters.
 
 ## Active Exploitation Details
 
-### Zoom Critical Windows Account Takeover Vulnerability
-- **Description**: A critical security flaw in Zoom Workplace for Windows and the Zoom SDK for Windows allows an unauthenticated attacker to hijack user accounts. The vulnerability stems from improper input validation or handling in the desktop client, enabling remote exploitation without user interaction.
-- **Impact**: Attackers can achieve full account takeover, potentially accessing meeting data, recordings, contact lists, and corporate directory information. Compromised accounts can be leveraged for further social engineering, business email compromise, or lateral movement within organizations.
-- **Status**: Zoom has released security updates addressing the flaw. CVE-2026-53412 carries a critical CVSS score. Organizations must update Zoom Workplace and SDK installations immediately.
+### Oracle E-Business Suite Critical Vulnerability
+- **Description**: A critical vulnerability in Oracle E-Business Suite financial application is being actively exploited in the wild. CISA issued an emergency directive ordering all federal civilian executive branch agencies to secure their systems by Saturday.
+- **Impact**: Attackers can exploit this flaw to compromise financial systems, potentially leading to unauthorized access, data theft, and financial fraud within federal agencies and other organizations running vulnerable versions.
+- **Status**: Actively exploited; CISA emergency directive issued requiring immediate patching by federal agencies. Patch availability confirmed through Oracle security updates.
+
+### ClickLock macOS Information Stealer
+- **Description**: A new macOS malware family dubbed ClickLock terminates all visible user processes in a continuous loop (every 210 milliseconds) to force victims into entering their system login password. The malware arrives via a command pasted into Terminal and presents a fake authentication prompt that captures credentials.
+- **Impact**: Full system credential theft enabling persistent access, privilege escalation, and potential lateral movement. The aggressive process-killing technique renders the system unusable until compliance, creating high-pressure social engineering.
+- **Status**: Actively distributed; no patch required as this is malware behavior rather than a software vulnerability. Detection signatures being deployed by macOS security tools.
+
+### OkoBot Multi-Payload Framework
+- **Description**: A modular malicious framework delivering more than 20 distinct payloads in coordinated attacks. The framework focuses on stealing cryptocurrency wallet seed phrases, credentials, and other sensitive data through a flexible plugin architecture.
+- **Impact**: Comprehensive data theft including crypto assets, authentication credentials, browser data, and system information. Modular design allows rapid adaptation and payload customization per target.
+- **Status**: Active deployment in the wild; framework actively maintained with new payloads added regularly.
+
+### TELEPUZ Modular Malware
+- **Description**: A full-featured modular malware spreading via ClickFix social engineering lures on compromised websites since late April 2026. TELEPUZ steals data and executes arbitrary commands through a plugin-based architecture.
+- **Impact**: Persistent remote access, data exfiltration, command execution, and potential lateral movement. ClickFix delivery leverages fake browser error pages to trick users into running malicious PowerShell commands.
+- **Status**: Active campaigns observed since April 2026; ClickFix delivery vector remains highly effective.
+
+### Spirals Ransomware
+- **Description**: A new ransomware actor demonstrating exceptionally rapid operations, completing full corporate intrusions—from initial access through data theft to encryption—in under 24 hours.
+- **Impact**: Near-total operational disruption with minimal dwell time for detection. Double extortion model with data theft preceding encryption increases leverage for ransom payment.
+- **Status**: Active intrusions confirmed; speed of execution suggests highly automated or well-rehearsed playbooks.
+
+### Zoom Workplace for Windows Account Takeover (CVE-2026-53412)
+- **Description**: Critical vulnerability in Zoom Workplace for Windows and Zoom SDK for Windows allowing unauthenticated attackers to hijack user accounts. The flaw carries a high CVSS score and affects the desktop client on Windows platforms.
+- **Impact**: Full account takeover enabling unauthorized meeting access, contact list theft, recorded meeting access, and potential further social engineering within the organization.
+- **Status**: Patched in latest Zoom Workplace and SDK releases; active exploitation risk high prior to patch deployment.
 - **CVE ID**: CVE-2026-53412
 
-### Oracle E-Business Suite Actively Exploited Flaw
-- **Description**: A critical vulnerability in Oracle E-Business Suite financial application is being actively exploited in the wild. CISA has issued an emergency directive (Binding Operational Directive) requiring federal civilian executive branch agencies to secure affected systems by a specified Saturday deadline.
-- **Impact**: Successful exploitation could allow attackers to access, modify, or exfiltrate sensitive financial data, disrupt financial operations, and potentially achieve remote code execution on the application server.
-- **Status**: Actively exploited. CISA emergency directive mandates immediate patching for federal agencies. Oracle has released patches; all organizations running E-Business Suite should apply them urgently.
-
 ### n8n Token Exchange Authentication Bypass
-- **Description**: The n8n workflow automation platform contains a flaw in its token exchange mechanism on Enterprise instances configured to trust multiple external token issuers. The system incorrectly matches an incoming JWT to a local user account, allowing an attacker to authenticate as a different user from another trusted issuer.
-- **Impact**: Attackers can log in as arbitrary users—including administrators—on affected n8n instances, gaining full control over workflows, credentials stored in n8n, and connected systems and data sources.
-- **Status**: Vulnerability disclosed; patching or configuration mitigation required for Enterprise deployments using multiple identity providers.
+- **Description**: Flaw in n8n workflow automation platform's Enterprise edition where instances configured to trust multiple external token issuers incorrectly match incoming JWTs to local users, allowing authentication as users from a different trusted issuer.
+- **Impact**: Cross-tenant authentication bypass enabling unauthorized access to workflows, credentials stored in n8n, and potential lateral movement through automated processes.
+- **Status**: Vulnerability disclosed; patch status pending vendor advisory. Affects Enterprise instances with multi-issuer configurations.
 
-### Shark RV2320EDUS Robot Vacuum Root Command Execution
-- **Description**: An unpatched flaw in the Shark RV2320EDUS robot vacuum allows extraction of a certificate from the device's flash storage. This certificate can then be used to authenticate and execute root commands on other Shark vacuums within the same AWS region.
-- **Impact**: Attackers can remotely access cameras, drive the robots, read local data, and potentially pivot to other devices on the network across a broad geographic scope.
-- **Status**: Unpatched as of reporting. No vendor fix announced. Mitigation requires network segmentation and monitoring for anomalous device communication.
+### Claude Chrome Extension Flaw
+- **Description**: Vulnerability in Anthropic's Claude for Chrome browser extension allowing malicious extensions to simulate user clicks and trigger predefined AI actions, potentially abusing Claude's access to page content and user data.
+- **Impact**: Unauthorized AI action execution, potential data exfiltration through prompted responses, and abuse of extension permissions granted by the user.
+- **Status**: Flaw disclosed; mitigation requires extension update or removal pending vendor fix.
+
+### Daxin Malware and Stupig Backdoor
+- **Description**: Advanced malware previously attributed to a China-linked threat actor resurfaced after four years in a Taiwan manufacturing firm, accompanied by a previously unreported backdoor dubbed Stupig that achieves pre-login SYSTEM-level persistence.
+- **Impact**: Deep system persistence surviving reboots and credential changes, pre-authentication access at SYSTEM privilege level, and long-term espionage positioning in critical manufacturing infrastructure.
+- **Status**: Active intrusion identified; Stupig represents novel boot-persistence technique.
+
+### Starland RAT via Trojanized Applications
+- **Description**: Russian financially motivated threat actor UAT-11795 distributes Starland RAT through trojanized legitimate software installers for WebEx and Zoom, stealing credentials and cryptocurrency.
+- **Impact**: Full remote access trojan capabilities including keylogging, screen capture, file exfiltration, crypto wallet theft, and persistent backdoor access. Legitimate application veneer evades user suspicion.
+- **Status**: Active distribution campaigns; trojanized installers hosted on convincing lookalike domains.
+
+### PhantomEnigma Government Website Compromise
+- **Description**: Over 20 Brazilian government websites hijacked and converted into malware delivery channels through an active campaign uncovered by ANY.RUN interactive malware analysis.
+- **Impact**: Supply chain-style compromise leveraging trust in government domains for drive-by downloads, credential harvesting, and malware distribution to citizens and government employees.
+- **Status**: Active campaign; compromised sites remediated following discovery.
 
 ## Affected Systems and Products
 
-- **Zoom Workplace for Windows**: All versions prior to the patched release containing the fix for CVE-2026-53412
-- **Zoom SDK for Windows**: Vulnerable versions used in custom applications
-- **Oracle E-Business Suite**: Affected versions as specified in Oracle's security alert (specific version details in vendor advisory)
-- **n8n Enterprise**: Instances configured with multiple external token issuers (OIDC/SAML providers)
-- **Shark RV2320EDUS Robot Vacuum**: Devices running vulnerable firmware; potential impact across same AWS region
-- **macOS Systems**: Targeted by ClickLock and OkoBot malware (no specific macOS version restriction noted)
-- **Windows Systems**: Targeted by Spirals ransomware, Starland RAT (via trojanized installers), TELEPUZ malware
-- **Chrome Browser**: Anthropic Claude extension users (flaw in extension messaging)
-- **Brazilian Government Websites**: 20+ compromised sites used in PhantomEnigma campaign
-- **Fairlife/Coca-Cola Systems**: Impacted by ransomware attack causing production halt
+- **Oracle E-Business Suite**: Financial application modules; versions prior to latest security patch; enterprise ERP environments across federal agencies and private sector
+- **Zoom Workplace for Windows**: Desktop client versions prior to patched release; Zoom SDK for Windows; Windows 10/11 platforms
+- **n8n Workflow Automation Platform**: Enterprise edition instances configured with multiple external token issuers (OIDC/SAML); self-hosted and cloud deployments
+- **macOS Systems**: All versions susceptible to ClickLock social engineering attack; Terminal access required for initial execution
+- **Claude for Chrome Extension**: Browser extension versions prior to fix; Chrome and Chromium-based browsers
+- **Shark RV2320EDUS Robot Vacuum**: IoT device with certificate extraction vulnerability; AWS region-wide impact potential for same-model devices
+- **UEFI Shim Bootloaders**: Nearly a dozen revoked but still-trusted shim bootloaders; affects Secure Boot implementations across x86_64 and ARM64 platforms
+- **WebEx and Zoom Installers**: Trojanized versions distributed via malicious domains; Windows executables masquerading as legitimate conferencing software
+- **Brazilian Government Web Portals**: 20+ .gov.br domains compromised for malware hosting; citizen-facing services and internal portals
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: TELEPUZ malware and other threats use fake verification pages (Cloudflare/Google CAPTCHA mimics) to trick users into executing malicious PowerShell commands via the Windows Run dialog.
-- **Trojanized Legitimate Software**: UAT-11795 distributes Starland RAT through modified WebEx and Zoom installers, leveraging trust in known applications to bypass security controls.
-- **AI Filter Evasion via Text Salting**: Over 1 million phishing emails employ hidden/zero-width characters and CSS tricks to obscure malicious content from AI/LLM-based security filters while rendering normally to victims.
-- **Agent Data Injection**: Malicious content planted in web pages, documents, or code repositories manipulates AI agents into performing unintended actions (e.g., clicking "Buy Now," executing code, exfiltrating data).
-- **Chrome Extension Messaging Abuse**: Flaw in Claude Chrome extension allows malicious extensions to simulate user clicks and trigger predefined AI actions, abusing the extension's permissions.
-- **Multi-Payload Modular Frameworks**: OkoBot deploys 20+ distinct payloads for credential theft, crypto wallet draining, clipboard hijacking, and system profiling.
-- **Persistent App Termination Loop**: ClickLock kills all visible user processes every 210ms, forcing victims to enter their system password to regain control, which is then captured.
-- **Rapid Ransomware Deployment**: Spirals ransomware achieves initial access to full encryption in under 24 hours, indicating highly automated or pre-staged operations.
-- **Government Website Compromise for Drive-By Delivery**: PhantomEnigma campaign hijacks legitimate government domains to serve malware, exploiting trust in official sources.
-- **UEFI Shim Bootloader Exploitation**: Revoked but still-trusted bootloaders provide a path to bypass Secure Boot and deploy bootkits.
-- **Token Issuer Confusion**: n8n flaw exploits trust relationships between multiple identity providers to achieve authentication bypass.
+- **ClickFix Social Engineering**: Fake browser error pages (Chrome, Firefox, Edge) prompting users to copy-paste PowerShell commands into Run dialog or Terminal; delivers TELEPUZ and other payloads
+- **Hidden Text Salting (Text Salting)**: Invisible Unicode characters and CSS-hidden text inserted into phishing emails to evade AI/LLM-based security filters while remaining invisible to human recipients; over 1 million emails observed
+- **Trojanized Legitimate Software**: Malicious actors recompile or wrap genuine WebEx/Zoom installers with Starland RAT; distributed via typosquatting domains and malicious search results
+- **Process Termination Coercion**: ClickLock kills all visible user processes every 210ms via macOS accessibility APIs, rendering system unusable until victim enters credentials at fake auth prompt
+- **Agent Data Injection**: Malicious content planted in web pages, documents, or code repositories causes AI agents to execute unintended actions (clicks, purchases, code changes) when summarizing or processing injected content
+- **Cross-Issuer Token Confusion**: n8n Enterprise matches JWT from Issuer A to user account linked to Issuer B when both are trusted, enabling authentication bypass without credential theft
+- **Pre-Login SYSTEM Persistence**: Stupig backdoor achieves boot-level persistence before user authentication, surviving credential rotation and OS reinstallation via bootloader/UEFI manipulation
+- **Government Website Supply Chain Compromise**: PhantomEnigma injects malicious scripts into legitimate .gov.br sites, converting trusted domains into drive-by download and credential harvesting platforms
+- **Rapid Ransomware Execution**: Spirals automates reconnaissance, lateral movement, data staging, and encryption to complete full attack cycle in <24 hours, minimizing detection window
+- **Extension Permission Abuse**: Malicious Chrome extensions simulate user clicks on Claude extension UI to trigger AI actions with victim's permissions and context access
 
 ## Threat Actor Activities
 
-- **Scattered Spider (UNC3944/0ktapus)**: Two members (Owen Flowers, Thalha Jubair) sentenced to 5.5 years each for the 2024 Transport for London (TfL) hack causing £29M in damages and disrupting services for 148,000+ users. The group is known for SMS phishing, SIM swapping, and Okta credential theft.
-- **UAT-11795 (Financially Motivated Russian Actor)**: Actively trojanizing WebEx and Zoom installers to deploy Starland RAT for credential theft and cryptocurrency stealing. Uses SEO poisoning and malicious ads for distribution.
-- **China-Linked APT (Daxin Attribution)**: Daxin malware resurfaced after 4+ years in a Taiwan manufacturing firm, accompanied by the previously unreported Stupig pre-login SYSTEM backdoor. Indicates long-term access maintenance and advanced tooling.
-- **PhantomEnigma Campaign Operators**: Compromised 20+ Brazilian government websites to serve as malware delivery channels. Attribution ongoing; infrastructure overlaps with prior Brazilian threat activity.
-- **Spirals Ransomware Group**: New actor demonstrating extreme speed—full intrusion lifecycle (access, theft, encryption) in <24 hours. Targets corporate environments; uses double extortion.
-- **Iberian Cyber Fraud Ring**: Spanish police disrupted a €140M operation involving diverse cyberattacks and complex money laundering networks.
-- **Dutch Investment Fraud Network**: International scheme with tens of thousands of victims and >€100M stolen; multiple arrests by Dutch Police.
-- **OkoBot Operators**: Unknown threat actor(s) distributing modular info-stealer framework via malicious ads, cracked software, and phishing. Focus on crypto wallets and credentials.
-- **TELEPUZ Operators**: Active since late April 2026; uses ClickFix lures on compromised sites. Modular malware with data theft, command execution, and persistence capabilities.
+- **Scattered Spider (UNC3944/Scatter Swine)**: Two core members (Owen Flowers, 18; Thalha Jubair, 20) sentenced to 5.5 years each for 2024 Transport for London breach causing £29M damage and 148,000+ customer records exposed; group known for SIM-swapping, MFA fatigue, and SaaS credential theft
+- **UAT-11795 (Russian Financially Motivated)**: Active distribution of Starland RAT via trojanized WebEx/Zoom installers; targets credentials and cryptocurrency; operates convincing lookalike download infrastructure
+- **China-Linked APT (Daxin/Stupig Operators)**: Resurfaced Daxin malware after 4+ year hiatus in Taiwan manufacturing sector; deployed novel Stupig pre-login SYSTEM backdoor indicating advanced bootkit/UEFI capabilities; espionage-focused
+- **PhantomEnigma**: Brazilian campaign compromising 20+ government websites for malware delivery; leverages trust in .gov.br domains; infrastructure supports drive-by downloads and credential harvesting
+- **Spirals Ransomware Group**: New actor demonstrating sub-24-hour full intrusion cycle; highly automated or rehearsed playbook; double extortion with data theft prior to encryption
+- **OkoBot Operators**: Framework developers and affiliates deploying 20+ modular payloads; focus on cryptocurrency wallet seed phrases and credential harvesting; active maintenance and payload updates
+- **Iberian Cyber Fraud Ring (Spain)**: Dismantled €140M operation involving multiple attack vectors and complex money laundering networks; multiple arrests by Spanish National Police
+- **Dutch Investment Fraud Network**: International scheme with tens of thousands of victims and €100M+ stolen; multiple arrests by Dutch Police; infrastructure spanned multiple countries
 
 ## Source Attribution
 
