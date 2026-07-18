@@ -1,3 +1,6 @@
+import json
+import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 REPORT_VIEWERS = (
@@ -5,6 +8,60 @@ REPORT_VIEWERS = (
     Path("docs/index.html"),
 )
 ARCHIVE_INDEX = Path("docs/reports/index.html")
+SITEMAP = Path("sitemap.xml")
+PUBLIC_SITE_URL = "https://ricomanifesto.github.io/SentryInsight/"
+PUBLIC_ARCHIVE_URL = f"{PUBLIC_SITE_URL}docs/reports/"
+PUBLIC_DESCRIPTION = (
+    "SentryInsight turns security RSS feeds into exploitation-focused threat "
+    "reports, with CVE correlation, affected systems, attack vectors, and "
+    "executive summaries ready for review."
+)
+
+
+def extract_json_ld(html: str) -> dict:
+    match = re.search(
+        r'<script type="application/ld\+json">(.*?)</script>', html, re.DOTALL
+    )
+    assert match is not None
+    return json.loads(match.group(1))
+
+
+def test_public_pages_publish_canonical_identity_metadata_and_sitemap():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+        assert f'<meta name="description" content="{PUBLIC_DESCRIPTION}">' in viewer
+        assert f'<link rel="canonical" href="{PUBLIC_SITE_URL}">' in viewer
+        assert f'<meta property="og:url" content="{PUBLIC_SITE_URL}">' in viewer
+        assert '<meta name="twitter:card" content="summary">' in viewer
+        assert 'href="https://ricomanifesto.com/">Michael Rico</a>' in viewer
+        assert "<noscript>" in viewer
+        identity = extract_json_ld(viewer)
+        assert identity["@context"] == "https://schema.org"
+        assert identity["@type"] == "WebSite"
+        assert identity["name"] == "SentryInsight"
+        assert identity["url"] == PUBLIC_SITE_URL
+        assert identity["description"] == PUBLIC_DESCRIPTION
+        assert identity["author"] == {
+            "@type": "Person",
+            "name": "Michael Rico",
+            "url": "https://ricomanifesto.com/",
+        }
+        assert identity["sameAs"] == "https://github.com/ricomanifesto/SentryInsight"
+
+    archive = ARCHIVE_INDEX.read_text()
+    assert f'<link rel="canonical" href="{PUBLIC_ARCHIVE_URL}">' in archive
+    assert f'<meta property="og:url" content="{PUBLIC_ARCHIVE_URL}">' in archive
+    assert '<meta name="twitter:card" content="summary">' in archive
+    assert 'href="https://ricomanifesto.com/">Michael Rico</a>' in archive
+    archive_identity = extract_json_ld(archive)
+    assert archive_identity["@type"] == "CollectionPage"
+    assert archive_identity["url"] == PUBLIC_ARCHIVE_URL
+    assert archive_identity["author"]["name"] == "Michael Rico"
+
+    sitemap = ET.parse(SITEMAP)
+    namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+    locations = [element.text for element in sitemap.findall("s:url/s:loc", namespace)]
+    assert locations == [PUBLIC_SITE_URL, PUBLIC_ARCHIVE_URL]
 
 
 def test_report_viewers_sanitize_marked_output_before_rendering():
@@ -45,6 +102,13 @@ def test_report_viewers_include_mobile_overflow_guards():
         )
         assert "aside#toc { display: none; width: 100%; overflow-x: hidden; }" in viewer
         assert "#content { padding: 1.25em;" in viewer
+        assert (
+            "header.topbar { align-items: flex-start; flex-wrap: wrap; padding: 12px; }"
+            in viewer
+        )
+        assert ".brand { flex: 1 1 100%; min-width: 0; }" in viewer
+        assert ".spacer { display: none; }" in viewer
+        assert ".toolbar { flex-wrap: wrap; width: 100%; }" in viewer
 
 
 def test_report_viewers_extract_named_executive_summary_section():
@@ -72,7 +136,8 @@ def test_report_viewers_resolve_logo_assets_without_project_path_lock():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()
 
-        assert "/SentryInsight/assets/logo.png" not in viewer
+        assert 'src="/SentryInsight/assets/logo.png"' not in viewer
+        assert 'href="/SentryInsight/assets/logo.png"' not in viewer
         assert 'data-logo-asset="icon"' in viewer
         assert 'data-logo-asset="shortcut-icon"' in viewer
         assert 'data-logo-asset="header-logo"' in viewer

@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SentryInsight Exploitation Report</title>
+    <meta name="description" content="SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.">
+    <link rel="canonical" href="https://ricomanifesto.github.io/SentryInsight/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SentryInsight Exploitation Report">
+    <meta property="og:description" content="SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.">
+    <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/">
+    <meta property="og:image" content="https://ricomanifesto.github.io/SentryInsight/assets/logo.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SentryInsight Exploitation Report">
+    <meta name="twitter:description" content="SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.">
+    <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/logo.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"SentryInsight","url":"https://ricomanifesto.github.io/SentryInsight/","description":"SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.","author":{"@type":"Person","name":"Michael Rico","url":"https://ricomanifesto.com/"},"publisher":{"@type":"Organization","name":"Rico Manifesto","url":"https://ricomanifesto.com/"},"sameAs":"https://github.com/ricomanifesto/SentryInsight"}</script>
     <link rel="icon" type="image/png" data-logo-asset="icon">
     <link rel="shortcut icon" type="image/png" data-logo-asset="shortcut-icon">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -150,9 +162,11 @@
         @media (max-width: 767px) {
             html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
             .app { padding: 12px; max-width: 100%; width: 100%; overflow-x: hidden; }
-            header.topbar { padding: 12px; }
-            .brand { min-width: 0; }
+            header.topbar { align-items: flex-start; flex-wrap: wrap; padding: 12px; }
+            .brand { flex: 1 1 100%; min-width: 0; }
             .brand .subtitle { overflow-wrap: anywhere; }
+            .spacer { display: none; }
+            .toolbar { flex-wrap: wrap; width: 100%; }
             .layout { width: 100%; }
             main, .exec, #content { width: 100%; max-width: calc(100vw - 24px); overflow-x: hidden; }
             #content p, #content li, .exec p { overflow-wrap: anywhere; word-break: break-word; }
@@ -374,6 +388,9 @@
         body.dark .chip { background: #0b1220; border-color: #1f2937; color: #cbd5e1; }
         .chip.chip-critical { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
         .chip.chip-patch { background: #dcfce7; border-color: #bbf7d0; color: #166534; }
+        .site-attribution { color: var(--text-secondary); font-size: 0.85rem; padding: 24px 0 8px; text-align: center; }
+        .site-attribution a, .viewer-fallback a { color: var(--info-blue); }
+        .viewer-fallback { color: var(--text-secondary); }
     </style>
 </head>
 <body>
@@ -400,6 +417,7 @@
                 <nav id="toc-list"></nav>
             </aside>
             <main>
+                <noscript><p class="viewer-fallback">View the <a href="index.md">latest report as Markdown</a>.</p></noscript>
                 <div class="meta" id="meta"></div>
                 <section class="report-results" id="report-results" role="region" aria-label="Report sections">
                     <div id="exec" class="exec"></div>
@@ -407,6 +425,7 @@
                 </section>
             </main>
         </div>
+        <footer class="site-attribution">A Rico Manifesto project by <a href="https://ricomanifesto.com/">Michael Rico</a>.</footer>
     </div>
 
     <script>

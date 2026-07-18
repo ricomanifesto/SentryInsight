@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SentryInsight Report Archive</title>
+    <meta name="description" content="Browse previous SentryInsight exploitation reports.">
+    <link rel="canonical" href="https://ricomanifesto.github.io/SentryInsight/docs/reports/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SentryInsight Report Archive">
+    <meta property="og:description" content="Browse previous SentryInsight exploitation reports.">
+    <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/docs/reports/">
+    <meta property="og:image" content="https://ricomanifesto.github.io/SentryInsight/assets/logo.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SentryInsight Report Archive">
+    <meta name="twitter:description" content="Browse previous SentryInsight exploitation reports.">
+    <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/logo.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"SentryInsight Report Archive","url":"https://ricomanifesto.github.io/SentryInsight/docs/reports/","description":"Browse previous SentryInsight exploitation reports.","author":{"@type":"Person","name":"Michael Rico","url":"https://ricomanifesto.com/"},"publisher":{"@type":"Organization","name":"Rico Manifesto","url":"https://ricomanifesto.com/"},"isPartOf":{"@type":"WebSite","name":"SentryInsight","url":"https://ricomanifesto.github.io/SentryInsight/"}}</script>
     <style>
         :root {
             --bg: #f8fafc;
@@ -342,6 +354,7 @@
             padding: 6px 10px;
         }
         [hidden] { display: none !important; }
+        .site-attribution { color: var(--muted); font-size: 0.85rem; margin-top: 32px; text-align: center; }
         @media (max-width: 560px) {
             header {
                 align-items: flex-start;
@@ -382,6 +395,7 @@
                 <button class="archive-empty-clear archive-focus-target" id="archive-empty-clear" type="button" aria-controls="archive-results" aria-describedby="archive-count archive-filter-summary">Clear filters</button>
             </div>
         </section>
+        <footer class="site-attribution">A Rico Manifesto project by <a href="https://ricomanifesto.com/">Michael Rico</a>.</footer>
     </main>
     <script>
         const archiveReports = [
