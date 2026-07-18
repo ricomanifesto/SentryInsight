@@ -2,93 +2,143 @@
 
 ## Executive Summary
 
-Critical exploitation activity spans multiple high-impact vectors this reporting period. A SharePoint Server remote code execution zero-day (CVE-2026-58644) has been added to CISA's Known Exploited Vulnerabilities catalog, confirming active in-the-wild attacks against Microsoft collaboration infrastructure. Simultaneously, a Windows zero-day exploit dubbed LegacyHive—released publicly by a researcher—grants attackers administrative privileges on fully patched systems, while the Inc ransomware group is chaining two SonicWall SMA zero-days to achieve root-level access on mobile access appliances. CISA has also mandated emergency patching for two actively exploited Fortinet FortiSandbox vulnerabilities.
+Critical exploitation activity spans multiple high-impact vectors this period. A Microsoft SharePoint Server remote code execution zero-day (CVE-2026-58644) has been added to CISA's Known Exploited Vulnerabilities catalog, mandating immediate federal patching. Simultaneously, CISA ordered urgent remediation of two actively exploited Fortinet FortiSandbox vulnerabilities. In the WordPress ecosystem, the newly disclosed wp2shell core flaws now carry CVE identifiers, have a public proof-of-concept, and enable unauthenticated remote code execution—posing immediate risk to millions of sites.
 
-Supply chain and infrastructure targeting remains aggressive. The NadMesh Go botnet has harvested over 3,800 AWS keys and Kubernetes tokens by scanning exposed AI services via Shodan, and a cluster of seven malicious npm packages masquerading as Vite tooling uses blockchain-based command-and-control to deliver remote access trojans. North Korean operators behind the Contagious Interview campaign continue deploying OtterCookie-aligned malware through steganographic SVG payloads in fake coding tests, while the GoldenEyeDog subgroup has been linked to the April 2026 DigiCert breach involving code-signing certificate theft.
+Zero-day exploitation remains rampant across diverse platforms. The Inc ransomware group is chaining two SonicWall SMA zero-days to achieve root-level access on mobile access appliances. A Windows privilege escalation zero-day dubbed LegacyHive grants administrative privileges on fully patched systems, with a functional exploit publicly released. The OpenSSL HollowByte flaw allows unauthenticated denial-of-service via a mere 11-byte TLS payload, causing persistent memory exhaustion until process restart. These actively weaponized vulnerabilities demand emergency prioritization.
 
-Ransomware and data theft operations show no signs of abating. The Fairlife subsidiary of Coca-Cola has halted U.S. dairy production following a ransomware incident, Abbott Laboratories is investigating two separate intrusions—including unauthorized access to legacy Exact Sciences cancer diagnostics systems—amid extortion claims, and Ernst & Young disclosed a breach stemming from a compromised third-party support ticket system. New information stealers including ACR Stealer (leveraging ClickFix social engineering), ClickLock (macOS password trapping), and OkoBot (20+ payload framework targeting crypto wallets) are actively harvesting credentials, session tokens, and financial assets across platforms.
+Threat actor operations show increasing sophistication in supply chain and social engineering domains. North Korean operators behind the Contagious Interview campaign now employ SVG steganography to hide OtterCookie-aligned malware in fake coding tests. The NadMesh Go botnet has harvested over 3,800 unique AWS keys by scanning exposed AI services for cloud credentials and Kubernetes tokens. Seven malicious Vite npm packages leverage blockchain-based command-and-control to deliver a remote access trojan. Meanwhile, the GoldenEyeDog subgroup (CylindricalCanine) has been linked to the April 2026 DigiCert breach and code-signing certificate theft, enabling downstream supply chain compromise.
 
 ## Active Exploitation Details
 
-### SharePoint Server RCE Zero-Day (CVE-2026-58644)
-- **Description**: A remote code execution vulnerability in Microsoft SharePoint Server that allows unauthenticated attackers to execute arbitrary code on affected servers. The flaw was patched by Microsoft and immediately added to CISA's Known Exploited Vulnerabilities catalog.
+### Microsoft SharePoint Server RCE Zero-Day (CVE-2026-58644)
+- **Description**: A remote code execution vulnerability in Microsoft SharePoint Server that was exploited as a zero-day before patching. The flaw allows unauthenticated attackers to execute arbitrary code on affected SharePoint servers.
 - **Impact**: Full server compromise, potential lateral movement within organizational networks, data exfiltration, and persistence establishment.
-- **Status**: Actively exploited in the wild. CISA has ordered federal civilian executive branch agencies to apply patches by July 20, 2026. Microsoft has released security updates.
+- **Status**: Actively exploited in the wild. CISA added this vulnerability to the Known Exploited Vulnerabilities (KEV) catalog on July 17, 2026, requiring federal agencies to patch by August 7, 2026. Microsoft has released security updates.
 - **CVE ID**: CVE-2026-58644
 
-### Windows LegacyHive Privilege Escalation Zero-Day
-- **Description**: A Windows zero-day exploit released publicly by a security researcher using the handle "Nightmare Eclipse." The exploit, dubbed LegacyHive, leverages a flaw in Windows registry hive handling to escalate privileges.
-- **Impact**: Attackers gain SYSTEM-level administrative privileges on up-to-date Windows systems, enabling complete system control, security control bypass, and persistence.
-- **Status**: Proof-of-concept exploit publicly available. No patch available at time of reporting. Microsoft has not yet released a security update.
-- **CVE ID**: Not yet assigned
-
-### SonicWall SMA Zero-Day Chain
-- **Description**: Two zero-day vulnerabilities in SonicWall Secure Mobile Access (SMA) appliances that, when chained together, allow unauthenticated attackers to achieve root-level code execution.
-- **Impact**: Full administrative control over VPN/appliance infrastructure, network pivoting, credential harvesting, and persistence in victim environments.
-- **Status**: Actively exploited by Inc Ransomware group. No patches available at time of reporting. SonicWall has not yet released firmware updates.
-- **CVE ID**: Not yet assigned
-
 ### Fortinet FortiSandbox Actively Exploited Vulnerabilities
-- **Description**: Two vulnerabilities in the Fortinet FortiSandbox threat detection platform that are being actively exploited in the wild.
-- **Impact**: Compromise of security inspection infrastructure, potential bypass of threat detection, lateral movement, and persistence.
-- **Status**: Actively exploited. CISA has ordered federal agencies to prioritize patching by July 20, 2026. Fortinet has released security updates.
-- **CVE ID**: Not specified in source articles
+- **Description**: Two vulnerabilities in the Fortinet FortiSandbox threat detection platform that are being actively exploited in the wild. Specific vulnerability types were not detailed in the source article.
+- **Impact**: Compromise of the threat detection platform itself, potential bypass of security controls, network reconnaissance, and lateral movement.
+- **Status**: Actively exploited. CISA issued an emergency directive on July 17, 2026, ordering federal civilian executive branch agencies to prioritize patching by July 20, 2026. Fortinet has released patches.
+- **CVE ID**: CVE IDs not specified in source article
 
-### WordPress Core wp2shell Remote Code Execution
-- **Description**: Two vulnerabilities in WordPress core that, when combined, allow unauthenticated remote code execution. The attack leverages a persistent object cache condition. Full technical details and a working proof-of-concept have been published.
-- **Impact**: Complete takeover of WordPress sites without authentication, web shell deployment, data theft, and use as pivot points for further attacks.
-- **Status**: Proof-of-concept public. WordPress has released patches. Two CVE IDs have been assigned.
-- **CVE ID**: Not specified in source articles
+### wp2shell WordPress Core Unauthenticated RCE
+- **Description**: Two vulnerabilities in WordPress core that, when combined, allow unauthenticated attackers to achieve remote code execution. The flaws involve a persistent object cache condition. Full technical details and a working proof-of-concept exploit have been publicly released.
+- **Impact**: Complete takeover of WordPress sites without authentication, arbitrary code execution, malware deployment, data theft, and potential server compromise.
+- **Status**: Actively exploitable with public PoC. CVE identifiers have been assigned as of July 18, 2026. WordPress has released patches. Immediate updating is critical.
+- **CVE ID**: CVE IDs assigned but not specified in source article
+
+### SonicWall SMA Zero-Day Chain (Inc Ransomware)
+- **Description**: Two zero-day vulnerabilities in SonicWall Secure Mobile Access (SMA) appliances that, when chained together, provide threat actors with root-level capabilities on the devices.
+- **Impact**: Full administrative control over VPN/appliance infrastructure, network access, credential harvesting, lateral movement, and ransomware deployment.
+- **Status**: Actively exploited by Inc ransomware group. Zero-day status means no patches were available at time of reporting. SonicWall has likely released or is developing mitigations.
+- **CVE ID**: CVE IDs not specified in source article
+
+### Windows LegacyHive Privilege Escalation Zero-Day
+- **Description**: A Windows zero-day exploit dubbed "LegacyHive" released by a researcher using the handle "Nightmare Eclipse" that allows attackers to escalate privileges on up-to-date Windows systems.
+- **Impact**: Local privilege escalation to SYSTEM/admin rights, bypassing security controls, disabling defenses, and enabling full system compromise.
+- **Status**: Public exploit code released. Zero-day status—no patch available at time of disclosure. Microsoft is likely developing a fix.
+- **CVE ID**: CVE ID not specified in source article
 
 ### OpenSSL HollowByte Denial-of-Service
-- **Description**: A vulnerability in OpenSSL's TLS message handling where an 11-byte malicious ClientHello message triggers allocation of up to 131 KB of memory for a message that never arrives. On glibc systems, this memory is not released until the process restarts.
-- **Impact**: Resource exhaustion denial-of-service, server instability, potential amplification for distributed attacks.
-- **Status**: Technical details public. OpenSSL has released patches (versions 3.0.16, 3.2.4, 3.3.1, 3.4.0).
-- **CVE ID**: Not specified in source articles
+- **Description**: A vulnerability in OpenSSL where an 11-byte malicious TLS request causes the server to allocate up to 131 KB of memory for a message that never arrives. On glibc systems, this memory is not released until the process restarts, enabling efficient denial-of-service.
+- **Impact**: Resource exhaustion DoS, service unavailability, potential amplification across multiple connections. Low-bandwidth, high-impact attack vector.
+- **Status**: Vulnerability disclosed with technical details. OpenSSL has released patches (versions 3.0.16, 3.2.2, 3.3.1, and 3.4.0). Server administrators must restart processes to reclaim leaked memory.
+- **CVE ID**: CVE ID not specified in source articles
+
+### Seven Malicious Vite npm Packages (Supply Chain Attack)
+- **Description**: A cluster of seven malicious npm packages targeting the Vite frontend tooling ecosystem. The packages use blockchain-based command-and-control infrastructure to deliver a remote access trojan (RAT).
+- **Impact**: Compromise of developer machines and build pipelines, persistent remote access, credential theft, source code exfiltration, and potential downstream supply chain contamination.
+- **Status**: Actively distributed via npm registry. Packages have been identified and likely removed, but compromised environments require incident response.
+- **CVE ID**: No CVE IDs assigned (malicious packages, not vulnerabilities in legitimate software)
+
+### NadMesh Botnet Credential Harvesting
+- **Description**: A Go-based botnet discovered in early July 2026 that scans for exposed AI services using Shodan to harvest cloud credentials (AWS keys) and Kubernetes tokens. The operator's dashboard claims 3,811 unique AWS keys collected.
+- **Impact**: Cloud account takeover, cryptojacking, data exfiltration, infrastructure hijacking, and lateral movement within cloud environments.
+- **Status**: Active scanning and exploitation campaign. Organizations with exposed AI/ML services, Kubernetes APIs, and cloud metadata endpoints are at immediate risk.
+- **CVE ID**: No CVE IDs (exploitation of misconfigurations and exposed services)
+
+### GoldenEyeDog / CylindricalCanine DigiCert Breach
+- **Description**: A threat activity cluster dubbed CylindricalCanine (with subgroup GoldenEyeDog) attributed to the April 2026 DigiCert security incident involving code-signing certificate theft.
+- **Impact**: Theft of code-signing certificates enables supply chain attacks through trusted malware signing, bypassing application control policies, and distributing signed malicious payloads.
+- **Status**: Breach occurred April 2026; attribution published July 2026. DigiCert has responded. Certificate revocation and reissuance efforts underway. Downstream impact assessment ongoing.
+- **CVE ID**: No CVE ID (security incident/breach, not a software vulnerability)
+
+### ACR Stealer ClickFix Campaign
+- **Description**: The ACR Stealer infostealer (active since 2024) is using ClickFix social engineering lures to steal browser passwords, live session tokens, PDFs, Microsoft 365 documents, and files from synced OneDrive folders.
+- **Impact**: Credential theft, session hijacking, business email compromise enablement, sensitive document exfiltration, and identity theft.
+- **Status**: Active campaign. ClickFix technique remains effective against enterprise users. Requires user interaction but high success rate due to social engineering sophistication.
+- **CVE ID**: No CVE ID (malware campaign using social engineering)
+
+### GoSerpent Malware Espionage Campaign
+- **Description**: Previously undocumented malware called GoSerpent targeting Southeast Asian government and diplomatic entities since late 2025 for cyber espionage.
+- **Impact**: Persistent access to government networks, intelligence collection, diplomatic communication interception, and strategic advantage for threat actor.
+- **Status**: Active campaign since late 2025. Attribution and technical details published July 2026. Targeted organizations should conduct compromise assessments.
+- **CVE ID**: No CVE ID (malware campaign, exploitation vectors not specified)
+
+### Contagious Interview Campaign (North Korean SVG Steganography)
+- **Description**: North Korean threat actors linked to the Contagious Interview campaign employing steganography in SVG image files to conceal malicious payloads (OtterCookie-aligned malware) within fake coding tests for job applicants.
+- **Impact**: Developer and engineer compromise, source code access, supply chain infiltration, and persistent access to technology organizations.
+- **Status**: Active campaign. Novel use of SVG steganography evades traditional detection. Targets individuals in hiring processes at tech companies.
+- **CVE ID**: No CVE ID (social engineering and steganography technique)
+
+### ClickLock macOS Information Stealer
+- **Description**: New macOS malware dubbed ClickLock that terminates all visible processes to force users into entering their system login password, which is then captured.
+- **Impact**: Full user credential compromise, keychain access, privilege escalation potential, and complete user session takeover.
+- **Status**: Active in the wild. Novel anti-analysis and credential harvesting technique specific to macOS.
+- **CVE ID**: No CVE ID (malware, not a vulnerability)
+
+### Claude Chrome Extension Flaw
+- **Description**: A flaw in Anthropic's Claude for Chrome browser extension that allows malicious extensions to simulate user clicks and trigger predefined AI actions, potentially abusing Claude's access to sensitive data and actions.
+- **Impact**: Unauthorized AI actions, data exfiltration through AI, privilege escalation within browser context, and bypass of extension permission models.
+- **Status**: Vulnerability disclosed. Anthropic likely developing fix. Users should review installed extensions and limit Claude extension permissions.
+- **CVE ID**: CVE ID not specified in source article
 
 ## Affected Systems and Products
 
-- **Microsoft SharePoint Server**: All versions prior to the July 2026 security update; on-premises deployments primarily affected
-- **Windows (All Supported Versions)**: LegacyHive zero-day affects up-to-date Windows 10, Windows 11, and Windows Server 2019/2022/2025 systems
-- **SonicWall SMA 100 Series and SMA 200/400/500/8100/8200/9000 Series**: Mobile access appliances running vulnerable firmware versions
-- **Fortinet FortiSandbox**: Versions prior to the patched releases; FortiSandbox 4.4.2, 4.2.4, 4.0.5, and 3.2.6 or later contain fixes
-- **WordPress Core**: Versions prior to 6.6.2 (or equivalent patched branch); sites using persistent object caching (Redis, Memcached) at elevated risk
-- **OpenSSL**: Versions 3.0.0–3.0.15, 3.2.0–3.2.3, 3.3.0, 3.4.0-beta1; patched in 3.0.16, 3.2.4, 3.3.1, 3.4.0
-- **npm/Vite Ecosystem**: Developers and CI/CD pipelines using Vite frontend tooling; seven malicious packages identified (specific package names not disclosed in source)
-- **macOS Systems**: ClickLock malware targets current macOS versions; delivery vector not fully specified
-- **AWS/Kubernetes Environments**: Exposed AI/ML services (Jupyter, MLflow, Kubeflow, Ray, TensorBoard) with unauthenticated API access
-- **DigiCert Code-Signing Infrastructure**: April 2026 breach compromised certificate issuance systems; downstream trust implications for signed software
+- **Microsoft SharePoint Server**: All versions affected by CVE-2026-58644 prior to July 2026 security updates. On-premises deployments at highest risk.
+- **Fortinet FortiSandbox**: Appliance and virtual appliance versions vulnerable to two actively exploited flaws. Specific version ranges not detailed in source.
+- **WordPress Core**: All versions prior to the July 2026 security release containing fixes for the wp2shell vulnerabilities. Millions of sites potentially affected.
+- **SonicWall SMA (Secure Mobile Access) Appliances**: SMA 200, 400, 500, 1000, and 10000 series, and virtual appliances. Firmware versions prior to patched releases.
+- **Windows**: Up-to-date Windows systems (specific versions not detailed) vulnerable to LegacyHive privilege escalation zero-day.
+- **OpenSSL**: Versions prior to 3.0.16, 3.2.2, 3.3.1, and 3.4.0. Affects servers using OpenSSL for TLS termination (web servers, load balancers, VPN gateways, API gateways).
+- **Vite/npm Ecosystem**: Developers and CI/CD pipelines using Vite frontend tooling who may have installed malicious packages: `vite-plugin-*` and related supply chain dependencies.
+- **Exposed AI/ML Services**: Publicly accessible AI model endpoints, Jupyter notebooks, MLflow servers, Kubeflow dashboards, and Kubernetes API servers with anonymous access enabled.
+- **DigiCert Code-Signing Infrastructure**: Organizations relying on DigiCert-issued code-signing certificates for software distribution and application control policies.
+- **Enterprise Browsers (Chrome/Edge)**: Users with Anthropic Claude extension installed alongside other extensions; macOS users targeted by ClickLock malware.
+- **Southeast Asian Government Networks**: Diplomatic and government entities targeted by GoSerpent malware campaign since late 2025.
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Chaining**: Inc Ransomware chains two SonicWall SMA zero-days for pre-authentication root RCE, demonstrating sophisticated vulnerability combination
-- **Public PoC Weaponization**: LegacyHive and wp2shell exploits released with working proof-of-concept code, enabling immediate broad exploitation by actors of all skill levels
-- **Supply Chain Injection**: Seven malicious npm packages published to official registry masquerading as legitimate Vite plugins, using blockchain (Ethereum smart contracts) for resilient C2 infrastructure
-- **Steganographic Payload Delivery**: North Korean Contagious Interview campaign hides OtterCookie malware in SVG flag images via least-significant-bit steganography, delivered through fake coding test platforms
-- **ClickFix Social Engineering**: ACR Stealer uses fake "verify you are human" browser prompts (ClickFix technique) to trick users into executing malicious PowerShell commands
-- **AI Service Enumeration**: NadMesh botnet leverages Shodan to continuously harvest exposed AI/ML service endpoints (Jupyter, MLflow, Kubeflow, Ray, TensorBoard) for credential theft
-- **Memory Exhaustion via Protocol Edge Case**: HollowByte exploits OpenSSL's TLS state machine by sending truncated ClientHello (11 bytes), triggering unbounded memory allocation without completion
-- **Process Termination for Credential Theft**: ClickLock macOS malware terminates all visible user processes, forcing authentication prompt that captures login password
-- **Code-Signing Certificate Theft**: GoldenEyeDog/CylindricalCanine breach of DigiCert enables signing of malicious binaries with trusted certificates, bypassing application control
-- **Third-Party Support System Compromise**: EY breach originated from compromised third-party IT support ticketing system, highlighting supply chain risk in managed services
-- **Text Salting/Obfuscation for AI Evasion**: Over 1 million phishing emails use hidden Unicode characters and zero-width spaces to duplicate visible text, defeating LLM-based security filters
-- **Malicious Browser Extension Abuse**: Flaw in Anthropic Claude Chrome extension allows malicious extensions to simulate user clicks, triggering AI actions with elevated permissions
+- **Zero-Day Exploitation**: Active use of unpatched vulnerabilities in SharePoint (CVE-2026-58644), FortiSandbox, SonicWall SMA (two flaws chained), and Windows (LegacyHive) before vendor fixes available.
+- **Unauthenticated Remote Code Execution**: wp2shell WordPress flaws and SharePoint CVE-2026-58644 allow pre-authentication RCE, enabling mass exploitation via automated scanning.
+- **Privilege Escalation**: Windows LegacyHive zero-day provides local-to-SYSTEM escalation; ClickLock macOS malware forces credential entry for privilege access.
+- **Denial-of-Service via Resource Exhaustion**: OpenSSL HollowByte uses 11-byte TLS ClientHello to trigger unbounded memory allocation (131 KB per connection) that persists until process restart.
+- **Supply Chain Compromise (npm)**: Malicious Vite packages published to npm registry with blockchain-based C2 (using smart contracts for resilient command delivery) deploying RAT payloads.
+- **Credential Harvesting at Scale**: NadMesh botnet uses Shodan-harvested targets to scan exposed AI services and Kubernetes APIs for AWS keys (3,811+ collected) and cloud tokens.
+- **Code-Signing Certificate Theft**: GoldenEyeDog/CylindricalCanine breach of DigiCert enables trusted malware signing for supply chain attacks and defense evasion.
+- **ClickFix Social Engineering**: ACR Stealer uses fake "verify you're human" / browser error pages to trick users into executing malicious PowerShell commands.
+- **Steganography in SVG Images**: North Korean Contagious Interview campaign hides OtterCookie malware in SVG flag images within fake coding tests for developer targeting.
+- **Process Termination for Credential Theft**: ClickLock macOS malware kills all visible processes, forcing authentication prompt to capture login password.
+- **Extension-to-Extension Attack**: Malicious Chrome extension simulates clicks on Claude extension UI to trigger AI actions without user consent.
+- **Ransomware Deployment via Appliance Compromise**: Inc ransomware leverages SonicWall SMA zero-day chain for initial access and root persistence before encryption.
+- **Blockchain-Based C2**: Malicious npm packages use smart contract interactions for command-and-control, providing censorship-resistant and takedown-resistant infrastructure.
 
 ## Threat Actor Activities
 
-- **Inc Ransomware**: Actively exploiting chained SonicWall SMA zero-days for initial access; deploying ransomware following network enumeration and credential theft; targeting organizations reliant on SSL VPN appliances
-- **NadMesh Botnet Operator**: Go-based botnet infrastructure active since early July 2026; automated Shodan-driven scanning of exposed AI services; dashboard claims 3,811 unique AWS keys and Kubernetes service account tokens harvested; monetization via cloud resource hijacking and credential resale
-- **Contagious Interview / North Korean Actors (DPRK)**: Ongoing campaign since at least 2023; fake recruiting sites and coding challenge platforms deliver OtterCookie malware via SVG steganography; targeting developers in cryptocurrency, fintech, and defense sectors; aligned with Lazarus Group TTPs
-- **GoldenEyeDog / CylindricalCanine**: Subgroup attributed to April 2026 DigiCert breach; stole code-signing certificates enabling trusted malware distribution; technical details shared by Expel; potential link to broader Chinese APT ecosystem
-- **ACR Stealer Operators**: Infostealer active since 2024; leverages ClickFix lures (fake CAPTCHA/verification pages) to execute PowerShell downloaders; exfiltrates browser credentials, session tokens, Microsoft 365 documents, OneDrive files, PDFs; sold as MaaS on underground forums
-- **OkoBot Framework Operators**: New modular malware framework deploying 20+ payloads; primary focus on cryptocurrency wallet seed phrases, exchange credentials, browser data, and system reconnaissance; delivery vectors include malvertising and trojanized software
-- **Fairlife/Coca-Cola Ransomware Actors**: Ransomware attack halted U.S. dairy production operations; specific ransomware variant not disclosed; operational technology impact demonstrates OT/IT convergence risk
-- **Abbott Laboratories Intrusion Actors**: Two separate incidents; one confirmed involving legacy Exact Sciences systems in Cancer Diagnostics business; extortion claims suggest data theft; attribution not publicly disclosed
-- **EY Support System Compromise Actors**: Breach via third-party IT support ticketing system; customer data exposed; highlights managed service provider risk
-- **REvil/Ransomware Ecosystem**: Armenian detention of Russian national on U.S. warrant for REvil affiliation; indicates ongoing law enforcement pressure on ransomware infrastructure
+- **Inc Ransomware Group**: Actively exploiting chained SonicWall SMA zero-days for initial access to achieve root on VPN appliances, enabling network-wide ransomware deployment. Demonstrates rapid zero-day operationalization.
+- **GoldenEyeDog / CylindricalCanine**: Threat activity cluster attributed to April 2026 DigiCert breach and code-signing certificate theft. Expel researchers tracked this group's operations. High-capability actor targeting trust infrastructure.
+- **North Korean Contagious Interview Operators**: State-linked actors conducting developer-targeted social engineering via fake job interviews and coding tests. Now using SVG steganography to deliver OtterCookie-aligned malware. Persistent campaign targeting technology sector.
+- **NadMesh Botnet Operator**: Unknown threat actor operating Go-based botnet since early July 2026. Uses Shodan for target enumeration, focuses on AI/ML service exposures for cloud credential harvesting. Dashboard shows 3,811+ AWS keys collected.
+- **ACR Stealer Operators**: Cybercriminal group distributing infostealer since 2024, now adopting ClickFix technique for enterprise credential and session token theft. Targets Microsoft 365, browser data, and synced cloud files.
+- **GoSerpent Espionage Actor**: Previously undocumented threat actor targeting Southeast Asian governments and diplomats since late 2025. Custom Go-based malware suggests state-sponsored espionage motivation.
+- **Fairlife/Coca-Cola Ransomware Actor**: Unnamed ransomware group disrupted Fairlife dairy production across US. Operational impact on critical food manufacturing infrastructure.
+- **Abbott Laboratories Intruders**: Unknown actors behind two separate incidents targeting legacy Exact Sciences systems in Cancer Diagnostics business. Extortion claims suggest ransomware or data theft motivation.
+- **EY Support System Attackers**: Threat actors compromised third-party IT support ticket system used by Ernst & Young personnel, leading to customer data breach.
 
 ## Source Attribution
 
+- **The Future of Age Verification: Your Face Never Leaves Your Device**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/the-future-of-age-verification-your-face-never-leaves-your-device/
 - **New wp2shell WordPress Core Flaw Lets Unauthenticated Attackers Run Code**: The Hacker News - https://thehackernews.com/2026/07/new-wp2shell-wordpress-core-flaw-lets.html
 - **Abbott probes two cyber incidents amid extortion claims**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/abbott-laboratories-probes-two-cyber-incidents-amid-extortion-claims/
 - **OpenSSL HollowByte Flaw Could Freeze Server Memory with 11-Byte TLS Requests**: The Hacker News - https://thehackernews.com/2026/07/openssl-hollowbyte-flaw-could-freeze.html
@@ -118,4 +168,3 @@ Ransomware and data theft operations show no signs of abating. The Fairlife subs
 - **Agentic AI: Taming the Unpredictable**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/agentic-ai-untamable-ask-the-right-security-questions
 - **1M+ Emails Use Hidden Text to Dupe AI Security Filters**: Dark Reading - https://www.darkreading.com/threat-intelligence/1m-emails-hidden-text-dupe-ai-security-filters
 - **Claude Chrome extension flaw lets malicious extensions trigger AI actions**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/claude-chrome-extension-flaw-lets-malicious-extensions-trigger-ai-actions/
-- **New OkoBot framework deploys 20 payloads to steal data, crypto**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-okobot-framework-deploys-20-payloads-to-steal-data-crypto/
