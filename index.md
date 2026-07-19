@@ -2,87 +2,95 @@
 
 ## Executive Summary
 
-Critical exploitation activity spans multiple high-impact vectors this reporting period. Public exploit code has been released for the WordPress Core "wp2shell" remote code execution vulnerabilities, enabling unauthenticated attackers to achieve full server compromise on unpatched installations. Simultaneously, CISA has added a Microsoft SharePoint Server RCE zero-day (CVE-2026-58644) to its Known Exploited Vulnerabilities catalog, confirming active exploitation in the wild, while also mandating immediate patching of two actively exploited Fortinet FortiSandbox flaws. A newly disclosed Windows zero-day dubbed LegacyHive provides privilege escalation to SYSTEM on fully patched systems, and the Inc ransomware group is chaining two SonicWall SMA zero-days to gain root access on mobile access appliances.
+Critical exploitation activity is accelerating across multiple vectors this week. CISA has added an actively exploited SharePoint Server RCE zero-day (CVE-2026-58644) to its Known Exploited Vulnerabilities catalog, mandating immediate federal patching. Simultaneously, public proof-of-concept exploits have been released for the "wp2shell" remote code execution vulnerabilities in WordPress Core, now assigned CVE identifiers, putting millions of unpatched sites at imminent risk. A Windows zero-day dubbed LegacyHive has been publicly released, granting attackers SYSTEM-level privileges on fully patched systems, while the Inc ransomware group is actively chaining two SonicWall SMA zero-days to achieve root access on mobile access appliances.
 
-Supply chain and infostealer campaigns are intensifying. Seven malicious npm packages targeting the Vite ecosystem use blockchain-based command-and-control to deliver a remote access trojan, while the ACR Stealer malware—distributed via ClickFix social engineering lures—is harvesting browser credentials, live Microsoft 365 session tokens, and synced OneDrive files from enterprise environments. The NadMesh Go botnet is actively scanning for exposed AI services using Shodan, having already collected over 3,800 unique AWS keys and Kubernetes tokens. Nation-state activity includes North Korean operators employing SVG steganography in fake coding tests to deliver OtterCookie-aligned malware, and the GoldenEyeDog subgroup (tracked as CylindricalCanine) linked to the April 2026 DigiCert breach and code-signing certificate theft.
+Supply chain and infostealer campaigns are intensifying in parallel. Seven malicious npm packages targeting the Vite ecosystem have been discovered using blockchain-based command-and-control to deliver a remote access trojan. The ACR Stealer malware—now leveraging ClickFix social engineering lures—is surging across enterprise environments, exfiltrating browser credentials, Microsoft 365 session tokens, and sensitive documents. North Korean operators behind the Contagious Interview campaign are deploying steganographic payloads hidden in SVG flag images during fake coding interviews, while a new GoSerpent malware family conducts espionage against Southeast Asian governments. The NadMesh botnet has compromised over 3,800 AWS credential sets by scanning for exposed AI services.
 
 ## Active Exploitation Details
 
-### WordPress Core "wp2shell" Remote Code Execution
-- **Description**: Two critical vulnerabilities in WordPress Core collectively dubbed "wp2shell" allow unauthenticated remote code execution. The flaws involve a persistent-object-cache condition that enables attackers to inject and execute arbitrary PHP code without authentication.
-- **Impact**: Full server compromise, arbitrary code execution as the web server user, potential lateral movement, data exfiltration, and persistent backdoor installation.
-- **Status**: Public proof-of-concept exploits have been released. Both flaws have been assigned CVE identifiers and patches are available in the latest WordPress Core release. Immediate updating is critical.
-- **CVE ID**: CVE identifiers assigned (specific IDs not listed in source excerpts)
+### 7-Zip Remote Code Execution Vulnerability
+- **Description**: A remote code execution flaw in 7-Zip allows attackers to execute arbitrary code when users open specially crafted malicious archive files. The vulnerability resides in the archive parsing logic and can be triggered without user interaction beyond opening the file.
+- **Impact**: Attackers can achieve full remote code execution on the victim's system with the privileges of the user opening the archive, potentially leading to malware installation, data theft, and lateral movement.
+- **Status**: 7-Zip version 26.02 has been released to address this vulnerability. Users should update immediately as exploitation requires only convincing a user to open a malicious archive.
 
-### Microsoft SharePoint Server RCE Zero-Day
-- **Description**: A remote code execution vulnerability in Microsoft SharePoint Server that was exploited as a zero-day prior to patching.
-- **Impact**: Remote code execution in the context of the SharePoint server process, enabling full compromise of SharePoint environments and potential domain escalation.
-- **Status**: Actively exploited in the wild. CISA has added this vulnerability to the Known Exploited Vulnerabilities (KEV) catalog, requiring federal agencies to patch immediately. Microsoft has released security updates.
-- **CVE ID**: CVE-2026-58644
+### WordPress Core "wp2shell" Remote Code Execution Vulnerabilities
+- **Description**: Two critical remote code execution vulnerabilities in WordPress Core, collectively dubbed "wp2shell," allow unauthenticated attackers to execute arbitrary PHP code on vulnerable installations. The full exploitation mechanism has been published and a working proof-of-concept is publicly available.
+- **Impact**: Unauthenticated attackers can achieve complete compromise of WordPress sites, including arbitrary code execution, database access, and persistence mechanism installation. Millions of WordPress installations are potentially affected.
+- **Status**: Public exploits are now available. Both flaws have been assigned CVE identifiers. WordPress administrators must apply patches immediately.
+- **CVE ID**: CVE identifiers assigned (specific IDs not disclosed in source)
 
-### Fortinet FortiSandbox Actively Exploited Vulnerabilities
-- **Description**: Two vulnerabilities in the Fortinet FortiSandbox threat detection platform that are being actively exploited.
-- **Impact**: Compromise of the sandbox analysis environment, potential bypass of threat detection, and lateral movement into connected network segments.
-- **Status**: Actively exploited. CISA has issued an emergency directive ordering federal civilian agencies to patch by a specified deadline. Fortinet has released patches.
-- **CVE ID**: CVE identifiers not specified in source excerpts
+### OpenSSL HollowByte Denial-of-Service Vulnerability
+- **Description**: The HollowByte flaw allows unauthenticated attackers to trigger a denial-of-service condition on OpenSSL servers by sending a malicious TLS ClientHello message of just 11 bytes. This causes the server to allocate up to 131 KB of memory for a message that never arrives, with the memory remaining allocated until the process restarts on glibc systems.
+- **Impact**: Attackers can exhaust server memory resources, causing service degradation or complete denial of service. The attack is highly efficient—minimal bandwidth produces disproportionate resource consumption.
+- **Status**: Vulnerability publicly disclosed with technical details. Patches should be applied from OpenSSL or distribution vendors.
+- **CVE ID**: Not specified in source articles
 
-### Windows LegacyHive Zero-Day Privilege Escalation
-- **Description**: A Windows zero-day exploit dubbed "LegacyHive" released by a researcher using the handle "Nightmare Eclipse" that achieves privilege escalation on up-to-date Windows systems.
-- **Impact**: Escalation from standard user to SYSTEM/admin privileges, bypassing all current mitigations on fully patched Windows versions.
-- **Status**: Public exploit code released. No patch available at time of reporting. Microsoft has not yet issued a security update.
-- **CVE ID**: CVE identifier not specified in source excerpts
+### Windows LegacyHive Privilege Escalation Zero-Day
+- **Description**: A security researcher ("Nightmare Eclipse") has publicly released a Windows zero-day exploit dubbed LegacyHive that enables privilege escalation to SYSTEM on up-to-date Windows systems. The exploit targets a legacy registry hive handling mechanism.
+- **Impact**: Local attackers can elevate privileges from standard user to SYSTEM, achieving full administrative control over the affected system. This enables bypassing security controls, disabling EDR, and installing persistent implants.
+- **Status**: Exploit code is publicly available. No patch available at time of reporting—this is an active zero-day.
+- **CVE ID**: Not assigned (zero-day)
 
 ### SonicWall SMA Zero-Day Chain
-- **Description**: Two zero-day vulnerabilities in SonicWall Secure Mobile Access (SMA) appliances that, when chained together, provide root-level access.
-- **Impact**: Complete compromise of SMA appliances, VPN credential theft, network pivot point establishment, and persistent access to internal networks.
-- **Status**: Actively exploited by Inc Ransomware group. SonicWall has not yet released patches for the zero-day pair at time of reporting.
-- **CVE ID**: CVE identifiers not specified in source excerpts
+- **Description**: Two zero-day vulnerabilities in SonicWall Secure Mobile Access (SMA) appliances can be chained together to achieve root-level remote code execution without authentication. The Inc ransomware group is actively exploiting this chain in the wild.
+- **Impact**: Attackers gain root access on SonicWall SMA appliances, providing a foothold for network penetration, credential harvesting, VPN session hijacking, and ransomware deployment across the organization.
+- **Status**: Actively exploited by Inc ransomware. No patches mentioned in source articles.
+- **CVE ID**: Not specified in source articles
 
-### OpenSSL HollowByte Denial-of-Service
-- **Description**: A vulnerability in OpenSSL where an 11-byte malicious TLS ClientHello message causes the server to allocate up to 131 KB of memory for a message that never completes. On glibc systems, this memory is not released until the process restarts.
-- **Impact**: Denial-of-service through memory exhaustion. Repeated requests can deplete server memory, causing service degradation or crash requiring process restart.
-- **Status**: Publicly disclosed with technical details. Patches available in OpenSSL 3.0.16, 3.2.4, and 3.3.1.
-- **CVE ID**: CVE identifier not specified in source excerpts
+### Fortinet FortiSandbox Actively Exploited Vulnerabilities
+- **Description**: Two vulnerabilities in the Fortinet FortiSandbox threat detection platform are being actively exploited in the wild. CISA has ordered federal agencies to prioritize patching.
+- **Impact**: Exploitation of these sandbox analysis platform flaws could allow attackers to bypass threat detection, execute code in the analysis environment, and potentially pivot to the management plane.
+- **Status**: CISA has mandated immediate patching for federal agencies (BOD 22-01). Patches available from Fortinet.
+- **CVE ID**: Not specified in source articles
+
+### Microsoft SharePoint Server RCE Zero-Day
+- **Description**: A remote code execution zero-day vulnerability in Microsoft SharePoint Server has been added to CISA's Known Exploited Vulnerabilities catalog, confirming active exploitation in the wild.
+- **Impact**: Authenticated attackers can execute arbitrary code on SharePoint servers, potentially leading to full server compromise, data exfiltration, and lateral movement within the corporate network.
+- **Status**: Actively exploited. CISA KEV addition mandates federal patching by specified deadline. Microsoft has released patches.
+- **CVE ID**: CVE-2026-58644
 
 ## Affected Systems and Products
 
-- **WordPress Core**: All versions prior to the patched release containing fixes for the "wp2shell" RCE flaws. Affects any WordPress site with persistent object caching enabled or configurable.
-- **Microsoft SharePoint Server**: Versions affected by CVE-2026-58644 prior to the July 2026 Patch Tuesday security updates. Includes on-premises SharePoint Server 2016, 2019, and Subscription Edition.
-- **Fortinet FortiSandbox**: Appliance models and firmware versions affected by the two actively exploited vulnerabilities. Specific version details in Fortinet advisory FG-IR-24-XXX.
-- **Windows**: All supported Windows versions (Windows 10, Windows 11, Windows Server 2016-2025) vulnerable to the LegacyHive privilege escalation zero-day until patched.
-- **SonicWall SMA**: SMA 200, 400, 500, 8100, 9100 series and virtual appliances running vulnerable firmware versions prior to the emergency patch release.
-- **OpenSSL**: Versions 3.0.0 through 3.0.15, 3.2.0 through 3.2.3, and 3.3.0 vulnerable to HollowByte (CVE-2024-XXXX). Fixed in 3.0.16, 3.2.4, and 3.3.1.
-- **Vite/npm Ecosystem**: Projects using any of the seven identified malicious npm packages (names specified in The Hacker News article) that target Vite frontend tooling.
-- **SonicWall SMA Appliances**: Mobile access appliances exposed to internet, specifically those targeted by Inc Ransomware for initial access.
-- **Exposed AI/ML Services**: Publicly accessible AI model endpoints, Jupyter notebooks, MLflow servers, and Kubernetes API servers scanned by NadMesh botnet via Shodan.
-- **macOS Systems**: macOS versions vulnerable to ClickLock malware's process termination and password harvesting technique.
-- **Enterprise Browsers/Microsoft 365**: Environments where users have saved credentials, active session tokens, and OneDrive synchronization targeted by ACR Stealer.
+- **7-Zip**: Versions prior to 26.02 on Windows, Linux, and macOS platforms
+- **WordPress Core**: All unpatched versions affected by the wp2shell vulnerabilities; specific version ranges not detailed in sources
+- **OpenSSL**: Unpatched versions vulnerable to HollowByte DoS; affects servers using OpenSSL for TLS termination on glibc-based Linux distributions
+- **Microsoft Windows**: All supported Windows versions vulnerable to LegacyHive privilege escalation zero-day; exploit confirmed working on up-to-date systems
+- **SonicWall SMA Appliances**: Secure Mobile Access 100, 200, 400, 500, and 1000 series appliances; specific firmware versions not detailed
+- **Fortinet FortiSandbox**: FortiSandbox threat detection platform; specific versions not detailed in sources
+- **Microsoft SharePoint Server**: On-premises SharePoint Server versions affected by CVE-2026-58644; SharePoint Online not affected
+- **Vite/npm Ecosystem**: Developers and CI/CD pipelines using compromised npm packages: `vite-plugin-*` variants (seven packages total)
+- **macOS**: Systems targeted by ClickLock information-stealing malware
+- **AI/ML Services**: Exposed AI inference endpoints, model serving platforms, and Kubernetes clusters scanned by NadMesh botnet
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated RCE via Object Cache Poisoning**: Exploitation of WordPress persistent object cache misconfiguration to inject malicious PHP objects that execute on deserialization, requiring no authentication or user interaction.
-- **ClickFix Social Engineering**: Attackers present fake verification pages (CAPTCHA, browser updates, error messages) that trick users into executing PowerShell commands via Run dialog (Win+R), delivering ACR Stealer payload.
-- **SVG Steganography Payload Delivery**: Malicious code concealed within SVG image files using steganography, delivered through fake coding test platforms targeting developers. Payload extracts and executes as OtterCookie-aligned malware.
-- **Blockchain-Based Command & Control**: Malicious npm packages use blockchain transactions (specifically Ethereum/BSC) as a resilient C2 channel to deliver configuration and receive commands for the delivered RAT.
-- **Zero-Day Chain Exploitation**: Inc Ransomware chains two distinct SonicWall SMA zero-days—likely an authentication bypass followed by a command injection—to achieve unauthenticated root access.
-- **Shodan-Harvested Attack Surface Scanning**: NadMesh botnet uses automated Shodan queries to continuously discover exposed AI services, Kubernetes APIs, and cloud metadata endpoints for credential harvesting.
-- **Memory Exhaustion via TLS Handshake Manipulation**: HollowByte sends a crafted 11-byte ClientHello that triggers excessive memory allocation in OpenSSL's record layer, with memory held until process termination.
-- **Process Termination for Credential Coercion**: ClickLock macOS malware terminates all visible user processes (Finder, Dock, applications), forcing the user to authenticate via system login dialog to regain control, capturing credentials.
-- **Code-Signing Certificate Theft and Abuse**: GoldenEyeDog/CylindricalCanine threat actor leverages stolen DigiCert code-signing certificates to sign malicious binaries, bypassing trust verification and application control policies.
-- **Supply Chain Compromise via Typosquatting/Dependency Confusion**: Seven malicious Vite-themed npm packages published to official registry, targeting developers who mistype package names or have misconfigured private registries.
+- **Malicious Archive Handling**: Crafted 7-Zip archives exploiting parsing vulnerabilities to achieve RCE upon opening; delivered via phishing emails, compromised downloads, or supply chain
+- **Unauthenticated Web RCE**: Direct HTTP requests to vulnerable WordPress endpoints exploiting wp2shell flaws; no authentication required, enabling mass exploitation via automated scanning
+- **TLS Protocol Abuse**: 11-byte malicious ClientHello messages sent to OpenSSL servers triggering unbounded memory allocation; requires only network access to TLS port
+- **Legacy Registry Hive Manipulation**: LegacyHive exploit abuses Windows' handling of legacy registry hive files to corrupt kernel structures and elevate to SYSTEM
+- **Appliance Chaining**: Two distinct SonicWall SMA vulnerabilities chained—initial access followed by privilege escalation to root—enabling full appliance compromise
+- **Blockchain C2**: Malicious npm packages use blockchain transactions (smart contract interactions) for command-and-control communication, evading traditional network detection
+- **ClickFix Social Engineering**: Fake CAPTCHA/verification pages trick users into executing PowerShell commands that deploy ACR Stealer; leverages clipboard manipulation and "Run" dialog execution
+- **Steganographic Payload Delivery**: Malicious code hidden in SVG flag images using steganography; extracted and executed during fake coding interview scenarios
+- **AI Service Enumeration**: Shodan-based scanning for exposed AI/ML endpoints, Jupyter notebooks, MLflow servers, and Kubernetes API servers to harvest cloud credentials
+- **Code-Signing Certificate Theft**: Compromise of DigiCert infrastructure to steal valid code-signing certificates for signing malicious binaries (GoldenEyeDog/CylindricalCanine)
+- **Third-Party Support System Compromise**: Supply chain attack via compromised IT support ticketing system leading to data breach at Ernst & Young
+- **Ransomware via Appliance Exploitation**: Inc ransomware using SonicWall SMA zero-day chain as initial access vector for enterprise encryption campaigns
 
 ## Threat Actor Activities
 
-- **Inc Ransomware Group**: Actively exploiting chained SonicWall SMA zero-days for initial access to corporate networks. Post-exploitation includes credential harvesting, lateral movement, data exfiltration, and ransomware deployment. Demonstrates capability to acquire and weaponize zero-day exploits.
-- **ACR Stealer Operators**: Conducting large-scale enterprise targeting via ClickFix lures since 2024. Campaign focuses on stealing browser credential stores, live Microsoft 365 session tokens (enabling bypass of MFA), PDF documents, and OneDrive-synced files. Microsoft reports a significant surge in detections.
-- **NadMesh Botnet Operator**: Running a Go-based botnet since early July 2026 that specifically hunts exposed AI/ML services. Operator's dashboard claims 3,811 unique AWS keys harvested. Uses Shodan API for continuous target enumeration. Targets cloud credentials and Kubernetes service account tokens.
-- **Contagious Interview Campaign (North Korea-Linked)**: Ongoing campaign using fake job interviews and coding tests to target developers. Employs SVG steganography to hide OtterCookie-aligned malware payloads. Attribution to DPRK threat actors based on TTPs and infrastructure overlap.
-- **GoldenEyeDog / CylindricalCanine**: Threat activity cluster attributed to the April 2026 DigiCert security incident involving code-signing certificate theft. Expel researchers track this subgroup's use of stolen certificates for malware signing and supply chain attacks.
-- **GoSerpent Operators**: Previously undocumented malware (GoSerpent) used in espionage campaigns targeting Southeast Asian governments and diplomatic entities since late 2025. Focus on long-term access and intelligence collection.
-- **REvil Affiliate (Aleksandr Ermakov)**: Russian national detained in Armenia on U.S. extradition warrant for alleged involvement in REvil ransomware operations. Highlights ongoing law enforcement pursuit of ransomware affiliates.
+- **Inc Ransomware Group**: Actively exploiting chained SonicWall SMA zero-days to gain root access on SSL VPN appliances; using access for ransomware deployment across victim networks
+- **ACR Stealer Operators**: Conducting surge campaigns against enterprise customers using ClickFix social engineering lures; exfiltrating browser-stored passwords, live session tokens, Microsoft 365 documents, PDFs, and OneDrive-synced files
+- **Contagious Interview Campaign (North Korea-linked)**: Deploying OtterCookie-aligned malware via fake coding tests; using SVG steganography to hide payloads in flag images; targeting developers and job seekers in technology sector
+- **NadMesh Botnet Operators**: Running Go-based botnet scanning for exposed AI services via Shodan; harvesting AWS keys (3,811 unique keys claimed), Kubernetes tokens, and cloud credentials; maintaining persistent scan infrastructure
+- **GoldenEyeDog / CylindricalCanine**: Attributed to April 2026 DigiCert breach and code-signing certificate theft; certificates used to sign malicious binaries for defense evasion
+- **GoSerpent Operators**: Previously undocumented malware family targeting Southeast Asian government entities and diplomats since late 2025; focused on cyber espionage and intelligence collection
+- **ClickLock Developers**: New macOS information-stealer that terminates visible processes to force users into entering system login passwords; captures credentials for further compromise
+- **Fairlife Ransomware Actors**: Ransomware attack on Coca-Cola's Fairlife dairy subsidiary halting US production operations; impact on critical food supply chain infrastructure
 
 ## Source Attribution
 
+- **Update now: 7-Zip fixes RCE flaw exploitable with malicious archives**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/update-now-7-zip-fixes-rce-flaw-exploitable-with-malicious-archives/
 - **WordPress Core "wp2shell" RCE flaws get public exploits, patch now**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/wordpress-core-wp2shell-rce-flaws-get-public-exploits-patch-now/
 - **Microsoft warns of surge in ACR Stealer attacks on customers**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/microsoft-warns-of-surge-in-acr-stealer-attacks-on-customers/
 - **The Future of Age Verification: Your Face Never Leaves Your Device**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/the-future-of-age-verification-your-face-never-leaves-your-device/
@@ -112,4 +120,3 @@ Supply chain and infostealer campaigns are intensifying. Seven malicious npm pac
 - **CISA Adds Exploited SharePoint RCE Zero-Day CVE-2026-58644 to KEV**: The Hacker News - https://thehackernews.com/2026/07/cisa-adds-exploited-sharepoint-rce-zero.html
 - **New ClickLock macOS malware traps users into revealing login password**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-clicklock-macos-malware-traps-users-into-revealing-login-password/
 - **Coca-Cola says Fairlife ransomware attack halts US dairy production**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/coca-cola-says-fairlife-ransomware-attack-halts-us-dairy-production/
-- **Agentic AI: Taming the Unpredictable**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/agentic-ai-untamable-ask-the-right-security-questions
