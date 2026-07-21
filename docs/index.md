@@ -2,123 +2,115 @@
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse attack surfaces, ranging from enterprise VPN appliances and collaboration platforms to AI development tools and supply chain repositories. SonicWall SMA 1000 series VPN appliances were targeted as zero-days for weeks before disclosure, enabling root-level compromise and custom malware deployment. Simultaneously, a critical ServiceNow AI Platform flaw (CVE-2026-6875) is being actively exploited in the wild, while WordPress sites face mass exploitation through a chained RCE involving CVE-2026-60137 and CVE-2026-63030. These campaigns demonstrate rapid weaponization of disclosed vulnerabilities and persistent zero-day operations by both documented and previously unknown threat actors.
+Multiple critical vulnerabilities are being actively exploited across diverse technology stacks this week, with threat actors demonstrating increased sophistication in chaining exploits and leveraging AI-driven tooling. The most immediate threats include a critical ServiceNow AI Platform flaw (CVE-2026-6875) enabling unauthenticated remote code execution, a WordPress RCE chain (CVE-2026-60137 and CVE-2026-63030) already weaponized at scale within days of disclosure, and two SonicWall SMA1000 zero-days exploited for weeks to deploy custom malware on VPN appliances. Simultaneously, a new wave of AI-targeted attacks has emerged: the JADEPUFFER autonomous operator is deploying ENCFORGE ransomware against Langflow servers to encrypt AI model assets, while the Hugging Face breach confirms autonomous AI agents can compromise production infrastructure. Russian intelligence continues systematic hijacking of IP cameras across NATO states for military surveillance, and a massive FakeGit campaign leverages 7,600 malicious GitHub repositories to distribute SmartLoader malware.
 
-Supply chain and AI-focused attacks have surged, with the FakeGit campaign leveraging 7,600 malicious GitHub repositories—over 800 masquerading as AI skills or MCP servers—to distribute SmartLoader malware. Autonomous AI agents have emerged as both attack vectors and threat actors, evidenced by the Hugging Face breach via an autonomous AI system and the JadePuffer agent deploying EncForge ransomware specifically targeting AI model assets. Russian intelligence services continue systematic compromise of IP cameras across NATO states and Ukraine for military logistics surveillance, while the UAC-0145 group employs ClickFix social engineering against Ukrainian targets.
-
-Novel post-exploitation techniques are proliferating, including HollowGraph malware's innovative use of Microsoft 365 calendar events as a covert C2 channel, and an exposed AI-assisted phishing toolkit revealing 1,048 files for WebDAV-based malware delivery. Critical flaws in widely deployed infrastructure—including nginx (CVE-2026-42533), 7-Zip (CVE-2026-14266), and the ViPNet update mechanism—expand the exploitation landscape. Sandbox escapes across Cursor, Codex, Gemini CLI, and Antigravity demonstrate a new class of AI toolchain vulnerabilities, while the SleeperGem supply chain attack poisons the RubyGems ecosystem with three malicious packages targeting developers.
+Privilege escalation and sandbox escape vulnerabilities round out the high-risk landscape. The Windows LegacyHive zero-day allows local privilege escalation on fully patched systems, with only unofficial mitigations available. Researchers demonstrated sandbox escapes across Cursor, Codex, Gemini CLI, and Antigravity by weaponizing AI agents to write files that trusted host tools subsequently execute. A heap-based buffer overflow in 7-Zip (CVE-2026-14266) enables code execution via crafted XZ archives. Novel malware frameworks like HollowGraph are abusing Microsoft 365 calendar events for stealthy C2 communications, while the SleeperGem supply chain attack poisons the RubyGems ecosystem. These developments underscore accelerating exploitation velocity, the convergence of AI tooling with offensive operations, and the persistent danger of edge-network appliances and supply chain vectors.
 
 ## Active Exploitation Details
 
-### SonicWall SMA 1000 Series Zero-Day Exploitation
-- **Description**: Two vulnerabilities in SonicWall Secure Mobile Access (SMA) 1000 series VPN appliances were exploited as zero-days for weeks prior to public disclosure. Attackers leveraged these flaws to gain root access on vulnerable appliances and install custom malware.
-- **Impact**: Full administrative control over VPN appliances, enabling network persistence, traffic interception, lateral movement, and deployment of custom malware payloads. Compromised appliances provide a foothold into internal corporate networks.
-- **Status**: Actively exploited in the wild before disclosure; patches now available from SonicWall. A previously undocumented threat actor has been attributed to this campaign.
-- **CVE ID**: Not explicitly provided in source articles
-
-### ServiceNow AI Platform Code Execution (CVE-2026-6875)
-- **Description**: A critical vulnerability in the ServiceNow AI Platform allows remote code execution. Threat intelligence company Defused has confirmed active exploitation in the wild.
-- **Impact**: Unauthenticated remote code execution on ServiceNow instances, potentially leading to full platform compromise, data theft, and lateral movement within enterprise environments using ServiceNow for IT service management and workflow automation.
-- **Status**: Actively exploited; patches available from ServiceNow. Defused has observed exploitation activity.
+### ServiceNow AI Platform Unauthenticated RCE (CVE-2026-6875)
+- **Description**: A critical vulnerability in the ServiceNow AI Platform allows unauthenticated attackers to achieve remote code execution. The flaw resides in the platform's AI components and can be exploited without valid credentials.
+- **Impact**: Full system compromise, unauthorized access to sensitive data, lateral movement within connected environments, and potential deployment of persistent malware or ransomware.
+- **Status**: Actively exploited in the wild as of July 2026. Threat intelligence firm Defused Cyber confirmed active exploitation. ServiceNow has released patches; immediate application is critical.
 - **CVE ID**: CVE-2026-6875
 
-### WordPress WP2Shell Chained RCE (CVE-2026-60137 and CVE-2026-63030)
-- **Description**: Attackers are widely chaining CVE-2026-60137 and CVE-2026-63030 to achieve remote code execution on WordPress sites. Exploitation began barely three days after disclosure, targeting one of the largest attack surfaces on the internet.
-- **Impact**: Remote code execution on vulnerable WordPress installations, enabling complete site takeover, malware injection, data exfiltration, and use of compromised sites for further attacks (watering hole, SEO spam, redirect chains).
-- **Status**: Actively exploited in mass campaigns; patches available for both vulnerabilities. Rapid weaponization indicates high attacker interest.
+### WordPress RCE Chain (CVE-2026-60137 and CVE-2026-63030)
+- **Description**: Two vulnerabilities chained together enable remote code execution on WordPress sites. CVE-2026-60137 and CVE-2026-63030 are being combined in a campaign dubbed "WP2Shell" to achieve unauthenticated takeover.
+- **Impact**: Complete compromise of WordPress installations, including database access, file system control, and the ability to serve malicious content to visitors or pivot to internal networks.
+- **Status**: Widely exploited within three days of public disclosure. Attackers are scanning and exploiting at scale across one of the largest attack surfaces on the internet. Patches available; emergency updates strongly recommended.
 - **CVE ID**: CVE-2026-60137, CVE-2026-63030
 
-### Oracle E-Business Suite Flaw (Estée Lauder Breach)
-- **Description**: Hackers exploited a flaw in Oracle E-Business Suite used by Estée Lauder for human resources operations, leading to a data breach affecting customer information.
-- **Impact**: Unauthorized access to HR systems and customer data. The breach triggered customer notification requirements.
-- **Status**: Exploited in a confirmed breach; Estée Lauder has disclosed the incident. Oracle patch status not specified in source.
-- **CVE ID**: Not explicitly provided in source articles
+### SonicWall SMA1000 Zero-Day Exploits
+- **Description**: Two vulnerabilities in SonicWall SMA1000 series VPN appliances were exploited as zero-days for several weeks before public disclosure. Threat actors leveraged these flaws to install custom malware on vulnerable devices.
+- **Impact**: Persistent access to corporate VPN infrastructure, credential harvesting, network pivoting, and potential deployment of ransomware or espionage tooling.
+- **Status**: Actively exploited in zero-day attacks for weeks. SonicWall has released patches for both vulnerabilities. Organizations should assume compromise and conduct thorough incident response.
+- **CVE ID**: [CVE IDs not provided in source articles]
+
+### Windows LegacyHive Privilege Escalation Zero-Day
+- **Description**: A zero-day vulnerability in Windows LegacyHive component allows local privilege escalation on fully patched Windows systems. The flaw enables attackers to gain SYSTEM-level privileges from a standard user context.
+- **Impact**: Full administrative control over affected endpoints, bypass of security controls, credential theft, and facilitation of lateral movement.
+- **Status**: Actively exploited; no official Microsoft patch available at time of reporting. Free unofficial patches have been released by security researchers (0patch) as a stopgap mitigation.
+- **CVE ID**: [CVE ID not provided in source articles]
 
 ### 7-Zip XZ Archive Heap Buffer Overflow (CVE-2026-14266)
-- **Description**: A heap-based buffer overflow in 7-Zip's processing of XZ chunked data allows code execution when a user opens a crafted XZ archive. Discovered by Trend Micro.
-- **Impact**: Arbitrary code execution in the context of the user opening the archive. High impact due to 7-Zip's widespread deployment as a default archive utility.
-- **Status**: Vulnerability disclosed; patch availability from 7-Zip. Exploitation requires user interaction (opening malicious archive).
+- **Description**: A heap-based buffer overflow in 7-Zip's processing of XZ chunked data allows code execution when a user extracts a crafted XZ archive.
+- **Impact**: Arbitrary code execution in the context of the user running 7-Zip, potentially leading to malware installation, data theft, or further system compromise.
+- **Status**: Vulnerability disclosed with proof-of-concept; active exploitation status unclear but high risk given 7-Zip's widespread deployment. Patched versions available.
 - **CVE ID**: CVE-2026-14266
 
-### NGINX Heap Buffer Overflow (CVE-2026-42533)
-- **Description**: A critical flaw in nginx allows a remote, unauthenticated attacker to trigger a heap buffer overflow in the worker process via crafted HTTP requests. Patched by F5.
-- **Impact**: Worker process crash (DoS) and potential remote code execution. Affects all nginx deployments handling untrusted HTTP traffic.
-- **Status**: Patches shipped by F5. Exploitation status in the wild not confirmed in source articles but rated critical.
-- **CVE ID**: CVE-2026-42533
+### AI Sandbox Escapes (Cursor, Codex, Gemini CLI, Antigravity)
+- **Description**: Researchers demonstrated sandbox escape vulnerabilities across four AI coding assistants by having the AI agent write files that trusted host tools subsequently execute, breaking the isolation boundary.
+- **Impact**: Escape from AI sandbox environments to execute arbitrary code on the host system, potentially accessing sensitive files, credentials, and development environments.
+- **Status**: Multiple CVEs assigned; patches released for affected tools. Google downgraded two severity ratings post-disclosure. Active exploitation in the wild not confirmed but risk is high given developer adoption.
+- **CVE ID**: [Multiple CVEs assigned; specific IDs not provided in source articles]
 
-### AI Tool Sandbox Escapes (Cursor, Codex, Gemini CLI, Antigravity)
-- **Description**: Researchers demonstrated sandbox escapes in Cursor, Codex, Gemini CLI, and Antigravity by having AI agents write files that trusted host tools later execute. Multiple CVEs assigned; patches released; Google downgraded two severity ratings.
-- **Impact**: Escape from AI agent sandboxes to execute arbitrary code on the host system, compromising developer machines and potentially CI/CD pipelines.
-- **Status**: Vulnerabilities disclosed and patched across affected tools. Active exploitation in the wild not confirmed but proof-of-concepts exist.
-- **CVE ID**: Multiple CVEs assigned (specific IDs not provided in source excerpts)
+### Langflow RCE Exploited for ENCFORGE Ransomware
+- **Description**: A remote code execution vulnerability in Langflow (a visual framework for building AI agents and RAG applications) is being exploited to deploy ENCFORGE ransomware, which specifically targets AI model files, training datasets, vector databases, and model checkpoints.
+- **Impact**: Encryption and potential exfiltration of high-value AI/ML assets, disruption of AI development pipelines, and financial extortion.
+- **Status**: Actively exploited by JADEPUFFER autonomous AI operator. Second confirmed attack on Langflow infrastructure by this actor. Patches for Langflow RCE should be applied immediately.
+- **CVE ID**: [CVE ID not provided in source articles]
 
-### ViPNet Software Update Mechanism Abuse
-- **Description**: An advanced threat actor is abusing the update mechanism for the ViPNet private networking product suite to target Russian organizations, including government agencies.
-- **Impact**: Supply chain compromise via trusted update channel, enabling malware deployment with high privileges on sensitive government networks.
-- **Status**: Active campaign observed; mitigation requires ViPNet vendor response and network monitoring.
-- **CVE ID**: Not explicitly provided in source articles
+### Oracle E-Business Suite Flaw (Estée Lauder Breach)
+- **Description**: A vulnerability in Oracle E-Business Suite was exploited to breach Estée Lauder's HR systems, resulting in customer data exposure.
+- **Impact**: Unauthorized access to personal and potentially sensitive customer data, regulatory compliance violations, and reputational damage.
+- **Status**: Exploited in confirmed breach. Oracle has released patches; organizations using E-Business Suite should verify patch status and monitor for indicators of compromise.
+- **CVE ID**: [CVE ID not provided in source articles]
 
-### SleeperGem RubyGems Supply Chain Attack
-- **Description**: Three malicious gems published to RubyGems under the SleeperGem campaign target developer machines with the end goal of stealing credentials and sensitive data.
-- **Impact**: Compromise of developer environments, potential theft of source code, credentials, SSH keys, and access to production systems via developer access.
-- **Status**: Malicious packages identified and flagged; RubyGems removal in progress. Active targeting of Ruby ecosystem developers.
-- **CVE ID**: Not explicitly provided in source articles
+### Hugging Face Breach via Autonomous AI Agent
+- **Description**: Attackers breached Hugging Face's production infrastructure using an autonomous AI agent system, gaining access to internal datasets and credentials.
+- **Impact**: Compromise of the world's largest AI model repository, potential poisoning of model weights, theft of proprietary datasets and credentials, and supply chain risk for downstream users.
+- **Status**: Confirmed breach disclosed by Hugging Face. Investigation ongoing. Highlights novel attack vector where AI agents themselves are weaponized as offensive tools.
+- **CVE ID**: [No CVE applicable; novel attack methodology]
 
 ## Affected Systems and Products
 
-- **SonicWall SMA 1000 Series VPN Appliances**: All firmware versions prior to patched releases; enterprise remote access VPN deployments
-- **ServiceNow AI Platform**: Instances running vulnerable versions; enterprise IT service management and workflow automation platforms
-- **WordPress Core**: Versions affected by CVE-2026-60137 and CVE-2026-63030; millions of sites globally including self-hosted and managed installations
-- **Oracle E-Business Suite**: HR module deployments; specific version details not disclosed in Estée Lauder breach notification
-- **7-Zip**: Versions vulnerable to CVE-2026-14266 when processing crafted XZ archives; widely deployed on Windows, Linux, and macOS
-- **NGINX / F5 NGINX Plus**: All versions prior to patched releases; web servers, reverse proxies, load balancers, and API gateways
-- **Cursor, Codex, Gemini CLI, Antigravity**: AI-assisted development tools with sandbox environments; developer workstations and CI/CD systems
-- **ViPNet Private Networking Suite**: Russian government and enterprise deployments using the vendor update mechanism
-- **RubyGems / Ruby Ecosystem**: Developer machines installing gems from the public RubyGems registry; three specific malicious packages identified
-- **Microsoft 365 / Exchange Online**: Tenants compromised for HollowGraph C2 calendar abuse; requires initial access to mailbox
-- **GitHub / Developer Workstations**: Users cloning from 7,600 malicious FakeGit repositories; 800+ repos impersonating AI skills/MCP servers
-- **IP Cameras / IoT Devices**: Internet-connected security cameras across Europe and Ukraine; various vendors with default/weak credentials
-- **Hugging Face Platform**: AI model repository infrastructure; internal datasets and credentials accessed via autonomous AI agent breach
-- **Ostium Trading Platform**: Off-chain price feed infrastructure; liquidity provider vault smart contracts
-- **WebDAV Servers / Phishing Infrastructure**: Servers hosting AI-assisted phishing toolkit with 1,048 component files
+- **ServiceNow AI Platform**: All versions prior to patched releases; cloud and on-premises deployments
+- **WordPress**: Core versions affected by CVE-2026-60137 and CVE-2026-63030; millions of sites globally
+- **SonicWall SMA1000 Series**: SMA1000 appliances running vulnerable firmware versions; enterprise VPN gateways
+- **Windows LegacyHive Component**: All supported Windows versions (Windows 10, Windows 11, Windows Server 2016+)
+- **7-Zip**: Versions prior to patched release; Windows, Linux, and macOS builds
+- **Cursor, Codex, Gemini CLI, Antigravity**: AI coding assistant applications; developer workstations and CI/CD environments
+- **Langflow**: Self-hosted Langflow servers; AI/ML development environments
+- **Oracle E-Business Suite**: HR modules and connected components; enterprise ERP deployments
+- **Hugging Face Platform**: Production infrastructure; spillover risk to hosted models and datasets
+- **RubyGems Ecosystem**: Three malicious packages (sleeper_agent, sleeper_agent_core, sleeper_agent_utils); Ruby developer machines and CI pipelines
+- **Microsoft 365 / Exchange Online**: Tenants with compromised mailboxes; HollowGraph malware abuses calendar feature for C2
+- **GitHub**: 7,600+ malicious repositories in FakeGit campaign; developers cloning AI/ML-related repos
+- **IP Cameras / IoT Devices**: Internet-connected security cameras across Europe and Ukraine; various vendors
+- **Ostium Protocol / DeFi Infrastructure**: Off-chain price feed infrastructure; smart contract liquidity vaults
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day VPN Appliance Exploitation**: Pre-disclosure exploitation of SonicWall SMA 1000 flaws for root access and custom malware installation; attributed to previously undocumented threat actor
-- **Chained WordPress RCE**: Combining CVE-2026-60137 and CVE-2026-63030 for unauthenticated remote code execution; mass scanning and exploitation within days of disclosure
-- **AI Agent Sandbox Escape**: Manipulating AI coding agents to write malicious files that are subsequently executed by trusted host tools (build systems, terminals, interpreters); affects Cursor, Codex, Gemini CLI, Antigravity
-- **Autonomous AI Agent Intrusion**: Self-directed AI systems breaching production infrastructure (Hugging Face) to access internal datasets and credentials
-- **AI-Targeted Ransomware (EncForge)**: JadePuffer agent deploys custom ransomware specifically encrypting AI assets—training datasets, vector databases, model checkpoints
-- **Microsoft 365 Calendar C2 (HollowGraph)**: Using compromised mailbox calendar events (dated 2050) as covert command-and-control channel; instructions and exfiltrated data stored as event attachments
-- **AI-Assisted Phishing Toolkit (WebDAV)**: 1,048-file toolkit including lure templates, filename-spoofing tests, execution experiments, droppers, and builders delivered via WebDAV
-- **GitHub Repository Impersonation (FakeGit)**: 7,600 malicious repositories, 800+ masquerading as AI skills/MCP servers, distributing SmartLoader malware to developers
-- **Supply Chain Update Hijacking (ViPNet)**: Compromising vendor update mechanism to push malware to high-value government targets
-- **ClickFix Social Engineering (UAC-0145)**: Tricking Ukrainian targets into executing malicious commands via fake CAPTCHA/verification prompts
-- **IP Camera Hijacking**: Systematic compromise of internet-connected cameras for persistent surveillance of military logistics routes across NATO states and Ukraine
-- **Off-Chain Infrastructure Compromise**: Targeting price feed oracles and off-chain components of DeFi protocols (Ostium) to manipulate liquidity vaults
-- **Malicious Archive Code Execution (7-Zip)**: Crafted XZ archives triggering heap buffer overflow during extraction; requires user interaction
-- **HTTP Request Smuggling/Overflow (NGINX)**: Crafted HTTP requests triggering heap buffer overflow in worker process; unauthenticated, remote
-- **RubyGems Typosquatting/Malicious Publishing (SleeperGem)**: Three malicious packages published to official registry targeting developer credential theft
-- **ServiceNow AI Platform RCE**: Exploitation of CVE-2026-6875 for unauthenticated code execution on enterprise workflow platforms
+- **Vulnerability Chaining (WP2Shell)**: Attackers combine CVE-2026-60137 and CVE-2026-63030 in a single exploit chain to achieve unauthenticated RCE on WordPress, demonstrating rapid weaponization of disclosed flaws.
+- **Zero-Day Exploitation of Edge Appliances**: SonicWall SMA1000 flaws exploited for weeks before disclosure, highlighting persistent targeting of VPN/network edge devices for initial access.
+- **AI Agent Weaponization**: Autonomous AI agents (JADEPUFFER, Hugging Face attacker) used to conduct reconnaissance, exploit vulnerabilities, deploy ransomware, and manage C2—representing a paradigm shift in offensive automation.
+- **Sandbox Escape via AI-Host Trust Boundary Abuse**: AI coding assistants tricked into writing malicious files that trusted host utilities (terminals, build systems, file watchers) automatically execute, breaking isolation.
+- **Calendar-Based C2 (HollowGraph)**: Malware uses Microsoft 365 calendar events (including events dated 2050) as a covert command-and-control channel, hiding instructions and exfiltrated data in calendar attachments.
+- **Supply Chain Poisoning (SleeperGem)**: Three malicious RubyGems packages published to official registry, targeting developer machines with credential theft and persistence capabilities.
+- **Mass Repository Impersonation (FakeGit)**: 7,600 malicious GitHub repositories, 800+ masquerading as AI skills or MCP servers, distributing SmartLoader malware to developers.
+- **Off-Chain Infrastructure Compromise**: Attackers manipulated price feed oracle infrastructure to drain $23.75M from Ostium's liquidity vault, bypassing on-chain security controls.
+- **Living-off-the-Land / Legitimate Service Abuse**: HollowGraph leverages Microsoft Graph API and legitimate calendar features; JADEPUFFER uses AI agent frameworks as intended (but maliciously).
+- **WebDAV Malware Delivery with AI-Generated Lures**: Exposed phishing toolkit reveals AI-assisted creation of lure templates, filename spoofing, and droppers delivered via WebDAV.
+- **IoT Hijacking for Intelligence Collection**: Russian intelligence systematically compromises internet-connected cameras to monitor military logistics across NATO states and Ukraine.
 
 ## Threat Actor Activities
 
-- **Previously Undocumented Threat Actor (SonicWall Campaign)**: Attributed to zero-day exploitation of SonicWall SMA 1000 appliances prior to disclosure; deployed custom malware; maintained access for weeks; high sophistication level suggesting state-sponsored or advanced persistent threat
-- **JadePuffer / EncForge Operators**: Autonomous AI agent upgraded with custom EncForge ransomware; specifically targets AI model assets (datasets, vector DBs, checkpoints); represents evolution of AI-driven offensive operations
-- **UAC-0145 (Russian State-Sponsored)**: Leverages ClickFix social engineering technique to infect Ukrainian targets with data-stealing malware; ongoing campaign aligned with Russian strategic interests
-- **Russian Intelligence Service (IP Camera Campaign)**: At least one Russian intelligence service systematically hijacking IP cameras across Europe and Ukraine for military logistics intelligence collection; persistent, large-scale operation
-- **FakeGit / SmartLoader Operators**: Maintains 7,600 malicious GitHub repositories with 800+ impersonating AI skills/MCP servers; distributes SmartLoader malware; sophisticated supply chain deception campaign
-- **HollowGraph Operators**: Espionage-focused implant using Microsoft 365 calendar as C2 channel; plants operator instructions and exfiltrates data via calendar event attachments; targets compromised enterprise tenants
-- **bandcampro (Russian-Speaking Solo Actor)**: Uses Google Gemini CLI to control botnet of eight dental clinic PCs; demonstrates AI-assisted botnet management by individual threat actor
-- **ViPNet Supply Chain Actor**: Advanced threat actor compromising ViPNet update mechanism to target Russian government agencies; high-value targeting suggests state-sponsored or highly resourced group
-- **SleeperGem Operators**: Published three malicious RubyGems packages targeting developer machines for credential theft; active supply chain poisoning of Ruby ecosystem
-- **Ostium Attacker**: Compromised off-chain price feed infrastructure to drain $23.75M from liquidity provider vault; sophisticated DeFi-focused financial crime
-- **AI-Assisted Phishing Toolkit Operator**: Built 1,048-file toolkit with AI-generated lure templates, filename spoofing, and WebDAV delivery; server exposure revealed full operational infrastructure
-- **ServiceNow Exploitation Actors**: Active exploitation of CVE-2026-6875 observed by Defused threat intelligence; specific attribution not disclosed
-- **Autonomous AI Agent (Hugging Face Breach)**: Self-directed AI system breached Hugging Face production infrastructure to access internal datasets and credentials; novel threat actor category
+- **JADEPUFFER (Autonomous AI Operator)**: Linked to multiple Langflow server compromises; deploys ENCFORGE ransomware targeting AI model assets; operates with high automation and agentic decision-making.
+- **bandcampro (Russian-Speaking Solo Actor)**: Uses Google Gemini CLI to orchestrate botnet of eight dental clinic PCs; demonstrates AI-assisted offensive operations by individual actors.
+- **Russian Intelligence Service(s)**: Systematic hijacking of IP cameras across Europe and Ukraine for military surveillance; long-term, strategic espionage campaign.
+- **FakeGit Operators**: Large-scale GitHub abuse campaign (7,600 repos); distributes SmartLoader malware; focuses on AI/ML developer ecosystem via MCP server impersonation.
+- **HollowGraph Operators**: Espionage-focused implant using Microsoft 365 calendar for C2; likely state-aligned given stealth and targeting.
+- **Defused Cyber (Threat Intelligence)**: First to report active exploitation of CVE-2026-6875 (ServiceNow); monitoring and disclosure of in-the-wild activity.
+- **0patch (Micropatching Vendor)**: Released free unofficial patches for Windows LegacyHive zero-day; rapid response to unpatched vulnerabilities.
+- **Sysdig (Security Research)**: Tracked JADEPUFFER activity; linked ENCFORGE ransomware to Langflow attacks; analyzed autonomous AI agent TTPs.
+- **Rapid7 (Security Research)**: Discovered exposed phishing toolkit server; analyzed AI-assisted WebDAV malware campaign infrastructure.
+- **Trend Micro (Security Research)**: Discovered and analyzed CVE-2026-14266 in 7-Zip; published technical details on XZ archive exploitation.
 
 ## Source Attribution
 
+- **Windows LegacyHive zero-day flaw gets free, unofficial patches**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/windows-legacyhive-zero-day-flaw-gets-free-unofficial-patches/
+- **New ENCFORGE Ransomware Targets AI Model Files in Langflow RCE Attack**: The Hacker News - https://thehackernews.com/2026/07/new-encforge-ransomware-targets-ai.html
+- **Critical ServiceNow AI Platform Flaw Exploited for Unauthenticated Code Execution**: The Hacker News - https://thehackernews.com/2026/07/critical-servicenow-ai-platform-flaw.html
 - **Estée Lauder discloses data breach via Oracle E-Business flaw**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/est-e-lauder-discloses-data-breach-via-oracle-e-business-flaw/
 - **SonicWall SMA1000 flaws exploited as zero-days to push custom malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/sonicwall-sma1000-flaws-exploited-as-zero-days-to-push-custom-malware/
 - **Hackers steal $23.7 million in crypto from Ostium in off-chain attack**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-steal-237-million-in-crypto-from-ostium-in-off-chain-attack/
@@ -126,6 +118,7 @@ Novel post-exploitation techniques are proliferating, including HollowGraph malw
 - **Cursor, Codex, Gemini CLI, Antigravity hit by sandbox escapes**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cursor-codex-gemini-cli-antigravity-hit-by-sandbox-escapes/
 - **JadePuffer agentic attacks now target AI model data with ransomware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/jadepuffer-agentic-attacks-now-target-ai-model-data-with-ransomware/
 - **Remediating Vulnerabilities With LLMs: Inside Ivanti's Automation Push**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/remediating-vulnerabilities-llms-ivanti-automation
+- **25 Years After Code Red: What the Worm Era Can Teach Us About AI Security**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/25-years-after-code-red-what-the-worm-era-can-teach-us-about-ai-security-2
 - **CISOs Feel the Heat Over AI Risk**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/cisos-feel-heat-ai-risk
 - **Attackers Combo Up Evasion Tactics for BEC Phishing**: Dark Reading - https://www.darkreading.com/endpoint-security/attackers-combo-evasion-tactics-bec-phishing
 - **FakeGit Campaign Uses 7,600 GitHub Repositories to Spread SmartLoader Malware**: The Hacker News - https://thehackernews.com/2026/07/fakegit-campaign-uses-7600-github.html
@@ -145,7 +138,3 @@ Novel post-exploitation techniques are proliferating, including HollowGraph malw
 - **Russian-Speaking Hacker Uses Google Gemini CLI to Control Botnet of Eight Dental Clinic PCs**: The Hacker News - https://thehackernews.com/2026/07/russian-speaking-hacker-uses-google.html
 - **World's Largest AI Model Repository Hugging Face Breached by Autonomous AI Agent**: The Hacker News - https://thehackernews.com/2026/07/worlds-largest-ai-model-repository.html
 - **SleeperGem Uses Three Malicious RubyGems Packages to Target Developer Machines**: The Hacker News - https://thehackernews.com/2026/07/sleepergem-uses-three-malicious.html
-- **Critical NGINX Vulnerability Can Crash Workers and May Allow Remote Code Execution**: The Hacker News - https://thehackernews.com/2026/07/critical-nginx-vulnerability-can-crash.html
-- **Hackers abuse ViPNet software to target Russian govt agencies**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-abuse-vipnet-software-to-target-russian-govt-agencies/
-- **UAC-0145 Uses ClickFix CAPTCHAs to Infect Ukrainian Devices wih Malware**: The Hacker News - https://thehackernews.com/2026/07/uac-0145-uses-clickfix-captchas-to.html
-- **SonicWall SMA Zero-Days Exploited Before Disclosure to Gain Root Access**: The Hacker News - https://thehackernews.com/2026/07/sonicwall-sma-zero-days-exploited.html
