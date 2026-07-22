@@ -1,4 +1,5 @@
 import asyncio
+import os
 import sys
 import types
 from unittest.mock import patch
@@ -103,6 +104,29 @@ def test_audio_generation_atomically_replaces_previous_file(tmp_path):
     assert result is True
     assert output_path.read_bytes() == b"new audio"
     assert output_path.stat().st_mode & 0o777 == 0o640
+    assert list(tmp_path.iterdir()) == [output_path]
+
+
+def test_audio_generation_honors_umask_for_new_file(tmp_path):
+    output_path = tmp_path / "executive_summary.mp3"
+    previous_umask = os.umask(0o077)
+    try:
+        with (
+            patch.dict("os.environ", {"ELEVENLABS_API_KEY": "test-key"}),
+            patch.dict(sys.modules, install_fake_elevenlabs([b"new audio"])),
+        ):
+            result = asyncio.run(
+                generate_executive_summary_audio(
+                    "# Exploitation Report\n\n## Executive Summary\n\nExample.",
+                    str(output_path),
+                )
+            )
+    finally:
+        os.umask(previous_umask)
+
+    assert result is True
+    assert output_path.read_bytes() == b"new audio"
+    assert output_path.stat().st_mode & 0o777 == 0o600
     assert list(tmp_path.iterdir()) == [output_path]
 
 
