@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import tempfile
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -81,6 +82,7 @@ async def generate_executive_summary_audio(
 
     logger.info(f"Generating audio for executive summary ({len(summary_text)} chars)")
 
+    temporary_path: Path | None = None
     try:
         from elevenlabs.client import ElevenLabs
 
@@ -92,13 +94,33 @@ async def generate_executive_summary_audio(
             output_format=OUTPUT_FORMAT,
         )
 
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "wb") as f:
+        destination = Path(output_path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        bytes_written = 0
+        with tempfile.NamedTemporaryFile(
+            mode="wb",
+            dir=destination.parent,
+            prefix=f".{destination.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as f:
+            temporary_path = Path(f.name)
             for chunk in audio:
-                f.write(chunk)
+                if chunk:
+                    bytes_written += f.write(chunk)
+            f.flush()
+            os.fsync(f.fileno())
+
+        if bytes_written == 0:
+            raise ValueError("audio provider returned an empty stream")
+
+        os.replace(temporary_path, destination)
+        temporary_path = None
 
         logger.info(f"Audio saved to {output_path}")
         return True
     except Exception as e:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
         logger.error(f"Error generating audio: {e}")
         return False
