@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import stat
 import tempfile
 from pathlib import Path
 
@@ -96,6 +97,9 @@ async def generate_executive_summary_audio(
 
         destination = Path(output_path)
         destination.parent.mkdir(parents=True, exist_ok=True)
+        destination_mode = (
+            stat.S_IMODE(destination.stat().st_mode) if destination.exists() else 0o644
+        )
         bytes_written = 0
         with tempfile.NamedTemporaryFile(
             mode="wb",
@@ -114,6 +118,7 @@ async def generate_executive_summary_audio(
         if bytes_written == 0:
             raise ValueError("audio provider returned an empty stream")
 
+        os.chmod(temporary_path, destination_mode)
         os.replace(temporary_path, destination)
         temporary_path = None
 

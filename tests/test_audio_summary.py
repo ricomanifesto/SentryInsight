@@ -87,6 +87,7 @@ def test_audio_generation_preserves_previous_file_when_stream_fails(tmp_path):
 def test_audio_generation_atomically_replaces_previous_file(tmp_path):
     output_path = tmp_path / "executive_summary.mp3"
     output_path.write_bytes(b"previous valid audio")
+    output_path.chmod(0o640)
 
     with (
         patch.dict("os.environ", {"ELEVENLABS_API_KEY": "test-key"}),
@@ -101,6 +102,7 @@ def test_audio_generation_atomically_replaces_previous_file(tmp_path):
 
     assert result is True
     assert output_path.read_bytes() == b"new audio"
+    assert output_path.stat().st_mode & 0o777 == 0o640
     assert list(tmp_path.iterdir()) == [output_path]
 
 
