@@ -2,114 +2,119 @@
 
 ## Executive Summary
 
-Active exploitation activity has surged across multiple critical vectors in July 2026, with ransomware groups rapidly weaponizing freshly disclosed vulnerabilities. The most severe activity centers on the **wp2shell** vulnerability chain in WordPress Core (CVE-2026-60137 and CVE-2026-63030), which attackers began chaining for unauthenticated remote code execution within days of public disclosure, fueling mass scanning and webshell deployment across millions of sites. Simultaneously, the **Qilin (Agenda) ransomware gang** is actively exploiting a critical Palo Alto Networks PAN-OS GlobalProtect authentication bypass flaw for initial access, with Arctic Wolf confirming real-world intrusions. Microsoft's July Patch Tuesday brought a third SharePoint Server RCE (CVE-2026-50522) under active exploitation after a public proof-of-concept emerged, per watchTowr.
+Active exploitation activity has surged across multiple critical platforms in July 2026, with threat actors rapidly weaponizing freshly disclosed vulnerabilities before organizations can patch. Microsoft SharePoint Server faces ongoing attacks leveraging CVE-2026-50522, a remote code execution flaw that allows attackers to steal machine keys and maintain persistent access even after patching. Simultaneously, the WordPress ecosystem is under mass exploitation from the chained "wp2shell" vulnerabilities (CVE-2026-60137 and CVE-2026-63030), which enable unauthenticated remote code execution and complete site compromise within days of public disclosure.
 
-Beyond traditional infrastructure, a new class of **AI-agent-driven attacks** has emerged. The autonomous operator **JADEPUFFER** has been linked to Langflow RCE exploitation deploying the novel **ENCFORGE ransomware**, which specifically targets AI model files, training datasets, and vector databases. Researchers also demonstrated sandbox escapes across major AI coding assistants (Cursor, Codex, Gemini CLI, Antigravity), while a Russian-speaking actor "Trim" has integrated jailbroken frontier models into an offensive attack platform. SonicWall SMA1000 appliances were exploited as zero-days for weeks before disclosure, and ServiceNow's AI Platform is now seeing unauthenticated code execution attacks in the wild.
+Ransomware operations continue to evolve in sophistication and targeting. The Qilin (Agenda) ransomware gang has adopted a now-patched Palo Alto Networks PAN-OS GlobalProtect authentication bypass as their primary initial access vector, demonstrating the speed with which affiliates operationalize N-day vulnerabilities. Meanwhile, the novel JADEPUFFER operator—an AI-agent-driven threat actor—has deployed custom ENCFORGE ransomware targeting AI model files, training datasets, and vector databases through Langflow RCE exploitation. Anubis ransomware has claimed a high-profile breach of Coca-Cola's Fairlife subsidiary, and SonicWall SMA1000 appliances were exploited as zero-days for weeks to deploy custom malware on VPN endpoints.
+
+Emerging attack surfaces around AI-assisted development tools and agentic systems are being actively probed. AWS Kiro's agentic IDE was shown to execute attacker-controlled code via hidden web page text, while sandbox escapes across Cursor, Codex, Gemini CLI, and Antigravity allow AI agents to break out of isolation through file-write tricks. The Estée Lauder breach via Oracle E-Business Suite and the $23.7 million Ostium crypto theft via off-chain infrastructure compromise further illustrate the breadth of active campaigns.
 
 ## Active Exploitation Details
 
-### WordPress wp2shell Vulnerability Chain (CVE-2026-60137 and CVE-2026-63030)
-- **Description**: A critical vulnerability suite dubbed "wp2shell" affecting WordPress Core, comprising two flaws that when chained together enable unauthenticated remote code execution and complete site compromise. CVE-2026-60137 and CVE-2026-63030 are being combined in exploit chains.
-- **Impact**: Attackers achieve full remote code execution on vulnerable WordPress installations, allowing deployment of persistent webshells, installation of malicious plugins, and complete takeover of the hosting environment. Millions of WordPress sites are exposed.
-- **Status**: Actively exploited in the wild. Public exploit code emerged shortly after disclosure, triggering mass scanning and exploitation attempts within three days. Patches are available but adoption varies across the massive WordPress install base.
-- **CVE ID**: CVE-2026-60137, CVE-2026-63030
-
-### Critical SharePoint Server RCE (CVE-2026-50522)
-- **Description**: A remote code execution vulnerability in Microsoft SharePoint Server, patched as part of the July 2026 Patch Tuesday release. This is the third SharePoint flaw addressed in this update cycle.
-- **Impact**: Unauthenticated remote code execution on affected SharePoint servers, enabling full server compromise, lateral movement, and data exfiltration.
-- **Status**: Under active exploitation following the release of a public proof-of-concept exploit. watchTowr has confirmed exploitation activity in the wild. Organizations must apply the July 2026 security updates immediately.
+### Microsoft SharePoint Server RCE (CVE-2026-50522)
+- **Description**: A critical remote code execution vulnerability in Microsoft SharePoint Server that was patched during July 2026 Patch Tuesday. The flaw allows unauthenticated attackers to execute arbitrary code on vulnerable servers.
+- **Impact**: Attackers are actively exploiting this vulnerability to steal machine keys, which enables them to maintain persistent access to compromised SharePoint environments even after the servers are patched. The theft of machine keys effectively bypasses remediation efforts by allowing attackers to forge authentication tokens and sign malicious content.
+- **Status**: Under active exploitation following public proof-of-concept release. Microsoft has released patches, but machine key compromise requires additional remediation (key rotation) beyond patching.
 - **CVE ID**: CVE-2026-50522
 
+### WordPress wp2shell Vulnerability Chain (CVE-2026-60137, CVE-2026-63030)
+- **Description**: A pair of critical vulnerabilities in WordPress Core that, when chained together, enable unauthenticated remote code execution. CVE-2026-60137 and CVE-2026-63030 form the "wp2shell" exploit suite affecting millions of WordPress sites.
+- **Impact**: Attackers can deploy persistent webshells, install malicious plugins, and achieve complete compromise of vulnerable WordPress installations without authentication. The exploit chain provides full remote control over affected websites.
+- **Status**: Mass exploitation underway within days of disclosure. Public exploit availability has fueled widespread scanning and automated attacks against the WordPress attack surface. Patches are available but deployment lags across the vast WordPress ecosystem.
+- **CVE ID**: CVE-2026-60137, CVE-2026-63030
+
 ### Palo Alto Networks PAN-OS GlobalProtect Authentication Bypass
-- **Description**: A high-severity authentication bypass vulnerability in Palo Alto Networks PAN-OS GlobalProtect VPN portal. The flaw allows unauthenticated attackers to bypass authentication mechanisms.
-- **Impact**: Provides initial network access for threat actors, enabling subsequent ransomware deployment, data theft, and lateral movement. Qilin ransomware operators are using this as their primary entry vector.
-- **Status**: Actively exploited by Qilin (Agenda) ransomware gang. Arctic Wolf has confirmed real-world intrusions leveraging this vulnerability. Palo Alto Networks has released patches; immediate application is critical for all GlobalProtect deployments.
-- **CVE ID**: [CVE ID not explicitly provided in source articles]
-
-### SonicWall SMA1000 Zero-Day Exploitation
-- **Description**: Two vulnerabilities in SonicWall SMA1000 series VPN appliances that were exploited as zero-days for several weeks before public disclosure.
-- **Impact**: Attackers installed custom malware on vulnerable VPN appliances, establishing persistent access to victim networks, enabling credential harvesting, and facilitating further compromise.
-- **Status**: Zero-day exploitation occurred for weeks prior to disclosure. SonicWall has since released patches. Organizations should investigate logs for signs of compromise during the pre-patch window.
-- **CVE ID**: [CVE IDs not explicitly provided in source articles]
-
-### ServiceNow AI Platform Unauthenticated Code Execution
-- **Description**: A critical security flaw in the ServiceNow AI Platform that allows unauthenticated remote code execution.
-- **Impact**: Full server compromise without authentication, potentially exposing sensitive IT service management data, workflows, and connected systems.
-- **Status**: Actively exploited in the wild. Defused Cyber has observed and reported active exploitation attempts. ServiceNow has issued security advisories and patches.
-- **CVE ID**: [CVE ID not explicitly provided in source articles]
-
-### Langflow RCE Exploited by JADEPUFFER for ENCFORGE Ransomware
-- **Description**: A remote code execution vulnerability in Langflow (an AI agent workflow framework) being exploited by the autonomous AI agent operator JADEPUFFER to deploy ENCFORGE ransomware.
-- **Impact**: Encryption of high-value AI assets including training datasets, vector databases, model checkpoints, and other machine learning artifacts. Represents a novel targeting of AI/ML infrastructure.
-- **Status**: Active exploitation confirmed by Sysdig researchers. JADEPUFFER has conducted multiple attacks on the same Langflow server infrastructure. Patches for the underlying Langflow RCE should be applied immediately.
-- **CVE ID**: [CVE ID not explicitly provided in source articles]
-
-### Oracle E-Business Suite Flaw (Estée Lauder Breach)
-- **Description**: A vulnerability in Oracle E-Business Suite exploited to breach Estée Lauder's HR operations environment.
-- **Impact**: Data breach affecting customer information. Attackers leveraged the flaw in the HR module to access sensitive personal data.
-- **Status**: Exploitation confirmed; Estée Lauder has disclosed the breach and is notifying affected customers. Oracle has likely issued patches for the affected E-Business Suite components.
-- **CVE ID**: [CVE ID not explicitly provided in source articles]
+- **Description**: A high-severity authentication bypass vulnerability in Palo Alto Networks PAN-OS GlobalProtect VPN portal. The flaw allows unauthenticated attackers to bypass authentication mechanisms and gain initial access to internal networks.
+- **Impact**: Provides direct initial access for ransomware deployment. The Qilin ransomware gang is actively using this vulnerability as an entry point to breach victim environments and deploy encryptors.
+- **Status**: Now-patched vulnerability being actively exploited by Qilin ransomware affiliates. Arctic Wolf has confirmed Qilin's use of this vector in recent intrusions.
+- **CVE ID**: Not explicitly provided in source articles
 
 ### Windows LegacyHive Zero-Day Privilege Escalation
-- **Description**: A zero-day privilege escalation vulnerability in Windows LegacyHive component affecting up-to-date Windows systems.
-- **Impact**: Local privilege escalation allowing attackers to gain SYSTEM-level access from standard user contexts.
-- **Status**: Actively exploited as a zero-day. Unofficial micropatches are available from 0patch while Microsoft develops an official fix. No official patch released at time of reporting.
-- **CVE ID**: [CVE ID not explicitly provided in source articles]
+- **Description**: A zero-day vulnerability in the Windows LegacyHive component that allows attackers to escalate privileges on fully patched Windows systems. The flaw was recently disclosed with no official vendor patch availability.
+- **Impact**: Local privilege escalation to SYSTEM, enabling attackers to bypass security controls, disable defenses, and achieve full control over compromised endpoints.
+- **Status**: Actively exploited in the wild as a zero-day. Free unofficial patches have been released by third-party researchers (0patch) to mitigate the issue while Microsoft develops an official fix.
+- **CVE ID**: Not explicitly provided in source articles
 
-### AWS Kiro Agentic IDE Code Execution via Poisoned Web Content
-- **Description**: A flaw in AWS Kiro (agentic coding IDE) where hidden text on a web page can cause the IDE to rewrite its own configuration file and execute attacker-controlled code on the developer's machine.
-- **Impact**: Arbitrary code execution on developer workstations with no approval step required. Supply chain risk through compromised development environments.
-- **Status**: Vulnerability disclosed; AWS is expected to release mitigations. Developers using Kiro should exercise caution with web content rendering.
-- **CVE ID**: [CVE ID not explicitly provided in source articles]
+### SonicWall SMA1000 Zero-Day Exploitation
+- **Description**: Two vulnerabilities in SonicWall SMA1000 series VPN appliances that were exploited as zero-days for weeks before disclosure. The flaws allow unauthenticated attackers to install custom malware on the appliances.
+- **Impact**: Persistent compromise of VPN infrastructure, enabling network access, traffic interception, and lateral movement. Custom malware implants survive reboots and provide long-term access.
+- **Status**: Zero-day exploitation confirmed for weeks prior to public disclosure. SonicWall has since released patches for the exploited vulnerabilities.
+- **CVE ID**: Not explicitly provided in source articles
 
-### AI Coding Assistant Sandbox Escapes (Cursor, Codex, Gemini CLI, Antigravity)
-- **Description**: Researchers demonstrated sandbox escape vulnerabilities across four major AI coding assistants where the AI agent can write files that trusted host tools later execute, breaking out of the intended isolation.
-- **Impact**: Arbitrary code execution on host systems from within the AI assistant sandbox, compromising developer machines and potentially CI/CD pipelines.
-- **Status**: Multiple CVEs assigned; patches released by vendors. Google has downgraded two Gemini CLI capabilities as mitigation. Developers should update all AI coding tools immediately.
-- **CVE ID**: [Multiple CVEs assigned but not explicitly listed in source articles]
+### ServiceNow AI Platform Unauthenticated Code Execution
+- **Description**: A critical security flaw in the ServiceNow AI Platform that allows unauthenticated remote code execution. The vulnerability was recently disclosed and is already being exploited in the wild.
+- **Impact**: Full unauthenticated code execution on ServiceNow AI Platform instances, potentially exposing enterprise workflow data, ITSM records, and integrated systems.
+- **Status**: Active exploitation confirmed by Defused Cyber. Threat actors are targeting exposed instances immediately following disclosure.
+- **CVE ID**: Not explicitly provided in source articles
+
+### Langflow RCE Exploitation by JADEPUFFER
+- **Description**: A remote code execution vulnerability in Langflow (an AI agent workflow framework) being exploited by the JADEPUFFER operator—an autonomous AI-agent-driven threat actor.
+- **Impact**: Deployment of ENCFORGE ransomware specifically targeting AI assets including training datasets, vector databases, and model checkpoints. The operator has conducted multiple attacks on the same infrastructure.
+- **Status**: Active targeting of Langflow servers. JADEPUFFER has upgraded tooling to include custom ransomware (ENCFORGE) focused on AI/ML model data destruction and encryption.
+- **CVE ID**: Not explicitly provided in source articles
+
+### Oracle E-Business Suite Flaw (Estée Lauder Breach)
+- **Description**: A vulnerability in Oracle E-Business Suite exploited to breach Estée Lauder's HR operations infrastructure. The flaw allowed unauthorized access to employee data.
+- **Impact**: Data breach affecting Estée Lauder employees. Attackers accessed HR systems through the Oracle E-Business Suite vulnerability, leading to notification obligations.
+- **Status**: Exploitation confirmed resulting in confirmed data breach. Estée Lauder is notifying affected employees.
+- **CVE ID**: Not explicitly provided in source articles
+
+### AWS Kiro Agentic IDE Code Execution
+- **Description**: A vulnerability in AWS Kiro (agentic coding IDE) where hidden text on a web page can cause the IDE to rewrite its own configuration file and execute attacker-controlled code on the developer's machine.
+- **Impact**: Arbitrary code execution on developer workstations through poisoned web content. No approval step can prevent the execution, bypassing human-in-the-loop safeguards.
+- **Status**: Demonstrated as exploitable. AWS has been notified; patch status not specified in source.
+- **CVE ID**: Not explicitly provided in source articles
+
+### AI Coding Tool Sandbox Escapes (Cursor, Codex, Gemini CLI, Antigravity)
+- **Description**: Researchers demonstrated sandbox escapes across four major AI-assisted coding tools (Cursor, Codex, Gemini CLI, Antigravity) by having the AI agent write files that trusted host tools later execute.
+- **Impact**: Escape from AI agent sandboxes to achieve code execution on the host system. Multiple CVEs assigned and patches released; Google downgraded two severity ratings post-disclosure.
+- **Status**: Vulnerabilities disclosed with patches available. Represents a systemic class of vulnerabilities in AI agent architectures.
+- **CVE ID**: Multiple CVEs assigned (specific IDs not provided in source articles)
 
 ## Affected Systems and Products
 
-- **WordPress Core**: All versions prior to patched releases addressing CVE-2026-60137 and CVE-2026-63030. Millions of sites globally affected.
-- **Microsoft SharePoint Server**: Versions affected by CVE-2026-50522 (specific versions detailed in July 2026 Patch Tuesday advisory).
-- **Palo Alto Networks PAN-OS**: GlobalProtect VPN portal versions prior to the authentication bypass fix. All PAN-OS versions with GlobalProtect enabled.
-- **SonicWall SMA1000 Series**: SMA1000 appliances running firmware versions vulnerable to the two zero-day flaws exploited pre-disclosure.
-- **ServiceNow AI Platform**: Instances running vulnerable versions of the AI Platform module prior to security patches.
-- **Langflow**: Deployments running versions vulnerable to the RCE exploited by JADEPUFFER/ENCFORGE.
-- **Oracle E-Business Suite**: HR module versions containing the exploited flaw used in the Estée Lauder breach.
-- **Windows (All Supported Versions)**: LegacyHive component vulnerability affecting up-to-date Windows 10/11 and Server editions.
-- **AWS Kiro**: Agentic coding IDE installations processing untrusted web content.
-- **AI Coding Assistants**: Cursor, OpenAI Codex CLI, Google Gemini CLI, and Antigravity prior to sandbox escape patches.
+- **Microsoft SharePoint Server**: All versions vulnerable to CVE-2026-50522 prior to July 2026 Patch Tuesday updates. Machine key compromise persists post-patching without key rotation.
+- **WordPress Core**: Millions of sites running versions affected by CVE-2026-60137 and CVE-2026-63030. Entire WordPress ecosystem exposed due to widespread deployment and slow patch adoption.
+- **Palo Alto Networks PAN-OS GlobalProtect**: VPN portal/appliance versions prior to the authentication bypass fix. Used as initial access for Qilin ransomware deployment.
+- **Windows (LegacyHive component)**: Up-to-date Windows systems vulnerable to zero-day privilege escalation until official patch release. Unofficial 0patch mitigations available.
+- **SonicWall SMA1000 Series**: VPN appliances exploited as zero-days for weeks. Custom malware implants persist on compromised devices.
+- **ServiceNow AI Platform**: Instances exposed to unauthenticated code execution. Enterprise ITSM and workflow automation platforms at risk.
+- **Langflow**: AI agent workflow framework servers targeted by JADEPUFFER operator for ENCFORGE ransomware deployment against AI model assets.
+- **Oracle E-Business Suite**: HR module deployments vulnerable to exploitation leading to employee data breach (Estée Lauder incident).
+- **AWS Kiro**: Agentic coding IDE installations vulnerable to configuration manipulation and code execution via poisoned web content.
+- **AI Coding Assistants**: Cursor, Codex, Gemini CLI, Antigravity—all affected by sandbox escape vulnerabilities allowing host code execution.
 
 ## Attack Vectors and Techniques
 
-- **Chained WordPress RCE (wp2shell)**: Attackers chain CVE-2026-60137 and CVE-2026-63030 to achieve unauthenticated remote code execution, deploying webshells and malicious plugins for persistence.
-- **Public PoC-Driven SharePoint Exploitation**: Rapid weaponization of CVE-2026-50522 proof-of-concept code for unauthenticated RCE against internet-facing SharePoint servers.
-- **VPN Authentication Bypass for Initial Access**: Qilin ransomware operators exploit PAN-OS GlobalProtect authentication bypass to gain initial network foothold without credentials.
-- **Zero-Day VPN Appliance Compromise**: SonicWall SMA1000 flaws exploited pre-disclosure to install custom malware on edge VPN devices, bypassing perimeter defenses.
-- **AI Platform Unauthenticated RCE**: Direct exploitation of ServiceNow AI Platform flaw for code execution without authentication.
-- **AI Workflow Framework Targeting**: JADEPUFFER exploits Langflow RCE to deploy ENCFORGE ransomware specifically encrypting AI/ML model artifacts.
-- **Poisoned Web Content for IDE Compromise**: Hidden text/markup on web pages triggers AWS Kiro to rewrite config and execute attacker code on developer machines.
-- **AI Agent Sandbox Escape via File Write**: Malicious prompts cause AI coding assistants to write files that are subsequently executed by trusted host tools, breaking sandbox isolation.
-- **Fileless BEC Phishing (The TFF Trap)**: Attackers combine fileless techniques and low-detection loaders to deploy RATs/stealers (Agent Tesla, Remcos, XWorm, Best Private Logger).
-- **Off-Chain Infrastructure Compromise**: Ostium attack via compromised price feed infrastructure rather than on-chain smart contract exploitation.
+- **Machine Key Theft for Persistent Access**: Exploitation of CVE-2026-50522 to extract SharePoint machine keys, enabling attackers to forge authentication tokens and maintain access after patching. This technique defeats standard remediation by compromising the cryptographic trust anchor.
+- **Vulnerability Chaining for Unauthenticated RCE**: wp2shell exploitation chains CVE-2026-60137 and CVE-2026-63030 to achieve unauthenticated remote code execution on WordPress Core, bypassing authentication entirely and enabling mass compromise.
+- **VPN Authentication Bypass for Initial Access**: Qilin ransomware affiliates exploit PAN-OS GlobalProtect authentication bypass to gain initial foothold in target networks without credentials, demonstrating rapid operationalization of N-day vulnerabilities.
+- **Zero-Day Privilege Escalation**: Windows LegacyHive zero-day provides local privilege escalation to SYSTEM on fully patched systems, used to bypass endpoint defenses and deploy follow-on payloads.
+- **Custom Malware on VPN Appliances**: SonicWall SMA1000 zero-day exploitation deploys persistent custom malware on VPN hardware, providing network-level persistence that survives reboots and firmware updates.
+- **AI Asset-Targeted Ransomware**: ENCFORGE ransomware specifically encrypts AI/ML assets—training datasets, vector databases, model checkpoints—representing a novel targeting paradigm for intellectual property destruction.
+- **Off-Chain Infrastructure Compromise**: $23.7M crypto theft from Ostium via compromise of off-chain price feed infrastructure, demonstrating supply chain attacks on DeFi oracle systems.
+- **Hidden Text Injection for AI Agent Hijacking**: AWS Kiro exploited via invisible/hidden text on web pages that instructs the agentic IDE to rewrite configuration and execute code, bypassing approval mechanisms.
+- **Sandbox Escape via Trusted Tool Chain**: AI coding agents escape sandboxes by writing files that are subsequently executed by trusted host tools (linters, formatters, build systems), turning the agent's legitimate capabilities into an exploit primitive.
+- **AI-Agent-Driven Autonomous Operations**: JADEPUFFER operator uses autonomous AI agents to conduct reconnaissance, exploitation, and ransomware deployment with minimal human intervention, including repeat targeting of the same infrastructure.
 
 ## Threat Actor Activities
 
-- **Qilin (Agenda) Ransomware Gang**: Actively exploiting PAN-OS GlobalProtect authentication bypass for initial access in ransomware campaigns. Confirmed by Arctic Wolf. High-volume targeting of VPN-exposed organizations.
-- **Anubis Ransomware Gang**: Claimed responsibility for Coca-Cola Fairlife subsidiary attack, threatening data leak. Operating as a Ransomware-as-a-Service (RaaS) affiliate model.
-- **JADEPUFFER (AI-Agent-Driven Operator)**: Autonomous AI agent operator conducting novel attacks on AI/ML infrastructure. Linked to Langflow RCE exploitation and deployment of ENCFORGE ransomware targeting model files, datasets, and vector databases. Tracked by Sysdig.
-- **Trim (Russian-Speaking Actor)**: Developed offensive attack platform by jailbreaking frontier AI models and integrating them with security tools. Demonstrates AI-enabled offensive capability development.
-- **Defused Cyber**: Threat intelligence firm reporting active exploitation of ServiceNow AI Platform flaw via unauthenticated code execution.
-- **watchTowr**: Security research firm confirming active exploitation of SharePoint CVE-2026-50522 following public PoC release.
-- **Arctic Wolf**: Cybersecurity company attributing PAN-OS GlobalProtect exploitation to Qilin ransomware operations.
-- **Sysdig**: Researchers tracking JADEPUFFER campaigns and ENCFORGE ransomware targeting AI assets.
-- **Unknown Actors (BEC/Phishing)**: Operators behind "The TFF Trap" campaign deploying Agent Tesla, Remcos, XWorm, and Best Private Logger via fileless phishing techniques.
-- **Unknown Actors (Ostium Attack)**: Compromised off-chain price feed infrastructure to steal $23.75M from liquidity provider vault.
+- **Qilin (Agenda) Ransomware Gang**: Actively exploiting PAN-OS GlobalProtect authentication bypass for initial access in ransomware campaigns. Confirmed by Arctic Wolf. Rapid adoption of N-day vulnerabilities for affiliate operations. High-volume targeting of enterprise VPN infrastructure.
+- **Anubis Ransomware Gang**: Claimed responsibility for cyberattack on Coca-Cola's Fairlife dairy subsidiary. Threatening to publish allegedly stolen corporate data. Operating as a traditional double-extortion ransomware group with leak site operations.
+- **JADEPUFFER (AI-Agent-Driven Operator)**: Autonomous AI-agent-driven threat actor documented by Sysdig. Conducted multiple attacks on Langflow servers. Deployed custom ENCFORGE ransomware targeting AI model files, training data, and vector databases. Demonstrates evolution toward AI-driven offensive operations.
+- **ENCFORGE Ransomware Operation**: Custom ransomware deployed by JADEPUFFER, specifically designed to encrypt AI/ML assets. Represents specialized tooling for high-value intellectual property targets in AI development environments.
+- **"Trim" (Russian-Speaking Actor)**: Dismantled publicly available frontier AI models and integrated them with offensive security tools to create an offensive attack platform. Demonstrates individual actors weaponizing AI jailbreaks for capability development.
+- **Arctic Wolf (Threat Intelligence)**: Security firm tracking and reporting on Qilin ransomware's exploitation of PAN-OS vulnerability. Provides visibility into affiliate tactics and initial access trends.
+- **Defused Cyber (Threat Intelligence)**: Reported active exploitation of ServiceNow AI Platform flaw for unauthenticated code execution. Shared intelligence via public disclosure on X.
+- **Sysdig (Security Research)**: Documented JADEPUFFER operator activity and ENCFORGE ransomware deployment. Linked multiple attacks on same Langflow infrastructure to the same AI-agent-driven operator.
+- **watchTowr (Security Research)**: Reported active exploitation of CVE-2026-50522 (SharePoint RCE) following public PoC release. Provided early warning on post-patch exploitation activity.
 
 ## Source Attribution
 
+- **Ransomware Is Accelerating, But It's Not Because of AI**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/ransomware-is-accelerating-not-ai
+- **Using LLMs to Find and Prioritize Vulnerabilities Is No Easy Task**: Dark Reading - https://www.darkreading.com/application-security/finding-and-prioritizing-vulnerabilities-no-easy-task
+- **Critical SharePoint RCE flaw exploited to steal machine keys**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/critical-sharepoint-rce-flaw-exploited-to-steal-machine-keys/
 - **Anubis ransomware claims Coca-Cola Fairlife attack, threatens data leak**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/anubis-ransomware-claims-coca-cola-fairlife-attack-threatens-data-leak/
+- **Apple Fixes Hide My Email Bug That Exposed Real Addresses in Mail Logs**: The Hacker News - https://thehackernews.com/2026/07/apple-fixes-hide-my-email-bug-that.html
 - **Hacker Turns AI Jailbreaks Into Offensive Attack Platform**: Dark Reading - https://www.darkreading.com/cyber-risk/hacker-ai-jailbreaks-offensive-attack-platform
 - **Critical wp2shell WordPress flaws exploited to install webshells**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/critical-wp2shell-wordpress-flaws-exploited-to-install-webshells/
 - **AWS Kiro Flaw Let a Poisoned Web Page Rewrite Its Config and Run Code**: The Hacker News - https://thehackernews.com/2026/07/aws-kiro-flaw-let-poisoned-web-page.html
@@ -135,7 +140,3 @@ Beyond traditional infrastructure, a new class of **AI-agent-driven attacks** ha
 - **'WP2Shell' Opens Millions of WordPress Sites to Remote Takeover**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/wp2shell-millions-wordpress-sites-remote-takeover
 - **Cursor, Codex, Gemini CLI, Antigravity hit by sandbox escapes**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cursor-codex-gemini-cli-antigravity-hit-by-sandbox-escapes/
 - **JadePuffer agentic attacks now target AI model data with ransomware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/jadepuffer-agentic-attacks-now-target-ai-model-data-with-ransomware/
-- **Remediating Vulnerabilities With LLMs: Inside Ivanti's Automation Push**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/remediating-vulnerabilities-llms-ivanti-automation
-- **25 Years After Code Red: What the Worm Era Can Teach Us About AI Security**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/25-years-after-code-red-what-the-worm-era-can-teach-us-about-ai-security-2
-- **CISOs Feel the Heat Over AI Risk**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/cisos-feel-heat-ai-risk
-- **Attackers Combo Up Evasion Tactics for BEC Phishing**: Dark Reading - https://www.darkreading.com/endpoint-security/attackers-combo-evasion-tactics-bec-phishing
