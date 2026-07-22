@@ -1,6 +1,8 @@
 import logging
 import os
 import re
+import stat
+import tempfile
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -92,10 +94,32 @@ async def generate_executive_summary_audio(
             output_format=OUTPUT_FORMAT,
         )
 
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "wb") as f:
-            for chunk in audio:
-                f.write(chunk)
+        destination = Path(output_path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            destination_mode = stat.S_IMODE(destination.stat().st_mode)
+        except FileNotFoundError:
+            destination_mode = None
+
+        with tempfile.TemporaryDirectory(
+            dir=destination.parent,
+            prefix=f".{destination.name}.",
+        ) as temporary_directory:
+            temporary_path = Path(temporary_directory) / destination.name
+            bytes_written = 0
+            with temporary_path.open("xb") as f:
+                for chunk in audio:
+                    if chunk:
+                        bytes_written += f.write(chunk)
+                f.flush()
+                os.fsync(f.fileno())
+
+            if bytes_written == 0:
+                raise ValueError("audio provider returned an empty stream")
+
+            if destination_mode is not None:
+                os.chmod(temporary_path, destination_mode)
+            os.replace(temporary_path, destination)
 
         logger.info(f"Audio saved to {output_path}")
         return True
