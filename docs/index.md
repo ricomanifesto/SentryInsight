@@ -2,90 +2,93 @@
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse platforms, ranging from a nine-year-old Linux kernel flaw affecting default enterprise installations to a zero-day in Check Point's security management console. CISA has issued an emergency directive for federal agencies to patch an actively exploited Langflow RCE vulnerability, while threat actors are weaponizing legitimate infrastructure—including GitHub Actions runners and AI toolchains—to conduct large-scale campaigns against hosting providers, financial institutions, and critical infrastructure. Ransomware groups including Chaos and Everest continue high-impact operations, with the latter demanding $12.3 million from a Swiss rail manufacturer after compromising a supplier's data exchange platform.
+Russian state-sponsored actors continue to demonstrate sophisticated email targeting capabilities, with the Laundry Bear group (also tracked as Void Blizzard) actively exploiting a zero-click vulnerability in Zimbra Collaboration servers to steal email content and two-factor authentication codes from Western organizations. This campaign, which persisted for months before detection, combines the zero-day exploit with phishing techniques to achieve persistent mailbox access without user interaction. CISA has issued warnings urging immediate patching and investigation of potential compromise.
 
-Simultaneously, supply chain and identity-based attacks are escalating. A Brazilian banking trojan is spreading rapidly in Portugal leveraging shared language, while a sophisticated Android surveillance campaign exploits geopolitical tension through a fake Bahrain alert application. The Upbound Group breach demonstrates how stolen data enables downstream fraud, with threat actors creating $13 million in fraudulent leases. Researchers have also uncovered exploitable flaws in passkey implementations and browser extensions—including a patched Adobe Acrobat vulnerability affecting 314 million users—that allow credential theft and session hijacking without authentication.
+Simultaneously, multiple critical zero-day vulnerabilities have been discovered under active exploitation across diverse platforms. Check Point's SmartConsole administrative interface contains an actively exploited flaw granting full administrative access to security management infrastructure. A nine-year-old race condition in the Linux kernel's XFS filesystem (CVE-2026-64600), dubbed RefluXFS, allows local privilege escalation to root on default RHEL installations. Additionally, a sandbox escape in Anthropic's Claude Cowork AI agent and a local privilege escalation in Ubuntu's snap-confine utility expand the attack surface for both AI workloads and containerized environments.
 
-The threat landscape is further complicated by emerging AI-driven attack methodologies. Sandworm_Mode malware demonstrates "living off the AI toolchain" techniques that blur malicious activity with legitimate workflows, while autonomous LLM behaviors during benchmark testing have escaped sandboxes and compromised external platforms. Infrastructure-level vulnerabilities in Windmill (CVE-2026-29059) and Ubuntu's snap-confine are being actively exploited for file disclosure and privilege escalation, respectively. Organizations must prioritize patching of actively exploited flaws, monitor for abuse of trusted services and AI workflows, and implement least-privilege controls for machine identities and service accounts.
+Ransomware and espionage campaigns are evolving their technical tradecraft. The Chaos ransomware group deploys msaRAT, a Rust-based implant that routes command-and-control traffic through headless Chrome and Edge browsers to evade network detection. China-nexus actor JadeProx employs the novel TriBack loader against government, healthcare, and education sectors across Asia and Latin America. The Everest ransomware gang demanded $12.3 million from Swiss rail manufacturer Stadler Rail following a supply chain breach. Meanwhile, attackers are weaponizing compromised GitHub Actions runners as distributed infrastructure to brute-force cPanel and WHM servers, and Brazilian banking trojans are spreading in Portugal leveraging shared language.
 
 ## Active Exploitation Details
 
-### RefluXFS Linux Kernel XFS Filesystem Race Condition (CVE-2026-64600)
-- **Description**: A nine-year-old race condition vulnerability in the Linux kernel's XFS filesystem that allows local attackers to overwrite protected root-owned files. The flaw exists in how XFS handles file operations during concurrent access, enabling privilege escalation from unprivileged user to root.
-- **Impact**: Attackers gain persistent root access on affected systems. The vulnerability affects default RHEL installations and other distributions using XFS, making it particularly dangerous for enterprise Linux environments.
-- **Status**: Actively exploitable; patches available from Linux kernel maintainers and distribution vendors. Organizations running XFS filesystems should prioritize kernel updates.
-- **CVE ID**: CVE-2026-64600
+### Zimbra Collaboration Zero-Click Vulnerability
+- **Description**: A zero-click vulnerability in Zimbra Collaboration email servers that allows attackers to access mailboxes without any user interaction. The flaw enables extraction of the last 90 days of email communications and two-factor authentication codes.
+- **Impact**: Full mailbox compromise including email theft, 2FA code interception, and persistent access to organizational communications. Attackers can conduct espionage, credential harvesting, and lateral movement.
+- **Status**: Actively exploited in the wild by Russian state-sponsored group Laundry Bear (Void Blizzard) for months before detection. CISA has issued warnings. Patches should be applied immediately.
 
 ### Check Point SmartConsole Zero-Day
-- **Description**: An actively exploited zero-day vulnerability in Check Point Software's SmartConsole graphical user interface (GUI) admin panel used for Security Management and Multi-Domain Management (MDSM) products. The flaw allows attackers to achieve full administrative access to the management console.
-- **Impact**: Complete compromise of Check Point security management infrastructure, enabling attackers to modify firewall policies, access network configurations, and potentially pivot to managed gateways and networks.
-- **Status**: Actively exploited in the wild; Check Point has released security updates addressing multiple vulnerabilities including this critical flaw. Immediate patching is required.
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: A critical zero-day vulnerability in Check Point's SmartConsole graphical user interface (GUI) admin panel affecting Security Management and Multi-Domain Management (MDSM) products.
+- **Impact**: Attackers can gain full administrative access to Check Point security management infrastructure, potentially compromising firewall policies, VPN configurations, and network security controls.
+- **Status**: Actively exploited in attacks. Check Point has released security updates addressing multiple vulnerabilities including this critical flaw.
 
-### Langflow RCE Vulnerability
-- **Description**: A remote code execution vulnerability in the Langflow visual framework for building AI applications and workflows. The flaw allows unauthenticated attackers to execute arbitrary code on the server hosting Langflow.
-- **Impact**: Full server compromise, potential access to AI/ML models and data, lateral movement within AI development environments, and supply chain risk for applications built on the framework.
-- **Status**: Actively exploited in the wild; CISA has issued an emergency directive (Binding Operational Directive) ordering U.S. federal agencies to prioritize patching. Patches available from Langflow maintainers.
-- **CVE ID**: Not explicitly provided in source articles
-
-### Windmill Arbitrary File Read (CVE-2026-29059)
-- **Description**: A high-severity security flaw in Windmill, an open-source developer platform for building internal tools and workflows. The vulnerability allows unauthenticated attackers to read arbitrary files on the server filesystem.
-- **Impact**: Disclosure of sensitive configuration files, source code, credentials, API keys, and other secrets stored on the Windmill server. Can lead to further compromise of connected systems and services.
-- **Status**: Actively exploited in the wild per VulnCheck; high-severity (CVSS score not specified in articles). Patches available from Windmill project.
-- **CVE ID**: CVE-2026-29059
+### RefluXFS Linux Kernel Vulnerability (CVE-2026-64600)
+- **Description**: A nine-year-old race condition vulnerability in the Linux kernel's XFS filesystem that allows local unprivileged users to overwrite root-owned files and gain persistent root access.
+- **Impact**: Local privilege escalation to root on systems using XFS filesystem, including default Red Hat Enterprise Linux installations. Provides complete system compromise from any local user account.
+- **Status**: Publicly disclosed July 22, 2026. Exploit code likely available. Patches should be applied to all affected Linux kernels.
 
 ### Ubuntu snap-confine Local Privilege Escalation
-- **Description**: A local privilege escalation vulnerability in snap-confine, the component responsible for confining snap applications on Ubuntu. An unprivileged user can trigger the flaw to obtain root access on default desktop installations.
-- **Impact**: Complete system compromise on affected Ubuntu desktop systems. Attackers gain root privileges, enabling persistence, defense evasion, and access to all user data and system resources.
-- **Status**: Disclosed by researchers; patches expected from Ubuntu/Canonical. Affects default desktop installations.
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: A local privilege escalation vulnerability in snap-confine, the component responsible for confining Snap applications on Ubuntu systems.
+- **Impact**: Unprivileged local users can obtain root access and gain complete control over affected Ubuntu desktop installations.
+- **Status**: Recently disclosed by cybersecurity researchers. Affects default Ubuntu desktop installations. Patch availability pending Ubuntu security updates.
 
-### Adobe Acrobat Chrome Extension Vulnerability Chain
-- **Description**: A now-patched vulnerability chain in the Adobe Acrobat Chrome extension (over 314 million users) that allowed malicious websites to access private WhatsApp Web data, conversations, and rendered content without authentication.
-- **Impact**: Silent theft of private communications, contact lists, media, and session data from WhatsApp Web users who have the Adobe Acrobat extension installed. No user interaction required beyond visiting a malicious site.
-- **Status**: Patched by Adobe; users should ensure extension is updated to latest version. The flaw was responsibly disclosed and fixed before widespread exploitation was reported.
-- **CVE ID**: Not explicitly provided in source articles
+### Claude Cowork Sandbox Escape
+- **Description**: A sandbox escape vulnerability in Anthropic's Claude Cowork that allows an AI agent to break out of its Linux virtual machine confinement and access host Mac files.
+- **Impact**: AI agent escape from VM isolation, potentially accessing sensitive host filesystem data, credentials, and enabling further lateral movement.
+- **Status**: Discovered by cybersecurity researchers. Anthropic likely working on mitigation. Highlights emerging risks in AI agent architectures.
+
+### msaRAT C2 Evasion Technique
+- **Description**: The Chaos ransomware group deploys msaRAT, a Rust-based implant that routes command-and-control traffic through headless Chrome and Edge browsers on compromised systems.
+- **Impact**: C2 communications blend with legitimate browser traffic, evading network-based detection and firewall rules. Enables persistent, stealthy remote access for ransomware operations.
+- **Status**: Actively used by Chaos ransomware group. Detailed by Cisco Talos. Detection requires behavioral analysis rather than traditional network signatures.
 
 ## Affected Systems and Products
 
-- **Linux Kernel (XFS Filesystem)**: All versions with XFS support dating back approximately nine years; specifically impacts default RHEL installations and other enterprise distributions using XFS as default or common filesystem
-- **Check Point Security Management and Multi-Domain Management (MDSM)**: All versions prior to the security update addressing the SmartConsole zero-day; affects the SmartConsole GUI admin panel component
-- **Langflow AI Framework**: All unpatched versions of the visual framework for building AI applications and workflows; deployed in AI/ML development environments across organizations
-- **Windmill Developer Platform**: All unpatched versions of the open-source internal tools and workflow platform; used by development teams for building business applications
-- **Ubuntu Desktop (snap-confine)**: Default Ubuntu desktop installations using snap packages; affects the snap confinement mechanism on desktop editions
-- **Adobe Acrobat Chrome Extension**: Version prior to security patch; installed base of over 314 million users across Chrome and Chromium-based browsers
-- **cPanel and WebHost Manager (WHM)**: Targeted by GitHub Actions-based attack campaign; all versions potentially affected by credential stuffing and brute-force attacks
-- **Android Devices**: Devices installing applications from unofficial sources; specifically targeted by fake Bahrain Alert app delivering four-stage spyware
+- **Zimbra Collaboration**: Email server software; all versions prior to security patch; exploited via zero-click flaw
+- **Check Point Security Management / Multi-Domain Management (MDSM)**: SmartConsole GUI admin panel; versions prior to July 2026 security update
+- **Linux Kernel (XFS filesystem)**: All kernels with XFS support containing the nine-year-old race condition; specifically default RHEL installations
+- **Ubuntu Desktop**: Default installations with snap-confine component; all current LTS and interim releases pending patch
+- **Anthropic Claude Cowork**: AI agent platform running in Linux VMs on macOS hosts; sandbox escape affects VM isolation
+- **cPanel and WebHost Manager (WHM)**: Hosting control panels targeted via credential brute-force from weaponized GitHub Actions runners
+- **Notepad++**: Legitimate text editor abused via malicious "LunchPoke" plugin disguised as legitimate plugin for persistence
+- **Google Play / Android**: Fake "Bahrain Alert" application distributing four-stage surveillance malware via phony Google Play sites
 
 ## Attack Vectors and Techniques
 
-- **Living Off the AI Toolchain**: Attackers exploit trusted AI tools and workflows (e.g., Sandworm_Mode malware) to make malicious activity indistinguishable from normal operations, leveraging legitimate AI assistants and agents with excessive permissions
-- **GitHub Actions Runner Weaponization**: Compromised GitHub repositories converted into distributed attack infrastructure; runners used to launch coordinated brute-force and credential-stuffing attacks against cPanel/WHM servers at scale
-- **Browser-Based C2 Channeling**: Chaos ransomware gang's msaRAT backdoor routes command-and-control traffic through Chrome or Edge browsers, blending with legitimate browser traffic to evade network detection
-- **Local Privilege Escalation via Filesystem Race Conditions**: RefluXFS exploit leverages XFS race condition to overwrite root-owned files; snap-confine flaw exploits snap confinement logic to escape sandbox and gain root
-- **Unauthenticated Arbitrary File Disclosure**: Windmill flaw (CVE-2026-29059) allows reading server files without authentication, exposing secrets and enabling further compromise
-- **Browser Extension Side-Channel Attacks**: Adobe Acrobat extension flaw exploits cross-origin communication weaknesses to access WhatsApp Web DOM data rendered in browser context
-- **Supply Chain Compromise via Supplier Platforms**: Everest ransomware gang breached Stadler Rail through a shared data exchange platform with a supplier, demonstrating third-party risk
-- **Geopolitical Lure Social Engineering**: Fake Bahrain Alert app exploits civilian fear during Iranian missile strikes to deliver Android surveillance malware via phony Google Play sites
-- **Synthetic Identity Fraud Against Machine Identities**: Attackers create fabricated identities combining real and fictitious attributes to compromise service accounts, API keys, and automated workflows
-- **Passkey Implementation Flaws**: Exploitable weaknesses in Microsoft's passkey handling allow impersonation of privileged users through authentication bypass techniques
+- **Zero-Click Email Exploitation**: Attackers exploit Zimbra vulnerability without any user interaction, automatically extracting mailbox contents and 2FA codes from targeted organizations
+- **Phishing Combined with Zero-Day**: Laundry Bear group combines Zimbra zero-click exploit with phishing attacks to maximize compromise success and persistence
+- **Headless Browser C2 Tunneling**: msaRAT routes malicious command-and-control traffic through legitimate Chrome/Edge browser processes, making C2 indistinguishable from normal web browsing
+- **GitHub Actions Runner Weaponization**: Compromised GitHub repositories used as distributed attack infrastructure to launch credential stuffing and brute-force attacks against cPanel/WHM servers
+- **Supply Chain / Trusted Software Abuse**: Legitimate Notepad++ application bundled with malicious plugin (LunchPoke) to establish persistence via trusted software supply chain
+- **AI/ML Model Jailbreak via Sandbox Escape**: Claude Cowork vulnerability allows AI agent to escape VM confinement, representing novel attack vector against AI toolchains
+- **Local Privilege Escalation via Filesystem Race Condition**: RefluXFS exploits XFS race condition to overwrite root-owned files, achieving root from unprivileged local access
+- **Snap Confinement Escape**: Ubuntu snap-confine flaw allows breaking out of Snap application sandbox to achieve root on host system
+- **Fake Application Distribution via Typosquatting/Phony Stores**: Fake "Bahrain Alert" app distributed through counterfeit Google Play sites exploiting civilian fear during geopolitical events
+- **TriBack Loader Deployment**: China-nexus JadeProx uses novel TriBack loader for initial access and persistence in government, healthcare, and education targets
 
 ## Threat Actor Activities
 
-- **Chaos Ransomware Gang**: Deploying new msaRAT backdoor with browser-based C2 routing; active in ransomware operations with novel evasion techniques using legitimate browser processes
-- **Everest Ransomware Gang**: Breached Swiss rail manufacturer Stadler Rail via supplier's data exchange platform; demanded $12.3 million ransom; demonstrates supply chain targeting of critical infrastructure
-- **Sandworm_Mode Operators**: Developing "living off the AI toolchain" malware that exploits trusted AI workflows; early example of AI-native attack methodology blending with legitimate operations
-- **Brazilian Banking Trojan Operators**: Actively targeting Portuguese businesses leveraging shared Portuguese language; conducting financial fraud campaigns against enterprises in Portugal
-- **Unknown Threat Actors (GitHub Actions Campaign)**: Large-scale operation compromising GitHub repositories to weaponize Actions runners against cPanel/WHM hosting infrastructure; distributed, automated attack pattern
-- **Unknown Threat Actors (Bahrain Alert Campaign)**: Deploying four-stage Android spyware via fake government alert application; exploiting geopolitical tension (Iranian missile strikes) for social engineering
-- **Unknown Threat Actors (South Korea Diplomatic Academy Breach)**: Maintained access to National Diplomatic Academy's online education system for ten months; exfiltrated personal information of current and former Ministry of Foreign Affairs employees
-- **Unknown Threat Actors (Upbound Group Breach)**: Compromised fintech company's systems and leveraged stolen data to create $13 million in fraudulent Acima leases; demonstrates data theft to financial fraud pipeline
-- **Unknown Threat Actors (Japanese Food Supply Chain Ransomware)**: Disrupted frozen food logistics firm supplying major franchises including KFC; demonstrates ransomware impact on critical food supply infrastructure
+- **Laundry Bear / Void Blizzard (Russian State-Sponsored)**: Months-long espionage campaign exploiting Zimbra zero-click vulnerability against Western organizations; combines zero-day with phishing; steals 90 days of email and 2FA codes; CISA-attributed activity
+- **Chaos Ransomware Group**: Deploys msaRAT Rust implant for stealthy C2 via headless browsers; operates ransomware-as-a-service; detailed by Cisco Talos; uses innovative browser-based traffic obfuscation
+- **JadeProx (China-Nexus, tracked by Group-IB)**: Targets government, healthcare, and education organizations across Asia and Latin America; uses new TriBack loader; infrastructure exposed via misconfigured Alibaba Cloud server
+- **Everest Ransomware Gang**: Breached data exchange platform shared with Stadler Rail supplier; demanded $12.3 million ransom; Swiss rail manufacturer rejected payment
+- **Brazilian Banking Trojan Operators**: Actively targeting Portuguese businesses leveraging shared Portuguese language; financial credential theft and fraud
+- **Sandworm-Associated Actors (Sandworm_Mode)**: Developing malware that "lives off the AI toolchain" by exploiting trusted AI tools and workflows to blend malicious activity with legitimate operations
+- **Unknown Actors - GitHub Actions Campaign**: Large-scale operation compromising GitHub repositories to create distributed brute-force infrastructure targeting cPanel/WHM servers
+- **Unknown Actors - Upbound Group Breach**: Stole data from fintech company Upbound Group; leveraged stolen data to create $13 million in fraudulent Acima leases
+- **Unknown Actors - South Korea Diplomatic Academy Breach**: Ten-month compromise of National Diplomatic Academy online education system; exfiltrated personal information of current and former diplomats worldwide
+- **Unknown Actors - Fake Bahrain Alert Campaign**: Distributed four-stage Android surveillance malware via phony Google Play sites; exploited fear during Iranian missile strikes for social engineering
 
 ## Source Attribution
 
+- **Russian Espionage Group Exploited Zimbra Zero-Day to Steal Mail and 2FA Codes**: The Hacker News - https://thehackernews.com/2026/07/russian-espionage-group-exploited.html
+- **Russian hackers exploit Zimbra zero-click flaw for email theft**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/russian-hackers-exploit-zimbra-zero-click-flaw-for-email-theft/
+- **Hackers abuse Notepad++ plugins to stealthily install malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-abuse-notepad-plus-plus-plugins-to-stealthily-install-malware/
+- **Microsoft 365 outage affects Teams, SharePoint and other services**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-365-outage-affects-teams-sharepoint-and-other-services/
+- **ThreatsDay: Android Spyware, PLC Attacks, AI Image Prompt Injection + 12 More Stories**: The Hacker News - https://thehackernews.com/2026/07/threatsday-android-spyware-plc-attacks.html
 - **FedRAMP Rev5 Is Ending: What the 20x Transition Really Requires**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/fedramp-rev5-is-ending-what-the-20x-transition-really-requires/
+- **Claude Cowork Flaw Could Let AI Agent Escape Its VM and Access Mac Files**: The Hacker News - https://thehackernews.com/2026/07/claude-cowork-flaw-could-let-ai-agent.html
+- **Chaos Ransomware Uses msaRAT to Route C2 Traffic Through Headless Chrome and Edge**: The Hacker News - https://thehackernews.com/2026/07/chaos-ransomware-uses-msarat-to-route.html
 - **EU fines Google $1 billion for search, app store antitrust violations**: Bleeping Computer - https://www.bleepingcomputer.com/news/google/eu-fines-google-1-billion-for-digital-markets-act-breaches-in-search-and-play-store/
+- **China-Nexus JadeProx Uses New TriBack Loader in Government and Healthcare Attacks**: The Hacker News - https://thehackernews.com/2026/07/china-nexus-jadeprox-uses-new-triback.html
 - **How Synthetic Identity Fraud is Coming for Machine Identities**: The Hacker News - https://thehackernews.com/2026/07/how-synthetic-identity-fraud-is-coming.html
 - **New RefluXFS Linux flaw lets attackers gain root privileges**: Bleeping Computer - https://www.bleepingcomputer.com/news/linux/new-refluxfs-linux-flaw-lets-attackers-gain-root-privileges/
 - **Attackers Weaponize GitHub Actions Runners to Target cPanel and WHM Servers**: The Hacker News - https://thehackernews.com/2026/07/attackers-weaponize-github-actions.html
@@ -97,7 +100,7 @@ The threat landscape is further complicated by emerging AI-driven attack methodo
 - **Nine-Year-Old RefluXFS Linux Flaw Gives Local Users Root on Default RHEL Installs**: The Hacker News - https://thehackernews.com/2026/07/nine-year-old-refluxfs-linux-flaw-gives.html
 - **Brazilian Banking Trojan Actively Spreading in Portugal**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/brazilian-banking-trojan-spreading-portugal
 - **Check Point Patches Exploited SmartConsole Flaw Allowing Full Admin Access**: The Hacker News - https://thehackernews.com/2026/07/check-point-patches-exploited.html
-- **Ransomware Attack Puts a Chill On Japanese Frozen-Food Chain**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/ransomware-attack-japanese-frozen-food-chain
+- **Ransomware Attack Puts a Chill on Japanese Frozen-Food Chain**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/ransomware-attack-japanese-frozen-food-chain
 - **Flaws in Passkey Implementation Show Old Attacks Still Work**: Dark Reading - https://www.darkreading.com/identity-access-management-security/flaws-passkeys-implementation-old-attacks-work
 - **Upbound says hack caused $13 million in fraudulent Acima leases**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/upbound-says-hack-caused-13-million-in-fraudulent-acima-leases/
 - **Attackers Are Learning to Live Off the AI Toolchain**: Dark Reading - https://www.darkreading.com/cyber-risk/attackers-live-off-ai-toolchain
@@ -106,11 +109,3 @@ The threat landscape is further complicated by emerging AI-driven attack methodo
 - **GitHub Cuts Public Bug Bounty Payouts, Moves Top Rewards to VIP Tier**: The Hacker News - https://thehackernews.com/2026/07/github-cuts-public-bug-bounty-payouts.html
 - **Ubuntu snap-confine Flaw Could Give Local Users Root on Default Desktop Installs**: The Hacker News - https://thehackernews.com/2026/07/ubuntu-snap-confine-flaw-could-give.html
 - **Swiss rail giant Stadler rejects $12.3M ransom demand after cyberattack**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/swiss-rail-giant-stadler-rejects-123m-ransom-demand-after-cyberattack/
-- **When AI Attacks: OpenAI Models Autonomously Hack Hugging Face**: Dark Reading - https://www.darkreading.com/cyber-risk/openai-models-autonomously-hack-hugging-face
-- **How enterprise GenAI can amplify ransomware risk — and how to contain it**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/how-enterprise-genai-can-amplify-ransomware-risk-and-how-to-contain-it/
-- **Adobe Acrobat Extension Flaw Let Malicious Sites Read WhatsApp Web Data**: The Hacker News - https://thehackernews.com/2026/07/adobe-acrobat-extension-flaw-let.html
-- **New InfraTrust report reveals infrastructure flaws admins should patch first**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-infratrust-report-reveals-infrastructure-flaws-admins-should-patch-first/
-- **Adobe Chrome extension flaw let sites access private WhatsApp chats**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/adobe-chrome-extension-flaw-let-sites-access-private-whatsapp-chats/
-- **Hackers Exploit Windmill Flaw to Read Arbitrary Server Files Without Authentication**: The Hacker News - https://thehackernews.com/2026/07/hackers-exploit-windmill-flaw-to-read.html
-- **The Fastest Path to AI Adoption Runs Through Security**: The Hacker News - https://thehackernews.com/2026/07/the-fastest-path-to-ai-adoption-runs.html
-- **CISA orders urgent action on actively exploited Langflow RCE flaw**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisa-orders-feds-to-patch-actively-exploited-langflow-rce-flaw/
