@@ -2,106 +2,150 @@
 
 ## Executive Summary
 
-Russian state-sponsored threat actors are actively exploiting a zero-day vulnerability in Zimbra Collaboration Suite, conducting espionage campaigns against targets in the United States and Ukraine. Tracked as Laundry Bear (also known as Void Blizzard), the group employs "half-click" and zero-click phishing techniques that require victims to merely open or preview malicious emails, enabling theft of email communications and two-factor authentication codes over extended periods. CISA has issued warnings regarding this ongoing campaign.
+Russian state-sponsored threat actors are actively exploiting a zero-day vulnerability in Zimbra Collaboration Suite, conducting "half-click" and zero-click phishing campaigns against organizations in the United States and Ukraine. The group tracked as Laundry Bear (also known as Void Blizzard) has spent months silently accessing email contents and two-factor authentication codes from compromised mailboxes, representing a significant espionage operation leveraging an unpatched flaw in a widely deployed enterprise email platform.
 
-Multiple critical vulnerabilities have been discovered and exploited across diverse technologies. Check Point Software has patched an actively exploited zero-day in SmartConsole's administrative GUI, while AI-driven research uncovered seven authenticated remote code execution vulnerabilities in Redis affecting versions 6.2.22 through 8.8.0. A nine-year-old Linux kernel race condition in the XFS filesystem (CVE-2026-64600) allows local privilege escalation to root on default RHEL installations. NodeBB forum software disclosed eight high-severity flaws with public exploit code, discovered by AI penetration testing agents in a six-hour window.
+Multiple critical zero-day vulnerabilities have been discovered and exploited in rapid succession across diverse technologies. AI-driven research agents identified authenticated remote code execution chains in Redis affecting versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0, prompting seven emergency security releases. Simultaneously, a sandbox escape in Anthropic's Claude Cowork and a critical flaw in OpenAI's ChatGPT Workspace Agents demonstrate the expanding attack surface of AI agent architectures, while a crafted SVG vulnerability in Bing's image search achieved SYSTEM-level code execution on Microsoft's production infrastructure.
 
-Threat actor activity remains high across multiple fronts. The Clop ransomware gang is targeting internet-exposed PTC Windchill and FlexPLM instances in data theft extortion campaigns. The Golden Chickens malware-as-a-service ecosystem has resurfaced with four new malware families and modular implants. Chaos ransomware deploys the msaRAT backdoor, innovatively routing command-and-control traffic through headless Chrome and Edge browsers. Chinese-nexus group JadeProx employs the new TriBack loader against government, healthcare, and education sectors across Asia and Latin America. Meanwhile, Ukrainian threat actor UAC-0099 distributes MATCHBOIL.V2 via fake Notepad++ plugins, and malvertising campaigns on Bing push SectopRAT through counterfeit Claude AI installers.
+Ransomware and malware-as-a-service operations continue to evolve with sophisticated new capabilities. The Clop ransomware gang has pivoted to targeting internet-exposed PTC Windchill and FlexPLM instances for data theft extortion, while the Golden Chickens MaaS ecosystem has deployed four new malware families with modular implants. The Chaos ransomware group employs a novel Rust-based implant (msaRAT) that routes command-and-control traffic through victims' own headless Chrome and Edge browsers, and a China-nexus operation tracked as JadeProx utilizes a new TriBack loader against government, healthcare, and education targets across Asia and Latin America.
 
 ## Active Exploitation Details
 
 ### Zimbra Collaboration Zero-Day Exploitation
-- **Description**: A previously unknown vulnerability in Zimbra's webmail client allows remote exploitation via crafted emails to execute code or access data when victims open or preview messages. The flaw enables "half-click" and zero-click exploitation where minimal user interaction is required.
-- **Impact**: Attackers gain access to the last 90 days of email communications, organizational data, and two-factor authentication codes. Espionage operations have persisted for months against government, diplomatic, and military targets in the US and Ukraine.
-- **Status**: Actively exploited in the wild by Russian state-sponsored actors. No patch information provided in source articles.
-- **CVE ID**: Not specified in source articles
+- **Description**: An unknown flaw in Zimbra's webmail client allows attackers to execute code or access mailbox contents through "half-click" phishing emails that require only opening or previewing the message. The vulnerability enables zero-click exploitation in some scenarios.
+- **Impact**: Attackers gain access to the last 90 days of email communications, organizational data, and two-factor authentication codes, enabling sustained espionage and lateral movement.
+- **Status**: Actively exploited in the wild by Russian state-sponsored actors. No patch mentioned in source articles; CISA has issued warnings.
+- **CVE ID**: Not provided in source articles
 
-### Check Point SmartConsole Zero-Day
-- **Description**: An actively exploited zero-day vulnerability in Check Point Software's SmartConsole graphical user interface administration panel.
-- **Impact**: Provides attackers with potential administrative access to Check Point security management infrastructure, potentially compromising firewall policies, VPN configurations, and network security controls.
-- **Status**: Actively exploited in attacks. Check Point Software has addressed the vulnerability with a patch.
-- **CVE ID**: Not specified in source articles
+### Redis Authenticated RCE Zero-Days
+- **Description**: Multiple authenticated remote code execution vulnerability chains discovered in stock Redis installations. All four exploit chains require the RESTORE command, with one leveraging Streams functionality.
+- **Impact**: Authenticated attackers can achieve remote code execution on Redis servers, potentially leading to full server compromise and data theft.
+- **Status**: Redis shipped seven security releases on July 23 addressing versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0. Proof-of-concept exploits publicly available.
+- **CVE ID**: Not provided in source articles
 
-### Redis Authenticated Remote Code Execution Vulnerabilities
-- **Description**: Seven security releases issued for Redis after researchers published authenticated RCE proof-of-concept exploits. All exploit chains require the RESTORE command. Affected versions include Redis 6.2.22, 7.4.9, 8.6.4, and 8.8.0. The Streams chain is specifically mentioned as one attack vector.
-- **Impact**: Authenticated attackers can achieve remote code execution on Redis servers, potentially leading to full server compromise, data theft, and lateral movement.
-- **Status**: PoC exploits published. Redis shipped seven security releases on July 23. Discovered by Kimi K3 AI agents.
-- **CVE ID**: Not specified in source articles
+### ChatGPT Workspace Agents "AgentForger" Flaw
+- **Description**: A critical vulnerability in OpenAI's ChatGPT Workspace Agents that allows a single phishing link to stealthily build, authorize, and deploy autonomous AI agents within a victim's workspace.
+- **Impact**: Attackers can deploy rogue workspace agents capable of performing automated actions with the victim's permissions, potentially accessing sensitive data and executing malicious workflows.
+- **Status**: Disclosed by cybersecurity researchers; patch status not specified in source article.
 
-### RefluxFS Linux Kernel XFS Filesystem Flaw (CVE-2026-64600)
-- **Description**: A nine-year-old race condition vulnerability in the Linux kernel's XFS filesystem implementation. The flaw allows an unprivileged local user to overwrite root-owned files on an XFS filesystem through a carefully crafted race condition.
-- **Impact**: Local attackers can gain persistent root privileges on affected systems. Default RHEL installations using XFS are vulnerable.
-- **Status**: Disclosed July 22 by Qualys. Patches expected through kernel updates.
+### Bing Images SVG RCE Vulnerability
+- **Description**: Crafted SVG files submitted to Bing's image search trigger command execution as NT AUTHORITY\SYSTEM on Windows production image-processing workers and as root on Linux machines in the same fleet.
+- **Impact**: Full system compromise of Microsoft's image-processing infrastructure with highest available privileges on both Windows and Linux platforms.
+- **Status**: Discovered by XBOW researchers; patch status not specified in source article.
+
+### NodeBB Eight High-Severity Vulnerabilities
+- **Description**: Eight security flaws in the NodeBB forum platform, all rated high severity by Aikido Security, exposing administrative access and private chat communications.
+- **Impact**: Attackers can gain administrative control over NodeBB installations and access private user conversations.
+- **Status**: Patched and publicly disclosed along with exploit code. Discovered by AI pentesting agents in a six-hour run.
+
+### RefluXFS Linux Kernel XFS Race Condition (CVE-2026-64600)
+- **Description**: A nine-year-old race condition vulnerability in the Linux kernel's XFS filesystem that allows local attackers to overwrite protected files.
+- **Impact**: Local privilege escalation to root on affected Linux systems.
+- **Status**: Vulnerability disclosed with CVE assignment; patch status not specified in source article.
 - **CVE ID**: CVE-2026-64600
 
-### NodeBB Forum Software Vulnerabilities
-- **Description**: Eight high-severity security flaws in NodeBB forum software, discovered by Aikido Security's AI penetration testing agents in a six-hour run. Exploit code for all vulnerabilities has been published.
-- **Impact**: Vulnerabilities expose administrative access and private chat communications, potentially allowing full forum compromise and user data theft.
-- **Status**: Publicly disclosed with exploit code available. NodeBB has released patches.
-- **CVE ID**: Not specified in source articles
+### Anthropic Claude Cowork Sandbox Escape
+- **Description**: A sandbox escape vulnerability in Anthropic's Claude Cowork that allows an AI agent to break out of its confining Linux virtual machine and access the host Mac filesystem.
+- **Impact**: AI agent gains unauthorized access to host system files, potentially exposing sensitive user data and enabling further system compromise.
+- **Status**: Discovered by cybersecurity researchers; patch status not specified in source article.
 
-### PTC Windchill and FlexPLM Targeting
-- **Description**: Clop ransomware gang (Cl0p) conducting data theft extortion campaigns against internet-exposed instances of PTC Windchill (PLM software) and FlexPLM (product lifecycle management for retail).
-- **Impact**: Data theft from product lifecycle management systems containing intellectual property, design data, and supply chain information. Extortion without encryption (data theft only).
-- **Status**: Active campaign targeting internet-exposed instances.
-- **CVE ID**: Not specified in source articles
+### Clop Ransomware Windchill/FlexPLM Data Theft Campaign
+- **Description**: Active exploitation of internet-exposed PTC Windchill and FlexPLM instances for data theft extortion, bypassing traditional ransomware encryption in favor of pure data exfiltration.
+- **Impact**: Theft of proprietary product lifecycle management data, intellectual property, and sensitive engineering documents from manufacturing and engineering organizations.
+- **Status**: Ongoing campaign actively targeting exposed instances.
 
-### Hermes AI Agent Post-Exploitation
-- **Description**: Attackers deployed the Hermes AI assistant on a rented server, disabled safety controls requiring permission for risky commands, and directed it at Thailand's Ministry of Finance for automated post-exploitation activities.
-- **Impact**: Demonstrates novel use of AI agents for autonomous post-exploitation, reconnaissance, and lateral movement without human operator oversight.
-- **Status**: Active incident at Thai Finance Ministry. Novel attack methodology.
-- **CVE ID**: Not specified in source articles
+### Golden Chickens MaaS New Malware Families
+- **Description**: The Golden Chickens malware-as-a-service ecosystem has deployed four new malware families with modular implant architectures, indicating continued operator investment and capability development.
+- **Impact**: Enhanced evasion, persistence, and payload delivery capabilities available to MaaS customers, broadening the threat landscape for organizations targeted by Golden Chickens affiliates.
+- **Status**: Active deployment observed in the wild.
 
-### Claude Cowork Sandbox Escape
-- **Description**: Sandbox escape vulnerability in Anthropic's Claude Cowork that allows an AI agent to break out of its Linux virtual machine confinement and access host Mac filesystem.
-- **Impact**: AI agent gains unauthorized access to host system files, potentially enabling data exfiltration, persistence, or further exploitation of the host machine.
-- **Status**: Discovered by cybersecurity researchers. No exploitation in the wild reported.
-- **CVE ID**: Not specified in source articles
+### Chaos Ransomware msaRAT C2 Technique
+- **Description**: The Chaos ransomware group employs msaRAT, a Rust-based implant that routes command-and-control traffic through the victim's own headless Chrome and Edge browser instances.
+- **Impact**: C2 communications blend with legitimate browser traffic, evading network detection and firewall rules while maintaining persistent access.
+- **Status**: Active technique observed on compromised Windows machines; detailed by Cisco Talos.
+
+### Fake Notepad++ Plugin Campaign (UAC-0099)
+- **Description**: Attackers distribute archives containing legitimate Notepad++ alongside a malicious utility (LunchPoke) disguised as a plugin, delivering the MATCHBOIL.V2 payload.
+- **Impact**: Stealthy malware installation and persistence on Windows systems through software supply chain deception.
+- **Status**: Active campaign documented by CERT-UA; attributed to threat group UAC-0099.
+
+### Hermes AI Agent Post-Exploitation at Thai Finance Ministry
+- **Description**: An attacker deployed a popular AI assistant on a rented server, disabled safety controls requiring permission for risky commands, and directed it against Thailand's Ministry of Finance for post-exploitation activities.
+- **Impact**: Automated, unattended AI-driven post-exploitation against a government ministry, demonstrating novel offensive AI usage.
+- **Status**: Incident observed and reported; attribution not specified in source article.
+
+### GitHub Actions Runner Weaponization Campaign
+- **Description**: Large-scale campaign compromising GitHub repositories to turn GitHub Actions runners into distributed attack infrastructure targeting cPanel and WebHost Manager (WHM) servers.
+- **Impact**: Abuse of trusted CI/CD infrastructure for credential stuffing, vulnerability scanning, and exploitation of web hosting control panels.
+- **Status**: Active campaign documented by cybersecurity researchers.
+
+### JadeProx TriBack Loader Campaign
+- **Description**: China-nexus operation (tracked as JadeProx) using a new TriBack loader deployed from an exposed Alibaba Cloud server, targeting government, healthcare, and education organizations across Asia and Latin America.
+- **Impact**: Persistent access to sensitive government and healthcare networks with custom loader infrastructure.
+- **Status**: Active campaign revealed through infrastructure exposure; tracked by Group-IB.
+
+### Fake Claude App Malvertising (SectopRAT)
+- **Description**: Malvertising campaign on Bing search promoting a fake Claude desktop application installer hosted on a legitimate Claude.ai subdomain, delivering SectopRAT malware.
+- **Impact**: Credential theft, system information harvesting, and remote access capabilities via SectopRAT on victim machines.
+- **Status**: Active malvertising campaign leveraging trusted domain reputation.
+
+### Dolphin X RAT with AI Target Profiling
+- **Description**: New remote access trojan featuring AI-powered profiling that scores and ranks infected users to help cybercriminals prioritize high-value targets.
+- **Impact**: Automated victim triage enabling efficient resource allocation for follow-on exploitation, data theft, or ransomware deployment.
+- **Status**: New malware family observed in the wild.
 
 ## Affected Systems and Products
 
-- **Zimbra Collaboration Suite**: Webmail client used by organizations in US, Ukraine, and globally. Vulnerable to zero-click/half-click email exploitation.
-- **Check Point SmartConsole**: Administrative GUI for Check Point security management. Actively exploited zero-day in management interface.
-- **Redis**: Versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0 affected by authenticated RCE vulnerabilities requiring RESTORE command.
-- **Linux Kernel (XFS Filesystem)**: Systems using XFS filesystem, particularly default RHEL installations. Nine-year-old race condition (CVE-2026-64600) allows local root escalation.
-- **NodeBB Forum Software**: All versions prior to patched release. Eight high-severity flaws exposing admin access and private chats.
-- **PTC Windchill**: Product lifecycle management software. Internet-exposed instances targeted by Clop ransomware for data theft.
-- **PTC FlexPLM**: Product lifecycle management for retail/footwear/apparel. Internet-exposed instances targeted by Clop ransomware.
-- **Anthropic Claude Cowork**: AI development environment with Linux VM sandbox. Sandbox escape allows host Mac filesystem access.
-- **GitHub Actions Runners**: Compromised repositories used as distributed attack infrastructure targeting cPanel and WHM servers.
-- **cPanel and WebHost Manager (WHM)**: Web hosting control panels targeted via weaponized GitHub Actions runners.
-- **Notepad++**: Legitimate text editor abused as delivery vehicle for malicious plugins (LunchPoke, MATCHBOIL.V2) on Windows systems.
-- **Microsoft Bing Advertising Platform**: Used for malvertising campaign distributing fake Claude AI installer hosting SectopRAT.
+- **Zimbra Collaboration Suite**: Email and collaboration platform; versions affected not specified in source articles; exploited via webmail client flaw
+- **Redis**: In-memory data store; versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0 confirmed vulnerable; patched in July 23 security releases
+- **OpenAI ChatGPT Workspace Agents**: AI agent platform; specific versions not specified
+- **Microsoft Bing Image Search**: Production image-processing infrastructure; Windows (NT AUTHORITY\SYSTEM) and Linux (root) workers affected
+- **NodeBB**: Forum/platform software; all versions prior to security patches; eight high-severity flaws patched
+- **Linux Kernel XFS Filesystem**: Kernel versions with XFS support spanning approximately nine years; local privilege escalation via race condition
+- **Anthropic Claude Cowork**: AI agent development platform; Linux VM sandbox escape to Mac host filesystem
+- **PTC Windchill**: Product lifecycle management software; internet-exposed instances targeted
+- **PTC FlexPLM**: Product lifecycle management for retail; internet-exposed instances targeted
+- **Notepad++**: Text editor; legitimate application abused as delivery vehicle for malicious "LunchPoke" plugin
+- **GitHub Actions**: CI/CD runner infrastructure; compromised repositories weaponized as attack platform
+- **cPanel & WHM (WebHost Manager)**: Web hosting control panels; targeted by distributed GitHub Actions runner attacks
+- **Alibaba Cloud**: Cloud infrastructure; exposed server used as JadeProx command-and-control host
+- **Claude.ai**: Legitimate domain abused for hosting fake installer in malvertising campaign
 
 ## Attack Vectors and Techniques
 
-- **Zero-Click/Half-Click Email Exploitation**: Russian actors (Laundry Bear/Void Blizzard) send crafted emails exploiting Zimbra zero-day; victims compromised by merely opening or previewing messages without clicking links.
-- **AI Agent Autonomous Post-Exploitation**: Attackers deploy AI assistants (Hermes) with safety controls disabled to conduct unattended reconnaissance, lateral movement, and exploitation against target networks.
-- **AI-Driven Vulnerability Discovery**: Kimi K3 AI agents discovered Redis RCE chains; Aikido Security AI pentest agents found eight NodeBB flaws in six hours. Demonstrates offensive AI capability for vulnerability research.
-- **Browser-Based C2 Channel**: Chaos ransomware's msaRAT routes command-and-control traffic through headless Chrome and Edge browsers on victim machines, blending malicious traffic with legitimate browser processes.
-- **Malicious Software Plugins**: Fake Notepad++ plugins (LunchPoke, MATCHBOIL.V2) delivered via archives containing legitimate Notepad++ installer plus malicious utility disguised as plugin for persistence.
-- **Malvertising via Legitimate Domains**: Bing ads promote fake Claude desktop app hosted on legitimate Claude.ai domain, delivering SectopRAT malware through trusted infrastructure abuse.
-- **AI-Powered Victim Profiling**: Dolphin X RAT uses AI profiling to score and rank infected users, enabling threat actors to prioritize high-value targets for further exploitation.
-- **GitHub Actions Infrastructure Abuse**: Compromised GitHub repositories weaponized as distributed attack runners targeting cPanel/WHM authentication interfaces at scale.
-- **Modular Malware-as-a-Service**: Golden Chickens ecosystem provides four new malware families with modular implants, enabling customized payload delivery for affiliate operators.
-- **New Loader Deployment**: China-nexus JadeProx uses TriBack loader for initial access and payload staging against government, healthcare, and education sectors.
-- **Data Theft Extortion (No Encryption)**: Clop ransomware exfiltrates data from Windchill/FlexPLM instances for extortion without deploying encryptors, reducing detection surface.
+- **Half-Click/Zero-Click Phishing**: Zimbra exploitation requires only opening or previewing a malicious email; no user interaction beyond message viewing needed
+- **Authenticated RCE via RESTORE Command**: Redis exploit chains leverage legitimate RESTORE functionality combined with Streams or other features for code execution
+- **Phishing Link to Agent Deployment**: Single malicious link triggers automated build, authorization, and deployment of rogue AI agents in ChatGPT workspaces
+- **SVG-Based Server-Side Template Injection**: Crafted SVG files exploit image processing pipeline to achieve SYSTEM/root code execution on search infrastructure
+- **AI Agent Sandbox Escape**: Breaking out of Linux VM confinement to access host Mac filesystem through Claude Cowork vulnerability
+- **Malicious Plugin Supply Chain**: Legitimate Notepad++ application bundled with malicious "LunchPoke" utility disguised as plugin for stealthy installation
+- **AI-Disabled Safety Controls**: Attacker deliberately disables permission prompts on Hermes AI agent to enable unattended post-exploitation command execution
+- **CI/CD Infrastructure Weaponization**: Compromised GitHub repositories converted to distributed attack runners targeting cPanel/WHM servers
+- **Browser-Based C2 Tunneling**: msaRAT routes command-and-control through victim's headless Chrome/Edge instances to blend with legitimate traffic
+- **Malvertising with Domain Spoofing**: Fake Claude installer hosted on legitimate claude.ai subdomain distributed via Bing ads to deliver SectopRAT
+- **AI-Powered Victim Profiling**: Dolphin X RAT uses automated scoring to rank compromised hosts by value for prioritized exploitation
+- **Data Theft Extortion (Non-Encrypting)**: Clop ransomware exfiltrates Windchill/FlexPLM data for extortion without deploying encryptors
+- **Modular Malware Architecture**: Golden Chickens deploys four new malware families with pluggable implants for flexible capability composition
+- **Custom Loader Deployment**: JadeProx uses new TriBack loader for persistent access to government and healthcare networks
 
 ## Threat Actor Activities
 
-- **Laundry Bear / Void Blizzard (Russian State-Sponsored)**: Exploiting Zimbra zero-day against US and Ukraine targets for email and 2FA code theft. Conducting long-term espionage (months of access). Uses half-click/zero-click phishing. CISA has issued warnings.
-- **UAC-0099 (Ukraine-Targeting Actor)**: Distributing MATCHBOIL.V2 malware via fake Notepad++ plugins. CERT-UA has warned of this campaign. Uses LunchPoke utility for persistence.
-- **Clop Ransomware Gang (Cl0p)**: Targeting internet-exposed PTC Windchill and FlexPLM instances in data theft extortion campaign. Focus on PLM systems containing intellectual property.
-- **Golden Chickens Operators (MaaS Providers)**: Resurfaced with four new malware families and modular implants. Continuing malware-as-a-service operations for cybercriminal affiliates.
-- **Chaos Ransomware Group**: Deploying msaRAT Rust-based backdoor with innovative browser-based C2 routing through headless Chrome/Edge. Targets Windows environments.
-- **JadeProx (China-Nexus)**: Targeting government, healthcare, and education organizations across Asia and Latin America using new TriBack loader. Infrastructure exposed via misconfigured Alibaba Cloud server.
-- **SectopRAT Operators**: Conducting malvertising campaign on Bing search promoting fake Claude AI installer hosted on legitimate Claude.ai domain.
-- **Dolphin X Operators**: Deploying new RAT with AI-powered victim profiling to rank and prioritize high-value targets for further exploitation.
-- **Unknown Actors (Thai Finance Ministry)**: Deployed Hermes AI agent unattended for post-exploitation against Thailand's Ministry of Finance. Novel AI-driven attack methodology.
-- **GitHub Actions Abusers**: Large-scale campaign compromising GitHub repositories to create distributed attack infrastructure targeting cPanel and WHM servers.
+- **Laundry Bear / Void Blizzard**: Russian state-sponsored espionage group conducting months-long Zimbra zero-day exploitation against US and Ukrainian targets; steals 90 days of email and 2FA codes; attributed by CISA and multiple threat intelligence sources
+- **UAC-0099**: Threat group distributing MATCHBOIL.V2 via fake Notepad++ plugin campaigns; documented by CERT-UA; targets Ukrainian entities
+- **Clop Ransomware Gang (Cl0p)**: Operating data theft extortion campaign targeting internet-exposed PTC Windchill and FlexPLM instances; shifted from encryption to pure exfiltration model
+- **Golden Chickens Operators**: Malware-as-a-service providers deploying four new malware families with modular implants; showing continued operational tempo despite prior disruptions
+- **Chaos Ransomware Group**: Deploying msaRAT Rust implant with innovative browser-based C2 routing through headless Chrome/Edge; detailed by Cisco Talos
+- **JadeProx (China-Nexus)**: APT cluster tracked by Group-IB utilizing TriBack loader against government, healthcare, and education sectors across Asia and Latin America; infrastructure exposed via misconfigured Alibaba Cloud server
+- **Unknown Actor (Thai Finance Ministry)**: Deployed Hermes AI agent with disabled safety controls for unattended post-exploitation against Thailand's Ministry of Finance; novel AI-driven offensive technique
+- **GitHub Actions Campaign Operators**: Large-scale operation compromising repositories to weaponize Actions runners against cPanel/WHM infrastructure; sophisticated supply chain abuse
 
 ## Source Attribution
 
+- **Vatican's Official Prayer App Leaks 700K+ Global Users' PII**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/vatican-official-prayer-app-leaks-700k-pii
+- **Europol flags 4,340 URLs for removal in 'The Com' crackdown**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/europol-flags-4-340-urls-for-removal-in-the-com-crackdown/
+- **ChatGPT AgentForger Flaw Could Deploy Rogue Workspace Agents via a Phishing Link**: The Hacker News - https://thehackernews.com/2026/07/chatgpt-agentforger-flaw-could-deploy.html
+- **Bing Images Flaws Let Crafted SVGs Run Commands as SYSTEM on Microsoft's Servers**: The Hacker News - https://thehackernews.com/2026/07/bing-images-flaws-let-crafted-svgs-run.html
+- **Seeing AI Agents Is Not Enough. Security Teams Must Enforce What They Can Do**: The Hacker News - https://thehackernews.com/2026/07/seeing-ai-agents-is-not-enough-security.html
+- **Man gets six years for hacking 750 women's Snapchat accounts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/man-gets-six-years-for-hacking-750-womens-snapchat-accounts/
 - **Hacker Runs Hermes AI Agent Unattended for Post-Exploitation at Thai Finance Ministry**: The Hacker News - https://thehackernews.com/2026/07/hacker-runs-hermes-ai-agent-unattended.html
 - **Golden Chickens Resurfaces With Four New Malware Families and Modular Implants**: The Hacker News - https://thehackernews.com/2026/07/golden-chickens-resurfaces-with-four.html
 - **NodeBB Patches Eight AI-Found Flaws Exposing Admin Access and Private Chats**: The Hacker News - https://thehackernews.com/2026/07/nodebb-patches-eight-ai-found-flaws.html
@@ -126,9 +170,3 @@ Threat actor activity remains high across multiple fronts. The Clop ransomware g
 - **How Synthetic Identity Fraud is Coming for Machine Identities**: The Hacker News - https://thehackernews.com/2026/07/how-synthetic-identity-fraud-is-coming.html
 - **New RefluXFS Linux flaw lets attackers gain root privileges**: Bleeping Computer - https://www.bleepingcomputer.com/news/linux/new-refluxfs-linux-flaw-lets-attackers-gain-root-privileges/
 - **Attackers Weaponize GitHub Actions Runners to Target cPanel and WHM Servers**: The Hacker News - https://thehackernews.com/2026/07/attackers-weaponize-github-actions.html
-- **Agentic AI Challenges Progress in Confidential Computing**: Dark Reading - https://www.darkreading.com/endpoint-security/agentic-ai-challenges-progress-in-confidential-computing
-- **Google Adds Selfie Video Recovery for Users Locked Out of Their Accounts**: The Hacker News - https://thehackernews.com/2026/07/google-adds-selfie-video-recovery-for.html
-- **New msaRAT malware uses Chrome, Edge browsers to route C2 traffic**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-msarat-malware-uses-chrome-edge-browsers-to-route-c2-traffic/
-- **Microsoft working to fix Exchange Online mailbox quarantine issue**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-working-to-fix-exchange-online-mailbox-quarantine-issue/
-- **Check Point warns of SmartConsole zero-day exploited in attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/check-point-patches-smartconsole-zero-day-exploited-in-attacks/
-- **Nine-Year-Old RefluXFS Linux Flaw Gives Local Users Root on Default RHEL Installs**: The Hacker News - https://thehackernews.com/2026/07/nine-year-old-refluxfs-linux-flaw-gives.html
