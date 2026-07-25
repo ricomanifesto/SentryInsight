@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+import os
 import sys
 import tempfile
 import types
@@ -252,6 +253,110 @@ Recent exploitation activity is concentrated in edge systems.
         result = asyncio.run(workflow.publish_results(state))
 
         self.assertIs(result, state)
+
+    def test_filter_articles_skips_analysis_when_article_set_unchanged(self):
+        from src.core.content_fingerprint import (
+            compute_articles_fingerprint,
+            write_stored_fingerprint,
+        )
+
+        workflow = import_workflow_with_stubs()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            articles = [{"title": "Same story", "link": "https://example.com/a"}]
+            write_stored_fingerprint(
+                compute_articles_fingerprint(articles),
+                str(Path(tmpdir) / ".sentryinsight-articles-fingerprint"),
+            )
+
+            state = {
+                "articles": articles,
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.filter_articles(state))
+
+            self.assertEqual(result["status"], "completed_unchanged")
+            self.assertEqual(workflow.should_end(result), "unchanged")
+
+    def test_filter_articles_continues_when_article_set_is_new(self):
+        workflow = import_workflow_with_stubs()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            articles = [{"title": "New story", "link": "https://example.com/new"}]
+
+            state = {
+                "articles": articles,
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.filter_articles(state))
+
+            self.assertNotEqual(result.get("status"), "completed_unchanged")
+            self.assertEqual(workflow.should_end(result), "continue")
+            self.assertIn("articles_fingerprint", result)
+
+    def test_generate_report_persists_fingerprint_for_next_run(self):
+        from src.core.content_fingerprint import read_stored_fingerprint
+
+        workflow = import_workflow_with_stubs()
+
+        # generate_report also copies to a hardcoded relative "docs/" path
+        # when that directory exists, so run from an isolated cwd with no
+        # "docs" subdir — otherwise this would clobber the real repo's
+        # docs/index.md.
+        original_cwd = Path.cwd()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.chdir(tmpdir)
+            try:
+                state = {
+                    "analysis_results": {
+                        "exploitation_report": """# Exploitation Report
+
+## Executive Summary
+
+Recent exploitation activity is concentrated in edge systems.
+
+## Active Exploitation Details
+
+### Example Vulnerability
+- **Description**: Attackers are exploiting a vulnerable service.
+- **Impact**: Remote access.
+- **Status**: Active exploitation observed.
+
+## Affected Systems and Products
+
+- **Example Product**: Affected versions are exposed.
+
+## Attack Vectors and Techniques
+
+- **Internet-facing service**: Attackers send crafted requests.
+
+## Threat Actor Activities
+
+- **Unknown actor**: Opportunistic exploitation.
+""",
+                    },
+                    "articles_fingerprint": "test-fingerprint-value",
+                    "config": {"output_path": "index.md"},
+                    "status": "started",
+                }
+
+                result = asyncio.run(workflow.generate_report(state))
+
+                self.assertEqual(result["status"], "started")
+                fingerprint_path = Path(".sentryinsight-articles-fingerprint")
+                self.assertTrue(fingerprint_path.exists())
+                self.assertEqual(
+                    read_stored_fingerprint(str(fingerprint_path)),
+                    "test-fingerprint-value",
+                )
+            finally:
+                os.chdir(original_cwd)
 
     def test_skipped_analysis_skips_publish(self):
         workflow = import_workflow_with_stubs()

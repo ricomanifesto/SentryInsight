@@ -5,9 +5,11 @@ on:
   repository_dispatch:
     types: [sentrydigest-updated]
   
-  # Schedule backup run (in case webhook fails)
+  # Schedule backup run (in case webhook fails). The workflow now fingerprints
+  # the source article set and skips analysis/audio generation when nothing
+  # changed, so this only needs to catch a fully missed webhook, not run often.
   schedule:
-    - cron: '30 */12 * * *'  # Run every 12 hours, offset by 30 minutes
+    - cron: '30 6 * * *'  # Run once daily at 06:30 UTC
   
   # Allow manual triggering
   workflow_dispatch:
@@ -63,6 +65,7 @@ jobs:
           git add -f index.md || true
           git add -f index.html || true
           git add -f executive_summary.mp3 || true
+          git add -f .sentryinsight-articles-fingerprint || true
           if [ -d docs ]; then
             git add -f docs/index.md || true
             git add -f docs/index.html || true
