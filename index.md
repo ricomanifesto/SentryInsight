@@ -2,112 +2,135 @@
 
 ## Executive Summary
 
-Russian state-sponsored actors continue to exploit a Zimbra Collaboration zero-day vulnerability in sustained espionage campaigns targeting organizations in the United States and Ukraine. The threat group tracked as Laundry Bear (also known as Void Blizzard) has leveraged "half-click" and zero-click phishing techniques to compromise email servers, exfiltrating up to 90 days of messages, organizational charts, and two-factor authentication codes over a period of months. CISA has issued warnings regarding this active exploitation, which combines social engineering with a previously unknown flaw in Zimbra's webmail client.
+Russian state-sponsored threat actors are actively exploiting a zero-day vulnerability in Zimbra Collaboration Suite to conduct espionage against organizations in the United States and Ukraine. The group tracked as Laundry Bear (also known as Void Blizzard) employs a "half-click" or zero-click exploitation technique requiring victims only to open or preview malicious emails, enabling theft of email communications, organizational charts, and two-factor authentication codes over extended periods. CISA has issued warnings about this ongoing campaign.
 
-North Korean threat actors operating as BlueNoroff have refined their ClickFix-style social engineering campaigns with a sophisticated phishing kit that profiles cryptocurrency wallet holdings before delivering malware. The group uses typosquatted Zoom and Microsoft Teams domains to lure victims, representing an evolution in financially motivated attacks targeting the crypto sector. Simultaneously, the Golden Chickens malware-as-a-service ecosystem has resurfaced with four new malware families and modular implants, signaling continued investment in their criminal infrastructure.
+Multiple critical zero-day vulnerabilities with working remote code execution exploits have been disclosed in Redis, affecting versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0. Researchers published authenticated RCE proof-of-concept chains requiring the RESTORE command, prompting Redis to release seven security updates on July 23. Simultaneously, a working exploit dubbed "Certighost" was published for Active Directory Certificate Services, allowing low-privileged domain users to obtain certificates for Domain Controllers and authenticate as those machines, effectively enabling privilege escalation to domain administrator level.
 
-Critical vulnerabilities in AI-driven systems and cloud infrastructure have emerged as new attack surfaces. Researchers demonstrated authenticated remote code execution chains affecting multiple Redis versions, prompting seven emergency security releases. Microsoft addressed a cross-tenant identity takeover flaw in Azure Automation's default configuration, while critical sandbox escape vulnerabilities were disclosed in both OpenAI's ChatGPT Workspace Agents (AgentForger) and Anthropic's Claude Cowork. Additionally, crafted SVGs submitted to Bing Images achieved SYSTEM-level command execution on Microsoft's production infrastructure.
+Threat actors are increasingly weaponizing AI agents for autonomous post-exploitation activities, as demonstrated by the use of the open-source Hermes AI agent in unattended "YOLO" mode against Thailand's Ministry of Finance. North Korean group BlueNoroff operates a sophisticated phishing kit leveraging typosquatted Zoom and Microsoft Teams domains to profile cryptocurrency wallets before delivering malware. Meanwhile, attackers are hijacking hotel and conference center Wi-Fi DNS settings to redirect victims to credential-harvesting Microsoft 365 login pages, and the Clop ransomware gang has shifted to targeting internet-exposed PTC Windchill and FlexPLM instances for data theft extortion.
 
 ## Active Exploitation Details
 
 ### Zimbra Collaboration Zero-Day Exploitation
-- **Description**: A previously unknown vulnerability in Zimbra's webmail client allows attackers to compromise email servers through "half-click" phishing emails that require only message opening or previewing. The flaw enables unauthorized access to mailboxes without traditional credential theft.
-- **Impact**: Attackers gain persistent access to email communications, exfiltrating up to 90 days of messages, organizational contact lists, and two-factor authentication codes. The espionage campaign has targeted government, diplomatic, and military entities in the US and Ukraine.
-- **Status**: Actively exploited in the wild for months by a Russian state-sponsored group. CISA has issued warnings. No patch information provided in source articles.
-- **CVE ID**: Not explicitly provided in source articles
-
-### Certighost Active Directory Certificate Abuse
-- **Description**: A working exploit published on July 24 by researchers H0j3n and Aniq Fakhrul allows low-privileged Active Directory users to obtain a certificate for a Domain Controller and authenticate as that machine account.
-- **Impact**: Privilege escalation from standard domain user to Domain Controller-level access, enabling full domain compromise, credential theft, and lateral movement.
-- **Status**: Public exploit code available. Active Directory environments using certificate-based authentication are vulnerable.
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: A zero-day vulnerability in Zimbra's webmail client allows attackers to execute code or access mailbox content when victims open or preview malicious emails. The flaw requires minimal user interaction—described as "half-click" or "zero-click"—making it highly effective for espionage.
+- **Impact**: Attackers gain access to the last 90 days of email communications, organizational charts, and two-factor authentication codes. The Russian espionage group maintained persistent access to Western mailboxes for months before detection.
+- **Status**: Actively exploited in the wild by Russian state-sponsored group Laundry Bear (Void Blizzard). CISA has issued warnings. No patch information provided in source articles.
 
 ### Redis Authenticated RCE Zero-Days
-- **Description**: Four distinct exploit chains requiring the RESTORE command enable authenticated remote code execution in stock Redis versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0. The Streams chain is one of the verified exploit paths. Discovered by Kimi K3 AI agents.
-- **Impact**: Full server compromise on Redis instances where attackers have authentication credentials. Allows arbitrary command execution as the Redis service account.
-- **Status**: Redis shipped seven security releases on July 23 addressing these vulnerabilities. Proof-of-concept exploits are public.
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: Four distinct exploit chains affecting stock Redis versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0. All chains require the RESTORE command and leverage the Streams data structure. Researchers from Kimi K3 Agents discovered the vulnerabilities and built working RCE exploits.
+- **Impact**: Authenticated remote code execution on Redis servers, potentially leading to full server compromise, data theft, and lateral movement within internal networks.
+- **Status**: Zero-days publicly disclosed with PoC exploits. Redis shipped seven security releases on July 23 to address the vulnerabilities. Organizations running affected versions should update immediately.
+
+### Certighost Active Directory Exploit
+- **Description**: A working exploit published on July 24 by researchers H0j3n and Aniq Fakhrul that abuses Active Directory Certificate Services (AD CS). A low-privileged domain user can request and obtain a certificate for a Domain Controller machine account, then authenticate as that Domain Controller.
+- **Impact**: Full domain compromise via privilege escalation from standard user to Domain Administrator equivalent. Attackers can impersonate any machine in the domain, access all domain resources, and establish persistence.
+- **Status**: Public exploit code available. Actively exploitable in environments with vulnerable AD CS configurations. No patch information provided in source articles.
+
+### Hermes AI Agent Automated Post-Exploitation
+- **Description**: Threat actor deployed the open-source Hermes AI agent on a rented server, disabled safety controls ("YOLO" mode), and directed it to automate post-exploitation activities against Thailand's Ministry of Finance. The agent operates unattended, executing commands without human approval.
+- **Impact**: Automated lateral movement, credential harvesting, data exfiltration, and persistence establishment at machine speed. Demonstrates emerging trend of AI-driven autonomous attack execution.
+- **Status**: Active incident reported against a government ministry. Highlights defensive gaps against AI-augmented offensive operations.
+
+### BlueNoroff Cryptocurrency-Targeted Phishing Kit
+- **Description**: North Korean threat group BlueNoroff operates an active phishing kit using typosquatted Zoom and Microsoft Teams domains in ClickFix-style campaigns. The kit profiles victims' cryptocurrency wallets before delivering tailored malware payloads.
+- **Impact**: Credential theft, cryptocurrency wallet compromise, and malware deployment targeting financial assets. The profiling capability allows attackers to prioritize high-value targets.
+- **Status**: Active campaigns ongoing. Phishing kit continuously updated with new typosquatted domains and evasion techniques.
+
+### Hotel Wi-Fi DNS Hijacking for Microsoft 365 Credential Theft
+- **Description**: Attackers compromise Wi-Fi infrastructure at hotels and conference centers to modify DNS settings, redirecting users to convincing fake Microsoft 365 login pages when they connect to the network.
+- **Impact**: Harvesting of Microsoft 365 credentials from business travelers and conference attendees. Credentials provide access to corporate email, SharePoint, Teams, and other sensitive resources.
+- **Status**: Active campaign targeting hospitality sector infrastructure. Difficult for end-users to detect due to legitimate network appearance.
+
+### Clop Ransomware Windchill/FlexPLM Data Theft Campaign
+- **Description**: Clop ransomware gang (Cl0p) targets internet-exposed PTC Windchill and FlexPLM instances—product lifecycle management and PLM software—in a data theft extortion campaign rather than traditional encryption-based ransomware.
+- **Impact**: Theft of proprietary product designs, intellectual property, supply chain data, and manufacturing information from engineering and manufacturing organizations. Follow-on extortion demands.
+- **Status**: Active campaign targeting exposed instances. Organizations with internet-accessible Windchill/FlexPLM deployments at high risk.
+
+### Fake Notepad++ Plugin Delivering MATCHBOIL.V2 (UAC-0099)
+- **Description**: CERT-UA warns of a campaign using a malicious Notepad++ plugin to deliver MATCHBOIL.V2 malware. The plugin masquerades as legitimate functionality to compromise Windows systems.
+- **Impact**: Initial access, persistence, and deployment of additional payloads. Targets users seeking Notepad++ extensions.
+- **Status**: Active UAC-0099 campaign. Distribution via fake plugin repositories or social engineering.
 
 ### Azure Automation Cross-Tenant Identity Takeover
-- **Description**: A public-by-default configuration combined with a chain of code flaws in Azure Automation allows attackers to seize another tenant's identity and access their data, credentials, and resources.
-- **Impact**: Cross-tenant privilege escalation and data access in multi-tenant Azure environments. Attackers can pivot from a compromised tenant to target others sharing the same infrastructure.
-- **Status**: Microsoft has addressed the configuration and code flaws. Organizations should verify their Azure Automation configurations.
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: A default public configuration in Azure Automation combined with a chain of code flaws allows attackers to seize another tenant's managed identity and access their data, credentials, and resources.
+- **Impact**: Cross-tenant compromise in multi-tenant Azure environments. Attackers can access resources, storage, and credentials belonging to other customers' tenants.
+- **Status**: Microsoft has addressed the public-by-default configuration and underlying code flaws. Organizations should verify Azure Automation configurations.
 
 ### ChatGPT Workspace Agents AgentForger Vulnerability
-- **Description**: A critical vulnerability in OpenAI's ChatGPT Workspace Agents allows a single phishing link to stealthily build, authorize, and deploy rogue autonomous agents within a victim's workspace.
-- **Impact**: Attackers can deploy persistent AI agents with access to the victim's workspace data, tools, and permissions, enabling automated data exfiltration and further compromise.
-- **Status**: Disclosed by cybersecurity researchers. Patch status not specified in source articles.
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: Critical vulnerability in OpenAI's ChatGPT Workspace Agents allowing a single phishing link to stealthily build, authorize, and deploy rogue autonomous agents within a victim's workspace.
+- **Impact**: Unauthorized agent deployment with workspace permissions, potential data access, code execution, and persistent foothold in ChatGPT enterprise environments.
+- **Status**: Disclosed by researchers. No exploitation reports in articles, but critical severity warrants immediate attention.
 
 ### Bing Images SVG Remote Code Execution
-- **Description**: Crafted SVG files submitted to Bing's image search service achieve remote code execution as NT AUTHORITY\SYSTEM on Windows image-processing workers and as root on Linux machines in the same fleet.
-- **Impact**: Full compromise of Microsoft's production image-processing infrastructure. Demonstrated by security researcher XBOW.
-- **Status**: Vulnerability demonstrated on production systems. Remediation status not specified in source articles.
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: Crafted SVG files submitted to Bing's image search execute commands as NT AUTHORITY\SYSTEM on Microsoft's production image-processing workers and as root on Linux machines in the same fleet.
+- **Impact**: Remote code execution on Microsoft's internal infrastructure with highest privileges. Demonstrates supply chain risk through image processing pipelines.
+- **Status**: Demonstrated by XBOW researchers. Microsoft infrastructure impact; customer exposure unclear from articles.
 
-### Claude Cowork Sandbox Escape
-- **Description**: A sandbox escape vulnerability in Anthropic's Claude Cowork allows an AI agent to break out of its Linux virtual machine confinement and access host Mac filesystem resources.
-- **Impact**: VM escape leading to host system compromise, potential access to sensitive files, and lateral movement from the AI execution environment.
-- **Status**: Disclosed by cybersecurity researchers. Remediation status not specified in source articles.
-- **CVE ID**: Not explicitly provided in source articles
+### Golden Chickens MaaS Expansion
+- **Description**: Golden Chickens malware-as-a-service operators have resurfaced with four new malware families featuring modular implants, indicating continued development and customer demand.
+- **Impact**: Provides threat actors with updated tooling for initial access, persistence, credential theft, and post-exploitation. Modular design allows customization per target.
+- **Status**: Active MaaS operation. New families increase detection evasion and capability breadth for subscribers.
 
-### NodeBB Multiple High-Severity Vulnerabilities
-- **Description**: Eight high-severity security flaws in the NodeBB forum platform expose administrative access and private chat communications. Discovered by AI penetration testing agents in a six-hour assessment.
-- **Impact**: Full administrative takeover of NodeBB instances, access to private messages, user data exposure, and potential platform compromise.
-- **Status**: Patches released. Exploit code published alongside vulnerability details.
-- **CVE ID**: Not explicitly provided in source articles
+### NodeBB Forum Software Vulnerabilities
+- **Description**: Eight high-severity security flaws discovered in NodeBB forum software by AI pentesting agents in a six-hour assessment. Exploit code published alongside disclosure.
+- **Impact**: Administrative access compromise, private chat/message exposure, and potential full forum takeover.
+- **Status**: Public disclosure with exploit code. NodeBB patches available. High risk for unpatched instances.
+
+### Vatican Prayer App API Data Exposure
+- **Description**: A porous API endpoint in the Vatican's official prayer app exposes names, email addresses, countries, and site status for over 700,000 global users, accessible via simple browser requests.
+- **Impact**: Mass PII exposure of religious application users. Data suitable for targeted phishing, identity theft, and profiling.
+- **Status**: Active exposure at time of reporting. No authentication or rate limiting on vulnerable endpoint.
 
 ## Affected Systems and Products
 
-- **Zimbra Collaboration Suite**: Email and collaboration platform targeted by zero-day exploitation. Affected versions not specified in source articles.
-- **Microsoft Active Directory**: Domain environments using certificate-based authentication vulnerable to Certighost exploit.
-- **Redis**: Versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0 affected by authenticated RCE chains. All versions patched in July 23 security releases.
-- **Microsoft Azure Automation**: Tenants using default public configurations vulnerable to cross-tenant identity takeover.
-- **OpenAI ChatGPT Workspace Agents**: Enterprise workspace environments vulnerable to AgentForger phishing-based agent deployment.
-- **Microsoft Bing Images**: Production image-processing infrastructure (Windows and Linux workers) vulnerable to SVG-based RCE.
-- **Anthropic Claude Cowork**: AI agent execution environments on Mac hosts vulnerable to VM sandbox escape.
-- **NodeBB Forum Platform**: All versions prior to security patches vulnerable to eight high-severity flaws affecting admin access and private chats.
-- **PTC Windchill and FlexPLM**: Internet-exposed PLM instances targeted by Clop ransomware for data theft extortion.
-- **Notepad++**: Legitimate application abused as delivery vector for malicious plugins (LunchPoke, MATCHBOIL.V2).
-- **Vatican Official Prayer App (Click To Pray)**: API endpoint exposing 700,000+ users' PII including names, emails, countries, and site status.
-- **Origin Energy Systems**: Australian energy provider's customer data systems breached, exposing sensitive PII.
-- **Snapchat**: Platform targeted for credential-based account takeover affecting 750+ users.
+- **Zimbra Collaboration Suite**: Email and collaboration platform; versions affected by zero-day not specified; exploited in US and Ukraine targets
+- **Redis**: Versions 6.2.22, 7.4.9, 8.6.4, and 8.8.0 confirmed vulnerable to authenticated RCE chains; seven security releases issued July 23
+- **Active Directory Certificate Services (AD CS)**: Windows Server role; vulnerable to Certighost exploit allowing low-privileged user to Domain Controller impersonation
+- **PTC Windchill and FlexPLM**: Product lifecycle management software; internet-exposed instances targeted by Clop ransomware for data theft
+- **Azure Automation**: Microsoft cloud automation service; default public configuration enabled cross-tenant identity takeover; addressed by Microsoft
+- **OpenAI ChatGPT Workspace Agents**: Enterprise AI workspace feature; AgentForger vulnerability allows rogue agent deployment via phishing link
+- **Bing Image Search Processing Pipeline**: Microsoft's image processing infrastructure; SVG parsing flaw allowed SYSTEM/root RCE on worker fleets
+- **NodeBB Forum Software**: Open-source forum platform; eight high-severity flaws with public exploit code; patches released
+- **Vatican Click To Pray App (Official Prayer App)**: Mobile/web application; porous API endpoint exposing 700,000+ users' PII
+- **Hotel/Conference Center Wi-Fi Infrastructure**: Network equipment (routers, access points, DNS servers); compromised to hijack DNS for credential phishing
+- **Hermes AI Agent**: Open-source autonomous AI agent; weaponized in "YOLO" mode for unattended post-exploitation against Thai Finance Ministry
+- **Notepad++ Plugin Ecosystem**: Windows text editor extensions; fake plugin used to deliver MATCHBOIL.V2 malware in UAC-0099 campaign
 
 ## Attack Vectors and Techniques
 
-- **Half-Click / Zero-Click Phishing**: Russian actors send malicious emails exploiting Zimbra zero-day requiring only message preview or opening for compromise. No user interaction beyond viewing the message needed.
-- **ClickFix-Style Social Engineering**: BlueNoroff uses typosquatted Zoom and Microsoft Teams domains to trick victims into executing malicious commands via fake meeting invitations and error messages.
-- **Cryptocurrency Wallet Profiling**: Phishing kit identifies and profiles victim's crypto wallet holdings before delivering targeted malware payloads.
-- **Active Directory Certificate Abuse**: Low-privileged users exploit certificate enrollment mechanisms to obtain Domain Controller certificates for machine account impersonation.
-- **Redis RESTORE Command Exploitation**: Four distinct RCE chains leveraging the RESTORE command in authenticated Redis sessions, including Streams-based exploitation.
-- **Cross-Tenant Identity Confusion**: Exploitation of Azure Automation's default public configuration to hijack managed identities across tenant boundaries.
-- **AI Agent Phishing Deployment**: Single malicious links trigger unauthorized AI agent creation, authorization, and deployment within victim workspaces (AgentForger).
-- **SVG-Based Server-Side Template Injection**: Crafted SVG files with embedded executable content achieve RCE on image-processing pipelines running with elevated privileges.
-- **VM Sandbox Escape**: AI agent breaks out of Linux VM confinement to access host Mac filesystem through Claude Cowork vulnerability.
-- **AI-Discovered Vulnerability Exploitation**: Automated AI penetration testing agents identify and exploit eight vulnerabilities in NodeBB within six hours.
-- **Credential Stuffing**: Automated login attempts using leaked credentials compromise Chick-fil-A customer accounts (13,000+ affected).
-- **Malicious Plugin Distribution**: Legitimate Notepad++ bundled with malicious utilities (LunchPoke) disguised as plugins for persistence establishment.
-- **Malvertising via Bing Ads**: Fake Claude desktop app installers hosted on legitimate Claude.ai domains deliver SectopRAT through search advertising.
-- **AI-Powered Target Profiling**: Dolphin X RAT uses AI to score and rank infected victims by value for prioritized exploitation.
-- **Supply Chain / Typosquatting**: Slopsquatting, phantom domains, and HalluSquatting exploit AI-hallucinated package and domain names in software dependencies.
-- **Porous API Exposure**: Unauthenticated API endpoints leak PII at scale (Vatican prayer app: 700K+ users).
+- **Zero-Click/Half-Click Email Exploitation**: Malicious emails exploiting Zimbra zero-day require only opening or previewing—no clicks or attachments—to trigger code execution or data access
+- **AI-Automated Post-Exploitation**: Hermes AI agent operated in unattended mode with safety controls disabled to autonomously conduct lateral movement, enumeration, and data theft
+- **DNS Hijacking on Public Wi-Fi**: Attackers compromise hospitality network infrastructure to modify DNS responses, redirecting Microsoft 365 authentication to credential-harvesting pages
+- **ClickFix-Style Social Engineering**: BlueNoroff uses typosquatted Zoom/Teams domains with fake error prompts tricking users into executing malicious commands (PowerShell, Run dialog)
+- **Cryptocurrency Wallet Profiling**: Phishing kit enumerates browser extensions, wallet applications, and blockchain addresses before delivering targeted malware
+- **Authenticated Redis RESTORE Abuse**: Exploit chains leverage legitimate RESTORE command with crafted payloads to achieve RCE on authenticated Redis instances
+- **AD CS Certificate Theft for Machine Impersonation**: Low-privileged users request certificates for Domain Controller machine accounts, enabling Kerberos authentication as the DC
+- **Malvertising on Legitimate Search Platforms**: Fake Claude installer hosted on legitimate Claude.ai domain promoted via Bing Ads to deliver SectopRAT
+- **Supply Chain / Typosquatting Domains**: BlueNoroff registers Zoom/Teams lookalike domains; Golden Chickens MaaS distributes modular malware via affiliate networks
+- **AI Hallucination Exploitation (Slopsquatting/HalluSquatting)**: Attackers register package/domain names hallucinated by AI coding assistants, waiting for developers to request them
+- **Credential Stuffing at Scale**: Automated testing of leaked credentials against Chick-fil-A website/app compromised 13,000+ accounts in 48 hours
+- **SVG Payload Injection in Image Processing**: Crafted SVGs exploit parsing libraries to achieve RCE on backend processing workers with elevated privileges
+- **Fake Legitimate Software Plugins**: Malicious Notepad++ plugin masquerading as legitimate extension delivers MATCHBOIL.V2 loader
+- **Cross-Tenant Identity Confusion**: Exploiting default public Azure Automation configuration to assume another tenant's managed identity
 
 ## Threat Actor Activities
 
-- **Laundry Bear / Void Blizzard (Russian State-Sponsored)**: Conducting sustained espionage campaign exploiting Zimbra zero-day against US and Ukrainian targets. Uses half-click phishing for initial access, maintains persistent email access for months, exfiltrates communications, org charts, and 2FA codes. CISA-attributed activity.
-- **BlueNoroff (North Korean State-Sponsored)**: Operating sophisticated ClickFix-style phishing campaigns with typosquatted Zoom/Teams domains. Deploys phishing kit that profiles cryptocurrency wallets before malware delivery. Financially motivated targeting of crypto sector.
-- **Golden Chickens Operators (Cybercrime MaaS)**: Resurfaced with four new malware families and modular implants. Maintains malware-as-a-service ecosystem showing continued development investment despite prior disruptions.
-- **Clop Ransomware Gang (Cl0p) (Cybercrime)**: Targeting internet-exposed PTC Windchill and FlexPLM instances in data theft extortion campaign. Focus on PLM software used in manufacturing and engineering sectors.
-- **UAC-0099 (Ukraine-Targeted Threat Group)**: Distributing MATCHBOIL.V2 malware via fake Notepad++ plugins. CERT-UA attributed campaign using LunchPoke utility for persistence.
-- **Hermes AI Operator (Unknown Attribution)**: Deployed Hermes AI agent unattended on rented server targeting Thailand's Ministry of Finance for post-exploitation activities. Disabled safety controls to enable autonomous risky commands.
-- **Dolphin X Operators (Cybercrime)**: Deploying new Dolphin X RAT with AI-powered victim profiling to rank and prioritize high-value targets for further exploitation.
-- **SectopRAT Distributors (Cybercrime)**: Running malvertising campaign on Bing search promoting fake Claude desktop app hosted on legitimate Claude.ai domain.
-- **Snapchat Account Hacker (Individual Actor)**: Illinois man sentenced to 76 months for hacking 750+ women's Snapchat accounts to steal private photos. Credential-based account takeover.
-- **XBOW (Security Researcher)**: Demonstrated SVG-based RCE on Microsoft Bing Images production infrastructure achieving SYSTEM/root access.
+- **Laundry Bear / Void Blizzard (Russian State-Sponsored)**: Conducting espionage via Zimbra zero-day against US and Ukraine targets; steals email, org charts, 2FA codes; maintains persistent access for months; CISA-attributed
+- **BlueNoroff (North Korean / Lazarus Subgroup)**: Operates active phishing kit with typosquatted Zoom/Teams domains; profiles cryptocurrency wallets pre-exploitation; ClickFix-style social engineering; financially motivated
+- **Clop / Cl0p Ransomware Gang**: Shifted to data theft extortion targeting internet-exposed PTC Windchill/FlexPLM instances; no encryption, pure exfiltration and extortion; financially motivated
+- **Golden Chickens Operators (MaaS Providers)**: Resurfaced with four new modular malware families; sell access/implant capabilities to affiliates; continuously evolving tooling
+- **UAC-0099 (Ukrainian-Tracked Threat Group)**: Distributes MATCHBOIL.V2 via fake Notepad++ plugins; CERT-UA attributed; targets Ukrainian entities likely
+- **Russian Espionage Group (Unnamed, The Hacker News Attribution)**: Exploited Zimbra zero-day for months to read Western mailboxes; stole 90 days of email, org charts, 2FA codes; state-supported
+- **Thai Finance Ministry Attacker (Unidentified)**: Deployed Hermes AI agent on rented VPS in unattended mode for automated post-exploitation; novel AI-weaponization tradecraft
+- **Hotel Wi-Fi Compromise Actors (Unidentified)**: Target hospitality sector network infrastructure globally to harvest business traveler Microsoft 365 credentials
+- **SectopRAT Distributors (Unidentified)**: Malvertising campaign on Bing pushing fake Claude app from legitimate domain; delivers SectopRAT information stealer
 
 ## Source Attribution
 
+- **CISOs vs. Boards: Myth or Misunderstanding?**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/cisos-vs-boards-myth-or-misunderstanding-
+- **OnTrac notifies customers of data breach after network hack**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/ontrac-notifies-customers-of-data-breach-after-network-hack/
+- **Escape Artists: 'Incorrigible' AI Models Resist Rehabilitation**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/incorrigible-ai-models-resist-rehabilitation
+- **Hermes AI agent used to automate attack on Thai Finance Ministry**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hermes-ai-agent-used-to-automate-attack-on-thai-finance-ministry/
+- **Hackers hijack hotel Wi-Fi DNS to steal Microsoft 365 accounts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-hijack-hotel-wi-fi-dns-to-steal-microsoft-365-accounts/
 - **Microsoft blames massive Microsoft 365 outage on maintenance bug**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-blames-massive-microsoft-365-outage-on-maintenance-bug/
 - **BlueNoroff Zoom Phishing Kit Profiles Crypto Wallets Before Malware Delivery**: The Hacker News - https://thehackernews.com/2026/07/bluenoroff-zoom-phishing-kit-profiles.html
 - **Certighost Exploit Lets Low-Privileged Active Directory Users Impersonate a Domain Controller**: The Hacker News - https://thehackernews.com/2026/07/certighost-exploit-lets-low-privileged.html
@@ -133,8 +156,3 @@ Critical vulnerabilities in AI-driven systems and cloud infrastructure have emer
 - **Fake Claude app promoted by Bing ads pushes SectopRAT malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/fake-claude-app-promoted-by-bing-ads-pushes-sectoprat-malware/
 - **Russian Espionage Group Exploited Zimbra Zero-Day to Steal Mail and 2FA Codes**: The Hacker News - https://thehackernews.com/2026/07/russian-espionage-group-exploited.html
 - **Russian hackers exploit Zimbra zero-click flaw for email theft**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/russian-hackers-exploit-zimbra-zero-click-flaw-for-email-theft/
-- **Hackers abuse Notepad++ plugins to stealthily install malware**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-abuse-notepad-plus-plus-plugins-to-stealthily-install-malware/
-- **Microsoft 365 outage affects Teams, SharePoint and other services**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-365-outage-affects-teams-sharepoint-and-other-services/
-- **ThreatsDay: Android Spyware, PLC Attacks, AI Image Prompt Injection + 12 More Stories**: The Hacker News - https://thehackernews.com/2026/07/threatsday-android-spyware-plc-attacks.html
-- **FedRAMP Rev5 Is Ending: What the 20x Transition Really Requires**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/fedramp-rev5-is-ending-what-the-20x-transition-really-requires/
-- **Claude Cowork Flaw Could Let AI Agent Escape Its VM and Access Mac Files**: The Hacker News - https://thehackernews.com/2026/07/claude-cowork-flaw-could-let-ai-agent.html
