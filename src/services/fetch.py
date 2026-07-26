@@ -24,7 +24,29 @@ class SentryDigestFeedClient:
             feed_url: URL of the SentryDigest RSS feed
         """
         self.feed_url = feed_url
-        self.client = httpx.AsyncClient(follow_redirects=True, timeout=30.0)
+        self.client = None
+
+    async def _fetch_articles_with_client(
+        self, client: httpx.AsyncClient
+    ) -> List[Dict[str, Any]]:
+        response = await client.get(self.feed_url)
+        response.raise_for_status()
+
+        feed = feedparser.parse(response.text)
+        articles = []
+        for entry in feed.entries:
+            articles.append(
+                {
+                    "title": entry.get("title", ""),
+                    "link": entry.get("link", ""),
+                    "summary": entry.get("description", ""),
+                    "published": entry.get("published", ""),
+                    "source": entry.get("dc_source", "Unknown Source"),
+                    "date": entry.get("dc_date", datetime.now().strftime("%Y-%m-%d")),
+                    "content": entry.get("content", ""),
+                }
+            )
+        return articles
 
     async def fetch_articles(self) -> List[Dict[str, Any]]:
         """
@@ -36,27 +58,13 @@ class SentryDigestFeedClient:
         logger.info(f"Fetching articles from {self.feed_url}")
 
         try:
-            # Fetch the feed
-            response = await self.client.get(self.feed_url)
-            response.raise_for_status()
-
-            # Use feedparser to parse the feed
-            feed = feedparser.parse(response.text)
-
-            # Extract articles
-            articles = []
-            for entry in feed.entries:
-                # Basic article info
-                article = {
-                    "title": entry.get("title", ""),
-                    "link": entry.get("link", ""),
-                    "summary": entry.get("description", ""),
-                    "published": entry.get("published", ""),
-                    "source": entry.get("dc_source", "Unknown Source"),
-                    "date": entry.get("dc_date", datetime.now().strftime("%Y-%m-%d")),
-                    "content": entry.get("content", ""),
-                }
-                articles.append(article)
+            if self.client is not None:
+                articles = await self._fetch_articles_with_client(self.client)
+            else:
+                async with httpx.AsyncClient(
+                    follow_redirects=True, timeout=30.0
+                ) as client:
+                    articles = await self._fetch_articles_with_client(client)
 
             logger.info(f"Extracted {len(articles)} articles from feed")
             return articles
