@@ -2,171 +2,103 @@
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are being actively exploited across diverse technology stacks, ranging from enterprise Java libraries and DevOps platforms to AI-powered development tools and cloud infrastructure. The Fastjson 1.x remote code execution flaw remains unpatched while under active attack, and Cl0p ransomware affiliates are leveraging unauthenticated RCE vulnerabilities in internet-exposed PTC Windchill and FlexPLM deployments. Simultaneously, researchers have published proof-of-concept exploits for recently patched flaws in GitLab and Active Directory (Certighost), creating immediate risk for organizations that have not yet applied updates.
+Multiple critical exploitation campaigns are actively targeting organizations across diverse sectors, with threat actors leveraging unpatched vulnerabilities, novel malware delivery techniques, and sophisticated social engineering. A zero-day remote code execution flaw in Fastjson 1.x is being actively exploited in the wild with no patch available, affecting Spring Boot applications globally. Simultaneously, Cl0p ransomware affiliates are conducting mass exploitation of internet-exposed PTC Windchill and FlexPLM instances through unauthenticated RCE vulnerabilities, while North Korean actors behind BlueNoroff deploy advanced phishing kits that profile cryptocurrency wallets before delivering malware via typosquatted Zoom and Microsoft Teams domains.
 
-Novel attack techniques are proliferating rapidly. North Korean threat actors (BlueNoroff) have operationalized ClickFix-style social engineering through typosquatted video-conferencing domains, while the SourTrade malvertising campaign and related advertising operation pioneers a browser-native malware assembly technique using the legitimate Bun runtime. Attackers are also weaponizing AI agents—specifically the open-source Hermes framework in unattended "YOLO" mode—to automate post-exploitation activity against high-value targets such as Thailand's Ministry of Finance. Credential theft campaigns continue to evolve, with hotel Wi-Fi DNS hijacking redirecting victims to convincing Microsoft 365 phishing pages and Chick-fil-A suffering a large-scale credential stuffing incident affecting over 13,000 customers.
-
-Supply chain and identity-based threats round out the landscape. GitHub and PyPI have deployed time-based defenses in Dependabot to mitigate supply chain attack impact, while a default-public Azure Automation configuration enabled cross-tenant identity takeover before Microsoft's remediation. The Golden Chickens malware-as-a-service ecosystem has resurfaced with four new modular families, the DevMan RaaS platform continues to professionalize affiliate operations, and AI hallucination-driven "slopsquatting" attacks target developers through phantom package names. The ShinyHunters extortion group's data leaks are fueling sextortion campaigns, and a porous API in the Vatican's official prayer application exposed 700,000+ users' personally identifiable information.
+Novel attack vectors are emerging that bypass traditional detection mechanisms. The SourTrade malvertising campaign uses a legitimate Bun runtime to force victims' browsers to assemble Windows executables in memory from fragmented payloads, while ClickFix attacks on Steam forums and hotel Wi-Fi DNS hijacking demonstrate the continued effectiveness of social engineering combined with infrastructure manipulation. In the identity space, the Certighost exploit enables low-privileged Active Directory users to impersonate Domain Controllers through certificate abuse, and a default Azure Automation configuration allows cross-tenant identity takeover. Supply chain defenses are evolving with GitHub and PyPI implementing time-based Dependabot cooldowns to counter poisoned package adoption, though AI-driven hallucination attacks like slopsquatting present new risks for development pipelines.
 
 ## Active Exploitation Details
 
-### Fastjson 1.x Remote Code Execution
-- **Description**: A critical deserialization flaw in Alibaba's Fastjson library for Java allows remote code execution in affected Spring Boot applications when processing malicious JSON requests. The vulnerability stems from unsafe auto-type deserialization behavior.
-- **Impact**: Attackers achieve full remote code execution on the application server by sending a single crafted JSON payload, leading to complete system compromise, data exfiltration, and lateral movement.
-- **Status**: Actively exploited in the wild by threat actors tracked by ThreatBook and Imperva. No official patch is currently available for the 1.x branch, leaving users dependent on mitigations such as disabling auto-type or upgrading to Fastjson 2.x where feasible.
-
-### GitLab Authenticated Remote Code Execution
-- **Description**: A vulnerability in GitLab's self-managed instances (versions 18.11.3 and later) allows authenticated users to execute arbitrary commands as the `git` system user. The flaw was patched by GitLab on June 10, 2026.
-- **Impact**: Any authenticated user—including low-privilege accounts—can run commands with the permissions of the Git service account, enabling repository manipulation, secret theft, supply chain poisoning, and potential privilege escalation.
-- **Status**: GitLab released a patch on June 10, 2026. On July 24, 2026, security researchers at depthfirst published a working proof-of-concept exploit, significantly increasing exploitation risk for unpatched instances.
+### Fastjson 1.x Remote Code Execution (Zero-Day)
+- **Description**: A critical flaw in Fastjson, Alibaba's JSON library for Java, allows attackers to execute arbitrary commands through malicious JSON requests in affected Spring Boot applications. The vulnerability stems from unsafe deserialization of attacker-controlled JSON input.
+- **Impact**: Full remote code execution on vulnerable Spring Boot applications, enabling complete server compromise, data theft, lateral movement, and deployment of additional payloads such as ransomware or cryptominers.
+- **Status**: Actively exploited in the wild by threat actors monitored by ThreatBook and Imperva. No official patch is available from the maintainers as of the reporting date. Organizations using Fastjson 1.x in Spring Boot applications are at immediate risk.
+- **CVE ID**: Not provided in source articles
 
 ### PTC Windchill and FlexPLM Unauthenticated RCE
-- **Description**: Unauthenticated remote code execution vulnerabilities affect internet-exposed deployments of PTC Windchill (PLM software) and FlexPLM. The flaws allow remote attackers to execute code without authentication.
-- **Impact**: Full server compromise, intellectual property theft from product lifecycle management systems, ransomware deployment, and lateral movement into connected engineering and manufacturing environments.
-- **Status**: Actively exploited by Cl0p ransomware affiliates (also tracked as Chubby Scorpius, FIN11, Graceful Spider, and Lace Tempest) as part of their ongoing campaign targeting internet-facing enterprise applications.
+- **Description**: Vulnerabilities in internet-exposed deployments of PTC Windchill (referred to as "Windmill" in reporting) and FlexPLM product lifecycle management software allow unauthenticated remote code execution.
+- **Impact**: Attackers gain initial access to internal networks without credentials, enabling deployment of Cl0p ransomware, data exfiltration, and persistent footholds in manufacturing, engineering, and critical infrastructure environments.
+- **Status**: Actively exploited by Cl0p affiliates (Chubby Scorpius, FIN11, Graceful Spider, Lace Tempest) as part of ongoing ransomware campaigns. Internet-exposed instances are being systematically scanned and compromised.
+- **CVE ID**: Not provided in source articles
 
-### Certighost Active Directory Privilege Escalation
-- **Description**: An exploit chain in Active Directory Certificate Services (AD CS) allows a low-privileged domain user to request and obtain a certificate for a Domain Controller machine account, then authenticate as that Domain Controller using Kerberos delegation.
-- **Impact**: Complete domain compromise. Attackers gain Domain Controller-level access, enabling credential theft (including KRBTGT), persistent access, and unrestricted lateral movement across the forest.
-- **Status**: Researchers H0j3n and Aniq Fakhrul published a working exploit (dubbed "Certighost") on July 24, 2026. No CVE identifier was referenced in the source material. Organizations with AD CS deployments should immediately audit certificate templates and enrollment permissions.
+### GitLab RCE (Patched - PoC Published)
+- **Description**: A vulnerability in GitLab self-managed instances allows authenticated users to execute arbitrary commands as the `git` system user. The flaw was patched on June 10, but working exploit code was publicly released on July 24 by depthfirst researchers.
+- **Impact**: Authenticated attackers achieve code execution on the underlying server with the privileges of the GitLab service account, potentially leading to source code theft, supply chain compromise, and lateral movement.
+- **Status**: Patch available since June 10 for versions 18.11.3 and later. Public PoC increases exploitation risk for unpatched instances. Organizations should verify patch deployment immediately.
+- **CVE ID**: Not provided in source articles
 
-### ChatGPT Workspace Agents AgentForger Vulnerability
-- **Description**: A critical flaw in OpenAI's ChatGPT Workspace Agents feature allows an attacker to craft a phishing link that, when clicked by a target user, silently builds, authorizes, and deploys a rogue AI agent within the victim's workspace.
-- **Impact**: The rogue agent inherits the victim's permissions and can access private repositories, exfiltrate code and data, modify files, and perform actions on behalf of the user—all without further interaction.
-- **Status**: Disclosed by cybersecurity researchers in July 2026. OpenAI's remediation status was not specified in the source article.
-
-### Bing Images SVG Remote Code Execution
-- **Description**: Crafted SVG files submitted to Bing's image search service are processed by backend workers in a manner that allows arbitrary command execution. The vulnerability affects both Windows (running as NT AUTHORITY\SYSTEM) and Linux (running as root) image-processing fleets.
-- **Impact**: Remote code execution on Microsoft's production infrastructure with highest available privileges, potentially enabling access to internal networks, source code, and customer data processed by the image pipeline.
-- **Status**: Demonstrated by security researcher XBOW. Microsoft's remediation timeline was not specified in the source article.
+### Certighost Active Directory Certificate Abuse
+- **Description**: An exploit technique (dubbed Certighost) allows low-privileged Active Directory users to obtain a certificate for a Domain Controller and authenticate as that machine account, effectively impersonating the DC.
+- **Impact**: Privilege escalation from standard domain user to Domain Controller equivalence, enabling full domain compromise, credential theft, Golden Ticket creation, and persistence.
+- **Status**: Working exploit published on July 24 by researchers H0j3n and Aniq Fakhrul. Active Directory environments with misconfigured certificate templates or overly permissive enrollment rights are vulnerable.
+- **CVE ID**: Not provided in source articles
 
 ### Azure Automation Cross-Tenant Identity Takeover
-- **Description**: A default-public configuration in Azure Automation combined with a chain of code flaws allows an attacker to seize another tenant's managed identity and access their data, credentials, and resources across the Azure control plane.
-- **Impact**: Complete cross-tenant compromise in multi-tenant Azure environments, bypassing tenant isolation boundaries. Attackers can access subscriptions, key vaults, storage accounts, and other resources belonging to victim tenants.
-- **Status**: Microsoft has addressed the public-by-default configuration and underlying code flaws. Organizations should verify their Azure Automation accounts are not publicly accessible and review managed identity assignments.
+- **Description**: A default public configuration in Azure Automation combined with a chain of code flaws allows attackers to seize another tenant's identity and access their data, credentials, and resources.
+- **Impact**: Cross-tenant compromise in multi-tenant Azure environments, enabling unauthorized access to subscription resources, managed identities, and sensitive configuration data across organizational boundaries.
+- **Status**: Microsoft has addressed the public-by-default configuration and underlying code flaws. Organizations should audit Azure Automation account configurations and managed identity assignments.
+- **CVE ID**: Not provided in source articles
 
-### ClickFix Social Engineering on Steam Forums
-- **Description**: Attackers abuse Steam discussion forums to post fake "fixes" for game errors and computer problems. These posts instruct victims to copy-paste PowerShell commands into a Run dialog (Windows Key + R), which downloads and executes the XMRig cryptominer.
-- **Impact**: Cryptojacking via XMRig, consuming victim CPU/GPU resources for Monero mining. Potential deployment of additional payloads through the same execution chain.
-- **Status**: Active campaign ongoing as of July 2026. Relies entirely on social engineering; no software vulnerability is exploited.
+### ChatGPT Workspace Agents AgentForger Vulnerability
+- **Description**: A critical vulnerability in OpenAI's ChatGPT Workspace Agents feature allows a single phishing link to stealthily build, authorize, and deploy autonomous rogue agents within a victim's workspace.
+- **Impact**: Attackers gain persistent, automated access to the victim's ChatGPT environment with the ability to exfiltrate conversation data, access connected tools and APIs, and perform actions on the user's behalf.
+- **Status**: Disclosed by cybersecurity researchers. OpenAI remediation status not specified in source articles.
+- **CVE ID**: Not provided in source articles
 
-### SourTrade Malvertising Browser-Native Malware Assembly
-- **Description**: A malvertising operation dubbed "SourTrade" delivers malware in fragmented pieces through malicious advertisements. The victim's browser uses a legitimate Bun JavaScript runtime to assemble the final Windows executable in memory, bypassing traditional file-based detection.
-- **Impact**: Evasion of network and endpoint security controls that inspect complete executable files. Delivery of arbitrary payloads (infostealers, loaders, ransomware) directly assembled in the browser process.
-- **Status**: Active campaign observed in July 2026. Leverages legitimate web technologies (Bun runtime, WebAssembly, Fetch API) rather than exploiting a browser vulnerability.
-
-### In-Browser Malware Assembly via Malicious JavaScript
-- **Description**: A large-scale malvertising campaign uses fake Solana, Luno, and TradingView webpages containing malicious JavaScript that instructs the victim's browser to assemble malware directly in memory, avoiding disk writes.
-- **Impact**: Fileless malware execution that evades traditional antivirus and EDR solutions. Payloads include information stealers and remote access trojans targeting cryptocurrency wallets and financial credentials.
-- **Status**: Active massive campaign as of July 2026. Uses typosquatted domains mimicking legitimate cryptocurrency and trading platforms.
-
-### BlueNoroff North Korean Phishing Kit
-- **Description**: The North Korean threat group BlueNoroff (associated with Lazarus Group) operates a sophisticated phishing kit that impersonates Zoom and Microsoft Teams via typosquatted domains. The kit profiles victims' cryptocurrency wallet holdings before delivering tailored malware.
-- **Impact**: Credential theft, cryptocurrency wallet compromise, and targeted malware delivery to high-value targets in the cryptocurrency and DeFi sectors. The profiling step enables attackers to prioritize and customize follow-on exploitation.
-- **Status**: Active campaign ongoing as of July 2026. Uses ClickFix-style social engineering techniques combined with infrastructure spoofing.
-
-### Hotel Wi-Fi DNS Hijacking for Microsoft 365 Credential Theft
-- **Description**: Attackers compromise Wi-Fi infrastructure at hotels and conference centers, modifying DNS settings to redirect users attempting to access Microsoft 365 services to convincing phishing pages that harvest credentials.
-- **Impact**: Corporate Microsoft 365 account compromise, leading to business email compromise, data exfiltration from Exchange/SharePoint/OneDrive, and further phishing from trusted internal accounts.
-- **Status**: Active attacks reported in July 2026. Targets travelers and conference attendees using untrusted networks.
-
-### Hermes AI Agent Automated Post-Exploitation
-- **Description**: A threat actor deployed the open-source Hermes AI agent on a rented server, disabled its safety confirmation prompts ("YOLO mode"), and directed it to automate post-exploitation activity against Thailand's Ministry of Finance.
-- **Impact**: Automated, scalable post-exploitation including lateral movement, credential access, data discovery, and exfiltration—conducted at machine speed without human operator bottlenecks.
-- **Status**: Incident reported in July 2026. Demonstrates the dual-use risk of autonomous AI agents when safety controls are deliberately disabled.
-
-### Golden Chickens Malware-as-a-Service Expansion
-- **Description**: The Golden Chickens (aka Venom Spider) MaaS operators have released four new malware families with modular implant architectures, indicating sustained investment in their criminal ecosystem.
-- **Impact**: Diversified payload options for affiliates, improved evasion capabilities, and expanded targeting flexibility. Modular design allows rapid customization for specific victims.
-- **Status**: Active resurgence observed in July 2026. The group shows no signs of cessation despite prior law enforcement attention.
-
-### Chick-fil-A Credential Stuffing Campaign
-- **Description**: Automated credential stuffing attacks against Chick-fil-A's website and mobile application between June 17–19, 2026, leveraging previously breached username/password pairs to compromise customer accounts.
-- **Impact**: Over 13,000 customer accounts breached. Exposed data includes order history, payment methods, loyalty rewards, and personal information.
-- **Status**: Incident confirmed by Chick-fil-A. Highlights ongoing risk of credential reuse and the need for mandatory multi-factor authentication on consumer-facing services.
-
-### ShinyHunters Data Leak Sextortion Campaign
-- **Description**: Threat actors are leveraging email addresses exposed in data breaches previously leaked by the ShinyHunters extortion group to send sextortion emails demanding $2,000 in Bitcoin.
-- **Impact**: Psychological harm, financial loss, and potential escalation to further social engineering using the same compromised data sets.
-- **Status**: Active campaign as of July 2026. ShinyHunters' historical breach data continues to fuel downstream criminal activity.
-
-### Vatican Prayer App API Data Exposure
-- **Description**: A misconfigured API endpoint in the Vatican's official "Click To Pray" mobile application exposes personally identifiable information—including names, email addresses, country, and site status—for over 700,000 global users without authentication.
-- **Impact**: Mass PII harvesting for phishing, identity theft, and targeted social engineering. The religious context of the data may enable highly tailored deception campaigns.
-- **Status**: Exposure identified by researchers in July 2026. Remediation status not specified in source article.
-
-### DevMan Ransomware-as-a-Service Platform
-- **Description**: The DevMan RaaS operators maintain a dedicated web portal providing affiliates with payload building, victim management, earnings tracking, and payout administration—professionalizing the ransomware affiliate model.
-- **Impact**: Lowered barrier to entry for ransomware deployment, accelerated time-to-exploit for affiliates, and centralized campaign optimization.
-- **Status**: Platform active as of July 2026. Represents the continued industrialization of ransomware operations.
-
-### Slopsquatting / HalluSquatting Supply Chain Attack
-- **Description**: AI coding agents hallucinate non-existent package, repository, or domain names during code generation. Attackers register these phantom identifiers and publish malicious packages or typosquatted domains, which are then automatically pulled by developers trusting AI-generated recommendations.
-- **Impact**: Supply chain compromise through trusted development workflows. Malicious code executes in build pipelines, CI/CD systems, and production applications.
-- **Status**: Active attack pattern documented by ActiveState in July 2026. Affects npm, PyPI, GitHub, and other package repositories where AI-assisted development is prevalent.
+### Bing Images SVG RCE
+- **Description**: Crafted SVG images submitted to Bing's image search service achieve remote code execution as `NT AUTHORITY\SYSTEM` on Windows production image-processing workers and as `root` on Linux machines in the same fleet.
+- **Impact**: Server-side code execution on Microsoft's infrastructure through image upload functionality, demonstrating a critical flaw in SVG parsing and sandboxing.
+- **Status**: Discovered by XBOW during testing. Microsoft remediation status not specified in source articles.
+- **CVE ID**: Not provided in source articles
 
 ## Affected Systems and Products
 
-- **Fastjson 1.x (Alibaba JSON Library for Java)**: All 1.x versions in Spring Boot applications with auto-type deserialization enabled; no patched 1.x release available
-- **GitLab Self-Managed**: Versions 18.11.3 and later prior to June 10, 2026 patch; Community and Enterprise editions affected
-- **PTC Windchill**: Internet-exposed deployments; specific version range not disclosed in source
-- **PTC FlexPLM**: Internet-exposed deployments; specific version range not disclosed in source
-- **Active Directory Certificate Services (AD CS)**: Windows Server environments with vulnerable certificate template configurations allowing low-privilege enrollment for Domain Controller authentication
-- **ChatGPT Workspace Agents**: OpenAI's ChatGPT platform Workspace Agents feature; all users with Workspace access potentially affected
-- **Bing Image Search Backend**: Microsoft's production image-processing worker fleet (Windows and Linux)
-- **Azure Automation**: Accounts with default public networking configuration; all Azure tenants using Automation managed identities
-- **Steam Community Forums**: Valve's Steam platform discussion forums used as delivery mechanism (not a software vulnerability in Steam itself)
-- **Bun JavaScript Runtime**: Legitimate runtime leveraged as execution environment for in-browser malware assembly (not vulnerable itself)
-- **Zoom / Microsoft Teams Domains**: Typosquatted domains impersonating legitimate video-conferencing services
-- **Hotel/Conference Center Wi-Fi Infrastructure**: DNS configuration on network equipment at hospitality venues
-- **Hermes AI Agent**: Open-source AI agent framework; risk manifests when safety controls are disabled and tool access is unrestricted
-- **Golden Chickens MaaS Payloads**: Four new modular malware families distributed via the Golden Chickens affiliate network
-- **Chick-fil-A Website and Mobile App**: Consumer-facing authentication endpoints vulnerable to credential stuffing
-- **Vatican "Click To Pray" Mobile Application**: API backend serving the official prayer application (iOS/Android)
-- **DevMan RaaS Portal**: Web-based affiliate management platform for DevMan ransomware operations
-- **Package Repositories (npm, PyPI, GitHub, etc.)**: Registries where AI-hallucinated package names can be registered by attackers
+- **Fastjson 1.x (Alibaba JSON Library for Java)**: All versions in the 1.x series used within Spring Boot applications; no patched version available
+- **PTC Windchill**: Internet-exposed deployments across all unpatched versions; Product Lifecycle Management (PLM) software used in manufacturing and engineering
+- **PTC FlexPLM**: Internet-exposed deployments across all unpatched versions; PLM solution for retail, footwear, and apparel industries
+- **GitLab Self-Managed**: Versions prior to 18.11.3 (patched June 10); source code management and DevOps platform
+- **Microsoft Active Directory**: Domain environments with vulnerable certificate template configurations or excessive enrollment permissions
+- **Microsoft Azure Automation**: Accounts with default public configuration and vulnerable managed identity chains; multi-tenant cloud environments
+- **OpenAI ChatGPT Workspace Agents**: Workspaces with Agents feature enabled; AI-assisted development and productivity environments
+- **Microsoft Bing Image Processing Infrastructure**: Production workers processing SVG uploads; Windows (SYSTEM) and Linux (root) execution contexts
+- **Steam Discussion Forums**: Valve's community platform; Windows gamers targeted via ClickFix social engineering
+- **Hotel/Conference Center Wi-Fi Infrastructure**: DNS configuration on network devices; Microsoft 365 users on guest networks
 
 ## Attack Vectors and Techniques
 
-- **Malicious JSON Deserialization**: Crafted JSON payloads exploiting unsafe auto-type handling in Fastjson to achieve RCE in Java applications
-- **Authenticated Command Injection**: Exploitation of GitLab's command execution flaw via authenticated API/web requests running as `git` user
-- **Unauthenticated Remote Code Execution**: Direct exploitation of PTC Windchill/FlexPLM endpoints without credentials
-- **AD CS Certificate Abuse**: Low-privilege user requests Domain Controller certificate via vulnerable template, then uses Kerberos delegation for DC impersonation
-- **Phishing Link Agent Deployment**: Malicious URL triggers silent rogue agent installation in ChatGPT Workspace via OAuth/authorization flow manipulation
-- **SVG Parser Exploitation**: Crafted SVG files with embedded scripts/expressions triggering command execution during image processing
-- **Cross-Tenant Identity Confusion**: Exploitation of default-public Azure Automation managed identities to assume victim tenant identities
-- **ClickFix Social Engineering**: Fake error fixes posted on trusted platforms (Steam forums) tricking users into executing PowerShell via Run dialog
-- **Browser-Native Malware Assembly**: Fragmented payload delivery reconstructed in-browser using legitimate runtimes (Bun) and Web APIs
-- **In-Memory JavaScript Malware Construction**: Malicious JavaScript on typosquatted domains assembles executable payloads directly in browser memory
-- **Cryptocurrency Wallet Profiling Phishing**: Phishing kit enumerates wallet extensions/holdings before delivering targeted malware
-- **DNS Hijacking on Public Wi-Fi**: Compromise of network infrastructure to redirect authentication traffic to credential harvesting pages
-- **Autonomous AI Post-Exploitation**: Disabled safety controls on AI agent (Hermes YOLO mode) enabling unattended offensive operations
-- **Modular MaaS Payload Delivery**: Golden Chickens affiliates deploy swappable implant modules for customized victim engagement
-- **Credential Stuffing at Scale**: Automated login attempts using breached credential pairs against consumer authentication endpoints
-- **Sextortion via Breach Data Leverage**: ShinyHunters breach data repurposed for psychological coercion and Bitcoin extortion
-- **Unauthenticated API Enumeration**: Public API endpoint lacking access controls exposes PII via simple HTTP requests
-- **RaaS Affiliate Portal Operations**: Centralized web platform for payload generation, campaign management, and cryptocurrency payout processing
-- **AI Hallucination Supply Chain Poisoning**: Registration of AI-hallucinated package/domain names to intercept developer dependency resolution
+- **Malicious JSON Deserialization**: Attackers send crafted JSON payloads to Spring Boot applications using Fastjson 1.x, triggering unsafe deserialization and arbitrary code execution without authentication
+- **Unauthenticated RCE via Internet-Exposed Services**: Cl0p affiliates scan for and exploit vulnerable PTC Windchill/FlexPLM instances directly from the internet, requiring no credentials or prior access
+- **Browser-Based Malware Assembly (SourTrade)**: Malvertising campaign delivers fragmented payloads to victims' browsers, which use a legitimate Bun JavaScript runtime to reconstruct and execute Windows PE files in memory—evading static file-based detection
+- **In-Browser JavaScript Malware Construction**: Fake Solana, Luno, and TradingView pages execute malicious JavaScript that assembles malware directly in browser memory, avoiding disk writes and traditional AV scanning
+- **ClickFix Social Engineering**: Attackers compromise Steam forums and use fake "fix" buttons that copy malicious PowerShell commands to clipboard, tricking users into self-executing XMRig cryptominers
+- **DNS Hijacking on Public Wi-Fi**: Threat actors modify DNS settings on hotel/conference center Wi-Fi devices to redirect Microsoft 365 authentication traffic to credential-harvesting phishing pages
+- **Typosquatted Collaboration Domains**: BlueNoroff registers domains mimicking Zoom and Microsoft Teams, delivering phishing kits that profile cryptocurrency wallet extensions before deploying malware
+- **AD Certificate Template Abuse (Certighost)**: Low-privileged users exploit misconfigured certificate templates to enroll for Domain Controller certificates, enabling machine account impersonation and domain compromise
+- **Cross-Tenant Identity Takeover via Default Configuration**: Attackers exploit public-by-default Azure Automation settings and chained code flaws to assume managed identities of other tenants
+- **Phishing Link to Rogue AI Agent Deployment**: Single malicious link exploits ChatGPT Workspace Agents vulnerability to automatically build, authorize, and deploy persistent rogue agents in victim workspaces
+- **SVG-Based Server-Side Code Execution**: Crafted SVG files exploit parsing vulnerabilities in Bing's image processing pipeline to achieve SYSTEM/root RCE on backend infrastructure
+- **Credential Stuffing at Scale**: Automated login attempts using breached credential pairs compromise Chick-fil-A customer accounts via website and mobile app endpoints
+- **AI Hallucination Package Attacks (Slopsquatting/HalluSquatting)**: Attackers register package, repository, or domain names hallucinated by AI coding assistants, which developers then inadvertently pull into projects
+- **Supply Chain Poisoning with Rapid Publishing**: Malicious actors publish poisoned packages and rely on automated dependency update tools (Dependabot) to pull them immediately; GitHub/PyPI 3-day cooldown mitigates this window
 
 ## Threat Actor Activities
 
-- **Cl0p Affiliates (Chubby Scorpius / FIN11 / Graceful Spider / Lace Tempest)**: Actively exploiting unauthenticated RCE in internet-exposed PTC Windchill and FlexPLM deployments as part of ongoing ransomware campaign; leveraging enterprise application vulnerabilities for initial access
-- **BlueNoroff (North Korea / Lazarus Group)**: Operating sophisticated phishing kit with typosquatted Zoom/Teams domains; profiling cryptocurrency wallet holdings before tailored malware delivery; employing ClickFix-style social engineering techniques
-- **ShinyHunters**: Extortion group whose historical data breaches (2020–2024) continue to fuel downstream sextortion campaigns demanding $2,000 in Bitcoin per victim
-- **Golden Chickens / Venom Spider**: MaaS operators resurfaced in July 2026 with four new modular malware families; maintaining active affiliate ecosystem with professional tooling
-- **DevMan RaaS Operators**: Running centralized affiliate portal for payload building, victim management, and payout administration; professionalizing ransomware affiliate operations
-- **Depthfirst Researchers**: Published working GitLab RCE PoC on July 24, 2026 (six weeks after vendor patch); responsible disclosure timeline followed
-- **H0j3n and Aniq Fakhrul**: Published Certighost AD CS exploit on July 24, 2026; demonstrated Domain Controller impersonation via certificate abuse
-- **XBOW Researcher**: Demonstrated Bing Images SVG RCE achieving SYSTEM/root execution on Microsoft production infrastructure
-- **SourTrade Operators**: Running innovative malvertising campaign using Bun runtime for browser-native executable assembly; active July 2026
-- **In-Browser Malware Campaign Operators**: Large-scale malvertising using fake Solana/Luno/TradingView pages with JavaScript-based in-memory malware construction
-- **Hermes AI Attacker**: Unknown threat actor who deployed Hermes agent in YOLO mode on rented infrastructure to automate post-exploitation against Thailand Ministry of Finance
-- **Hotel Wi-Fi Attackers**: Unknown operators compromising hospitality network infrastructure for DNS-based credential harvesting targeting Microsoft 365 users
-- **Chick-fil-A Credential Stuffing Actors**: Unknown operators conducting automated login attempts June 17–19, 2026 using breached credential datasets
-- **Slopsquatting/HalluSquatting Registrants**: Unknown actors registering AI-hallucinated package and domain names to poison software supply chains
+- **Cl0p Affiliates (Chubby Scorpius / FIN11 / Graceful Spider / Lace Tempest)**: Conducting mass exploitation of internet-exposed PTC Windchill and FlexPLM instances via unauthenticated RCE for ransomware deployment and data extortion; ongoing campaign targeting manufacturing and engineering sectors
+- **East Asia-Linked Threat Actor (TELESHIM)**: Targeting government entities in the Middle East using custom malware that abuses Telegram for command-and-control communications; fresh intrusion activity observed
+- **BlueNoroff (North Korean State-Sponsored)**: Operating ClickFix-style campaigns with typosquatted Zoom/Microsoft Teams domains; maintains active phishing kit that profiles victim cryptocurrency wallets before delivering tailored malware; attributed to DPRK reconnaissance and financial theft operations
+- **ShinyHunters (Extortion Group)**: Leaked data breaches fueling large-scale sextortion campaigns demanding $2,000 in Bitcoin; email addresses from prior breaches used for targeted credential-based threats
+- **DevMan RaaS Operators**: Maintaining a dedicated Ransomware-as-a-Service web portal providing affiliates with payload builders, victim management dashboards, and automated payout systems; professionalizing ransomware affiliate operations
+- **Hermes AI Agent Operator**: Used open-source Hermes AI agent in unattended "YOLO" mode to automate post-exploitation activity during alleged breach of Thailand's Ministry of Finance; demonstrates AI-assisted offensive operations
+- **Depthfirst Researchers**: Published working GitLab RCE exploit code on July 24 (six weeks after June 10 patch); responsible disclosure followed by public PoC release
+- **H0j3n and Aniq Fakhrul (Researchers)**: Published Certighost exploit on July 24 enabling AD certificate abuse; working proof-of-concept for privilege escalation
+- **XBOW (Security Researchers)**: Discovered and tested Bing Images SVG RCE achieving SYSTEM/root execution on Microsoft production infrastructure
+- **Unidentified ClickFix Operators**: Compromising Steam discussion forums to deliver XMRig cryptominers via social engineering; targeting gaming community
+- **Unidentified Hotel Wi-Fi Attackers**: Hijacking DNS on hospitality network infrastructure to harvest Microsoft 365 credentials from business travelers
+- **Credential Stuffing Actors**: Automated attacks against Chick-fil-A website and mobile app (June 17-19) compromising 13,000+ customer accounts using breached credential pairs
 
 ## Source Attribution
 
+- **TELESHIM Abuses Telegram for C2 in Attacks Against Middle East Governments**: The Hacker News - https://thehackernews.com/2026/07/teleshim-abuses-telegram-for-c2-in.html
+- **GitHub Adds 3-Day Dependabot Cooldown to Limit Poisoned Package Adoption**: The Hacker News - https://thehackernews.com/2026/07/github-adds-3-day-dependabot-cooldown.html
 - **GitHub, PyPI add time-based defenses against supply chain attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/github-pypi-add-time-absed-defenses-against-supply-chain-attacks/
 - **Steam forum ClickFix attacks infect gamers with XMRig cryptominers**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/steam-forum-clickfix-attacks-infect-gamers-with-xmrig-cryptominers/
 - **Malvertising Sends Malware in Pieces, Then Makes the Browser Build the Executable**: The Hacker News - https://thehackernews.com/2026/07/malvertising-sends-malware-in-pieces.html
@@ -195,5 +127,3 @@ Supply chain and identity-based threats round out the landscape. GitHub and PyPI
 - **Bing Images Flaws Let Crafted SVGs Run Commands as SYSTEM on Microsoft's Servers**: The Hacker News - https://thehackernews.com/2026/07/bing-images-flaws-let-crafted-svgs-run.html
 - **Seeing AI Agents Is Not Enough. Security Teams Must Enforce What They Can Do**: The Hacker News - https://thehackernews.com/2026/07/seeing-ai-agents-is-not-enough-security.html
 - **Man gets six years for hacking 750 women's Snapchat accounts**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/man-gets-six-years-for-hacking-750-womens-snapchat-accounts/
-- **Hacker Runs Hermes AI Agent Unattended for Post-Exploitation at Thai Finance Ministry**: The Hacker News - https://thehackernews.com/2026/07/hacker-runs-hermes-ai-agent-unattended.html
-- **Golden Chickens Resurfaces With Four New Malware Families and Modular Implants**: The Hacker News - https://thehackernews.com/2026/07/golden-chickens-resurfaces-with-four.html
