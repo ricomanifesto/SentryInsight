@@ -2,99 +2,109 @@
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, from enterprise identity systems and cloud platforms to widely deployed web applications and IoT infrastructure. The Dysphoria IoT botnet has expanded to approximately 200,000 compromised devices globally, adopting blockchain-based command-and-control infrastructure following law enforcement disruption of a related operation. Simultaneously, a proof-of-concept exploit for the "Certighost" vulnerability in Windows Active Directory Certificate Services has been published, enabling authenticated attackers to potentially compromise entire Windows domains. In the cloud sector, persistent "Confused Deputy" flaws in Google Cloud and Microsoft Azure continue to allow privilege escalation and access control bypass.
+Threat actors are leveraging a diverse arsenal of zero-day vulnerabilities, newly released proof-of-concept exploits, and sophisticated social engineering campaigns to compromise high-value targets across multiple sectors. Notably, an autonomous AI agent operating in unrestricted "YOLO mode" conducted espionage against Thailand's Ministry of Finance, marking a significant evolution in AI-driven offensive operations. Simultaneously, critical zero-day vulnerabilities in widely deployed infrastructure—including FastJson Java library, Arista VeloCloud Orchestrator, and PTC Windchill/FlexPLM—are under active exploitation with limited or no patches available, exposing enterprises to immediate remote code execution risk.
 
-The exploitation landscape also shows rapid weaponization of recently disclosed flaws. A public exploit for a pre-authentication remote code execution vulnerability in vBulletin was released in late July, while the Fastjson 1.x library for Java faces active attacks with no patch currently available. The Cl0p ransomware operation's affiliates are leveraging unauthenticated RCE flaws in internet-exposed PTC Windchill and FlexPLM deployments. Meanwhile, financially motivated actors including ShinyHunters and China-linked cybercrime groups are conducting data theft, extortion, and sophisticated malware delivery campaigns using advanced evasion techniques such as BYOVD and browser-based malware assembly.
+The exploitation landscape is further complicated by the rapid weaponization of recently disclosed flaws. Public exploit code for vBulletin pre-authentication code execution and GitLab RCE vulnerabilities has lowered the barrier for opportunistic attacks, while the Certighost Active Directory Certificate Services PoC enables domain compromise by authenticated users. Threat actors including Cl0p affiliates, China-linked cybercrime groups, and East Asian state-aligned operators are actively scanning for and exploiting internet-exposed vulnerable systems, often combining technical exploits with advanced evasion techniques such as BYOVD, process ghosting, and blockchain-based command-and-control infrastructure.
+
+Ransomware and extortion operations continue to evolve, with LockBit disrupted through affiliate trust manipulation while ShinyHunters leverages breached data for sextortion campaigns and supply-chain intrusions. Emerging attack vectors—including browser-based malware assembly via malvertising, ClickFix social engineering on gaming platforms, and AI agent abuse—demonstrate adversaries' adaptability in bypassing traditional defenses. Organizations must prioritize patching of actively exploited vulnerabilities, implement strict controls on autonomous AI tools, and enhance monitoring for living-off-the-land and browser-based attack techniques.
 
 ## Active Exploitation Details
 
-### Dysphoria IoT Botnet
-- **Description**: A rapidly growing IoT botnet that has compromised approximately 200,000 devices worldwide for DDoS attacks and traffic relay operations. Following a March law enforcement operation against the JackSkid botnet, Dysphoria has adopted blockchain-based name services for command-and-control resilience and implemented infected-device relay mechanisms.
-- **Impact**: Large-scale DDoS attack capability, traffic proxying for anonymization of malicious activity, persistent foothold in compromised IoT ecosystems.
-- **Status**: Actively expanding; law enforcement disruption of predecessor infrastructure has triggered evolutionary adaptations in C2 architecture.
+### FastJson RCE Zero-Day
+- **Description**: A critical remote code execution vulnerability in the FastJson open-source Java library (Alibaba's JSON parser for Java) that allows unauthenticated attackers to execute arbitrary code by sending malicious JSON requests. The flaw affects FastJson 1.x versions and is exploitable in Spring Boot applications without user interaction or elevated privileges.
+- **Impact**: Full remote code execution on affected Java applications, enabling complete system compromise, data theft, and lateral movement.
+- **Status**: Actively exploited in the wild against US firms. No patch currently available for FastJson 1.x; mitigation requires upgrading to FastJson 2.x or implementing strict input validation.
 
-### Certighost (Windows Active Directory Certificate Services Vulnerability)
-- **Description**: A vulnerability in Windows Active Directory Certificate Services (AD CS) that allows authenticated attackers to potentially compromise a Windows domain. A proof-of-concept exploit has been publicly released.
-- **Impact**: Domain compromise, privilege escalation, persistence through certificate manipulation, potential full Active Directory takeover.
-- **Status**: PoC exploit publicly available; affects environments with AD CS deployed.
+### Arista VeloCloud Orchestrator Command Injection Zero-Day
+- **Description**: A maximum-severity command injection vulnerability in on-premises deployments of Arista's VeloCloud Orchestrator (SD-WAN management platform).
+- **Impact**: Unauthenticated remote command execution with root privileges on the orchestration platform, potentially compromising entire SD-WAN infrastructures.
+- **Status**: Actively exploited in attacks. Arista has released patches for affected on-premises deployments.
 
-### Confused Deputy Flaws (Google Cloud and Microsoft Azure)
-- **Description**: A class of vulnerabilities in cloud identity and access management systems where a lower-privilege principal can trick a higher-privilege service into performing actions on its behalf, bypassing intended access controls.
-- **Impact**: Administrative-level permission acquisition, cross-account resource access, cloud resource compromise, data exfiltration.
-- **Status**: Persistent flaws affecting both major cloud providers; exploitation allows bypass of cloud providers' access controls.
+### Certighost (Active Directory Certificate Services Vulnerability)
+- **Description**: A vulnerability in Windows Active Directory Certificate Services (AD CS) that allows authenticated attackers to potentially compromise entire Windows domains. A proof-of-concept exploit has been publicly released.
+- **Impact**: Domain escalation and full Active Directory compromise from any authenticated user context.
+- **Status**: PoC exploit publicly available; organizations should audit AD CS configurations and apply Microsoft guidance immediately.
 
-### vBulletin Pre-Authentication Remote Code Execution
-- **Description**: An unauthenticated remote code execution flaw in vBulletin forum software where a crafted request reaches PHP's `eval()` function, enabling arbitrary code execution on the server.
-- **Impact**: Full server compromise, data theft, malware deployment, lateral movement within hosting infrastructure.
-- **Status**: Public exploit released July 27; vulnerability is patched but exploit availability increases risk for unpatched instances.
-
-### Fastjson 1.x Remote Code Execution
-- **Description**: A critical deserialization flaw in Fastjson (Alibaba's JSON library for Java) that allows remote code execution via malicious JSON requests in affected Spring Boot applications.
-- **Impact**: Remote code execution on application servers, full application compromise, potential server takeover.
-- **Status**: **Actively exploited in the wild with no patch available**; security firms ThreatBook and Imperva confirm ongoing attacks.
-
-### GitLab Authenticated Remote Code Execution
-- **Description**: A vulnerability in GitLab self-managed instances (versions 18.11.3 and later) that allows authenticated users to execute operating system commands as the `git` user. GitLab patched the flaw on June 10; a working PoC was published on July 24.
-- **Impact**: Command execution on GitLab server, source code theft, supply chain contamination via repository manipulation, lateral movement.
-- **Status**: Patched six weeks prior to PoC publication; unpatched instances remain vulnerable to authenticated attackers.
-
-### PTC Windchill and FlexPLM Unauthenticated RCE
-- **Description**: Flaws in internet-exposed deployments of PTC Windchill and FlexPLM product lifecycle management software that allow unauthenticated remote code execution.
-- **Impact**: Initial access to enterprise networks, intellectual property theft, ransomware deployment, supply chain compromise.
-- **Status**: Actively exploited by Cl0p ransomware affiliates; targets internet-accessible instances.
+### vBulletin Pre-Auth Code Execution Flaw
+- **Description**: An unauthenticated remote code execution vulnerability in vBulletin forum software where a crafted request reaches PHP's `eval()` function, allowing arbitrary code execution on the server.
+- **Impact**: Complete compromise of unpatched vBulletin forum servers without requiring authentication.
+- **Status**: Vulnerability was previously patched; public exploit details released on July 27 significantly increase exploitation risk for unpatched instances.
 
 ### n8n Sandbox Escape
-- **Description**: A high-severity expression-sandbox escape in the n8n workflow automation platform that allows authenticated workflow editors to execute operating system commands on the server.
-- **Impact**: Server compromise, workflow manipulation, credential access, lateral movement within automation infrastructure.
-- **Status**: Patched by n8n; affects instances where untrusted users have workflow editor permissions.
+- **Description**: A high-severity expression-sandbox escape in the n8n workflow automation platform that allows authenticated workflow editors to execute operating system commands on the underlying server.
+- **Impact**: Remote code execution as the n8n process user, enabling server compromise and potential lateral movement.
+- **Status**: Patched by n8n; Security Joes researchers discovered and reported the flaw.
+
+### GitLab RCE (Authenticated)
+- **Description**: A remote code execution vulnerability in GitLab self-managed instances (versions 18.11.3 and later) that allows authenticated users to run arbitrary commands as the `git` user.
+- **Impact**: Code execution on GitLab servers with the privileges of the git user, potentially accessing source code, CI/CD pipelines, and sensitive tokens.
+- **Status**: Patched by GitLab on June 10; proof-of-concept exploit published by depthfirst researchers on July 24.
+
+### PTC Windchill and FlexPLM Unauthenticated RCE
+- **Description**: Unauthenticated remote code execution vulnerabilities in internet-exposed deployments of PTC Windchill and FlexPLM product lifecycle management (PLM) software.
+- **Impact**: Full server compromise without authentication, providing access to intellectual property, design data, and corporate networks.
+- **Status**: Actively exploited by Cl0p ransomware affiliates; organizations with internet-exposed instances at immediate risk.
+
+### Confused Deputy Vulnerabilities (Google Cloud, Microsoft Azure)
+- **Description**: A class of vulnerabilities in cloud identity and access management systems where attackers can confuse a privileged service into performing actions on their behalf, bypassing access controls.
+- **Impact**: Administrative-level permission acquisition and bypass of cloud provider security boundaries.
+- **Status**: Persistent flaws affecting both Google Cloud and Microsoft Azure; requires configuration hardening and least-privilege enforcement.
 
 ## Affected Systems and Products
 
-- **Dysphoria Botnet Targets**: IoT devices worldwide (routers, cameras, DVRs, and other embedded Linux systems) — Global internet-facing IoT deployments
-- **Windows Active Directory Certificate Services (AD CS)**: Windows Server environments with AD CS role installed — Enterprise identity infrastructure
-- **Google Cloud Platform**: IAM and service account configurations vulnerable to Confused Deputy attacks — GCP projects and organizations
-- **Microsoft Azure**: Managed identities, service principals, and cross-tenant access configurations — Azure subscriptions and tenants
-- **vBulletin Forum Software**: Unpatched vBulletin versions prior to security update — Self-hosted forum deployments
-- **Fastjson 1.x Library**: Java applications using Fastjson 1.x, particularly Spring Boot applications — Enterprise Java application stacks
-- **GitLab Self-Managed**: Versions 18.11.3 and later prior to June 10 patch — On-premises GitLab deployments
-- **PTC Windchill and FlexPLM**: Internet-exposed PLM software deployments — Manufacturing and engineering organizations
-- **n8n Workflow Automation**: Self-hosted n8n instances with workflow editor access granted — Automation and integration platforms
-- **Steam Discussion Forums**: Valve's Steam platform community forums — Gaming community infrastructure
+- **FastJson Java Library (1.x)**: All Spring Boot applications using FastJson 1.x for JSON parsing; Java-based web services and microservices
+- **Arista VeloCloud Orchestrator (On-Premises)**: SD-WAN management platforms deployed on-premises; network orchestration infrastructure
+- **Windows Active Directory Certificate Services (AD CS)**: Enterprise Windows domains with misconfigured or vulnerable certificate templates
+- **vBulletin Forum Software**: Self-hosted vBulletin installations prior to patched versions; community forums and discussion boards
+- **n8n Workflow Automation Platform**: Self-hosted n8n instances; automation and integration servers
+- **GitLab Self-Managed (18.11.3+)**: On-premises GitLab deployments; source code management and CI/CD infrastructure
+- **PTC Windchill and FlexPLM**: Internet-exposed PLM deployments; manufacturing, engineering, and product development environments
+- **Google Cloud Platform**: IAM configurations vulnerable to confused deputy attacks; service accounts with excessive permissions
+- **Microsoft Azure**: Entra ID and resource management configurations susceptible to confused deputy exploitation
+- **IoT Devices (Dysphoria Botnet)**: Approximately 200,000 compromised IoT devices worldwide; routers, cameras, and embedded systems
 
 ## Attack Vectors and Techniques
 
-- **Blockchain-Based C2**: Dysphoria botnet uses blockchain name services (e.g., Namecoin, Emercoin) for resilient, censorship-resistant command-and-control infrastructure — Decentralized C2 resistant to takedown
-- **Infected-Device Relays**: Compromised IoT devices serve as proxy relays for botnet traffic, obscuring true C2 endpoints — Traffic obfuscation and attribution avoidance
-- **AD CS Certificate Abuse**: Certighost leverages misconfigurations or design flaws in Active Directory Certificate Services to forge or manipulate certificates for privilege escalation — Identity-based attack vector
-- **Confused Deputy Privilege Escalation**: Attackers manipulate cloud service principals into assuming higher-privilege roles through crafted token requests or cross-account assumptions — Cloud IAM exploitation
-- **PHP `eval()` Injection**: vBulletin exploit passes unsanitized input to `eval()` via unauthenticated request — Pre-auth RCE via dangerous function abuse
-- **Java Deserialization/Gadget Chains**: Fastjson attacks use malicious JSON payloads triggering gadget chains for remote code execution — Serialization vulnerability exploitation
-- **Authenticated Command Injection**: GitLab and n8n flaws allow authenticated users to escape sandboxed contexts and execute OS commands — Privileged user compromise
-- **Unauthenticated RCE via Web Endpoints**: PTC Windchill/FlexPLM flaws expose RCE without authentication — Internet-facing attack surface exploitation
-- **ClickFix Social Engineering**: Fake "fix" prompts on Steam forums and malvertising trick users into executing malicious PowerShell commands — User-driven code execution
-- **Browser-Based Malware Assembly (SourTrade)**: Malvertising delivers malware in pieces; victim's browser uses legitimate Bun runtime to assemble executable in memory — Fileless delivery evading traditional AV
-- **JavaScript In-Memory Malware Construction**: Malicious JavaScript on fake crypto/trading sites assembles payloads directly in browser memory — No disk artifacts, memory-only execution
-- **BYOVD (Bring Your Own Vulnerable Driver)**: Cruciferra crypter loads signed but vulnerable drivers to disable security controls — Kernel-level defense evasion
-- **Process Ghosting**: Malware execution technique that hides executable image by deleting file before process creation — Anti-forensic execution
-- **Telegram C2 Abuse**: TELESHIM malware uses Telegram API for command-and-control communications — Legitimate service abuse for C2
-- **Fake Application Distribution**: Trojanized Sparrow Wallet app on Apple App Store steals cryptocurrency — Supply chain compromise via official store
-- **RMM Tool Abuse**: Operation BlueDash delivers legitimate RMM tools (Level, ScreenConnect) via phishing for persistent remote access — Living-off-the-land with legitimate admin tools
-- **Real-Time Phishing Account Hijacking**: Insurance phishing campaigns now intercept MFA and session tokens in real time for immediate account takeover — Adversary-in-the-middle phishing
+- **Autonomous AI Agent Operations**: Attackers deploying Hermes open-source AI agent in unrestricted "YOLO mode" for hands-off espionage, enabling automated reconnaissance, lateral movement, and data exfiltration without human intervention.
+- **Malicious JSON Deserialization**: Crafted JSON payloads exploiting FastJson's insecure deserialization to achieve RCE in Java applications; no user interaction required.
+- **Command Injection via SD-WAN Management**: Exploitation of VeloCloud Orchestrator's command injection flaw for root-level access to network orchestration platforms.
+- **AD CS Certificate Abuse**: Leveraging Certighost vulnerability to manipulate certificate templates and escalate to domain administrator privileges.
+- **PHP eval() Injection**: Unauthenticated requests reaching PHP's `eval()` function in vBulletin for pre-authentication code execution.
+- **Expression Sandbox Escape**: Authenticated workflow editors breaking out of n8n's expression sandbox to execute OS commands.
+- **GitLab Command Execution**: Authenticated users exploiting GitLab flaw to run commands as the git user on self-managed instances.
+- **Unauthenticated PLM Exploitation**: Cl0p affiliates scanning for and exploiting internet-exposed PTC Windchill/FlexPLM instances without credentials.
+- **Confused Deputy Cloud Attacks**: Manipulating cloud services to perform privileged actions on behalf of attackers through permission confusion.
+- **Blockchain-Based C2 (Dysphoria)**: Botnet using blockchain name services (e.g., Handshake) for resilient command-and-control infrastructure resistant to takedown.
+- **Infected-Device Relays (Dysphoria)**: Compromised IoT devices used as traffic relays to obfuscate attack origins and bypass geo-blocking.
+- **BYOVD (Bring Your Own Vulnerable Driver)**: China-linked actors loading signed but vulnerable kernel drivers to disable security tools and execute kernel-level code.
+- **Process Ghosting**: Advanced evasion technique where malware executes from a deleted file image, avoiding disk-based detection.
+- **Telegram C2 (TELESHIM)**: East Asian threat actors abusing Telegram's API for command-and-control communications targeting Middle Eastern governments.
+- **ClickFix Social Engineering**: Fake "fix" prompts on Steam forums and other platforms tricking users into executing malicious PowerShell commands.
+- **Browser-Based Malware Assembly (SourTrade)**: Malvertising delivering malware in pieces; victim's browser assembles executable using legitimate Bun runtime.
+- **In-Memory JavaScript Malware Construction**: Malicious JavaScript on fake Solana/Luno/TradingView pages building malware directly in browser memory.
+- **Supply-Chain Credential Theft**: ShinyHunters obtaining system credentials through supply-chain compromise for downstream extortion.
+- **Fake Application Distribution**: Trojanized cryptocurrency wallet apps (Sparrow Wallet) distributed via official App Store.
+- **Phishing with Legitimate RMM Tools**: Operation BlueDash using Microsoft Teams-themed lures to deploy Level RMM and ScreenConnect for persistent access.
+- **Real-Time Account Hijacking**: Evolved insurance phishing enabling immediate session takeover rather than credential harvesting.
 
 ## Threat Actor Activities
 
-- **Dysphoria Botnet Operators**: IoT botnet actors expanding to 200k devices; adapted infrastructure post-JackSkid takedown with blockchain C2 and relay networks — Opportunistic IoT compromise for DDoS-for-hire and proxy services
-- **Cl0p Ransomware Affiliates (Chubby Scorpius / FIN11 / Graceful Spider / Lace Tempest)**: Actively exploiting unauthenticated RCE in PTC Windchill and FlexPLM for initial access; operating as RaaS affiliates — Ransomware initial access specialization
-- **ShinyHunters Extortion Group**: Claimed Ernst & Young breach via supply-chain credential theft; leaked data fueling $2,000 sextortion campaigns — Data theft, extortion, and downstream abuse of breach data
-- **China-Linked Cybercrime Group (Cruciferra Users)**: Deploying tax-themed phishing against Indian taxpayers and finance teams; using Cruciferra crypter with BYOVD and Process Ghosting for evasion — Financially motivated targeted attacks
-- **East Asia-Linked Threat Actor (TELESHIM)**: Targeting Middle East government entities; using Telegram for C2; deploying custom malware — Espionage-focused intrusion campaign
-- **Operation BlueDash Operators**: Microsoft Teams-themed phishing delivering Level RMM and ScreenConnect via "secure document" lures — Initial access brokerage or direct intrusion
-- **DevMan RaaS Operators**: Maintaining dedicated web portal for affiliate payload building, victim management, and payout automation — Ransomware-as-a-service platform operation
-- **SourTrade Malvertising Operators**: Running browser-based malware assembly campaign using Bun runtime; distributing via malicious ads — Innovative fileless delivery at scale
-- **LockBit Affiliates (Disrupted)**: Previously largest ransomware operation; disrupted by Operation Cronos through affiliate trust erosion — Historical context for current RaaS landscape
+- **China-Linked Cybercrime Group (Cruciferra)**: Deploying sophisticated crypter using BYOVD and process ghosting in income tax-themed phishing campaigns targeting Indian taxpayers, tax professionals, and corporate finance teams.
+- **Cl0p Affiliates (Chubby Scorpius/FIN11/Graceful Spider/Lace Tempest)**: Actively scanning for and exploiting internet-exposed PTC Windchill and FlexPLM deployments via unauthenticated RCE for ransomware deployment and data theft.
+- **ShinyHunters Extortion Gang**: Claimed responsibility for Ernst & Young data breach via supply-chain attack; leaked data fueling $2,000 sextortion email campaigns demanding Bitcoin payment.
+- **East Asian State-Aligned Actor (TELESHIM)**: Targeting Middle Eastern government entities using Telegram for C2; conducting espionage operations with custom tooling.
+- **Dysphoria Botnet Operators (tracked by CNCERT/XLab)**: Managing ~200,000 compromised IoT devices globally for DDoS attacks and traffic relay; adopted blockchain C2 and victim relays after March JackSkid law-enforcement disruption.
+- **LockBit Ransomware Affiliates**: Disrupted through FBI's Operation Cronos which exploited trust breakdowns among affiliates; previously largest ransomware operation.
+- **Operation BlueDash Operators**: Conducting Microsoft Teams-themed phishing with "secure document" lures to deploy legitimate RMM tools (Level RMM, ScreenConnect) for persistent remote access.
+- **SourTrade Malvertising Group**: Operating browser-based malware assembly campaigns using legitimate Bun runtime to evade traditional payload delivery detection.
+- **Unknown Actors (FastJson Exploitation)**: Actively targeting US firms with FastJson zero-day exploits; attribution not publicly disclosed.
+- **Unknown Actors (VeloCloud Exploitation)**: Exploiting Arista zero-day before patch availability; targeting SD-WAN infrastructure.
 
 ## Source Attribution
 
+- **AI Agent Drives Espionage Attack on Thai Ministry of Finance**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/ai-agent-espionage-attack-thai-ministry-finance
+- **Hackers target US firms in FastJson RCE zero-day attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-target-us-firms-in-fastjson-rce-zero-day-attacks/
+- **Arista patches VeloCloud Orchestrator zero-day exploited in attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/arista-patches-velocloud-orchestrator-zero-day-exploited-in-attacks/
 - **New Dysphoria DDoS botnet spreads to 200k devices worldwide**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-dysphoria-ddos-botnet-spreads-to-200k-devices-worldwide/
 - **New Certighost PoC exploit lets attackers hijack Windows domains**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-certighost-poc-exploit-lets-attackers-hijack-windows-domains/
 - **'Confused Deputy' Flaws Persist in Google Cloud, Microsoft Azure**: Dark Reading - https://www.darkreading.com/cloud-security/confused-deputy-flaws-google-cloud-microsoft-azure
@@ -122,6 +132,3 @@ The exploitation landscape also shows rapid weaponization of recently disclosed 
 - **Researcher Publishes GitLab RCE PoC Letting Authenticated Users Run Commands as Git**: The Hacker News - https://thehackernews.com/2026/07/researcher-publishes-gitlab-rce-poc.html
 - **CTM360 Research Reveals How Insurance Phishing Has Evolved Into Real-Time Account Hijacking**: The Hacker News - https://thehackernews.com/2026/07/ctm360-research-reveals-how-insurance.html
 - **Cl0p Affiliates Target Internet-Exposed PTC Windchill and FlexPLM with Unauthenticated RCE**: The Hacker News - https://thehackernews.com/2026/07/cl0p-affiliates-target-internet-exposed.html
-- **DevMan RaaS Portal Centralizes Payload Builds, Victim Management, and Affiliate Payouts**: The Hacker News - https://thehackernews.com/2026/07/devman-raas-portal-centralizes-payload.html
-- **OpenAI confirms ChatGPT is down worldwide**: Bleeping Computer - https://www.bleepingcomputer.com/news/artificial-intelligence/openai-confirms-chatgpt-is-down-worldwide/
-- **CISOs vs. Boards: Myth or Misunderstanding?**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/cisos-vs-boards-myth-or-misunderstanding-
