@@ -2,110 +2,114 @@
 
 ## Executive Summary
 
-This reporting period reveals a surge in supply chain compromises and hardware-level exploits with immediate financial impact. The most severe activity centers on a random number generator flaw in COLDCARD hardware wallets that enabled the theft of approximately $88 million in Bitcoin across thousands of wallets in a 41-minute automated sweep. Simultaneously, a supply chain attack against advertising technology provider Adform injected cryptocurrency-stealing scripts into customer websites, while attackers leveraged hijacked hotel Wi-Fi networks to deliver the CornFlake surveillance trojan through fake browser updates.
+Multiple high-impact exploitation campaigns have surfaced this week, spanning hardware wallet compromises, supply chain attacks, critical software vulnerabilities, and state-sponsored targeting. The most financially damaging incident involves a firmware flaw in COLDCARD hardware wallets that enabled the theft of approximately $70–88 million in Bitcoin within minutes, demonstrating the catastrophic consequences of cryptographic implementation failures. Simultaneously, a supply chain compromise of advertising technology firm Adform injected cryptocurrency-stealing scripts across customer websites, while attackers exploited an incomplete patch in N-able's N-central platform to gain administrative control over managed service provider infrastructure and downstream customer environments.
 
-Critical infrastructure remains under sustained assault. CISA has warned of a significant increase in attacks targeting internet-exposed programmable logic controllers (PLCs) at U.S. water and wastewater utilities. In the managed services space, attackers exploited an authentication bypass in N-able N-central servers—persisting even after an initial vendor fix proved incomplete—to gain remote administrative access and pivot into customer environments. These incidents underscore the compounding risk of incomplete patches and exposed management interfaces.
-
-Threat actor activity shows growing sophistication in automation and tooling. A Chinese-speaking operator is using the DeepSeek AI model paired with the open-source Hermes Agent to conduct autonomous vulnerability scanning and exploitation against exposed servers with minimal human intervention. Separately, a Chinese threat actor has weaponized a publicly leaked version of the DarkSword exploit kit to deploy GHOSTBLADE malware on iOS devices. Additional campaigns include suspected Chinese-speaking hackers targeting Central Asian governments with OctLurk and SilkLurk malware, and a spear-phishing operation deploying the novel HollowFrame loader and Matryoshka backdoor against a law firm.
+State-sponsored activity remains prominent, with Chinese-speaking threat actors leveraging leaked exploit kits to deploy GHOSTBLADE malware on iOS devices and conducting autonomous AI-driven attacks using DeepSeek and the Hermes Agent framework against exposed servers. A separate campaign targeting Central Asian governments employs the OctLurk and SilkLurk malware families. Critical vulnerabilities in widely deployed software—including Adobe Campaign Classic (CVSS 10.0), Rails Active Storage, and Hugging Face Diffusers—have been disclosed with proof-of-concept exploit potential, while CISA has warned of escalating attacks against internet-exposed industrial control systems in U.S. water utilities.
 
 ## Active Exploitation Details
 
 ### COLDCARD Hardware Wallet RNG Flaw
-- **Description**: A vulnerability in COLDCARD hardware wallet firmware's random number generator produced predictable seed values, allowing attackers to derive private keys and reconstruct wallet seeds. The flaw affected wallets whose seeds were generated using the flawed RNG implementation.
-- **Impact**: Attackers drained 1,196 Bitcoin addresses in approximately 41 minutes on July 30, stealing 1,082.65 BTC valued at roughly $70.2 million at the time (approximately $88.6 million in broader estimates). Thousands of wallets were compromised in an automated sweep.
-- **Status**: Actively exploited in the wild. The theft occurred on July 30, 2026. Galaxy Research mapped the transaction sweep and tied it directly to the firmware flaw.
+- **Description**: A vulnerability in COLDCARD hardware wallet firmware's random number generator produced predictable entropy during seed generation, allowing attackers to derive private keys and sweep associated Bitcoin addresses.
+- **Impact**: Attackers drained 1,196 Bitcoin addresses in 41 minutes on July 30, stealing approximately 1,082.65 BTC (valued at ~$70.2 million at time of theft, ~$88.6 million in broader estimates). Thousands of wallets generated with the flawed firmware are compromised.
+- **Status**: Actively exploited in the wild; firmware flaw confirmed by Galaxy Research. Users with affected seeds must migrate funds immediately.
 
 ### N-able N-central Authentication Bypass
-- **Description**: An authentication bypass vulnerability in N-able's N-central remote monitoring and management (RMM) platform allowed unauthenticated attackers to gain administrative access to N-central servers.
-- **Impact**: Attackers achieved remote administrative control over N-central servers and used that access to reach customer systems managed through those servers. The initial vendor fix was incomplete, allowing continued exploitation.
-- **Status**: Actively exploited in the wild. N-able confirmed attackers took over N-central servers after the initial fix proved insufficient. A subsequent remediation was required.
+- **Description**: An authentication bypass vulnerability in N-able's N-central remote monitoring and management platform allowed unauthenticated attackers to gain remote administrative access to N-central servers.
+- **Impact**: Attackers achieved full administrative control over compromised N-central servers, enabling lateral access to all customer systems managed through those servers. The vendor's initial fix was incomplete, leaving systems vulnerable to continued exploitation.
+- **Status**: Actively exploited after initial patch proved insufficient; N-able has acknowledged the bypass and is working on a complete remediation.
 
-### Adform Supply Chain Attack (Malicious JavaScript Injection)
-- **Description**: Attackers compromised a JavaScript file served by advertising technology company Adform, modifying it to function as a browser-side tool that rewrites cryptocurrency wallet addresses copied to visitors' clipboards.
-- **Impact**: The poisoned script swapped legitimate cryptocurrency wallet addresses with attacker-controlled addresses across all customer sites loading the Adform script, diverting cryptocurrency payments to threat actors.
-- **Status**: Actively exploited. Adform detected the incident and confirmed the supply chain compromise. The malicious script was actively served to customer websites.
+### Adform Supply Chain Compromise
+- **Description**: Attackers compromised a JavaScript file served by advertising technology company Adform, modifying it to function as a browser-side tool that intercepts and rewrites cryptocurrency wallet addresses copied to users' clipboards.
+- **Impact**: Cryptocurrency transactions initiated by visitors to websites using Adform's ad platform were redirected to attacker-controlled wallets. The malicious script operated across all customer sites serving the compromised Adform resource.
+- **Status**: Active supply chain attack detected by Adform; the compromised script has been identified and remediation is underway.
 
-### Hotel Wi-Fi Fake Update / CornFlake RAT Deployment
-- **Description**: Threat actors hijacked hotel Wi-Fi networks to intercept traffic and serve fake browser update prompts. Users who accepted the update downloaded CornFlake, a remote access trojan (RAT) capable of capturing webcam images, microphone audio, and keystrokes.
-- **Impact**: Full surveillance capability on compromised devices, including audio/video capture and credential theft. Targets included travelers using hotel Wi-Fi networks.
-- **Status**: Actively exploited in the wild. Microsoft reported the campaign and attributed the CornFlake RAT delivery to this vector.
+### Chinese Threat Actor iOS Exploitation via DarkSword Kit
+- **Description**: An unknown Chinese-speaking threat actor is leveraging a publicly leaked version of the DarkSword exploit kit to target Apple iOS devices, deploying the GHOSTBLADE malware payload.
+- **Impact**: Successful exploitation provides persistent access to compromised iOS devices, enabling surveillance, data exfiltration, and potential further lateral movement. The use of a leaked exploit kit lowers the barrier for sophisticated mobile exploitation.
+- **Status**: Active campaign observed by attack surface management platforms; iOS devices remain at risk until Apple addresses the underlying vulnerabilities used by DarkSword.
 
-### DarkSword Exploit Kit / GHOSTBLADE iOS Malware Campaign
-- **Description**: An unknown Chinese threat actor leveraged a publicly leaked version of the DarkSword exploit kit to target Apple iOS devices, deploying the GHOSTBLADE malware framework.
-- **Impact**: Compromise of iOS devices with GHOSTBLADE, a malware family designed for persistence and data exfiltration on Apple's mobile platform.
-- **Status**: Actively exploited. The campaign was observed by attack surface management platforms leveraging the leaked exploit kit code.
+### Adobe Campaign Classic Critical RCE
+- **Description**: A maximum-severity (CVSS 10.0) vulnerability in Adobe Campaign Classic (ACC) enterprise marketing automation platform allows arbitrary code execution without user interaction.
+- **Impact**: Unauthenticated remote attackers can execute arbitrary code on affected ACC instances, potentially leading to full system compromise, data theft, and lateral movement within enterprise environments.
+- **Status**: Security updates released by Adobe; organizations running ACC must apply patches immediately given the critical severity and exploitability.
 
-### Arch Linux AUR Package Takeovers
-- **Description**: Malicious actors conducted a surge of takeovers of existing Arch User Repository (AUR) packages, injecting malware into popular community-maintained packages.
-- **Impact**: Users installing or updating compromised AUR packages executed malicious code on their systems. The Arch Linux project temporarily disabled package adoption to stem the flood.
-- **Status**: Actively exploited. The surge in malicious takeovers prompted emergency action by the Arch Linux project.
+### Rails Active Storage Arbitrary File Read / RCE
+- **Description**: A critical vulnerability in the Active Storage framework within Ruby on Rails allows unauthenticated attackers to read arbitrary files from the application server, with potential escalation to remote code execution.
+- **Impact**: Attackers can access sensitive configuration files, credentials, and source code, potentially achieving full application and server compromise.
+- **Status**: Patched in recent Rails releases; applications using Active Storage should upgrade immediately.
 
-### DeepSeek AI Autonomous Attack Campaign
-- **Description**: A Chinese-speaking threat actor utilized the DeepSeek AI model in conjunction with the open-source Hermes Agent to conduct fully autonomous cyberattacks—scanning for vulnerable servers, exploiting them, and establishing persistence with minimal human intervention.
-- **Impact**: Automated compromise of internet-exposed vulnerable servers at scale, reducing the time and skill required for widespread intrusion.
-- **Status**: Actively exploited. The campaign represents a significant escalation in AI-assisted offensive operations.
+### Hugging Face Diffusers Arbitrary Code Execution
+- **Description**: Three high-severity flaws in the Hugging Face Diffusers library allow crafted model repositories to execute arbitrary code on machines that load them, bypassing safety controls.
+- **Impact**: Researchers, developers, and automated pipelines downloading and running models from Hugging Face Hub could face silent code execution, supply chain compromise, and lateral movement.
+- **Status**: Disclosed with proof-of-concept exploitability; patches or mitigations should be applied by all Diffusers users.
 
-### Water Utility PLC Attacks
-- **Description**: Threat actors targeted internet-exposed programmable logic controllers (PLCs) in water and wastewater treatment facilities, disrupting operations.
-- **Impact**: Operational disruption to critical water infrastructure. CISA warned of a significant increase in such attacks.
-- **Status**: Actively exploited. CISA issued a formal warning regarding the rising threat to U.S. water utilities.
+### Thermo Fisher Applied Biosystems Software Flaw
+- **Description**: A flaw in select Applied Biosystems human identification software allows data files to be altered before analysis software loads them, making tampering nearly undetectable.
+- **Impact**: Forensic and clinical DNA analysis results could be silently manipulated, undermining evidentiary integrity and diagnostic accuracy.
+- **Status**: Patched by Thermo Fisher Scientific in July 2026; affected laboratories must update software and review prior analyses.
 
-### HollowFrame Loader / Matryoshka Backdoor Spear-Phishing
-- **Description**: A previously undocumented Go-based loader framework (HollowFrame) delivered a Rust-based malware family (Matryoshka) via spear-phishing emails targeting a law firm.
-- **Impact**: Initial access and persistent backdoor deployment on legal sector targets, enabling data theft and lateral movement.
-- **Status**: Actively exploited. Blackpoint Cyber researchers documented the campaign against a law firm.
+### HollowFrame Loader and Matryoshka Backdoor
+- **Description**: A previously undocumented Go-based loader framework (HollowFrame) delivers a Rust-based backdoor (Matryoshka) via spear-phishing attacks targeting law firms.
+- **Impact**: Persistent remote access, credential theft, data exfiltration, and lateral movement within compromised legal organizations.
+- **Status**: Active campaign documented by Blackpoint Cyber; indicators of compromise available for detection.
 
-### Android TV Box Identity Spoofing / Proxy Abuse
-- **Description**: Cheap Android TV boxes shipped with pre-installed malicious applications that rewrite hardware identifiers to mimic legitimate phones (Samsung, Huawei, Xiaomi, Vivo), then use the device's broadband connection as a proxy for ad-click fraud.
-- **Impact**: Device owners' broadband connections hijacked for fraudulent ad clicking; hardware identity spoofing enables evasion of device fingerprinting.
-- **Status**: Actively exploited. Bitsight researchers identified the campaign across multiple device models.
+### CornFlake RAT via Hijacked Hotel Wi-Fi
+- **Description**: Attackers compromise hotel Wi-Fi networks to serve fake browser updates that deliver the CornFlake remote access trojan, capable of capturing webcam images, microphone audio, and keystrokes.
+- **Impact**: Full surveillance of targeted individuals, credential harvesting, and persistent access to victim devices—particularly dangerous for business travelers and high-value targets.
+- **Status**: Active campaign reported by Microsoft; travelers should avoid installing updates on untrusted networks.
 
-### OctLurk / SilkLurk Campaign Against Central Asian Governments
-- **Description**: A suspected Chinese-speaking threat actor deployed two malware families—OctLurk and SilkLurk—against government organizations primarily in Central Asia (Afghanistan, Kyrgyzstan, Tajikistan, and others).
-- **Impact**: Espionage-focused compromise of government networks in the region, with custom tooling for persistence and data collection.
-- **Status**: Actively exploited. The campaign represents a fresh wave of targeting against Central Asian government entities.
+### DeepSeek AI Autonomous Server Attacks
+- **Description**: A Chinese-speaking threat actor is using the DeepSeek AI model combined with the open-source Hermes Agent framework to conduct fully autonomous cyberattacks against exposed servers with minimal human involvement.
+- **Impact**: Scalable, rapid identification and exploitation of vulnerable internet-facing systems; lowers operational cost and increases tempo of opportunistic compromise.
+- **Status**: Active technique observed in the wild; represents a significant evolution in AI-assisted offensive operations.
+
+### CISA Water Utility PLC Attacks
+- **Description**: CISA warns of a significant increase in attacks targeting internet-exposed programmable logic controllers (PLCs) in water and wastewater systems, often leveraging default credentials and known vulnerabilities.
+- **Impact**: Disruption of critical water treatment and distribution operations, potential public health consequences, and erosion of trust in critical infrastructure resilience.
+- **Status**: Ongoing active exploitation; CISA urges immediate removal of PLCs from public internet exposure and enforcement of strong authentication.
 
 ## Affected Systems and Products
 
-- **COLDCARD Hardware Wallets**: Devices running firmware with the flawed RNG implementation; seeds generated using the vulnerable firmware versions are compromised.
-- **N-able N-central**: RMM platform servers vulnerable to authentication bypass; all versions prior to the complete fix are affected. Customer environments managed through compromised N-central servers are at risk.
-- **Adform Advertising Scripts**: JavaScript files served via Adform's ad delivery infrastructure; all customer websites embedding the compromised script were affected.
-- **Hotel Wi-Fi Networks**: Compromised hospitality network infrastructure used to intercept and modify HTTP/HTTPS traffic for fake update injection.
-- **Apple iOS Devices**: Targeted by GHOSTBLADE malware delivered via the leaked DarkSword exploit kit; specific iOS versions affected depend on the exploit kit's supported vulnerabilities.
-- **Arch Linux AUR Packages**: Community-maintained packages in the Arch User Repository that were maliciously adopted and modified; users who installed or updated compromised packages.
-- **Internet-Exposed Servers (Various)**: Targets of the DeepSeek/Hermes autonomous attack campaign; any server with unpatched vulnerabilities accessible from the internet.
-- **Programmable Logic Controllers (PLCs)**: Internet-exposed PLCs in water and wastewater utility operational technology environments; specific vendors and models not disclosed in the advisory.
-- **Law Firm Email/Endpoint Systems**: Targets of the HollowFrame/Matryoshka spear-phishing campaign; initial vector was malicious email attachments or links.
-- **Cheap Android TV Boxes**: Specific low-cost models shipping with pre-installed malicious apps that spoof hardware identifiers (Samsung, Huawei, Xiaomi, Vivo) and operate as residential proxies.
-- **Central Asian Government Networks**: Government organizations in Afghanistan, Kyrgyzstan, Tajikistan, and neighboring states targeted by OctLurk and SilkLurk malware.
+- **COLD Hardware Wallets (COLDcard)**: Firmware versions with flawed RNG implementation; all seeds generated on affected firmware are compromised
+- **N-able N-central**: All versions prior to complete authentication bypass fix; managed service provider servers and downstream customer endpoints
+- **Adform Advertising Platform**: JavaScript delivery infrastructure; all customer websites embedding Adform scripts during compromise window
+- **Apple iOS**: Devices vulnerable to DarkSword exploit kit techniques; specific iOS versions not disclosed but implies unpatched vulnerabilities
+- **Adobe Campaign Classic (ACC)**: All unpatched versions; enterprise marketing automation deployments
+- **Ruby on Rails Applications**: Applications using Active Storage framework on unpatched Rails versions
+- **Hugging Face Diffusers Library**: All versions containing the three disclosed high-severity flaws; any environment loading untrusted model repositories
+- **Thermo Fisher Applied Biosystems Software**: Select human identification software versions prior to July 2026 patch; forensic and clinical laboratory systems
+- **Hotel Wi-Fi Networks**: Compromised hospitality network infrastructure used as delivery vector for fake updates
+- **Internet-Exposed PLCs**: Programmable logic controllers in water/wastewater systems with public internet connectivity and weak authentication
+- **Arch Linux AUR Packages**: Arch User Repository packages subject to malicious adoption takeovers; adoption process temporarily disabled
 
 ## Attack Vectors and Techniques
 
-- **Hardware Supply Chain / Firmware Flaw Exploitation**: Exploitation of a cryptographic RNG weakness in hardware wallet firmware to predict seed phrases and derive private keys at scale.
-- **Authentication Bypass in Management Software**: Unauthenticated access to administrative interfaces of RMM platforms, enabling full control over managed customer environments.
-- **Software Supply Chain Compromise (Third-Party JavaScript)**: Injection of malicious code into a widely embedded third-party advertising script, achieving broad distribution across customer websites.
-- **Network Traffic Interception / Man-in-the-Middle (Hotel Wi-Fi)**: Hijacking of local network infrastructure to modify HTTP responses and inject fake software update prompts.
-- **Leaked Exploit Kit Weaponization**: Adaptation of publicly leaked exploit kit code (DarkSword) for targeted malware deployment (GHOSTBLADE) against mobile platforms.
-- **Package Repository Poisoning (AUR)**: Malicious adoption of legitimate community packages to inject payloads into the software supply chain of end users.
-- **AI-Automated Vulnerability Exploitation**: Use of large language models (DeepSeek) combined with agent frameworks (Hermes) to autonomously discover, exploit, and persist on vulnerable servers.
-- **OT/ICS Targeting (Exposed PLCs)**: Direct targeting of internet-connected industrial control systems in critical infrastructure sectors.
-- **Spear-Phishing with Novel Loader/Backdoor**: Social engineering delivery of a custom Go-based loader (HollowFrame) deploying a Rust-based backdoor (Matryoshka).
-- **Device Identity Spoofing / Residential Proxy Abuse**: Malicious firmware/apps rewriting hardware identifiers to masquerade as legitimate mobile devices and monetize broadband as proxy exit nodes.
-- **Custom Malware Deployment for Espionage (OctLurk/SilkLurk)**: Use of previously undocumented malware families for targeted government espionage in a specific geographic region.
+- **Cryptographic Implementation Flaw Exploitation**: Predictable entropy in hardware wallet RNG enabling private key derivation and mass cryptocurrency theft
+- **Authentication Bypass**: Flawed access control in RMM platform allowing unauthenticated administrative access
+- **Supply Chain Code Injection**: Compromise of third-party JavaScript delivery infrastructure to inject malicious functionality across customer bases
+- **Leaked Exploit Kit Utilization**: Publicly available mobile exploit framework (DarkSword) repurposed for targeted iOS malware deployment
+- **Zero-Click RCE**: Maximum-severity vulnerability requiring no user interaction for arbitrary code execution in enterprise software
+- **Deserialization/File Handling Flaws**: Improper validation in file upload and processing frameworks (Active Storage, Diffusers) leading to arbitrary file read and code execution
+- **Data Integrity Subversion**: Silent modification of scientific data files before analysis, evading detection mechanisms
+- **Spear-Phishing with Novel Loader/Backdoor**: Targeted email delivery of Go-based loader deploying Rust-based backdoor for persistent access
+- **Adversary-in-the-Middle via Compromised Infrastructure**: Hijacked hotel Wi-Fi serving malicious fake updates to deliver surveillance malware
+- **AI-Automated Offensive Operations**: Large language model (DeepSeek) driving autonomous vulnerability discovery and exploitation via agent framework (Hermes)
+- **Default Credential / Known Vulnerability Exploitation**: Targeting internet-exposed industrial controllers with weak authentication and unpatched flaws
+- **Malicious Package Adoption**: Abuse of open-source package repository adoption mechanisms to inject malware into legitimate software supply chains
+- **Clipboard Hijacking / Address Replacement**: Browser-injected scripts monitoring and rewriting cryptocurrency wallet addresses in real time
 
 ## Threat Actor Activities
 
-- **Unknown Operator (COLDCard Bitcoin Theft)**: Executed an automated sweep of 1,196 Bitcoin addresses in 41 minutes, leveraging the RNG flaw to derive keys and drain ~1,082 BTC. Demonstrates high-capability cryptocurrency-focused actor with automated tooling.
-- **Unknown Operator (N-able N-central Exploitation)**: Actively exploited authentication bypass post-patch, indicating monitoring of vendor advisories and rapid reverse-engineering of incomplete fixes. Targeted MSP supply chain for downstream customer access.
-- **Unknown Operator (Adform Supply Chain)**: Compromised Adform's script delivery infrastructure to inject clipboard-hijacking code. Financially motivated, targeting cryptocurrency transactions across a broad victim set.
-- **Unknown Operator (Hotel Wi-Fi / CornFlake)**: Deployed surveillance malware (CornFlake RAT) via fake updates on compromised hospitality networks. Capabilities include webcam, microphone, and keystroke capture—consistent with targeted espionage.
-- **Chinese Threat Actor (DarkSword/GHOSTBLADE)**: Leveraged leaked DarkSword exploit kit to deploy GHOSTBLADE on iOS. Demonstrates rapid weaponization of public exploit code for mobile platform targeting.
-- **Malicious AUR Package Maintainers (Multiple Actors)**: Coordinated surge in malicious package adoptions, suggesting either a single group automating takeovers or multiple opportunistic actors exploiting weak package ownership controls.
-- **Chinese-Speaking Threat Actor (DeepSeek/Hermes)**: Pioneering fully autonomous AI-driven attack chains using DeepSeek LLM and Hermes Agent for vulnerability discovery, exploitation, and post-exploitation with minimal human oversight.
-- **Unknown Actors (Water Utility PLC Targeting)**: Increased activity against exposed OT assets in water sector. CISA advisory suggests multiple actors or broad opportunistic scanning.
-- **Unknown Operator (HollowFrame/Matryoshka)**: Deployed novel Go/Rust toolchain via spear-phishing against legal sector. Custom loader and backdoor indicate dedicated development resources and targeted intent.
-- **Device Manufacturers/Supply Chain Actors (Android TV Boxes)**: Pre-installation of identity-spoofing proxy malware on consumer devices. Blurs line between supply chain compromise and malicious product design.
-- **Suspected Chinese-Speaking Actor (OctLurk/SilkLurk)**: Espionage campaign against Central Asian governments using two custom malware families. Regional focus and tooling suggest state-aligned or state-sponsored operation.
+- **Unknown Chinese Threat Actor (DarkSword/GHOSTBLADE)**: Deploying leaked DarkSword exploit kit to install GHOSTBLADE malware on iOS devices; demonstrates access to sophisticated mobile exploit chains and willingness to leverage publicly leaked tools
+- **Chinese-Speaking Threat Actor (DeepSeek/Hermes)**: Conducting fully autonomous server compromise operations using DeepSeek AI model and Hermes Agent framework; represents cutting-edge AI-driven offensive capability with minimal human oversight
+- **Suspected Chinese-Speaking Actor (OctLurk/SilkLurk)**: Targeting government organizations across Central Asia (Afghanistan, Kyrgyzstan, Tajikistan, and neighboring states) with OctLurk and SilkLurk malware families; consistent with regional espionage objectives
+- **HollowFrame/Matryoshka Operators**: Conducting spear-phishing campaigns against law firms using novel Go-based loader (HollowFrame) and Rust-based backdoor (Matryoshka); previously undocumented toolset suggests dedicated development resources
+- **Adform Supply Chain Attackers**: Compromised advertising technology infrastructure to deploy cryptocurrency address-swapping scripts; financially motivated with broad opportunistic targeting across Adform's customer base
+- **Hotel Wi-Fi Compromise Actors**: Hijacking hospitality network infrastructure to deliver CornFlake RAT via fake browser updates; surveillance-focused with high-value target selection (business travelers)
+- **Water Utility PLC Attackers**: Exploiting internet-exposed industrial controllers in U.S. water/wastewater systems; mix of opportunistic and potentially targeted critical infrastructure disruption
+- **AUR Package Hijackers**: Maliciously adopting orphaned or vulnerable Arch User Repository packages to distribute malware to Arch Linux users; supply chain attack on open-source ecosystem
+- **Amgen Cloud Data Threat Actors**: Breached third-party cloud service providers to exfiltrate patient health information and proprietary pharmaceutical data; targeted data theft with potential regulatory and competitive consequences
+- **PNLD Data Breach Actors**: Compromised Police National Legal Database and published contact details of police, government, and customers on dark web; potential facilitation of further targeting or harassment
 
 ## Source Attribution
 
