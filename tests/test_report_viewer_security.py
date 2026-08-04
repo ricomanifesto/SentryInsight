@@ -32,7 +32,7 @@ def test_public_pages_publish_canonical_identity_metadata_and_sitemap():
         assert f'<meta name="description" content="{PUBLIC_DESCRIPTION}">' in viewer
         assert f'<link rel="canonical" href="{PUBLIC_SITE_URL}">' in viewer
         assert f'<meta property="og:url" content="{PUBLIC_SITE_URL}">' in viewer
-        assert '<meta name="twitter:card" content="summary">' in viewer
+        assert '<meta name="twitter:card" content="summary_large_image">' in viewer
         assert 'href="https://ricomanifesto.com/">Michael Rico</a>' in viewer
         assert "<noscript>" in viewer
         identity = extract_json_ld(viewer)
@@ -138,13 +138,19 @@ def test_report_viewers_resolve_logo_assets_without_project_path_lock():
 
         assert 'src="/SentryInsight/assets/logo.png"' not in viewer
         assert 'href="/SentryInsight/assets/logo.png"' not in viewer
-        assert 'data-logo-asset="icon"' in viewer
-        assert 'data-logo-asset="shortcut-icon"' in viewer
+        assert 'data-logo-asset="favicon"' in viewer
+        assert 'data-logo-asset="icon-svg"' in viewer
+        assert 'data-logo-asset="apple-touch-icon"' in viewer
         assert 'data-logo-asset="header-logo"' in viewer
-        assert "function resolveLogoAssetPath()" in viewer
+        assert "'favicon': 'favicon.ico'" in viewer
+        assert "'icon-svg': 'icon.svg'" in viewer
+        assert "'apple-touch-icon': 'apple-touch-icon.png'" in viewer
+        assert "'header-logo': 'icon.svg'" in viewer
+        assert "function resolveLogoAssetBase()" in viewer
         assert "function applyLogoAssetPath()" in viewer
         assert "location.pathname.includes('/docs/')" in viewer
-        assert "const logoPath = resolveLogoAssetPath()" in viewer
+        assert "const base = resolveLogoAssetBase()" in viewer
+        assert "LOGO_ASSET_FILES[element.getAttribute('data-logo-asset')]" in viewer
         assert "applyLogoAssetPath()" in viewer
 
 
