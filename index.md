@@ -2,144 +2,130 @@
 
 ## Executive Summary
 
-Russian threat actor Midnight Blizzard (APT29) is conducting a global campaign compromising hotel Wi-Fi networks to deliver custom surveillance malware dubbed CornFlake, which captures webcam footage, microphone audio, and keystrokes while targeting Microsoft 365 credentials. Simultaneously, attackers are actively exploiting an authentication bypass vulnerability (CVE-2026-18577) in N-able N-central remote monitoring and management servers, with the vendor's initial patch proving incomplete and threat actors achieving full administrative control over managed customer environments.
+Russian state-sponsored threat actor Midnight Blizzard (APT29) is conducting a global campaign targeting hospitality Wi-Fi networks, deploying custom malware including the CornFlake remote access trojan through fake browser updates to breach Microsoft 365 accounts. This operation demonstrates sophisticated infrastructure compromise enabling surveillance capabilities such as webcam capture, microphone recording, and keystroke logging across international hotel networks.
 
-Critical supply chain and identity attacks are escalating across multiple fronts. Researchers have uncovered three "Pass-ta-key" attack variants allowing malware on compromised Windows systems to hijack Google Password Manager's synced passkeys without any user interaction or visible prompts. A Russian loader-as-a-service called DOUBLECUP leverages ClickFix social engineering to hide malicious payloads in browser-cached PNG images, delivering the CountLoader payload cross-platform. Meanwhile, INC Ransomware has become the dominant operator exploiting recently disclosed SonicWall SMA 1000 series VPN flaws, and a Chinese-speaking actor is deploying the GHOSTBLADE implant on iOS devices using a leaked DarkSword exploit kit.
+A critical authentication bypass vulnerability (CVE-2026-18577) in N-able N-central RMM servers is being actively exploited by attackers to gain administrative access and pivot to managed customer environments. N-able's initial patch proved incomplete, allowing continued compromise of both hosted and on-premises servers. Simultaneously, INC Ransomware has emerged as the dominant threat actor exploiting recently disclosed SonicWall SMA 1000 series VPN flaws, while a Chinese-speaking actor leverages the leaked DarkSword exploit kit to deploy GHOSTBLADE malware on iOS devices.
 
-High-impact financial and infrastructure targeting continues with a COLDCARD hardware wallet firmware flaw in its random number generator linked to the theft of approximately $88 million in Bitcoin from thousands of wallets, executed in a 41-minute sweep of 1,196 addresses. The ExfilSquad group has leaked contact data for over 100,000 UK police officers and criminal justice professionals following a breach of the Police National Legal Database. Additional active threats include 18 malicious npm packages targeting Alibaba Cloud developer tools with a cross-platform RAT, Adobe Campaign Classic CVSS 10.0 remote code execution flaws, and three high-severity vulnerabilities in Hugging Face's Diffusers library enabling arbitrary code execution through crafted model repositories.
+New attack vectors targeting authentication mechanisms are proliferating: researchers identified three "Pass-ta-key" techniques allowing malware to hijack Google-synced passkeys without user interaction, a Russian loader-as-a-service (DOUBLECUP) uses ClickFix social engineering to hide malicious code in browser-cached PNG images, and a COLDCARD hardware wallet RNG flaw facilitated the theft of approximately $88 million in Bitcoin. Supply chain attacks continue with 18 malicious npm packages targeting Alibaba tool users, Adform script poisoning rewriting cryptocurrency wallet addresses, and three high-severity flaws in Hugging Face Diffusers enabling arbitrary code execution through crafted model repositories.
 
 ## Active Exploitation Details
 
+### Midnight Blizzard Hotel Wi-Fi Campaign
+- **Description**: Russian APT29 (Midnight Blizzard) compromises hotel Wi-Fi infrastructure to serve fake browser updates that deliver CornFlake RAT malware. The malware provides comprehensive surveillance capabilities including webcam access, microphone recording, and keystroke logging.
+- **Impact**: Full compromise of Microsoft 365 accounts, persistent surveillance of high-value targets traveling internationally, credential theft, and lateral movement within victim organizations.
+- **Status**: Active global campaign. Microsoft has attributed and disclosed the operation. No specific patch for hotel Wi-Fi infrastructure compromise; mitigation requires network monitoring and user awareness against fake updates.
+- **CVE ID**: Not explicitly assigned to the Wi-Fi compromise vector itself
+
 ### N-able N-central Authentication Bypass (CVE-2026-18577)
-- **Description**: An authentication bypass vulnerability affecting both hosted and on-premises N-central servers that allows unauthenticated attackers to gain administrator access. The flaw resides in the patch management component and was initially addressed with an incomplete fix that attackers quickly bypassed.
-- **Impact**: Attackers achieve full administrative control over N-central servers, enabling them to reach and compromise all customer systems managed through those servers. This provides a potent supply chain vector targeting managed service providers and their downstream clients.
-- **Status**: Actively exploited in the wild. N-able has released a second patch after the initial fix proved insufficient. Organizations using N-central should apply the latest update immediately and audit for signs of compromise.
+- **Description**: An authentication bypass vulnerability in N-able N-central remote monitoring and management (RMM) software allows unauthenticated attackers to gain administrative access to both hosted and on-premises N-central servers.
+- **Impact**: Attackers achieve remote administrative control over RMM servers, enabling access to all customer systems managed through those servers. This provides a potent supply chain vector for downstream compromise.
+- **Status**: Actively exploited in the wild. N-able released an initial patch that proved incomplete; attackers continued exploitation after the first fix. A subsequent updated patch has been issued.
 - **CVE ID**: CVE-2026-18577
 
-### Hotel Wi-Fi CornFlake Campaign (Midnight Blizzard / APT29)
-- **Description**: A global campaign compromising hospitality Wi-Fi networks to serve fake browser updates that deliver CornFlake, a remote access trojan with surveillance capabilities. The attack infrastructure is attributed to the Russian threat actor Midnight Blizzard (APT29).
-- **Impact**: CornFlake captures webcam images, microphone audio, and keystrokes while targeting Microsoft 365 account credentials. Victims are typically travelers and hospitality sector personnel connecting to compromised hotel networks.
-- **Status**: Active exploitation campaign ongoing. Microsoft has linked the activity to Midnight Blizzard. No specific CVE identified; the attack leverages network-level manipulation and social engineering rather than a software vulnerability in the traditional sense.
+### INC Ransomware Exploitation of SonicWall SMA 1000 Flaws
+- **Description**: INC Ransomware operation actively exploits recently disclosed security vulnerabilities in SonicWall Secure Mobile Access (SMA) 1000 series VPN appliances to gain initial access for ransomware deployment.
+- **Impact**: Network intrusion, data exfiltration, ransomware encryption, and operational disruption for organizations using affected SonicWall VPN appliances.
+- **Status**: INC Ransomware identified as the "dominant threat actor" exploiting these flaws. Active exploitation ongoing. SonicWall has released patches for the underlying vulnerabilities.
+- **CVE ID**: Specific CVE IDs for the SonicWall SMA 1000 flaws not provided in source articles
 
 ### Pass-ta-key Attacks on Google Password Manager
-- **Description**: Three distinct attack techniques allowing malware running with ordinary user privileges on a compromised Windows device to abuse Google Password Manager's synced passkeys functionality. The attacks bypass user verification requirements (fingerprint, PIN, or screen prompts) entirely.
-- **Impact**: Malware can silently sign into a victim's passkey-protected accounts across services without any user interaction or visible authentication prompts, effectively defeating the primary security model of passkey-based authentication.
-- **Status**: Demonstrated by Unit 42 researchers as practical attacks against current Google Password Manager implementation on Windows. No patch available at time of reporting; mitigation requires architectural changes to passkey sync and verification flows.
+- **Description**: Three distinct attack techniques allow malware running as an ordinary user on a compromised Windows device to abuse Google Password Manager's synced passkeys, bypassing user verification (fingerprint, PIN, or screen prompts) to sign into passkey-protected accounts.
+- **Impact**: Complete bypass of passkey authentication protections, enabling account takeover of any service using Google-synced passkeys without victim interaction or awareness.
+- **Status**: Demonstrated by Unit 42 researchers. Google has been notified. Mitigation requires Google Password Manager architectural changes.
+- **CVE ID**: Not explicitly assigned in source articles
 
 ### DOUBLECUP ClickFix Loader-as-a-Service
-- **Description**: A Russian-operated loader-as-a-service that uses ClickFix social engineering tactics to trick users into executing malicious commands. The service hides payload code within PNG images cached by the victim's browser, delivering the CountLoader payload to both Windows and macOS systems.
-- **Impact**: Cross-platform initial access and payload delivery capability sold as a service, lowering the barrier for operators to deploy follow-on malware including infostealers, RATs, and ransomware.
-- **Status**: Active service offering in underground markets. Novel technique of steganographic payload storage in browser cache evades traditional file-based detection.
-
-### INC Ransomware Exploitation of SonicWall SMA 1000
-- **Description**: INC Ransomware operation actively exploiting recently disclosed security flaws in SonicWall Secure Mobile Access (SMA) 1000 series VPN appliances to gain initial access for ransomware deployment.
-- **Impact**: Full network compromise via VPN appliance takeover, leading to data exfiltration and ransomware encryption across victim environments. INC has emerged as the dominant threat actor leveraging these flaws.
-- **Status**: Active exploitation campaign. SonicWall has released patches for the underlying vulnerabilities; organizations running SMA 1000 series appliances should prioritize patching and hunt for indicators of compromise.
-
-### GHOSTBLADE iOS Implant via Leaked DarkSword Kit
-- **Description**: An unknown Chinese-speaking threat actor leveraging a publicly leaked version of the DarkSword exploit kit to deploy the GHOSTBLADE implant on Apple iOS devices.
-- **Impact**: Persistent compromise of iOS devices enabling surveillance, data theft, and potential lateral movement. The use of a leaked exploit kit lowers attribution confidence and increases the threat surface.
-- **Status**: Active campaign observed by attack surface management researchers. Apple has not issued a specific advisory at time of reporting; the DarkSword kit's public availability suggests broader misuse is likely.
+- **Description**: Russian-operated loader-as-a-service using ClickFix social engineering to trick users into executing malicious code. Malware hides in PNG images cached by victims' browsers, delivering CountLoader payload to both Windows and macOS devices.
+- **Impact**: Cross-platform initial access, payload delivery evasion through browser cache steganography, persistent foothold for follow-on exploitation.
+- **Status**: Active service offered in underground markets. Novel browser cache-based payload staging technique.
+- **CVE ID**: Not applicable (service/malware, not a software vulnerability)
 
 ### COLDCARD Hardware Wallet RNG Flaw
-- **Description**: A firmware vulnerability in COLDCARD hardware wallets involving a flawed random number generator used for seed generation. The flaw allows attackers to predict or reconstruct wallet seeds, enabling unauthorized fund withdrawal.
-- **Impact**: Estimated $88.6 million in Bitcoin stolen from thousands of wallets in a coordinated sweep of 1,196 addresses executed in approximately 41 minutes. The theft represents one of the largest hardware wallet compromises to date.
-- **Status**: Actively exploited. COLDCARD has released firmware updates; users must migrate funds from affected wallets generated with vulnerable firmware versions. No CVE ID publicly assigned in available reporting.
+- **Description**: A vulnerability in COLDCARD hardware wallet firmware's random number generator allows attackers to predict or reconstruct wallet seeds, enabling theft of Bitcoin from wallets generated with the flawed firmware.
+- **Impact**: Estimated $88.6 million in Bitcoin stolen from thousands of wallets. One incident drained 1,196 addresses (1,082.65 BTC, ~$70.2 million) in 41 minutes.
+- **Status**: Actively exploited. Firmware flaw identified and linked to thefts. COLDCARD has addressed the RNG issue in updated firmware.
+- **CVE ID**: Not explicitly assigned in source articles
 
-### ExfilSquad PNLD Data Breach
-- **Description**: Cyberattack on the UK Police National Legal Database (PNLD) resulting in the compromise and dark web publication of contact data for over 100,000 police officers and criminal justice professionals.
-- **Impact**: Exposure of personally identifiable information including names, organizations, email addresses, and phone numbers of law enforcement personnel, creating risks for targeted harassment, social engineering, and operational security failures.
-- **Status**: Data published on dark web. PNLD has confirmed the breach. Attribution to ExfilSquad group. No specific vulnerability CVE identified in public reporting.
+### SonicWall SMA 1000 Series VPN Vulnerabilities
+- **Description**: Recently disclosed security flaws in SonicWall Secure Mobile Access (SMA) 1000 series VPN appliances being exploited for initial access.
+- **Impact**: Unauthenticated remote access to internal networks, bypass of VPN authentication, foothold for ransomware deployment (INC Ransomware).
+- **Status**: Actively exploited by INC Ransomware as dominant actor. Patches available from SonicWall.
+- **CVE ID**: Specific CVE IDs not provided in source articles
 
-### Malicious npm Package Campaign Targeting Alibaba Tools
-- **Description**: Eighteen malicious npm packages targeting users of Alibaba Cloud developer tools, delivering a cross-platform remote access trojan (RAT) as part of a sophisticated supply chain operation.
-- **Impact**: Developer machine compromise with full remote access capabilities, potentially leading to source code theft, CI/CD pipeline poisoning, and downstream software supply chain contamination.
-- **Status**: Packages identified and reported. npm has removed the malicious packages; developers who installed them should rotate credentials and audit systems.
+### DarkSword Exploit Kit / GHOSTBLADE iOS Campaign
+- **Description**: Chinese-speaking threat actor leverages publicly leaked DarkSword exploit kit to deploy GHOSTBLADE malware on Apple iOS devices.
+- **Impact**: Compromise of iOS devices, potential persistent access, data exfiltration, and use of compromised devices for proxyjacking and further attacks.
+- **Status**: Active campaign observed. Leverages leaked exploit kit code, lowering barrier to entry for iOS exploitation.
+- **CVE ID**: Specific CVEs targeted by DarkSword kit not enumerated in source articles
 
-### Adobe Campaign Classic CVSS 10.0 Remote Code Execution
-- **Description**: A maximum-severity (CVSS 10.0) security flaw in Adobe Campaign Classic (ACC), an enterprise marketing automation platform, allowing arbitrary code execution without user interaction.
-- **Impact**: Unauthenticated remote code execution on ACC servers, potentially leading to full server compromise, customer data exposure, and lateral movement within enterprise environments.
-- **Status**: Adobe has released security updates. No CVE ID provided in available reporting. Organizations running ACC should apply patches immediately.
+### Adobe Campaign Classic Critical Flaw
+- **Description**: Maximum-severity (CVSS 10.0) security flaw in Adobe Campaign Classic (ACC) enterprise marketing automation platform allowing arbitrary code execution without user interaction.
+- **Impact**: Unauthenticated remote code execution on ACC servers, full server compromise, potential access to customer marketing data and connected systems.
+- **Status**: Adobe has released security updates. Exploitation potential is critical given CVSS 10.0 rating and no user interaction requirement.
+- **CVE ID**: Not explicitly provided in source articles
 
-### Hugging Face Diffusers Arbitrary Code Execution
-- **Description**: Three high-severity vulnerabilities in Hugging Face's Diffusers library that allow crafted model repositories to execute arbitrary code on machines that load them.
-- **Impact**: Supply chain compromise of AI/ML workflows; developers and researchers loading malicious models from Hugging Face Hub can suffer full system compromise.
-- **Status**: Vulnerabilities disclosed; patches available in updated Diffusers library versions. No CVE IDs provided in available reporting.
+### Rails Active Storage Critical Vulnerability
+- **Description**: Critical vulnerability in Rails Active Storage framework allowing unauthenticated attackers to read arbitrary files, with potential escalation to remote code execution.
+- **Impact**: File read leading to information disclosure, configuration theft, and potential RCE on Rails applications using Active Storage.
+- **Status**: Rails has patched the vulnerability. Applications must update to mitigate.
+- **CVE ID**: Not explicitly provided in source articles
 
-### Rails Active Storage Critical Flaw
-- **Description**: A critical vulnerability in the Active Storage framework of Ruby on Rails allowing unauthenticated attackers to read arbitrary files from Rails applications, with potential escalation to remote code execution.
-- **Impact**: Data exposure and potential full application/server compromise for Rails applications using Active Storage without proper mitigations.
-- **Status**: Rails has released patches. No CVE ID provided in available reporting.
+### Hugging Face Diffusers Arbitrary Code Execution Flaws
+- **Description**: Three high-severity vulnerabilities in Hugging Face's Diffusers library that allow crafted model repositories to execute arbitrary code when loaded.
+- **Impact**: Supply chain compromise through malicious AI models, arbitrary code execution on systems loading poisoned models, potential compromise of ML pipelines and inference infrastructure.
+- **Status**: Disclosed and patched. Users must update Diffusers library.
+- **CVE ID**: Specific CVE IDs not provided in source articles
 
-### Adform Script Supply Chain Attack
-- **Description**: Attackers compromised a JavaScript file served by advertising technology company Adform, modifying it to rewrite cryptocurrency wallet addresses in victims' browsers across customer sites.
-- **Impact**: Financial theft via cryptocurrency transaction hijacking on any site loading the compromised Adform script. Broad impact across Adform's customer base.
-- **Status**: Adform detected and remediated the incident. Attack demonstrates the risk of third-party script dependencies.
-
-### Fake Roblox Xeno Executor Malware Campaign
-- **Description**: Fake installers for the popular Roblox script executor "Xeno" distributed via search engine poisoning and social media, delivering infostealer and remote access trojan malware to primarily young gamers.
-- **Impact**: Credential theft, system compromise, and potential parental financial data exposure on infected home systems.
-- **Status**: Active distribution campaign. No specific vulnerability exploited; relies on social engineering and brand impersonation.
-
-### BTMOB Android RAT Ecosystem
-- **Description**: Analysis of the BTMOB Android remote access trojan revealing a fragmented underground ecosystem of resellers, source code vendors, and custom variants operating as a malware-as-a-service.
-- **Impact**: Widespread Android device compromise enabling surveillance, data theft, and financial fraud. Low barrier to entry for operators due to service model.
-- **Status**: Active underground marketplace. No specific vulnerability exploited; relies on social engineering for installation.
-
-### Chinese Actor Deepseek AI Agent Proxyjacking
-- **Description**: A Chinese threat actor weaponizing a Deepseek AI agent to automate the compromise of over 1,200 hosts for proxyjacking operations, enabling further attacks through the proxy network.
-- **Impact**: Large-scale infrastructure hijacking for anonymous attack launching, credential stuffing, and traffic monetization.
-- **Status**: Active campaign intercepted by researchers. Novel use of AI agent for autonomous vulnerability scanning and exploitation.
+### Thermo Fisher Applied Biosystems Software Flaw
+- **Description**: Flaw in select Applied Biosystems human identification software allowing data files to be altered before analysis software loads them, making DNA file tampering nearly undetectable.
+- **Impact**: Integrity compromise of forensic and genetic analysis data, potential miscarriages of justice, undetectable evidence tampering.
+- **Status**: Patched by Thermo Fisher Scientific in July 2026 release.
+- **CVE ID**: Not explicitly provided in source articles
 
 ## Affected Systems and Products
 
-- **N-able N-central (hosted and on-premises)**: All versions prior to the latest security update addressing CVE-2026-18577; both cloud-hosted and self-hosted deployments affected
-- **SonicWall SMA 1000 series VPN appliances**: Versions with recently disclosed vulnerabilities; specific version details in SonicWall security advisories
-- **Google Password Manager on Windows**: Systems with passkey sync enabled; affects Chrome and Edge browsers using Google Password Manager integration
-- **COLDCARD hardware wallets**: Devices running firmware versions with the flawed random number generator; Mk3, Mk4, and Q models potentially affected
-- **Adobe Campaign Classic (ACC)**: Enterprise deployments prior to the August 2026 security update release
-- **Hugging Face Diffusers library**: Versions prior to the patched release containing fixes for the three high-severity flaws
-- **Ruby on Rails Active Storage**: Rails applications using Active Storage prior to the patched versions (7.1.3.4, 7.2.1.1, 8.0.0.beta1 or later)
-- **Alibaba Cloud developer tools / npm ecosystem**: Developers who installed any of the 18 identified malicious npm packages
-- **Apple iOS devices**: Versions vulnerable to the DarkSword exploit kit components; specific versions not publicly detailed
-- **UK Police National Legal Database (PNLD)**: Centralized database systems and associated web applications
-- **Adform advertising script infrastructure**: All customer sites loading the compromised Adform JavaScript file during the incident window
-- **Hotel Wi-Fi network infrastructure**: Hospitality network equipment and captive portal systems compromised to serve malicious updates
-- **Android devices**: Devices where users sideloaded BTMOB RAT variants or fake applications
-- **Windows and macOS systems**: Targets of DOUBLECUP ClickFix campaign delivering CountLoader via browser cache steganography
+- **N-able N-central**: Both hosted (cloud) and on-premises deployments of the RMM platform. All versions prior to the corrected patch for CVE-2026-18577.
+- **SonicWall SMA 1000 Series**: Secure Mobile Access VPN appliances (specific affected firmware versions not detailed in sources). Enterprise VPN gateways.
+- **Google Password Manager**: Windows clients with synced passkeys enabled. Affects any service using Google-synced passkeys for authentication.
+- **COLDCCARD Hardware Wallets**: Devices running firmware with the flawed RNG implementation. Specific firmware versions not enumerated in sources.
+- **Hotel Wi-Fi Infrastructure**: Compromised hospitality network equipment (routers, access points, captive portal systems) used to inject fake updates.
+- **Adobe Campaign Classic (ACC)**: Enterprise marketing automation platform deployments. All unpatched versions vulnerable to CVSS 10.0 RCE.
+- **Rails Applications with Active Storage**: Ruby on Rails applications using the Active Storage framework for file uploads. Unpatched versions.
+- **Hugging Face Diffusers Library**: Python environments with vulnerable Diffusers versions installed. ML model hosting and inference platforms.
+- **Thermo Fisher Applied Biosystems Software**: Select human identification software versions prior to July 2026 patch. Forensic and genetic analysis labs.
+- **Adform Ad Serving Infrastructure**: JavaScript delivery infrastructure compromised to serve malicious wallet-swapping code. Adform customer websites loading the poisoned script.
+- **npm Registry / Alibaba Developer Tools**: 18 malicious packages targeting users of Alibaba Cloud development tooling. Cross-platform (Windows, Linux, macOS).
+- **Apple iOS Devices**: Targeted by GHOSTBLADE malware delivered via DarkSword exploit kit. Specific iOS versions not detailed.
+- **Android Devices**: BTMOB RAT malware ecosystem targeting Android platform through various distribution channels.
 
 ## Attack Vectors and Techniques
 
-- **Network-Level Traffic Manipulation (Hotel Wi-Fi)**: Attackers compromise hotel network infrastructure to intercept HTTP/HTTPS traffic and inject fake browser update prompts, delivering CornFlake RAT via drive-by download
-- **Authentication Bypass (CVE-2026-18577)**: Unauthenticated HTTP requests to N-central patch management endpoints manipulate session state to achieve administrative privileges without credentials
-- **Passkey Sync Abuse (Pass-ta-key)**: Malware leverages Windows Hello and Google Password Manager IPC mechanisms to request passkey assertions without user presence verification, exploiting design gaps in cross-device sync architecture
-- **ClickFix Social Engineering**: Users tricked into copying and executing malicious PowerShell commands via fake CAPTCHA, verification, or error pages; commands download and execute payloads
-- **Browser Cache Steganography (DOUBLECUP)**: Malicious PNG images served to victims contain encoded payload data in pixel values; JavaScript extracts and reassembles the payload from cached image data
-- **VPN Appliance Exploitation (SonicWall SMA 1000)**: Exploitation of authentication bypass and command injection flaws in SSL-VPN web interfaces for unauthenticated remote code execution
-- **Leaked Exploit Kit Utilization (DarkSword)**: Publicly available iOS exploit chain components repurposed for GHOSTBLADE implant deployment, reducing operator development cost
-- **Hardware Wallet Seed Prediction**: Cryptanalysis of flawed RNG output allows reconstruction of BIP-39 seed phrases, enabling deterministic wallet compromise at scale
-- **Supply Chain Compromise (npm/Adform)**: Malicious code injected into legitimate distribution channels (npm registry, third-party CDN) to reach downstream consumers automatically
-- **AI-Automated Vulnerability Scanning**: Deepseek AI agent autonomously identifies, exploits, and manages compromised hosts for proxy infrastructure
-- **Brand Impersonation / SEO Poisoning**: Fake software installers (Xeno Executor) distributed via search manipulation and social media to target specific user communities
-- **Third-Party Script Hijacking**: Compromise of advertising/analytics provider infrastructure to inject malicious JavaScript across thousands of customer sites simultaneously
-- **Maximum-Severity RCE (Adobe Campaign Classic)**: Unauthenticated deserialization or template injection flaw allowing arbitrary code execution via crafted HTTP requests
-- **Model Repository Code Execution (Hugging Face Diffusers)**: Malicious model configuration files trigger code execution during model loading through unsafe deserialization or plugin mechanisms
-- **Arbitrary File Read to RCE (Rails Active Storage)**: Path traversal in blob key handling allows reading sensitive files; chained with deserialization gadgets for potential code execution
+- **Compromised Network Infrastructure / Evil Twin / Rogue AP**: Attackers gain control of legitimate hotel Wi-Fi infrastructure to serve malicious content (fake browser updates) to high-value targets. No user deception beyond trusting the hotel network.
+- **Fake Browser Update Social Engineering**: Malicious JavaScript/HTML served over compromised networks mimics legitimate browser update prompts, tricking users into downloading and executing CornFlake RAT.
+- **ClickFix Social Engineering**: DOUBLECUP service uses fake CAPTCHA/verification pages that instruct victims to copy-paste PowerShell commands, executing malware downloaders.
+- **Browser Cache Steganography / Payload Staging**: DOUBLECUP hides malicious code in PNG images cached by the browser, retrieving and executing payloads from the local cache to evade network inspection.
+- **Authentication Bypass (CVE-2026-18577)**: Unauthenticated attackers exploit flawed authentication logic in N-central to achieve administrative access without credentials.
+- **VPN Appliance Exploitation**: INC Ransomware exploits vulnerabilities in SonicWall SMA 1000 series for unauthenticated remote network access.
+- **Passkey Synchronization Abuse (Pass-ta-key)**: Three techniques exploit Google Password Manager's cross-device passkey sync: (1) abusing the sync protocol to register attacker-controlled authenticators, (2) manipulating local passkey database to bypass user verification, (3) exploiting Windows Hello integration gaps.
+- **Supply Chain / Malicious Package Injection**: 18 typosquatted/obfuscated npm packages targeting Alibaba tool users deliver cross-platform RAT. Adform script poisoning modifies third-party JavaScript to rewrite crypto wallet addresses client-side.
+- **AI/ML Model Supply Chain Attack**: Crafted Hugging Face Diffusers model repositories exploit deserialization/code execution flaws when loaded by victim pipelines.
+- **Hardware RNG Subversion**: COLDCARD firmware flaw produces predictable entropy, allowing seed reconstruction and wallet draining without physical device access.
+- **Leaked Exploit Kit Utilization**: Chinese actor uses publicly leaked DarkSword kit (originally for iOS) to deploy GHOSTBLADE, demonstrating commodity iOS exploitation.
+- **RMM-as-Attack-Platform**: Compromised N-central servers used to push malicious scripts, deploy ransomware, or access managed customer endpoints at scale.
+- **DNS / Dangling Subdomain Hijacking**: Referenced in weekly recap as active technique for subdomain takeover and credential harvesting.
 
 ## Threat Actor Activities
 
-- **Midnight Blizzard (APT29)**: Russian state-sponsored actor conducting global hotel Wi-Fi compromise campaign targeting travelers and hospitality sector for Microsoft 365 credential theft and surveillance via CornFlake RAT; demonstrates continued focus on identity and cloud service targeting
-- **INC Ransomware**: Emerged as dominant ransomware operator exploiting SonicWall SMA 1000 VPN flaws; conducting rapid exploitation, data exfiltration, and encryption campaigns against organizations with unpatched appliances
-- **ExfilSquad**: Hacktivist or criminal group responsible for PNLD breach and publication of 100,000+ UK law enforcement personnel records on dark web; politically motivated or opportunistic data theft
-- **DOUBLECUP Operators**: Russian-speaking loader-as-a-service providers offering ClickFix delivery with browser cache steganography; selling CountLoader access to affiliate operators for follow-on payload deployment
-- **Chinese-Speaking Actor (GHOSTBLADE/DarkSword)**: Unknown attribution Chinese-language operator leveraging leaked DarkSword iOS exploit kit for targeted surveillance campaigns; demonstrates proliferation of nation-state-grade exploit code
-- **Alibaba npm Supply Chain Actor**: Sophisticated operator publishing 18 malicious packages over time targeting Alibaba Cloud developer ecosystem; likely espionage or software supply chain contamination objectives
-- **COLDARD Wallet Attacker**: Unknown actor executing coordinated $88M Bitcoin sweep across 1,196 addresses in 41 minutes; demonstrates advanced cryptanalysis capability and operational security
-- **Adform Script Compromise Actor**: Unknown actor who breached Adform's build or deployment pipeline to inject wallet-swapping JavaScript; financially motivated cryptocurrency theft at scale
-- **BTMOB Ecosystem Operators**: Fragmented group of resellers, source code vendors, and custom variant developers operating Android RAT-as-a-service; low-skill operators enabled by commercial malware marketplace
-- **Deepseek AI Agent Operator**: Chinese threat actor deploying autonomous AI agent for mass vulnerability exploitation and proxyjacking; represents evolution toward AI-driven offensive operations
-- **Fake Xeno Executor Distributors**: Opportunistic actors targeting Roblox/gaming community via SEO poisoning and social media; financially motivated through infostealer and RAT deployment
-- **Unknown Actors (Hugging Face / Rails / Adobe)**: No specific attribution in available reporting for actors exploiting the Hugging Face Diffusers, Rails Active Storage, or Adobe Campaign Classic vulnerabilities
+- **Midnight Blizzard (APT29)**: Russian state-sponsored actor conducting global hotel Wi-Fi compromise campaign targeting travelers for Microsoft 365 credential theft and surveillance. High operational security, custom malware (CornFlake), infrastructure compromise focus.
+- **INC Ransomware**: Dominant ransomware operation exploiting SonicWall SMA 1000 VPN flaws for initial access. Rapid weaponization of disclosed vulnerabilities. Ransomware deployment, data theft, extortion.
+- **DOUBLECUP Operators**: Russian-speaking group operating loader-as-a-service (CountLoader delivery). ClickFix social engineering, browser cache steganography, cross-platform (Windows/macOS). Service model suggests affiliate/customer structure.
+- **ExfilSquad**: Hacktivist/cybercriminal group claiming breach of UK Police National Legal Database (PNLD). Leaked contact data of 100,000+ police officers and criminal justice professionals on dark web. Politically motivated or notoriety-seeking.
+- **Chinese Deepseek AI Actor**: Chinese-speaking threat actor weaponizing Deepseek AI agent to attack a security firm. Compromised 1,200+ hosts for proxyjacking infrastructure. Novel AI-assisted offensive operations.
+- **Chinese DarkSword/GHOSTBLADE Actor**: Unknown Chinese-speaking actor leveraging leaked DarkSword exploit kit for iOS targeting. Deploys GHOSTBLADE malware. Opportunistic use of leaked offensive tools.
+- **BTMOB RAT Ecosystem**: Fragmented Android malware operation involving source-code vendors, resellers, custom version developers. Commercialized RAT distribution with modular capabilities.
+- **Malicious npm Package Authors**: Unknown actors publishing 18 packages targeting Alibaba Cloud developer toolchain users. Cross-platform RAT delivery. Supply chain focus.
+- **Adform Script Poisoners**: Unknown actors who compromised Adform's JavaScript delivery infrastructure to inject crypto wallet address swapping code. Financially motivated, targeting cryptocurrency users across Adform's customer base.
+- **COLDCCARD Wallet Thieves**: Unknown actors exploiting RNG flaw to drain Bitcoin wallets. Highly automated, rapid execution (41 minutes for 1,196 addresses). Sophisticated understanding of wallet seed generation flaws.
 
 ## Source Attribution
 
