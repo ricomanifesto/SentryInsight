@@ -85,14 +85,3 @@ Validate a generated report before publishing:
 ```bash
 bash scripts/local_validation.sh
 ```
-
-## Brand Assets
-
-Vector masters live in `assets/` — edit the SVGs, everything else is exported from them:
-
-- `logo.svg` - Master glyph (transparent background)
-- `icon.svg` - App icon tile (also used as the SVG favicon and page header mark)
-- `logo-lockup-light.png` / `logo-lockup-dark.png` - README header lockups
-- `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` - Favicon / touch icon set
-- `social-preview.png` - 1280×640 link preview; upload under repo **Settings → Social preview**
-- `podcast-cover.png` - 1500×1500 podcast artwork referenced by `podcast.xml`
