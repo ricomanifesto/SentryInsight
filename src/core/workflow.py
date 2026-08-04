@@ -17,6 +17,12 @@ from ..services.publish import publish_to_github_pages
 from ..services.audio import (
     generate_executive_summary_audio,
 )
+from .content_fingerprint import (
+    FINGERPRINT_PATH,
+    compute_articles_fingerprint,
+    read_stored_fingerprint,
+    write_stored_fingerprint,
+)
 
 # Set up logging
 logging.basicConfig(
@@ -34,6 +40,7 @@ class ExploitationAnalysisState(TypedDict):
     status: str
     report_path: NotRequired[str]
     report_validation_errors: NotRequired[list[str]]
+    articles_fingerprint: NotRequired[str]
 
 
 # Load configuration
@@ -89,6 +96,11 @@ async def enrich_articles(
     return state
 
 
+def _fingerprint_path_for(output_path: str) -> str:
+    """Resolve the fingerprint file alongside the report's output path."""
+    return str(Path(output_path).parent / Path(FINGERPRINT_PATH).name)
+
+
 async def filter_articles(
     state: ExploitationAnalysisState,
 ) -> ExploitationAnalysisState:
@@ -99,6 +111,20 @@ async def filter_articles(
     filtered = filter_exploitation_articles(articles)
 
     state["filtered_articles"] = filtered
+
+    if filtered:
+        output_path = state["config"].get("output_path", "index.md")
+        fingerprint = compute_articles_fingerprint(filtered)
+        previous_fingerprint = read_stored_fingerprint(
+            _fingerprint_path_for(output_path)
+        )
+        state["articles_fingerprint"] = fingerprint
+        if fingerprint == previous_fingerprint:
+            logger.info(
+                "Source article set is unchanged since the last report — "
+                "skipping analysis and audio generation to avoid redundant API usage"
+            )
+            state["status"] = "completed_unchanged"
 
     return state
 
@@ -197,6 +223,11 @@ async def generate_report(
             f.write(report)
         logger.info(f"Copied report to {docs_index}")
 
+    if state.get("articles_fingerprint"):
+        write_stored_fingerprint(
+            state["articles_fingerprint"], _fingerprint_path_for(output_path)
+        )
+
     state["report_path"] = output_path
     return state
 
@@ -278,6 +309,8 @@ def should_end(state: ExploitationAnalysisState) -> str:
     """Determine if workflow should end."""
     if state.get("status") == "failed":
         return "error"
+    elif state.get("status") == "completed_unchanged":
+        return "unchanged"
     elif not state.get("filtered_articles"):
         return "no_articles"
     else:
@@ -314,6 +347,7 @@ def create_exploitation_analysis_graph() -> Any:
         should_end,
         {
             "error": END,
+            "unchanged": END,
             "no_articles": "generate_report",
             "continue": "analyze_articles",
         },

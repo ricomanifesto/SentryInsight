@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 # Rachel - calm, professional female voice
 VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
-MODEL_ID = "eleven_multilingual_v2"
+# Flash v2.5 is priced at or below eleven_multilingual_v2 depending on plan,
+# with no quality tradeoff for narrated summary text.
+MODEL_ID = "eleven_flash_v2_5"
 OUTPUT_FORMAT = "mp3_44100_128"
 
 
