@@ -10,14 +10,16 @@
     <meta property="og:title" content="SentryInsight Exploitation Report">
     <meta property="og:description" content="SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.">
     <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/">
-    <meta property="og:image" content="https://ricomanifesto.github.io/SentryInsight/assets/logo.png">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="SentryInsight Exploitation Report">
     <meta name="twitter:description" content="SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.">
-    <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/logo.png">
+    <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"SentryInsight","url":"https://ricomanifesto.github.io/SentryInsight/","description":"SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.","author":{"@type":"Person","name":"Michael Rico","url":"https://ricomanifesto.com/"},"publisher":{"@type":"Organization","name":"Rico Manifesto","url":"https://ricomanifesto.com/"},"sameAs":"https://github.com/ricomanifesto/SentryInsight"}</script>
-    <link rel="icon" type="image/png" data-logo-asset="icon">
-    <link rel="shortcut icon" type="image/png" data-logo-asset="shortcut-icon">
+    <link rel="icon" data-logo-asset="favicon">
+    <link rel="icon" type="image/svg+xml" data-logo-asset="icon-svg">
+    <link rel="apple-touch-icon" data-logo-asset="apple-touch-icon">
+    <meta name="theme-color" content="#dc2626">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
@@ -439,19 +441,27 @@
         const markdownLinkEl = document.getElementById('markdown-link');
         const archiveLinkEl = document.getElementById('archive-link');
         const execEl = document.getElementById('exec');
-        function resolveLogoAssetPath() {
+        const LOGO_ASSET_FILES = {
+            'favicon': 'favicon.ico',
+            'icon-svg': 'icon.svg',
+            'apple-touch-icon': 'apple-touch-icon.png',
+            'header-logo': 'icon.svg'
+        };
+
+        function resolveLogoAssetBase() {
             return location.pathname.includes('/docs/')
-                ? '../assets/logo.png'
-                : 'assets/logo.png';
+                ? '../assets/'
+                : 'assets/';
         }
 
         function applyLogoAssetPath() {
-            const logoPath = resolveLogoAssetPath();
+            const base = resolveLogoAssetBase();
             logoAssetEls.forEach((element) => {
+                const file = LOGO_ASSET_FILES[element.getAttribute('data-logo-asset')] || 'icon.svg';
                 if (element.tagName === 'LINK') {
-                    element.href = logoPath;
+                    element.href = base + file;
                 } else {
-                    element.src = logoPath;
+                    element.src = base + file;
                 }
             });
         }
