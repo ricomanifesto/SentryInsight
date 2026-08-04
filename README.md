@@ -1,7 +1,10 @@
 # SentryInsight
 
 <div align="center">
-  <img src="assets/logo.png" alt="SentryInsight Logo" width="400"/>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-lockup-dark.png">
+    <img src="assets/logo-lockup-light.png" alt="SentryInsight" width="440">
+  </picture>
 </div>
 
 SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.
@@ -82,3 +85,14 @@ Validate a generated report before publishing:
 ```bash
 bash scripts/local_validation.sh
 ```
+
+## Brand Assets
+
+Vector masters live in `assets/` — edit the SVGs, everything else is exported from them:
+
+- `logo.svg` - Master glyph (transparent background)
+- `icon.svg` - App icon tile (also used as the SVG favicon and page header mark)
+- `logo-lockup-light.png` / `logo-lockup-dark.png` - README header lockups
+- `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` - Favicon / touch icon set
+- `social-preview.png` - 1280×640 link preview; upload under repo **Settings → Social preview**
+- `podcast-cover.png` - 1500×1500 podcast artwork referenced by `podcast.xml`
