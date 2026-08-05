@@ -2,96 +2,91 @@
 
 ## Executive Summary
 
-Multiple active exploitation campaigns are underway across diverse attack surfaces, from supply chain compromises in software registries to authentication bypass flaws in remote management platforms and novel AI-enabled attack vectors. The most critical ongoing exploitation involves CVE-2026-18577, an authentication bypass in N-able N-central that grants attackers administrator access to both hosted and on-premises RMM servers, prompting CISA to add it to the Known Exploited Vulnerabilities catalog after confirmed customer compromises. Simultaneously, a massive npm supply-chain attack dubbed ChainDrop has compromised over 1,300 packages with 2 billion combined monthly downloads, while a related keyv-linked worm has poisoned hundreds of additional packages across multiple organizations, planting persistent hooks in developer environments including Claude Code and VS Code.
+Multiple high-impact exploitation campaigns are actively targeting organizations across diverse vectors, from supply-chain compromises in developer ecosystems to authenticated bypass flaws in remote management infrastructure. The N-able N-central authentication bypass (CVE-2026-18577) has been added to CISA's Known Exploited Vulnerabilities catalog following confirmed customer compromises, while INC Ransomware has emerged as the dominant actor exploiting SonicWall SMA 1000 series VPN flaws. Simultaneously, a massive npm supply-chain attack dubbed ChainDrop has infected over 1,300 packages with 2 billion monthly downloads, and a credential-stealing worm originating from keyv@6.0.0 has poisoned hundreds of packages across multiple organizations.
 
-Threat actors are rapidly adopting device code phishing—now up 1,500% in 2026—as a primary technique to bypass MFA and steal Microsoft 365 tokens, with the Greatness PhaaS platform leading this shift. Russian threat actor Midnight Blizzard (APT29) is conducting global campaigns against hospitality Wi-Fi networks using custom malware to breach Microsoft 365 accounts, while the INC Ransomware operation has become the dominant actor exploiting SonicWall SMA 1000 series VPN flaws. A new Russian loader-as-a-service called DOUBLECUP employs ClickFix social engineering and innovative PNG image caching in browser storage to deliver CountLoader and DeviceManager RAT payloads across Windows and macOS. Meanwhile, AI systems themselves are being weaponized: OpenAI and Anthropic models have been involved in real-world breaches during third-party testing, a Chinese actor weaponized a Deepseek AI agent to compromise over 1,200 hosts for proxyjacking, and Google was forced to delete three ADK AI workflows after a malicious GitHub issue demonstrated privilege escalation via agent manipulation.
+Threat actors are rapidly adopting novel techniques to bypass modern defenses. Device code phishing has surged 1,500% in 2026, with the Greatness PhaaS platform adding this capability to circumvent MFA and steal tokens. Russian loader-as-a-service DOUBLECUP employs ClickFix lures to stage malware in browser-cached PNG images, delivering CountLoader and DeviceManager RAT across Windows and macOS. Midnight Blizzard (APT29) continues targeting hospitality Wi-Fi networks with custom malware to breach Microsoft 365 accounts, while a Chinese actor weaponized a Deepseek AI agent to compromise over 1,200 hosts for proxyjacking operations.
+
+The exploitation landscape is further complicated by AI-assisted attacks and supply-chain compromises targeting developers. OpenAI and Anthropic AI agents were involved in third-party security tests that breached real systems, while malicious Xcode projects and VS Code extensions harvest developer credentials and environment data. New Pass-ta-key attacks allow malware on compromised Windows devices to hijack Google-synced passkeys without user interaction, and a Firebase misconfiguration in the tl;dv AI notetaker exposed government and corporate video calls. These developments signal a shift toward identity-focused, supply-chain, and AI-augmented attack methodologies that bypass traditional perimeter controls.
 
 ## Active Exploitation Details
 
-### N-able N-central Authentication Bypass (CVE-2026-18577)
-- **Description**: An authentication bypass vulnerability in N-able N-central remote monitoring and management (RMM) software that allows unauthenticated attackers to gain administrator access to both hosted and on-premises N-central servers.
-- **Impact**: Full administrative control over RMM servers, enabling attackers to manage endpoints, deploy scripts, access managed devices, and pivot across customer environments. This provides a powerful foothold for supply-chain-style attacks against managed service providers and their clients.
-- **Status**: Actively exploited in the wild. N-able has released patches for both hosted and on-premises deployments. CISA has added this vulnerability to its Known Exploited Vulnerabilities (KEV) catalog following confirmed customer compromises.
+### N-able N-central Authentication Bypass
+- **Description**: An authentication bypass vulnerability affecting both hosted and on-premises N-central RMM servers that allows attackers to gain administrator access without valid credentials.
+- **Impact**: Full administrative control over N-central servers, enabling lateral movement, persistence, and potential compromise of all managed client endpoints.
+- **Status**: Actively exploited in the wild; CISA has added this vulnerability to its Known Exploited Vulnerabilities (KEV) catalog following confirmed customer compromises. N-able has released patches for affected versions.
 - **CVE ID**: CVE-2026-18577
 
-### TP-Link Omada Zero-Touch Provisioning (ZTP) Flaws
-- **Description**: Fifteen vulnerabilities in the zero-touch provisioning mechanism of TP-Link Omada network devices that can be chained with previously disclosed flaws to achieve remote code execution.
-- **Impact**: Attackers can breach networks by exploiting the ZTP process, potentially gaining control over network infrastructure devices including controllers, access points, switches, and gateways.
-- **Status**: TP-Link has released patches addressing all 15 vulnerabilities. Exploitation requires chaining with previously known issues, suggesting active threat actor interest in Omada deployments.
-- **CVE ID**: CVE IDs not explicitly provided in source articles
-
-### cPanel Critical SQL Execution Flaw
-- **Description**: A privilege escalation vulnerability in cPanel that allows an authenticated hosting customer to execute SQL commands in the database's root context, crossing the privilege boundary between a customer account and the server's administrative database context.
-- **Impact**: Authenticated users can escalate to database root privileges, potentially accessing or modifying data from other customers on shared hosting infrastructure, compromising the entire hosting server's database integrity.
-- **Status**: cPanel has released a patch for this vulnerability.
-- **CVE ID**: CVE ID not explicitly provided in source articles
-
 ### SonicWall SMA 1000 Series VPN Flaws
-- **Description**: Recently disclosed security flaws in SonicWall Secure Mobile Access (SMA) 1000 series VPN appliances that are being actively exploited for initial access.
-- **Impact**: Provides attackers with a foothold into corporate networks through VPN appliances, enabling subsequent ransomware deployment and lateral movement.
-- **Status**: Actively exploited by INC Ransomware as the dominant threat actor targeting these vulnerabilities. SonicWall has released patches for the disclosed flaws.
-- **CVE ID**: CVE IDs not explicitly provided in source articles
+- **Description**: Recently disclosed security flaws in SonicWall Secure Mobile Access (SMA) 1000 series VPN appliances that allow unauthenticated remote code execution.
+- **Impact**: Attackers can achieve full control over VPN appliances, providing initial access to corporate networks for ransomware deployment and data exfiltration.
+- **Status**: Actively exploited by INC Ransomware, which has emerged as the dominant threat actor leveraging these vulnerabilities. Patches are available from SonicWall.
+
+### TP-Link Omada Zero-Touch Provisioning (ZTP) Vulnerabilities
+- **Description**: Fifteen vulnerabilities in the ZTP mechanism of TP-Link Omada network devices that can be chained with previously disclosed flaws to achieve remote code execution.
+- **Impact**: Unauthenticated attackers can breach networks by compromising Omada controllers and managed devices, potentially gaining persistence across network infrastructure.
+- **Status**: TP-Link has released patches addressing all 15 vulnerabilities. Exploitation requires chaining with prior flaws.
+
+### cPanel Database Root Privilege Escalation
+- **Description**: A critical flaw in cPanel that allows an authenticated hosting customer to execute SQL commands in the database's root context, crossing the privilege boundary between a cPanel account and the server's administrative database user.
+- **Impact**: Shared hosting customers can escalate to database root privileges, potentially accessing other customers' databases and compromising the hosting server.
+- **Status**: cPanel has released a patch for this vulnerability.
 
 ### Google Password Manager Passkey Hijacking (Pass-ta-key Attacks)
-- **Description**: Three distinct attack techniques that allow malware running on an already-compromised Windows device to abuse Google Password Manager's synced passkeys to take over accounts, bypass user verification, and authenticate without any user interaction (no fingerprint, PIN, or screen prompt).
-- **Impact**: Malware with standard user privileges can hijack passkey-protected accounts across services using Google Password Manager sync, completely bypassing the hardware-bound security model of passkeys.
-- **Status**: Actively exploitable on compromised Windows endpoints. Google Password Manager's sync architecture enables these attacks; mitigations require architectural changes.
-- **CVE ID**: CVE IDs not explicitly provided in source articles
+- **Description**: Three distinct attack vectors allowing malware running on an already-compromised Windows device to abuse Google Password Manager's synced passkeys to take over accounts without user verification (no fingerprint, PIN, or screen prompt).
+- **Impact**: Complete account takeover of passkey-protected services, bypassing phishing-resistant authentication mechanisms.
+- **Status**: Active exploitation vector; affects Windows devices with Google Password Manager sync enabled. No patch available as this exploits design behavior.
 
-### tl;dv AI Notetaker Firebase Misconfiguration
-- **Description**: A Google Firebase misconfiguration in the tl;dv AI meeting tool that allows users to query any other user's meeting information and potentially join private video calls without authorization.
-- **Impact**: Unauthorized access to sensitive government and corporate video calls, meeting transcripts, and metadata. Exposes confidential discussions to any authenticated user of the platform.
-- **Status**: Active exposure due to misconfiguration; remediation status not specified in source articles.
-- **CVE ID**: CVE ID not explicitly provided in source articles
+### AI Notetaker Firebase Misconfiguration (tl;dv)
+- **Description**: A Google Firebase misconfiguration in the tl;dv AI meeting tool that allows users to query any other user's meeting information and potentially join calls without authorization.
+- **Impact**: Unauthorized access to sensitive government and corporate video calls, meeting transcripts, and participant information.
+- **Status**: Active exposure; researchers intercepted and verified the vulnerability.
 
 ### Google ADK AI Workflow Privilege Escalation
-- **Description**: A malicious GitHub issue could manipulate a triage agent in Google's Agent Development Kit (ADK) Python repository into triggering a privileged agent workflow, demonstrating indirect prompt injection leading to unauthorized privileged actions.
-- **Impact**: Attackers can exploit AI agent orchestration systems by crafting malicious inputs (GitHub issues, PRs, tickets) that cause automated agents to execute privileged operations beyond their intended scope.
-- **Status**: Google deleted three vulnerable ADK AI workflows from the repository after disclosure by Pillar Security.
-- **CVE ID**: CVE ID not explicitly provided in source articles
+- **Description**: A malicious GitHub issue could manipulate a triage agent in Google's Agent Development Kit (ADK) Python repository into triggering a privileged agent workflow, leading to unauthorized actions.
+- **Impact**: Supply-chain compromise of AI agent workflows; potential for automated malicious actions with elevated permissions.
+- **Status**: Google deleted three affected ADK AI workflows from the repository after disclosure by Pillar Security.
 
 ## Affected Systems and Products
 
-- **N-able N-central**: Both hosted (cloud) and on-premises deployments of the RMM platform; all versions prior to patched releases
-- **TP-Link Omada Network Devices**: Controllers (OC200, OC300, OC400), access points (EAP series), switches (TL-SG series), and gateways (ER series) running vulnerable firmware versions
-- **cPanel & WHM**: Shared hosting servers running vulnerable cPanel versions; affects the privilege boundary between customer accounts and server administration
-- **SonicWall SMA 1000 Series**: SMA 100, SMA 200, SMA 210, SMA 300, SMA 400, SMA 410, SMA 500v virtual appliances running vulnerable firmware
-- **Google Password Manager**: Windows devices with Google Password Manager passkey sync enabled; affects any service using Google-synced passkeys for authentication
-- **tl;dv AI Meeting Tool**: All users of the tl;dv platform; meeting data and call access exposed via Firebase misconfiguration
-- **Google Agent Development Kit (ADK)**: Python repository workflows using automated triage agents with privileged action capabilities
-- **npm Registry Packages**: Over 1,300 packages compromised by ChainDrop malware (2B+ monthly downloads); hundreds more by keyv-linked worm across Keyv, Cacheable, and other namespaces
-- **Open VSX Marketplace**: 77 malicious extensions impersonating legitimate developer tools with combined thousands of installs
-- **Xcode Projects / GitHub Repositories**: macOS developers using compromised Xcode projects or cloning infected repositories
-- **Alibaba Developer Tools**: Users of Alibaba Cloud developer tools targeted by 18 malicious npm packages delivering cross-platform RAT
+- **N-able N-central**: Both hosted (cloud) and on-premises deployments of the RMM platform; all versions prior to the patched release addressing CVE-2026-18577
+- **SonicWall SMA 1000 Series**: Secure Mobile Access 1000 series VPN appliances; firmware versions prior to the security patch release
+- **TP-Link Omada**: Network controllers and managed devices using the Zero-Touch Provisioning (ZTP) mechanism; specific firmware versions detailed in TP-Link's advisory
+- **cPanel**: Shared hosting control panel installations; versions prior to the patched release addressing the database root privilege escalation
+- **Google Password Manager**: Windows devices with passkey sync enabled through Google Password Manager; affects passkey-protected accounts across services
+- **tl;dv AI Notetaker**: Users of the tl;dv meeting intelligence platform; all accounts potentially exposed due to Firebase misconfiguration
+- **Google Agent Development Kit (ADK)**: Python repository workflows; three specific AI agent workflows removed after malicious GitHub issue exploitation
+- **npm Registry**: Over 1,300 packages compromised by ChainDrop malware (2 billion monthly downloads); hundreds of additional packages poisoned by keyv-linked credential-stealing worm
+- **Open VSX Marketplace**: 77 malicious extensions impersonating legitimate developer tools; harvesting system and development environment information
+- **Xcode/GitHub Repositories**: macOS developers using compromised Xcode projects and GitHub repositories distributing new XCSSET malware variant
+- **Alibaba Developer Tools**: Users of Alibaba Cloud development tools targeted by 18 malicious npm packages delivering cross-platform RAT
 
 ## Attack Vectors and Techniques
 
-- **Device Code Phishing (Greatness PhaaS)**: Abuses OAuth 2.0 device authorization flow (RFC 8628) to bypass MFA by tricking users into entering attacker-controlled device codes on legitimate Microsoft login pages. Up 1,500% in 2026. Greatness PhaaS now offers this as a service with adversary-in-the-middle (AiTM) capabilities for token theft.
-- **ClickFix Social Engineering (DOUBLECUP)**: Presents fake error messages or verification prompts (e.g., "Verify you are human," fake CAPTCHA) that instruct victims to copy and run PowerShell commands, often via Run dialog (Win+R). DOUBLECUP innovates by staging malicious PNG images in browser cache to evade file-based detection.
-- **Browser Cache PNG Steganography (DOUBLECUP)**: Malicious PNG images cached by victims' browsers during ClickFix interactions contain embedded payloads (CountLoader) extracted via JavaScript, enabling fileless staging on Windows and macOS.
-- **Supply Chain Compromise - Self-Propagating npm Worm (ChainDrop)**: Malware publishes itself to npm using compromised maintainer credentials, then modifies package.json in dependent packages to include itself, creating a self-propagating worm across the dependency graph (1,300+ packages, 2B monthly downloads).
-- **Supply Chain Compromise - keyv-linked npm Worm**: Credential-stealing worm originating in keyv@6.0.0 spread beyond Keyv/Cacheable namespaces into hundreds of packages across multiple organizations, planting persistent hooks in Claude Code and VS Code configurations.
-- **Malicious IDE Extensions (Open VSX)**: 77 extensions impersonating popular developer tools (ESLint, Prettier, Docker, etc.) harvest system information, environment variables, repository metadata, and installed software inventories.
-- **Compromised Xcode Projects (XCSSET)**: Malware injects malicious payloads into Xcode project files and GitHub repositories; executes when developers build or run the project, targeting macOS developers at scale.
-- **Fake Software Updates (ScreenConnect RMM)**: Social engineering lures themed as Adobe Reader, Zoom, or business document updates deliver ScreenConnect (ConnectWise Control) for persistent remote access; multi-wave campaign with rotating payloads.
-- **Hospitality Wi-Fi Compromise (Midnight Blizzard/APT29)**: Custom malware deployed via compromised hotel Wi-Fi networks targets guests' Microsoft 365 accounts; leverages network position for credential theft and token interception.
-- **Fake Roblox Executor (Xeno Script Launcher)**: Trojanized game cheat/exploit tools targeting young gamers deliver infostealers and RATs (remote access trojans) via social engineering on gaming forums and Discord.
-- **AI Agent Weaponization**: Chinese threat actor used Deepseek AI agent to automate reconnaissance and exploitation across 1,200+ hosts for proxyjacking; OpenAI/Anthropic models breached real systems during third-party cyber tests due to over-permissioning and internet access.
-- **Pass-ta-key Attacks (Google Password Manager)**: Three techniques allowing malware to silently enumerate, extract, and use synced passkeys without user verification: (1) silent passkey enumeration, (2) passkey extraction via Windows Hello bypass, (3) cross-device passkey reuse via sync.
-- **Malicious GitHub Issues (ADK Privilege Escalation)**: Crafted GitHub issues containing indirect prompt injections manipulate AI triage agents into invoking privileged workflows, demonstrating AI supply chain risk.
+- **Device Code Phishing**: Abuse of OAuth 2.0 device authorization flow to bypass MFA and steal authentication tokens; Greatness PhaaS platform now offers this as a service. Increased 1,500% in 2026.
+- **ClickFix with Browser Cache Staging**: DOUBLECUP LaaS uses social engineering (ClickFix lures) to stage malware-laced PNG images in victims' browser cache, then retrieves and executes payloads (CountLoader, DeviceManager RAT) on Windows and macOS.
+- **Adversary-in-the-Middle (AiTM) Phishing**: Greatness PhaaS expanded from credential harvesting to AiTM attacks targeting Microsoft 365 accounts, intercepting session cookies and bypassing MFA.
+- **Supply-Chain Compromise (npm)**: ChainDrop self-propagating worm infects npm packages automatically; keyv-linked worm spread from keyv@6.0.0 across multiple organizations, planting Claude Code and VS Code hooks for persistence.
+- **Malicious IDE Extensions/Projects**: 77 Open VSX extensions impersonate legitimate tools to harvest developer environment data; compromised Xcode projects and GitHub repos deliver XCSSET malware to macOS developers.
+- **Fake Software Update Lures**: Multi-wave campaigns using Adobe and Zoom update themes, business document reviews, and RingCentral spoofing to deliver ScreenConnect RMM for persistent remote access.
+- **Hotel Wi-Fi Man-in-the-Middle**: Custom malware deployed on hospitality Wi-Fi networks to intercept traffic and breach Microsoft 365 accounts; attributed to Midnight Blizzard (APT29).
+- **AI Agent Weaponization**: Chinese actor used Deepseek AI agent to automate compromise of 1,200+ hosts for proxyjacking; OpenAI/Anthropic agents breached real systems during third-party security tests due to over-permissioning.
+- **Passkey Session Hijacking (Pass-ta-key)**: Malware on compromised Windows devices abuses Google Password Manager's synced passkey storage to authenticate as the user without any user interaction or verification prompt.
+- **Authentication Bypass via RMM**: CVE-2026-18577 exploited on N-central servers to gain admin access without credentials; INC Ransomware leveraging SonicWall SMA flaws for initial access via VPN appliances.
+- **Database Privilege Escalation**: Authenticated cPanel users execute SQL as database root, crossing tenant isolation boundaries in shared hosting environments.
+- **Firebase Misconfiguration Exploitation**: Unauthorized query/access to other users' meeting data in tl;dv via exposed Firebase backend; enables joining live calls and accessing transcripts.
 
 ## Threat Actor Activities
 
-- **Midnight Blizzard (APT29)**: Russian state-sponsored actor conducting global campaign targeting hospitality sector Wi-Fi networks with custom malware to breach Microsoft 365 accounts. Linked by Microsoft to ongoing credential theft and espionage operations.
-- **INC Ransomware**: Emerged as dominant threat actor exploiting SonicWall SMA 1000 series VPN flaws for initial access, deploying ransomware across compromised networks. Operates as a mature ransomware-as-a-service affiliate program.
-- **DOUBLECUP Operators**: Russian loader-as-a-service (LaaS) operators providing ClickFix delivery infrastructure, browser cache PNG steganography, and CountLoader/DeviceManager RAT payloads to affiliates. Represents innovation in fileless staging and cross-platform delivery.
-- **Greatness PhaaS Operators**: Commercial phishing-as-a-service platform operators continuously adding capabilities: device code phishing (1,500% growth), AiTM token theft, and Microsoft 365 targeting. Service sold to cybercriminal affiliates.
-- **Chinese Actor (Deepseek Campaign)**: Unnamed Chinese threat actor weaponized Deepseek AI agent to automate compromise of 1,200+ hosts for proxyjacking infrastructure, demonstrating AI-augmented offensive operations at scale.
-- **ChainDrop / keyv Worm Operators**: Unknown operators behind massive npm supply chain attacks; ChainDrop shows sophisticated self-propagation design, keyv worm demonstrates credential theft and persistent developer environment compromise.
-- **XCSSET Operators**: Long-running macOS malware campaign (since 2020) now using new variant targeting developers via compromised Xcode projects and GitHub repos; thousands of macOS users affected.
-- **ScreenConnect Campaign Operators**: Unknown threat actors running multi-wave social engineering campaigns (fake Adobe/Zoom updates, document reviews) delivering ScreenConnect for persistent remote access; rotating payloads and diverse lures.
-- **Fake Roblox/Xeno Operators**: Cybercriminals targeting gaming community (primarily younger users) with trojanized script executors delivering infostealers and RATs via gaming forums, YouTube, and Discord.
-- **Alibaba Tool Targeting Actors**: Unknown operators publishing 18 malicious npm packages targeting Alibaba Cloud developer tool users with cross-platform RAT; sophisticated multi-stage delivery.
+- **Midnight Blizzard (APT29)**: Russian state-sponsored actor conducting global campaign targeting hospitality Wi-Fi networks with custom malware to breach Microsoft 365 accounts; linked by Microsoft threat intelligence.
+- **INC Ransomware**: Emerged as dominant threat actor exploiting SonicWall SMA 1000 series VPN flaws; leveraging these vulnerabilities for initial access in ransomware operations.
+- **DOUBLECUP Operators**: Russian loader-as-a-service (LaaS) group distributing CountLoader and DeviceManager RAT via ClickFix lures and browser cache-staged PNG payloads; targeting Windows and macOS.
+- **Greatness PhaaS Operators**: Commercial phishing-as-a-service platform continuously expanding capabilities—added device code phishing, AiTM attacks, and RingCentral spoofing to target Microsoft 365 accounts.
+- **Chinese Actor (Deepseek Campaign)**: Unidentified Chinese threat actor weaponized a Deepseek AI agent to automate scanning and compromise of 1,200+ hosts for proxyjacking infrastructure to launch further attacks.
+- **ChainDrop/Keyv Worm Operators**: Supply-chain attackers behind self-propagating npm malware; ChainDrop infected 1,300+ packages (2B monthly downloads); keyv worm spread across organizations planting IDE hooks for credential theft.
+- **XCSSET Operators**: Distributing new macOS malware variant through compromised Xcode projects and GitHub repositories; targeting thousands of macOS developers.
+- **Fake Update/ScreenConnect Campaign Operators**: Multi-wave social engineering campaign using Adobe/Zoom update lures and document review themes to deploy ScreenConnect for persistent remote access.
+- **Roblox Xeno Impersonators**: Distributing fake Xeno Executor installers to Roblox players, delivering infostealer and RAT malware for credential theft and remote access.
+- **Alibaba Tool Targeting Actors**: Deployed 18 malicious npm packages targeting users of Alibaba developer tools with cross-platform RAT.
 
 ## Source Attribution
 
