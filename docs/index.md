@@ -2,207 +2,171 @@
 
 ## Executive Summary
 
-Organized crime syndicates have achieved unprecedented fraud scale through AI-enabled tooling, including real-time voice cloning, deepfake video overlays, LLM-driven persona management, and automated translation. These capabilities allow convincing social engineering at industrial volume, rendering traditional blocklist defenses obsolete as attackers generate disposable phishing infrastructure faster than reputation systems can track. Simultaneously, a Cambodian scam network dubbed Poipet leveraged ChatGPT across investment, romance, gambling, and law-enforcement impersonation schemes before OpenAI disrupted the operation.
+Organized crime syndicates have entered a new era of AI-powered fraud at unprecedented scale, leveraging voice cloning, real-time deepfake video overlays, LLM-driven persona management, and automated translation to execute convincing scams across investment, romance, gambling, and law enforcement impersonation schemes. Simultaneously, the emergent attack surface of AI browsers and agentic systems is under active exploitation, with zero-click agent hijacking ("PleaseFix") and persistent prompt injection vulnerabilities affecting major vendors—researchers confirm there is no simple fix for these fundamental trust boundary issues. 
 
-Critical enterprise software is under active exploitation. CISA has added three vulnerabilities—affecting Langflow, N-central, and Apache Tomcat—to its Known Exploited Vulnerabilities catalog with evidence of in-the-wild abuse, giving federal agencies three days to mitigate. TP-Link has patched 15 zero-touch provisioning flaws in Omada devices that can be chained for remote code execution, while a long-standing supply chain compromise of the QuickFox VPN tool delivered the FDMTP backdoor via trojanized Windows installers. The Ransom Cartel ransomware operator was sentenced to 16 years for attacks against at least 18 companies, and a Canadian threat actor pleaded guilty to stealing data from 165 organizations via compromised Snowflake credentials.
+Critical infrastructure and enterprise software remain prime targets for active exploitation. CISA has added three actively exploited vulnerabilities—in IBM Langflow (RCE), N-central, and Apache Tomcat—to its Known Exploited Vulnerabilities catalog, mandating federal agency patching within three days. A SQL injection in an Oracle database enabled deployment of the "khunt" post-exploitation toolkit directly inside the database layer, while a supply chain compromise of the QuickFox VPN client delivered the FDMTP backdoor via trojanized Windows installers. 
 
-Novel attack vectors are proliferating across the software supply chain and AI ecosystem. Researchers demonstrated zero-click "PleaseFix" agent hijacking in AI browsers, persistent prompt injection flaws with no perfect fix, agent-to-agent trust boundary exploits in Google's APK for Python, and command execution via malicious agent imports in Paperclip AI. A memory corruption flaw in the Linux kernel's Open vSwitch datapath (OVSwrap) provides local privilege escalation with a public exploit. Threat actors are weaponizing CSS for webmail data exfiltration, blockchain-based C2 channels (EtherHiding/NullReceiver) in trojanized npm packages, Microsoft device-code authentication flows via the Kali365 phishing kit, and browser fingerprinting across 250+ ClickFix domains targeting macOS. Meanwhile, 77 malicious "evil twin" extensions were removed from Open VSX, 321 n8n instances were found with exposed API tokens, and a phishing campaign exploits COLDCARD vulnerability fears to deploy ScreenConnect remote access tools.
+Nation-state and cybercriminal actors are converging on identity and cloud targets. The Kali365 phishing kit weaponizes legitimate Microsoft device code flows to breach US organizations, while a Canadian threat actor pleaded guilty to compromising 165 organizations via Snowflake cloud storage for extortion. The Ransom Cartel operator received a 16-year sentence, and OpenAI disrupted a Cambodia-based scam network (Poipet) abusing ChatGPT. Meanwhile, 250+ ClickFix domains now employ browser fingerprinting to selectively deliver macOS malware, and trojanized npm packages use a novel "NullReceiver" blockchain technique to hide C2 infrastructure.
 
 ## Active Exploitation Details
 
-### PleaseFix Zero-Click Agent Hijacking
-- **Description**: Attackers can take control of AI browser agents through malicious instructions hidden in content supplied to the browser, requiring zero user interaction beyond visiting a compromised page or processing malicious content.
-- **Impact**: Full agent takeover allowing arbitrary actions within the AI browser's permission context, including data access, automation triggers, and potential lateral movement.
-- **Status**: Actively exploitable with no simple fix; architectural challenge in separating trusted and untrusted instruction streams.
+### AI-Enabled Fraud and Scam Operations at Scale
+- **Description**: Organized crime groups are deploying generative AI tooling—including voice cloning, real-time deepfake video overlays, LLM-driven persona management, and automated translation—to conduct convincing social engineering and fraud campaigns across multiple schemes simultaneously.
+- **Impact**: Billions in fraud revenue through investment scams, romance scams, gambling fraud, and law enforcement impersonation; ability to operate at scale across language barriers with minimal human operators.
+- **Status**: Actively ongoing; OpenAI disrupted one Cambodia-based network (Poipet) using ChatGPT, but the broader ecosystem of AI-enabled fraud services continues to expand on underground forums.
 
-### Langflow Remote Code Execution
-- **Description**: A vulnerability in Langflow (a visual framework for building AI agents and RAG applications) allowing unauthenticated remote code execution.
-- **Impact**: Full server compromise, access to connected data sources and AI model credentials, potential supply chain impact on downstream AI applications.
-- **Status**: Actively exploited in the wild; added to CISA KEV catalog on August 5, 2026.
+### PleaseFix Zero-Click Agent Hijacking in AI Browsers
+- **Description**: Attackers can take control of AI browser agents through malicious instructions hidden in content supplied to the browser (web pages, documents, emails), requiring zero user interaction beyond the agent processing the content.
+- **Impact**: Full agent hijacking leading to unauthorized actions, data exfiltration, credential theft, and potential lateral movement through agent permissions.
+- **Status**: Actively exploitable across multiple AI browser vendors; researchers indicate no simple fix exists due to fundamental architecture of instruction-following agents.
 
-### N-central Vulnerabilities
-- **Description**: Flaws in N-able N-central remote monitoring and management platform.
-- **Impact**: Compromise of managed service provider infrastructure, potential access to all downstream client environments.
-- **Status**: Actively exploited in the wild; added to CISA KEV catalog on August 5, 2026.
+### AI Browser Prompt Injection Vulnerabilities
+- **Description**: Persistent prompt injection flaws in AI browsers from top vendors allow attackers to override system instructions and manipulate agent behavior through crafted inputs, despite multiple security guardrails.
+- **Impact**: Bypass of safety controls, unauthorized tool use, data access, and execution of attacker-controlled workflows.
+- **Status**: No perfect fix available; guardrails provide partial mitigation but fundamental trust boundary issues remain unresolved across the industry.
 
-### Apache Tomcat Vulnerabilities
-- **Description**: Vulnerabilities in Apache Tomcat servlet container.
-- **Impact**: Remote code execution, information disclosure, or denial of service on affected Tomcat deployments.
-- **Status**: Actively exploited in the wild; added to CISA KEV catalog on August 5, 2026.
+### SQL Injection Leading to Oracle Database Post-Exploitation Toolkit Deployment
+- **Description**: Attackers exploited a SQL injection vulnerability in an Oracle database to install the "khunt" post-exploitation toolkit directly inside the database, using it as a foothold to breach the corporate network.
+- **Impact**: Persistent database-layer compromise, credential theft, lateral movement, and full network breach originating from the data tier.
+- **Status**: Active exploitation observed in the wild; demonstrates emerging trend of database-resident malware.
 
-### TP-Link Omada Zero-Touch Provisioning Flaws
-- **Description**: Fifteen vulnerabilities in the zero-touch provisioning (ZTP) mechanism of TP-Link Omada network devices, chainable with previously disclosed flaws.
-- **Impact**: Remote code execution on network infrastructure devices, full network compromise, persistence at the network layer.
-- **Status**: Patched by TP-Link; exploitation requires chaining multiple vulnerabilities.
+### CISA KEV: Actively Exploited Langflow RCE, N-central, and Apache Tomcat Flaws
+- **Description**: Three vulnerabilities added to CISA's Known Exploited Vulnerabilities catalog on August 5, 2026: an RCE in IBM Langflow, a flaw in N-central (N-able), and an Apache Tomcat vulnerability. All have confirmed active exploitation.
+- **Impact**: Remote code execution, unauthorized access, and potential supply chain compromise through widely deployed automation, monitoring, and application server platforms.
+- **Status**: Actively exploited in the wild; CISA mandated federal agencies to mitigate within three days (by August 8, 2026).
 
-### COLDCARD Wallet Vulnerability (Exploited via Phishing)
-- **Description**: A vulnerability in COLDCARD hardware wallets (details tied to suspected $88.6M Bitcoin theft) being leveraged as a phishing lure.
-- **Impact**: Credential theft and remote access tool (ScreenConnect) installation on victim systems via fear-based social engineering.
-- **Status**: Phishing campaign actively exploiting vulnerability disclosure publicity; patch status of underlying wallet flaw unclear from reporting.
+### QuickFox Supply Chain Attack Delivering FDMTP Backdoor
+- **Description**: Long-standing supply chain compromise of QuickFox, a VPN and network acceleration tool for overseas users, delivering the FDMTP backdoor through trojanized Windows installers.
+- **Impact**: Persistent remote access to victim networks, traffic interception, and potential pivot to connected infrastructure; targets users seeking network circumvention tools.
+- **Status**: Active supply chain compromise; trojanized installers distributed through legitimate update channels.
 
-### Oracle Database SQL Injection to khunt Toolkit Deployment
-- **Description**: SQL injection vulnerability in an Oracle database exploited to install the khunt post-exploitation toolkit directly inside the database.
-- **Impact**: Persistent database-level foothold, credential harvesting, lateral movement to corporate network breach.
-- **Status**: Actively exploited; demonstrates novel database-resident post-exploitation technique.
+### Kali365 Phishing Kit Weaponizing Microsoft Device Code Authentication
+- **Description**: Phishing kit (Kali365) abuses legitimate Microsoft device code flow—attacker-controlled device codes that victims approve on Microsoft's real login page—bypassing traditional credential harvesting detection.
+- **Impact**: Account takeover with valid session tokens, MFA bypass, access to corporate Microsoft 365/Azure resources, and persistent access via refresh tokens.
+- **Status**: Actively targeting US organizations; leverages legitimate Microsoft infrastructure making detection difficult.
 
-### QuickFox Supply Chain Attack (FDMTP Backdoor)
-- **Description**: Long-standing supply chain compromise of QuickFox VPN/network acceleration tool delivering FDMTP backdoor via trojanized Windows installer.
-- **Impact**: Persistent remote access to overseas users' systems, potential network traffic interception and credential theft.
-- **Status**: Disclosed by researchers; scope and duration of compromise described as "long-standing."
+### ClickFix Campaign with Browser Fingerprinting Targeting macOS
+- **Description**: Over 250 front-end domains in a ClickFix operation fingerprint visitors before selectively delivering macOS malware lures, evading automated analysis and blocking.
+- **Impact**: Targeted malware delivery to macOS users, evasion of security crawlers and sandbox analysis, social engineering via fake verification prompts.
+- **Status**: Active campaign tracked by Microsoft Threat Intelligence; infrastructure continuously rotating.
 
-### Gitea Unauthenticated File Read
-- **Description**: Critical flaw in Gitea (self-hosted Git platform) versions 1.22.1 through 1.27.0 allowing unauthenticated attackers to read any file accessible to the service account via Org-Mode markup processing.
-- **Impact**: Source code exposure, configuration secret theft, SSH key compromise, internal infrastructure reconnaissance.
-- **Status**: Public exploit available; affects wide version range.
+### Trojanized npm Packages Using NullReceiver Blockchain C2 Technique
+- **Description**: Evolution of the EtherHiding technique—trojanized npm packages decode C2 server IP addresses from blockchain transactions using a "NullReceiver" tactic that conceals the destination in made-up addresses.
+- **Impact**: Stealthy command-and-control resilient to takedown, supply chain compromise through malicious packages, blockchain-based infrastructure hiding.
+- **Status**: Active in npm ecosystem; represents advancement in blockchain-enabled C2 obfuscation.
 
-### Paperclip AI Malicious Agent Import Flaws
-- **Description**: Two security flaws in Paperclip (open-source AI agent control plane) allowing command execution on network servers or developer machines via malicious agent imports.
-- **Impact**: Supply chain compromise of AI agent workflows, host compromise, lateral movement in development environments.
-- **Status**: Vulnerabilities disclosed; patch status not specified in reporting.
+### COLDCARD Vulnerability-Themed Phishing Delivering ScreenConnect RAT
+- **Description**: Phishing campaign exploits fear around a disclosed COLDCARD hardware wallet vulnerability and rumored $88.6M Bitcoin theft to trick users into installing ScreenConnect remote access software.
+- **Impact**: Full remote control of victim systems, cryptocurrency wallet compromise, credential theft, and persistent access.
+- **Status**: Active phishing campaign leveraging vulnerability disclosure publicity for social engineering.
 
-### Google APK for Python Agent-to-Agent Attack
-- **Description**: Trust boundary exploitation between two AI agents with different privilege levels in Google's Agent Development Kit (APK) for Python.
-- **Impact**: Privilege escalation within agent workflows, potential supply chain automation compromise, unauthorized actions via lower-privileged agent manipulation.
-- **Status**: Fixed by Google; demonstrates emerging class of multi-agent system vulnerabilities.
+### Leaked n8n API Tokens Exposing Live Instances to Credential Theft
+- **Description**: 321 n8n workflow automation instances found with API tokens exposed in public GitHub commits, enabling attackers to access sensitive data and downstream credentials through four demonstrated attack paths.
+- **Impact**: Unauthorized access to workflow automation platforms, credential harvesting from connected services, potential supply chain compromise through automated workflows.
+- **Status**: Active exposure; GitGuardian researchers demonstrated practical exploitation paths.
 
-### OVSwrap Linux Kernel Local Privilege Escalation
-- **Description**: Memory corruption flaw in the Linux kernel's Open vSwitch datapath (OVSwrap) giving ordinary local users a path to root on default-configured distributions.
-- **Impact**: Full system compromise from any local user account; broad distribution impact due to default Open vSwitch inclusion.
-- **Status**: Public exploit ships with pre-built binaries; patch status varies by distribution.
+### Open VSX Malicious Evil Twin Extensions Exfiltrating Developer Data
+- **Description**: Cluster of 77 malicious extensions on Open VSX marketplace impersonating legitimate developer tools (typosquatting/brandjacking) while exfiltrating system and development environment information.
+- **Impact**: Developer machine reconnaissance, credential theft, source code exfiltration, supply chain poisoning via compromised development environments.
+- **Status**: Removed from Open VSX after discovery; unknown number of prior installations.
 
-### ClickFix macOS Malware Campaign
-- **Description**: Operation spanning 250+ front-end domains using browser fingerprinting to selectively deliver malware lures to macOS users.
-- **Impact**: Targeted malware delivery evading automated analysis, macOS-specific payload deployment, infrastructure resilience through domain rotation.
-- **Status**: Actively tracked by Microsoft Threat Intelligence; ongoing campaign.
+### Paperclip AI Flaws Allowing Host Command Execution via Malicious Agent Imports
+- **Description**: Two security flaws in Paperclip (open-source AI agent control plane) allow attackers to execute arbitrary commands on network servers or developer machines through malicious agent imports.
+- **Impact**: Remote code execution on AI infrastructure, compromise of agent orchestration platforms, lateral movement through AI/ML pipelines.
+- **Status**: Vulnerabilities disclosed; patch status unclear from available reporting.
 
-### Kali365 Microsoft Device Code Phishing
-- **Description**: Phishing kit weaponizing legitimate Microsoft device code authentication flow, targeting US organizations with attacker-controlled device codes.
-- **Impact**: Account takeover bypassing MFA, persistent access via approved device registrations, enterprise data access.
-- **Status**: Active campaign targeting US companies; leverages legitimate Microsoft infrastructure.
+### Google APK for Python Agent-to-Agent Trust Boundary Exploitation
+- **Description**: Flaws in Google's APK for Python exploited a trust boundary between two AI agents with different privilege levels, enabling automation that could compromise the software supply chain.
+- **Impact**: Privilege escalation between AI agents, supply chain compromise through automated agent interactions, unauthorized code execution in build/deployment pipelines.
+- **Status**: Google has fixed the issues; demonstrates emerging class of agent-to-agent vulnerabilities.
 
-### Trojanized npm Packages with Blockchain C2 (NullReceiver/EtherHiding)
-- **Description**: Evolution of EtherHiding technique concealing C2 server IP addresses inside made-up destination addresses on blockchain, deployed via trojanized npm packages.
-- **Impact**: Resilient command-and-control infrastructure resistant to takedown, software supply chain compromise, developer environment infiltration.
-- **Status**: Active technique observed in wild; packages identified by researchers.
+### Critical Gitea Unauthenticated File Read via Org-Mode Markup
+- **Description**: Unauthenticated attackers can read any file accessible to the Gitea service account on versions 1.22.1 through 1.27.0 via Org-mode markup processing, requiring no login or repository write access.
+- **Impact**: Source code disclosure, configuration theft (including secrets), internal file system reconnaissance, potential credential exposure.
+- **Status**: Public exploit available; affects default configurations of self-hosted Git platform.
 
-### AI Browser Prompt Injection (Multi-Vendor)
-- **Description**: Persistent prompt injection vulnerabilities across AI browsers from top vendors, bypassing multiple security guardrails.
-- **Impact**: Data exfiltration, unauthorized actions, cross-origin attacks, plugin/extension abuse.
-- **Status**: No perfect fix exists; guardrails provide partial mitigation only.
+### New OVSwrap Linux Kernel Flaw in Open vSwitch Datapath
+- **Description**: Memory corruption flaw in the Linux kernel's Open vSwitch (OVS) datapath (OVSwrap) allows local users to gain root privileges on a broad set of default-configured distributions; public exploit available.
+- **Impact**: Local privilege escalation to root, container escape potential, compromise of virtualized/networked environments using OVS.
+- **Status**: Public exploit ships with proof-of-concept; affects default-configured distributions broadly.
 
-### Snowflake Credential-Based Data Theft
-- **Description**: Compromise of Snowflake cloud storage accounts using stolen credentials to access and extort data from 165 organizations.
-- **Impact**: Massive data breach across multiple victims, extortion demands in millions, cloud storage credential reuse risk.
-- **Status**: Canadian perpetrator pleaded guilty; highlights cloud credential hygiene failures.
+### Veeam, Terraform MCP, and Django Critical Vulnerabilities Patched
+- **Description**: Eleven vulnerabilities patched across HashiCorp Terraform MCP Server, Veeam Service Provider Console, and Django, led by a CVSS 10.0 cross-tenant bug enabling unauthorized cross-tenant data access.
+- **Impact**: Cross-tenant data breach in multi-tenant environments, remote code execution, authentication bypass, and privilege escalation in backup, infrastructure automation, and web framework platforms.
+- **Status**: Patches released; CVSS 10.0 flaw represents maximum severity cross-tenant isolation failure.
 
-### Ransom Cartel Ransomware Operations
-- **Description**: Ransomware-as-a-service operation conducting attacks against at least 18 companies worldwide.
-- **Impact**: Data encryption, exfiltration, extortion, operational disruption across multiple sectors.
-- **Status**: Creator/administrator Maksim Silnikau sentenced to 16 years; operation disrupted.
+### TP-Link Omada ZTP Zero-Touch Provisioning Vulnerabilities
+- **Description**: Fifteen vulnerabilities in TP-Link Omada network devices' zero-touch provisioning (ZTP) mechanism that can be chained with previously disclosed flaws to achieve remote code execution.
+- **Impact**: Network device compromise, traffic interception, network pivoting, persistent infrastructure access through automated provisioning systems.
+- **Status**: TP-Link has released patches; ZTP attack surface represents systemic risk in automated network provisioning.
 
-### Poison Claude Illicit AI Access Services
-- **Description**: Underground services selling discounted access to Claude AI models while operators harvest all customer prompts.
-- **Impact**: Intellectual property theft, prompt data harvesting, unauthorized AI usage, potential corporate secret exposure.
-- **Status**: Multiple services advertised on cybercrime forums; ongoing illicit marketplace activity.
-
-### n8n API Token Exposure
-- **Description**: 321 live n8n workflow automation instances with API tokens exposed in public GitHub commits.
-- **Impact**: Credential theft, downstream system access, workflow manipulation, sensitive data exposure across connected services.
-- **Status**: Disclosed by GitGuardian; four exploitation paths demonstrated.
-
-### Open VSX Malicious Evil Twin Extensions
-- **Description**: Cluster of 77 extensions on Open VSX marketplace impersonating legitimate developer tools while exfiltrating system and development environment information.
-- **Impact**: Developer machine reconnaissance, credential harvesting, source code theft, supply chain poisoning.
-- **Status**: Removed from marketplace; installation count and impact assessment ongoing.
-
-### CSS Webmail Data Exfiltration
-- **Description**: CSS-based attacks capable of exfiltrating data from webmail interfaces through advanced selectors and layout manipulation techniques.
-- **Impact**: Email content theft, contact harvesting, calendar data exposure, bypass of traditional script-based protections.
-- **Status**: Researchers warn some vendors unprepared; client-side mitigation challenging.
-
-### Veeam, Terraform MCP, and Django Critical Vulnerabilities
-- **Description**: Eleven vulnerabilities patched across Veeam Service Provider Console, Terraform MCP Server, and Django, led by a CVSS 10.0 cross-tenant bug.
-- **Impact**: Cross-tenant data access in multi-tenant environments, infrastructure-as-code compromise, web application takeover.
-- **Status**: Patches released by all three vendors; CVSS 10.0 flaw represents highest severity.
-
-### Unitel (Angola Telco) Breach
-- **Description**: Cyberattack against Angola's largest mobile operator causing outages on the day of its government-owned IPO.
-- **Impact**: Service disruption, reputational damage, potential financial market manipulation, critical infrastructure impact.
-- **Status**: Recovery ongoing; timing suggests targeted operation.
+### CSS-Based Data Exfiltration from Webmail
+- **Description**: Researchers demonstrate CSS capabilities sufficient to exfiltrate data from webmail interfaces through crafted stylesheets, with some vendors unprepared for this attack vector.
+- **Impact**: Data theft from email clients without JavaScript execution, bypassing traditional XSS protections, stealthy exfiltration via CSS loading mechanisms.
+- **Status**: Proof-of-concept demonstrated; vendor mitigation status varies.
 
 ## Affected Systems and Products
 
-- **AI Browsers (Multiple Vendors)**: Vulnerable to PleaseFix zero-click hijacking and persistent prompt injection; no complete mitigation available
-- **Langflow**: All versions prior to patched release; visual AI agent/RAG framework
-- **N-able N-central**: Affected versions per CISA advisory; RMM platform used by MSPs
-- **Apache Tomcat**: Affected versions per CISA advisory; widely deployed servlet container
-- **TP-Link Omada Network Devices**: Devices with ZTP functionality; 15 vulnerabilities patched in firmware updates
-- **COLD CARD Hardware Wallets**: Models affected by disclosed vulnerability; exploited via phishing lure
-- **Oracle Database**: Versions with exploitable SQL injection vector; used as khunt toolkit deployment target
-- **QuickFox VPN/Network Accelerator**: Trojanized Windows installer versions; supply chain compromise
-- **Gitea**: Versions 1.22.1 through 1.27.0; self-hosted Git platform
-- **Paperclip AI Control Plane**: Versions with agent import flaws; open-source AI agent orchestration
-- **Google Agent Development Kit (APK) for Python**: Versions prior to fix; multi-agent development framework
-- **Linux Kernel (Open vSwitch Datapath)**: Default-configured distributions shipping Open vSwitch; OVSwrap memory corruption
-- **macOS Systems**: Targeted by ClickFix campaign across 250+ domains; browser fingerprinting evasion
-- **Microsoft Entra ID / Azure AD**: Device code authentication flow abused by Kali365 phishing kit
-- **npm Ecosystem**: Trojanized packages employing NullReceiver blockchain C2 technique
-- **Snowflake Cloud Data Platform**: Customer instances compromised via credential theft (not platform vulnerability)
-- **n8n Workflow Automation**: 321 instances with exposed API tokens in public GitHub repositories
-- **Open VSX Marketplace**: 77 malicious extensions removed; VS Code / Open VSX compatible editors
-- **Webmail Providers**: Various vendors vulnerable to CSS-based data exfiltration techniques
-- **Veeam Service Provider Console**: Versions prior to patch; multi-tenant backup management
-- **Terraform MCP Server**: Versions prior to patch; infrastructure-as-code management
-- **Django Web Framework**: Versions prior to patch; Python web application framework
-- **Unitel Telecommunications Infrastructure**: Angola's dominant mobile operator; critical national infrastructure
+- **AI Browsers / Agentic Browsers (multiple vendors)**: All major AI browser platforms vulnerable to PleaseFix zero-click hijacking and prompt injection; fundamental architecture issue affecting instruction-following agents
+- **IBM Langflow**: RCE vulnerability actively exploited; affects automation/AI workflow platforms
+- **N-central (N-able)**: Actively exploited flaw in RMM platform; affects MSP-managed endpoints
+- **Apache Tomcat**: Actively exploited vulnerability; affects widespread Java application server deployments
+- **Oracle Database**: SQL injection enabling khunt toolkit deployment; enterprise database installations
+- **QuickFox VPN/Network Accelerator**: Trojanized Windows installers delivering FDMTP backdoor; overseas user base
+- **Microsoft Device Code Authentication / Microsoft 365 / Azure AD**: Kali365 phishing kit abusing legitimate device code flow; US organizations targeted
+- **Snowflake Cloud Data Platform**: 165 organizations compromised via credential abuse; cloud data warehouse customers
+- **macOS Systems**: ClickFix campaign with 250+ fingerprinting domains selectively delivering malware
+- **npm Ecosystem / Node.js Supply Chain**: Trojanized packages using NullReceiver blockchain C2; developers and CI/CD pipelines
+- **COLDCRAD Hardware Wallets / Bitcoin Users**: Phishing campaign leveraging vulnerability disclosure fear; cryptocurrency holders
+- **n8n Workflow Automation Instances**: 321 instances with exposed API tokens in public GitHub; self-hosted and cloud deployments
+- **Open VSX Marketplace / VS Code Extensions**: 77 malicious evil-twin extensions exfiltrating developer data; Open VSX users
+- **Paperclip AI Control Plane**: Open-source AI agent orchestration platform; two RCE flaws via malicious agent imports
+- **Google APK for Python**: Agent-to-agent trust boundary flaws; Python-based AI agent frameworks
+- **Gitea Self-Hosted Git Platform**: Versions 1.22.1–1.27.0; unauthenticated file read via Org-mode markup
+- **Linux Kernel (Open vSwitch / OVSwrap)**: Default-configured distributions using OVS datapath; local privilege escalation to root
+- **Veeam Service Provider Console**: Cross-tenant CVSS 10.0 flaw and other critical vulnerabilities; MSP backup infrastructure
+- **HashiCorp Terraform MCP Server**: Critical vulnerabilities in infrastructure automation control plane
+- **Django Web Framework**: Multiple vulnerabilities patched in widely used Python web framework
+- **TP-Link Omada Network Devices**: 15 ZTP vulnerabilities chainable to RCE; enterprise and SMB network infrastructure
+- **Webmail Platforms (multiple vendors)**: CSS-based data exfiltration; vendors with insufficient CSS sandboxing
 
 ## Attack Vectors and Techniques
 
-- **AI-Enabled Fraud Stack**: Voice cloning, real-time deepfake video overlays, LLM-driven persona management, automated translation enabling industrial-scale social engineering
-- **Zero-Click Agent Hijacking (PleaseFix)**: Malicious instructions embedded in content processed by AI browsers, no user interaction required
-- **Prompt Injection**: Persistent cross-vendor AI browser vulnerabilities bypassing guardrails via crafted inputs
-- **SQL Injection**: Oracle database compromise enabling post-exploitation toolkit deployment
-- **Supply Chain Compromise**: Trojanized legitimate software installers (QuickFox) and packages (npm) delivering persistent backdoors
-- **Browser Fingerprinting Evasion**: ClickFix campaign using 250+ domains with fingerprinting to selectively target macOS users and evade analysis
-- **Device Code Phishing (Kali365)**: Abuse of Microsoft's legitimate device authorization flow for MFA-bypassing account takeover
-- **Blockchain-Based C2 (EtherHiding/NullReceiver)**: C2 IP addresses concealed in blockchain transactions via made-up destination addresses
-- **CSS Data Exfiltration**: Advanced CSS selectors and layout manipulation extracting data from webmail without JavaScript execution
-- **Agent-to-Agent Trust Boundary Exploitation**: Manipulation of lower-privileged AI agents to trigger privileged automation actions
-- **Malicious Agent Import**: Command execution via compromised agent definitions in AI orchestration platforms
-- **Local Kernel Privilege Escalation (OVSwrap)**: Memory corruption in Open vSwitch datapath granting root from unprivileged user
-- **Unauthenticated File Read (Gitea)**: Org-Mode markup processing flaw exposing server filesystem
-- **Credential Stuffing/Reuse**: Snowflake compromise via stolen credentials affecting 165 organizations
-- **Ransomware-as-a-Service**: Ransom Cartel operation with affiliate model targeting 18+ companies
-- **Illicit AI Access Marketplaces**: Poison Claude services harvesting prompts while providing unauthorized model access
-- **API Token Harvesting**: GitHub scraping for exposed n8n tokens enabling downstream credential theft
-- **Evil Twin Extension Typosquatting**: Malicious VS Code extensions impersonating legitimate tools for developer reconnaissance
-- **Cross-Tenant Vulnerability Exploitation**: CVSS 10.0 flaw in multi-tenant backup/platform software
-- **Phishing via Vulnerability Disclosure Fear**: COLDCARD vulnerability publicity used as lure for ScreenConnect deployment
-- **Critical Infrastructure Timing**: Unitel breach coordinated with IPO for maximum impact
+- **AI-Enabled Social Engineering at Scale**: Voice cloning, real-time deepfake video overlays, LLM-driven persona management, automated translation enabling multi-lingual, high-volume fraud operations
+- **Zero-Click Agent Hijacking (PleaseFix)**: Malicious instructions embedded in content (web pages, documents, emails) processed by AI browser agents, requiring no user interaction beyond agent invocation
+- **Prompt Injection Against AI Agents**: Crafted inputs overriding system instructions and safety guardrails in AI browsers and agentic systems, exploiting fundamental instruction-following architecture
+- **SQL Injection to Database-Resident Malware**: Web application SQLi used to deploy post-exploitation toolkit (khunt) directly inside Oracle database, establishing persistence at data tier
+- **Supply Chain Compromise via Trojanized Installers**: Legitimate software update channels compromised to deliver backdoors (FDMTP) through signed/verified installers (QuickFox)
+- **Legitimate Authentication Flow Abuse (Device Code Phishing)**: Attacker-controlled Microsoft device codes approved by victims on real Microsoft login pages, yielding valid session tokens without credential harvesting
+- **Browser Fingerprinting for Selective Malware Delivery**: 250+ front-end domains profiling visitors before showing malware lures, evading automated analysis and blocking (ClickFix)
+- **Blockchain-Based C2 Obfuscation (NullReceiver/EtherHiding Evolution)**: C2 IP addresses encoded in blockchain transactions using made-up destination addresses, resilient to infrastructure takedown
+- **Vulnerability Disclosure-Themed Social Engineering**: Phishing campaigns exploiting fear from recent vulnerability announcements (COLDARD) to deliver remote access tools
+- **Secrets Exposure in Public Repositories**: API tokens, credentials committed to public GitHub repositories enabling unauthorized access to automation platforms (n8n)
+- **Typosquatting/Brandjacking in Extension Marketplaces**: Malicious extensions impersonating legitimate developer tools on Open VSX, exfiltrating development environment data
+- **Malicious Agent Import / Supply Chain in AI Orchestration**: Compromised agent definitions in Paperclip AI control plane enabling host command execution on import
+- **Agent-to-Agent Trust Boundary Exploitation**: Privilege escalation between AI agents with different permission levels (Google APK for Python), compromising automated pipelines
+- **Unauthenticated File Read via Markup Processing**: Org-mode markup parser in Gitea allowing path traversal/file read without authentication
+- **Local Kernel Privilege Escalation via Network Datapath**: Memory corruption in Open vSwitch kernel module (OVSwrap) enabling root from unprivileged local user
+- **Cross-Tenant Isolation Failure**: CVSS 10.0 vulnerability in Veeam Service Provider Console allowing unauthorized access to other tenants' data in multi-tenant environments
+- **Zero-Touch Provisioning Chain Exploitation**: 15 vulnerabilities in TP-Link Omada ZTP mechanism chainable to RCE, exploiting automated network device onboarding
+- **CSS-Only Data Exfiltration**: Crafted stylesheets exfiltrating data from webmail interfaces without JavaScript execution, bypassing XSS protections
 
 ## Threat Actor Activities
 
-- **Organized Crime Syndicates (Global)**: Industrial-scale AI fraud operations generating billions via voice cloning, deepfakes, LLM personas, and automated translation; rendered blocklists obsolete
-- **Poipet Scam Network (Cambodia-based)**: Multi-scheme fraud operation (investment, romance, gambling, law enforcement impersonation) using ChatGPT; disrupted by OpenAI
-- **Ransom Cartel (Maksim Silnikau)**: Ransomware-as-a-service creator/administrator sentenced to 16 years; attacks against 18+ companies worldwide
-- **Kali365 Operators**: Phishing kit developers targeting US enterprises via Microsoft device code authentication; active campaign
-- **ClickFix Threat Group**: Operators of 250+ domain infrastructure with browser fingerprinting for macOS malware delivery; tracked by Microsoft Threat Intelligence
-- **QuickFox Supply Chain Attackers**: Long-standing compromise of VPN tool distribution; FDMTP backdoor deployment via trojanized installer
-- **Snowflake Data Thief (Canadian Individual)**: Pleaded guilty to accessing 165 organizations' Snowflake accounts for data theft and extortion
-- **khunt Toolkit Operators**: Actors deploying Oracle database-resident post-exploitation framework for corporate network breach
-- **Poison Claude Operators**: Underground marketplace actors selling illicit AI access while harvesting customer prompts; multiple services advertised
-- **EtherHiding/NullReceiver Developers**: Evolution of blockchain C2 technique deployed via trojanized npm packages targeting developers
-- **OVSwrap Exploit Authors**: Published local privilege escalation exploit with pre-built binaries for Linux Open vSwitch flaw
-- **Gitea Exploit Researchers/Actors**: Public exploit for unauthenticated file read in versions 1.22.1-1.27.0
-- **Paperclip AI Vulnerability Researchers/Actors**: Disclosed command execution via malicious agent imports
-- **Google APK Vulnerability Researchers**: Disclosed agent-to-agent trust boundary exploitation; fixed by Google
-- **TP-Link ZTP Exploit Researchers/Actors**: 15 vulnerabilities disclosed and patched; chainable for RCE
-- **Unitel Breach Actors (Unknown)**: Targeted attack on Angola's largest telco timed with IPO
-- **COLD CARD Phishing Campaign Operators (Unknown)**: Leveraging vulnerability disclosure fear for ScreenConnect deployment
-- **Open VSX Malicious Extension Publishers (Unknown)**: 77 evil twin extensions exfiltrating developer data
-- **Veeam/Terraform/Django Vulnerability Researchers**: Disclosed 11 vulnerabilities including CVSS 10.0 cross-tenant bug
-- **CSS Exfiltration Researchers**: Demonstrated webmail data theft via advanced CSS techniques
-- **n8n Token Harvesters (Unknown)**: Actors scraping GitHub for exposed API tokens; 321 vulnerable instances identified
+- **Global Organized Crime Syndicates (AI Fraud Networks)**: Operating at industrial scale using generative AI tooling for investment, romance, gambling, and law enforcement impersonation fraud; billions in revenue; disrupted Poipet network (Cambodia-based) used ChatGPT across multiple schemes
+- **Poipet Scam Network (Cambodia-based)**: Disrupted by OpenAI; used ChatGPT to facilitate wide-ranging fraud schemes including investment, romance, gambling, and law enforcement impersonation
+- **Ransom Cartel (Maksim Silnikau)**: Creator/administrator sentenced to 16 years for ransomware attacks against at least 18 companies worldwide; operation dismantled
+- **Canadian Threat Actor (Snowflake Extortion)**: Pleaded guilty to accessing company accounts at Snowflake, stealing data from 165+ organizations in extortion scheme seeking millions
+- **Kali365 Operators**: Deploying phishing kit weaponizing Microsoft device code authentication against US organizations; attacker-controlled device codes yielding valid MFA-bypassed sessions
+- **ClickFix Threat Group**: Operating 250+ front-end domains with browser fingerprinting for selective macOS malware delivery; infrastructure tracked by Microsoft Threat Intelligence
+- **EtherHiding/NullReceiver Operators**: Evolving blockchain-based C2 technique via trojanized npm packages; concealing C2 IPs in blockchain transactions using made-up destination addresses
+- **QuickFox Supply Chain Actors**: Long-standing compromise of VPN/network tool distribution delivering FDMTP backdoor; targeting overseas users seeking network circumvention
+- **khunt Toolkit Operators**: Using SQL injection to deploy post-exploitation framework inside Oracle databases for corporate network breach; database-resident malware technique
+- **COLDARD Phishing Actors**: Leveraging vulnerability disclosure publicity and rumored $88.6M Bitcoin theft to deliver ScreenConnect RAT via social engineering
+- **n8n Token Harvesters**: Scanning GitHub for exposed API tokens (321 instances found) to access workflow automation platforms and downstream credentials
+- **Open VSX Evil-Twin Extension Authors**: 77 malicious extensions impersonating legitimate tools for developer data exfiltration; marketplace supply chain attack
+- **Paperclip AI Exploiters**: Targeting AI agent control plane via malicious agent imports for host command execution on servers and developer machines
+- **Langflow/N-central/Tomcat Exploiters**: Actively exploiting three CISA KEV vulnerabilities (added August 5, 2026) for RCE and unauthorized access; federal agencies given 3-day mitigation deadline
 
 ## Source Attribution
 
