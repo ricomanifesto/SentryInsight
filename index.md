@@ -2,98 +2,92 @@
 
 ## Executive Summary
 
-A critical zero-day SQL injection vulnerability in Metabase was actively exploited to breach customer instances at Framework and Tally, resulting in data theft. The attacks demonstrate continued targeting of business intelligence platforms with pre-authentication flaws that allow direct database access. Simultaneously, a massive supply chain campaign involving nearly 800 malicious npm packages delivered cross-platform remote access trojans and infostealers across Windows, macOS, and Linux environments, highlighting the persistent risk of software supply chain compromise.
+A critical zero-day SQL injection vulnerability in Metabase business intelligence software has been actively exploited in targeted data theft attacks against customer instances, with confirmed breaches at financial services firm Framework and fintech company Tally. This exploitation represents a significant supply chain risk as Metabase is widely deployed for internal analytics and dashboarding across organizations of all sizes.
 
-Threat actor UNC6671, linked to the BlackFile extortion group, conducted a wave of vishing and social engineering attacks targeting financial services, hedge funds, private equity firms, and professional services organizations. The group leverages voice phishing against personal phones to gain initial access to SaaS environments, followed by data extortion. A Canadian threat actor pleaded guilty to orchestrating the Snowflake extortion campaign that compromised over 165 organizations in 2024, marking a significant law enforcement milestone against cloud-focused cybercrime.
+Multiple threat actors are conducting diverse campaigns spanning social engineering, supply chain compromise, and infrastructure targeting. The UNC6671 extortion group—linked to BlackFile ransomware operations—has escalated vishing attacks against financial services, private equity, and professional services firms, leveraging voice-based social engineering to compromise SaaS credentials. Simultaneously, a massive npm supply chain campaign has deployed nearly 800 malicious packages delivering cross-platform remote access trojans and infostealers across Windows, macOS, and Linux environments. ClickFix-style social engineering attacks have evolved to target macOS users with Go-based malware capable of draining cryptocurrency wallets, stealing browser credentials, and exfiltrating Apple iCloud Keychain data.
 
-New attack techniques continue to emerge across the stack: ClickFix social engineering delivers macOS infostealers targeting cryptocurrency wallets and credential stores; the NatJack attack class manipulates NAT tables to hijack TCP sessions and spoof DNS; AI-assisted research uncovered novel HTTP desynchronization techniques and an Apache zero-day; and the 18-year-old Linux SCTP flaw enables local privilege escalation and container escape. Meanwhile, the Swiss government suffered a SharePoint breach compromising 200 accounts, North Carolina Ports experienced operational disruption from a cyberattack, and Levi Strauss fell victim to employee-targeted social engineering.
+Critical infrastructure and enterprise systems face mounting pressure from both novel attack techniques and long-standing vulnerabilities. The 18-year-old Linux SCTP kernel flaw has been weaponized for container escape and privilege escalation, while new research demonstrates NAT manipulation attacks (NatJack) capable of hijacking TCP sessions and spoofing DNS responses. Microsoft 365 environments are under sustained adversary-in-the-middle phishing campaigns targeting payroll and finance communications, and Swiss government SharePoint servers were compromised through vulnerability exploitation affecting approximately 200 accounts. These developments underscore the expanding attack surface across cloud identities, containerized workloads, and network infrastructure.
 
 ## Active Exploitation Details
 
 ### Metabase SQL Injection Zero-Day
-- **Description**: A critical pre-authentication SQL injection vulnerability in Metabase business intelligence software that allows unauthenticated attackers to execute arbitrary SQL queries against the backend database.
-- **Impact**: Full database access leading to customer data theft, including sensitive business analytics, user credentials, and proprietary information. Confirmed breaches at Framework and Tally.
-- **Status**: Actively exploited in the wild as a zero-day. Patches or mitigations should be applied immediately. No CVE ID was provided in the source reporting.
+- **Description**: A critical SQL injection vulnerability in Metabase open-source business intelligence platform that allows unauthenticated attackers to execute arbitrary SQL commands on the backend database
+- **Impact**: Full database access leading to customer data theft, potential lateral movement within compromised networks, and exposure of sensitive business analytics data
+- **Status**: Actively exploited as a zero-day against Framework and Tally customer instances; patches or mitigations not specified in available reporting
 
-### Malicious npm Supply Chain Campaign
-- **Description**: A cluster of nearly 800 malicious packages published to the npm registry designed to deliver cross-platform malware. The packages target developers and build systems across Windows, macOS, and Linux.
-- **Impact**: Remote access trojan (RAT) and infostealer deployment, leading to credential theft, cryptocurrency wallet drainage, system compromise, and potential lateral movement in development environments.
-- **Status**: Active campaign with packages distributed via the official npm registry. Organizations should audit dependencies and implement supply chain security controls.
+### npm Supply Chain Malware Campaign
+- **Description**: A cluster of nearly 800 malicious packages published to the npm registry designed to deliver cross-platform malware targeting Windows, macOS, and Linux systems
+- **Impact**: Remote access trojan (RAT) capabilities and infostealer functionality across all major operating systems, enabling persistent access, credential theft, and data exfiltration from developer environments
+- **Status**: Active campaign with packages published to the official npm registry; discovery and takedown status not specified
 
 ### ClickFix macOS Infostealer Campaign
-- **Description**: ClickFix-style social engineering attacks that trick macOS users into executing malicious commands, delivering a Go-based infostealer payload.
-- **Impact**: Theft of cryptocurrency assets, browser-stored passwords, Apple iCloud Keychain data, and cached credentials. Targets both individual users and potentially enterprise macOS environments.
-- **Status**: Actively deployed in ongoing campaigns. No CVE ID involved as this is a social engineering technique rather than a software vulnerability.
+- **Description**: ClickFix-style social engineering attacks delivering Go-based malware targeting macOS users through fake browser verification prompts and CAPTCHA pages
+- **Impact**: Theft of cryptocurrency assets, browser-stored passwords, Apple iCloud Keychain data, and cached credentials; potential for financial fraud and identity theft
+- **Status**: Active exploitation targeting macOS users; malware delivery via social engineering rather than vulnerability exploitation
 
-### UNC6671 Vishing and Data Extortion Campaign
-- **Description**: A data extortion group conducting voice phishing (vishing) attacks against personal phones of employees at financial services, private equity, hedge funds, and professional services firms to gain initial access to SaaS environments.
-- **Impact**: Unauthorized access to SaaS data, data exfiltration, and extortion demands. Linked to the BlackFile threat ecosystem.
-- **Status**: Active wave of attacks reported across multiple financial sector verticals. Attribution to UNC6671 with BlackFile association.
+### Linux SCTP Kernel Vulnerability Exploitation
+- **Description**: An 18-year-old use-after-free bug in Linux's SCTP (Stream Control Transmission Protocol) networking code that can be exploited for local privilege escalation to root and container escape
+- **Impact**: Full root access on host systems from unprivileged local users; container escape from Kubernetes and other containerized environments to the underlying host
+- **Status**: Researchers at Tencent demonstrated successful exploitation for container escape; patch availability not specified in reporting
 
-### Snowflake Extortion Campaign
-- **Description**: Large-scale compromise of Snowflake cloud data warehouse instances across more than 165 organizations, followed by data theft and extortion demands.
-- **Impact**: Massive data exposure affecting numerous enterprises, with stolen data used for extortion. One of the most consequential cybercrime campaigns of 2024.
-- **Status**: Canadian threat actor (26-year-old) pleaded guilty to computer fraud and conspiracy charges. Campaign activity appears disrupted by law enforcement action.
+### Swiss Government SharePoint Exploitation
+- **Description**: Exploitation of vulnerabilities in Microsoft SharePoint servers operated by Switzerland's federal IT office
+- **Impact**: Compromise of approximately 200 accounts with potential access to government communications and documents
+- **Status**: Confirmed breach; specific vulnerabilities exploited not disclosed in available reporting
 
-### Swiss Government SharePoint Breach
-- **Description**: Exploitation of vulnerabilities in Microsoft SharePoint servers operated by Switzerland's federal IT office.
-- **Impact**: Compromise of approximately 200 accounts within Swiss government infrastructure.
-- **Status**: Confirmed breach by federal IT office. Specific vulnerabilities exploited not disclosed in public reporting.
+### Microsoft 365 Adversary-in-the-Middle Phishing
+- **Description**: Widespread email-driven phishing campaign employing adversary-in-the-middle (AitM) techniques to bypass multi-factor authentication and hijack Microsoft 365 accounts
+- **Impact**: Account takeover with focus on payroll and finance email communications; potential for business email compromise, financial fraud, and further lateral phishing
+- **Status**: Active campaign; targets Microsoft 365 users across organizations
 
-### North Carolina Ports Cyberattack
-- **Description**: Cyberattack disrupting IT systems and operations at Port of Wilmington, Port of Morehead City, and Charlotte Inland Port.
-- **Impact**: Operational slowdown at critical maritime infrastructure, IT system disruption.
-- **Status**: Confirmed by North Carolina Ports Authority. Attack vector and attribution not publicly disclosed.
-
-### Levi Strauss Social Engineering Attack
-- **Description**: Social engineering attacks targeting three employees to gain access to corporate data stored on their machines.
-- **Impact**: Theft of corporate data from compromised employee systems.
-- **Status**: Confirmed by Levi Strauss & Co. No technical vulnerability exploited; pure social engineering.
+### AI Coding Agent Supply Chain Vulnerabilities
+- **Description**: Flaws in Anthropic's Claude Code and Google's Gemini CLI that allow a GitHub issue opened by an unprivileged account to execute code on CI runners and access workflow secrets
+- **Impact**: Potential supply chain compromise through AI-assisted development tools; access to CI/CD secrets and build pipelines
+- **Status**: Demonstrated against Anthropic, Google, and OpenAI repositories; mitigation status not specified
 
 ## Affected Systems and Products
 
-- **Metabase Business Intelligence Platform**: All versions prior to patched release; exploited at Framework and Tally customer instances
-- **npm Registry / Node.js Ecosystem**: Nearly 800 malicious packages affecting Windows, macOS, and Linux development environments
-- **macOS Systems**: Targeted via ClickFix social engineering for infostealer deployment (cryptocurrency wallets, browsers, Keychain)
-- **Microsoft SharePoint**: Swiss federal government instances compromised (~200 accounts)
-- **Snowflake Cloud Data Warehouse**: 165+ organizations compromised in extortion campaign
-- **Microsoft 365 / Entra ID**: Targeted by AitM phishing campaigns harvesting payroll and finance emails; Windows Hello for Business keys abused for persistent access
-- **Cisco Catalyst SD-WAN and IOS XE Software**: 12 vulnerabilities patched (three 9.9 CVSS), though active exploitation not confirmed
-- **WordPress CMS**: All versions affected by pre-authentication reflected XSS in login screen (potential PHP code execution chain demonstrated)
-- **Linux Kernel**: Multiple flaws including 18-year-old SCTP use-after-free (local root + container escape), Zapscape KVM escape (L1 guest to host), and TONTOU CPU side-channel bypassing Spectre v2 mitigations
-- **Apache HTTP Server**: Zero-day discovered via AI-assisted HTTP desynchronization research
-- **Anthropic Claude Code, Google Gemini CLI, OpenAI Codex**: CI/CD workflow secret exposure via GitHub issue interaction flaws
-- **Redis Instances**: Internet-facing infrastructure compromised by TeamPCP since 2020
-- **North Carolina Ports IT Systems**: Operational technology and IT infrastructure at three port facilities
-- **Levi Strauss Employee Endpoints**: Corporate data stolen from three compromised employee machines
+- **Metabase**: Business intelligence platform; customer instances at Framework and Tally confirmed compromised; versions affected not specified
+- **npm Registry**: JavaScript package ecosystem; nearly 800 malicious packages published affecting Windows, macOS, and Linux development environments
+- **macOS Systems**: Targeted by ClickFix-delivered Go-based infostealer malware stealing crypto wallets, browser credentials, and iCloud Keychain data
+- **Linux Kernel**: SCTP subsystem vulnerability affecting all Linux distributions with SCTP support; impacts containerized environments including Kubernetes
+- **Microsoft SharePoint**: Swiss federal government servers compromised; specific versions not disclosed; approximately 200 accounts affected
+- **Microsoft 365**: Enterprise cloud productivity suite targeted by AitM phishing campaigns focusing on payroll and finance personnel
+- **Anthropic Claude Code**: AI coding agent with GitHub integration vulnerability allowing CI workflow secret exposure via unprivileged GitHub issues
+- **Google Gemini CLI**: AI coding agent with similar GitHub integration flaw enabling CI runner code execution
+- **OpenAI Codex/Repository**: AI coding agent repository also affected by GitHub issue-based CI secret exposure
+- **Cisco Catalyst SD-WAN and IOS XE**: Multiple critical vulnerabilities patched (three rated 9.9 CVSS); exploitation status not confirmed in reporting
+- **WordPress**: All versions affected by pre-authentication reflected XSS in login screen; patch released
+- **Linux KVM**: Zapscape vulnerability allowing L1 guest VM kernel-privileged code to escape to host; affects virtualized environments
 
 ## Attack Vectors and Techniques
 
-- **SQL Injection (Pre-Authentication)**: Metabase zero-day allowing unauthenticated database query execution
-- **Software Supply Chain Compromise**: Malicious npm packages masquerading as legitimate dependencies delivering cross-platform RAT/infostealer
-- **ClickFix Social Engineering**: User-interaction-based technique tricking victims into executing malicious commands via fake error pages or verification prompts
-- **Voice Phishing (Vishing)**: UNC6671 calling personal phones to social engineer credentials or MFA approval for SaaS access
-- **Adversary-in-the-Middle (AitM) Phishing**: Real-time proxy phishing capturing Microsoft 365 session tokens and credentials targeting payroll/finance emails
-- **NAT Table Manipulation (NatJack)**: Exploiting NAT connection state to hijack active TCP sessions and spoof DNS responses
-- **HTTP Request Smuggling / Desynchronization**: Novel AI-discovered techniques for request smuggling leading to Apache zero-day
-- **Windows Hello for Business Key Abuse**: Malware leveraging signed-in user's hardware-bound keys for persistent Entra ID authentication
-- **GitHub Issue CI/CD Injection**: Low-privilege GitHub issues triggering code execution on CI runners in AI coding agent repositories
-- **Redis Exploitation**: Long-running compromise of internet-facing Redis instances for infrastructure access
-- **Container Escape via Kernel Flaws**: Linux SCTP use-after-free and Zapscape KVM vulnerabilities enabling host escape from containers/VMs
-- **CPU Side-Channel (TONTOU)**: Bypassing Spectre v2 mitigations to leak Linux password hashes and secrets
-- **Clipboard Hijacking**: Banking malware campaign manipulating clipboard content for payment diversion
-- **Browser Manipulation**: Compromised business inboxes used with browser manipulation for financial fraud
-- **Cross-Site Scripting (Pre-Auth Reflected)**: WordPress login screen XSS with demonstrated PHP code execution chain
+- **SQL Injection (Zero-Day)**: Unauthenticated database query manipulation in Metabase enabling data exfiltration and potential remote code execution
+- **Supply Chain Compromise (npm)**: Malicious package publishing to public registry with typosquatting and dependency confusion techniques delivering cross-platform RAT/infostealer payloads
+- **ClickFix Social Engineering**: Fake browser verification/CAPTCHA pages tricking users into executing malicious commands via clipboard manipulation and Run dialog
+- **Voice Phishing (Vishing)**: Telephone-based social engineering targeting personal phones to steal SaaS credentials and bypass MFA; used by UNC6671 against financial sector
+- **Container Escape via Kernel Exploit**: Leveraging 18-year-old SCTP use-after-free for privilege escalation and host escape from containerized workloads
+- **NAT Table Manipulation (NatJack)**: Manipulating network address translation connection state to hijack active TCP sessions and spoof DNS responses
+- **Adversary-in-the-Middle (AitM) Phishing**: Real-time proxy phishing capturing MFA tokens and session cookies for Microsoft 365 account takeover
+- **AI Agent Sandbox Escape**: Exploiting AI coding agent integrations with GitHub to execute unauthorized code on CI runners and access workflow secrets
+- **Windows Hello for Business Key Abuse**: Malware leveraging signed-in user's Windows Hello keys for persistent Entra ID authentication without user interaction
+- **HTTP Request Smuggling/Desync**: AI-discovered novel HTTP desynchronization techniques and Apache zero-day enabling request smuggling and cache poisoning
+- **CPU Side-Channel (TONTOU)**: Bypassing Spectre v2 mitigations to leak Linux password hashes through speculative execution attacks
+- **Clipboard Hijacking**: Malware monitoring and replacing clipboard contents for cryptocurrency address substitution and payment diversion
+- **Business Email Compromise via Compromised Inboxes**: Using legitimate compromised email accounts for banking malware delivery and payment fraud
 
 ## Threat Actor Activities
 
-- **UNC6671 / BlackFile-Linked Extortion Group**: Active vishing campaign targeting financial services, hedge funds, private equity, and professional services. Uses voice phishing against personal phones for initial SaaS access, followed by data theft and extortion. Confirmed in multiple reporting sources.
-- **TeamPCP**: Long-running threat actor compromising internet-facing Redis instances since at least 2020, later expanding to supply chain campaigns. Demonstrates persistence and evolution from opportunistic infrastructure targeting to software supply chain attacks.
-- **Canadian Snowflake Extortion Actor**: 26-year-old individual described as one of 2024's most consequential cybercrime actors. Pleaded guilty to compromising and extorting 165+ organizations via Snowflake cloud data warehouse attacks.
-- **ClickFix Operators**: Ongoing campaigns delivering macOS infostealers (Go-based) for cryptocurrency theft and credential harvesting. Technique adopted by multiple threat groups.
-- **Malicious npm Publishers**: Coordinated campaign publishing nearly 800 packages to npm registry. Attribution not specified; likely financially motivated cybercrime group.
-- **Metabase Zero-Day Exploiters**: Unknown actors exploiting critical SQLi in Metabase instances at Framework and Tally for data theft. Sophistication suggests targeted operation.
-- **Microsoft 365 AitM Phishing Operators**: Widespread email-driven campaign using adversary-in-the-middle infrastructure to hijack accounts and harvest payroll/finance communications.
+- **UNC6671**: Data extortion group linked to BlackFile ransomware; conducting vishing campaigns targeting financial services, private equity, and professional services; uses voice-based social engineering to compromise SaaS credentials; attributed to hedge fund cyberattacks
+- **TeamPCP**: Threat actor active since at least 2020; compromising internet-facing Redis instances; linked to later supply chain campaigns; long-term infrastructure compromise operations
+- **BlackFile Ransomware Group**: Associated with UNC6671; extortion operations targeting financial organizations; data theft and encryption for ransom
+- **ClickFix Operators**: Threat actors employing ClickFix social engineering framework; recently expanded from Windows to macOS targets with Go-based infostealer; focus on cryptocurrency theft
+- **npm Campaign Operators**: Unknown threat actor(s) publishing nearly 800 malicious packages to npm registry; cross-platform malware distribution targeting developer ecosystems
+- **Canadian Snowflake Extortionist**: 26-year-old Canadian man pleaded guilty to computer fraud and conspiracy; described as one of the most consequential cybercrime actors of 2024; extorted over 165 organizations via Snowflake data breaches
+- **Levi Strauss Attackers**: Unknown threat actors using social engineering on three employees to access and steal corporate data from employee machines
+- **North Carolina Ports Attackers**: Unknown threat actors disrupting IT systems and operations at Port of Wilmington, Port of Morehead City, and Charlotte Inland Port
+- **Swiss Government SharePoint Attackers**: Unknown threat actors exploiting SharePoint vulnerabilities to compromise approximately 200 federal accounts
+- **Microsoft 365 AitM Campaign Operators**: Unknown threat actors conducting widespread phishing campaign targeting payroll and finance emails across organizations
 
 ## Source Attribution
 
