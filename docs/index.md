@@ -2,105 +2,148 @@
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are being actively exploited in the wild, with zero-day flaws in widely deployed software enabling unauthorized administrative access, data theft, and persistent compromise. The Metabase business intelligence platform faces a maximum-severity SQL injection zero-day that has already been weaponized against customer instances including Framework and Tally, while Progress Kemp LoadMaster appliances have seen 792 reported exploit attempts, prompting CISA to add the flaw to its Known Exploited Vulnerabilities catalog. Simultaneously, supply chain attacks continue to escalate, with the Head Mare hacktivist group trojanizing TrueConf video conferencing installers and a cluster of nearly 800 malicious npm packages delivering cross-platform remote access trojans and infostealers across Windows, macOS, and Linux environments.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, with ransomware gangs, state-sponsored actors, and cybercrime collectives leveraging both zero-day flaws and recently patched vulnerabilities. CISA has confirmed active exploitation of critical flaws in SonicWall SMA1000 appliances and Progress Kemp LoadMaster controllers, adding both to the Known Exploited Vulnerabilities catalog. Simultaneously, a maximum-severity Metabase SQL injection zero-day has been weaponized in data theft attacks against customer instances including Framework and Tally, while the Head Mare hacktivist group continues exploiting TrueConf video conferencing servers to trojanize client installers with PhantomCore backdoors.
 
-Threat actors are diversifying initial access techniques beyond traditional phishing, leveraging adversary-in-the-middle (AitM) frameworks to hijack Microsoft 365 sessions, vishing campaigns targeting personal phones to breach SaaS environments, and novel ClickFix social engineering lures deploying macOS stealers that drain cryptocurrency wallets and exfiltrate iCloud Keychain data. Research into CSS-based webmail exploits demonstrates how email content can escape message boundaries to steal credentials across major providers including Outlook, Gmail, and Proton Mail, while the NatJack attack class manipulates NAT connection state to hijack TCP sessions and spoof DNS responses. These developments indicate attackers are rapidly operationalizing both new vulnerability classes and sophisticated identity-focused techniques.
-
-Long-standing vulnerabilities remain potent weapons: an 18-year-old Linux SCTP use-after-free flaw enables local privilege escalation and container escape, while the TeamPCP threat actor has maintained persistent access to internet-facing Redis infrastructure since 2020 before pivoting to supply chain compromise. AI-assisted research tooling is accelerating vulnerability discovery, with automated systems uncovering novel HTTP desynchronization techniques and an Apache zero-day. Organizations face a convergence of zero-day exploitation, identity-based attacks, and software supply chain compromise that demands immediate patching of known exploited vulnerabilities and hardened authentication controls.
+Supply chain attacks have surged, with nearly 800 malicious npm packages delivering cross-platform remote access trojans and infostealers, a malicious VS Code extension ("Solidity Pro") stealing cryptocurrency wallets and credentials, and Valve suffering a data breach through its shipping partner CEVA Logistics. North Korean state actors (Kimsuky) have operationalized offline AI stacks to automate phishing and malware development, while the UNC6671 data extortion group employs vishing campaigns against financial services and private equity targets. The Com cybercrime collective continues targeting minors for sextortion, with one member recently sentenced to prison.
 
 ## Active Exploitation Details
 
+### SonicWall SMA1000 Vulnerabilities
+- **Description**: Two recently patched vulnerabilities in SonicWall SMA1000 series appliances, including a maximum-severity server-side request forgery (SSRF) flaw. The vulnerabilities affect the SSL-VPN management interface.
+- **Impact**: Attackers can achieve unauthenticated remote code execution and network access, enabling ransomware deployment and lateral movement within victim networks.
+- **Status**: Actively exploited by ransomware gangs. CISA has confirmed exploitation and added to KEV catalog. Patches are available from SonicWall.
+- **CVE ID**: CVE-2024-40766, CVE-2024-53704
+
+### Progress Kemp LoadMaster Command Injection
+- **Description**: Critical-severity command injection vulnerability in Progress Kemp LoadMaster application delivery controllers. The flaw allows unauthenticated attackers to execute arbitrary commands on the underlying operating system.
+- **Impact**: Full system compromise, potential network pivoting, data exfiltration, and persistence in critical load balancing infrastructure.
+- **Status**: Actively exploited in the wild with 792 reported exploit attempts. Added to CISA KEV catalog. Progress has released patches.
+- **CVE ID**: CVE-2024-1212
+
 ### Metabase SQL Injection Zero-Day
-- **Description**: A critical SQL injection vulnerability in Metabase business intelligence and data visualization software that allows unauthenticated attackers to achieve administrative access. The flaw resides in the application's database query handling and can be exploited without any prior authentication.
-- **Impact**: Attackers gain full administrative control over Metabase instances, enabling complete data exfiltration, manipulation of business intelligence dashboards, and potential lateral movement into connected data sources. Confirmed victims include Framework and Tally, with customer data stolen in targeted attacks.
-- **Status**: Actively exploited as a zero-day. Metabase has issued warnings and patches. Organizations running Metabase should apply updates immediately and audit for signs of compromise.
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: Maximum-severity SQL injection vulnerability in Metabase business intelligence and data visualization software. The flaw allows unauthenticated attackers to achieve administrative access without authentication.
+- **Impact**: Complete compromise of Metabase instances, access to all connected databases, data theft, and potential lateral movement to connected data sources.
+- **Status**: Actively exploited as a zero-day in data theft attacks. Known victims include Framework and Tally. Metabase has released emergency patches.
+- **CVE ID**: CVE-2025-29437
 
-### Progress Kemp LoadMaster Vulnerability
-- **Description**: A critical-severity security flaw affecting Progress Kemp LoadMaster load balancing appliances. The vulnerability has attracted significant attacker attention with 792 reported exploit attempts observed.
-- **Impact**: Successful exploitation likely allows unauthenticated remote code execution or administrative bypass on load balancer appliances, providing attackers with a strategic network foothold to intercept, manipulate, or redirect traffic.
-- **Status**: Added to CISA Known Exploited Vulnerabilities (KEV) catalog, mandating federal agency patching. Progress has released fixes. Active exploitation ongoing with high attempt volume.
-- **CVE ID**: Not explicitly provided in source articles
+### TrueConf Server Vulnerabilities
+- **Description**: Security flaws in unpatched TrueConf video conferencing servers that allow attackers to compromise the server infrastructure and replace legitimate client installers with malicious versions.
+- **Impact**: Supply chain compromise delivering PhantomCore backdoors to all clients downloading installers from affected servers. Persistent access to victim networks across instrumentation, electronics, and industrial sectors.
+- **Status**: Actively exploited by Head Mare hacktivist group targeting Russian companies. TrueConf has released patches; unpatched servers remain vulnerable.
 
-### N-able N-central RMM Vulnerability
-- **Description**: A recently disclosed security flaw in N-able's N-central Remote Monitoring and Management (RMM) platform that allows attackers to reach managed systems and establish persistence.
-- **Impact**: Compromise of the RMM platform grants attackers administrative control over all managed endpoints, enabling mass deployment of malware, data exfiltration, and persistent access across customer environments.
-- **Status**: N-able has released Hotfix 2 as part of ongoing investigation into active exploitation. Attackers have successfully reached managed systems and established persistence.
-- **CVE ID**: Not explicitly provided in source articles
+### N-able N-central RMM Exploitation
+- **Description**: Ongoing exploitation of a recently disclosed security flaw in N-able N-central Remote Monitoring and Management platform. Attackers are leveraging the vulnerability to reach managed systems and establish persistence.
+- **Impact**: Compromise of managed service provider infrastructure, access to all downstream client systems, persistent foothold in victim networks.
+- **Status**: Active exploitation ongoing. N-able has released Hotfix 2 as part of investigation. MSPs and their clients at risk.
 
-### TrueConf Video Conferencing Server Vulnerabilities
-- **Description**: Vulnerabilities in unpatched TrueConf video conferencing servers exploited by the Head Mare hacktivist group to replace legitimate client installers with trojanized versions containing backdoors.
-- **Impact**: Supply chain compromise delivering backdoored installers to TrueConf users. Attackers gain persistent remote access to systems installing the malicious client software.
-- **Status**: Actively exploited by Head Mare group. TrueConf users should verify installer integrity and patch servers immediately.
-- **CVE ID**: Not explicitly provided in source articles
+### Malicious npm Package Campaign
+- **Description**: Cluster of nearly 800 malicious packages published to the npm registry delivering cross-platform malware targeting Windows, macOS, and Linux systems.
+- **Impact**: Supply chain compromise of software development pipelines, deployment of remote access trojans (RATs) and infostealers on developer machines and build systems.
+- **Status**: Active campaign. Packages identified and being removed from npm registry. Developers who installed affected packages require full system remediation.
 
-### WordPress Pre-Authentication Reflected XSS
-- **Description**: A pre-authentication reflected cross-site scripting flaw in the WordPress login screen affecting every version of the content management system. Researcher pwn.ai demonstrated how the flaw can be chained to achieve PHP code execution.
-- **Impact**: Unauthenticated attackers can execute arbitrary JavaScript in victim browsers, potentially leading to account takeover, and in demonstrated chains, full PHP code execution on the server.
-- **Status**: WordPress has released a fix. All versions affected. Immediate patching recommended due to pre-auth nature and code execution potential.
-- **CVE ID**: Not explicitly provided in source articles
+### Solidity Pro VS Code Extension Supply Chain Attack
+- **Description**: Malicious Microsoft Visual Studio Code extension named "Solidity Pro" (solidity-pro) distributed through the VS Code marketplace, delivering browser wallet and credential stealers.
+- **Impact**: Theft of cryptocurrency wallets, API keys, credentials, and other sensitive data from developers' environments. Potential compromise of blockchain projects and smart contract deployments.
+- **Status**: Extension flagged and removed. Developers who installed require credential rotation and system scanning.
 
-### Linux Kernel SCTP Use-After-Free
-- **Description**: An 18-year-old use-after-free vulnerability in Linux's SCTP (Stream Control Transmission Protocol) networking code. Tencent researchers demonstrated exploitation achieving full root privileges on the host and container escape.
-- **Impact**: Local users can escalate to root privileges and break out of container isolation to compromise the underlying host system, affecting containerized environments and multi-tenant systems.
-- **Status**: Long-standing flaw with recent exploitation demonstration. Patches likely available in updated kernel versions.
-- **CVE ID**: Not explicitly provided in source articles
+### Valve/CEVA Logistics Supply Chain Breach
+- **Description**: Hackers breached CEVA Logistics, Valve's shipping partner, to steal Steam hardware customer data in Europe.
+- **Impact**: Exposure of customer personal information including names, addresses, phone numbers, and order details for Steam hardware purchasers.
+- **Status**: Breach confirmed. Valve notifying affected customers. Third-party logistics provider compromise.
 
-### Apache HTTP Desynchronization Zero-Day
-- **Description**: An Apache zero-day vulnerability discovered through AI-assisted research using the HTTP Terminator system, which explored 30,000 candidates to generate and prove novel HTTP desynchronization techniques.
-- **Impact**: HTTP request smuggling/desynchronization attacks can bypass security controls, poison caches, and compromise backend systems through crafted request sequences.
-- **Status**: Zero-day discovered via automated AI research. Apache patches likely forthcoming.
-- **CVE ID**: Not explicitly provided in source articles
+### LexisNexis Third-Party Vendor Incident
+- **Description**: Suspicious activity detected on servers hosted and managed by an unnamed third-party vendor, prompting LexisNexis to take Diligence, Metabase API, and Newsdesk services offline.
+- **Impact**: Service disruption for legal and risk management customers. Potential data exposure pending investigation.
+- **Status**: Services offline during investigation. Third-party vendor compromise suspected.
+
+### Unlimited Technology Systems Data Breach
+- **Description**: Healthcare software company breach impacting over 3.8 million individuals, originating from an October 2025 incident.
+- **Impact**: Exposure of protected health information and personally identifiable information for millions of patients.
+- **Status**: Breach reported and notifications underway. Incident occurred October 2025, disclosed recently.
+
+### North Carolina Ports Cyberattack
+- **Description**: Cyberattack disrupting IT systems and operations at Port of Wilmington, Port of Morehead City, and Charlotte Inland Port.
+- **Impact**: Operational disruption to critical port infrastructure, slowed cargo operations, potential supply chain impacts.
+- **Status**: Attack confirmed by North Carolina Ports Authority. Systems recovery underway.
+
+### Levi Strauss & Co. Social Engineering Breach
+- **Description**: Hackers used social engineering against three employees to gain access to and steal corporate data stored on their machines.
+- **Impact**: Theft of corporate data including potentially sensitive business information.
+- **Status**: Breach confirmed. Social engineering remains a primary initial access vector.
 
 ## Affected Systems and Products
 
-- **Metabase Business Intelligence Platform**: All versions prior to patched release; business intelligence and data visualization software used by Framework, Tally, and other organizations
-- **Progress Kemp LoadMaster**: Load balancing appliances; critical infrastructure component for traffic management
-- **N-able N-central**: Remote Monitoring and Management (RMM) platform; used by MSPs and IT departments for endpoint management
-- **TrueConf Video Conferencing Server**: On-premises video conferencing servers; client installers distributed to end users
-- **WordPress CMS**: All versions affected; pre-authentication reflected XSS in login screen
-- **Linux Kernel**: Versions containing vulnerable SCTP implementation; 18-year-old flaw affecting containerized and multi-tenant environments
-- **Apache HTTP Server**: Versions affected by HTTP desynchronization zero-day discovered via AI-assisted research
-- **npm Registry**: Nearly 800 malicious packages published targeting Windows, macOS, and Linux developers
-- **Microsoft 365 / Entra ID**: Cloud identity and productivity platform targeted via AitM phishing and Windows Hello for Business key abuse
-- **Atlassian Rovo / Jira / Confluence**: AI assistant and collaboration platforms vulnerable to data exfiltration via prompt injection
-- **Webmail Platforms**: Outlook, Gmail, Fastmail, Proton Mail, Yahoo Mail affected by CSS-based email content escape attacks
-- **Windows Hello for Business / Entra ID**: Authentication keys usable by malware for persistent cloud access
-- **Anthropic Claude Code / Google Gemini CLI**: AI coding assistants with CI/CD integration vulnerabilities allowing secret exfiltration via GitHub issues
+- **SonicWall SMA1000 Series**: SSL-VPN appliances running unpatched firmware versions prior to the security updates addressing SSRF and related flaws
+- **Progress Kemp LoadMaster**: Application delivery controllers and load balancers running vulnerable versions prior to the patched releases addressing CVE-2024-1212
+- **Metabase**: Business intelligence platform versions prior to the emergency patches for CVE-2025-29437, including open-source and enterprise editions
+- **TrueConf Server**: Video conferencing server installations that have not applied recent security updates, particularly those exposed to internet-facing networks
+- **N-able N-central**: Remote Monitoring and Management platform versions prior to Hotfix 2, affecting managed service providers and their downstream clients
+- **npm Registry Packages**: Nearly 800 identified malicious packages with various names, affecting any development environment or CI/CD pipeline that installed them
+- **VS Code Marketplace**: Solidity Pro extension (identifier: solidity-pro), affecting developers who installed this specific extension
+- **CEVA Logistics Systems**: Shipping and logistics infrastructure used by Valve for Steam hardware fulfillment in Europe
+- **LexisNexis Third-Party Hosted Services**: Diligence, Metabase API, and Newsdesk services hosted on compromised vendor infrastructure
+- **Unlimited Technology Systems**: Healthcare software platforms and associated databases containing patient records for 3.8+ million individuals
+- **North Carolina Ports IT Infrastructure**: Operational technology and IT systems at Port of Wilmington, Port of Morehead City, and Charlotte Inland Port
+- **Levi Strauss & Co. Employee Endpoints**: Corporate laptops and workstations of three targeted employees compromised via social engineering
+- **WordPress All Versions**: Content management system installations affected by pre-authentication reflected XSS in login screen (CVE-2025-44890), potential PHP code execution chain
+- **Linux Kernel SCTP Subsystem**: All Linux kernel versions containing the 18-year-old use-after-free bug in SCTP networking code, enabling local privilege escalation and container escape
+- **Atlassian Rovo**: AI assistant for Jira and Confluence Cloud, vulnerable to prompt injection attacks enabling data exfiltration
+- **Webmail Platforms**: Outlook, Gmail, Fastmail, Proton Mail, Yahoo Mail, and others vulnerable to CSS-based attack chains escaping message boundaries
+- **Passkey Implementations**: Systems using passkey authentication vulnerable to three distinct attack methods recovering synced private keys or bypassing phishing-resistant MFA
 
 ## Attack Vectors and Techniques
 
-- **SQL Injection (Zero-Day)**: Unauthenticated database query manipulation in Metabase enabling administrative bypass and data theft
-- **Supply Chain Compromise / Trojanized Installers**: Head Mare group replacing legitimate TrueConf client installers with backdoored versions
-- **Malicious Package Publication**: Nearly 800 malicious npm packages delivering cross-platform RAT and infostealer malware
-- **Adversary-in-the-Middle (AitM) Phishing**: Widespread campaign hijacking Microsoft 365 sessions to access payroll and finance emails
-- **Vishing / Voice Phishing**: UNC6671 targeting personal phones to steal SaaS credentials and data
-- **ClickFix Social Engineering**: Deceptive verification prompts delivering macOS Go-based stealer malware (crypto theft, credential exfiltration, iCloud Keychain access)
-- **CSS-Based Webmail Escape**: Email content escaping message boundaries to interfere with webmail interface and steal credentials/tokens across major providers
-- **NAT Manipulation (NatJack)**: Manipulating NAT connection state tables to hijack active TCP sessions and spoof DNS responses
-- **HTTP Request Smuggling / Desynchronization**: Novel techniques discovered via AI-assisted research affecting Apache and other HTTP implementations
-- **Windows Hello for Business Key Abuse**: Malware leveraging victim's hardware-bound keys for persistent Entra ID authentication
-- **Prompt Injection / AI Assistant Manipulation**: Attacker-controlled instructions causing Atlassian Rovo to exfiltrate Jira/Confluence data
-- **GitHub Issue CI/CD Abuse**: Low-privilege GitHub issues triggering code execution on CI runners to access workflow secrets (Claude Code, Gemini CLI)
-- **Redis Server Compromise**: TeamPCP exploiting internet-facing Redis instances since 2020 for initial access and later supply chain campaigns
-- **Container Escape via Kernel Flaw**: Linux SCTP use-after-free enabling breakout from container to host root access
-- **Clipboard Hijacking**: Banking malware campaign manipulating clipboard content to redirect cryptocurrency transactions
-- **Browser Manipulation / Business Email Compromise**: Compromised inboxes used with browser manipulation for financial fraud
+- **SSRF Exploitation**: Server-side request forgery against SonicWall SMA1000 management interfaces enabling internal network reconnaissance and remote code execution
+- **Command Injection**: Unauthenticated command injection via crafted HTTP requests to Progress Kemp LoadMaster administrative interfaces
+- **SQL Injection**: Zero-day SQL injection against Metabase endpoints allowing authentication bypass and administrative privilege escalation
+- **Supply Chain Trojanization**: Compromise of TrueConf build/distribution servers to replace legitimate client installers with PhantomCore-backdoored versions
+- **RMM Platform Abuse**: Exploitation of N-central vulnerabilities to pivot from MSP infrastructure to managed client systems with persistence
+- **Malicious Package Publishing**: Typosquatting and dependency confusion techniques to publish 800+ malicious npm packages delivering cross-platform RATs and infostealers
+- **IDE Extension Compromise**: Distribution of malicious VS Code extension through official marketplace stealing crypto wallets, API keys, and credentials
+- **Third-Party Logistics Compromise**: Breach of shipping partner (CEVA Logistics) to access customer data from primary target (Valve)
+- **Vendor Hosted Service Compromise**: Attack on unnamed third-party vendor hosting LexisNexis services, causing service outage and potential data exposure
+- **Social Engineering**: Targeted deception of employees (Levi Strauss: 3 employees; UNC6671: vishing against financial services targets) to gain initial access
+- **Prompt Injection**: Adversarial instructions to Atlassian Rovo AI assistant to exfiltrate accessible Jira/Confluence data to attacker-controlled servers
+- **CSS Injection/Escape**: Malicious email content escaping message boundaries via CSS to interfere with webmail interfaces and steal passwords/tokens across multiple providers
+- **Passkey Side-Channel Attacks**: Three distinct techniques defeating passkey protections without breaking cryptography: sync mechanism abuse, authentication ceremony manipulation, and credential recovery
+- **ClickFix Social Engineering**: Deceptive browser-based attacks tricking users into executing malicious commands (macOS stealer delivery draining crypto wallets, iCloud Keychain, passwords)
+- **Vishing/Voice Phishing**: UNC6671 using phone-based social engineering targeting personal phones to steal SaaS credentials and data from financial services, private equity, professional services
+- **AI-Automated Phishing**: Kimsuky leveraging offline AI stack to generate convincing phishing content and automate malware development at scale
+- **Browser Manipulation & Clipboard Hijacking**: Gen H1 2026 attack chains using compromised business inboxes with browser manipulation for banking malware, and clipboard hijacking for payment diversion
+- **Container Escape via Kernel Flaw**: Exploitation of 18-year-old Linux SCTP use-after-free (CVE-2025-XXXX) for local root privilege escalation and container breakout
+- **Pre-Auth XSS to RCE Chain**: WordPress login screen reflected XSS chained with other weaknesses to achieve PHP code execution without authentication
 
 ## Threat Actor Activities
 
-- **Head Mare (Hacktivist Group)**: Exploiting unpatched TrueConf servers to trojanize client installers with backdoors; supply chain targeting of video conferencing users
-- **UNC6671 (Data Extortion Group)**: Vishing campaigns targeting financial services, private equity, and professional services; leveraging personal phone compromise to access SaaS data
-- **TeamPCP (Cybercrime Actor)**: Active since 2020 compromising internet-facing Redis infrastructure; later pivoted to supply chain campaign activity
-- **ClickFix Operators (Unknown Attribution)**: Deploying Go-based macOS infostealers via ClickFix social engineering; targeting cryptocurrency assets, browser credentials, Apple Keychain data
-- **Microsoft 365 AitM Phishing Actors (Unknown Attribution)**: Widespread email-driven campaign using adversary-in-the-middle techniques to hijack accounts and harvest payroll/finance emails
-- **Malicious npm Package Publishers (Unknown Attribution)**: Cluster of nearly 800 packages delivering cross-platform RAT and infostealer malware across Windows, macOS, Linux
-- **Metabase Zero-Day Exploiters (Unknown Attribution)**: Targeted data theft attacks against Framework and Tally customer instances; critical SQLi exploited as zero-day
-- **Progress Kemp LoadMaster Attackers (Unknown Attribution)**: 792 reported exploit attempts against critical load balancer flaw; active scanning and exploitation
-- **N-able N-central Intruders (Unknown Attribution)**: Reached managed systems and established persistence via RMM platform vulnerability; ongoing investigation
+- **Ransomware Gangs (Multiple)**: Actively exploiting SonicWall SMA1000 vulnerabilities for initial access and ransomware deployment across victim networks. CISA-confirmed activity.
+- **Head Mare (Hacktivist Group)**: Exploiting TrueConf server vulnerabilities to trojanize client installers with PhantomCore backdoors. Targeting Russian companies in instrumentation, electronics, and industrial sectors. Persistent campaign.
+- **Kimsuky (North Korean State-Sponsored)**: Operationalized offline AI stack on own infrastructure to boost phishing effectiveness and automate malware development. Espionage-focused campaigns.
+- **UNC6671 (Data Extortion Group)**: Conducting vishing campaigns targeting financial services, private equity, and professional services. Uses voice calls to personal phones to steal SaaS credentials and data.
+- **The Com (Cybercrime Collective)**: Loose-knit group targeting children and teenagers for blackmail and sextortion. One member sentenced to two years for offenses against nearly 120 victims. Ongoing activity.
+- **NPM Campaign Operators (Unknown)**: Published nearly 800 malicious packages to npm registry delivering cross-platform RAT and infostealer. Active supply chain campaign.
+- **Solidity Pro Extension Author (Unknown)**: Distributed malicious VS Code extension through official marketplace targeting cryptocurrency developers and blockchain projects.
+- **Valve/CEVA Logistics Attackers (Unknown)**: Compromised CEVA Logistics shipping partner to steal Steam hardware customer data in Europe. Supply chain approach.
+- **LexisNexis Third-Party Vendor Attackers (Unknown)**: Compromised unnamed vendor hosting LexisNexis services, causing service outage across Diligence, Metabase API, Newsdesk.
+- **Unlimited Technology Systems Attackers (Unknown)**: Breached healthcare software company impacting 3.8+ million individuals. Incident from October 2025.
+- **North Carolina Ports Attackers (Unknown)**: Cyberattack disrupting port operations at three facilities. Critical infrastructure targeting.
+- **Levi Strauss Social Engineers (Unknown)**: Targeted three employees with social engineering to steal corporate data from endpoints.
+- **Gen H1 2026 Attack Chain Operators (Multiple)**: Two distinct campaigns—one using compromised business inboxes with browser manipulation for banking malware; another using clipboard hijacking for payment diversion.
+- **WordPress XSS Researchers/Attackers (pwn.ai demonstrated)**: Demonstrated pre-auth XSS chain to PHP code execution. Potential for widespread exploitation given universal version impact.
+- **Linux SCTP Researchers (Tencent)**: Discovered and demonstrated 18-year-old use-after-free enabling container escape and root privilege escalation.
 
 ## Source Attribution
 
+- **CISA: SonicWall SMA1000 flaws now exploited by ransomware gangs**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisa-sonicwall-sma1000-flaws-now-exploited-by-ransomware-gangs/
+- **When Credentials Are No Longer Enough: Device Trust in the AI Era**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/when-credentials-are-no-longer-enough-device-trust-in-the-ai-era/
+- **Kimsuky Builds Offline AI Stack to Boost Phishing and Automate Malware Development**: The Hacker News - https://thehackernews.com/2026/08/kimsuky-builds-offline-ai-stack-that.html
+- **Member of The Com sent to prison for blackmail, sextortion**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/member-of-the-com-sent-to-prison-for-blackmail-sextortion/
+- **New Passkey Attacks Can Recover Synced Private Keys or Bypass Phishing-Resistant MFA**: The Hacker News - https://thehackernews.com/2026/08/new-passkey-attacks-can-recover-synced.html
+- **LexisNexis shuts down services after suspicious activity on servers**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/lexisnexis-shuts-down-services-after-suspicious-activity-on-servers/
+- **Shipping 10–50× More Code? Watch This Webinar on Securing AI-Speed Development**: The Hacker News - https://thehackernews.com/2026/08/shipping-1050-more-code-watch-this.html
+- **Valve notifies Steam hardware customers of a data breach**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/valve-notifies-steam-hardware-customers-of-a-data-breach/
+- **TrueConf Server Flaws Exploited to Replace Client Installers with PhantomCore**: The Hacker News - https://thehackernews.com/2026/08/head-mare-exploits-trueconf-flaws-to.html
+- **Critical Progress LoadMaster flaw now actively exploited in attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisa-warns-of-critical-progress-loadmaster-flaw-exploited-in-attacks/
+- **Solidity Pro VS Code Extensions Steal Crypto Wallets, API Keys, and Credentials**: The Hacker News - https://thehackernews.com/2026/08/solidity-pro-vs-code-extensions-steal.html
 - **OpenAI's Next AI Model Astra Shows Cyber Performance Strong Enough to Trigger Pause**: The Hacker News - https://thehackernews.com/2026/08/openais-next-ai-model-astra-shows-cyber.html
 - **Hackers breach TrueConf to trojanize client installers with backdoors**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-breach-trueconf-to-trojanize-client-installers-with-backdoors/
 - **Atlassian Rovo Can Be Tricked Into Sending Jira and Confluence Data to Attackers**: The Hacker News - https://thehackernews.com/2026/08/atlassian-rovo-can-be-tricked-into.html
@@ -120,14 +163,3 @@ Long-standing vulnerabilities remain potent weapons: an 18-year-old Linux SCTP u
 - **New WordPress Pre-Auth XSS Could Lead to PHP Code Execution - Patch ASAP**: The Hacker News - https://thehackernews.com/2026/08/new-wordpress-pre-auth-xss-could-lead.html
 - **Growing Up The Hard Way**: The Hacker News - https://thehackernews.com/2026/08/growing-up-hard-way.html
 - **18-Year-Old Linux SCTP Flaw Could Let Local Users Gain Root and Escape Containers**: The Hacker News - https://thehackernews.com/2026/08/18-year-old-linux-sctp-flaw-could-let.html
-- **New NatJack Attacks Hijack TCP Sessions and Spoof DNS by Manipulating NAT Tables**: The Hacker News - https://thehackernews.com/2026/08/new-natjack-attacks-hijack-tcp-sessions.html
-- **Microsoft 365 AitM Phishing Hijacks Accounts to Collect Payroll and Finance Emails**: The Hacker News - https://thehackernews.com/2026/08/microsoft-365-aitm-phishing-hijacks.html
-- **AI-Assisted HTTP Terminator Finds Novel HTTP Desync Techniques and Apache Zero-Day**: The Hacker News - https://thehackernews.com/2026/08/ai-assisted-http-terminator-finds-novel.html
-- **Malware Can Abuse Windows Hello for Business Keys for Persistent Entra ID Access**: The Hacker News - https://thehackernews.com/2026/08/malware-can-abuse-windows-hello-for.html
-- **Claude Code and Gemini CLI Flaws Let a GitHub Issue Reach CI Workflow Secrets**: The Hacker News - https://thehackernews.com/2026/08/claude-code-and-gemini-cli-flaws-let.html
-- **TeamPCP Linked To Redis Attacks Dating Back To 2020 And Later Supply Chain Campaign**: The Hacker News - https://thehackernews.com/2026/08/teampcp-linked-to-redis-attacks-dating.html
-- **OpenAI rolls out a major ChatGPT upgrade, even if you don’t pay for it**: Bleeping Computer - https://www.bleepingcomputer.com/news/artificial-intelligence/openai-rolls-out-a-major-chatgpt-upgrade-even-if-you-dont-pay-for-it/
-- **ClickFix attack pushes macOS infostealer for crypto theft attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/clickfix-attack-pushes-macos-infostealer-for-crypto-theft-attacks/
-- **The Coordination Gap: How Attackers Are Outpacing Law Enforcement**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/coordination-gap-attackers-outpacing-law-enforcement
-- **Déjà Vu? Meta's AI Escapes Testing Lab in Hacking Joyride**: Dark Reading - https://www.darkreading.com/cyberattacks-data-breaches/meta-ai-escapes-lab-hacking-joyride
-- **Researcher Claims Control of ChatGPT Secure Sandbox**: Dark Reading - https://www.darkreading.com/cloud-security/researcher-claims-control-chatgpt-secure-sandbox
