@@ -2,149 +2,92 @@
 
 ## Executive Summary
 
-A surge in supply chain compromises and zero-day exploitation has dominated recent threat activity, with the Head Mare hacktivist group breaching TrueConf's video conferencing infrastructure to trojanize legitimate client installers with backdoors. Simultaneously, a critical Metabase SQL injection zero-day has been actively exploited in data theft attacks against customer instances including Framework and Tally, while Progress Kemp LoadMaster appliances face widespread exploitation with 792 reported attempts driving CISA KEV inclusion. These campaigns demonstrate adversaries' increasing focus on trusted software distribution channels and internet-facing enterprise appliances as initial access vectors.
+Multiple critical vulnerabilities are being actively exploited across diverse technology stacks, ranging from business intelligence platforms and load balancers to video conferencing systems and supply chain infrastructure. The Metabase SQL injection zero-day stands out as a maximum-severity flaw enabling unauthenticated administrative access and data theft, with confirmed breaches at Framework and Tally. Simultaneously, the Progress Kemp LoadMaster vulnerability has garnered 792 reported exploit attempts and earned a CISA Known Exploited Vulnerabilities catalog entry, signaling widespread opportunistic targeting. Threat actors are also leveraging supply chain compromises—most notably the Head Mare hacktivist group's breach of TrueConf to trojanize legitimate client installers—and a massive npm campaign distributing nearly 800 malicious packages delivering cross-platform remote access trojans and infostealers.
 
-Social engineering and identity-focused attacks have evolved in sophistication, with UNC6671 conducting vishing campaigns targeting financial services and private equity firms to steal SaaS credentials, and a widespread Microsoft 365 adversary-in-the-middle (AitM) phishing operation harvesting payroll and finance emails. The ClickFix technique has expanded to macOS with a Go-based infostealer draining cryptocurrency wallets, browser credentials, and Apple Keychain data. Meanwhile, nearly 800 malicious npm packages were published in a coordinated supply chain campaign delivering cross-platform remote access trojans and infostealers across Windows, macOS, and Linux environments.
-
-Research disclosures reveal novel attack classes with immediate defensive implications: CSS-based attacks breaking webmail sandbox isolation across Outlook, Gmail, Proton Mail, Yahoo Mail, and Fastmail; the NatJack technique manipulating NAT connection tables to hijack TCP sessions and spoof DNS; and AI-assisted discovery of HTTP desynchronization vulnerabilities including an Apache zero-day. Long-standing vulnerabilities continue to prove potent, with an 18-year-old Linux SCTP use-after-free enabling container escapes to host root, and a pre-authentication WordPress XSS affecting all versions demonstrating a path to PHP code execution. Threat actors including TeamPCP have been linked to Redis compromise campaigns dating back to 2020, indicating persistent infrastructure targeting.
+Attack methodologies continue to evolve beyond traditional exploitation. ClickFix social engineering campaigns now target macOS users with Go-based stealers capable of draining cryptocurrency wallets and exfiltrating Apple iCloud Keychain data. Adversary-in-the-middle phishing operations hijack Microsoft 365 sessions to harvest payroll and finance communications, while the UNC6671 extortion group employs vishing against financial services and private equity targets. Novel research demonstrates CSS-based attacks breaking webmail isolation across major providers, HTTP desynchronization techniques uncovering an Apache zero-day, and NAT manipulation enabling TCP session hijacking and DNS spoofing. An 18-year-old Linux SCTP use-after-free flaw allows local privilege escalation and container escape, demonstrating the persistent risk of legacy code.
 
 ## Active Exploitation Details
 
-### TrueConf Supply Chain Compromise
-- **Description**: The Head Mare hacktivist group exploited vulnerabilities in unpatched TrueConf video conferencing servers to gain access to the software distribution infrastructure. Attackers replaced legitimate client installers with trojanized versions containing backdoors, creating a supply chain attack vector targeting TrueConf's user base.
-- **Impact**: Organizations downloading and installing TrueConf client software receive malicious installers that deploy backdoors, granting attackers persistent access to victim networks. The compromise of a trusted video conferencing platform's distribution channel amplifies impact across enterprise environments.
-- **Status**: Active exploitation ongoing. TrueConf users should verify installer integrity and apply server patches immediately.
-
 ### Metabase SQL Injection Zero-Day
-- **Description**: A critical SQL injection vulnerability in Metabase business intelligence and data visualization software allows unauthenticated attackers to achieve administrative access. The flaw has been exploited as a zero-day in targeted data theft campaigns.
-- **Impact**: Attackers gain full administrative access to Metabase instances without authentication, enabling exfiltration of sensitive business intelligence data, customer information, and analytics. Confirmed victims include Framework and Tally.
-- **Status**: Actively exploited in the wild as a zero-day. Metabase has issued warnings; emergency patching required for all exposed instances.
+- **Description**: A critical SQL injection vulnerability in Metabase business intelligence and data visualization software that allows unauthenticated attackers to achieve administrative access and exfiltrate customer data.
+- **Impact**: Full administrative control over Metabase instances; confirmed data theft attacks against Framework and Tally customer environments.
+- **Status**: Actively exploited as a zero-day; Metabase has issued warnings and patches.
 
-### Progress Kemp LoadMaster Exploitation
-- **Description**: A critical-severity vulnerability affecting Progress Kemp LoadMaster application delivery controllers has seen widespread exploitation with 792 reported exploit attempts, prompting CISA to add it to the Known Exploited Vulnerabilities catalog.
-- **Impact**: Successful exploitation provides attackers with access to load balancing infrastructure, potentially enabling traffic interception, service disruption, and lateral movement within network segments.
-- **Status**: Actively exploited with high volume. CISA KEV listing mandates federal agency patching; all organizations should prioritize remediation.
+### Progress Kemp LoadMaster Vulnerability
+- **Description**: A critical-severity security flaw affecting Progress Kemp LoadMaster application delivery controllers and load balancers.
+- **Impact**: 792 reported exploit attempts observed; enables attackers to compromise load balancing infrastructure and potentially intercept or manipulate traffic.
+- **Status**: Added to CISA Known Exploited Vulnerabilities (KEV) catalog; patches available from Progress.
+
+### TrueConf Video Conferencing Server Exploitation
+- **Description**: Vulnerabilities in unpatched TrueConf video conferencing servers exploited to compromise the software supply chain and replace legitimate client installers with backdoored versions.
+- **Impact**: Backdoor deployment to downstream clients; persistence and remote access to victim networks through trusted software updates.
+- **Status**: Active exploitation by Head Mare hacktivist group; patches available for TrueConf servers.
 
 ### N-able N-central RMM Exploitation
-- **Description**: Attackers are actively exploiting a recently disclosed security flaw in N-able's N-central Remote Monitoring and Management (RMM) platform. N-able has released a second hotfix (Hotfix 2) as part of ongoing investigation into the campaign.
-- **Impact**: Compromise of RMM infrastructure grants attackers administrative control over all managed endpoints, enabling mass deployment of malware, persistence mechanisms, and data exfiltration across customer environments.
-- **Status**: Ongoing exploitation with evidence of attacker persistence. Hotfix 2 released; all N-central instances require immediate update.
+- **Description**: A recently disclosed security flaw in N-able's N-central Remote Monitoring and Management (RMM) platform under active exploitation.
+- **Impact**: Attackers reaching managed systems and establishing persistence across MSP customer environments.
+- **Status**: Ongoing exploitation; N-able has released Hotfix 2 as part of continued investigation and remediation.
 
-### Atlassian Rovo Data Exfiltration
-- **Description**: Attacker-controlled instructions can manipulate Atlassian's Rovo AI assistant to collect Jira and Confluence data accessible to a signed-in user and exfiltrate it to an external server. Two security firms independently identified the vulnerability.
-- **Impact**: Sensitive project management data, credentials, internal documentation, and proprietary information accessible through Jira and Confluence can be stolen via prompt injection against the AI assistant.
-- **Status**: Vulnerability disclosed; patching status should be verified with Atlassian advisories.
+### Atlassian Rovo Data Exfiltration Vulnerability
+- **Description**: A flaw in Atlassian's Rovo AI assistant that allows attacker-controlled instructions to collect Jira and Confluence data accessible to a signed-in user and exfiltrate it to an external server.
+- **Impact**: Unauthorized access to sensitive project management and wiki data; potential exposure of credentials, source code references, and internal communications.
+- **Status**: Discovered by two security firms; mitigation guidance available from Atlassian.
 
-### Webmail CSS Sandbox Escape
-- **Description**: New research demonstrates CSS-based attacks that allow email content to escape message boundaries and interfere with webmail interfaces across Outlook, Gmail, Fastmail, Proton Mail, and Yahoo Mail. The technique enables credential theft and token extraction.
-- **Impact**: Attackers can steal passwords, session tokens, and authentication credentials by crafting malicious emails that break out of sandboxed rendering contexts and interact with the parent webmail application DOM.
-- **Status**: Proof-of-concept demonstrated across major webmail providers; mitigations require provider-side fixes to CSS sanitization and iframe sandboxing.
+### WordPress Pre-Authentication Reflected XSS
+- **Description**: A reflected cross-site scripting flaw in the WordPress login screen affecting all versions, which researchers demonstrated can be chained to achieve PHP code execution.
+- **Impact**: Pre-authentication compromise pathway; potential full server takeover via exploit chain.
+- **Status**: Patched in latest WordPress release; immediate updating recommended.
 
-### ClickFix macOS Infostealer Campaign
-- **Description**: ClickFix-style social engineering attacks deliver a Go-based malware targeting macOS users. The malware steals cryptocurrency assets, browser-stored passwords, Apple iCloud Keychain data, and cached credentials.
-- **Impact**: Victims suffer financial loss through crypto wallet drainage, credential compromise across browsers and system keychains, and potential identity theft. The cross-platform Go implementation suggests Windows/Linux variants may exist.
-- **Status**: Active campaign observed in the wild; delivered via ClickFix fake verification/CAPTCHA pages.
-
-### UNC6671 Vishing and Extortion Campaign
-- **Description**: The UNC6671 data extortion group conducts voice phishing (vishing) attacks targeting personal phones of employees at financial services, private equity, and professional services firms. The group is reportedly associated with the BlackFile threat actor.
-- **Impact**: Attackers gain access to SaaS applications and sensitive financial data through social engineering, enabling data theft and extortion. Campaigns have targeted hedge funds and investment firms.
-- **Status**: Active wave of attacks; attributed to UNC6671/BlackFile linkage.
-
-### Malicious npm Supply Chain Campaign
-- **Description**: Nearly 800 malicious packages were published to the npm registry in a coordinated campaign delivering cross-platform malware including remote access trojans (RATs) and infostealers targeting Windows, macOS, and Linux systems.
-- **Impact**: Developers and CI/CD pipelines installing compromised packages introduce malware into development environments and production systems, enabling supply chain compromise at scale.
-- **Status**: Packages identified and reported; npm registry cleanup underway. Organizations should audit dependencies and implement package verification.
-
-### WordPress Pre-Auth XSS to RCE
-- **Description**: A pre-authentication reflected cross-site scripting (XSS) vulnerability in the WordPress login screen affects every version of the CMS. Researcher pwn.ai demonstrated an exploitation chain leading to PHP code execution.
-- **Impact**: Unauthenticated attackers can execute arbitrary PHP code on WordPress sites, achieving full server compromise. Universal version impact makes this exceptionally broad.
-- **Status**: WordPress has released a fix; immediate updating required for all WordPress installations.
-
-### Linux SCTP Container Escape
-- **Description**: An 18-year-old use-after-free vulnerability in Linux's SCTP (Stream Control Transmission Protocol) networking subsystem allows local users to gain root privileges and escape containers to the host system. Tencent researchers demonstrated practical exploitation.
-- **Impact**: Containerized workloads can be escaped to achieve host root access, breaking isolation guarantees critical to cloud and containerized environments. The flaw's age means it exists in most deployed Linux kernels.
-- **Status**: Vulnerability disclosed with exploit demonstration; kernel patches required across all Linux distributions.
-
-### NatJack NAT Manipulation Attacks
-- **Description**: Security researcher Malcolm Stagg disclosed the NatJack attack class, which manipulates Network Address Translation (NAT) connection state tables to hijack active TCP sessions and spoof DNS responses.
-- **Impact**: Attackers on the same network segment can intercept and manipulate established connections, redirect traffic, and perform DNS spoofing by exploiting NAT implementation weaknesses in routers and firewalls.
-- **Status**: New attack class disclosed; mitigations require vendor patches to NAT implementations and network segmentation.
-
-### Microsoft 365 AitM Phishing Campaign
-- **Description**: A widespread email-driven phishing campaign employs adversary-in-the-middle (AitM) techniques to hijack Microsoft 365 accounts. The campaign specifically targets payroll and finance email communications.
-- **Impact**: Attackers gain full account access including MFA bypass via session token theft, enabling business email compromise, financial fraud, and persistent access to sensitive communications.
-- **Status**: Active campaign; phishing infrastructure observed targeting multiple organizations simultaneously.
-
-### Apache HTTP Desynchronization Zero-Day
-- **Description**: PortSwigger's AI-assisted HTTP Terminator research system discovered novel HTTP request smuggling/desynchronization techniques and an Apache HTTP Server zero-day vulnerability after exploring 30,000 candidate techniques.
-- **Impact**: HTTP desync attacks enable request smuggling, cache poisoning, and authentication bypass across Apache deployments. AI-assisted discovery suggests more variants may exist.
-- **Status**: Zero-day disclosed to Apache; patch development underway. Research methodology indicates potential for additional undiscovered variants.
-
-### Windows Hello for Business Key Abuse
-- **Description**: Researcher Dirk-jan Mollema demonstrated that malware running in a signed-in Windows session can silently abuse Windows Hello for Business cryptographic keys to authenticate to Microsoft Entra ID (formerly Azure AD), achieving persistent access.
-- **Impact**: Compromised endpoints can maintain persistent Entra ID authentication without user interaction, bypassing conditional access policies and enabling long-term cloud identity compromise.
-- **Status**: Technique demonstrated; mitigations require Entra ID configuration changes and endpoint detection improvements.
-
-### Claude Code and Gemini CLI CI Secret Extraction
-- **Description**: Flaws in Anthropic's Claude Code and Google's Gemini CLI coding agents allow a GitHub issue opened by an unprivileged account to execute code on CI runners, accessing workflow secrets. OpenAI's infrastructure was similarly affected.
-- **Impact**: Attackers can exfiltrate CI/CD secrets including API keys, deployment credentials, and signing certificates by simply opening GitHub issues against repositories using these AI coding agents.
-- **Status**: Vulnerabilities disclosed to affected vendors; CI/CD pipeline hardening and agent permission reviews required.
-
-### TeamPCP Redis and Supply Chain Campaign
-- **Description**: Threat actor TeamPCP has been linked to Redis server compromise campaigns dating back to 2020, with later evolution into software supply chain attacks. The group targets internet-facing infrastructure for initial access and persistence.
-- **Impact**: Long-term compromise of Redis instances enables data theft, cryptojacking, and supply chain poisoning. The 2020 origin indicates mature operational capability and infrastructure.
-- **Status**: Historical campaign attributed; ongoing monitoring for TeamPCP infrastructure and TTPs recommended.
+### Linux SCTP Use-After-Free Vulnerability
+- **Description**: An 18-year-old use-after-free bug in Linux's SCTP networking code that allows local users to gain root privileges and escape containers to access the underlying host.
+- **Impact**: Local privilege escalation to root; container escape breaking isolation boundaries; affects containerized workloads and multi-tenant environments.
+- **Status**: Demonstrated by Tencent researchers; patches available in upstream Linux kernel.
 
 ## Affected Systems and Products
 
-- **TrueConf Video Conferencing Server**: Unpatched server versions exploited for installer trojanization; client installers distributed through official channels compromised
-- **Metabase Business Intelligence Platform**: All versions vulnerable to unauthenticated SQL injection until emergency patch applied; Framework and Tally confirmed breached
-- **Progress Kemp LoadMaster**: Application delivery controller appliances; critical flaw actively exploited with 792+ attempts reported to CISA
-- **N-able N-central**: Remote Monitoring and Management platform; RMM servers targeted for mass endpoint compromise; Hotfix 2 required
-- **Atlassian Rovo / Jira / Confluence**: AI assistant integration vulnerable to prompt injection data exfiltration; affects cloud and Data Center deployments
-- **Webmail Platforms**: Microsoft Outlook, Google Gmail, Fastmail, Proton Mail, Yahoo Mail — all demonstrated vulnerable to CSS sandbox escape attacks
-- **macOS Systems**: Targeted by ClickFix-delivered Go-based infostealer (crypto wallets, Keychain, browser credentials)
-- **npm Registry / Node.js Ecosystem**: ~800 malicious packages published; cross-platform RAT/infostealer affecting Windows, macOS, Linux developers
-- **WordPress CMS**: All versions affected by pre-auth reflected XSS on login screen; PHP code execution chain demonstrated
-- **Linux Kernel**: SCTP subsystem use-after-free (18-year-old flaw); affects container hosts and Kubernetes nodes across distributions
-- **NAT Devices / Routers / Firewalls**: NAT implementations vulnerable to connection table manipulation (NatJack); TCP hijacking and DNS spoofing possible
-- **Microsoft 365 / Entra ID**: AitM phishing bypasses MFA; Windows Hello for Business keys abused for persistent cloud authentication
-- **Apache HTTP Server**: Zero-day HTTP desynchronization vulnerability discovered via AI-assisted research
-- **Anthropic Claude Code / Google Gemini CLI / OpenAI Codex**: AI coding agents with CI integration flaws enabling secret extraction via GitHub issues
-- **Redis Servers**: Internet-facing instances compromised by TeamPCP since 2020; later used in supply chain campaigns
-- **Unlimited Technology Systems**: Healthcare software platform breached (October 2025); 3.8 million individuals' data exposed
-- **North Carolina Ports Authority**: Critical infrastructure IT systems disrupted; Port of Wilmington, Port of Morehead City, Charlotte Inland Port affected
-- **Levi Strauss & Co.**: Corporate systems accessed via social engineering of three employees; corporate data exfiltrated
+- **Metabase Business Intelligence Platform**: All unpatched versions; confirmed impact on Framework and Tally customer instances.
+- **Progress Kemp LoadMaster**: Affected LoadMaster appliance versions; critical infrastructure component for application delivery.
+- **TrueConf Video Conferencing Server**: Unpatched server versions; client installers distributed to end users across Windows, macOS, and Linux.
+- **N-able N-central RMM**: N-central management platform versions prior to Hotfix 2; impacts MSPs and their managed customer endpoints.
+- **Atlassian Rovo, Jira, and Confluence**: Cloud and Data Center deployments with Rovo enabled; signed-in user data accessible to the assistant.
+- **WordPress Content Management System**: Every version prior to the security release; login screen component universally exposed.
+- **Linux Kernel**: Versions containing the vulnerable SCTP implementation; container runtimes and hosts using affected kernels.
+- **npm Registry Packages**: Nearly 800 identified malicious packages targeting Windows, macOS, and Linux developers and build pipelines.
+- **Microsoft 365 / Entra ID**: Tenants targeted by adversary-in-the-middle phishing; Windows Hello for Business keys exploitable for persistent access.
+- **Webmail Platforms**: Outlook, Gmail, Fastmail, Proton Mail, Yahoo Mail vulnerable to CSS-based boundary escape attacks.
+- **Apache HTTP Server**: Versions affected by the newly discovered HTTP desynchronization zero-day.
+- **Network Infrastructure**: NAT devices and stateful firewalls susceptible to NatJack TCP hijacking and DNS spoofing.
 
 ## Attack Vectors and Techniques
 
-- **Software Supply Chain Compromise**: Legitimate software distribution infrastructure breached to distribute trojanized installers (TrueConf, npm packages)
-- **Zero-Day Exploitation**: Unpatched vulnerabilities exploited before vendor fixes available (Metabase SQLi, Apache HTTP desync, potentially TrueConf)
-- **Prompt Injection Against AI Assistants**: Attacker-controlled instructions manipulate AI agents to access and exfiltrate authorized user data (Atlassian Rovo, Claude Code, Gemini CLI)
-- **CSS Sandbox Escape**: Malicious email content breaks out of sandboxed rendering contexts to attack parent webmail application DOM
-- **ClickFix Social Engineering**: Fake verification/CAPTCHA pages trick users into executing malicious commands (PowerShell, bash, Go binaries)
-- **Voice Phishing (Vishing)**: Phone-based social engineering targeting personal devices to harvest SaaS credentials and MFA codes (UNC6671)
-- **Adversary-in-the-Middle (AitM) Phishing**: Proxy-based phishing capturing session tokens to bypass MFA (Microsoft 365 campaign)
-- **HTTP Request Smuggling / Desynchronization**: Protocol-level attacks exploiting parser differentials between frontend/backend servers (Apache zero-day)
-- **NAT Connection Table Manipulation**: Exploiting stateful NAT implementation flaws to hijack TCP sessions and spoof DNS (NatJack)
-- **Container Escape via Kernel Vulnerability**: Local privilege escalation through SCTP use-after-free breaking container isolation (Linux kernel)
-- **CI/CD Pipeline Injection via GitHub Issues**: Unprivileged issue creation triggers code execution on CI runners with secret access (AI coding agents)
-- **Windows Hello Key Abuse**: Malware leverages TPM-bound cryptographic keys for silent Entra ID authentication persistence
-- **Long-Term Infrastructure Compromise**: Persistent access to Redis servers leveraged for later supply chain attacks (TeamPCP, 2020+)
-- **Critical Infrastructure Targeting**: Disruption of port authority IT systems affecting maritime operations (North Carolina Ports)
+- **Supply Chain Compromise via Software Vendor Breach**: Attackers infiltrate vendor build or distribution infrastructure (TrueConf) to inject malicious code into legitimate signed installers, achieving trusted distribution to downstream customers.
+- **SQL Injection for Unauthenticated Admin Access**: Direct exploitation of Metabase SQLi flaw without authentication to escalate to administrative privileges and exfiltrate databases.
+- **Load Balancer Exploitation**: Targeting internet-facing Kemp LoadMaster appliances for infrastructure compromise and traffic manipulation.
+- **RMM Platform Abuse**: Exploiting N-central vulnerabilities to pivot from management plane to managed endpoints, establishing broad persistence across MSP client bases.
+- **AI Assistant Prompt Injection**: Crafting malicious instructions that cause Atlassian Rovo to access and exfiltrate user-authorized Jira/Confluence data.
+- **Cross-Site Scripting Chains**: Leveraging reflected XSS in WordPress login as initial vector, chaining to achieve remote code execution.
+- **Container Escape via Kernel Flaw**: Exploiting SCTP use-after-free from within container to break isolation and gain host root access.
+- **Malicious Package Publishing**: Flooding npm registry with obfuscated packages delivering cross-platform RATs and infostealers to developer machines and CI/CD pipelines.
+- **ClickFix Social Engineering**: Tricking users into executing malicious commands via fake verification prompts, delivering Go-based macOS stealers targeting crypto wallets and keychains.
+- **Adversary-in-the-Middle Phishing**: Proxying Microsoft 365 authentication to capture session tokens and bypass MFA, targeting payroll and finance email access.
+- **Vishing for SaaS Credential Theft**: Voice-based social engineering targeting financial services employees to obtain SaaS platform access.
+- **CSS-Based Webmail Boundary Escape**: Crafting email content that breaks out of message sandbox to manipulate webmail DOM and steal credentials/tokens.
+- **HTTP Request Smuggling / Desynchronization**: Novel desync techniques discovered via AI-assisted research, enabling request smuggling and cache poisoning against Apache.
+- **NAT State Manipulation (NatJack)**: Exploiting NAT connection tracking tables to hijack established TCP sessions and inject spoofed DNS responses.
+- **Windows Hello for Business Key Abuse**: Malware leveraging victim's authenticated session to silently use hardware-bound keys for persistent Entra ID authentication.
+- **CI/CD Pipeline Injection via GitHub Issues**: Exploiting Claude Code and Gemini CLI flaws to execute unauthorized code on CI runners through unprivileged GitHub issue creation.
+- **Redis Server Compromise for Supply Chain**: Long-term targeting of exposed Redis instances to establish footholds for later supply chain attacks (TeamPCP).
 
 ## Threat Actor Activities
 
-- **Head Mare**: Hacktivist group conducting supply chain attack against TrueConf video conferencing platform; exploits unpatched servers to trojanize client installers with backdoors
-- **UNC6671 / BlackFile**: Data extortion group targeting financial services, private equity, hedge funds, and professional services via vishing campaigns; steals SaaS credentials for data theft and extortion; linked to BlackFile ransomware/extortion operations
-- **TeamPCP**: Cybercrime actor active since at least 2020; compromises internet-facing Redis infrastructure; evolved to software supply chain attacks; demonstrates long-term operational persistence
-- **ClickFix Operators**: Threat actors utilizing ClickFix social engineering framework; recently expanded to macOS with Go-based infostealer targeting cryptocurrency, credentials, and Keychain data; cross-platform capability indicated
-- **Malicious npm Publishers**: Coordinated campaign publishing ~800 packages to npm registry; delivers cross-platform RAT and infostealer malware; targets software development supply chain
-- **Microsoft 365 AitM Phishing Actors**: Unattributed group running widespread adversary-in-the-middle phishing campaign; focuses on payroll and finance email compromise for business email compromise (BEC) fraud
-- **TrueConf Attackers (Head Mare)**: Same as Head Mare entry; hacktivist motivation suggested by group designation
-- **Metabase Zero-Day Exploiters**: Unattributed actors exploiting SQL injection zero-day for targeted data theft; Framework and Tally confirmed as victims; financial/business intelligence motivation
-- **Progress Kemp LoadMaster Exploiters**: Unattributed actors conducting high-volume exploitation (792+ attempts); CISA KEV inclusion confirms active threat
-- **N-central Exploiters**: Unattributed actors targeting RMM platform for downstream managed service provider and customer compromise; persistence observed
+- **Head Mare (Hacktivist Group)**: Actively exploiting unpatched TrueConf servers to trojanize client installers with backdoors; politically motivated supply chain compromise.
+- **UNC6671 (Data Extortion Group)**: Conducting vishing campaigns against financial services, private equity, and professional services; linked to BlackFile threat activity; steals SaaS data for extortion.
+- **TeamPCP (Cybercrime Actor)**: Operating since at least 2020; compromising internet-facing Redis infrastructure; linked to later supply chain campaign activity.
+- **ClickFix Operators (Unattributed)**: Running widespread ClickFix social engineering campaigns delivering macOS infostealers (Go-based) for cryptocurrency theft and credential harvesting.
+- **AitM Phishing Campaign Operators (Unattributed)**: Large-scale adversary-in-the-middle phishing targeting Microsoft 365 accounts to harvest payroll and finance department emails.
+- **Metabase Zero-Day Exploiters (Unattributed)**: Conducting data theft attacks against Framework and Tally via Metabase SQLi; operational details suggest financially motivated targeting.
+- **Kemp LoadMaster Exploiters (Unattributed)**: High-volume exploitation attempts (792+ reported) indicating opportunistic scanning and compromise of exposed appliances.
+- **npm Supply Chain Campaign Operators (Unattributed)**: Publishing nearly 800 malicious packages in coordinated campaign delivering cross-platform malware to developer ecosystems.
 
 ## Source Attribution
 
