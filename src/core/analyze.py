@@ -8,7 +8,7 @@ import tiktoken
 
 from .model_config import resolve_model, validate_model
 from .model_client import build_model_client
-from .opencode_client import OpenCodeUnavailable, parse_model_selection
+from .openai_client import OpenAIUnavailable
 from .entities import extract_cve_ids
 from .source_attribution import (
     clean_article_source,
@@ -290,12 +290,11 @@ async def analyze_exploitation(
     """
     logger.info(f"Analyzing exploitation in {len(articles)} articles")
 
-    # Initialize the AI model through OpenCode.
+    # Initialize the OpenAI model.
     model_name = resolve_model(config)
     max_tokens = int(config.get("analysis", {}).get("max_tokens", 4000))
     try:
         validate_model(model_name)
-        model_selection = parse_model_selection(model_name)
     except ValueError as e:
         logger.error(f"Invalid model configuration: {e}")
         return {
@@ -413,7 +412,7 @@ Generate a well-formatted exploitation report following the structure above. Be 
         exploitation_report = await client.generate(
             system_prompt="You are a cybersecurity threat hunter specializing in vulnerability exploitation analysis. Your task is to create a comprehensive report on current exploit activity based on recent security articles. Be extremely thorough in identifying ALL exploited vulnerabilities mentioned in the articles, including zero-days, active exploits, and recently patched vulnerabilities that were exploited in the wild.",
             user_prompt=prompt,
-            model=model_selection,
+            model=model_name,
             title="SentryInsight exploitation report",
         )
 
@@ -426,7 +425,7 @@ Generate a well-formatted exploitation report following the structure above. Be 
             "source_attribution_required": bool(source_attribution_entries),
             "source_attribution_entries": source_attribution_entries,
         }
-    except OpenCodeUnavailable as e:
+    except OpenAIUnavailable as e:
         logger.warning(f"Skipping exploitation analysis: {e}")
         return {
             "exploitation_report": "",

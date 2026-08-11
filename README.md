@@ -34,7 +34,7 @@ SentryInsight can be triggered by updates from [SentryDigest](https://github.com
 
 - **LangGraph** orchestrates workflow state and conditional logic.
 - **FastMCP** organizes RSS tooling with decorators.
-- **Model access** calls OpenRouter directly when `OPENROUTER_API_KEY` is set. Local development can route through an OpenCode gateway.
+- **Model access** uses the official OpenAI SDK and Responses API.
 
 ## Setup
 
@@ -44,30 +44,19 @@ Install dependencies:
 uv sync --group dev
 ```
 
-Provide model access with OpenRouter:
+Provide OpenAI model access:
 
 ```bash
-export OPENROUTER_API_KEY=...
+export OPENAI_API_KEY=...
 ```
 
-Or run a local OpenCode server:
-
-```bash
-opencode serve --port 4096
-```
-
-Configure feeds, output paths, and the default model in `config/config.json`. Model IDs use `provider/model` format.
+Configure feeds, output paths, and the default model in `config/config.json`.
 
 Override the model for one environment:
 
 ```bash
-export SENTRYINSIGHT_MODEL=openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
-```
-
-If OpenCode is not listening on `http://127.0.0.1:4096`, set:
-
-```bash
-export OPENCODE_BASE_URL=http://127.0.0.1:4096
+export SENTRYINSIGHT_MODEL=gpt-5.6-sol
+export OPENAI_REASONING_EFFORT=xhigh
 ```
 
 ## Usage
