@@ -2,144 +2,116 @@
 
 ## Executive Summary
 
-A surge in supply chain compromises and zero-day exploitation dominates the current threat landscape. The BdThemes supply chain attack demonstrates how attackers can weaponize trusted plugin update mechanisms to inject malicious JSON payloads, creating rogue administrator accounts across WordPress installations. Simultaneously, a maximum-severity zero-day in Metabase business intelligence software is being actively exploited in the wild to achieve unauthenticated administrative access, with no CVE assigned and no patch yet available. These incidents highlight the growing risk of upstream software supply chain manipulation and the danger of exposed management interfaces.
+Microsoft's August 2026 Patch Tuesday addressed a staggering 400 vulnerabilities, including three zero-day flaws—one confirmed as actively exploited in the wild and two publicly disclosed. This massive update cycle underscores the accelerating pace of vulnerability discovery and exploitation across the Microsoft ecosystem. Simultaneously, CISA confirmed that ransomware operators have begun leveraging a high-severity Microsoft SharePoint remote code execution vulnerability in active campaigns since early July, with researchers separately disclosing an AI-assisted exploit chain achieving unauthenticated RCE against SharePoint servers.
 
-Critical infrastructure remains a primary target, with confirmed breaches of a Polish heat-and-power plant via private APN access to operational technology networks and expanding attacks against internet-exposed PLCs in water systems across a dozen U.S. states—Iran is suspected in the latter campaign. Ransomware operators have rapidly adopted recently patched vulnerabilities in SonicWall SMA1000 appliances (including a critical SSRF flaw) and Progress Kemp LoadMaster command injection vulnerabilities, with CISA confirming active exploitation by multiple ransomware gangs. The Head Mare hacktivist group continues exploiting unpatched TrueConf video conferencing servers to trojanize client installers with the PhantomCore backdoor, targeting Russian instrumentation and electronics firms.
+Nation-state threat activity remains intense and diversified. The Sandworm-linked group UAC-0145 is conducting social engineering campaigns against Ukrainian IT workers using fake job interviews to deliver a malicious VPN client capable of arbitrary command execution. Gunra ransomware, attributed to North Korean actors, is exploiting Fortinet and Schneider Electric vulnerabilities to breach critical infrastructure globally, prompting joint warnings from U.S. and South Korean authorities. In a striking OT incident, attackers accessed a Polish power plant's control systems via a private cellular network (APN), shutting down a steam turbine and water treatment systems—demonstrating the growing risk to industrial control systems from compromised dedicated network links.
 
-Threat actors are advancing their tooling and tradecraft at pace. North Korea's Kimsuky has deployed an offline AI stack to automate phishing and malware development, while China-linked Storm-1175 (a former Medusa ransomware affiliate) has introduced the new StormEncryptor strain, likely delivered via an N-central flaw. Research into "GhostJacking" reveals identity governance gaps allowing attackers to hijack AI agents through manipulated security alerts, and novel CSS-based attacks are breaking webmail defenses to extract passwords and tokens. Meanwhile, malicious VS Code extensions masquerading as Solidity development tools are stealing cryptocurrency wallets and API keys, signaling a rise in developer-targeted supply chain threats.
+Supply chain attacks and novel AI-driven threat vectors are emerging as critical concerns. A compromise of WordPress plugin vendor BdThemes allowed threat actors to poison a remote JSON feed, creating rogue administrator accounts across an unknown number of victim sites. Researchers demonstrated that malicious MCP servers can exfiltrate secrets from AI coding agents through instruction splitting, while malicious SIM cards can execute attacker code on cellular IoT modems in EV chargers and industrial routers. DDoS attacks exceeding 1 Tbps surged fivefold in Q2 2026, with Cloudflare mitigating over 800 such events, signaling a dramatic escalation in volumetric attack capacity.
 
 ## Active Exploitation Details
 
-### BdThemes Supply Chain Attack
-- **Description**: Threat actors compromised the upstream infrastructure of BdThemes, a premium WordPress web-design tool developer, and modified a remote JSON feed delivered to administrators' browsers. The poisoned JSON creates rogue WordPress administrator accounts when plugin update checks are performed.
-- **Impact**: Attackers gain persistent administrative access to any WordPress site using affected BdThemes plugins, enabling full site takeover, data theft, malware distribution, and further supply chain propagation.
-- **Status**: Actively exploited. WordPress.org plugins team temporarily disabled BdThemes plugins. Users must remove compromised plugins and audit for unauthorized admin accounts.
-- **CVE ID**: No CVE assigned in reporting
+### Microsoft SharePoint Remote Code Execution (Ransomware Exploitation)
+- **Description**: A high-severity remote code execution vulnerability in Microsoft SharePoint that allows unauthenticated attackers to execute arbitrary code on affected servers. Researchers separately disclosed an AI-assisted exploit chain achieving unauthenticated RCE with administrative privileges.
+- **Impact**: Full server compromise, administrative access, ransomware deployment, lateral movement within organizational networks
+- **Status**: Actively exploited in ransomware attacks since early July 2026 per CISA confirmation; Microsoft August 2026 Patch Tuesday includes fixes for 400 flaws including zero-days
+- **CVE ID**: Not explicitly provided in source articles
 
-### Metabase Zero-Day (Pre-Auth Admin Access)
-- **Description**: A maximum-severity security flaw in Metabase business intelligence and data visualization software allows unauthenticated remote attackers to achieve administrative access. The vulnerability is being exploited in the wild as a zero-day.
-- **Impact**: Full administrative control over Metabase instances, access to all connected databases and sensitive business data, potential lateral movement to downstream systems and users.
-- **Status**: Actively exploited as zero-day. No patch available at time of reporting. Metabase has issued warnings but no CVE has been assigned.
-- **CVE ID**: No CVE assigned (explicitly stated as having no CVE)
+### Gunra Ransomware Exploitation of Fortinet and Schneider Electric Flaws
+- **Description**: Gunra ransomware operators are exploiting vulnerabilities in Fortinet and Schneider Electric products to gain initial access to critical infrastructure networks worldwide.
+- **Impact**: Network breach, ransomware deployment, critical infrastructure disruption, data exfiltration
+- **Status**: Actively exploited in the wild; joint advisory issued by U.S. federal agencies and South Korea's National Police Agency
+- **CVE ID**: Not explicitly provided in source articles
 
-### SonicWall SMA1000 Vulnerabilities
-- **Description**: Two recently patched vulnerabilities in SonicWall SMA1000 series appliances, including a maximum-severity server-side request forgery (SSRF) flaw, are being actively exploited by ransomware gangs.
-- **Impact**: Remote code execution, unauthenticated access to internal networks, deployment of ransomware payloads, data exfiltration, and persistence establishment.
-- **Status**: Actively exploited by multiple ransomware groups. CISA has added these to the Known Exploited Vulnerabilities catalog. Patches available; immediate application urged.
-- **CVE ID**: No specific CVE IDs provided in source articles
+### Microsoft August 2026 Patch Tuesday Zero-Days
+- **Description**: Three zero-day vulnerabilities addressed in Microsoft's August 2026 Patch Tuesday release, including one actively exploited in the wild and two publicly disclosed prior to patch availability.
+- **Impact**: Varies by vulnerability; includes potential for remote code execution, privilege escalation, and security feature bypass
+- **Status**: Patched in August 2026 cumulative updates (KB5121003, KB5120240 for Windows 11; KB5120249 for Windows 10); one actively exploited, two publicly disclosed
+- **CVE ID**: Not explicitly provided in source articles
 
-### Progress Kemp LoadMaster Command Injection
-- **Description**: A critical-severity command injection vulnerability in Progress Kemp LoadMaster application delivery controllers allows unauthenticated attackers to execute arbitrary commands on the underlying operating system.
-- **Impact**: Full system compromise, network pivoting, credential harvesting, deployment of additional malware, and disruption of load balancing services.
-- **Status**: Actively exploited in attacks. CISA has issued a warning and added to Known Exploited Vulnerabilities catalog. Patches available from Progress Software.
-- **CVE ID**: No specific CVE ID provided in source articles
+### Cisco Secure Endpoint Connector ClamAV Vulnerabilities
+- **Description**: Two high-severity vulnerabilities in the ClamAV scanning engine used by Cisco Secure Endpoint Connector that allow denial-of-service attacks via crafted files.
+- **Impact**: ClamAV scanning process crash, denial of service, potential bypass of malware scanning capabilities
+- **Status**: Public exploits available; Cisco has issued warnings and mitigations
+- **CVE ID**: Not explicitly provided in source articles
 
-### TrueConf Server Flaws (PhantomCore Campaign)
-- **Description**: The Head Mare threat actor is weaponizing security flaws in unpatched TrueConf video conferencing servers to breach infrastructure and replace legitimate client installers with malicious versions delivering the PhantomCore backdoor.
-- **Impact**: Supply chain compromise of TrueConf clients, persistent backdoor access to victim networks, data theft, and potential lateral movement. Targets Russian companies in instrumentation, electronics, and related sectors.
-- **Status**: Actively exploited. TrueConf has released patches; administrators must update servers and verify installer integrity.
-- **CVE ID**: No specific CVE IDs provided in source articles
+### Metabase SQL Zero-Day
+- **Description**: A maximum-severity zero-day vulnerability in Metabase business analytics platform allowing remote unauthenticated administrative access. No CVE has been assigned yet.
+- **Impact**: Full administrative access to Metabase instances, downstream user compromise, data exposure
+- **Status**: Actively exploited in the wild; no patch available at time of reporting; no CVE assigned
+- **CVE ID**: Not explicitly provided in source articles (no CVE assigned)
 
-### N-central Flaw (StormEncryptor Delivery)
-- **Description**: China-linked threat actor Storm-1175 is deploying the previously undocumented StormEncryptor ransomware, likely exploiting a vulnerability in N-central remote monitoring and management software.
-- **Impact**: Ransomware encryption, data exfiltration for double extortion, disruption of managed service provider operations and their downstream clients.
-- **Status**: Active deployment observed. Microsoft attributes to Storm-1175 (financially motivated, China-linked). Patch status for N-central flaw not specified in reporting.
-- **CVE ID**: No specific CVE ID provided in source articles
-
-### Internet-Exposed PLC Attacks (Water Systems)
-- **Description**: Attackers are targeting ill-secured, internet-exposed programmable logic controllers (PLCs) across water and wastewater systems in approximately a dozen U.S. states.
-- **Impact**: Potential manipulation of water treatment processes, service disruption to residents, physical damage to equipment, and public health risks.
-- **Status**: Ongoing campaign widening across multiple states. Iran suspected as the responsible nation-state actor. CISA and FBI have issued advisories on securing OT/ICS assets.
-- **CVE ID**: No specific CVE IDs provided; exploitation leverages misconfiguration and exposure rather than software flaws
-
-### Polish Energy Plant Breach via Private APN
-- **Description**: Hackers breached a heat-and-power plant in Poland supplying heat to ~50,000 residents by using a private Access Point Name (APN) to directly access the operational technology (OT) network.
-- **Impact**: Unauthorized access to OT/ICS environment, potential for physical process manipulation, service disruption to critical heating infrastructure.
-- **Status**: Breach occurred "last year" per reporting; details emerging now. Highlights risks of private APN configurations and insufficient OT network segmentation.
-- **CVE ID**: No CVE applicable; exploitation of network architecture weakness
-
-### Coruna and DarkSword iOS Exploit Chains
-- **Description**: Sophisticated iPhone exploit chains (Coruna and DarkSword), previously limited to nation-state operations, are proliferating to organized cybercrime groups globally.
-- **Impact**: Full device compromise, data extraction, surveillance capabilities, persistence across reboots, and potential deployment of additional spyware.
-- **Status**: Active proliferation observed. Exploit chains targeting iOS versions; Apple has likely patched underlying vulnerabilities but widespread deployment to criminal groups increases mass exploitation risk.
-- **CVE ID**: No specific CVE IDs provided in source articles
-
-### Atlassian Rovo Data Exfiltration
-- **Description**: Attacker-controlled instructions can trick Atlassian's Rovo AI assistant into collecting Jira or Confluence data accessible to a signed-in user and sending it to an external server.
-- **Impact**: Unauthorized access to sensitive project data, credentials, internal documentation, and proprietary information stored in Atlassian ecosystems.
-- **Status**: Vulnerability demonstrated by two security firms. Exploitation requires user interaction with malicious content. Atlassian remediation status not specified.
-- **CVE ID**: No specific CVE ID provided in source articles
-
-### CSS-Based Webmail Attacks
-- **Description**: Novel CSS injection techniques allow email content to escape message boundaries and interfere with webmail interfaces across Outlook, Gmail, Fastmail, Proton Mail, Yahoo Mail, and others, enabling theft of passwords and authentication tokens.
-- **Impact**: Credential harvesting, session hijacking, bypass of phishing-resistant MFA, account takeover across major webmail providers.
-- **Status**: Research demonstrations; real-world exploitation potential high due to broad platform impact. Browser and webmail vendor mitigations in progress.
-- **CVE ID**: No specific CVE IDs provided in source articles
-
-### GhostJacking (AI Agent Hijacking)
-- **Description**: Attackers manipulate security alerts and blocked events to hijack AI agents, exploiting identity governance gaps in autonomous AI systems.
-- **Impact**: Unauthorized AI agent actions, data exfiltration, privilege escalation, and potential automation of malicious workflows under the guise of legitimate AI operations.
-- **Status**: Research demonstration of novel attack class. No confirmed wild exploitation reported, but represents emerging threat vector as AI agent adoption grows.
-- **CVE ID**: No CVE applicable; architectural/design vulnerability class
-
-### Malicious VS Code Extension (Solidity Pro)
-- **Description**: A malicious Visual Studio Code extension named "Solidity Pro" (solidity-pro) delivers a browser wallet and credential stealer targeting cryptocurrency developers.
-- **Impact**: Theft of cryptocurrency wallets, API keys, credentials, and sensitive development artifacts. Supply chain compromise of developer tooling.
-- **Status**: Actively distributed via VS Code Marketplace. Microsoft has been notified; extension removal and user cleanup required.
-- **CVE ID**: No CVE applicable; malicious software distribution
-
-### Passkey Bypass Attacks
-- **Description**: Three independent research efforts demonstrated methods to defeat passkey protections without breaking underlying cryptography, including recovery of synced private keys and bypass of phishing-resistant MFA.
-- **Impact**: Undermines primary authentication security control, enables account takeover even with FIDO2/WebAuthn credentials, potential for large-scale credential compromise.
-- **Status**: Research demonstrations; proof-of-concept level. Highlights implementation and ecosystem weaknesses rather than protocol flaws.
-- **CVE ID**: No specific CVE IDs provided in source articles
+### Windows 11 USB Auto-Install SYSTEM Takeover
+- **Description**: Researchers demonstrated a full SYSTEM privilege escalation on fully updated Windows 11 by abusing Windows Plug and Play to fetch signed vendor software for an emulated USB device and executing privileged installation components.
+- **Impact**: Full SYSTEM-level compromise, bypass of security controls, persistence
+- **Status**: Proof-of-concept demonstrated; affects fully updated Windows 11; no patch mentioned in source articles
+- **CVE ID**: Not explicitly provided in source articles
 
 ## Affected Systems and Products
 
-- **BdThemes WordPress Plugins**: Premium web-design plugins for WordPress; all versions that fetch the compromised JSON feed. Platform: WordPress CMS installations using BdThemes products.
-- **Metabase Business Intelligence Platform**: All unpatched versions of Metabase BI and data visualization software. Platform: Linux, Windows, Docker, and cloud deployments (AWS, Azure, GCP).
-- **SonicWall SMA1000 Series**: SMA 1000 series secure mobile access appliances. Platform: Appliance firmware versions prior to patched releases.
-- **Progress Kemp LoadMaster**: LoadMaster application delivery controllers (hardware, virtual, and cloud instances). Platform: All unpatched firmware versions across deployment models.
-- **TrueConf Video Conferencing Server**: TrueConf Server on-premises deployments. Platform: Windows and Linux server installations; client installers for Windows, macOS, Linux, Android, iOS.
-- **N-central RMM**: N-able N-central remote monitoring and management platform. Platform: Cloud and on-premises MSP infrastructure; specific version range not disclosed.
-- **Programmable Logic Controllers (PLCs)**: Internet-exposed PLCs from multiple vendors in water/wastewater sector. Platform: Various OT/ICS hardware with management interfaces exposed to internet.
-- **Private APN / OT Network Infrastructure**: Cellular private APN configurations providing direct access to OT networks. Platform: Critical infrastructure facilities using private APN for remote OT access.
-- **Apple iOS Devices**: iPhones and iPads running iOS versions vulnerable to Coruna/DarkSword exploit chains. Platform: iOS; specific version ranges not disclosed in reporting.
-- **Atlassian Rovo / Jira / Confluence**: Atlassian Cloud and Data Center deployments with Rovo AI assistant enabled. Platform: Cloud and on-premises Atlassian stack.
-- **Major Webmail Platforms**: Microsoft Outlook, Google Gmail, Fastmail, Proton Mail, Yahoo Mail web interfaces. Platform: Browser-based email clients across desktop and mobile.
-- **AI Agent Frameworks**: Autonomous AI agent systems with identity governance gaps. Platform: Enterprise AI agent deployments, copilot systems, and automated workflow platforms.
-- **VS Code Extensions (Solidity Pro)**: Microsoft Visual Studio Code with Solidity Pro extension installed. Platform: Windows, macOS, Linux development environments.
-- **Passkey/FIDO2 Implementations**: Syncing password managers, browser credential managers, and platform authenticators supporting passkey synchronization. Platform: Cross-platform (iOS, Android, Windows, macOS, Linux).
+- **Microsoft SharePoint**: On-premises and cloud deployments; exploited for unauthenticated RCE in ransomware campaigns since early July 2026
+- **Microsoft Windows 10 (21H2, 22H2)**: Extended Security Updates via KB5120249 addressing 400+ vulnerabilities including zero-days
+- **Microsoft Windows 11 (23H2, 24H2, 25H2)**: Cumulative updates KB5121003 and KB5120240 addressing security vulnerabilities and zero-days
+- **Fortinet Products**: Specific products not detailed in source articles; exploited by Gunra ransomware for initial access
+- **Schneider Electric Products**: Specific products not detailed in source articles; exploited by Gunra ransomware for initial access
+- **Cisco Secure Endpoint Connector**: ClamAV scanning engine vulnerabilities with public exploits causing DoS
+- **Metabase Business Analytics Platform**: All versions vulnerable to unauthenticated remote admin access via SQL zero-day
+- **BdThemes WordPress Plugins**: Premium web-design tools; supply chain compromise of JSON feed delivery infrastructure
+- **Cellular IoT Modems**: Modems in EV chargers, industrial routers, car telematics units vulnerable to malicious SIM card command execution
+- **Polish Power Plant OT Systems**: Steam turbine and process-water treatment controls accessible via private cellular network (APN)
+- **Mozilla Firefox and Thunderbird (Linux)**: GPG signing key revoked after exposure in private repository
+- **AI Coding Agents with MCP Integration**: Vulnerable to instruction-splitting attacks from malicious MCP servers exfiltrating SSH keys, secrets, source code
 
 ## Attack Vectors and Techniques
 
-- **Software Supply Chain Compromise**: Attackers infiltrate vendor build/release infrastructure to inject malicious code into legitimate software artifacts (BdThemes JSON feed, TrueConf client installers, VS Code extension).
-- **Zero-Day Exploitation**: Active exploitation of undisclosed, unpatched vulnerabilities before vendor remediation (Metabase, potentially N-central).
-- **N-Day Exploitation of Recently Patched Flaws**: Rapid weaponization of vulnerabilities for which patches exist but deployment is incomplete (SonicWall SMA1000, Progress LoadMaster).
-- **Private APN / Direct OT Network Access**: Leveraging private cellular APN configurations to bypass perimeter defenses and connect directly to operational technology networks.
-- **Internet-Exposed Management Interfaces**: Scanning for and exploiting PLCs, load balancers, VPN appliances, and conferencing servers with management interfaces exposed to the public internet.
-- **AI Agent Manipulation (GhostJacking)**: Exploiting identity governance gaps by feeding manipulated security events/alerts to autonomous AI agents to induce malicious actions.
-- **CSS Injection / Style-Based Exfiltration**: Crafting malicious CSS in email content to break out of message sandboxing and interact with parent webmail DOM to steal credentials/tokens.
-- **Malicious Instruction Injection for AI Assistants**: Embedding attacker-controlled prompts in accessible content (Jira tickets, Confluence pages) to hijack AI assistant behavior and exfiltrate data.
-- **Ransomware Deployment via RMM/VPN Flaws**: Using vulnerabilities in remote management or access solutions to deploy ransomware across managed environments (StormEncryptor via N-central, SonicWall).
-- **Developer Tooling Supply Chain Attacks**: Publishing malicious extensions/plugins to official marketplaces targeting cryptocurrency and blockchain developers.
-- **Passkey Ecosystem Abuse**: Exploiting implementation flaws in passkey synchronization, backup, and recovery mechanisms to bypass phishing-resistant authentication.
-- **Nation-State OT/ICS Targeting**: Strategic targeting of critical infrastructure (water, energy) by suspected state actors (Iran, China-linked groups) for disruption or positioning.
+- **Social Engineering via Fake Job Interviews**: UAC-0145 (Sandworm-linked) targets IT workers with fraudulent employment offers delivering malicious VPN clients with command execution capabilities
+- **Wi-Fi Deauthentication Attacks**: Unauthorized Wi-Fi network deployed on commercial flight targeting DEF CON attendees; forces device disconnection for potential credential harvesting or MitM
+- **Supply Chain Compromise (JSON Poisoning)**: BdThemes infrastructure compromised to modify remote JSON feed delivered to WordPress admin panels, creating rogue administrator accounts
+- **Private Cellular Network (APN) Intrusion**: Attackers accessed Polish energy plant OT network via dedicated private APN, shutting down turbine and water treatment systems
+- **AI-Assisted Vulnerability Research & Exploit Development**: Researchers used AI to discover SharePoint exploit chain; OpenAI released GPT-5.6-Cyber with reduced safeguards for exploit development
+- **Malicious MCP Server Instruction Splitting**: Malicious Model Context Protocol servers split instructions across benign-appearing requests to exfiltrate secrets from AI coding agents without triggering safety controls
+- **Malicious SIM Card Command Injection**: Specially crafted SIM cards execute attacker commands on baseband processors of cellular IoT devices (EV chargers, industrial routers, telematics)
+- **USB Device Emulation for Privilege Escalation**: Windows Plug and Play abused to emulate USB devices, fetch signed vendor installers, and chain privileged installation components for SYSTEM access
+- **Decentralized Ransomware Infrastructure**: DeadLock ransomware uses Polygon blockchain smart contracts for victim communications and data leak operations, increasing operational resilience
+- **Volumetric DDoS (>1 Tbps)**: Cloudflare mitigated 800+ attacks exceeding 1 Tbps in Q2 2026, a fivefold increase; targeting network-layer infrastructure
+- **Internet-Exposed PLC Targeting**: Water system attacks across multiple U.S. states targeting ill-secured, internet-accessible programmable logic controllers
+- **GhostJacking AI Agent Hijacking**: Attackers manipulate security alerts and blocked events to hijack AI agent identities and permissions
+- **North Korean IT Worker Infiltration**: Suspected DPRK operatives hired through fake cryptocurrency startup; virtual machine monitoring revealed malicious activity patterns
 
 ## Threat Actor Activities
 
-- **Head Mare (Hacktivist Group)**: Exploiting TrueConf server vulnerabilities to breach Russian organizations in instrumentation, electronics, and related sectors. Replaces client installers with PhantomCore backdoor for persistent access. Active since at least 2023; escalating supply chain tactics.
-- **Storm-1175 (China-Linked, Financially Motivated)**: Former Medusa ransomware affiliate now deploying novel StormEncryptor ransomware. Likely exploiting N-central RMM vulnerability for initial access. Microsoft tracks as China-linked; operates with financial motivation.
-- **Kimsuky (North Korea State-Sponsored, APT43/Thallium)**: Deploying offline AI stack on dedicated infrastructure to automate spear-phishing content generation and malware development. Enhances scale and sophistication of espionage operations targeting policy, defense, and research sectors.
-- **Iran-Linked Actors (Suspected)**: Conducting widespread scanning and exploitation of internet-exposed PLCs in U.S. water/wastewater systems across ~12 states. Consistent with previous Iranian IRGC-linked cyber operations against critical infrastructure.
-- **Medusa Ransomware Affiliate (Now Storm-1175)**: Former affiliate of Medusa RaaS operation transitioned to independent StormEncryptor deployment. Indicates affiliate churn and rebranding within ransomware ecosystem.
-- **Multiple Ransomware Gangs (Unnamed)**: Actively exploiting SonicWall SMA1000 and Progress LoadMaster vulnerabilities for initial access and ransomware deployment. CISA confirms multiple distinct groups leveraging these flaws.
-- **The Com (Loose Cybercrime Collective)**: Targeting children and teenagers for blackmail and sextortion. One member sentenced to two years; group remains active across platforms. Represents low-sophistication, high-volume social engineering threat.
-- **Unknown Actors (BdThemes Supply Chain)**: Unattributed group compromised BdThemes infrastructure to poison plugin update mechanism. Sophistication suggests organized operation; possible initial access broker or targeted campaign.
-- **Security Researchers (Passkey/CSS/GhostJacking)**: Multiple independent research teams disclosing novel attack classes against passkeys, webmail CSS boundaries, and AI agent identity governance. No wild exploitation confirmed; proof-of-concept demonstrations driving vendor mitigations.
+- **UAC-0145 (Sandworm-Linked)**: Russian nation-state group conducting social engineering campaign against Ukrainian IT workers via fake job interviews delivering malicious VPN software with arbitrary command execution capability; disclosed by CERT-UA
+- **Gunra Ransomware (North Korea-Linked)**: Exploiting Fortinet and Schneider Electric vulnerabilities to breach government and critical infrastructure networks globally; joint warning from U.S. federal agencies and South Korea's National Police Agency
+- **DeadLock Ransomware Group**: Utilizing Polygon blockchain smart contracts for decentralized victim communication and data leak infrastructure to resist takedown efforts
+- **ExfilSquad**: Claimed data theft from Wesco (global supply chain/distribution giant); Wesco confirmed investigating cybersecurity incident
+- **Iran-Linked Actors (Suspected)**: Targeting water systems across a dozen U.S. states via internet-exposed PLCs; attacks widening per Dark Reading reporting
+- **North Korean IT Worker Operations**: Suspected DPRK operatives infiltrated a researcher-created fake cryptocurrency startup; three hires identified through VM monitoring and behavioral analysis
+- **Unknown Actors (Polish Power Plant)**: Breached combined heat and power plant via private cellular network (APN), shutting down steam turbine and process-water treatment; occurred in 2025 per Bleeping Computer
+- **Ransomware Affiliates (SharePoint)**: Multiple ransomware gangs now exploiting SharePoint RCE vulnerability since early July 2026 per CISA confirmation
 
 ## Source Attribution
 
+- **Sandworm-Linked UAC-0145 Uses Fake Job Interviews to Push VPN That Can Run Commands**: The Hacker News - https://thehackernews.com/2026/08/sandworm-linked-uac-0145-uses-fake-job.html
+- **Delta probes Wi-Fi deauth attack on flight carrying DEF CON attendees**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/delta-probes-wi-fi-deauth-attack-on-flight-carrying-def-con-attendees/
+- **Microsoft releases Windows 10 KB5120249 extended security update**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/windows-10-kb5120249-cumulative-update-released-with-fixes/
+- **Microsoft August 2026 Patch Tuesday fixes 400 flaws, 3 zero-days**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/microsoft-august-2026-patch-tuesday-fixes-400-flaws-3-zero-days/
+- **Windows 11 KB5121003 \& KB5120240 cumulative updates released**: Bleeping Computer - https://www.bleepingcomputer.com/news/microsoft/windows-11-kb5121003-and-kb5120240-cumulative-updates-released/
+- **Researchers Disclose AI-Assisted SharePoint Exploit Chain Reaching Unauthenticated RCE**: The Hacker News - https://thehackernews.com/2026/08/researchers-disclose-ai-assisted.html
+- **DeadLock Ransomware Uses Polygon Smart Contracts to Make Extortion Infra Harder to Disrupt**: The Hacker News - https://thehackernews.com/2026/08/deadlock-ransomware-uses-polygon-smart.html
+- **Wesco confirms security incident after ExfilSquad claims data theft**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/wesco-confirms-security-incident-after-exfilsquad-claims-data-theft/
+- **Mozilla updates GPG signing key for Firefox releases after exposure**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/mozilla-updates-gpg-key-for-signing-firefox-thunderbird-releases-after-exposure/
+- **Vague Task, Total Access: When AI Delegation Becomes a Security Risk**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/vague-task-total-access-when-ai-delegation-becomes-a-security-risk/
+- **OpenAI Launches GPT-5.6-Cyber with Reduced Safeguards for Exploit Development**: The Hacker News - https://thehackernews.com/2026/08/openai-launches-gpt-56-cyber-with.html
+- **DDoS attacks over 1 Tbps surged fivefold in the second quarter**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/ddos-attacks-over-1-tbps-surged-fivefold-in-the-second-quarter/
+- **CISA: Microsoft SharePoint flaw now exploited in ransomware attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisa-microsoft-sharepoint-flaw-now-exploited-in-ransomware-attacks/
+- **A Malicious SIM Card Can Run Attacker Code Inside the Modems Behind Cellular IoT Devices**: The Hacker News - https://thehackernews.com/2026/08/a-malicious-sim-card-can-run-attacker.html
+- **Mozilla Revokes Firefox and Thunderbird Linux Signing Key After Key Lands in Private Repo**: The Hacker News - https://thehackernews.com/2026/08/mozilla-revokes-firefox-and-thunderbird.html
+- **Researchers Built a Fake Crypto Startup and Hired Three Suspected North Korean IT Workers**: The Hacker News - https://thehackernews.com/2026/08/researchers-built-fake-crypto-startup.html
+- **Cisco warns of high-severity ClamAV flaws with public exploits**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisco-warns-of-high-severity-clamav-flaws-with-public-exploits/
+- **Researchers Turn USB Auto-Install Into a Full SYSTEM Takeover on Windows 11**: The Hacker News - https://thehackernews.com/2026/08/researchers-turn-usb-auto-install-into.html
+- **Malicious MCP Servers Can Split Instructions to Make AI Coding Agents Exfiltrate Secrets**: The Hacker News - https://thehackernews.com/2026/08/malicious-mcp-servers-can-split.html
+- **US and South Korea warn of Gunra ransomware targeting govt agencies**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/us-warns-of-gunra-ransomware-attacks-against-government-critical-infrastructure/
+- **Gunra Ransomware Exploits Fortinet and Schneider Electric Flaws to Breach Networks**: The Hacker News - https://thehackernews.com/2026/08/gunra-ransomware-exploits-fortinet-and.html
+- **Hackers Breach Polish Power Plant Controls via Private Cellular Network and Shut Turbine**: The Hacker News - https://thehackernews.com/2026/08/hackers-breach-polish-power-plant.html
 - **BdThemes Supply Chain Attack Poisons JSON to Create Rogue WordPress Admins**: The Hacker News - https://thehackernews.com/2026/08/bdthemes-supply-chain-attack-poisons.html
 - **Hackers breached a small Polish energy plant via private APN last year**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-breached-a-small-polish-energy-plant-via-private-apn-last-year/
 - **'GhostJacking' Exposes Identity Governance Gaps in AI Agents**: Dark Reading - https://www.darkreading.com/cyber-risk/ghostjacking-identity-governance-gaps-ai-agents
@@ -148,25 +120,3 @@ Threat actors are advancing their tooling and tradecraft at pace. North Korea's 
 - **Metabase SQL Zero-Day Attacks Could Have Wide Blast Radius**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/metabase-sql-zero-day-attacks-wide-blast-radius
 - **OpenAI releases ChatGPT 5.6 Cyber, but it's only for approved users**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/openai-releases-chatgpt-56-cyber-but-its-only-for-approved-users/
 - **The Patch Gap: Why Defenders Need to Think in Chains, Not Checklists**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/patch-gap-defenders-chains-not-checklists
-- **New StormEncryptor ransomware used by former Medusa affiliate**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-stormencryptor-ransomware-used-by-former-medusa-affiliate/
-- **Shipping 10–50× More Code? Watch This Webinar on Securing AI-Speed Development**: The Hacker News - https://thehackernews.com/2026/08/shipping-1050-more-code-watch-this.html
-- **Coruna, DarkSword iOS Exploits Proliferate Globally**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/coruna-darksword-ios-exploits-proliferate-globally
-- **China-Linked Hackers Deploy New StormEncryptor Ransomware, Likely via N-central Flaw**: The Hacker News - https://thehackernews.com/2026/08/china-linked-hackers-deploy-new.html
-- **Outdated Cybercrime Laws Put Security Researchers at Risk**: Dark Reading - https://www.darkreading.com/application-security/outdated-cybercrime-laws-security-researchers-risk
-- **Sherlock Holmes was the “OG” Social Engineer**: Dark Reading - https://www.darkreading.com/cyber-risk/sherlock-holmes-was-the-og-social-engineer
-- **⚡ Weekly Recap: AI Goes Rogue, Metabase 0-Day, MCP Supply-Chain Attacks, and Router Backdoors**: The Hacker News - https://thehackernews.com/2026/08/weekly-recap-ai-goes-rogue-metabase-0.html
-- **CISA: SonicWall SMA1000 flaws now exploited by ransomware gangs**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisa-sonicwall-sma1000-flaws-now-exploited-by-ransomware-gangs/
-- **When Credentials Are No Longer Enough: Device Trust in the AI Era**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/when-credentials-are-no-longer-enough-device-trust-in-the-ai-era/
-- **Kimsuky Builds Offline AI Stack to Boost Phishing and Automate Malware Development**: The Hacker News - https://thehackernews.com/2026/08/kimsuky-builds-offline-ai-stack-that.html
-- **Member of The Com sent to prison for blackmail, sextortion**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/member-of-the-com-sent-to-prison-for-blackmail-sextortion/
-- **New Passkey Attacks Can Recover Synced Private Keys or Bypass Phishing-Resistant MFA**: The Hacker News - https://thehackernews.com/2026/08/new-passkey-attacks-can-recover-synced.html
-- **LexisNexis shuts down services after suspicious activity on servers**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/lexisnexis-shuts-down-services-after-suspicious-activity-on-servers/
-- **Valve notifies Steam hardware customers of a data breach**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/valve-notifies-steam-hardware-customers-of-a-data-breach/
-- **TrueConf Server Flaws Exploited to Replace Client Installers with PhantomCore**: The Hacker News - https://thehackernews.com/2026/08/head-mare-exploits-trueconf-flaws-to.html
-- **Critical Progress LoadMaster flaw now actively exploited in attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/cisa-warns-of-critical-progress-loadmaster-flaw-exploited-in-attacks/
-- **Solidity Pro VS Code Extensions Steal Crypto Wallets, API Keys, and Credentials**: The Hacker News - https://thehackernews.com/2026/08/solidity-pro-vs-code-extensions-steal.html
-- **OpenAI's Next AI Model Astra Shows Cyber Performance Strong Enough to Trigger Pause**: The Hacker News - https://thehackernews.com/2026/08/openais-next-ai-model-astra-shows-cyber.html
-- **Hackers breach TrueConf to trojanize client installers with backdoors**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/hackers-breach-trueconf-to-trojanize-client-installers-with-backdoors/
-- **Atlassian Rovo Can Be Tricked Into Sending Jira and Confluence Data to Attackers**: The Hacker News - https://thehackernews.com/2026/08/atlassian-rovo-can-be-tricked-into.html
-- **New CSS Attacks Can Break Webmail Defenses to Steal Passwords and Tokens**: The Hacker News - https://thehackernews.com/2026/08/new-css-attacks-can-break-webmail.html
-- **Metabase Zero-Day Exploited in Wild Allows Admin Access Without Authentication**: The Hacker News - https://thehackernews.com/2026/08/metabase-zero-day-exploited-in-wild.html
