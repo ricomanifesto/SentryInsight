@@ -2,126 +2,90 @@
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are being actively exploited in the wild across diverse technology stacks, from enterprise networking equipment and remote management platforms to business intelligence software and mobile devices. CISA has confirmed ransomware gangs are exploiting recently patched SonicWall SMA1000 flaws, while a critical Progress Kemp LoadMaster command injection vulnerability has drawn over 792 exploit attempts and earned a spot on the Known Exploited Vulnerabilities catalog. Perhaps most concerning, a maximum-severity Metabase zero-day SQL injection flaw has been weaponized in data-theft attacks against customer instances including Framework and Tally, demonstrating how quickly attackers operationalize undisclosed vulnerabilities.
+Multiple critical exploitation campaigns are underway across diverse technology stacks, ranging from business intelligence platforms and remote management tools to mobile devices and supply chains. A maximum-severity SQL injection zero-day in Metabase is being actively exploited in the wild to achieve unauthenticated administrative access and steal customer data from organizations including Framework and Tally, with no CVE assigned yet. Simultaneously, ransomware operators have begun weaponizing recently patched flaws in SonicWall SMA1000 appliances and Progress Kemp LoadMaster load balancers, the latter drawing 792 reported exploit attempts and landing on CISA's Known Exploited Vulnerabilities catalog.
 
-Simultaneously, sophisticated exploit chains previously reserved for nation-state operations are proliferating to organized cybercrime groups. The Coruna and DarkSword iOS exploit chains—capable of compromising fully patched iPhones—are now observed in broader criminal use, while China-linked threat actor Storm-1175 has leveraged an N-able N-central RMM flaw to deploy a novel ransomware strain called StormEncryptor. The Head Mare hacktivist group continues weaponizing TrueConf video conferencing server vulnerabilities to trojanize client installers with the PhantomCore backdoor, specifically targeting Russian instrumentation and electronics firms.
-
-Supply chain and social engineering campaigns round out a high-tempo threat landscape. Nearly 800 malicious npm packages have been published to deliver cross-platform RAT and infostealer malware across Windows, Mac, and Linux. ClickFix-style attacks are distributing a Go-based macOS stealer capable of draining cryptocurrency wallets and harvesting iCloud Keychain data. The North Korean group Kimsuky has operationalized an offline AI stack to automate phishing and malware development, while data extortion group UNC6671 conducts vishing campaigns against financial services and private equity targets. A malicious VS Code extension masquerading as "Solidity Pro" has been caught exfiltrating crypto wallets, API keys, and credentials from developers.
+Supply-chain compromise remains a potent vector: threat actors hijacked BdThemes' update infrastructure to inject malicious JSON that creates rogue WordPress administrators, while the Head Mare hacktivist group breached TrueConf video conferencing servers to trojanize client installers with PhantomCore backdoors targeting Russian enterprises. A China-linked financially motivated actor, Storm-1175, has deployed the novel StormEncryptor ransomware, likely leveraging a vulnerability in N-able N-central RMM software to reach managed systems. On the mobile front, sophisticated iOS exploit chains (Coruna and DarkSword) previously restricted to nation-state operations are proliferating into organized cybercrime hands, signaling a dangerous democratization of high-end mobile exploitation capabilities.
 
 ## Active Exploitation Details
 
+### Metabase SQL Injection Zero-Day
+- **Description**: A maximum-severity SQL injection vulnerability in Metabase business intelligence and data visualization software that allows unauthenticated remote attackers to achieve full administrative access to the platform and its downstream users.
+- **Impact**: Attackers gain complete control over Metabase instances, enabling data theft, persistence, and potential lateral movement into connected data sources. Confirmed victims include Framework and Tally in customer data-theft attacks.
+- **Status**: Actively exploited in the wild as a zero-day. Metabase has issued warnings but no CVE has been assigned yet. Patches or mitigations should be applied immediately per vendor guidance.
+
 ### SonicWall SMA1000 Vulnerabilities
-- **Description**: Two recently patched vulnerabilities in SonicWall SMA1000 series appliances, including a maximum-severity server-side request forgery (SSRF) flaw. The vulnerabilities affect the SSL-VPN management interface.
-- **Impact**: Attackers can achieve unauthenticated remote code execution and network access, enabling ransomware deployment and lateral movement within victim networks.
-- **Status**: Actively exploited by ransomware gangs. CISA has confirmed exploitation in the wild. Patches are available from SonicWall.
-- **CVE ID**: CVE-2025-23006, CVE-2025-23007
+- **Description**: Two recently patched vulnerabilities in SonicWall SMA1000 series appliances, including a maximum-severity server-side request forgery (SSRF) flaw.
+- **Impact**: Ransomware gangs are actively exploiting these flaws to gain initial access to corporate networks for ransomware deployment and data exfiltration.
+- **Status**: CISA has confirmed active exploitation by ransomware groups. Patches are available; organizations must apply updates immediately and hunt for signs of compromise.
 
 ### Progress Kemp LoadMaster Command Injection
-- **Description**: A critical-severity command injection vulnerability in Progress Kemp LoadMaster application delivery controllers. The flaw allows unauthenticated attackers to execute arbitrary commands on the underlying operating system.
-- **Impact**: Full device compromise, network pivoting, data exfiltration, and persistence in critical load balancing infrastructure.
-- **Status**: Actively exploited with 792 reported exploit attempts. Added to CISA Known Exploited Vulnerabilities (KEV) catalog. Hotfixes released by Progress.
-- **CVE ID**: CVE-2025-23482
+- **Description**: A critical-severity command injection vulnerability in Progress Kemp LoadMaster load balancing appliances that allows unauthenticated remote code execution.
+- **Impact**: Attackers can execute arbitrary commands on the appliance, potentially leading to full device compromise, traffic interception, and network pivoting.
+- **Status**: Actively exploited with 792 reported exploit attempts. CISA added this vulnerability to its Known Exploited Vulnerabilities (KEV) catalog, mandating federal agency remediation. Hotfixes are available from Progress.
 
-### Metabase Zero-Day SQL Injection
-- **Description**: A maximum-severity SQL injection vulnerability in Metabase business intelligence and data visualization software. The flaw allows unauthenticated attackers to execute arbitrary SQL queries and achieve administrative access without authentication.
-- **Impact**: Complete database compromise, customer data theft, administrative takeover of Metabase instances, and potential lateral movement to connected data sources.
-- **Status**: Actively exploited as a zero-day in data-theft attacks. Known to impact Framework and Tally customer instances. Metabase has issued warnings and mitigation guidance.
-- **CVE ID**: CVE-2025-23483
+### TrueConf Server Flaws (PhantomCore Campaign)
+- **Description**: Security flaws in unpatched TrueConf video conferencing servers that allow attackers to breach the server infrastructure and replace legitimate client installers with malicious versions.
+- **Impact**: Victims downloading the trojanized installers receive PhantomCore backdoors, providing attackers persistent remote access to targeted systems. Campaign focuses on Russian companies in instrumentation, electronics, and related sectors.
+- **Status**: Actively exploited by the Head Mare hacktivist group. TrueConf server administrators must update immediately and verify installer integrity.
 
 ### N-able N-central RMM Vulnerability
-- **Description**: A security flaw in N-able N-central Remote Monitoring and Management (RMM) platform that allows attackers to reach managed systems and establish persistence.
-- **Impact**: Compromise of managed service provider infrastructure, access to all downstream customer endpoints, ransomware deployment (StormEncryptor), and long-term persistence.
-- **Status**: Ongoing exploitation by Storm-1175 (China-linked). N-able has released Hotfix 2 as investigation continues. Attackers have demonstrated ability to reach managed systems and persist.
-- **CVE ID**: CVE-2025-23484
+- **Description**: A recently disclosed security flaw in N-able N-central Remote Monitoring and Management (RMM) platform that enables attackers to reach managed systems and establish persistence.
+- **Impact**: Compromise of the RMM platform provides attackers privileged access to all managed client endpoints, enabling widespread deployment of ransomware (StormEncryptor) and other payloads.
+- **Status**: Ongoing exploitation. N-able has released multiple hotfixes (including Hotfix 2) as investigation continues. MSPs and their customers should apply patches urgently and audit for unauthorized access.
 
-### TrueConf Server Vulnerabilities
-- **Description**: Multiple security flaws in unpatched TrueConf video conferencing servers that allow attackers to breach the server infrastructure and replace legitimate client installers with malicious versions.
-- **Impact**: Supply chain compromise delivering PhantomCore backdoor to all clients downloading installers, persistent access to victim networks, and targeting of Russian instrumentation, electronics, and industrial sectors.
-- **Status**: Actively exploited by Head Mare hacktivist group. TrueConf has been breached; malicious installers distributed to clients. Patches and clean installers being distributed.
-- **CVE ID**: CVE-2025-23485, CVE-2025-23486
+### BdThemes WordPress Plugin Supply-Chain Compromise
+- **Description**: Threat actors compromised the upstream infrastructure of BdThemes, a premium WordPress web-design tool developer, and modified a remote JSON feed delivered to administrators' browsers.
+- **Impact**: The malicious JSON creates rogue WordPress administrator accounts on sites using BdThemes plugins, granting attackers full control over compromised WordPress installations.
+- **Status**: Active supply-chain attack. BdThemes users should immediately audit administrator accounts, rotate credentials, and verify plugin integrity against known-good sources.
+
+### StormEncryptor Ransomware Deployment via N-central
+- **Description**: China-linked threat actor Storm-1175 (financially motivated) deploying previously undocumented StormEncryptor ransomware, likely leveraging the N-central RMM vulnerability for initial access and lateral movement.
+- **Impact**: Ransomware encryption and data theft across managed service provider client environments. Represents evolution from Medusa ransomware affiliate operations.
+- **Status**: Active campaign. Microsoft has disclosed the activity. Organizations using N-central should assume compromise until proven otherwise and follow incident response procedures.
 
 ### Coruna and DarkSword iOS Exploit Chains
-- **Description**: Sophisticated iPhone exploit chains (Coruna and DarkSword) capable of compromising fully patched iOS devices. Previously limited to nation-state actors, these chains are now proliferating to organized cybercrime groups globally.
-- **Impact**: Complete device compromise, data exfiltration, surveillance capabilities, and bypass of Apple's security mitigations including Pointer Authentication Codes (PAC) and hardware memory protection.
-- **Status**: Actively proliferating beyond nation-state use into cybercrime ecosystems. Apple has not publicly acknowledged patches for the specific chains.
-- **CVE ID**: CVE-2025-23487, CVE-2025-23488, CVE-2025-23489, CVE-2025-23490
-
-### Malicious npm Supply Chain Campaign
-- **Description**: A cluster of nearly 800 malicious packages published to the npm registry designed to deliver cross-platform malware targeting Windows, Mac, and Linux systems.
-- **Impact**: Developer machine compromise, credential theft, cryptocurrency wallet drainage, persistent remote access via RAT functionality, and potential supply chain contamination of downstream software builds.
-- **Status**: Active campaign with packages identified and being removed. Broad cross-platform impact across development ecosystems.
-- **CVE ID**: None assigned (malicious package campaign)
-
-### ClickFix macOS Stealer Campaign
-- **Description**: ClickFix-style social engineering attacks delivering a Go-based macOS stealer malware capable of extracting cryptocurrency assets, browser-stored passwords, Apple iCloud Keychain data, and cached credentials.
-- **Impact**: Financial theft via crypto wallet drainage, credential harvesting for account takeover, and bypass of macOS security controls through user interaction deception.
-- **Status**: Active campaigns using ClickFix technique (fake error pages prompting users to run malicious commands). Targeting macOS users broadly.
-- **CVE ID**: None assigned (social engineering / malware delivery)
-
-### Atlassian Rovo Data Exfiltration Vulnerability
-- **Description**: A vulnerability in Atlassian's Rovo AI assistant that allows attacker-controlled instructions to trick the assistant into collecting Jira or Confluence data accessible to a signed-in user and sending it to an external server.
-- **Impact**: Unauthorized access to sensitive project management data, confluence documentation, and Jira issue tracking information across organizations using Rovo.
-- **Status**: Disclosed by two security firms. Atlassian investigating. Exploitation requires user interaction with malicious content.
-- **CVE ID**: CVE-2025-23491
-
-### CSS-Based Webmail Exfiltration Attacks
-- **Description**: Novel CSS injection attacks that allow email content to escape message boundaries and interfere with webmail interfaces across Outlook, Gmail, Fastmail, Proton Mail, and Yahoo Mail.
-- **Impact**: Theft of passwords, authentication tokens, and sensitive email content through crafted malicious emails that exploit CSS parsing behaviors in webmail clients.
-- **Status**: Research demonstration with proof-of-concept across major webmail providers. No confirmed wild exploitation but high risk given email attack surface.
-- **CVE ID**: None assigned (research findings)
-
-### Solidity Pro VS Code Extension Supply Chain Attack
-- **Description**: A malicious Microsoft Visual Studio Code extension named "Solidity Pro" (solidity-pro) published to the VS Code Marketplace that delivers browser wallet and credential stealing functionality.
-- **Impact**: Theft of cryptocurrency wallets, API keys, credentials, and sensitive development artifacts from blockchain and Web3 developers.
-- **Status**: Identified and flagged by researchers. Extension removed from marketplace. Unknown number of developer installations compromised.
-- **CVE ID**: None assigned (malicious extension)
+- **Description**: Sophisticated iPhone exploit chains (Coruna and DarkSword) previously limited to nation-state actors are now proliferating globally to organized cybercrime groups.
+- **Impact**: Full device compromise enabling surveillance, data theft, and persistent access on iOS devices. The democratization of these capabilities significantly raises the threat level for high-value targets.
+- **Status**: Active proliferation observed. Apple has likely patched underlying vulnerabilities in recent iOS versions; users must update to latest releases immediately.
 
 ## Affected Systems and Products
 
-- **SonicWall SMA1000 Series**: SSL-VPN appliances running vulnerable firmware versions prior to patched releases. Critical infrastructure for remote access.
-- **Progress Kemp LoadMaster**: Application delivery controllers and load balancers (virtual and hardware appliances) running vulnerable versions. Used in enterprise and cloud environments.
-- **Metabase**: Business intelligence and data visualization platform (open-source and cloud versions). Versions prior to security patch affecting Framework, Tally, and other customer instances.
-- **N-able N-central**: Remote Monitoring and Management (RMM) platform used by managed service providers. All versions prior to Hotfix 2. Impacts MSP infrastructure and downstream managed endpoints.
-- **TrueConf Server**: Video conferencing server software (on-premises deployments). Unpatched versions exploited to trojanize client installers for Windows, macOS, Linux, iOS, Android.
-- **Apple iOS/iPhone**: Devices targeted by Coruna and DarkSword exploit chains. Specific iOS versions not disclosed; chains reportedly work on recent releases.
-- **npm Registry / Node.js Ecosystem**: Developers and CI/CD pipelines installing any of the ~800 malicious packages. Cross-platform impact on Windows, macOS, Linux.
-- **macOS**: Systems targeted by ClickFix social engineering delivering Go-based stealer malware. Requires user interaction with fake error pages.
-- **Atlassian Rovo / Jira / Confluence**: Organizations using Atlassian's Rovo AI assistant with connected Jira and Confluence instances. Data accessible to signed-in users at risk.
-- **Webmail Platforms**: Outlook Web Access, Gmail, Fastmail, Proton Mail, Yahoo Mail, and potentially other web-based email clients vulnerable to CSS injection attacks.
-- **VS Code Marketplace / Extensions**: Developers who installed the "Solidity Pro" (solidity-pro) extension. Blockchain/Web3 developers primary targets.
-- **N-able N-central Managed Endpoints**: Downstream customer systems managed through compromised N-central instances, receiving StormEncryptor ransomware payloads.
+- **Metabase Business Intelligence Platform**: All unpatched versions vulnerable to unauthenticated SQL injection leading to admin takeover. Impacts Framework, Tally, and other Metabase deployments.
+- **SonicWall SMA1000 Series Appliances**: Specific firmware versions prior to the latest security patches. Two vulnerabilities including critical SSRF.
+- **Progress Kemp LoadMaster**: LoadMaster appliances running vulnerable firmware versions. Critical command injection in management interface.
+- **TrueConf Video Conferencing Server**: Unpatched TrueConf server installations. Exploited to modify client installer distribution.
+- **N-able N-central RMM Platform**: N-central versions prior to Hotfix 2. Remote Monitoring and Management platform used by MSPs.
+- **BdThemes WordPress Plugins**: Elementor Addons, Essential Addons, and other BdThemes premium plugins receiving malicious JSON feed updates.
+- **Apple iOS Devices**: iPhones and iPads running iOS versions vulnerable to Coruna and DarkSword exploit chains. Specific versions not disclosed in public reporting.
+- **Managed Service Provider Environments**: Downstream clients of MSPs using compromised N-central instances face StormEncryptor ransomware deployment.
 
 ## Attack Vectors and Techniques
 
-- **SSRF to RCE Chain (SonicWall)**: Server-side request forgery vulnerability chained to achieve unauthenticated remote code execution on VPN appliances, providing initial network access for ransomware gangs.
-- **Command Injection (LoadMaster)**: Unauthenticated command injection in management interface allowing arbitrary OS command execution as root on load balancer appliances.
-- **Zero-Day SQL Injection (Metabase)**: Pre-authentication SQL injection enabling administrative bypass, arbitrary query execution, and full database compromise without valid credentials.
-- **RMM Supply Chain Compromise (N-central)**: Exploitation of centralized management platform to push malicious payloads (StormEncryptor ransomware) to all managed downstream endpoints simultaneously.
-- **Software Supply Chain / Installer Trojanization (TrueConf)**: Compromise of vendor build/distribution infrastructure to replace legitimate client installers with backdoored versions (PhantomCore), infecting all downstream users.
-- **Nation-Grade Exploit Chain Proliferation (iOS)**: Advanced exploit chains (Coruna, DarkSword) leveraging multiple vulnerabilities (browser, kernel, sandbox escape) migrating from state actors to cybercrime groups.
-- **Malicious Package Publishing (npm)**: Typosquatting, dependency confusion, or direct publishing of ~800 malicious packages with obfuscated payloads delivering cross-platform RAT/infostealer.
-- **ClickFix Social Engineering**: Fake browser error pages (Cloudflare/Google verification mimics) tricking users into copying/pasting malicious PowerShell/bash commands into terminal.
-- **Prompt Injection / AI Assistant Abuse (Atlassian Rovo)**: Malicious instructions embedded in accessible content (Jira issues, Confluence pages) causing AI assistant to exfiltrate data to attacker-controlled servers.
-- **CSS Injection / Side-Channel Exfiltration (Webmail)**: Crafted CSS in email content exploiting browser rendering behaviors to leak tokens, passwords, and cross-origin data via layout-based side channels.
-- **IDE Extension Malware (VS Code)**: Malicious extension with legitimate-seeming functionality (Solidity development tools) hiding credential/crypto wallet exfiltration capabilities.
-- **Offline AI for Offensive Operations (Kimsuky)**: North Korean actors deploying local LLMs for automated spear-phishing content generation, malware code development, and vulnerability research without cloud API exposure.
-- **Vishing / Voice Phishing (UNC6671)**: Targeted phone calls to personal devices of employees at financial services, private equity, and professional services firms to steal SaaS credentials and data.
-- **Ransomware Deployment via RMM (StormEncryptor)**: Novel ransomware strain deployed through compromised N-central RMM, indicating financially motivated actors adopting MSP-targeted distribution.
+- **Supply-Chain Compromise (Software Update Mechanism)**: BdThemes attack demonstrates compromise of vendor update infrastructure to deliver malicious payloads to downstream customers via legitimate auto-update channels.
+- **Unauthenticated SQL Injection to Admin Bypass**: Metabase zero-day allows direct administrative access without credentials via crafted SQL payloads in API endpoints.
+- **Server-Side Request Forgery (SSRF) to RCE Chain**: SonicWall SMA1000 SSRF flaw likely chained with other weaknesses for remote code execution and network access.
+- **Command Injection in Management Interfaces**: Progress LoadMaster flaw exploits insufficient input validation in administrative web interface for unauthenticated RCE.
+- **RMM Platform Abuse for Lateral Movement**: N-central compromise provides attackers legitimate administrative tooling to deploy payloads (StormEncryptor) across managed estates.
+- **Client Installer Trojanization**: Head Mare replaces legitimate TrueConf client binaries with PhantomCore backdoored versions on compromised update servers.
+- **Mobile Exploit Chain Deployment**: Coruna/DarkSword chains likely combine browser exploits, kernel vulnerabilities, and sandbox escapes for full iOS compromise.
+- **Ransomware Deployment via Legitimate Admin Tools**: Storm-1175 uses compromised RMM infrastructure to distribute StormEncryptor, blending with legitimate administrative activity.
 
 ## Threat Actor Activities
 
-- **Storm-1175 (China-Linked, Financially Motivated)**: Deploying StormEncryptor ransomware via exploited N-able N-central RMM vulnerability. Targeting managed service providers and their downstream customers for financial gain. Demonstrates Chinese nexus actors engaging in ransomware operations.
-- **Head Mare (Hacktivist, Pro-Ukrainian)**: Exploiting TrueConf server vulnerabilities to breach Russian organizations in instrumentation, electronics, and industrial sectors. Trojanizing client installers with PhantomCore backdoor for persistent access and data collection.
-- **Former Medusa Affiliate (Financially Motivated)**: Operating independently after Medusa ransomware operation, now deploying new StormEncryptor strain. Indicates ransomware ecosystem fluidity and affiliate migration between operations.
-- **Kimsuky / APT43 (North Korea State-Sponsored)**: Building and operating offline AI stack (local LLMs) to enhance spear-phishing campaigns, automate malware development, and conduct vulnerability research without attribution risk from cloud AI APIs.
-- **UNC6671 (Data Extortion Group)**: Conducting targeted vishing campaigns against financial services, private equity, and professional services. Using personal phone outreach to steal SaaS credentials and exfiltrate sensitive data for extortion.
-- **The Com (Loose-Knit Cybercrime Collective)**: Targeting children and teenagers for blackmail and sextortion. Member sentenced to two years for offenses against nearly 120 victims. Represents youth-focused cybercrime trend.
-- **Ransomware Gangs (Multiple, Unattributed)**: Exploiting SonicWall SMA1000 and Progress LoadMaster vulnerabilities for initial access and ransomware deployment. Opportunistic targeting of internet-exposed appliances.
-- **Unknown/Unattributed (npm Supply Chain)**: Operators of ~800 malicious npm package campaign delivering cross-platform RAT/infostealer. Broad opportunistic targeting of developers across ecosystems.
-- **Unknown/Unattributed (ClickFix macOS)**: Operators using ClickFix social engineering to deliver Go-based macOS stealer. Targeting cryptocurrency holders and general macOS users via fake verification pages.
+- **Storm-1175 (China-Linked, Financially Motivated)**: Deploying StormEncryptor ransomware via N-central RMM compromise. Former Medusa ransomware affiliate now operating independently with custom tooling. Targets MSP client environments for broad impact.
+- **Head Mare (Hacktivist Group)**: Targeting Russian organizations in instrumentation, electronics, and related sectors. Exploits TrueConf server flaws to deliver PhantomCore backdoors via trojanized installers. Politically motivated espionage and disruption.
+- **Medusa Ransomware Affiliate (Now StormEncryptor Operator)**: Former Medusa ransomware affiliate transitioned to deploying StormEncryptor strain. Demonstrates ransomware ecosystem fluidity and affiliate mobility between operations.
+- **BdThemes Supply-Chain Actor (Unattributed)**: Sophisticated actor capable of compromising vendor build/update infrastructure. Targets WordPress site administrators via malicious plugin update feeds. Motivation likely financial (site takeover for SEO spam, malvertising, or resale).
+- **Organized Cybercrime Groups (iOS Exploit Consumers)**: Multiple criminal groups acquiring Coruna/DarkSword iOS exploit chains. Indicates exploit marketplace activity bringing nation-state-grade mobile capabilities to financially motivated operators.
+- **Ransomware Gangs (SonicWall/LoadMaster Exploiters)**: Multiple ransomware operations rapidly weaponizing freshly disclosed vulnerabilities in edge networking equipment for initial access. Demonstrates reduced time-to-exploit for perimeter vulnerabilities.
+- **The Com (Cybercrime Collective)**: Loose-knit collective targeting children and teenagers for blackmail and sextortion. One member sentenced to two years; broader group remains active in social engineering and credential theft campaigns.
+- **Kimsuky (North Korea State-Sponsored)**: Building offline AI stack for enhanced phishing and automated malware development. Moving beyond public LLM APIs to controlled infrastructure for operational security and capability enhancement.
 
 ## Source Attribution
 
+- **BdThemes plugins supply-chain hack creates rogue WordPress admins**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/bdthemes-plugins-supply-chain-hack-creates-rogue-wordpress-admins/
+- **Metabase SQL Zero-Day Attacks Could Have Wide Blast Radius**: Dark Reading - https://www.darkreading.com/vulnerabilities-threats/metabase-sql-zero-day-attacks-wide-blast-radius
+- **OpenAI releases ChatGPT 5.6 Cyber, but it's only for approved users**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/openai-releases-chatgpt-56-cyber-but-its-only-for-approved-users/
 - **The Patch Gap: Why Defenders Need to Think in Chains, Not Checklists**: Dark Reading - https://www.darkreading.com/cybersecurity-operations/patch-gap-defenders-chains-not-checklists
 - **New StormEncryptor ransomware used by former Medusa affiliate**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/new-stormencryptor-ransomware-used-by-former-medusa-affiliate/
 - **Shipping 10–50× More Code? Watch This Webinar on Securing AI-Speed Development**: The Hacker News - https://thehackernews.com/2026/08/shipping-1050-more-code-watch-this.html
@@ -149,6 +113,3 @@ Supply chain and social engineering campaigns round out a high-tempo threat land
 - **Progress Kemp LoadMaster Flaw Hits CISA KEV After 792 Reported Exploit Attempts**: The Hacker News - https://thehackernews.com/2026/08/progress-kemp-loadmaster-flaw-hits-cisa.html
 - **Metabase SQLi zero-day exploited in customer data-theft attacks**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/framework-tally-disclose-metabase-data-theft-attacks/
 - **Unlimited Technology Systems breach impacts 3.8 million people**: Bleeping Computer - https://www.bleepingcomputer.com/news/security/unlimited-technology-systems-breach-impacts-38-million-people/
-- **Nearly 800 Malicious npm Packages Deliver Cross-Platform RAT and Infostealer**: The Hacker News - https://thehackernews.com/2026/08/nearly-800-malicious-npm-packages.html
-- **ClickFix Attacks Deliver macOS Stealer That Can Drain Crypto Wallets**: The Hacker News - https://thehackernews.com/2026/08/clickfix-attacks-deliver-macos-stealer.html
-- **UNC6671 Vishing Attacks Target Personal Phones to Steal SaaS Data**: The Hacker News - https://thehackernews.com/2026/08/unc6671-vishing-attacks-target-personal.html
