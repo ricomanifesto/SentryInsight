@@ -1,39 +1,28 @@
-"""Build the OpenAI model client used for report generation."""
+"""Select the model client used for report generation.
+
+Prefer a direct OpenRouter client when an API key is configured, so the
+pipeline can run without a locally hosted OpenCode gateway (for example in CI).
+Otherwise fall back to OpenCode for local development. Both clients expose the
+same ``generate`` contract.
+"""
 
 from __future__ import annotations
 
 import os
-from typing import cast
 
-from openai.types.shared_params.reasoning_effort import ReasoningEffort
-
-from .openai_client import OpenAIClient
-
-OPENAI_API_KEY_ENV_VAR = "OPENAI_API_KEY"
-OPENAI_REASONING_EFFORT_ENV_VAR = "OPENAI_REASONING_EFFORT"
-DEFAULT_REASONING_EFFORT = "xhigh"
-VALID_REASONING_EFFORTS = frozenset(
-    {"none", "minimal", "low", "medium", "high", "xhigh", "max"}
-)
+from .opencode_client import OpenCodeClient
+from .openrouter_client import OPENROUTER_API_KEY_ENV_VAR, OpenRouterClient
 
 
-def build_model_client(*, timeout: float, max_tokens: int) -> OpenAIClient:
-    """Return the configured OpenAI Responses API client."""
-    api_key = os.getenv(OPENAI_API_KEY_ENV_VAR, "").strip()
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY is required for model generation")
-    raw_reasoning_effort = os.getenv(
-        OPENAI_REASONING_EFFORT_ENV_VAR, DEFAULT_REASONING_EFFORT
-    ).strip()
-    if raw_reasoning_effort not in VALID_REASONING_EFFORTS:
-        raise ValueError(
-            "OPENAI_REASONING_EFFORT must be one of: "
-            + ", ".join(sorted(VALID_REASONING_EFFORTS))
-        )
-    reasoning_effort = cast(ReasoningEffort, raw_reasoning_effort)
-    return OpenAIClient(
-        api_key=api_key,
-        max_output_tokens=max_tokens,
-        reasoning_effort=reasoning_effort,
-        timeout=timeout,
-    )
+def build_model_client(
+    *, timeout: float, max_tokens: int
+) -> OpenCodeClient | OpenRouterClient:
+    """Return the model client selected by the environment.
+
+    Uses OpenRouter directly when ``OPENROUTER_API_KEY`` is set; otherwise uses
+    a local OpenCode server.
+    """
+    api_key = os.getenv(OPENROUTER_API_KEY_ENV_VAR, "").strip()
+    if api_key:
+        return OpenRouterClient(api_key=api_key, max_tokens=max_tokens, timeout=timeout)
+    return OpenCodeClient(timeout=timeout)

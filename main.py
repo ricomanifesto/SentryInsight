@@ -11,7 +11,7 @@ try:
 except ImportError:
     pass
 
-# OPENAI_API_KEY must be configured for report generation.
+# OpenCode should be running with access to the configured model provider.
 
 # Import the LangGraph workflow
 from src.core.workflow import run_exploitation_analysis

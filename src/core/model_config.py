@@ -4,10 +4,13 @@ import os
 import re
 from typing import Any, Dict
 
-DEFAULT_MODEL = "gpt-5.6-sol"
+DEFAULT_MODEL = "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
 MODEL_ENV_VAR = "SENTRYINSIGHT_MODEL"
 
-_MODEL_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._:-]*$")
+_MODEL_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_-]*/[a-z0-9._:/-]+$")
+_KNOWN_UNAVAILABLE_MODELS = {
+    "claude-sonnet-4-20250514",
+}
 
 
 def resolve_model(config: Dict[str, Any]) -> str:
@@ -25,5 +28,12 @@ def validate_model(model_name: str) -> None:
     if not model_name:
         raise ValueError("Model is empty")
 
+    model_id = model_name.split("/", 1)[-1]
+    if model_id in _KNOWN_UNAVAILABLE_MODELS:
+        raise ValueError(
+            f"Model {model_name!r} is known to return 404; "
+            f"use a current model or set {MODEL_ENV_VAR}."
+        )
+
     if not _MODEL_ID_PATTERN.match(model_name):
-        raise ValueError(f"Model {model_name!r} is not a valid OpenAI model ID")
+        raise ValueError(f"Model {model_name!r} is not a valid provider/model ID")

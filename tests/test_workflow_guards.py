@@ -131,7 +131,7 @@ class WorkflowGuardTests(unittest.TestCase):
             state = {
                 "analysis_results": {
                     "skipped": True,
-                    "skip_reason": "OpenAI API unavailable",
+                    "skip_reason": "OpenCode server unavailable",
                     "exploitation_report": "",
                 },
                 "config": {"output_path": str(output_path)},
@@ -363,7 +363,7 @@ Recent exploitation activity is concentrated in edge systems.
         state = {
             "analysis_results": {
                 "skipped": True,
-                "skip_reason": "OpenAI API unavailable",
+                "skip_reason": "OpenCode server unavailable",
                 "exploitation_report": "",
             },
             "config": {"github_pages": {"enabled": True}},

@@ -15,21 +15,32 @@ def import_analyze_with_stubs():
         encode=lambda value: value.split()
     )
 
-    openai_client_module = types.ModuleType("src.core.openai_client")
+    opencode_client_module = types.ModuleType("src.core.opencode_client")
 
-    class OpenAIUnavailable(RuntimeError):
+    class OpenCodeUnavailable(RuntimeError):
         pass
 
-    class OpenAIClient:
+    class OpenCodeClient:
         pass
 
-    openai_client_module.OpenAIClient = OpenAIClient
-    openai_client_module.OpenAIUnavailable = OpenAIUnavailable
+    class ModelSelection:
+        def __init__(self, provider_id="", model_id=""):
+            self.provider_id = provider_id
+            self.model_id = model_id
+
+    def parse_model_selection(model_name):
+        provider_id, model_id = model_name.split("/", 1)
+        return types.SimpleNamespace(provider_id=provider_id, model_id=model_id)
+
+    opencode_client_module.OpenCodeClient = OpenCodeClient
+    opencode_client_module.OpenCodeUnavailable = OpenCodeUnavailable
+    opencode_client_module.ModelSelection = ModelSelection
+    opencode_client_module.parse_model_selection = parse_model_selection
 
     with patch.dict(
         sys.modules,
         {
-            "src.core.openai_client": openai_client_module,
+            "src.core.opencode_client": opencode_client_module,
             "tiktoken": tiktoken_module,
         },
     ):
@@ -46,78 +57,89 @@ class AnalyzeGuardTests(unittest.TestCase):
                     articles=[],
                     config={
                         "analysis": {
-                            "model": "provider/model",
+                            "model": "anthropic/claude-sonnet-4-20250514",
                         }
                     },
                 )
             )
 
         self.assertIn("error", result)
-        self.assertIn("OpenAI model ID", result["error"])
+        self.assertIn("known to return 404", result["error"])
         self.assertIn("# Error: Invalid Model", result["exploitation_report"])
 
-    def test_generates_report_through_openai(self):
+    def test_generates_report_through_opencode_without_provider_api_key(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **kwargs):
                 self.kwargs = kwargs
-                assert kwargs["model"] == "gpt-5.6-sol"
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                assert kwargs["model"].provider_id == "openrouter"
+                assert (
+                    kwargs["model"].model_id == "nvidia/nemotron-3-ultra-550b-a55b:free"
+                )
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
                 analyze.analyze_exploitation(
                     articles=[],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
         self.assertNotIn("error", result)
-        self.assertIn("Generated through OpenAI", result["exploitation_report"])
+        self.assertIn("Generated through OpenCode", result["exploitation_report"])
 
-    def test_unavailable_openai_api_returns_skip_result(self):
+    def test_unavailable_opencode_server_returns_skip_result(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                raise analyze.OpenAIUnavailable("OpenAI API unavailable")
+                raise analyze.OpenCodeUnavailable("OpenCode server unavailable")
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
                 analyze.analyze_exploitation(
                     articles=[],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
         self.assertTrue(result["skipped"])
-        self.assertEqual(result["skip_reason"], "OpenAI API unavailable")
+        self.assertEqual(result["skip_reason"], "OpenCode server unavailable")
         self.assertNotIn("error", result)
 
     def test_article_prompt_omits_empty_source_and_url_fields(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **kwargs):
                 user_prompt = kwargs["user_prompt"]
                 self.__class__.user_prompt = user_prompt
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             asyncio.run(
@@ -130,26 +152,30 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "summary": "Summary only",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
-        self.assertIn("**Untitled article**", FakeOpenAIClient.user_prompt)
-        self.assertIn("Summary only...", FakeOpenAIClient.user_prompt)
-        self.assertNotIn("(Source: )", FakeOpenAIClient.user_prompt)
-        self.assertNotIn("URL: \n", FakeOpenAIClient.user_prompt)
+        self.assertIn("**Untitled article**", FakeOpenCodeClient.user_prompt)
+        self.assertIn("Summary only...", FakeOpenCodeClient.user_prompt)
+        self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
+        self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
 
     def test_analysis_result_extracts_cves_from_article_text(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -165,7 +191,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "cves": ["CVE-2026-5555"],
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -181,14 +211,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_ignores_patch_only_cves_for_expected_coverage(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -210,7 +240,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/CVE-2026-2222",
                         },
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -219,14 +253,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_ignores_negated_exploitation_cves(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -243,7 +277,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/CVE-2026-2222",
                         },
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -252,14 +290,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_keeps_exploited_cve_near_unrelated_negation(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -274,7 +312,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/report",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -283,14 +325,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_keeps_unpatched_exploited_cve(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -305,7 +347,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/report",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -314,14 +360,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_includes_present_tense_exploit_cve(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -333,7 +379,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/report",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -342,14 +392,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_keeps_unauthenticated_exploited_cve(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -364,7 +414,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/report",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -373,14 +427,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_ignores_directly_negated_cve_exploitation(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -392,7 +446,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/report",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -401,14 +459,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_ignores_without_evidence_cve_exploitation(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -423,7 +481,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/report",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -432,14 +494,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_includes_metadata_cve_for_exploited_article(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -452,7 +514,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "cves": ["CVE-2026-1111"],
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -461,14 +527,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_includes_url_cve_for_exploited_article(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -480,7 +546,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "link": "https://example.test/CVE-2026-1111",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -489,14 +559,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_does_not_require_all_mixed_metadata_cves(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -512,7 +582,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "cves": ["CVE-2026-1111", "CVE-2026-2222"],
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -521,14 +595,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_filters_negated_metadata_cves_individually(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -544,7 +618,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "cves": ["CVE-2026-1111", "CVE-2026-2222"],
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -553,14 +631,14 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_analysis_result_includes_multi_metadata_cves_when_none_negated(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -573,7 +651,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "cves": ["CVE-2026-1111", "CVE-2026-2222"],
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
@@ -585,15 +667,15 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_prompt_requires_source_attribution_from_article_metadata(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **kwargs):
                 self.__class__.user_prompt = kwargs["user_prompt"]
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             asyncio.run(
@@ -606,30 +688,34 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "summary": "Summary only",
                         }
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
-        self.assertIn("## Source Attribution", FakeOpenAIClient.user_prompt)
+        self.assertIn("## Source Attribution", FakeOpenCodeClient.user_prompt)
         self.assertIn(
             "Only use source names and URLs provided",
-            FakeOpenAIClient.user_prompt,
+            FakeOpenCodeClient.user_prompt,
         )
-        self.assertIn("Example exploitation report", FakeOpenAIClient.user_prompt)
-        self.assertIn("Example Source", FakeOpenAIClient.user_prompt)
-        self.assertIn("https://example.test/report", FakeOpenAIClient.user_prompt)
+        self.assertIn("Example exploitation report", FakeOpenCodeClient.user_prompt)
+        self.assertIn("Example Source", FakeOpenCodeClient.user_prompt)
+        self.assertIn("https://example.test/report", FakeOpenCodeClient.user_prompt)
 
     def test_analysis_result_carries_canonical_source_attribution_entries(self):
         analyze = import_analyze_with_stubs()
 
-        class FakeOpenAIClient:
+        class FakeOpenCodeClient:
             def __init__(self, **_kwargs):
                 pass
 
             async def generate(self, **_kwargs):
-                return "# Exploitation Report\n\nGenerated through OpenAI."
+                return "# Exploitation Report\n\nGenerated through OpenCode."
 
-        analyze.build_model_client = lambda **kwargs: FakeOpenAIClient(**kwargs)
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
@@ -647,7 +733,11 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "summary": "Summary only",
                         },
                     ],
-                    config={"analysis": {"model": "gpt-5.6-sol"}},
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
                 )
             )
 
