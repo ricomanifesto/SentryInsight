@@ -1,5 +1,4 @@
 import logging
-import os
 import re
 from typing import List, Dict, Any
 from datetime import datetime
@@ -9,16 +8,12 @@ import tiktoken
 from .model_config import resolve_model, validate_model
 from .model_client import build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
-from .entities import extract_cve_ids
+from .cve import extract_cve_ids
 from .source_attribution import (
     clean_article_source,
     collect_source_attribution_entries,
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
@@ -66,39 +61,6 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
     r")\b",
     re.IGNORECASE | re.DOTALL,
 )
-
-
-def load_template() -> str:
-    """Load the report template"""
-    template_path = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "..",
-        "docs",
-        "templates",
-        "exploitation_report.md",
-    )
-    try:
-        with open(template_path, "r") as f:
-            return f.read()
-    except Exception as e:
-        logger.error(f"Error loading template: {e}")
-        return """# Exploitation Report
-
-{{ exploitation_summary }}
-
-## Affected Systems
-
-{{ affected_systems }}
-
-## Attack Vectors
-
-{{ attack_vectors }}
-
-## Mitigation
-
-{{ mitigation }}
-"""
 
 
 def filter_exploitation_articles(
@@ -443,26 +405,3 @@ Generate a well-formatted exploitation report following the structure above. Be 
             "date": datetime.now().strftime("%Y-%m-%d"),
             "error": str(e),
         }
-
-
-def analyze_article_exploitation(article: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Analyze exploitation content in an article
-
-    Args:
-        article: Article dictionary
-
-    Returns:
-        Dictionary with exploitation details
-    """
-    # We'll skip the detailed article analysis and rely on the AI for comprehensive analysis
-    return {
-        "has_exploitation_content": True,  # Consider all articles potentially relevant
-        "cves": [],
-        "cvss_scores": [],
-        "exploitation_details": {
-            "exploitation_status": "Unknown",
-            "affected_systems": [],
-            "attack_vectors": [],
-        },
-    }

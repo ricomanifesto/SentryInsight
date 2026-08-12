@@ -5,10 +5,15 @@ env/
 
 # Python cache
 __pycache__/
+.ruff_cache/
+.venv/
 *.py[cod]
 *.class
 *.so
 .Python
+
+# IDE files
+.idea/
 
 # Logs
 *.log

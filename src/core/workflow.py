@@ -24,10 +24,6 @@ from .content_fingerprint import (
     write_stored_fingerprint,
 )
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
 
@@ -335,7 +331,6 @@ def create_exploitation_analysis_graph() -> Any:
     workflow.add_edge(START, "fetch_articles")
     workflow.add_edge("fetch_articles", "enrich_articles")
     workflow.add_edge("enrich_articles", "filter_articles")
-    workflow.add_edge("filter_articles", "analyze_articles")
     workflow.add_edge("analyze_articles", "generate_report")
     workflow.add_edge("generate_report", "generate_audio")
     workflow.add_edge("generate_audio", "publish_results")

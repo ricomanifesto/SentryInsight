@@ -1,4 +1,4 @@
-"""SentryDigest Exploitation Report Generator using LangGraph workflow."""
+"""Run the SentryInsight exploitation-report workflow."""
 
 import asyncio
 import logging
@@ -11,9 +11,6 @@ try:
 except ImportError:
     pass
 
-# OpenCode should be running with access to the configured model provider.
-
-# Import the LangGraph workflow
 from src.core.workflow import run_exploitation_analysis
 
 logger = logging.getLogger(__name__)
@@ -38,12 +35,9 @@ def configure_logging():
 async def main():
     """Main function to run the LangGraph workflow."""
     configure_logging()
-    logger.info(
-        "Starting SentryDigest Exploitation Report Generator with LangGraph workflow"
-    )
+    logger.info("Starting SentryInsight exploitation report generation")
 
     try:
-        # Run the LangGraph workflow
         result = await run_exploitation_analysis()
 
         if not result or result.get("status") == "failed":
@@ -58,5 +52,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    # Run the main workflow
     asyncio.run(main())
