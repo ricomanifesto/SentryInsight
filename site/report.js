@@ -4,30 +4,6 @@
   const metadataElement = document.getElementById("report-metadata");
   const copyToast = document.getElementById("copy-toast");
 
-  const labels = {
-    severity: {
-      critical: "Critical",
-      high: "High",
-      medium: "Medium",
-      low: "Low",
-      unknown: "Severity unknown",
-    },
-    exploitation_status: {
-      active: "Active exploitation",
-      observed: "Observed",
-      potential: "Potential",
-      not_observed: "Not observed",
-      unknown: "Status unknown",
-    },
-    action: {
-      patch: "Patch",
-      mitigate: "Mitigate",
-      investigate: "Investigate",
-      monitor: "Monitor",
-      none: "No action listed",
-    },
-  };
-
   function readMetadata() {
     if (!metadataElement) return { findings: [] };
     try {
@@ -81,87 +57,18 @@
     showCopyToast("Link copied");
   }
 
-  function createBadge(dimension, value) {
-    const badge = document.createElement("span");
-    badge.className = `badge badge-${dimension.replace("_", "-")}`;
-    badge.dataset.value = value;
-    badge.textContent = labels[dimension]?.[value] || value;
-    return badge;
-  }
+  function setupFinding(heading) {
+    const disclosure = heading.querySelector(".finding-disclosure");
+    const anchor = heading.querySelector(".heading-anchor");
+    const icon = heading.querySelector(".disclosure-icon");
+    const bodyId = disclosure?.getAttribute("aria-controls");
+    const body = bodyId ? document.getElementById(bodyId) : null;
+    if (!disclosure || !anchor || !icon || !body) return;
 
-  function enhanceFinding(heading, finding) {
-    const title = heading.textContent.trim();
-    const body = document.createElement("div");
-    body.id = `${heading.id}-details`;
-    body.className = "finding-body";
-
-    const contentNodes = [];
-    let next = heading.nextSibling;
-    while (
-      next &&
-      !(next.nodeType === Node.ELEMENT_NODE && ["H2", "H3"].includes(next.tagName))
-    ) {
-      contentNodes.push(next);
-      next = next.nextSibling;
-    }
-    heading.after(body);
-    contentNodes.forEach((node) => body.appendChild(node));
-
-    heading.textContent = "";
-    heading.classList.add("finding-heading");
-    heading.dataset.expanded = "true";
-
-    const disclosure = document.createElement("button");
-    disclosure.type = "button";
-    disclosure.className = "finding-disclosure";
-    disclosure.setAttribute("aria-expanded", "true");
-    disclosure.setAttribute("aria-controls", body.id);
-    const titleElement = document.createElement("span");
-    titleElement.className = "finding-title";
-    titleElement.textContent = title;
-    const icon = document.createElement("span");
-    icon.className = "disclosure-icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = "−";
-    disclosure.append(titleElement, icon);
-
-    const supporting = document.createElement("span");
-    supporting.className = "finding-supporting";
-    const badges = document.createElement("span");
-    badges.className = "badge-list";
-    badges.setAttribute("aria-label", "Finding classification");
-    badges.append(
-      createBadge("severity", finding.severity),
-      createBadge("exploitation_status", finding.exploitation_status),
-      createBadge("action", finding.action),
-    );
-    supporting.appendChild(badges);
-
-    const cves = document.createElement("span");
-    cves.className = "cve-list";
-    for (const cve of finding.cve_ids || []) {
-      const link = document.createElement("a");
-      link.className = "cve-chip";
-      link.href = `https://nvd.nist.gov/vuln/detail/${encodeURIComponent(cve)}`;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = cve;
-      cves.appendChild(link);
-    }
-    if (cves.childElementCount) supporting.appendChild(cves);
-
-    const anchor = document.createElement("a");
-    anchor.className = "heading-anchor";
-    anchor.href = `#${heading.id}`;
-    anchor.setAttribute("aria-label", `Copy link to ${title}`);
-    anchor.textContent = "#";
     anchor.addEventListener("click", (event) => {
       event.preventDefault();
       copyHeadingLink(heading.id);
     });
-    supporting.appendChild(anchor);
-    heading.append(disclosure, supporting);
-
     disclosure.addEventListener("click", () => {
       const expanded = disclosure.getAttribute("aria-expanded") === "true";
       disclosure.setAttribute("aria-expanded", String(!expanded));
@@ -171,14 +78,8 @@
     });
   }
 
-  function enhanceFindings(metadata) {
-    const findings = new Map(
-      (metadata.findings || []).map((finding) => [finding.slug, finding]),
-    );
-    for (const heading of document.querySelectorAll("h3[data-severity]")) {
-      const finding = findings.get(heading.id);
-      if (finding) enhanceFinding(heading, finding);
-    }
+  function setupFindings() {
+    document.querySelectorAll("h3.finding-heading").forEach(setupFinding);
   }
 
   function enhanceExecutiveSummary() {
@@ -209,6 +110,7 @@
     content.innerHTML = window.DOMPurify.sanitize(content.innerHTML, {
       USE_PROFILES: { html: true },
       ALLOW_DATA_ATTR: true,
+      ADD_ATTR: ["target", "rel"],
     });
   }
 
@@ -268,7 +170,7 @@
   });
   sanitizeReportContent();
   enhanceExecutiveSummary();
-  enhanceFindings(metadata);
+  setupFindings();
   renderAge(metadata);
   setupScrollSpy();
 })();

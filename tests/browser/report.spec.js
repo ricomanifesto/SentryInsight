@@ -15,7 +15,10 @@ function collectPageFailures(page) {
 
 
 test("renders trustworthy content without JavaScript", async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false });
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    colorScheme: "dark",
+  });
   const page = await context.newPage();
   const response = await page.goto("/index.html");
 
@@ -24,7 +27,29 @@ test("renders trustworthy content without JavaScript", async ({ browser }) => {
   await expect(page.getByRole("heading", { name: "Executive Summary" })).toBeVisible();
   await expect(page.getByText("Active exploitation campaigns have intensified")).toBeVisible();
   await expect(page.locator(".desktop-toc a")).toHaveCount(14);
+  await expect(page.locator(".finding-heading .badge")).toHaveCount(27);
+  await expect(page.locator(".brand-logo-dark")).toBeVisible();
+  await expect(page.locator(".brand-logo-light")).toBeHidden();
+  await expect(page.getByText("9 findings · 3 complete CVE IDs")).toBeVisible();
+  await expect(page.getByText("AI-assisted", { exact: false })).toBeVisible();
 
+  await context.close();
+});
+
+
+test("applies a stored dark theme before the deferred client script", async ({ browser }) => {
+  const context = await browser.newContext({ colorScheme: "light" });
+  const page = await context.newPage();
+  await page.addInitScript(() => {
+    localStorage.setItem("sentryinsight-theme", "dark");
+  });
+  await page.route("**/assets/report.js?*", (route) => route.abort());
+
+  await page.goto("/index.html");
+
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator(".brand-logo-dark")).toBeVisible();
+  await expect(page.locator(".brand-logo-light")).toBeHidden();
   await context.close();
 });
 
@@ -95,6 +120,8 @@ test("keeps section maps clean and theme state discoverable", async ({ page }) =
   await expect(theme).toHaveAttribute("aria-pressed", "true");
   await expect(theme).toHaveText("Light theme");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator(".brand-logo-dark")).toBeVisible();
+  await expect(page.locator(".brand-logo-light")).toBeHidden();
 
   await page.screenshot({
     path: "test-results/screenshots/report-desktop-dark.png",

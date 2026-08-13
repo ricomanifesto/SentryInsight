@@ -33,6 +33,33 @@ from src.core.report_artifact import (
 
 PUBLIC_ROOT = "https://ricomanifesto.github.io/SentryInsight/"
 CVE_TEXT_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
+STRUCTURED_FINDING_FIELD_PATTERN = re.compile(
+    r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?)\*\*:",
+    re.IGNORECASE,
+)
+BADGE_LABELS = {
+    "severity": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "unknown": "Severity unknown",
+    },
+    "exploitation_status": {
+        "active": "Active exploitation",
+        "observed": "Observed",
+        "potential": "Potential",
+        "not_observed": "Not observed",
+        "unknown": "Status unknown",
+    },
+    "action": {
+        "patch": "Patch",
+        "mitigate": "Mitigate",
+        "investigate": "Investigate",
+        "monitor": "Monitor",
+        "none": "No action listed",
+    },
+}
 
 
 class ArchiveEntry(TypedDict):
@@ -106,6 +133,8 @@ def _link_cves(tokens: list[Token]) -> None:
                 link_open = Token("link_open", "a", 1)
                 link_open.attrSet("href", f"https://nvd.nist.gov/vuln/detail/{cve}")
                 link_open.attrSet("class", "cve-link")
+                link_open.attrSet("target", "_blank")
+                link_open.attrSet("rel", "noopener noreferrer")
                 link_text = Token("text", "", 0)
                 link_text.content = cve
                 link_close = Token("link_close", "a", -1)
@@ -119,6 +148,128 @@ def _link_cves(tokens: list[Token]) -> None:
             else:
                 linked_children.append(child)
         token.children = linked_children
+
+
+def _strip_structured_finding_fields(tokens: list[Token]) -> list[Token]:
+    """Remove artifact-only fields after they have been parsed into metadata."""
+    rendered_tokens: list[Token] = []
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token.type != "list_item_open":
+            rendered_tokens.append(token)
+            index += 1
+            continue
+
+        depth = 1
+        end = index + 1
+        while end < len(tokens) and depth:
+            if tokens[end].type == "list_item_open":
+                depth += 1
+            elif tokens[end].type == "list_item_close":
+                depth -= 1
+            end += 1
+        item_tokens = tokens[index:end]
+        inline_text = " ".join(
+            item.content for item in item_tokens if item.type == "inline"
+        ).strip()
+        if not STRUCTURED_FINDING_FIELD_PATTERN.match(inline_text):
+            rendered_tokens.extend(item_tokens)
+        index = end
+    return rendered_tokens
+
+
+def _controlled_html(content: str, *, block: bool = False) -> Token:
+    token = Token("html_block" if block else "html_inline", "", 0)
+    token.content = content
+    return token
+
+
+def _badge(dimension: str, value: str) -> str:
+    label = BADGE_LABELS[dimension][value]
+    class_name = dimension.replace("_", "-")
+    return (
+        f'<span class="badge badge-{class_name}" data-value="{html.escape(value)}">'
+        f"{html.escape(label)}</span>"
+    )
+
+
+def _finding_heading_html(finding: Finding) -> str:
+    badges = "".join(
+        (
+            _badge("severity", finding.severity.value),
+            _badge("exploitation_status", finding.exploitation_status.value),
+            _badge("action", finding.action.value),
+        )
+    )
+    cves = "".join(
+        f'<a class="cve-chip" href="https://nvd.nist.gov/vuln/detail/{html.escape(cve)}" '
+        f'target="_blank" rel="noopener noreferrer">{html.escape(cve)}</a>'
+        for cve in finding.cve_ids
+    )
+    cve_group = f'<span class="cve-list">{cves}</span>' if cves else ""
+    title = html.escape(finding.title)
+    heading_id = html.escape(finding.slug)
+    return (
+        f'<button type="button" class="finding-disclosure" aria-expanded="true" '
+        f'aria-controls="{heading_id}-details">'
+        f'<span class="finding-title">{title}</span>'
+        '<span class="disclosure-icon" aria-hidden="true">−</span>'
+        "</button>"
+        '<span class="finding-supporting">'
+        f'<span class="badge-list" aria-label="Finding classification">{badges}</span>'
+        f"{cve_group}"
+        f'<a class="heading-anchor" href="#{heading_id}" '
+        f'aria-label="Copy link to {title}">#</a>'
+        "</span>"
+    )
+
+
+def _enhance_finding_tokens(
+    tokens: list[Token], findings: dict[str, Finding]
+) -> list[Token]:
+    """Build disclosure controls and classification into the initial HTML."""
+    enhanced: list[Token] = []
+    finding_body_open = False
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if (
+            finding_body_open
+            and token.type == "heading_open"
+            and token.tag in {"h2", "h3"}
+        ):
+            enhanced.append(_controlled_html("</div>\n", block=True))
+            finding_body_open = False
+
+        if token.type == "heading_open" and token.tag == "h3":
+            inline = tokens[index + 1]
+            finding = findings.get(slugify(inline.content.strip()))
+            if finding is not None:
+                token.attrSet("class", "finding-heading")
+                token.attrSet("data-expanded", "true")
+                enhanced.extend(
+                    (
+                        token,
+                        _controlled_html(_finding_heading_html(finding)),
+                        tokens[index + 2],
+                        _controlled_html(
+                            f'<div id="{html.escape(finding.slug)}-details" '
+                            'class="finding-body">\n',
+                            block=True,
+                        ),
+                    )
+                )
+                finding_body_open = True
+                index += 3
+                continue
+
+        enhanced.append(token)
+        index += 1
+
+    if finding_body_open:
+        enhanced.append(_controlled_html("</div>\n", block=True))
+    return enhanced
 
 
 def _heading_entries(tokens: list[Token]) -> list[tuple[int, str, str]]:
@@ -138,7 +289,10 @@ def _render_markdown(
     markdown = MarkdownIt("commonmark", {"html": True})
     tokens = markdown.parse(artifact.body)
     _strip_raw_html(tokens)
+    tokens = _strip_structured_finding_fields(tokens)
     _link_cves(tokens)
+
+    heading_entries = _heading_entries(tokens)
 
     findings = {finding.slug: finding for finding in artifact.findings}
     for index, token in enumerate(tokens):
@@ -155,6 +309,8 @@ def _render_markdown(
             if finding.cve_ids:
                 token.attrSet("data-cves", ",".join(finding.cve_ids))
 
+    tokens = _enhance_finding_tokens(tokens, findings)
+
     rendered = markdown.renderer.render(tokens, markdown.options, {})
     lowered = rendered.casefold()
     forbidden = ("<script", "<iframe", "<object", "<embed", "onerror=", "onclick=")
@@ -162,7 +318,7 @@ def _render_markdown(
         r"href\s*=\s*['\"]\s*javascript:", rendered, re.IGNORECASE
     ):
         raise SiteBuildError("Rendered report contains active content")
-    return rendered, _heading_entries(tokens)
+    return rendered, heading_entries
 
 
 def _toc(entries: list[tuple[int, str, str]]) -> str:
@@ -185,6 +341,20 @@ def _finding_json(finding: Finding) -> dict[str, object]:
     return value
 
 
+def _report_shape(artifact: ReportArtifact) -> tuple[int, int, str]:
+    finding_count = len(artifact.findings)
+    complete_cve_count = len(
+        {cve for finding in artifact.findings for cve in finding.cve_ids}
+    )
+    finding_label = "finding" if finding_count == 1 else "findings"
+    cve_label = "complete CVE ID" if complete_cve_count == 1 else "complete CVE IDs"
+    return (
+        finding_count,
+        complete_cve_count,
+        f"{finding_count} {finding_label} · {complete_cve_count} {cve_label}",
+    )
+
+
 def _template(path: Path, values: dict[str, str]) -> str:
     rendered = path.read_text()
     for key, value in values.items():
@@ -205,10 +375,13 @@ def _render_report_page(
     canonical_url: str,
 ) -> str:
     report_html, headings = _render_markdown(artifact)
+    finding_count, complete_cve_count, report_shape = _report_shape(artifact)
     metadata = {
         "schema_version": artifact.schema_version,
         "report_date": artifact.report_date.isoformat(),
         "generated_at": _timestamp(artifact.generated_at),
+        "finding_count": finding_count,
+        "complete_cve_count": complete_cve_count,
         "findings": [_finding_json(finding) for finding in artifact.findings],
     }
     toc = _toc(headings)
@@ -240,6 +413,7 @@ def _render_report_page(
             "REPORT_DATE_LABEL": _date_label(artifact.report_date),
             "GENERATED_AT_ISO": _timestamp(artifact.generated_at),
             "GENERATED_AT_LABEL": _generated_label(artifact.generated_at),
+            "REPORT_SHAPE": report_shape,
             "DESKTOP_TOC": toc,
             "MOBILE_TOC": toc,
             "REPORT_HTML": report_html,
@@ -282,15 +456,14 @@ def archive_previous_report(
 
 
 def _archive_entry(artifact: ReportArtifact) -> ArchiveEntry:
+    finding_count, complete_cve_count, _report_shape_label = _report_shape(artifact)
     return {
         "report_date": artifact.report_date.isoformat(),
         "generated_at": _timestamp(artifact.generated_at),
         "html_path": f"{artifact.report_date.isoformat()}.html",
         "markdown_path": f"{artifact.report_date.isoformat()}.md",
-        "finding_count": len(artifact.findings),
-        "cve_count": len(
-            {cve for finding in artifact.findings for cve in finding.cve_ids}
-        ),
+        "finding_count": finding_count,
+        "cve_count": complete_cve_count,
     }
 
 

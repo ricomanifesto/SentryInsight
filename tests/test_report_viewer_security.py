@@ -92,6 +92,7 @@ def test_complete_cves_are_linked_without_a_sequence_length_cap():
     assert cves == {"CVE-2026-55040", "CVE-2026-71362", "CVE-2026-68820"}
     for cve in cves:
         assert f'href="https://nvd.nist.gov/vuln/detail/{cve}"' in page
+    assert page.count('target="_blank" rel="noopener noreferrer"') >= len(cves)
     assert "CVE-2026-593" not in page
     assert "CVE ID assigned but not specified" not in page
     assert "CVE pending" not in page
@@ -109,6 +110,8 @@ def test_triage_badges_can_only_project_source_owned_allowed_values():
     metadata = json.loads(metadata_match.group(1))
 
     assert len(metadata["findings"]) == len(artifact.findings) == 9
+    assert metadata["finding_count"] == 9
+    assert metadata["complete_cve_count"] == 3
     for finding in artifact.findings:
         assert page.count(f'id="{finding.slug}"') == 1
         assert page.count(f'data-severity="{finding.severity.value}"') >= 1
@@ -119,6 +122,17 @@ def test_triage_badges_can_only_project_source_owned_allowed_values():
             >= 1
         )
         assert page.count(f'data-action="{finding.action.value}"') >= 1
+        heading_start = page.index(f'id="{finding.slug}"')
+        heading_end = page.index("</h3>", heading_start)
+        heading = page[heading_start:heading_end]
+        assert heading.count('class="badge ') == 3
+    assert page.count('class="badge badge-severity"') == 9
+    assert page.count('class="badge badge-exploitation-status"') == 9
+    assert page.count('class="badge badge-action"') == 9
+    assert "<strong>Severity</strong>" not in page
+    assert "<strong>Exploitation Status</strong>" not in page
+    assert "<strong>Action</strong>" not in page
+    assert "<strong>CVE IDs</strong>" not in page
     assert Path("config/ui.json").exists() is False
 
 
@@ -154,6 +168,37 @@ def test_one_canonical_publication_tree_prevents_viewer_drift():
         "scripts/build_site.py --check"
         in Path("scripts/local_validation.sh").read_text()
     )
+    assert "scripts/package_pages.py" in Path("scripts/local_validation.sh").read_text()
+
+
+def test_report_exposes_method_maintainer_and_computed_shape_to_readers():
+    artifact = parse_report_artifact(REPORT.read_text())
+    page = REPORT_PAGE.read_text()
+
+    unique_cves = {cve for finding in artifact.findings for cve in finding.cve_ids}
+    assert f"{len(artifact.findings)} findings" in page
+    assert f"{len(unique_cves)} complete CVE IDs" in page
+    assert "AI-assisted" in page
+    assert 'href="https://ricomanifesto.github.io/SentryDigest/"' in page
+    assert 'href="https://ricomanifesto.com/"' in page
+    assert "Verify NVD and vendor guidance before action." in page
+    assert 'class="site-footer"' in page
+
+
+def test_theme_and_brand_are_correct_before_deferred_javascript_runs():
+    report_page = REPORT_PAGE.read_text()
+    archive_page = ARCHIVE_PAGE.read_text()
+    css = SITE_CSS.read_text()
+
+    for page in (report_page, archive_page):
+        head = page.split("</head>", maxsplit=1)[0]
+        assert head.index("sentryinsight-theme") < head.index('rel="stylesheet"')
+        assert 'class="brand-logo brand-logo-light"' in page
+        assert 'class="brand-logo brand-logo-dark"' in page
+    assert ':root[data-theme="dark"] .brand-logo-light' in css
+    assert ':root[data-theme="dark"] .brand-logo-dark' in css
+    assert ":root:not([data-theme]) .brand-logo-light" in css
+    assert ":root:not([data-theme]) .brand-logo-dark" in css
 
 
 def test_archive_manifest_matches_real_dated_artifacts():

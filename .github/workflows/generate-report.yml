@@ -72,12 +72,26 @@ jobs:
           npm run test:browser
 
       - name: Upload rendered report evidence
+        id: generated-report-evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: generated-report-screenshots-${{ github.run_id }}
           path: test-results/screenshots
           if-no-files-found: error
+
+      - name: Add rendered report review summary
+        if: always()
+        env:
+          ARTIFACT_URL: ${{ steps.generated-report-evidence.outputs.artifact-url }}
+        run: |
+          {
+            echo "## Rendered report review"
+            echo
+            echo "[Open the generated desktop, tablet, and phone screenshots](${ARTIFACT_URL})"
+            echo
+            echo "Review the dark logo, report date and counts, finding badges, desktop TOC, and mobile map before using the report."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit and push updated report
         if: github.ref == 'refs/heads/main'

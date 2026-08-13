@@ -61,11 +61,61 @@ def test_site_builder_embeds_source_owned_finding_metadata(tmp_path):
     assert html.count('data-severity="critical"') == 1
 
 
+def test_site_builder_renders_each_finding_classification_once_in_initial_html(
+    tmp_path,
+):
+    output_path = build_fixture(tmp_path)
+    html = (output_path / "index.html").read_text()
+
+    assert html.count('class="finding-disclosure"') == 2
+    assert html.count('class="badge badge-severity"') == 2
+    assert html.count('class="badge badge-exploitation-status"') == 2
+    assert html.count('class="badge badge-action"') == 2
+    assert html.count('class="cve-chip"') == 2
+    assert "<strong>Severity</strong>" not in html
+    assert "<strong>Exploitation Status</strong>" not in html
+    assert "<strong>Action</strong>" not in html
+    assert "<strong>CVE IDs</strong>" not in html
+    assert ">Critical</span>" in html
+    assert ">Active exploitation</span>" in html
+    assert ">Patch</span>" in html
+    assert 'target="_blank" rel="noopener noreferrer"' in html
+
+
+def test_site_builder_renders_computed_report_shape_and_human_provenance(tmp_path):
+    output_path = build_fixture(tmp_path)
+    html = (output_path / "index.html").read_text()
+
+    assert "2 findings · 2 complete CVE IDs" in html
+    assert 'class="report-method"' in html
+    assert "AI-assisted" in html
+    assert 'href="https://ricomanifesto.github.io/SentryDigest/"' in html
+    assert 'href="https://ricomanifesto.com/"' in html
+    assert "Verify NVD and vendor guidance before action." in html
+    assert 'class="site-footer"' in html
+
+
+def test_site_builder_sets_theme_before_styles_and_renders_both_logo_variants(
+    tmp_path,
+):
+    output_path = build_fixture(tmp_path)
+    report_html = (output_path / "index.html").read_text()
+    archive_html = (output_path / "reports" / "index.html").read_text()
+
+    for html in (report_html, archive_html):
+        head = html.split("</head>", maxsplit=1)[0]
+        assert head.index("sentryinsight-theme") < head.index('rel="stylesheet"')
+        assert 'class="brand-logo brand-logo-light"' in html
+        assert 'class="brand-logo brand-logo-dark"' in html
+        assert "logo-lockup-light.png" in html
+        assert "logo-lockup-dark.png" in html
+
+
 def test_site_builder_generates_clean_desktop_and_mobile_section_maps(tmp_path):
     output_path = build_fixture(tmp_path)
     html = (output_path / "index.html").read_text()
 
-    assert html.count('href="#example-vulnerability-cve-2026-1234"') == 2
+    assert html.count('href="#example-vulnerability-cve-2026-1234"') == 3
     assert 'aria-label="Report sections"' in html
     assert "<summary>On this page</summary>" in html
     toc_label = "Example vulnerability (CVE-2026-1234)"

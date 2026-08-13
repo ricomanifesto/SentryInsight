@@ -8,6 +8,7 @@ def test_local_validation_checks_canonical_report_and_generated_site():
 
     assert "scripts/validate_report.py index.md" in script
     assert "scripts/build_site.py --check" in script
+    assert "scripts/package_pages.py" in script
     assert "docs/index.md" not in script
 
 
@@ -66,6 +67,10 @@ def test_pull_requests_run_the_full_local_validation_gate():
     assert "bash scripts/local_validation.sh" in workflow
     assert "actions/upload-artifact@v4" in workflow
     assert "test-results/screenshots" in workflow
+    assert "id: report-evidence" in workflow
+    assert "steps.report-evidence.outputs.artifact-url" in workflow
+    assert "GITHUB_STEP_SUMMARY" in workflow
+    assert "Rendered report review" in workflow
 
 
 def test_generation_workflow_installs_the_locked_browser_runtime_before_validation():
@@ -83,3 +88,21 @@ def test_generation_workflow_installs_the_locked_browser_runtime_before_validati
     assert generation_step < final_browser_step
     assert "actions/upload-artifact@v4" in workflow
     assert "test-results/screenshots" in workflow
+    assert "id: generated-report-evidence" in workflow
+    assert "steps.generated-report-evidence.outputs.artifact-url" in workflow
+    assert "GITHUB_STEP_SUMMARY" in workflow
+
+
+def test_pages_workflow_deploys_only_a_packaged_artifact_after_validation():
+    workflow = (REPO_ROOT / ".github" / "workflows" / "deploy-pages.yml").read_text()
+
+    assert "workflow_run:" in workflow
+    assert 'workflows: ["Validate"]' in workflow
+    assert "github.event.workflow_run.conclusion == 'success'" in workflow
+    assert "github.event.workflow_run.head_sha" in workflow
+    assert "scripts/package_pages.py --output" in workflow
+    assert "actions/configure-pages@v6" in workflow
+    assert "actions/upload-pages-artifact@v5" in workflow
+    assert "actions/deploy-pages@v5" in workflow
+    assert "pages: write" in workflow
+    assert "id-token: write" in workflow

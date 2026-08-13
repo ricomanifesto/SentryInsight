@@ -17,6 +17,14 @@
   <meta name="twitter:description" content="Current exploitation intelligence for rapid defensive triage.">
   <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
   <script type="application/ld+json">{{REPORT_IDENTITY_JSON}}</script>
+  <script>
+    (() => {
+      let theme;
+      try { theme = localStorage.getItem("sentryinsight-theme"); } catch {}
+      if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
   <link rel="icon" href="{{ROOT_PREFIX}}assets/favicon.ico">
   <link rel="stylesheet" href="{{ROOT_PREFIX}}assets/site.css?v={{ASSET_VERSION}}">
 </head>
@@ -24,7 +32,8 @@
   <a class="skip-link" href="#report-content">Skip to report</a>
   <header class="site-header">
     <a class="brand" href="{{ROOT_PREFIX}}index.html" aria-label="SentryInsight latest report">
-      <img src="{{ROOT_PREFIX}}assets/logo-lockup-light.png" alt="SentryInsight" width="264" height="62">
+      <img class="brand-logo brand-logo-light" src="{{ROOT_PREFIX}}assets/logo-lockup-light.png" alt="SentryInsight" width="264" height="62">
+      <img class="brand-logo brand-logo-dark" src="{{ROOT_PREFIX}}assets/logo-lockup-dark.png" alt="" width="264" height="62">
     </a>
     <nav class="site-actions" aria-label="Report actions">
       <a href="{{ROOT_PREFIX}}reports/">Archive</a>
@@ -34,8 +43,13 @@
   </header>
   <div class="report-date" aria-label="Report timing">
     <time datetime="{{REPORT_DATE_ISO}}">Report for {{REPORT_DATE_LABEL}}</time>
-    <span>Generated <time datetime="{{GENERATED_AT_ISO}}">{{GENERATED_AT_LABEL}}</time><span id="report-age"></span></span>
+    <span class="report-generated">Generated <time datetime="{{GENERATED_AT_ISO}}">{{GENERATED_AT_LABEL}}</time><span id="report-age"></span></span>
+    <span class="report-shape">{{REPORT_SHAPE}}</span>
   </div>
+  <aside class="report-method" aria-label="How this report is made">
+    <strong>AI-assisted defensive triage.</strong>
+    <span>Built from cybersecurity reporting monitored by <a href="https://ricomanifesto.github.io/SentryDigest/">Sentry Digest</a>. Verify NVD and vendor guidance before action.</span>
+  </aside>
   <details class="mobile-toc">
     <summary>On this page</summary>
     <nav aria-label="Report sections">{{MOBILE_TOC}}</nav>
@@ -47,6 +61,9 @@
     </aside>
     <main id="report-content" class="report-content">{{REPORT_HTML}}</main>
   </div>
+  <footer class="site-footer">
+    <p>SentryInsight is maintained by <a href="https://ricomanifesto.com/">Michael Rico</a>. <a href="https://github.com/ricomanifesto/SentryInsight">View the project on GitHub</a>.</p>
+  </footer>
   <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
   <script id="report-metadata" type="application/json">{{REPORT_JSON}}</script>
   <script src="{{ROOT_PREFIX}}assets/vendor/dompurify.min.js?v={{ASSET_VERSION}}" defer></script>

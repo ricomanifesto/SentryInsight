@@ -59,7 +59,14 @@ button { font: inherit; }
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
-.brand img { display: block; height: auto; max-width: min(264px, 48vw); }
+.brand-logo { display: block; height: auto; max-width: min(264px, 48vw); }
+.brand-logo-dark { display: none; }
+:root[data-theme="dark"] .brand-logo-light { display: none; }
+:root[data-theme="dark"] .brand-logo-dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .brand-logo-light { display: none; }
+  :root:not([data-theme]) .brand-logo-dark { display: block; }
+}
 .site-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .site-actions a,
 .site-actions button {
@@ -81,6 +88,18 @@ button { font: inherit; }
   border-bottom: 1px solid var(--border);
 }
 .report-date > time { color: var(--text); font-weight: 700; }
+.report-shape { color: var(--text); font-weight: 700; white-space: nowrap; }
+.report-method {
+  display: flex;
+  gap: 8px 12px;
+  align-items: baseline;
+  padding: 12px clamp(18px, 4vw, 48px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.report-method strong { color: var(--text); white-space: nowrap; }
 .page-shell {
   display: grid;
   grid-template-columns: minmax(210px, 260px) minmax(0, 850px);
@@ -210,11 +229,23 @@ button { font: inherit; }
 .archive-list article, .archive-empty { padding: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
 .archive-list h2 { margin: 0 0 6px; font-size: 1.15rem; }
 .archive-list p { margin: 4px 0; color: var(--muted); }
+.site-footer {
+  padding: 20px clamp(18px, 4vw, 48px);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.site-footer p { margin: 0; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
 @media (max-width: 900px) {
   .site-header { align-items: flex-start; }
   .report-date { flex-direction: column; }
+  .report-shape { white-space: normal; }
+  .report-method { display: block; }
+  .report-method strong { display: block; margin-bottom: 3px; white-space: normal; }
   .page-shell { display: block; padding-top: 24px; }
   .desktop-toc { display: none; }
   .mobile-toc { display: block; }

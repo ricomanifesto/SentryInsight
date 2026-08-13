@@ -38,9 +38,23 @@ jobs:
         run: bash scripts/local_validation.sh
 
       - name: Upload rendered report evidence
+        id: report-evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: report-screenshots-${{ github.run_id }}
           path: test-results/screenshots
           if-no-files-found: error
+
+      - name: Add rendered report review summary
+        if: always()
+        env:
+          ARTIFACT_URL: ${{ steps.report-evidence.outputs.artifact-url }}
+        run: |
+          {
+            echo "## Rendered report review"
+            echo
+            echo "[Open the desktop, tablet, and phone screenshots](${ARTIFACT_URL})"
+            echo
+            echo "Review the dark logo, report date and counts, finding badges, desktop TOC, and mobile map."
+          } >> "$GITHUB_STEP_SUMMARY"

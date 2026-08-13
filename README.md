@@ -36,6 +36,7 @@ SentryInsight can be triggered by updates from [SentryDigest](https://github.com
 - **Model access** calls OpenRouter directly when `OPENROUTER_API_KEY` is set. Local development can route through an OpenCode gateway.
 - **A versioned Markdown artifact** owns report dates, complete CVE IDs, and triage metadata.
 - **A deterministic static builder** publishes the latest report and immutable dated history from one canonical template tree.
+- **An allowlisted Pages artifact** exposes only finished report, archive, and asset files after validation succeeds.
 
 ## Setup
 
@@ -87,4 +88,4 @@ Validate a generated report before publishing:
 bash scripts/local_validation.sh
 ```
 
-The validation gate checks Python behavior and formatting, artifact integrity, generated-site drift, bundled frontend dependencies, accessibility interactions, responsive layouts, and light/dark browser screenshots.
+The validation gate checks Python behavior and formatting, artifact integrity, generated-site drift, the packaged Pages tree, bundled frontend dependencies, accessibility interactions, responsive layouts, and light/dark browser screenshots. The validation and generation workflows link the screenshot artifact from their run summaries for visual review.
