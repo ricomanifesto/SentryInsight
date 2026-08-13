@@ -65,7 +65,11 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
-    r"\b(?:can|could|may|might|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
+    r"\b(?:can|could|might|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
+    r"\bexploit(?:ed|ing|ation)?\b|"
+    r"\bmay\b(?=\s+(?:(?:not|also|possibly|potentially|eventually|ultimately)\s+)*"
+    r"(?:be\s+)?(?:allow|cause|enable|exploit|expose|give|lead|permit|provide|result))"
+    r"[^,.;\n]{0,100}"
     r"\bexploit(?:ed|ing|ation)?\b|"
     r"\bif\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
     r"\bindicative of\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
@@ -79,6 +83,11 @@ GROUPED_ISSUES_PATTERN = re.compile(
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"[;,]\s*(?=(?:but|and|yet|however|attackers?|threat actors?)\b)",
+    re.IGNORECASE,
+)
+FOLLOWING_CVE_REFERENCE_PATTERN = re.compile(
+    r"\b(?:the|this|that|said)\s+(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b|"
+    r"\bit\b",
     re.IGNORECASE,
 )
 
@@ -269,7 +278,11 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                     nearby_sentences.append(article_sentences[index - 1])
                 nearby_sentences.append(sentence)
                 if index + 1 < len(article_sentences):
-                    nearby_sentences.append(article_sentences[index + 1])
+                    following_sentence = article_sentences[index + 1]
+                    if not collect_prompt_cves(
+                        following_sentence
+                    ) and FOLLOWING_CVE_REFERENCE_PATTERN.search(following_sentence):
+                        nearby_sentences.append(following_sentence)
             if not cve_context_is_negated and any(
                 has_exploitation_relevance(sentence)
                 and not has_negated_exploitation_relevance(sentence)

@@ -427,6 +427,28 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_month_name_does_not_make_confirmed_exploitation_unconfirmed(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = "The May campaign exploited CVE-2026-1234."
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
+    def test_following_sentence_does_not_transfer_another_cve_exploitation(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "CVE-2026-1111 allows remote code execution. "
+            "Attackers are exploiting CVE-2026-2222."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-2222"],
+        )
+
     def test_analysis_result_keeps_exploited_cve_near_unrelated_negation(self):
         analyze = import_analyze_with_stubs()
 
