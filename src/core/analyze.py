@@ -117,6 +117,15 @@ UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r")",
     re.IGNORECASE | re.DOTALL,
 )
+INTERROGATIVE_EXPLOITATION_PATTERN = re.compile(
+    r"^[^?\n]{0,240}\b(?:"
+    r"exploit(?:s|ed|ing|ation)?|"
+    r"in the wild|"
+    r"weaponiz(?:ed|ation)|"
+    r"under attack"
+    r")\b[^?\n]*\?",
+    re.IGNORECASE,
+)
 GROUPED_ISSUES_PATTERN = re.compile(
     r"\b(?:"
     r"both(?=\s+(?:are|were|have|had|remain|continue)\b)|"
@@ -239,6 +248,7 @@ def has_negated_exploitation_relevance(article_summary: str) -> bool:
     ]
     return bool(relevant_clauses) and all(
         NEGATED_EXPLOITATION_PATTERN.search(clause)
+        or INTERROGATIVE_EXPLOITATION_PATTERN.search(clause)
         or (
             UNCONFIRMED_EXPLOITATION_PATTERN.search(clause)
             and not CONFIRMED_EXPLOITATION_PATTERN.search(clause)

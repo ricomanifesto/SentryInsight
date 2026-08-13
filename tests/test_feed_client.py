@@ -472,6 +472,22 @@ def test_extract_article_text_uses_only_first_selected_article_container():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_keeps_sibling_articles_under_main_separate():
+    source_html = """
+    <main>
+      <article>
+        <p>Primary story for CVE-2026-55040 with detailed technical context.</p>
+      </article>
+      <article><p>Related story says attackers exploit CVE-2026-9999.</p></article>
+    </main>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-55040" in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_extract_article_text_prefers_full_story_over_earlier_teaser():
     source_html = """
     <article><p>Teaser for CVE-2026-9999.</p></article>

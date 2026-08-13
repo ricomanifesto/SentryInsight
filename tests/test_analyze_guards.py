@@ -860,6 +860,18 @@ class AnalyzeGuardTests(unittest.TestCase):
                     [],
                 )
 
+    def test_interrogative_exploitation_headline_is_not_confirmed_activity(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Is CVE-2026-1234 actively exploited?**\n\n"
+            "There is no evidence of exploitation in the wild."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
     def test_preverbal_uncertainty_is_not_confirmed_activity(self):
         analyze = import_analyze_with_stubs()
 

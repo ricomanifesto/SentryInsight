@@ -308,7 +308,11 @@ class ArticleBodyParser(HTMLParser):
                     (candidate.priority, candidate.parent_order), []
                 ).append((candidate, candidate_text))
         for siblings in sibling_groups.values():
-            if len(siblings) > 1 and not siblings[0][0].parent_is_collection:
+            if (
+                len(siblings) > 1
+                and siblings[0][0].tag != "article"
+                and not siblings[0][0].parent_is_collection
+            ):
                 first_candidate = min(siblings, key=lambda item: item[0].order)[0]
                 combined_text = _normalize_text(
                     "\n".join(
