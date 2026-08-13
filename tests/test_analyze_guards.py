@@ -727,6 +727,20 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertIn("Example exploitation report", FakeOpenCodeClient.user_prompt)
         self.assertIn("Example Source", FakeOpenCodeClient.user_prompt)
         self.assertIn("https://example.test/report", FakeOpenCodeClient.user_prompt)
+        self.assertIn(
+            "- **Severity**: critical|high|medium|low|unknown",
+            FakeOpenCodeClient.user_prompt,
+        )
+        self.assertIn(
+            "- **Exploitation Status**: active|observed|potential|not_observed|unknown",
+            FakeOpenCodeClient.user_prompt,
+        )
+        self.assertIn(
+            "- **Action**: patch|mitigate|investigate|monitor|none",
+            FakeOpenCodeClient.user_prompt,
+        )
+        self.assertIn("- **CVE IDs**:", FakeOpenCodeClient.user_prompt)
+        self.assertIn("Omit the CVE IDs field", FakeOpenCodeClient.user_prompt)
 
     def test_analysis_result_omits_source_attribution_contract(self):
         analyze = import_analyze_with_stubs()

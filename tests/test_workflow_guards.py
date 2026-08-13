@@ -59,20 +59,6 @@ def import_workflow_with_stubs(analysis_result=None):
 
     analyze_module.analyze_exploitation = analyze_exploitation
 
-    publish_module = types.ModuleType("src.services.publish")
-
-    async def publish_to_github_pages(_analysis_results, _github_pages_config):
-        raise AssertionError("publish should not run for failed state")
-
-    publish_module.publish_to_github_pages = publish_to_github_pages
-
-    audio_module = types.ModuleType("src.services.audio")
-
-    async def generate_executive_summary_audio(_report, _output_path):
-        raise AssertionError("audio generation should not run for failed state")
-
-    audio_module.generate_executive_summary_audio = generate_executive_summary_audio
-
     with patch.dict(
         sys.modules,
         {
@@ -80,8 +66,6 @@ def import_workflow_with_stubs(analysis_result=None):
             "langgraph.graph": graph_module,
             "src.services.fetch": fetch_module,
             "src.core.analyze": analyze_module,
-            "src.services.publish": publish_module,
-            "src.services.audio": audio_module,
         },
     ):
         return importlib.import_module("src.core.workflow")
@@ -162,6 +146,9 @@ Recent exploitation activity is concentrated in edge systems.
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: patch
 
 ## Affected Systems and Products
 
@@ -194,6 +181,10 @@ Recent exploitation activity is concentrated in edge systems.
             self.assertNotIn("report_validation_errors", result)
             self.assertTrue(output_path.exists())
             self.assertNotIn("## Source Attribution", output_path.read_text())
+            self.assertIn("report_date:", output_path.read_text())
+            self.assertIn("generated_at:", output_path.read_text())
+            self.assertTrue((Path(tmpdir) / "index.html").exists())
+            self.assertTrue((Path(tmpdir) / "reports" / "index.json").exists())
 
     def test_missing_expected_cve_does_not_write_output_file(self):
         workflow = import_workflow_with_stubs()
@@ -214,6 +205,9 @@ Recent exploitation activity is concentrated in edge systems.
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: patch
 
 ## Affected Systems and Products
 
@@ -239,16 +233,92 @@ Recent exploitation activity is concentrated in edge systems.
             self.assertIn("report_validation_errors", result)
             self.assertFalse(output_path.exists())
 
-    def test_failed_state_skips_audio_generation(self):
+    def test_static_build_failure_preserves_current_report_and_archive(self):
         workflow = import_workflow_with_stubs()
-        state = {
-            "analysis_results": {"exploitation_report": "# Exploitation Report"},
-            "status": "failed",
-        }
 
-        result = asyncio.run(workflow.generate_audio(state))
+        current_report = """---
+schema_version: 1
+report_date: 2026-08-12
+generated_at: 2026-08-12T13:21:22Z
+---
+# Exploitation Report
 
-        self.assertIs(result, state)
+## Executive Summary
+
+The existing report remains current.
+
+## Active Exploitation Details
+
+### Existing Vulnerability
+- **Description**: Existing report content.
+- **Impact**: Existing impact.
+- **Status**: Existing status.
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: monitor
+
+## Affected Systems and Products
+
+- **Example Product**: Existing scope.
+
+## Attack Vectors and Techniques
+
+- **Internet-facing service**: Existing vector.
+
+## Threat Actor Activities
+
+- **Unknown actor**: Existing activity.
+"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            output_path.write_text(current_report)
+            state = {
+                "analysis_results": {
+                    "date": "2026-08-13",
+                    "generated_at": "2026-08-13T13:21:22Z",
+                    "exploitation_report": """# Exploitation Report
+
+## Executive Summary
+
+The next report should not be partially published.
+
+## Active Exploitation Details
+
+### Next Vulnerability
+- **Description**: Next report content.
+- **Impact**: Next impact.
+- **Status**: Next status.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+
+## Affected Systems and Products
+
+- **Example Product**: Next scope.
+
+## Attack Vectors and Techniques
+
+- **Internet-facing service**: Next vector.
+
+## Threat Actor Activities
+
+- **Unknown actor**: Next activity.
+""",
+                },
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            with patch.object(
+                workflow,
+                "build_site",
+                side_effect=workflow.SiteBuildError("late build failure"),
+            ):
+                result = asyncio.run(workflow.generate_report(state))
+
+            self.assertEqual(result["status"], "failed")
+            self.assertEqual(output_path.read_text(), current_report)
+            self.assertFalse((Path(tmpdir) / "reports").exists())
 
     def test_failed_state_skips_publish(self):
         workflow = import_workflow_with_stubs()
@@ -313,10 +383,7 @@ Recent exploitation activity is concentrated in edge systems.
 
         workflow = import_workflow_with_stubs()
 
-        # generate_report also copies to a hardcoded relative "docs/" path
-        # when that directory exists, so run from an isolated cwd with no
-        # "docs" subdir — otherwise this would clobber the real repo's
-        # docs/index.md.
+        # Run from an isolated cwd so the default canonical path is disposable.
         original_cwd = Path.cwd()
         with tempfile.TemporaryDirectory() as tmpdir:
             os.chdir(tmpdir)
@@ -335,6 +402,9 @@ Recent exploitation activity is concentrated in edge systems.
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: patch
 
 ## Affected Systems and Products
 

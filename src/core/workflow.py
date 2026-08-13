@@ -3,7 +3,9 @@ from langgraph.graph import START, END, StateGraph
 import logging
 import asyncio
 import json
-from datetime import datetime
+import shutil
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 from ..services.fetch import SentryDigestFeedClient
@@ -13,9 +15,12 @@ from .report_validation import (
     remove_source_attribution_section,
     validate_report_content,
 )
-from ..services.publish import publish_to_github_pages
-from ..services.audio import (
-    generate_executive_summary_audio,
+from .report_artifact import ReportArtifactError, parse_report_artifact
+from scripts.build_site import (
+    ArchiveConflictError,
+    SiteBuildError,
+    archive_previous_report,
+    build_site,
 )
 from .content_fingerprint import (
     FINGERPRINT_PATH,
@@ -25,6 +30,7 @@ from .content_fingerprint import (
 )
 
 logger = logging.getLogger(__name__)
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 # Define the state type
@@ -118,7 +124,7 @@ async def filter_articles(
         if fingerprint == previous_fingerprint:
             logger.info(
                 "Source article set is unchanged since the last report — "
-                "skipping analysis and audio generation to avoid redundant API usage"
+                "skipping analysis to avoid redundant API usage"
             )
             state["status"] = "completed_unchanged"
 
@@ -138,7 +144,7 @@ async def analyze_articles(
         logger.warning("No exploitation-related articles found to analyze")
         state["analysis_results"] = {
             "exploitation_report": "# No Exploitation Content Found\n\nNo articles with exploitation-related content were found in the current dataset.",
-            "date": datetime.now().strftime("%Y-%m-%d"),
+            "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": 0,
         }
         return state
@@ -199,18 +205,94 @@ async def generate_report(
         state["status"] = "failed"
         return state
 
-    # Save the report
-    output_path = config.get("output_path", "index.md")
-    with open(output_path, "w") as f:
-        f.write(report)
+    report_date = str(
+        analysis_results.get("date") or datetime.now(timezone.utc).date().isoformat()
+    )
+    generated_at = str(
+        analysis_results.get("generated_at")
+        or datetime.now(timezone.utc)
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z")
+    )
+    report_source = (
+        "---\n"
+        "schema_version: 1\n"
+        f"report_date: {report_date}\n"
+        f"generated_at: {generated_at}\n"
+        "---\n"
+        f"{report.lstrip()}"
+    )
+    try:
+        artifact = parse_report_artifact(report_source)
+    except ReportArtifactError as exc:
+        logger.error("Report artifact validation failed: %s", exc)
+        state["report_validation_errors"] = [str(exc)]
+        state["status"] = "failed"
+        return state
 
-    # Also copy to docs/index.md for GitHub Pages
-    docs_dir = Path("docs")
-    if docs_dir.exists():
-        docs_index = docs_dir / "index.md"
-        with open(docs_index, "w") as f:
-            f.write(report)
-        logger.info(f"Copied report to {docs_index}")
+    output_path = config.get("output_path", "index.md")
+    output_file = Path(output_path)
+    if output_file.name != "index.md":
+        logger.error("The canonical report output must be named index.md")
+        state["report_validation_errors"] = [
+            "The canonical report output must be named index.md"
+        ]
+        state["status"] = "failed"
+        return state
+
+    # Build the complete next public tree before replacing any current files.
+    # Git commits publish the resulting paths together, while this staging step
+    # prevents validation or renderer failures from splitting local state.
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            staged_root = Path(temp_dir) / "site"
+            staged_reports = staged_root / "reports"
+            staged_reports.mkdir(parents=True)
+
+            current_reports = output_file.parent / "reports"
+            if current_reports.exists():
+                for archived_path in current_reports.glob("????-??-??.md"):
+                    shutil.copy2(archived_path, staged_reports / archived_path.name)
+
+            if output_file.exists():
+                archive_previous_report(
+                    current_source=output_file.read_text(),
+                    next_report=artifact,
+                    reports_path=staged_reports,
+                )
+
+            staged_report = staged_root / "index.md"
+            staged_report.write_text(report_source)
+            build_site(
+                report_path=staged_report,
+                output_path=staged_root,
+                template_path=REPO_ROOT / "site",
+            )
+
+            staged_files = sorted(
+                (path for path in staged_root.rglob("*") if path.is_file()),
+                key=lambda path: (
+                    path.relative_to(staged_root) == Path("index.html"),
+                    path.as_posix(),
+                ),
+            )
+            for staged_path in staged_files:
+                relative_path = staged_path.relative_to(staged_root)
+                destination = output_file.parent / relative_path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                temporary_destination = destination.with_name(
+                    f".{destination.name}.sentryinsight.tmp"
+                )
+                try:
+                    shutil.copy2(staged_path, temporary_destination)
+                    temporary_destination.replace(destination)
+                finally:
+                    temporary_destination.unlink(missing_ok=True)
+    except (ArchiveConflictError, SiteBuildError, OSError) as exc:
+        logger.error("Static report publication failed: %s", exc)
+        state["report_validation_errors"] = [str(exc)]
+        state["status"] = "failed"
+        return state
 
     if state.get("articles_fingerprint"):
         write_stored_fingerprint(
@@ -218,37 +300,6 @@ async def generate_report(
         )
 
     state["report_path"] = output_path
-    return state
-
-
-async def generate_audio(state: ExploitationAnalysisState) -> ExploitationAnalysisState:
-    """Generate audio narration of the executive summary using Eleven Labs."""
-    logger.info("Generating executive summary audio")
-
-    if state.get("status") == "failed":
-        logger.warning("Skipping audio generation because report generation failed")
-        return state
-
-    analysis_results = state.get("analysis_results", {})
-    report = analysis_results.get("exploitation_report", "")
-
-    if report:
-        # Generate to root (GitHub Pages source is /) and copy to docs/
-        success = await generate_executive_summary_audio(
-            report, "executive_summary.mp3"
-        )
-        if success:
-            import shutil
-
-            shutil.copy("executive_summary.mp3", "docs/executive_summary.mp3")
-            logger.info("Executive summary audio generated successfully")
-        else:
-            logger.warning(
-                "Executive summary audio generation failed — continuing without audio"
-            )
-    else:
-        logger.warning("No report available for audio generation")
-
     return state
 
 
@@ -262,7 +313,6 @@ async def publish_results(
         logger.warning("Skipping publishing because workflow status is failed")
         return state
 
-    config = state["config"]
     analysis_results = state["analysis_results"]
 
     if not analysis_results:
@@ -274,22 +324,13 @@ async def publish_results(
         state["status"] = "completed_with_warnings"
         return state
 
-    # Get GitHub Pages config
-    github_pages_config = config.get("github_pages", {})
+    if not state.get("report_path"):
+        logger.warning("No validated static report artifacts were produced")
+        state["status"] = "completed_with_warnings"
+        return state
 
-    # Publish to GitHub Pages if enabled
-    if github_pages_config.get("enabled", False):
-        success = await publish_to_github_pages(analysis_results, github_pages_config)
-
-        if success:
-            logger.info("Successfully published to GitHub Pages")
-            state["status"] = "completed"
-        else:
-            logger.warning("Failed to publish to GitHub Pages")
-            state["status"] = "completed_with_warnings"
-    else:
-        logger.info("GitHub Pages publishing is disabled")
-        state["status"] = "completed"
+    logger.info("Validated static report artifacts are ready for GitHub Pages")
+    state["status"] = "completed"
 
     return state
 
@@ -317,7 +358,6 @@ def create_exploitation_analysis_graph() -> Any:
     workflow.add_node("filter_articles", filter_articles)
     workflow.add_node("analyze_articles", analyze_articles)
     workflow.add_node("generate_report", generate_report)
-    workflow.add_node("generate_audio", generate_audio)
     workflow.add_node("publish_results", publish_results)
 
     # Define edges
@@ -325,8 +365,7 @@ def create_exploitation_analysis_graph() -> Any:
     workflow.add_edge("fetch_articles", "enrich_articles")
     workflow.add_edge("enrich_articles", "filter_articles")
     workflow.add_edge("analyze_articles", "generate_report")
-    workflow.add_edge("generate_report", "generate_audio")
-    workflow.add_edge("generate_audio", "publish_results")
+    workflow.add_edge("generate_report", "publish_results")
     workflow.add_edge("publish_results", END)
 
     # Add conditional edges

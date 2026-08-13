@@ -11,4 +11,6 @@ uv run black --check .
 uv run ty check
 uv run python -B -W error -m pytest tests -q -p no:cacheprovider
 uv run python -B scripts/validate_report.py index.md
-uv run python -B scripts/validate_report.py docs/index.md
+uv run python -B scripts/build_site.py --check
+npm ci
+npm run test:browser

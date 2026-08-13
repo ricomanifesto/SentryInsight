@@ -33,8 +33,9 @@ SentryInsight can be triggered by updates from [SentryDigest](https://github.com
 ## Architecture
 
 - **LangGraph** orchestrates workflow state and conditional logic.
-- **FastMCP** organizes RSS tooling with decorators.
 - **Model access** calls OpenRouter directly when `OPENROUTER_API_KEY` is set. Local development can route through an OpenCode gateway.
+- **A versioned Markdown artifact** owns report dates, complete CVE IDs, and triage metadata.
+- **A deterministic static builder** publishes the latest report and immutable dated history from one canonical template tree.
 
 ## Setup
 
@@ -76,7 +77,7 @@ export OPENCODE_BASE_URL=http://127.0.0.1:4096
 uv run python main.py
 ```
 
-This fetches articles, filters for exploitation content, analyzes threats, and saves reports to `index.md`.
+This fetches articles, filters for exploitation content, analyzes threats, and stages a complete static publication rooted at `index.md` and `index.html`. When the report date advances, the previous artifact is archived under `reports/`.
 
 ## Validation
 
@@ -85,3 +86,5 @@ Validate a generated report before publishing:
 ```bash
 bash scripts/local_validation.sh
 ```
+
+The validation gate checks Python behavior and formatting, artifact integrity, generated-site drift, bundled frontend dependencies, accessibility interactions, responsive layouts, and light/dark browser screenshots.

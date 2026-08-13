@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{{PAGE_TITLE}}</title>
+  <meta name="description" content="Current exploitation intelligence for rapid defensive triage.">
+  <link rel="canonical" href="{{CANONICAL_URL}}">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{{PAGE_TITLE}}">
+  <meta property="og:description" content="Current exploitation intelligence for rapid defensive triage.">
+  <meta property="og:url" content="{{CANONICAL_URL}}">
+  <meta property="og:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{PAGE_TITLE}}">
+  <meta name="twitter:description" content="Current exploitation intelligence for rapid defensive triage.">
+  <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
+  <script type="application/ld+json">{{REPORT_IDENTITY_JSON}}</script>
+  <link rel="icon" href="{{ROOT_PREFIX}}assets/favicon.ico">
+  <link rel="stylesheet" href="{{ROOT_PREFIX}}assets/site.css?v={{ASSET_VERSION}}">
+</head>
+<body>
+  <a class="skip-link" href="#report-content">Skip to report</a>
+  <header class="site-header">
+    <a class="brand" href="{{ROOT_PREFIX}}index.html" aria-label="SentryInsight latest report">
+      <img src="{{ROOT_PREFIX}}assets/logo-lockup-light.png" alt="SentryInsight" width="264" height="62">
+    </a>
+    <nav class="site-actions" aria-label="Report actions">
+      <a href="{{ROOT_PREFIX}}reports/">Archive</a>
+      <a href="{{MARKDOWN_PATH}}">Markdown</a>
+      <button id="theme-toggle" type="button" aria-pressed="false">Theme</button>
+    </nav>
+  </header>
+  <div class="report-date" aria-label="Report timing">
+    <time datetime="{{REPORT_DATE_ISO}}">Report for {{REPORT_DATE_LABEL}}</time>
+    <span>Generated <time datetime="{{GENERATED_AT_ISO}}">{{GENERATED_AT_LABEL}}</time><span id="report-age"></span></span>
+  </div>
+  <details class="mobile-toc">
+    <summary>On this page</summary>
+    <nav aria-label="Report sections">{{MOBILE_TOC}}</nav>
+  </details>
+  <div class="page-shell">
+    <aside class="desktop-toc">
+      <p>On this page</p>
+      <nav aria-label="Report sections">{{DESKTOP_TOC}}</nav>
+    </aside>
+    <main id="report-content" class="report-content">{{REPORT_HTML}}</main>
+  </div>
+  <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
+  <script id="report-metadata" type="application/json">{{REPORT_JSON}}</script>
+  <script src="{{ROOT_PREFIX}}assets/vendor/dompurify.min.js?v={{ASSET_VERSION}}" defer></script>
+  <script src="{{ROOT_PREFIX}}assets/report.js?v={{ASSET_VERSION}}" defer></script>
+</body>
+</html>

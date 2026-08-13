@@ -5,16 +5,13 @@ description = "Automated cybersecurity threat intelligence report generation"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "elevenlabs",
     "feedparser",
     "httpx",
     "langchain>=0.1.0",
     "langchain-core",
     "langgraph>=0.0.20",
     "markdown-it-py>=4.2.0",
-    "mcp-python>=0.1.0",
     "pydantic>=2.0.0",
-    "pydub",
     "python-dotenv",
     "tiktoken",
 ]

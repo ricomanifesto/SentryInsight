@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>SentryInsight Report Archive</title>
+  <meta name="description" content="Dated SentryInsight exploitation intelligence reports.">
+  <link rel="canonical" href="https://ricomanifesto.github.io/SentryInsight/reports/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SentryInsight Report Archive">
+  <meta property="og:description" content="Dated SentryInsight exploitation intelligence reports.">
+  <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/reports/">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">{{ARCHIVE_IDENTITY_JSON}}</script>
+  <link rel="icon" href="../assets/favicon.ico">
+  <link rel="stylesheet" href="../assets/site.css?v={{ASSET_VERSION}}">
+</head>
+<body>
+  <a class="skip-link" href="#archive-list">Skip to reports</a>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="SentryInsight latest report">
+      <img src="../assets/logo-lockup-light.png" alt="SentryInsight" width="264" height="62">
+    </a>
+    <nav class="site-actions" aria-label="Archive actions">
+      <a href="../index.html">Latest report</a>
+      <button id="theme-toggle" type="button" aria-pressed="false">Theme</button>
+    </nav>
+  </header>
+  <main class="archive-page">
+    <header>
+      <p class="eyebrow">SentryInsight history</p>
+      <h1>Report archive</h1>
+      <p>{{REPORT_COUNT}}</p>
+    </header>
+    <ol id="archive-list" class="archive-list">{{ARCHIVE_ITEMS}}</ol>
+  </main>
+  <script src="../assets/report.js?v={{ASSET_VERSION}}" defer></script>
+</body>
+</html>
