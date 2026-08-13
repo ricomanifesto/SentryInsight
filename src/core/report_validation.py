@@ -856,9 +856,20 @@ def missing_expected_cve_ids(
     return sorted(expected - find_report_cve_ids(report_body))
 
 
+def get_inline_text(markdown: str) -> str:
+    """Return text rendered by ordinary Markdown inline wrappers."""
+    inline_tokens = MARKDOWN_PARSER.parseInline(markdown)
+    return "".join(
+        child.content
+        for token in inline_tokens
+        for child in (token.children or [])
+        if child.type in {"text", "code_inline"}
+    )
+
+
 def has_invalid_cve_field(markdown: str) -> bool:
     return any(
-        not CVE_ID_PATTERN.match(match.group("value").strip())
+        not CVE_ID_PATTERN.match(get_inline_text(match.group("value")).strip())
         for match in CVE_FIELD_PATTERN.finditer(markdown)
     )
 

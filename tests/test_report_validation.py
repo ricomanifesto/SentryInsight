@@ -246,6 +246,16 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_report_content(report, expected_cves=[]), [])
 
+    def test_markdown_linked_cve_field_passes_generation_validation(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n"
+            "- **CVE ID**: "
+            "[CVE-2026-1234](https://nvd.nist.gov/vuln/detail/CVE-2026-1234)",
+        )
+
+        self.assertEqual(validate_report_content(report, expected_cves=[]), [])
+
     def test_single_threat_actor_item_with_broader_campaigns_fails(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",
