@@ -366,9 +366,8 @@ class SentryDigestFeedClient:
         for article in articles:
             logger.info(f"Enriching article: {article.get('title', '')}")
 
-            # Skip if the article already has content
-            if "content" in article and article["content"]:
-                article["content"] = extract_feed_content_text(article["content"])
+            # Feed content is sanitized once during ingestion. Parsing the resulting
+            # plain text again would reinterpret escaped markup as live HTML.
             if article.get("content"):
                 merge_article_cves(
                     article,

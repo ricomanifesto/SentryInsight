@@ -195,6 +195,26 @@ def test_fetch_articles_sanitizes_feed_description_before_merging_cves(monkeypat
     assert articles[0]["cves"] == ["CVE-2026-55040"]
 
 
+def test_enrich_preserves_escaped_markup_already_sanitized_as_visible_text():
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+    visible_content = "<script>Attackers actively exploit CVE-2026-1234</script>"
+
+    articles = asyncio.run(
+        client.enrich_article_content(
+            [
+                {
+                    "title": "Escaped markup advisory",
+                    "content": visible_content,
+                    "cves": ["CVE-2026-1234"],
+                }
+            ]
+        )
+    )
+
+    assert articles[0]["content"] == visible_content
+    assert articles[0]["cves"] == ["CVE-2026-1234"]
+
+
 def test_enrich_article_content_extracts_readable_body_and_source_cves(monkeypatch):
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", StaticArticleClient)
     client = SentryDigestFeedClient("https://example.com/feed.xml")
