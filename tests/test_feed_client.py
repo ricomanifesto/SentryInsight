@@ -246,6 +246,25 @@ def test_extract_article_text_supports_semantic_main_without_markers():
     )
 
 
+def test_extract_article_text_falls_back_to_sanitized_visible_page_body():
+    source_html = """
+    <html>
+      <head><title>Unrelated CVE-2026-9997</title></head>
+      <body>
+        <nav>Navigation CVE-2026-9998</nav>
+        <div class="content">
+          <p>Attackers exploit CVE-2026-45659 in the wild.</p>
+          <div hidden>Cached related CVE-2026-9999.</div>
+        </div>
+      </body>
+    </html>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert article_text == "Attackers exploit CVE-2026-45659 in the wild."
+
+
 def test_extract_article_text_stops_at_container_with_omitted_paragraph_end_tags():
     source_html = """
     <article><p>Primary content.<p>More content.</article>

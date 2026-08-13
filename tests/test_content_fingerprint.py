@@ -42,6 +42,17 @@ def test_fingerprint_changes_when_enriched_content_or_cves_change():
     assert original != enriched
 
 
+def test_fingerprint_changes_when_source_attribution_changes():
+    original = compute_articles_fingerprint(
+        [{"link": "https://a", "source": "Original Research Team"}]
+    )
+    corrected = compute_articles_fingerprint(
+        [{"link": "https://a", "source": "Corrected Research Team"}]
+    )
+
+    assert original != corrected
+
+
 def test_fingerprint_invalidates_legacy_identity_only_hash():
     legacy_fingerprint = hashlib.sha256(b"https://a").hexdigest()
 

@@ -47,6 +47,7 @@ SKIP_TAGS = {
     "svg",
     "template",
 }
+PAGE_SKIP_TAGS = SKIP_TAGS | {"head"}
 VOID_TAGS = {
     "area",
     "base",
@@ -199,8 +200,9 @@ class ArticleBodyParser(HTMLParser):
 class FeedContentParser(HTMLParser):
     """Extract visible text from an RSS content fragment."""
 
-    def __init__(self) -> None:
+    def __init__(self, skip_tags: set[str] | None = None) -> None:
         super().__init__(convert_charrefs=True)
+        self.skip_tags = SKIP_TAGS if skip_tags is None else skip_tags
         self.hidden_depth = 0
         self.hidden_tag = ""
         self.parts: list[str] = []
@@ -211,7 +213,7 @@ class FeedContentParser(HTMLParser):
         if self.hidden_depth:
             if normalized_tag == self.hidden_tag:
                 self.hidden_depth += 1
-        elif normalized_tag in SKIP_TAGS or _is_hidden_element(attr_map):
+        elif normalized_tag in self.skip_tags or _is_hidden_element(attr_map):
             if normalized_tag not in VOID_TAGS:
                 self.hidden_depth = 1
                 self.hidden_tag = normalized_tag
@@ -254,6 +256,11 @@ def extract_article_text(source_html: str) -> str:
     article_body = parser.primary_text()
     if article_body:
         return article_body
+    page_parser = FeedContentParser(skip_tags=PAGE_SKIP_TAGS)
+    page_parser.feed(source_html)
+    page_text = _normalize_text("".join(page_parser.parts))
+    if page_text:
+        return page_text
     return _normalize_text("\n".join(parser.meta_descriptions))
 
 

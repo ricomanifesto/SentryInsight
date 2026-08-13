@@ -14,7 +14,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v3"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v4"
 
 
 def _normalize_fingerprint_value(value: Any) -> str:
@@ -41,6 +41,7 @@ def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
             "identity": _normalize_fingerprint_value(
                 article.get("link") or article.get("title")
             ),
+            "source": _normalize_fingerprint_value(article.get("source")),
             "summary": _normalize_fingerprint_value(article.get("summary")),
             "title": _normalize_fingerprint_value(article.get("title")),
         }
