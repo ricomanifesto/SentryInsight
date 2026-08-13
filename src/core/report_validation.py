@@ -69,6 +69,9 @@ CVE_FIELD_PATTERN = re.compile(
 SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
 SENTENCE_END_PATTERN = re.compile(r"[.!?](?:\s+|$)")
 THEMATIC_BREAK_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-*_][ \t]*){3,}$")
+MARKDOWN_TABLE_DELIMITER_PATTERN = re.compile(
+    r"^[ \t]*\|?[ \t]*:?-{3,}:?[ \t]*(?:\|[ \t]*:?-{3,}:?[ \t]*)+\|?[ \t]*$"
+)
 THREAT_ACTIVITY_MARKER_PATTERN = re.compile(
     r"\b(?:campaigns?|threat actors?)\b",
     re.IGNORECASE,
@@ -874,10 +877,22 @@ def get_inline_text(markdown: str) -> str:
 
 
 def has_invalid_cve_field(markdown: str) -> bool:
-    return any(
-        not CVE_ID_PATTERN.match(get_inline_text(match.group("value")).strip())
-        for match in CVE_FIELD_PATTERN.finditer(strip_markdown_block_code(markdown))
-    )
+    without_block_code = strip_markdown_block_code(markdown)
+    for match in CVE_FIELD_PATTERN.finditer(without_block_code):
+        matched_line = match.group(0)
+        if matched_line.lstrip().startswith("|"):
+            next_line_start = match.end() + (
+                1 if match.end() < len(without_block_code) else 0
+            )
+            next_line_end = without_block_code.find("\n", next_line_start)
+            if next_line_end == -1:
+                next_line_end = len(without_block_code)
+            next_line = without_block_code[next_line_start:next_line_end]
+            if MARKDOWN_TABLE_DELIMITER_PATTERN.fullmatch(next_line):
+                continue
+        if not CVE_ID_PATTERN.match(get_inline_text(match.group("value")).strip()):
+            return True
+    return False
 
 
 def get_nonempty_paragraphs(markdown: str) -> list[str]:

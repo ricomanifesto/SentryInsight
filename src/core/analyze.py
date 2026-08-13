@@ -137,12 +137,19 @@ EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     re.IGNORECASE,
 )
 FOLLOWING_CVE_REFERENCE_PATTERN = re.compile(
-    r"\b(?:the|this|that|said)\s+(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b|"
+    r"\b(?:the|this|that|said)\s+(?:(?:affected|new|same)\s+)?"
+    r"(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b|"
     r"\bit\b",
     re.IGNORECASE,
 )
+FOLLOWING_PLURAL_CVE_REFERENCE_PATTERN = re.compile(
+    r"\b(?:they|both|(?:these|those|the)\s+"
+    r"(?:flaws?|issues?|vulnerabilit(?:y|ies)|bugs?|zero[\s-]?days?))\b",
+    re.IGNORECASE,
+)
 NEW_VULNERABILITY_REFERENT_PATTERN = re.compile(
-    r"\b(?:a|an|another|different|new|separate|second|third)\s+"
+    r"\b(?:(?:a|an)\s+(?:(?:different|new|separate|second|third)\s+)?|"
+    r"(?:another|different|separate|second|third)\s+)"
     r"(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b",
     re.IGNORECASE,
 )
@@ -385,6 +392,9 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             has_positive_following_reference = False
             for index, cve_clauses in indexed_cve_sentences:
                 nearby_sentences.extend(cve_clauses)
+                sentence_has_multiple_cves = (
+                    len(collect_prompt_cves(article_sentences[index])) > 1
+                )
                 if index:
                     preceding_sentence = article_sentences[index - 1]
                     if not collect_prompt_cves(
@@ -398,7 +408,16 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                         break
                     if NEW_VULNERABILITY_REFERENT_PATTERN.search(following_sentence):
                         break
-                    if not FOLLOWING_CVE_REFERENCE_PATTERN.search(following_sentence):
+                    has_following_reference = bool(
+                        FOLLOWING_CVE_REFERENCE_PATTERN.search(following_sentence)
+                        or (
+                            sentence_has_multiple_cves
+                            and FOLLOWING_PLURAL_CVE_REFERENCE_PATTERN.search(
+                                following_sentence
+                            )
+                        )
+                    )
+                    if not has_following_reference:
                         continue
                     nearby_sentences.append(following_sentence)
                     if has_exploitation_relevance(following_sentence):

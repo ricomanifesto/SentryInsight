@@ -282,6 +282,17 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
 
+    def test_cve_table_header_is_not_treated_as_data_field(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n\n"
+            "| CVE ID | Status |\n"
+            "| --- | --- |\n"
+            "| CVE-2026-1234 | Actively exploited |",
+        )
+
+        self.assertEqual(validate_report_content(report, expected_cves=[]), [])
+
     def test_non_identifier_ordered_list_cve_field_fails_validation(self):
         report = VALID_REPORT.replace(
             "- **Status**: Active exploitation observed.",

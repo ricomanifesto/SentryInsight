@@ -676,6 +676,32 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_demonstrative_new_vulnerability_still_refers_to_prior_cve(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "CVE-2026-1234 was disclosed. This new vulnerability is actively "
+            "exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
+    def test_plural_reference_promotes_coordinated_cves(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "CVE-2026-1111 and CVE-2026-2222 affect Product X. "
+            "They are actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
     def test_modal_malware_impact_is_not_confirmed_exploitation(self):
         analyze = import_analyze_with_stubs()
         article_summary = "CVE-2026-1234 could allow malware installation."
