@@ -35,7 +35,16 @@ BLOCK_TAGS = {
     "section",
     "tr",
 }
-SKIP_TAGS = {"noscript", "script", "style", "svg", "template"}
+SKIP_TAGS = {
+    "aside",
+    "footer",
+    "nav",
+    "noscript",
+    "script",
+    "style",
+    "svg",
+    "template",
+}
 VOID_TAGS = {
     "area",
     "base",

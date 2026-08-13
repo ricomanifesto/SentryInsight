@@ -259,6 +259,24 @@ def test_extract_article_text_recognizes_schema_org_article_body():
     assert "CVE-2026-55040" in extract_article_text(source_html)
 
 
+def test_extract_article_text_excludes_peripheral_article_containers():
+    source_html = """
+    <article>
+      <nav>Navigation CVE-2026-9997</nav>
+      <p>Primary story for CVE-2026-55040.</p>
+      <aside>Related CVE-2026-9998</aside>
+      <footer>Footer CVE-2026-9999</footer>
+    </article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-55040" in article_text
+    assert "CVE-2026-9997" not in article_text
+    assert "CVE-2026-9998" not in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatch):
     TrackingArticleClient.called = False
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", TrackingArticleClient)
