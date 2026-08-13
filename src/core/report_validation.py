@@ -54,7 +54,12 @@ MARKDOWN_REFERENCE_DESTINATION_PATTERN = re.compile(
 HTML_EVENT_ATTRIBUTE_PATTERN = re.compile(r"^on[a-z0-9_-]+$", re.IGNORECASE)
 LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
 NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
-CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
+CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b", re.IGNORECASE)
+PARTIAL_CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{1,}(?:\.\.\.|…)", re.IGNORECASE)
+CVE_FIELD_PATTERN = re.compile(
+    r"^[ \t]{0,3}[-*+]\s+\*\*CVE(?: ID)?\*\*\s*:\s*(?P<value>.*)$",
+    re.IGNORECASE | re.MULTILINE,
+)
 SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
 SENTENCE_END_PATTERN = re.compile(r"[.!?](?:\s+|$)")
 THEMATIC_BREAK_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-*_][ \t]*){3,}$")
@@ -851,6 +856,13 @@ def missing_expected_cve_ids(
     return sorted(expected - find_report_cve_ids(report_body))
 
 
+def has_invalid_cve_field(markdown: str) -> bool:
+    return any(
+        not CVE_ID_PATTERN.search(match.group("value"))
+        for match in CVE_FIELD_PATTERN.finditer(markdown)
+    )
+
+
 def get_nonempty_paragraphs(markdown: str) -> list[str]:
     return [
         paragraph.strip()
@@ -1002,6 +1014,22 @@ def validate_report_content(
                     "Threat Actor Activities has only one item even though the "
                     "report contains broader actor or campaign activity."
                 ),
+            )
+        )
+
+    if expected_cves is not None and PARTIAL_CVE_ID_PATTERN.search(content):
+        issues.append(
+            ReportValidationIssue(
+                code="partial_cve_id",
+                message="Report contains a truncated CVE identifier.",
+            )
+        )
+
+    if expected_cves is not None and has_invalid_cve_field(content):
+        issues.append(
+            ReportValidationIssue(
+                code="invalid_cve_field",
+                message="Report contains a CVE field without a complete identifier.",
             )
         )
 

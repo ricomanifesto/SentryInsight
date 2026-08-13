@@ -182,6 +182,37 @@ class ReportValidationTests(unittest.TestCase):
             [],
         )
 
+    def test_partial_cve_identifier_fails_generation_validation(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n"
+            "- **CVE ID**: CVE-2026-593...",
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertTrue(any(issue.code == "partial_cve_id" for issue in issues))
+
+    def test_non_identifier_cve_field_fails_generation_validation(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n"
+            "- **CVE ID**: Not explicitly provided in source articles",
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
+
+    def test_complete_cve_field_passes_generation_validation(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n"
+            "- **CVE ID**: CVE-2026-12345678",
+        )
+
+        self.assertEqual(validate_report_content(report, expected_cves=[]), [])
+
     def test_single_threat_actor_item_with_broader_campaigns_fails(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",

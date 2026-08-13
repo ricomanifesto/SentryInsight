@@ -2,7 +2,10 @@
 
 import re
 
-CVE_ID_PATTERN = re.compile(r"CVE[-\s]?(\d{4})[-\s]?(\d{1,})", re.IGNORECASE)
+CVE_ID_PATTERN = re.compile(
+    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?!\d|\.\.\.)\b",
+    re.IGNORECASE,
+)
 
 
 def extract_cve_ids(text: str) -> list[str]:

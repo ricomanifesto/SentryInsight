@@ -81,6 +81,15 @@ def test_report_viewers_do_not_rewrite_sanitized_report_html_for_cve_links():
         assert "el.innerHTML = el.innerHTML.replace" not in viewer
 
 
+def test_report_viewers_link_all_complete_cves_without_sequence_length_cap():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert r"/CVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b/gi" in viewer
+        assert "contentEl.querySelectorAll('p, li').forEach" in viewer
+        assert r"CVE-\d{4}-\d{4,7}" not in viewer
+
+
 def test_report_viewers_include_mobile_overflow_guards():
     for viewer_path in REPORT_VIEWERS:
         viewer = viewer_path.read_text()

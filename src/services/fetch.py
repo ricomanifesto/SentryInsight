@@ -1,10 +1,146 @@
 import logging
+from html.parser import HTMLParser
+import re
 from typing import List, Dict, Any
 import httpx
 import feedparser
 from datetime import datetime
 
+from ..core.cve import extract_cve_ids
+
 logger = logging.getLogger(__name__)
+
+ARTICLE_BODY_MARKERS = {
+    "article-body",
+    "articlebody",
+    "entry-content",
+    "post-content",
+    "story-body",
+}
+BLOCK_TAGS = {
+    "article",
+    "blockquote",
+    "br",
+    "div",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "li",
+    "p",
+    "section",
+    "tr",
+}
+SKIP_TAGS = {"noscript", "script", "style", "svg", "template"}
+VOID_TAGS = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}
+
+
+def _normalize_text(text: str) -> str:
+    lines = []
+    for line in text.splitlines():
+        normalized = re.sub(r"\s+", " ", line).strip()
+        if normalized:
+            lines.append(normalized)
+    return "\n".join(lines)
+
+
+def _is_article_body(attrs: dict[str, str]) -> bool:
+    identifiers = " ".join((attrs.get("id", ""), attrs.get("class", "")))
+    normalized = identifiers.casefold().replace("_", "-")
+    tokens = set(re.split(r"\s+", normalized))
+    return bool(tokens & ARTICLE_BODY_MARKERS)
+
+
+class ArticleBodyParser(HTMLParser):
+    """Extract readable text from a source page's primary article body."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.capture_depth = 0
+        self.skip_depth = 0
+        self.body_parts: list[str] = []
+        self.meta_descriptions: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized_tag = tag.casefold()
+        attr_map = {name.casefold(): value or "" for name, value in attrs}
+
+        if normalized_tag == "meta":
+            meta_name = (
+                attr_map.get("property", "") or attr_map.get("name", "")
+            ).casefold()
+            if meta_name in {"description", "og:description"}:
+                description = attr_map.get("content", "").strip()
+                if description:
+                    self.meta_descriptions.append(description)
+
+        if not self.capture_depth and _is_article_body(attr_map):
+            self.capture_depth = 1
+        elif self.capture_depth and normalized_tag not in VOID_TAGS:
+            self.capture_depth += 1
+
+        if not self.capture_depth:
+            return
+        if normalized_tag in SKIP_TAGS:
+            self.skip_depth += 1
+        elif not self.skip_depth and normalized_tag in BLOCK_TAGS:
+            self.body_parts.append("\n")
+
+    def handle_endtag(self, tag: str) -> None:
+        if not self.capture_depth:
+            return
+
+        normalized_tag = tag.casefold()
+        if normalized_tag in SKIP_TAGS and self.skip_depth:
+            self.skip_depth -= 1
+        elif not self.skip_depth and normalized_tag in BLOCK_TAGS:
+            self.body_parts.append("\n")
+
+        if normalized_tag not in VOID_TAGS:
+            self.capture_depth -= 1
+
+    def handle_data(self, data: str) -> None:
+        if self.capture_depth and not self.skip_depth:
+            self.body_parts.append(data)
+
+
+def extract_article_text(source_html: str) -> str:
+    """Return primary article text, falling back to page description metadata."""
+    parser = ArticleBodyParser()
+    parser.feed(source_html)
+    article_body = _normalize_text("".join(parser.body_parts))
+    if article_body:
+        return article_body
+    return _normalize_text("\n".join(parser.meta_descriptions))
+
+
+def merge_article_cves(article: Dict[str, Any], *texts: Any) -> None:
+    existing_cves = article.get("cves", [])
+    if existing_cves is None:
+        existing_cves = []
+    elif isinstance(existing_cves, str):
+        existing_cves = [existing_cves]
+    cve_text = "\n".join(
+        [*(str(value) for value in existing_cves), *(str(value) for value in texts)]
+    )
+    article["cves"] = extract_cve_ids(cve_text)
 
 
 class SentryDigestFeedClient:
@@ -31,17 +167,24 @@ class SentryDigestFeedClient:
         feed = feedparser.parse(response.text)
         articles = []
         for entry in feed.entries:
-            articles.append(
-                {
-                    "title": entry.get("title", ""),
-                    "link": entry.get("link", ""),
-                    "summary": entry.get("description", ""),
-                    "published": entry.get("published", ""),
-                    "source": entry.get("dc_source", "Unknown Source"),
-                    "date": entry.get("dc_date", datetime.now().strftime("%Y-%m-%d")),
-                    "content": entry.get("content", ""),
-                }
+            article = {
+                "title": entry.get("title", ""),
+                "link": entry.get("link", ""),
+                "summary": entry.get("description", ""),
+                "published": entry.get("published", ""),
+                "source": entry.get("dc_source", "Unknown Source"),
+                "date": entry.get("dc_date", datetime.now().strftime("%Y-%m-%d")),
+                "content": entry.get("content", ""),
+                "cves": entry.get("cves", []),
+            }
+            merge_article_cves(
+                article,
+                article["title"],
+                article["link"],
+                article["summary"],
+                article["content"],
             )
+            articles.append(article)
         return articles
 
     async def fetch_articles(self) -> List[Dict[str, Any]]:
@@ -92,6 +235,12 @@ class SentryDigestFeedClient:
 
             # Skip if the article already has content
             if "content" in article and article["content"]:
+                merge_article_cves(
+                    article,
+                    article.get("title", ""),
+                    article.get("summary", ""),
+                    article["content"],
+                )
                 enriched_articles.append(article)
                 continue
 
@@ -118,8 +267,10 @@ class SentryDigestFeedClient:
                     response = await client.get(article_link)
 
                     if response.status_code == 200:
-                        # Add full article content
-                        article["content"] = full_content + "\n\n" + response.text
+                        article_text = extract_article_text(response.text)
+                        article["content"] = full_content
+                        if article_text:
+                            article["content"] += "\n" + article_text
                     else:
                         # Use what we have if we can't fetch the full article
                         logger.warning(
@@ -130,6 +281,13 @@ class SentryDigestFeedClient:
                 logger.warning(f"Error fetching full content: {e}")
                 # Fall back to summary if error occurs
                 article["content"] = full_content
+
+            merge_article_cves(
+                article,
+                article.get("title", ""),
+                article.get("summary", ""),
+                article.get("content", ""),
+            )
 
             enriched_articles.append(article)
 

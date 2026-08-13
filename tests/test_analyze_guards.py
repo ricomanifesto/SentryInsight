@@ -234,6 +234,38 @@ class AnalyzeGuardTests(unittest.TestCase):
         )
         self.assertNotIn("CVE-2026-4444", result["cves_identified"])
 
+    def test_structured_cves_omit_truncated_identifiers(self):
+        analyze = import_analyze_with_stubs()
+
+        self.assertEqual(
+            analyze.collect_structured_cves(
+                {
+                    "cves": [
+                        "CVE-2026-593...",
+                        "CVE-2026-59310",
+                        "CVE-2026-59310",
+                    ]
+                }
+            ),
+            ["CVE-2026-59310"],
+        )
+        self.assertEqual(analyze.collect_structured_cves({"cves": None}), [])
+
+    def test_prompt_includes_source_derived_cve_metadata(self):
+        analyze = import_analyze_with_stubs()
+
+        article_summary = analyze.format_article_summary(
+            {
+                "title": "VMware issue exploited in the wild",
+                "summary": "The RSS value ends at CVE-2026-593...",
+                "content": "Attackers gained access through the vulnerable service.",
+                "cves": ["CVE-2026-59310"],
+            }
+        )
+
+        self.assertIn("CVEs: CVE-2026-59310", article_summary)
+        self.assertNotIn("CVEs: CVE-2026-593...", article_summary)
+
     def test_analysis_result_ignores_patch_only_cves_for_expected_coverage(self):
         analyze = import_analyze_with_stubs()
 
@@ -312,6 +344,42 @@ class AnalyzeGuardTests(unittest.TestCase):
             )
 
         self.assertEqual(result["cves_identified"], ["CVE-2026-2222"])
+
+    def test_analysis_result_ignores_unconfirmed_source_metadata_cve(self):
+        analyze = import_analyze_with_stubs()
+
+        class FakeOpenCodeClient:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def generate(self, **_kwargs):
+                return "# Exploitation Report\n\nGenerated through OpenCode."
+
+        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
+
+        with patch.dict(os.environ, {}, clear=True):
+            result = asyncio.run(
+                analyze.analyze_exploitation(
+                    articles=[
+                        {
+                            "title": "Vendor activity under investigation",
+                            "summary": (
+                                "Scanning is indicative of potential exploitation "
+                                "efforts targeting CVE-2026-1111."
+                            ),
+                            "link": "https://example.test/report",
+                            "cves": ["CVE-2026-1111"],
+                        }
+                    ],
+                    config={
+                        "analysis": {
+                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+                        }
+                    },
+                )
+            )
+
+        self.assertEqual(result["cves_identified"], [])
 
     def test_analysis_result_keeps_exploited_cve_near_unrelated_negation(self):
         analyze = import_analyze_with_stubs()

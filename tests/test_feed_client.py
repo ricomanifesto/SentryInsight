@@ -17,6 +17,39 @@ class FakeHttpClient:
         return FakeResponse()
 
 
+class StaticArticleResponse:
+    status_code = 200
+    text = """
+    <html>
+      <head>
+        <meta property="og:description" content="Attackers target a vendor service.">
+      </head>
+      <body>
+        <nav>Unrelated advisory CVE-2025-9999</nav>
+        <div class="articleBody">
+          <p>Attackers are actively exploiting CVE-2026-59310 in the wild.</p>
+          <p>The vulnerability enables remote code execution.</p>
+        </div>
+        <footer>Another unrelated advisory CVE-2024-8888</footer>
+      </body>
+    </html>
+    """
+
+
+class StaticArticleClient:
+    def __init__(self, *_args, **_kwargs):
+        pass
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *_args):
+        return None
+
+    async def get(self, _url):
+        return StaticArticleResponse()
+
+
 class TrackingArticleClient:
     called = False
 
@@ -73,8 +106,59 @@ def test_fetch_articles_preserves_safe_defaults_for_sparse_feed_entries(monkeypa
             "source": "Unknown Source",
             "date": articles[0]["date"],
             "content": "",
+            "cves": [],
         }
     ]
+
+
+def test_fetch_articles_extracts_only_complete_feed_cves(monkeypatch):
+    monkeypatch.setattr(
+        fetch_module.feedparser,
+        "parse",
+        lambda _text: SimpleNamespace(
+            entries=[
+                {
+                    "title": "Active exploitation advisory",
+                    "description": (
+                        "CVE-2026-593... was truncated, while CVE-2026-59310 "
+                        "is complete."
+                    ),
+                    "link": "https://example.test/advisory",
+                }
+            ]
+        ),
+    )
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+    client.client = FakeHttpClient()
+
+    articles = asyncio.run(client.fetch_articles())
+
+    assert articles[0]["cves"] == ["CVE-2026-59310"]
+
+
+def test_enrich_article_content_extracts_readable_body_and_source_cves(monkeypatch):
+    monkeypatch.setattr(fetch_module.httpx, "AsyncClient", StaticArticleClient)
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+
+    articles = asyncio.run(
+        client.enrich_article_content(
+            [
+                {
+                    "title": "Vendor issue",
+                    "summary": "The feed summary was truncated at CVE-2026-593...",
+                    "link": "https://example.test/advisory",
+                    "content": "",
+                    "cves": [],
+                }
+            ]
+        )
+    )
+
+    assert "Attackers are actively exploiting CVE-2026-59310" in articles[0]["content"]
+    assert "<div" not in articles[0]["content"]
+    assert articles[0]["cves"] == ["CVE-2026-59310"]
+    assert "CVE-2025-9999" not in articles[0]["content"]
+    assert "CVE-2024-8888" not in articles[0]["content"]
 
 
 def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatch):

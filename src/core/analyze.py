@@ -11,6 +11,7 @@ from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .cve import extract_cve_ids
 
 logger = logging.getLogger(__name__)
+PROMPT_ARTICLE_CHAR_LIMIT = 2000
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
@@ -34,7 +35,10 @@ EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r")\b",
     re.IGNORECASE,
 )
-CVE_CONTEXT_PATTERN = re.compile(r"CVE[-\s]?(\d{4})[-\s]?(\d{1,})", re.IGNORECASE)
+CVE_CONTEXT_PATTERN = re.compile(
+    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?!\d|\.\.\.)\b",
+    re.IGNORECASE,
+)
 STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
 SENTENCE_PATTERN = re.compile(r"[^.!?\n]+(?:[.!?]+|$)")
 URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
@@ -58,6 +62,20 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"under attack"
     r")\b",
     re.IGNORECASE | re.DOTALL,
+)
+UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
+    r"(?:"
+    r"\b(?:can|could|may|might|possible|potential(?:ly)?)\b.{0,100}"
+    r"\bexploit(?:ed|ing|ation)?\b|"
+    r"\bif\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
+    r"\bindicative of\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
+    r"\bnot enough evidence\b.{0,160}\b(?:exploit(?:ed|ing|ation)?|correlat)"
+    r")",
+    re.IGNORECASE | re.DOTALL,
+)
+GROUPED_ISSUES_PATTERN = re.compile(
+    r"\b(?:all|both|these|the listed)\s+(?:flaws?|issues?|vulnerabilit(?:y|ies))\b",
+    re.IGNORECASE,
 )
 
 
@@ -99,8 +117,7 @@ def format_article_summary(article: Dict[str, Any]) -> str:
     source = clean_article_source(article.get("source"))
     link = clean_text(article.get("link"))
     content = clean_text(
-        article.get("content", article.get("summary")),
-        "No content available",
+        article.get("content") or article.get("summary"), "No content available"
     )
 
     metadata = []
@@ -115,25 +132,17 @@ def format_article_summary(article: Dict[str, Any]) -> str:
     if metadata:
         heading = f"{heading} ({'; '.join(metadata)})"
 
-    return f"{heading}\n\n{content[:500]}...\n\n"
+    return f"{heading}\n\n{content[:PROMPT_ARTICLE_CHAR_LIMIT]}...\n\n"
 
 
 def collect_structured_cves(article: Dict[str, Any]) -> list[str]:
     """Collect CVE IDs from structured article metadata."""
-    cves: list[str] = []
-    cves.extend(str(cve).strip() for cve in article.get("cves", []) if str(cve).strip())
-    cves.extend(extract_cve_ids("\n".join(cves)))
-
-    seen: set[str] = set()
-    unique_cves: list[str] = []
-    for cve in cves:
-        normalized_cve = cve.upper()
-        if normalized_cve in seen:
-            continue
-        seen.add(normalized_cve)
-        unique_cves.append(normalized_cve)
-
-    return unique_cves
+    values = article.get("cves", [])
+    if values is None:
+        values = []
+    elif isinstance(values, str):
+        values = [values]
+    return [cve.upper() for cve in extract_cve_ids("\n".join(map(str, values)))]
 
 
 def collect_prompt_cves(article_summary: str) -> list[str]:
@@ -148,7 +157,10 @@ def has_exploitation_relevance(article_summary: str) -> bool:
 
 def has_negated_exploitation_relevance(article_summary: str) -> bool:
     """Return whether prompt-visible text negates exploitation activity."""
-    return bool(NEGATED_EXPLOITATION_PATTERN.search(article_summary))
+    return bool(
+        NEGATED_EXPLOITATION_PATTERN.search(article_summary)
+        or UNCONFIRMED_EXPLOITATION_PATTERN.search(article_summary)
+    )
 
 
 def normalize_cve_match(match: re.Match[str]) -> str:
@@ -192,15 +204,6 @@ def has_positive_exploitation_sentence(article_summary: str) -> bool:
     )
 
 
-def has_negated_cve_sentence(article_summary: str, cve: str) -> bool:
-    normalized_cve = cve.upper()
-    return any(
-        normalized_cve in collect_prompt_cves(sentence)
-        and has_negated_exploitation_relevance(sentence)
-        for sentence in iter_line_sentences(article_summary)
-    )
-
-
 def sentence_containing_position(text: str, position: int) -> str:
     line_start = text.rfind("\n", 0, position) + 1
     line_end = text.find("\n", position)
@@ -229,13 +232,50 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
 
     structured_cves = collect_structured_prompt_cves(article_summary)
     metadata_context_cves = structured_cves or collect_url_prompt_cves(article_summary)
-    if metadata_context_cves and has_positive_exploitation_sentence(article_summary):
-        for cve in metadata_context_cves:
-            if not has_negated_cve_sentence(article_summary, cve):
+    article_body = strip_cve_metadata_noise(article_summary)
+    article_sentences = iter_line_sentences(article_body)
+    body_has_positive_exploitation = has_positive_exploitation_sentence(article_body)
+    contextless_cves: list[str] = []
+    has_any_cve_context = False
+    has_non_negated_cve_context = False
+    for cve in metadata_context_cves:
+        indexed_cve_sentences = [
+            (index, sentence)
+            for index, sentence in enumerate(article_sentences)
+            if cve.upper() in collect_prompt_cves(sentence)
+        ]
+        if indexed_cve_sentences:
+            has_any_cve_context = True
+            cve_context_is_negated = any(
+                has_negated_exploitation_relevance(sentence)
+                for _, sentence in indexed_cve_sentences
+            )
+            has_non_negated_cve_context = (
+                has_non_negated_cve_context or not cve_context_is_negated
+            )
+            nearby_sentences = []
+            for index, sentence in indexed_cve_sentences:
+                if index:
+                    nearby_sentences.append(article_sentences[index - 1])
+                nearby_sentences.append(sentence)
+            if not cve_context_is_negated and any(
+                has_exploitation_relevance(sentence)
+                and not has_negated_exploitation_relevance(sentence)
+                for sentence in nearby_sentences
+            ):
                 add_cve(cve)
+        else:
+            contextless_cves.append(cve)
 
-    for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
-        cve_context = sentence_containing_position(article_summary, match.start())
+    if body_has_positive_exploitation and (
+        (len(contextless_cves) == 1 and not has_non_negated_cve_context)
+        or (not has_any_cve_context and GROUPED_ISSUES_PATTERN.search(article_body))
+    ):
+        for cve in contextless_cves:
+            add_cve(cve)
+
+    for match in CVE_CONTEXT_PATTERN.finditer(article_body):
+        cve_context = sentence_containing_position(article_body, match.start())
         if has_exploitation_relevance(
             cve_context
         ) and not has_negated_exploitation_relevance(cve_context):

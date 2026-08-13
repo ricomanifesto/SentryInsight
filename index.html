@@ -596,7 +596,7 @@
                 } else if (reMed.test(text)) {
                     const b = document.createElement('span'); b.className = 'severity-medium'; b.textContent = 'Medium'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
                 }
-                const m = h3.textContent.match(/(CVE-\d{4}-\d{4,7})/i);
+                const m = h3.textContent.match(/(CVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b)/i);
                 if (m) {
                     const a = document.createElement('a'); a.href = `https://nvd.nist.gov/vuln/detail/${m[1]}`; a.target = '_blank'; a.rel = 'noopener';
                     const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = m[1];
@@ -640,8 +640,8 @@
         }
 
         function linkifyCVEs() {
-            const cveTextPattern = /CVE-\d{4}-\d{4,7}/i;
-            const cveLinkPattern = /CVE-\d{4}-\d{4,7}/gi;
+            const cveTextPattern = /CVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b/i;
+            const cveLinkPattern = /CVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b/gi;
             contentEl.querySelectorAll('p, li').forEach(el => {
                 const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
                     acceptNode: (node) => {

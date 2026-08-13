@@ -1,3 +1,5 @@
+import hashlib
+
 from src.core.content_fingerprint import (
     compute_articles_fingerprint,
     read_stored_fingerprint,
@@ -21,6 +23,12 @@ def test_fingerprint_changes_when_article_set_changes():
     )
 
     assert original != changed
+
+
+def test_fingerprint_invalidates_legacy_identity_only_hash():
+    legacy_fingerprint = hashlib.sha256(b"https://a").hexdigest()
+
+    assert compute_articles_fingerprint([{"link": "https://a"}]) != legacy_fingerprint
 
 
 def test_fingerprint_falls_back_to_title_when_link_missing():

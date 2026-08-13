@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v2"
 
 
 def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
@@ -23,7 +24,8 @@ def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
         }
         - {""}
     )
-    return hashlib.sha256("\n".join(identifiers).encode("utf-8")).hexdigest()
+    fingerprint_input = "\n".join([FINGERPRINT_SCHEMA_VERSION, *identifiers])
+    return hashlib.sha256(fingerprint_input.encode("utf-8")).hexdigest()
 
 
 def read_stored_fingerprint(path: str = FINGERPRINT_PATH) -> Optional[str]:
