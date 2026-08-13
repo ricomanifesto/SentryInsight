@@ -178,6 +178,16 @@ def test_fingerprint_normalizes_title_like_generated_heading():
     assert multiline == same_line
 
 
+def test_fingerprint_applies_untitled_article_prompt_fallback():
+    missing = compute_articles_fingerprint([{"link": "https://a"}])
+    blank = compute_articles_fingerprint([{"link": "https://a", "title": "  "}])
+    fallback = compute_articles_fingerprint(
+        [{"link": "https://a", "title": "Untitled article"}]
+    )
+
+    assert missing == blank == fallback
+
+
 def test_fingerprint_invalidates_legacy_identity_only_hash():
     legacy_fingerprint = hashlib.sha256(b"https://a").hexdigest()
 

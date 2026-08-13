@@ -21,7 +21,7 @@ from .prompt_content import (
 )
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v12"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v13"
 
 
 def _normalize_fingerprint_value(value: Any) -> str:
@@ -51,7 +51,8 @@ def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
             "link": normalize_prompt_metadata(article.get("link")),
             "prompt_content": _normalize_prompt_content(article),
             "source": normalize_prompt_source(article.get("source")),
-            "title": normalize_prompt_metadata(article.get("title")),
+            "title": normalize_prompt_metadata(article.get("title"))
+            or "Untitled article",
         }
         if any(record.values()):
             records.add(json.dumps(record, sort_keys=True, separators=(",", ":")))

@@ -401,6 +401,22 @@ def test_extract_article_text_falls_back_to_sanitized_visible_page_body():
     assert article_text == "Attackers exploit CVE-2026-45659 in the wild."
 
 
+def test_extract_article_text_prioritizes_metadata_before_generic_page_fallback():
+    source_html = """
+    <html>
+      <head>
+        <meta name="description" content="Attackers actively exploit CVE-2026-45659.">
+      </head>
+      <body><p>JavaScript is required to view this page.</p></body>
+    </html>
+    """
+
+    assert extract_article_text(source_html) == (
+        "Attackers actively exploit CVE-2026-45659.\n"
+        "JavaScript is required to view this page."
+    )
+
+
 def test_extract_article_text_stops_at_container_with_omitted_paragraph_end_tags():
     source_html = """
     <article><p>Primary content.<p>More content.</article>
