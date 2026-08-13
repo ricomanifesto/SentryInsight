@@ -1265,6 +1265,86 @@ class AnalyzeGuardTests(unittest.TestCase):
                     ["CVE-2026-1111", "CVE-2026-3333"],
                 )
 
+    def test_grouped_exception_overrides_unrelated_neutral_cve_mentions(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "**CVE-2026-2222 advisory** (CVEs: CVE-2026-1111, "
+            "CVE-2026-2222)\n\nAll vulnerabilities except CVE-2026-2222 "
+            "are actively exploited.",
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "CVE-2026-2222 affects the product. All vulnerabilities except "
+            "CVE-2026-2222 are actively exploited.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    ["CVE-2026-1111"],
+                )
+
+    def test_explicit_positive_claim_can_override_grouped_exception(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "All vulnerabilities except CVE-2026-2222 are actively exploited. "
+            "Attackers separately exploit CVE-2026-2222 in the wild."
+        )
+
+        self.assertCountEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
+    def test_non_exploitation_grouped_exception_does_not_block_promotion(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "All vulnerabilities except CVE-2026-2222 are patched. "
+            "Both vulnerabilities are actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
+    def test_elided_subject_after_contrast_inherits_preceding_cve(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "CVE-2026-1111 is not patched but is actively exploited.",
+            "CVE-2026-1111 is not patched but actively exploited in the wild.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    ["CVE-2026-1111"],
+                )
+
+    def test_explicit_subject_after_contrast_does_not_inherit_preceding_cve(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1111 is not patched but attackers actively exploit "
+            "CVE-2026-2222."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-2222"],
+        )
+
+    def test_elided_plural_subject_after_contrast_inherits_preceding_cves(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1111 and CVE-2026-2222 are not patched but are actively "
+            "exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
     def test_unrelated_grouped_patch_sentence_does_not_promote_all_cves(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

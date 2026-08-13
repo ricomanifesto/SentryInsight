@@ -214,6 +214,12 @@ FOLLOWING_PLURAL_CVE_REFERENCE_PATTERN = re.compile(
     r"(?:flaws?|issues?|vulnerabilit(?:y|ies)|bugs?|zero[\s-]?days?))\b",
     re.IGNORECASE,
 )
+FOLLOWING_ELIDED_CVE_REFERENCE_PATTERN = re.compile(
+    r"^\s*(?:although|but|even though|however,?|while|whereas)\s+"
+    r"(?:(?:is|are|was|were|has|have|had|remains?|continues?)\b|"
+    r"(?:(?:not|actively|currently)\s+)*(?:exploit|in the wild|weaponiz|under attack))",
+    re.IGNORECASE,
+)
 PRECEDING_CVE_IDENTIFICATION_PATTERN = re.compile(
     r"\b(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b"
     r"[^.;\n]{0,80}\b(?:assigned|designated|identified|known|tracked)\s+as\s+"
@@ -481,6 +487,18 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
     )
     contextless_cves: list[str] = []
     explicitly_negated_cves: set[str] = set()
+    for sentence in article_sentences:
+        for clause in EXPLOITATION_CLAUSE_BOUNDARY_PATTERN.split(sentence):
+            if not (
+                has_exploitation_relevance(clause)
+                and not has_negated_exploitation_relevance(clause)
+            ):
+                continue
+            explicitly_negated_cves.update(
+                cve.upper()
+                for match in GROUPED_EXCEPTION_PATTERN.finditer(clause)
+                for cve in collect_prompt_cves(match.group("cves"))
+            )
     has_non_negated_cve_context = False
     for cve in metadata_context_cves:
         indexed_cve_sentences = []
@@ -495,7 +513,6 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         if indexed_cve_sentences:
             cve_context_is_negated = all(
                 has_negated_exploitation_relevance(clause)
-                or cve_is_grouped_exception(clause, cve)
                 for _, clauses in indexed_cve_sentences
                 for clause in clauses
             )
@@ -554,11 +571,15 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                             )
                         )
                         break
-            if (not cve_context_is_negated or has_positive_following_reference) and any(
+            has_positive_nearby_context = any(
                 has_exploitation_relevance(sentence)
                 and not has_negated_exploitation_relevance(sentence)
+                and not cve_is_grouped_exception(sentence, cve)
                 for sentence in nearby_sentences
-            ):
+            )
+            if (
+                not cve_context_is_negated or has_positive_following_reference
+            ) and has_positive_nearby_context:
                 add_cve(cve)
         else:
             contextless_cves.append(cve)
@@ -583,6 +604,7 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         following_clause = following_clause_after_position(cve_sentence, cve_position)
         following_reference = bool(
             FOLLOWING_CVE_REFERENCE_PATTERN.search(following_clause)
+            or FOLLOWING_ELIDED_CVE_REFERENCE_PATTERN.search(following_clause)
         )
         context_is_positive = has_exploitation_relevance(cve_context) and not (
             has_negated_exploitation_relevance(cve_context)
