@@ -45,6 +45,7 @@ URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
     r"no evidence(?:\s+(?:of|that))?|"
+    r"no\s+(?:known|confirmed|observed|active)\s+|"
     r"not\s+(?:actively\s+|being\s+)?(?=exploit)|"
     r"without\s+(?:evidence|signs?|reports?)(?:\s+of)?|"
     r"has not been|"

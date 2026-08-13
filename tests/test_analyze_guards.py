@@ -484,6 +484,15 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_no_known_exploitation_wording_is_negated(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = "There is no known exploitation of CVE-2026-1234."
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."
