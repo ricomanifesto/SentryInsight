@@ -58,6 +58,8 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
     r"no evidence(?:\s+(?:of|that))?|"
     r"no\s+(?:(?:known|confirmed|observed|active)\s+)?(?=exploit)|"
+    r"not\s+(?:all|both|these|the listed)\s+"
+    r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies))|"
     r"not\s+(?:actively\s+|being\s+)?(?=exploit)|"
     r"without\s+(?:evidence|signs?|reports?)(?:\s+of)?|"
     r"has not been|"
@@ -108,7 +110,8 @@ GROUPED_ISSUES_PATTERN = re.compile(
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
     r"[;,]\s*(?=(?:and|attackers?|threat actors?)\b)|"
-    r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they)\b)|"
+    r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they|it|"
+    r"the\s+(?:flaw|issue|vulnerability|bug))\b)|"
     r"\s+(?=and\s+CVE-\d{4}-\d{4,}\s+(?:is|was|has)\b)|"
     r"(?:[;,]\s*|\s+)(?=(?:but|however|while|whereas)\b|"
     r"yet\s+(?:attackers?|threat actors?|researchers?|they)\b)"
@@ -305,6 +308,19 @@ def clause_containing_position(text: str, position: int) -> str:
     return text[clause_start:]
 
 
+def following_clause_after_position(text: str, position: int) -> str:
+    boundaries = list(EXPLOITATION_CLAUSE_BOUNDARY_PATTERN.finditer(text))
+    for index, boundary in enumerate(boundaries):
+        if position < boundary.start():
+            clause_end = (
+                boundaries[index + 1].start()
+                if index + 1 < len(boundaries)
+                else len(text)
+            )
+            return text[boundary.end() : clause_end]
+    return ""
+
+
 def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]:
     """Collect prompt CVEs that are tied to non-negated exploit activity."""
     cves: list[str] = []
@@ -393,9 +409,16 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             article_body, match.start()
         )
         cve_context = clause_containing_position(cve_sentence, cve_position)
-        if has_exploitation_relevance(
+        following_clause = following_clause_after_position(cve_sentence, cve_position)
+        context_is_positive = has_exploitation_relevance(
             cve_context
-        ) and not has_negated_exploitation_relevance(cve_context):
+        ) and not has_negated_exploitation_relevance(cve_context)
+        following_reference_is_positive = (
+            FOLLOWING_CVE_REFERENCE_PATTERN.search(following_clause)
+            and has_exploitation_relevance(following_clause)
+            and not has_negated_exploitation_relevance(following_clause)
+        )
+        if context_is_positive or following_reference_is_positive:
             add_cve(normalize_cve_match(match))
 
     return cves
