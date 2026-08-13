@@ -510,7 +510,7 @@ def merge_prompt_visible_article_cves(article: Dict[str, Any]) -> None:
     merge_article_cves(
         article,
         article.get("title", ""),
-        article.get("link", ""),
+        unquote(str(article.get("link", ""))),
         visible_content,
     )
 

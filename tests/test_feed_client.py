@@ -174,6 +174,52 @@ def test_fetch_articles_extracts_only_complete_feed_cves(monkeypatch):
     assert articles[0]["cves"] == ["CVE-2026-59310"]
 
 
+def test_fetch_articles_decodes_cve_in_canonical_link(monkeypatch):
+    monkeypatch.setattr(
+        fetch_module.feedparser,
+        "parse",
+        lambda _text: SimpleNamespace(
+            entries=[
+                {
+                    "title": "Active exploitation advisory",
+                    "description": "This vulnerability is actively exploited.",
+                    "link": "https://vendor.test/CVE%2D2026%2D1234",
+                }
+            ]
+        ),
+    )
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+    client.client = FakeHttpClient()
+
+    articles = asyncio.run(client.fetch_articles())
+
+    assert articles[0]["link"] == "https://vendor.test/CVE%2D2026%2D1234"
+    assert articles[0]["cves"] == ["CVE-2026-1234"]
+
+
+def test_fetch_articles_preserves_cve_in_unencoded_canonical_link(monkeypatch):
+    monkeypatch.setattr(
+        fetch_module.feedparser,
+        "parse",
+        lambda _text: SimpleNamespace(
+            entries=[
+                {
+                    "title": "Active exploitation advisory",
+                    "description": "This vulnerability is actively exploited.",
+                    "link": "https://vendor.test/CVE-2026-1234",
+                }
+            ]
+        ),
+    )
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+    client.client = FakeHttpClient()
+
+    articles = asyncio.run(client.fetch_articles())
+
+    assert articles[0]["link"] == "https://vendor.test/CVE-2026-1234"
+    assert articles[0]["cves"] == ["CVE-2026-1234"]
+
+
 def test_fetch_articles_sanitizes_nonempty_feed_content_before_merging_cves(
     monkeypatch,
 ):
