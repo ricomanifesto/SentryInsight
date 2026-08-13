@@ -14,10 +14,14 @@ import re
 from typing import Any, Dict, List, Optional
 
 from .cve import extract_cve_ids
-from .prompt_content import get_prompt_visible_content, normalize_prompt_metadata
+from .prompt_content import (
+    get_prompt_visible_content,
+    normalize_prompt_metadata,
+    normalize_prompt_source,
+)
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v10"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v11"
 
 
 def _normalize_fingerprint_value(value: Any) -> str:
@@ -44,7 +48,7 @@ def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
             "cves": normalized_cves,
             "link": normalize_prompt_metadata(article.get("link")),
             "prompt_content": _normalize_prompt_content(article),
-            "source": _normalize_fingerprint_value(article.get("source")),
+            "source": normalize_prompt_source(article.get("source")),
             "title": normalize_prompt_metadata(article.get("title")),
         }
         if any(record.values()):

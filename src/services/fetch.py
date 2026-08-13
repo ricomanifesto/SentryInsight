@@ -206,6 +206,7 @@ class FeedContentParser(HTMLParser):
         self.hidden_depth = 0
         self.hidden_tag = ""
         self.parts: list[str] = []
+        self.link_cves: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         normalized_tag = tag.casefold()
@@ -217,8 +218,11 @@ class FeedContentParser(HTMLParser):
             if normalized_tag not in VOID_TAGS:
                 self.hidden_depth = 1
                 self.hidden_tag = normalized_tag
-        elif normalized_tag in BLOCK_TAGS:
-            self.parts.append("\n")
+        else:
+            if href := attr_map.get("href"):
+                self.link_cves.extend(extract_cve_ids(href))
+            if normalized_tag in BLOCK_TAGS:
+                self.parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
         normalized_tag = tag.casefold()
@@ -247,6 +251,12 @@ def extract_feed_content_text(value: Any) -> str:
     parser = FeedContentParser()
     parser.feed(flatten_feed_content(value))
     return _normalize_text("".join(parser.parts))
+
+
+def extract_feed_content_link_cves(value: Any) -> list[str]:
+    parser = FeedContentParser()
+    parser.feed(flatten_feed_content(value))
+    return list(dict.fromkeys(parser.link_cves))
 
 
 def extract_article_text(source_html: str) -> str:
@@ -300,15 +310,24 @@ class SentryDigestFeedClient:
         feed = feedparser.parse(response.text)
         articles = []
         for entry in feed.entries:
+            description = entry.get("description", "")
+            content = entry.get("content", "")
+            entry_cves = entry.get("cves", [])
+            if isinstance(entry_cves, str):
+                entry_cves = [entry_cves]
             article = {
                 "title": entry.get("title", ""),
                 "link": entry.get("link", ""),
-                "summary": extract_feed_content_text(entry.get("description", "")),
+                "summary": extract_feed_content_text(description),
                 "published": entry.get("published", ""),
                 "source": entry.get("dc_source", "Unknown Source"),
                 "date": entry.get("dc_date", datetime.now().strftime("%Y-%m-%d")),
-                "content": extract_feed_content_text(entry.get("content", "")),
-                "cves": entry.get("cves", []),
+                "content": extract_feed_content_text(content),
+                "cves": [
+                    *(entry_cves or []),
+                    *extract_feed_content_link_cves(description),
+                    *extract_feed_content_link_cves(content),
+                ],
             }
             merge_article_cves(
                 article,

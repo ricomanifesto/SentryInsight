@@ -528,6 +528,15 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111"],
         )
 
+    def test_contrastive_not_cve_shorthand_excludes_the_second_cve(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = "Only CVE-2026-1111 is actively exploited, not CVE-2026-2222."
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111"],
+        )
+
     def test_body_level_cve_label_remains_available_for_context_analysis(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

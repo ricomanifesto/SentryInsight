@@ -7,6 +7,11 @@ def normalize_prompt_metadata(value: object) -> str:
     return " ".join("" if value is None else str(value).split())
 
 
+def normalize_prompt_source(value: object) -> str:
+    source = normalize_prompt_metadata(value)
+    return "" if source.casefold() == "unknown source" else source
+
+
 def get_prompt_visible_content(content: str) -> str:
     visible_content = content[:PROMPT_ARTICLE_CHAR_LIMIT]
     if len(content) > PROMPT_ARTICLE_CHAR_LIMIT:

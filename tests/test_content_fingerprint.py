@@ -64,6 +64,15 @@ def test_fingerprint_changes_when_source_attribution_changes():
     assert original != corrected
 
 
+def test_fingerprint_omits_unknown_source_like_the_prompt():
+    missing = compute_articles_fingerprint([{"link": "https://a"}])
+    unknown = compute_articles_fingerprint(
+        [{"link": "https://a", "source": " Unknown\n SOURCE "}]
+    )
+
+    assert missing == unknown
+
+
 def test_fingerprint_ignores_content_after_prompt_cutoff():
     visible_prefix = "A" * 2000
     original = compute_articles_fingerprint(

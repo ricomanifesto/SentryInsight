@@ -9,14 +9,16 @@ from .model_config import resolve_model, validate_model
 from .model_client import build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .cve import extract_cve_ids
-from .prompt_content import get_prompt_visible_content, normalize_prompt_metadata
+from .prompt_content import (
+    get_prompt_visible_content,
+    normalize_prompt_metadata,
+    normalize_prompt_source,
+)
 
 logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
-
-UNKNOWN_SOURCE_SENTINELS = {"unknown source"}
 
 EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r"\b(?:"
@@ -118,7 +120,8 @@ GROUPED_ISSUES_PATTERN = re.compile(
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
-    r"[;,]\s*(?=(?:and|attackers?|threat actors?|CVE-\d{4}-\d{4,})\b)|"
+    r"[;,]\s*(?=(?:and|attackers?|threat actors?|not\s+CVE-\d{4}-\d{4,}|"
+    r"CVE-\d{4}-\d{4,})\b)|"
     r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they|it|"
     r"the\s+(?:flaw|issue|vulnerability|bug))\b)|"
     r"\s+(?=and\s+CVE-\d{4}-\d{4,}\s+(?:is|was|has)\b)|"
@@ -135,12 +138,7 @@ FOLLOWING_CVE_REFERENCE_PATTERN = re.compile(
 
 
 def clean_article_source(value: Any) -> str:
-    if value is None:
-        return ""
-    source = " ".join(str(value).split())
-    if source.casefold() in UNKNOWN_SOURCE_SENTINELS:
-        return ""
-    return source
+    return normalize_prompt_source(value)
 
 
 def filter_exploitation_articles(
