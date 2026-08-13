@@ -731,6 +731,27 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_referential_scan_stops_at_additional_vulnerability_wording(self):
+        analyze = import_analyze_with_stubs()
+
+        for introduced_vulnerability in (
+            "An additional vulnerability",
+            "A fourth vulnerability",
+            "A newly discovered vulnerability",
+        ):
+            with self.subTest(introduced_vulnerability=introduced_vulnerability):
+                article_summary = (
+                    "**Vendor advisory** (CVEs: CVE-2026-1111)\n\n"
+                    "CVE-2026-1111 was fixed. "
+                    f"{introduced_vulnerability} affects servers. "
+                    "It is actively exploited."
+                )
+
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
     def test_demonstrative_new_vulnerability_still_refers_to_prior_cve(self):
         analyze = import_analyze_with_stubs()
         article_summary = (
@@ -1078,6 +1099,19 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertEqual(
             analyze.collect_exploitation_relevant_prompt_cves(article_summary),
             ["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
+    def test_negative_reference_blocks_contextless_metadata_cve_promotion(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "There is no evidence that this vulnerability is being exploited. "
+            "A separate malware campaign targets the vendor."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
         )
 
     def test_grouped_cve_wording_preserves_all_metadata_cves(self):

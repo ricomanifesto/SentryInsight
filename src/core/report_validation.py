@@ -150,6 +150,25 @@ class ActiveContentHTMLParser(HTMLParser):
                 return
 
 
+class RenderedTextHTMLParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.hidden_depth = 0
+        self.parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.casefold() in {"head", "script", "style", "template"}:
+            self.hidden_depth += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.casefold() in {"head", "script", "style", "template"}:
+            self.hidden_depth = max(0, self.hidden_depth - 1)
+
+    def handle_data(self, data: str) -> None:
+        if not self.hidden_depth:
+            self.parts.append(data)
+
+
 def strip_markdown_code(markdown: str) -> str:
     """Remove code regions before active-content validation."""
     without_block_code = strip_markdown_block_code(markdown)
@@ -842,8 +861,25 @@ def normalize_cve_id(cve_id: str) -> str:
 
 
 def find_report_cve_ids(markdown: str) -> set[str]:
+    rendered_parts: list[str] = []
+    for token in MARKDOWN_PARSER.parse(markdown):
+        if token.type == "inline":
+            rendered_parts.extend(
+                child.content
+                for child in (token.children or [])
+                if child.type in {"text", "code_inline", "image"}
+            )
+        elif token.type in {"code_block", "fence"}:
+            rendered_parts.append(token.content)
+        elif token.type == "html_block":
+            parser = RenderedTextHTMLParser()
+            parser.feed(token.content)
+            parser.close()
+            rendered_parts.extend(parser.parts)
+    rendered_text = "\n".join(rendered_parts)
     return {
-        normalize_cve_id(match.group(0)) for match in CVE_ID_PATTERN.finditer(markdown)
+        normalize_cve_id(match.group(0))
+        for match in CVE_ID_PATTERN.finditer(rendered_text)
     }
 
 

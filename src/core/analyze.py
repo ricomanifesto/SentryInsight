@@ -209,8 +209,12 @@ FOLLOWING_PLURAL_CVE_REFERENCE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 NEW_VULNERABILITY_REFERENT_PATTERN = re.compile(
-    r"\b(?:(?:a|an)\s+(?:(?:different|new|separate|second|third)\s+)?|"
-    r"(?:another|different|separate|second|third)\s+)"
+    r"\b(?:(?:a|an)\s+(?:(?:additional|different|new|newly(?:\s+discovered)?|"
+    r"separate|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|"
+    r"\d+(?:st|nd|rd|th))\s+)?|"
+    r"(?:another|additional|different|newly(?:\s+discovered)?|separate|second|"
+    r"third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|"
+    r"\d+(?:st|nd|rd|th))\s+)"
     r"(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b",
     re.IGNORECASE,
 )
@@ -455,6 +459,12 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
     article_body = strip_cve_metadata_noise(article_summary)
     article_sentences = iter_line_sentences(article_body)
     body_has_positive_exploitation = has_positive_exploitation_sentence(article_body)
+    body_has_negative_singular_reference = any(
+        FOLLOWING_CVE_REFERENCE_PATTERN.search(sentence)
+        and has_exploitation_relevance(sentence)
+        and has_negated_exploitation_relevance(sentence)
+        for sentence in article_sentences
+    )
     contextless_cves: list[str] = []
     explicitly_negated_cves: set[str] = set()
     has_non_negated_cve_context = False
@@ -534,7 +544,11 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             for cve in metadata_context_cves:
                 if cve.upper() not in explicitly_negated_cves:
                     add_cve(cve)
-        elif len(contextless_cves) == 1 and not has_non_negated_cve_context:
+        elif (
+            len(contextless_cves) == 1
+            and not has_non_negated_cve_context
+            and not body_has_negative_singular_reference
+        ):
             add_cve(contextless_cves[0])
 
     for match in CVE_CONTEXT_PATTERN.finditer(article_body):

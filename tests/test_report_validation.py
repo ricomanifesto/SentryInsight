@@ -109,6 +109,37 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
 
+    def test_link_destination_cve_does_not_satisfy_expected_cve(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "See the [vendor advisory](https://vendor.test/CVE-2026-1111).",
+        )
+
+        issues = validate_report_content(report, expected_cves=["CVE-2026-1111"])
+
+        self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
+
+    def test_html_comment_cve_does_not_satisfy_expected_cve(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation is concentrated in edge systems. "
+            "<!-- CVE-2026-1111 -->",
+        )
+
+        issues = validate_report_content(report, expected_cves=["CVE-2026-1111"])
+
+        self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
+
+    def test_visible_link_label_cve_satisfies_expected_cve(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "See [CVE-2026-1111](https://vendor.test/advisory).",
+        )
+
+        self.assertEqual(
+            validate_report_content(report, expected_cves=["CVE-2026-1111"]), []
+        )
+
     def test_remove_source_attribution_section_removes_generated_section(self):
         report = (
             VALID_REPORT
