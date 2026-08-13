@@ -57,7 +57,7 @@ class LinkOnlyArticleResponse:
       <nav><a href="/CVE-2026-9998">Related advisory</a></nav>
       <article>
         <p>Attackers actively exploit
-          <a href="/CVE-2026-1234_details">this vulnerability</a>
+          <a href="/advisory_CVE-2026-1234_details">this vulnerability</a>
           in ongoing attacks against exposed servers.
         </p>
         <p><a href="/CVE-2026-9997">Related advisory</a></p>
@@ -244,7 +244,7 @@ def test_fetch_articles_preserves_cve_from_visible_feed_link_target(monkeypatch)
                     "link": "https://example.test/advisory",
                     "description": (
                         '<p>Attackers exploit <a href="https://example.test/'
-                        'CVE-2026-1234_details">this vulnerability</a>.</p>'
+                        'advisory_CVE-2026-1234_details">this vulnerability</a>.</p>'
                         '<p><a href="https://example.test/CVE-2026-8888">'
                         "Related advisory</a></p>"
                         '<footer><a href="https://example.test/CVE-2026-9999">'

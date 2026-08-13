@@ -62,7 +62,7 @@ CVE_FIELD_PATTERN = re.compile(
     r"\*\*CVE(?: ID)?\s*\*\*\s*:|"
     r"\*\*CVE(?: ID)?\s*:\s*\*\*|"
     r"CVE(?: ID)?\s*:|"
-    r"\*\*CVE(?: ID)?\s*\*\*\s*\|"
+    r"(?:\*\*CVE(?: ID)?\s*\*\*|CVE(?: ID)?)\s*\|"
     r")\s*(?P<value>[^|\n]*)(?:\|.*)?$",
     re.IGNORECASE | re.MULTILINE,
 )

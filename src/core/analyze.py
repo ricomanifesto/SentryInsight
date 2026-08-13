@@ -47,7 +47,7 @@ CONFIRMED_EXPLOITATION_PATTERN = re.compile(
     re.IGNORECASE,
 )
 CVE_CONTEXT_PATTERN = re.compile(
-    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?![A-Za-z0-9]|\.\.\.|…)",
+    r"(?<![A-Za-z0-9])CVE[-\s]?(\d{4})[-\s]?(\d{4,})" r"(?![A-Za-z0-9]|\.\.\.|…)",
     re.IGNORECASE,
 )
 STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
@@ -91,6 +91,8 @@ POSTPOSED_NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
+    r"\b(?:alleged|believed|likely|possibly|potentially|reported|suspected|thought)"
+    r"\s+to\s+(?:be\s+)?exploit(?:ed|ing)?\b|"
     r"\b(?:exploitation|exploit activity)\b[^,.;\n]{0,60}\b"
     r"(?:likely|suspected|unconfirmed|possible|potential)\b|"
     r"\b(?:proof[\s-]of[\s-]concept|PoC)\s+exploit\b|"

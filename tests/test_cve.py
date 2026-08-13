@@ -17,6 +17,9 @@ def test_extract_cve_ids_rejects_incomplete_and_truncated_identifiers():
 
 
 def test_extract_cve_ids_accepts_underscore_url_delimiter():
-    text = "https://example.test/CVE-2026-1234_details " "but not CVE-2026-5678suffix"
+    text = (
+        "https://example.test/advisory_CVE-2026-1234_details "
+        "but not prefixCVE-2026-4321 or CVE-2026-5678suffix"
+    )
 
     assert extract_cve_ids(text) == ["CVE-2026-1234"]
