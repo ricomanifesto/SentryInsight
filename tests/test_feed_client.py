@@ -457,6 +457,30 @@ def test_extract_article_text_prefers_full_story_over_earlier_teaser():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_combines_sibling_article_body_sections():
+    source_html = """
+    <article>
+      <section itemprop="articleBody">
+        <p>The vulnerability is tracked as CVE-2026-1234.</p>
+      </section>
+      <section class="article-body">
+        <p>Attackers are actively exploiting the vulnerability in the wild.</p>
+      </section>
+    </article>
+    <article>
+      <section class="article-body">
+        <p>Related story for CVE-2026-9999.</p>
+      </section>
+    </article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-1234" in article_text
+    assert "actively exploiting the vulnerability" in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_extract_article_text_prefers_nested_article_over_broad_main():
     source_html = """
     <main>

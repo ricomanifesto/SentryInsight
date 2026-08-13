@@ -139,6 +139,7 @@ class ArticleTextCandidate:
     tag: str
     priority: int
     order: int
+    parent_order: int | None = None
     tag_depth: int = 1
     parts: list[str] = field(default_factory=list)
 
@@ -195,6 +196,9 @@ class ArticleBodyParser(HTMLParser):
                 tag=normalized_tag,
                 priority=priority,
                 order=len(self.candidates),
+                parent_order=(
+                    self.active_candidates[-1].order if self.active_candidates else None
+                ),
             )
             self.candidates.append(candidate)
             self.active_candidates.append(candidate)
@@ -251,8 +255,27 @@ class ArticleBodyParser(HTMLParser):
                 populated_candidates.append((candidate, candidate_text))
         if not populated_candidates:
             return ""
+        selection_options = list(populated_candidates)
+        sibling_groups: dict[
+            tuple[int, int], list[tuple[ArticleTextCandidate, str]]
+        ] = {}
+        for candidate, candidate_text in populated_candidates:
+            if candidate.parent_order is not None:
+                sibling_groups.setdefault(
+                    (candidate.priority, candidate.parent_order), []
+                ).append((candidate, candidate_text))
+        for siblings in sibling_groups.values():
+            if len(siblings) > 1:
+                first_candidate = min(siblings, key=lambda item: item[0].order)[0]
+                combined_text = _normalize_text(
+                    "\n".join(
+                        text
+                        for _, text in sorted(siblings, key=lambda item: item[0].order)
+                    )
+                )
+                selection_options.append((first_candidate, combined_text))
         _, selected_text = max(
-            populated_candidates,
+            selection_options,
             key=lambda item: (item[0].priority, len(item[1]), -item[0].order),
         )
         return selected_text
