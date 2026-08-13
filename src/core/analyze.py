@@ -269,7 +269,7 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
     article_sentences = iter_line_sentences(article_body)
     body_has_positive_exploitation = has_positive_exploitation_sentence(article_body)
     contextless_cves: list[str] = []
-    has_any_cve_context = False
+    explicitly_negated_cves: set[str] = set()
     has_non_negated_cve_context = False
     for cve in metadata_context_cves:
         indexed_cve_sentences = []
@@ -282,7 +282,6 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             if cve_clauses:
                 indexed_cve_sentences.append((index, cve_clauses))
         if indexed_cve_sentences:
-            has_any_cve_context = True
             cve_context_is_negated = all(
                 has_negated_exploitation_relevance(clause)
                 for _, clauses in indexed_cve_sentences
@@ -291,6 +290,8 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             has_non_negated_cve_context = (
                 has_non_negated_cve_context or not cve_context_is_negated
             )
+            if cve_context_is_negated:
+                explicitly_negated_cves.add(cve.upper())
             nearby_sentences = []
             for index, cve_clauses in indexed_cve_sentences:
                 nearby_sentences.extend(cve_clauses)
@@ -309,12 +310,13 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         else:
             contextless_cves.append(cve)
 
-    if body_has_positive_exploitation and (
-        (len(contextless_cves) == 1 and not has_non_negated_cve_context)
-        or (not has_any_cve_context and GROUPED_ISSUES_PATTERN.search(article_body))
-    ):
-        for cve in contextless_cves:
-            add_cve(cve)
+    if body_has_positive_exploitation:
+        if GROUPED_ISSUES_PATTERN.search(article_body):
+            for cve in metadata_context_cves:
+                if cve.upper() not in explicitly_negated_cves:
+                    add_cve(cve)
+        elif len(contextless_cves) == 1 and not has_non_negated_cve_context:
+            add_cve(contextless_cves[0])
 
     for match in CVE_CONTEXT_PATTERN.finditer(article_body):
         cve_sentence, cve_position = sentence_context_at_position(

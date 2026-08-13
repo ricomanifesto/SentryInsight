@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass, field
 from html.parser import HTMLParser
 import re
 from typing import List, Dict, Any
@@ -34,7 +35,6 @@ BLOCK_TAGS = {
     "section",
     "tr",
 }
-SEMANTIC_BODY_TAGS = {"article", "main"}
 SKIP_TAGS = {"noscript", "script", "style", "svg", "template"}
 VOID_TAGS = {
     "area",
@@ -70,21 +70,44 @@ def _is_article_body(attrs: dict[str, str]) -> bool:
     return bool(tokens & ARTICLE_BODY_MARKERS)
 
 
+def _article_body_priority(tag: str, attrs: dict[str, str]) -> int:
+    if _is_article_body(attrs):
+        return 3
+    if tag == "article":
+        return 2
+    if tag == "main":
+        return 1
+    return 0
+
+
+@dataclass
+class ArticleTextCandidate:
+    tag: str
+    priority: int
+    order: int
+    tag_depth: int = 1
+    parts: list[str] = field(default_factory=list)
+
+
 class ArticleBodyParser(HTMLParser):
     """Extract readable text from a source page's primary article body."""
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self.capture_tag: str | None = None
-        self.capture_tag_depth = 0
-        self.capture_complete = False
-        self.skip_depth = 0
-        self.body_parts: list[str] = []
+        self.hidden_depth = 0
+        self.candidates: list[ArticleTextCandidate] = []
+        self.active_candidates: list[ArticleTextCandidate] = []
         self.meta_descriptions: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         normalized_tag = tag.casefold()
         attr_map = {name.casefold(): value or "" for name, value in attrs}
+
+        if normalized_tag in SKIP_TAGS:
+            self.hidden_depth += 1
+            return
+        if self.hidden_depth:
+            return
 
         if normalized_tag == "meta":
             meta_name = (
@@ -95,51 +118,61 @@ class ArticleBodyParser(HTMLParser):
                 if description:
                     self.meta_descriptions.append(description)
 
-        if (
-            not self.capture_complete
-            and self.capture_tag is None
-            and normalized_tag not in VOID_TAGS
-            and (normalized_tag in SEMANTIC_BODY_TAGS or _is_article_body(attr_map))
-        ):
-            self.capture_tag = normalized_tag
-            self.capture_tag_depth = 1
-        elif self.capture_tag == normalized_tag and normalized_tag not in VOID_TAGS:
-            self.capture_tag_depth += 1
+        for candidate in self.active_candidates:
+            if candidate.tag == normalized_tag and normalized_tag not in VOID_TAGS:
+                candidate.tag_depth += 1
 
-        if self.capture_tag is None:
-            return
-        if normalized_tag in SKIP_TAGS:
-            self.skip_depth += 1
-        elif not self.skip_depth and normalized_tag in BLOCK_TAGS:
-            self.body_parts.append("\n")
+        priority = _article_body_priority(normalized_tag, attr_map)
+        if priority and normalized_tag not in VOID_TAGS:
+            candidate = ArticleTextCandidate(
+                tag=normalized_tag,
+                priority=priority,
+                order=len(self.candidates),
+            )
+            self.candidates.append(candidate)
+            self.active_candidates.append(candidate)
+
+        if normalized_tag in BLOCK_TAGS:
+            for candidate in self.active_candidates:
+                candidate.parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
-        if self.capture_tag is None:
+        normalized_tag = tag.casefold()
+        if normalized_tag in SKIP_TAGS:
+            if self.hidden_depth:
+                self.hidden_depth -= 1
+            return
+        if self.hidden_depth:
             return
 
-        normalized_tag = tag.casefold()
-        if normalized_tag in SKIP_TAGS and self.skip_depth:
-            self.skip_depth -= 1
-        elif not self.skip_depth and normalized_tag in BLOCK_TAGS:
-            self.body_parts.append("\n")
-
-        if normalized_tag == self.capture_tag:
-            self.capture_tag_depth -= 1
-            if self.capture_tag_depth == 0:
-                self.capture_tag = None
-                self.capture_complete = True
-                self.skip_depth = 0
+        for candidate in list(self.active_candidates):
+            if normalized_tag in BLOCK_TAGS:
+                candidate.parts.append("\n")
+            if normalized_tag == candidate.tag:
+                candidate.tag_depth -= 1
+                if candidate.tag_depth == 0:
+                    self.active_candidates.remove(candidate)
 
     def handle_data(self, data: str) -> None:
-        if self.capture_tag is not None and not self.skip_depth:
-            self.body_parts.append(data)
+        if not self.hidden_depth:
+            for candidate in self.active_candidates:
+                candidate.parts.append(data)
+
+    def primary_text(self) -> str:
+        if not self.candidates:
+            return ""
+        selected = max(
+            self.candidates,
+            key=lambda candidate: (candidate.priority, -candidate.order),
+        )
+        return _normalize_text("".join(selected.parts))
 
 
 def extract_article_text(source_html: str) -> str:
     """Return primary article text, falling back to page description metadata."""
     parser = ArticleBodyParser()
     parser.feed(source_html)
-    article_body = _normalize_text("".join(parser.body_parts))
+    article_body = parser.primary_text()
     if article_body:
         return article_body
     return _normalize_text("\n".join(parser.meta_descriptions))

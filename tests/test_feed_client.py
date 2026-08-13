@@ -212,6 +212,34 @@ def test_extract_article_text_uses_only_first_selected_article_container():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_prefers_nested_article_over_broad_main():
+    source_html = """
+    <main>
+      <nav>Related CVE-2026-9998</nav>
+      <article><p>Primary story for CVE-2026-55040.</p></article>
+      <aside>Related CVE-2026-9999</aside>
+    </main>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-55040" in article_text
+    assert "CVE-2026-9998" not in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
+def test_extract_article_text_ignores_candidates_inside_hidden_containers():
+    source_html = """
+    <template><article>Hidden CVE-2026-9999</article></template>
+    <article><p>Visible story for CVE-2026-55040.</p></article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-55040" in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatch):
     TrackingArticleClient.called = False
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", TrackingArticleClient)
