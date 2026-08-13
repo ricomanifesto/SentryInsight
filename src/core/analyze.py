@@ -113,7 +113,8 @@ UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:be\s+)?(?:allow|cause|enable|exploit|expose|give|lead|permit|provide|result))"
     r"[^,.;\n]{0,100}"
     r"\bexploit(?:ed|ing|ation)?\b|"
-    r"\b(?:if|when)\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
+    r"\bif\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
+    r"\bwhen\s+(?:successfully\s+)?exploited\b|"
     r"\bindicative of\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
     r"\bnot enough evidence\b.{0,160}\b(?:exploit(?:ed|ing|ation)?|correlat)"
     r")",

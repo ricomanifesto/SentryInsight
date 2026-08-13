@@ -868,6 +868,18 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_dated_when_clause_preserves_factual_exploitation(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1234 was patched after incidents in 2025, when it was "
+            "exploited to compromise servers."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_probabilistic_exploitation_is_not_confirmed_activity(self):
         analyze = import_analyze_with_stubs()
 
