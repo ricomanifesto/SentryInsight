@@ -42,6 +42,17 @@ def test_fingerprint_changes_when_enriched_content_or_cves_change():
     assert original != enriched
 
 
+def test_fingerprint_normalizes_structured_cves_like_prompt_heading():
+    spaced = compute_articles_fingerprint(
+        [{"link": "https://a", "cves": ["cve 2026 1234", "not assigned"]}]
+    )
+    canonical = compute_articles_fingerprint(
+        [{"link": "https://a", "cves": ["CVE-2026-1234", "pending"]}]
+    )
+
+    assert spaced == canonical
+
+
 def test_fingerprint_changes_when_source_attribution_changes():
     original = compute_articles_fingerprint(
         [{"link": "https://a", "source": "Original Research Team"}]

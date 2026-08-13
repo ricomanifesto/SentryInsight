@@ -686,6 +686,20 @@ class AnalyzeGuardTests(unittest.TestCase):
                     [],
                 )
 
+    def test_probabilistic_exploitation_is_not_confirmed_activity(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "Exploitation of CVE-2026-1234 is likely.",
+            "Exploitation of CVE-2026-1234 is suspected.",
+            "Exploitation of CVE-2026-1234 remains unconfirmed.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."

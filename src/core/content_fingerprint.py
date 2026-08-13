@@ -13,10 +13,11 @@ from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional
 
+from .cve import extract_cve_ids
 from .prompt_content import get_prompt_visible_content, normalize_prompt_metadata
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v9"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v10"
 
 
 def _normalize_fingerprint_value(value: Any) -> str:
@@ -37,11 +38,7 @@ def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
         if isinstance(raw_cves, str):
             raw_cves = [raw_cves]
         normalized_cves = sorted(
-            {
-                normalized
-                for value in raw_cves or []
-                if (normalized := _normalize_fingerprint_value(value))
-            }
+            extract_cve_ids("\n".join(str(value) for value in raw_cves or []))
         )
         record = {
             "cves": normalized_cves,
