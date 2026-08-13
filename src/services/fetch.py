@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from html.parser import HTMLParser
 import re
 from typing import List, Dict, Any
+from urllib.parse import unquote
 import httpx
 import feedparser
 from datetime import datetime
@@ -174,6 +175,7 @@ class ArticleTextCandidate:
     order: int
     parent_order: int | None = None
     parent_is_collection: bool = False
+    article_ancestor_order: int | None = None
     tag_depth: int = 1
     parts: list[str] = field(default_factory=list)
 
@@ -232,18 +234,29 @@ class ArticleBodyParser(HTMLParser):
         parent_order = parent_context[1] if parent_context else None
         priority = _article_body_priority(normalized_tag, attr_map)
         if priority and normalized_tag not in VOID_TAGS:
+            article_ancestor = next(
+                (
+                    context
+                    for context in reversed(self.element_stack)
+                    if context[0] == "article"
+                ),
+                None,
+            )
             candidate = ArticleTextCandidate(
                 tag=normalized_tag,
                 priority=priority,
                 order=len(self.candidates),
                 parent_order=parent_order,
                 parent_is_collection=bool(parent_context and parent_context[2]),
+                article_ancestor_order=(
+                    article_ancestor[1] if article_ancestor else None
+                ),
             )
             self.candidates.append(candidate)
             self.active_candidates.append(candidate)
 
         if normalized_tag == "a" and (href := attr_map.get("href")):
-            href_cves = extract_cve_ids(href)
+            href_cves = extract_cve_ids(unquote(href))
             if href_cves:
                 self.active_cve_link = ActiveCveLink(
                     href_cves=href_cves,
@@ -335,6 +348,26 @@ class ArticleBodyParser(HTMLParser):
                     )
                 )
                 selection_options.append((first_candidate, combined_text))
+        article_groups: dict[
+            tuple[int, int], list[tuple[ArticleTextCandidate, str]]
+        ] = {}
+        for candidate, candidate_text in populated_candidates:
+            if candidate.article_ancestor_order is not None:
+                article_groups.setdefault(
+                    (candidate.priority, candidate.article_ancestor_order), []
+                ).append((candidate, candidate_text))
+        for descendants in article_groups.values():
+            if len(descendants) > 1:
+                first_candidate = min(descendants, key=lambda item: item[0].order)[0]
+                combined_text = _normalize_text(
+                    "\n".join(
+                        text
+                        for _, text in sorted(
+                            descendants, key=lambda item: item[0].order
+                        )
+                    )
+                )
+                selection_options.append((first_candidate, combined_text))
         _, selected_text = max(
             selection_options,
             key=lambda item: (item[0].priority, len(item[1]), -item[0].order),
@@ -365,7 +398,7 @@ class FeedContentParser(HTMLParser):
                 self.hidden_tag = normalized_tag
         else:
             if normalized_tag == "a" and (href := attr_map.get("href")):
-                href_cves = extract_cve_ids(href)
+                href_cves = extract_cve_ids(unquote(href))
                 if href_cves:
                     self.active_cve_link = ActiveCveLink(href_cves=href_cves)
             if normalized_tag == "img" and (

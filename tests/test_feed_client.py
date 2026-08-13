@@ -364,6 +364,28 @@ def test_enrich_preserves_cve_from_selected_source_page_link_target(monkeypatch)
     assert "CVE-2026-9999" not in articles[0]["content"]
 
 
+def test_extract_article_text_decodes_cve_link_target_delimiters():
+    source_html = """
+    <article>
+      <p>Attackers actively exploit
+        <a href="/advisory/CVE%2D2026%2D1234">this vulnerability</a>.
+      </p>
+    </article>
+    """
+
+    assert "this vulnerability (CVE-2026-1234)" in extract_article_text(source_html)
+
+
+def test_extract_feed_content_decodes_cve_link_target_delimiters():
+    source_html = (
+        'Attackers exploit <a href="/CVE%2D2026%2D1234">this vulnerability</a>.'
+    )
+
+    assert "this vulnerability (CVE-2026-1234)" in (
+        fetch_module.extract_feed_content_text(source_html)
+    )
+
+
 def test_enrich_does_not_promote_cve_beyond_prompt_content_cutoff(monkeypatch):
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", LateCveArticleClient)
     client = SentryDigestFeedClient("https://example.com/feed.xml")
@@ -560,6 +582,32 @@ def test_extract_article_text_combines_marked_siblings_under_unmarked_wrapper():
         <p>Related story for CVE-2026-9999.</p>
       </section>
     </div>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-1234" in article_text
+    assert "actively exploiting the vulnerability" in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
+def test_extract_article_text_combines_marked_sections_across_article_wrappers():
+    source_html = """
+    <article>
+      <div class="header-wrapper">
+        <section class="article-body">
+          <p>The vulnerability is tracked as CVE-2026-1234.</p>
+        </section>
+      </div>
+      <div class="details-wrapper">
+        <section itemprop="articleBody">
+          <p>Attackers are actively exploiting the vulnerability in the wild.</p>
+        </section>
+      </div>
+    </article>
+    <article>
+      <section class="article-body">Related CVE-2026-9999.</section>
+    </article>
     """
 
     article_text = extract_article_text(source_html)

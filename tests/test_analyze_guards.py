@@ -626,6 +626,18 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_unrelated_neither_nor_does_not_negate_exploitation(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1234 requires neither authentication nor user "
+            "interaction and is actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_later_referential_exploitation_overrides_earlier_negative_state(self):
         analyze = import_analyze_with_stubs()
         article_summary = (
