@@ -530,6 +530,23 @@ class AnalyzeGuardTests(unittest.TestCase):
                     [],
                 )
 
+    def test_explicit_impossibility_wording_is_excluded(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "CVE-2026-1234 cannot be exploited remotely.",
+            "CVE-2026-1234 can't be exploited remotely.",
+            "CVE-2026-1234 could not be exploited in testing.",
+            "CVE-2026-1234 is unable to be exploited remotely.",
+            "CVE-2026-1234 is not possible to exploit remotely.",
+            "CVE-2026-1234 is impossible to exploit remotely.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
     def test_contrastive_while_keeps_confirmed_cve_separate_from_negation(self):
         analyze = import_analyze_with_stubs()
         article_summary = (
