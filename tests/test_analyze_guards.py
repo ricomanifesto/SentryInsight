@@ -1242,6 +1242,38 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_neutral_reference_does_not_bind_unrelated_activity_to_metadata_cve(self):
+        analyze = import_analyze_with_stubs()
+
+        for distinct_activity in (
+            "A separate malware campaign targets the vendor.",
+            "Another campaign targets the vendor.",
+            "An unrelated threat actor targets the vendor.",
+        ):
+            with self.subTest(distinct_activity=distinct_activity):
+                article_summary = (
+                    "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+                    "This vulnerability has been patched. "
+                    f"{distinct_activity}"
+                )
+
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
+    def test_positive_reference_binds_contextless_metadata_cve(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "The flaw is actively exploited in the wild."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_grouped_cve_wording_preserves_all_metadata_cves(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

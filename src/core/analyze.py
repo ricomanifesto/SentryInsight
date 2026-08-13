@@ -242,6 +242,12 @@ NEW_VULNERABILITY_REFERENT_PATTERN = re.compile(
     r"(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b",
     re.IGNORECASE,
 )
+DISTINCT_ACTIVITY_REFERENT_PATTERN = re.compile(
+    r"\b(?:another|additional|different|new|separate|unrelated|second|third|"
+    r"fourth|fifth|sixth|seventh|eighth|ninth|tenth|\d+(?:st|nd|rd|th))\s+"
+    r"(?:malware\s+)?(?:attack|campaign|incident|operation|threat|activity)\b",
+    re.IGNORECASE,
+)
 FOLLOWING_REFERENCE_SENTENCE_LIMIT = 3
 
 
@@ -483,6 +489,12 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
     article_body = strip_cve_metadata_noise(article_summary)
     article_sentences = iter_line_sentences(article_body)
     body_has_positive_exploitation = has_positive_exploitation_sentence(article_body)
+    body_has_bindable_positive_exploitation = any(
+        has_exploitation_relevance(sentence)
+        and not has_negated_exploitation_relevance(sentence)
+        and not DISTINCT_ACTIVITY_REFERENT_PATTERN.search(sentence)
+        for sentence in article_sentences
+    )
     body_has_negative_singular_reference = any(
         FOLLOWING_CVE_REFERENCE_PATTERN.search(sentence)
         and has_exploitation_relevance(sentence)
@@ -596,6 +608,7 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         elif (
             len(contextless_cves) == 1
             and not has_non_negated_cve_context
+            and body_has_bindable_positive_exploitation
             and not body_has_negative_singular_reference
         ):
             add_cve(contextless_cves[0])

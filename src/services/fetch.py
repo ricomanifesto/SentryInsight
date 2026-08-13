@@ -248,9 +248,8 @@ class ArticleBodyParser(HTMLParser):
                 priority=priority,
                 order=len(self.candidates),
                 parent_order=parent_order,
-                ancestor_is_collection=any(
-                    context[2] for context in self.element_stack
-                ),
+                ancestor_is_collection=any(context[2] for context in self.element_stack)
+                or _is_article_collection(normalized_tag, attr_map),
                 article_ancestor_order=(
                     article_ancestor[1] if article_ancestor else None
                 ),
