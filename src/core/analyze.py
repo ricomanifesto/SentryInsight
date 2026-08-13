@@ -122,8 +122,8 @@ GROUPED_ISSUES_PATTERN = re.compile(
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
-    r"[;,]\s*(?=(?:and|attackers?|threat actors?|not\s+CVE-\d{4}-\d{4,}|"
-    r"CVE-\d{4}-\d{4,})\b)|"
+    r"[;,]\s*(?=(?:attackers?|threat actors?|not\s+CVE-\d{4}-\d{4,}|"
+    r"CVE-\d{4}-\d{4,}\s+(?:is|was|has))\b)|"
     r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they|it|"
     r"the\s+(?:flaw|issue|vulnerability|bug))\b)|"
     r"\s+(?=and\s+CVE-\d{4}-\d{4,}\s+(?:is|was|has)\b)|"
