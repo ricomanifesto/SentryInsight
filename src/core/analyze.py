@@ -9,9 +9,9 @@ from .model_config import resolve_model, validate_model
 from .model_client import build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .cve import extract_cve_ids
+from .prompt_content import get_prompt_visible_content
 
 logger = logging.getLogger(__name__)
-PROMPT_ARTICLE_CHAR_LIMIT = 2000
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
@@ -162,9 +162,7 @@ def format_article_summary(article: Dict[str, Any]) -> str:
     if metadata:
         heading = f"{heading} ({'; '.join(metadata)})"
 
-    visible_content = content[:PROMPT_ARTICLE_CHAR_LIMIT]
-    if len(content) > PROMPT_ARTICLE_CHAR_LIMIT:
-        visible_content += "..."
+    visible_content = get_prompt_visible_content(content)
     return f"{heading}\n\n{visible_content}\n\n"
 
 

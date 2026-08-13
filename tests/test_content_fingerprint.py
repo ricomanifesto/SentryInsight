@@ -65,6 +65,18 @@ def test_fingerprint_ignores_content_after_prompt_cutoff():
     assert original == changed_suffix
 
 
+def test_fingerprint_records_transition_to_truncated_prompt_content():
+    visible_prefix = "A" * 2000
+    exact_limit = compute_articles_fingerprint(
+        [{"link": "https://a", "content": visible_prefix}]
+    )
+    truncated = compute_articles_fingerprint(
+        [{"link": "https://a", "content": visible_prefix + "B"}]
+    )
+
+    assert exact_limit != truncated
+
+
 def test_fingerprint_uses_summary_only_when_it_is_prompt_content():
     with_content = compute_articles_fingerprint(
         [{"link": "https://a", "content": "Full text", "summary": "Old summary"}]
