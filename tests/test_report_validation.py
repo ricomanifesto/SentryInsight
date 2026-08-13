@@ -293,6 +293,30 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
 
+    def test_colonized_table_non_identifier_cve_field_fails_validation(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n\n"
+            "| Field | Value |\n"
+            "| --- | --- |\n"
+            "| **CVE ID:** | Not assigned |",
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
+
+    def test_colonized_table_complete_cve_field_passes_validation(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n\n"
+            "| Field | Value |\n"
+            "| --- | --- |\n"
+            "| **CVE ID:** | CVE-2026-1234 |",
+        )
+
+        self.assertEqual(validate_report_content(report, expected_cves=[]), [])
+
     def test_unbolded_table_non_identifier_cve_field_fails_validation(self):
         report = VALID_REPORT.replace(
             "- **Status**: Active exploitation observed.",
