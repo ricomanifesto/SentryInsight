@@ -86,6 +86,7 @@ def test_report_viewers_link_all_complete_cves_without_sequence_length_cap():
         viewer = viewer_path.read_text()
 
         assert r"/CVE-\d{4}-\d{4,}(?!\d|\.\.\.|…)\b/gi" in viewer
+        assert r"h3.textContent.match(/(CVE-\d{4}-\d{4,}(?!\d|\.\.\.|…)\b)/i)" in viewer
         assert "contentEl.querySelectorAll('p, li').forEach" in viewer
         assert r"CVE-\d{4}-\d{4,7}" not in viewer
 

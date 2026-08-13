@@ -50,6 +50,27 @@ class StaticArticleClient:
         return StaticArticleResponse()
 
 
+class LinkOnlyArticleResponse:
+    status_code = 200
+    text = """
+    <html><body>
+      <nav><a href="/CVE-2026-9998">Related advisory</a></nav>
+      <article>
+        <p>Attackers actively exploit
+          <a href="/CVE-2026-1234">this vulnerability</a>
+          in ongoing attacks against exposed servers.
+        </p>
+      </article>
+      <footer><a href="/CVE-2026-9999">Another advisory</a></footer>
+    </body></html>
+    """
+
+
+class LinkOnlyArticleClient(StaticArticleClient):
+    async def get(self, _url):
+        return LinkOnlyArticleResponse()
+
+
 class TrackingArticleClient:
     called = False
 
@@ -266,6 +287,29 @@ def test_enrich_article_content_extracts_readable_body_and_source_cves(monkeypat
     assert articles[0]["cves"] == ["CVE-2026-59310"]
     assert "CVE-2025-9999" not in articles[0]["content"]
     assert "CVE-2024-8888" not in articles[0]["content"]
+
+
+def test_enrich_preserves_cve_from_selected_source_page_link_target(monkeypatch):
+    monkeypatch.setattr(fetch_module.httpx, "AsyncClient", LinkOnlyArticleClient)
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+
+    articles = asyncio.run(
+        client.enrich_article_content(
+            [
+                {
+                    "title": "Vendor issue",
+                    "summary": "Active exploitation confirmed.",
+                    "link": "https://example.test/advisory",
+                    "content": "",
+                    "cves": [],
+                }
+            ]
+        )
+    )
+
+    assert articles[0]["cves"] == ["CVE-2026-1234"]
+    assert "CVE-2026-9998" not in articles[0]["content"]
+    assert "CVE-2026-9999" not in articles[0]["content"]
 
 
 def test_extract_article_text_supports_semantic_article_without_markers():

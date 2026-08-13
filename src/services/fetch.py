@@ -106,6 +106,7 @@ class ArticleTextCandidate:
     order: int
     tag_depth: int = 1
     parts: list[str] = field(default_factory=list)
+    link_cves: list[str] = field(default_factory=list)
 
 
 class ArticleBodyParser(HTMLParser):
@@ -156,6 +157,11 @@ class ArticleBodyParser(HTMLParser):
             self.candidates.append(candidate)
             self.active_candidates.append(candidate)
 
+        if href := attr_map.get("href"):
+            link_cves = extract_cve_ids(href)
+            for candidate in self.active_candidates:
+                candidate.link_cves.extend(link_cves)
+
         if normalized_tag in BLOCK_TAGS:
             for candidate in self.active_candidates:
                 candidate.parts.append("\n")
@@ -182,19 +188,22 @@ class ArticleBodyParser(HTMLParser):
             for candidate in self.active_candidates:
                 candidate.parts.append(data)
 
-    def primary_text(self) -> str:
+    def primary_content(self) -> tuple[str, list[str]]:
         populated_candidates = []
         for candidate in self.candidates:
             candidate_text = _normalize_text("".join(candidate.parts))
             if candidate_text:
                 populated_candidates.append((candidate, candidate_text))
         if not populated_candidates:
-            return ""
-        _, selected_text = max(
+            return "", []
+        selected_candidate, selected_text = max(
             populated_candidates,
             key=lambda item: (item[0].priority, len(item[1]), -item[0].order),
         )
-        return selected_text
+        return selected_text, list(dict.fromkeys(selected_candidate.link_cves))
+
+    def primary_text(self) -> str:
+        return self.primary_content()[0]
 
 
 class FeedContentParser(HTMLParser):
@@ -259,19 +268,24 @@ def extract_feed_content_link_cves(value: Any) -> list[str]:
     return list(dict.fromkeys(parser.link_cves))
 
 
-def extract_article_text(source_html: str) -> str:
-    """Return primary article text, falling back to page description metadata."""
+def extract_article_content(source_html: str) -> tuple[str, list[str]]:
+    """Return primary article text and CVEs from its visible link targets."""
     parser = ArticleBodyParser()
     parser.feed(source_html)
-    article_body = parser.primary_text()
+    article_body, link_cves = parser.primary_content()
     if article_body:
-        return article_body
+        return article_body, link_cves
     page_parser = FeedContentParser(skip_tags=PAGE_SKIP_TAGS)
     page_parser.feed(source_html)
     page_text = _normalize_text("".join(page_parser.parts))
     if page_text:
-        return page_text
-    return _normalize_text("\n".join(parser.meta_descriptions))
+        return page_text, list(dict.fromkeys(page_parser.link_cves))
+    return _normalize_text("\n".join(parser.meta_descriptions)), []
+
+
+def extract_article_text(source_html: str) -> str:
+    """Return primary article text, falling back to page description metadata."""
+    return extract_article_content(source_html)[0]
 
 
 def merge_article_cves(article: Dict[str, Any], *texts: Any) -> None:
@@ -410,6 +424,8 @@ class SentryDigestFeedClient:
                 enriched_articles.append(article)
                 continue
 
+            source_link_cves: list[str] = []
+
             # Use async fetch for full article content
             try:
                 timeout = httpx.Timeout(10.0, connect=5.0)
@@ -420,7 +436,9 @@ class SentryDigestFeedClient:
                     response = await client.get(article_link)
 
                     if response.status_code == 200:
-                        article_text = extract_article_text(response.text)
+                        article_text, source_link_cves = extract_article_content(
+                            response.text
+                        )
                         article["content"] = full_content
                         if article_text:
                             article["content"] += "\n" + article_text
@@ -440,6 +458,7 @@ class SentryDigestFeedClient:
                 article.get("title", ""),
                 article.get("summary", ""),
                 article.get("content", ""),
+                *source_link_cves,
             )
 
             enriched_articles.append(article)
