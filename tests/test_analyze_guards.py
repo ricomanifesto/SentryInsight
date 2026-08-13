@@ -968,6 +968,19 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_indirect_exploitation_questions_are_not_confirmed_activity(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "It remains unclear whether CVE-2026-1234 is actively exploited.",
+            "Whether CVE-2026-1234 is actively exploited remains unknown.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
     def test_preverbal_uncertainty_is_not_confirmed_activity(self):
         analyze = import_analyze_with_stubs()
 

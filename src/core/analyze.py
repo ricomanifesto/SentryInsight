@@ -139,6 +139,17 @@ GOVERNING_UNCERTAINTY_PATTERN = re.compile(
     r"[^,.;\n]{0,60}\b(?:likely|suspected|unconfirmed|possible|potential)\b",
     re.IGNORECASE,
 )
+INDIRECT_UNCERTAINTY_PATTERN = re.compile(
+    r"(?:"
+    r"\b(?:unclear|unknown|uncertain|undetermined|unresolved)\b"
+    r"[^.;\n]{0,80}\bwhether\b[^.;\n]{0,160}\b"
+    r"(?:exploit(?:ed|ing|ation)?|in the wild|weaponiz(?:ed|ation)|under attack)\b|"
+    r"\bwhether\b[^.;\n]{0,160}\b"
+    r"(?:exploit(?:ed|ing|ation)?|in the wild|weaponiz(?:ed|ation)|under attack)\b"
+    r"[^.;\n]{0,80}\b(?:unclear|unknown|uncertain|undetermined|unresolved)\b"
+    r")",
+    re.IGNORECASE,
+)
 INTERROGATIVE_EXPLOITATION_PATTERN = re.compile(
     r"^[^?\n]{0,240}\b(?:"
     r"exploit(?:s|ed|ing|ation)?|"
@@ -286,6 +297,7 @@ def has_negated_exploitation_relevance(article_summary: str) -> bool:
         NEGATED_EXPLOITATION_PATTERN.search(clause)
         or INTERROGATIVE_EXPLOITATION_PATTERN.search(clause)
         or GOVERNING_UNCERTAINTY_PATTERN.search(clause)
+        or INDIRECT_UNCERTAINTY_PATTERN.search(clause)
         or (
             UNCONFIRMED_EXPLOITATION_PATTERN.search(clause)
             and not CONFIRMED_EXPLOITATION_PATTERN.search(clause)
