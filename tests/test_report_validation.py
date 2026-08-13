@@ -193,6 +193,17 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "partial_cve_id" for issue in issues))
 
+    def test_partial_cve_in_source_attribution_does_not_fail_body_validation(self):
+        report = (
+            VALID_REPORT
+            + "\n## Source Attribution\n\n"
+            + "- **Advisory for CVE-2026-593...**: Example Source\n"
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertFalse(any(issue.code == "partial_cve_id" for issue in issues))
+
     def test_non_identifier_cve_field_fails_generation_validation(self):
         report = VALID_REPORT.replace(
             "- **Status**: Active exploitation observed.",

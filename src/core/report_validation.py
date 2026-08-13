@@ -1017,7 +1017,9 @@ def validate_report_content(
             )
         )
 
-    if expected_cves is not None and PARTIAL_CVE_ID_PATTERN.search(content):
+    report_body = remove_source_attribution_section(content)
+
+    if expected_cves is not None and PARTIAL_CVE_ID_PATTERN.search(report_body):
         issues.append(
             ReportValidationIssue(
                 code="partial_cve_id",
@@ -1025,7 +1027,7 @@ def validate_report_content(
             )
         )
 
-    if expected_cves is not None and has_invalid_cve_field(content):
+    if expected_cves is not None and has_invalid_cve_field(report_body):
         issues.append(
             ReportValidationIssue(
                 code="invalid_cve_field",
