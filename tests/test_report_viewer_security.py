@@ -219,7 +219,17 @@ def test_report_viewers_label_archived_report_metadata():
             "renderReportMetadata(m ? m[1] : '', isArchiveReport, lastModified)"
             in viewer
         )
-        assert "fallbackDateStr ? new Date(fallbackDateStr) : null" in viewer
+        assert "formatUtcTimestamp(fallbackDateStr)" in viewer
+
+
+def test_report_viewers_render_last_modified_fallback_in_explicit_utc():
+    for viewer_path in REPORT_VIEWERS:
+        viewer = viewer_path.read_text()
+
+        assert ".toLocaleString()" not in viewer
+        assert "function formatUtcTimestamp(value)" in viewer
+        assert "timeZone: 'UTC'" in viewer
+        assert "timeZoneName: 'short'" in viewer
 
 
 def test_report_viewers_reject_failed_markdown_fetches_before_rendering():
