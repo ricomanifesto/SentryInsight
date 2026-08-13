@@ -50,9 +50,7 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"without\s+(?:evidence|signs?|reports?)(?:\s+of)?|"
     r"has not been|"
     r"have not been|"
-    r"not known to be|"
-    r"not reported to be|"
-    r"not observed to be|"
+    r"not\s+(?:known|reported|observed)\s+to\s+(?:be|have\s+been)|"
     r"not detected as|"
     r"no signs? of|"
     r"no reports? of"
@@ -97,7 +95,7 @@ EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
     r"[;,]\s*(?=(?:and|attackers?|threat actors?)\b)|"
     r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they)\b)|"
-    r"(?:[;,]\s*|\s+)(?=(?:but|however)\b|"
+    r"(?:[;,]\s*|\s+)(?=(?:but|however|while|whereas)\b|"
     r"yet\s+(?:attackers?|threat actors?|researchers?|they)\b)"
     r")",
     re.IGNORECASE,

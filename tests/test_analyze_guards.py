@@ -507,6 +507,27 @@ class AnalyzeGuardTests(unittest.TestCase):
                     [],
                 )
 
+    def test_not_known_to_have_been_exploited_wording_is_negated(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = "CVE-2026-1111 is not known to have been exploited."
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
+    def test_contrastive_while_keeps_confirmed_cve_separate_from_negation(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1111 is actively exploited, while CVE-2026-2222 is not "
+            "exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111"],
+        )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."
