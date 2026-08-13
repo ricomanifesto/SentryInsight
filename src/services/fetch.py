@@ -75,7 +75,8 @@ class ArticleBodyParser(HTMLParser):
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self.capture_depth = 0
+        self.capture_tag: str | None = None
+        self.capture_tag_depth = 0
         self.skip_depth = 0
         self.body_parts: list[str] = []
         self.meta_descriptions: list[str] = []
@@ -93,14 +94,17 @@ class ArticleBodyParser(HTMLParser):
                 if description:
                     self.meta_descriptions.append(description)
 
-        if not self.capture_depth and (
-            normalized_tag in SEMANTIC_BODY_TAGS or _is_article_body(attr_map)
+        if (
+            self.capture_tag is None
+            and normalized_tag not in VOID_TAGS
+            and (normalized_tag in SEMANTIC_BODY_TAGS or _is_article_body(attr_map))
         ):
-            self.capture_depth = 1
-        elif self.capture_depth and normalized_tag not in VOID_TAGS:
-            self.capture_depth += 1
+            self.capture_tag = normalized_tag
+            self.capture_tag_depth = 1
+        elif self.capture_tag == normalized_tag and normalized_tag not in VOID_TAGS:
+            self.capture_tag_depth += 1
 
-        if not self.capture_depth:
+        if self.capture_tag is None:
             return
         if normalized_tag in SKIP_TAGS:
             self.skip_depth += 1
@@ -108,7 +112,7 @@ class ArticleBodyParser(HTMLParser):
             self.body_parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
-        if not self.capture_depth:
+        if self.capture_tag is None:
             return
 
         normalized_tag = tag.casefold()
@@ -117,11 +121,14 @@ class ArticleBodyParser(HTMLParser):
         elif not self.skip_depth and normalized_tag in BLOCK_TAGS:
             self.body_parts.append("\n")
 
-        if normalized_tag not in VOID_TAGS:
-            self.capture_depth -= 1
+        if normalized_tag == self.capture_tag:
+            self.capture_tag_depth -= 1
+            if self.capture_tag_depth == 0:
+                self.capture_tag = None
+                self.skip_depth = 0
 
     def handle_data(self, data: str) -> None:
-        if self.capture_depth and not self.skip_depth:
+        if self.capture_tag is not None and not self.skip_depth:
             self.body_parts.append(data)
 
 

@@ -82,7 +82,10 @@ GROUPED_ISSUES_PATTERN = re.compile(
     re.IGNORECASE,
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
-    r"[;,]\s*(?=(?:but|and|yet|however|attackers?|threat actors?)\b)",
+    r"(?:"
+    r"[;,]\s*(?=(?:and|attackers?|threat actors?)\b)|"
+    r"(?:[;,]\s*|\s+)(?=(?:but|yet|however)\b)"
+    r")",
     re.IGNORECASE,
 )
 FOLLOWING_CVE_REFERENCE_PATTERN = re.compile(
