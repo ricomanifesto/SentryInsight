@@ -60,6 +60,7 @@ class LinkOnlyArticleResponse:
           <a href="/CVE-2026-1234">this vulnerability</a>
           in ongoing attacks against exposed servers.
         </p>
+        <p><a href="/CVE-2026-9997">Related advisory</a></p>
       </article>
       <footer><a href="/CVE-2026-9999">Another advisory</a></footer>
     </body></html>
@@ -228,6 +229,8 @@ def test_fetch_articles_preserves_cve_from_visible_feed_link_target(monkeypatch)
                     "description": (
                         '<p>Attackers exploit <a href="https://example.test/'
                         'CVE-2026-1234">this vulnerability</a>.</p>'
+                        '<p><a href="https://example.test/CVE-2026-8888">'
+                        "Related advisory</a></p>"
                         '<footer><a href="https://example.test/CVE-2026-9999">'
                         "Related advisory</a></footer>"
                     ),
@@ -240,7 +243,9 @@ def test_fetch_articles_preserves_cve_from_visible_feed_link_target(monkeypatch)
 
     articles = asyncio.run(client.fetch_articles())
 
-    assert articles[0]["summary"] == "Attackers exploit this vulnerability."
+    assert articles[0]["summary"] == (
+        "Attackers exploit this vulnerability.\nRelated advisory"
+    )
     assert articles[0]["cves"] == ["CVE-2026-1234"]
 
 

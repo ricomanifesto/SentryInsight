@@ -64,6 +64,15 @@ VOID_TAGS = {
     "track",
     "wbr",
 }
+CURRENT_VULNERABILITY_LINK_PATTERN = re.compile(
+    r"^(?:(?:this|the)\s+)?(?:cve|vulnerability|security\s+"
+    r"(?:issue|flaw|vulnerability)|issue|flaw|bug)"
+    r"(?:\s+(?:details?|record|information))?[.:]?$",
+    re.IGNORECASE,
+)
+AUXILIARY_LINK_PATTERN = re.compile(
+    r"\b(?:additional|another|more|next|other|previous|related)\b", re.IGNORECASE
+)
 
 
 def _normalize_text(text: str) -> str:
@@ -73,6 +82,21 @@ def _normalize_text(text: str) -> str:
         if normalized:
             lines.append(normalized)
     return "\n".join(lines)
+
+
+def _referenced_link_cves(href_cves: list[str], link_text: str) -> list[str]:
+    if not href_cves:
+        return []
+    visible_cves = set(extract_cve_ids(link_text))
+    explicit_cves = [cve for cve in href_cves if cve in visible_cves]
+    if explicit_cves:
+        return explicit_cves
+    normalized_text = " ".join(link_text.split())
+    if AUXILIARY_LINK_PATTERN.search(normalized_text):
+        return []
+    if CURRENT_VULNERABILITY_LINK_PATTERN.fullmatch(normalized_text):
+        return href_cves
+    return []
 
 
 def _is_hidden_element(attrs: dict[str, str]) -> bool:
@@ -109,6 +133,13 @@ class ArticleTextCandidate:
     link_cves: list[str] = field(default_factory=list)
 
 
+@dataclass
+class ActiveCveLink:
+    href_cves: list[str]
+    parts: list[str] = field(default_factory=list)
+    article_candidates: list[ArticleTextCandidate] = field(default_factory=list)
+
+
 class ArticleBodyParser(HTMLParser):
     """Extract readable text from a source page's primary article body."""
 
@@ -119,6 +150,7 @@ class ArticleBodyParser(HTMLParser):
         self.candidates: list[ArticleTextCandidate] = []
         self.active_candidates: list[ArticleTextCandidate] = []
         self.meta_descriptions: list[str] = []
+        self.active_cve_link: ActiveCveLink | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         normalized_tag = tag.casefold()
@@ -157,10 +189,13 @@ class ArticleBodyParser(HTMLParser):
             self.candidates.append(candidate)
             self.active_candidates.append(candidate)
 
-        if href := attr_map.get("href"):
-            link_cves = extract_cve_ids(href)
-            for candidate in self.active_candidates:
-                candidate.link_cves.extend(link_cves)
+        if normalized_tag == "a" and (href := attr_map.get("href")):
+            href_cves = extract_cve_ids(href)
+            if href_cves:
+                self.active_cve_link = ActiveCveLink(
+                    href_cves=href_cves,
+                    article_candidates=list(self.active_candidates),
+                )
 
         if normalized_tag in BLOCK_TAGS:
             for candidate in self.active_candidates:
@@ -175,6 +210,15 @@ class ArticleBodyParser(HTMLParser):
                     self.hidden_tag = ""
             return
 
+        if normalized_tag == "a" and self.active_cve_link:
+            link_cves = _referenced_link_cves(
+                self.active_cve_link.href_cves,
+                "".join(self.active_cve_link.parts),
+            )
+            for candidate in self.active_cve_link.article_candidates:
+                candidate.link_cves.extend(link_cves)
+            self.active_cve_link = None
+
         for candidate in list(self.active_candidates):
             if normalized_tag in BLOCK_TAGS:
                 candidate.parts.append("\n")
@@ -185,6 +229,8 @@ class ArticleBodyParser(HTMLParser):
 
     def handle_data(self, data: str) -> None:
         if not self.hidden_depth:
+            if self.active_cve_link:
+                self.active_cve_link.parts.append(data)
             for candidate in self.active_candidates:
                 candidate.parts.append(data)
 
@@ -216,6 +262,7 @@ class FeedContentParser(HTMLParser):
         self.hidden_tag = ""
         self.parts: list[str] = []
         self.link_cves: list[str] = []
+        self.active_cve_link: ActiveCveLink | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         normalized_tag = tag.casefold()
@@ -228,8 +275,10 @@ class FeedContentParser(HTMLParser):
                 self.hidden_depth = 1
                 self.hidden_tag = normalized_tag
         else:
-            if href := attr_map.get("href"):
-                self.link_cves.extend(extract_cve_ids(href))
+            if normalized_tag == "a" and (href := attr_map.get("href")):
+                href_cves = extract_cve_ids(href)
+                if href_cves:
+                    self.active_cve_link = ActiveCveLink(href_cves=href_cves)
             if normalized_tag in BLOCK_TAGS:
                 self.parts.append("\n")
 
@@ -242,10 +291,20 @@ class FeedContentParser(HTMLParser):
                     self.hidden_tag = ""
         elif normalized_tag in BLOCK_TAGS:
             self.parts.append("\n")
+        if normalized_tag == "a" and self.active_cve_link:
+            self.link_cves.extend(
+                _referenced_link_cves(
+                    self.active_cve_link.href_cves,
+                    "".join(self.active_cve_link.parts),
+                )
+            )
+            self.active_cve_link = None
 
     def handle_data(self, data: str) -> None:
         if not self.hidden_depth:
             self.parts.append(data)
+            if self.active_cve_link:
+                self.active_cve_link.parts.append(data)
 
 
 def flatten_feed_content(value: Any) -> str:
