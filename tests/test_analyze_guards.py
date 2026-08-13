@@ -930,13 +930,13 @@ class AnalyzeGuardTests(unittest.TestCase):
                     [],
                 )
 
-    def test_contextual_cve_match_rejects_unicode_ellipsis(self):
+    def test_contextual_cve_match_accepts_complete_id_before_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."
 
         self.assertEqual(
             analyze.collect_exploitation_relevant_prompt_cves(article_summary),
-            [],
+            ["CVE-2026-1234"],
         )
 
     def test_month_name_does_not_make_confirmed_exploitation_unconfirmed(self):
@@ -1022,6 +1022,23 @@ class AnalyzeGuardTests(unittest.TestCase):
             analyze.collect_exploitation_relevant_prompt_cves(article_summary),
             [],
         )
+
+    def test_grouped_exploitation_exception_excludes_named_metadata_cve(self):
+        analyze = import_analyze_with_stubs()
+
+        for exception in ("except", "other than"):
+            with self.subTest(exception=exception):
+                article_summary = (
+                    "**Vendor advisory** (CVEs: CVE-2026-1111, "
+                    "CVE-2026-2222, CVE-2026-3333)\n\n"
+                    f"All vulnerabilities {exception} CVE-2026-2222 are "
+                    "actively exploited."
+                )
+
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    ["CVE-2026-1111", "CVE-2026-3333"],
+                )
 
     def test_unrelated_grouped_patch_sentence_does_not_promote_all_cves(self):
         analyze = import_analyze_with_stubs()

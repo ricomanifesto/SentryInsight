@@ -47,7 +47,7 @@ CONFIRMED_EXPLOITATION_PATTERN = re.compile(
     re.IGNORECASE,
 )
 CVE_CONTEXT_PATTERN = re.compile(
-    r"(?<![A-Za-z0-9])CVE[-\s]?(\d{4})[-\s]?(\d{4,})" r"(?![A-Za-z0-9]|\.\.\.|…)",
+    r"(?<![A-Za-z0-9])CVE[-\s]?(\d{4})[-\s]?(\d{4,})(?![A-Za-z0-9])",
     re.IGNORECASE,
 )
 STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
@@ -147,6 +147,12 @@ SUBSET_GROUPED_ISSUES_PATTERN = re.compile(
     r"\b(?:one|some|several|many|few|a subset|at least one|one or more)\s+"
     r"of\s+(?:the|these|those)\s+"
     r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies)|bugs?)\b",
+    re.IGNORECASE,
+)
+GROUPED_EXCEPTION_PATTERN = re.compile(
+    r"\b(?:except(?:ing)?|other than|with the exception of)\s+"
+    r"(?P<cves>CVE[-\s]?\d{4}[-\s]?\d{4,}(?:"
+    r"(?:\s*,\s*|\s+(?:and|or)\s+)CVE[-\s]?\d{4}[-\s]?\d{4,})*)",
     re.IGNORECASE,
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
@@ -348,6 +354,13 @@ def has_positive_grouped_exploitation_clause(article_summary: str) -> bool:
     return False
 
 
+def cve_is_grouped_exception(clause: str, cve: str) -> bool:
+    return any(
+        cve.upper() in collect_prompt_cves(match.group("cves"))
+        for match in GROUPED_EXCEPTION_PATTERN.finditer(clause)
+    )
+
+
 def sentence_context_at_position(text: str, position: int) -> tuple[str, int]:
     line_start = text.rfind("\n", 0, position) + 1
     line_end = text.find("\n", position)
@@ -425,6 +438,7 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         if indexed_cve_sentences:
             cve_context_is_negated = all(
                 has_negated_exploitation_relevance(clause)
+                or cve_is_grouped_exception(clause, cve)
                 for _, clauses in indexed_cve_sentences
                 for clause in clauses
             )
@@ -499,9 +513,10 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         following_reference = bool(
             FOLLOWING_CVE_REFERENCE_PATTERN.search(following_clause)
         )
-        context_is_positive = has_exploitation_relevance(
-            cve_context
-        ) and not has_negated_exploitation_relevance(cve_context)
+        context_is_positive = has_exploitation_relevance(cve_context) and not (
+            has_negated_exploitation_relevance(cve_context)
+            or cve_is_grouped_exception(cve_context, normalize_cve_match(match))
+        )
         following_reference_is_positive = (
             following_reference
             and has_exploitation_relevance(following_clause)
