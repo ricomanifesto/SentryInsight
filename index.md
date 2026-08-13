@@ -2,101 +2,107 @@
 
 ## Executive Summary
 
-North Korean state-sponsored threat actor Lazarus Group is actively exploiting a Windows zero-day vulnerability (CVE-2026-68820) to target defense-sector organizations through the Operation Dream Job campaign, achieving SYSTEM-level access and deploying novel backdoors. Simultaneously, a massive supply chain compromise involving 737 malicious Chrome VPN extensions has been discovered routing user traffic through attacker-controlled SOCKS5 proxies, primarily targeting Russian-speaking users seeking circumvent censorship tools.
+Multiple critical vulnerabilities are being actively exploited across diverse platforms, ranging from enterprise software and cloud services to operating systems and browser extensions. The most severe activity involves zero-day exploitation by nation-state actors, particularly the North Korean Lazarus Group leveraging a Windows vulnerability (CVE-2026-68820) to target defense-sector organizations under Operation Dream Job. Simultaneously, a newly disclosed Microsoft SharePoint authentication bypass (CVE-2026-55040) is under active attack following public PoC release, while Adobe Commerce flaws (CVE-2026-71362) are being exploited to hijack customer accounts on e-commerce platforms.
 
-Multiple critical infrastructure vulnerabilities are under active exploitation in the wild, including a VMware vCenter flaw (CVE-2026-593...) granting persistent remote access, a Cisco ASA/FTD denial-of-service vulnerability crashing VPN appliances remotely, and a Microsoft SharePoint vulnerability with publicly available proof-of-concept code already weaponized by attackers. Microsoft's August 2026 Patch Tuesday addressed 398 vulnerabilities including a Windows kernel driver zero-day under active attack, while researchers disclosed the "ShieldBreak" Microsoft Defender zero-day and "Plug and Pwn" USB-based SYSTEM privilege escalation technique.
+A parallel wave of supply-chain and infrastructure compromise continues to expand. The "City-Forum" campaign has operated since March 2025, using custom tooling to harvest data from misconfigured Salesforce Experience Cloud and ServiceNow portals across multiple sectors. In the browser ecosystem, 737 malicious Chrome VPN extensions were discovered routing traffic through attacker-controlled SOCKS5 proxies, primarily targeting Russian-speaking users. Meanwhile, the Belgium eID trust framework was fully compromised via vulnerable browser extensions, demonstrating systemic risks in authentication infrastructure.
+
+Threat actors are diversifying techniques and monetization models. The "Jewelbug" APT balances state-sponsored espionage with cryptocurrency theft from the same operational panel. Android malware campaigns now combine NFC relay attacks (WindRelay) with remote administration tools (SpyNote) to steal live payment card data and fraudulently obtain loans. The DeadLock ransomware operation employs blockchain-backed infrastructure to resist takedown, while a new Microsoft Defender zero-day dubbed "ShieldBreak" grants SYSTEM privileges and bypasses August 2026 patches. VMware vCenter, Cisco ASA/FTD, and SAP Commerce Cloud vulnerabilities round out a high-tempo exploitation landscape demanding immediate defensive action.
 
 ## Active Exploitation Details
 
-### Windows Kernel Driver Zero-Day (CVE-2026-68820)
-- **Description**: A zero-day vulnerability in a core Windows kernel driver handling network socket operations, allowing attackers to escalate privileges to SYSTEM level
-- **Impact**: Full SYSTEM access on compromised Windows hosts, enabling deployment of persistent backdoors and lateral movement
-- **Status**: Actively exploited by Lazarus Group against defense-sector targets; patched in Microsoft August 2026 Patch Tuesday
+### Microsoft SharePoint Authentication Bypass (CVE-2026-55040)
+- **Description**: A critical authentication bypass vulnerability in Microsoft SharePoint that allows attackers to circumvent access controls. The flaw was publicly disclosed with proof-of-concept code released by Rapid7, triggering immediate exploitation activity.
+- **Impact**: Attackers can gain unauthorized access to SharePoint environments, potentially accessing sensitive documents, internal communications, and proprietary data stored in organizational SharePoint instances.
+- **Status**: Actively exploited in the wild following public PoC release. Microsoft has issued patches; immediate application is critical.
+- **CVE ID**: CVE-2026-55040
+
+### Adobe Commerce / Magento Critical Flaw (CVE-2026-71362)
+- **Description**: A critical vulnerability in Adobe Commerce and Magento e-commerce platforms that enables customer account hijacking. Exploitation attempts have been detected in the wild.
+- **Impact**: Attackers can take over customer accounts on affected e-commerce sites, leading to payment fraud, personal data theft, and unauthorized purchases.
+- **Status**: Active exploitation detected. Adobe has released security updates for affected versions.
+- **CVE ID**: CVE-2026-71362
+
+### Windows Zero-Day Exploited by Lazarus Group (CVE-2026-68820)
+- **Description**: A Windows zero-day vulnerability exploited by the North Korean Lazarus Group to gain SYSTEM-level access and deploy a previously unseen backdoor. The flaw was exploited before a patch was available.
+- **Impact**: Full SYSTEM privileges on compromised Windows hosts, enabling persistent backdoor deployment, lateral movement, and data exfiltration from defense-sector targets.
+- **Status**: Actively exploited as a zero-day; Microsoft has since released patches. Organizations in the defense industrial base are primary targets.
 - **CVE ID**: CVE-2026-68820
 
-### VMware vCenter Critical Vulnerability
-- **Description**: A critical security flaw in Broadcom VMware vCenter allowing unauthenticated attackers to gain persistent remote access to virtualization management infrastructure
-- **Impact**: Persistent remote access to vCenter servers, potential compromise of entire virtualized environments and associated workloads
-- **Status**: Actively exploited in the wild per QUIRSO findings; patches available from Broadcom
+### VMware vCenter Critical Vulnerability (CVE-2026-593...)
+- **Description**: A recently patched critical security flaw in Broadcom VMware vCenter that allows attackers to gain persistent remote access to the virtualization management platform.
+- **Impact**: Persistent administrative access to vCenter, enabling control over virtual infrastructure, VM manipulation, and potential escape to underlying hosts.
+- **Status**: Actively exploited in the wild per QUIRSO findings. Patches available from Broadcom; immediate deployment recommended.
 - **CVE ID**: CVE-2026-593...
 
-### Cisco ASA/FTD Denial-of-Service Vulnerability
-- **Description**: High-severity DoS vulnerability in Secure Firewall ASA and Threat Defense (FTD) software exploitable remotely without authentication
-- **Impact**: Remote device crashes causing VPN and firewall service disruption for affected organizations
-- **Status**: Actively exploited in the wild to crash devices; Cisco has issued warnings and patches
-- **CVE ID**: Not explicitly provided in source articles
-
-### Microsoft SharePoint Vulnerability
-- **Description**: Critical Microsoft SharePoint vulnerability with proof-of-concept exploit published by Rapid7, enabling remote code execution
-- **Impact**: Potential full compromise of SharePoint servers and associated data; lateral movement into connected Microsoft 365 environments
-- **Status**: PoC publicly available; hackers already leveraging exploit in attacks
-- **CVE ID**: Not explicitly provided in source articles
+### Cisco ASA and FTD Remote DoS Flaw
+- **Description**: A vulnerability in Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Secure Firewall Threat Defense (FTD) Software that can be triggered remotely to cause denial of service.
+- **Impact**: Remote denial of service affecting network perimeter defenses, potentially disrupting connectivity and security monitoring capabilities.
+- **Status**: Exploited in the wild. Cisco has issued advisories and patches; affected devices should be updated immediately.
 
 ### Microsoft Defender "ShieldBreak" Zero-Day
-- **Description**: Zero-day exploit bypassing Microsoft Defender protections to achieve SYSTEM privileges, released by researcher Nightmare Eclipse (Chaotic Eclipse)
-- **Impact**: Complete bypass of endpoint protection with SYSTEM-level code execution; affects patched August 2026 systems
-- **Status**: PoC publicly released; Microsoft Defender patch bypass demonstrated
-- **CVE ID**: Not explicitly provided in source articles
+- **Description**: A zero-day exploit targeting Microsoft Defender, dubbed "ShieldBreak," that bypasses security controls and grants SYSTEM privileges. A proof-of-concept was released by researcher Chaotic Eclipse (aka INFINITE NIGHTMARE, MSNightmare, Nightmare-Eclipse) after August 2026 Patch Tuesday.
+- **Impact**: Local privilege escalation to SYSTEM, Defender tampering/bypass, and potential deployment of persistent malware on endpoint systems.
+- **Status**: PoC publicly released; active exploitation risk is high. Microsoft has not yet patched this specific bypass as of the reporting period.
+- **CVE ID**: Not yet assigned / CVE pending
 
-### Adobe ColdFusion and Campaign Classic Critical Flaws
-- **Description**: Three maximum-severity (CVSS 10.0) vulnerabilities across Adobe ColdFusion, Commerce, and Campaign Classic products
-- **Impact**: Unauthenticated arbitrary code execution leading to complete server compromise
-- **Status**: Patches released by Adobe; exploitation status in wild not explicitly confirmed
-- **CVE ID**: Not explicitly provided in source articles
+### Belgium eID Browser Extension RCE
+- **Description**: Severe vulnerabilities in a key browser extension underlying Belgium's electronic ID (eID) authentication trust framework, leading to full compromise of the citizen authentication system.
+- **Impact**: Remote code execution in the context of the browser extension, potentially allowing account takeover, identity theft, and unauthorized access to government services tied to eID.
+- **Status**: Trust framework fully compromised; patches for the extension deployed. Highlights systemic risks in browser extension supply chains.
 
-### SAP Commerce Cloud Data Hub Adapter Flaw
-- **Description**: Maximum-severity vulnerability in SAP Commerce Cloud (Data Hub Adapter) allowing unauthenticated arbitrary code execution
-- **Impact**: Full server compromise without authentication requirements; exposure of commerce and customer data
-- **Status**: Patches released by SAP; active exploitation not explicitly confirmed
-- **CVE ID**: CVE identifier assigned but not provided in source articles
+### SAP Commerce Cloud Arbitrary Code Execution
+- **Description**: A maximum-severity flaw in SAP Commerce Cloud (Data Hub Adapter) allowing unauthenticated attackers to execute arbitrary code.
+- **Impact**: Pre-authentication remote code execution on SAP Commerce Cloud instances, leading to full platform compromise and data theft.
+- **Status**: Patches released by SAP; exploitation risk is critical for unpatched instances.
+- **CVE ID**: CVE ID assigned but not specified in source article
 
-### Fortinet Vulnerabilities Exploited by Gunra Ransomware
-- **Description**: Older flaws in Fortinet firewalls and VPN appliances being leveraged by Gunra ransomware-as-a-service operation
-- **Impact**: Initial access to critical infrastructure targets with MFA bypass capabilities using leaked Conti code
-- **Status**: Actively exploited in ransomware campaigns against critical infrastructure
-- **CVE ID**: Not explicitly provided in source articles
-
-### "Plug and Pwn" Windows Plug and Play Abuse
-- **Description**: Attack technique abusing Windows Plug and Play feature to force installation of vulnerable vendor software, achieving SYSTEM privileges
-- **Impact**: Local privilege escalation to SYSTEM via malicious USB devices or emulated hardware
-- **Status**: Proof-of-concept disclosed by researchers; requires physical or virtual USB access
-- **CVE ID**: Not explicitly provided in source articles
+### Adobe ColdFusion, Commerce, and Campaign Classic Critical Flaws
+- **Description**: Three CVSS 10.0 vulnerabilities across Adobe ColdFusion, Commerce, and Campaign Classic products that could result in arbitrary code execution.
+- **Impact**: Complete compromise of affected Adobe platforms, enabling data theft, ransomware deployment, and lateral movement.
+- **Status**: Patches shipped by Adobe; no confirmed wild exploitation reported at time of disclosure, but CVSS 10.0 warrants emergency patching.
 
 ## Affected Systems and Products
 
-- **Microsoft Windows**: All supported versions affected by kernel driver zero-day (CVE-2026-68820) and additional 397 vulnerabilities patched in August 2026; Windows kernel driver handling network sockets specifically targeted
-- **Microsoft Defender**: August 2026 Patch Tuesday updates bypassed by ShieldBreak zero-day exploit
-- **VMware vCenter**: Broadcom VMware vCenter servers vulnerable to CVE-2026-593... allowing persistent remote access
-- **Cisco Secure Firewall ASA and FTD**: VPN and firewall appliances vulnerable to remote DoS exploitation causing device crashes
-- **Microsoft SharePoint**: On-premises and cloud SharePoint instances affected by critical RCE vulnerability with public PoC
-- **Adobe ColdFusion**: All supported versions with three CVSS 10.0 critical flaws enabling arbitrary code execution
-- **Adobe Campaign Classic**: Affected by maximum-severity vulnerability in August 2026 security updates
-- **Adobe Commerce**: Included in Adobe's critical patch release for arbitrary code execution flaws
-- **SAP Commerce Cloud (Data Hub Adapter)**: Unauthenticated RCE vulnerability in cloud commerce platform component
-- **Fortinet FortiGate Firewalls and VPN Appliances**: Older vulnerabilities exploited by Gunra ransomware gang with MFA bypass
-- **Google Chrome Browser**: Chrome Web Store platform hosting 737 malicious VPN/proxy extensions with millions of potential installs
-- **Android Devices**: Kimwolf v7/AISURU botnet targeting Android and IoT devices with HTTP/2 DDoS capabilities
+- **Microsoft SharePoint**: On-premises and cloud instances vulnerable to CVE-2026-55040 authentication bypass; all unpatched versions affected
+- **Adobe Commerce / Magento**: E-commerce platforms running unpatched versions vulnerable to CVE-2026-71362 account hijacking
+- **Microsoft Windows**: Systems unpatched against CVE-2026-68820; defense-sector workstations and servers actively targeted
+- **VMware vCenter**: All versions prior to patched releases vulnerable to CVE-2026-593... persistent remote access flaw
+- **Cisco Secure Firewall ASA & FTD**: Appliances and virtual appliances running vulnerable software versions; network perimeter devices at risk
+- **Microsoft Defender**: Endpoints running Defender on Windows; "ShieldBreak" zero-day bypasses August 2026 patches
+- **Belgium eID Browser Extension**: Citizens and government systems relying on the compromised extension for authentication
+- **SAP Commerce Cloud (Data Hub Adapter)**: Cloud deployments with unpatched Data Hub Adapter component
+- **Adobe ColdFusion, Commerce, Campaign Classic**: All three product lines with CVSS 10.0 flaws; on-premises and managed cloud instances
+- **Salesforce Experience Cloud**: Misconfigured sites exposing data to anonymous access; targeted by "City-Forum" campaign
+- **ServiceNow Customer Portals**: Portal configurations allowing anonymous data access; targeted by "City-Forum" campaign
+- **Chrome Browser Extensions**: 737 malicious VPN/proxy extensions on Chrome Web Store; Russian-speaking users primarily targeted
+- **Android Devices**: Devices installing malicious apps (WindRelay, SpyNote) from unofficial sources or social engineering
+- **LiteLLM / PyPI Ecosystem**: Organizations using compromised LiteLLM packages (versions 1.7.0 and 1.7.1) between March 2026
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation**: Lazarus Group leveraging CVE-2026-68820 for initial access and privilege escalation to SYSTEM in targeted defense sector intrusions
-- **Supply Chain Compromise**: 737 malicious Chrome extensions masquerading as legitimate VPN/proxy services, distributed via official Chrome Web Store to intercept and proxy browser traffic through attacker-controlled SOCKS5 infrastructure
-- **Social Engineering / Operation Dream Job**: Lazarus Group using fake job offers targeting defense industry professionals to deliver payloads exploiting Windows zero-day
-- **Trojanized Legitimate Software**: Sandworm (APT28) distributing trojanized WireGuard VPN clients via fake job offers targeting IT administrators and system administrators since May 2026
-- **Public PoC Weaponization**: Rapid7-published SharePoint exploit PoC immediately adopted by threat actors for active attacks
-- **USB/Plug and Play Abuse**: "Plug and Pwn" technique forcing Windows to install vulnerable vendor drivers via malicious USB device emulation for LOCAL SYSTEM escalation
-- **Endpoint Protection Bypass**: ShieldBreak zero-day specifically targeting Microsoft Defender's protection mechanisms post-August 2026 patches
-- **Ransomware with Blockchain Resilience**: DeadLock ransomware utilizing blockchain-backed decentralized infrastructure for C2 communications and data leak sites resistant to takedown
-- **Credential Harvesting via Malicious Packages**: Malicious LiteLLM PyPI packages stealing cloud keys, SSH keys, Kubernetes tokens, and database passwords affecting 2,100+ organizations
-- **AI Reasoning Extraction**: API flaw across OpenAI, Anthropic, and Google allowing recovery of hidden model reasoning, secrets, and API keys from session logs
-- **HTTP/2 DDoS Obfuscation**: Kimwolf v7 botnet making volumetric attack traffic mimic legitimate browsing patterns to evade detection
+- **Authentication Bypass**: Exploitation of CVE-2026-55040 in SharePoint to circumvent access controls without credentials
+- **Zero-Day Exploitation**: Lazarus Group leveraging CVE-2026-68820 before patch availability for initial access and SYSTEM escalation
+- **Public PoC Weaponization**: Rapid operationalization of SharePoint and ShieldBreak PoC code for real-world attacks
+- **Supply Chain Compromise**: Malicious LiteLLM packages on PyPI stealing cloud credentials, SSH keys, Kubernetes tokens, and database passwords
+- **Browser Extension Hijacking**: 737 fake VPN extensions intercepting and routing all browser traffic through attacker SOCKS5 proxies
+- **Plug and Play Abuse**: "Plug and Pwn" technique forcing Windows to install vulnerable vendor drivers via fake USB devices for SYSTEM access
+- **NFC Relay Attack**: WindRelay malware relaying live payment card data via NFC to attacker-controlled devices in real time
+- **Remote Administration Tool Deployment**: SpyNote RAT providing persistent control over compromised Android devices
+- **Anonymous Data Harvesting**: Custom tooling scraping exposed Salesforce Experience Cloud and ServiceNow portal data without authentication
+- **Blockchain-Resilient C2**: DeadLock ransomware using decentralized blockchain infrastructure for command-and-control and leak site hosting
+- **Defender Tampering/Bypass**: ShieldBreak exploit disabling or circumventing Microsoft Defender protections post-patch
+- **Pre-Auth RCE**: Unauthenticated arbitrary code execution via SAP Commerce Cloud Data Hub Adapter and Adobe CVSS 10.0 flaws
+- **Social Engineering / Operation Dream Job**: Lazarus Group targeting defense-sector employees with fake job offers to deliver exploits
+- **Account Takeover**: Adobe Commerce flaw (CVE-2026-71362) enabling customer session hijacking and fraudulent transactions
 
 ## Threat Actor Activities
 
-- **Lazarus Group (North Korea)**: Active exploitation of CVE-2026-68820 Windows zero-day in Operation Dream Job campaign targeting defense-sector companies; deploying never-before-seen backdoors with SYSTEM access; using social engineering via fake recruitment
-- **Sandworm / APT28 (Russia)**: Targeting IT professionals and system administrators since May 2026 with trojanized WireGuard VPN clients distributed through fake job offers; focusing on high-value network access targets
-- **Gunra Ransomware Gang**: Ransomware-as-a-service operation exploiting Fortinet firewall/VPN flaws and bypassing MFA using leaked Conti code; successfully targeting critical infrastructure organizations
-- **Nightmare Eclipse / Chaotic Eclipse / INFINITE NIGHTMARE / MSNightmare**: Security researcher releasing ShieldBreak Microsoft Defender zero-day PoC demonstrating patch bypass with SYSTEM privileges
-- **DeadLock Ransomware Operation**: Utilizing blockchain-based decentralized infrastructure for resilient C2 and data leak operations; novel approach to infrastructure takedown resistance
-- **Kimwolf/AISURU Botnet Operators**: Deploying v7 Android/IoT botnet with enhanced HTTP/2 DDoS capabilities mimicking legitimate browser traffic for operational resilience
-- **Unknown/Unattributed Actors**: Actively exploiting VMware vCenter (CVE-2026-593...), Cisco ASA/FTD DoS, and Microsoft SharePoint vulnerabilities in opportunistic campaigns; weaponizing public PoC code rapidly
+- **Lazarus Group (North Korea)**: Exploiting CVE-2026-68820 Windows zero-day against defense-sector companies under Operation Dream Job; deploying novel backdoors with SYSTEM persistence; combining social engineering with vulnerability exploitation
+- **Jewelbug APT**: Operating as hackers-for-hire conducting both state-sponsored espionage and financially motivated cryptocurrency theft from a shared Web panel infrastructure; dual-mission operational model
+- **City-Forum Campaign Operators**: Long-running data theft operation active since March 2025 targeting Salesforce Experience Cloud and ServiceNow portals across multiple sectors using custom scraping tooling; unknown attribution
+- **Nightmare Eclipse / Chaotic Eclipse (INFINITE NIGHTMARE, MSNightmare, Nightmare-Eclipse)**: Security researcher / threat actor releasing ShieldBreak zero-day PoC for Microsoft Defender bypass; claiming patch bypass with SYSTEM access
+- **DeadLock Ransomware Gang**: Operating decentralized, blockchain-backed infrastructure to resist takedown; maintaining resilient C2 and data-leak operations
+- **Malicious Extension Operators**: Single provider operating 737 fake Chrome VPN/proxy extensions targeting Russian-speaking users; traffic interception and proxy monetization model
+- **Android Malware Developers**: Distributing WindRelay (NFC relay) and SpyNote (RAT) combo for real-time credit card theft and loan fraud; financial motivation
+- **Supply Chain Attackers (LiteLLM/Trivy)**: Compromised PyPI packages tied to Trivy hack; credential harvesting from 2,100+ potentially exposed organizations; cloud and infrastructure key theft
+- **Cybercriminal Account Hijackers**: Targeting social media and online accounts per FBI warning to steal explicit images/videos; extortion and privacy violation motives
