@@ -83,6 +83,33 @@ def test_fingerprint_uses_summary_only_when_it_is_prompt_content():
     assert summary_only != changed_visible_summary
 
 
+def test_fingerprint_preserves_prompt_visible_line_boundaries():
+    separate_clauses = compute_articles_fingerprint(
+        [
+            {
+                "link": "https://a",
+                "content": (
+                    "CVE-2026-1111 is not exploited\n"
+                    "Attackers actively exploit CVE-2026-2222"
+                ),
+            }
+        ]
+    )
+    same_line = compute_articles_fingerprint(
+        [
+            {
+                "link": "https://a",
+                "content": (
+                    "CVE-2026-1111 is not exploited "
+                    "Attackers actively exploit CVE-2026-2222"
+                ),
+            }
+        ]
+    )
+
+    assert separate_clauses != same_line
+
+
 def test_fingerprint_invalidates_legacy_identity_only_hash():
     legacy_fingerprint = hashlib.sha256(b"https://a").hexdigest()
 

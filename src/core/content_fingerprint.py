@@ -14,7 +14,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v5"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v6"
 PROMPT_ARTICLE_CHAR_LIMIT = 2000
 
 
@@ -25,7 +25,7 @@ def _normalize_fingerprint_value(value: Any) -> str:
 def _normalize_prompt_content(article: Dict[str, Any]) -> str:
     content = article.get("content") or article.get("summary")
     visible_content = "" if content is None else str(content).strip()
-    return _normalize_fingerprint_value(visible_content[:PROMPT_ARTICLE_CHAR_LIMIT])
+    return visible_content[:PROMPT_ARTICLE_CHAR_LIMIT]
 
 
 def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:

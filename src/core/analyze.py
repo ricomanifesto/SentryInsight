@@ -45,7 +45,7 @@ URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
     r"no evidence(?:\s+(?:of|that))?|"
-    r"no\s+(?:known|confirmed|observed|active)\s+|"
+    r"no\s+(?:(?:known|confirmed|observed|active)\s+)?(?=exploit)|"
     r"not\s+(?:actively\s+|being\s+)?(?=exploit)|"
     r"without\s+(?:evidence|signs?|reports?)(?:\s+of)?|"
     r"has not been|"
@@ -62,6 +62,12 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"weaponiz(?:ed|ation)|"
     r"under attack"
     r")\b",
+    re.IGNORECASE | re.DOTALL,
+)
+POSTPOSED_NEGATED_EXPLOITATION_PATTERN = re.compile(
+    r"\b(?:exploit(?:s|ed|ing|ation)?)\b.{0,120}\b"
+    r"(?:has|have|had|is|are|was|were)\s+(?:not|never)\s+"
+    r"(?:been\s+)?(?:confirmed|detected|known|observed|occurred|reported|seen)\b",
     re.IGNORECASE | re.DOTALL,
 )
 UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
@@ -192,6 +198,7 @@ def has_negated_exploitation_relevance(article_summary: str) -> bool:
     return bool(relevant_clauses) and all(
         NEGATED_EXPLOITATION_PATTERN.search(clause)
         or UNCONFIRMED_EXPLOITATION_PATTERN.search(clause)
+        or POSTPOSED_NEGATED_EXPLOITATION_PATTERN.search(clause)
         for clause in relevant_clauses
     )
 
