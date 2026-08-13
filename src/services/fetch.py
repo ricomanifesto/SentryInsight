@@ -122,7 +122,21 @@ def _link_cve_annotation(href_cves: list[str], link_text: str) -> str:
 
 
 def _is_hidden_element(attrs: dict[str, str]) -> bool:
-    return "hidden" in attrs or attrs.get("aria-hidden", "").casefold() == "true"
+    if "hidden" in attrs or attrs.get("aria-hidden", "").casefold() == "true":
+        return True
+    for declaration in attrs.get("style", "").split(";"):
+        property_name, separator, value = declaration.partition(":")
+        if not separator:
+            continue
+        normalized_value = value.casefold().replace("!important", "").strip()
+        if (
+            property_name.strip().casefold() == "display" and normalized_value == "none"
+        ) or (
+            property_name.strip().casefold() == "visibility"
+            and normalized_value == "hidden"
+        ):
+            return True
+    return False
 
 
 def _is_article_body(attrs: dict[str, str]) -> bool:

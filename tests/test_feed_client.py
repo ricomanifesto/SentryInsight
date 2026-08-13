@@ -682,6 +682,24 @@ def test_extract_article_text_excludes_hidden_subtrees():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_excludes_inline_css_hidden_subtrees():
+    source_html = """
+    <article>
+      <div style="display: none !important">
+        CVE-2026-9999 is actively exploited.
+      </div>
+      <div style="visibility:hidden">Related CVE-2026-9998.</div>
+      <p>Attackers exploit CVE-2026-55040 in the wild.</p>
+    </article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-55040" in article_text
+    assert "CVE-2026-9998" not in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_extract_article_text_separates_table_cells():
     source_html = """
     <article>
