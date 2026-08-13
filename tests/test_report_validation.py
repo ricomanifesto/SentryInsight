@@ -193,6 +193,19 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "partial_cve_id" for issue in issues))
 
+    def test_complete_cve_followed_by_ellipsis_is_not_partial(self):
+        for ellipsis in ("...", "…"):
+            with self.subTest(ellipsis=ellipsis):
+                report = VALID_REPORT.replace(
+                    "Recent exploitation activity is concentrated in edge systems.",
+                    f"Recent exploitation activity includes CVE-2026-1234{ellipsis}",
+                )
+
+                self.assertEqual(
+                    validate_report_content(report, expected_cves=["CVE-2026-1234"]),
+                    [],
+                )
+
     def test_bare_short_cve_identifier_fails_generation_validation(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",
@@ -250,6 +263,17 @@ class ReportValidationTests(unittest.TestCase):
         report = VALID_REPORT.replace(
             "- **Status**: Active exploitation observed.",
             "- **Status**: Active exploitation observed.\n" "**CVE ID**: Not assigned",
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
+
+    def test_block_quoted_non_identifier_cve_field_fails_validation(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n"
+            "> **CVE ID**: Not assigned",
         )
 
         issues = validate_report_content(report, expected_cves=[])

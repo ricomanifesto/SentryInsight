@@ -860,6 +860,16 @@ class AnalyzeGuardTests(unittest.TestCase):
                     [],
                 )
 
+    def test_active_exploitation_with_governing_uncertainty_is_not_confirmed(self):
+        analyze = import_analyze_with_stubs()
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(
+                "Active exploitation of CVE-2026-1234 is suspected."
+            ),
+            [],
+        )
+
     def test_interrogative_exploitation_headline_is_not_confirmed_activity(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

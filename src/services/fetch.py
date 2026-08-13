@@ -412,7 +412,14 @@ def extract_article_text(source_html: str) -> str:
     page_parser = FeedContentParser(skip_tags=PAGE_SKIP_TAGS)
     page_parser.feed(source_html)
     page_text = _normalize_text("".join(page_parser.parts))
-    metadata_text = _normalize_text("\n".join(parser.meta_descriptions))
+    unique_descriptions = list(
+        dict.fromkeys(
+            normalized
+            for description in parser.meta_descriptions
+            if (normalized := _normalize_text(description))
+        )
+    )
+    metadata_text = "\n".join(unique_descriptions)
     if metadata_text and page_text:
         return _normalize_text(f"{metadata_text}\n{page_text}")
     return metadata_text or page_text

@@ -447,6 +447,24 @@ def test_extract_article_text_prioritizes_metadata_before_generic_page_fallback(
     )
 
 
+def test_extract_article_text_deduplicates_equivalent_fallback_descriptions():
+    repeated_description = "Repeated fallback context. " * 40
+    source_html = f"""
+    <html>
+      <head>
+        <meta name="description" content="{repeated_description}">
+        <meta property="og:description" content="{repeated_description}">
+      </head>
+      <body><p>Attackers exploit CVE-2026-45659 in the wild.</p></body>
+    </html>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert article_text.count("Repeated fallback context.") == 40
+    assert "CVE-2026-45659" in article_text
+
+
 def test_extract_article_text_stops_at_container_with_omitted_paragraph_end_tags():
     source_html = """
     <article><p>Primary content.<p>More content.</article>
