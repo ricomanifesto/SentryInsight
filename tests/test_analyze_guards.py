@@ -945,6 +945,26 @@ class AnalyzeGuardTests(unittest.TestCase):
                     ["CVE-2026-1111", "CVE-2026-2222"],
                 )
 
+    def test_universal_quantifiers_promote_all_metadata_cves(self):
+        analyze = import_analyze_with_stubs()
+
+        for grouped_claim in (
+            "All 3 vulnerabilities are actively exploited.",
+            "All three vulnerabilities are actively exploited.",
+            "Each vulnerability is actively exploited.",
+            "Every vulnerability is actively exploited.",
+        ):
+            with self.subTest(grouped_claim=grouped_claim):
+                article_summary = (
+                    "**Vendor advisory** (CVEs: CVE-2026-1111, "
+                    "CVE-2026-2222, CVE-2026-3333)\n\n" + grouped_claim
+                )
+
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    ["CVE-2026-1111", "CVE-2026-2222", "CVE-2026-3333"],
+                )
+
     def test_proof_of_concept_exploit_is_not_confirmed_activity(self):
         analyze = import_analyze_with_stubs()
 

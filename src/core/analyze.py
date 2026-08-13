@@ -164,7 +164,8 @@ INTERROGATIVE_EXPLOITATION_PATTERN = re.compile(
 GROUPED_ISSUES_PATTERN = re.compile(
     r"\b(?:"
     r"both(?=\s+(?:are|were|have|had|remain|continue)\b)|"
-    r"(?:all|both|these|the listed)\s+"
+    r"(?:all(?:\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten))?|"
+    r"both|each|every|these|the listed)\s+"
     r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies))|"
     r"the\s+(?:CVEs|flaws|issues|vulnerabilities)"
     r")\b",
