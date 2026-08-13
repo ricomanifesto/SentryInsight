@@ -211,6 +211,10 @@ class ArticleBodyParser(HTMLParser):
                     article_candidates=list(self.active_candidates),
                 )
 
+        if normalized_tag == "img" and (alt_text := attr_map.get("alt", "").strip()):
+            for candidate in self.active_candidates:
+                candidate.parts.append(f" {alt_text} ")
+
         if normalized_tag in BLOCK_TAGS:
             for candidate in self.active_candidates:
                 candidate.parts.append("\n")
@@ -307,6 +311,10 @@ class FeedContentParser(HTMLParser):
                 href_cves = extract_cve_ids(href)
                 if href_cves:
                     self.active_cve_link = ActiveCveLink(href_cves=href_cves)
+            if normalized_tag == "img" and (
+                alt_text := attr_map.get("alt", "").strip()
+            ):
+                self.parts.append(f" {alt_text} ")
             if normalized_tag in BLOCK_TAGS:
                 self.parts.append("\n")
 

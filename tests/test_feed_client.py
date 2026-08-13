@@ -265,6 +265,35 @@ def test_fetch_articles_preserves_cve_from_visible_feed_link_target(monkeypatch)
     assert articles[0]["cves"] == ["CVE-2026-1234"]
 
 
+def test_fetch_articles_preserves_cve_from_visible_image_alt_text(monkeypatch):
+    monkeypatch.setattr(
+        fetch_module.feedparser,
+        "parse",
+        lambda _text: SimpleNamespace(
+            entries=[
+                {
+                    "title": "Active exploitation advisory",
+                    "link": "https://example.test/advisory",
+                    "description": (
+                        '<p>Attackers actively exploit <img alt="CVE-2026-1234"> '
+                        "in the wild.</p>"
+                        '<footer><img alt="CVE-2026-9999"></footer>'
+                    ),
+                }
+            ]
+        ),
+    )
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+    client.client = FakeHttpClient()
+
+    articles = asyncio.run(client.fetch_articles())
+
+    assert articles[0]["summary"] == (
+        "Attackers actively exploit CVE-2026-1234 in the wild."
+    )
+    assert articles[0]["cves"] == ["CVE-2026-1234"]
+
+
 def test_enrich_preserves_escaped_markup_already_sanitized_as_visible_text():
     client = SentryDigestFeedClient("https://example.com/feed.xml")
     visible_content = "<script>Attackers actively exploit CVE-2026-1234</script>"
@@ -479,6 +508,20 @@ def test_extract_article_text_combines_sibling_article_body_sections():
     assert "CVE-2026-1234" in article_text
     assert "actively exploiting the vulnerability" in article_text
     assert "CVE-2026-9999" not in article_text
+
+
+def test_extract_article_text_preserves_visible_image_alt_text():
+    source_html = """
+    <article>
+      <p>Attackers actively exploit <img alt="CVE-2026-1234"> in the wild.</p>
+      <div hidden><img alt="CVE-2026-9998"></div>
+    </article>
+    <footer><img alt="CVE-2026-9999"></footer>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert article_text == "Attackers actively exploit CVE-2026-1234 in the wild."
 
 
 def test_extract_article_text_prefers_nested_article_over_broad_main():
