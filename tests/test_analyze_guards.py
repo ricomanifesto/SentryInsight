@@ -652,6 +652,19 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1234"],
         )
 
+    def test_reference_scan_does_not_count_abbreviation_periods_as_sentences(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "CVE-2026-1234 affects U.S. agencies. A patch is available. "
+            "It is actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_referential_negation_skips_intervening_neutral_sentence(self):
         analyze = import_analyze_with_stubs()
         article_summary = (
@@ -947,6 +960,18 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertEqual(
             analyze.collect_exploitation_relevant_prompt_cves(article_summary),
             ["CVE-2026-2222"],
+        )
+
+    def test_plural_cve_predicate_after_semicolon_is_a_separate_clause(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1111 is not exploited; CVE-2026-2222 and "
+            "CVE-2026-3333 are actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-2222", "CVE-2026-3333"],
         )
 
     def test_grouped_exploitation_preserves_contextual_and_contextless_cves(self):

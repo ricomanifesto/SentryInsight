@@ -55,6 +55,8 @@ GENERATED_HEADING_PATTERN = re.compile(
     r"^(?P<title>\*\*.*\*\*)\s+\((?P<metadata>.*)\)\s*$"
 )
 SENTENCE_PATTERN = re.compile(r"(?:[^.!?\n]|(?<=\d)\.(?=\d))+?(?:[!?]+|\.+(?!\d)|$)")
+SENTENCE_ABBREVIATION_PATTERN = re.compile(r"\b(?:[A-Za-z]\.){2,}(?=\s+[a-z])")
+SENTENCE_PERIOD_PLACEHOLDER = "\ue000"
 URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
@@ -143,7 +145,9 @@ GROUPED_ISSUES_PATTERN = re.compile(
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
     r"[;,]\s*(?=(?:attackers?|threat actors?|not\s+CVE-\d{4}-\d{4,}|"
-    r"CVE-\d{4}-\d{4,}\s+(?:is|was|has))\b)|"
+    r"CVE-\d{4}-\d{4,}\s+(?:is|was|has)|"
+    r"CVE-\d{4}-\d{4,}(?:\s*(?:,|and)\s*CVE-\d{4}-\d{4,})+"
+    r"\s+(?:are|were|have))\b)|"
     r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they|it|"
     r"the\s+(?:flaw|issue|vulnerability|bug))\b)|"
     r"\s+(?=and\s+CVE-\d{4}-\d{4,}\s+(?:is|was|has)\b)|"
@@ -293,8 +297,16 @@ def collect_url_prompt_cves(article_summary: str) -> list[str]:
 def iter_line_sentences(text: str) -> list[str]:
     sentences: list[str] = []
     for line in text.splitlines():
-        for sentence_match in SENTENCE_PATTERN.finditer(line):
-            sentence = sentence_match.group(0).strip()
+        protected_line = SENTENCE_ABBREVIATION_PATTERN.sub(
+            lambda match: match.group(0).replace(".", SENTENCE_PERIOD_PLACEHOLDER),
+            line,
+        )
+        for sentence_match in SENTENCE_PATTERN.finditer(protected_line):
+            sentence = (
+                sentence_match.group(0)
+                .replace(SENTENCE_PERIOD_PLACEHOLDER, ".")
+                .strip()
+            )
             if sentence:
                 sentences.append(sentence)
     return sentences
@@ -336,9 +348,16 @@ def sentence_context_at_position(text: str, position: int) -> tuple[str, int]:
 
     line = text[line_start:line_end]
     line_position = position - line_start
-    for sentence_match in SENTENCE_PATTERN.finditer(line):
+    protected_line = SENTENCE_ABBREVIATION_PATTERN.sub(
+        lambda match: match.group(0).replace(".", SENTENCE_PERIOD_PLACEHOLDER),
+        line,
+    )
+    for sentence_match in SENTENCE_PATTERN.finditer(protected_line):
         if sentence_match.start() <= line_position < sentence_match.end():
-            return sentence_match.group(0), line_position - sentence_match.start()
+            return (
+                sentence_match.group(0).replace(SENTENCE_PERIOD_PLACEHOLDER, "."),
+                line_position - sentence_match.start(),
+            )
     return line, line_position
 
 
