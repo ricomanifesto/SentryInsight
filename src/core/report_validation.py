@@ -891,25 +891,30 @@ def normalize_cve_id(cve_id: str) -> str:
 
 def find_report_cve_ids(markdown: str) -> set[str]:
     rendered_parts: list[str] = []
+    html_parser = RenderedTextHTMLParser()
+
+    def collect_html_text() -> None:
+        rendered_parts.extend(html_parser.parts)
+        html_parser.parts.clear()
+
     for token in MARKDOWN_PARSER.parse(markdown):
         if token.type == "inline":
-            parser = RenderedTextHTMLParser()
             for child in token.children or []:
                 if child.type == "html_inline":
-                    parser.feed(child.content)
+                    html_parser.feed(child.content)
+                    collect_html_text()
                 elif (
                     child.type in {"text", "code_inline", "image"}
-                    and not parser.hidden_depth
+                    and not html_parser.hidden_depth
                 ):
                     rendered_parts.append(child.content)
-            parser.close()
-        elif token.type in {"code_block", "fence"}:
+        elif token.type in {"code_block", "fence"} and not html_parser.hidden_depth:
             rendered_parts.append(token.content)
         elif token.type == "html_block":
-            parser = RenderedTextHTMLParser()
-            parser.feed(token.content)
-            parser.close()
-            rendered_parts.extend(parser.parts)
+            html_parser.feed(token.content)
+            collect_html_text()
+    html_parser.close()
+    collect_html_text()
     rendered_text = "\n".join(rendered_parts)
     return {
         normalize_cve_id(match.group(0))

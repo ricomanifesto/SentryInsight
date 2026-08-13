@@ -161,6 +161,26 @@ class ReportValidationTests(unittest.TestCase):
                     any(issue.code == "missing_expected_cves" for issue in issues)
                 )
 
+    def test_hidden_html_state_carries_across_markdown_blocks(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "<span hidden>\n\nCVE-2026-1111\n\n</span>",
+        )
+
+        issues = validate_report_content(report, expected_cves=["CVE-2026-1111"])
+
+        self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
+
+    def test_visible_html_state_carries_across_markdown_blocks(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "<span>\n\nCVE-2026-1111\n\n</span>",
+        )
+
+        self.assertEqual(
+            validate_report_content(report, expected_cves=["CVE-2026-1111"]), []
+        )
+
     def test_visible_inline_html_cve_satisfies_expected_cve(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",
