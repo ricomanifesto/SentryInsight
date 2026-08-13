@@ -532,6 +532,21 @@ class AnalyzeGuardTests(unittest.TestCase):
                     [],
                 )
 
+    def test_explicit_negative_relevance_predicates_are_excluded(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "CVE-2026-1234 has yet to be exploited.",
+            "CVE-2026-1234 is not currently under attack.",
+            "CVE-2026-1234 is not in the wild.",
+            "CVE-2026-1234 is not currently weaponized.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
     def test_ceased_exploitation_wording_is_excluded(self):
         analyze = import_analyze_with_stubs()
 
