@@ -336,6 +336,19 @@ def test_extract_article_text_excludes_peripheral_article_containers():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_separates_table_cells():
+    source_html = """
+    <article>
+      <table><tr><td>CVE-2026-1234</td><td>Actively exploited</td></tr></table>
+    </article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-1234\nActively exploited" in article_text
+    assert fetch_module.extract_cve_ids(article_text) == ["CVE-2026-1234"]
+
+
 def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatch):
     TrackingArticleClient.called = False
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", TrackingArticleClient)

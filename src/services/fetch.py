@@ -33,6 +33,8 @@ BLOCK_TAGS = {
     "main",
     "p",
     "section",
+    "td",
+    "th",
     "tr",
 }
 SKIP_TAGS = {
