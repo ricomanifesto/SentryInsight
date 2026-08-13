@@ -14,6 +14,10 @@ on:
   # Allow manual triggering
   workflow_dispatch:
 
+concurrency:
+  group: sentryinsight-report-generation
+  cancel-in-progress: false
+
 jobs:
   generate-report:
     runs-on: ubuntu-latest

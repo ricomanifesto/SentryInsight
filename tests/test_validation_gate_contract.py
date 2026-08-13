@@ -46,6 +46,14 @@ def test_generate_report_workflow_rebases_before_report_push():
     assert "HEAD:main" in workflow
 
 
+def test_generate_report_workflow_serializes_provider_calls_and_publication():
+    workflow = (REPO_ROOT / ".github" / "workflows" / "generate-report.yml").read_text()
+
+    assert "concurrency:" in workflow
+    assert "group: sentryinsight-report-generation" in workflow
+    assert "cancel-in-progress: false" in workflow
+
+
 def test_pull_requests_run_the_full_local_validation_gate():
     workflow = (REPO_ROOT / ".github" / "workflows" / "validate.yml").read_text()
 
