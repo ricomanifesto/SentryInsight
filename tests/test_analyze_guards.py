@@ -381,6 +381,40 @@ class AnalyzeGuardTests(unittest.TestCase):
 
         self.assertEqual(result["cves_identified"], [])
 
+    def test_cve_context_includes_following_exploitation_sentence(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "CVE-2026-1234 allows remote code execution. "
+            "Attackers are actively exploiting this flaw."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
+    def test_modal_capability_does_not_mask_confirmed_exploitation_clause(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "The flaw can allow remote code execution, and attackers are actively "
+            "exploiting CVE-2026-1234."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
+    def test_contextual_cve_match_rejects_unicode_ellipsis(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
     def test_analysis_result_keeps_exploited_cve_near_unrelated_negation(self):
         analyze = import_analyze_with_stubs()
 

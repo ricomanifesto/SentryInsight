@@ -36,7 +36,7 @@ EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 CVE_CONTEXT_PATTERN = re.compile(
-    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?!\d|\.\.\.)\b",
+    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?!\d|\.\.\.|…)\b",
     re.IGNORECASE,
 )
 STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
@@ -65,7 +65,7 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
-    r"\b(?:can|could|may|might|possible|potential(?:ly)?)\b.{0,100}"
+    r"\b(?:can|could|may|might|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
     r"\bexploit(?:ed|ing|ation)?\b|"
     r"\bif\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
     r"\bindicative of\b.{0,100}\bexploit(?:ed|ing|ation)?\b|"
@@ -258,6 +258,8 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                 if index:
                     nearby_sentences.append(article_sentences[index - 1])
                 nearby_sentences.append(sentence)
+                if index + 1 < len(article_sentences):
+                    nearby_sentences.append(article_sentences[index + 1])
             if not cve_context_is_negated and any(
                 has_exploitation_relevance(sentence)
                 and not has_negated_exploitation_relevance(sentence)
