@@ -53,6 +53,36 @@ def test_fingerprint_changes_when_source_attribution_changes():
     assert original != corrected
 
 
+def test_fingerprint_ignores_content_after_prompt_cutoff():
+    visible_prefix = "A" * 2000
+    original = compute_articles_fingerprint(
+        [{"link": "https://a", "content": visible_prefix + "old suffix"}]
+    )
+    changed_suffix = compute_articles_fingerprint(
+        [{"link": "https://a", "content": visible_prefix + "new suffix"}]
+    )
+
+    assert original == changed_suffix
+
+
+def test_fingerprint_uses_summary_only_when_it_is_prompt_content():
+    with_content = compute_articles_fingerprint(
+        [{"link": "https://a", "content": "Full text", "summary": "Old summary"}]
+    )
+    changed_hidden_summary = compute_articles_fingerprint(
+        [{"link": "https://a", "content": "Full text", "summary": "New summary"}]
+    )
+    summary_only = compute_articles_fingerprint(
+        [{"link": "https://a", "summary": "Old summary"}]
+    )
+    changed_visible_summary = compute_articles_fingerprint(
+        [{"link": "https://a", "summary": "New summary"}]
+    )
+
+    assert with_content == changed_hidden_summary
+    assert summary_only != changed_visible_summary
+
+
 def test_fingerprint_invalidates_legacy_identity_only_hash():
     legacy_fingerprint = hashlib.sha256(b"https://a").hexdigest()
 

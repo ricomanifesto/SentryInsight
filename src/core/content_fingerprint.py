@@ -14,11 +14,18 @@ import re
 from typing import Any, Dict, List, Optional
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v4"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v5"
+PROMPT_ARTICLE_CHAR_LIMIT = 2000
 
 
 def _normalize_fingerprint_value(value: Any) -> str:
     return re.sub(r"\s+", " ", "" if value is None else str(value)).strip()
+
+
+def _normalize_prompt_content(article: Dict[str, Any]) -> str:
+    content = article.get("content") or article.get("summary")
+    visible_content = "" if content is None else str(content).strip()
+    return _normalize_fingerprint_value(visible_content[:PROMPT_ARTICLE_CHAR_LIMIT])
 
 
 def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
@@ -36,13 +43,12 @@ def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
             }
         )
         record = {
-            "content": _normalize_fingerprint_value(article.get("content")),
             "cves": normalized_cves,
             "identity": _normalize_fingerprint_value(
                 article.get("link") or article.get("title")
             ),
+            "prompt_content": _normalize_prompt_content(article),
             "source": _normalize_fingerprint_value(article.get("source")),
-            "summary": _normalize_fingerprint_value(article.get("summary")),
             "title": _normalize_fingerprint_value(article.get("title")),
         }
         if any(record.values()):
