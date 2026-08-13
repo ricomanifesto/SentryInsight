@@ -494,8 +494,11 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             has_positive_following_reference = False
             for index, cve_clauses in indexed_cve_sentences:
                 nearby_sentences.extend(cve_clauses)
-                sentence_has_multiple_cves = (
-                    len(collect_prompt_cves(article_sentences[index])) > 1
+                sentence_cves = collect_prompt_cves(article_sentences[index])
+                sentence_has_multiple_cves = len(sentence_cves) > 1
+                is_nearest_singular_antecedent = (
+                    not sentence_has_multiple_cves
+                    or sentence_cves[-1].upper() == cve.upper()
                 )
                 if index:
                     preceding_sentence = article_sentences[index - 1]
@@ -511,7 +514,12 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                     if NEW_VULNERABILITY_REFERENT_PATTERN.search(following_sentence):
                         break
                     has_following_reference = bool(
-                        FOLLOWING_CVE_REFERENCE_PATTERN.search(following_sentence)
+                        (
+                            is_nearest_singular_antecedent
+                            and FOLLOWING_CVE_REFERENCE_PATTERN.search(
+                                following_sentence
+                            )
+                        )
                         or (
                             sentence_has_multiple_cves
                             and FOLLOWING_PLURAL_CVE_REFERENCE_PATTERN.search(

@@ -864,11 +864,16 @@ def find_report_cve_ids(markdown: str) -> set[str]:
     rendered_parts: list[str] = []
     for token in MARKDOWN_PARSER.parse(markdown):
         if token.type == "inline":
-            rendered_parts.extend(
-                child.content
-                for child in (token.children or [])
-                if child.type in {"text", "code_inline", "image"}
-            )
+            parser = RenderedTextHTMLParser()
+            for child in token.children or []:
+                if child.type == "html_inline":
+                    parser.feed(child.content)
+                elif (
+                    child.type in {"text", "code_inline", "image"}
+                    and not parser.hidden_depth
+                ):
+                    rendered_parts.append(child.content)
+            parser.close()
         elif token.type in {"code_block", "fence"}:
             rendered_parts.append(token.content)
         elif token.type == "html_block":

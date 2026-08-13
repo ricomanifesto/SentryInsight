@@ -617,6 +617,26 @@ def test_extract_article_text_combines_marked_sections_across_article_wrappers()
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_does_not_duplicate_nested_marked_sections():
+    source_html = """
+    <article>
+      <section class="article-body">
+        <div itemprop="articleBody">
+          <p>Nested context for CVE-2026-1234.</p>
+        </div>
+      </section>
+      <section class="article-body">
+        <p>Attackers are actively exploiting the vulnerability.</p>
+      </section>
+    </article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert article_text.count("Nested context for CVE-2026-1234.") == 1
+    assert "actively exploiting the vulnerability" in article_text
+
+
 def test_extract_article_text_keeps_cards_in_collection_wrapper_separate():
     source_html = """
     <div class="article-feed">

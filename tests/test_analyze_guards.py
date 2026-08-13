@@ -778,6 +778,19 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111", "CVE-2026-2222"],
         )
 
+    def test_singular_reference_binds_to_nearest_cve_antecedent(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "CVE-2026-1111 was patched, while CVE-2026-2222 remains vulnerable. "
+            "It is actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-2222"],
+        )
+
     def test_modal_malware_impact_is_not_confirmed_exploitation(self):
         analyze = import_analyze_with_stubs()
         article_summary = "CVE-2026-1234 could allow malware installation."

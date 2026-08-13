@@ -176,6 +176,7 @@ class ArticleTextCandidate:
     parent_order: int | None = None
     parent_is_collection: bool = False
     article_ancestor_order: int | None = None
+    candidate_ancestor_orders: tuple[int, ...] = ()
     tag_depth: int = 1
     parts: list[str] = field(default_factory=list)
 
@@ -250,6 +251,10 @@ class ArticleBodyParser(HTMLParser):
                 parent_is_collection=bool(parent_context and parent_context[2]),
                 article_ancestor_order=(
                     article_ancestor[1] if article_ancestor else None
+                ),
+                candidate_ancestor_orders=tuple(
+                    active_candidate.order
+                    for active_candidate in self.active_candidates
                 ),
             )
             self.candidates.append(candidate)
@@ -357,13 +362,24 @@ class ArticleBodyParser(HTMLParser):
                     (candidate.priority, candidate.article_ancestor_order), []
                 ).append((candidate, candidate_text))
         for descendants in article_groups.values():
-            if len(descendants) > 1:
-                first_candidate = min(descendants, key=lambda item: item[0].order)[0]
+            descendant_orders = {candidate.order for candidate, _ in descendants}
+            non_overlapping_descendants = [
+                (candidate, text)
+                for candidate, text in descendants
+                if not descendant_orders.intersection(
+                    candidate.candidate_ancestor_orders
+                )
+            ]
+            if len(non_overlapping_descendants) > 1:
+                first_candidate = min(
+                    non_overlapping_descendants, key=lambda item: item[0].order
+                )[0]
                 combined_text = _normalize_text(
                     "\n".join(
                         text
                         for _, text in sorted(
-                            descendants, key=lambda item: item[0].order
+                            non_overlapping_descendants,
+                            key=lambda item: item[0].order,
                         )
                     )
                 )
