@@ -10,9 +10,9 @@ root_logger = logging.getLogger()
 root_logger.handlers.clear()
 
 import src.core.analyze
+import src.core.report_artifact
 import src.core.workflow
 import src.services.fetch
-import src.services.publish
 
 if root_logger.handlers:
     raise SystemExit(f"library imports configured {len(root_logger.handlers)} root handler(s)")

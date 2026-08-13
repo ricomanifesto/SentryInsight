@@ -22,6 +22,11 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+# JavaScript and browser test output
+node_modules/
+test-results/
+playwright-report/
+
 # Private notes (do not commit)
 docs/notes/
 

@@ -6,7 +6,7 @@ on:
     types: [sentrydigest-updated]
   
   # Schedule backup run (in case webhook fails). The workflow now fingerprints
-  # the source article set and skips analysis/audio generation when nothing
+  # the source article set and skips report generation when nothing
   # changed, so this only needs to catch a fully missed webhook, not run often.
   schedule:
     - cron: '30 6 * * *'  # Run once daily at 06:30 UTC
@@ -30,6 +30,17 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install browser test runtime
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
       
       - name: Install dependencies
         run: uv sync --group dev --frozen
@@ -44,7 +55,6 @@ jobs:
           # no local OpenCode gateway is needed in CI.
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           SENTRYINSIGHT_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3-ultra-550b-a55b:free' }}
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           # Pass VT Intelligence API key under multiple common env names
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
           VIRUSTOTAL_API_KEY: ${{ secrets.VIRUSTOTAL_API_KEY }}
@@ -54,23 +64,27 @@ jobs:
       - name: Validate report content before publishing
         run: |
           uv run python scripts/validate_report.py index.md
-          uv run python scripts/validate_report.py docs/index.md
+          uv run python scripts/build_site.py --check
+          npm run test:browser
+
+      - name: Upload rendered report evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-report-screenshots-${{ github.run_id }}
+          path: test-results/screenshots
+          if-no-files-found: error
 
       - name: Commit and push updated report
         if: github.ref == 'refs/heads/main'
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          # Force add report files
-          git add -f index.md || true
-          git add -f index.html || true
-          git add -f executive_summary.mp3 || true
+          # Force add the canonical report and generated site files
+          git add -f index.md index.html sitemap.xml || true
+          git add -f reports/ || true
+          git add -f assets/site.css assets/report.js assets/vendor/ || true
           git add -f .sentryinsight-articles-fingerprint || true
-          if [ -d docs ]; then
-            git add -f docs/index.md || true
-            git add -f docs/index.html || true
-            git add -f docs/executive_summary.mp3 || true
-          fi
           if git diff --cached --quiet; then
             echo "No report changes to commit"
             exit 0

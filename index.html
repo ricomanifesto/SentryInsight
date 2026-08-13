@@ -1,925 +1,188 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SentryInsight Exploitation Report</title>
-    <meta name="description" content="SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.">
-    <link rel="canonical" href="https://ricomanifesto.github.io/SentryInsight/">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="SentryInsight Exploitation Report">
-    <meta property="og:description" content="SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.">
-    <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/">
-    <meta property="og:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SentryInsight Exploitation Report">
-    <meta name="twitter:description" content="SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.">
-    <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"SentryInsight","url":"https://ricomanifesto.github.io/SentryInsight/","description":"SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.","author":{"@type":"Person","name":"Michael Rico","url":"https://ricomanifesto.com/"},"publisher":{"@type":"Organization","name":"Rico Manifesto","url":"https://ricomanifesto.com/"},"sameAs":"https://github.com/ricomanifesto/SentryInsight"}</script>
-    <link rel="icon" data-logo-asset="favicon">
-    <link rel="icon" type="image/svg+xml" data-logo-asset="icon-svg">
-    <link rel="apple-touch-icon" data-logo-asset="apple-touch-icon">
-    <meta name="theme-color" content="#dc2626">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
-    <style>
-        :root {
-            --primary-red: #dc2626;
-            --warning-orange: #ea580c;
-            --success-green: #16a34a;
-            --info-blue: #2563eb;
-            --dark-bg: #0b1220;
-            --dark-elev: #111827;
-            --light-bg: #f8fafc;
-            --border-color: #e2e8f0;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --muted: #94a3b8;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-primary);
-            margin: 0 auto;
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            min-height: 100vh;
-        }
-
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
-        @media (max-width: 767px) {
-            body {
-                padding: 0;
-            }
-        }
-
-        /* App frame */
-        .app {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header.topbar {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px 16px;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(248, 250, 252, 0.8);
-            backdrop-filter: blur(6px);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            letter-spacing: 0.2px;
-        }
-        .brand img { width: 28px; height: 28px; border-radius: 6px; }
-        .brand .title { color: var(--text-primary); }
-        .brand .subtitle { color: var(--muted); font-weight: 500; font-size: 0.9rem; }
-
-        .spacer { flex: 1; }
-
-        .toolbar { display: flex; gap: 8px; align-items: center; }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid var(--border-color);
-            background: #ffffff;
-            color: var(--text-primary);
-            padding: 8px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .btn:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-        .btn.primary { background: var(--primary-red); color: #fff; border-color: #b91c1c; }
-        .btn.ghost { background: transparent; }
-
-        /* compact toolbar (only theme toggle now) */
-
-        .layout {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 20px;
-            align-items: start;
-            margin-top: 16px;
-        }
-        .layout.report-unavailable {
-            grid-template-columns: minmax(0, 1fr);
-        }
-        .layout.report-unavailable main {
-            grid-column: 1;
-        }
-        .layout > *, main, aside#toc, #content {
-            min-width: 0;
-        }
-        @media (max-width: 960px) {
-            .layout { grid-template-columns: 1fr; }
-            aside#toc { position: static; }
-        }
-
-        aside#toc {
-            position: sticky;
-            top: 68px;
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px;
-            max-height: calc(100vh - 100px);
-            overflow: auto;
-        }
-        aside#toc.hidden { display: none; }
-        #toc h4 { margin: 6px 8px 8px; color: var(--text-secondary); }
-        #toc a { color: var(--text-secondary); text-decoration: none; display: block; padding: 4px 8px; border-radius: 6px; overflow-wrap: anywhere; word-break: break-word; white-space: normal; }
-        #toc a:hover { background: #f1f5f9; color: var(--text-primary); }
-        #toc .lvl-2 { font-weight: 600; }
-        #toc .lvl-3 { padding-left: 16px; font-size: 0.95rem; }
-        #toc, #toc-list, #toc a {
-            max-width: 100%;
-        }
-
-        #content {
-            background: white;
-            padding: 2.0em;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-        }
-        .markdown-body {
-            overflow-wrap: anywhere;
-        }
-
-        @media (max-width: 767px) {
-            html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
-            .app { padding: 12px; max-width: 100%; width: 100%; overflow-x: hidden; }
-            header.topbar { align-items: flex-start; flex-wrap: wrap; padding: 12px; }
-            .brand { flex: 1 1 100%; min-width: 0; }
-            .brand .subtitle { overflow-wrap: anywhere; }
-            .spacer { display: none; }
-            .toolbar { flex-wrap: wrap; width: 100%; }
-            .layout { width: 100%; }
-            main, .exec, #content { width: 100%; max-width: calc(100vw - 24px); overflow-x: hidden; }
-            #content p, #content li, .exec p { overflow-wrap: anywhere; word-break: break-word; }
-            aside#toc { display: none; width: 100%; overflow-x: hidden; }
-            #content { padding: 1.25em; }
-        }
-
-        /* Header styling */
-        .markdown-body h1 {
-            background: linear-gradient(135deg, var(--primary-red), #b91c1c);
-            color: white;
-            padding: 1.5rem 2rem;
-            border-radius: 8px;
-            margin: -1rem -1rem 2rem -1rem;
-            border-left: 6px solid #991b1b;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
-        }
-
-        @media (max-width: 767px) {
-            .markdown-body h1 {
-                margin: -0.25rem -0.25rem 1.5rem -0.25rem;
-                padding: 1.1rem 1rem;
-                font-size: 1.75rem;
-            }
-        }
-
-        .markdown-body h2 {
-            color: var(--primary-red);
-            border-bottom: 3px solid var(--primary-red);
-            padding-bottom: 0.5rem;
-            margin-top: 2.5rem;
-            position: relative;
-        }
-
-        .markdown-body h2 { scroll-margin-top: 80px; }
-
-        .markdown-body h3 {
-            color: var(--warning-orange);
-            background: rgba(234, 88, 12, 0.1);
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            border-left: 4px solid var(--warning-orange);
-            margin-top: 1.5rem;
-            scroll-margin-top: 80px;
-            cursor: pointer;
-        }
-
-        .section-collapsible .section-body { display: none; }
-        .section-collapsible.open .section-body { display: block; }
-        .section-collapsible .toggle { float: right; color: var(--muted); font-weight: 600; font-size: 0.85rem; }
-
-        .heading-anchor {
-            opacity: 0;
-            margin-left: 6px;
-            text-decoration: none;
-            color: #94a3b8;
-            font-weight: 600;
-        }
-        .markdown-body h2:hover .heading-anchor,
-        .markdown-body h3:hover .heading-anchor { opacity: 1; }
-
-        .meta {
-            color: var(--muted);
-            font-size: 0.9rem;
-            margin-top: -12px;
-            margin-bottom: 16px;
-        }
-
-        /* Severity badges */
-        .severity-critical {
-            background: var(--primary-red);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-left: 0.5rem;
-        }
-
-        .severity-high {
-            background: var(--warning-orange);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-left: 0.5rem;
-        }
-
-        .severity-medium {
-            background: #fbbf24;
-            color: #92400e;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-left: 0.5rem;
-        }
-
-        /* Enhanced list styling */
-        .markdown-body ul li {
-            margin: 0.75rem 0;
-            padding-left: 0.5rem;
-            border-left: 3px solid var(--border-color);
-            color: var(--text-primary);
-        }
-
-        .markdown-body ul li strong {
-            color: var(--primary-red);
-        }
-
-        /* Detail blocks added via JS */
-        .detail-block {
-            background: #ffffff;
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin: 0.5rem 0;
-            border-left: 4px solid var(--info-blue);
-        }
-        .threat-actor {
-            background: rgba(220, 38, 38, 0.06);
-            border-left: 4px solid var(--primary-red);
-        }
-
-        /* Ensure all text is readable */
-        .markdown-body p, .markdown-body li {
-            color: var(--text-primary);
-        }
-        .markdown-body a { color: var(--info-blue); text-decoration: underline; }
-        body.dark .markdown-body a { color: #93c5fd; }
-        .markdown-body code, .markdown-body pre { background: #f1f5f9; border: 1px solid var(--border-color); border-radius: 6px; }
-        body.dark .markdown-body code, body.dark .markdown-body pre { background: #0b1220; color: #e5e7eb; border-color: #1f2937; }
-
-        /* Executive Summary */
-        .exec { border: 1px solid var(--border-color); background: #ffffff; border-radius: 12px; padding: 12px 16px; margin: 8px 0 16px; }
-        .exec h4 { margin: 0 0 6px; color: var(--text-secondary); }
-        .exec p { margin: 0 0 0.75rem; color: var(--text-primary); }
-        .exec p:last-of-type { margin-bottom: 0; }
-        .exec .audio-player { margin-top: 10px; }
-        .exec audio { width: 100%; border-radius: 8px; height: 36px; }
-        body.dark .exec { background: var(--dark-elev); border-color: #1f2937; }
-        body.dark .exec h4 { color: #cbd5e1; }
-        body.dark .exec p { color: #e5e7eb; }
-
-        .report-results {
-            min-width: 0;
-        }
-        #report-results, #content {
-            scroll-margin-top: 80px;
-        }
-        /* Add loading animation */
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-        }
-
-        .loading:after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border-color);
-            border-radius: 50%;
-            border-top-color: var(--primary-red);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Dark mode */
-        body.dark { background: linear-gradient(135deg, #0b1220 0%, #0f172a 100%);
-            --text-primary: #e5e7eb;
-            --text-secondary: #cbd5e1;
-            --border-color: #1f2937;
-        }
-        body.dark header.topbar { background: rgba(15, 23, 42, 0.7); border-bottom-color: #1f2937; }
-        body.dark #content, body.dark aside#toc { background: var(--dark-elev); border-color: #1f2937; }
-        body.dark .btn { background: #111827; color: #e5e7eb; border-color: #1f2937; }
-        body.dark .btn.primary { background: #b91c1c; border-color: #7f1d1d; }
-        body.dark #toc a:hover { background: #0b1220; }
-        body.dark .markdown-body { color: #e5e7eb; }
-        body.dark .markdown-body h2 { color: #fca5a5; border-bottom-color: #7f1d1d; }
-        body.dark .markdown-body h3 { color: #fb923c; background: rgba(251, 146, 60, 0.08); }
-        body.dark .detail-block { background: #0b1220; }
-    </style>
-    <style>
-        /* Additions: summary, status badges, toast, print */
-        .card { border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; background: #fff; }
-        .card h5 { margin: 0 0 6px; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
-        .card .value { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
-        .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-        .chip { border: 1px solid var(--border-color); background: #fafafa; border-radius: 999px; padding: 2px 8px; font-size: 0.82rem; }
-        .status-badge { margin-left: 6px; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; color: #fff; }
-        .status-active { background: #dc2626; }
-        .status-patched { background: #16a34a; }
-        .status-monitor { background: #2563eb; }
-        .toast { position: fixed; right: 16px; bottom: 16px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 8px; opacity: 0; transform: translateY(8px); transition: all .2s ease; z-index: 100; }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        /* TOC active */
-        #toc a.active { background: #e2e8f0; color: var(--text-primary); font-weight: 600; }
-        body.dark #toc a.active { background: #0b1220; }
-        @media print {
-            header.topbar, aside#toc { display: none !important; }
-            body { background: #fff !important; }
-            .app { padding: 0; }
-            #content { box-shadow: none; border: none; }
-            h1 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            h2 { page-break-before: avoid; }
-            .section-collapsible .section-body { display: block !important; }
-            .section-collapsible { break-inside: avoid; page-break-inside: avoid; }
-        }
-        body.dark .card { background: #111827; border-color: #1f2937; }
-        body.dark .chip { background: #0b1220; border-color: #1f2937; color: #cbd5e1; }
-        .chip.chip-critical { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
-        .chip.chip-patch { background: #dcfce7; border-color: #bbf7d0; color: #166534; }
-        .site-attribution { color: var(--text-secondary); font-size: 0.85rem; padding: 24px 0 8px; text-align: center; }
-        .site-attribution a, .viewer-fallback a { color: var(--info-blue); }
-        .viewer-fallback { color: var(--text-secondary); }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>SentryInsight report for Thursday, August 13, 2026</title>
+  <meta name="description" content="Current exploitation intelligence for rapid defensive triage.">
+  <link rel="canonical" href="https://ricomanifesto.github.io/SentryInsight/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="SentryInsight report for Thursday, August 13, 2026">
+  <meta property="og:description" content="Current exploitation intelligence for rapid defensive triage.">
+  <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/">
+  <meta property="og:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SentryInsight report for Thursday, August 13, 2026">
+  <meta name="twitter:description" content="Current exploitation intelligence for rapid defensive triage.">
+  <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"SentryInsight","url":"https://ricomanifesto.github.io/SentryInsight/","description":"Current exploitation intelligence for rapid defensive triage.","datePublished":"2026-08-13","dateModified":"2026-08-13T16:03:32Z","author":{"@type":"Person","name":"Michael Rico","url":"https://ricomanifesto.com/"},"sameAs":"https://github.com/ricomanifesto/SentryInsight"}</script>
+  <link rel="icon" href="assets/favicon.ico">
+  <link rel="stylesheet" href="assets/site.css?v=3650347bb5ae">
 </head>
 <body>
-    <div class="app">
-        <header class="topbar">
-            <div class="brand">
-                <img data-logo-asset="header-logo" alt="SentryInsight" />
-                <div>
-                    <div class="title">SentryInsight</div>
-                    <div class="subtitle">Exploitation Intelligence Report</div>
-                </div>
-            </div>
-            <div class="spacer"></div>
-            <div class="toolbar">
-                <a id="markdown-link" class="btn" href="index.md">Markdown</a>
-                <a id="archive-link" class="btn" href="reports/" hidden>Archive</a>
-                <button id="toggle-dark" class="btn" title="Toggle theme">Theme</button>
-            </div>
-        </header>
-
-        <div class="layout">
-            <aside id="toc">
-                <h4>On this page</h4>
-                <nav id="toc-list"></nav>
-            </aside>
-            <main>
-                <noscript><p class="viewer-fallback">View the <a href="index.md">latest report as Markdown</a>.</p></noscript>
-                <div class="meta" id="meta"></div>
-                <section class="report-results" id="report-results" role="region" aria-label="Report sections">
-                    <div id="exec" class="exec"></div>
-                    <div id="content" class="markdown-body"></div>
-                </section>
-            </main>
-        </div>
-        <footer class="site-attribution">A Rico Manifesto project by <a href="https://ricomanifesto.com/">Michael Rico</a>.</footer>
-    </div>
-
-    <script>
-        const layoutEl = document.querySelector('.layout');
-        const logoAssetEls = document.querySelectorAll('[data-logo-asset]');
-        const contentEl = document.getElementById('content');
-        const tocEl = document.getElementById('toc-list');
-        const tocAsideEl = document.getElementById('toc');
-        const metaEl = document.getElementById('meta');
-        const toggleDarkEl = document.getElementById('toggle-dark');
-        const markdownLinkEl = document.getElementById('markdown-link');
-        const archiveLinkEl = document.getElementById('archive-link');
-        const execEl = document.getElementById('exec');
-        const LOGO_ASSET_FILES = {
-            'favicon': 'favicon.ico',
-            'icon-svg': 'icon.svg',
-            'apple-touch-icon': 'apple-touch-icon.png',
-            'header-logo': 'icon.svg'
-        };
-
-        function resolveLogoAssetBase() {
-            return location.pathname.includes('/docs/')
-                ? '../assets/'
-                : 'assets/';
-        }
-
-        function applyLogoAssetPath() {
-            const base = resolveLogoAssetBase();
-            logoAssetEls.forEach((element) => {
-                const file = LOGO_ASSET_FILES[element.getAttribute('data-logo-asset')] || 'icon.svg';
-                if (element.tagName === 'LINK') {
-                    element.href = base + file;
-                } else {
-                    element.src = base + file;
-                }
-            });
-        }
-
-        // Initial UI state
-        applyLogoAssetPath();
-        contentEl.innerHTML = '<div class="loading">Loading exploitation report...</div>';
-        const preferDark = localStorage.getItem('sentryinsight:theme') === 'dark' || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        if (preferDark) document.body.classList.add('dark');
-        resolveArchiveLink();
-
-        // Optional UI config for easier customization
-        let UI_CONF = null;
-        const configPromise = fetch('config/ui.json').then(r => r.ok ? r.json() : null).then(j => { UI_CONF = j; }).catch(() => null);
-
-        function slugify(text) {
-            return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').substring(0, 80);
-        }
-
-        function resolveReportPath() {
-            const params = new URLSearchParams(window.location.search);
-            const requestedReport = (params.get('report') || '').trim();
-            if (
-                requestedReport.endsWith('.md') &&
-                !requestedReport.includes('..') &&
-                !requestedReport.includes('?') &&
-                !requestedReport.includes('#') &&
-                !requestedReport.includes('%') &&
-                !requestedReport.startsWith('/') &&
-                !requestedReport.includes(':') &&
-                (requestedReport.startsWith('reports/') || requestedReport.startsWith('docs/reports/')) &&
-                requestedReport.split('/').every(segment => segment && segment !== '.' && segment !== '..')
-            ) {
-                return requestedReport;
-            }
-            return 'index.md';
-        }
-
-        function resolveArchiveLink() {
-            const candidates = ['reports/', 'docs/reports/'];
-            function probe(index) {
-                if (index >= candidates.length) {
-                    archiveLinkEl.hidden = true;
-                    return;
-                }
-                const url = candidates[index];
-                fetch(url, { method: 'HEAD', cache: 'no-store' })
-                    .then(response => {
-                        if (!response.ok) {
-                            probe(index + 1);
-                            return;
-                        }
-                        archiveLinkEl.href = url;
-                        archiveLinkEl.hidden = false;
-                    })
-                    .catch(() => probe(index + 1));
-            }
-            probe(0);
-        }
-
-        function addHeadingAnchors() {
-            const headings = contentEl.querySelectorAll('h2, h3');
-            headings.forEach(h => {
-                if (!h.id) h.id = slugify(h.textContent);
-                const a = document.createElement('a');
-                a.href = `#${h.id}`;
-                a.className = 'heading-anchor';
-                a.textContent = '#';
-                h.appendChild(a);
-            });
-        }
-
-        function buildTOC() {
-            tocEl.innerHTML = '';
-            const frag = document.createDocumentFragment();
-            contentEl.querySelectorAll('h2, h3').forEach(h => {
-                const a = document.createElement('a');
-                a.href = `#${h.id}`;
-                a.textContent = h.textContent.replace(/#/g, '').trim();
-                a.className = h.tagName === 'H2' ? 'lvl-2' : 'lvl-3';
-                frag.appendChild(a);
-            });
-            tocEl.appendChild(frag);
-            // Smooth scroll
-            tocEl.querySelectorAll('a').forEach(a => {
-                a.addEventListener('click', (e) => {
-                    const href = a.getAttribute('href');
-                    const target = contentEl.querySelector(href);
-                    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-                });
-            });
-            // Scroll spy active state
-            const map = new Map();
-            tocEl.querySelectorAll('a').forEach(a => map.set(a.getAttribute('href')?.slice(1), a));
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (!entry.isIntersecting) return;
-                    const id = entry.target.id;
-                    const link = map.get(id);
-                    if (!link) return;
-                    tocEl.querySelectorAll('a').forEach(x => x.classList.remove('active'));
-                    link.classList.add('active');
-                });
-            }, { rootMargin: '0px 0px -70% 0px', threshold: 0.1 });
-            contentEl.querySelectorAll('h3').forEach(h => observer.observe(h));
-        }
-
-        function classifyDetailBlocks() {
-            contentEl.querySelectorAll('li').forEach(li => {
-                const strong = li.querySelector('strong');
-                if (!strong) return;
-                const label = strong.textContent.trim().toLowerCase();
-                if (['description', 'impact', 'status', 'mitigation', 'references', 'cve id', 'cve'].some(k => label.startsWith(k))) {
-                    li.classList.add('detail-block');
-                }
-                if (label.includes('threat actor')) li.classList.add('threat-actor');
-            });
-        }
-
-        function addSeverityBadges() {
-            // Headings heuristics
-            contentEl.querySelectorAll('h3').forEach(h3 => {
-                const text = h3.textContent.toLowerCase();
-                const sev = UI_CONF && UI_CONF.severity;
-                const reCrit = sev ? new RegExp(`(${(sev.critical||[]).join('|')})`, 'i') : /(critical|rce|remote code|0day|0-day|zero-day)/i;
-                const reHigh = sev ? new RegExp(`(${(sev.high||[]).join('|')})`, 'i') : /(phishing|supply chain|banking trojan|android malware|lpe|privilege escalation)/i;
-                const reMed  = sev ? new RegExp(`(${(sev.medium||[]).join('|')})`, 'i') : /(cryptojacking|docker|misconfig|bruteforce)/i;
-                if (reCrit.test(text)) {
-                    const b = document.createElement('span'); b.className = 'severity-critical'; b.textContent = 'Critical'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
-                } else if (reHigh.test(text)) {
-                    const b = document.createElement('span'); b.className = 'severity-high'; b.textContent = 'High'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
-                } else if (reMed.test(text)) {
-                    const b = document.createElement('span'); b.className = 'severity-medium'; b.textContent = 'Medium'; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
-                }
-                const m = h3.textContent.match(/(CVE-\d{4}-\d{4,7})/i);
-                if (m) {
-                    const a = document.createElement('a'); a.href = `https://nvd.nist.gov/vuln/detail/${m[1]}`; a.target = '_blank'; a.rel = 'noopener';
-                    const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = m[1];
-                    a.appendChild(chip);
-                    h3.appendChild(document.createTextNode(' '));
-                    h3.appendChild(a);
-                }
-            });
-        }
-
-        // Enhance tags within the Active Exploitation Details section
-        function enhanceActiveExploitationTags() {
-            const activeH2 = Array.from(contentEl.querySelectorAll('h2')).find(h => /active exploitation details/i.test(h.textContent));
-            if (!activeH2) return;
-            let el = activeH2.nextElementSibling;
-            while (el && el.tagName !== 'H2') {
-                if (el.classList && el.classList.contains('section-collapsible')) {
-                    const h3 = el.querySelector('h3');
-                    const body = el.querySelector('.section-body') || el;
-                    const text = body.textContent.toLowerCase();
-                    // Add Critical badge/chip if description mentions critical
-                    const hasCritBadge = h3.querySelector('.severity-critical');
-                    if (/\bcritical\b/.test(text) && !hasCritBadge) {
-                        const b = document.createElement('span'); b.className = 'severity-critical'; b.textContent = 'Critical';
-                        h3.appendChild(document.createTextNode(' '));
-                        h3.appendChild(b);
-                        const c = document.createElement('span'); c.className = 'chip chip-critical'; c.textContent = 'Critical';
-                        h3.appendChild(document.createTextNode(' '));
-                        h3.appendChild(c);
-                    }
-                    // Add Patch chip if status/description suggests updates/patching
-                    const hasPatch = Array.from(h3.querySelectorAll('.chip')).some(ch => /patch/i.test(ch.textContent));
-                    if (/(patch|patched|update|updated|fix|fixed|security update)/i.test(text) && !hasPatch) {
-                        const p = document.createElement('span'); p.className = 'chip chip-patch'; p.textContent = 'Patch';
-                        h3.appendChild(document.createTextNode(' '));
-                        h3.appendChild(p);
-                    }
-                }
-                el = el.nextElementSibling;
-            }
-        }
-
-        function linkifyCVEs() {
-            const cveTextPattern = /CVE-\d{4}-\d{4,7}/i;
-            const cveLinkPattern = /CVE-\d{4}-\d{4,7}/gi;
-            contentEl.querySelectorAll('p, li').forEach(el => {
-                const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-                    acceptNode: (node) => {
-                        const parent = node.parentElement;
-                        if (!parent || parent.closest('a, code, pre')) {
-                            return NodeFilter.FILTER_REJECT;
-                        }
-                        return cveTextPattern.test(node.nodeValue)
-                            ? NodeFilter.FILTER_ACCEPT
-                            : NodeFilter.FILTER_SKIP;
-                    }
-                });
-                const textNodes = [];
-                let node = walker.nextNode();
-                while (node) {
-                    textNodes.push(node);
-                    node = walker.nextNode();
-                }
-                textNodes.forEach(textNode => {
-                    cveLinkPattern.lastIndex = 0;
-                    const fragment = document.createDocumentFragment();
-                    let lastIndex = 0;
-                    textNode.nodeValue.replace(cveLinkPattern, (match, offset) => {
-                        fragment.appendChild(
-                            document.createTextNode(textNode.nodeValue.slice(lastIndex, offset))
-                        );
-                        const link = document.createElement('a');
-                        link.href = `https://nvd.nist.gov/vuln/detail/${match}`;
-                        link.target = '_blank';
-                        link.rel = 'noopener';
-                        link.textContent = match;
-                        fragment.appendChild(link);
-                        lastIndex = offset + match.length;
-                    });
-                    fragment.appendChild(
-                        document.createTextNode(textNode.nodeValue.slice(lastIndex))
-                    );
-                    textNode.replaceWith(fragment);
-                });
-            });
-        }
-
-        function addStatusBadges() {
-            contentEl.querySelectorAll('.section-collapsible').forEach(sec => {
-                const h3 = sec.querySelector('h3');
-                if (!h3) return;
-                let statusText = '';
-                sec.querySelectorAll('li').forEach(li => {
-                    const s = li.querySelector('strong');
-                    if (!s) return;
-                    const key = s.textContent.trim().toLowerCase();
-                    if (key.startsWith('status')) statusText = li.textContent.toLowerCase();
-                });
-                if (!statusText) return;
-                let cls = '', label = '';
-                const st = UI_CONF && UI_CONF.status;
-                const reActive = st ? new RegExp(`(${(st.active||[]).join('|')})`, 'i') : /active|exploited|in the wild/i;
-                const rePatched = st ? new RegExp(`(${(st.patched||[]).join('|')})`, 'i') : /patched|fixed|updates released/i;
-                if (reActive.test(statusText)) { cls = 'status-active'; label = 'Active'; }
-                else if (rePatched.test(statusText)) { cls = 'status-patched'; label = 'Patched'; }
-                else { cls = 'status-monitor'; label = 'Monitor'; }
-                const b = document.createElement('span'); b.className = `status-badge ${cls}`; b.textContent = label; h3.appendChild(document.createTextNode(' ')); h3.appendChild(b);
-            });
-        }
-
-        function makeCollapsible() {
-            // Wrap sections such that each h3 controls its following siblings until next h3/h2
-            const nodes = Array.from(contentEl.children);
-            for (let i = 0; i < nodes.length; i++) {
-                const n = nodes[i];
-                if (n.tagName === 'H3') {
-                    const wrap = document.createElement('div');
-                    wrap.className = 'section-collapsible open';
-                    const toggle = document.createElement('span');
-                    toggle.className = 'toggle';
-                    toggle.textContent = '▼';
-                    n.appendChild(toggle);
-                    const body = document.createElement('div');
-                    body.className = 'section-body';
-                    // Move following siblings into body until next H3 or H2
-                    let j = i + 1;
-                    while (j < nodes.length && !['H3','H2'].includes(nodes[j].tagName)) {
-                        body.appendChild(nodes[j]);
-                        nodes.splice(j, 1);
-                    }
-                    n.after(wrap);
-                    wrap.appendChild(n);
-                    wrap.appendChild(body);
-                }
-            }
-            contentEl.addEventListener('click', (e) => {
-                const h3 = e.target.closest('h3');
-                if (!h3) return;
-                const container = h3.parentElement;
-                if (!container.classList.contains('section-collapsible')) return;
-                container.classList.toggle('open');
-                const t = h3.querySelector('.toggle');
-                if (t) t.textContent = container.classList.contains('open') ? '▼' : '▶';
-            });
-        }
-
-        function formatUtcTimestamp(value) {
-            const date = value ? new Date(value) : null;
-            if (!date || Number.isNaN(date.getTime())) return '';
-            return new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                timeZone: 'UTC',
-                timeZoneName: 'short'
-            }).format(date);
-        }
-
-        function renderReportMetadata(dateStr, archiveReport, fallbackDateStr = '') {
-            if (archiveReport) {
-                metaEl.textContent = 'Archived report';
-                return;
-            }
-            const fallbackLabel = formatUtcTimestamp(fallbackDateStr);
-            const dateLabel = dateStr || fallbackLabel;
-            metaEl.textContent = dateLabel
-                ? `Latest report · Last updated: ${dateLabel}`
-                : 'Latest report';
-        }
-
-        function wireShortcuts() {
-            document.addEventListener('keydown', (e) => {
-                if (e.target && ['input','textarea'].includes((e.target.tagName||'').toLowerCase())) return;
-                const k = e.key.toLowerCase();
-                if (k === 't') { toggleDarkEl.click(); }
-            });
-        }
-
-        function download(filename, content, type='text/plain') {
-            const blob = new Blob([content], { type });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = filename; a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // Fetch and render the markdown content (after UI config)
-        let markdownCache = '';
-        const reportPath = resolveReportPath();
-        const isArchiveReport = reportPath !== 'index.md';
-        markdownLinkEl.href = reportPath;
-        function renderReportLoadError(error) {
-            layoutEl.classList.add('report-unavailable');
-            metaEl.textContent = 'Report unavailable';
-            tocEl.textContent = '';
-            tocAsideEl.classList.add('hidden');
-            execEl.textContent = '';
-            const heading = document.createElement('h1');
-            heading.textContent = 'Error Loading Report';
-            const message = document.createElement('p');
-            message.textContent = 'Unable to load the exploitation report. Please check back later.';
-            const pre = document.createElement('pre');
-            pre.textContent = String(error);
-            contentEl.textContent = '';
-            contentEl.append(heading, message, pre);
-        }
-
-        function extractExecutiveSummaryNodes() {
-            const h1 = contentEl.querySelector('h1');
-            if (!h1) return [];
-
-            const summaryHeading = Array.from(contentEl.querySelectorAll('h2')).find(heading => {
-                const label = heading.textContent.replace('#', '').trim().toLowerCase();
-                return label === 'executive summary';
-            });
-            if (summaryHeading) {
-                const nodes = [summaryHeading];
-                let next = summaryHeading.nextElementSibling;
-                while (next && next.tagName !== 'H2') {
-                    nodes.push(next);
-                    next = next.nextElementSibling;
-                }
-                return nodes;
-            }
-
-            const next = h1.nextElementSibling;
-            return next && next.tagName === 'P' ? [next] : [];
-        }
-
-        function appendExecutiveSummaryAudio() {
-            if (!isArchiveReport) {
-                const audioSrc = 'executive_summary.mp3?v=' + Date.now();
-                fetch('executive_summary.mp3', { method: 'HEAD' }).then(r => {
-                    if (!r.ok) return;
-                    const len = parseInt(r.headers.get('Content-Length') || '0');
-                    if (len === 0) return;
-                    const audioDiv = document.createElement('div');
-                    audioDiv.className = 'audio-player';
-                    const audioEl = document.createElement('audio');
-                    audioEl.controls = true;
-                    audioEl.preload = 'none';
-                    audioEl.src = audioSrc;
-                    audioDiv.appendChild(audioEl);
-                    execEl.appendChild(audioDiv);
-                }).catch(() => {});
-            }
-        }
-
-        function renderExecutiveSummary() {
-            execEl.innerHTML = '';
-            const summaryNodes = extractExecutiveSummaryNodes();
-            const paragraphs = summaryNodes.filter(node => node.tagName === 'P');
-            if (!paragraphs.length) return;
-
-            execEl.innerHTML = `<h4>Executive Summary</h4>`;
-            paragraphs.forEach(paragraph => execEl.appendChild(paragraph.cloneNode(true)));
-            summaryNodes.forEach(node => node.remove());
-            appendExecutiveSummaryAudio();
-        }
-
-        Promise.all([configPromise])
-          .then(() => fetch(reportPath + '?v=' + Date.now(), { cache: 'no-store' }))
-          .then(response => {
-            if (!response.ok) {
-                throw new Error(`Report fetch failed: ${response.status}`);
-            }
-            return response.text().then(text => ({
-                text,
-                lastModified: response.headers.get('Last-Modified') || '',
-            }));
-          })
-          .then(({ text, lastModified }) => {
-                layoutEl.classList.remove('report-unavailable');
-                tocAsideEl.classList.remove('hidden');
-                markdownCache = text;
-                let html = DOMPurify.sanitize(marked.parse(text));
-                contentEl.innerHTML = html;
-
-                renderExecutiveSummary();
-
-                // Post-processing
-                addHeadingAnchors();
-                addSeverityBadges();
-                classifyDetailBlocks();
-                linkifyCVEs();
-                makeCollapsible();
-                addStatusBadges();
-                enhanceActiveExploitationTags();
-                buildTOC();
-                const m = text.match(/title:\s*Exploitation Intelligence Report\s*-\s*(\d{4}-\d{2}-\d{2})/i);
-                renderReportMetadata(m ? m[1] : '', isArchiveReport, lastModified);
-          })
-            .catch(error => {
-                renderReportLoadError(error);
-            });
-
-        // Controls
-        toggleDarkEl.addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            const mode = document.body.classList.contains('dark') ? 'dark' : 'light';
-            localStorage.setItem('sentryinsight:theme', mode);
-        });
-        wireShortcuts();
-
-        // Copy heading link via anchor click
-        contentEl.addEventListener('click', (e) => {
-            const a = e.target.closest('a.heading-anchor');
-            if (!a) return;
-            e.preventDefault();
-            const url = `${location.origin}${location.pathname}${location.search}${a.getAttribute('href')}`;
-            navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard'));
-        });
-
-        // Expand for print
-        window.addEventListener('beforeprint', () => {
-            contentEl.querySelectorAll('.section-collapsible').forEach(c => c.classList.add('open'));
-        });
-
-        // Toast helper
-        const toast = document.createElement('div'); toast.className = 'toast'; document.body.appendChild(toast);
-        function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
-    </script>
+  <a class="skip-link" href="#report-content">Skip to report</a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="SentryInsight latest report">
+      <img src="assets/logo-lockup-light.png" alt="SentryInsight" width="264" height="62">
+    </a>
+    <nav class="site-actions" aria-label="Report actions">
+      <a href="reports/">Archive</a>
+      <a href="index.md">Markdown</a>
+      <button id="theme-toggle" type="button" aria-pressed="false">Theme</button>
+    </nav>
+  </header>
+  <div class="report-date" aria-label="Report timing">
+    <time datetime="2026-08-13">Report for Thursday, August 13, 2026</time>
+    <span>Generated <time datetime="2026-08-13T16:03:32Z">August 13, 2026 at 16:03 UTC</time><span id="report-age"></span></span>
+  </div>
+  <details class="mobile-toc">
+    <summary>On this page</summary>
+    <nav aria-label="Report sections"><a class="section-link" href="#executive-summary">Executive Summary</a><a class="section-link" href="#active-exploitation-details">Active Exploitation Details</a><a class="finding-link" href="#microsoft-sharepoint-authentication-bypass-cve-2026-55040">Microsoft SharePoint Authentication Bypass (CVE-2026-55040)</a><a class="finding-link" href="#windows-zero-day-exploited-by-lazarus-group-cve-2026-68820">Windows Zero-Day Exploited by Lazarus Group (CVE-2026-68820)</a><a class="finding-link" href="#microsoft-defender-shieldbreak-zero-day">Microsoft Defender &quot;ShieldBreak&quot; Zero-Day</a><a class="finding-link" href="#adobe-commerce-magento-critical-flaw-cve-2026-71362">Adobe Commerce / Magento Critical Flaw (CVE-2026-71362)</a><a class="finding-link" href="#vmware-vcenter-critical-vulnerability">VMware vCenter Critical Vulnerability</a><a class="finding-link" href="#cisco-asa-and-ftd-remote-dos-vulnerability">Cisco ASA and FTD Remote DoS Vulnerability</a><a class="finding-link" href="#belgium-eid-browser-extension-rce">Belgium eID Browser Extension RCE</a><a class="finding-link" href="#sap-commerce-cloud-arbitrary-code-execution">SAP Commerce Cloud Arbitrary Code Execution</a><a class="finding-link" href="#malicious-litellm-pypi-supply-chain-attack">Malicious LiteLLM PyPI Supply Chain Attack</a><a class="section-link" href="#affected-systems-and-products">Affected Systems and Products</a><a class="section-link" href="#attack-vectors-and-techniques">Attack Vectors and Techniques</a><a class="section-link" href="#threat-actor-activities">Threat Actor Activities</a></nav>
+  </details>
+  <div class="page-shell">
+    <aside class="desktop-toc">
+      <p>On this page</p>
+      <nav aria-label="Report sections"><a class="section-link" href="#executive-summary">Executive Summary</a><a class="section-link" href="#active-exploitation-details">Active Exploitation Details</a><a class="finding-link" href="#microsoft-sharepoint-authentication-bypass-cve-2026-55040">Microsoft SharePoint Authentication Bypass (CVE-2026-55040)</a><a class="finding-link" href="#windows-zero-day-exploited-by-lazarus-group-cve-2026-68820">Windows Zero-Day Exploited by Lazarus Group (CVE-2026-68820)</a><a class="finding-link" href="#microsoft-defender-shieldbreak-zero-day">Microsoft Defender &quot;ShieldBreak&quot; Zero-Day</a><a class="finding-link" href="#adobe-commerce-magento-critical-flaw-cve-2026-71362">Adobe Commerce / Magento Critical Flaw (CVE-2026-71362)</a><a class="finding-link" href="#vmware-vcenter-critical-vulnerability">VMware vCenter Critical Vulnerability</a><a class="finding-link" href="#cisco-asa-and-ftd-remote-dos-vulnerability">Cisco ASA and FTD Remote DoS Vulnerability</a><a class="finding-link" href="#belgium-eid-browser-extension-rce">Belgium eID Browser Extension RCE</a><a class="finding-link" href="#sap-commerce-cloud-arbitrary-code-execution">SAP Commerce Cloud Arbitrary Code Execution</a><a class="finding-link" href="#malicious-litellm-pypi-supply-chain-attack">Malicious LiteLLM PyPI Supply Chain Attack</a><a class="section-link" href="#affected-systems-and-products">Affected Systems and Products</a><a class="section-link" href="#attack-vectors-and-techniques">Attack Vectors and Techniques</a><a class="section-link" href="#threat-actor-activities">Threat Actor Activities</a></nav>
+    </aside>
+    <main id="report-content" class="report-content"><h1 id="exploitation-report">Exploitation Report</h1>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>Active exploitation campaigns have intensified across multiple vectors in August 2026, with threat actors rapidly weaponizing newly disclosed vulnerabilities and proof-of-concept code. North Korean state-sponsored group Lazarus is leveraging a Windows zero-day (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-68820" class="cve-link">CVE-2026-68820</a>) against defense-sector targets under Operation Dream Job, while simultaneously a separate Microsoft Defender zero-day dubbed &quot;ShieldBreak&quot; grants SYSTEM privileges and has public PoC code circulating. Microsoft SharePoint authentication bypass (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-55040" class="cve-link">CVE-2026-55040</a>) and VMware vCenter are both under active exploitation following PoC releases, and a critical Adobe Commerce flaw (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-71362" class="cve-link">CVE-2026-71362</a>) is being used to hijack customer accounts on e-commerce platforms.</p>
+<p>Supply chain and identity-focused attacks continue to expand in scope. The &quot;City-Forum&quot; campaign has operated since March 2025, using custom tooling to extract data from misconfigured Salesforce Experience Cloud and ServiceNow portals across multiple sectors. A massive browser extension campaign comprising 737 malicious Chrome VPN extensions routes victim traffic through attacker-controlled SOCKS5 proxies, primarily targeting Russian-speaking users. Meanwhile, the Belgium eID browser extension compromise demonstrates systemic risks in trust frameworks, enabling remote code execution against citizen authentication systems.</p>
+<p>Financially motivated and espionage operations increasingly blur. The Jewelbug APT operates as a hackers-for-hire service conducting both state espionage and cryptocurrency theft from the same infrastructure. Android malware combinations—WindRelay NFC relay malware paired with SpyNote RAT—steal live payment card data and initiate fraudulent loans in real time. Cisco ASA/FTD vulnerabilities are exploited in the wild for denial-of-service, while a malicious PyPI supply chain attack via trojanized LiteLLM packages exposed over 2,100 organizations to credential theft.</p>
+<h2 id="active-exploitation-details">Active Exploitation Details</h2>
+<h3 id="microsoft-sharepoint-authentication-bypass-cve-2026-55040" data-severity="critical" data-exploitation-status="active" data-action="patch" data-cves="CVE-2026-55040">Microsoft SharePoint Authentication Bypass (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-55040" class="cve-link">CVE-2026-55040</a>)</h3>
+<ul>
+<li><strong>Description</strong>: A critical authentication bypass vulnerability in Microsoft SharePoint that allows unauthenticated attackers to circumvent access controls. The flaw was disclosed with a proof-of-concept exploit published by Rapid7.</li>
+<li><strong>Impact</strong>: Attackers can gain unauthorized access to SharePoint sites, potentially exposing sensitive documents, internal communications, and organizational data. Successful exploitation enables further lateral movement within Microsoft 365 environments.</li>
+<li><strong>Status</strong>: Actively exploited in the wild following public PoC release. Microsoft has released patches; organizations should prioritize immediate deployment.</li>
+<li><strong>Severity</strong>: critical</li>
+<li><strong>Exploitation Status</strong>: active</li>
+<li><strong>Action</strong>: patch</li>
+<li><strong>CVE IDs</strong>: <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-55040" class="cve-link">CVE-2026-55040</a></li>
+</ul>
+<h3 id="windows-zero-day-exploited-by-lazarus-group-cve-2026-68820" data-severity="unknown" data-exploitation-status="active" data-action="patch" data-cves="CVE-2026-68820">Windows Zero-Day Exploited by Lazarus Group (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-68820" class="cve-link">CVE-2026-68820</a>)</h3>
+<ul>
+<li><strong>Description</strong>: A zero-day vulnerability in Microsoft Windows exploited by the North Korean Lazarus Group to achieve SYSTEM-level code execution. The exploit delivers a previously undocumented backdoor.</li>
+<li><strong>Impact</strong>: Full SYSTEM privileges on compromised hosts, enabling persistent access, credential theft, lateral movement, and deployment of additional payloads. Used specifically against defense-sector companies.</li>
+<li><strong>Status</strong>: Actively exploited as a zero-day prior to patching. Microsoft has since released fixes in August 2026 Patch Tuesday updates.</li>
+<li><strong>Severity</strong>: unknown</li>
+<li><strong>Exploitation Status</strong>: active</li>
+<li><strong>Action</strong>: patch</li>
+<li><strong>CVE IDs</strong>: <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-68820" class="cve-link">CVE-2026-68820</a></li>
+</ul>
+<h3 id="microsoft-defender-shieldbreak-zero-day" data-severity="unknown" data-exploitation-status="potential" data-action="investigate">Microsoft Defender &quot;ShieldBreak&quot; Zero-Day</h3>
+<ul>
+<li><strong>Description</strong>: A zero-day exploit targeting Microsoft Defender that bypasses security controls and grants SYSTEM-level privileges. The exploit, named &quot;ShieldBreak,&quot; was released by researcher Nightmare Eclipse (also known as Chaotic Eclipse, INFINITE NIGHTMARE, MSNightmare) following August 2026 Patch Tuesday.</li>
+<li><strong>Impact</strong>: Complete bypass of Microsoft Defender protections with SYSTEM access, effectively disabling endpoint defense and allowing unrestricted code execution.</li>
+<li><strong>Status</strong>: Public PoC code available. Actively exploitable on patched systems as of disclosure. Microsoft has not yet issued a specific fix for this bypass technique.</li>
+<li><strong>Severity</strong>: unknown</li>
+<li><strong>Exploitation Status</strong>: potential</li>
+<li><strong>Action</strong>: investigate</li>
+</ul>
+<h3 id="adobe-commerce-magento-critical-flaw-cve-2026-71362" data-severity="critical" data-exploitation-status="active" data-action="patch" data-cves="CVE-2026-71362">Adobe Commerce / Magento Critical Flaw (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-71362" class="cve-link">CVE-2026-71362</a>)</h3>
+<ul>
+<li><strong>Description</strong>: A critical vulnerability in Adobe Commerce and Magento e-commerce platforms that allows attackers to hijack customer accounts without authentication.</li>
+<li><strong>Impact</strong>: Full account takeover of customer accounts on affected e-commerce sites, enabling payment fraud, PII theft, order manipulation, and potential lateral access to administrative interfaces.</li>
+<li><strong>Status</strong>: Active exploitation attempts detected in the wild. Adobe has released security patches; merchants should apply immediately.</li>
+<li><strong>Severity</strong>: critical</li>
+<li><strong>Exploitation Status</strong>: active</li>
+<li><strong>Action</strong>: patch</li>
+<li><strong>CVE IDs</strong>: <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-71362" class="cve-link">CVE-2026-71362</a></li>
+</ul>
+<h3 id="vmware-vcenter-critical-vulnerability" data-severity="critical" data-exploitation-status="active" data-action="patch">VMware vCenter Critical Vulnerability</h3>
+<ul>
+<li><strong>Description</strong>: A critical security flaw in Broadcom VMware vCenter that enables persistent remote access. Actively exploited by threat actors according to QUIRSO findings.</li>
+<li><strong>Impact</strong>: Unauthenticated remote code execution with persistent access to the virtualization management layer, compromising all managed ESXi hosts and virtual machines.</li>
+<li><strong>Status</strong>: Active exploitation confirmed. Broadcom has released patches; emergency deployment recommended for internet-exposed vCenter instances.</li>
+<li><strong>Severity</strong>: critical</li>
+<li><strong>Exploitation Status</strong>: active</li>
+<li><strong>Action</strong>: patch</li>
+</ul>
+<h3 id="cisco-asa-and-ftd-remote-dos-vulnerability" data-severity="unknown" data-exploitation-status="active" data-action="patch">Cisco ASA and FTD Remote DoS Vulnerability</h3>
+<ul>
+<li><strong>Description</strong>: A vulnerability in Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Secure Firewall Threat Defense (FTD) Software that can be triggered remotely to cause denial-of-service conditions.</li>
+<li><strong>Impact</strong>: Complete service disruption of firewall capabilities, leaving networks unprotected during outage. Exploited in the wild per Cisco advisory.</li>
+<li><strong>Status</strong>: Actively exploited in the wild. Cisco has released software updates and workarounds.</li>
+<li><strong>Severity</strong>: unknown</li>
+<li><strong>Exploitation Status</strong>: active</li>
+<li><strong>Action</strong>: patch</li>
+</ul>
+<h3 id="belgium-eid-browser-extension-rce" data-severity="unknown" data-exploitation-status="potential" data-action="patch">Belgium eID Browser Extension RCE</h3>
+<ul>
+<li><strong>Description</strong>: Severe vulnerabilities in the browser extension underpinning Belgium's electronic ID (eID) authentication system, fully compromising the trust framework used for citizen authentication.</li>
+<li><strong>Impact</strong>: Remote code execution in the context of citizen authentication sessions, enabling account takeover, identity theft, and unauthorized access to government services.</li>
+<li><strong>Status</strong>: Vulnerabilities disclosed; patches for the browser extension deployed. Highlights systemic risks in browser extension trust models.</li>
+<li><strong>Severity</strong>: unknown</li>
+<li><strong>Exploitation Status</strong>: potential</li>
+<li><strong>Action</strong>: patch</li>
+</ul>
+<h3 id="sap-commerce-cloud-arbitrary-code-execution" data-severity="critical" data-exploitation-status="unknown" data-action="patch">SAP Commerce Cloud Arbitrary Code Execution</h3>
+<ul>
+<li><strong>Description</strong>: A maximum-severity security flaw in SAP Commerce Cloud (Data Hub Adapter) allowing unauthenticated attackers to execute arbitrary code.</li>
+<li><strong>Impact</strong>: Full server compromise, access to commerce data, potential pivot to connected ERP systems, and supply chain disruption.</li>
+<li><strong>Status</strong>: SAP has released patches. Exploitation status in wild not explicitly confirmed but severity warrants immediate patching.</li>
+<li><strong>Severity</strong>: critical</li>
+<li><strong>Exploitation Status</strong>: unknown</li>
+<li><strong>Action</strong>: patch</li>
+</ul>
+<h3 id="malicious-litellm-pypi-supply-chain-attack" data-severity="unknown" data-exploitation-status="observed" data-action="investigate">Malicious LiteLLM PyPI Supply Chain Attack</h3>
+<ul>
+<li><strong>Description</strong>: Two trojanized LiteLLM packages uploaded to PyPI in March 2026 containing credential-stealing code. The packages remained available for approximately 40 minutes but were downloaded by automated build systems.</li>
+<li><strong>Impact</strong>: Harvesting of cloud API keys, SSH keys, Kubernetes tokens, database passwords, and other secrets from over 2,100 potentially affected organizations.</li>
+<li><strong>Status</strong>: Packages removed from PyPI. Incident linked to Trivy security scanner compromise. Affected organizations must rotate all potentially exposed credentials.</li>
+<li><strong>Severity</strong>: unknown</li>
+<li><strong>Exploitation Status</strong>: observed</li>
+<li><strong>Action</strong>: investigate</li>
+</ul>
+<h2 id="affected-systems-and-products">Affected Systems and Products</h2>
+<ul>
+<li><strong>Microsoft SharePoint</strong>: All versions affected by <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-55040" class="cve-link">CVE-2026-55040</a>; authentication bypass enables unauthenticated access to SharePoint Online and on-premises deployments</li>
+<li><strong>Microsoft Windows</strong>: Versions vulnerable to <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-68820" class="cve-link">CVE-2026-68820</a> (Lazarus zero-day) and ShieldBreak Defender bypass; impacts enterprise and consumer editions</li>
+<li><strong>Microsoft Defender</strong>: Endpoint protection bypass via ShieldBreak zero-day; affects current definitions as of August 2026 Patch Tuesday</li>
+<li><strong>Adobe Commerce / Magento</strong>: E-commerce platforms vulnerable to <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-71362" class="cve-link">CVE-2026-71362</a> account takeover; affects both cloud and on-premises deployments</li>
+<li><strong>VMware vCenter</strong>: Versions affected by a critical remote-access flaw; critical for virtualization infrastructure management</li>
+<li><strong>Cisco ASA and FTD</strong>: Secure Firewall Adaptive Security Appliance and Threat Defense software versions vulnerable to remote DoS</li>
+<li><strong>Belgium eID Browser Extension</strong>: The middleware extension used for citizen authentication across Belgian government services</li>
+<li><strong>SAP Commerce Cloud</strong>: Data Hub Adapter component vulnerable to unauthenticated RCE; affects cloud-hosted commerce implementations</li>
+<li><strong>Salesforce Experience Cloud</strong>: Misconfigured sites exposing data to anonymous access, targeted by City-Forum campaign</li>
+<li><strong>ServiceNow</strong>: Customer portal instances with excessive anonymous access permissions, targeted by City-Forum campaign</li>
+<li><strong>Google Chrome</strong>: Browser hosting 737 malicious VPN/proxy extensions on Chrome Web Store; primarily affecting Russian-speaking users</li>
+<li><strong>Android Devices</strong>: Targeted by WindRelay NFC relay malware and SpyNote RAT combination for payment card theft and loan fraud</li>
+<li><strong>PyPI / Python Supply Chain</strong>: Organizations using LiteLLM library; 2,100+ potentially exposed via trojanized packages versions 1.72.1 and 1.72.2</li>
+<li><strong>Adobe ColdFusion, Campaign Classic</strong>: Multiple CVSS 10.0 vulnerabilities patched in August 2026; exploitation status not confirmed in wild</li>
+</ul>
+<h2 id="attack-vectors-and-techniques">Attack Vectors and Techniques</h2>
+<ul>
+<li><strong>Public PoC Weaponization</strong>: Rapid exploitation of <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-55040" class="cve-link">CVE-2026-55040</a> (SharePoint) and a vCenter flaw within days of PoC publication by Rapid7 and other researchers</li>
+<li><strong>Zero-Day Exploitation</strong>: Lazarus Group leveraging <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-68820" class="cve-link">CVE-2026-68820</a> before patch availability; ShieldBreak Defender bypass released immediately after Patch Tuesday</li>
+<li><strong>Browser Extension Compromise</strong>: Malicious Chrome Web Store extensions (737 VPN/proxy tools) routing traffic through attacker SOCKS5 proxies; Belgium eID extension RCE via trust framework flaws</li>
+<li><strong>Supply Chain Injection</strong>: Trojanized PyPI packages (LiteLLM) with credential harvester; automated build systems amplified impact to 2,100+ organizations</li>
+<li><strong>NFC Relay Attack</strong>: WindRelay malware relaying live payment card data via NFC from victim Android devices to attacker-controlled terminals in real time</li>
+<li><strong>RAT-Enabled Financial Fraud</strong>: SpyNote RAT providing remote control for loan application fraud and transaction authorization bypass on compromised Android devices</li>
+<li><strong>Anonymous Portal Enumeration</strong>: City-Forum custom tooling scanning for misconfigured Salesforce Experience Cloud and ServiceNow portals with excessive anonymous permissions</li>
+<li><strong>Plug and Play Abuse</strong>: &quot;Plug and Pwn&quot; technique forcing Windows to install vulnerable vendor drivers via malicious USB device descriptors for SYSTEM escalation</li>
+<li><strong>Authentication Bypass</strong>: SharePoint flaw allowing unauthenticated access; Adobe Commerce flaw enabling customer account takeover without credentials</li>
+<li><strong>AI Reasoning Extraction</strong>: API flaw across OpenAI, Anthropic, and Google allowing weaker models to decode stronger models' hidden reasoning and extract API keys from session logs</li>
+</ul>
+<h2 id="threat-actor-activities">Threat Actor Activities</h2>
+<ul>
+<li><strong>Lazarus Group (North Korea)</strong>: Exploiting Windows zero-day <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-68820" class="cve-link">CVE-2026-68820</a> against defense-sector companies under Operation Dream Job; deploying novel backdoor with SYSTEM access; attributed to Microsoft Defender ShieldBreak research release</li>
+<li><strong>Jewelbug APT</strong>: Hackers-for-hire operation conducting simultaneous state-sponsored espionage and cryptocurrency theft; operating from shared Web panel infrastructure; blurring line between APT and cybercrime</li>
+<li><strong>City-Forum Campaign Operators</strong>: Long-running data theft operation active since at least March 2025; custom tooling targeting Salesforce and ServiceNow across multiple industry sectors; unknown attribution</li>
+<li><strong>Nightmare Eclipse / Chaotic Eclipse</strong>: Security researcher releasing ShieldBreak Microsoft Defender zero-day PoC; multiple aliases (INFINITE NIGHTMARE, MSNightmare); published bypass immediately after August 2026 Patch Tuesday</li>
+<li><strong>Malicious PyPI Publishers</strong>: Actors uploading trojanized LiteLLM packages tied to Trivy scanner compromise; credential theft targeting cloud infrastructure secrets; 40-minute window but high-impact downstream</li>
+<li><strong>Chrome Extension Operators</strong>: Single provider operating 737 malicious VPN/proxy extensions on Chrome Web Store; targeting Russian-speaking users seeking censorship circumvention; traffic interception via SOCKS5 proxies</li>
+<li><strong>Android Malware Operators</strong>: Deploying WindRelay + SpyNote combination for real-time payment card relay and loan fraud; financially motivated with sophisticated NFC exploitation</li>
+<li><strong>Cisco ASA/FTD Exploiters</strong>: Unknown actors exploiting firewall DoS vulnerability in the wild; likely reconnaissance or diversion tactic</li>
+<li><strong>FBI-Warned Account Compromise Actors</strong>: Cybercriminals targeting social media and online accounts of adults and children for explicit content theft; sextortion and blackmail follow-on</li>
+<li><strong>Colombian Justice Ministry Ransomware Actors</strong>: Ransomware group targeting government critical infrastructure during presidential transition; part of increased Latin American activity trend</li>
+</ul>
+</main>
+  </div>
+  <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
+  <script id="report-metadata" type="application/json">{"schema_version":1,"report_date":"2026-08-13","generated_at":"2026-08-13T16:03:32Z","findings":[{"title":"Microsoft SharePoint Authentication Bypass (CVE-2026-55040)","slug":"microsoft-sharepoint-authentication-bypass-cve-2026-55040","severity":"critical","exploitation_status":"active","action":"patch","cve_ids":["CVE-2026-55040"]},{"title":"Windows Zero-Day Exploited by Lazarus Group (CVE-2026-68820)","slug":"windows-zero-day-exploited-by-lazarus-group-cve-2026-68820","severity":"unknown","exploitation_status":"active","action":"patch","cve_ids":["CVE-2026-68820"]},{"title":"Microsoft Defender \"ShieldBreak\" Zero-Day","slug":"microsoft-defender-shieldbreak-zero-day","severity":"unknown","exploitation_status":"potential","action":"investigate","cve_ids":[]},{"title":"Adobe Commerce / Magento Critical Flaw (CVE-2026-71362)","slug":"adobe-commerce-magento-critical-flaw-cve-2026-71362","severity":"critical","exploitation_status":"active","action":"patch","cve_ids":["CVE-2026-71362"]},{"title":"VMware vCenter Critical Vulnerability","slug":"vmware-vcenter-critical-vulnerability","severity":"critical","exploitation_status":"active","action":"patch","cve_ids":[]},{"title":"Cisco ASA and FTD Remote DoS Vulnerability","slug":"cisco-asa-and-ftd-remote-dos-vulnerability","severity":"unknown","exploitation_status":"active","action":"patch","cve_ids":[]},{"title":"Belgium eID Browser Extension RCE","slug":"belgium-eid-browser-extension-rce","severity":"unknown","exploitation_status":"potential","action":"patch","cve_ids":[]},{"title":"SAP Commerce Cloud Arbitrary Code Execution","slug":"sap-commerce-cloud-arbitrary-code-execution","severity":"critical","exploitation_status":"unknown","action":"patch","cve_ids":[]},{"title":"Malicious LiteLLM PyPI Supply Chain Attack","slug":"malicious-litellm-pypi-supply-chain-attack","severity":"unknown","exploitation_status":"observed","action":"investigate","cve_ids":[]}]}</script>
+  <script src="assets/vendor/dompurify.min.js?v=3650347bb5ae" defer></script>
+  <script src="assets/report.js?v=3650347bb5ae" defer></script>
 </body>
 </html>

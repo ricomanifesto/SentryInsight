@@ -1,7 +1,7 @@
 import logging
 import re
 from typing import List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 import tiktoken
 
@@ -269,7 +269,7 @@ async def analyze_exploitation(
         logger.error(f"Invalid model configuration: {e}")
         return {
             "exploitation_report": f"# Error: Invalid Model\n\n{str(e)}",
-            "date": datetime.now().strftime("%Y-%m-%d"),
+            "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
         }
 
@@ -313,7 +313,10 @@ Generate a report following this EXACT structure with professional markdown form
 - **Description**: Detailed description of the vulnerability
 - **Impact**: What attackers can achieve
 - **Status**: Current exploitation status and patch availability
-- **CVE ID**: [Only include this line if a CVE ID is mentioned in the articles]
+- **Severity**: critical|high|medium|low|unknown
+- **Exploitation Status**: active|observed|potential|not_observed|unknown
+- **Action**: patch|mitigate|investigate|monitor|none
+- **CVE IDs**: [Comma-separated complete CVE IDs; omit this field when no complete CVE ID is provided]
 ]
 
 ## Affected Systems and Products
@@ -345,6 +348,11 @@ Formatting requirements:
 - Write professional, well-structured content
 - Only mention CVE IDs when they are actually provided in the source articles
 - Include every CVE ID extracted from the article metadata when it is relevant to exploitation details
+- Emit exactly one Severity, Exploitation Status, and Action field for every vulnerability
+- Use a named Severity only when the source explicitly provides that severity or a CVSS rating; otherwise use unknown
+- Use active only for source-confirmed active exploitation, observed for direct exploitation telemetry with limited scope, potential for proof-of-concept or risk without confirmed exploitation, not_observed only when the source explicitly says exploitation has not been observed, and unknown when the evidence does not establish a state
+- Use patch only when a patch is available, mitigate when a source provides a workaround, investigate when defenders should check for compromise, monitor when observation is the only supported action, and none when the source supports no action
+- Omit the CVE IDs field instead of writing pending, unassigned, unavailable, truncated, or placeholder text
 - Do NOT mention missing or unavailable CVE information
 - Do not leave Threat Actor Activities as a single stale-looking item when broader actor or campaign activity appears elsewhere in the report; include the relevant actor, campaign, or unknown-operator roll-ups grounded in the articles
 
@@ -380,7 +388,7 @@ Generate a well-formatted exploitation report following the structure above. Be 
 
         return {
             "exploitation_report": exploitation_report,
-            "date": datetime.now().strftime("%Y-%m-%d"),
+            "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
         }
@@ -388,7 +396,7 @@ Generate a well-formatted exploitation report following the structure above. Be 
         logger.warning(f"Skipping exploitation analysis: {e}")
         return {
             "exploitation_report": "",
-            "date": datetime.now().strftime("%Y-%m-%d"),
+            "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
             "skipped": True,
@@ -398,6 +406,6 @@ Generate a well-formatted exploitation report following the structure above. Be 
         logger.error(f"Error during exploitation analysis: {e}")
         return {
             "exploitation_report": f"# Error Generating Exploitation Report\n\nAn error occurred during analysis: {str(e)}\n\n## Partial Data\n\nCVEs identified: {', '.join(all_cves) if all_cves else 'None'}\n\nAffected systems: {', '.join(all_systems) if all_systems else 'None'}",
-            "date": datetime.now().strftime("%Y-%m-%d"),
+            "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
         }
