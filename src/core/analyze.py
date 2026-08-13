@@ -141,6 +141,11 @@ FOLLOWING_CVE_REFERENCE_PATTERN = re.compile(
     r"\bit\b",
     re.IGNORECASE,
 )
+NEW_VULNERABILITY_REFERENT_PATTERN = re.compile(
+    r"\b(?:a|an|another|different|new|separate|second|third)\s+"
+    r"(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b",
+    re.IGNORECASE,
+)
 FOLLOWING_REFERENCE_SENTENCE_LIMIT = 3
 
 
@@ -390,6 +395,8 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                     index + 1 : index + 1 + FOLLOWING_REFERENCE_SENTENCE_LIMIT
                 ]:
                     if collect_prompt_cves(following_sentence):
+                        break
+                    if NEW_VULNERABILITY_REFERENT_PATTERN.search(following_sentence):
                         break
                     if not FOLLOWING_CVE_REFERENCE_PATTERN.search(following_sentence):
                         continue

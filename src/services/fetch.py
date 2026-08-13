@@ -212,6 +212,8 @@ class ArticleBodyParser(HTMLParser):
                 )
 
         if normalized_tag == "img" and (alt_text := attr_map.get("alt", "").strip()):
+            if self.active_cve_link:
+                self.active_cve_link.parts.append(alt_text)
             for candidate in self.active_candidates:
                 candidate.parts.append(f" {alt_text} ")
 
@@ -314,6 +316,8 @@ class FeedContentParser(HTMLParser):
             if normalized_tag == "img" and (
                 alt_text := attr_map.get("alt", "").strip()
             ):
+                if self.active_cve_link:
+                    self.active_cve_link.parts.append(alt_text)
                 self.parts.append(f" {alt_text} ")
             if normalized_tag in BLOCK_TAGS:
                 self.parts.append("\n")
