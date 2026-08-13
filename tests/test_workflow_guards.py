@@ -148,6 +148,7 @@ class WorkflowGuardTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "index.md"
+            production_docs_report = Path("docs/index.md").read_text()
             state = {
                 "analysis_results": {
                     "exploitation_report": """# Exploitation Report
@@ -194,6 +195,26 @@ Recent exploitation activity is concentrated in edge systems.
             self.assertNotIn("report_validation_errors", result)
             self.assertTrue(output_path.exists())
             self.assertNotIn("## Source Attribution", output_path.read_text())
+            self.assertEqual(Path("docs/index.md").read_text(), production_docs_report)
+
+    def test_report_copy_is_anchored_to_configured_output_directory(self):
+        workflow = import_workflow_with_stubs()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            docs_dir = Path(tmpdir) / "docs"
+            docs_dir.mkdir()
+            report = Path("index.md").read_text()
+            state = {
+                "analysis_results": {"exploitation_report": report},
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.generate_report(state))
+
+            self.assertNotEqual(result["status"], "failed")
+            self.assertEqual((docs_dir / "index.md").read_text(), report)
 
     def test_missing_expected_cve_does_not_write_output_file(self):
         workflow = import_workflow_with_stubs()

@@ -475,14 +475,15 @@ class AnalyzeGuardTests(unittest.TestCase):
 
     def test_exploitation_capability_wording_is_not_confirmed_activity(self):
         analyze = import_analyze_with_stubs()
-        article_summary = (
-            "Exploitation of CVE-2026-1234 can lead to remote code execution."
-        )
-
-        self.assertEqual(
-            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
-            [],
-        )
+        for article_summary in (
+            "Exploitation of CVE-2026-1234 can lead to remote code execution.",
+            "Successful exploitation of CVE-2026-1234 would allow remote code execution.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
 
     def test_no_known_exploitation_wording_is_negated(self):
         analyze = import_analyze_with_stubs()

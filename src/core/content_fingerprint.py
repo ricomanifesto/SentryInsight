@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional
 from .prompt_content import get_prompt_visible_content
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v7"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v8"
 
 
 def _normalize_fingerprint_value(value: Any) -> str:
@@ -27,6 +27,10 @@ def _normalize_prompt_content(article: Dict[str, Any]) -> str:
     content = article.get("content") or article.get("summary")
     visible_content = "" if content is None else str(content).strip()
     return get_prompt_visible_content(visible_content)
+
+
+def _strip_prompt_metadata(value: Any) -> str:
+    return "" if value is None else str(value).strip()
 
 
 def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
@@ -45,12 +49,10 @@ def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
         )
         record = {
             "cves": normalized_cves,
-            "identity": _normalize_fingerprint_value(
-                article.get("link") or article.get("title")
-            ),
+            "link": _strip_prompt_metadata(article.get("link")),
             "prompt_content": _normalize_prompt_content(article),
             "source": _normalize_fingerprint_value(article.get("source")),
-            "title": _normalize_fingerprint_value(article.get("title")),
+            "title": _strip_prompt_metadata(article.get("title")),
         }
         if any(record.values()):
             records.add(json.dumps(record, sort_keys=True, separators=(",", ":")))

@@ -201,11 +201,13 @@ async def generate_report(
 
     # Save the report
     output_path = config.get("output_path", "index.md")
-    with open(output_path, "w") as f:
+    output_file = Path(output_path)
+    with open(output_file, "w") as f:
         f.write(report)
 
-    # Also copy to docs/index.md for GitHub Pages
-    docs_dir = Path("docs")
+    # Also copy beside the configured root output for GitHub Pages. Anchoring
+    # this path prevents alternate output locations from mutating this checkout.
+    docs_dir = output_file.parent / "docs"
     if docs_dir.exists():
         docs_index = docs_dir / "index.md"
         with open(docs_index, "w") as f:

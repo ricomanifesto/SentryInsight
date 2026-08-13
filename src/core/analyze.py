@@ -72,10 +72,10 @@ POSTPOSED_NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
-    r"\b(?:can|could|might|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
+    r"\b(?:can|could|might|would|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
     r"\bexploit(?:ed|ing|ation)?\b|"
     r"(?<!active )(?<!confirmed )(?<!observed )\bexploitation\s+of\b"
-    r"[^,.;\n]{0,100}\b(?:can|could|may|might)\b(?=\s+"
+    r"[^,.;\n]{0,100}\b(?:can|could|may|might|would)\b(?=\s+"
     r"(?:(?:not|also|possibly|potentially|eventually|ultimately)\s+)*"
     r"(?:allow|cause|enable|expose|give|lead|permit|provide|result))|"
     r"\bmay\b(?=\s+(?:(?:not|also|possibly|potentially|eventually|ultimately)\s+)*"
