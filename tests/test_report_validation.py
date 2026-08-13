@@ -193,6 +193,16 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "partial_cve_id" for issue in issues))
 
+    def test_bare_short_cve_identifier_fails_generation_validation(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity includes CVE-2026-123.",
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertTrue(any(issue.code == "partial_cve_id" for issue in issues))
+
     def test_partial_cve_in_source_attribution_does_not_fail_body_validation(self):
         report = (
             VALID_REPORT

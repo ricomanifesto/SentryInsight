@@ -56,6 +56,7 @@ LIST_ITEM_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-+*]|\d+[.)])\s+")
 NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
 CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b", re.IGNORECASE)
 PARTIAL_CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{1,}(?:\.\.\.|…)", re.IGNORECASE)
+SHORT_CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{1,3}(?!\d)", re.IGNORECASE)
 CVE_FIELD_PATTERN = re.compile(
     r"^[ \t]*(?:[-*+]|\d+[.)])\s+(?:"
     r"\*\*CVE(?: ID)?\s*\*\*\s*:|"
@@ -1034,7 +1035,10 @@ def validate_report_content(
 
     report_body = remove_source_attribution_section(content)
 
-    if expected_cves is not None and PARTIAL_CVE_ID_PATTERN.search(report_body):
+    if expected_cves is not None and (
+        PARTIAL_CVE_ID_PATTERN.search(report_body)
+        or SHORT_CVE_ID_PATTERN.search(report_body)
+    ):
         issues.append(
             ReportValidationIssue(
                 code="partial_cve_id",

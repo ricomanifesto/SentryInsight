@@ -673,6 +673,19 @@ class AnalyzeGuardTests(unittest.TestCase):
                     ["CVE-2026-1111", "CVE-2026-2222"],
                 )
 
+    def test_proof_of_concept_exploit_is_not_confirmed_activity(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "A proof-of-concept exploit for CVE-2026-1234 is publicly available.",
+            "A PoC exploit for CVE-2026-1234 is available.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."

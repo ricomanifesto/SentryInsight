@@ -85,6 +85,8 @@ POSTPOSED_NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
+    r"\b(?:proof[\s-]of[\s-]concept|PoC)\s+exploit\b|"
+    r"\bexploit(?:s)?\s+(?:is|are)\s+(?:publicly\s+)?available\b|"
     r"\b(?:can|could|might|would|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
     r"\bexploit(?:ed|ing|ation)?\b|"
     r"\b(?:can|could|might|would|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
