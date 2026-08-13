@@ -58,11 +58,12 @@ CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b", re.IGNORECASE)
 PARTIAL_CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{1,}(?:\.\.\.|…)", re.IGNORECASE)
 SHORT_CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{1,3}(?!\d)", re.IGNORECASE)
 CVE_FIELD_PATTERN = re.compile(
-    r"^[ \t]*(?:[-*+]|\d+[.)])\s+(?:"
+    r"^[ \t]*(?:(?:[-*+]|\d+[.)])\s+|\|\s*)?(?:"
     r"\*\*CVE(?: ID)?\s*\*\*\s*:|"
     r"\*\*CVE(?: ID)?\s*:\s*\*\*|"
-    r"CVE(?: ID)?\s*:"
-    r")\s*(?P<value>.*)$",
+    r"CVE(?: ID)?\s*:|"
+    r"\*\*CVE(?: ID)?\s*\*\*\s*\|"
+    r")\s*(?P<value>[^|\n]*)(?:\|.*)?$",
     re.IGNORECASE | re.MULTILINE,
 )
 SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
