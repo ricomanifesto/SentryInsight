@@ -1087,6 +1087,33 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-2222"],
         )
 
+    def test_concessive_cve_clauses_are_evaluated_independently(self):
+        analyze = import_analyze_with_stubs()
+
+        for conjunction in ("although", "even though"):
+            for article_summary, expected_cve in (
+                (
+                    "CVE-2026-1111 is actively exploited, "
+                    f"{conjunction} there is no evidence that CVE-2026-2222 "
+                    "is exploited.",
+                    "CVE-2026-1111",
+                ),
+                (
+                    "There is no evidence that CVE-2026-1111 is exploited, "
+                    f"{conjunction} CVE-2026-2222 is actively exploited.",
+                    "CVE-2026-2222",
+                ),
+            ):
+                with self.subTest(
+                    conjunction=conjunction, article_summary=article_summary
+                ):
+                    self.assertEqual(
+                        analyze.collect_exploitation_relevant_prompt_cves(
+                            article_summary
+                        ),
+                        [expected_cve],
+                    )
+
     def test_mixed_uncertainty_claims_are_scoped_to_each_cve_clause(self):
         analyze = import_analyze_with_stubs()
 

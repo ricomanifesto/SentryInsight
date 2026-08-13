@@ -194,7 +194,7 @@ EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they|it|"
     r"the\s+(?:flaw|issue|vulnerability|bug))\b)|"
     r"\s+(?=and\s+CVE-\d{4}-\d{4,}\s+(?:is|was|has)\b)|"
-    r"(?:[;,]\s*|\s+)(?=(?:but|however|while|whereas)\b|"
+    r"(?:[;,]\s*|\s+)(?=(?:although|but|even though|however|while|whereas)\b|"
     r"yet\s+(?:attackers?|threat actors?|researchers?|they)\b)"
     r")",
     re.IGNORECASE,
