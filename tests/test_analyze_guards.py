@@ -523,6 +523,8 @@ class AnalyzeGuardTests(unittest.TestCase):
             "CVE-2026-1234 is not currently being exploited.",
             "CVE-2026-1234 is not yet exploited.",
             "CVE-2026-1234 is not actively being exploited.",
+            "CVE-2026-1234 has not yet been exploited.",
+            "CVE-2026-1234 is not being actively exploited.",
         ):
             with self.subTest(article_summary=article_summary):
                 self.assertEqual(
