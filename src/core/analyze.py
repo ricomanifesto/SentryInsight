@@ -307,6 +307,12 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             nearby_sentences = []
             for index, cve_clauses in indexed_cve_sentences:
                 nearby_sentences.extend(cve_clauses)
+                if index:
+                    preceding_sentence = article_sentences[index - 1]
+                    if not collect_prompt_cves(
+                        preceding_sentence
+                    ) and FOLLOWING_CVE_REFERENCE_PATTERN.search(" ".join(cve_clauses)):
+                        nearby_sentences.append(preceding_sentence)
                 if index + 1 < len(article_sentences):
                     following_sentence = article_sentences[index + 1]
                     if not collect_prompt_cves(

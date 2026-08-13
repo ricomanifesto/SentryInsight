@@ -394,6 +394,19 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1234"],
         )
 
+    def test_cve_context_includes_referential_preceding_exploitation_sentence(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "Attackers are actively exploiting a flaw in Product X. "
+            "The flaw is tracked as CVE-2026-1234."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_modal_capability_does_not_mask_confirmed_exploitation_clause(self):
         analyze = import_analyze_with_stubs()
         article_summary = (
