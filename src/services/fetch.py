@@ -19,6 +19,17 @@ ARTICLE_BODY_MARKERS = {
     "post-content",
     "story-body",
 }
+ARTICLE_COLLECTION_MARKERS = {
+    "archive",
+    "cards",
+    "feed",
+    "grid",
+    "items",
+    "list",
+    "recommendations",
+    "related",
+    "results",
+}
 BLOCK_TAGS = {
     "article",
     "blockquote",
@@ -134,12 +145,21 @@ def _article_body_priority(tag: str, attrs: dict[str, str]) -> int:
     return 0
 
 
+def _is_article_collection(tag: str, attrs: dict[str, str]) -> bool:
+    if tag in {"ol", "ul"}:
+        return True
+    identifiers = " ".join((attrs.get("id", ""), attrs.get("class", "")))
+    tokens = set(re.split(r"[\s_-]+", identifiers.casefold()))
+    return bool(tokens & ARTICLE_COLLECTION_MARKERS)
+
+
 @dataclass
 class ArticleTextCandidate:
     tag: str
     priority: int
     order: int
     parent_order: int | None = None
+    parent_is_collection: bool = False
     tag_depth: int = 1
     parts: list[str] = field(default_factory=list)
 
@@ -160,7 +180,7 @@ class ArticleBodyParser(HTMLParser):
         self.hidden_tag = ""
         self.candidates: list[ArticleTextCandidate] = []
         self.active_candidates: list[ArticleTextCandidate] = []
-        self.element_stack: list[tuple[str, int]] = []
+        self.element_stack: list[tuple[str, int, bool]] = []
         self.next_element_order = 0
         self.meta_descriptions: list[str] = []
         self.active_cve_link: ActiveCveLink | None = None
@@ -194,7 +214,8 @@ class ArticleBodyParser(HTMLParser):
 
         element_order = self.next_element_order
         self.next_element_order += 1
-        parent_order = self.element_stack[-1][1] if self.element_stack else None
+        parent_context = self.element_stack[-1] if self.element_stack else None
+        parent_order = parent_context[1] if parent_context else None
         priority = _article_body_priority(normalized_tag, attr_map)
         if priority and normalized_tag not in VOID_TAGS:
             candidate = ArticleTextCandidate(
@@ -202,6 +223,7 @@ class ArticleBodyParser(HTMLParser):
                 priority=priority,
                 order=len(self.candidates),
                 parent_order=parent_order,
+                parent_is_collection=bool(parent_context and parent_context[2]),
             )
             self.candidates.append(candidate)
             self.active_candidates.append(candidate)
@@ -224,7 +246,13 @@ class ArticleBodyParser(HTMLParser):
             for candidate in self.active_candidates:
                 candidate.parts.append("\n")
         if normalized_tag not in VOID_TAGS:
-            self.element_stack.append((normalized_tag, element_order))
+            self.element_stack.append(
+                (
+                    normalized_tag,
+                    element_order,
+                    _is_article_collection(normalized_tag, attr_map),
+                )
+            )
 
     def handle_endtag(self, tag: str) -> None:
         normalized_tag = tag.casefold()
@@ -280,7 +308,7 @@ class ArticleBodyParser(HTMLParser):
                     (candidate.priority, candidate.parent_order), []
                 ).append((candidate, candidate_text))
         for siblings in sibling_groups.values():
-            if len(siblings) > 1:
+            if len(siblings) > 1 and not siblings[0][0].parent_is_collection:
                 first_candidate = min(siblings, key=lambda item: item[0].order)[0]
                 combined_text = _normalize_text(
                     "\n".join(

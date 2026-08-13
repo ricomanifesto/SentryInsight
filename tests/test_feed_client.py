@@ -535,6 +535,24 @@ def test_extract_article_text_combines_marked_siblings_under_unmarked_wrapper():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_keeps_cards_in_collection_wrapper_separate():
+    source_html = """
+    <div class="article-feed">
+      <section class="article-body">
+        <p>Primary analysis for CVE-2026-1234 contains detailed remediation.</p>
+      </section>
+      <section class="article-body">
+        <p>Related card: attackers exploit CVE-2026-9999.</p>
+      </section>
+    </div>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-1234" in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_extract_article_text_preserves_visible_image_alt_text():
     source_html = """
     <article>
