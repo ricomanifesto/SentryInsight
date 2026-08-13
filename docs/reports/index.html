@@ -418,10 +418,6 @@
                 },
                 coverage: [
                     {
-                        label: 'Source attribution',
-                        detail: 'No source attribution section is present in this archived markdown.',
-                    },
-                    {
                         label: 'Archived artifact',
                         detail: 'Rendered report and source markdown are both available from this archive card.',
                     },
@@ -484,15 +480,9 @@
                 archiveCoverageSummaryEl.textContent = 'Coverage notes will appear when archived reports are available.';
                 return;
             }
-            const sourceAttributionGaps = archiveReports.filter(report =>
-                (report.coverage || []).some(({ label, detail }) =>
-                    label === 'Source attribution' && /no source attribution/i.test(detail || '')
-                )
-            ).length;
             const artifactTotal = archiveReports.reduce((total, report) => total + Object.keys(report.links || {}).length, 0);
-            const gapText = `${sourceAttributionGaps} ${sourceAttributionGaps === 1 ? 'source attribution gap' : 'source attribution gaps'}`;
             const artifactText = `${artifactTotal} ${artifactTotal === 1 ? 'archive artifact tracked' : 'archive artifacts tracked'}`;
-            archiveCoverageSummaryEl.textContent = `Coverage: ${gapText} · ${artifactText}.`;
+            archiveCoverageSummaryEl.textContent = `Coverage: ${artifactText}.`;
         }
 
         function renderArchiveTopicFilters() {

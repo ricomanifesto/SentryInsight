@@ -9,8 +9,8 @@ from pathlib import Path
 from ..services.fetch import SentryDigestFeedClient
 from .analyze import filter_exploitation_articles, analyze_exploitation
 from .report_validation import (
-    ensure_source_attribution_section,
     format_report_validation_issues,
+    remove_source_attribution_section,
     validate_report_content,
 )
 from ..services.publish import publish_to_github_pages
@@ -183,16 +183,9 @@ async def generate_report(
 
     # Since the exploitation_report already contains the full formatted report,
     # we should use it directly instead of the template
-    report = ensure_source_attribution_section(
-        exploitation_report,
-        analysis_results.get("source_attribution_entries") or [],
-    )
+    report = remove_source_attribution_section(exploitation_report)
     validation_issues = validate_report_content(
         report,
-        require_source_attribution=bool(
-            analysis_results.get("source_attribution_required")
-        ),
-        source_attribution_entries=analysis_results.get("source_attribution_entries"),
         expected_cves=analysis_results.get("cves_identified"),
     )
     if validation_issues:

@@ -467,7 +467,7 @@ def test_report_archive_entries_render_canonical_coverage_signals():
     archive = ARCHIVE_INDEX.read_text()
 
     assert "coverage: [" in archive
-    assert "label: 'Source attribution'" in archive
+    assert "Source attribution" not in archive
     assert "label: 'Archived artifact'" in archive
     assert "function buildArchiveCoverageNotes(report)" in archive
     assert "archive-coverage" in archive
@@ -487,8 +487,7 @@ def test_report_archive_renders_derived_coverage_summary():
         "archiveReports.reduce((total, report) => total + Object.keys(report.links || {}).length, 0)"
         in archive
     )
-    assert "report.coverage || []" in archive
-    assert "source attribution gap" in archive
+    assert "Coverage: ${artifactText}." in archive
     assert "archive artifacts tracked" in archive
     assert "renderArchiveCoverageSummary();" in archive
 

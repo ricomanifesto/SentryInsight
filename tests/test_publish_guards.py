@@ -70,7 +70,7 @@ class PublishGuardTests(unittest.TestCase):
             self.assertTrue((repo_dir / "navigation.md").exists())
             self.assertTrue((repo_dir / "_config.yml").exists())
 
-    def test_source_attribution_entries_are_written_canonically(self):
+    def test_source_attribution_is_removed_before_publishing(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir) / "docs"
             result = asyncio.run(
@@ -78,7 +78,7 @@ class PublishGuardTests(unittest.TestCase):
                     {
                         "exploitation_report": (
                             VALID_REPORT + "\n## Source Attribution\n\n"
-                            "- **Article Title**: Source name - URL\n"
+                            "- **Vendor advisory**: Vendor - https://vendor.test/Fix\n"
                         ),
                         "date": "2026-06-17",
                         "source_attribution_required": True,
@@ -92,13 +92,10 @@ class PublishGuardTests(unittest.TestCase):
 
             self.assertTrue(result)
             report = (repo_dir / "index.md").read_text()
-            self.assertIn(
-                "- **Vendor advisory**: Vendor - https://vendor.test/Fix",
-                report,
-            )
-            self.assertNotIn("Article Title", report)
+            self.assertNotIn("## Source Attribution", report)
+            self.assertNotIn("Vendor advisory", report)
 
-    def test_missing_required_source_attribution_is_not_written(self):
+    def test_legacy_source_attribution_requirement_does_not_block_publishing(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir) / "docs"
             result = asyncio.run(
@@ -112,9 +109,9 @@ class PublishGuardTests(unittest.TestCase):
                 )
             )
 
-            self.assertFalse(result)
+            self.assertTrue(result)
             self.assertTrue(repo_dir.exists())
-            self.assertFalse((repo_dir / "index.md").exists())
+            self.assertTrue((repo_dir / "index.md").exists())
 
     def test_missing_expected_cve_is_not_written(self):
         with tempfile.TemporaryDirectory() as tmpdir:

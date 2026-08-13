@@ -27,17 +27,6 @@ def main() -> int:
         help="Path to the generated markdown report.",
     )
     parser.add_argument(
-        "--require-source-attribution",
-        action="store_true",
-        help="Fail unless the report contains the expected Source Attribution rows.",
-    )
-    parser.add_argument(
-        "--source-attribution-entry",
-        action="append",
-        default=[],
-        help="Expected canonical Source Attribution row. May be repeated.",
-    )
-    parser.add_argument(
         "--expected-cve",
         action="append",
         default=[],
@@ -52,10 +41,6 @@ def main() -> int:
 
     issues = validate_report_content(
         report_path.read_text(),
-        require_source_attribution=args.require_source_attribution,
-        source_attribution_entries=(
-            args.source_attribution_entry if args.source_attribution_entry else None
-        ),
         expected_cves=args.expected_cve if args.expected_cve else None,
     )
     if issues:

@@ -9,15 +9,13 @@ from .model_config import resolve_model, validate_model
 from .model_client import build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .cve import extract_cve_ids
-from .source_attribution import (
-    clean_article_source,
-    collect_source_attribution_entries,
-)
 
 logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
+
+UNKNOWN_SOURCE_SENTINELS = {"unknown source"}
 
 EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r"\b(?:"
@@ -61,6 +59,15 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
     r")\b",
     re.IGNORECASE | re.DOTALL,
 )
+
+
+def clean_article_source(value: Any) -> str:
+    if value is None:
+        return ""
+    source = " ".join(str(value).split())
+    if source.casefold() in UNKNOWN_SOURCE_SENTINELS:
+        return ""
+    return source
 
 
 def filter_exploitation_articles(
@@ -330,13 +337,6 @@ Generate a report following this EXACT structure with professional markdown form
 - **Campaign**: Operation descriptions and impacts
 ]
 
-## Source Attribution
-
-[List the source articles used for this report:
-- **Article Title**: Source name - URL
-Only use source names and URLs provided in the article metadata. Do not invent
-or infer sources.]
-
 Formatting requirements:
 - Use proper markdown with **bold** for emphasis
 - Create clear bullet points with good spacing
@@ -346,7 +346,6 @@ Formatting requirements:
 - Only mention CVE IDs when they are actually provided in the source articles
 - Include every CVE ID extracted from the article metadata when it is relevant to exploitation details
 - Do NOT mention missing or unavailable CVE information
-- Include the Source Attribution section when article source metadata or URLs are available
 - Do not leave Threat Actor Activities as a single stale-looking item when broader actor or campaign activity appears elsewhere in the report; include the relevant actor, campaign, or unknown-operator roll-ups grounded in the articles
 
 Focus specifically on:
@@ -379,14 +378,11 @@ Generate a well-formatted exploitation report following the structure above. Be 
             title="SentryInsight exploitation report",
         )
 
-        source_attribution_entries = collect_source_attribution_entries(articles)
         return {
             "exploitation_report": exploitation_report,
             "date": datetime.now().strftime("%Y-%m-%d"),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
-            "source_attribution_required": bool(source_attribution_entries),
-            "source_attribution_entries": source_attribution_entries,
         }
     except OpenCodeUnavailable as e:
         logger.warning(f"Skipping exploitation analysis: {e}")

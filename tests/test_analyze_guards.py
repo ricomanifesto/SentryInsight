@@ -165,6 +165,32 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
 
+    def test_article_summary_omits_unknown_source_sentinel(self):
+        analyze = import_analyze_with_stubs()
+
+        summary = analyze.format_article_summary(
+            {
+                "title": "Example report",
+                "source": " Unknown\n Source ",
+                "summary": "Summary only",
+            }
+        )
+
+        self.assertNotIn("Source:", summary)
+
+    def test_article_summary_collapses_source_whitespace(self):
+        analyze = import_analyze_with_stubs()
+
+        summary = analyze.format_article_summary(
+            {
+                "title": "Example report",
+                "source": "Example\n Research\tTeam",
+                "summary": "Summary only",
+            }
+        )
+
+        self.assertIn("Source: Example Research Team", summary)
+
     def test_analysis_result_extracts_cves_from_article_text(self):
         analyze = import_analyze_with_stubs()
 
@@ -664,7 +690,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111", "CVE-2026-2222"],
         )
 
-    def test_prompt_requires_source_attribution_from_article_metadata(self):
+    def test_prompt_does_not_request_source_attribution(self):
         analyze = import_analyze_with_stubs()
 
         class FakeOpenCodeClient:
@@ -696,16 +722,13 @@ class AnalyzeGuardTests(unittest.TestCase):
                 )
             )
 
-        self.assertIn("## Source Attribution", FakeOpenCodeClient.user_prompt)
-        self.assertIn(
-            "Only use source names and URLs provided",
-            FakeOpenCodeClient.user_prompt,
-        )
+        self.assertNotIn("## Source Attribution", FakeOpenCodeClient.user_prompt)
+        self.assertNotIn("Source Attribution section", FakeOpenCodeClient.user_prompt)
         self.assertIn("Example exploitation report", FakeOpenCodeClient.user_prompt)
         self.assertIn("Example Source", FakeOpenCodeClient.user_prompt)
         self.assertIn("https://example.test/report", FakeOpenCodeClient.user_prompt)
 
-    def test_analysis_result_carries_canonical_source_attribution_entries(self):
+    def test_analysis_result_omits_source_attribution_contract(self):
         analyze = import_analyze_with_stubs()
 
         class FakeOpenCodeClient:
@@ -741,14 +764,8 @@ class AnalyzeGuardTests(unittest.TestCase):
                 )
             )
 
-        self.assertTrue(result["source_attribution_required"])
-        self.assertEqual(
-            result["source_attribution_entries"],
-            [
-                "- **Example exploitation report**: Example Source - https://example.test/report",
-                "- **Source-only exploitation report**: Example Source",
-            ],
-        )
+        self.assertNotIn("source_attribution_required", result)
+        self.assertNotIn("source_attribution_entries", result)
         self.assertNotIn("source_attribution_requirements", result)
 
 

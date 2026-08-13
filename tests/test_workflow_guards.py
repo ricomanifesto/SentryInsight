@@ -143,7 +143,7 @@ class WorkflowGuardTests(unittest.TestCase):
             self.assertEqual(result["status"], "completed_with_warnings")
             self.assertFalse(output_path.exists())
 
-    def test_missing_required_source_attribution_does_not_write_output_file(self):
+    def test_source_attribution_is_removed_before_writing_output_file(self):
         workflow = import_workflow_with_stubs()
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -174,8 +174,15 @@ Recent exploitation activity is concentrated in edge systems.
 ## Threat Actor Activities
 
 - **Unknown actor**: Opportunistic exploitation.
+
+## Source Attribution
+
+- **Example report**: Example Source - https://example.test/report
 """,
                     "source_attribution_required": True,
+                    "source_attribution_entries": [
+                        "- **Example report**: Example Source - https://example.test/report"
+                    ],
                 },
                 "config": {"output_path": str(output_path)},
                 "status": "started",
@@ -183,9 +190,10 @@ Recent exploitation activity is concentrated in edge systems.
 
             result = asyncio.run(workflow.generate_report(state))
 
-            self.assertEqual(result["status"], "failed")
-            self.assertIn("report_validation_errors", result)
-            self.assertFalse(output_path.exists())
+            self.assertNotEqual(result["status"], "failed")
+            self.assertNotIn("report_validation_errors", result)
+            self.assertTrue(output_path.exists())
+            self.assertNotIn("## Source Attribution", output_path.read_text())
 
     def test_missing_expected_cve_does_not_write_output_file(self):
         workflow = import_workflow_with_stubs()
