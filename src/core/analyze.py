@@ -77,6 +77,10 @@ GROUPED_ISSUES_PATTERN = re.compile(
     r"\b(?:all|both|these|the listed)\s+(?:flaws?|issues?|vulnerabilit(?:y|ies))\b",
     re.IGNORECASE,
 )
+EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
+    r"[;,]\s*(?=(?:but|and|yet|however|attackers?|threat actors?)\b)",
+    re.IGNORECASE,
+)
 
 
 def clean_article_source(value: Any) -> str:
@@ -157,9 +161,15 @@ def has_exploitation_relevance(article_summary: str) -> bool:
 
 def has_negated_exploitation_relevance(article_summary: str) -> bool:
     """Return whether prompt-visible text negates exploitation activity."""
-    return bool(
-        NEGATED_EXPLOITATION_PATTERN.search(article_summary)
-        or UNCONFIRMED_EXPLOITATION_PATTERN.search(article_summary)
+    relevant_clauses = [
+        clause
+        for clause in EXPLOITATION_CLAUSE_BOUNDARY_PATTERN.split(article_summary)
+        if has_exploitation_relevance(clause)
+    ]
+    return bool(relevant_clauses) and all(
+        NEGATED_EXPLOITATION_PATTERN.search(clause)
+        or UNCONFIRMED_EXPLOITATION_PATTERN.search(clause)
+        for clause in relevant_clauses
     )
 
 

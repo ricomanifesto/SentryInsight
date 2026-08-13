@@ -406,6 +406,18 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1234"],
         )
 
+    def test_hypothetical_exploit_clause_does_not_mask_confirmed_clause(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "The flaw could be exploited to gain access, but attackers are actively "
+            "exploiting CVE-2026-1234."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."
