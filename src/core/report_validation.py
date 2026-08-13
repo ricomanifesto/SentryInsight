@@ -879,17 +879,15 @@ def get_inline_text(markdown: str) -> str:
 def has_invalid_cve_field(markdown: str) -> bool:
     without_block_code = strip_markdown_block_code(markdown)
     for match in CVE_FIELD_PATTERN.finditer(without_block_code):
-        matched_line = match.group(0)
-        if matched_line.lstrip().startswith("|"):
-            next_line_start = match.end() + (
-                1 if match.end() < len(without_block_code) else 0
-            )
-            next_line_end = without_block_code.find("\n", next_line_start)
-            if next_line_end == -1:
-                next_line_end = len(without_block_code)
-            next_line = without_block_code[next_line_start:next_line_end]
-            if MARKDOWN_TABLE_DELIMITER_PATTERN.fullmatch(next_line):
-                continue
+        next_line_start = match.end() + (
+            1 if match.end() < len(without_block_code) else 0
+        )
+        next_line_end = without_block_code.find("\n", next_line_start)
+        if next_line_end == -1:
+            next_line_end = len(without_block_code)
+        next_line = without_block_code[next_line_start:next_line_end]
+        if MARKDOWN_TABLE_DELIMITER_PATTERN.fullmatch(next_line):
+            continue
         if not CVE_ID_PATTERN.match(get_inline_text(match.group("value")).strip()):
             return True
     return False

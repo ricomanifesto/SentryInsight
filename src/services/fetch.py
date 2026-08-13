@@ -160,6 +160,8 @@ class ArticleBodyParser(HTMLParser):
         self.hidden_tag = ""
         self.candidates: list[ArticleTextCandidate] = []
         self.active_candidates: list[ArticleTextCandidate] = []
+        self.element_stack: list[tuple[str, int]] = []
+        self.next_element_order = 0
         self.meta_descriptions: list[str] = []
         self.active_cve_link: ActiveCveLink | None = None
 
@@ -190,15 +192,16 @@ class ArticleBodyParser(HTMLParser):
             if candidate.tag == normalized_tag and normalized_tag not in VOID_TAGS:
                 candidate.tag_depth += 1
 
+        element_order = self.next_element_order
+        self.next_element_order += 1
+        parent_order = self.element_stack[-1][1] if self.element_stack else None
         priority = _article_body_priority(normalized_tag, attr_map)
         if priority and normalized_tag not in VOID_TAGS:
             candidate = ArticleTextCandidate(
                 tag=normalized_tag,
                 priority=priority,
                 order=len(self.candidates),
-                parent_order=(
-                    self.active_candidates[-1].order if self.active_candidates else None
-                ),
+                parent_order=parent_order,
             )
             self.candidates.append(candidate)
             self.active_candidates.append(candidate)
@@ -220,6 +223,8 @@ class ArticleBodyParser(HTMLParser):
         if normalized_tag in BLOCK_TAGS:
             for candidate in self.active_candidates:
                 candidate.parts.append("\n")
+        if normalized_tag not in VOID_TAGS:
+            self.element_stack.append((normalized_tag, element_order))
 
     def handle_endtag(self, tag: str) -> None:
         normalized_tag = tag.casefold()
@@ -245,6 +250,10 @@ class ArticleBodyParser(HTMLParser):
                 candidate.tag_depth -= 1
                 if candidate.tag_depth == 0:
                     self.active_candidates.remove(candidate)
+        for index in range(len(self.element_stack) - 1, -1, -1):
+            if self.element_stack[index][0] == normalized_tag:
+                del self.element_stack[index:]
+                break
 
     def handle_data(self, data: str) -> None:
         if not self.hidden_depth:
