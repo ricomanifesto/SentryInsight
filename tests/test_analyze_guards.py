@@ -645,6 +645,34 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111"],
         )
 
+    def test_following_referential_negation_cancels_zero_day_label(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1234 is a zero-day vulnerability, but it has not been exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
+    def test_plural_reference_promotes_all_metadata_cves(self):
+        analyze = import_analyze_with_stubs()
+
+        for body in (
+            "Both are actively exploited in the wild.",
+            "The vulnerabilities are actively exploited in the wild.",
+        ):
+            with self.subTest(body=body):
+                article_summary = (
+                    "**Vendor advisory** "
+                    "(CVEs: CVE-2026-1111, CVE-2026-2222)\n\n" + body
+                )
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    ["CVE-2026-1111", "CVE-2026-2222"],
+                )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."

@@ -104,8 +104,12 @@ UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 GROUPED_ISSUES_PATTERN = re.compile(
-    r"\b(?:all|both|these|the listed)\s+"
-    r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies))\b",
+    r"\b(?:"
+    r"both(?=\s+(?:are|were|have|had|remain|continue)\b)|"
+    r"(?:all|both|these|the listed)\s+"
+    r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies))|"
+    r"the\s+(?:CVEs|flaws|issues|vulnerabilities)"
+    r")\b",
     re.IGNORECASE,
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
@@ -411,15 +415,25 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         )
         cve_context = clause_containing_position(cve_sentence, cve_position)
         following_clause = following_clause_after_position(cve_sentence, cve_position)
+        following_reference = bool(
+            FOLLOWING_CVE_REFERENCE_PATTERN.search(following_clause)
+        )
         context_is_positive = has_exploitation_relevance(
             cve_context
         ) and not has_negated_exploitation_relevance(cve_context)
         following_reference_is_positive = (
-            FOLLOWING_CVE_REFERENCE_PATTERN.search(following_clause)
+            following_reference
             and has_exploitation_relevance(following_clause)
             and not has_negated_exploitation_relevance(following_clause)
         )
-        if context_is_positive or following_reference_is_positive:
+        following_reference_is_negative = (
+            following_reference
+            and has_exploitation_relevance(following_clause)
+            and has_negated_exploitation_relevance(following_clause)
+        )
+        if following_reference_is_positive or (
+            context_is_positive and not following_reference_is_negative
+        ):
             add_cve(normalize_cve_match(match))
 
     return cves
