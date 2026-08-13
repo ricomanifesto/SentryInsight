@@ -182,6 +182,9 @@ GROUPED_EXCEPTION_PATTERN = re.compile(
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
+    r"[;,]\s*(?=(?:alongside|with)\s+"
+    r"(?:(?:active(?:ly)?\s+)?exploitation\s+of\s+)?"
+    r"CVE-\d{4}-\d{4,}\b)|"
     r"[;,]\s*(?=(?:attackers?|threat actors?|not\s+CVE-\d{4}-\d{4,}|"
     r"CVE-\d{4}-\d{4,}\s+(?:is|was|has)|"
     r"CVE-\d{4}-\d{4,}(?:\s*(?:,|and)\s*CVE-\d{4}-\d{4,})+"

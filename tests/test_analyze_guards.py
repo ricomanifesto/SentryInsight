@@ -1040,6 +1040,21 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-2222"],
         )
 
+    def test_mixed_uncertainty_claims_are_scoped_to_each_cve_clause(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "Exploitation of CVE-2026-1111 remains suspected, alongside active "
+            "exploitation of CVE-2026-2222.",
+            "CVE-2026-1111 is suspected to be exploited, with CVE-2026-2222 "
+            "actively exploited.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    ["CVE-2026-2222"],
+                )
+
     def test_plural_cve_predicate_after_semicolon_is_a_separate_clause(self):
         analyze = import_analyze_with_stubs()
         article_summary = (
