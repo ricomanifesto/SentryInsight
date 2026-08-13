@@ -235,14 +235,15 @@ async def generate_audio(state: ExploitationAnalysisState) -> ExploitationAnalys
     report = analysis_results.get("exploitation_report", "")
 
     if report:
-        # Generate to root (GitHub Pages source is /) and copy to docs/
-        success = await generate_executive_summary_audio(
-            report, "executive_summary.mp3"
-        )
+        output_file = Path(state.get("config", {}).get("output_path", "index.md"))
+        audio_path = output_file.parent / "executive_summary.mp3"
+        docs_audio_path = output_file.parent / "docs" / "executive_summary.mp3"
+        success = await generate_executive_summary_audio(report, str(audio_path))
         if success:
             import shutil
 
-            shutil.copy("executive_summary.mp3", "docs/executive_summary.mp3")
+            if docs_audio_path.parent.exists():
+                shutil.copy(audio_path, docs_audio_path)
             logger.info("Executive summary audio generated successfully")
         else:
             logger.warning(

@@ -40,6 +40,9 @@ CVE_CONTEXT_PATTERN = re.compile(
     re.IGNORECASE,
 )
 STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
+GENERATED_HEADING_PATTERN = re.compile(
+    r"^(?P<title>\*\*.*\*\*)\s+\((?P<metadata>.*)\)\s*$"
+)
 SENTENCE_PATTERN = re.compile(r"[^.!?\n]+(?:[.!?]+|$)")
 URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
@@ -203,16 +206,24 @@ def normalize_cve_match(match: re.Match[str]) -> str:
     return f"CVE-{match.group(1)}-{match.group(2)}".upper()
 
 
+def get_generated_heading_metadata(article_summary: str) -> str:
+    first_line = article_summary.partition("\n")[0]
+    match = GENERATED_HEADING_PATTERN.fullmatch(first_line)
+    return match.group("metadata") if match else ""
+
+
 def collect_structured_prompt_cves(article_summary: str) -> list[str]:
     structured_cves: list[str] = []
-    for metadata_match in STRUCTURED_CVES_PATTERN.finditer(article_summary):
+    metadata = get_generated_heading_metadata(article_summary)
+    for metadata_match in STRUCTURED_CVES_PATTERN.finditer(metadata):
         structured_cves.extend(collect_prompt_cves(metadata_match.group(1)))
     return structured_cves
 
 
 def collect_url_prompt_cves(article_summary: str) -> list[str]:
     url_cves: list[str] = []
-    for url_match in URL_PATTERN.finditer(article_summary):
+    metadata = get_generated_heading_metadata(article_summary)
+    for url_match in URL_PATTERN.finditer(metadata):
         url_cves.extend(collect_prompt_cves(url_match.group(0)))
     return url_cves
 
@@ -228,8 +239,11 @@ def iter_line_sentences(text: str) -> list[str]:
 
 
 def strip_cve_metadata_noise(article_summary: str) -> str:
-    without_urls = URL_PATTERN.sub("", article_summary)
-    return STRUCTURED_CVES_PATTERN.sub("", without_urls)
+    first_line, separator, remainder = article_summary.partition("\n")
+    match = GENERATED_HEADING_PATTERN.fullmatch(first_line)
+    if not match:
+        return article_summary
+    return match.group("title") + (separator + remainder if separator else "")
 
 
 def has_positive_exploitation_sentence(article_summary: str) -> bool:

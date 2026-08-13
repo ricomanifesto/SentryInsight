@@ -271,6 +271,35 @@ Recent exploitation activity is concentrated in edge systems.
 
         self.assertIs(result, state)
 
+    def test_audio_paths_are_anchored_to_configured_output_directory(self):
+        workflow = import_workflow_with_stubs()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            docs_dir = Path(tmpdir) / "docs"
+            docs_dir.mkdir()
+            generated_paths = []
+
+            async def generate_audio(_report, audio_path):
+                generated_paths.append(Path(audio_path))
+                Path(audio_path).write_bytes(b"audio")
+                return True
+
+            workflow.generate_executive_summary_audio = generate_audio
+            state = {
+                "analysis_results": {"exploitation_report": "Report content"},
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.generate_audio(state))
+
+            self.assertIs(result, state)
+            self.assertEqual(generated_paths, [Path(tmpdir) / "executive_summary.mp3"])
+            self.assertEqual(
+                (docs_dir / "executive_summary.mp3").read_bytes(), b"audio"
+            )
+
     def test_failed_state_skips_publish(self):
         workflow = import_workflow_with_stubs()
         state = {

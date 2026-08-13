@@ -528,6 +528,18 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111"],
         )
 
+    def test_body_level_cve_label_remains_available_for_context_analysis(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (Source: Vendor)\n\n"
+            "Affected CVEs: CVE-2026-1111 and CVE-2026-2222 are actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."
