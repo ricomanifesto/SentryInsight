@@ -1264,15 +1264,20 @@ class AnalyzeGuardTests(unittest.TestCase):
 
     def test_positive_reference_binds_contextless_metadata_cve(self):
         analyze = import_analyze_with_stubs()
-        article_summary = (
-            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
-            "The flaw is actively exploited in the wild."
-        )
 
-        self.assertEqual(
-            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
-            ["CVE-2026-1234"],
-        )
+        for claim in (
+            "The flaw is actively exploited in the wild.",
+            "This vulnerability is actively exploited in a separate campaign.",
+        ):
+            with self.subTest(claim=claim):
+                article_summary = (
+                    "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n" f"{claim}"
+                )
+
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    ["CVE-2026-1234"],
+                )
 
     def test_grouped_cve_wording_preserves_all_metadata_cves(self):
         analyze = import_analyze_with_stubs()

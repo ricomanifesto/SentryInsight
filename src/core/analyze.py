@@ -492,7 +492,10 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
     body_has_bindable_positive_exploitation = any(
         has_exploitation_relevance(sentence)
         and not has_negated_exploitation_relevance(sentence)
-        and not DISTINCT_ACTIVITY_REFERENT_PATTERN.search(sentence)
+        and (
+            FOLLOWING_CVE_REFERENCE_PATTERN.search(sentence)
+            or not DISTINCT_ACTIVITY_REFERENT_PATTERN.search(sentence)
+        )
         for sentence in article_sentences
     )
     body_has_negative_singular_reference = any(
