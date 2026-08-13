@@ -75,6 +75,8 @@ UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
     r"\b(?:can|could|might|would|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
     r"\bexploit(?:ed|ing|ation)?\b|"
+    r"\b(?:can|could|might|would|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
+    r"\b(?:backdoor|malware)\b|"
     r"(?<!active )(?<!confirmed )(?<!observed )\bexploitation\s+of\b"
     r"[^,.;\n]{0,100}\b(?:can|could|may|might|would)\b(?=\s+"
     r"(?:(?:not|also|possibly|potentially|eventually|ultimately)\s+)*"
@@ -332,6 +334,7 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             if cve_context_is_negated:
                 explicitly_negated_cves.add(cve.upper())
             nearby_sentences = []
+            has_positive_following_reference = False
             for index, cve_clauses in indexed_cve_sentences:
                 nearby_sentences.extend(cve_clauses)
                 if index:
@@ -346,7 +349,16 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                         following_sentence
                     ) and FOLLOWING_CVE_REFERENCE_PATTERN.search(following_sentence):
                         nearby_sentences.append(following_sentence)
-            if not cve_context_is_negated and any(
+                        has_positive_following_reference = (
+                            has_positive_following_reference
+                            or (
+                                has_exploitation_relevance(following_sentence)
+                                and not has_negated_exploitation_relevance(
+                                    following_sentence
+                                )
+                            )
+                        )
+            if (not cve_context_is_negated or has_positive_following_reference) and any(
                 has_exploitation_relevance(sentence)
                 and not has_negated_exploitation_relevance(sentence)
                 for sentence in nearby_sentences

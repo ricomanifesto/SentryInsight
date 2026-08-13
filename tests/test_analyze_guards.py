@@ -540,6 +540,28 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111", "CVE-2026-2222"],
         )
 
+    def test_later_referential_exploitation_overrides_earlier_negative_state(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "CVE-2026-1234 was not exploited previously. "
+            "It is now actively exploited in the wild."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
+    def test_modal_malware_impact_is_not_confirmed_exploitation(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = "CVE-2026-1234 could allow malware installation."
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."
