@@ -67,6 +67,10 @@ UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
     r"\b(?:can|could|might|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
     r"\bexploit(?:ed|ing|ation)?\b|"
+    r"(?<!active )(?<!confirmed )(?<!observed )\bexploitation\s+of\b"
+    r"[^,.;\n]{0,100}\b(?:can|could|may|might)\b(?=\s+"
+    r"(?:(?:not|also|possibly|potentially|eventually|ultimately)\s+)*"
+    r"(?:allow|cause|enable|expose|give|lead|permit|provide|result))|"
     r"\bmay\b(?=\s+(?:(?:not|also|possibly|potentially|eventually|ultimately)\s+)*"
     r"(?:be\s+)?(?:allow|cause|enable|exploit|expose|give|lead|permit|provide|result))"
     r"[^,.;\n]{0,100}"
@@ -151,7 +155,10 @@ def format_article_summary(article: Dict[str, Any]) -> str:
     if metadata:
         heading = f"{heading} ({'; '.join(metadata)})"
 
-    return f"{heading}\n\n{content[:PROMPT_ARTICLE_CHAR_LIMIT]}...\n\n"
+    visible_content = content[:PROMPT_ARTICLE_CHAR_LIMIT]
+    if len(content) > PROMPT_ARTICLE_CHAR_LIMIT:
+        visible_content += "..."
+    return f"{heading}\n\n{visible_content}\n\n"
 
 
 def collect_structured_cves(article: Dict[str, Any]) -> list[str]:

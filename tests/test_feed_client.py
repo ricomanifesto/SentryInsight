@@ -271,6 +271,21 @@ def test_extract_article_text_uses_only_first_selected_article_container():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_prefers_full_story_over_earlier_teaser():
+    source_html = """
+    <article><p>Teaser for CVE-2026-9999.</p></article>
+    <article>
+      <p>Primary story for CVE-2026-55040 with detailed exploitation evidence.</p>
+      <p>Attackers are actively exploiting the vulnerability in the wild.</p>
+    </article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-55040" in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_extract_article_text_prefers_nested_article_over_broad_main():
     source_html = """
     <main>

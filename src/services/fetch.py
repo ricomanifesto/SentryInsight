@@ -182,7 +182,7 @@ class ArticleBodyParser(HTMLParser):
             return ""
         _, selected_text = max(
             populated_candidates,
-            key=lambda item: (item[0].priority, -item[0].order),
+            key=lambda item: (item[0].priority, len(item[1]), -item[0].order),
         )
         return selected_text
 

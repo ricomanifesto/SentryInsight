@@ -161,7 +161,8 @@ class AnalyzeGuardTests(unittest.TestCase):
             )
 
         self.assertIn("**Untitled article**", FakeOpenCodeClient.user_prompt)
-        self.assertIn("Summary only...", FakeOpenCodeClient.user_prompt)
+        self.assertIn("Summary only", FakeOpenCodeClient.user_prompt)
+        self.assertNotIn("Summary only...", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
 
@@ -453,6 +454,34 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertEqual(
             analyze.collect_exploitation_relevant_prompt_cves(article_summary),
             ["CVE-2026-2222"],
+        )
+
+    def test_short_prompt_content_does_not_make_final_cve_look_truncated(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = analyze.format_article_summary(
+            {
+                "title": "Active exploitation",
+                "content": (
+                    "Attackers actively exploit CVE-2026-1111 and CVE-2026-2222"
+                ),
+                "cves": ["CVE-2026-1111", "CVE-2026-2222"],
+            }
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
+    def test_exploitation_capability_wording_is_not_confirmed_activity(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "Exploitation of CVE-2026-1234 can lead to remote code execution."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
         )
 
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
