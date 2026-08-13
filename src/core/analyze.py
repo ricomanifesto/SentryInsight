@@ -9,7 +9,7 @@ from .model_config import resolve_model, validate_model
 from .model_client import build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .cve import extract_cve_ids
-from .prompt_content import get_prompt_visible_content
+from .prompt_content import get_prompt_visible_content, normalize_prompt_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +32,15 @@ EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r"malware|"
     r"threat actor|"
     r"campaign"
+    r")\b",
+    re.IGNORECASE,
+)
+CONFIRMED_EXPLOITATION_PATTERN = re.compile(
+    r"\b(?:"
+    r"active(?:ly)? exploit(?:s|ed|ing|ation)?|"
+    r"attackers? (?:are )?exploit(?:s|ed|ing)?|"
+    r"in the wild|"
+    r"under attack"
     r")\b",
     re.IGNORECASE,
 )
@@ -100,6 +109,7 @@ EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
     r"[;,]\s*(?=(?:and|attackers?|threat actors?)\b)|"
     r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they)\b)|"
+    r"\s+(?=and\s+CVE-\d{4}-\d{4,}\s+(?:is|was|has)\b)|"
     r"(?:[;,]\s*|\s+)(?=(?:but|however|while|whereas)\b|"
     r"yet\s+(?:attackers?|threat actors?|researchers?|they)\b)"
     r")",
@@ -146,9 +156,9 @@ def format_article_summary(article: Dict[str, Any]) -> str:
             return default
         return str(value).strip()
 
-    title = clean_text(article.get("title"), "Untitled article") or "Untitled article"
+    title = normalize_prompt_metadata(article.get("title")) or "Untitled article"
     source = clean_article_source(article.get("source"))
-    link = clean_text(article.get("link"))
+    link = normalize_prompt_metadata(article.get("link"))
     content = clean_text(
         article.get("content") or article.get("summary"), "No content available"
     )
@@ -198,7 +208,10 @@ def has_negated_exploitation_relevance(article_summary: str) -> bool:
     ]
     return bool(relevant_clauses) and all(
         NEGATED_EXPLOITATION_PATTERN.search(clause)
-        or UNCONFIRMED_EXPLOITATION_PATTERN.search(clause)
+        or (
+            UNCONFIRMED_EXPLOITATION_PATTERN.search(clause)
+            and not CONFIRMED_EXPLOITATION_PATTERN.search(clause)
+        )
         or POSTPOSED_NEGATED_EXPLOITATION_PATTERN.search(clause)
         for clause in relevant_clauses
     )

@@ -562,6 +562,44 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_confirmed_exploitation_survives_modal_malware_impact(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1234 is actively exploited and could allow malware installation."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
+    def test_cve_led_coordinating_clause_keeps_confirmed_cve_separate(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1111 is actively exploited and CVE-2026-2222 is not exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111"],
+        )
+
+    def test_multiline_title_keeps_generated_cve_metadata_parseable(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = analyze.format_article_summary(
+            {
+                "title": "Vendor\nAdvisory",
+                "content": "Attackers actively exploit the flaw.",
+                "cves": ["CVE-2026-1234"],
+            }
+        )
+
+        self.assertIn("**Vendor Advisory**", article_summary)
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."

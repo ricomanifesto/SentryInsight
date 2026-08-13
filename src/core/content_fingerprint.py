@@ -13,10 +13,10 @@ from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional
 
-from .prompt_content import get_prompt_visible_content
+from .prompt_content import get_prompt_visible_content, normalize_prompt_metadata
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v8"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v9"
 
 
 def _normalize_fingerprint_value(value: Any) -> str:
@@ -27,10 +27,6 @@ def _normalize_prompt_content(article: Dict[str, Any]) -> str:
     content = article.get("content") or article.get("summary")
     visible_content = "" if content is None else str(content).strip()
     return get_prompt_visible_content(visible_content)
-
-
-def _strip_prompt_metadata(value: Any) -> str:
-    return "" if value is None else str(value).strip()
 
 
 def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
@@ -49,10 +45,10 @@ def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
         )
         record = {
             "cves": normalized_cves,
-            "link": _strip_prompt_metadata(article.get("link")),
+            "link": normalize_prompt_metadata(article.get("link")),
             "prompt_content": _normalize_prompt_content(article),
             "source": _normalize_fingerprint_value(article.get("source")),
-            "title": _strip_prompt_metadata(article.get("title")),
+            "title": normalize_prompt_metadata(article.get("title")),
         }
         if any(record.values()):
             records.add(json.dumps(record, sort_keys=True, separators=(",", ":")))

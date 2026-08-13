@@ -122,8 +122,8 @@ def test_fingerprint_preserves_prompt_visible_line_boundaries():
     assert separate_clauses != same_line
 
 
-def test_fingerprint_preserves_title_line_boundaries():
-    separate_clauses = compute_articles_fingerprint(
+def test_fingerprint_normalizes_title_like_generated_heading():
+    multiline = compute_articles_fingerprint(
         [
             {
                 "link": "https://a",
@@ -146,7 +146,7 @@ def test_fingerprint_preserves_title_line_boundaries():
         ]
     )
 
-    assert separate_clauses != same_line
+    assert multiline == same_line
 
 
 def test_fingerprint_invalidates_legacy_identity_only_hash():
