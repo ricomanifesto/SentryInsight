@@ -1,4 +1,5 @@
 import hashlib
+import html
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -53,14 +54,15 @@ def test_public_pages_publish_canonical_identity_metadata_and_sitemap():
 
 
 def test_report_is_meaningful_static_html_before_javascript_runs():
+    artifact = parse_report_artifact(REPORT.read_text())
     page = REPORT_PAGE.read_text()
 
-    assert "Active exploitation campaigns have intensified" in page
     assert '<main id="report-content"' in page
     assert '<h2 id="executive-summary">Executive Summary</h2>' in page
     assert (
         '<h2 id="active-exploitation-details">Active Exploitation Details</h2>' in page
     )
+    assert html.escape(artifact.findings[0].title) in page
     assert "spinner" not in page.casefold()
     assert "fetch(" not in page
     assert "cache: 'no-store'" not in page
@@ -71,16 +73,24 @@ def test_report_is_meaningful_static_html_before_javascript_runs():
 def test_report_uses_artifact_owned_utc_time_metadata():
     artifact = parse_report_artifact(REPORT.read_text())
     page = REPORT_PAGE.read_text()
+    report_date_iso = artifact.report_date.isoformat()
+    report_date_label = (
+        artifact.report_date.strftime("%A, %B ")
+        + str(artifact.report_date.day)
+        + artifact.report_date.strftime(", %Y")
+    )
+    generated_at_iso = artifact.generated_at.isoformat().replace("+00:00", "Z")
+    generated_at_label = (
+        artifact.generated_at.strftime("%B ")
+        + str(artifact.generated_at.day)
+        + artifact.generated_at.strftime(", %Y at %H:%M UTC")
+    )
 
-    assert artifact.report_date.isoformat() == "2026-08-13"
     assert (
-        '<time datetime="2026-08-13">Report for Thursday, August 13, 2026</time>'
+        f'<time datetime="{report_date_iso}">Report for {report_date_label}</time>'
         in page
     )
-    assert (
-        '<time datetime="2026-08-13T16:03:32Z">August 13, 2026 at 16:03 UTC</time>'
-        in page
-    )
+    assert f'<time datetime="{generated_at_iso}">{generated_at_label}</time>' in page
     assert "toLocaleString" not in page
 
 
@@ -89,11 +99,10 @@ def test_complete_cves_are_linked_without_a_sequence_length_cap():
     page = REPORT_PAGE.read_text()
     cves = {cve for finding in artifact.findings for cve in finding.cve_ids}
 
-    assert cves == {"CVE-2026-55040", "CVE-2026-71362", "CVE-2026-68820"}
     for cve in cves:
         assert f'href="https://nvd.nist.gov/vuln/detail/{cve}"' in page
     assert page.count('target="_blank" rel="noopener noreferrer"') >= len(cves)
-    assert "CVE-2026-593" not in page
+    assert not re.search(r"CVE-\d{4}-\d{0,7}(?:\.\.\.|…)", page)
     assert "CVE ID assigned but not specified" not in page
     assert "CVE pending" not in page
 
@@ -109,9 +118,10 @@ def test_triage_badges_can_only_project_source_owned_allowed_values():
     assert metadata_match is not None
     metadata = json.loads(metadata_match.group(1))
 
-    assert len(metadata["findings"]) == len(artifact.findings) == 9
-    assert metadata["finding_count"] == 9
-    assert metadata["complete_cve_count"] == 3
+    unique_cves = {cve for finding in artifact.findings for cve in finding.cve_ids}
+    assert len(metadata["findings"]) == len(artifact.findings)
+    assert metadata["finding_count"] == len(artifact.findings)
+    assert metadata["complete_cve_count"] == len(unique_cves)
     for finding in artifact.findings:
         assert page.count(f'id="{finding.slug}"') == 1
         assert page.count(f'data-severity="{finding.severity.value}"') >= 1
@@ -126,9 +136,11 @@ def test_triage_badges_can_only_project_source_owned_allowed_values():
         heading_end = page.index("</h3>", heading_start)
         heading = page[heading_start:heading_end]
         assert heading.count('class="badge ') == 3
-    assert page.count('class="badge badge-severity"') == 9
-    assert page.count('class="badge badge-exploitation-status"') == 9
-    assert page.count('class="badge badge-action"') == 9
+    assert page.count('class="badge badge-severity"') == len(artifact.findings)
+    assert page.count('class="badge badge-exploitation-status"') == len(
+        artifact.findings
+    )
+    assert page.count('class="badge badge-action"') == len(artifact.findings)
     assert "<strong>Severity</strong>" not in page
     assert "<strong>Exploitation Status</strong>" not in page
     assert "<strong>Action</strong>" not in page
@@ -176,8 +188,10 @@ def test_report_exposes_method_maintainer_and_computed_shape_to_readers():
     page = REPORT_PAGE.read_text()
 
     unique_cves = {cve for finding in artifact.findings for cve in finding.cve_ids}
-    assert f"{len(artifact.findings)} findings" in page
-    assert f"{len(unique_cves)} complete CVE IDs" in page
+    finding_label = "finding" if len(artifact.findings) == 1 else "findings"
+    cve_label = "complete CVE ID" if len(unique_cves) == 1 else "complete CVE IDs"
+    assert f"{len(artifact.findings)} {finding_label}" in page
+    assert f"{len(unique_cves)} {cve_label}" in page
     assert "AI-assisted" in page
     assert 'href="https://ricomanifesto.github.io/SentryDigest/"' in page
     assert 'href="https://ricomanifesto.com/"' in page
@@ -201,25 +215,34 @@ def test_theme_and_brand_are_correct_before_deferred_javascript_runs():
     assert ":root:not([data-theme]) .brand-logo-dark" in css
 
 
-def test_archive_manifest_matches_real_dated_artifacts():
+def test_archive_page_matches_real_dated_artifacts():
     manifest = json.loads(ARCHIVE_MANIFEST.read_text())
     archive_page = ARCHIVE_PAGE.read_text()
 
     assert manifest["schema_version"] == 1
-    assert manifest["reports"] == []
     for report in manifest["reports"]:
-        assert (Path("reports") / report["html_path"]).exists()
-        assert (Path("reports") / report["markdown_path"]).exists()
-        assert report["finding_count"] == 9
-        assert report["cve_count"] == 3
-    assert "0 reports available" in archive_page
-    assert "No archived reports yet" in archive_page
+        report_html = Path("reports") / report["html_path"]
+        report_markdown = Path("reports") / report["markdown_path"]
+        assert report_html.exists()
+        assert report_markdown.exists()
+        artifact = parse_report_artifact(report_markdown.read_text())
+        unique_cves = {cve for finding in artifact.findings for cve in finding.cve_ids}
+        assert report["finding_count"] == len(artifact.findings)
+        assert report["cve_count"] == len(unique_cves)
+    report_count = len(manifest["reports"])
+    report_label = "report" if report_count == 1 else "reports"
+    assert f"{report_count} {report_label} available" in archive_page
+    if report_count == 0:
+        assert "No archived reports yet" in archive_page
+    else:
+        assert "No archived reports yet" not in archive_page
     assert "archiveReports = [" not in archive_page
     assert "archive artifacts tracked" not in archive_page
     assert "Filter" not in archive_page
 
 
 def test_report_has_clean_desktop_and_mobile_section_maps():
+    artifact = parse_report_artifact(REPORT.read_text())
     page = REPORT_PAGE.read_text()
 
     assert page.count('aria-label="Report sections"') == 2
@@ -227,7 +250,8 @@ def test_report_has_clean_desktop_and_mobile_section_maps():
     assert 'class="desktop-toc"' in page
     assert "Critical Patch" not in page
     assert "▼" not in page
-    assert page.count(">VMware vCenter Critical Vulnerability</a>") == 2
+    first_title = html.escape(artifact.findings[0].title)
+    assert page.count(f">{first_title}</a>") == 2
 
 
 def test_styles_guard_mobile_overflow_focus_and_print_layouts():
