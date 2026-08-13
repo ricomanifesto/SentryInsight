@@ -101,6 +101,7 @@ def test_complete_cves_are_linked_without_a_sequence_length_cap():
 
     for cve in cves:
         assert f'href="https://nvd.nist.gov/vuln/detail/{cve}"' in page
+        assert page.count(f'id="{cve.lower()}" class="cve-handoff-target"') == 1
     assert page.count('target="_blank" rel="noopener noreferrer"') >= len(cves)
     assert not re.search(r"CVE-\d{4}-\d{0,7}(?:\.\.\.|…)", page)
     assert "CVE ID assigned but not specified" not in page

@@ -82,6 +82,48 @@
     document.querySelectorAll("h3.finding-heading").forEach(setupFinding);
   }
 
+  function requestedCve() {
+    const match = /^#(cve-\d{4}-\d{4,})$/i.exec(window.location.hash);
+    return match ? match[1].toUpperCase() : null;
+  }
+
+  function showHandoffStatus(message) {
+    const status = document.getElementById("handoff-status");
+    if (!status) return;
+    status.textContent = message;
+    status.hidden = !message;
+  }
+
+  function receiveCveHandoff(metadata) {
+    document.querySelectorAll('.finding-heading[data-handoff-match="true"]').forEach((heading) => {
+      heading.removeAttribute("data-handoff-match");
+    });
+
+    const cve = requestedCve();
+    if (!cve) {
+      showHandoffStatus("");
+      return;
+    }
+
+    const finding = (metadata.findings || []).find((candidate) =>
+      (candidate.cve_ids || []).some((candidateCve) => candidateCve.toUpperCase() === cve),
+    );
+    const heading = finding ? document.getElementById(finding.slug) : null;
+    if (!heading) {
+      showHandoffStatus(`No current finding matches ${cve}. Showing the current report.`);
+      return;
+    }
+
+    const disclosure = heading.querySelector("button.finding-disclosure");
+    if (disclosure?.getAttribute("aria-expanded") === "false") disclosure.click();
+    heading.dataset.handoffMatch = "true";
+    showHandoffStatus(`Opened finding for ${cve}: ${finding.title}`);
+    window.requestAnimationFrame(() => {
+      heading.scrollIntoView({ block: "start" });
+      disclosure?.focus({ preventScroll: true });
+    });
+  }
+
   function enhanceExecutiveSummary() {
     const heading = document.getElementById("executive-summary");
     if (!heading) return;
@@ -171,6 +213,8 @@
   sanitizeReportContent();
   enhanceExecutiveSummary();
   setupFindings();
+  receiveCveHandoff(metadata);
+  window.addEventListener("hashchange", () => receiveCveHandoff(metadata));
   renderAge(metadata);
   setupScrollSpy();
 })();

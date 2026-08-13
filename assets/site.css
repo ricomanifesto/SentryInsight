@@ -100,6 +100,17 @@ button { font: inherit; }
   font-size: 0.88rem;
 }
 .report-method strong { color: var(--text); white-space: nowrap; }
+.handoff-status {
+  width: min(1180px, calc(100% - 36px));
+  margin: 18px auto 0;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+.handoff-status[hidden] { display: none; }
 .page-shell {
   display: grid;
   grid-template-columns: minmax(210px, 260px) minmax(0, 850px);
@@ -148,7 +159,11 @@ button { font: inherit; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px 12px 0 0;
+  position: relative;
+  scroll-margin-top: 24px;
 }
+.finding-heading[data-handoff-match="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+.cve-handoff-target { height: 1px; left: 0; position: absolute; top: -24px; width: 1px; }
 .finding-heading[data-expanded="false"] { border-radius: 12px; }
 .finding-disclosure {
   display: flex;

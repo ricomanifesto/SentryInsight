@@ -208,9 +208,15 @@ def _finding_heading_html(finding: Finding) -> str:
         for cve in finding.cve_ids
     )
     cve_group = f'<span class="cve-list">{cves}</span>' if cves else ""
+    cve_handoff_targets = "".join(
+        f'<span id="{html.escape(cve.lower())}" class="cve-handoff-target" '
+        'aria-hidden="true"></span>'
+        for cve in finding.cve_ids
+    )
     title = html.escape(finding.title)
     heading_id = html.escape(finding.slug)
     return (
+        f"{cve_handoff_targets}"
         f'<button type="button" class="finding-disclosure" aria-expanded="true" '
         f'aria-controls="{heading_id}-details">'
         f'<span class="finding-title">{title}</span>'

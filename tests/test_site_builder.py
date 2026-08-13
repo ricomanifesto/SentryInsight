@@ -58,6 +58,14 @@ def test_site_builder_embeds_source_owned_finding_metadata(tmp_path):
     assert 'data-severity="critical"' in html
     assert 'data-exploitation-status="active"' in html
     assert 'data-action="patch"' in html
+    assert (
+        '<span id="cve-2026-1234" class="cve-handoff-target" aria-hidden="true"></span>'
+        in html
+    )
+    assert (
+        '<span id="cve-2026-12345678" class="cve-handoff-target" aria-hidden="true"></span>'
+        in html
+    )
     assert html.count('data-severity="critical"') == 1
 
 

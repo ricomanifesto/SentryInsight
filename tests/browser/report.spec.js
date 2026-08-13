@@ -132,6 +132,63 @@ test("uses independent accessible finding controls", async ({ page }) => {
 });
 
 
+test("receives a CVE handoff at the matching finding and focuses its control", async ({ page }) => {
+  const failures = collectPageFailures(page);
+  await page.goto("/index.html");
+  const metadata = await readReportMetadata(page);
+  const finding = metadata.findings.find((candidate) => candidate.cve_ids.length > 0);
+  expect(finding).toBeTruthy();
+  const cve = finding.cve_ids[0];
+  const fragment = `#${cve.toLowerCase()}`;
+
+  await page.goto(`/index.html${fragment}`);
+
+  const heading = page.locator(`h3#${finding.slug}`);
+  const disclosure = heading.locator("button.finding-disclosure");
+  await expect(page).toHaveURL(new RegExp(`${fragment}$`, "i"));
+  await expect(heading).toHaveAttribute("data-handoff-match", "true");
+  await expect(disclosure).toBeFocused();
+  await expect(page.locator("#handoff-status")).toContainText(`Opened finding for ${cve}`);
+  await page.screenshot({
+    path: "test-results/screenshots/report-cve-handoff.png",
+    fullPage: true,
+  });
+  expect(failures).toEqual([]);
+});
+
+
+test("lands a CVE handoff beside its finding without JavaScript", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto("/index.html");
+  const metadata = await readReportMetadata(page);
+  const finding = metadata.findings.find((candidate) => candidate.cve_ids.length > 0);
+  expect(finding).toBeTruthy();
+  const cve = finding.cve_ids[0];
+
+  await page.goto(`/index.html#${cve.toLowerCase()}`);
+
+  await expect(page).toHaveURL(new RegExp(`#${cve.toLowerCase()}$`, "i"));
+  await expect(page.locator(`#${cve.toLowerCase()}`)).toHaveCount(1);
+  await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport();
+  await context.close();
+});
+
+
+test("keeps an unmatched CVE handoff honest at the current-report front door", async ({ page }) => {
+  const failures = collectPageFailures(page);
+
+  await page.goto("/index.html#cve-2099-9999");
+
+  await expect(page.locator("#handoff-status")).toContainText(
+    "No current finding matches CVE-2099-9999. Showing the current report.",
+  );
+  await expect(page.locator('.finding-heading[data-handoff-match="true"]')).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  expect(failures).toEqual([]);
+});
+
+
 test("keeps section maps clean and theme state discoverable", async ({ page }) => {
   const failures = collectPageFailures(page);
   await page.goto("/index.html");
