@@ -58,6 +58,7 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
     r"no evidence(?:\s+(?:of|that))?|"
     r"no\s+(?:(?:known|confirmed|observed|active)\s+)?(?=exploit)|"
+    r"(?:has|have|had)\s+never\s+been|"
     r"not\s+(?:all|both|these|the listed)\s+"
     r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies))|"
     r"not\s+(?:actively\s+|being\s+)?(?=exploit)|"
@@ -109,7 +110,7 @@ GROUPED_ISSUES_PATTERN = re.compile(
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
-    r"[;,]\s*(?=(?:and|attackers?|threat actors?)\b)|"
+    r"[;,]\s*(?=(?:and|attackers?|threat actors?|CVE-\d{4}-\d{4,})\b)|"
     r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they|it|"
     r"the\s+(?:flaw|issue|vulnerability|bug))\b)|"
     r"\s+(?=and\s+CVE-\d{4}-\d{4,}\s+(?:is|was|has)\b)|"

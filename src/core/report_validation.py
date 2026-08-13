@@ -57,7 +57,7 @@ NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
 CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b", re.IGNORECASE)
 PARTIAL_CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{1,}(?:\.\.\.|…)", re.IGNORECASE)
 CVE_FIELD_PATTERN = re.compile(
-    r"^[ \t]{0,3}(?:[-*+]|\d+[.)])\s+(?:"
+    r"^[ \t]*(?:[-*+]|\d+[.)])\s+(?:"
     r"\*\*CVE(?: ID)?\s*\*\*\s*:|"
     r"\*\*CVE(?: ID)?\s*:\s*\*\*|"
     r"CVE(?: ID)?\s*:"
@@ -874,7 +874,7 @@ def get_inline_text(markdown: str) -> str:
 def has_invalid_cve_field(markdown: str) -> bool:
     return any(
         not CVE_ID_PATTERN.match(get_inline_text(match.group("value")).strip())
-        for match in CVE_FIELD_PATTERN.finditer(markdown)
+        for match in CVE_FIELD_PATTERN.finditer(strip_markdown_block_code(markdown))
     )
 
 

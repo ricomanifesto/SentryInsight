@@ -247,6 +247,28 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
 
+    def test_non_identifier_nested_list_cve_field_fails_validation(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n"
+            "    - **CVE ID**: Not assigned",
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
+
+    def test_indented_code_cve_placeholder_does_not_count_as_field(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity is concentrated in edge systems.\n\n"
+            "    - **CVE ID**: Not assigned",
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertFalse(any(issue.code == "invalid_cve_field" for issue in issues))
+
     def test_placeholder_prefix_is_invalid_even_when_field_mentions_complete_cve(self):
         report = VALID_REPORT.replace(
             "- **Status**: Active exploitation observed.",
