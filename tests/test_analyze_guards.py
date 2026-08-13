@@ -626,6 +626,32 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1234"],
         )
 
+    def test_referential_exploitation_skips_intervening_neutral_sentence(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "CVE-2026-1234 affects Product X. A patch is available. "
+            "Attackers are actively exploiting the vulnerability."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
+    def test_referential_negation_skips_intervening_neutral_sentence(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "CVE-2026-1234 affects Product X. A patch is available. "
+            "The vulnerability is not currently being exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
     def test_modal_malware_impact_is_not_confirmed_exploitation(self):
         analyze = import_analyze_with_stubs()
         article_summary = "CVE-2026-1234 could allow malware installation."

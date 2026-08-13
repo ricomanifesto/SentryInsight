@@ -138,6 +138,7 @@ FOLLOWING_CVE_REFERENCE_PATTERN = re.compile(
     r"\bit\b",
     re.IGNORECASE,
 )
+FOLLOWING_REFERENCE_SENTENCE_LIMIT = 3
 
 
 def clean_article_source(value: Any) -> str:
@@ -382,21 +383,22 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                         preceding_sentence
                     ) and FOLLOWING_CVE_REFERENCE_PATTERN.search(" ".join(cve_clauses)):
                         nearby_sentences.append(preceding_sentence)
-                if index + 1 < len(article_sentences):
-                    following_sentence = article_sentences[index + 1]
-                    if not collect_prompt_cves(
-                        following_sentence
-                    ) and FOLLOWING_CVE_REFERENCE_PATTERN.search(following_sentence):
-                        nearby_sentences.append(following_sentence)
+                for following_sentence in article_sentences[
+                    index + 1 : index + 1 + FOLLOWING_REFERENCE_SENTENCE_LIMIT
+                ]:
+                    if collect_prompt_cves(following_sentence):
+                        break
+                    if not FOLLOWING_CVE_REFERENCE_PATTERN.search(following_sentence):
+                        continue
+                    nearby_sentences.append(following_sentence)
+                    if has_exploitation_relevance(following_sentence):
                         has_positive_following_reference = (
                             has_positive_following_reference
-                            or (
-                                has_exploitation_relevance(following_sentence)
-                                and not has_negated_exploitation_relevance(
-                                    following_sentence
-                                )
+                            or not has_negated_exploitation_relevance(
+                                following_sentence
                             )
                         )
+                        break
             if (not cve_context_is_negated or has_positive_following_reference) and any(
                 has_exploitation_relevance(sentence)
                 and not has_negated_exploitation_relevance(sentence)
