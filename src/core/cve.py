@@ -3,7 +3,7 @@
 import re
 
 CVE_ID_PATTERN = re.compile(
-    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?!\d|\.\.\.)\b",
+    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?!\d|\.\.\.|…)\b",
     re.IGNORECASE,
 )
 

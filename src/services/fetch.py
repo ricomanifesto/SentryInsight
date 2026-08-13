@@ -29,10 +29,12 @@ BLOCK_TAGS = {
     "h5",
     "h6",
     "li",
+    "main",
     "p",
     "section",
     "tr",
 }
+SEMANTIC_BODY_TAGS = {"article", "main"}
 SKIP_TAGS = {"noscript", "script", "style", "svg", "template"}
 VOID_TAGS = {
     "area",
@@ -91,7 +93,9 @@ class ArticleBodyParser(HTMLParser):
                 if description:
                     self.meta_descriptions.append(description)
 
-        if not self.capture_depth and _is_article_body(attr_map):
+        if not self.capture_depth and (
+            normalized_tag in SEMANTIC_BODY_TAGS or _is_article_body(attr_map)
+        ):
             self.capture_depth = 1
         elif self.capture_depth and normalized_tag not in VOID_TAGS:
             self.capture_depth += 1

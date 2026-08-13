@@ -2,7 +2,7 @@ import asyncio
 from types import SimpleNamespace
 
 from src.services import fetch as fetch_module
-from src.services.fetch import SentryDigestFeedClient
+from src.services.fetch import SentryDigestFeedClient, extract_article_text
 
 
 class FakeResponse:
@@ -159,6 +159,32 @@ def test_enrich_article_content_extracts_readable_body_and_source_cves(monkeypat
     assert articles[0]["cves"] == ["CVE-2026-59310"]
     assert "CVE-2025-9999" not in articles[0]["content"]
     assert "CVE-2024-8888" not in articles[0]["content"]
+
+
+def test_extract_article_text_supports_semantic_article_without_markers():
+    source_html = """
+    <html><body>
+      <nav>Navigation text</nav>
+      <article><p>Semantic article content for CVE-2026-55040.</p></article>
+    </body></html>
+    """
+
+    assert extract_article_text(source_html) == (
+        "Semantic article content for CVE-2026-55040."
+    )
+
+
+def test_extract_article_text_supports_semantic_main_without_markers():
+    source_html = """
+    <html><body>
+      <main><p>Primary page content for CVE-2026-45659.</p></main>
+      <footer>Footer text</footer>
+    </body></html>
+    """
+
+    assert extract_article_text(source_html) == (
+        "Primary page content for CVE-2026-45659."
+    )
 
 
 def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatch):
