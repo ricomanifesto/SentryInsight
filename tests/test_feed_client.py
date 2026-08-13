@@ -240,6 +240,15 @@ def test_extract_article_text_ignores_candidates_inside_hidden_containers():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_skips_empty_higher_priority_candidate():
+    source_html = """
+    <div class="article-body"></div>
+    <article><p>Visible story for CVE-2026-55040.</p></article>
+    """
+
+    assert "CVE-2026-55040" in extract_article_text(source_html)
+
+
 def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatch):
     TrackingArticleClient.called = False
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", TrackingArticleClient)

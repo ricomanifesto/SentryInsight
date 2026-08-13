@@ -159,13 +159,18 @@ class ArticleBodyParser(HTMLParser):
                 candidate.parts.append(data)
 
     def primary_text(self) -> str:
-        if not self.candidates:
+        populated_candidates = []
+        for candidate in self.candidates:
+            candidate_text = _normalize_text("".join(candidate.parts))
+            if candidate_text:
+                populated_candidates.append((candidate, candidate_text))
+        if not populated_candidates:
             return ""
-        selected = max(
-            self.candidates,
-            key=lambda candidate: (candidate.priority, -candidate.order),
+        _, selected_text = max(
+            populated_candidates,
+            key=lambda item: (item[0].priority, -item[0].order),
         )
-        return _normalize_text("".join(selected.parts))
+        return selected_text
 
 
 def extract_article_text(source_html: str) -> str:

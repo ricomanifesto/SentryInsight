@@ -487,6 +487,20 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111", "CVE-2026-2222"],
         )
 
+    def test_unrelated_grouped_patch_sentence_does_not_promote_all_cves(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "CVE-2026-1111 and CVE-2026-2222 affect the product. "
+            "Both vulnerabilities are patched. "
+            "Attackers actively exploit CVE-2026-1111."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111"],
+        )
+
     def test_analysis_result_keeps_exploited_cve_near_unrelated_negation(self):
         analyze = import_analyze_with_stubs()
 

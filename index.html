@@ -640,8 +640,8 @@
         }
 
         function linkifyCVEs() {
-            const cveTextPattern = /CVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b/i;
-            const cveLinkPattern = /CVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b/gi;
+            const cveTextPattern = /CVE-\d{4}-\d{4,}(?!\d|\.\.\.|…)\b/i;
+            const cveLinkPattern = /CVE-\d{4}-\d{4,}(?!\d|\.\.\.|…)\b/gi;
             contentEl.querySelectorAll('p, li').forEach(el => {
                 const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
                     acceptNode: (node) => {

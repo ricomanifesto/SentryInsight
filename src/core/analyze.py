@@ -227,6 +227,18 @@ def has_positive_exploitation_sentence(article_summary: str) -> bool:
     )
 
 
+def has_positive_grouped_exploitation_clause(article_summary: str) -> bool:
+    for sentence in iter_line_sentences(strip_cve_metadata_noise(article_summary)):
+        for clause in EXPLOITATION_CLAUSE_BOUNDARY_PATTERN.split(sentence):
+            if (
+                GROUPED_ISSUES_PATTERN.search(clause)
+                and has_exploitation_relevance(clause)
+                and not has_negated_exploitation_relevance(clause)
+            ):
+                return True
+    return False
+
+
 def sentence_context_at_position(text: str, position: int) -> tuple[str, int]:
     line_start = text.rfind("\n", 0, position) + 1
     line_end = text.find("\n", position)
@@ -311,7 +323,7 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             contextless_cves.append(cve)
 
     if body_has_positive_exploitation:
-        if GROUPED_ISSUES_PATTERN.search(article_body):
+        if has_positive_grouped_exploitation_clause(article_body):
             for cve in metadata_context_cves:
                 if cve.upper() not in explicitly_negated_cves:
                     add_cve(cve)
