@@ -1036,6 +1036,30 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_adjective_led_exploitation_is_not_confirmed_activity(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "Suspected exploitation of CVE-2026-1234 is under investigation.",
+            "Likely exploitation of CVE-2026-1234 was reported.",
+            "Potential active exploitation of CVE-2026-1234 remains possible.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
+    def test_confirmed_adjective_led_exploitation_remains_relevant(self):
+        analyze = import_analyze_with_stubs()
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(
+                "Confirmed exploitation of CVE-2026-1234 was observed in the wild."
+            ),
+            ["CVE-2026-1234"],
+        )
+
     def test_interrogative_exploitation_headline_is_not_confirmed_activity(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

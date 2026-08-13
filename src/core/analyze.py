@@ -108,6 +108,9 @@ POSTPOSED_NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
+    r"\b(?:alleged|believed|likely|unlikely|possible|potential|reported|"
+    r"suspected|unconfirmed)\s+(?:active\s+)?"
+    r"(?:exploitation|exploit activity)\b|"
     r"\b(?:alleged|believed|likely|unlikely|possibly|potentially|reported|"
     r"suspected|thought)"
     r"\s+to\s+(?:be\s+)?exploit(?:ed|ing)?\b|"

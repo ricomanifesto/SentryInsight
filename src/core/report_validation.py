@@ -176,6 +176,8 @@ class RenderedTextHTMLParser(HTMLParser):
             or style_declarations.get("display") == "none"
             or style_declarations.get("visibility") == "hidden"
         )
+        if normalized_tag in VOID_HTML_TAGS:
+            return
         self.element_stack.append((normalized_tag, is_hidden))
         if is_hidden:
             self.hidden_depth += 1

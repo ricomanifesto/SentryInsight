@@ -181,6 +181,22 @@ class ReportValidationTests(unittest.TestCase):
             validate_report_content(report, expected_cves=["CVE-2026-1111"]), []
         )
 
+    def test_hidden_void_element_does_not_hide_following_markdown(self):
+        for void_markup in (
+            "<img hidden>",
+            '<br style="display: none">',
+        ):
+            with self.subTest(void_markup=void_markup):
+                report = VALID_REPORT.replace(
+                    "Recent exploitation activity is concentrated in edge systems.",
+                    f"{void_markup}\n\nCVE-2026-1111",
+                )
+
+                self.assertEqual(
+                    validate_report_content(report, expected_cves=["CVE-2026-1111"]),
+                    [],
+                )
+
     def test_visible_inline_html_cve_satisfies_expected_cve(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",
