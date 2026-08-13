@@ -64,6 +64,9 @@ def _normalize_text(text: str) -> str:
 
 
 def _is_article_body(attrs: dict[str, str]) -> bool:
+    item_properties = set(attrs.get("itemprop", "").casefold().split())
+    if "articlebody" in item_properties:
+        return True
     identifiers = " ".join((attrs.get("id", ""), attrs.get("class", "")))
     normalized = identifiers.casefold().replace("_", "-")
     tokens = set(re.split(r"\s+", normalized))

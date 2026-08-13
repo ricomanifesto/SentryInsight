@@ -249,6 +249,16 @@ def test_extract_article_text_skips_empty_higher_priority_candidate():
     assert "CVE-2026-55040" in extract_article_text(source_html)
 
 
+def test_extract_article_text_recognizes_schema_org_article_body():
+    source_html = """
+    <div itemprop="articleBody">
+      <p>Schema article content for CVE-2026-55040.</p>
+    </div>
+    """
+
+    assert "CVE-2026-55040" in extract_article_text(source_html)
+
+
 def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatch):
     TrackingArticleClient.called = False
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", TrackingArticleClient)
