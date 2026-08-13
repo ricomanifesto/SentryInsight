@@ -1092,7 +1092,7 @@ class AnalyzeGuardTests(unittest.TestCase):
     def test_grouped_exploitation_exception_excludes_named_metadata_cve(self):
         analyze = import_analyze_with_stubs()
 
-        for exception in ("except", "other than"):
+        for exception in ("except", "except for", "other than"):
             with self.subTest(exception=exception):
                 article_summary = (
                     "**Vendor advisory** (CVEs: CVE-2026-1111, "

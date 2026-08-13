@@ -175,7 +175,7 @@ SUBSET_GROUPED_ISSUES_PATTERN = re.compile(
     re.IGNORECASE,
 )
 GROUPED_EXCEPTION_PATTERN = re.compile(
-    r"\b(?:except(?:ing)?|other than|with the exception of)\s+"
+    r"\b(?:except(?:ing)?(?:\s+for)?|other than|with the exception of)\s+"
     r"(?P<cves>CVE[-\s]?\d{4}[-\s]?\d{4,}(?:"
     r"(?:\s*,\s*|\s+(?:and|or)\s+)CVE[-\s]?\d{4}[-\s]?\d{4,})*)",
     re.IGNORECASE,
