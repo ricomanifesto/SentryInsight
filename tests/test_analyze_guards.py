@@ -999,6 +999,18 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111", "CVE-2026-2222"],
         )
 
+    def test_subset_exploitation_claim_does_not_promote_all_metadata_cves(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "One of the vulnerabilities is actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
     def test_unrelated_grouped_patch_sentence_does_not_promote_all_cves(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

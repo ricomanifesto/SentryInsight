@@ -142,6 +142,12 @@ GROUPED_ISSUES_PATTERN = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+SUBSET_GROUPED_ISSUES_PATTERN = re.compile(
+    r"\b(?:one|some|several|many|few|a subset|at least one|one or more)\s+"
+    r"of\s+(?:the|these|those)\s+"
+    r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies)|bugs?)\b",
+    re.IGNORECASE,
+)
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
     r"[;,]\s*(?=(?:attackers?|threat actors?|not\s+CVE-\d{4}-\d{4,}|"
@@ -333,6 +339,7 @@ def has_positive_grouped_exploitation_clause(article_summary: str) -> bool:
         for clause in EXPLOITATION_CLAUSE_BOUNDARY_PATTERN.split(sentence):
             if (
                 GROUPED_ISSUES_PATTERN.search(clause)
+                and not SUBSET_GROUPED_ISSUES_PATTERN.search(clause)
                 and has_exploitation_relevance(clause)
                 and not has_negated_exploitation_relevance(clause)
             ):
