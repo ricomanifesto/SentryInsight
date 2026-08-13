@@ -351,6 +351,22 @@ def test_extract_article_text_excludes_peripheral_article_containers():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_excludes_hidden_subtrees():
+    source_html = """
+    <article>
+      <div hidden><p>Cached related story for CVE-2026-9999.</p></div>
+      <div aria-hidden="true"><p>Hidden card for CVE-2026-9998.</p></div>
+      <p>Attackers exploit CVE-2026-55040 in the wild.</p>
+    </article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-55040" in article_text
+    assert "CVE-2026-9998" not in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_extract_article_text_separates_table_cells():
     source_html = """
     <article>

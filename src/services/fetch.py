@@ -74,6 +74,10 @@ def _normalize_text(text: str) -> str:
     return "\n".join(lines)
 
 
+def _is_hidden_element(attrs: dict[str, str]) -> bool:
+    return "hidden" in attrs or attrs.get("aria-hidden", "").casefold() == "true"
+
+
 def _is_article_body(attrs: dict[str, str]) -> bool:
     item_properties = set(attrs.get("itemprop", "").casefold().split())
     if "articlebody" in item_properties:
@@ -109,6 +113,7 @@ class ArticleBodyParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.hidden_depth = 0
+        self.hidden_tag = ""
         self.candidates: list[ArticleTextCandidate] = []
         self.active_candidates: list[ArticleTextCandidate] = []
         self.meta_descriptions: list[str] = []
@@ -117,10 +122,14 @@ class ArticleBodyParser(HTMLParser):
         normalized_tag = tag.casefold()
         attr_map = {name.casefold(): value or "" for name, value in attrs}
 
-        if normalized_tag in SKIP_TAGS:
-            self.hidden_depth += 1
-            return
         if self.hidden_depth:
+            if normalized_tag == self.hidden_tag:
+                self.hidden_depth += 1
+            return
+        if normalized_tag in SKIP_TAGS or _is_hidden_element(attr_map):
+            if normalized_tag not in VOID_TAGS:
+                self.hidden_depth = 1
+                self.hidden_tag = normalized_tag
             return
 
         if normalized_tag == "meta":
@@ -152,11 +161,11 @@ class ArticleBodyParser(HTMLParser):
 
     def handle_endtag(self, tag: str) -> None:
         normalized_tag = tag.casefold()
-        if normalized_tag in SKIP_TAGS:
-            if self.hidden_depth:
-                self.hidden_depth -= 1
-            return
         if self.hidden_depth:
+            if normalized_tag == self.hidden_tag:
+                self.hidden_depth -= 1
+                if not self.hidden_depth:
+                    self.hidden_tag = ""
             return
 
         for candidate in list(self.active_candidates):
@@ -193,21 +202,30 @@ class FeedContentParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.hidden_depth = 0
+        self.hidden_tag = ""
         self.parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         normalized_tag = tag.casefold()
-        if normalized_tag in SKIP_TAGS:
-            self.hidden_depth += 1
-        elif not self.hidden_depth and normalized_tag in BLOCK_TAGS:
+        attr_map = {name.casefold(): value or "" for name, value in attrs}
+        if self.hidden_depth:
+            if normalized_tag == self.hidden_tag:
+                self.hidden_depth += 1
+        elif normalized_tag in SKIP_TAGS or _is_hidden_element(attr_map):
+            if normalized_tag not in VOID_TAGS:
+                self.hidden_depth = 1
+                self.hidden_tag = normalized_tag
+        elif normalized_tag in BLOCK_TAGS:
             self.parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
         normalized_tag = tag.casefold()
-        if normalized_tag in SKIP_TAGS:
-            if self.hidden_depth:
+        if self.hidden_depth:
+            if normalized_tag == self.hidden_tag:
                 self.hidden_depth -= 1
-        elif not self.hidden_depth and normalized_tag in BLOCK_TAGS:
+                if not self.hidden_depth:
+                    self.hidden_tag = ""
+        elif normalized_tag in BLOCK_TAGS:
             self.parts.append("\n")
 
     def handle_data(self, data: str) -> None:
