@@ -516,6 +516,20 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_adverbial_exploitation_negations_are_excluded(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "CVE-2026-1234 is not currently being exploited.",
+            "CVE-2026-1234 is not yet exploited.",
+            "CVE-2026-1234 is not actively being exploited.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
     def test_contrastive_while_keeps_confirmed_cve_separate_from_negation(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

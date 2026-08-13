@@ -63,7 +63,7 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"(?:has|have|had)\s+never\s+been|"
     r"not\s+(?:all|both|these|the listed)\s+"
     r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies))|"
-    r"not\s+(?:actively\s+|being\s+)?(?=exploit)|"
+    r"not\s+(?:(?:actively|currently|yet)\s+)*(?:being\s+)?(?=exploit)|"
     r"without\s+(?:evidence|signs?|reports?)(?:\s+of)?|"
     r"has not been|"
     r"have not been|"
