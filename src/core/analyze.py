@@ -210,6 +210,14 @@ FOLLOWING_PLURAL_CVE_REFERENCE_PATTERN = re.compile(
     r"(?:flaws?|issues?|vulnerabilit(?:y|ies)|bugs?|zero[\s-]?days?))\b",
     re.IGNORECASE,
 )
+PRECEDING_CVE_IDENTIFICATION_PATTERN = re.compile(
+    r"\b(?:flaw|issue|vulnerability|bug|zero[\s-]?day)\b"
+    r"[^.;\n]{0,80}\b(?:assigned|designated|identified|known|tracked)\s+as\s+"
+    r"CVE[-\s]?\d{4}[-\s]?\d{4,}\b|"
+    r"\bCVE[-\s]?\d{4}[-\s]?\d{4,}\b[^.;\n]{0,40}\b"
+    r"(?:is|was)\s+(?:assigned|designated)\b",
+    re.IGNORECASE,
+)
 NEW_VULNERABILITY_REFERENT_PATTERN = re.compile(
     r"\b(?:(?:a|an)\s+(?:(?:additional|different|new|newly(?:\s+discovered)?|"
     r"separate|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|"
@@ -506,7 +514,9 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
                     preceding_sentence = article_sentences[index - 1]
                     if not collect_prompt_cves(
                         preceding_sentence
-                    ) and FOLLOWING_CVE_REFERENCE_PATTERN.search(" ".join(cve_clauses)):
+                    ) and PRECEDING_CVE_IDENTIFICATION_PATTERN.search(
+                        " ".join(cve_clauses)
+                    ):
                         nearby_sentences.append(preceding_sentence)
                 for following_sentence in article_sentences[
                     index + 1 : index + 1 + FOLLOWING_REFERENCE_SENTENCE_LIMIT
