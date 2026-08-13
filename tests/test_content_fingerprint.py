@@ -25,6 +25,23 @@ def test_fingerprint_changes_when_article_set_changes():
     assert original != changed
 
 
+def test_fingerprint_changes_when_enriched_content_or_cves_change():
+    original = compute_articles_fingerprint(
+        [{"link": "https://a", "content": "CVE pending", "cves": []}]
+    )
+    enriched = compute_articles_fingerprint(
+        [
+            {
+                "link": "https://a",
+                "content": "Assigned CVE-2026-55040",
+                "cves": ["CVE-2026-55040"],
+            }
+        ]
+    )
+
+    assert original != enriched
+
+
 def test_fingerprint_invalidates_legacy_identity_only_hash():
     legacy_fingerprint = hashlib.sha256(b"https://a").hexdigest()
 

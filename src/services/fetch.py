@@ -276,7 +276,7 @@ class SentryDigestFeedClient:
             article = {
                 "title": entry.get("title", ""),
                 "link": entry.get("link", ""),
-                "summary": entry.get("description", ""),
+                "summary": extract_feed_content_text(entry.get("description", "")),
                 "published": entry.get("published", ""),
                 "source": entry.get("dc_source", "Unknown Source"),
                 "date": entry.get("dc_date", datetime.now().strftime("%Y-%m-%d")),

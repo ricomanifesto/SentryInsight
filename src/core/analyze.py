@@ -78,7 +78,8 @@ UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 GROUPED_ISSUES_PATTERN = re.compile(
-    r"\b(?:all|both|these|the listed)\s+(?:flaws?|issues?|vulnerabilit(?:y|ies))\b",
+    r"\b(?:all|both|these|the listed)\s+"
+    r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies))\b",
     re.IGNORECASE,
 )
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(

@@ -168,6 +168,33 @@ def test_fetch_articles_sanitizes_nonempty_feed_content_before_merging_cves(
     assert articles[0]["cves"] == ["CVE-2026-55040"]
 
 
+def test_fetch_articles_sanitizes_feed_description_before_merging_cves(monkeypatch):
+    monkeypatch.setattr(
+        fetch_module.feedparser,
+        "parse",
+        lambda _text: SimpleNamespace(
+            entries=[
+                {
+                    "title": "Active exploitation advisory",
+                    "link": "https://example.test/advisory",
+                    "description": (
+                        "<p>Attackers exploit the product.</p>"
+                        "<footer>Related CVE-2026-9999</footer>"
+                    ),
+                    "content": [{"value": "<p>Tracked as CVE-2026-55040.</p>"}],
+                }
+            ]
+        ),
+    )
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+    client.client = FakeHttpClient()
+
+    articles = asyncio.run(client.fetch_articles())
+
+    assert articles[0]["summary"] == "Attackers exploit the product."
+    assert articles[0]["cves"] == ["CVE-2026-55040"]
+
+
 def test_enrich_article_content_extracts_readable_body_and_source_cves(monkeypatch):
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", StaticArticleClient)
     client = SentryDigestFeedClient("https://example.com/feed.xml")

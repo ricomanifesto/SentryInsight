@@ -2,29 +2,51 @@
 
 The analysis model runs at temperature=1, so the rendered report text
 never matches byte-for-byte between runs even when the underlying
-articles are unchanged. Fingerprinting the article identities (rather
-than the LLM's rendered output) lets the workflow detect "nothing new
-happened" and skip the paid analysis/TTS steps entirely.
+articles are unchanged. Fingerprinting normalized enriched source records
+(rather than the LLM's rendered output) lets the workflow detect "nothing
+new happened" and skip redundant analysis/TTS steps entirely.
 """
 
 import hashlib
+import json
 from pathlib import Path
+import re
 from typing import Any, Dict, List, Optional
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v2"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v3"
+
+
+def _normalize_fingerprint_value(value: Any) -> str:
+    return re.sub(r"\s+", " ", "" if value is None else str(value)).strip()
 
 
 def compute_articles_fingerprint(articles: List[Dict[str, Any]]) -> str:
-    """Compute a stable fingerprint identifying the set of source articles."""
-    identifiers = sorted(
-        {
-            str(article.get("link") or article.get("title") or "").strip()
-            for article in articles
+    """Compute a stable fingerprint of enriched source article records."""
+    records = set()
+    for article in articles:
+        raw_cves = article.get("cves", [])
+        if isinstance(raw_cves, str):
+            raw_cves = [raw_cves]
+        normalized_cves = sorted(
+            {
+                normalized
+                for value in raw_cves or []
+                if (normalized := _normalize_fingerprint_value(value))
+            }
+        )
+        record = {
+            "content": _normalize_fingerprint_value(article.get("content")),
+            "cves": normalized_cves,
+            "identity": _normalize_fingerprint_value(
+                article.get("link") or article.get("title")
+            ),
+            "summary": _normalize_fingerprint_value(article.get("summary")),
+            "title": _normalize_fingerprint_value(article.get("title")),
         }
-        - {""}
-    )
-    fingerprint_input = "\n".join([FINGERPRINT_SCHEMA_VERSION, *identifiers])
+        if any(record.values()):
+            records.add(json.dumps(record, sort_keys=True, separators=(",", ":")))
+    fingerprint_input = "\n".join([FINGERPRINT_SCHEMA_VERSION, *sorted(records)])
     return hashlib.sha256(fingerprint_input.encode("utf-8")).hexdigest()
 
 

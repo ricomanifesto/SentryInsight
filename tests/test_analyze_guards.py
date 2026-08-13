@@ -500,6 +500,18 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111", "CVE-2026-2222"],
         )
 
+    def test_grouped_cve_wording_preserves_all_metadata_cves(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "Both CVEs are actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1111", "CVE-2026-2222"],
+        )
+
     def test_unrelated_grouped_patch_sentence_does_not_promote_all_cves(self):
         analyze = import_analyze_with_stubs()
         article_summary = (
