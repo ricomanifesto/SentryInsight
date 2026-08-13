@@ -677,6 +677,19 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1234"],
         )
 
+    def test_reference_scan_does_not_count_domain_periods_as_sentences(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1234)\n\n"
+            "CVE-2026-1234 affects vendor.com. A patch is available. "
+            "Customers should upgrade. It is actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_referential_negation_skips_intervening_neutral_sentence(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

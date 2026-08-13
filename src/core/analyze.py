@@ -56,6 +56,9 @@ GENERATED_HEADING_PATTERN = re.compile(
 )
 SENTENCE_PATTERN = re.compile(r"(?:[^.!?\n]|(?<=\d)\.(?=\d))+?(?:[!?]+|\.+(?!\d)|$)")
 SENTENCE_ABBREVIATION_PATTERN = re.compile(r"\b(?:[A-Za-z]\.){2,}(?=\s+[a-z])")
+SENTENCE_DOTTED_NAME_PATTERN = re.compile(
+    r"\b(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?=[:/\s.]|$)"
+)
 SENTENCE_PERIOD_PLACEHOLDER = "\ue000"
 URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
@@ -314,10 +317,7 @@ def collect_url_prompt_cves(article_summary: str) -> list[str]:
 def iter_line_sentences(text: str) -> list[str]:
     sentences: list[str] = []
     for line in text.splitlines():
-        protected_line = SENTENCE_ABBREVIATION_PATTERN.sub(
-            lambda match: match.group(0).replace(".", SENTENCE_PERIOD_PLACEHOLDER),
-            line,
-        )
+        protected_line = protect_sentence_internal_periods(line)
         for sentence_match in SENTENCE_PATTERN.finditer(protected_line):
             sentence = (
                 sentence_match.group(0)
@@ -335,6 +335,16 @@ def strip_cve_metadata_noise(article_summary: str) -> str:
     if not match:
         return article_summary
     return match.group("title") + (separator + remainder if separator else "")
+
+
+def protect_sentence_internal_periods(line: str) -> str:
+    protected_line = line
+    for pattern in (SENTENCE_ABBREVIATION_PATTERN, SENTENCE_DOTTED_NAME_PATTERN):
+        protected_line = pattern.sub(
+            lambda match: match.group(0).replace(".", SENTENCE_PERIOD_PLACEHOLDER),
+            protected_line,
+        )
+    return protected_line
 
 
 def has_positive_exploitation_sentence(article_summary: str) -> bool:
@@ -373,10 +383,7 @@ def sentence_context_at_position(text: str, position: int) -> tuple[str, int]:
 
     line = text[line_start:line_end]
     line_position = position - line_start
-    protected_line = SENTENCE_ABBREVIATION_PATTERN.sub(
-        lambda match: match.group(0).replace(".", SENTENCE_PERIOD_PLACEHOLDER),
-        line,
-    )
+    protected_line = protect_sentence_internal_periods(line)
     for sentence_match in SENTENCE_PATTERN.finditer(protected_line):
         if sentence_match.start() <= line_position < sentence_match.end():
             return (
