@@ -226,6 +226,17 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
 
+    def test_placeholder_prefix_is_invalid_even_when_field_mentions_complete_cve(self):
+        report = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status**: Active exploitation observed.\n"
+            "- **CVE ID**: Not assigned (source mentions CVE-2026-1234)",
+        )
+
+        issues = validate_report_content(report, expected_cves=[])
+
+        self.assertTrue(any(issue.code == "invalid_cve_field" for issue in issues))
+
     def test_complete_cve_field_passes_generation_validation(self):
         report = VALID_REPORT.replace(
             "- **Status**: Active exploitation observed.",

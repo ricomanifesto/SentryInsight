@@ -858,7 +858,7 @@ def missing_expected_cve_ids(
 
 def has_invalid_cve_field(markdown: str) -> bool:
     return any(
-        not CVE_ID_PATTERN.search(match.group("value"))
+        not CVE_ID_PATTERN.match(match.group("value").strip())
         for match in CVE_FIELD_PATTERN.finditer(markdown)
     )
 
