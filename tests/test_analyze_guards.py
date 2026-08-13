@@ -668,6 +668,15 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1111"],
         )
 
+    def test_decimal_version_does_not_split_cve_from_exploitation_context(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = "CVE-2026-1234 affects Product 1.2 and is actively exploited."
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-1234"],
+        )
+
     def test_following_referential_negation_cancels_zero_day_label(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

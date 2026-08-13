@@ -72,6 +72,22 @@ class LinkOnlyArticleClient(StaticArticleClient):
         return LinkOnlyArticleResponse()
 
 
+class LateCveArticleResponse:
+    status_code = 200
+    text = (
+        "<html><body><article>"
+        "<p>Attackers actively exploit exposed servers.</p>"
+        f"<p>{'A' * 2200}</p>"
+        "<p>CVE-2026-9999 is not currently being exploited.</p>"
+        "</article></body></html>"
+    )
+
+
+class LateCveArticleClient(StaticArticleClient):
+    async def get(self, _url):
+        return LateCveArticleResponse()
+
+
 class TrackingArticleClient:
     called = False
 
@@ -244,7 +260,7 @@ def test_fetch_articles_preserves_cve_from_visible_feed_link_target(monkeypatch)
     articles = asyncio.run(client.fetch_articles())
 
     assert articles[0]["summary"] == (
-        "Attackers exploit this vulnerability.\nRelated advisory"
+        "Attackers exploit this vulnerability (CVE-2026-1234).\nRelated advisory"
     )
     assert articles[0]["cves"] == ["CVE-2026-1234"]
 
@@ -313,8 +329,31 @@ def test_enrich_preserves_cve_from_selected_source_page_link_target(monkeypatch)
     )
 
     assert articles[0]["cves"] == ["CVE-2026-1234"]
+    assert "this vulnerability (CVE-2026-1234)" in articles[0]["content"]
     assert "CVE-2026-9998" not in articles[0]["content"]
     assert "CVE-2026-9999" not in articles[0]["content"]
+
+
+def test_enrich_does_not_promote_cve_beyond_prompt_content_cutoff(monkeypatch):
+    monkeypatch.setattr(fetch_module.httpx, "AsyncClient", LateCveArticleClient)
+    client = SentryDigestFeedClient("https://example.com/feed.xml")
+
+    articles = asyncio.run(
+        client.enrich_article_content(
+            [
+                {
+                    "title": "Generic exploitation report",
+                    "summary": "",
+                    "link": "https://example.test/advisory",
+                    "content": "",
+                    "cves": [],
+                }
+            ]
+        )
+    )
+
+    assert "CVE-2026-9999 is not currently being exploited" in articles[0]["content"]
+    assert articles[0]["cves"] == []
 
 
 def test_extract_article_text_supports_semantic_article_without_markers():

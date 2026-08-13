@@ -8,6 +8,7 @@ import feedparser
 from datetime import datetime
 
 from ..core.cve import extract_cve_ids
+from ..core.prompt_content import get_prompt_visible_content
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +100,16 @@ def _referenced_link_cves(href_cves: list[str], link_text: str) -> list[str]:
     return []
 
 
+def _link_cve_annotation(href_cves: list[str], link_text: str) -> str:
+    visible_cves = set(extract_cve_ids(link_text))
+    inferred_cves = [
+        cve
+        for cve in _referenced_link_cves(href_cves, link_text)
+        if cve not in visible_cves
+    ]
+    return f" ({', '.join(inferred_cves)})" if inferred_cves else ""
+
+
 def _is_hidden_element(attrs: dict[str, str]) -> bool:
     return "hidden" in attrs or attrs.get("aria-hidden", "").casefold() == "true"
 
@@ -130,7 +141,6 @@ class ArticleTextCandidate:
     order: int
     tag_depth: int = 1
     parts: list[str] = field(default_factory=list)
-    link_cves: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -211,12 +221,11 @@ class ArticleBodyParser(HTMLParser):
             return
 
         if normalized_tag == "a" and self.active_cve_link:
-            link_cves = _referenced_link_cves(
-                self.active_cve_link.href_cves,
-                "".join(self.active_cve_link.parts),
+            annotation = _link_cve_annotation(
+                self.active_cve_link.href_cves, "".join(self.active_cve_link.parts)
             )
             for candidate in self.active_cve_link.article_candidates:
-                candidate.link_cves.extend(link_cves)
+                candidate.parts.append(annotation)
             self.active_cve_link = None
 
         for candidate in list(self.active_candidates):
@@ -234,22 +243,19 @@ class ArticleBodyParser(HTMLParser):
             for candidate in self.active_candidates:
                 candidate.parts.append(data)
 
-    def primary_content(self) -> tuple[str, list[str]]:
+    def primary_text(self) -> str:
         populated_candidates = []
         for candidate in self.candidates:
             candidate_text = _normalize_text("".join(candidate.parts))
             if candidate_text:
                 populated_candidates.append((candidate, candidate_text))
         if not populated_candidates:
-            return "", []
-        selected_candidate, selected_text = max(
+            return ""
+        _, selected_text = max(
             populated_candidates,
             key=lambda item: (item[0].priority, len(item[1]), -item[0].order),
         )
-        return selected_text, list(dict.fromkeys(selected_candidate.link_cves))
-
-    def primary_text(self) -> str:
-        return self.primary_content()[0]
+        return selected_text
 
 
 class FeedContentParser(HTMLParser):
@@ -261,7 +267,6 @@ class FeedContentParser(HTMLParser):
         self.hidden_depth = 0
         self.hidden_tag = ""
         self.parts: list[str] = []
-        self.link_cves: list[str] = []
         self.active_cve_link: ActiveCveLink | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
@@ -292,8 +297,8 @@ class FeedContentParser(HTMLParser):
         elif normalized_tag in BLOCK_TAGS:
             self.parts.append("\n")
         if normalized_tag == "a" and self.active_cve_link:
-            self.link_cves.extend(
-                _referenced_link_cves(
+            self.parts.append(
+                _link_cve_annotation(
                     self.active_cve_link.href_cves,
                     "".join(self.active_cve_link.parts),
                 )
@@ -321,30 +326,19 @@ def extract_feed_content_text(value: Any) -> str:
     return _normalize_text("".join(parser.parts))
 
 
-def extract_feed_content_link_cves(value: Any) -> list[str]:
-    parser = FeedContentParser()
-    parser.feed(flatten_feed_content(value))
-    return list(dict.fromkeys(parser.link_cves))
-
-
-def extract_article_content(source_html: str) -> tuple[str, list[str]]:
-    """Return primary article text and CVEs from its visible link targets."""
+def extract_article_text(source_html: str) -> str:
+    """Return primary article text, falling back to page description metadata."""
     parser = ArticleBodyParser()
     parser.feed(source_html)
-    article_body, link_cves = parser.primary_content()
+    article_body = parser.primary_text()
     if article_body:
-        return article_body, link_cves
+        return article_body
     page_parser = FeedContentParser(skip_tags=PAGE_SKIP_TAGS)
     page_parser.feed(source_html)
     page_text = _normalize_text("".join(page_parser.parts))
     if page_text:
-        return page_text, list(dict.fromkeys(page_parser.link_cves))
-    return _normalize_text("\n".join(parser.meta_descriptions)), []
-
-
-def extract_article_text(source_html: str) -> str:
-    """Return primary article text, falling back to page description metadata."""
-    return extract_article_content(source_html)[0]
+        return page_text
+    return _normalize_text("\n".join(parser.meta_descriptions))
 
 
 def merge_article_cves(article: Dict[str, Any], *texts: Any) -> None:
@@ -357,6 +351,21 @@ def merge_article_cves(article: Dict[str, Any], *texts: Any) -> None:
         [*(str(value) for value in existing_cves), *(str(value) for value in texts)]
     )
     article["cves"] = extract_cve_ids(cve_text)
+
+
+def merge_prompt_visible_article_cves(article: Dict[str, Any]) -> None:
+    prompt_content = article.get("content") or article.get("summary")
+    visible_content = (
+        ""
+        if prompt_content is None
+        else get_prompt_visible_content(str(prompt_content).strip())
+    )
+    merge_article_cves(
+        article,
+        article.get("title", ""),
+        article.get("link", ""),
+        visible_content,
+    )
 
 
 class SentryDigestFeedClient:
@@ -396,19 +405,9 @@ class SentryDigestFeedClient:
                 "source": entry.get("dc_source", "Unknown Source"),
                 "date": entry.get("dc_date", datetime.now().strftime("%Y-%m-%d")),
                 "content": extract_feed_content_text(content),
-                "cves": [
-                    *(entry_cves or []),
-                    *extract_feed_content_link_cves(description),
-                    *extract_feed_content_link_cves(content),
-                ],
+                "cves": [*(entry_cves or [])],
             }
-            merge_article_cves(
-                article,
-                article["title"],
-                article["link"],
-                article["summary"],
-                article["content"],
-            )
+            merge_prompt_visible_article_cves(article)
             articles.append(article)
         return articles
 
@@ -461,12 +460,7 @@ class SentryDigestFeedClient:
             # Feed content is sanitized once during ingestion. Parsing the resulting
             # plain text again would reinterpret escaped markup as live HTML.
             if article.get("content"):
-                merge_article_cves(
-                    article,
-                    article.get("title", ""),
-                    article.get("summary", ""),
-                    article["content"],
-                )
+                merge_prompt_visible_article_cves(article)
                 enriched_articles.append(article)
                 continue
 
@@ -480,10 +474,9 @@ class SentryDigestFeedClient:
             article_link = article.get("link", "")
             if not article_link:
                 article["content"] = full_content
+                merge_prompt_visible_article_cves(article)
                 enriched_articles.append(article)
                 continue
-
-            source_link_cves: list[str] = []
 
             # Use async fetch for full article content
             try:
@@ -495,9 +488,7 @@ class SentryDigestFeedClient:
                     response = await client.get(article_link)
 
                     if response.status_code == 200:
-                        article_text, source_link_cves = extract_article_content(
-                            response.text
-                        )
+                        article_text = extract_article_text(response.text)
                         article["content"] = full_content
                         if article_text:
                             article["content"] += "\n" + article_text
@@ -512,13 +503,7 @@ class SentryDigestFeedClient:
                 # Fall back to summary if error occurs
                 article["content"] = full_content
 
-            merge_article_cves(
-                article,
-                article.get("title", ""),
-                article.get("summary", ""),
-                article.get("content", ""),
-                *source_link_cves,
-            )
+            merge_prompt_visible_article_cves(article)
 
             enriched_articles.append(article)
 

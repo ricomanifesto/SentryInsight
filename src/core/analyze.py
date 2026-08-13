@@ -54,7 +54,7 @@ STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
 GENERATED_HEADING_PATTERN = re.compile(
     r"^(?P<title>\*\*.*\*\*)\s+\((?P<metadata>.*)\)\s*$"
 )
-SENTENCE_PATTERN = re.compile(r"[^.!?\n]+(?:[.!?]+|$)")
+SENTENCE_PATTERN = re.compile(r"(?:[^.!?\n]|(?<=\d)\.(?=\d))+?(?:[!?]+|\.+(?!\d)|$)")
 URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
