@@ -200,6 +200,18 @@ def test_extract_article_text_stops_at_container_with_omitted_paragraph_end_tags
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_uses_only_first_selected_article_container():
+    source_html = """
+    <article><p>Primary story for CVE-2026-55040.</p></article>
+    <article><p>Related story for CVE-2026-9999.</p></article>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-55040" in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
 def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatch):
     TrackingArticleClient.called = False
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", TrackingArticleClient)

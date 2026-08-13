@@ -77,6 +77,7 @@ class ArticleBodyParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.capture_tag: str | None = None
         self.capture_tag_depth = 0
+        self.capture_complete = False
         self.skip_depth = 0
         self.body_parts: list[str] = []
         self.meta_descriptions: list[str] = []
@@ -95,7 +96,8 @@ class ArticleBodyParser(HTMLParser):
                     self.meta_descriptions.append(description)
 
         if (
-            self.capture_tag is None
+            not self.capture_complete
+            and self.capture_tag is None
             and normalized_tag not in VOID_TAGS
             and (normalized_tag in SEMANTIC_BODY_TAGS or _is_article_body(attr_map))
         ):
@@ -125,6 +127,7 @@ class ArticleBodyParser(HTMLParser):
             self.capture_tag_depth -= 1
             if self.capture_tag_depth == 0:
                 self.capture_tag = None
+                self.capture_complete = True
                 self.skip_depth = 0
 
     def handle_data(self, data: str) -> None:

@@ -84,7 +84,8 @@ GROUPED_ISSUES_PATTERN = re.compile(
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
     r"[;,]\s*(?=(?:and|attackers?|threat actors?)\b)|"
-    r"(?:[;,]\s*|\s+)(?=(?:but|yet|however)\b)"
+    r"(?:[;,]\s*|\s+)(?=(?:but|however)\b|"
+    r"yet\s+(?:attackers?|threat actors?|researchers?|they)\b)"
     r")",
     re.IGNORECASE,
 )
@@ -226,7 +227,7 @@ def has_positive_exploitation_sentence(article_summary: str) -> bool:
     )
 
 
-def sentence_containing_position(text: str, position: int) -> str:
+def sentence_context_at_position(text: str, position: int) -> tuple[str, int]:
     line_start = text.rfind("\n", 0, position) + 1
     line_end = text.find("\n", position)
     if line_end == -1:
@@ -236,8 +237,18 @@ def sentence_containing_position(text: str, position: int) -> str:
     line_position = position - line_start
     for sentence_match in SENTENCE_PATTERN.finditer(line):
         if sentence_match.start() <= line_position < sentence_match.end():
-            return sentence_match.group(0)
-    return line
+            return sentence_match.group(0), line_position - sentence_match.start()
+    return line, line_position
+
+
+def clause_containing_position(text: str, position: int) -> str:
+    """Return the exploitation clause containing a character position."""
+    clause_start = 0
+    for boundary_match in EXPLOITATION_CLAUSE_BOUNDARY_PATTERN.finditer(text):
+        if position < boundary_match.start():
+            return text[clause_start : boundary_match.start()]
+        clause_start = boundary_match.end()
+    return text[clause_start:]
 
 
 def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]:
@@ -261,25 +272,28 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
     has_any_cve_context = False
     has_non_negated_cve_context = False
     for cve in metadata_context_cves:
-        indexed_cve_sentences = [
-            (index, sentence)
-            for index, sentence in enumerate(article_sentences)
-            if cve.upper() in collect_prompt_cves(sentence)
-        ]
+        indexed_cve_sentences = []
+        for index, sentence in enumerate(article_sentences):
+            cve_clauses = [
+                clause_containing_position(sentence, match.start())
+                for match in CVE_CONTEXT_PATTERN.finditer(sentence)
+                if normalize_cve_match(match) == cve.upper()
+            ]
+            if cve_clauses:
+                indexed_cve_sentences.append((index, cve_clauses))
         if indexed_cve_sentences:
             has_any_cve_context = True
-            cve_context_is_negated = any(
-                has_negated_exploitation_relevance(sentence)
-                for _, sentence in indexed_cve_sentences
+            cve_context_is_negated = all(
+                has_negated_exploitation_relevance(clause)
+                for _, clauses in indexed_cve_sentences
+                for clause in clauses
             )
             has_non_negated_cve_context = (
                 has_non_negated_cve_context or not cve_context_is_negated
             )
             nearby_sentences = []
-            for index, sentence in indexed_cve_sentences:
-                if index:
-                    nearby_sentences.append(article_sentences[index - 1])
-                nearby_sentences.append(sentence)
+            for index, cve_clauses in indexed_cve_sentences:
+                nearby_sentences.extend(cve_clauses)
                 if index + 1 < len(article_sentences):
                     following_sentence = article_sentences[index + 1]
                     if not collect_prompt_cves(
@@ -303,7 +317,10 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
             add_cve(cve)
 
     for match in CVE_CONTEXT_PATTERN.finditer(article_body):
-        cve_context = sentence_containing_position(article_body, match.start())
+        cve_sentence, cve_position = sentence_context_at_position(
+            article_body, match.start()
+        )
+        cve_context = clause_containing_position(cve_sentence, cve_position)
         if has_exploitation_relevance(
             cve_context
         ) and not has_negated_exploitation_relevance(cve_context):

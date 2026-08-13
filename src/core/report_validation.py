@@ -57,7 +57,7 @@ NESTED_LIST_ITEM_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])\s+")
 CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}(?!\d|\.\.\.)\b", re.IGNORECASE)
 PARTIAL_CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{1,}(?:\.\.\.|…)", re.IGNORECASE)
 CVE_FIELD_PATTERN = re.compile(
-    r"^[ \t]{0,3}[-*+]\s+\*\*CVE(?: ID)?\*\*\s*:\s*(?P<value>.*)$",
+    r"^[ \t]{0,3}[-*+]\s+\*\*CVE(?: ID)?\s*" r"(?:\*\*\s*:|:\s*\*\*)\s*(?P<value>.*)$",
     re.IGNORECASE | re.MULTILINE,
 )
 SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
