@@ -945,6 +945,19 @@ class AnalyzeGuardTests(unittest.TestCase):
                     [],
                 )
 
+    def test_released_exploit_code_is_not_confirmed_activity(self):
+        analyze = import_analyze_with_stubs()
+
+        for article_summary in (
+            "Exploit code for CVE-2026-1234 was released.",
+            "A public exploit for CVE-2026-1234 is available.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
     def test_when_exploited_impact_clause_is_not_confirmed_activity(self):
         analyze = import_analyze_with_stubs()
         article_summary = "CVE-2026-1234, when exploited, allows remote code execution."

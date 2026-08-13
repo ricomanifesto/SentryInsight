@@ -140,6 +140,27 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "missing_expected_cves" for issue in issues))
 
+    def test_hidden_attribute_cve_does_not_satisfy_expected_cve(self):
+        for hidden_markup in (
+            "<span hidden>CVE-2026-1111</span>",
+            '<span aria-hidden="true">CVE-2026-1111</span>',
+            '<span style="display: none !important">CVE-2026-1111</span>',
+            '<span style="visibility:hidden">CVE-2026-1111</span>',
+        ):
+            with self.subTest(hidden_markup=hidden_markup):
+                report = VALID_REPORT.replace(
+                    "Recent exploitation activity is concentrated in edge systems.",
+                    f"Details {hidden_markup} are unavailable.",
+                )
+
+                issues = validate_report_content(
+                    report, expected_cves=["CVE-2026-1111"]
+                )
+
+                self.assertTrue(
+                    any(issue.code == "missing_expected_cves" for issue in issues)
+                )
+
     def test_visible_inline_html_cve_satisfies_expected_cve(self):
         report = VALID_REPORT.replace(
             "Recent exploitation activity is concentrated in edge systems.",

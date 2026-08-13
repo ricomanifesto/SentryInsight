@@ -115,6 +115,8 @@ UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:likely|suspected|unconfirmed|possible|potential)\b|"
     r"\b(?:proof[\s-]of[\s-]concept|PoC)\s+exploit\b|"
     r"\bexploit(?:s)?\s+(?:is|are)\s+(?:publicly\s+)?available\b|"
+    r"\b(?:public\s+)?exploit(?:\s+code)?\b[^,.;\n]{0,120}\b"
+    r"(?:available|published|released)\b|"
     r"\b(?:can|could|might|would|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"
     r"\bexploit(?:ed|ing|ation)?\b|"
     r"\b(?:can|could|might|would|possible|potential(?:ly)?)\b[^,.;\n]{0,100}"

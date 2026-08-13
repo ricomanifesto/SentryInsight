@@ -154,15 +154,44 @@ class RenderedTextHTMLParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.hidden_depth = 0
+        self.element_stack: list[tuple[str, bool]] = []
         self.parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag.casefold() in {"head", "script", "style", "template"}:
+        normalized_tag = tag.casefold()
+        attr_map = {name.casefold(): value or "" for name, value in attrs}
+        style_declarations = {
+            property_name.strip()
+            .casefold(): value.casefold()
+            .replace("!important", "")
+            .strip()
+            for declaration in attr_map.get("style", "").split(";")
+            if ":" in declaration
+            for property_name, value in [declaration.split(":", 1)]
+        }
+        is_hidden = (
+            normalized_tag in {"head", "script", "style", "template"}
+            or "hidden" in attr_map
+            or attr_map.get("aria-hidden", "").casefold() == "true"
+            or style_declarations.get("display") == "none"
+            or style_declarations.get("visibility") == "hidden"
+        )
+        self.element_stack.append((normalized_tag, is_hidden))
+        if is_hidden:
             self.hidden_depth += 1
 
     def handle_endtag(self, tag: str) -> None:
-        if tag.casefold() in {"head", "script", "style", "template"}:
-            self.hidden_depth = max(0, self.hidden_depth - 1)
+        normalized_tag = tag.casefold()
+        for index in range(len(self.element_stack) - 1, -1, -1):
+            if self.element_stack[index][0] == normalized_tag:
+                closed_elements = self.element_stack[index:]
+                self.hidden_depth = max(
+                    0,
+                    self.hidden_depth
+                    - sum(is_hidden for _, is_hidden in closed_elements),
+                )
+                del self.element_stack[index:]
+                break
 
     def handle_data(self, data: str) -> None:
         if not self.hidden_depth:
