@@ -613,6 +613,17 @@ class AnalyzeGuardTests(unittest.TestCase):
                     expected_cves,
                 )
 
+    def test_neither_nor_cve_subjects_are_negated(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "Neither CVE-2026-1111 nor CVE-2026-2222 is actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
     def test_later_referential_exploitation_overrides_earlier_negative_state(self):
         analyze = import_analyze_with_stubs()
         article_summary = (

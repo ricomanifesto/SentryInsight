@@ -47,7 +47,7 @@ CONFIRMED_EXPLOITATION_PATTERN = re.compile(
     re.IGNORECASE,
 )
 CVE_CONTEXT_PATTERN = re.compile(
-    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?!\d|\.\.\.|…)\b",
+    r"\bCVE[-\s]?(\d{4})[-\s]?(\d{4,})(?![A-Za-z0-9]|\.\.\.|…)",
     re.IGNORECASE,
 )
 STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
@@ -59,6 +59,7 @@ URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
     r"no evidence(?:\s+(?:of|that))?|"
+    r"neither\b.{0,120}\bnor|"
     r"no\s+(?:(?:known|confirmed|observed|active)\s+)?(?=exploit)|"
     r"(?:has|have|had)\s+never\s+been|"
     r"not\s+(?:all|both|these|the listed)\s+"
