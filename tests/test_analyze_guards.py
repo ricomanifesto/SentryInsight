@@ -443,6 +443,18 @@ class AnalyzeGuardTests(unittest.TestCase):
             ["CVE-2026-1234"],
         )
 
+    def test_unpunctuated_and_separates_actor_led_exploitation_clause(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1111 is not exploited and attackers actively exploit "
+            "CVE-2026-2222."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            ["CVE-2026-2222"],
+        )
+
     def test_contextual_cve_match_rejects_unicode_ellipsis(self):
         analyze = import_analyze_with_stubs()
         article_summary = "Attackers actively exploit CVE-2026-1234… in the wild."

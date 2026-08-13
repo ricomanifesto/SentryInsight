@@ -85,6 +85,7 @@ GROUPED_ISSUES_PATTERN = re.compile(
 EXPLOITATION_CLAUSE_BOUNDARY_PATTERN = re.compile(
     r"(?:"
     r"[;,]\s*(?=(?:and|attackers?|threat actors?)\b)|"
+    r"\s+(?=and\s+(?:attackers?|threat actors?|researchers?|they)\b)|"
     r"(?:[;,]\s*|\s+)(?=(?:but|however)\b|"
     r"yet\s+(?:attackers?|threat actors?|researchers?|they)\b)"
     r")",
