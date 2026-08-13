@@ -889,11 +889,29 @@ class AnalyzeGuardTests(unittest.TestCase):
 
     def test_never_exploited_wording_is_negated(self):
         analyze = import_analyze_with_stubs()
-        article_summary = "CVE-2026-1234 has never been exploited."
+
+        for article_summary in (
+            "CVE-2026-1234 has never been exploited.",
+            "CVE-2026-1234 was never exploited.",
+            "CVE-2026-1234 is never exploited.",
+            "CVE-2026-1234 was never actively exploited.",
+            "CVE-2026-1234 was never being exploited.",
+        ):
+            with self.subTest(article_summary=article_summary):
+                self.assertEqual(
+                    analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+                    [],
+                )
+
+    def test_never_non_exploitation_state_does_not_negate_exploitation(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "CVE-2026-1234 has never been patched but is actively exploited."
+        )
 
         self.assertEqual(
             analyze.collect_exploitation_relevant_prompt_cves(article_summary),
-            [],
+            ["CVE-2026-1234"],
         )
 
     def test_punctuation_splits_positive_cve_clause_from_prior_negation(self):

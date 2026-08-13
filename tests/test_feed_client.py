@@ -701,6 +701,42 @@ def test_extract_article_text_keeps_cards_in_collection_wrapper_separate():
     assert "CVE-2026-9999" not in article_text
 
 
+def test_extract_article_text_excludes_marked_candidate_in_collection():
+    source_html = """
+    <article>
+      <p>Primary story for CVE-2026-1234 contains exploitation evidence.</p>
+      <p>Attackers actively exploit this vulnerability in the wild.</p>
+    </article>
+    <section class="related-stories">
+      <div class="card-wrapper">
+        <section class="article-body">
+          Related teaser for CVE-2026-9999.
+        </section>
+      </div>
+    </section>
+    """
+
+    article_text = extract_article_text(source_html)
+
+    assert "CVE-2026-1234" in article_text
+    assert "actively exploit this vulnerability" in article_text
+    assert "CVE-2026-9999" not in article_text
+
+
+def test_extract_article_text_falls_back_to_candidates_in_collection():
+    source_html = """
+    <section class="article-feed">
+      <div class="card-wrapper">
+        <section class="article-body">
+          Primary card for CVE-2026-1234 contains detailed exploitation evidence.
+        </section>
+      </div>
+    </section>
+    """
+
+    assert "CVE-2026-1234" in extract_article_text(source_html)
+
+
 def test_extract_article_text_preserves_visible_image_alt_text():
     source_html = """
     <article>

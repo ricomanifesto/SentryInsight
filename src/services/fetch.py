@@ -174,7 +174,7 @@ class ArticleTextCandidate:
     priority: int
     order: int
     parent_order: int | None = None
-    parent_is_collection: bool = False
+    ancestor_is_collection: bool = False
     article_ancestor_order: int | None = None
     candidate_ancestor_orders: tuple[int, ...] = ()
     tag_depth: int = 1
@@ -248,7 +248,9 @@ class ArticleBodyParser(HTMLParser):
                 priority=priority,
                 order=len(self.candidates),
                 parent_order=parent_order,
-                parent_is_collection=bool(parent_context and parent_context[2]),
+                ancestor_is_collection=any(
+                    context[2] for context in self.element_stack
+                ),
                 article_ancestor_order=(
                     article_ancestor[1] if article_ancestor else None
                 ),
@@ -330,11 +332,15 @@ class ArticleBodyParser(HTMLParser):
                 populated_candidates.append((candidate, candidate_text))
         if not populated_candidates:
             return ""
-        selection_options = list(populated_candidates)
+        non_collection_candidates = [
+            item for item in populated_candidates if not item[0].ancestor_is_collection
+        ]
+        eligible_candidates = non_collection_candidates or populated_candidates
+        selection_options = list(eligible_candidates)
         sibling_groups: dict[
             tuple[int, int], list[tuple[ArticleTextCandidate, str]]
         ] = {}
-        for candidate, candidate_text in populated_candidates:
+        for candidate, candidate_text in eligible_candidates:
             if candidate.parent_order is not None:
                 sibling_groups.setdefault(
                     (candidate.priority, candidate.parent_order), []
@@ -343,7 +349,7 @@ class ArticleBodyParser(HTMLParser):
             if (
                 len(siblings) > 1
                 and siblings[0][0].tag != "article"
-                and not siblings[0][0].parent_is_collection
+                and not siblings[0][0].ancestor_is_collection
             ):
                 first_candidate = min(siblings, key=lambda item: item[0].order)[0]
                 combined_text = _normalize_text(
@@ -356,7 +362,7 @@ class ArticleBodyParser(HTMLParser):
         article_groups: dict[
             tuple[int, int], list[tuple[ArticleTextCandidate, str]]
         ] = {}
-        for candidate, candidate_text in populated_candidates:
+        for candidate, candidate_text in eligible_candidates:
             if candidate.article_ancestor_order is not None:
                 article_groups.setdefault(
                     (candidate.priority, candidate.article_ancestor_order), []
