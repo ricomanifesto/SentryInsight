@@ -801,6 +801,18 @@ class AnalyzeGuardTests(unittest.TestCase):
             [],
         )
 
+    def test_none_of_grouped_claim_does_not_promote_metadata_cves(self):
+        analyze = import_analyze_with_stubs()
+        article_summary = (
+            "**Vendor advisory** (CVEs: CVE-2026-1111, CVE-2026-2222)\n\n"
+            "None of the vulnerabilities are actively exploited."
+        )
+
+        self.assertEqual(
+            analyze.collect_exploitation_relevant_prompt_cves(article_summary),
+            [],
+        )
+
     def test_referential_and_clause_overrides_earlier_negative_state(self):
         analyze = import_analyze_with_stubs()
         article_summary = (
@@ -948,6 +960,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             "CVE-2026-1234 is suspected to be exploited.",
             "CVE-2026-1234 is believed to be exploited.",
             "CVE-2026-1234 is reported to be exploited.",
+            "CVE-2026-1234 is unlikely to be exploited.",
         ):
             with self.subTest(article_summary=article_summary):
                 self.assertEqual(

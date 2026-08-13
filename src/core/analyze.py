@@ -64,6 +64,10 @@ URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 NEGATED_EXPLOITATION_PATTERN = re.compile(
     r"\b(?:"
     r"no evidence(?:\s+(?:of|that))?|"
+    r"none\s+of\s+(?:the|these|those)\s+"
+    r"(?:CVEs?|flaws?|issues?|vulnerabilit(?:y|ies)|bugs?)\s+"
+    r"(?:(?:is|are|was|were)\s+)?(?:(?:actively|currently)\s+)*"
+    r"(?:(?:being|been)\s+)?(?=exploit)|"
     r"neither\s+(?:CVE-\d{4}-\d{4,}|(?:the\s+)?"
     r"(?:flaw|issue|vulnerability|bug))\s+nor\s+"
     r"(?:CVE-\d{4}-\d{4,}|(?:the\s+)?(?:flaw|issue|vulnerability|bug))\s+"
@@ -102,7 +106,8 @@ POSTPOSED_NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 UNCONFIRMED_EXPLOITATION_PATTERN = re.compile(
     r"(?:"
-    r"\b(?:alleged|believed|likely|possibly|potentially|reported|suspected|thought)"
+    r"\b(?:alleged|believed|likely|unlikely|possibly|potentially|reported|"
+    r"suspected|thought)"
     r"\s+to\s+(?:be\s+)?exploit(?:ed|ing)?\b|"
     r"\b(?:exploitation|exploit activity)\b[^,.;\n]{0,60}\b"
     r"(?:likely|suspected|unconfirmed|possible|potential)\b|"
