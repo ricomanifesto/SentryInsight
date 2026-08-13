@@ -115,6 +115,15 @@ def test_fingerprint_uses_summary_only_when_it_is_prompt_content():
     assert summary_only != changed_visible_summary
 
 
+def test_fingerprint_distinguishes_missing_from_explicitly_empty_content():
+    missing = compute_articles_fingerprint([{"link": "https://a"}])
+    explicitly_empty = compute_articles_fingerprint(
+        [{"link": "https://a", "content": "", "summary": ""}]
+    )
+
+    assert missing != explicitly_empty
+
+
 def test_fingerprint_preserves_prompt_visible_line_boundaries():
     separate_clauses = compute_articles_fingerprint(
         [

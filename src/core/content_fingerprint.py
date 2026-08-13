@@ -21,7 +21,7 @@ from .prompt_content import (
 )
 
 FINGERPRINT_PATH = ".sentryinsight-articles-fingerprint"
-FINGERPRINT_SCHEMA_VERSION = "source-content-v11"
+FINGERPRINT_SCHEMA_VERSION = "source-content-v12"
 
 
 def _normalize_fingerprint_value(value: Any) -> str:
@@ -30,7 +30,9 @@ def _normalize_fingerprint_value(value: Any) -> str:
 
 def _normalize_prompt_content(article: Dict[str, Any]) -> str:
     content = article.get("content") or article.get("summary")
-    visible_content = "" if content is None else str(content).strip()
+    visible_content = (
+        "No content available" if content is None else str(content).strip()
+    )
     return get_prompt_visible_content(visible_content)
 
 
