@@ -17,14 +17,7 @@
   <meta name="twitter:description" content="Current exploitation intelligence for rapid defensive triage.">
   <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
   <script type="application/ld+json">{{REPORT_IDENTITY_JSON}}</script>
-  <script>
-    (() => {
-      let theme;
-      try { theme = localStorage.getItem("sentryinsight-theme"); } catch {}
-      if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      document.documentElement.dataset.theme = theme;
-    })();
-  </script>
+  <script>{{THEME_BOOTSTRAP}}</script>
   <link rel="icon" href="{{ROOT_PREFIX}}assets/favicon.ico">
   <link rel="stylesheet" href="{{ROOT_PREFIX}}assets/site.css?v={{ASSET_VERSION}}">
 </head>
@@ -48,7 +41,7 @@
   </div>
   <aside class="report-method" aria-label="How this report is made">
     <strong>AI-assisted defensive triage.</strong>
-    <span>Built from cybersecurity reporting monitored by <a href="https://ricomanifesto.github.io/SentryDigest/">Sentry Digest</a>. Verify NVD and vendor guidance before action.</span>
+    <span>Built from cybersecurity reporting retained in the <a href="{{DIGEST_ISSUE_URL}}">Sentry Digest issue for this report date</a>. Verify NVD and vendor guidance before action.</span>
   </aside>
   <p id="handoff-status" class="handoff-status" role="status" aria-live="polite" hidden></p>
   <details class="mobile-toc">

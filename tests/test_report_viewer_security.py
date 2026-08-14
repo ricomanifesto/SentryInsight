@@ -194,7 +194,11 @@ def test_report_exposes_method_maintainer_and_computed_shape_to_readers():
     assert f"{len(artifact.findings)} {finding_label}" in page
     assert f"{len(unique_cves)} {cve_label}" in page
     assert "AI-assisted" in page
-    assert 'href="https://ricomanifesto.github.io/SentryDigest/"' in page
+    assert f'href="{artifact.digest_issue_url}"' in page
+    assert page.count('class="finding-reporting"') == len(artifact.findings)
+    reporting_count = sum(len(finding.reporting) for finding in artifact.findings)
+    assert page.count('class="reporting-source"') == reporting_count
+    assert page.count('class="reporting-context"') == reporting_count
     assert 'href="https://ricomanifesto.com/"' in page
     assert "Verify NVD and vendor guidance before action." in page
     assert 'class="site-footer"' in page
@@ -204,12 +208,16 @@ def test_theme_and_brand_are_correct_before_deferred_javascript_runs():
     report_page = REPORT_PAGE.read_text()
     archive_page = ARCHIVE_PAGE.read_text()
     css = SITE_CSS.read_text()
+    bootstrap = Path("site/theme-bootstrap.js").read_text().strip()
 
     for page in (report_page, archive_page):
         head = page.split("</head>", maxsplit=1)[0]
         assert head.index("sentryinsight-theme") < head.index('rel="stylesheet"')
         assert 'class="brand-logo brand-logo-light"' in page
         assert 'class="brand-logo brand-logo-dark"' in page
+        assert page.count(bootstrap) == 1
+    assert "localStorage.getItem" not in Path("site/report.html").read_text()
+    assert "localStorage.getItem" not in Path("site/archive.html").read_text()
     assert ':root[data-theme="dark"] .brand-logo-light' in css
     assert ':root[data-theme="dark"] .brand-logo-dark' in css
     assert ":root:not([data-theme]) .brand-logo-light" in css

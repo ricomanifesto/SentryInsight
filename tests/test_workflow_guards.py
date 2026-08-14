@@ -149,6 +149,7 @@ Recent exploitation activity is concentrated in edge systems.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
+- **Reporting**: source-1e8f5cb3245d
 
 ## Affected Systems and Products
 
@@ -170,6 +171,14 @@ Recent exploitation activity is concentrated in edge systems.
                     "source_attribution_entries": [
                         "- **Example report**: Example Source - https://example.test/report"
                     ],
+                    "reporting_sources": [
+                        {
+                            "key": "source-1e8f5cb3245d",
+                            "publisher": "Example Source",
+                            "title": "Example report",
+                            "url": "https://example.test/report",
+                        }
+                    ],
                 },
                 "config": {"output_path": str(output_path)},
                 "status": "started",
@@ -183,6 +192,9 @@ Recent exploitation activity is concentrated in edge systems.
             self.assertNotIn("## Source Attribution", output_path.read_text())
             self.assertIn("report_date:", output_path.read_text())
             self.assertIn("generated_at:", output_path.read_text())
+            self.assertIn("schema_version: 2", output_path.read_text())
+            self.assertIn("digest_issue_url:", output_path.read_text())
+            self.assertIn("**Reporting**:", output_path.read_text())
             self.assertTrue((Path(tmpdir) / "index.html").exists())
             self.assertTrue((Path(tmpdir) / "reports" / "index.json").exists())
 
@@ -208,6 +220,7 @@ Recent exploitation activity is concentrated in edge systems.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
+- **Reporting**: source-1e8f5cb3245d
 
 ## Affected Systems and Products
 
@@ -405,6 +418,7 @@ Recent exploitation activity is concentrated in edge systems.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
+- **Reporting**: source-1e8f5cb3245d
 
 ## Affected Systems and Products
 
@@ -418,6 +432,14 @@ Recent exploitation activity is concentrated in edge systems.
 
 - **Unknown actor**: Opportunistic exploitation.
 """,
+                        "reporting_sources": [
+                            {
+                                "key": "source-1e8f5cb3245d",
+                                "publisher": "Example Source",
+                                "title": "Example report",
+                                "url": "https://example.test/report",
+                            }
+                        ],
                     },
                     "articles_fingerprint": "test-fingerprint-value",
                     "config": {"output_path": "index.md"},

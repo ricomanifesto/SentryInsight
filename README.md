@@ -78,7 +78,7 @@ export OPENCODE_BASE_URL=http://127.0.0.1:4096
 uv run python main.py
 ```
 
-This fetches articles, filters for exploitation content, analyzes threats, and stages a complete static publication rooted at `index.md` and `index.html`. When the report date advances, the previous artifact is archived under `reports/`.
+This fetches articles, filters for exploitation content, analyzes threats, and stages a complete static publication rooted at `index.md` and `index.html`. Each schema-version 2 finding must cite one or more input-owned reporting keys; publication resolves those keys to original publisher links and the matching dated SentryDigest context. When the report date advances, the previous artifact is archived under `reports/`.
 
 ## Validation
 

@@ -8,13 +8,22 @@ from datetime import date, datetime
 from enum import Enum
 from typing import TypeVar
 
+from markdown_it import MarkdownIt
+
+from .reporting import (
+    ReportingGroundingError,
+    normalize_reporting_url,
+    reporting_fragment,
+)
+
 CVE_ID_PATTERN = re.compile(r"^CVE-\d{4}-\d{4,}$", re.IGNORECASE)
 PARTIAL_CVE_PATTERN = re.compile(r"\bCVE-\d{4}-\d{0,3}(?!\d)", re.IGNORECASE)
 HEADING_PATTERN = re.compile(r"^###\s+(.+?)\s*$", re.MULTILINE)
 FIELD_PATTERN = re.compile(
-    r"^-\s+\*\*(Severity|Exploitation Status|Action|CVE IDs?)\*\*:\s*(.*?)\s*$",
+    r"^-[ \t]+\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting)\*\*:[ \t]*(.*?)[ \t]*$",
     re.MULTILINE,
 )
+DIGEST_ARCHIVE_ROOT = "https://ricomanifesto.github.io/SentryDigest/archive/"
 
 
 class ReportArtifactError(ValueError):
@@ -49,6 +58,14 @@ EnumType = TypeVar("EnumType", bound=Enum)
 
 
 @dataclass(frozen=True)
+class ReportingReference:
+    publisher: str
+    title: str
+    url: str
+    digest_fragment: str
+
+
+@dataclass(frozen=True)
 class Finding:
     title: str
     slug: str
@@ -56,6 +73,7 @@ class Finding:
     exploitation_status: ExploitationStatus
     action: Action
     cve_ids: tuple[str, ...]
+    reporting: tuple[ReportingReference, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -66,6 +84,7 @@ class ReportArtifact:
     body: str
     source: str
     findings: tuple[Finding, ...]
+    digest_issue_url: str | None = None
 
 
 def slugify(value: str) -> str:
@@ -150,6 +169,64 @@ def _parse_cves(value: str) -> tuple[str, ...]:
     return tuple(dict.fromkeys(candidates))
 
 
+def _parse_reporting(value: str) -> tuple[ReportingReference, ...]:
+    inline = MarkdownIt("commonmark").parseInline(value)
+    children = inline[0].children if inline else None
+    if not children:
+        raise ReportArtifactError("Reporting must contain at least one source link")
+
+    references: list[ReportingReference] = []
+    index = 0
+    while index < len(children):
+        if children[index].type != "link_open":
+            raise ReportArtifactError(
+                "Reporting must be a comma-separated list of Markdown source links"
+            )
+        href = children[index].attrGet("href") or ""
+        index += 1
+        label_parts: list[str] = []
+        while index < len(children) and children[index].type != "link_close":
+            if children[index].type != "text":
+                raise ReportArtifactError("Reporting link labels must be plain text")
+            label_parts.append(children[index].content)
+            index += 1
+        if index >= len(children):
+            raise ReportArtifactError("Reporting contains an unclosed source link")
+        index += 1
+        label = "".join(label_parts).strip()
+        if " — " not in label:
+            raise ReportArtifactError(
+                "Reporting link labels must use 'Publisher — Title'"
+            )
+        publisher, title = (part.strip() for part in label.split(" — ", 1))
+        if not publisher or not title:
+            raise ReportArtifactError(
+                "Reporting link labels must name a publisher and title"
+            )
+        try:
+            url = normalize_reporting_url(href)
+        except ReportingGroundingError as exc:
+            raise ReportArtifactError(str(exc)) from exc
+        references.append(
+            ReportingReference(
+                publisher=publisher,
+                title=title,
+                url=url,
+                digest_fragment=reporting_fragment(url),
+            )
+        )
+        if index < len(children):
+            separator = children[index]
+            if separator.type != "text" or not re.fullmatch(r",\s*", separator.content):
+                raise ReportArtifactError("Reporting links must be separated by commas")
+            index += 1
+
+    urls = [reference.url for reference in references]
+    if len(urls) != len(set(urls)):
+        raise ReportArtifactError("Reporting contains duplicate source links")
+    return tuple(references)
+
+
 def _active_exploitation_section(body: str) -> str:
     match = re.search(
         r"^##\s+Active Exploitation Details\s*$\n(?P<section>.*?)(?=^##\s+|\Z)",
@@ -161,7 +238,7 @@ def _active_exploitation_section(body: str) -> str:
     return match.group("section")
 
 
-def _parse_findings(body: str) -> tuple[Finding, ...]:
+def _parse_findings(body: str, *, require_reporting: bool) -> tuple[Finding, ...]:
     section = _active_exploitation_section(body)
     matches = list(HEADING_PATTERN.finditer(section))
     if not matches:
@@ -186,6 +263,8 @@ def _parse_findings(body: str) -> tuple[Finding, ...]:
         for required in ("Severity", "Exploitation Status", "Action"):
             if required not in fields:
                 raise ReportArtifactError(f"{title}: missing required {required} field")
+        if require_reporting and "Reporting" not in fields:
+            raise ReportArtifactError(f"{title}: missing required Reporting field")
 
         slug = slugify(title)
         if slug in seen_slugs:
@@ -204,6 +283,11 @@ def _parse_findings(body: str) -> tuple[Finding, ...]:
                 ),
                 action=_parse_enum(Action, "Action", fields["Action"]),
                 cve_ids=_parse_cves(fields["CVE IDs"]) if "CVE IDs" in fields else (),
+                reporting=(
+                    _parse_reporting(fields["Reporting"])
+                    if "Reporting" in fields
+                    else ()
+                ),
             )
         )
 
@@ -218,7 +302,7 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         schema_version = int(_required_metadata(metadata, "schema_version"))
     except ValueError as exc:
         raise ReportArtifactError("schema_version must be an integer") from exc
-    if schema_version != 1:
+    if schema_version not in {1, 2}:
         raise ReportArtifactError(f"Unsupported schema_version: {schema_version}")
 
     try:
@@ -226,7 +310,16 @@ def parse_report_artifact(source: str) -> ReportArtifact:
     except ValueError as exc:
         raise ReportArtifactError("report_date must use YYYY-MM-DD") from exc
     generated_at = _parse_timestamp(_required_metadata(metadata, "generated_at"))
-    findings = _parse_findings(body)
+    digest_issue_url: str | None = None
+    if schema_version == 2:
+        digest_issue_url = _required_metadata(metadata, "digest_issue_url")
+        expected_digest_url = f"{DIGEST_ARCHIVE_ROOT}{report_date.isoformat()}/"
+        if digest_issue_url != expected_digest_url:
+            raise ReportArtifactError(
+                "digest_issue_url must identify the report date SentryDigest archive: "
+                f"{expected_digest_url}"
+            )
+    findings = _parse_findings(body, require_reporting=schema_version == 2)
     if partial_cve := PARTIAL_CVE_PATTERN.search(body):
         raise ReportArtifactError(
             f"Report contains a partial CVE identifier: {partial_cve.group(0)}"
@@ -239,4 +332,5 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         body=body,
         source=source,
         findings=findings,
+        digest_issue_url=digest_issue_url,
     )

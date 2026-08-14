@@ -18,6 +18,30 @@ from test_report_artifact import REPORT
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def report_v2() -> str:
+    return (
+        REPORT.replace("schema_version: 1", "schema_version: 2")
+        .replace(
+            "generated_at: 2026-08-13T13:21:22Z",
+            "generated_at: 2026-08-13T13:21:22Z\n"
+            "digest_issue_url: https://ricomanifesto.github.io/"
+            "SentryDigest/archive/2026-08-13/",
+        )
+        .replace(
+            "- **CVE IDs**: CVE-2026-1234, CVE-2026-12345678",
+            "- **CVE IDs**: CVE-2026-1234, CVE-2026-12345678\n"
+            "- **Reporting**: [Example Security — Critical vendor flaw exploited]"
+            "(https://example.com/security/advisory)",
+        )
+        .replace(
+            "- **Action**: investigate",
+            "- **Action**: investigate\n"
+            "- **Reporting**: [Research Team — Independent follow-up]"
+            "(https://research.example.net/follow-up)",
+        )
+    )
+
+
 def build_fixture(tmp_path: Path, report: str = REPORT) -> Path:
     report_path = tmp_path / "index.md"
     report_path.write_text(report)
@@ -103,6 +127,35 @@ def test_site_builder_renders_computed_report_shape_and_human_provenance(tmp_pat
     assert 'class="site-footer"' in html
 
 
+def test_site_builder_renders_input_grounded_reporting_and_dated_digest_handoffs(
+    tmp_path,
+):
+    output_path = build_fixture(tmp_path, report_v2())
+    html = (output_path / "index.html").read_text()
+
+    assert html.count('class="finding-reporting"') == 2
+    assert (
+        'class="reporting-source" href="https://example.com/security/advisory" '
+        'target="_blank" rel="noopener noreferrer"' in html
+    )
+    assert (
+        'href="https://ricomanifesto.github.io/SentryDigest/archive/2026-08-13/'
+        '#reporting-cc16b55febdc">Digest context</a>' in html
+    )
+    assert (
+        'href="https://ricomanifesto.github.io/SentryDigest/archive/2026-08-13/">'
+        "Sentry Digest issue for this report date</a>" in html
+    )
+    assert "<strong>Reporting</strong>:" not in html
+    metadata = json.loads(
+        html.split('<script id="report-metadata" type="application/json">', 1)[1].split(
+            "</script>", 1
+        )[0]
+    )
+    assert metadata["digest_issue_url"].endswith("/archive/2026-08-13/")
+    assert metadata["findings"][0]["reporting"][0]["publisher"] == "Example Security"
+
+
 def test_site_builder_sets_theme_before_styles_and_renders_both_logo_variants(
     tmp_path,
 ):
@@ -117,6 +170,16 @@ def test_site_builder_sets_theme_before_styles_and_renders_both_logo_variants(
         assert 'class="brand-logo brand-logo-dark"' in html
         assert "logo-lockup-light.png" in html
         assert "logo-lockup-dark.png" in html
+
+
+def test_site_builder_injects_one_canonical_theme_bootstrap(tmp_path):
+    output_path = build_fixture(tmp_path)
+    bootstrap = (ROOT / "site" / "theme-bootstrap.js").read_text().strip()
+
+    assert "localStorage.getItem" not in (ROOT / "site" / "report.html").read_text()
+    assert "localStorage.getItem" not in (ROOT / "site" / "archive.html").read_text()
+    assert (output_path / "index.html").read_text().count(bootstrap) == 1
+    assert (output_path / "reports" / "index.html").read_text().count(bootstrap) == 1
 
 
 def test_site_builder_generates_clean_desktop_and_mobile_section_maps(tmp_path):
@@ -139,6 +202,10 @@ def test_site_builder_generates_truthful_archive_manifest_and_pages(tmp_path):
     assert manifest["schema_version"] == 1
     assert manifest["reports"] == []
     assert "No archived reports yet" in archive_html
+    assert (
+        "Reports accumulate through daily rollovers. Retained history begins with the "
+        "Thursday, August 13, 2026 report at the first date change." in archive_html
+    )
     assert "archiveReports = [" not in archive_html
     assert "archive artifacts tracked" not in archive_html
     assert not (output_path / "reports" / "search.js").exists()
@@ -176,6 +243,10 @@ def test_previous_report_rolls_into_immutable_history_when_date_advances(tmp_pat
             "cve_count": 2,
         }
     ]
+    assert (
+        "Reports accumulate through daily rollovers. Retained history begins "
+        "Thursday, August 13, 2026." in (reports_path / "index.html").read_text()
+    )
 
 
 def test_same_day_refresh_does_not_archive_or_conflict(tmp_path):

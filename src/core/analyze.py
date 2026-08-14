@@ -9,6 +9,12 @@ from .model_config import resolve_model, validate_model
 from .model_client import build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .cve import extract_cve_ids
+from .reporting import (
+    ReportingGroundingError,
+    build_reporting_catalog,
+    reporting_key,
+    serialize_reporting_catalog,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +114,10 @@ def format_article_summary(article: Dict[str, Any]) -> str:
         metadata.append(f"Source: {source}")
     if link:
         metadata.append(f"URL: {link}")
+        try:
+            metadata.append(f"Reporting key: {reporting_key(link)}")
+        except ReportingGroundingError:
+            pass
     if article_cves := collect_structured_cves(article):
         metadata.append(f"CVEs: {', '.join(article_cves)}")
 
@@ -279,6 +289,13 @@ async def analyze_exploitation(
     all_systems = set()
     all_attack_vectors = set()
 
+    reporting_catalog = {}
+    for article in articles:
+        try:
+            reporting_catalog.update(build_reporting_catalog([article]))
+        except ReportingGroundingError as exc:
+            logger.warning("Article cannot be used as reporting evidence: %s", exc)
+
     for article in articles:
         article_summary = format_article_summary(article)
         all_article_summaries.append(article_summary)
@@ -317,6 +334,7 @@ Generate a report following this EXACT structure with professional markdown form
 - **Exploitation Status**: active|observed|potential|not_observed|unknown
 - **Action**: patch|mitigate|investigate|monitor|none
 - **CVE IDs**: [Comma-separated complete CVE IDs; omit this field when no complete CVE ID is provided]
+- **Reporting**: [Comma-separated Reporting keys copied exactly from the supporting articles]
 ]
 
 ## Affected Systems and Products
@@ -353,6 +371,8 @@ Formatting requirements:
 - Use active only for source-confirmed active exploitation, observed for direct exploitation telemetry with limited scope, potential for proof-of-concept or risk without confirmed exploitation, not_observed only when the source explicitly says exploitation has not been observed, and unknown when the evidence does not establish a state
 - Use patch only when a patch is available, mitigate when a source provides a workaround, investigate when defenders should check for compromise, monitor when observation is the only supported action, and none when the source supports no action
 - Omit the CVE IDs field instead of writing pending, unassigned, unavailable, truncated, or placeholder text
+- Emit exactly one Reporting field for every vulnerability, containing one or more supplied Reporting keys and no URLs
+- Cite only articles that directly support that finding; never invent a Reporting key or URL
 - Do NOT mention missing or unavailable CVE information
 - Do not leave Threat Actor Activities as a single stale-looking item when broader actor or campaign activity appears elsewhere in the report; include the relevant actor, campaign, or unknown-operator roll-ups grounded in the articles
 
@@ -391,6 +411,7 @@ Generate a well-formatted exploitation report following the structure above. Be 
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
+            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
         }
     except OpenCodeUnavailable as e:
         logger.warning(f"Skipping exploitation analysis: {e}")
@@ -399,6 +420,7 @@ Generate a well-formatted exploitation report following the structure above. Be 
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
+            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
             "skipped": True,
             "skip_reason": str(e),
         }
@@ -408,4 +430,5 @@ Generate a well-formatted exploitation report following the structure above. Be 
             "exploitation_report": f"# Error Generating Exploitation Report\n\nAn error occurred during analysis: {str(e)}\n\n## Partial Data\n\nCVEs identified: {', '.join(all_cves) if all_cves else 'None'}\n\nAffected systems: {', '.join(all_systems) if all_systems else 'None'}",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
+            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
         }

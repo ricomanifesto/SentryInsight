@@ -728,6 +728,9 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertIn("Example Source", FakeOpenCodeClient.user_prompt)
         self.assertIn("https://example.test/report", FakeOpenCodeClient.user_prompt)
         self.assertIn(
+            "Reporting key: source-1e8f5cb3245d", FakeOpenCodeClient.user_prompt
+        )
+        self.assertIn(
             "- **Severity**: critical|high|medium|low|unknown",
             FakeOpenCodeClient.user_prompt,
         )
@@ -741,6 +744,10 @@ class AnalyzeGuardTests(unittest.TestCase):
         )
         self.assertIn("- **CVE IDs**:", FakeOpenCodeClient.user_prompt)
         self.assertIn("Omit the CVE IDs field", FakeOpenCodeClient.user_prompt)
+        self.assertIn("- **Reporting**:", FakeOpenCodeClient.user_prompt)
+        self.assertIn(
+            "never invent a Reporting key or URL", FakeOpenCodeClient.user_prompt
+        )
 
     def test_analysis_result_omits_source_attribution_contract(self):
         analyze = import_analyze_with_stubs()
@@ -781,6 +788,17 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertNotIn("source_attribution_required", result)
         self.assertNotIn("source_attribution_entries", result)
         self.assertNotIn("source_attribution_requirements", result)
+        self.assertEqual(
+            result["reporting_sources"],
+            [
+                {
+                    "key": "source-1e8f5cb3245d",
+                    "publisher": "Example Source",
+                    "title": "Example exploitation report",
+                    "url": "https://example.test/report",
+                }
+            ],
+        )
 
 
 if __name__ == "__main__":

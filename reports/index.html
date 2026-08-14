@@ -13,16 +13,14 @@
   <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/reports/">
   <meta name="twitter:card" content="summary">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"SentryInsight Report Archive","url":"https://ricomanifesto.github.io/SentryInsight/reports/","description":"Dated SentryInsight exploitation intelligence reports.","author":{"@type":"Person","name":"Michael Rico","url":"https://ricomanifesto.com/"}}</script>
-  <script>
-    (() => {
-      let theme;
-      try { theme = localStorage.getItem("sentryinsight-theme"); } catch {}
-      if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      document.documentElement.dataset.theme = theme;
-    })();
-  </script>
+  <script>(() => {
+  let theme;
+  try { theme = localStorage.getItem("sentryinsight-theme"); } catch {}
+  if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  document.documentElement.dataset.theme = theme;
+})();</script>
   <link rel="icon" href="../assets/favicon.ico">
-  <link rel="stylesheet" href="../assets/site.css?v=3c02d9ce06f5">
+  <link rel="stylesheet" href="../assets/site.css?v=e75f979e2f23">
 </head>
 <body>
   <a class="skip-link" href="#archive-list">Skip to reports</a>
@@ -41,12 +39,13 @@
       <p class="eyebrow">SentryInsight history</p>
       <h1>Report archive</h1>
       <p>0 reports available</p>
+      <p class="archive-context">Reports accumulate through daily rollovers. Retained history begins with the Thursday, August 13, 2026 report at the first date change.</p>
     </header>
     <ol id="archive-list" class="archive-list"><li class="archive-empty">No archived reports yet.</li></ol>
   </main>
   <footer class="site-footer">
     <p>SentryInsight is maintained by <a href="https://ricomanifesto.com/">Michael Rico</a>. <a href="https://github.com/ricomanifesto/SentryInsight">View the project on GitHub</a>.</p>
   </footer>
-  <script src="../assets/report.js?v=3c02d9ce06f5" defer></script>
+  <script src="../assets/report.js?v=e75f979e2f23" defer></script>
 </body>
 </html>

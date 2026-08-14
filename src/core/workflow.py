@@ -16,6 +16,11 @@ from .report_validation import (
     validate_report_content,
 )
 from .report_artifact import ReportArtifactError, parse_report_artifact
+from .reporting import (
+    ReportingGroundingError,
+    deserialize_reporting_catalog,
+    resolve_reporting_keys,
+)
 from scripts.build_site import (
     ArchiveConflictError,
     SiteBuildError,
@@ -190,6 +195,16 @@ async def generate_report(
     # Since the exploitation_report already contains the full formatted report,
     # we should use it directly instead of the template
     report = remove_source_attribution_section(exploitation_report)
+    try:
+        reporting_catalog = deserialize_reporting_catalog(
+            analysis_results.get("reporting_sources", [])
+        )
+        report = resolve_reporting_keys(report, reporting_catalog)
+    except ReportingGroundingError as exc:
+        logger.error("Report grounding failed: %s", exc)
+        state["report_validation_errors"] = [str(exc)]
+        state["status"] = "failed"
+        return state
     validation_issues = validate_report_content(
         report,
         expected_cves=analysis_results.get("cves_identified"),
@@ -216,9 +231,11 @@ async def generate_report(
     )
     report_source = (
         "---\n"
-        "schema_version: 1\n"
+        "schema_version: 2\n"
         f"report_date: {report_date}\n"
         f"generated_at: {generated_at}\n"
+        "digest_issue_url: https://ricomanifesto.github.io/"
+        f"SentryDigest/archive/{report_date}/\n"
         "---\n"
         f"{report.lstrip()}"
     )

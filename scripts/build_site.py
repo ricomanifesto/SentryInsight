@@ -34,7 +34,7 @@ from src.core.report_artifact import (
 PUBLIC_ROOT = "https://ricomanifesto.github.io/SentryInsight/"
 CVE_TEXT_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
 STRUCTURED_FINDING_FIELD_PATTERN = re.compile(
-    r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?)\*\*:",
+    r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting)\*\*:",
     re.IGNORECASE,
 )
 BADGE_LABELS = {
@@ -231,8 +231,30 @@ def _finding_heading_html(finding: Finding) -> str:
     )
 
 
+def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> str:
+    if not finding.reporting or not digest_issue_url:
+        return ""
+    items = []
+    for reference in finding.reporting:
+        label = f"{reference.publisher} — {reference.title}"
+        digest_url = f"{digest_issue_url}#{reference.digest_fragment}"
+        items.append(
+            "<li>"
+            f'<a class="reporting-source" href="{html.escape(reference.url)}" '
+            f'target="_blank" rel="noopener noreferrer">{html.escape(label)}</a>'
+            '<span aria-hidden="true"> · </span>'
+            f'<a class="reporting-context" href="{html.escape(digest_url)}">'
+            "Digest context</a>"
+            "</li>"
+        )
+    return (
+        f'<aside class="finding-reporting" aria-label="Reporting for {html.escape(finding.title)}">'
+        "<strong>Reporting</strong><ul>" + "".join(items) + "</ul></aside>\n"
+    )
+
+
 def _enhance_finding_tokens(
-    tokens: list[Token], findings: dict[str, Finding]
+    tokens: list[Token], findings: dict[str, Finding], digest_issue_url: str | None
 ) -> list[Token]:
     """Build disclosure controls and classification into the initial HTML."""
     enhanced: list[Token] = []
@@ -262,6 +284,10 @@ def _enhance_finding_tokens(
                         _controlled_html(
                             f'<div id="{html.escape(finding.slug)}-details" '
                             'class="finding-body">\n',
+                            block=True,
+                        ),
+                        _controlled_html(
+                            _finding_reporting_html(finding, digest_issue_url),
                             block=True,
                         ),
                     )
@@ -315,7 +341,7 @@ def _render_markdown(
             if finding.cve_ids:
                 token.attrSet("data-cves", ",".join(finding.cve_ids))
 
-    tokens = _enhance_finding_tokens(tokens, findings)
+    tokens = _enhance_finding_tokens(tokens, findings, artifact.digest_issue_url)
 
     rendered = markdown.renderer.render(tokens, markdown.options, {})
     lowered = rendered.casefold()
@@ -388,6 +414,7 @@ def _render_report_page(
         "generated_at": _timestamp(artifact.generated_at),
         "finding_count": finding_count,
         "complete_cve_count": complete_cve_count,
+        "digest_issue_url": artifact.digest_issue_url,
         "findings": [_finding_json(finding) for finding in artifact.findings],
     }
     toc = _toc(headings)
@@ -420,6 +447,11 @@ def _render_report_page(
             "GENERATED_AT_ISO": _timestamp(artifact.generated_at),
             "GENERATED_AT_LABEL": _generated_label(artifact.generated_at),
             "REPORT_SHAPE": report_shape,
+            "DIGEST_ISSUE_URL": artifact.digest_issue_url
+            or "https://ricomanifesto.github.io/SentryDigest/",
+            "THEME_BOOTSTRAP": (template_path / "theme-bootstrap.js")
+            .read_text()
+            .strip(),
             "DESKTOP_TOC": toc,
             "MOBILE_TOC": toc,
             "REPORT_HTML": report_html,
@@ -504,9 +536,12 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
 
     css = (template_path / "site.css").read_text()
     script = (template_path / "report.js").read_text()
+    theme_bootstrap = (template_path / "theme-bootstrap.js").read_text()
     dompurify = (template_path / "vendor" / "dompurify.min.js").read_text()
     dompurify_license = (template_path / "vendor" / "DOMPURIFY-LICENSE.txt").read_text()
-    asset_version = hashlib.sha256((css + script + dompurify).encode()).hexdigest()[:12]
+    asset_version = hashlib.sha256(
+        (css + script + theme_bootstrap + dompurify).encode()
+    ).hexdigest()[:12]
     (assets_path / "site.css").write_text(css)
     (assets_path / "report.js").write_text(script)
     (vendor_path / "dompurify.min.js").write_text(dompurify)
@@ -546,12 +581,25 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
     )
     count = len(entries)
     count_label = f"{count} report{'s' if count != 1 else ''} available"
+    if entries:
+        oldest = min(archived.report_date for archived in archived_artifacts)
+        archive_context = (
+            "Reports accumulate through daily rollovers. Retained history begins "
+            f"{_date_label(oldest)}."
+        )
+    else:
+        archive_context = (
+            "Reports accumulate through daily rollovers. Retained history begins "
+            f"with the {_date_label(artifact.report_date)} report at the first date change."
+        )
     archive_html = _template(
         template_path / "archive.html",
         {
             "ASSET_VERSION": asset_version,
             "REPORT_COUNT": count_label,
+            "ARCHIVE_CONTEXT": archive_context,
             "ARCHIVE_ITEMS": _archive_items(entries),
+            "THEME_BOOTSTRAP": theme_bootstrap.strip(),
             "ARCHIVE_IDENTITY_JSON": json.dumps(
                 {
                     "@context": "https://schema.org",

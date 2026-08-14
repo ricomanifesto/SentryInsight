@@ -13,14 +13,7 @@
   <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/reports/">
   <meta name="twitter:card" content="summary">
   <script type="application/ld+json">{{ARCHIVE_IDENTITY_JSON}}</script>
-  <script>
-    (() => {
-      let theme;
-      try { theme = localStorage.getItem("sentryinsight-theme"); } catch {}
-      if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      document.documentElement.dataset.theme = theme;
-    })();
-  </script>
+  <script>{{THEME_BOOTSTRAP}}</script>
   <link rel="icon" href="../assets/favicon.ico">
   <link rel="stylesheet" href="../assets/site.css?v={{ASSET_VERSION}}">
 </head>
@@ -41,6 +34,7 @@
       <p class="eyebrow">SentryInsight history</p>
       <h1>Report archive</h1>
       <p>{{REPORT_COUNT}}</p>
+      <p class="archive-context">{{ARCHIVE_CONTEXT}}</p>
     </header>
     <ol id="archive-list" class="archive-list">{{ARCHIVE_ITEMS}}</ol>
   </main>

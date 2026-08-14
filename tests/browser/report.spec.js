@@ -51,6 +51,21 @@ test("renders trustworthy content without JavaScript", async ({ browser }) => {
   await expect(page.locator(".brand-logo-light")).toBeHidden();
   await expect(page.getByText(reportShape(metadata))).toBeVisible();
   await expect(page.getByText("AI-assisted", { exact: false })).toBeVisible();
+  const reportingCount = metadata.findings.reduce(
+    (count, finding) => count + finding.reporting.length,
+    0,
+  );
+  await expect(page.locator(".finding-reporting")).toHaveCount(metadata.finding_count);
+  await expect(page.locator(".reporting-source")).toHaveCount(reportingCount);
+  await expect(page.locator(".reporting-context")).toHaveCount(reportingCount);
+  await expect(page.locator(".report-method a")).toHaveAttribute(
+    "href",
+    metadata.digest_issue_url,
+  );
+  await expect(page.locator(".reporting-source").first()).toHaveAttribute(
+    "rel",
+    "noopener noreferrer",
+  );
 
   await context.close();
 });
@@ -256,6 +271,9 @@ test("renders an archive that matches its manifest", async ({ page, request }) =
   const reportLabel = reportCount === 1 ? "report" : "reports";
 
   await expect(page.getByRole("heading", { name: "Report archive" })).toBeVisible();
+  await expect(page.locator(".archive-context")).toContainText(
+    "Reports accumulate through daily rollovers",
+  );
   await expect(page.getByText(`${reportCount} ${reportLabel} available`)).toBeVisible();
   if (reportCount === 0) {
     await expect(page.getByText("No archived reports yet")).toBeVisible();

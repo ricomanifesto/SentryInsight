@@ -1,7 +1,8 @@
 ---
-schema_version: 1
+schema_version: 2
 report_date: 2026-08-13
 generated_at: 2026-08-13T21:54:18Z
+digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-13/
 ---
 # Exploitation Report
 
@@ -21,6 +22,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-59310
+- **Reporting**: [Dark Reading — Global Threat Campaign Hits Critical VMware vCenter Flaw](https://www.darkreading.com/vulnerabilities-threats/global-threat-campaign-critical-vmware-vcenter-flaw), [Bleeping Computer — Critical VMware vCenter RCE flaw exploited for reverse SSH access](https://www.bleepingcomputer.com/news/security/critical-vmware-vcenter-rce-flaw-exploited-for-reverse-ssh-access/), [The Hacker News — Attackers Exploit VMware vCenter Vulnerability to Gain Persistent Remote Access](https://thehackernews.com/2026/08/attackers-exploit-vmware-vcenter.html)
 
 ### Microsoft SharePoint Authentication Bypass (CVE-2026-55040)
 - **Description**: A critical security feature bypass vulnerability stemming from weak authentication in Microsoft SharePoint. The flaw allows attackers to bypass authentication controls entirely. A public proof-of-concept exploit was released following the July 2026 Patch Tuesday, triggering immediate active exploitation.
@@ -30,6 +32,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-55040
+- **Reporting**: [The Hacker News — Attackers Exploit SharePoint Authentication Bypass After Public PoC Release](https://thehackernews.com/2026/08/attackers-exploit-sharepoint.html)
 
 ### Adobe Commerce / Magento Customer Account Hijacking (CVE-2026-71362)
 - **Description**: A critical vulnerability in Adobe Commerce and Magento e-commerce platforms that enables attackers to hijack customer accounts. Exploitation attempts have been detected in the wild.
@@ -39,6 +42,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-71362
+- **Reporting**: [Bleeping Computer — Hackers exploit critical Adobe Commerce flaw to hijack customer accounts](https://www.bleepingcomputer.com/news/security/hackers-exploit-critical-adobe-commerce-flaw-to-hijack-customer-accounts/)
 
 ### Windows LegacyHive Zero-Day Vulnerability
 - **Description**: A Windows zero-day vulnerability codenamed "LegacyHive" that was disclosed and patched during the July 2026 Patch Tuesday. The vulnerability was actively exploited prior to patch release.
@@ -47,6 +51,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
+- **Reporting**: [Bleeping Computer — Microsoft patches LegacyHive Windows zero-day vulnerability](https://www.bleepingcomputer.com/news/microsoft/microsoft-patches-legacyhive-windows-zero-day-vulnerability/)
 
 ### Lazarus Group Windows Zero-Day Exploitation (Operation Dream Job)
 - **Description**: The North Korean Lazarus Group is exploiting a newly patched Windows zero-day vulnerability to gain SYSTEM-level access and deploy a previously unseen backdoor. This activity is part of Operation Dream Job, a long-running cyber espionage campaign targeting defense and aerospace sectors.
@@ -55,6 +60,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
+- **Reporting**: [The Hacker News — Lazarus Exploits Windows Zero-Day to Gain SYSTEM Access and Deploy Backdoor](https://thehackernews.com/2026/08/lazarus-exploits-windows-zero-day-to.html)
 
 ### Adobe ColdFusion OS Command Injection (CVE-2026-48362)
 - **Description**: An operating system command injection vulnerability in Adobe ColdFusion rated CVSS 10.0, the maximum severity score. This was among three critical flaws patched by Adobe across ColdFusion, Commerce, and Campaign Classic.
@@ -64,6 +70,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Exploitation Status**: unknown
 - **Action**: patch
 - **CVE IDs**: CVE-2026-48362
+- **Reporting**: [The Hacker News — Adobe Patches Three CVSS 10.0 ColdFusion and Campaign Classic Flaws](https://thehackernews.com/2026/08/adobe-patches-three-cvss-100-coldfusion.html)
 
 ### Belgium eID Browser Extension RCE Vulnerabilities
 - **Description**: Severe vulnerabilities in a key browser extension used for Belgium's electronic ID (eID) authentication system, fully compromising the trust framework underlying citizen authentication. The flaws enable remote code execution.
@@ -72,6 +79,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: critical
 - **Exploitation Status**: unknown
 - **Action**: investigate
+- **Reporting**: [Dark Reading — Belgium's eID Authentication Opens Citizen Accounts to RCE](https://www.darkreading.com/application-security/belgium-eid-authentication-citizen-accounts-rce)
 
 ### Akira Ransomware EDR Evasion via Safe Mode
 - **Description**: Akira ransomware affiliates are disabling Endpoint Detection and Response (EDR) solutions by restarting compromised systems into Safe Mode with Networking, where EDR drivers and services typically do not load.
@@ -80,6 +88,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: mitigate
+- **Reporting**: [Bleeping Computer — Akira hackers disable EDR with Safe Mode, steal data but fail to encrypt](https://www.bleepingcomputer.com/news/security/akira-hackers-disable-edr-with-safe-mode-steal-data-but-fail-to-encrypt/)
 
 ### Plug and Pwn: Windows Plug and Play Abuse for SYSTEM Access
 - **Description**: A novel attack technique abusing the Windows Plug and Play feature to trigger automatic installation of vulnerable or insecure vendor-signed drivers/software, resulting in SYSTEM-level privilege escalation.
@@ -88,6 +97,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: high
 - **Exploitation Status**: potential
 - **Action**: monitor
+- **Reporting**: [Bleeping Computer — Plug and Pwn attack uses fake USB devices for Windows SYSTEM access](https://www.bleepingcomputer.com/news/security/plug-and-pwn-attack-uses-fake-usb-devices-for-windows-system-access/)
 
 ### Android NFC Relay Malware (WindRelay + SpyNote)
 - **Description**: A combination of WindRelay NFC relay malware and SpyNote remote administration tool (RAT) that steals live credit card data via NFC relay and exfiltrates it in real time, while also enabling full device control.
@@ -96,6 +106,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
+- **Reporting**: [Bleeping Computer — Android malware combo takes out loans and relays victims' credit cards](https://www.bleepingcomputer.com/news/security/android-malware-combo-takes-out-loans-and-relays-victims-credit-cards/)
 
 ### City-Forum Data Theft Campaign (Salesforce/ServiceNow)
 - **Description**: A long-running campaign active since at least March 2025 using custom tooling to enumerate and extract data exposed to anonymous users through Salesforce Experience Cloud sites and ServiceNow customer portals.
@@ -104,6 +115,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
+- **Reporting**: [Bleeping Computer — "City-Forum" data-theft attacks target Salesforce, ServiceNow portals](https://www.bleepingcomputer.com/news/security/city-forum-data-theft-attacks-target-salesforce-servicenow-portals/), [Dark Reading — Long-running Data Theft Campaign Targeting Salesforce, ServiceNow](https://www.darkreading.com/cyberattacks-data-breaches/long-running-data-theft-campaign-salesforce-servicenow)
 
 ### Malicious Chrome VPN Extensions (737 Extensions)
 - **Description**: Over 737 malicious Chrome Web Store extensions impersonating legitimate VPN and proxy services, routing user traffic through attacker-controlled SOCKS5 proxy infrastructure. Published across 40+ developer accounts with 75,000+ combined installs, primarily targeting Russian-speaking users.
@@ -112,6 +124,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
+- **Reporting**: [Bleeping Computer — Hundreds of fake Chrome VPN extensions route traffic through a proxy](https://www.bleepingcomputer.com/news/security/hundreds-of-fake-chrome-vpn-extensions-route-traffic-through-a-proxy/), [The Hacker News — 737 Chrome VPN Extensions Caught Routing Traffic Through Proxies. Check If You Have One](https://thehackernews.com/2026/08/737-chrome-vpn-extensions-caught.html)
 
 ### Supply Chain Compromise: Trojanized LiteLLM Packages on PyPI
 - **Description**: Two malicious LiteLLM releases published on PyPI for approximately 40 minutes in March 2026, containing credential-stealing code that harvested cloud keys, SSH keys, Kubernetes tokens, database passwords, and other secrets. Linked to a compromise of the Trivy security scanner project.
@@ -120,6 +133,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: critical
 - **Exploitation Status**: observed
 - **Action**: investigate
+- **Reporting**: [The Hacker News — Malicious LiteLLM Releases Tied to Trivy Hack May Have Exposed 2,100+ Organizations](https://thehackernews.com/2026/08/malicious-litellm-releases-tied-to.html)
 
 ### Trezor Data Breach via ShipMonk Supply Chain
 - **Description**: Hardware wallet manufacturer Trezor disclosed a breach affecting nearly 14,000 customers after its shipping and logistics provider ShipMonk was compromised.
@@ -128,6 +142,7 @@ Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, 
 - **Severity**: medium
 - **Exploitation Status**: observed
 - **Action**: monitor
+- **Reporting**: [Bleeping Computer — Trezor discloses data breach affecting nearly 14,000 customers](https://www.bleepingcomputer.com/news/security/trezor-discloses-data-breach-affecting-nearly-14-000-customers/)
 
 ## Affected Systems and Products
 
