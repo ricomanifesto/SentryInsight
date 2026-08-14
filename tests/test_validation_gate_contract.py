@@ -29,7 +29,14 @@ def test_validation_and_generation_verify_canonical_reporting_identity_contract(
     for workflow_name in ("validate.yml", "generate-report.yml"):
         workflow = (REPO_ROOT / ".github" / "workflows" / workflow_name).read_text()
         assert canonical_contract in workflow
-        assert "cmp contracts/reporting-identity-v1.json" in workflow
+        assert "Fetch canonical reporting identity contract" in workflow
+        assert "Could not verify canonical reporting identity contract" in workflow
+        assert "Check reporting identity contract drift" in workflow
+        assert "Reporting identity contract drift" in workflow
+        assert "cmp -s contracts/reporting-identity-v1.json" in workflow
+        assert workflow.index(
+            "Fetch canonical reporting identity contract"
+        ) < workflow.index("Check reporting identity contract drift")
 
 
 def test_generate_report_workflow_stages_canonical_site_without_audio_or_docs():

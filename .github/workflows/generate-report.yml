@@ -27,12 +27,22 @@ jobs:
         with:
           token: ${{ secrets.PAT_GITHUB }}
 
-      - name: Verify canonical reporting identity contract
+      - name: Fetch canonical reporting identity contract
         run: |
-          curl --fail --silent --show-error \
+          if ! curl --fail --silent --show-error --location \
+            --retry 3 --retry-all-errors --connect-timeout 10 --max-time 30 \
             https://raw.githubusercontent.com/ricomanifesto/SentryDigest/main/contracts/reporting-identity-v1.json \
-            --output "$RUNNER_TEMP/reporting-identity-v1.json"
-          cmp contracts/reporting-identity-v1.json "$RUNNER_TEMP/reporting-identity-v1.json"
+            --output "$RUNNER_TEMP/reporting-identity-v1.json"; then
+            echo "::error title=Canonical contract unavailable::Could not verify canonical reporting identity contract"
+            exit 1
+          fi
+
+      - name: Check reporting identity contract drift
+        run: |
+          if ! cmp -s contracts/reporting-identity-v1.json "$RUNNER_TEMP/reporting-identity-v1.json"; then
+            echo "::error title=Reporting identity contract drift::Reporting identity contract drift: local bytes differ from SentryDigest v1"
+            exit 1
+          fi
       
       - name: Set up Python
         uses: actions/setup-python@v6

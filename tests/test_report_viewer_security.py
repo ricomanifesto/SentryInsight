@@ -50,7 +50,12 @@ def test_public_pages_publish_canonical_identity_metadata_and_sitemap():
     sitemap = ET.parse(SITEMAP)
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     locations = [element.text for element in sitemap.findall("s:url/s:loc", namespace)]
-    assert locations == [PUBLIC_SITE_URL, PUBLIC_ARCHIVE_URL]
+    archive_manifest = json.loads(ARCHIVE_MANIFEST.read_text())
+    archived_urls = [
+        f"{PUBLIC_ARCHIVE_URL}{entry['html_path']}"
+        for entry in archive_manifest["reports"]
+    ]
+    assert locations == [PUBLIC_SITE_URL, PUBLIC_ARCHIVE_URL, *archived_urls]
 
 
 def test_report_is_meaningful_static_html_before_javascript_runs():
