@@ -20,20 +20,26 @@ def test_generate_report_workflow_checks_canonical_report_and_generated_site():
     assert "scripts/validate_report.py docs/index.md" not in workflow
 
 
-def test_validation_and_generation_verify_canonical_reporting_identity_contract():
-    canonical_contract = (
-        "https://raw.githubusercontent.com/ricomanifesto/SentryDigest/"
-        "main/contracts/reporting-identity-v1.json"
-    )
-
+def test_validation_and_generation_use_the_owner_reporting_identity_verifier():
+    verifier = "contracts/reporting-identity-verifier-v1.py"
     for workflow_name in ("validate.yml", "generate-report.yml"):
         workflow = (REPO_ROOT / ".github" / "workflows" / workflow_name).read_text()
-        assert canonical_contract in workflow
+        assert "Fetch canonical reporting identity verifier" in workflow
+        assert "Check reporting identity verifier drift" in workflow
         assert "Fetch canonical reporting identity contract" in workflow
-        assert "Could not verify canonical reporting identity contract" in workflow
         assert "Check reporting identity contract drift" in workflow
-        assert "Reporting identity contract drift" in workflow
-        assert "cmp -s contracts/reporting-identity-v1.json" in workflow
+        assert workflow.count(f"python3 {verifier} fetch") == 2
+        assert workflow.count(f"python3 {verifier} compare") == 2
+        assert "--artifact verifier" in workflow
+        assert "--artifact contract" in workflow
+        assert "curl " not in workflow
+        assert "cmp -s" not in workflow
+        assert workflow.index("Set up Python") < workflow.index(
+            "Fetch canonical reporting identity verifier"
+        )
+        assert workflow.index(
+            "Fetch canonical reporting identity verifier"
+        ) < workflow.index("Check reporting identity verifier drift")
         assert workflow.index(
             "Fetch canonical reporting identity contract"
         ) < workflow.index("Check reporting identity contract drift")

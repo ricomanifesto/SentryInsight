@@ -284,6 +284,23 @@ test("renders an archive that matches its manifest", async ({ page, request }) =
 });
 
 
+test("keeps a relative clock only on the current report", async ({ page, request }) => {
+  const failures = collectPageFailures(page);
+  await page.goto("/index.html");
+  await expect(page.locator("#report-age")).toContainText("updated");
+  await expect(page.locator(".report-frozen")).toHaveCount(0);
+
+  const manifestResponse = await request.get("/reports/index.json");
+  expect(manifestResponse.ok()).toBeTruthy();
+  const manifest = await manifestResponse.json();
+  expect(manifest.reports.length).toBeGreaterThan(0);
+  await page.goto(`/reports/${manifest.reports[0].html_path}`);
+  await expect(page.locator("#report-age")).toHaveCount(0);
+  await expect(page.locator(".report-frozen")).toHaveText("· Archived snapshot");
+  expect(failures).toEqual([]);
+});
+
+
 test("renders a tablet dark-mode report without overflow", async ({ page }) => {
   const failures = collectPageFailures(page);
   await page.setViewportSize({ width: 768, height: 1024 });

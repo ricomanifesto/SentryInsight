@@ -421,6 +421,7 @@ def _render_report_page(
     root_prefix: str,
     markdown_path: str,
     canonical_url: str,
+    relative_age: bool,
 ) -> str:
     report_html, headings = _render_markdown(artifact)
     finding_count, complete_cve_count, report_shape = _report_shape(artifact)
@@ -462,6 +463,11 @@ def _render_report_page(
             "REPORT_DATE_LABEL": _date_label(artifact.report_date),
             "GENERATED_AT_ISO": _timestamp(artifact.generated_at),
             "GENERATED_AT_LABEL": _generated_label(artifact.generated_at),
+            "REPORT_AGE_SUFFIX": (
+                '<span id="report-age"></span>'
+                if relative_age
+                else '<span class="report-frozen"> · Archived snapshot</span>'
+            ),
             "REPORT_SHAPE": report_shape,
             "DIGEST_ISSUE_URL": artifact.digest_issue_url
             or "https://ricomanifesto.github.io/SentryDigest/",
@@ -575,6 +581,7 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
             root_prefix="../",
             markdown_path=f"{archived.report_date.isoformat()}.md",
             canonical_url=f"{PUBLIC_ROOT}reports/{archived.report_date.isoformat()}.html",
+            relative_age=False,
         )
         (reports_path / f"{archived.report_date.isoformat()}.html").write_text(
             dated_html
@@ -587,6 +594,7 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
         root_prefix="",
         markdown_path="index.md",
         canonical_url=PUBLIC_ROOT,
+        relative_age=True,
     )
     (output_path / "index.html").write_text(latest_html)
     (output_path / "current-findings.json").write_text(

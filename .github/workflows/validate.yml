@@ -15,27 +15,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Fetch canonical reporting identity contract
-        run: |
-          if ! curl --fail --silent --show-error --location \
-            --retry 3 --retry-all-errors --connect-timeout 10 --max-time 30 \
-            https://raw.githubusercontent.com/ricomanifesto/SentryDigest/main/contracts/reporting-identity-v1.json \
-            --output "$RUNNER_TEMP/reporting-identity-v1.json"; then
-            echo "::error title=Canonical contract unavailable::Could not verify canonical reporting identity contract"
-            exit 1
-          fi
-
-      - name: Check reporting identity contract drift
-        run: |
-          if ! cmp -s contracts/reporting-identity-v1.json "$RUNNER_TEMP/reporting-identity-v1.json"; then
-            echo "::error title=Reporting identity contract drift::Reporting identity contract drift: local bytes differ from SentryDigest v1"
-            exit 1
-          fi
-
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+
+      - name: Fetch canonical reporting identity verifier
+        run: |
+          python3 contracts/reporting-identity-verifier-v1.py fetch \
+            --artifact verifier \
+            --canonical-output "$RUNNER_TEMP/reporting-identity-verifier-v1.py"
+
+      - name: Check reporting identity verifier drift
+        run: |
+          python3 contracts/reporting-identity-verifier-v1.py compare \
+            --artifact verifier \
+            --local-artifact contracts/reporting-identity-verifier-v1.py \
+            --canonical-artifact "$RUNNER_TEMP/reporting-identity-verifier-v1.py"
+
+      - name: Fetch canonical reporting identity contract
+        run: |
+          python3 contracts/reporting-identity-verifier-v1.py fetch \
+            --artifact contract \
+            --canonical-output "$RUNNER_TEMP/reporting-identity-v1.json"
+
+      - name: Check reporting identity contract drift
+        run: |
+          python3 contracts/reporting-identity-verifier-v1.py compare \
+            --artifact contract \
+            --local-artifact contracts/reporting-identity-v1.json \
+            --canonical-artifact "$RUNNER_TEMP/reporting-identity-v1.json"
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6

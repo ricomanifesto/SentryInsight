@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 import pytest
 
@@ -262,6 +263,66 @@ def test_previous_report_rolls_into_immutable_history_when_date_advances(tmp_pat
         "Reports accumulate through daily rollovers. Retained history begins "
         "Thursday, August 13, 2026." in (reports_path / "index.html").read_text()
     )
+    current_html = (tmp_path / "site" / "index.html").read_text()
+    archived_html = (reports_path / "2026-08-13.html").read_text()
+    assert '<span id="report-age"></span>' in current_html
+    assert "Archived snapshot" not in current_html
+    assert 'id="report-age"' not in archived_html
+    assert '<span class="report-frozen"> · Archived snapshot</span>' in archived_html
+
+
+def test_second_rollover_accumulates_ordered_history_and_pluralizes(tmp_path):
+    output_path = tmp_path / "site"
+    reports_path = output_path / "reports"
+    reports_path.mkdir(parents=True)
+    second_source = REPORT.replace("2026-08-13", "2026-08-14")
+    third_source = REPORT.replace("2026-08-13", "2026-08-15")
+
+    archive_previous_report(
+        current_source=REPORT,
+        next_report=parse_report_artifact(second_source),
+        reports_path=reports_path,
+    )
+    first_bytes = (reports_path / "2026-08-13.md").read_bytes()
+    archive_previous_report(
+        current_source=second_source,
+        next_report=parse_report_artifact(third_source),
+        reports_path=reports_path,
+    )
+    current_report = tmp_path / "index.md"
+    current_report.write_text(third_source)
+    build_site(
+        report_path=current_report,
+        output_path=output_path,
+        template_path=ROOT / "site",
+    )
+
+    assert (reports_path / "2026-08-13.md").read_bytes() == first_bytes
+    assert (reports_path / "2026-08-14.md").read_text() == second_source
+    manifest = json.loads((reports_path / "index.json").read_text())
+    assert [entry["report_date"] for entry in manifest["reports"]] == [
+        "2026-08-14",
+        "2026-08-13",
+    ]
+    archive_html = (reports_path / "index.html").read_text()
+    assert "2 reports available" in archive_html
+    assert "1 report available" not in archive_html
+    assert archive_html.index("2026-08-14.html") < archive_html.index("2026-08-13.html")
+    assert "Retained history begins Thursday, August 13, 2026." in archive_html
+    for report_date in ("2026-08-13", "2026-08-14"):
+        dated_html = (reports_path / f"{report_date}.html").read_text()
+        assert 'id="report-age"' not in dated_html
+        assert "Archived snapshot" in dated_html
+
+    namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+    sitemap = ET.parse(output_path / "sitemap.xml")
+    locations = [node.text for node in sitemap.findall("s:url/s:loc", namespace)]
+    assert locations == [
+        "https://ricomanifesto.github.io/SentryInsight/",
+        "https://ricomanifesto.github.io/SentryInsight/reports/",
+        "https://ricomanifesto.github.io/SentryInsight/reports/2026-08-14.html",
+        "https://ricomanifesto.github.io/SentryInsight/reports/2026-08-13.html",
+    ]
 
 
 def test_same_day_refresh_does_not_archive_or_conflict(tmp_path):
