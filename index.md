@@ -1,188 +1,179 @@
 ---
 schema_version: 2
-report_date: 2026-08-13
-generated_at: 2026-08-13T21:54:18Z
-digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-13/
+report_date: 2026-08-14
+generated_at: 2026-08-14T08:01:30Z
+digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-14/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-A global exploitation campaign targeting **CVE-2026-59310** in VMware vCenter Server has emerged as the most critical active threat, with multiple threat intelligence sources confirming widespread exploitation for reverse SSH persistence and remote code execution since early August. The vulnerability carries a CVSS 9.8 rating and affects the vCenter Syslog Server component, with evidence indicating that patching alone may not fully mitigate risk due to potential pre-compromise persistence. Simultaneously, North Korean state-sponsored actor **Lazarus Group** is actively exploiting an unpatched Windows zero-day vulnerability to deploy a novel backdoor across defense and aerospace targets in France, Germany, Brazil, and India as part of the long-running Operation Dream Job campaign.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, with VMware vCenter, Microsoft SharePoint, and Adobe Commerce platforms facing immediate threats. A global campaign targeting CVE-2026-59310 in VMware vCenter has established persistent reverse SSH access on compromised systems, while threat actors rapidly weaponized a public proof-of-concept for CVE-2026-55040 in SharePoint following its July 2026 patch. Adobe Commerce sites are experiencing exploitation attempts against CVE-2026-71362 aimed at customer account takeover. Two separate Windows zero-day vulnerabilities—LegacyHive and an unnamed flaw exploited by the Lazarus Group—were patched in July 2026 after confirmed in-the-wild exploitation, with the latter deployed against defense and aerospace targets across four countries as part of Operation Dream Job.
 
-Microsoft's July 2026 Patch Tuesday addressed several actively exploited flaws, including the **LegacyHive** Windows zero-day and **CVE-2026-55040** (CVSS 9.1), a SharePoint authentication bypass now under active exploitation following public proof-of-concept release. Adobe Commerce platforms face exploitation attempts against **CVE-2026-71362** for customer account hijacking, while a long-running "City-Forum" data theft campaign continues harvesting exposed data from Salesforce Experience Cloud and ServiceNow portals using custom tooling. The threat landscape also shows increasing abuse of legitimate system features—including Windows Safe Mode for EDR evasion by Akira ransomware affiliates, Plug and Play for SYSTEM privilege escalation, and malicious Chrome extensions at massive scale (737 identified)—alongside supply chain compromises affecting Trezor customers via ShipMonk and over 2,100 organizations through trojanized LiteLLM packages on PyPI.
+Simultaneously, sophisticated threat actors are conducting espionage and financially motivated operations without relying on traditional vulnerability exploitation. Apple has issued new Threat Notifications warning of mercenary spyware targeting iPhone users, while the Jewelbug APT balances government webmail intrusions with cryptocurrency fraud. The long-running "City-Forum" campaign continues stealing data from misconfigured Salesforce and ServiceNow portals using custom tooling. Supply chain attacks have surfaced through 737 malicious Chrome VPN extensions proxying user traffic and two credential-stealing LiteLLM packages on PyPI. Akira ransomware affiliates have adopted a novel Safe Mode technique to disable EDR solutions, demonstrating evolving post-exploitation tradecraft.
 
 ## Active Exploitation Details
 
-### VMware vCenter Server Directory Traversal and RCE (CVE-2026-59310)
-- **Description**: A critical directory-traversal vulnerability in VMware vCenter Server's Syslog Server component that allows unauthenticated attackers with network access to execute arbitrary code. Multiple independent sources confirm active exploitation campaigns deploying reverse SSH tunnels for persistent remote access.
-- **Impact**: Full remote code execution on vCenter Server, enabling persistent administrative access, lateral movement across virtualized infrastructure, and potential compromise of all managed ESXi hosts and virtual machines.
-- **Status**: Actively exploited in the wild since early August 2026. Patches are available from Broadcom/VMware, but security researchers warn patching may not remove established persistence mechanisms such as reverse SSH tunnels.
+### CVE-2026-59310 - VMware vCenter Directory Traversal RCE
+- **Description**: A critical directory-traversal vulnerability in VMware vCenter Server (CVSS 9.8) that allows a malicious actor with network access to execute arbitrary code. The flaw resides in the vCenter Syslog Server component and enables unauthenticated remote code execution.
+- **Impact**: Attackers gain full control of vCenter servers, deploying reverse SSH tools for persistent remote access and lateral movement within virtualized infrastructure.
+- **Status**: Actively exploited in a global campaign; patches released but may not fully mitigate threat if compromise already occurred.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-59310
 - **Reporting**: [Dark Reading — Global Threat Campaign Hits Critical VMware vCenter Flaw](https://www.darkreading.com/vulnerabilities-threats/global-threat-campaign-critical-vmware-vcenter-flaw), [Bleeping Computer — Critical VMware vCenter RCE flaw exploited for reverse SSH access](https://www.bleepingcomputer.com/news/security/critical-vmware-vcenter-rce-flaw-exploited-for-reverse-ssh-access/), [The Hacker News — Attackers Exploit VMware vCenter Vulnerability to Gain Persistent Remote Access](https://thehackernews.com/2026/08/attackers-exploit-vmware-vcenter.html)
 
-### Microsoft SharePoint Authentication Bypass (CVE-2026-55040)
-- **Description**: A critical security feature bypass vulnerability stemming from weak authentication in Microsoft SharePoint. The flaw allows attackers to bypass authentication controls entirely. A public proof-of-concept exploit was released following the July 2026 Patch Tuesday, triggering immediate active exploitation.
-- **Impact**: Unauthenticated attackers can bypass SharePoint authentication, potentially accessing sensitive documents, escalating privileges, and moving laterally within Microsoft 365 and on-premises SharePoint environments.
-- **Status**: Patched in July 2026 Patch Tuesday. Active exploitation confirmed following public PoC release.
+### CVE-2026-55040 - Microsoft SharePoint Authentication Bypass
+- **Description**: A critical security feature bypass (CVSS 9.1) stemming from weak authentication in Microsoft SharePoint. The vulnerability allows authentication bypass and was patched as part of the July 2026 Patch Tuesday updates.
+- **Impact**: Attackers can bypass authentication controls to access SharePoint resources, potentially leading to data exfiltration, privilege escalation, and further network compromise.
+- **Status**: Active exploitation observed following public PoC release; patch available since July 2026.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-55040
 - **Reporting**: [The Hacker News — Attackers Exploit SharePoint Authentication Bypass After Public PoC Release](https://thehackernews.com/2026/08/attackers-exploit-sharepoint.html)
 
-### Adobe Commerce / Magento Customer Account Hijacking (CVE-2026-71362)
-- **Description**: A critical vulnerability in Adobe Commerce and Magento e-commerce platforms that enables attackers to hijack customer accounts. Exploitation attempts have been detected in the wild.
-- **Impact**: Attackers can take over customer accounts on affected e-commerce sites, accessing personal data, order history, payment information, and potentially making fraudulent purchases.
-- **Status**: Exploitation attempts actively detected. Adobe has released patches for affected versions.
+### CVE-2026-71362 - Adobe Commerce/Magento Account Hijacking
+- **Description**: A critical vulnerability in Adobe Commerce and Magento e-commerce platforms that allows attackers to hijack customer accounts.
+- **Impact**: Successful exploitation enables account takeover, potentially leading to payment fraud, personal data theft, and unauthorized transactions on affected e-commerce sites.
+- **Status**: Exploitation attempts actively detected in the wild; patch status not specified in reporting.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-71362
 - **Reporting**: [Bleeping Computer — Hackers exploit critical Adobe Commerce flaw to hijack customer accounts](https://www.bleepingcomputer.com/news/security/hackers-exploit-critical-adobe-commerce-flaw-to-hijack-customer-accounts/)
 
-### Windows LegacyHive Zero-Day Vulnerability
-- **Description**: A Windows zero-day vulnerability codenamed "LegacyHive" that was disclosed and patched during the July 2026 Patch Tuesday. The vulnerability was actively exploited prior to patch release.
-- **Impact**: Specific technical details were not disclosed in the source article, but as a patched zero-day, it enabled privilege escalation or remote code execution on affected Windows versions.
-- **Status**: Patched in July 2026 Patch Tuesday. Was actively exploited as a zero-day prior to patch availability.
+### LegacyHive Windows Zero-Day Vulnerability
+- **Description**: A Windows zero-day vulnerability codenamed "LegacyHive" that was actively exploited before being patched in the July 2026 Patch Tuesday release.
+- **Impact**: As a zero-day, it provided attackers with an undisclosed capability (likely privilege escalation or remote code execution) against unpatched Windows systems.
+- **Status**: Patched as of July 2026 Patch Tuesday; exploitation confirmed prior to patch.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [Bleeping Computer — Microsoft patches LegacyHive Windows zero-day vulnerability](https://www.bleepingcomputer.com/news/microsoft/microsoft-patches-legacyhive-windows-zero-day-vulnerability/)
 
-### Lazarus Group Windows Zero-Day Exploitation (Operation Dream Job)
-- **Description**: The North Korean Lazarus Group is exploiting a newly patched Windows zero-day vulnerability to gain SYSTEM-level access and deploy a previously unseen backdoor. This activity is part of Operation Dream Job, a long-running cyber espionage campaign targeting defense and aerospace sectors.
-- **Impact**: SYSTEM-level compromise of target systems, deployment of custom backdoor for persistent espionage access, targeting defense and aerospace companies in France, Germany, Brazil, and India.
-- **Status**: Active exploitation by a sophisticated nation-state actor. Microsoft has released a patch for the underlying vulnerability.
+### Lazarus Group Windows Zero-Day Exploitation
+- **Description**: An undisclosed Windows zero-day vulnerability exploited by the North Korean Lazarus Group to gain SYSTEM access and deploy a never-before-seen backdoor. The flaw was patched in a recent Microsoft update.
+- **Impact**: Full SYSTEM-level compromise enabling persistent backdoor access, targeting defense and aerospace organizations in France, Germany, Brazil, and India as part of Operation Dream Job.
+- **Status**: Actively exploited in targeted espionage campaign; patch released.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [The Hacker News — Lazarus Exploits Windows Zero-Day to Gain SYSTEM Access and Deploy Backdoor](https://thehackernews.com/2026/08/lazarus-exploits-windows-zero-day-to.html)
 
-### Adobe ColdFusion OS Command Injection (CVE-2026-48362)
-- **Description**: An operating system command injection vulnerability in Adobe ColdFusion rated CVSS 10.0, the maximum severity score. This was among three critical flaws patched by Adobe across ColdFusion, Commerce, and Campaign Classic.
-- **Impact**: Unauthenticated remote code execution with the privileges of the ColdFusion service, potentially leading to full server compromise.
-- **Status**: Patched by Adobe in August 2026 updates. Exploitation status in the wild not explicitly confirmed in source articles.
+### Apple Mercenary Spyware Attacks
+- **Description**: Apple has issued new Threat Notifications to users detecting "mercenary spyware attacks" targeting iPhones, indicating active exploitation of likely zero-day vulnerabilities in iOS by commercial spyware vendors.
+- **Impact**: Full device compromise enabling surveillance, data exfiltration, and persistent monitoring of high-value targets.
+- **Status**: Active targeting confirmed via Apple Threat Notifications; no public patch information available.
 - **Severity**: critical
-- **Exploitation Status**: unknown
-- **Action**: patch
-- **CVE IDs**: CVE-2026-48362
-- **Reporting**: [The Hacker News — Adobe Patches Three CVSS 10.0 ColdFusion and Campaign Classic Flaws](https://thehackernews.com/2026/08/adobe-patches-three-cvss-100-coldfusion.html)
-
-### Belgium eID Browser Extension RCE Vulnerabilities
-- **Description**: Severe vulnerabilities in a key browser extension used for Belgium's electronic ID (eID) authentication system, fully compromising the trust framework underlying citizen authentication. The flaws enable remote code execution.
-- **Impact**: Complete compromise of citizen authentication for Belgian eID system, enabling identity theft, unauthorized access to government services, and potential RCE on user systems.
-- **Status**: Vulnerabilities disclosed. Remediation status of the browser extension not specified in source.
-- **Severity**: critical
-- **Exploitation Status**: unknown
+- **Exploitation Status**: active
 - **Action**: investigate
-- **Reporting**: [Dark Reading — Belgium's eID Authentication Opens Citizen Accounts to RCE](https://www.darkreading.com/application-security/belgium-eid-authentication-citizen-accounts-rce)
+- **Reporting**: [Bleeping Computer — Apple sends new ‘Threat Notification’ alerts over mercenary spyware attacks](https://www.bleepingcomputer.com/news/apple/apple-sends-new-threat-notification-alerts-over-mercenary-spyware-attacks/)
 
-### Akira Ransomware EDR Evasion via Safe Mode
-- **Description**: Akira ransomware affiliates are disabling Endpoint Detection and Response (EDR) solutions by restarting compromised systems into Safe Mode with Networking, where EDR drivers and services typically do not load.
-- **Impact**: Bypass of advanced endpoint protection, enabling unimpeded ransomware execution, data theft, and encryption attempts. In the observed case, data was stolen but encryption failed.
-- **Status**: Active technique in use by Akira affiliates. No patch available—this is a defense evasion technique abusing a legitimate Windows feature.
+### Akira Ransomware Safe Mode EDR Bypass
+- **Description**: Akira ransomware affiliates are disabling Endpoint Detection and Response (EDR) solutions by restarting compromised systems into Safe Mode with Networking, where EDR agents typically do not run.
+- **Impact**: Attackers evade detection during critical post-exploitation phases, enabling data theft and encryption attempts without interference from security tools.
+- **Status**: Actively used in intrusions; no patch applicable (technique abuse).
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: mitigate
 - **Reporting**: [Bleeping Computer — Akira hackers disable EDR with Safe Mode, steal data but fail to encrypt](https://www.bleepingcomputer.com/news/security/akira-hackers-disable-edr-with-safe-mode-steal-data-but-fail-to-encrypt/)
 
-### Plug and Pwn: Windows Plug and Play Abuse for SYSTEM Access
-- **Description**: A novel attack technique abusing the Windows Plug and Play feature to trigger automatic installation of vulnerable or insecure vendor-signed drivers/software, resulting in SYSTEM-level privilege escalation.
-- **Impact**: Local privilege escalation to SYSTEM without exploiting a traditional vulnerability, leveraging legitimate Windows driver installation mechanisms and vulnerable vendor software.
-- **Status**: Proof-of-concept/research disclosure. Active exploitation in the wild not explicitly confirmed.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: monitor
-- **Reporting**: [Bleeping Computer — Plug and Pwn attack uses fake USB devices for Windows SYSTEM access](https://www.bleepingcomputer.com/news/security/plug-and-pwn-attack-uses-fake-usb-devices-for-windows-system-access/)
-
-### Android NFC Relay Malware (WindRelay + SpyNote)
-- **Description**: A combination of WindRelay NFC relay malware and SpyNote remote administration tool (RAT) that steals live credit card data via NFC relay and exfiltrates it in real time, while also enabling full device control.
-- **Impact**: Real-time theft of physical credit card data via NFC relay attacks, full device compromise via RAT capabilities, fraudulent loan applications initiated on victim devices.
-- **Status**: Active malware campaign observed in the wild.
+### Jewelbug APT Espionage and Fraud Operations
+- **Description**: The Jewelbug hacker group conducts simultaneous cyber espionage against governments and militaries while operating cryptocurrency fraud schemes, accessed through compromised government webmail systems.
+- **Impact**: Sensitive government communications exposed alongside financial theft via crypto fraud, indicating dual-mission operational posture.
+- **Status**: Ongoing campaigns observed; initial access vector not specified in reporting.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
-- **Reporting**: [Bleeping Computer — Android malware combo takes out loans and relays victims' credit cards](https://www.bleepingcomputer.com/news/security/android-malware-combo-takes-out-loans-and-relays-victims-credit-cards/)
+- **Reporting**: [Bleeping Computer — Hackers breach govt webmail while running parallel crypto fraud](https://www.bleepingcomputer.com/news/security/hackers-breach-govt-webmail-while-running-parallel-crypto-fraud/), [Dark Reading — 'Jewelbug' APT Balances State Espionage & Cryptocurrency Theft](https://www.darkreading.com/threat-intelligence/jewelbug-apt-state-espionage-cryptocurrency-theft)
 
-### City-Forum Data Theft Campaign (Salesforce/ServiceNow)
-- **Description**: A long-running campaign active since at least March 2025 using custom tooling to enumerate and extract data exposed to anonymous users through Salesforce Experience Cloud sites and ServiceNow customer portals.
-- **Impact**: Large-scale data theft from misconfigured cloud portals, potentially exposing customer PII, support tickets, internal documents, and business data across multiple sectors.
-- **Status**: Active ongoing campaign with custom tooling. Not a vulnerability in the platforms themselves but exploitation of misconfigurations.
+### City-Forum Data Theft Campaign
+- **Description**: A long-running campaign (active since at least March 2025) using custom tools to steal data exposed through anonymous access misconfigurations in Salesforce Experience Cloud and ServiceNow customer portals across multiple sectors.
+- **Impact**: Large-scale data theft from enterprise CRM and ITSM platforms without requiring vulnerability exploitation—leveraging excessive anonymous permissions.
+- **Status**: Active ongoing campaign with custom tooling; mitigation requires configuration review.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [Bleeping Computer — "City-Forum" data-theft attacks target Salesforce, ServiceNow portals](https://www.bleepingcomputer.com/news/security/city-forum-data-theft-attacks-target-salesforce-servicenow-portals/), [Dark Reading — Long-running Data Theft Campaign Targeting Salesforce, ServiceNow](https://www.darkreading.com/cyberattacks-data-breaches/long-running-data-theft-campaign-salesforce-servicenow)
 
-### Malicious Chrome VPN Extensions (737 Extensions)
-- **Description**: Over 737 malicious Chrome Web Store extensions impersonating legitimate VPN and proxy services, routing user traffic through attacker-controlled SOCKS5 proxy infrastructure. Published across 40+ developer accounts with 75,000+ combined installs, primarily targeting Russian-speaking users.
-- **Impact**: Full interception of browser traffic, credential harvesting, session hijacking, and potential injection of malicious content. 274 extensions impersonated 66 legitimate VPN brands.
-- **Status**: Active on Chrome Web Store until discovery. Google has been notified; removal status ongoing.
+### Malicious Chrome VPN Extensions Campaign
+- **Description**: Over 737 malicious browser extensions published on the Chrome Web Store impersonate legitimate VPN/proxy services while routing user traffic through attacker-controlled SOCKS5 proxies, amassing 75,486 installs across 40+ developer accounts.
+- **Impact**: Interception and proxying of all browser traffic, enabling credential harvesting, session hijacking, and surveillance of affected users (primarily Russian-speaking).
+- **Status**: Active on Chrome Web Store at time of reporting; 274 extensions impersonate 66 known brands.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [Bleeping Computer — Hundreds of fake Chrome VPN extensions route traffic through a proxy](https://www.bleepingcomputer.com/news/security/hundreds-of-fake-chrome-vpn-extensions-route-traffic-through-a-proxy/), [The Hacker News — 737 Chrome VPN Extensions Caught Routing Traffic Through Proxies. Check If You Have One](https://thehackernews.com/2026/08/737-chrome-vpn-extensions-caught.html)
 
-### Supply Chain Compromise: Trojanized LiteLLM Packages on PyPI
-- **Description**: Two malicious LiteLLM releases published on PyPI for approximately 40 minutes in March 2026, containing credential-stealing code that harvested cloud keys, SSH keys, Kubernetes tokens, database passwords, and other secrets. Linked to a compromise of the Trivy security scanner project.
-- **Impact**: Potential exposure of 2,100+ organizations that may have installed the malicious packages. Attackers captured approximately 434,000 files containing secrets and credentials.
-- **Status**: Packages removed from PyPI. Incident response ongoing for potentially affected organizations.
-- **Severity**: critical
+### Malicious LiteLLM Supply Chain Attack
+- **Description**: Two malicious LiteLLM packages uploaded to PyPI in March 2026 contained credential-stealing code harvesting cloud keys, SSH keys, Kubernetes tokens, and database passwords. Packages remained available for approximately 40 minutes, potentially exposing 2,100+ organizations.
+- **Impact**: Compromise of developer and CI/CD environments with access to cloud infrastructure, containers, and databases via stolen secrets.
+- **Status**: Packages removed; exposure window closed but compromise assessment required for affected organizations.
+- **Severity**: high
 - **Exploitation Status**: observed
 - **Action**: investigate
 - **Reporting**: [The Hacker News — Malicious LiteLLM Releases Tied to Trivy Hack May Have Exposed 2,100+ Organizations](https://thehackernews.com/2026/08/malicious-litellm-releases-tied-to.html)
 
-### Trezor Data Breach via ShipMonk Supply Chain
-- **Description**: Hardware wallet manufacturer Trezor disclosed a breach affecting nearly 14,000 customers after its shipping and logistics provider ShipMonk was compromised.
-- **Impact**: Exposure of customer shipping information (names, addresses, emails, phone numbers) for cryptocurrency hardware wallet users, enabling targeted physical and phishing attacks.
-- **Status**: Breach disclosed. ShipMonk compromise confirmed.
-- **Severity**: medium
+### Belgium eID Authentication RCE Vulnerabilities
+- **Description**: Severe vulnerabilities in a key browser extension underlying Belgium's electronic ID (eID) system fully compromise the trust framework, enabling remote code execution against citizen accounts.
+- **Impact**: Complete compromise of eID authentication for Belgian citizens, enabling identity theft, unauthorized access to government services, and digital signature forgery.
+- **Status**: Vulnerabilities identified in browser extension component; patch status not specified.
+- **Severity**: critical
+- **Exploitation Status**: potential
+- **Action**: mitigate
+- **Reporting**: [Dark Reading — Belgium's eID Authentication Opens Citizen Accounts to RCE](https://www.darkreading.com/application-security/belgium-eid-authentication-citizen-accounts-rce)
+
+### Colombian Justice Ministry Ransomware Attack
+- **Description**: Ransomware operators successfully compromised the Colombian Justice Ministry days before a presidential transition, continuing a pattern of targeting critical government infrastructure in Latin America.
+- **Impact**: Disruption of judicial operations, potential data exfiltration, and operational paralysis during a sensitive political transition period.
+- **Status**: Active incident; initial access vector not specified.
+- **Severity**: high
 - **Exploitation Status**: observed
-- **Action**: monitor
-- **Reporting**: [Bleeping Computer — Trezor discloses data breach affecting nearly 14,000 customers](https://www.bleepingcomputer.com/news/security/trezor-discloses-data-breach-affecting-nearly-14-000-customers/)
+- **Action**: investigate
+- **Reporting**: [Dark Reading — Ransomware Hits Colombian Justice Ministry Days Before Presidential Transition](https://www.darkreading.com/cyberattacks-data-breaches/ransomware-hits-colombian-justice-ministry-presidential-transition)
 
 ## Affected Systems and Products
 
-- **VMware vCenter Server**: All versions with Syslog Server component enabled prior to patched releases. Critical infrastructure virtualization management platform.
-- **Microsoft SharePoint**: On-premises SharePoint Server and Microsoft 365 SharePoint Online affected by CVE-2026-55040 authentication bypass.
-- **Adobe Commerce / Magento**: E-commerce platform versions prior to August 2026 security patches (CVE-2026-71362).
-- **Adobe ColdFusion**: Versions prior to August 2026 security updates (CVE-2026-48362 and related flaws).
-- **Adobe Campaign Classic**: Affected by critical patches in Adobe's August 2026 release.
-- **Microsoft Windows**: Multiple versions affected by LegacyHive zero-day and the Lazarus-exploited zero-day (both patched July 2026).
-- **Belgium eID Browser Extension**: The middleware extension used for Belgian national electronic identity authentication in web browsers.
-- **Salesforce Experience Cloud**: Sites with misconfigured anonymous/public access settings targeted by City-Forum campaign.
-- **ServiceNow Customer Portals**: Instances with excessive anonymous access permissions targeted by City-Forum campaign.
-- **Android Devices**: Devices running malicious WindRelay/SpyNote applications, typically installed via social engineering.
-- **Google Chrome Browser**: Users who installed any of the 737 malicious VPN/proxy extensions from Chrome Web Store.
-- **Python/PyPI Ecosystem**: Organizations that installed LiteLLM versions 1.72.0 or 1.72.1 during the ~40-minute compromise window in March 2026.
-- **Trezor Hardware Wallet Customers**: Approximately 14,000 customers whose shipping data was exposed via ShipMonk breach.
+- **VMware vCenter Server / vCenter Syslog Server**: Versions vulnerable to CVE-2026-59310; directory traversal leads to unauthenticated RCE
+- **Microsoft SharePoint**: Versions prior to July 2026 Patch Tuesday affected by CVE-2026-55040 authentication bypass
+- **Adobe Commerce / Magento**: E-commerce platforms vulnerable to CVE-2026-71362 customer account hijacking
+- **Microsoft Windows**: Systems unpatched against LegacyHive zero-day and Lazarus-exploited zero-day (both addressed in July 2026 Patch Tuesday)
+- **Apple iOS / iPhone**: Devices targeted by mercenary spyware campaigns triggering Apple Threat Notifications
+- **Salesforce Experience Cloud**: Customer portals with misconfigured anonymous access permissions exploited by City-Forum campaign
+- **ServiceNow**: Customer portals with excessive anonymous data exposure targeted by City-Forum campaign
+- **Google Chrome Browser**: Users who installed any of 737 malicious VPN/proxy extensions from Chrome Web Store
+- **Python/PyPI Ecosystem**: Organizations that installed malicious LiteLLM packages (versions published March 2026)
+- **Belgium eID Browser Extension**: Component underlying national electronic ID system with RCE vulnerabilities
+- **Adobe ColdFusion**: Versions affected by CVE-2026-48362 (CVSS 10.0 OS command injection) and other patched flaws
+- **Android Devices**: Targets of WindRelay NFC relay malware and SpyNote RAT combination for financial fraud
 
 ## Attack Vectors and Techniques
 
-- **Reverse SSH Persistence via vCenter Exploitation**: Attackers exploit CVE-2026-59310 to deploy reverse SSH tunnels, establishing persistent remote access that survives patching and reboot. This provides long-term foothold in virtualization management infrastructure.
-- **Public PoC-Driven Exploitation (SharePoint)**: Rapid weaponization of CVE-2026-55040 following proof-of-concept release, demonstrating the shrinking window between disclosure and active exploitation for authentication bypass flaws.
-- **Safe Mode EDR Evasion**: Akira ransomware affiliates reboot compromised endpoints into Safe Mode with Networking, where EDR kernel drivers and monitoring services are not loaded, allowing unimpeded execution of malicious tools.
-- **Windows Plug and Play Abuse (Plug and Pwn)**: Attackers connect malicious USB devices or emulate them to trigger automatic installation of vulnerable vendor-signed drivers/software via Windows' legitimate PnP mechanism, achieving SYSTEM privileges without memory corruption exploits.
-- **Anonymous Cloud Portal Enumeration (City-Forum)**: Custom tooling systematically scans Salesforce Experience Cloud and ServiceNow instances for data exposed to unauthenticated/anonymous users, extracting customer records, support tickets, and internal documents.
-- **NFC Relay Attack (WindRelay)**: Malware relays live NFC communications from victim's physical credit card (via compromised Android device) to attacker's device in real time, enabling card-present fraud without physical card access.
-- **Malicious Browser Extensions at Scale**: 737 extensions published across 40+ developer accounts on Chrome Web Store, using brand impersonation and legitimate-seeming functionality to achieve 75,000+ installs before detection.
-- **Supply Chain Injection (PyPI/LiteLLM)**: Attackers compromised the Trivy project or its build pipeline to publish trojanized LiteLLM packages on PyPI, harvesting secrets from CI/CD pipelines and developer environments.
-- **Logistics Provider Compromise**: Attackers breached ShipMonk (shipping/logistics provider) to access Trezor customer data, demonstrating risk from third-party vendors with access to sensitive customer information.
-- **Operation Dream Job Social Engineering**: Lazarus Group uses fake job offers targeting defense/aerospace professionals to deliver payloads exploiting Windows zero-day, combining social engineering with zero-day exploitation.
-- **API Reasoning Replay Attack**: Researchers demonstrated that encrypted reasoning objects from OpenAI, Anthropic, and Google APIs can be captured from one session and replayed into another to extract internal reasoning, API keys, and passwords.
+- **Directory Traversal to RCE**: Exploitation of CVE-2026-59310 in VMware vCenter via crafted requests to Syslog Server component, enabling arbitrary code execution and reverse SSH deployment for persistence
+- **Authentication Bypass via Weak Controls**: CVE-2026-55040 in SharePoint exploited after public PoC release, allowing unauthorized access through flawed authentication logic
+- **Customer Account Takeover**: CVE-2026-71362 in Adobe Commerce exploited to hijack user sessions and credentials on e-commerce platforms
+- **Zero-Day Exploitation**: Two distinct Windows zero-days (LegacyHive and Lazarus-attributed) exploited pre-patch for SYSTEM-level access and backdoor deployment
+- **Mercenary Spyware Delivery**: Commercial surveillance tools (likely Pegasus-class) targeting iPhones via zero-click or one-click exploits, detected by Apple's Threat Notification system
+- **Safe Mode EDR Evasion**: Akira affiliates reboot compromised hosts into Safe Mode with Networking to disable EDR agents that don't load in minimal boot environment
+- **Anonymous Data Exposure Exploitation**: City-Forum campaign uses custom tooling to enumerate and extract data from Salesforce/ServiceNow portals with misconfigured public access
+- **Malicious Browser Extension Distribution**: 737 Chrome extensions published under 40+ developer accounts impersonate legitimate VPNs to route traffic through attacker SOCKS5 proxies
+- **Supply Chain Package Compromise**: Typosquat or dependency confusion via malicious LiteLLM packages on PyPI delivering credential-stealing payloads to developer environments
+- **Browser Extension RCE**: Vulnerabilities in Belgium's eID browser extension enable remote code execution against citizen authentication flows
+- **Dual-Purpose Espionage/Fraud Infrastructure**: Jewelbug APT uses same web panel for government webmail intrusion and cryptocurrency fraud operations
+- **NFC Relay + RAT Combination**: WindRelay malware relays live credit card data via NFC while SpyNote RAT provides device control for loan fraud on Android
 
 ## Threat Actor Activities
 
-- **Lazarus Group (North Korea)**: Active exploitation of Windows zero-day for SYSTEM access and novel backdoor deployment targeting defense/aerospace sectors in France, Germany, Brazil, and India under Operation Dream Job. High-confidence attribution by Check Point Research.
-- **Akira Ransomware Affiliates**: Active use of Safe Mode reboot technique to disable EDR, conducting data theft and attempted encryption operations. Demonstrates adaptive defense evasion by ransomware operators.
-- **Jewelbug APT (Hackers-for-Hire)**: Conducting dual-mission operations—government/military espionage via webmail breaches alongside cryptocurrency fraud for financial gain. Researchers identified shared infrastructure and web panel usage for both mission types.
-- **City-Forum Campaign Operators**: Long-running (since March 2025) data theft campaign targeting Salesforce Experience Cloud and ServiceNow portals across multiple sectors using custom enumeration and extraction tooling. Attribution unknown.
-- **Unknown Actors (VMware vCenter Campaign)**: Multiple exploitation campaigns leveraging CVE-2026-59310 for reverse SSH persistence and remote access. QUIRSO and other researchers observe active exploitation but have not attributed to specific groups.
-- **Unknown Actors (SharePoint Exploitation)**: Rapid exploitation of CVE-2026-55040 following PoC release. No specific attribution in source articles.
-- **Unknown Actors (Adobe Commerce Exploitation)**: Active exploitation attempts against CVE-2026-71362 for customer account hijacking. No attribution provided.
-- **Chrome VPN Extension Operators**: Coordinated operation across 40+ Chrome Web Store developer accounts publishing 737 malicious extensions impersonating 66 legitimate VPN brands, targeting Russian-speaking users with 75,000+ total installs.
-- **LiteLLM/Trivy Supply Chain Attackers**: Unknown actors who compromised the Trivy project or its publishing pipeline to inject credential-stealing code into LiteLLM packages on PyPI, potentially affecting 2,100+ organizations.
-- **ShipMonk Breach Actors**: Unknown threat actors who compromised ShipMonk logistics platform to access Trezor customer shipping data (14,000 records).
+- **Lazarus Group (North Korea)**: Active exploitation of Windows zero-day to deploy novel backdoor against defense/aerospace targets in France, Germany, Brazil, and India under Operation Dream Job; attributed by Check Point Research
+- **Jewelbug APT**: Hackers-for-hire conducting simultaneous state-sponsored espionage (government/military webmail breach) and financially motivated cryptocurrency fraud from shared infrastructure
+- **Akira Ransomware Affiliates**: Operating with novel Safe Mode EDR bypass technique to disable defenses during data theft and encryption attempts
+- **City-Forum Campaign Operators**: Long-running (since March 2025) data theft operation targeting Salesforce Experience Cloud and ServiceNow portals across multiple sectors using custom-built enumeration and exfiltration tools
+- **Mercenary Spyware Vendors**: Commercial surveillance actors targeting high-value iPhone users, triggering Apple's Threat Notification system; likely NSO Group or similar operators
+- **Chrome Extension Threat Actors**: Coordinated campaign publishing 737 malicious VPN/proxy extensions across 40+ Chrome Web Store developer accounts, primarily targeting Russian-speaking users seeking censorship circumvention
+- **LiteLLM Supply Chain Attackers**: Unknown operators who published credential-stealing PyPI packages tied to the Trivy security scanner compromise, harvesting cloud/SSH/Kubernetes secrets
+- **Colombian Justice Ministry Ransomware Operators**: Unidentified ransomware group targeting critical government infrastructure during presidential transition period, consistent with increased Latin American activity
+- **VMware vCenter Campaign Actors**: Unattributed threat actors conducting global exploitation of CVE-2026-59310 for persistent reverse SSH access; potentially multiple groups given widespread activity
+- **SharePoint PoC Weaponizers**: Opportunistic attackers rapidly exploiting CVE-2026-55040 following public proof-of-concept release post-July 2026 patch
+- **Adobe Commerce Exploiters**: Actors scanning for and exploiting CVE-2026-71362 to hijack customer accounts on Magento/Commerce platforms

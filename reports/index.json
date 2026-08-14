@@ -1,4 +1,13 @@
 {
   "schema_version": 1,
-  "reports": []
+  "reports": [
+    {
+      "report_date": "2026-08-13",
+      "generated_at": "2026-08-13T21:54:18Z",
+      "html_path": "2026-08-13.html",
+      "markdown_path": "2026-08-13.md",
+      "finding_count": 14,
+      "cve_count": 4
+    }
+  ]
 }
