@@ -873,6 +873,51 @@ def has_single_overlong_executive_summary(markdown: str) -> bool:
     return len(paragraph) >= 500 or sentence_count >= 4
 
 
+def split_overlong_executive_summary(markdown: str) -> str:
+    """Split one overlong summary paragraph without changing its words."""
+    if not has_single_overlong_executive_summary(markdown):
+        return markdown
+
+    section_pattern = re.compile(r"^## Executive Summary\s*$", re.MULTILINE)
+    section_match = section_pattern.search(markdown)
+    if not section_match:
+        return markdown
+
+    body_start = section_match.end()
+    next_section = SECTION_HEADING_PATTERN.search(markdown, body_start)
+    body_end = next_section.start() if next_section else len(markdown)
+    summary_body = markdown[body_start:body_end]
+    paragraphs = get_nonempty_paragraphs(summary_body)
+    if len(paragraphs) != 1:
+        return markdown
+
+    paragraph = paragraphs[0]
+    sentence_breaks = [
+        match.end()
+        for match in SENTENCE_END_PATTERN.finditer(paragraph)
+        if match.end() < len(paragraph)
+    ]
+    if not sentence_breaks:
+        return markdown
+
+    split_at = min(sentence_breaks, key=lambda offset: abs(offset - len(paragraph) / 2))
+    first_paragraph = paragraph[:split_at].rstrip()
+    second_paragraph = paragraph[split_at:].lstrip()
+    if not first_paragraph or not second_paragraph:
+        return markdown
+
+    paragraph_start = summary_body.find(paragraph)
+    paragraph_end = paragraph_start + len(paragraph)
+    normalized_body = (
+        summary_body[:paragraph_start]
+        + first_paragraph
+        + "\n\n"
+        + second_paragraph
+        + summary_body[paragraph_end:]
+    )
+    return markdown[:body_start] + normalized_body + markdown[body_end:]
+
+
 def get_top_level_list_items(markdown: str) -> list[str]:
     lines = markdown.splitlines()
     items: list[str] = []

@@ -198,6 +198,75 @@ Recent exploitation activity is concentrated in edge systems.
             self.assertTrue((Path(tmpdir) / "index.html").exists())
             self.assertTrue((Path(tmpdir) / "reports" / "index.json").exists())
 
+    def test_overlong_summary_is_split_before_report_validation(self):
+        workflow = import_workflow_with_stubs()
+        summary_sentences = [
+            "Attackers are exploiting multiple exposed systems across sectors.",
+            "Credential theft and remote code execution remain the dominant risks.",
+            "Supply chain compromise is expanding across developer ecosystems.",
+            "Security teams should prioritize patching and credential rotation.",
+            "Defenders should monitor for follow-on access attempts.",
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "index.md"
+            state = {
+                "analysis_results": {
+                    "exploitation_report": f"""# Exploitation Report
+
+## Executive Summary
+
+{" ".join(summary_sentences)}
+
+## Active Exploitation Details
+
+### Example Vulnerability
+- **Description**: Attackers are exploiting a vulnerable service.
+- **Impact**: Remote access.
+- **Status**: Active exploitation observed.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: source-1e8f5cb3245d
+
+## Affected Systems and Products
+
+- **Example Product**: Affected versions are exposed.
+
+## Attack Vectors and Techniques
+
+- **Internet-facing service**: Attackers send crafted requests.
+
+## Threat Actor Activities
+
+- **Unknown actor**: Opportunistic exploitation.
+""",
+                    "reporting_sources": [
+                        {
+                            "key": "source-1e8f5cb3245d",
+                            "publisher": "Example Source",
+                            "title": "Example report",
+                            "url": "https://example.test/report",
+                        }
+                    ],
+                },
+                "config": {"output_path": str(output_path)},
+                "status": "started",
+            }
+
+            result = asyncio.run(workflow.generate_report(state))
+
+            self.assertNotEqual(result["status"], "failed")
+            written_report = output_path.read_text()
+            summary_body = written_report.split("## Executive Summary", 1)[1].split(
+                "## Active Exploitation Details", 1
+            )[0]
+            self.assertEqual(
+                len([part for part in summary_body.split("\n\n") if part.strip()]), 2
+            )
+            for sentence in summary_sentences:
+                self.assertIn(sentence, summary_body)
+
     def test_missing_expected_cve_does_not_write_output_file(self):
         workflow = import_workflow_with_stubs()
 

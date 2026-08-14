@@ -13,6 +13,7 @@ from .analyze import filter_exploitation_articles, analyze_exploitation
 from .report_validation import (
     format_report_validation_issues,
     remove_source_attribution_section,
+    split_overlong_executive_summary,
     validate_report_content,
 )
 from .report_artifact import ReportArtifactError, parse_report_artifact
@@ -195,6 +196,12 @@ async def generate_report(
     # Since the exploitation_report already contains the full formatted report,
     # we should use it directly instead of the template
     report = remove_source_attribution_section(exploitation_report)
+    normalized_report = split_overlong_executive_summary(report)
+    if normalized_report != report:
+        logger.info(
+            "Split an overlong Executive Summary at a sentence boundary before validation"
+        )
+    report = normalized_report
     try:
         reporting_catalog = deserialize_reporting_catalog(
             analysis_results.get("reporting_sources", [])

@@ -2,6 +2,7 @@ import unittest
 
 from src.core.report_validation import (
     remove_source_attribution_section,
+    split_overlong_executive_summary,
     validate_report_content,
 )
 
@@ -89,6 +90,31 @@ class ReportValidationTests(unittest.TestCase):
         )
 
         self.assertEqual(validate_report_content(report), [])
+
+    def test_overlong_executive_summary_can_be_split_without_rewriting_it(self):
+        long_summary = (
+            "Attackers are exploiting multiple exposed systems across sectors. "
+            "Credential theft and remote code execution remain the dominant risks. "
+            "Supply chain compromise is expanding across developer ecosystems. "
+            "Security teams should prioritize patching, credential rotation, and "
+            "monitoring for follow-on access attempts across internet-facing systems."
+        )
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            long_summary,
+        )
+
+        normalized = split_overlong_executive_summary(report)
+
+        self.assertNotEqual(normalized, report)
+        self.assertEqual(
+            normalized.replace("\n\n", " ")
+            .split("## Active Exploitation Details")[0]
+            .split("## Executive Summary")[1]
+            .split(),
+            long_summary.split(),
+        )
+        self.assertEqual(validate_report_content(normalized), [])
 
     def test_missing_expected_cve_fails(self):
         issues = validate_report_content(
