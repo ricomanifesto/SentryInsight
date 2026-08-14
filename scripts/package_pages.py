@@ -33,6 +33,8 @@ STATIC_ASSETS = (
 EXPECTED_TOP_LEVEL = {
     ".nojekyll",
     "assets",
+    "contracts",
+    "current-findings.json",
     "index.html",
     "index.md",
     "reports",
@@ -71,6 +73,15 @@ def _copy_static_assets(*, repo_root: Path, stage: Path) -> None:
         shutil.copy2(source, target_assets / name)
 
 
+def _copy_contracts(*, repo_root: Path, stage: Path) -> None:
+    source = repo_root / "contracts" / "reporting-identity-v1.json"
+    if not source.is_file():
+        raise PagesPackageError("Missing public identity contract")
+    target = stage / "contracts"
+    target.mkdir()
+    shutil.copy2(source, target / source.name)
+
+
 def _validate_package(stage: Path) -> None:
     top_level = {path.name for path in stage.iterdir()}
     if top_level != EXPECTED_TOP_LEVEL:
@@ -105,6 +116,7 @@ def package_pages(*, repo_root: Path, output_path: Path) -> None:
             output_path=stage,
             template_path=repo_root / "site",
         )
+        _copy_contracts(repo_root=repo_root, stage=stage)
         _copy_static_assets(repo_root=repo_root, stage=stage)
         (stage / ".nojekyll").write_text("")
         _validate_package(stage)

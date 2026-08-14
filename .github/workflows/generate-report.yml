@@ -99,7 +99,7 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           # Force add the canonical report and generated site files
-          git add -f index.md index.html sitemap.xml || true
+          git add -f index.md index.html current-findings.json sitemap.xml || true
           git add -f reports/ || true
           git add -f assets/site.css assets/report.js assets/vendor/ || true
           git add -f .sentryinsight-articles-fingerprint || true

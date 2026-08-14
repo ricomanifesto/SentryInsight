@@ -1,16 +1,30 @@
 from __future__ import annotations
 
+import hashlib
+import json
+from pathlib import Path
+
 import pytest
 
 from src.core.report_artifact import ReportArtifactError, parse_report_artifact
 from src.core.reporting import (
     ReportingGroundingError,
     build_reporting_catalog,
+    normalize_reporting_url,
+    reporting_fragment,
     reporting_key,
     resolve_reporting_keys,
 )
 
 from test_report_artifact import REPORT
+
+ROOT = Path(__file__).resolve().parents[1]
+IDENTITY_CONTRACT = json.loads(
+    (ROOT / "contracts" / "reporting-identity-v1.json").read_text()
+)
+IDENTITY_CONTRACT_SHA256 = (
+    "16c52db11b981aba115f4a1a127458def99b809c3e768028bebb66b880e33671"
+)
 
 ARTICLES = [
     {
@@ -27,6 +41,31 @@ ARTICLES = [
         "summary": "Researchers independently observed exploitation.",
     },
 ]
+
+
+def test_reporting_identity_contract_v1_is_immutable():
+    contract_path = ROOT / "contracts" / "reporting-identity-v1.json"
+    assert (
+        hashlib.sha256(contract_path.read_bytes()).hexdigest()
+        == IDENTITY_CONTRACT_SHA256
+    )
+
+
+@pytest.mark.parametrize(
+    "vector", IDENTITY_CONTRACT["accepted"], ids=lambda item: item["name"]
+)
+def test_reporting_identity_matches_the_versioned_cross_product_contract(vector):
+    assert normalize_reporting_url(vector["input"]) == vector["normalized"]
+    assert reporting_key(vector["input"]) == vector["source_key"]
+    assert reporting_fragment(vector["input"]) == vector["reporting_fragment"]
+
+
+@pytest.mark.parametrize(
+    "vector", IDENTITY_CONTRACT["rejected"], ids=lambda item: item["name"]
+)
+def test_reporting_identity_rejects_every_contract_rejection(vector):
+    with pytest.raises(ReportingGroundingError):
+        normalize_reporting_url(vector["input"])
 
 
 def _v2_report(reporting: str) -> str:

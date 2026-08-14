@@ -387,6 +387,22 @@ def _report_shape(artifact: ReportArtifact) -> tuple[int, int, str]:
     )
 
 
+def _current_findings_manifest(artifact: ReportArtifact) -> dict[str, object]:
+    finding_count, complete_cve_count, _label = _report_shape(artifact)
+    cve_ids = list(
+        dict.fromkeys(cve for finding in artifact.findings for cve in finding.cve_ids)
+    )
+    return {
+        "schema_version": 1,
+        "report_date": artifact.report_date.isoformat(),
+        "generated_at": _timestamp(artifact.generated_at),
+        "report_url": PUBLIC_ROOT,
+        "finding_count": finding_count,
+        "complete_cve_count": complete_cve_count,
+        "cve_ids": cve_ids,
+    }
+
+
 def _template(path: Path, values: dict[str, str]) -> str:
     rendered = path.read_text()
     for key, value in values.items():
@@ -573,6 +589,10 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
         canonical_url=PUBLIC_ROOT,
     )
     (output_path / "index.html").write_text(latest_html)
+    (output_path / "current-findings.json").write_text(
+        json.dumps(_current_findings_manifest(artifact), indent=2, sort_keys=False)
+        + "\n"
+    )
 
     entries = [_archive_entry(archived) for archived in archived_artifacts]
     manifest = {"schema_version": 1, "reports": entries}
@@ -637,6 +657,7 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
 def _generated_paths(root: Path) -> set[Path]:
     paths = {
         Path("index.html"),
+        Path("current-findings.json"),
         Path("sitemap.xml"),
         Path("assets/site.css"),
         Path("assets/report.js"),

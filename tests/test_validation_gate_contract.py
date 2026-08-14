@@ -23,7 +23,9 @@ def test_generate_report_workflow_checks_canonical_report_and_generated_site():
 def test_generate_report_workflow_stages_canonical_site_without_audio_or_docs():
     workflow = (REPO_ROOT / ".github" / "workflows" / "generate-report.yml").read_text()
 
-    assert "git add -f index.md index.html sitemap.xml" in workflow
+    assert (
+        "git add -f index.md index.html current-findings.json sitemap.xml" in workflow
+    )
     assert "git add -f reports/" in workflow
     assert "git add -f assets/site.css assets/report.js assets/vendor/" in workflow
     assert "executive_summary.mp3" not in workflow

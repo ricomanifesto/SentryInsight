@@ -13,6 +13,8 @@ def test_pages_package_contains_only_finished_public_artifacts(tmp_path):
     assert {path.name for path in output_path.iterdir()} == {
         ".nojekyll",
         "assets",
+        "contracts",
+        "current-findings.json",
         "index.html",
         "index.md",
         "reports",
@@ -23,6 +25,7 @@ def test_pages_package_contains_only_finished_public_artifacts(tmp_path):
     assert not (output_path / "scripts").exists()
     assert not (output_path / "README.md").exists()
     assert not (output_path / ".github").exists()
+    assert (output_path / "contracts" / "reporting-identity-v1.json").is_file()
     assert not list(output_path.rglob("*.py"))
     assert not list(output_path.rglob("*.yml"))
     assert not list(output_path.rglob("*.yaml"))

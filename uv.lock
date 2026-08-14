@@ -985,6 +985,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "feedparser" },
     { name = "httpx" },
+    { name = "idna" },
     { name = "langchain" },
     { name = "langchain-core" },
     { name = "langgraph" },
@@ -1006,6 +1007,7 @@ dev = [
 requires-dist = [
     { name = "feedparser" },
     { name = "httpx" },
+    { name = "idna", specifier = ">=3.18" },
     { name = "langchain", specifier = ">=0.1.0" },
     { name = "langchain-core" },
     { name = "langgraph", specifier = ">=0.0.20" },

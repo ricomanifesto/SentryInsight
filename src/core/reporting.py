@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import re
 from dataclasses import asdict, dataclass
 from typing import Any, Iterable, Mapping
-from urllib.parse import SplitResult, urlsplit, urlunsplit
+from urllib.parse import quote, urlsplit
+
+import idna
 
 REPORTING_KEY_PATTERN = re.compile(r"^source-[0-9a-f]{12}$")
 REPORTING_FIELD_PATTERN = re.compile(
@@ -54,24 +57,56 @@ def normalize_reporting_url(value: Any) -> str:
         raise ReportingGroundingError(
             "Reporting links must use an absolute http or https URL without credentials"
         )
-    host = parsed.hostname.casefold()
+    scheme = parsed.scheme.casefold()
+    host = parsed.hostname.lower()
     try:
         port = parsed.port
     except ValueError as exc:
         raise ReportingGroundingError("Reporting URL contains an invalid port") from exc
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        try:
+            host = idna.encode(host, uts46=True, transitional=False).decode("ascii")
+        except idna.IDNAError as exc:
+            raise ReportingGroundingError(
+                "Reporting URL contains an invalid host"
+            ) from exc
+    else:
+        if isinstance(address, ipaddress.IPv6Address):
+            host = f"[{address.compressed}]"
+
     if port and not (
-        (parsed.scheme.casefold() == "http" and port == 80)
-        or (parsed.scheme.casefold() == "https" and port == 443)
+        (scheme == "http" and port == 80) or (scheme == "https" and port == 443)
     ):
         host = f"{host}:{port}"
-    normalized = SplitResult(
-        parsed.scheme.casefold(),
-        host,
-        parsed.path or "/",
-        parsed.query,
-        "",
-    )
-    return urlunsplit(normalized)
+
+    path = _remove_dot_segments((parsed.path or "/").replace("\\", "/"))
+    encoded_path = quote(path, safe="/%:@-._~!$&'()*+,;=")
+    encoded_query = quote(parsed.query, safe="!$&'()*+,-./:;=?@_%~")
+    raw_without_fragment = raw.split("#", maxsplit=1)[0]
+    query = f"?{encoded_query}" if "?" in raw_without_fragment else ""
+    return f"{scheme}://{host}{encoded_path}{query}"
+
+
+def _remove_dot_segments(path: str) -> str:
+    """Apply the URL path dot-segment behavior used by WHATWG URL parsers."""
+    segments = path.split("/")
+    output: list[str] = []
+    trailing_directory = path.endswith(("/.", "/.."))
+    for segment in segments:
+        normalized_segment = segment.casefold()
+        if normalized_segment in {".", "%2e"}:
+            continue
+        if normalized_segment in {"..", ".%2e", "%2e.", "%2e%2e"}:
+            if output and output[-1]:
+                output.pop()
+            continue
+        output.append(segment)
+    normalized = "/".join(output)
+    if trailing_directory and not normalized.endswith("/"):
+        normalized += "/"
+    return normalized or "/"
 
 
 def _identity(value: Any) -> str:

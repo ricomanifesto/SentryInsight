@@ -127,6 +127,21 @@ def test_site_builder_renders_computed_report_shape_and_human_provenance(tmp_pat
     assert 'class="site-footer"' in html
 
 
+def test_site_builder_publishes_a_minimal_current_finding_manifest(tmp_path):
+    output_path = build_fixture(tmp_path)
+    manifest = json.loads((output_path / "current-findings.json").read_text())
+
+    assert manifest == {
+        "schema_version": 1,
+        "report_date": "2026-08-13",
+        "generated_at": "2026-08-13T13:21:22Z",
+        "report_url": "https://ricomanifesto.github.io/SentryInsight/",
+        "finding_count": 2,
+        "complete_cve_count": 2,
+        "cve_ids": ["CVE-2026-1234", "CVE-2026-12345678"],
+    }
+
+
 def test_site_builder_renders_input_grounded_reporting_and_dated_digest_handoffs(
     tmp_path,
 ):
