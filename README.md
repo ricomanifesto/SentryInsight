@@ -28,7 +28,7 @@ Generated reports can include:
 
 ## Relationship to SentryDigest
 
-SentryInsight can be triggered by updates from [SentryDigest](https://github.com/ricomanifesto/SentryDigest), using the security-news feed as an input for exploitation-focused analysis. Digest incident handoffs can use stable `#cve-YYYY-NNNN` fragments: the static page lands near that CVE without JavaScript, while the enhanced reader focuses the matching finding or reports an honest current-report fallback. Reporting-card fragments follow SentryDigest's versioned `contracts/reporting-identity-v1.json` vectors; local tests consume a byte-identical copy and CI rejects drift from the canonical contract.
+SentryInsight can be triggered by updates from [SentryDigest](https://github.com/ricomanifesto/SentryDigest), using the security-news feed as an input for exploitation-focused analysis. Digest incident handoffs can use stable `#cve-YYYY-NNNN` fragments: the static page lands near that CVE without JavaScript, while the enhanced reader focuses the matching finding or reports an honest current-report fallback. Reporting-card fragments follow SentryDigest's versioned `contracts/reporting-identity-v1.json` vectors; local tests consume a byte-identical copy and CI rejects drift from the canonical contract. SentryDigest's [reporting identity runbook](https://github.com/ricomanifesto/SentryDigest/blob/main/contracts/README.md) defines ownership, immutable revisions, and consumer adoption order.
 
 ## Architecture
 
