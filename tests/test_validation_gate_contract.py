@@ -20,6 +20,18 @@ def test_generate_report_workflow_checks_canonical_report_and_generated_site():
     assert "scripts/validate_report.py docs/index.md" not in workflow
 
 
+def test_validation_and_generation_verify_canonical_reporting_identity_contract():
+    canonical_contract = (
+        "https://raw.githubusercontent.com/ricomanifesto/SentryDigest/"
+        "main/contracts/reporting-identity-v1.json"
+    )
+
+    for workflow_name in ("validate.yml", "generate-report.yml"):
+        workflow = (REPO_ROOT / ".github" / "workflows" / workflow_name).read_text()
+        assert canonical_contract in workflow
+        assert "cmp contracts/reporting-identity-v1.json" in workflow
+
+
 def test_generate_report_workflow_stages_canonical_site_without_audio_or_docs():
     workflow = (REPO_ROOT / ".github" / "workflows" / "generate-report.yml").read_text()
 

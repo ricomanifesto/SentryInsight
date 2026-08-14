@@ -26,6 +26,13 @@ jobs:
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.PAT_GITHUB }}
+
+      - name: Verify canonical reporting identity contract
+        run: |
+          curl --fail --silent --show-error \
+            https://raw.githubusercontent.com/ricomanifesto/SentryDigest/main/contracts/reporting-identity-v1.json \
+            --output "$RUNNER_TEMP/reporting-identity-v1.json"
+          cmp contracts/reporting-identity-v1.json "$RUNNER_TEMP/reporting-identity-v1.json"
       
       - name: Set up Python
         uses: actions/setup-python@v6
