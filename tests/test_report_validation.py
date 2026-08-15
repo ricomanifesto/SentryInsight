@@ -44,6 +44,18 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "missing_section" for issue in issues))
 
+    def test_duplicate_required_section_heading_fails(self):
+        report = VALID_REPORT.replace(
+            "Recent exploitation activity is concentrated in edge systems.",
+            "Recent exploitation activity is concentrated in edge systems.\n\n"
+            "## Executive Summary\n\n"
+            "Security teams should prioritize exposed services first.",
+        )
+
+        issues = validate_report_content(report)
+
+        self.assertTrue(any(issue.code == "duplicate_section" for issue in issues))
+
     def test_single_overlong_executive_summary_paragraph_fails(self):
         long_summary = (
             "Attackers are exploiting multiple exposed systems across sectors. "

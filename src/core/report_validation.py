@@ -1070,16 +1070,44 @@ def validate_report_content(
             )
         )
 
+    required_section_counts = count_required_section_headings(content)
     for section in REQUIRED_SECTIONS:
-        if section not in content:
+        if required_section_counts[section] == 0:
             issues.append(
                 ReportValidationIssue(
                     code="missing_section",
                     message=f"Report is missing required section: {section}",
                 )
             )
+        elif required_section_counts[section] > 1:
+            issues.append(
+                ReportValidationIssue(
+                    code="duplicate_section",
+                    message=f"Report repeats required section: {section}",
+                )
+            )
 
     return issues
+
+
+def count_required_section_headings(markdown: str) -> dict[str, int]:
+    """Count semantic Markdown headings that match the report contract."""
+    counts = {section: 0 for section in REQUIRED_SECTIONS}
+    tokens = MARKDOWN_PARSER.parse(markdown)
+
+    for index, token in enumerate(tokens[:-1]):
+        if token.type != "heading_open" or not token.tag.startswith("h"):
+            continue
+
+        inline_token = tokens[index + 1]
+        if inline_token.type != "inline":
+            continue
+
+        heading = f"{'#' * int(token.tag[1:])} {inline_token.content.strip()}"
+        if heading in counts:
+            counts[heading] += 1
+
+    return counts
 
 
 def format_report_validation_issues(
