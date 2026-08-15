@@ -49,10 +49,15 @@ uv run python main.py
 
 The default model is set in `config/config.json`. `SENTRYINSIGHT_MODEL` overrides it for one environment.
 
-To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset:
+To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset. Start the server in one terminal:
 
 ```bash
 opencode serve --port 4096
+```
+
+Then run SentryInsight from the repository root in another terminal:
+
+```bash
 uv run python main.py
 ```
 
