@@ -8,6 +8,8 @@ from typing import Iterable, List
 
 from markdown_it import MarkdownIt
 
+from .heading_identity import normalize_heading_identity
+
 REQUIRED_SECTIONS = (
     "# Exploitation Report",
     "## Executive Summary",
@@ -1070,16 +1072,88 @@ def validate_report_content(
             )
         )
 
+    required_section_counts, noncanonical_sections = inspect_required_section_headings(
+        content
+    )
     for section in REQUIRED_SECTIONS:
-        if section not in content:
+        if required_section_counts[section] == 0:
             issues.append(
                 ReportValidationIssue(
                     code="missing_section",
                     message=f"Report is missing required section: {section}",
                 )
             )
+        elif required_section_counts[section] > 1:
+            issues.append(
+                ReportValidationIssue(
+                    code="duplicate_section",
+                    message=f"Report repeats required section: {section}",
+                )
+            )
+        if section in noncanonical_sections:
+            issues.append(
+                ReportValidationIssue(
+                    code="noncanonical_section_heading",
+                    message=(
+                        "Report formats a required section heading; use the literal "
+                        f"heading: {section}"
+                    ),
+                )
+            )
 
     return issues
+
+
+def inspect_required_section_headings(
+    markdown: str,
+) -> tuple[dict[str, int], set[str]]:
+    """Count required headings and identify noncanonical Markdown spellings."""
+    counts = {section: 0 for section in REQUIRED_SECTIONS}
+    required_identities = {
+        (
+            len(section) - len(section.lstrip("#")),
+            normalize_heading_identity(section.lstrip("# ")),
+        ): section
+        for section in REQUIRED_SECTIONS
+    }
+    noncanonical_sections: set[str] = set()
+    lines = markdown.splitlines()
+    tokens = MARKDOWN_PARSER.parse(markdown)
+
+    for index, token in enumerate(tokens[:-1]):
+        if token.type != "heading_open" or not token.tag.startswith("h"):
+            continue
+
+        inline_token = tokens[index + 1]
+        if inline_token.type != "inline":
+            continue
+
+        heading_text = " ".join(inline_token_plain_text(inline_token).split())
+        heading = required_identities.get(
+            (int(token.tag[1:]), normalize_heading_identity(heading_text))
+        )
+        if heading is not None:
+            counts[heading] += 1
+            source_line = lines[token.map[0]].rstrip() if token.map else ""
+            if source_line != heading:
+                noncanonical_sections.add(heading)
+
+    return counts, noncanonical_sections
+
+
+def inline_token_plain_text(token) -> str:
+    """Return the reader-visible text from a parsed Markdown inline token."""
+    output: list[str] = []
+
+    for child in token.children or []:
+        if child.children:
+            output.append(inline_token_plain_text(child))
+        elif child.type in {"text", "code_inline"}:
+            output.append(child.content)
+        elif child.type in {"softbreak", "hardbreak"}:
+            output.append(" ")
+
+    return "".join(output)
 
 
 def format_report_validation_issues(

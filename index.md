@@ -12,11 +12,7 @@ Critical exploitation activity continues to accelerate across enterprise softwar
 
 Simultaneously, multiple zero-day vulnerabilities in Windows (LegacyHive and a separate Lazarus Group-exploited flaw), macOS Screen Sharing, and Belgium's eID browser extension are being actively exploited for cryptojacking, espionage, and remote code execution against high-value targets.
 
-## Executive Summary
-
 State-sponsored and financially motivated threat actors are diversifying their operations. The North Korean Lazarus Group continues Operation Dream Job, exploiting a Windows zero-day to deploy novel backdoors against defense and aerospace organizations across four countries. The Jewelbug APT simultaneously conducts government espionage and cryptocurrency fraud from shared infrastructure. Ransomware groups Akira and Clop demonstrate evolving tactics—Akira affiliates now disable EDR via Safe Mode with Networking, while Clop claims 89GB exfiltration from Shell. The ShinyHunters extortion group breached 1.6 million RingCentral accounts, and a long-running City-Forum campaign has targeted Salesforce and ServiceNow environments since March 2025 with custom tooling.
-
-## Executive Summary
 
 Supply chain and identity-focused attacks are expanding rapidly. A service provider vulnerability enabled €30M bank fraud against Commerzbank customers, resulting in international arrests. Belgium's entire eID trust framework was compromised through severe browser extension vulnerabilities affecting citizen authentication. Over 737 malicious Chrome VPN extensions with 75,000+ installations were caught routing traffic through attacker-controlled proxies. Apple issued new Threat Notifications for mercenary spyware targeting iPhones, while a widespread data breach at the Scottish prosecutor's office may extend to other agencies through a shared third-party provider.
 

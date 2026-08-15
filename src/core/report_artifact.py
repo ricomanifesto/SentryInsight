@@ -10,6 +10,7 @@ from typing import TypeVar
 
 from markdown_it import MarkdownIt
 
+from .heading_identity import normalize_heading_identity
 from .reporting import (
     ReportingGroundingError,
     normalize_reporting_url,
@@ -89,7 +90,7 @@ class ReportArtifact:
 
 def slugify(value: str) -> str:
     """Return a stable, human-readable HTML fragment identifier."""
-    slug = re.sub(r"[^a-z0-9]+", "-", value.casefold()).strip("-")
+    slug = normalize_heading_identity(value)
     if not slug:
         raise ReportArtifactError("Heading cannot produce an empty slug")
     return slug
