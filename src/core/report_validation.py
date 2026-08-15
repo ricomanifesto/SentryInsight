@@ -1070,7 +1070,9 @@ def validate_report_content(
             )
         )
 
-    required_section_counts = count_required_section_headings(content)
+    required_section_counts, noncanonical_sections = inspect_required_section_headings(
+        content
+    )
     for section in REQUIRED_SECTIONS:
         if required_section_counts[section] == 0:
             issues.append(
@@ -1086,13 +1088,27 @@ def validate_report_content(
                     message=f"Report repeats required section: {section}",
                 )
             )
+        if section in noncanonical_sections:
+            issues.append(
+                ReportValidationIssue(
+                    code="noncanonical_section_heading",
+                    message=(
+                        "Report formats a required section heading; use the literal "
+                        f"heading: {section}"
+                    ),
+                )
+            )
 
     return issues
 
 
-def count_required_section_headings(markdown: str) -> dict[str, int]:
-    """Count semantic Markdown headings that match the report contract."""
+def inspect_required_section_headings(
+    markdown: str,
+) -> tuple[dict[str, int], set[str]]:
+    """Count required headings and identify noncanonical Markdown spellings."""
     counts = {section: 0 for section in REQUIRED_SECTIONS}
+    noncanonical_sections: set[str] = set()
+    lines = markdown.splitlines()
     tokens = MARKDOWN_PARSER.parse(markdown)
 
     for index, token in enumerate(tokens[:-1]):
@@ -1107,8 +1123,11 @@ def count_required_section_headings(markdown: str) -> dict[str, int]:
         heading = f"{'#' * int(token.tag[1:])} {heading_text}"
         if heading in counts:
             counts[heading] += 1
+            source_line = lines[token.map[0]].rstrip() if token.map else ""
+            if source_line != heading:
+                noncanonical_sections.add(heading)
 
-    return counts
+    return counts, noncanonical_sections
 
 
 def inline_token_plain_text(token) -> str:

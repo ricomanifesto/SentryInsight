@@ -75,6 +75,32 @@ class ReportValidationTests(unittest.TestCase):
                     any(issue.code == "duplicate_section" for issue in issues)
                 )
 
+    def test_formatted_required_section_heading_is_rejected(self):
+        long_summary = (
+            "Attackers are exploiting multiple exposed systems across sectors. "
+            "Credential theft and remote code execution remain the dominant risks. "
+            "Supply chain compromise is expanding across developer ecosystems. "
+            "Security teams should prioritize patching, credential rotation, and "
+            "monitoring for follow-on access attempts across internet-facing systems."
+        )
+        for heading in (
+            "## **Executive Summary**",
+            "## [Executive Summary](https://example.com)",
+        ):
+            with self.subTest(heading=heading):
+                report = VALID_REPORT.replace("## Executive Summary", heading).replace(
+                    "Recent exploitation activity is concentrated in edge systems.",
+                    long_summary,
+                )
+
+                issues = validate_report_content(report)
+
+                self.assertTrue(
+                    any(
+                        issue.code == "noncanonical_section_heading" for issue in issues
+                    )
+                )
+
     def test_single_overlong_executive_summary_paragraph_fails(self):
         long_summary = (
             "Attackers are exploiting multiple exposed systems across sectors. "
