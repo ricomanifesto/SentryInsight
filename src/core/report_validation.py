@@ -8,6 +8,8 @@ from typing import Iterable, List
 
 from markdown_it import MarkdownIt
 
+from .heading_identity import normalize_heading_identity
+
 REQUIRED_SECTIONS = (
     "# Exploitation Report",
     "## Executive Summary",
@@ -1107,6 +1109,13 @@ def inspect_required_section_headings(
 ) -> tuple[dict[str, int], set[str]]:
     """Count required headings and identify noncanonical Markdown spellings."""
     counts = {section: 0 for section in REQUIRED_SECTIONS}
+    required_identities = {
+        (
+            len(section) - len(section.lstrip("#")),
+            normalize_heading_identity(section.lstrip("# ")),
+        ): section
+        for section in REQUIRED_SECTIONS
+    }
     noncanonical_sections: set[str] = set()
     lines = markdown.splitlines()
     tokens = MARKDOWN_PARSER.parse(markdown)
@@ -1120,8 +1129,10 @@ def inspect_required_section_headings(
             continue
 
         heading_text = " ".join(inline_token_plain_text(inline_token).split())
-        heading = f"{'#' * int(token.tag[1:])} {heading_text}"
-        if heading in counts:
+        heading = required_identities.get(
+            (int(token.tag[1:]), normalize_heading_identity(heading_text))
+        )
+        if heading is not None:
             counts[heading] += 1
             source_line = lines[token.map[0]].rstrip() if token.map else ""
             if source_line != heading:

@@ -75,6 +75,28 @@ class ReportValidationTests(unittest.TestCase):
                     any(issue.code == "duplicate_section" for issue in issues)
                 )
 
+    def test_normalized_duplicate_required_section_heading_fails(self):
+        for heading in (
+            "## ACTIVE EXPLOITATION DETAILS",
+            "## Active Exploitation Details!",
+        ):
+            with self.subTest(heading=heading):
+                report = VALID_REPORT.replace(
+                    "### Example Vulnerability",
+                    f"{heading}\n\n### Example Vulnerability",
+                )
+
+                issues = validate_report_content(report)
+
+                self.assertTrue(
+                    any(issue.code == "duplicate_section" for issue in issues)
+                )
+                self.assertTrue(
+                    any(
+                        issue.code == "noncanonical_section_heading" for issue in issues
+                    )
+                )
+
     def test_formatted_required_section_heading_is_rejected(self):
         long_summary = (
             "Attackers are exploiting multiple exposed systems across sectors. "
