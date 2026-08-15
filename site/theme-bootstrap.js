@@ -1,6 +1,8 @@
 (() => {
-  let theme;
-  try { theme = localStorage.getItem("sentryinsight-theme"); } catch {}
-  if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  let theme = "light";
+  try {
+    const savedTheme = localStorage.getItem("sentryinsight-theme");
+    if (savedTheme === "light" || savedTheme === "dark") theme = savedTheme;
+  } catch {}
   document.documentElement.dataset.theme = theme;
 })();

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,13 +14,15 @@
   <meta name="twitter:card" content="summary">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"SentryInsight Report Archive","url":"https://ricomanifesto.github.io/SentryInsight/reports/","description":"Dated SentryInsight exploitation intelligence reports.","author":{"@type":"Person","name":"Michael Rico","url":"https://ricomanifesto.com/"}}</script>
   <script>(() => {
-  let theme;
-  try { theme = localStorage.getItem("sentryinsight-theme"); } catch {}
-  if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  let theme = "light";
+  try {
+    const savedTheme = localStorage.getItem("sentryinsight-theme");
+    if (savedTheme === "light" || savedTheme === "dark") theme = savedTheme;
+  } catch {}
   document.documentElement.dataset.theme = theme;
 })();</script>
   <link rel="icon" href="../assets/favicon.ico">
-  <link rel="stylesheet" href="../assets/site.css?v=abfe26b89abb">
+  <link rel="stylesheet" href="../assets/site.css?v=e66139688e73">
 </head>
 <body>
   <a class="skip-link" href="#archive-list">Skip to reports</a>
@@ -46,6 +48,6 @@
   <footer class="site-footer">
     <p>SentryInsight is maintained by <a href="https://ricomanifesto.com/">Michael Rico</a>. <a href="https://github.com/ricomanifesto/SentryInsight">View the project on GitHub</a>.</p>
   </footer>
-  <script src="../assets/report.js?v=abfe26b89abb" defer></script>
+  <script src="../assets/report.js?v=e66139688e73" defer></script>
 </body>
 </html>

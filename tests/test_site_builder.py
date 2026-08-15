@@ -189,6 +189,7 @@ def test_site_builder_sets_theme_before_styles_and_renders_both_logo_variants(
 
     for html in (report_html, archive_html):
         head = html.split("</head>", maxsplit=1)[0]
+        assert '<html lang="en" data-theme="light">' in head
         assert head.index("sentryinsight-theme") < head.index('rel="stylesheet"')
         assert 'class="brand-logo brand-logo-light"' in html
         assert 'class="brand-logo brand-logo-dark"' in html
@@ -204,6 +205,8 @@ def test_site_builder_injects_one_canonical_theme_bootstrap(tmp_path):
     assert "localStorage.getItem" not in (ROOT / "site" / "archive.html").read_text()
     assert (output_path / "index.html").read_text().count(bootstrap) == 1
     assert (output_path / "reports" / "index.html").read_text().count(bootstrap) == 1
+    assert "prefers-color-scheme" not in bootstrap
+    assert 'theme = "light"' in bootstrap
 
 
 def test_site_builder_generates_clean_desktop_and_mobile_section_maps(tmp_path):

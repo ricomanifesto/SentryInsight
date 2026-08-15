@@ -239,8 +239,8 @@ def test_theme_and_brand_are_correct_before_deferred_javascript_runs():
     assert "localStorage.getItem" not in Path("site/archive.html").read_text()
     assert ':root[data-theme="dark"] .brand-logo-light' in css
     assert ':root[data-theme="dark"] .brand-logo-dark' in css
-    assert ":root:not([data-theme]) .brand-logo-light" in css
-    assert ":root:not([data-theme]) .brand-logo-dark" in css
+    assert ":root:not([data-theme]) .brand-logo-light" not in css
+    assert ":root:not([data-theme]) .brand-logo-dark" not in css
 
 
 def test_archive_page_matches_real_dated_artifacts():

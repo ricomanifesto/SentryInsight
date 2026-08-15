@@ -203,8 +203,7 @@
   }
 
   const metadata = readMetadata();
-  const preferredDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  applyTheme(storedTheme() || (preferredDark ? "dark" : "light"));
+  applyTheme(storedTheme() === "dark" ? "dark" : "light");
   themeToggle?.addEventListener("click", () => {
     const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
     saveTheme(nextTheme);

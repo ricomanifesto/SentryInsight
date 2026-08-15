@@ -59,8 +59,9 @@ test("renders trustworthy content without JavaScript", async ({ browser }) => {
   await expect(page.locator(".finding-heading .badge")).toHaveCount(
     metadata.finding_count * 3,
   );
-  await expect(page.locator(".brand-logo-dark")).toBeVisible();
-  await expect(page.locator(".brand-logo-light")).toBeHidden();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator(".brand-logo-light")).toBeVisible();
+  await expect(page.locator(".brand-logo-dark")).toBeHidden();
   await expect(page.getByText(reportShape(metadata))).toBeVisible();
   await expect(page.getByText("AI-assisted", { exact: false })).toBeVisible();
   const reportingCount = metadata.findings.reduce(
@@ -96,6 +97,19 @@ test("applies a stored dark theme before the deferred client script", async ({ b
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(page.locator(".brand-logo-dark")).toBeVisible();
   await expect(page.locator(".brand-logo-light")).toBeHidden();
+  await context.close();
+});
+
+
+test("defaults to light when the operating system prefers dark", async ({ browser }) => {
+  const context = await browser.newContext({ colorScheme: "dark" });
+  const page = await context.newPage();
+
+  await page.goto("/index.html");
+
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator(".brand-logo-light")).toBeVisible();
+  await expect(page.locator(".brand-logo-dark")).toBeHidden();
   await context.close();
 });
 

@@ -59,10 +59,6 @@ button { font: inherit; }
 .brand-logo-dark { display: none; }
 :root[data-theme="dark"] .brand-logo-light { display: none; }
 :root[data-theme="dark"] .brand-logo-dark { display: block; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .brand-logo-light { display: none; }
-  :root:not([data-theme]) .brand-logo-dark { display: block; }
-}
 .site-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .site-actions a,
 .site-actions button {
