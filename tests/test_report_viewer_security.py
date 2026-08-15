@@ -209,6 +209,19 @@ def test_report_exposes_method_maintainer_and_computed_shape_to_readers():
     assert 'class="site-footer"' in page
 
 
+def test_report_keeps_secondary_markdown_access_out_of_the_primary_header():
+    page = REPORT_PAGE.read_text()
+    header = page.split('<header class="site-header">', maxsplit=1)[1].split(
+        "</header>", maxsplit=1
+    )[0]
+    footer = page.split('<footer class="site-footer">', maxsplit=1)[1].split(
+        "</footer>", maxsplit=1
+    )[0]
+
+    assert 'href="index.md"' not in header
+    assert '<a class="footer-markdown" href="index.md">Report Markdown</a>' in footer
+
+
 def test_theme_and_brand_are_correct_before_deferred_javascript_runs():
     report_page = REPORT_PAGE.read_text()
     archive_page = ARCHIVE_PAGE.read_text()
@@ -280,6 +293,15 @@ def test_styles_guard_mobile_overflow_focus_and_print_layouts():
     assert ".mobile-toc { display: block; }" in css
     assert "@media print" in css
     assert ".finding-body[hidden] { display: block; }" in css
+
+
+def test_report_styles_use_two_deliberate_compact_type_steps():
+    css = SITE_CSS.read_text()
+
+    assert "--text-label: 0.8125rem;" in css
+    assert "--text-small: 0.875rem;" in css
+    for ad_hoc_size in ("0.72rem", "0.8rem", "0.85rem", "0.86rem", "0.88rem", "0.9rem"):
+        assert ad_hoc_size not in css
 
 
 def test_theme_control_is_discoverable_and_has_no_hidden_shortcut():

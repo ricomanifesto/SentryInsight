@@ -234,6 +234,40 @@ test("keeps section maps clean and theme state discoverable", async ({ page }) =
 });
 
 
+test("uses an editorial hierarchy instead of repeated outlined cards", async ({ page }) => {
+  const failures = collectPageFailures(page);
+  await page.goto("/index.html");
+
+  const styles = await page.evaluate(() => {
+    const borderWidths = (selector) => {
+      const style = getComputedStyle(document.querySelector(selector));
+      return [
+        style.borderTopWidth,
+        style.borderRightWidth,
+        style.borderBottomWidth,
+        style.borderLeftWidth,
+      ];
+    };
+    return {
+      actions: borderWidths(".site-actions a"),
+      executiveSummary: borderWidths(".executive-summary-card"),
+      findingHeading: borderWidths(".finding-heading"),
+      findingBody: borderWidths(".finding-body"),
+      reporting: borderWidths(".finding-reporting"),
+      badge: borderWidths(".badge"),
+    };
+  });
+
+  expect(styles.actions).toEqual(["0px", "0px", "0px", "0px"]);
+  expect(styles.executiveSummary).toEqual(["0px", "0px", "0px", "0px"]);
+  expect(styles.findingHeading).toEqual(["2px", "0px", "0px", "0px"]);
+  expect(styles.findingBody).toEqual(["0px", "0px", "0px", "0px"]);
+  expect(styles.reporting).toEqual(["0px", "0px", "0px", "3px"]);
+  expect(styles.badge).toEqual(["0px", "0px", "0px", "0px"]);
+  expect(failures).toEqual([]);
+});
+
+
 test("provides a mobile section map without horizontal overflow", async ({ page }) => {
   const failures = collectPageFailures(page);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -251,6 +285,10 @@ test("provides a mobile section map without horizontal overflow", async ({ page 
     clientWidth: document.documentElement.clientWidth,
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+  const headerBox = await page.locator(".site-header").boundingBox();
+  expect(headerBox?.height).toBeLessThanOrEqual(100);
+  await expect(page.locator('.site-header a[href$=".md"]')).toHaveCount(0);
+  await expect(page.locator('.site-footer a[href$=".md"]')).toHaveCount(1);
 
   await page.screenshot({
     path: "test-results/screenshots/report-mobile-light.png",

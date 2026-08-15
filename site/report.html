@@ -30,7 +30,6 @@
     </a>
     <nav class="site-actions" aria-label="Report actions">
       <a href="{{ROOT_PREFIX}}reports/">Archive</a>
-      <a href="{{MARKDOWN_PATH}}">Markdown</a>
       <button id="theme-toggle" type="button" aria-pressed="false">Theme</button>
     </nav>
   </header>
@@ -56,7 +55,7 @@
     <main id="report-content" class="report-content">{{REPORT_HTML}}</main>
   </div>
   <footer class="site-footer">
-    <p>SentryInsight is maintained by <a href="https://ricomanifesto.com/">Michael Rico</a>. <a href="https://github.com/ricomanifesto/SentryInsight">View the project on GitHub</a>.</p>
+    <p>SentryInsight is maintained by <a href="https://ricomanifesto.com/">Michael Rico</a>. <a class="footer-markdown" href="{{MARKDOWN_PATH}}">Report Markdown</a>. <a href="https://github.com/ricomanifesto/SentryInsight">View the project on GitHub</a>.</p>
   </footer>
   <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
   <script id="report-metadata" type="application/json">{{REPORT_JSON}}</script>
