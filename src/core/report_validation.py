@@ -1103,11 +1103,27 @@ def count_required_section_headings(markdown: str) -> dict[str, int]:
         if inline_token.type != "inline":
             continue
 
-        heading = f"{'#' * int(token.tag[1:])} {inline_token.content.strip()}"
+        heading_text = " ".join(inline_token_plain_text(inline_token).split())
+        heading = f"{'#' * int(token.tag[1:])} {heading_text}"
         if heading in counts:
             counts[heading] += 1
 
     return counts
+
+
+def inline_token_plain_text(token) -> str:
+    """Return the reader-visible text from a parsed Markdown inline token."""
+    output: list[str] = []
+
+    for child in token.children or []:
+        if child.children:
+            output.append(inline_token_plain_text(child))
+        elif child.type in {"text", "code_inline"}:
+            output.append(child.content)
+        elif child.type in {"softbreak", "hardbreak"}:
+            output.append(" ")
+
+    return "".join(output)
 
 
 def format_report_validation_issues(
