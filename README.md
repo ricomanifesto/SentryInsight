@@ -7,85 +7,75 @@
   </picture>
 </div>
 
-SentryInsight turns security RSS feeds into exploitation-focused threat reports, with CVE correlation, affected systems, attack vectors, and executive summaries ready for review.
+SentryInsight reads security news and publishes a report about vulnerabilities that are being exploited or need urgent review.
 
-[![Latest Exploitation Report](https://img.shields.io/badge/View-Latest%20Report-blue)](https://ricomanifesto.github.io/SentryInsight/)
+**[Read the latest exploitation report](https://ricomanifesto.github.io/SentryInsight/)**
 
-## What It Does
+## What the Report Answers
 
-SentryInsight monitors security feeds for exploitation activity, extracts relevant vulnerability signals, and generates a published report for review. The reports are shaped for fast triage: what is being exploited, what systems are affected, how the attack works, and what threat activity is visible.
+- What is being exploited?
+- Which products and systems are affected?
+- How does the attack work?
+- Which CVEs and source articles support the finding?
+- What should a defender review next?
 
-## Report Coverage
+Each published report is available as a web page and Markdown file. Older reports remain in the [dated archive](https://ricomanifesto.github.io/SentryInsight/reports/).
 
-Generated reports can include:
+## How It Works
 
-- executive summaries
-- CVE extraction and correlation
-- affected systems and technologies
-- attack vectors
-- threat actor activity
-- exploitation context from monitored feeds
+1. SentryInsight reads the RSS feed from [SentryDigest](https://github.com/ricomanifesto/SentryDigest).
+2. It filters for exploitation-related articles and builds a report with LangGraph.
+3. It uses OpenRouter when `OPENROUTER_API_KEY` is set. Local development can use an OpenCode server instead.
+4. It writes the canonical report to `index.md`, builds the matching static pages, and archives the previous report when the report date changes.
+5. Validation must pass before the GitHub Pages artifact can be deployed.
 
-## Relationship to SentryDigest
+Every current finding cites one or more SentryDigest article identities. Those identities follow SentryDigest's [reporting identity contract](https://github.com/ricomanifesto/SentryDigest/blob/main/contracts/README.md), which keeps links stable across all three reporting projects.
 
-SentryInsight can be triggered by updates from [SentryDigest](https://github.com/ricomanifesto/SentryDigest), using the security-news feed as an input for exploitation-focused analysis. Digest incident handoffs can use stable `#cve-YYYY-NNNN` fragments: the static page lands near that CVE without JavaScript, while the enhanced reader focuses the matching finding or reports an honest current-report fallback. Reporting-card fragments follow SentryDigest's versioned `contracts/reporting-identity-v1.json` vectors; CI executes a byte-identical copy of the owner-maintained verifier and rejects drift in either the verifier or contract. SentryDigest's [reporting identity runbook](https://github.com/ricomanifesto/SentryDigest/blob/main/contracts/README.md) defines ownership, immutable revisions, consumer adoption order, and the family gate inventory.
+## Run It Locally
 
-## Architecture
-
-- **LangGraph** orchestrates workflow state and conditional logic.
-- **Model access** calls OpenRouter directly when `OPENROUTER_API_KEY` is set. Local development can route through an OpenCode gateway.
-- **A versioned Markdown artifact** owns report dates, complete CVE IDs, and triage metadata.
-- **A deterministic static builder** publishes the latest report and immutable dated history from one canonical template tree.
-- **An allowlisted Pages artifact** exposes only finished report, archive, and asset files after validation succeeds.
-
-## Setup
-
-Install dependencies:
+SentryInsight requires Python 3.11 and [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-uv sync --group dev
+uv sync --group dev --frozen
 ```
 
-Provide model access with OpenRouter:
+For direct OpenRouter access:
 
 ```bash
 export OPENROUTER_API_KEY=...
-```
-
-Or run a local OpenCode server:
-
-```bash
-opencode serve --port 4096
-```
-
-Configure feeds, output paths, and the default model in `config/config.json`. Model IDs use `provider/model` format.
-
-Override the model for one environment:
-
-```bash
 export SENTRYINSIGHT_MODEL=openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
-```
-
-If OpenCode is not listening on `http://127.0.0.1:4096`, set:
-
-```bash
-export OPENCODE_BASE_URL=http://127.0.0.1:4096
-```
-
-## Usage
-
-```bash
 uv run python main.py
 ```
 
-This fetches articles, filters for exploitation content, analyzes threats, and stages a complete static publication rooted at `index.md` and `index.html`. Each schema-version 2 finding must cite one or more input-owned reporting keys; publication resolves those keys to original publisher links and the matching dated SentryDigest context. When the report date advances, the previous artifact is archived under `reports/`.
+The default model is set in `config/config.json`. `SENTRYINSIGHT_MODEL` overrides it for one environment.
+
+To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset:
+
+```bash
+opencode serve --port 4096
+uv run python main.py
+```
+
+Set `OPENCODE_BASE_URL` if the server is not listening on `http://127.0.0.1:4096`.
+
+Report generation fetches live feeds and calls the configured model service. Local validation does neither.
 
 ## Validation
 
-Validate a generated report before publishing:
+Install Chromium once, then run the full local gate:
 
 ```bash
+npm ci
+npx playwright install chromium
 bash scripts/local_validation.sh
 ```
 
-The validation gate checks Python behavior and formatting, artifact integrity, generated-site drift, the packaged Pages tree, bundled frontend dependencies, accessibility interactions, responsive layouts, and light/dark browser screenshots. The validation and generation workflows link the screenshot artifact from their run summaries for visual review.
+The script installs locked Python and Node dependencies, runs linting, formatting, type checks, and tests, verifies the report and packaged Pages files, and exercises the current and archived pages in Chromium. Browser checks cover accessibility, responsive layouts, stable CVE links, and light and dark themes.
+
+## Publishing
+
+- `.github/workflows/generate-report.yml` runs after a SentryDigest update, once daily as a backup, or by manual trigger.
+- `.github/workflows/validate.yml` checks pushes and pull requests.
+- `.github/workflows/deploy-pages.yml` publishes only after validation succeeds on `main`.
+
+The public Pages package contains only the finished report, archive, assets, sitemap, and the versioned reporting contract.
