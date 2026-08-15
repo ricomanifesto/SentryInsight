@@ -27,7 +27,7 @@ Each published report is available as a web page and Markdown file. Older report
 2. It filters for exploitation-related articles and builds a report with LangGraph.
 3. It uses OpenRouter when `OPENROUTER_API_KEY` is set. Local development can use an OpenCode server instead.
 4. It writes the canonical report to `index.md`, builds the matching static pages, and archives the previous report when the report date changes.
-5. A successful validation run on `main` starts the automatic GitHub Pages deployment. A maintainer can also start the Pages workflow manually, which deploys the selected `main` commit without checking the Validate workflow first.
+5. A successful Validate run for a push to `main` starts the automatic GitHub Pages deployment. A maintainer can also dispatch the Pages workflow for a selected branch or tag; that manual path deploys the selected commit without requiring Validate to pass first.
 
 Every current finding cites one or more SentryDigest article identities. Those identities follow SentryDigest's [reporting identity contract](https://github.com/ricomanifesto/SentryDigest/blob/main/contracts/README.md), which keeps links stable across all three reporting projects.
 
@@ -75,7 +75,7 @@ The script installs locked Python and Node dependencies, runs linting, formattin
 ## Publishing
 
 - `.github/workflows/generate-report.yml` runs after a SentryDigest update, once daily as a backup, or by manual trigger.
-- `.github/workflows/validate.yml` checks pushes and pull requests.
-- `.github/workflows/deploy-pages.yml` publishes automatically after validation succeeds on `main`. Its manual trigger bypasses that upstream validation check.
+- `.github/workflows/validate.yml` checks pull requests and pushes to `main`.
+- `.github/workflows/deploy-pages.yml` automatically publishes the validated `main` commit. A manual dispatch can publish the selected branch or tag without first checking Validate.
 
 The public Pages package contains only the finished report, archive, assets, sitemap, and the versioned reporting contract.
