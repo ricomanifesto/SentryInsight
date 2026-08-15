@@ -21,8 +21,7 @@ async function readReportMetadata(page) {
 
 function reportShape(metadata) {
   const findingLabel = metadata.finding_count === 1 ? "finding" : "findings";
-  const cveLabel =
-    metadata.complete_cve_count === 1 ? "complete CVE ID" : "complete CVE IDs";
+  const cveLabel = metadata.complete_cve_count === 1 ? "CVE" : "CVEs";
   return `${metadata.finding_count} ${findingLabel} · ${metadata.complete_cve_count} ${cveLabel}`;
 }
 
@@ -38,10 +37,23 @@ test("renders trustworthy content without JavaScript", async ({ browser }) => {
   expect(response?.ok()).toBeTruthy();
   await expect(page.getByRole("heading", { name: "Executive Summary" })).toBeVisible();
   const metadata = await readReportMetadata(page);
-  await expect(page.locator(".report-date > time")).toHaveAttribute(
+  await expect(page.locator("h1 time")).toHaveAttribute(
     "datetime",
     metadata.report_date,
   );
+  await expect(page.locator("h1 .report-kicker")).toHaveText("Exploitation Report");
+  const editionLabel = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(`${metadata.report_date}T00:00:00Z`));
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: `Exploitation Report ${editionLabel}`,
+    }),
+  ).toBeVisible();
   const sectionCount = await page.locator("#report-content h2, #report-content h3").count();
   await expect(page.locator(".desktop-toc a")).toHaveCount(sectionCount);
   await expect(page.locator(".finding-heading .badge")).toHaveCount(
@@ -268,6 +280,32 @@ test("uses an editorial hierarchy instead of repeated outlined cards", async ({ 
 });
 
 
+test("uses a disciplined native type system and keeps disclosure controls together", async ({ page }) => {
+  const failures = collectPageFailures(page);
+  await page.goto("/index.html");
+
+  const styles = await page.evaluate(() => {
+    const disclosure = document.querySelector(".finding-disclosure");
+    const icon = disclosure.querySelector(".disclosure-icon").getBoundingClientRect();
+    const title = disclosure.querySelector(".finding-title").getBoundingClientRect();
+    return {
+      bodyFamily: getComputedStyle(document.body).fontFamily,
+      generatedSize: getComputedStyle(document.querySelector(".report-generated")).fontSize,
+      badgeSize: getComputedStyle(document.querySelector(".badge")).fontSize,
+      iconBeforeTitle: icon.right <= title.left + 1,
+      metadataChildren: document.querySelector(".report-date").children.length,
+    };
+  });
+
+  expect(styles.bodyFamily).not.toContain("Inter");
+  expect(styles.generatedSize).toBe("14px");
+  expect(styles.badgeSize).toBe("14px");
+  expect(styles.iconBeforeTitle).toBeTruthy();
+  expect(styles.metadataChildren).toBe(2);
+  expect(failures).toEqual([]);
+});
+
+
 test("provides a mobile section map without horizontal overflow", async ({ page }) => {
   const failures = collectPageFailures(page);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -287,6 +325,14 @@ test("provides a mobile section map without horizontal overflow", async ({ page 
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
   const headerBox = await page.locator(".site-header").boundingBox();
   expect(headerBox?.height).toBeLessThanOrEqual(100);
+  const compactChrome = await page.evaluate(() => ({
+    methodLabelDisplay: getComputedStyle(
+      document.querySelector(".report-method strong"),
+    ).display,
+    shapeWhiteSpace: getComputedStyle(document.querySelector(".report-shape")).whiteSpace,
+  }));
+  expect(compactChrome.methodLabelDisplay).toBe("inline");
+  expect(compactChrome.shapeWhiteSpace).toBe("nowrap");
   await expect(page.locator('.site-header a[href$=".md"]')).toHaveCount(0);
   await expect(page.locator('.site-footer a[href$=".md"]')).toHaveCount(1);
 

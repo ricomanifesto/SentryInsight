@@ -63,9 +63,11 @@ def test_site_builder_renders_meaningful_initial_html_without_runtime_markdown(
 
     assert "Attackers are exploiting an exposed service." in html
     assert (
-        '<time datetime="2026-08-13">Report for Thursday, August 13, 2026</time>'
-        in html
+        '<span class="report-kicker">Exploitation Report</span>'
+        '<time datetime="2026-08-13">August 13, 2026</time>' in html
     )
+    assert html.count("<h1") == 1
+    assert "Report for Thursday, August 13, 2026" not in html
     assert 'datetime="2026-08-13T13:21:22Z"' in html
     assert "Example vulnerability (CVE-2026-1234)" in html
     assert "fetch(" not in html
@@ -105,6 +107,12 @@ def test_site_builder_renders_each_finding_classification_once_in_initial_html(
     assert html.count('class="badge badge-exploitation-status"') == 2
     assert html.count('class="badge badge-action"') == 2
     assert html.count('class="cve-chip"') == 2
+    disclosure = html.split('class="finding-disclosure"', maxsplit=1)[1].split(
+        "</button>", maxsplit=1
+    )[0]
+    assert disclosure.index('class="disclosure-icon"') < disclosure.index(
+        'class="finding-title"'
+    )
     assert "<strong>Severity</strong>" not in html
     assert "<strong>Exploitation Status</strong>" not in html
     assert "<strong>Action</strong>" not in html
@@ -119,7 +127,7 @@ def test_site_builder_renders_computed_report_shape_and_human_provenance(tmp_pat
     output_path = build_fixture(tmp_path)
     html = (output_path / "index.html").read_text()
 
-    assert "2 findings · 2 complete CVE IDs" in html
+    assert "2 findings · 2 CVEs" in html
     assert 'class="report-method"' in html
     assert "AI-assisted" in html
     assert 'href="https://ricomanifesto.github.io/SentryDigest/"' in html

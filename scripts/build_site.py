@@ -91,6 +91,10 @@ def _date_label(value) -> str:
     return f"{value.strftime('%A, %B')} {value.day}, {value.year}"
 
 
+def _edition_label(value) -> str:
+    return f"{value.strftime('%B')} {value.day}, {value.year}"
+
+
 def _generated_label(value) -> str:
     utc_value = value.astimezone(timezone.utc)
     return f"{utc_value.strftime('%B')} {utc_value.day}, {utc_value.year} at {utc_value.strftime('%H:%M')} UTC"
@@ -219,8 +223,8 @@ def _finding_heading_html(finding: Finding) -> str:
         f"{cve_handoff_targets}"
         f'<button type="button" class="finding-disclosure" aria-expanded="true" '
         f'aria-controls="{heading_id}-details">'
-        f'<span class="finding-title">{title}</span>'
         '<span class="disclosure-icon" aria-hidden="true">−</span>'
+        f'<span class="finding-title">{title}</span>'
         "</button>"
         '<span class="finding-supporting">'
         f'<span class="badge-list" aria-label="Finding classification">{badges}</span>'
@@ -315,6 +319,19 @@ def _heading_entries(tokens: list[Token]) -> list[tuple[int, str, str]]:
     return entries
 
 
+def _without_source_title(tokens: list[Token]) -> list[Token]:
+    for index, token in enumerate(tokens):
+        if token.type != "heading_open" or token.tag != "h1":
+            continue
+        if (
+            index + 2 < len(tokens)
+            and tokens[index + 1].type == "inline"
+            and tokens[index + 2].type == "heading_close"
+        ):
+            return tokens[:index] + tokens[index + 3 :]
+    return tokens
+
+
 def _render_markdown(
     artifact: ReportArtifact,
 ) -> tuple[str, list[tuple[int, str, str]]]:
@@ -323,12 +340,13 @@ def _render_markdown(
     _strip_raw_html(tokens)
     tokens = _strip_structured_finding_fields(tokens)
     _link_cves(tokens)
+    tokens = _without_source_title(tokens)
 
     heading_entries = _heading_entries(tokens)
 
     findings = {finding.slug: finding for finding in artifact.findings}
     for index, token in enumerate(tokens):
-        if token.type != "heading_open" or token.tag not in {"h1", "h2", "h3"}:
+        if token.type != "heading_open" or token.tag not in {"h2", "h3"}:
             continue
         title = tokens[index + 1].content.strip()
         heading_slug = slugify(title)
@@ -379,7 +397,7 @@ def _report_shape(artifact: ReportArtifact) -> tuple[int, int, str]:
         {cve for finding in artifact.findings for cve in finding.cve_ids}
     )
     finding_label = "finding" if finding_count == 1 else "findings"
-    cve_label = "complete CVE ID" if complete_cve_count == 1 else "complete CVE IDs"
+    cve_label = "CVE" if complete_cve_count == 1 else "CVEs"
     return (
         finding_count,
         complete_cve_count,
@@ -460,7 +478,7 @@ def _render_report_page(
             "MARKDOWN_PATH": markdown_path,
             "ASSET_VERSION": asset_version,
             "REPORT_DATE_ISO": artifact.report_date.isoformat(),
-            "REPORT_DATE_LABEL": _date_label(artifact.report_date),
+            "REPORT_EDITION_LABEL": _edition_label(artifact.report_date),
             "GENERATED_AT_ISO": _timestamp(artifact.generated_at),
             "GENERATED_AT_LABEL": _generated_label(artifact.generated_at),
             "REPORT_AGE_SUFFIX": (
@@ -535,10 +553,12 @@ def _archive_items(entries: list[ArchiveEntry]) -> str:
         report_date = str(entry["report_date"])
         findings = entry["finding_count"]
         cves = entry["cve_count"]
+        finding_label = "finding" if findings == 1 else "findings"
+        cve_label = "CVE" if cves == 1 else "CVEs"
         items.append(
             "<li><article>"
             f'<h2><a href="{html.escape(str(entry["html_path"]))}">Report for {html.escape(report_date)}</a></h2>'
-            f"<p>{findings} findings · {cves} complete CVE IDs</p>"
+            f"<p>{findings} {finding_label} · {cves} {cve_label}</p>"
             f'<p><a href="{html.escape(str(entry["markdown_path"]))}">Source Markdown</a></p>'
             "</article></li>"
         )

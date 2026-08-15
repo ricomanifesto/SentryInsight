@@ -33,8 +33,7 @@
       <button id="theme-toggle" type="button" aria-pressed="false">Theme</button>
     </nav>
   </header>
-  <div class="report-date" aria-label="Report timing">
-    <time datetime="{{REPORT_DATE_ISO}}">Report for {{REPORT_DATE_LABEL}}</time>
+  <div class="report-date" aria-label="Report metadata">
     <span class="report-generated">Generated <time datetime="{{GENERATED_AT_ISO}}">{{GENERATED_AT_LABEL}}</time>{{REPORT_AGE_SUFFIX}}</span>
     <span class="report-shape">{{REPORT_SHAPE}}</span>
   </div>
@@ -52,7 +51,7 @@
       <p>On this page</p>
       <nav aria-label="Report sections">{{DESKTOP_TOC}}</nav>
     </aside>
-    <main id="report-content" class="report-content">{{REPORT_HTML}}</main>
+    <main id="report-content" class="report-content"><h1 id="exploitation-report"><span class="report-kicker">Exploitation Report</span><time datetime="{{REPORT_DATE_ISO}}">{{REPORT_EDITION_LABEL}}</time></h1>{{REPORT_HTML}}</main>
   </div>
   <footer class="site-footer">
     <p>SentryInsight is maintained by <a href="https://ricomanifesto.com/">Michael Rico</a>. <a class="footer-markdown" href="{{MARKDOWN_PATH}}">Report Markdown</a>. <a href="https://github.com/ricomanifesto/SentryInsight">View the project on GitHub</a>.</p>

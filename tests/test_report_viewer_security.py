@@ -80,7 +80,7 @@ def test_report_uses_artifact_owned_utc_time_metadata():
     page = REPORT_PAGE.read_text()
     report_date_iso = artifact.report_date.isoformat()
     report_date_label = (
-        artifact.report_date.strftime("%A, %B ")
+        artifact.report_date.strftime("%B ")
         + str(artifact.report_date.day)
         + artifact.report_date.strftime(", %Y")
     )
@@ -92,9 +92,10 @@ def test_report_uses_artifact_owned_utc_time_metadata():
     )
 
     assert (
-        f'<time datetime="{report_date_iso}">Report for {report_date_label}</time>'
-        in page
+        '<span class="report-kicker">Exploitation Report</span>'
+        f'<time datetime="{report_date_iso}">{report_date_label}</time>' in page
     )
+    assert f"Report for {report_date_label}" not in page
     assert f'<time datetime="{generated_at_iso}">{generated_at_label}</time>' in page
     assert "toLocaleString" not in page
 
@@ -195,7 +196,7 @@ def test_report_exposes_method_maintainer_and_computed_shape_to_readers():
 
     unique_cves = {cve for finding in artifact.findings for cve in finding.cve_ids}
     finding_label = "finding" if len(artifact.findings) == 1 else "findings"
-    cve_label = "complete CVE ID" if len(unique_cves) == 1 else "complete CVE IDs"
+    cve_label = "CVE" if len(unique_cves) == 1 else "CVEs"
     assert f"{len(artifact.findings)} {finding_label}" in page
     assert f"{len(unique_cves)} {cve_label}" in page
     assert "AI-assisted" in page
@@ -295,11 +296,15 @@ def test_styles_guard_mobile_overflow_focus_and_print_layouts():
     assert ".finding-body[hidden] { display: block; }" in css
 
 
-def test_report_styles_use_two_deliberate_compact_type_steps():
+def test_report_styles_use_one_compact_type_step_and_standard_weights():
     css = SITE_CSS.read_text()
 
-    assert "--text-label: 0.8125rem;" in css
     assert "--text-small: 0.875rem;" in css
+    assert "--text-label" not in css
+    assert "Inter" not in css
+    assert set(re.findall(r"font-weight:\s*(\d+)", css)) <= {"400", "600", "700"}
+    for ad_hoc_size in ("1.08rem", "1.15rem", "1.2rem"):
+        assert ad_hoc_size not in css
     for ad_hoc_size in ("0.72rem", "0.8rem", "0.85rem", "0.86rem", "0.88rem", "0.9rem"):
         assert ad_hoc_size not in css
 
