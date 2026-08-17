@@ -10,6 +10,7 @@
   --urgent-text: #9f1239;
   --badge-bg: #eef3f5;
   --text-small: 0.875rem;
+  --page-gutter: max(18px, calc((100% - 1180px) / 2));
 }
 
 :root[data-theme="dark"] {
@@ -52,7 +53,7 @@ button { font: inherit; }
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 18px clamp(18px, 4vw, 48px);
+  padding: 18px var(--page-gutter);
   background: var(--surface);
 }
 .brand-logo { display: block; height: auto; max-width: min(264px, 48vw); }
@@ -77,7 +78,7 @@ button { font: inherit; }
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px clamp(18px, 4vw, 48px);
+  padding: 12px var(--page-gutter);
   color: var(--muted);
   font-size: var(--text-small);
 }
@@ -86,7 +87,7 @@ button { font: inherit; }
   display: flex;
   gap: 8px 12px;
   align-items: baseline;
-  padding: 12px clamp(18px, 4vw, 48px);
+  padding: 12px var(--page-gutter);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   color: var(--muted);

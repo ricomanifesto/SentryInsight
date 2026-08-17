@@ -320,6 +320,36 @@ test("uses a disciplined native type system and keeps disclosure controls togeth
 });
 
 
+test("aligns the report chrome with the centered reading shell", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/index.html");
+
+  const bounds = await page.evaluate(() => {
+    const contentBounds = (selector) => {
+      const element = document.querySelector(selector);
+      const rect = element.getBoundingClientRect();
+      const styles = getComputedStyle(element);
+      return {
+        left: rect.left + Number.parseFloat(styles.paddingLeft),
+        right: rect.right - Number.parseFloat(styles.paddingRight),
+      };
+    };
+    const shell = document.querySelector(".page-shell").getBoundingClientRect();
+    return {
+      shell: { left: shell.left, right: shell.right },
+      header: contentBounds(".site-header"),
+      date: contentBounds(".report-date"),
+      method: contentBounds(".report-method"),
+    };
+  });
+
+  for (const region of [bounds.header, bounds.date, bounds.method]) {
+    expect(region.left).toBeCloseTo(bounds.shell.left, 0);
+    expect(region.right).toBeCloseTo(bounds.shell.right, 0);
+  }
+});
+
+
 test("provides a mobile section map without horizontal overflow", async ({ page }) => {
   const failures = collectPageFailures(page);
   await page.setViewportSize({ width: 390, height: 844 });
