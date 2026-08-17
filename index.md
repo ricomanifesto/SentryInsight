@@ -1,33 +1,45 @@
 ---
 schema_version: 2
 report_date: 2026-08-17
-generated_at: 2026-08-17T01:42:15Z
+generated_at: 2026-08-17T09:52:40Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-17/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Active exploitation campaigns are intensifying across multiple vectors, with threat actors rapidly weaponizing recently disclosed vulnerabilities and leveraging proven malware frameworks. Critical flaws in enterprise platforms—including VMware vCenter (CVE-2026-59310) and Microsoft SharePoint (CVE-2026-55040)—are under active global exploitation within days of patch availability, while a maximum-severity SAP Commerce Cloud RCE is already targeted in the wild.
+Multiple critical vulnerabilities are under active exploitation across diverse platforms, ranging from enterprise infrastructure to consumer devices. A global threat campaign is targeting a critical VMware vCenter flaw (CVE-2026-59310), while Microsoft addresses a Defender zero-day (CVE-2026-69414) and threat actors exploit a recently patched SharePoint authentication bypass (CVE-2026-55040) following public PoC release. North Korea's Lazarus Group has weaponized a Windows zero-day to deploy a novel backdoor against defense and aerospace targets in four countries as part of Operation Dream Job.
 
-Nation-state actors remain highly active: the Lazarus Group has exploited a Windows zero-day to deploy a novel backdoor against defense and aerospace targets in Europe, Brazil, and India as part of Operation Dream Job, and the Jewelbug APT conducts blended espionage and cryptocurrency theft operations from a shared web panel.
+Simultaneously, financially motivated campaigns are escalating: a maximum-severity SAP Commerce Cloud RCE is being attacked within days of patch availability, the ShinyHunters extortion group breached 1.6 million RingCentral accounts, and Clop ransomware claims 89GB of data from Shell. The "City-Forum" campaign has conducted long-running data theft against Salesforce and ServiceNow since March 2025, while the Jewelbug APT blends state espionage with cryptocurrency theft. Mac users face active exploitation of a Screen Sharing authentication bypass to deploy Monero miners and a new ClickFix-delivered malware (AmnesiaStealer) with interactive browser control capabilities.
+
+Infrastructure and supply chain attacks round out the threat landscape. A service provider vulnerability enabled €30M bank fraud against Commerzbank customers, leading to arrests in Brazil and Europe. A Mirai-based botnet (Evooo1Bot) is converting routers into SOCKS5 relay nodes, and 737 malicious Chrome VPN extensions with 75,000+ installs are intercepting browser traffic. Belgium's eID authentication framework was fully compromised via browser extension flaws, and Apple has issued mercenary spyware threat notifications to iPhone users.
 
 ## Active Exploitation Details
 
-### VMware vCenter Critical Flaw (CVE-2026-59310)
-- **Description**: A critical vulnerability in VMware vCenter Server that enables remote code execution. Exploitation activity began earlier this month and has escalated into a global threat campaign.
-- **Impact**: Attackers can achieve full compromise of vCenter infrastructure, potentially leading to hypervisor control, virtual machine manipulation, and lateral movement across virtualized environments.
-- **Status**: Actively exploited in a global campaign; patches are available but may not be sufficient to fully mitigate the threat due to potential persistence or credential theft.
+### ShieldBreak Zero-Day in Microsoft Defender
+- **Description**: A zero-day vulnerability in Microsoft Defender disclosed by security researcher "Nightmare Eclipse" and tracked as CVE-2026-69414
+- **Impact**: Full details not yet public; Microsoft is developing a security patch
+- **Status**: Zero-day disclosed; patch in development by Microsoft
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: monitor
+- **CVE IDs**: CVE-2026-69414
+- **Reporting**: [Bleeping Computer — Microsoft working on Defender patch for ShieldBreak zero-day](https://www.bleepingcomputer.com/news/security/microsoft-working-on-defender-patch-for-shieldbreak-zero-day/)
+
+### Critical VMware vCenter Flaw (CVE-2026-59310)
+- **Description**: Critical vulnerability in VMware vCenter being exploited by a global threat campaign
+- **Impact**: Exploitation may allow attackers to compromise vCenter servers; patching alone may not fully mitigate the threat
+- **Status**: Active global exploitation campaign underway since earlier this month
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-59310
 - **Reporting**: [Dark Reading — Global Threat Campaign Hits Critical VMware vCenter Flaw](https://www.darkreading.com/vulnerabilities-threats/global-threat-campaign-critical-vmware-vcenter-flaw)
 
-### Microsoft SharePoint Authentication Bypass (CVE-2026-55040)
-- **Description**: A critical security feature bypass (CVSS 9.1) stemming from weak authentication in Microsoft SharePoint. The vulnerability was patched in the July 2026 Patch Tuesday release, and public proof-of-concept code has since been released.
-- **Impact**: Attackers can bypass authentication controls to access SharePoint resources, potentially leading to data exfiltration, privilege escalation, and lateral movement within Microsoft 365 environments.
-- **Status**: Actively exploited following public PoC release; patch available since July 2026.
+### SharePoint Authentication Bypass (CVE-2026-55040)
+- **Description**: Critical authentication bypass vulnerability in Microsoft SharePoint (CVSS 9.1) stemming from weak authentication, patched in July 2026 Patch Tuesday
+- **Impact**: Attackers can bypass security features and authentication controls
+- **Status**: Actively exploited following public proof-of-concept code release
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
@@ -35,186 +47,98 @@ Nation-state actors remain highly active: the Lazarus Group has exploited a Wind
 - **Reporting**: [The Hacker News — Attackers Exploit SharePoint Authentication Bypass After Public PoC Release](https://thehackernews.com/2026/08/attackers-exploit-sharepoint.html)
 
 ### SAP Commerce Cloud Remote Code Execution
-- **Description**: A maximum-severity remote code execution vulnerability in SAP Commerce Cloud that was patched three days prior to reported exploitation activity.
-- **Impact**: Successful exploitation grants attackers full code execution on the commerce platform, enabling data theft, payment manipulation, and supply chain compromise.
-- **Status**: Actively targeted in attacks within days of patch release; threat intelligence firm Defused has confirmed exploitation attempts.
+- **Description**: Maximum-severity remote code execution vulnerability in SAP Commerce Cloud patched three days prior to reporting
+- **Impact**: Full remote code execution on affected SAP Commerce Cloud instances
+- **Status**: Actively targeted in attacks per threat intelligence company Defused
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [Bleeping Computer — Max severity SAP Commerce Cloud flaw now targeted in attacks](https://www.bleepingcomputer.com/news/security/max-severity-sap-commerce-cloud-flaw-now-targeted-in-attacks/)
 
-### macOS Screen Sharing Authentication Bypass
-- **Description**: An authentication bypass vulnerability in macOS Screen Sharing that allows unauthorized remote access. Public exploit code has emerged, enabling automated attacks.
-- **Impact**: Attackers gain interactive control of the victim's desktop session, which has been used to deploy Monero cryptocurrency miners and could facilitate further payload delivery.
-- **Status**: Actively exploited in the wild; Netherlands NCSC has issued warnings. No CVE identifier provided in source.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — Hackers exploit macOS Screen Sharing flaw to deploy Monero miner](https://www.bleepingcomputer.com/news/security/hackers-exploit-macos-screen-sharing-flaw-to-deploy-monero-miner/)
-
 ### Windows Zero-Day Exploited by Lazarus Group
-- **Description**: A newly patched security flaw in Microsoft Windows exploited as a zero-day by the North Korean Lazarus Group. The vulnerability enables SYSTEM-level privilege escalation.
-- **Impact**: Attackers gain SYSTEM access and deploy a never-before-seen backdoor, facilitating persistent espionage access to defense and aerospace organizations in France, Germany, Brazil, and India.
-- **Status**: Zero-day exploitation confirmed by Check Point Research; patch now available. Part of Operation Dream Job campaign.
+- **Description**: Newly patched Windows zero-day vulnerability exploited by North Korean Lazarus Group to gain SYSTEM access and deploy a never-before-seen backdoor
+- **Impact**: SYSTEM-level access and persistent backdoor deployment targeting defense and aerospace companies
+- **Status**: Active exploitation as part of Operation Dream Job campaign
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [The Hacker News — Lazarus Exploits Windows Zero-Day to Gain SYSTEM Access and Deploy Backdoor](https://thehackernews.com/2026/08/lazarus-exploits-windows-zero-day-to.html)
 
-### Belgium eID Browser Extension RCE
-- **Description**: Severe vulnerabilities in a key browser extension underpinning Belgium's electronic ID (eID) authentication system, fully compromising the trust framework.
-- **Impact**: Remote code execution on citizen systems, enabling account takeover, identity theft, and potential compromise of government services relying on eID authentication.
-- **Status**: Vulnerabilities demonstrated and framework compromised; no specific CVE provided in source.
+### macOS Screen Sharing Authentication Bypass
+- **Description**: Authentication bypass vulnerability in macOS Screen Sharing with public exploit code available
+- **Impact**: Attackers deploying Monero cryptocurrency miners on compromised systems
+- **Status**: Actively exploited; Netherlands NCSC has issued warning
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: [Bleeping Computer — Hackers exploit macOS Screen Sharing flaw to deploy Monero miner](https://www.bleepingcomputer.com/news/security/hackers-exploit-macos-screen-sharing-flaw-to-deploy-monero-miner/)
+
+### Belgium eID Authentication Browser Extension Flaws
+- **Description**: Severe vulnerabilities in a key browser extension underlying Belgium's electronic ID system, fully compromising the trust framework
+- **Impact**: Remote code execution and citizen account compromise
+- **Status**: Vulnerabilities demonstrated; framework fully compromised
 - **Severity**: critical
 - **Exploitation Status**: observed
-- **Action**: patch
+- **Action**: investigate
 - **Reporting**: [Dark Reading — Belgium's eID Authentication Opens Citizen Accounts to RCE](https://www.darkreading.com/application-security/belgium-eid-authentication-citizen-accounts-rce)
 
-### Service Provider Vulnerability (Commerzbank Fraud)
-- **Description**: A vulnerability at an unnamed service provider exploited by a cybercrime group to withdraw funds from Commerzbank customer accounts, resulting in €30M in fraud.
-- **Impact**: Direct financial theft via unauthorized account access and fund withdrawal; four arrests in Brazil and three charges in Europe.
-- **Status**: Vulnerability exploited for financial fraud; law enforcement action taken. No CVE provided.
+### Service Provider Vulnerability in €30M Bank Fraud
+- **Description**: Vulnerability at a service provider exploited to withdraw funds from Commerzbank customer accounts
+- **Impact**: €30M fraud; four arrests in Brazil, three charged in Europe
+- **Status**: Exploited in the wild; law enforcement action taken
 - **Severity**: high
 - **Exploitation Status**: observed
 - **Action**: investigate
 - **Reporting**: [Bleeping Computer — Hackers arrested over €30M bank fraud exploiting service provider flaw](https://www.bleepingcomputer.com/news/security/hackers-arrested-over-30m-bank-fraud-exploiting-service-provider-flaw/)
 
-### SafePal Customer Data Breach
-- **Description**: A flaw in SafePal's systems was exploited to steal order information for approximately 39,798 cryptocurrency hardware wallet customers. The stolen data is now being offered for sale by a threat actor.
-- **Impact**: Exposure of customer PII and order details, enabling targeted phishing, physical theft risk, and cryptocurrency targeting.
-- **Status**: Breach confirmed by SafePal; data actively marketed on underground forums. No CVE provided.
-- **Severity**: high
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — SafePal data breach impacts 39,798 customers, stolen info for sale](https://www.bleepingcomputer.com/news/security/safepal-data-breach-impacts-39-798-customers-stolen-info-for-sale/)
-
-### RingCentral Data Breach (ShinyHunters)
-- **Description**: The ShinyHunters extortion group compromised RingCentral in July 2025, exfiltrating personal information from 1.6 million accounts. Data surfaced via Have I Been Pwned notification service.
-- **Impact**: Large-scale exposure of customer PII for extortion and follow-on attacks; breach confirmed via third-party notification.
-- **Status**: Historical breach (July 2025) with data now circulating; law enforcement and victim notification ongoing. No CVE provided.
-- **Severity**: high
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — RingCentral data breach exposed info of 1.6 million accounts](https://www.bleepingcomputer.com/news/security/ringcentral-data-breach-exposed-info-of-16-million-accounts/)
-
-### City-Forum Campaign (Salesforce, ServiceNow)
-- **Description**: A long-running data theft campaign active since at least March 2025 targeting Salesforce and ServiceNow instances across multiple sectors using custom tooling.
-- **Impact**: Persistent unauthorized access to CRM and IT service management platforms, enabling intellectual property theft, credential harvesting, and supply chain reconnaissance.
-- **Status**: Ongoing campaign with custom malware; no specific vulnerability CVE identified in reporting.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Dark Reading — Long-running Data Theft Campaign Targeting Salesforce, ServiceNow](https://www.darkreading.com/cyberattacks-data-breaches/long-running-data-theft-campaign-salesforce-servicenow)
-
-### AmnesiaStealer macOS Malware (ClickFix)
-- **Description**: A new macOS information stealer delivered via ClickFix social engineering attacks, featuring a browser streaming module for interactive remote control of victim web sessions.
-- **Impact**: Credential theft, session hijacking, cryptocurrency wallet compromise, and real-time browser manipulation for fraud and further exploitation.
-- **Status**: Actively distributed via ClickFix lures; novel interactive capability observed.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [Bleeping Computer — New AmnesiaStealer macOS malware hijacks browser sessions via remote control](https://www.bleepingcomputer.com/news/security/new-amnesiastealer-macos-malware-hijacks-browser-sessions-via-remote-control/)
-
-### Evooo1Bot Linux Botnet (Mirai-based)
-- **Description**: A modular Mirai-derivative Linux botnet targeting internet-facing gateway devices (routers, IoT) to enroll them as SOCKS5 traffic relay nodes.
-- **Impact**: Compromised devices become anonymization infrastructure for follow-on attacks, credential stuffing, and C2 obfuscation; potential bandwidth abuse.
-- **Status**: Active scanning and infection of exposed gateway devices; modular design enables rapid capability updates.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [Bleeping Computer — New Evooo1Bot Linux botnet turns routers into traffic relay nodes](https://www.bleepingcomputer.com/news/security/new-evooo1bot-linux-botnet-turns-routers-into-traffic-relay-nodes/)
-
-### Clop Ransomware Data Theft (Shell)
-- **Description**: The Clop ransomware gang claims to have stolen 89GB of data from Shell, prompting an investigation by the oil giant.
-- **Impact**: Potential exposure of sensitive corporate data, operational disruption, and extortion pressure; claim may precede leak site publication.
-- **Status**: Claim posted by Clop; Shell investigating potential incident. No specific vulnerability CVE identified.
-- **Severity**: high
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Shell investigates 'potential incident' after Clop data theft claims](https://www.bleepingcomputer.com/news/security/shell-investigates-potential-incident-after-clop-data-theft-claims/)
-
-### Mercenary Spyware Attacks (Apple Threat Notifications)
-- **Description**: Apple has issued new Threat Notifications to iPhone users warning of mercenary spyware attacks targeting their devices.
-- **Impact**: Sophisticated, targeted surveillance of high-value individuals; likely zero-click or one-click exploits against iOS.
-- **Status**: Active targeting confirmed by Apple notifications; specific exploit chain not disclosed.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [Bleeping Computer — Apple sends new ‘Threat Notification’ alerts over mercenary spyware attacks](https://www.bleepingcomputer.com/news/apple/apple-sends-new-threat-notification-alerts-over-mercenary-spyware-attacks/)
-
-### Colombian Justice Ministry Ransomware
-- **Description**: Ransomware attack on the Colombian Ministry of Justice days before a presidential transition, continuing a pattern of critical infrastructure targeting in Latin America.
-- **Impact**: Operational disruption to judicial systems, potential data exfiltration, and political destabilization risk during leadership transition.
-- **Status**: Active incident; ransomware variant and initial access vector not publicly identified.
-- **Severity**: high
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [Dark Reading — Ransomware Hits Colombian Justice Ministry Days Before Presidential Transition](https://www.darkreading.com/cyberattacks-data-breaches/ransomware-hits-colombian-justice-ministry-presidential-transition)
-
-### Threema DDoS Attacks
-- **Description**: Multiple large-scale distributed denial-of-service attacks targeting the Threema secure messaging service, causing severe communication disruptions.
-- **Impact**: Service degradation and outage for Threema users; no data breach reported but availability impact significant.
-- **Status**: Active DDoS campaign; mitigation efforts ongoing. No vulnerability exploitation—volumetric attack.
-- **Severity**: medium
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [Bleeping Computer — Large-scale DDoS attacks disrupted Threema secure messaging service](https://www.bleepingcomputer.com/news/security/large-scale-ddos-attacks-disrupted-threema-secure-messaging-service/)
-
-### Malicious Chrome VPN Extensions (737 Extensions)
-- **Description**: 737 malicious Chrome Web Store VPN and proxy extensions (75,486 total installs) intercepting browser traffic and routing it through attacker-controlled proxy infrastructure, with 274 extensions impersonating 66 legitimate brands.
-- **Impact**: Traffic interception, credential harvesting, session hijacking, and privacy violation for predominantly Russian-speaking users seeking censorship circumvention.
-- **Status**: Extensions identified and reported; removal from Chrome Web Store likely in progress. Supply chain compromise via developer accounts.
-- **Severity**: high
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [The Hacker News — 737 Chrome VPN Extensions Caught Routing Traffic Through Proxies. Check If You Have One](https://thehackernews.com/2026/08/737-chrome-vpn-extensions-caught.html)
-
 ## Affected Systems and Products
 
-- **VMware vCenter Server**: All versions vulnerable to CVE-2026-59310; critical RCE exploited in global campaign
-- **Microsoft SharePoint / Microsoft 365**: On-premises and cloud instances affected by CVE-2026-55040 authentication bypass; patched July 2026
-- **SAP Commerce Cloud**: All unpatched instances vulnerable to maximum-severity RCE; active exploitation within days of patch
-- **macOS (Screen Sharing)**: Versions with vulnerable Screen Sharing authentication mechanism; public exploit code available
-- **Microsoft Windows**: Versions affected by zero-day privilege escalation exploited by Lazarus Group; patched in recent update cycle
-- **Belgium eID Browser Extension**: Key extension component of national electronic ID system; RCE via compromised trust framework
-- **SafePal Hardware Wallet Backend**: Customer order management systems; flaw exposed 39,798 customer records
-- **RingCentral Platform**: Internal systems breached in July 2025; 1.6 million customer accounts compromised
-- **Salesforce & ServiceNow Instances**: Targeted by City-Forum campaign since March 2025 using custom tooling
-- **Internet-Facing Gateway Devices (Routers, IoT)**: Linux-based devices targeted by Evooo1Bot Mirai-variant for SOCKS5 proxy enrollment
-- **iOS / iPhone**: Targeted by mercenary spyware campaigns triggering Apple Threat Notifications
-- **Chrome Browser / Chrome Web Store**: 737 malicious VPN/proxy extensions with 75,486 installs; traffic interception via proxy infrastructure
-- **Threema Messaging Infrastructure**: Targeted by volumetric DDoS attacks causing service disruption
-- **Shell Corporate Systems**: Investigating Clop ransomware claim of 89GB data theft
-- **Colombian Ministry of Justice IT Systems**: Ransomware attack during presidential transition period
-- **Unnamed Financial Service Provider**: Vulnerability exploited for €30M Commerzbank fraud; arrests in Brazil and Europe
+- **Microsoft Defender**: ShieldBreak zero-day (CVE-2026-69414) affecting Defender; patch in development
+- **VMware vCenter**: Critical flaw CVE-2026-59310 under global exploitation campaign
+- **Microsoft SharePoint**: Authentication bypass CVE-2026-55040 (CVSS 9.1) patched July 2026
+- **SAP Commerce Cloud**: Maximum-severity RCE vulnerability patched three days before active targeting observed
+- **Microsoft Windows**: Zero-day exploited by Lazarus Group; newly patched
+- **macOS Screen Sharing**: Authentication bypass with public exploit code; Monero miner deployment
+- **Belgium eID Authentication**: Browser extension vulnerabilities compromising citizen identity framework
+- **SafePal Cryptocurrency Wallet**: Order information system flaw exploited; 39,798 customers affected
+- **RingCentral**: Platform breached by ShinyHunters; 1.6 million accounts exposed (July 2026)
+- **Shell**: Investigating potential incident after Clop claims 89GB data theft
+- **Commerzbank/Service Provider**: Service provider flaw enabling €30M fraud against customer accounts
+- **Threema Secure Messaging**: Targeted by large-scale DDoS attacks causing severe disruption
+- **Internet-facing Gateway Devices/Routers**: Targeted by Evooo1Bot Mirai-based botnet for SOCKS5 relay nodes
+- **Chrome Browser Extensions**: 737 malicious VPN/proxy extensions (75,486 installs) intercepting traffic
+- **Salesforce and ServiceNow**: Targeted by long-running "City-Forum" campaign since March 2025
+- **Apple iPhone**: Targets of mercenary spyware attacks triggering Apple Threat Notifications
 
 ## Attack Vectors and Techniques
 
-- **Public PoC Weaponization**: Rapid exploitation of CVE-2026-55040 (SharePoint) and CVE-2026-59310 (vCenter) following proof-of-concept release and patch availability
-- **Zero-Day Privilege Escalation**: Lazarus Group leveraging Windows kernel flaw for SYSTEM access before patch deployment
-- **ClickFix Social Engineering**: AmnesiaStealer delivery via fake verification prompts tricking users into executing malicious commands
-- **Authentication Bypass**: Weak authentication in SharePoint (CVE-2026-55040) and macOS Screen Sharing enabling unauthorized access
-- **Browser Extension Compromise**: Belgium eID extension vulnerabilities undermining national trust framework; malicious Chrome VPN extensions intercepting traffic
-- **Mirai-Variant Botnet Propagation**: Evooo1Bot scanning and infecting exposed gateway devices via default/weak credentials and known exploits
-- **Custom Tooling for SaaS Platforms**: City-Forum campaign using bespoke malware for Salesforce and ServiceNow data exfiltration
-- **Interactive Browser Streaming**: AmnesiaStealer's novel module allowing real-time attacker control of victim browser sessions
-- **Supply Chain / Service Provider Exploitation**: Unnamed provider flaw enabling €30M bank fraud against Commerzbank customers
-- **Ransomware + Data Extortion**: Clop (Shell), ShinyHunters (RingCentral), and unidentified actors (Colombian Justice Ministry) combining encryption with data theft
-- **Mercenary Spyware Delivery**: Likely zero-click iOS exploits targeting high-value individuals; detected via Apple Threat Notifications
-- **Volumetric DDoS**: Multi-vector flooding attacks against Threema messaging infrastructure
-- **Extortion Data Monetization**: Stolen SafePal and RingCentral customer data actively marketed on underground forums
+- **Zero-Day Exploitation**: Multiple zero-days actively exploited (ShieldBreak, Windows zero-day by Lazarus, macOS Screen Sharing) before or shortly after disclosure
+- **Public PoC Weaponization**: SharePoint CVE-2026-55040 exploited rapidly after proof-of-concept code release
+- **N-Day Exploitation**: SAP Commerce Cloud RCE attacked within three days of patch availability
+- **ClickFix Social Engineering**: AmnesiaStealer macOS malware delivered via ClickFix attacks tricking users into executing malicious commands
+- **Browser Session Hijacking**: AmnesiaStealer includes streaming module for interactive remote control of victim's web browser
+- **Mirai-Based Botnet Recruitment**: Evooo1Bot targets internet-facing gateway devices, converting them into SOCKS5 traffic relay nodes
+- **Malicious Browser Extensions**: 737 Chrome VPN/proxy extensions (274 impersonating 66 brands) intercept and route browser traffic through proxy infrastructure
+- **OAuth Token Theft**: Google Workspace attacks leveraging stolen OAuth tokens for access to Gmail, Drive, and connected systems
+- **Service Provider/Supply Chain Compromise**: Vulnerability at service provider exploited for €30M bank fraud against Commerzbank customers
+- **Third-Party Data Breach**: Scottish government breach via third-party service provider potentially affecting multiple agencies
+- **Ransomware/Extortion**: Clop ransomware claiming 89GB from Shell; ShinyHunters extortion over RingCentral data; Colombian Justice Ministry ransomware
+- **DDoS Attacks**: Large-scale distributed denial-of-service attacks disrupting Threema secure messaging
+- **Authentication Bypass**: Multiple authentication bypass flaws (SharePoint, macOS Screen Sharing, Belgium eID)
+- **Remote Code Execution**: SAP Commerce Cloud, Belgium eID, VMware vCenter, and Windows zero-day all enabling RCE
+- **Mercenary Spyware Deployment**: Targeted iPhone attacks triggering Apple Threat Notifications
 
 ## Threat Actor Activities
 
-- **Lazarus Group (North Korea)**: Zero-day exploitation of Windows vulnerability for SYSTEM access; deployment of novel backdoor targeting defense/aerospace sectors in France, Germany, Brazil, India under Operation Dream Job; attributed by Check Point Research
-- **Jewelbug APT**: Hackers-for-hire group conducting blended state-sponsored espionage and financially motivated cryptocurrency theft from shared web panel infrastructure
-- **Clop Ransomware Gang**: Claims 89GB data theft from Shell; established extortion operation with leak site publication model
-- **ShinyHunters Extortion Group**: Breached RingCentral in July 2025; exfiltrated 1.6M customer records; data surfaced via Have I Been Pwned
-- **City-Forum Campaign Operators**: Long-running (since March 2025) data theft operation targeting Salesforce and ServiceNow across multiple verticals with custom malware
-- **AmnesiaStealer Developers/Operators**: New macOS malware family using ClickFix delivery and interactive browser streaming capability
-- **Evooo1Bot Operators**: Mirai-variant botnet herders building SOCKS5 proxy infrastructure from compromised gateway devices
-- **Unnamed Cybercrime Group (Commerzbank Fraud)**: Exploited service provider vulnerability for €30M theft; four arrested in Brazil, three charged in Europe
-- **Mercenary Spyware Vendors/Operators**: Conducting targeted iPhone surveillance campaigns triggering Apple Threat Notifications; likely commercial surveillance tools
-- **Colombian Justice Ministry Ransomware Actors**: Unidentified group targeting government infrastructure during political transition; part of Latin America targeting surge
-- **Threema DDoS Operators**: Coordinated volumetric attack campaign against secure messaging service; motivation unclear (hacktivism, extortion, disruption)
-- **Chrome VPN Extension Developers**: 40+ developer accounts publishing 737 malicious extensions (274 brand impersonators) targeting Russian-speaking users for traffic interception
+- **Lazarus Group (North Korea)**: Exploiting Windows zero-day for SYSTEM access and novel backdoor deployment against defense/aerospace targets in France, Germany, Brazil, and India as part of Operation Dream Job
+- **ShinyHunters Extortion Group**: Breached RingCentral in July 2026, stealing 1.6 million account records for extortion
+- **Clop Ransomware Gang**: Claims 89GB data theft from Shell; investigating potential incident
+- **Jewelbug APT**: Hackers-for-hire conducting both state-sponsored espionage and financially motivated cryptocurrency theft from same web panel
+- **City-Forum Campaign**: Long-running data theft operation active since March 2025 targeting Salesforce and ServiceNow across multiple sectors with custom tooling
+- **Nightmare Eclipse**: Security researcher who disclosed ShieldBreak zero-day (CVE-2026-69414) in Microsoft Defender
+- **Evooo1Bot Operators**: Deploying Mirai-based modular Linux botnet targeting routers/gateways for SOCKS5 proxy infrastructure
+- **AmnesiaStealer Operators**: Distributing macOS info-stealer via ClickFix with interactive browser control capability
+- **Chrome Extension Threat Actors**: Operating 40+ developer accounts publishing 737 malicious VPN/proxy extensions targeting Russian-speaking users (75,486 installs)
+- **Brazilian/European Cybercriminals**: Four arrested in Brazil, three charged in Europe for €30M Commerzbank fraud via service provider vulnerability
+- **Mercenary Spyware Operators**: Conducting targeted iPhone attacks triggering Apple Threat Notifications
+- **Unknown Threat Actors**: Exploiting VMware vCenter CVE-2026-59310 in global campaign; exploiting SharePoint CVE-2026-55040 post-PoC; targeting SAP Commerce Cloud RCE; conducting DDoS against Threema; exploiting Belgium eID flaws
