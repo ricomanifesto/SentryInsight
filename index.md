@@ -1,120 +1,190 @@
 ---
 schema_version: 2
 report_date: 2026-08-17
-generated_at: 2026-08-17T18:50:12Z
+generated_at: 2026-08-17T21:37:02Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-17/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Four critical vulnerabilities with confirmed active exploitation demand immediate attention. A China-nexus APT is exploiting CVE-2026-59310 in VMware vCenter to deploy Babuk-derived ransomware, while SAP Commerce Cloud instances face active attacks against CVE-2026-58231 just days after patching. Internet-exposed macOS systems are being compromised via CVE-2026-65400 to install Monero miners, and Microsoft is racing to patch the ShieldBreak zero-day (CVE-2026-69414) in Defender. These campaigns demonstrate rapid weaponization of recently disclosed flaws across enterprise infrastructure, cloud platforms, and endpoint systems.
+Multiple critical vulnerabilities are under active exploitation across diverse platforms, ranging from enterprise software to consumer devices. GitLab, Forminator WordPress plugin, VMware vCenter, SAP Commerce Cloud, Apple macOS Screen Sharing, and Microsoft Defender all have confirmed exploitation activity, with several carrying maximum CVSS scores of 9.8–10.0.
 
-Simultaneously, multiple threat actors are leveraging older vulnerabilities and configuration weaknesses. The Mirai-derived Evooo1Bot botnet is actively scanning for and exploiting known flaws in edge devices to build a SOCKS5 proxy network. The Clop ransomware gang claims breaches at Philips, GE, and Shell, though specific entry vectors remain unconfirmed. Mustang Panda (HoneyMyte) has upgraded its CoolClient backdoor with a signed Windows kernel rootkit for stealthy persistence across targets in Southeast Asia. A published two-stage exploit chain for Unisoc modem firmware demonstrates a feasible path to full Android kernel compromise via VoLTE video calls, with no vendor fix available.
-
-Data breaches continue to cascade across sectors. The French tax authority suffered a breach affecting 678,000 individuals, SafePal lost order data for nearly 40,000 cryptocurrency wallet customers, and Scottish prosecutors face a potentially widening incident via a third-party provider. Financial crime persists: Brazilian and European actors were arrested for a €30 million bank fraud exploiting a service provider vulnerability. Meanwhile, threat actors invested nearly $7 million in expired domains to redirect traffic to scams and malware at scale, and large-scale DDoS attacks disrupted the Threema secure messaging service.
+A suspected China-nexus APT is leveraging the VMware vCenter flaw (CVE-2026-59310) to deploy Babuk-derived ransomware, while Iranian nation-state actors continue evolving the Cavern C2 framework using DNS and Google Apps Script for stealthy communications. The Unisoc VoLTE exploit chain demonstrates a sophisticated two-stage attack achieving full Android kernel access with no vendor fix available, and the Evooo1Bot Linux botnet is actively weaponizing known vulnerabilities to convert edge devices into persistent SOCKS5 proxy infrastructure.
 
 ## Active Exploitation Details
 
-### ShieldBreak Zero-Day in Microsoft Defender
-- **Description**: Zero-day vulnerability in Microsoft Defender disclosed by security researcher "Nightmare Eclipse" and tracked as CVE-2026-69414. Microsoft is actively developing a security patch.
-- **Impact**: Potential bypass or disablement of Defender protections; full impact details not yet publicly disclosed.
-- **Status**: Zero-day publicly disclosed; Microsoft working on patch. No fix available at time of reporting.
-- **Severity**: unknown
+### GitLab GraphQL Authentication Bypass (CVE-2026-19478)
+- **Description**: A critical vulnerability in GitLab Community Edition and Enterprise Edition that allows unauthenticated attackers to remotely modify or delete public projects and user data under certain conditions through the GraphQL API.
+- **Impact**: Unauthenticated remote modification or deletion of public projects and user data.
+- **Status**: Security updates released by GitLab; patch available.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-19478
+- **Reporting**: [The Hacker News — Critical GitLab GraphQL Flaw Could Let Unauthenticated Attackers Delete Public Projects](https://thehackernews.com/2026/08/critical-gitlab-graphql-flaw-could-let.html)
+
+### Forminator WordPress Plugin Unauthenticated RCE (CVE-2026-15748)
+- **Description**: Critical remote code execution vulnerability in Forminator Forms WordPress plugin (600,000+ active installations) enabling arbitrary code execution via malicious PHP file uploads without authentication.
+- **Impact**: Full unauthenticated remote code execution on vulnerable WordPress sites.
+- **Status**: Vulnerability disclosed; patch status not specified in source.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-15748
+- **Reporting**: [The Hacker News — Forminator WordPress Flaw Can Enable Unauthenticated RCE via Malicious PHP Uploads](https://thehackernews.com/2026/08/forminator-wordpress-flaw-can-enable.html)
+
+### Certighost Enterprise CA Privilege Escalation (CVE-2026-54121)
+- **Description**: Vulnerability allowing a standard domain user to escalate privileges and turn an Enterprise Certificate Authority into a Domain Controller, exposing fundamental PKI trust issues.
+- **Impact**: Domain compromise via CA privilege escalation; Tier 0 identity infrastructure breach.
+- **Status**: Patch available; described as "the easy part" with deeper architectural lessons needed.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-54121
+- **Reporting**: [Bleeping Computer — Certighost and the Privilege Hiding in Your Certificate Authority](https://www.bleepingcomputer.com/news/security/certighost-and-the-privilege-hiding-in-your-certificate-authority/)
+
+### ShieldBreak Microsoft Defender Zero-Day (CVE-2026-69414)
+- **Description**: Zero-day vulnerability in Microsoft Defender disclosed by researcher "Nightmare Eclipse" that bypasses security controls; Microsoft is actively developing a patch.
+- **Impact**: Defender bypass and potential security control evasion.
+- **Status**: Zero-day disclosed; Microsoft working on patch; no fix released yet.
+- **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: mitigate
 - **CVE IDs**: CVE-2026-69414
 - **Reporting**: [Bleeping Computer — Microsoft working on Defender patch for ShieldBreak zero-day](https://www.bleepingcomputer.com/news/security/microsoft-working-on-defender-patch-for-shieldbreak-zero-day/)
 
 ### VMware vCenter Directory Traversal (CVE-2026-59310)
-- **Description**: Severe directory-traversal vulnerability in Broadcom VMware vCenter Server (CVSS 9.8) that allows unauthenticated attackers to execute arbitrary code.
-- **Impact**: Arbitary code execution on vCenter servers; leveraged by a suspected China-nexus APT to deploy Babuk-derived ransomware.
-- **Status**: Newly patched by Broadcom; active exploitation confirmed in the wild by an APT group.
+- **Description**: Severe directory traversal vulnerability in VMware vCenter Server (CVSS 9.8) allowing unauthenticated remote code execution; actively exploited by a suspected China-nexus APT to deploy Babuk-derived ransomware.
+- **Impact**: Unauthenticated remote code execution leading to ransomware deployment.
+- **Status**: Newly patched by Broadcom; active exploitation confirmed in the wild.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-59310
 - **Reporting**: [The Hacker News — Suspected China-Nexus Actor Exploits VMware vCenter Flaw, Deploys Babuk-Derived Ransomware](https://thehackernews.com/2026/08/suspected-china-nexus-actor-exploits.html)
 
-### SAP Commerce Cloud Remote Code Execution (CVE-2026-58231)
-- **Description**: Maximum-severity vulnerability (CVSS 10.0) involving insufficient authorization checks and input validation. Allows unauthenticated attackers to abuse a default authentication client and submit malicious requests.
-- **Impact**: Remote code execution on SAP Commerce Cloud instances.
-- **Status**: Patched by SAP three days prior to reporting; active exploitation attempts observed by threat intelligence firm Defused.
+### SAP Commerce Cloud Authentication Bypass (CVE-2026-58231)
+- **Description**: Maximum-severity vulnerability (CVSS 10.0) involving insufficient authorization checks and input validation, allowing unauthenticated attackers to abuse a default authentication client.
+- **Impact**: Unauthenticated access and potential full compromise of SAP Commerce Cloud instances.
+- **Status**: Patched; active exploitation attempts observed days after patch release.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-58231
-- **Reporting**: [The Hacker News — SAP Commerce Cloud CVE-2026-58231 Targeted in Exploitation Attempts Days After Patch](https://thehackernews.com/2026/08/sap-commerce-cloud-cve-2026-58231.html), [Bleeping Computer — Max severity SAP Commerce Cloud flaw now targeted in attacks](https://www.bleepingcomputer.com/news/security/max-severity-sap-commerce-cloud-flaw-now-targeted-in-attacks/)
+- **Reporting**: [The Hacker News — SAP Commerce Cloud CVE-2026-58231 Targeted in Exploitation Attempts Days After Patch](https://thehackernews.com/2026/08/sap-commerce-cloud-cve-2026-58231.html)
 
-### macOS Screen Sharing Authentication Bypass (CVE-2026-65400)
-- **Description**: Critical authentication issue (CVSS 9.8) in the macOS Screen Sharing component that allows an attacker already on the network to bypass authentication controls.
-- **Impact**: Full access to exposed Macs; actively used to deploy Monero cryptocurrency miners.
-- **Status**: Recently patched by Apple; public exploit code available; active exploitation confirmed by the Netherlands NCSC.
+### Apple macOS Screen Sharing Authentication Flaw (CVE-2026-65400)
+- **Description**: Critical authentication issue in macOS Screen Sharing component (CVSS 9.8) allowing network-adjacent attackers to bypass authentication; actively exploited to deploy Monero cryptocurrency miners on internet-exposed Macs.
+- **Impact**: Unauthorized remote access and cryptominer deployment.
+- **Status**: Recently patched by Apple; active exploitation confirmed by NCSC-NL.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-65400
-- **Reporting**: [The Hacker News — Apple macOS Screen Sharing Flaw Exploited on Internet-Exposed Macs to Install Monero Miner](https://thehackernews.com/2026/08/apple-macos-screen-sharing-flaw.html), [Bleeping Computer — Hackers exploit macOS Screen Sharing flaw to deploy Monero miner](https://www.bleepingcomputer.com/news/security/hackers-exploit-macos-screen-sharing-flaw-to-deploy-monero-miner/)
+- **Reporting**: [The Hacker News — Apple macOS Screen Sharing Flaw Exploited on Internet-Exposed Macs to Install Monero Miner](https://thehackernews.com/2026/08/apple-macos-screen-sharing-flaw.html)
 
-### Unisoc VoLTE Video Call Exploit Chain
-- **Description**: Two-stage exploit chain published by SSD Secure Disclosure achieving full Android kernel access on devices running Unisoc modem firmware. The chain is triggered via a malicious VoLTE video call with no user interaction required. The first stage (remote code execution) was disclosed in March 2026; the second stage (kernel privilege escalation) was published August 17, 2026.
-- **Impact**: Full Android kernel compromise, granting attackers highest privileges on affected devices.
-- **Status**: Full exploit chain publicly documented; no fix available from the chipset maker.
-- **Severity**: critical
+### Snowflake GitHub Actions Workflow Injection
+- **Description**: Command injection vulnerability in Snowflake's public snowflakedb/snowflake-connector-net repository via crafted GitHub issues triggering malicious workflow execution in `.github/workflows/jira_issue.yml` containing internal Jira credentials.
+- **Impact**: Command execution in CI/CD pipeline with access to internal credentials.
+- **Status**: Disclosed by Wiz researchers; patch status not specified.
+- **Severity**: high
 - **Exploitation Status**: observed
 - **Action**: investigate
+- **Reporting**: [The Hacker News — Snowflake GitHub Actions Flaw Lets Crafted Issues Trigger Command Injection](https://thehackernews.com/2026/08/snowflake-github-actions-flaw-lets_0330881554.html)
+
+### Unisoc VoLTE Video Call Exploit Chain
+- **Description**: Two-stage exploit chain achieving full Android kernel access on devices with Unisoc modem firmware through a VoLTE video call; second stage published August 17, 2026, following initial RCE disclosure in March 2026.
+- **Impact**: Full kernel-level compromise via zero-click or one-click VoLTE call.
+- **Status**: No fix available from chipset maker; exploit code published.
+- **Severity**: critical
+- **Exploitation Status**: potential
+- **Action**: monitor
 - **Reporting**: [The Hacker News — Unisoc VoLTE Video Call Exploit Chain Can Give Attackers Full Android Kernel Access](https://thehackernews.com/2026/08/unisoc-volte-video-call-exploit-chain.html)
 
-### Evooo1Bot Linux Botnet Campaign
-- **Description**: Previously undocumented Mirai-based modular Linux botnet (Evooo1Bot) targeting internet-facing gateway devices. The malware exploits known vulnerabilities in edge devices to gain initial access, then extends the Mirai framework with SOCKS5 proxy capabilities, DDoS modules, and traffic relay functions.
-- **Impact**: Compromised devices enrolled as SOCKS5 traffic relay nodes and DDoS bots; persistent access via modular architecture.
-- **Status**: Active campaign observed by multiple researchers; exploits "known flaws" in edge device firmware.
+### Evooo1Bot Linux Botnet Known Vulnerability Exploitation
+- **Description**: Mirai-derived modular botnet actively exploiting known vulnerabilities in internet-facing gateway devices to enroll them as SOCKS5 proxy nodes, extending beyond DDoS with credential theft and reverse SOCKS relays.
+- **Impact**: Device compromise, persistent proxy infrastructure, credential theft, network pivoting.
+- **Status**: Active campaigns observed; exploits known flaws (specific CVEs not enumerated in sources).
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
-- **Reporting**: [The Hacker News — Evooo1Bot Linux Botnet Exploits Known Flaws to Turn Edge Devices Into SOCKS5 Proxies](https://thehackernews.com/2026/08/evooo1bot-linux-botnet-exploits-known.html), [Bleeping Computer — New Evooo1Bot Linux botnet turns routers into traffic relay nodes](https://www.bleepingcomputer.com/news/security/new-evooo1bot-linux-botnet-turns-routers-into-traffic-relay-nodes/)
+- **Reporting**: [The Hacker News — Evooo1Bot Linux Botnet Exploits Known Flaws to Turn Edge Devices Into SOCKS5 Proxies](https://thehackernews.com/2026/08/evooo1bot-linux-botnet-exploits-known.html), [Bleeping Computer — New Evooo1Bot Linux botnet turns routers into traffic relay nodes](https://www.bleepingcomputer.com/news/security/new-evooo1bot-linux-botnet-turns-routers-into-traffic-relay-nodes/), [Dark Reading — Linux Botnet Evooo1Bot Expands Mirai Capabilities Well Beyond DDoS](https://www.darkreading.com/cyber-risk/linux-botnet-evooo1bot-mirai-capabilities-beyond-ddos)
+
+### MCP Server Enterprise Secret Exposure
+- **Description**: Model Context Protocol servers exposing enterprise secrets through plaintext configuration files, over-permissioned access, and prompt injection, often before security teams are aware the servers are running.
+- **Impact**: Silent exposure of sensitive enterprise data and credentials to AI agents.
+- **Status**: Architectural risk; no specific patch; requires configuration and governance controls.
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [The Hacker News — How MCP Servers Can Expose Enterprise Secrets](https://thehackernews.com/2026/08/how-mcp-servers-can-expose-enterprise.html)
+
+### Expired Domain Hijacking (Dropcatch Domains)
+- **Description**: Threat actors acquiring expired domains (50,400 in H1 2026, ~$7M spent) to inherit traffic and reputation, redirecting victims to scams and malware.
+- **Impact**: Large-scale traffic redirection to malicious content; brand reputation abuse.
+- **Status**: Ongoing campaign; no technical patch; requires domain monitoring and registration hygiene.
+- **Severity**: medium
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [The Hacker News — Hackers Spend Nearly $7 Million on Expired Domains to Redirect Traffic to Scams and Malware](https://thehackernews.com/2026/08/hackers-spend-nearly-7-million-on.html)
+
+### Service Provider Vulnerability Bank Fraud
+- **Description**: Vulnerability at an unnamed service provider exploited to withdraw funds from Commerzbank customer accounts, resulting in €30M fraud; four arrests in Brazil, three charged in Europe.
+- **Impact**: Direct financial theft from bank customers via service provider compromise.
+- **Status**: Law enforcement action taken; vulnerability details not disclosed.
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Hackers arrested over €30M bank fraud exploiting service provider flaw](https://www.bleepingcomputer.com/news/security/hackers-arrested-over-30m-bank-fraud-exploiting-service-provider-flaw/)
 
 ## Affected Systems and Products
 
-- **Microsoft Defender / Windows**: ShieldBreak zero-day (CVE-2026-69414) affects Defender on supported Windows versions; patch in development.
-- **VMware vCenter Server**: CVE-2026-59310 affects vCenter Server versions prior to the patched release; exploited by China-nexus APT.
-- **SAP Commerce Cloud**: CVE-2026-58231 affects SAP Commerce Cloud instances; patched versions available.
-- **Apple macOS**: CVE-2026-65400 affects macOS versions with Screen Sharing enabled and exposed to network; patched in recent security updates.
-- **Unisoc Modem Firmware / Android Devices**: Devices using Unisoc modem firmware (common in budget and mid-range Android smartphones) vulnerable to VoLTE video call exploit chain; no vendor fix.
-- **Edge Devices / Linux Routers / IoT Gateways**: Evooo1Bot targets internet-facing Linux-based edge devices, routers, and gateways running vulnerable firmware versions; specific affected models not enumerated in reporting.
-- **Philips, GE, Shell Enterprise Systems**: Investigating Clop ransomware data theft claims; specific vulnerable components not disclosed.
-- **SafePal Customer Database**: Cryptocurrency hardware wallet provider's order management system breached via exploited flaw; 39,798 customers affected.
-- **French DGFiP Systems**: General Directorate of Public Finances systems breached; 678,000 individuals' data stolen.
-- **Scottish Prosecutor's Office / Third-Party Provider**: Data breach potentially widening across agencies serviced by the same third party.
-- **Commerzbank / Service Provider**: Vulnerability at a service provider exploited to withdraw funds from customer accounts; €30M fraud.
-- **Threema Messaging Infrastructure**: Targeted by large-scale DDoS attacks causing severe service disruption.
+- **GitLab Community Edition and Enterprise Edition**: All versions prior to security update addressing CVE-2026-19478
+- **Forminator Forms WordPress Plugin**: Versions prior to patched release; 600,000+ active installations affected
+- **Microsoft Active Directory Certificate Services (Enterprise CA)**: Domain-joined environments with standard user accounts; CVE-2026-54121
+- **Microsoft Defender**: Versions affected by ShieldBreak zero-day (CVE-2026-69414); patch in development
+- **VMware vCenter Server**: Versions vulnerable to CVE-2026-59310 directory traversal; patched by Broadcom
+- **SAP Commerce Cloud**: Instances with default authentication client misconfiguration; CVE-2026-58231 patched
+- **Apple macOS**: Versions with Screen Sharing enabled and exposed to internet; CVE-2026-65400 patched
+- **Snowflake snowflake-connector-net Repository**: Public GitHub repository with vulnerable `.github/workflows/jira_issue.yml`
+- **Android Devices with Unisoc Modem Firmware**: Devices supporting VoLTE video calls; no vendor fix available
+- **Linux-based Edge/Gateway Devices**: Routers, IoT gateways, and embedded devices targeted by Evooo1Bot (Mirai-based)
+- **MCP (Model Context Protocol) Servers**: Enterprise AI agent integrations with plaintext configs and excessive permissions
+- **Expired/Deleting Domains**: Domains in redemption period or recently dropped; acquired for malicious redirection
+- **Service Provider Infrastructure**: Unnamed provider whose flaw enabled Commerzbank fraud
 
 ## Attack Vectors and Techniques
 
-- **VoLTE Video Call Exploitation**: Zero-click attack via malicious VoLTE video call targeting Unisoc modem firmware; two-stage chain achieves RCE then kernel privilege escalation.
-- **Directory Traversal to RCE**: CVE-2026-59310 in vCenter exploited via path traversal to achieve unauthenticated arbitrary code execution.
-- **Default Authentication Client Abuse**: CVE-2026-58231 exploited by unauthenticated attackers leveraging a default authentication client in SAP Commerce Cloud with insufficient authorization checks.
-- **Screen Sharing Authentication Bypass**: CVE-2026-65400 exploited on internet-exposed Macs with Screen Sharing enabled; public exploit code used to deploy Monero miners.
-- **Known Flaw Exploitation in Edge Devices**: Evooo1Bot leverages existing vulnerabilities in internet-facing Linux devices (routers, gateways) for initial access, then deploys Mirai-derived modular payload.
-- **Expired Domain Hijacking (Dropcatch Domains)**: Threat actors acquired ~50,400 expired domains in H1 2026 to inherit traffic and reputation, redirecting victims to scams and malware.
-- **ClickFix Social Engineering**: AmnesiaStealer macOS malware delivered via ClickFix attacks tricking users into executing malicious commands.
-- **Signed Kernel Rootkit Deployment**: Mustang Panda uses a signed Windows kernel-mode rootkit to hide processes, files, registry objects, and C2 traffic for CoolClient backdoor.
-- **Service Provider Vulnerability Exploitation**: Bank fraud actors exploited a flaw at a third-party service provider to access Commerzbank customer accounts.
-- **Ransomware Data Theft and Extortion**: Clop ransomware gang claims breaches at Philips, GE, and Shell with data theft (89GB claimed from Shell); extortion likely.
-- **Large-Scale DDoS**: Volumetric attacks against Threema messaging infrastructure causing service disruption.
-- **Stolen OAuth Token Abuse**: Google Workspace attacks leveraging stolen OAuth tokens to access Gmail, Drive, and connected systems without phishing.
+- **GraphQL API Abuse**: Unauthenticated mutation operations against public project endpoints in GitLab
+- **Malicious File Upload RCE**: PHP file upload bypassing authentication in Forminator WordPress plugin
+- **Certificate Authority Privilege Escalation**: Standard user exploiting CA misconfiguration to gain Domain Controller equivalence (Certighost)
+- **Security Product Bypass**: Zero-day exploitation of Microsoft Defender internals (ShieldBreak) to evade detection
+- **Directory Traversal to RCE**: Path manipulation in VMware vCenter leading to arbitrary code execution
+- **Default Authentication Client Abuse**: Unauthenticated exploitation of pre-configured auth client in SAP Commerce Cloud
+- **Screen Sharing Authentication Bypass**: Network-adjacent attacker exploiting macOS Screen Sharing flaw (CVE-2026-65400)
+- **GitHub Actions Workflow Injection**: Crafted issue titles/payloads triggering command injection in CI/CD pipeline
+- **VoLTE Protocol Exploit Chain**: Two-stage baseband-to-kernel exploit delivered via video call signaling
+- **Known Vulnerability Exploitation at Scale**: Automated scanning and exploitation of disclosed flaws for botnet recruitment (Evooo1Bot)
+- **AI Agent Configuration Exposure**: Plaintext secrets, excessive scopes, and prompt injection in MCP server deployments
+- **Domain Lifecycle Hijacking**: Automated registration of expired domains to inherit SEO/traffic for malware distribution
+- **Service Provider Supply Chain Compromise**: Exploitation of third-party service flaw to access banking infrastructure
+- **DNS and Google Apps Script C2**: Covert command-and-control blending with legitimate traffic (Cavern framework)
+- **Babuk-Derived Ransomware Deployment**: Custom encryptor deployed post-exploitation via VMware vCenter flaw
+- **Cryptominer Deployment**: Monero miner installed on compromised internet-exposed Macs
+- **SOCKS5 Proxy Enrollment**: Compromised devices converted to persistent traffic relay nodes (Evooo1Bot)
+- **Credential Theft and Reverse SOCKS**: Post-exploitation modules for lateral movement and persistence
 
 ## Threat Actor Activities
 
-- **China-Nexus APT (Unnamed)**: Exploiting CVE-2026-59310 in VMware vCenter to deploy Babuk-derived ransomware; attributed by cybersecurity researchers.
-- **Mustang Panda / HoneyMyte**: Chinese-aligned threat actor deploying updated CoolClient backdoor with signed Windows kernel rootkit for stealth; victims identified in Myanmar, Mongolia, Pakistan, and other Southeast Asian countries.
-- **Clop Ransomware Gang**: Claiming data theft from Philips, GE, and Shell (89GB); actively investigating by affected organizations; extortion operations ongoing.
-- **Evooo1Bot Operators (Unknown)**: Operating Mirai-derived modular botnet for SOCKS5 proxy resale and DDoS-for-hire; infrastructure and attribution not disclosed.
-- **Brazilian / European Cybercrime Group**: Four arrested in Brazil, three charged in Europe for €30M bank fraud exploiting service provider vulnerability targeting Commerzbank customers.
-- **Dropcatch Domain Operators (Unknown)**: Invested nearly $7M in H1 2026 to acquire 50,400 expired domains for traffic redirection to scams and malware; tracked by Infoblox.
-- **AmnesiaStealer Operators (Unknown)**: Distributing macOS information stealer via ClickFix attacks; includes browser session hijacking and interactive remote control module.
-- **SafePal Breach Actor (Unknown)**: Claiming to sell stolen order data for 39,798 SafePal customers on underground markets.
-- **French Tax Authority Breach Actor (Unknown)**: Accessed DGFiP systems and exfiltrated data for 678,000 individuals.
-- **Scottish Government Breach Actor (Unknown)**: Third-party compromise potentially affecting multiple agencies.
-- **Nightmare Eclipse (Researcher)**: Disclosed ShieldBreak zero-day (CVE-2026-69414) in Microsoft Defender.
-- **SSD Secure Disclosure (Researchers)**: Published two-stage Unisoc VoLTE exploit chain achieving full Android kernel access.
+- **Suspected China-Nexus APT**: Actively exploiting CVE-2026-59310 (VMware vCenter) to deploy Babuk-derived ransomware; attributed by cybersecurity researchers
+- **Iranian Nation-State Actors (Cavern/Cav3rn Operators)**: Evolving C2 framework using DNS tunneling and Google Apps Script for stealthy communications targeting Israeli entities; monitored by Kaspersky since December 2025
+- **Clop Ransomware Gang**: Claiming breaches of Philips and General Electric (GE); investigating data theft claims by both companies
+- **Nightmare Eclipse**: Security researcher who disclosed ShieldBreak zero-day (CVE-2026-69414) in Microsoft Defender
+- **Evooo1Bot Operators**: Deploying Mirai-derived modular botnet with exploitation modules, credential theft, and SOCKS5 proxy capabilities; targeting internet-facing Linux gateways globally
+- **Azure Credential Thief**: Threat actor selling 3.6 million alleged Azure account records from Fortune 500 companies; initial access via compromised credentials
+- **Dropcatch Domain Operators**: Organized acquisition of 50,400 expired domains in H1 2026 (~$7M investment) for traffic redirection to scams and malware
+- **Bank Fraud Syndicate**: Four individuals arrested in Brazil, three charged in Europe for €30M Commerzbank fraud via service provider vulnerability exploitation
+- **SSD Secure Disclosure**: Researchers publishing Unisoc VoLTE exploit chain (two-stage, March and August 2026) achieving full Android kernel access
+- **Wiz Researchers**: Disclosed Snowflake GitHub Actions workflow injection vulnerability in public repository
+- **AmnesiaStealer Operators**: Distributing macOS information stealer via ClickFix attacks with interactive browser session hijacking capability
