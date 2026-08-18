@@ -1,184 +1,220 @@
 ---
 schema_version: 2
 report_date: 2026-08-18
-generated_at: 2026-08-18T09:43:33Z
+generated_at: 2026-08-18T15:44:53Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-18/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are being actively exploited in the wild, with CISA adding a critical Ray framework flaw to its Known Exploited Vulnerabilities catalog and a suspected China-nexus APT leveraging a recently patched VMware vCenter directory traversal (CVE-2026-59310) to deploy Babuk-derived ransomware. Microsoft is racing to patch the ShieldBreak zero-day (CVE-2026-69414) in Defender, while researchers have published a two-stage Unisoc VoLTE video call exploit chain that achieves full Android kernel access with no fix available from the chipset maker.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, with CISA confirming two high-impact flaws— a Windows Task Host vulnerability leveraged by ransomware gangs and a critical Ray framework flaw enabling browser-based remote code execution— have been added to the Known Exploited Vulnerabilities catalog.
 
-The Forminator WordPress plugin (600,000+ installations) harbors a critical unauthenticated RCE (CVE-2026-15748), and GitLab has patched a critical GraphQL flaw (CVE-2026-19478) allowing unauthenticated deletion of public projects. A Certighost vulnerability (CVE-2026-54121) enables standard domain users to escalate Enterprise CA privileges to Domain Controller level. Meanwhile, the Mirai-derived Evooo1Bot botnet actively exploits known flaws in edge devices to build SOCKS5 proxy infrastructure, and Iranian nation-state actors continue evolving the Cavern C2 framework using DNS and Google Apps Script for stealthy communications targeting Israeli entities.
-
-Data breaches continue at scale: SafePal suffered an authorization flaw exposing 39,798 cryptocurrency hardware wallet customers' PII, Clop ransomware claims breaches at Philips and GE, a French tax authority breach affected 678,000 individuals, and a threat actor alleges theft of 3.6 million Azure account records from Fortune 500 companies via compromised credentials.
+Simultaneously, a critical GitLab GraphQL vulnerability (CVE-2026-19478, CVSS 9.4) allows unauthenticated deletion of public projects, and a Forminator WordPress plugin flaw (CVE-2026-15748, CVSS 9.8) enables unauthenticated remote code execution on over 600,000 sites. A Certighost privilege escalation (CVE-2026-54121) lets standard domain users compromise Enterprise Certificate Authorities.
 
 ## Active Exploitation Details
 
-### CVE-2026-59310 - VMware vCenter Directory Traversal
-- **Description**: Severe directory-traversal vulnerability in VMware vCenter Server that allows malicious actors to execute arbitrary code remotely
-- **Impact**: Remote code execution leading to ransomware deployment (Babuk-derived) and full server compromise
-- **Status**: Newly patched by Broadcom; actively exploited in the wild by suspected China-nexus APT
-- **Severity**: critical
+### Windows Task Host Vulnerability
+- **Description**: High-severity Windows Task Host vulnerability originally flagged as actively exploited in April 2026, now confirmed by CISA to be exploited by ransomware gangs
+- **Impact**: Ransomware deployment and system compromise on affected Windows systems
+- **Status**: Actively exploited by ransomware groups; patch status not specified in source
+- **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
-- **CVE IDs**: CVE-2026-59310
-- **Reporting**: [The Hacker News — Suspected China-Nexus Actor Exploits VMware vCenter Flaw, Deploys Babuk-Derived Ransomware](https://thehackernews.com/2026/08/suspected-china-nexus-actor-exploits.html)
+- **Reporting**: [Bleeping Computer — CISA: Windows Task Host flaw now exploited by ransomware gangs](https://www.bleepingcomputer.com/news/security/cisa-windows-task-host-flaw-now-exploited-by-ransomware-gangs/)
 
-### CVE-2026-69414 - ShieldBreak Zero-Day in Microsoft Defender
-- **Description**: Zero-day vulnerability in Microsoft Defender disclosed by security researcher "Nightmare Eclipse" that bypasses Defender protections
-- **Impact**: Security control bypass enabling malware execution and persistence evasion
-- **Status**: Microsoft working on patch; not yet released as of reporting
-- **Severity**: unknown
-- **Exploitation Status**: active
-- **Action**: investigate
-- **CVE IDs**: CVE-2026-69414
-- **Reporting**: [Bleeping Computer — Microsoft working on Defender patch for ShieldBreak zero-day](https://www.bleepingcomputer.com/news/security/microsoft-working-on-defender-patch-for-shieldbreak-zero-day/)
-
-### Ray Framework Critical Browser-Based RCE
-- **Description**: Critical flaw in Ray, an open-source Python-native distributed computing framework for AI/ML workloads, enabling remote code execution through browser-based attack vectors
-- **Impact**: Remote code execution on Ray clusters via crafted web requests
-- **Status**: Added to CISA Known Exploited Vulnerabilities catalog with evidence of active exploitation; patch status varies by deployment
+### Ray Framework Browser-Based RCE
+- **Description**: Critical flaw in Ray, an open-source Python-native distributed computing framework for AI/ML workloads, enabling browser-based remote code execution
+- **Impact**: Remote code execution through browser vectors targeting AI/ML infrastructure
+- **Status**: Added to CISA KEV catalog with evidence of active exploitation; GitHub project has 30k+ stars
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [The Hacker News — CISA Flags Actively Exploited Ray Flaw That Can Trigger Browser-Based RCE](https://thehackernews.com/2026/08/cisa-flags-actively-exploited-ray-flaw.html)
 
-### Unisoc VoLTE Video Call Exploit Chain
-- **Description**: Two-stage exploit chain achieving full Android kernel access on devices running Unisoc modem firmware through a VoLTE video call; second stage published August 17, 2026, following initial RCE disclosure in March 2026
-- **Impact**: Complete kernel-level compromise requiring only that the victim answers a video call; no fix available from chipset maker
-- **Status**: Exploit chain publicly disclosed; no vendor patch available
-- **Severity**: critical
-- **Exploitation Status**: observed
-- **Action**: mitigate
-- **Reporting**: [The Hacker News — Unisoc VoLTE Video Call Exploit Chain Can Give Attackers Full Android Kernel Access](https://thehackernews.com/2026/08/unisoc-volte-video-call-exploit-chain.html), [Dark Reading — Video Call Exploit Chains Two Flaws in Unisoc Modems](https://www.darkreading.com/mobile-security/video-call-exploit-chains-two-flaws-unisoc-modems)
-
-### CVE-2026-15748 - Forminator WordPress Plugin Unauthenticated RCE
-- **Description**: Critical unauthenticated remote code execution vulnerability in Forminator Forms WordPress plugin (600,000+ active installations) via malicious PHP file uploads
-- **Impact**: Arbitrary code execution on vulnerable WordPress sites without authentication
-- **Status**: Disclosed by security researcher; patch availability not specified in reporting
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: patch
-- **CVE IDs**: CVE-2026-15748
-- **Reporting**: [The Hacker News — Forminator WordPress Flaw Can Enable Unauthenticated RCE via Malicious PHP Uploads](https://thehackernews.com/2026/08/forminator-wordpress-flaw-can-enable.html)
-
-### CVE-2026-19478 - GitLab GraphQL Critical Flaw
-- **Description**: Critical vulnerability in GitLab Community Edition and Enterprise Edition GraphQL API that, under certain conditions, allows unauthenticated attackers to remotely modify or delete public projects and user data
-- **Impact**: Unauthenticated modification and deletion of public projects and associated user data
-- **Status**: GitLab released security updates addressing the vulnerability
+### GitLab GraphQL Unauthenticated Project Deletion
+- **Description**: Critical vulnerability in GitLab Community Edition and Enterprise Edition GraphQL API allowing unauthenticated attackers to remotely modify or delete public projects and user data
+- **Impact**: Unauthorized deletion/modification of public projects and user data without authentication
+- **Status**: Security updates released by GitLab; tracked as CVE-2026-19478 with CVSS 9.4
 - **Severity**: critical
 - **Exploitation Status**: potential
 - **Action**: patch
 - **CVE IDs**: CVE-2026-19478
 - **Reporting**: [The Hacker News — Critical GitLab GraphQL Flaw Could Let Unauthenticated Attackers Delete Public Projects](https://thehackernews.com/2026/08/critical-gitlab-graphql-flaw-could-let.html)
 
-### CVE-2026-54121 - Certighost Enterprise CA Privilege Escalation
-- **Description**: Vulnerability allowing a standard domain user to turn an Enterprise Certificate Authority into a Domain Controller, effectively escalating to Tier 0 identity infrastructure privileges
-- **Impact**: Full Active Directory domain compromise through PKI privilege escalation
-- **Status**: Patch available; described as "the easy part" while the underlying standing privilege issue remains
-- **Severity**: unknown
+### Forminator WordPress Plugin Unauthenticated RCE
+- **Description**: Critical security flaw in Forminator Forms WordPress plugin (600,000+ active installations) enabling arbitrary code execution via malicious PHP uploads
+- **Impact**: Full remote code execution on susceptible WordPress sites without authentication
+- **Status**: Disclosed and tracked as CVE-2026-15748 with CVSS 9.8; patch status not specified in source
+- **Severity**: critical
+- **Exploitation Status**: potential
+- **Action**: patch
+- **CVE IDs**: CVE-2026-15748
+- **Reporting**: [The Hacker News — Forminator WordPress Flaw Can Enable Unauthenticated RCE via Malicious PHP Uploads](https://thehackernews.com/2026/08/forminator-wordpress-flaw-can-enable.html)
+
+### Certighost Enterprise CA Privilege Escalation
+- **Description**: Vulnerability allowing a standard domain user to turn an Enterprise Certificate Authority into a Domain Controller, compromising PKI Tier 0 identity infrastructure
+- **Impact**: Complete domain compromise through Certificate Authority subversion and standing privilege abuse
+- **Status**: Patch available; tracked as CVE-2026-54121
+- **Severity**: critical
 - **Exploitation Status**: potential
 - **Action**: patch
 - **CVE IDs**: CVE-2026-54121
 - **Reporting**: [Bleeping Computer — Certighost and the Privilege Hiding in Your Certificate Authority](https://www.bleepingcomputer.com/news/security/certighost-and-the-privilege-hiding-in-your-certificate-authority/)
 
-### Snowflake GitHub Actions Workflow Injection
-- **Description**: GitHub Actions workflow injection vulnerability in Snowflake's public snowflakedb/snowflake-connector-net repository exploitable through crafted GitHub issues to execute commands in workflows containing internal Jira credentials
-- **Impact**: Command execution with access to internal Jira credentials in CI/CD pipeline
-- **Status**: Disclosed by Wiz researchers; remediation status not specified
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: patch
-- **Reporting**: [The Hacker News — Snowflake GitHub Actions Flaw Lets Crafted Issues Trigger Command Injection](https://thehackernews.com/2026/08/snowflake-github-actions-flaw-lets_0330881554.html)
+### Unisoc VoLTE Video Call Exploit Chain
+- **Description**: Two-stage exploit chain achieving full Android kernel access on devices running Unisoc modem firmware through a VoLTE video call, with no fix from the chipset maker
+- **Impact**: Complete kernel-level compromise of Android devices via silent video call delivery
+- **Status**: Second stage published August 17, 2026; first stage disclosed March 2026; no vendor fix available
+- **Severity**: critical
+- **Exploitation Status**: observed
+- **Action**: mitigate
+- **Reporting**: [Dark Reading — Video Call Exploit Chains Two Flaws in Unisoc Modems](https://www.darkreading.com/mobile-security/video-call-exploit-chains-two-flaws-unisoc-modems), [The Hacker News — Unisoc VoLTE Video Call Exploit Chain Can Give Attackers Full Android Kernel Access](https://thehackernews.com/2026/08/unisoc-volte-video-call-exploit-chain.html)
 
-### SafePal Authorization Flaw and Data Breach
-- **Description**: Authorization flaw in an order-tracking plug-in exploited to expose names, email addresses, shipping addresses, phone numbers, and purchase details of approximately 39,798 customers; stolen data now offered for sale
-- **Impact**: Large-scale PII and order data breach affecting cryptocurrency hardware wallet customers
-- **Status**: Flaw exploited; affected customers notified individually; data circulating on threat actor markets
+### TWINLOOT Microsoft Cloud Implant Framework
+- **Description**: Modular, PyArmor-hardened Python implant operating entire C2 infrastructure inside trusted Microsoft services (SharePoint Online, Teams) for credential theft and lateral movement
+- **Impact**: Credential theft, persistence, and network lateral movement using legitimate Microsoft cloud services as C2 channels
+- **Status**: Active threat disclosed by Ontinue; operates entirely within Microsoft 365 ecosystem
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
-- **Reporting**: [The Hacker News — SafePal Hardware Wallet Maker Says Flaw Exposed Data of Nearly 40,000 Customers](https://thehackernews.com/2026/08/safepal-hardware-wallet-maker-says-flaw.html), [Bleeping Computer — SafePal data breach impacts 39,798 customers, stolen info for sale](https://www.bleepingcomputer.com/news/security/safepal-data-breach-impacts-39-798-customers-stolen-info-for-sale/)
+- **Reporting**: [Dark Reading — Silent 'TwinLoot' Cyber Threat Operates Entirely From Microsoft's Cloud](https://www.darkreading.com/cloud-security/silent-twinloot-threat-operates-microsoft-cloud), [The Hacker News — TWINLOOT Abuses SharePoint and Teams to Steal Credentials and Move Across Networks](https://thehackernews.com/2026/08/twinloot-abuses-sharepoint-and-teams-to.html)
 
-### Evooo1Bot Linux Botnet Campaign
-- **Description**: Mirai-derived modular Linux botnet actively exploiting known vulnerabilities in internet-facing gateway devices to enroll them as SOCKS5 traffic relay nodes, with added credential theft, reverse SOCKS relays, and exploitation modules beyond DDoS
-- **Impact**: Compromised devices become persistent attacker infrastructure for proxying, credential harvesting, and lateral movement
-- **Status**: Active botnet campaign observed by multiple researchers since December 2025
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Dark Reading — Linux Botnet Evooo1Bot Expands Mirai Capabilities Well Beyond DDoS](https://www.darkreading.com/cyber-risk/linux-botnet-evooo1bot-mirai-capabilities-beyond-ddos), [The Hacker News — Evooo1Bot Linux Botnet Exploits Known Flaws to Turn Edge Devices Into SOCKS5 Proxies](https://thehackernews.com/2026/08/evooo1bot-linux-botnet-exploits-known.html), [Bleeping Computer — New Evooo1Bot Linux botnet turns routers into traffic relay nodes](https://www.bleepingcomputer.com/news/security/new-evooo1bot-linux-botnet-turns-routers-into-traffic-relay-nodes/)
-
-### Clop Ransomware Campaign Against Philips and GE
-- **Description**: Clop ransomware gang claims breaches of Philips and General Electric systems with data theft; both companies investigating the claims
-- **Impact**: Potential large-scale data exfiltration from major industrial technology companies
-- **Status**: Under active investigation by victim organizations; initial access vector not publicly disclosed
+### City Forum Campaign (Salesforce/ServiceNow Scraping)
+- **Description**: Single infrastructure (158.220.87.79) scraping records from Salesforce and ServiceNow customer portals across multiple industries since 2025
+- **Impact**: Unauthorized access to CRM and ITSM data across multiple industries for over a year
+- **Status**: Ongoing campaign attributed to one server hosted on cloud infrastructure; named "City Forum" by Reco
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
-- **Reporting**: [Bleeping Computer — Philips and GE investigating Clop ransomware data theft claims](https://www.bleepingcomputer.com/news/security/philips-and-ge-investigating-clop-ransomware-data-theft-claims/)
+- **Reporting**: [The Hacker News — One Attacker Has Scraped Both Salesforce and ServiceNow Portals Since 2025](https://thehackernews.com/2026/08/one-attacker-has-scraped-both.html)
+
+### StubMaker RubyGems Typosquatting Campaign
+- **Description**: 16 typosquatted RubyGems packages deploying Windows-based information stealer targeting browser credentials and cryptocurrency wallets
+- **Impact**: Credential theft and cryptocurrency wallet compromise for Ruby developers installing malicious packages
+- **Status**: Discovered August 15, 2026; packages include ubnuler, ubnlder, ri18nr, reaker, rakier, orakw, joxn, and others
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [The Hacker News — 16 Typosquatted RubyGems Packages Steal Browser Credentials and Crypto Wallets](https://thehackernews.com/2026/08/16-typosquatted-rubygems-packages-steal.html)
+
+### Evooo1Bot Linux Botnet
+- **Description**: Mirai-derived botnet expanded with exploitation modules, credential theft capabilities, and reverse SOCKS relays turning compromised devices into persistent attacker infrastructure
+- **Impact**: DDoS, credential theft, and persistent network access via compromised Linux/IoT devices
+- **Status**: Active evolution beyond original Mirai capabilities with new exploitation modules
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [Dark Reading — Linux Botnet Evooo1Bot Expands Mirai Capabilities Well Beyond DDoS](https://www.darkreading.com/cyber-risk/linux-botnet-evooo1bot-mirai-capabilities-beyond-ddos)
 
 ### Cavern C2 Framework (Iranian Nation-State)
-- **Description**: Iranian nation-state command-and-control framework using DNS tunneling and Google Apps Script to blend into legitimate traffic, targeting entities in Israel with previously unreported components discovered through ongoing monitoring since December 2025
-- **Impact**: Stealthy persistent access and command execution on compromised networks
-- **Status**: Active evolution and deployment by tracked threat activity cluster
+- **Description**: Command-and-control framework using DNS tunneling and Google Apps Script to blend into legitimate traffic, deployed by Iranian nation-state hackers targeting Israeli entities
+- **Impact**: Stealthy C2 communications, credential theft, and persistent access via trusted Google services
+- **Status**: Active since December 2025; new components discovered by Kaspersky; attributed to Iranian threat actors
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: monitor
 - **Reporting**: [The Hacker News — Cavern C2 Uses DNS and Google Apps Script to Blend Into Legitimate Traffic](https://thehackernews.com/2026/08/cavern-c2-uses-dns-and-google-apps.html)
 
-### AmnesiaStealer macOS Malware
-- **Description**: New information-stealing malware targeting macOS users via ClickFix social engineering attacks, featuring a streaming module allowing interactive remote control of victim's web browser sessions
-- **Impact**: Browser session hijacking, credential theft, and interactive attacker control
-- **Status**: Newly discovered in-the-wild malware family
-- **Severity**: medium
+### Clop Ransomware Campaign
+- **Description**: Clop ransomware gang claiming breaches of Philips and General Electric systems with data theft
+- **Impact**: Data exfiltration and extortion targeting major industrial/technology corporations
+- **Status**: Both companies investigating claims; active ransomware operation
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Philips and GE investigating Clop ransomware data theft claims](https://www.bleepingcomputer.com/news/security/philips-and-ge-investigating-clop-ransomware-data-theft-claims/)
+
+### Azure Credential Theft Campaign
+- **Description**: Threat actor selling 3.6 million employee records allegedly stolen from Microsoft Azure infrastructure of multiple Fortune 500 companies using compromised credentials
+- **Impact**: Large-scale corporate credential compromise and data exposure across major enterprises
+- **Status**: Active sales of stolen databases; initial access via compromised credentials
+- **Severity**: critical
 - **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Hacker claims 3.6 million Azure account records stolen from major companies](https://www.bleepingcomputer.com/news/security/hacker-claims-36-million-azure-account-records-stolen-from-major-companies/)
+
+### Snowflake GitHub Actions Command Injection
+- **Description**: Workflow injection vulnerability in Snowflake's public snowflakedb/snowflake-connector-net repository allowing command execution via crafted GitHub issues leveraging internal Jira credentials
+- **Impact**: Command execution in CI/CD pipeline with access to internal Jira credentials
+- **Status**: Disclosed by Wiz researchers; present in .github/workflows/jira_issue.yml
+- **Severity**: high
+- **Exploitation Status**: potential
+- **Action**: patch
+- **Reporting**: [The Hacker News — Snowflake GitHub Actions Flaw Lets Crafted Issues Trigger Command Injection](https://thehackernews.com/2026/08/snowflake-github-actions-flaw-lets_0330881554.html)
+
+### SafePal Authorization Flaw
+- **Description**: Authorization flaw in order-tracking plug-in exposing names, emails, shipping addresses, phone numbers, and purchase details of ~39,798 customers
+- **Impact**: PII exposure for hardware wallet customers
+- **Status**: Disclosed by SafePal; affected customers notified August 16, 2026
+- **Severity**: medium
+- **Exploitation Status**: observed
 - **Action**: monitor
-- **Reporting**: [Bleeping Computer — New AmnesiaStealer macOS malware hijacks browser sessions via remote control](https://www.bleepingcomputer.com/news/security/new-amnesiastealer-macos-malware-hijacks-browser-sessions-via-remote-control/)
+- **Reporting**: [The Hacker News — SafePal Hardware Wallet Maker Says Flaw Exposed Data of Nearly 40,000 Customers](https://thehackernews.com/2026/08/safepal-hardware-wallet-maker-says-flaw.html)
+
+### MCP Server Secret Exposure
+- **Description**: Model Context Protocol servers exposing enterprise secrets through plaintext configuration files, over-permissioned access, and prompt injection before security teams aware of deployment
+- **Impact**: Silent exposure of enterprise secrets and credentials via AI agent infrastructure
+- **Status**: Emerging risk as organizations adopt AI agents; no specific exploitation reported
+- **Severity**: medium
+- **Exploitation Status**: potential
+- **Action**: monitor
+- **Reporting**: [The Hacker News — How MCP Servers Can Expose Enterprise Secrets](https://thehackernews.com/2026/08/how-mcp-servers-can-expose-enterprise.html)
+
+### Ransomware Actor Posing as Recovery Service
+- **Description**: Ransomware affiliate masquerading as incident-recovery service to divert ransom payments from victims
+- **Impact**: Financial fraud and continued extortion through social engineering
+- **Status**: Active tactic observed by researchers; "Ransom Busters" branding
+- **Severity**: medium
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [Dark Reading — 'Ransom Busters': Ransomware Actor Poses as Incident-Recovery Service](https://www.darkreading.com/cyberattacks-data-breaches/ransom-busters-ransomware-actor-incident-recovery-service)
 
 ## Affected Systems and Products
 
-- **VMware vCenter Server**: All versions prior to patched releases; directory traversal enables RCE (CVE-2026-59310)
-- **Microsoft Defender**: Versions affected by ShieldBreak zero-day; patch in development (CVE-2026-69414)
-- **Ray Distributed Computing Framework**: Open-source AI/ML clusters; browser-based RCE actively exploited
-- **Android Devices with Unisoc Modem Firmware**: VoLTE video call exploit chain achieves full kernel access; no vendor fix available
-- **Forminator Forms WordPress Plugin**: Versions prior to patch; 600,000+ active installations vulnerable to unauthenticated RCE (CVE-2026-15748)
-- **GitLab Community Edition and Enterprise Edition**: Versions prior to security releases; GraphQL API allows unauthenticated project deletion (CVE-2026-19478)
-- **Windows Server with Enterprise Certificate Authority**: Standard domain users can escalate CA to Domain Controller privileges (CVE-2026-54121)
-- **Snowflake snowflake-connector-net Repository**: GitHub Actions workflow (.github/workflows/jira_issue.yml) vulnerable to issue-triggered command injection
-- **SafePal Order-Tracking System**: Authorization flaw in plug-in exposed 39,798 customer records
-- **Internet-Facing Gateway Devices (Routers, IoT)**: Linux-based edge devices targeted by Evooo1Bot for SOCKS5 proxy enrollment
-- **Philips and GE Enterprise Systems**: Under investigation for Clop ransomware data theft claims
-- **macOS Systems**: Targeted by AmnesiaStealer via ClickFix attacks with browser session hijacking
-- **Israeli Organizational Networks**: Targeted by Iranian Cavern C2 framework using DNS and Google Apps Script
+- **Windows Task Host**: Windows systems targeted by ransomware gangs exploiting Task Host vulnerability
+- **Ray Framework**: Open-source Python distributed computing framework for AI/ML (30k+ GitHub stars) with critical browser-based RCE
+- **GitLab CE/EE**: Community and Enterprise Editions vulnerable to unauthenticated GraphQL project deletion (CVE-2026-19478)
+- **Forminator Forms WordPress Plugin**: 600,000+ active installations vulnerable to unauthenticated RCE via PHP uploads (CVE-2026-15748)
+- **Enterprise Certificate Authorities**: Windows PKI infrastructure vulnerable to standard user privilege escalation (CVE-2026-54121)
+- **Unisoc Modem Firmware**: Android devices with Unisoc VoLTE video call capability; no vendor patch available
+- **Microsoft 365 Ecosystem**: SharePoint Online, Teams, and Microsoft cloud services abused as C2 infrastructure by TWINLOOT
+- **Salesforce Customer Portals**: Records scraped across multiple industries since 2025 via City Forum campaign
+- **ServiceNow Customer Portals**: Records scraped alongside Salesforce via same infrastructure
+- **RubyGems Repository**: 16 typosquatted packages (ubnuler, ubnlder, ri18nr, reaker, rakier, orakw, joxn, etc.) distributing Windows info stealer
+- **Linux/IoT Devices**: Mirai-vulnerable devices recruited into Evooo1Bot with expanded exploitation modules
+- **Google Workspace**: Google Apps Script abused for C2 communications by Cavern framework
+- **DNS Infrastructure**: DNS tunneling used by Cavern C2 for stealthy communications
+- **Snowflake Connector .NET Repository**: Public GitHub repository with vulnerable GitHub Actions workflow (jira_issue.yml)
+- **SafePal Order Tracking**: Hardware wallet customer data exposed via authorization flaw in plug-in
+- **MCP Server Deployments**: AI agent infrastructure exposing secrets via plaintext configs and prompt injection
 
 ## Attack Vectors and Techniques
 
-- **VoLTE Video Call Exploit Delivery**: Two-stage kernel exploit chain delivered via incoming video call; victim only needs to answer (Unisoc modems)
-- **Browser-Based RCE via Ray Dashboard**: Crafted web requests to Ray cluster dashboards trigger remote code execution
-- **Unauthenticated PHP Upload RCE**: Malicious PHP files uploaded through Forminator plugin endpoints without authentication
-- **GraphQL API Abuse**: Unauthenticated GraphQL mutations modify/delete public GitLab projects under specific conditions
-- **Enterprise CA Privilege Escalation**: Standard domain user exploits Certighost (CVE-2026-54121) to gain Domain Controller equivalence via PKI
-- **GitHub Actions Workflow Injection**: Crafted GitHub issues trigger command execution in CI/CD pipelines with embedded credentials
-- **Authorization Bypass in Order Tracking**: Flawed access controls in SafePal plug-in expose customer PII without authentication
-- **Known Vulnerability Exploitation for Botnet Recruitment**: Evooo1Bot leverages unpatched flaws in edge devices for SOCKS5 proxy enrollment
-- **DNS Tunneling with Google Apps Script**: Cavern C2 uses legitimate Google infrastructure for covert command and control communications
-- **ClickFix Social Engineering**: AmnesiaStealer tricks macOS users into executing malicious commands via fake browser error pages
-- **Compromised Credential Access**: Threat actor claims 3.6 million Azure records stolen using valid credentials against Fortune 500 companies
-- **Third-Party Supply Chain Breach**: Pokémon Center customer data stolen via CEVA Logistics; French tax authority breached through DGFiP systems
-- **Directory Traversal to RCE**: VMware vCenter path traversal (CVE-2026-59310) weaponized for arbitrary code execution and ransomware deployment
+- **Ransomware Exploitation of Windows Task Host**: Ransomware gangs leveraging CISA-confirmed actively exploited vulnerability for initial access and deployment
+- **Browser-Based RCE via Ray Framework**: AI/ML workload infrastructure compromised through browser-accessible remote code execution
+- **Unauthenticated GraphQL API Abuse**: GitLab public projects deleted/modified without authentication via GraphQL endpoint
+- **Malicious PHP Upload RCE**: WordPress sites compromised through unauthenticated file upload in Forminator plugin
+- **Certificate Authority Subversion**: Standard domain users escalating to Domain Controller via Enterprise CA misconfiguration
+- **VoLTE Video Call Exploit Chain**: Two-stage kernel exploit delivered through legitimate video call answering on Unisoc modems
+- **Living-off-the-Land Cloud C2**: TWINLOOT using SharePoint Online file operations and Teams for tasking and data exfiltration
+- **Credential-Based Portal Scraping**: Long-term unauthorized access to Salesforce/ServiceNow using compromised credentials
+- **Typosquatting Supply Chain Attack**: Malicious RubyGems packages mimicking legitimate names to steal browser credentials and crypto wallets
+- **Mirai Evolution with Exploitation Modules**: Evooo1Bot adding vulnerability exploitation, credential theft, and SOCKS relay capabilities
+- **DNS and Google Apps Script C2**: Iranian actors blending Cavern C2 traffic into legitimate DNS and Google service communications
+- **GitHub Actions Workflow Injection**: Crafted issues triggering command execution in CI/CD pipelines with internal credentials
+- **Ransomware Recovery Service Impersonation**: Affiliates posing as incident responders to intercept ransom payments
+- **AI Agent Prompt File Propagation**: Self-replicating payloads spreading between autonomous agents through editable system prompt files
 
 ## Threat Actor Activities
 
-- **Suspected China-Nexus APT**: Actively exploiting CVE-2026-59310 in VMware vCenter to deploy Babuk-derived ransomware; attributed by cybersecurity researchers
-- **Clop Ransomware Gang**: Claiming breaches of Philips and General Electric with data theft; investigating by both companies
-- **Iranian Nation-State Actors (Cavern/Cav3rn)**: Operating evolved C2 framework since December 2025 targeting Israeli entities using DNS and Google Apps Script for stealth
-- **Evooo1Bot Operators**: Running Mirai-derived botnet campaign exploiting known flaws in edge devices to build SOCKS5 proxy infrastructure with credential theft capabilities
-- **Nightmare Eclipse (Security Researcher)**: Disclosed ShieldBreak zero-day (CVE-2026-69414) in Microsoft Defender; Microsoft developing patch
-- **SSD Secure Disclosure Researchers**: Published two-stage Unisoc VoLTE video call exploit chain achieving full Android kernel access
-- **Wiz Researchers**: Disclosed Snowflake GitHub Actions workflow injection vulnerability in public repository
-- **Unknown Threat Actor**: Selling 3.6 million alleged Azure account records from Fortune 500 companies obtained via compromised credentials
-- **AmnesiaStealer Operators**: Distributing macOS info-stealer via ClickFix attacks with interactive browser session hijacking module
-- **Data Brokers/Threat Actors**: Selling SafePal customer data (39,798 records) obtained through authorization flaw exploitation
+- **Ransomware Gangs (Multiple)**: Actively exploiting Windows Task Host vulnerability confirmed by CISA; deploying ransomware across compromised environments
+- **TWINLOOT Operators**: Deploying modular Python implant framework operating entirely within Microsoft 365 services for credential theft and lateral movement
+- **City Forum Campaign Operator**: Single infrastructure (158.220.87.79) maintaining persistent access to Salesforce and ServiceNow portals across industries since 2025
+- **StubMaker Campaign**: Publishing 16 typosquatted RubyGems packages distributing Windows information stealer targeting developers
+- **Evooo1Bot Operators**: Evolving Mirai-based botnet with new exploitation modules, credential theft, and reverse SOCKS capabilities
+- **Iranian Nation-State Actors (Cavern/Cav3rn)**: Deploying DNS and Google Apps Script-based C2 framework targeting Israeli entities since December 2025
+- **Clop Ransomware Gang**: Claiming breaches of Philips and General Electric with data theft; both companies investigating
+- **Azure Credential Threat Actor**: Selling 3.6 million employee records from Fortune 500 companies accessed via compromised Azure credentials
+- **Ransomware Affiliate (Ransom Busters)**: Masquerading as incident-recovery service to divert ransom payments from victims
+- **Anthropic/EPFL Researchers**: Demonstrating AI "mind virus" propagation between autonomous agents through persistent prompt files (research context)
