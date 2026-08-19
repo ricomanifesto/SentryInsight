@@ -1,208 +1,162 @@
 ---
 schema_version: 2
-report_date: 2026-08-18
-generated_at: 2026-08-18T18:55:02Z
-digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-18/
+report_date: 2026-08-19
+generated_at: 2026-08-19T01:40:31Z
+digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-19/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, ranging from AI/ML platforms and enterprise software to cloud infrastructure and industrial systems. CISA has added two high-impact flaws to its Known Exploited Vulnerabilities catalog—a critical Ray distributed computing framework vulnerability enabling browser-based remote code execution and a high-severity Windows Task Host vulnerability now leveraged by ransomware gangs. Simultaneously, critical unauthenticated RCE vulnerabilities in GitLab (CVE-2026-19478, CVSS 9.4) and the widely deployed Forminator WordPress plugin (CVE-2026-15748, CVSS 9.8) have been patched but require immediate deployment given their exploitation potential.
+Multiple critical vulnerabilities are undergoing active exploitation across diverse technology stacks, from AI platforms and DevOps tools to enterprise software and consumer applications. CISA has added two high-impact flaws—affecting the Ray distributed computing framework and Windows Task Host—to its Known Exploited Vulnerabilities catalog, confirming ransomware gangs and other threat actors are leveraging them in the wild. Simultaneously, a critical GitLab zero-click vulnerability (CVE-2026-19478) and a severe Forminator WordPress plugin flaw (CVE-2026-15748) present immediate risk to internet-facing assets, with the latter affecting over 600,000 installations.
 
-Threat actor activity shows increasing sophistication in living-off-the-land and cloud-native tradecraft. The Clop ransomware gang has developed a custom Java web shell targeting PTC Windchill and FlexPLM servers with built-in credential decryption and repository enumeration capabilities. A novel Python implant framework dubbed TWINLOOT operates its entire command-and-control infrastructure within trusted Microsoft services including SharePoint Online and Teams, while the Iranian-linked Cavern C2 framework leverages DNS and Google Apps Script to blend into legitimate traffic. The "City Forum" campaign has scraped Salesforce and ServiceNow portals across multiple industries for over a year from a single infrastructure IP, and a typosquatting campaign on RubyGems ("StubMaker") has deployed 16 malicious packages stealing browser credentials and cryptocurrency wallets.
+Threat actor activity shows increased sophistication and diversification. A China-linked operator demonstrated near-autonomous AI-driven attacks against APAC government targets, while the Clop ransomware gang deployed a custom Java web shell purpose-built for PTC Windchill and FlexPLM environments. The TWINLOOT framework operates entirely within Microsoft's trusted cloud services—SharePoint and Teams—for stealthy credential theft and lateral movement. Meanwhile, the "City Forum" campaign has silently scraped Salesforce and ServiceNow portals since 2025 from a single server, and a typosquatting operation dubbed "StubMaker" seeded 16 malicious RubyGems packages to steal browser credentials and cryptocurrency wallets.
 
-Emerging attack surfaces in AI ecosystems are being actively researched and exploited. Microsoft Copilot Personal contains three vulnerabilities ("CoSnitch") enabling single-click data exfiltration from connected applications via an undocumented URL parameter. Researchers have demonstrated self-propagating "mind viruses" spreading between AI agents through persistent prompt files, while the MLflow AI platform and FUXA SCADA software face active scanning and exploitation of critical SSRF flaws. A credential-based intrusion campaign claims 3.6 million Azure account records stolen from Fortune 500 companies, and the Certighost vulnerability (CVE-2026-54121) allows standard domain users to escalate Enterprise Certificate Authorities to Domain Controller equivalence, highlighting persistent PKI trust boundary failures.
+New attack vectors center on AI system manipulation and supply chain compromise. Researchers disclosed the "CoSnitch" technique exploiting undocumented parameters in Microsoft Copilot Personal to exfiltrate data from connected applications with a single click, while separate work demonstrated self-propagating "mind viruses" spreading between AI agents via persistent prompt files. Attackers are actively exploiting SSRF flaws in MLflow and FUXA to harvest cloud credentials, and a crafted GitHub Issue in Snowflake's repository triggered command injection with internal Jira credentials. These developments signal a shift toward exploiting trust boundaries in AI workflows, CI/CD pipelines, and cloud identity providers.
 
 ## Active Exploitation Details
 
-### Microsoft Copilot Personal CoSnitch Vulnerabilities
-- **Description**: Three vulnerabilities in Microsoft Copilot Personal collectively named CoSnitch that leverage an undocumented URL parameter surfaced by the assistant itself. A single click on a crafted link can silently exfiltrate data from connected apps and other information available to the victim's Copilot session.
-- **Impact**: Silent data exfiltration from all connected applications and Copilot-accessible information without user interaction beyond clicking a link.
-- **Status**: Disclosed by Varonis Threat Labs; patch status not specified in source.
-- **Severity**: unknown
-- **Exploitation Status**: potential
-- **Action**: investigate
-- **Reporting**: [The Hacker News — Microsoft Copilot Personal Flaws Could Let One Click Exfiltrate Data From Connected Apps](https://thehackernews.com/2026/08/microsoft-copilot-personal-flaws-could.html)
-
-### MLflow Critical SSRF Vulnerability
-- **Description**: Critical Server-Side Request Forgery vulnerability in MLflow, an open-source AI/ML platform, allowing attackers to steal cloud credentials and secrets through malicious scanning and exploitation.
-- **Impact**: Theft of cloud credentials and secrets from MLflow deployments; active exploitation campaigns observed.
-- **Status**: Actively exploited in the wild per watchTowr and VulnCheck reports; patch availability not specified in source.
+### CVE-2026-19478 — Critical GitLab Zero-Click/GraphQL Flaw
+- **Description**: A critical vulnerability in GitLab Community Edition and Enterprise Edition that, under certain conditions, allows unauthenticated attackers to remotely modify or delete public projects and user data. The flaw resides in GraphQL handling and requires zero user interaction. GitLab rates it Critical with a CVSS score of 9.4.
+- **Impact**: Unauthenticated attackers can delete or modify public projects and user data on affected GitLab instances, potentially destroying source code, CI/CD configurations, and project metadata.
+- **Status**: Security updates released by GitLab. Organizations running self-managed versions face mitigation challenges due to limited technical details released, making exploitation detection difficult.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
-- **Reporting**: [The Hacker News — Attackers Exploit MLflow SSRF Flaw to Steal Cloud Credentials and Secrets](https://thehackernews.com/2026/08/attackers-exploit-mlflow-ssrf-flaw-to.html)
+- **CVE IDs**: CVE-2026-19478
+- **Reporting**: [Dark Reading — Critical GitLab Zero-Click Flaw Poses Mitigation Challenges](https://www.darkreading.com/application-security/critical-gitlab-zero-click-flaw-mitigation-challenges), [The Hacker News — Critical GitLab GraphQL Flaw Could Let Unauthenticated Attackers Delete Public Projects](https://thehackernews.com/2026/08/critical-gitlab-graphql-flaw-could-let.html)
 
-### FUXA SCADA/HMI Critical Vulnerability
-- **Description**: Critical vulnerability in FUXA, an open-source web-based SCADA/HMI software for operational technology and industrial automation, subject to malicious scanning and exploitation.
-- **Impact**: Potential compromise of OT/industrial automation systems; active exploitation campaigns observed.
-- **Status**: Actively exploited in the wild per watchTowr and VulnCheck reports; patch availability not specified in source.
+### CVE-2026-15748 — Forminator WordPress Plugin Unauthenticated RCE
+- **Description**: A critical security flaw in Forminator Forms, a WordPress plugin with more than 600,000 active installations. The vulnerability allows unauthenticated remote code execution via malicious PHP file uploads.
+- **Impact**: Attackers can achieve arbitrary code execution on susceptible WordPress sites without authentication, leading to full site compromise, data theft, and potential lateral movement.
+- **Status**: Vulnerability disclosed and tracked as CVE-2026-15748 with CVSS 9.8. Patch availability not explicitly stated in source.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
-- **Reporting**: [The Hacker News — Attackers Exploit MLflow SSRF Flaw to Steal Cloud Credentials and Secrets](https://thehackernews.com/2026/08/attackers-exploit-mlflow-ssrf-flaw-to.html)
+- **CVE IDs**: CVE-2026-15748
+- **Reporting**: [The Hacker News — Forminator WordPress Flaw Can Enable Unauthenticated RCE via Malicious PHP Uploads](https://thehackernews.com/2026/08/forminator-wordpress-flaw-can-enable.html)
 
-### Clop Custom Windchill Web Shell
-- **Description**: Custom Java web shell specifically designed for PTC Windchill and FlexPLM servers with built-in features to decrypt credentials, enumerate file repositories, and steal files, likely linked to the Clop ransomware gang.
-- **Impact**: Targeted data theft from Windchill/FlexPLM installations including credential decryption, repository enumeration, and file exfiltration.
-- **Status**: Active deployment in Clop ransomware operations; no vendor patch mentioned for the web shell itself.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Clop created custom web shell for Windchill data theft attacks](https://www.bleepingcomputer.com/news/security/clop-created-custom-web-shell-for-windchill-data-theft-attacks/)
-
-### Windows Task Host Vulnerability (CISA KEV)
-- **Description**: High-severity Windows Task Host vulnerability confirmed by CISA as actively exploited by ransomware gangs, originally flagged as actively exploited in April.
-- **Impact**: Ransomware deployment and system compromise via Windows Task Host exploitation.
-- **Status**: CISA-confirmed active exploitation by ransomware gangs; added to KEV catalog.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — CISA: Windows Task Host flaw now exploited by ransomware gangs](https://www.bleepingcomputer.com/news/security/cisa-windows-task-host-flaw-now-exploited-by-ransomware-gangs/)
-
-### Ray Critical Browser-Based RCE (CISA KEV)
-- **Description**: Critical flaw in Ray, an open-source Python-native distributed computing framework for AI/ML workloads, that can trigger browser-based remote code execution. CISA added to KEV catalog citing evidence of active exploitation.
-- **Impact**: Browser-based remote code execution affecting Ray distributed computing clusters used for AI/ML workloads.
-- **Status**: CISA-confirmed active exploitation; added to KEV catalog; patch status not specified in source.
+### Ray Distributed Computing Framework Browser-Based RCE
+- **Description**: A critical flaw in Ray, an open-source Python-native distributed computing framework for scaling AI and machine learning workloads. The vulnerability can trigger browser-based remote code execution.
+- **Impact**: Attackers can achieve remote code execution through browser-based vectors, compromising AI/ML workloads and potentially the underlying infrastructure.
+- **Status**: CISA added to Known Exploited Vulnerabilities (KEV) catalog citing evidence of active exploitation. GitHub project has significant adoption.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [The Hacker News — CISA Flags Actively Exploited Ray Flaw That Can Trigger Browser-Based RCE](https://thehackernews.com/2026/08/cisa-flags-actively-exploited-ray-flaw.html)
 
-### Unisoc Modem Video Call Exploit Chain
-- **Description**: Two vulnerabilities in Unisoc modems that can be chained to take over an Android device by delivering a payload when the victim answers a video call.
-- **Impact**: Full Android device compromise via video call interaction; zero-click or one-click exploitation depending on implementation.
-- **Status**: Proof-of-concept demonstrated by researchers; active exploitation status not confirmed in source.
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: monitor
-- **Reporting**: [Dark Reading — Video Call Exploit Chains Two Flaws in Unisoc Modems](https://www.darkreading.com/mobile-security/video-call-exploit-chains-two-flaws-unisoc-modems)
-
-### GitLab GraphQL Critical Vulnerability (CVE-2026-19478)
-- **Description**: Critical vulnerability in GitLab Community Edition and Enterprise Edition GraphQL implementation allowing unauthenticated attackers to remotely modify or delete public projects and user data under certain conditions.
-- **Impact**: Unauthenticated remote modification or deletion of public projects and user data; CVSS 9.4.
-- **Status**: Security updates released by GitLab; exploitation in wild not explicitly confirmed.
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: patch
-- **CVE IDs**: CVE-2026-19478
-- **Reporting**: [The Hacker News — Critical GitLab GraphQL Flaw Could Let Unauthenticated Attackers Delete Public Projects](https://thehackernews.com/2026/08/critical-gitlab-graphql-flaw-could-let.html)
-
-### Forminator WordPress Plugin RCE (CVE-2026-15748)
-- **Description**: Critical unauthenticated remote code execution vulnerability in Forminator Forms WordPress plugin (600,000+ active installations) via malicious PHP file uploads.
-- **Impact**: Unauthenticated arbitrary code execution on vulnerable WordPress sites; CVSS 9.8.
-- **Status**: Disclosed by security researcher; patch status not specified in source.
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: patch
-- **CVE IDs**: CVE-2026-15748
-- **Reporting**: [The Hacker News — Forminator WordPress Flaw Can Enable Unauthenticated RCE via Malicious PHP Uploads](https://thehackernews.com/2026/08/forminator-wordpress-flaw-can-enable.html)
-
-### Certighost Enterprise CA Privilege Escalation (CVE-2026-54121)
-- **Description**: Vulnerability allowing a standard domain user to turn an Enterprise Certificate Authority into a Domain Controller, exposing fundamental PKI trust boundary failures.
-- **Impact**: Full domain compromise via PKI privilege escalation; standard user to Domain Controller equivalence.
-- **Status**: Patch available; described as "the easy part" with deeper architectural lessons needed.
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: patch
-- **CVE IDs**: CVE-2026-54121
-- **Reporting**: [Bleeping Computer — Certighost and the Privilege Hiding in Your Certificate Authority](https://www.bleepingcomputer.com/news/security/certighost-and-the-privilege-hiding-in-your-certificate-authority/)
-
-### Snowflake GitHub Actions Workflow Injection
-- **Description**: GitHub Actions workflow injection vulnerability in Snowflake's public snowflakedb/snowflake-connector-net repository (.github/workflows/jira_issue.yml) allowing crafted GitHub issues to execute commands with internal Jira credentials.
-- **Impact**: Command execution in CI/CD pipeline with access to internal Jira credentials; supply chain compromise vector.
-- **Status**: Disclosed by Wiz researchers; patch status not specified in source.
+### Windows Task Host Vulnerability
+- **Description**: A high-severity Windows Task Host vulnerability that CISA flagged as actively exploited in April 2026. Ransomware gangs are now confirmed to be exploiting this flaw.
+- **Impact**: Provides ransomware operators with a pathway for privilege escalation, persistence, or lateral movement on Windows systems, facilitating ransomware deployment.
+- **Status**: Actively exploited by ransomware gangs per CISA confirmation. Added to KEV catalog.
 - **Severity**: high
-- **Exploitation Status**: potential
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: [Bleeping Computer — CISA: Windows Task Host flaw now exploited by ransomware gangs](https://www.bleepingcomputer.com/news/security/cisa-windows-task-host-flaw-now-exploited-by-ransomware-gangs/)
+
+### MLflow SSRF and FUXA Vulnerabilities
+- **Description**: Two critical vulnerabilities impacting MLflow (open-source AI platform) and FUXA (open-source web-based SCADA/HMI software for OT/industrial automation). Both are witnessing malicious scanning and exploitation efforts.
+- **Impact**: Attackers exploit SSRF in MLflow to steal cloud credentials and secrets. FUXA flaws expose industrial control systems to compromise.
+- **Status**: Independent reports from watchTowr and VulnCheck confirm malicious scanning and active exploitation.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: [The Hacker News — Attackers Exploit MLflow SSRF Flaw to Steal Cloud Credentials and Secrets](https://thehackernews.com/2026/08/attackers-exploit-mlflow-ssrf-flaw-to.html)
+
+### Clop Custom Web Shell for Windchill/FlexPLM
+- **Description**: A custom Java web shell linked to the Clop ransomware gang, designed specifically for PTC Windchill and FlexPLM servers. Includes built-in features to decrypt credentials, enumerate file repositories, and steal files.
+- **Impact**: Targeted data theft from product lifecycle management (PLM) systems, exposing intellectual property, credentials, and proprietary design data.
+- **Status**: Actively used in Clop data theft attacks against Windchill and FlexPLM deployments.
+- **Severity**: critical
+- **Exploitation Status**: active
 - **Action**: investigate
-- **Reporting**: [The Hacker News — Snowflake GitHub Actions Flaw Lets Crafted Issues Trigger Command Injection](https://thehackernews.com/2026/08/snowflake-github-actions-flaw-lets_0330881554.html)
+- **Reporting**: [Bleeping Computer — Clop created custom web shell for Windchill data theft attacks](https://www.bleepingcomputer.com/news/security/clop-created-custom-web-shell-for-windchill-data-theft-attacks/)
 
-### SafePal Authorization Flaw
-- **Description**: Authorization flaw in an order-tracking plug-in exposing names, email addresses, shipping addresses, phone numbers, and purchase details of approximately 39,798 customers.
-- **Impact**: PII and order data exposure for nearly 40,000 hardware wallet customers.
-- **Status**: Disclosed by SafePal; affected customers notified individually via email on August 16.
-- **Severity**: medium
-- **Exploitation Status**: observed
-- **Action**: monitor
-- **Reporting**: [The Hacker News — SafePal Hardware Wallet Maker Says Flaw Exposed Data of Nearly 40,000 Customers](https://thehackernews.com/2026/08/safepal-hardware-wallet-maker-says-flaw.html)
-
-### TWINLOOT Microsoft Cloud Implant Framework
-- **Description**: Modular, PyArmor-hardened Python implant framework operating its entire command-and-control infrastructure inside trusted Microsoft services (SharePoint Online, Teams) for credential theft and lateral movement.
-- **Impact**: Stealthy credential theft, persistence, and network lateral movement entirely within legitimate Microsoft cloud infrastructure.
-- **Status**: Active deployment documented by Ontinue researchers; no vendor patch applicable.
+### TWINLOOT Python Implant Framework
+- **Description**: A modular, PyArmor-hardened Python implant that operates its entire command-and-control infrastructure inside trusted Microsoft services (SharePoint Online, Teams). Tasking flows through SharePoint file operations and Teams messages.
+- **Impact**: Stealthy credential theft, persistence, and lateral movement entirely within Microsoft 365 trusted boundaries, evading traditional network defenses.
+- **Status**: Active operations observed; framework disclosed by Ontinue researchers.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [Dark Reading — Silent 'TwinLoot' Cyber Threat Operates Entirely From Microsoft's Cloud](https://www.darkreading.com/cloud-security/silent-twinloot-threat-operates-microsoft-cloud), [The Hacker News — TWINLOOT Abuses SharePoint and Teams to Steal Credentials and Move Across Networks](https://thehackernews.com/2026/08/twinloot-abuses-sharepoint-and-teams-to.html)
 
-### City Forum Salesforce/ServiceNow Scraping Campaign
-- **Description**: Long-running campaign scraping records from Salesforce and ServiceNow customer portals across multiple industries since 2025, traced to single infrastructure IP 158.220.87.79.
-- **Impact**: Unauthorized access to customer portal data across multiple industries; sustained access for over one year.
-- **Status**: Active campaign documented by Reco researchers; ongoing as of publication.
+### Unisoc Modem Video Call Exploit Chain
+- **Description**: Two vulnerabilities in Unisoc modems that can be chained to take over an Android device by delivering a payload via a video call and getting the victim to answer.
+- **Impact**: Remote compromise of Android devices through incoming video calls, requiring only that the victim answers the call.
+- **Status**: Researchers demonstrated the exploit chain; active exploitation status not explicitly confirmed but technique is weaponizable.
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: monitor
+- **Reporting**: [Dark Reading — Video Call Exploit Chains Two Flaws in Unisoc Modems](https://www.darkreading.com/mobile-security/video-call-exploit-chains-two-flaws-unisoc-modems)
+
+### Microsoft Copilot Personal "CoSnitch" Flaws
+- **Description**: Three vulnerabilities in Microsoft Copilot Personal (collectively named CoSnitch) that turn on an undocumented URL parameter surfaced by the assistant itself. A single click on a crafted link can silently exfiltrate data from connected apps and the victim's Copilot session.
+- **Impact**: One-click data exfiltration from all applications connected to the victim's Copilot session, including emails, documents, and chat history.
+- **Status**: Disclosed by Varonis Threat Labs; exploitation potential demonstrated. Active exploitation not explicitly confirmed.
+- **Severity**: high
+- **Exploitation Status**: potential
+- **Action**: monitor
+- **Reporting**: [Dark Reading — 'CoSnitch' Attack Tricked Copilot into Mapping Out Architecture](https://www.darkreading.com/vulnerabilities-threats/cosnitch-attack-copilot-mapping-out-architecture), [The Hacker News — Microsoft Copilot Personal Flaws Could Let One Click Exfiltrate Data From Connected Apps](https://thehackernews.com/2026/08/microsoft-copilot-personal-flaws-could.html)
+
+### StubMaker Typosquatting Campaign (RubyGems)
+- **Description**: A typosquatting campaign on RubyGems distributing 16 malicious packages (ubnuler, ubnlder, ri18nr, reaker, rakier, orakw, joxn, and others) containing a Windows-based information stealer targeting browser credentials and cryptocurrency wallets.
+- **Impact**: Developers installing typosquatted packages suffer credential theft from browsers and crypto wallet drainage.
+- **Status**: Active campaign discovered August 15, 2026 by OpenSourceMalware; packages published and available for download.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [The Hacker News — 16 Typosquatted RubyGems Packages Steal Browser Credentials and Crypto Wallets](https://thehackernews.com/2026/08/16-typosquatted-rubygems-packages-steal.html)
+
+### City Forum Campaign (Salesforce/ServiceNow Scraping)
+- **Description**: A single infrastructure (158.220.87.79) has been scraping records from Salesforce and ServiceNow customer portals across multiple industries since 2025, using compromised credentials for access.
+- **Impact**: Long-term unauthorized access to CRM and ITSM data, including customer records, support tickets, and internal communications.
+- **Status**: Active since 2025; attributed to one server infrastructure by Reco researchers.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [The Hacker News — One Attacker Has Scraped Both Salesforce and ServiceNow Portals Since 2025](https://thehackernews.com/2026/08/one-attacker-has-scraped-both.html)
 
-### StubMaker RubyGems Typosquatting Campaign
-- **Description**: Typosquatting campaign on RubyGems with 16 malicious packages (ubnuler, ubnlder, ri18nr, reaker, rakier, orakw, joxn, and others) deploying Windows-based information stealer targeting browser credentials and cryptocurrency wallets.
-- **Impact**: Credential and cryptocurrency wallet theft from developers installing typosquatted packages.
-- **Status**: Active campaign discovered August 15, 2026 by OpenSourceMalware; packages published to RubyGems.
+### Snowflake GitHub Actions Command Injection
+- **Description**: A GitHub Actions workflow injection vulnerability in Snowflake's public snowflakedb/snowflake-connector-net repository. A crafted GitHub issue can execute commands in a workflow containing internal Jira credentials.
+- **Impact**: Command execution in CI/CD pipeline with access to internal Jira credentials, potentially leading to further supply chain compromise.
+- **Status**: Disclosed by Wiz researchers; vulnerability present in .github/workflows/jira_issue.yml.
+- **Severity**: high
+- **Exploitation Status**: potential
+- **Action**: patch
+- **Reporting**: [The Hacker News — Snowflake GitHub Actions Flaw Lets Crafted Issues Trigger Command Injection](https://thehackernews.com/2026/08/snowflake-github-actions-flaw-lets_0330881554.html)
+
+### SafePal Authorization Flaw
+- **Description**: An authorization flaw in an order-tracking plug-in exposed names, email addresses, shipping addresses, phone numbers, and purchase details of approximately 39,798 customers.
+- **Impact**: PII and order history exposure for hardware wallet customers, enabling targeted phishing and physical threat risks.
+- **Status**: Disclosed by SafePal; all affected customers notified individually on August 16, 2026.
 - **Severity**: medium
+- **Exploitation Status**: observed
+- **Action**: monitor
+- **Reporting**: [The Hacker News — SafePal Hardware Wallet Maker Says Flaw Exposed Data of Nearly 40,000 Customers](https://thehackernews.com/2026/08/safepal-hardware-wallet-maker-says-flaw.html)
+
+### China-Linked AI-Driven APAC Attack
+- **Description**: A Chinese-language operator used a complex AI framework to conduct a purported "near-autonomous" attack targeting government agencies, likely in Taiwan. Represents the first reported near-autonomous nation-state attack.
+- **Impact**: Compromise of government systems through AI-orchestrated operations with minimal human intervention.
+- **Status**: Active campaign reported; details on specific vulnerabilities used not disclosed.
+- **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: investigate
-- **Reporting**: [The Hacker News — 16 Typosquatted RubyGems Packages Steal Browser Credentials and Crypto Wallets](https://thehackernews.com/2026/08/16-typosquatted-rubygems-packages-steal.html)
-
-### Cavern C2 Framework (Iranian Nation-State)
-- **Description**: Evolving Cavern/Cav3rn command-and-control framework used by Iranian nation-state hackers targeting entities in Israel, leveraging DNS and Google Apps Script to blend into legitimate traffic.
-- **Impact**: Stealthy persistent access to Israeli targets; C2 infrastructure camouflaged within legitimate Google/DNS traffic.
-- **Status**: Active since December 2025 per Kaspersky monitoring; new components discovered.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [The Hacker News — Cavern C2 Uses DNS and Google Apps Script to Blend Into Legitimate Traffic](https://thehackernews.com/2026/08/cavern-c2-uses-dns-and-google-apps.html)
-
-### Evooo1Bot Linux Botnet
-- **Description**: Linux botnet expanding Mirai capabilities with exploitation modules, credential theft, and reverse SOCKS relays to turn compromised devices into persistent attacker infrastructure.
-- **Impact**: DDoS plus persistent access, credential theft, and proxy infrastructure from compromised Linux/IoT devices.
-- **Status**: Active evolution documented; exploitation modules indicate active vulnerability targeting.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [Dark Reading — Linux Botnet Evooo1Bot Expands Mirai Capabilities Well Beyond DDoS](https://www.darkreading.com/cyber-risk/linux-botnet-evooo1bot-mirai-capabilities-beyond-ddos)
+- **Reporting**: [Dark Reading — China-Linked Hacker Shows AI Capabilities in APAC Attack](https://www.darkreading.com/cyberattacks-data-breaches/china-linked-hacker-ai-capabilities-apac-attack)
 
 ### Azure Credential Theft Campaign
-- **Description**: Threat actor selling employee databases allegedly stolen from Microsoft Azure infrastructure of multiple Fortune 500 companies after gaining access using compromised credentials.
-- **Impact**: 3.6 million Azure account records claimed stolen; Fortune 500 compromise via credential reuse/theft.
-- **Status**: Actor actively selling data; compromise method confirmed as credential-based.
+- **Description**: A threat actor claims to have stolen 3.6 million Azure account records from multiple Fortune 500 companies by accessing Microsoft Azure infrastructure using compromised credentials.
+- **Impact**: Massive exposure of employee databases and Azure resource access across major enterprises.
+- **Status**: Actor selling databases; access achieved via compromised credentials (initial vector unspecified).
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [Bleeping Computer — Hacker claims 3.6 million Azure account records stolen from major companies](https://www.bleepingcomputer.com/news/security/hacker-claims-36-million-azure-account-records-stolen-from-major-companies/)
 
-### AI Agent Prompt Injection "Mind Viruses"
-- **Description**: Self-propagating payloads spreading between AI agents through editable system prompt files that autonomous agent harnesses use to carry state between sessions.
-- **Impact**: Cross-agent malware propagation in multi-agent AI systems; persistent compromise of agent memory/state.
-- **Status**: Demonstrated in simulated six-agent coding environment by Anthropic and EPFL researchers; preprint released August 10, 2026.
-- **Severity**: medium
-- **Exploitation Status**: potential
-- **Action**: monitor
-- **Reporting**: [The Hacker News — AI "Mind Viruses" Can Spread Between Agents Through Persistent Prompt Files](https://thehackernews.com/2026/08/ai-mind-viruses-can-spread-between.html)
-
-### Ransom Busters Extortion Campaign
-- **Description**: Ransomware affiliate posing as incident-recovery service, proactively emailing victims offering to delete stolen data from ransomware groups' servers for $20,000-$60,000.
-- **Impact**: Secondary extortion of ransomware victims; potential double-dip on ransom payments; diversion of recovery funds.
-- **Status**: Active campaign spotted by GuidePoint Research; anomalous incident-recovery impersonation.
-- **Severity**: medium
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — Ransom Busters Claims It Hacked Ransomware Servers, Asks Victims for Up to $60,000](https://thehackernews.com/2026/08/ransom-busters-claims-it-hacked.html), [Dark Reading — 'Ransom Busters': Ransomware Actor Poses as Incident-Recovery Service](https://www.darkreading.com/cyberattacks-data-breaches/ransom-busters-ransomware-actor-incident-recovery-service)
-
-### Pokémon Center Third-Party Breach
-- **Description**: Third-party data breach via CEVA Logistics exposing customer personal and order information for Pokémon Center customers in the United Kingdom and Germany.
-- **Impact**: Customer PII and order data exposure; some orders cancelled.
-- **Status**: Breach confirmed; notification to UK/Germany customers in progress.
+### Pokémon Center / CEVA Logistics Third-Party Breach
+- **Description**: Third-party data breach at logistics provider CEVA Logistics exposed customer personal and order information for Pokémon Center customers in the United Kingdom and Germany.
+- **Impact**: Customer PII and order data compromised through supply chain partner.
+- **Status**: Breach confirmed; notifications sent to affected customers.
 - **Severity**: medium
 - **Exploitation Status**: observed
 - **Action**: monitor
@@ -210,61 +164,51 @@ Emerging attack surfaces in AI ecosystems are being actively researched and expl
 
 ## Affected Systems and Products
 
-- **Microsoft Copilot Personal**: All versions with connected apps functionality; exploitation via undocumented URL parameter
-- **MLflow**: Open-source AI/ML platform deployments; critical SSRF vulnerability under active exploitation
-- **FUXA SCADA/HMI**: Open-source web-based industrial automation software; critical vulnerability in OT environments
-- **PTC Windchill and FlexPLM**: Enterprise PLM servers targeted by Clop custom Java web shell with credential decryption capabilities
-- **Windows Task Host**: Windows systems vulnerable to high-severity flaw exploited by ransomware gangs (CISA KEV)
-- **Ray Distributed Computing Framework**: Python-native AI/ML workload clusters; critical browser-based RCE (CISA KEV)
-- **Unisoc Modems**: Android devices with Unisoc baseband processors; video call exploit chain
-- **GitLab CE/EE**: All versions prior to security update; GraphQL vulnerability CVE-2026-19478
-- **Forminator Forms WordPress Plugin**: Versions prior to patch; 600,000+ active installations; CVE-2026-15748
-- **Enterprise Certificate Authorities**: Windows Server PKI deployments; CVE-2026-54121 allows standard user to DC equivalence
-- **Snowflake snowflake-connector-net Repository**: GitHub Actions workflows using vulnerable jira_issue.yml
-- **SafePal Order-Tracking Plug-in**: Authorization flaw exposing ~39,798 customer records
-- **Microsoft 365 (SharePoint Online, Teams)**: Abused as C2 infrastructure by TWINLOOT implant framework
-- **Salesforce and ServiceNow Customer Portals**: Scraped by City Forum campaign since 2025 via IP 158.220.87.79
-- **RubyGems Package Registry**: 16 typosquatted packages (StubMaker campaign) distributing Windows info stealer
-- **Google Apps Script and DNS Infrastructure**: Abused by Iranian Cavern C2 framework for traffic camouflage
-- **Linux/IoT Devices**: Targeted by Evooo1Bot botnet with expanded Mirai exploitation modules
-- **Microsoft Azure Tenants**: Fortune 500 companies compromised via credential theft; 3.6M records claimed
-- **Autonomous AI Agent Systems**: Multi-agent harnesses using editable system prompt files; vulnerable to cross-agent prompt injection
-- **CEVA Logistics Systems**: Third-party breach affecting Pokémon Center UK/Germany customer data
+- **GitLab Community Edition & Enterprise Edition**: Self-managed versions vulnerable to CVE-2026-19478; zero-click exploitation possible
+- **WordPress sites with Forminator Forms plugin**: 600,000+ active installations affected by CVE-2026-15748 unauthenticated RCE
+- **Ray distributed computing framework**: Open-source Python AI/ML platform; browser-based RCE actively exploited
+- **Windows Task Host**: All supported Windows versions; ransomware gangs actively exploiting
+- **MLflow**: Open-source AI platform; SSRF flaw exploited for cloud credential theft
+- **FUXA**: Open-source SCADA/HMI software for OT/industrial automation; critical vulnerabilities under active exploitation
+- **PTC Windchill & FlexPLM**: PLM servers targeted by Clop custom Java web shell with credential decryption capabilities
+- **Microsoft 365 (SharePoint Online, Teams)**: Used as C2 infrastructure by TWINLOOT Python implant framework
+- **Android devices with Unisoc modems**: Vulnerable to video call exploit chain requiring only call answer
+- **Microsoft Copilot Personal**: Three CoSnitch vulnerabilities enabling one-click data exfiltration from connected apps
+- **RubyGems package registry**: 16 typosquatted packages (StubMaker campaign) stealing browser credentials and crypto wallets
+- **Salesforce & ServiceNow customer portals**: Scraped via compromised credentials by City Forum campaign since 2025
+- **Snowflake snowflake-connector-net repository**: GitHub Actions workflow injection via crafted issues
+- **SafePal hardware wallet order-tracking system**: Authorization flaw exposed ~39,798 customer records
+- **Government agency systems in APAC**: Targeted by China-linked AI-driven near-autonomous attack framework
+- **Microsoft Azure infrastructure**: Fortune 500 employee databases stolen via compromised credentials
+- **CEVA Logistics systems**: Third-party breach affecting Pokémon Center UK/Germany customer data
 
 ## Attack Vectors and Techniques
 
-- **Single-Click Data Exfiltration (CoSnitch)**: Crafted links with undocumented URL parameters trigger silent data extraction from Copilot-connected applications
-- **SSRF Cloud Credential Theft**: Server-Side Request Forgery in MLflow leveraged to access cloud metadata services and steal credentials/secrets
-- **Custom Industrial Web Shell**: Java web shell purpose-built for Windchill/FlexPLM with credential decryption, repository enumeration, and file theft
-- **Ransomware Task Host Exploitation**: Ransomware gangs leveraging Windows Task Host vulnerability for initial access/privilege escalation
-- **Browser-Based RCE via Distributed Computing**: Ray framework flaw enables remote code execution through browser interaction with AI/ML clusters
-- **Zero-Click Video Call Exploit**: Chained Unisoc modem vulnerabilities enable Android takeover via incoming video call
-- **Unauthenticated GraphQL Mutation**: GitLab GraphQL flaw allows project deletion/modification without authentication under specific conditions
-- **Unauthenticated PHP Upload RCE**: Forminator WordPress plugin accepts malicious PHP files leading to arbitrary code execution
-- **PKI Privilege Escalation (Certighost)**: Standard domain user manipulates Enterprise CA to gain Domain Controller-level privileges
-- **GitHub Actions Workflow Injection**: Crafted GitHub issues trigger command execution in CI/CD pipelines with internal credentials
-- **Living-Off-The-Land Cloud C2**: TWINLOOT operates entire C2 infrastructure within SharePoint Online and Teams, using legitimate Microsoft services for tasking and exfiltration
-- **Long-Term Portal Scraping**: City Forum campaign maintains persistent unauthorized access to Salesforce/ServiceNow portals for over one year
-- **Typosquatting Supply Chain Attack**: RubyGems packages with names similar to legitimate libraries deliver Windows information stealers
-- **DNS/Google Apps Script C2 Camouflage**: Iranian Cavern framework blends malicious traffic into legitimate DNS and Google service requests
-- **Mirai-Derived Botnet Expansion**: Evooo1Bot adds exploitation modules, credential theft, and reverse SOCKS to turn IoT devices into persistent infrastructure
-- **Credential-Based Cloud Intrusion**: Azure compromise via stolen/reused credentials yielding 3.6M account records from Fortune 500 companies
-- **Cross-Agent Prompt Injection**: Self-propagating payloads spread through editable system prompt files in multi-agent AI systems
-- **Ransomware Affiliate Impersonation**: Ransom Busters poses as incident-recovery service to extort victims already hit by ransomware
-- **Third-Party Logistics Breach**: CEVA Logistics compromise cascades to Pokémon Center customer data in UK/Germany
-- **WMIC LOLBin Removal**: Microsoft proactively removing Windows Management Instrumentation Command-line tool abused by cybercriminals
+- **Zero-Click GraphQL Exploitation**: Unauthenticated attackers leverage CVE-2026-19478 in GitLab to delete/modify public projects without user interaction
+- **Unauthenticated PHP Upload RCE**: Malicious PHP files uploaded to Forminator Forms plugin achieve arbitrary code execution on WordPress sites
+- **Browser-Based RCE via AI Framework**: Ray vulnerability triggered through browser vectors to compromise distributed AI/ML workloads
+- **Windows Task Host Exploitation**: Ransomware gangs leverage high-severity flaw for privilege escalation and persistence
+- **SSRF for Cloud Credential Theft**: MLflow SSRF flaw exploited to access cloud metadata services and steal credentials/secrets
+- **Custom Web Shell for PLM Systems**: Clop's Java web shell purpose-built for Windchill/FlexPLM with credential decryption and file enumeration
+- **Living-off-the-Land in Microsoft Cloud**: TWINLOOT operates C2 entirely within SharePoint Online and Teams, using file operations and messages for tasking
+- **Video Call Exploit Chain**: Two Unisoc modem flaws chained to compromise Android devices when victim answers incoming video call
+- **AI Assistant Parameter Manipulation (CoSnitch)**: Undocumented URL parameter in Microsoft Copilot Personal exploited for one-click data exfiltration from connected apps
+- **Typosquatting Supply Chain Attack**: 16 RubyGems packages with deceptive names deliver Windows info-stealer for browser credentials and crypto wallets
+- **Long-Term Credential-Based Portal Scraping**: Single infrastructure maintains access to Salesforce/ServiceNow portals for over a year using compromised credentials
+- **CI/CD Workflow Injection**: Crafted GitHub Issue triggers command injection in Snowflake's GitHub Actions workflow with internal Jira credentials
+- **Authorization Bypass in Order Tracking**: SafePal plug-in flaw exposes customer PII without authentication checks
+- **Near-Autonomous AI Attack Framework**: China-linked operator uses complex AI system for autonomous targeting and compromise of government agencies
+- **Compromised Credential Reuse for Cloud Access**: Actor accesses Azure infrastructure of multiple Fortune 500 companies using stolen credentials
+- **Third-Party Logistics Compromise**: CEVA Logistics breach exposes downstream customer data for Pokémon Center
 
 ## Threat Actor Activities
 
-- **Clop Ransomware Gang**: Developed and deployed custom Java web shell for PTC Windchill/FlexPLM servers with advanced credential decryption and data enumeration capabilities; active data theft operations
-- **TWINLOOT Operators**: Deploy modular PyArmor-hardened Python implant framework operating C2 entirely within Microsoft SharePoint Online and Teams; credential theft and lateral movement campaigns
-- **City Forum Campaign Operator**: Single infrastructure (158.220.87.79) scraping Salesforce and ServiceNow portals across multiple industries since 2025; sustained unauthorized access
-- **StubMaker/OpensSourceMalware Actors**: Published 16 typosquatted RubyGems packages distributing Windows information stealer targeting browser credentials and crypto wallets
-- **Iranian Nation-State Actors (Cavern/Cav3rn)**: Evolving C2 framework using DNS and Google Apps Script for traffic camouflage; targeting Israeli entities since December 2025 per Kaspersky
-- **Evooo1Bot Botnet Operators**: Expanding Mirai-derived Linux botnet with exploitation modules, credential theft, and reverse SOCKS relays for persistent infrastructure
-- **Azure Credential Theft Actor**: Selling 3.6 million employee records allegedly stolen from Fortune 500 Microsoft Azure environments via compromised credentials
-- **Ransom Busters Affiliate**: Posing as incident-recovery service to extort ransomware victims for $20K-$60K; diverting recovery payments; spotted by GuidePoint Research
-- **MLflow/FUXA Exploitation Actors**: Conducting malicious scanning and exploitation of critical vulnerabilities in AI/ML platform and OT SCADA software per watchTowr and VulnCheck
-- **SafePal Data Exposure**: Authorization flaw in order-tracking plug-in exposed ~39,798 customer records; not attributed to specific threat actor
-- **Pokémon Center/CEVA Logistics Breach**: Third-party logistics provider compromise affecting UK/Germany customer data; actor not identified
-- **Anthropic/EPFL Researchers**: Demonstrated AI "mind viruses" self-propagating between agents via prompt files; defensive research publication
+- **China-Linked Nation-State Operator**: Conducting near-autonomous AI-driven attacks against APAC government targets (likely Taiwan) using complex AI framework for autonomous targeting and compromise
+- **Clop Ransomware Gang**: Deploying custom Java web shells purpose-built for PTC Windchill/FlexPLM with credential decryption, repository enumeration, and file theft capabilities for targeted IP theft
+- **Ransom Busters (Ransomware Affiliate)**: Posing as incident-recovery service; proactively emailing victims offering to delete stolen data from ransomware groups' servers for $20,000–$60,000, diverting ransom payments
+- **TWINLOOT Operators**: Running modular PyArmor-hardened Python implant framework with C2 entirely inside Microsoft 365 (SharePoint/Teams) for stealthy credential theft and lateral movement
+- **City Forum Campaign Operator**: Single infrastructure (158.220.87.79) scraping Salesforce and ServiceNow portals across industries since 2025 using compromised credentials
+- **StubMaker Group**: Typosquatting campaign publishing 16 malicious RubyGems packages delivering Windows info-stealer targeting browser credentials and cryptocurrency wallets
+- **Azure Credential Theft Actor**: Selling 3.6 million employee records allegedly stolen from Fortune 500 companies' Azure infrastructure via compromised credentials
+- **Ransomware Gangs (Multiple)**: Actively exploiting Windows Task Host vulnerability (per CISA) and Ray framework flaw for initial access and ransomware deployment
+- **Unknown Actors (MLflow/FUXA)**: Conducting malicious scanning and exploitation of MLflow SSRF and FUXA vulnerabilities per watchTowr and VulnCheck telemetry
