@@ -63,7 +63,11 @@ test("renders trustworthy content without JavaScript", async ({ browser }) => {
   await expect(page.locator(".brand-logo-light")).toBeVisible();
   await expect(page.locator(".brand-logo-dark")).toBeHidden();
   await expect(page.getByText(reportShape(metadata))).toBeVisible();
-  await expect(page.getByText("AI-assisted", { exact: false })).toBeVisible();
+  await expect(
+    page.locator(".report-method strong").getByText("AI-assisted defensive triage.", {
+      exact: true,
+    }),
+  ).toBeVisible();
   const reportingCount = metadata.findings.reduce(
     (count, finding) => count + finding.reporting.length,
     0,

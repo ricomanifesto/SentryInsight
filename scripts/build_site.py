@@ -198,7 +198,7 @@ def _badge(dimension: str, value: str) -> str:
     )
 
 
-def _finding_heading_html(finding: Finding) -> str:
+def _finding_heading_html(finding: Finding, claimed_cves: set[str]) -> str:
     badges = "".join(
         (
             _badge("severity", finding.severity.value),
@@ -212,10 +212,12 @@ def _finding_heading_html(finding: Finding) -> str:
         for cve in finding.cve_ids
     )
     cve_group = f'<span class="cve-list">{cves}</span>' if cves else ""
+    handoff_cves = [cve for cve in finding.cve_ids if cve not in claimed_cves]
+    claimed_cves.update(handoff_cves)
     cve_handoff_targets = "".join(
         f'<span id="{html.escape(cve.lower())}" class="cve-handoff-target" '
         'aria-hidden="true"></span>'
-        for cve in finding.cve_ids
+        for cve in handoff_cves
     )
     title = html.escape(finding.title)
     heading_id = html.escape(finding.slug)
@@ -263,6 +265,7 @@ def _enhance_finding_tokens(
     """Build disclosure controls and classification into the initial HTML."""
     enhanced: list[Token] = []
     finding_body_open = False
+    claimed_cves: set[str] = set()
     index = 0
     while index < len(tokens):
         token = tokens[index]
@@ -283,7 +286,7 @@ def _enhance_finding_tokens(
                 enhanced.extend(
                     (
                         token,
-                        _controlled_html(_finding_heading_html(finding)),
+                        _controlled_html(_finding_heading_html(finding, claimed_cves)),
                         tokens[index + 2],
                         _controlled_html(
                             f'<div id="{html.escape(finding.slug)}-details" '
