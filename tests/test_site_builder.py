@@ -96,6 +96,23 @@ def test_site_builder_embeds_source_owned_finding_metadata(tmp_path):
     assert html.count('data-severity="critical"') == 1
 
 
+def test_site_builder_emits_one_handoff_target_for_a_cve_shared_by_findings(
+    tmp_path,
+):
+    report = REPORT.replace(
+        "- **Action**: investigate\n\n## Affected Systems and Products",
+        "- **Action**: investigate\n"
+        "- **CVE IDs**: CVE-2026-1234\n\n"
+        "## Affected Systems and Products",
+    )
+
+    output_path = build_fixture(tmp_path, report)
+    html = (output_path / "index.html").read_text()
+
+    assert html.count('id="cve-2026-1234" class="cve-handoff-target"') == 1
+    assert html.count('href="https://nvd.nist.gov/vuln/detail/CVE-2026-1234"') == 2
+
+
 def test_site_builder_renders_each_finding_classification_once_in_initial_html(
     tmp_path,
 ):
