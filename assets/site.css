@@ -126,7 +126,7 @@ button { font: inherit; }
 .mobile-toc { display: none; margin: 18px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
 .mobile-toc summary { cursor: pointer; font-weight: 700; }
 .mobile-toc nav { margin-top: 10px; }
-.report-content { min-width: 0; }
+.report-content { min-width: 0; overflow-wrap: anywhere; }
 .report-content h1 { margin: 0 0 28px; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.08; letter-spacing: -0.04em; }
 .report-content h1 time { display: block; color: inherit; }
 .report-kicker { display: block; margin-bottom: 8px; color: var(--accent); font-size: var(--text-small); font-weight: 700; line-height: 1.2; letter-spacing: 0.1em; text-transform: uppercase; }
