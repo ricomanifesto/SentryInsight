@@ -392,6 +392,49 @@ test("provides a mobile section map without horizontal overflow", async ({ page 
 });
 
 
+for (const width of [320, 390]) {
+  test(`wraps long report text without clipping at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/index.html");
+    const label = "NIGHTMARE/MSNightmare/Nightmare-Eclipse/".repeat(2);
+    await page.locator("#report-content").evaluate((report, label) => {
+      const list = document.createElement("ul");
+      const item = document.createElement("li");
+      const alias = document.createElement("strong");
+      alias.id = "overflow-regression-alias";
+      alias.textContent = label;
+      item.append(alias);
+      list.append(item);
+      report.append(list);
+    }, label);
+
+    const map = page.locator("details.mobile-toc");
+    await map.locator("summary").click();
+    const dimensions = await page.locator("#overflow-regression-alias").evaluate((alias) => {
+      const range = document.createRange();
+      range.selectNodeContents(alias);
+      const item = alias.parentElement.getBoundingClientRect();
+      return {
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+        textFits: [...range.getClientRects()].every(
+          (rect) => rect.left >= item.left && rect.right <= item.right,
+        ),
+      };
+    });
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    expect(dimensions.textFits).toBeTruthy();
+    await expect(page.locator("#overflow-regression-alias")).toHaveText(label);
+
+    const sectionLink = map.locator("nav a").last();
+    const target = await sectionLink.getAttribute("href");
+    await sectionLink.click();
+    await expect(page).toHaveURL(new RegExp(`${target}$`));
+    await expect(page.locator(target)).toBeInViewport();
+  });
+}
+
+
 test("renders an archive that matches its manifest", async ({ page, request }) => {
   const failures = collectPageFailures(page);
   const response = await page.goto("/reports/");
