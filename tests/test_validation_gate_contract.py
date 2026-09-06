@@ -87,12 +87,14 @@ def test_pull_requests_run_the_full_local_validation_gate():
 
     assert "pull_request:" in workflow
     assert "actions/setup-python@v6" in workflow
-    assert "astral-sh/setup-uv@v6" in workflow
+    assert "astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c" in workflow
     assert "actions/setup-node@v6" in workflow
     assert "npm ci" in workflow
     assert "npx playwright install --with-deps chromium" in workflow
     assert "bash scripts/local_validation.sh" in workflow
-    assert "actions/upload-artifact@v4" in workflow
+    assert (
+        "actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f" in workflow
+    )
     assert "test-results/screenshots" in workflow
     assert "id: report-evidence" in workflow
     assert "steps.report-evidence.outputs.artifact-url" in workflow
