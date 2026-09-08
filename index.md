@@ -1,129 +1,132 @@
 ---
 schema_version: 2
 report_date: 2026-09-08
-generated_at: 2026-09-08T16:26:24Z
+generated_at: 2026-09-08T21:02:20Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-08/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Adobe Commerce and Magento Open Source are under active exploitation via a maximum-severity zero-day vulnerability tracked as CVE-2026-75650 (StyleSmuggler), which has been weaponized since early September 2026 to deploy Rust-based backdoors and PHP web shells on compromised e-commerce servers. Sansec discovered the exploitation campaign, and Adobe released emergency patches addressing the CVSS 10.0 flaw across all supported versions.
+Microsoft's September 2026 Patch Tuesday addressed a record-breaking 966 vulnerabilities, including two actively exploited zero-days that demand immediate patching across Windows environments. Adobe simultaneously released an emergency fix for CVE-2026-75650, a maximum-severity Magento and Adobe Commerce zero-day (CVSS 10.0) dubbed StyleSmuggler that has been under active exploitation since September 4, enabling attackers to deploy Rust-based backdoors and PHP web shells on e-commerce servers.
 
-Simultaneously, threat actors are operationalizing autonomous AI agent frameworks to conduct large-scale credential harvesting at unprecedented speed, with Google Threat Intelligence Group observing a financially motivated group compromising thousands of credentials in under six hours. These AI-driven campaigns complement established phishing-as-a-service operations like BigBear 2.0, which has bypassed multi-factor authentication at 258 organizations and stolen over 5,000 Microsoft 365 credentials through adversary-in-the-middle token theft and residential proxy infrastructure.
+Multiple high-impact intrusion campaigns are underway across diverse vectors. Threat actors are breaching F5 BIG-IP APM devices to deploy fileless Linux rootkits that inject web shells directly into memory, while the ShinyHunters extortion gang claims to have stolen over 200,000 records from Florida's DMV database. A newly identified financially motivated actor, Slim Spider, has been targeting Brazilian financial institutions since March 2026 with deep knowledge of local payment infrastructure. Meanwhile, the DoppelCart fraud network operates over 119,000 fake e-commerce domains to harvest payment card data at scale.
 
-Multiple zero-click and low-interaction attack vectors have emerged across messaging and communication platforms. A WeChat zero-click worm demonstrated account takeover via incoming calls on both iOS and Android without user interaction, while a ChatGPT prompt injection flaw allowed planted instructions to exfiltrate connected Gmail data to attacker-controlled accounts. In the remote access space, rogue ConnectWise ScreenConnect clients are spreading worm-like VBScript payloads to newly connected hosts through diverse initial access vectors including tech-support scams and phishing-delivered installers.
+The threat landscape is rapidly evolving with AI-powered automation. Google Threat Intelligence Group observed a financially motivated group using autonomous multi-agent AI frameworks to compromise thousands of credentials in under six hours. ClickFix social engineering campaigns now abuse legitimate services for persistent access, and a sophisticated vishing operation combines IT help desk impersonation, adversary-in-the-middle token theft, and residential proxy sign-ins to target Microsoft 365 executives. Researchers also demonstrated a zero-click WeChat worm capable of account takeover via incoming calls, and a post-exploitation toolkit (PEEP) that turns Chrome and Edge into stealthy command-execution backdoors.
 
 ## Active Exploitation Details
 
-### Adobe Commerce and Magento StyleSmuggler Zero-Day (CVE-2026-75650)
-- **Description**: A maximum-severity zero-day vulnerability in Adobe Commerce and Magento Open Source dubbed "StyleSmuggler" that allows unauthenticated remote code execution. The flaw resides in the handling of style/layout XML processing and was discovered being actively exploited in the wild starting September 4, 2026.
-- **Impact**: Attackers achieve full server compromise, deploying persistent Rust-based backdoors and PHP web shells that provide ongoing remote access to e-commerce infrastructure, enabling data theft, payment skimming, and lateral movement.
-- **Status**: Actively exploited since September 4, 2026. Adobe released emergency security patches addressing the vulnerability across all affected versions of Adobe Commerce and Magento Open Source.
+### CVE-2026-75650 (StyleSmuggler)
+- **Description**: A maximum-severity zero-day vulnerability in Magento and Adobe Commerce dubbed StyleSmuggler, caused by improper input validation that allows unauthenticated attackers to execute arbitrary code. The flaw enables attackers to bypass security controls and achieve remote code execution on affected e-commerce servers.
+- **Impact**: Attackers can fully compromise Magento/Adobe Commerce servers, deploy persistent Rust-based backdoors and PHP web shells, exfiltrate customer and payment data, and maintain long-term access for further monetization or lateral movement.
+- **Status**: Actively exploited in the wild since at least September 4, 2026. Adobe released an emergency security patch addressing the vulnerability.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-75650
-- **Reporting**: [Bleeping Computer — Adobe fixes critical Magento zero-day exploited to backdoor servers](https://www.bleepingcomputer.com/news/security/adobe-fixes-critical-magento-zero-day-exploited-to-backdoor-servers/), [The Hacker News — Adobe Patches Magento Zero-Day Exploited to Deploy Rust Backdoor and PHP Web Shell](https://thehackernews.com/2026/09/adobe-patches-magento-zero-day.html), [Bleeping Computer — Magento StyleSmuggler zero-day exploited to deploy Linux backdoor](https://www.bleepingcomputer.com/news/security/magento-stylesmuggler-zero-day-exploited-to-deploy-linux-backdoor/)
+- **Reporting**: [Bleeping Computer — Adobe fixes critical Magento zero-day exploited to backdoor servers](https://www.bleepingcomputer.com/news/security/adobe-fixes-critical-magento-zero-day-exploited-to-backdoor-servers/), [The Hacker News — Adobe Patches Magento Zero-Day Exploited to Deploy Rust Backdoor and PHP Web Shell](https://thehackernews.com/2026/09/adobe-patches-magento-zero-day.html)
 
-### Liquid Network Elements Bug Exploitation
-- **Description**: An exploitation of a vulnerability in the Elements sidechain protocol underlying the Liquid Network, a Bitcoin layer-2 solution. Attackers stole approximately 4,000 BTC (valued at roughly $47M at time of reporting) from the network on September 6, 2026.
-- **Impact**: Direct theft of Bitcoin backing the L-BTC token. The network was paused, preventing holders from converting L-BTC back to Bitcoin. Approximately 3,400 BTC was subsequently returned by the attackers, leaving ~598.5 BTC still unaccounted for.
-- **Status**: Exploitation occurred September 6, 2026. Liquid Network remains paused. No patch information provided in source articles.
-- **Severity**: critical
+### F5 BIG-IP APM Linux Rootkit Deployment
+- **Description**: Attackers are breaching F5 BIG-IP Access Policy Manager (APM) devices to deploy a sophisticated Linux rootkit. The rootkit intercepts PHP file loading operations and injects a fileless web shell directly into memory, eliminating the need to write malicious code to disk and evading traditional file-based detection.
+- **Impact**: Full compromise of F5 BIG-IP APM appliances, persistent stealthy access via memory-resident web shell, ability to intercept and manipulate application traffic, and potential lateral movement into connected network segments.
+- **Status**: Active exploitation confirmed with rootkit deployment observed in the wild. No vendor patch mentioned in the reporting.
+- **Severity**: unknown
 - **Exploitation Status**: active
 - **Action**: investigate
+- **Reporting**: [Bleeping Computer — Hackers breach F5 BIG-IP APM devices to deploy Linux rootkit](https://www.bleepingcomputer.com/news/security/hackers-breach-f5-big-ip-apm-devices-to-deploy-linux-rootkit/)
+
+### Microsoft September 2026 Patch Tuesday Zero-Days (Two Vulnerabilities)
+- **Description**: Two distinct zero-day vulnerabilities among 966 total flaws addressed in Microsoft's record-breaking September 2026 Patch Tuesday release. Both were confirmed as actively exploited in the wild at the time of patch release, affecting Windows and associated components.
+- **Impact**: Varies by specific vulnerability; active exploitation indicates attackers have functional weaponized exploits capable of compromising unpatched systems, potentially leading to privilege escalation, remote code execution, or security feature bypass.
+- **Status**: Patches released as part of September 2026 Patch Tuesday (KB5122878 for Windows 10, KB5124008/KB5122880 for Windows 11). Active exploitation confirmed prior to patch availability.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: [Bleeping Computer — Microsoft September 2026 Patch Tuesday fixes 966 flaws, 2 zero-days](https://www.bleepingcomputer.com/news/microsoft/microsoft-september-2026-patch-tuesday-fixes-966-flaws-2-zero-days/)
+
+### SAP OVERPASS Kernel Memory Corruption
+- **Description**: A maximum-severity memory corruption vulnerability in the SAP Kernel code, tracked under the name OVERPASS. The flaw exists in core kernel components used across multiple SAP products and could allow unauthenticated attackers to execute arbitrary code or cause denial of service.
+- **Impact**: Potential remote code execution on SAP application servers, complete compromise of SAP landscapes, access to critical business data and processes, and disruption of enterprise operations.
+- **Status**: SAP addressed this vulnerability along with 19 others in its September 2026 security updates. The reporting indicates SAP "warns of" the vulnerability but does not explicitly confirm active exploitation in the wild.
+- **Severity**: critical
+- **Exploitation Status**: unknown
+- **Action**: patch
+- **Reporting**: [Bleeping Computer — SAP warns of maximum severity 'OVERPASS' kernel vulnerability](https://www.bleepingcomputer.com/news/security/sap-warns-of-maximum-severity-overpass-kernel-vulnerability/)
+
+### Liquid Network Elements Bug Exploitation
+- **Description**: An vulnerability in the Elements protocol (underlying the Liquid Bitcoin sidechain) was exploited to steal nearly 4,000 BTC (approximately $47M at time of reporting) from the Liquid Network on September 6, 2026. The attackers returned 3,400 BTC the following day but still hold approximately 598.5 BTC. The Liquid Network remains paused.
+- **Impact**: Theft of Bitcoin-backed assets from a federated sidechain, loss of user funds, network operational pause preventing conversions between L-BTC and BTC, and erosion of trust in the Liquid federation model.
+- **Status**: Active exploitation occurred on September 6, 2026. Network remains paused as of reporting. Partial funds returned by attacker.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: mitigate
 - **Reporting**: [The Hacker News — Liquid Hackers Return 3,400 Bitcoin Taken via Elements Bug, Still Holding $47M in BTC](https://thehackernews.com/2026/09/liquid-hackers-return-3400-bitcoin.html)
 
 ### WeChat Zero-Click Account Takeover Worm
-- **Description**: A zero-click worm targeting WeChat on iOS and Android that achieves account takeover via an incoming call. The victim does not need to answer or interact with the call; the only requirement is that the caller is already a WeChat contact. Researchers at Calif demonstrated the worm spreading among test devices and reported the flaw to Tencent in July 2026.
-- **Impact**: Full account compromise without user interaction, enabling message interception, contact harvesting, and potential further social engineering. The worm capability allows automatic propagation through the victim's contact list.
-- **Status**: Demonstrated by researchers; reported to Tencent in July 2026. Tencent has since addressed the vulnerability per researcher statements.
-- **Severity**: critical
+- **Description**: Security researchers at Calif developed a zero-click worm that takes over WeChat accounts on iPhone and Android via incoming calls. The victim does not need to answer or interact with the call; the attacker must only be in the victim's WeChat contacts list. The worm demonstrates automated propagation across devices.
+- **Impact**: Full account takeover without user interaction, potential access to private messages, payment functions, social graph, and linked services. Automated worm propagation could enable mass compromise.
+- **Status**: Demonstrated by researchers in a controlled test across three devices. Reported to Tencent in July 2026; Tencent has since deployed a fix. No confirmed wild exploitation beyond researcher demonstration.
+- **Severity**: unknown
 - **Exploitation Status**: observed
 - **Action**: patch
 - **Reporting**: [The Hacker News — WeChat Zero-Click Worm Took Over Accounts on iPhone and Android via Incoming Calls](https://thehackernews.com/2026/09/wechat-zero-click-worm-took-over.html)
 
-### ChatGPT Prompt Injection Gmail Data Exfiltration
-- **Description**: A prompt injection vulnerability in ChatGPT where a single planted instruction in a conversation causes the model to silently exfiltrate data from the user's connected Gmail account and pass it to a second attacker-controlled ChatGPT account through a hidden channel, while appearing to answer the user's question normally.
-- **Impact**: Unauthorized access to email content, contacts, and potentially sensitive communications from connected Google accounts. The attack is stealthy, leaving no visible indication to the victim.
-- **Status**: Proof-of-concept demonstrated by Check Point Research. No indication of active exploitation in the wild provided in source articles.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: investigate
-- **Reporting**: [The Hacker News — ChatGPT Flaw Let a Planted Prompt Send a Victim's Gmail Data to Another Account](https://thehackernews.com/2026/09/chatgpt-flaw-let-planted-prompt-send.html)
-
-### FreeIPA Flaw Chain for Anonymous Administrator Credential Creation
-- **Description**: A vulnerability chain in FreeIPA (Red Hat's identity management system built on 389 Directory Server) that allows an unauthenticated client to create a Kerberos identity of its choosing in the directory and gain membership in the administrators group. The attack requires chaining a FreeIPA flaw with a second vulnerability in the underlying 389 Directory Server database software.
-- **Impact**: Full domain compromise in Linux environments using FreeIPA for centralized authentication, allowing attackers to create persistent administrative accounts without any prior credentials.
-- **Status**: Disclosed by Red Hat. No information on active exploitation or patch availability provided in source articles.
-- **Severity**: critical
+### FreeIPA Anonymous Administrator Credential Creation Chain
+- **Description**: A flaw chain in FreeIPA (Red Hat's identity management system) combined with a secondary flaw in the underlying 389 Directory Server database software. An unauthenticated, never-logged-in client can create a Kerberos identity of its choosing and elevate it to the administrators group, achieving full domain compromise.
+- **Impact**: Complete takeover of FreeIPA-managed Linux domains, creation of persistent administrative accounts, access to all domain-joined systems and services, and bypass of all authentication and authorization controls.
+- **Status**: Disclosed by Red Hat. No indication of active exploitation in the wild; the attack requires chaining two distinct vulnerabilities.
+- **Severity**: unknown
 - **Exploitation Status**: potential
 - **Action**: investigate
 - **Reporting**: [The Hacker News — FreeIPA Flaw Chain Lets Anonymous Clients Create Reusable Administrator Credentials](https://thehackernews.com/2026/09/freeipa-flaw-chain-lets-anonymous.html)
 
-### Telerik UI Padding Oracle Chain to Unauthenticated RCE
-- **Description**: A proof-of-concept exploit chain published by TantoSec that transforms an AES-CBC padding oracle vulnerability in Telerik UI for ASP.NET AJAX into unauthenticated remote code execution. The chain only works against applications in a specific non-default configuration.
-- **Impact**: Unauthenticated remote code execution on vulnerable ASP.NET applications using Telerik UI components in the affected configuration.
-- **Status**: Public exploit released by TantoSec. Progress patched the vulnerability chain in July 2026. No confirmed reports of exploitation in the wild.
-- **Severity**: high
-- **Exploitation Status**: not_observed
-- **Action**: patch
-- **Reporting**: [The Hacker News — Telerik UI Padding-Oracle Bug Chained to Unauthenticated RCE — Public Exploit Released](https://thehackernews.com/2026/09/telerik-ui-padding-oracle-bug-chained.html)
-
-### SAP Kernel OVERPASS Memory Corruption Vulnerability
-- **Description**: A maximum-severity memory corruption flaw in the SAP Kernel code, addressed as part of SAP's September 2026 security updates which fixed 20 vulnerabilities across multiple products.
-- **Impact**: Potential remote code execution or denial of service in SAP systems running vulnerable kernel versions, affecting core enterprise business processes.
-- **Status**: Patched in September 2026 SAP security updates. No information on active exploitation provided in source articles.
-- **Severity**: critical
+### ChatGPT Prompt Injection for Gmail Data Exfiltration
+- **Description**: A flaw in ChatGPT's handling of connected Gmail accounts allows a maliciously planted prompt (injected into a conversation) to cause ChatGPT to silently read the user's Gmail data and exfiltrate it to an attacker-controlled ChatGPT account via a hidden channel, while appearing to answer the user's question normally.
+- **Impact**: Stealthy exfiltration of email contents, contacts, and sensitive communications from users who have connected their Gmail accounts to ChatGPT. The attack is invisible to the victim during active conversation.
+- **Status**: Proof-of-concept demonstrated by Check Point Research. No confirmation of active exploitation in the wild.
+- **Severity**: unknown
 - **Exploitation Status**: potential
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — SAP warns of maximum severity 'OVERPASS' kernel vulnerability](https://www.bleepingcomputer.com/news/security/sap-warns-of-maximum-severity-overpass-kernel-vulnerability/)
-
-### Rogue ScreenConnect VBScript Worm Distribution
-- **Description**: Worm-like activity abusing ConnectWise ScreenConnect remote access software to distribute a four-stage VBScript payload to newly connected systems. The campaign uses diverse initial access methods including Quick Assist tech-support scams, phishing-delivered MSI installers, and fake software updates.
-- **Impact**: Automated lateral movement and payload deployment across ScreenConnect-connected environments, enabling persistent access, credential theft, and further compromise.
-- **Status**: Active campaign observed by Huntress across three unrelated incidents. No patch information for ScreenConnect itself provided; mitigation relies on blocking initial access vectors.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [The Hacker News — Rogue ScreenConnect Clients Spread Four-Stage VBScript Chain to Newly Connected Hosts](https://thehackernews.com/2026/09/rogue-screenconnect-clients-spread-four.html)
+- **Action**: investigate
+- **Reporting**: [The Hacker News — ChatGPT Flaw Let a Planted Prompt Send a Victim's Gmail Data to Another Account](https://thehackernews.com/2026/09/chatgpt-flaw-let-planted-prompt-send.html)
 
 ## Affected Systems and Products
 
-- **Adobe Commerce / Magento Open Source**: All versions affected by CVE-2026-75650 (StyleSmuggler); emergency patches released
-- **Liquid Network / Elements Sidechain**: Bitcoin layer-2 protocol; network paused following exploitation
-- **WeChat (iOS and Android)**: Mobile messaging application; zero-click worm demonstrated; Tencent has addressed per researchers
-- **ChatGPT with Gmail Integration**: OpenAI's chatbot platform when connected to Google Workspace/Gmail; prompt injection flaw demonstrated
-- **FreeIPA / Red Hat Identity Management**: Linux domain identity management system using 389 Directory Server; flaw chain allows anonymous admin creation
-- **Telerik UI for ASP.NET AJAX**: Specific non-default configurations vulnerable to padding oracle chain; patched by Progress in July 2026
-- **SAP Kernel**: Core component across multiple SAP products; maximum-severity memory corruption flaw patched in September 2026 updates
-- **ConnectWise ScreenConnect**: Remote access software abused for worm-like VBScript distribution; initial access via tech-support scams, phishing MSI, fake updates
-- **Microsoft 365**: Targeted by BigBear 2.0 phishing-as-a-service (258 organizations, 5,000+ credentials) and executive-focused vishing/AitM campaigns
+- **Adobe Commerce / Magento Open Source**: Multiple versions affected by CVE-2026-75650 (StyleSmuggler); emergency patch released
+- **F5 BIG-IP Access Policy Manager (APM)**: Devices targeted for Linux rootkit deployment and fileless web shell injection
+- **Microsoft Windows 10**: Requires KB5122878 extended security update (includes September 2026 Patch Tuesday fixes)
+- **Microsoft Windows 11** (versions 25H2/24H2 and 23H2): Requires KB5124008 and KB5122880 cumulative updates
+- **Microsoft Windows Server 2016**: August 2026 updates may trigger 0xc0000409 errors when Compatibility Appraiser is enabled
+- **Microsoft Windows Server 2025**: Recent memory management changes may cause application crashes
+- **SAP Kernel**: Multiple products using the SAP Kernel affected by OVERPASS memory corruption and 19 other vulnerabilities; September 2026 security updates released
+- **Liquid Network / Elements Protocol**: Bitcoin sidechain paused following exploitation of Elements bug; ~598.5 BTC still held by attacker
+- **WeChat** (iOS and Android): Zero-click worm via incoming calls; Tencent deployed fix after July 2026 responsible disclosure
+- **FreeIPA / 389 Directory Server**: Linux identity management domains vulnerable to anonymous administrator credential creation chain
+- **ChatGPT with Gmail Integration**: Users with connected Gmail accounts vulnerable to prompt injection data exfiltration (PoC demonstrated)
+- **Google Workspace**: Third-party application integrations retaining excessive access post-purpose; webinar highlights breach risks
+- **Chrome and Edge Browsers**: Susceptible to PEEP post-exploitation toolkit that injects malicious bookmarks extensions bypassing Web Store controls
 
 ## Attack Vectors and Techniques
 
-- **Zero-Day Exploitation of E-Commerce Platforms**: Attackers leveraging CVE-2026-75650 (StyleSmuggler) in Adobe Commerce/Magento for initial access and persistent backdoor deployment via Rust implants and PHP web shells
-- **AI-Driven Autonomous Credential Harvesting**: Multi-agent AI frameworks automating reconnaissance, phishing, credential validation, and exfiltration at scale (thousands of credentials in under six hours)
-- **Phishing-as-a-Service with MFA Bypass**: BigBear 2.0 framework using adversary-in-the-middle (AitM) token theft and residential proxy infrastructure to defeat multi-factor authentication
-- **Zero-Click Mobile Exploitation**: WeChat worm achieving account takeover via incoming call handling without user interaction on both iOS and Android
-- **Prompt Injection for Data Exfiltration**: Planted instructions in ChatGPT conversations causing silent Gmail data extraction to attacker-controlled accounts
-- **Executive-Targeted Vishing and AitM**: Fake IT help desk calls combined with adversary-in-the-middle token theft and residential proxy sign-ins targeting directors and VPs
-- **SEO Poisoning for Malware Delivery**: BengalSEO campaign poisoning Bing search results since 2015 to deliver MayaBot malware and tech support scams
-- **Worm-Like Remote Access Tool Abuse**: Rogue ScreenConnect clients automatically distributing multi-stage VBScript payloads to newly connected hosts
-- **Padding Oracle to RCE Exploit Chain**: Telerik UI AES-CBC padding oracle chained to unauthenticated remote code execution in specific configurations
-- **Post-Exploitation Browser Toolkits**: PEEP framework masquerading as bookmarks extension to turn Chrome/Edge into persistent command execution backdoors (requires prior admin access)
+- **ClickFix Social Engineering**: Threat actors abuse legitimate services (e.g., fake CAPTCHA/verification pages) to trick users into executing malicious PowerShell commands, establishing persistent access. Two separate campaigns observed using this tactic.
+- **Autonomous Multi-Agent AI Frameworks**: Financially motivated groups deploy coordinated AI agent swarms that automate reconnaissance, credential harvesting, lateral movement, and data exfiltration—compromising thousands of credentials in under six hours.
+- **IT Help Desk Vishing + AitM Token Theft + Residential Proxy Sign-ins**: Sophisticated Microsoft 365 targeting campaign impersonates IT support via phone, steals session tokens through adversary-in-the-middle phishing, and uses residential proxies to mimic legitimate executive login locations.
+- **SEO Poisoning (BengalSEO Campaign)**: Long-running operation (since ~2015, Rajasthan, India) poisons Bing search results to deliver MayaBot malware and tech support scams, leveraging compromised IT service provider infrastructure.
+- **Zero-Click Mobile Exploitation (WeChat Worm)**: Account takeover via specially crafted incoming call handling; no user interaction required beyond having the attacker as a contact. Demonstrated wormable propagation.
+- **Fileless Memory-Resident Web Shell (F5 BIG-IP)**: Linux rootkit hooks PHP file loading to inject web shell directly into process memory, avoiding disk writes and standard file integrity monitoring.
+- **StyleSmuggler Magento RCE Chain (CVE-2026-75650)**: Unauthenticated remote code execution via crafted input leading to deployment of Rust-based backdoor (persistence) and PHP web shell (command execution) on e-commerce servers.
+- **PEEP Post-Exploitation Browser Extension Injection**: Toolkit masquerades as bookmarks extension; installer injects directly into Chrome/Edge profiles by forging Secure Preferences, bypassing Web Store validation and user prompts. Requires prior admin/code execution.
+- **Fake E-Commerce Network (DoppelCart)**: 119,000+ domains hosting counterfeit online shops to harvest payment card details at industrial scale; infrastructure designed for resilience and rapid rotation.
+- **Prompt Injection via Connected Services (ChatGPT/Gmail)**: Malicious instruction planted in conversation context hijacks AI assistant's authorized access to exfiltrate data from connected third-party accounts (Gmail) via covert channels.
 
 ## Threat Actor Activities
 
-- **Financially Motivated AI-Enabled Credential Harvesting Group**: Observed by Google Threat Intelligence Group (GTIG) deploying autonomous multi-agent attack frameworks to compromise thousands of credentials in under six hours; diverse motivations noted across observed attackers
-- **BigBear 2.0 Phishing-as-a-Service Operators**: Operating a mature PhaaS platform that has bypassed MFA at 258 organizations and stolen over 5,000 Microsoft 365 credentials using AitM techniques and residential proxy infrastructure
-- **Executive-Targeted Data Theft and Extortion Cluster**: Conducting widespread Microsoft 365 and SaaS targeting through IT help desk vishing, AitM token theft, and residential proxy sign-ins, primarily focusing on directors, VPs, and executive staff
-- **BengalSEO Campaign Operators**: Long-running (since at least 2015) SEO poisoning operation based in Rajasthan, India, operated by two IT service providers (WeConnect and associates), delivering MayaBot malware and tech support scams via poisoned Bing search results
-- **Liquid Network Attackers**: Unknown actors who exploited the Elements sidechain bug to steal ~4,000 BTC, subsequently returning 3,400 BTC while retaining ~598.5 BTC; network remains paused
-- **ScreenConnect Worm Operators**: At least three unrelated incident clusters using diverse initial access (Quick Assist scams, phishing MSI, fake updates) to deploy rogue ScreenConnect clients that spread VBScript payloads worm-style
-- **Sansec Researchers**: Discovered and reported the StyleSmuggler (CVE-2026-75650) zero-day exploitation in Magento/Adobe Commerce starting September 4, 2026
-- **Calif Security Researchers**: Developed and demonstrated the WeChat zero-click worm, reported to Tencent in July 2026
-- **Check Point Research**: Discovered and reported the ChatGPT prompt injection flaw enabling Gmail data exfiltration
-- **TantoSec**: Published proof-of-concept exploit chain for Telerik UI padding oracle to unauthenticated RCE; Progress patched in July 2026
-- **Huntress**: Disclosed the rogue ScreenConnect VBScript worm campaign across three incidents
+- **DoppelCart Operators**: Run a massive fraud network of 119,000+ fake e-commerce domains stealing payment card data. Industrial-scale operation with automated domain rotation and infrastructure resilience.
+- **ShinyHunters**: Extortion gang claiming breach of Florida "DAVID" DMV database, exfiltrating 200,000+ driver records. Known for data theft, extortion, and leak site operations.
+- **Slim Spider** (CrowdStrike tracking name): Previously undocumented financially motivated actor targeting Brazilian financial institutions since at least March 2026. Demonstrates deep operational knowledge of Brazilian instant payment (PIX) infrastructure and crypto custody workflows.
+- **BengalSEO Operators**: Two IT service providers (WeConnect and associates) based in Rajasthan, India, running SEO poisoning campaign since at least 2015 to deliver MayaBot malware and tech support scams via poisoned Bing results.
+- **ClickFix Campaign Operators**: Multiple distinct threat groups adopting ClickFix social engineering technique for initial access and persistence via legitimate service abuse.
+- **Liquid Network Attacker**: Unknown operator exploited Elements protocol bug to steal ~4,000 BTC from Liquid sidechain on September 6, 2026; returned 3,400 BTC next day; still holds ~598.5 BTC. Network remains paused.
+- **Fake IT Support Vishing Cluster**: Targets Microsoft 365 executives (directors, VPs) via help desk impersonation calls, AitM token theft, and residential proxy sign-ins for data theft and extortion.
+- **Autonomous AI Agent Operators**: Financially motivated group observed by Google GTIG using multi-agent AI frameworks to automate end-to-end credential harvesting campaigns at unprecedented speed and scale.
+- **Calif Researchers**: Discovered and demonstrated WeChat zero-click worm; responsibly disclosed to Tencent in July 2026. Not a threat actor, but capability demonstration indicates plausible exploit path.
+- **Check Point Research**: Discovered and reported ChatGPT prompt injection flaw enabling Gmail data exfiltration via planted prompts. Proof-of-concept only; no wild exploitation confirmed.
