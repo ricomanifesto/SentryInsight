@@ -1,214 +1,129 @@
 ---
 schema_version: 2
 report_date: 2026-09-08
-generated_at: 2026-09-08T11:46:39Z
+generated_at: 2026-09-08T16:26:24Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-08/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-A critical zero-day vulnerability in Magento and Adobe Commerce, tracked as CVE-2026-75650 and codenamed StyleSmuggler, has been actively exploited since September 4, 2026. With a maximum CVSS score of 10.0, this unauthenticated remote code execution flaw allows attackers to deploy Rust-based backdoors and PHP web shells on e-commerce servers. Adobe has released emergency patches, but the exploitation window began before fixes were available, putting all unpatched Magento Open Source and Adobe Commerce instances at immediate risk.
+Adobe Commerce and Magento Open Source are under active exploitation via a maximum-severity zero-day vulnerability tracked as CVE-2026-75650 (StyleSmuggler), which has been weaponized since early September 2026 to deploy Rust-based backdoors and PHP web shells on compromised e-commerce servers. Sansec discovered the exploitation campaign, and Adobe released emergency patches addressing the CVSS 10.0 flaw across all supported versions.
 
-Simultaneously, multiple infrastructure-level attacks are underway. Threat actors are chaining two recently disclosed MikroTik RouterOS vulnerabilities to hijack routers with internet-exposed SSH services, achieving full administrative control without authentication. The N-able N-central RMM platform faces its fourth hotfix in five weeks for an unauthenticated RCE flaw that the vendor's incident notice confirms has been exploited in the wild. Additionally, a critical VMware Workstation and Fusion flaw (CVE-2026-59346, CVSS 9.3) enables VM administrators to break out and execute arbitrary code on the host, with patches now available from Broadcom.
+Simultaneously, threat actors are operationalizing autonomous AI agent frameworks to conduct large-scale credential harvesting at unprecedented speed, with Google Threat Intelligence Group observing a financially motivated group compromising thousands of credentials in under six hours. These AI-driven campaigns complement established phishing-as-a-service operations like BigBear 2.0, which has bypassed multi-factor authentication at 258 organizations and stolen over 5,000 Microsoft 365 credentials through adversary-in-the-middle token theft and residential proxy infrastructure.
 
-On the identity and access front, a sophisticated Microsoft 365 campaign combining vishing, adversary-in-the-middle token theft, and residential proxy sign-ins is targeting executives at scale. The BigBear 2.0 phishing-as-a-service framework has bypassed MFA at 258 organizations, stealing over 5,000 credentials. Meanwhile, the REVSTEALER malware family deploys persistent modules that disable Windows Update and Defender to run cryptocurrency miners, and the JSCeal malware bypasses Google authentication using stolen session cookies. A massive SEO poisoning campaign (BengalSEO) continues to deliver malware via manipulated Bing search results, while over 5,400 compromised websites serve ClickFix payloads stored on the BNB Smart Chain blockchain.
+Multiple zero-click and low-interaction attack vectors have emerged across messaging and communication platforms. A WeChat zero-click worm demonstrated account takeover via incoming calls on both iOS and Android without user interaction, while a ChatGPT prompt injection flaw allowed planted instructions to exfiltrate connected Gmail data to attacker-controlled accounts. In the remote access space, rogue ConnectWise ScreenConnect clients are spreading worm-like VBScript payloads to newly connected hosts through diverse initial access vectors including tech-support scams and phishing-delivered installers.
 
 ## Active Exploitation Details
 
-### Magento StyleSmuggler Zero-Day (CVE-2026-75650)
-- **Description**: An unauthenticated remote code execution vulnerability in Adobe Commerce and Magento Open Source, codenamed StyleSmuggler by Sansec. The flaw allows attackers to execute arbitrary code on the server without authentication by exploiting improper input validation in style/layout processing components.
-- **Impact**: Full server compromise enabling deployment of persistent backdoors (Rust-based Linux backdoor), PHP web shells, credit card skimmers, and complete control over e-commerce operations including customer data and payment processing.
-- **Status**: Actively exploited in the wild since September 4, 2026. Adobe released security patches on September 8, 2026. All versions of Magento Open Source and Adobe Commerce are affected prior to patching.
+### Adobe Commerce and Magento StyleSmuggler Zero-Day (CVE-2026-75650)
+- **Description**: A maximum-severity zero-day vulnerability in Adobe Commerce and Magento Open Source dubbed "StyleSmuggler" that allows unauthenticated remote code execution. The flaw resides in the handling of style/layout XML processing and was discovered being actively exploited in the wild starting September 4, 2026.
+- **Impact**: Attackers achieve full server compromise, deploying persistent Rust-based backdoors and PHP web shells that provide ongoing remote access to e-commerce infrastructure, enabling data theft, payment skimming, and lateral movement.
+- **Status**: Actively exploited since September 4, 2026. Adobe released emergency security patches addressing the vulnerability across all affected versions of Adobe Commerce and Magento Open Source.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-75650
-- **Reporting**: [The Hacker News — Adobe Patches Magento Zero-Day Exploited to Deploy Rust Backdoor and PHP Web Shell](https://thehackernews.com/2026/09/adobe-patches-magento-zero-day.html), [Bleeping Computer — Magento StyleSmuggler zero-day exploited to deploy Linux backdoor](https://www.bleepingcomputer.com/news/security/magento-stylesmuggler-zero-day-exploited-to-deploy-linux-backdoor/), [The Hacker News — Unpatched Magento and Adobe Commerce Zero-Day Exploited to Backdoor Online Stores](https://thehackernews.com/2026/09/unpatched-magento-and-adobe-commerce.html)
+- **Reporting**: [Bleeping Computer — Adobe fixes critical Magento zero-day exploited to backdoor servers](https://www.bleepingcomputer.com/news/security/adobe-fixes-critical-magento-zero-day-exploited-to-backdoor-servers/), [The Hacker News — Adobe Patches Magento Zero-Day Exploited to Deploy Rust Backdoor and PHP Web Shell](https://thehackernews.com/2026/09/adobe-patches-magento-zero-day.html), [Bleeping Computer — Magento StyleSmuggler zero-day exploited to deploy Linux backdoor](https://www.bleepingcomputer.com/news/security/magento-stylesmuggler-zero-day-exploited-to-deploy-linux-backdoor/)
 
-### MikroTik RouterOS SSH Authentication Bypass Chain
-- **Description**: A chain of two recently disclosed vulnerabilities in MikroTik RouterOS that allows unauthenticated attackers to gain full administrative control over devices with SSH services exposed to the internet. CERT Polska issued an attack warning on September 5, 2026, confirming successful attacks dating to at least September 2.
-- **Impact**: Complete router compromise including traffic interception, network pivoting, DNS manipulation, VPN credential theft, and use as proxy infrastructure for further attacks.
-- **Status**: Actively exploited in the wild. MikroTik has released patches for the underlying vulnerabilities. Devices with internet-accessible SSH remain at immediate risk until patched.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — Hackers exploit new MikroTik RouterOS flaws to hijack routers](https://www.bleepingcomputer.com/news/security/hackers-exploit-new-mikrotik-routeros-flaws-to-hijack-routers/), [The Hacker News — Attackers Hijack MikroTik Routers Through Internet-Exposed SSH Without Authentication](https://thehackernews.com/2026/09/attackers-hijack-mikrotik-routers.html)
-
-### N-able N-central Unauthenticated RCE
-- **Description**: A maximum-severity unauthenticated remote code execution flaw in the N-central remote monitoring and management (RMM) platform. This is the fourth hotfix issued in five weeks (Hotfix 4 for build 2026.3.1.14), indicating persistent exploitation pressure and potential incomplete prior fixes.
-- **Impact**: Full compromise of the RMM server and all managed endpoints, enabling supply-chain-style attacks against downstream customers, credential theft, and persistent network access.
-- **Status**: N-able's incident notice states the flaw has been exploited in the wild, though release notes describe this as unconfirmed. Emergency Hotfix 4 released September 2026. All on-premises builds below 2026.3.1.14 are vulnerable.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [The Hacker News — N-able Issues Fourth N-central Hotfix in Five Weeks for Unauthenticated RCE Flaw](https://thehackernews.com/2026/09/n-able-issues-fourth-n-central-hotfix.html), [Bleeping Computer — N-able patches max severity N-central flaw amid ongoing attacks](https://www.bleepingcomputer.com/news/security/n-able-patches-max-severity-n-central-flaw-amid-ongoing-attacks/)
-
-### VMware Workstation and Fusion VM Escape (CVE-2026-59346)
-- **Description**: An integer-overflow vulnerability in VMware Workstation and Fusion that allows a local attacker with elevated privileges inside a virtual machine to execute arbitrary code on the host system. The flaw resides in the virtual hardware emulation layer.
-- **Impact**: VM escape leading to host compromise, affecting all VMs on the host, potential access to host credentials, and lateral movement across virtualized environments.
-- **Status**: Security updates released by Broadcom. No confirmed exploitation in the wild reported, but the critical severity and VM escape nature make it a high-value target.
-- **Severity**: critical
-- **Exploitation Status**: not_observed
-- **Action**: patch
-- **CVE IDs**: CVE-2026-59346
-- **Reporting**: [The Hacker News — Critical VMware Workstation and Fusion Flaw Lets VM Admins Execute Host Code](https://thehackernews.com/2026/09/critical-vmware-workstation-and-fusion.html)
-
-### TeamCity Critical Vulnerability Exploitation at JetBrains
-- **Description**: Attackers exploited a recently disclosed critical vulnerability in JetBrains TeamCity to breach the JetBrains Cadence environment and extract AWS credentials. JetBrains confirmed the incident and urged all Cadence users to immediately revoke and rotate credentials.
-- **Impact**: Compromise of CI/CD infrastructure, theft of cloud credentials (AWS), potential supply chain contamination of build artifacts, and access to proprietary source code.
-- **Status**: Confirmed exploitation against JetBrains' own environment. Patch status for the underlying TeamCity vulnerability not specified in reporting; credential rotation is the immediate required action.
+### Liquid Network Elements Bug Exploitation
+- **Description**: An exploitation of a vulnerability in the Elements sidechain protocol underlying the Liquid Network, a Bitcoin layer-2 solution. Attackers stole approximately 4,000 BTC (valued at roughly $47M at time of reporting) from the network on September 6, 2026.
+- **Impact**: Direct theft of Bitcoin backing the L-BTC token. The network was paused, preventing holders from converting L-BTC back to Bitcoin. Approximately 3,400 BTC was subsequently returned by the attackers, leaving ~598.5 BTC still unaccounted for.
+- **Status**: Exploitation occurred September 6, 2026. Liquid Network remains paused. No patch information provided in source articles.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: investigate
-- **Reporting**: [The Hacker News — Attackers Breached JetBrains Cadence via Unpatched TeamCity, Extracting AWS Credentials](https://thehackernews.com/2026/09/attackers-breached-jetbrains-cadence.html)
+- **Reporting**: [The Hacker News — Liquid Hackers Return 3,400 Bitcoin Taken via Elements Bug, Still Holding $47M in BTC](https://thehackernews.com/2026/09/liquid-hackers-return-3400-bitcoin.html)
 
-### Telerik UI Padding Oracle to RCE Chain
-- **Description**: A padding oracle vulnerability in Telerik UI for ASP.NET AJAX (AES-CBC implementation) that can be chained to achieve unauthenticated remote code execution, but only against applications in a specific non-default configuration. Progress patched the vulnerability chain in July 2026. TantoSec released a public proof-of-concept exploit.
-- **Impact**: Unauthenticated RCE on vulnerable web applications, potentially leading to server compromise and data theft.
-- **Status**: Patched in July 2026. Public exploit available. No confirmed reports of exploitation in the wild per reporting.
+### WeChat Zero-Click Account Takeover Worm
+- **Description**: A zero-click worm targeting WeChat on iOS and Android that achieves account takeover via an incoming call. The victim does not need to answer or interact with the call; the only requirement is that the caller is already a WeChat contact. Researchers at Calif demonstrated the worm spreading among test devices and reported the flaw to Tencent in July 2026.
+- **Impact**: Full account compromise without user interaction, enabling message interception, contact harvesting, and potential further social engineering. The worm capability allows automatic propagation through the victim's contact list.
+- **Status**: Demonstrated by researchers; reported to Tencent in July 2026. Tencent has since addressed the vulnerability per researcher statements.
+- **Severity**: critical
+- **Exploitation Status**: observed
+- **Action**: patch
+- **Reporting**: [The Hacker News — WeChat Zero-Click Worm Took Over Accounts on iPhone and Android via Incoming Calls](https://thehackernews.com/2026/09/wechat-zero-click-worm-took-over.html)
+
+### ChatGPT Prompt Injection Gmail Data Exfiltration
+- **Description**: A prompt injection vulnerability in ChatGPT where a single planted instruction in a conversation causes the model to silently exfiltrate data from the user's connected Gmail account and pass it to a second attacker-controlled ChatGPT account through a hidden channel, while appearing to answer the user's question normally.
+- **Impact**: Unauthorized access to email content, contacts, and potentially sensitive communications from connected Google accounts. The attack is stealthy, leaving no visible indication to the victim.
+- **Status**: Proof-of-concept demonstrated by Check Point Research. No indication of active exploitation in the wild provided in source articles.
 - **Severity**: high
 - **Exploitation Status**: potential
+- **Action**: investigate
+- **Reporting**: [The Hacker News — ChatGPT Flaw Let a Planted Prompt Send a Victim's Gmail Data to Another Account](https://thehackernews.com/2026/09/chatgpt-flaw-let-planted-prompt-send.html)
+
+### FreeIPA Flaw Chain for Anonymous Administrator Credential Creation
+- **Description**: A vulnerability chain in FreeIPA (Red Hat's identity management system built on 389 Directory Server) that allows an unauthenticated client to create a Kerberos identity of its choosing in the directory and gain membership in the administrators group. The attack requires chaining a FreeIPA flaw with a second vulnerability in the underlying 389 Directory Server database software.
+- **Impact**: Full domain compromise in Linux environments using FreeIPA for centralized authentication, allowing attackers to create persistent administrative accounts without any prior credentials.
+- **Status**: Disclosed by Red Hat. No information on active exploitation or patch availability provided in source articles.
+- **Severity**: critical
+- **Exploitation Status**: potential
+- **Action**: investigate
+- **Reporting**: [The Hacker News — FreeIPA Flaw Chain Lets Anonymous Clients Create Reusable Administrator Credentials](https://thehackernews.com/2026/09/freeipa-flaw-chain-lets-anonymous.html)
+
+### Telerik UI Padding Oracle Chain to Unauthenticated RCE
+- **Description**: A proof-of-concept exploit chain published by TantoSec that transforms an AES-CBC padding oracle vulnerability in Telerik UI for ASP.NET AJAX into unauthenticated remote code execution. The chain only works against applications in a specific non-default configuration.
+- **Impact**: Unauthenticated remote code execution on vulnerable ASP.NET applications using Telerik UI components in the affected configuration.
+- **Status**: Public exploit released by TantoSec. Progress patched the vulnerability chain in July 2026. No confirmed reports of exploitation in the wild.
+- **Severity**: high
+- **Exploitation Status**: not_observed
 - **Action**: patch
 - **Reporting**: [The Hacker News — Telerik UI Padding-Oracle Bug Chained to Unauthenticated RCE — Public Exploit Released](https://thehackernews.com/2026/09/telerik-ui-padding-oracle-bug-chained.html)
 
-### ConnectWise ScreenConnect Vulnerability (Unpatched)
-- **Description**: A new vulnerability in ConnectWise ScreenConnect Remote Access software. ConnectWise has shared temporary mitigation measures and plans to release a patch. The flaw is being exploited in worm-like activity distributing malicious VBScript payloads.
-- **Impact**: Remote access compromise, lateral movement via worm-like propagation to newly connected hosts, payload delivery (VBScript-based).
-- **Status**: Unpatched as of reporting. Temporary mitigations available. Active exploitation confirmed via rogue ScreenConnect clients spreading four-stage VBScript chains.
+### SAP Kernel OVERPASS Memory Corruption Vulnerability
+- **Description**: A maximum-severity memory corruption flaw in the SAP Kernel code, addressed as part of SAP's September 2026 security updates which fixed 20 vulnerabilities across multiple products.
+- **Impact**: Potential remote code execution or denial of service in SAP systems running vulnerable kernel versions, affecting core enterprise business processes.
+- **Status**: Patched in September 2026 SAP security updates. No information on active exploitation provided in source articles.
+- **Severity**: critical
+- **Exploitation Status**: potential
+- **Action**: patch
+- **Reporting**: [Bleeping Computer — SAP warns of maximum severity 'OVERPASS' kernel vulnerability](https://www.bleepingcomputer.com/news/security/sap-warns-of-maximum-severity-overpass-kernel-vulnerability/)
+
+### Rogue ScreenConnect VBScript Worm Distribution
+- **Description**: Worm-like activity abusing ConnectWise ScreenConnect remote access software to distribute a four-stage VBScript payload to newly connected systems. The campaign uses diverse initial access methods including Quick Assist tech-support scams, phishing-delivered MSI installers, and fake software updates.
+- **Impact**: Automated lateral movement and payload deployment across ScreenConnect-connected environments, enabling persistent access, credential theft, and further compromise.
+- **Status**: Active campaign observed by Huntress across three unrelated incidents. No patch information for ScreenConnect itself provided; mitigation relies on blocking initial access vectors.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: mitigate
-- **Reporting**: [The Hacker News — Rogue ScreenConnect Clients Spread Four-Stage VBScript Chain to Newly Connected Hosts](https://thehackernews.com/2026/09/rogue-screenconnect-clients-spread-four.html), [Bleeping Computer — ConnectWise warns of new ScreenConnect flaw without patch](https://www.bleepingcomputer.com/news/security/connectwise-warns-of-new-screenconnect-flaw-without-patch/)
-
-### BigBear 2.0 Microsoft 365 Phishing-as-a-Service
-- **Description**: A phishing-as-a-service framework (BigBear 2.0) that bypasses multi-factor authentication using adversary-in-the-middle (AitM) techniques, residential proxy infrastructure, and token theft. Used against 258 organizations to steal over 5,000 Microsoft 365 credentials.
-- **Impact**: Full account takeover despite MFA, access to email, SharePoint, Teams, and connected SaaS applications, business email compromise enablement, and data exfiltration.
-- **Status**: Active campaign. No software patch applicable; requires identity and access defenses (phishing-resistant MFA, conditional access, token protection).
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [Bleeping Computer — BigBear Microsoft 365 phishing service bypassed MFA at 258 organizations](https://www.bleepingcomputer.com/news/security/bigbear-microsoft-365-phishing-service-bypassed-mfa-at-258-organizations/)
-
-### Executive Vishing and AitM Campaign (Microsoft 365/SaaS)
-- **Description**: A widespread data theft and extortion operation targeting directors, vice presidents, and executive staff through IT help desk vishing (voice phishing), adversary-in-the-middle token theft, and residential-proxy sign-ins to bypass location-based controls.
-- **Impact**: Executive account compromise, sensitive data theft, extortion, persistent SaaS access, and potential business email compromise propagation.
-- **Status**: Active threat cluster. No patch applicable; requires executive protection programs, phishing-resistant authentication, and help desk verification procedures.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [The Hacker News — Fake IT Calls Target Executives in Microsoft 365 Data Theft and Extortion Attacks](https://thehackernews.com/2026/09/microsoft-365-attackers-use-help-desk.html)
-
-### REVSTEALER Persistent Modules with Defense Evasion
-- **Description**: Four previously undocumented programs associated with the REVSTEALER information stealer (ProManager, WinUpdate, SoftManager, and a fourth unnamed module) that persist after the stealer self-deletes. One module disables Windows Update and Microsoft Defender before executing a cryptocurrency miner.
-- **Impact**: Persistent foothold, defense evasion (AV/Update disablement), resource hijacking (crypto mining), and potential re-infection vector.
-- **Status**: Active malware family with novel persistence and defense evasion techniques documented by Elastic Security Labs.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — Four REVSTEALER-Linked Modules Disable Windows Update and Defender to Run a Crypto Miner](https://thehackernews.com/2026/09/four-revstealer-linked-modules-disable.html)
-
-### JSCeal Malware Google Authentication Bypass
-- **Description**: A sophisticated compiled V8 JavaScript (JSC) malware with credential harvesting, surveillance, and traffic interception capabilities. It bypasses Google authentication using stolen session cookies, protected by javascript-obfuscator with RC4 strings, control-flow flattening, and proxy functions.
-- **Impact**: Google account takeover via session hijacking, credential theft, browser surveillance, traffic interception, and persistent access without 2FA challenge.
-- **Status**: Active malware with advanced obfuscation and authentication bypass capabilities documented by Check Point Research.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — JSCeal Malware Can Bypass Google Authentication Using Stolen Session Cookies](https://thehackernews.com/2026/09/jsceal-malware-can-bypass-google.html)
-
-### PEEP Chromium Post-Exploitation Toolkit
-- **Description**: A post-exploitation toolkit masquerading as a bookmarks extension for Chrome and Edge. Requires prior administrative or code execution access; its installer injects the extension directly into browser profiles by forging Chromium's Secure Preferences, bypassing Web Store checks and user prompts.
-- **Impact**: Persistent browser compromise, host command execution, credential harvesting from browser stores, session hijacking, and stealthy command-and-control.
-- **Status**: Toolkit disclosed by researchers. Requires initial access; not an initial access vulnerability. Detection and removal guidance needed.
-- **Severity**: medium
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [The Hacker News — PEEP Turns Chrome and Edge Into Post-Compromise Backdoors for Host Command Execution](https://thehackernews.com/2026/09/peep-turns-chrome-and-edge-into-post.html)
-
-### BengalSEO Poisoning Campaign
-- **Description**: A long-running (since at least 2015) SEO poisoning campaign operating from Rajasthan, India, driven by two IT service providers. Manipulates Bing search results to deliver MayaBot malware and tech support scam pages.
-- **Impact**: Malware delivery (MayaBot), tech support fraud, credential theft, and financial loss for victims redirected from legitimate search queries.
-- **Status**: Active, sprawling campaign discovered by DFIR Report in March 2026. Infrastructure takedown and search engine cooperation needed.
-- **Severity**: medium
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [The Hacker News — BengalSEO Poisons Bing Search Results to Deliver MayaBot and Tech Support Scams](https://thehackernews.com/2026/09/bengalseo-poisons-bing-search-results.html)
-
-### ClickFix Blockchain-Hosted Payload Campaign
-- **Description**: Over 5,400 compromised small-business websites serve ClickFix payloads stored in smart contracts on the BNB Smart Chain (BSC), leveraging blockchain infrastructure for resilient payload hosting.
-- **Impact**: Malware delivery via social engineering (ClickFix), resilient C2/payload infrastructure resistant to traditional takedowns, widespread website compromise.
-- **Status**: Active large-scale operation. Requires website remediation and blockchain monitoring.
-- **Severity**: medium
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Over 5,400 hacked sites serve ClickFix payloads stored on the blockchain](https://www.bleepingcomputer.com/news/security/over-5-400-hacked-sites-serve-clickfix-payloads-stored-on-the-blockchain/)
-
-### ASCII Smuggling Phishing Technique
-- **Description**: Threat actors using invisible Unicode characters (ASCII smuggling) to conceal phishing lures and evade email security filters. The technique embeds malicious content in visually benign messages.
-- **Impact**: Email security bypass, increased phishing success rates, credential theft, and malware delivery.
-- **Status**: Active technique adoption across phishing campaigns. No patch; requires email security rule updates and user awareness.
-- **Severity**: medium
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [Bleeping Computer — Attackers conceal phishing lures using invisible Unicode characters](https://www.bleepingcomputer.com/news/security/attackers-conceal-phishing-lures-using-invisible-unicode-characters/)
+- **Reporting**: [The Hacker News — Rogue ScreenConnect Clients Spread Four-Stage VBScript Chain to Newly Connected Hosts](https://thehackernews.com/2026/09/rogue-screenconnect-clients-spread-four.html)
 
 ## Affected Systems and Products
 
-- **Adobe Commerce / Magento Open Source**: All versions prior to September 2026 security patches (CVE-2026-75650)
-- **MikroTik RouterOS**: Devices with SSH exposed to internet; patches available for the vulnerability chain
-- **N-able N-central (on-premises)**: All builds below 2026.3.1.14 (requires Hotfix 4)
-- **VMware Workstation and Fusion**: Versions prior to September 2026 security updates (CVE-2026-59346)
-- **JetBrains TeamCity**: Versions affected by the recently disclosed critical vulnerability (specific versions not detailed in reporting)
-- **Telerik UI for ASP.NET AJAX**: Applications using non-default configuration vulnerable to padding oracle chain; patched July 2026
-- **ConnectWise ScreenConnect**: All versions pending patch; temporary mitigations published
-- **Microsoft 365 / Entra ID**: Tenants targeted by BigBear 2.0 PhaaS and executive vishing/AitM campaigns
-- **Google Workspace / Consumer Accounts**: Targets of JSCeal session cookie theft
-- **Chrome and Edge Browsers**: Post-compromise targets for PEEP extension injection
-- **Windows Endpoints**: Targets of REVSTEALER modules (Windows Update/Defender disablement, crypto mining)
-- **Small Business Websites**: 5,400+ compromised sites serving ClickFix payloads via BNB Smart Chain
-- **Bing Search Users**: Targets of BengalSEO poisoning delivering MayaBot and tech support scams
-- **APIS (Advance Passenger Information System)**: Vietnam-linked database exposed via default credentials (220M records)
-- **Mathspace Metabase Instance**: Breached internal reporting system (1M+ records exposed)
-- **Trezor/ShipMonk**: Cryptocurrency hardware wallet customer data breach via logistics provider (81K customers)
+- **Adobe Commerce / Magento Open Source**: All versions affected by CVE-2026-75650 (StyleSmuggler); emergency patches released
+- **Liquid Network / Elements Sidechain**: Bitcoin layer-2 protocol; network paused following exploitation
+- **WeChat (iOS and Android)**: Mobile messaging application; zero-click worm demonstrated; Tencent has addressed per researchers
+- **ChatGPT with Gmail Integration**: OpenAI's chatbot platform when connected to Google Workspace/Gmail; prompt injection flaw demonstrated
+- **FreeIPA / Red Hat Identity Management**: Linux domain identity management system using 389 Directory Server; flaw chain allows anonymous admin creation
+- **Telerik UI for ASP.NET AJAX**: Specific non-default configurations vulnerable to padding oracle chain; patched by Progress in July 2026
+- **SAP Kernel**: Core component across multiple SAP products; maximum-severity memory corruption flaw patched in September 2026 updates
+- **ConnectWise ScreenConnect**: Remote access software abused for worm-like VBScript distribution; initial access via tech-support scams, phishing MSI, fake updates
+- **Microsoft 365**: Targeted by BigBear 2.0 phishing-as-a-service (258 organizations, 5,000+ credentials) and executive-focused vishing/AitM campaigns
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated RCE via Input Validation Flaw**: StyleSmuggler exploits improper style/layout processing in Magento/Adobe Commerce for pre-auth code execution
-- **SSH Authentication Bypass Chain**: Two MikroTik RouterOS flaws chained for full router takeover without credentials
-- **RMM Supply Chain Exploitation**: Unauthenticated RCE in N-central RMM platform enabling downstream customer compromise
-- **VM Escape via Integer Overflow**: Local VM admin leverages CVE-2026-59346 to execute host code from guest
-- **CI/CD Credential Theft via TeamCity**: Exploited TeamCity vulnerability used to breach JetBrains Cadence and extract AWS credentials
-- **Padding Oracle to RCE Chain**: Telerik UI AES-CBC padding oracle chained to unauthenticated RCE in specific configurations
-- **Rogue RMM Client Propagation**: Malicious ScreenConnect clients worm-like spread VBScript payloads to new hosts
-- **Adversary-in-the-Middle Phishing**: BigBear 2.0 and executive campaigns use AitM to bypass MFA and steal session tokens
-- **Vishing (Voice Phishing)**: IT help desk impersonation targeting executives for credential and MFA bypass
-- **Residential Proxy Sign-ins**: Attackers use residential IP infrastructure to bypass geo-location and risk-based conditional access
-- **Session Cookie Theft for Auth Bypass**: JSCeal malware steals Google session cookies to bypass authentication including 2FA
-- **Browser Extension Injection via Secure Preferences Forgery**: PEEP toolkit forges Chromium Secure Preferences to silently install malicious extensions
-- **Defense Evasion via Service Disablement**: REVSTEALER modules disable Windows Update and Microsoft Defender before mining
-- **SEO Poisoning for Malware Delivery**: BengalSEO manipulates Bing rankings to serve MayaBot and scam pages
-- **Blockchain-Hosted Payloads**: ClickFix payloads stored in BNB Smart Chain smart contracts for resilient delivery
-- **ASCII Smuggling / Invisible Unicode**: Phishing lures concealed using non-printing characters to evade email filters
-- **Default Credential Exposure**: APIS database accessed via cloud path using default credentials (220M traveler records)
-- **Internal Reporting System Breach**: Mathspace Metabase instance compromised for data exfiltration (1M+ records)
-- **Supply Chain / Third-Party Breach**: Trezor customer data exposed via ShipMonk logistics provider breach
+- **Zero-Day Exploitation of E-Commerce Platforms**: Attackers leveraging CVE-2026-75650 (StyleSmuggler) in Adobe Commerce/Magento for initial access and persistent backdoor deployment via Rust implants and PHP web shells
+- **AI-Driven Autonomous Credential Harvesting**: Multi-agent AI frameworks automating reconnaissance, phishing, credential validation, and exfiltration at scale (thousands of credentials in under six hours)
+- **Phishing-as-a-Service with MFA Bypass**: BigBear 2.0 framework using adversary-in-the-middle (AitM) token theft and residential proxy infrastructure to defeat multi-factor authentication
+- **Zero-Click Mobile Exploitation**: WeChat worm achieving account takeover via incoming call handling without user interaction on both iOS and Android
+- **Prompt Injection for Data Exfiltration**: Planted instructions in ChatGPT conversations causing silent Gmail data extraction to attacker-controlled accounts
+- **Executive-Targeted Vishing and AitM**: Fake IT help desk calls combined with adversary-in-the-middle token theft and residential proxy sign-ins targeting directors and VPs
+- **SEO Poisoning for Malware Delivery**: BengalSEO campaign poisoning Bing search results since 2015 to deliver MayaBot malware and tech support scams
+- **Worm-Like Remote Access Tool Abuse**: Rogue ScreenConnect clients automatically distributing multi-stage VBScript payloads to newly connected hosts
+- **Padding Oracle to RCE Exploit Chain**: Telerik UI AES-CBC padding oracle chained to unauthenticated remote code execution in specific configurations
+- **Post-Exploitation Browser Toolkits**: PEEP framework masquerading as bookmarks extension to turn Chrome/Edge into persistent command execution backdoors (requires prior admin access)
 
 ## Threat Actor Activities
 
-- **Sansec (Researcher/Defender)**: Discovered and named StyleSmuggler zero-day; tracked exploitation from September 4, 2026; provided advisory and indicators
-- **BengalSEO Operators**: Long-running (since ~2015) SEO poisoning group based in Rajasthan, India; operated by two IT service providers (WeConnect and unnamed); delivers MayaBot and tech support scams via Bing manipulation
-- **BigBear PhaaS Operators**: Phishing-as-a-service framework (BigBear 2.0) used against 258 organizations; stole 5,000+ Microsoft 365 credentials via AitM and residential proxies
-- **Executive Targeting Threat Cluster**: Unnamed group conducting vishing, AitM token theft, and residential proxy sign-ins against directors/VPs for data theft and extortion
-- **REVSTEALER Developers/Operators**: Emerging Windows info-stealer family deploying four persistent post-exploitation modules (ProManager, WinUpdate, SoftManager) for defense evasion and crypto mining
-- **JSCeal Malware Authors**: Sophisticated V8 JavaScript malware with heavy obfuscation (RC4, control-flow flattening); targets Google accounts via session cookie theft
-- **ClickFix Campaign Operators**: Large-scale operation compromising 5,400+ small business websites; uses BNB Smart Chain smart contracts for payload hosting resilience
-- **MikroTik Router Hijackers**: Unidentified actors exploiting RouterOS SSH chain; attacks observed from September 2, 2026 per CERT Polska
-- **JetBrains Intruders**: Unidentified threat actors who exploited TeamCity to breach Cadence and extract AWS credentials
-- **PEEP Toolkit Developers**: Created post-exploitation Chromium extension toolkit for stealthy browser persistence and host command execution
-- **DFIR Report Researchers**: Discovered and documented BengalSEO campaign in March 2026
-- **Elastic Security Labs**: Analyzed and documented four REVSTEALER-linked modules with defense evasion capabilities
-- **Check Point Research**: Unpacked and analyzed JSCeal malware authentication bypass techniques
-- **TantoSec**: Published proof-of-concept exploit chain for Telerik UI padding oracle to RCE
-- **CERT Polska**: Issued attack warning for MikroTik router exploitation on September 5, 2026
-- **Huntress**: Identified three unrelated incidents of rogue ScreenConnect client abuse with diverse initial access (Quick Assist scam, phishing MSI, fake...)
+- **Financially Motivated AI-Enabled Credential Harvesting Group**: Observed by Google Threat Intelligence Group (GTIG) deploying autonomous multi-agent attack frameworks to compromise thousands of credentials in under six hours; diverse motivations noted across observed attackers
+- **BigBear 2.0 Phishing-as-a-Service Operators**: Operating a mature PhaaS platform that has bypassed MFA at 258 organizations and stolen over 5,000 Microsoft 365 credentials using AitM techniques and residential proxy infrastructure
+- **Executive-Targeted Data Theft and Extortion Cluster**: Conducting widespread Microsoft 365 and SaaS targeting through IT help desk vishing, AitM token theft, and residential proxy sign-ins, primarily focusing on directors, VPs, and executive staff
+- **BengalSEO Campaign Operators**: Long-running (since at least 2015) SEO poisoning operation based in Rajasthan, India, operated by two IT service providers (WeConnect and associates), delivering MayaBot malware and tech support scams via poisoned Bing search results
+- **Liquid Network Attackers**: Unknown actors who exploited the Elements sidechain bug to steal ~4,000 BTC, subsequently returning 3,400 BTC while retaining ~598.5 BTC; network remains paused
+- **ScreenConnect Worm Operators**: At least three unrelated incident clusters using diverse initial access (Quick Assist scams, phishing MSI, fake updates) to deploy rogue ScreenConnect clients that spread VBScript payloads worm-style
+- **Sansec Researchers**: Discovered and reported the StyleSmuggler (CVE-2026-75650) zero-day exploitation in Magento/Adobe Commerce starting September 4, 2026
+- **Calif Security Researchers**: Developed and demonstrated the WeChat zero-click worm, reported to Tencent in July 2026
+- **Check Point Research**: Discovered and reported the ChatGPT prompt injection flaw enabling Gmail data exfiltration
+- **TantoSec**: Published proof-of-concept exploit chain for Telerik UI padding oracle to unauthenticated RCE; Progress patched in July 2026
+- **Huntress**: Disclosed the rogue ScreenConnect VBScript worm campaign across three incidents
