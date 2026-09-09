@@ -57,7 +57,7 @@ def test_fetch_articles_preserves_safe_defaults_for_sparse_feed_entries(monkeypa
     monkeypatch.setattr(
         fetch_module.feedparser,
         "parse",
-        lambda _text: SimpleNamespace(entries=[{}]),
+        lambda _text, **_kwargs: SimpleNamespace(entries=[{}]),
     )
     client = SentryDigestFeedClient("https://example.com/feed.xml")
     client.client = FakeHttpClient()
@@ -106,7 +106,7 @@ def test_default_feed_client_closes_after_success(monkeypatch):
     monkeypatch.setattr(
         fetch_module.feedparser,
         "parse",
-        lambda _text: SimpleNamespace(entries=[]),
+        lambda _text, **_kwargs: SimpleNamespace(entries=[]),
     )
 
     articles = asyncio.run(

@@ -10,6 +10,10 @@ from pathlib import Path
 
 from ..services.fetch import SentryDigestFeedClient
 from .analyze import filter_exploitation_articles, analyze_exploitation
+from .article_policy import (
+    contains_virtual_event_tag,
+    exclude_virtual_event_promotions,
+)
 from .report_validation import (
     format_report_validation_issues,
     remove_source_attribution_section,
@@ -83,8 +87,8 @@ async def fetch_articles(state: ExploitationAnalysisState) -> ExploitationAnalys
         state["status"] = "failed"
         return state
 
-    state["articles"] = articles
-    logger.info(f"Fetched {len(articles)} articles")
+    state["articles"] = exclude_virtual_event_promotions(articles)
+    logger.info(f"Fetched {len(state['articles'])} eligible articles")
 
     return state
 
@@ -95,11 +99,11 @@ async def enrich_articles(
     """Enrich articles with full content."""
     logger.info("Enriching articles")
 
-    articles = state["articles"]
+    articles = exclude_virtual_event_promotions(state["articles"])
     feed_client = SentryDigestFeedClient(state["config"].get("feed_url", ""))
     enriched_articles = await feed_client.enrich_article_content(articles)
 
-    state["articles"] = enriched_articles
+    state["articles"] = exclude_virtual_event_promotions(enriched_articles)
 
     return state
 
@@ -115,8 +119,9 @@ async def filter_articles(
     """Filter articles for exploitation content"""
     logger.info("Starting article filtering")
 
-    articles = state["articles"]
-    filtered = filter_exploitation_articles(articles)
+    articles = exclude_virtual_event_promotions(state["articles"])
+    state["articles"] = articles
+    filtered = exclude_virtual_event_promotions(filter_exploitation_articles(articles))
 
     state["filtered_articles"] = filtered
 
@@ -143,16 +148,20 @@ async def analyze_articles(
     """Analyze articles for exploitation content"""
     logger.info("Starting article analysis")
 
-    filtered_articles = state["filtered_articles"]
+    filtered_articles = exclude_virtual_event_promotions(state["filtered_articles"])
+    state["filtered_articles"] = filtered_articles
     config = state["config"]
 
     if not filtered_articles:
         logger.warning("No exploitation-related articles found to analyze")
         state["analysis_results"] = {
-            "exploitation_report": "# No Exploitation Content Found\n\nNo articles with exploitation-related content were found in the current dataset.",
+            "skipped": True,
+            "skip_reason": "No eligible exploitation-related articles found.",
+            "exploitation_report": "",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": 0,
         }
+        state["status"] = "completed_with_warnings"
         return state
 
     # Analyze the filtered articles
@@ -192,6 +201,13 @@ async def generate_report(
     exploitation_report = analysis_results.get(
         "exploitation_report", "# No Exploitation Report Generated"
     )
+    # Normalization must not erase a promotion's only tag and publish its body.
+    if contains_virtual_event_tag(exploitation_report):
+        state["report_validation_errors"] = [
+            "Report contains a blocked [Virtual Event] promotion."
+        ]
+        state["status"] = "failed"
+        return state
 
     # Since the exploitation_report already contains the full formatted report,
     # we should use it directly instead of the template

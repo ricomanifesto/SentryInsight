@@ -4,6 +4,11 @@ import httpx
 import feedparser
 from datetime import datetime
 
+from ..core.article_policy import (
+    exclude_virtual_event_promotions,
+    is_virtual_event_promotion,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,8 +34,17 @@ class SentryDigestFeedClient:
         response.raise_for_status()
 
         feed = feedparser.parse(response.text)
+        # Inspect original text before feedparser's HTML rewriting can lose
+        # HTML5 entities. Only the normal sanitized parse supplies retained data.
+        original_feed = feedparser.parse(
+            response.text, sanitize_html=False, resolve_relative_uris=False
+        )
         articles = []
-        for entry in feed.entries:
+        for entry, original_entry in zip(
+            feed.entries, original_feed.entries, strict=True
+        ):
+            if is_virtual_event_promotion(original_entry):
+                continue
             articles.append(
                 {
                     "title": entry.get("title", ""),
@@ -42,7 +56,7 @@ class SentryDigestFeedClient:
                     "content": entry.get("content", ""),
                 }
             )
-        return articles
+        return exclude_virtual_event_promotions(articles)
 
     async def fetch_articles(self) -> List[Dict[str, Any]]:
         """
@@ -88,6 +102,8 @@ class SentryDigestFeedClient:
 
         # Process each article
         for article in articles:
+            if is_virtual_event_promotion(article):
+                continue
             logger.info(f"Enriching article: {article.get('title', '')}")
 
             # Skip if the article already has content
@@ -131,7 +147,8 @@ class SentryDigestFeedClient:
                 # Fall back to summary if error occurs
                 article["content"] = full_content
 
-            enriched_articles.append(article)
+            if not is_virtual_event_promotion(article):
+                enriched_articles.append(article)
 
         logger.info(f"Enriched {len(enriched_articles)} articles with content")
         return enriched_articles
