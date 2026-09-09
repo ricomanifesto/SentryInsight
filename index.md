@@ -1,116 +1,126 @@
 ---
 schema_version: 2
 report_date: 2026-09-09
-generated_at: 2026-09-09T04:04:58Z
+generated_at: 2026-09-09T11:06:30Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-09/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Microsoft's September 2026 Patch Tuesday set a historic record with 966 to 974 vulnerabilities addressed, including two actively exploited zero-days. While specific CVE identifiers for the Microsoft zero-days were not disclosed in the reporting, Microsoft confirmed active exploitation of two flaws and identified an additional 58 vulnerabilities as more likely to be exploited. This unprecedented patch volume, accelerated by AI-assisted vulnerability discovery, creates significant operational challenges for organizations testing and deploying fixes.
+September 2026 has seen an extraordinary surge in active exploitation across multiple critical platforms. Microsoft's record-breaking Patch Tuesday addressed 974 vulnerabilities, including two actively exploited Windows zero-days, while Google patched its seventh Chrome zero-day of the year (CVE-2026-87491) enabling sandbox escape via a V8 out-of-bounds write. Simultaneously, CISA added a maximum-severity pre-authentication RCE in N-able N-central (CVE-2026-86218, CVSS 10.0) to its Known Exploited Vulnerabilities catalog, mandating federal agency remediation by September 11.
 
-Adobe issued an emergency patch for CVE-2026-75650 (StyleSmuggler), a maximum-severity (CVSS 10.0) zero-day in Magento and Adobe Commerce that has been under active exploitation since September 4, 2026. Attackers are deploying Rust-based backdoors and PHP web shells to compromise e-commerce servers. Simultaneously, multiple threat actors are leveraging AI-driven frameworks—including autonomous multi-agent systems—to conduct large-scale credential harvesting, phishing via Google service redirects, and social engineering campaigns such as ClickFix that abuse legitimate services for persistent access.
+Critical infrastructure and enterprise software are under sustained attack. SAP disclosed a maximum-severity kernel memory corruption flaw (CVE-2026-44756, CVSS 10.0) enabling unauthenticated remote code execution in Extended Passport Processing. F5 BIG-IP APM appliances are being compromised to deploy fileless Linux rootkits that inject PHP web shells directly into memory, evading disk-based detection. A cPanel vulnerability allows any hosting account with mail privileges to achieve root code execution across all supported versions. Over 36,000 internet-exposed Plex Media Servers remain unpatched against recently disclosed flaws.
 
-Notable targeted intrusions include the Slim Spider group stealing crypto custody secrets from Brazilian financial institutions, ShinyHunters claiming a breach of Florida's DAVID DMV database with over 200,000 driver records, and a Linux rootkit campaign compromising F5 BIG-IP APM devices with fileless web shells. A zero-click WeChat worm exploiting incoming call handling on iOS and Android, a FreeIPA flaw chain enabling anonymous administrator credential creation, and SAP's maximum-severity OVERPASS kernel vulnerability further expand the active threat landscape.
+Threat actor activity is diversifying across financial crime, espionage, and extortion. The Brazil-based financially motivated group Slim Spider has targeted Brazilian financial institutions since March 2026, demonstrating deep knowledge of local payment infrastructure. The ShinyHunters extortion gang claims a breach of Florida's DAVID DMV database, exfiltrating over 200,000 driver records. The DoppelCart fraud network operates 119,000 fake e-commerce domains to harvest payment cards. Meanwhile, researchers Nightmare Eclipse and Chaotic Eclipse have disclosed Microsoft Defender zero-days (ShieldCrash/ShieldBreak bypass), and phishing campaigns now leverage multi-hop Google redirects and ClickFix social engineering to deliver ScreenConnect and achieve persistent access.
 
 ## Active Exploitation Details
 
-### CVE-2026-75650 (StyleSmuggler) — Adobe Magento/Adobe Commerce Zero-Day
-- **Description**: A maximum-severity zero-day vulnerability in Adobe Commerce and Magento Open Source, codenamed StyleSmuggler by Sansec researchers. The flaw allows unauthenticated attackers to achieve remote code execution on affected e-commerce servers.
-- **Impact**: Attackers can fully compromise Magento/Adobe Commerce servers, deploy persistent backdoors (including Rust-based implants and PHP web shells), exfiltrate customer and payment data, and establish long-term access for further lateral movement.
-- **Status**: Actively exploited in the wild since September 4, 2026. Adobe released emergency security patches on September 8, 2026 addressing the vulnerability across multiple product versions.
-- **Severity**: critical
+### Chrome V8 Zero-Day (CVE-2026-87491)
+- **Description**: An out-of-bounds write vulnerability in V8, Chrome's JavaScript and WebAssembly engine, affecting Google Chrome prior to the September 2026 stable channel update. The flaw allows attackers to corrupt memory within the renderer process.
+- **Impact**: Attackers can achieve arbitrary code execution inside the Chrome sandbox, providing a foothold for sandbox escape chains or data theft from the renderer process.
+- **Status**: Actively exploited in the wild. Google released patches on September 2026 Patch Tuesday as part of 230 vulnerabilities fixed. The vulnerability is rated medium severity by Google.
+- **Severity**: medium
 - **Exploitation Status**: active
 - **Action**: patch
-- **CVE IDs**: CVE-2026-75650
-- **Reporting**: [Bleeping Computer — Adobe fixes critical Magento zero-day exploited to backdoor servers](https://www.bleepingcomputer.com/news/security/adobe-fixes-critical-magento-zero-day-exploited-to-backdoor-servers/), [The Hacker News — Adobe Patches Magento Zero-Day Exploited to Deploy Rust Backdoor and PHP Web Shell](https://thehackernews.com/2026/09/adobe-patches-magento-zero-day.html)
+- **CVE IDs**: CVE-2026-87491
+- **Reporting**: [The Hacker News — Chrome V8 Zero-Day Exploited in the Wild Enables Code Execution Inside Sandbox](https://thehackernews.com/2026/09/chrome-v8-zero-day-exploited-in-wild.html), [Bleeping Computer — Google warns of new Chrome zero-day bug exploited in attacks](https://www.bleepingcomputer.com/news/security/google-patches-seventh-chrome-zero-day-exploited-in-attacks-this-year/)
 
-### Microsoft September 2026 Patch Tuesday — Two Actively Exploited Zero-Days
-- **Description**: Microsoft's record-breaking September 2026 Patch Tuesday addressed 966–974 vulnerabilities across Windows and other products. Microsoft confirmed that two of these vulnerabilities are actively exploited zero-days, with an additional 58 vulnerabilities assessed as more likely to be exploited.
-- **Impact**: Successful exploitation of the two zero-days could allow attackers to achieve remote code execution, elevation of privilege, or security feature bypass on affected Windows systems. The specific impact varies by vulnerability class.
-- **Status**: Patches released as part of September 2026 Patch Tuesday (KB5122878 for Windows 10, KB5124008/KB5122880 for Windows 11). Active exploitation confirmed by Microsoft; specific CVE identifiers not disclosed in public reporting.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Krebs on Security — Microsoft Plugs Nearly 1,000 Security Holes](https://krebsonsecurity.com/2026/09/microsoft-plugs-nearly-1000-security-holes/), [Dark Reading — Patch Tuesday Sets Another Record With 974 CVEs](https://www.darkreading.com/vulnerabilities-threats/patch-tuesday-another-record-974-cves), [Bleeping Computer — Microsoft September 2026 Patch Tuesday fixes 966 flaws, 2 zero-days](https://www.bleepingcomputer.com/news/microsoft/microsoft-september-2026-patch-tuesday-fixes-966-flaws-2-zero-days/), [Bleeping Computer — Microsoft releases Windows 10 KB5122878 extended security update](https://www.bleepingcomputer.com/news/microsoft/microsoft-releases-windows-10-kb5122878-extended-security-update/), [Bleeping Computer — Windows 11 cumulative updates KB5124008 & KB5122880 released](https://www.bleepingcomputer.com/news/microsoft/windows-11-cumulative-updates-kb5124008-and-kb5122880-released/)
-
-### SAP OVERPASS Kernel Vulnerability
-- **Description**: A maximum-severity memory corruption flaw in the SAP Kernel code, tracked under the name OVERPASS. SAP addressed this vulnerability along with 19 others in its September 2026 security updates.
-- **Impact**: Memory corruption in the SAP Kernel could allow unauthenticated attackers to execute arbitrary code with kernel-level privileges, potentially leading to complete compromise of SAP application servers and underlying business data.
-- **Status**: Patches released in SAP September 2026 security updates. No public evidence of active exploitation reported, but maximum severity rating indicates high risk.
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — SAP warns of maximum severity 'OVERPASS' kernel vulnerability](https://www.bleepingcomputer.com/news/security/sap-warns-of-maximum-severity-overpass-kernel-vulnerability/)
-
-### F5 BIG-IP APM Linux Rootkit Campaign
-- **Description**: Threat actors are actively breaching F5 BIG-IP Access Policy Manager (APM) devices to deploy a sophisticated Linux rootkit. The rootkit intercepts PHP file loading and injects a fileless web shell directly into memory, avoiding disk writes to evade detection.
-- **Impact**: Attackers gain persistent, stealthy access to F5 BIG-IP APM appliances, enabling traffic interception, credential harvesting, lateral movement into internal networks, and long-term foothold maintenance without leaving traditional forensic artifacts.
-- **Status**: Active exploitation confirmed. F5 has not been reported to have released a specific patch in the provided articles; organizations should consult F5 security advisories.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Hackers breach F5 BIG-IP APM devices to deploy Linux rootkit](https://www.bleepingcomputer.com/news/security/hackers-breach-f5-big-ip-apm-devices-to-deploy-linux-rootkit/)
-
-### FreeIPA Flaw Chain — Anonymous Administrator Credential Creation
-- **Description**: A vulnerability chain in FreeIPA (Red Hat's identity management system) allows an unauthenticated, never-logged-in client to create a Kerberos identity of its choosing in the directory and escalate to the administrators group. The attack requires a second flaw in the underlying 389 Directory Server (LDAP database).
-- **Impact**: Complete compromise of the FreeIPA identity domain. Attackers can create arbitrary administrator accounts, access all domain resources, modify policies, and persist indefinitely with legitimate credentials.
-- **Status**: Vulnerability disclosed by Red Hat. No CVE identifiers provided in reporting. Patch status not specified in articles.
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: investigate
-- **Reporting**: [The Hacker News — FreeIPA Flaw Chain Lets Anonymous Clients Create Reusable Administrator Credentials](https://thehackernews.com/2026/09/freeipa-flaw-chain-lets-anonymous.html)
-
-### WeChat Zero-Click Worm (iOS/Android)
-- **Description**: A zero-click worm demonstrated by researchers at Calif that takes over WeChat accounts via an incoming call on both iPhone and Android. The victim does not need to answer or interact with the call; the caller must be a WeChat contact. The worm spreads automatically among contacts.
-- **Impact**: Full account takeover of WeChat users, potential access to messages, contacts, payment features, and social graph. Wormable propagation enables rapid, large-scale compromise.
-- **Status**: Researchers reported the flaw to Tencent in July 2026; Tencent has since addressed it. No CVE identifier provided in reporting.
-- **Severity**: critical
+### Microsoft Defender ShieldCrash / ShieldBreak Bypass (CVE-2026-69414)
+- **Description**: A patch bypass for CVE-2026-69414 (ShieldBreak, CVSS 7.8) in Microsoft Defender. The original vulnerability allowed elevation to SYSTEM. Researcher Chaotic Eclipse demonstrated that Microsoft's September 2026 patch for ShieldBreak is incomplete, releasing a proof-of-concept exploit codenamed ShieldCrash. A separate researcher, Nightmare Eclipse, also released a ShieldCrash exploit granting SYSTEM access immediately after Patch Tuesday.
+- **Impact**: Local attackers can bypass Defender protections and achieve SYSTEM-level code execution, effectively disabling the primary endpoint protection on Windows systems.
+- **Status**: Proof-of-concept exploit publicly available; active exploitation of the bypass demonstrated. Microsoft has not yet released a complete fix for the bypass as of the reporting date.
+- **Severity**: high
 - **Exploitation Status**: observed
-- **Action**: patch
-- **Reporting**: [The Hacker News — WeChat Zero-Click Worm Took Over Accounts on iPhone and Android via Incoming Calls](https://thehackernews.com/2026/09/wechat-zero-click-worm-took-over.html)
+- **Action**: investigate
+- **CVE IDs**: CVE-2026-69414
+- **Reporting**: [Bleeping Computer — New Microsoft Defender 'ShieldCrash' zero-day grants SYSTEM access](https://www.bleepingcomputer.com/news/security/new-microsoft-defender-shieldcrash-zero-day-grants-system-access/), [The Hacker News — Researcher Drops New Microsoft Defender PoC Showing ShieldBreak Patch Can Be Bypassed](https://thehackernews.com/2026/09/researcher-drops-new-microsoft-defender.html)
 
-### ChatGPT Prompt Injection — Gmail Data Exfiltration
-- **Description**: A flaw in ChatGPT's handling of connected Gmail accounts allows a single planted instruction in a conversation to cause ChatGPT to silently read data from the user's Gmail and exfiltrate it to an attacker-controlled ChatGPT account via a hidden channel, while appearing to answer the user's question normally.
-- **Impact**: Unauthorized access to victim's Gmail data including emails, contacts, and potentially sensitive documents. The attack is stealthy and does not require user interaction beyond engaging with a compromised conversation.
-- **Status**: Proof-of-concept demonstrated by Check Point Research. OpenAI response not detailed in reporting. No CVE identifier provided.
+### SAP Kernel OVERPASS Memory Corruption (CVE-2026-44756)
+- **Description**: A maximum-severity memory corruption vulnerability in the SAP Kernel code, specifically within SAP Extended Passport (EPP) Processing. Tracked as CVE-2026-44756 with a CVSS score of 10.0. The flaw is also referred to as "OVERPASS" in SAP advisories.
+- **Impact**: Unauthenticated remote attackers can achieve arbitrary code execution, leading to complete compromise of the confidentiality, integrity, and availability of the affected SAP application.
+- **Status**: Patched in SAP September 2026 security updates (20 vulnerabilities addressed). No evidence of exploitation in the wild reported in the source articles, but the maximum CVSS score and unauthenticated attack vector make it a critical patching priority.
+- **Severity**: critical
+- **Exploitation Status**: potential
+- **Action**: patch
+- **CVE IDs**: CVE-2026-44756
+- **Reporting**: [The Hacker News — SAP Patches CVSS 10.0 Kernel Flaw Enabling Unauthenticated Remote Code Execution](https://thehackernews.com/2026/09/sap-patches-cvss-100-kernel-flaw.html), [Bleeping Computer — SAP warns of maximum severity 'OVERPASS' kernel vulnerability](https://www.bleepingcomputer.com/news/security/sap-warns-of-maximum-severity-overpass-kernel-vulnerability/)
+
+### N-able N-central Pre-Auth RCE (CVE-2026-86218)
+- **Description**: A pre-authentication remote code execution vulnerability in N-able N-central remote monitoring and management software. Rated CVSS 10.0 (maximum severity). CISA added this vulnerability to its Known Exploited Vulnerabilities (KEV) catalog on September 2026 Patch Tuesday.
+- **Impact**: Unauthenticated remote attackers can execute arbitrary code on the N-central server, potentially compromising the management plane for all monitored endpoints and enabling supply-chain-style attacks against managed service providers and their customers.
+- **Status**: Actively exploited in the wild (per CISA KEV inclusion). Federal Civilian Executive Branch agencies required to apply fixes by September 11, 2026. N-able has released patches.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-86218
+- **Reporting**: [The Hacker News — N-able N-central Pre-Auth RCE Flaw Exploited in the Wild](https://thehackernews.com/2026/09/n-able-n-central-pre-auth-rce-flaw.html)
+
+### Windows Zero-Days (Two Actively Exploited)
+- **Description**: Two distinct zero-day vulnerabilities in Microsoft Windows that Microsoft confirmed have been actively exploited in the wild. Specific CVE identifiers were not disclosed in the source articles. These were addressed in the record-breaking September 2026 Patch Tuesday release of 974 vulnerabilities (966 per Bleeping Computer's count).
+- **Impact**: Varies by vulnerability; both allow attackers to compromise Windows systems. Given active exploitation, they likely provide elevation of privilege, remote code execution, or security feature bypass.
+- **Status**: Patched in September 2026 Patch Tuesday updates (KB5122878 for Windows 10, KB5124008/KB5122880 for Windows 11). Over 110 vulnerabilities in the batch rated critical.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: [The Hacker News — Microsoft Patches Record 974 Flaws, Including Two Exploited Windows Zero-Days](https://thehackernews.com/2026/09/microsoft-patches-record-974-flaws.html), [Krebs on Security — Microsoft Plugs Nearly 1,000 Security Holes](https://krebsonsecurity.com/2026/09/microsoft-plugs-nearly-1000-security-holes/), [Dark Reading — Patch Tuesday Sets Another Record With 974 CVEs](https://www.darkreading.com/vulnerabilities-threats/patch-tuesday-another-record-974-cves), [Bleeping Computer — Microsoft September 2026 Patch Tuesday fixes 966 flaws, 2 zero-days](https://www.bleepingcomputer.com/news/microsoft/microsoft-september-2026-patch-tuesday-fixes-966-flaws-2-zero-days/), [Bleeping Computer — Microsoft releases Windows 10 KB5122878 extended security update](https://www.bleepingcomputer.com/news/microsoft/microsoft-releases-windows-10-kb5122878-extended-security-update/), [Bleeping Computer — Windows 11 cumulative updates KB5124008 & KB5122880 released](https://www.bleepingcomputer.com/news/microsoft/windows-11-cumulative-updates-kb5124008-and-kb5122880-released/)
+
+### cPanel EmailTrack Root Code Execution
+- **Description**: A vulnerability in cPanel and WHM that allows an authenticated hosting account holder with mail-related privileges to create arbitrary files on the server via the EmailTrack feature, subsequently achieving code execution as the root user. Every supported version of cPanel and WHM is affected.
+- **Impact**: Compromise of a single hosting account leads to full server takeover (root access), affecting all other accounts on the shared hosting infrastructure.
+- **Status**: Patched by cPanel on September 8, 2026. No specific CVE identifier provided in the source article.
+- **Severity**: critical
+- **Exploitation Status**: potential
+- **Action**: patch
+- **Reporting**: [The Hacker News — New cPanel Flaw Lets a Hosting Account With Mail Privileges Run Code as Root](https://thehackernews.com/2026/09/new-cpanel-flaw-lets-hosting-account.html)
+
+### F5 BIG-IP APM Memory-Resident PHP Web Shell / Linux Rootkit
+- **Description**: Attackers breaching F5 BIG-IP Access Policy Manager appliances deploy a Linux rootkit that intercepts PHP file loading and injects a PHP web shell directly into memory (fileless). The malware hooks three specific appliance PHP scripts; when Apache loads them, the web shell is added to the in-memory copy while the on-disk file remains clean.
+- **Impact**: Persistent, stealthy remote access to the F5 appliance. The fileless technique evades traditional disk-based malware scans and integrity checks. Attackers can execute arbitrary commands via the web shell.
+- **Status**: Active intrusions observed. Sophos published analysis on September 7, 2026. No vendor patch mentioned in source articles; mitigation guidance not specified.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [The Hacker News — F5 BIG-IP APM Malware Injects a PHP Web Shell Into Memory, Evading Disk Scans](https://thehackernews.com/2026/09/f5-big-ip-apm-malware-injects-php-web.html), [Bleeping Computer — Hackers breach F5 BIG-IP APM devices to deploy Linux rootkit](https://www.bleepingcomputer.com/news/security/hackers-breach-f5-big-ip-apm-devices-to-deploy-linux-rootkit/)
+
+### Plex Media Server Unpatched Exposures
+- **Description**: Over 36,000 Plex Media Servers exposed to the internet remain unpatched against multiple recently disclosed security vulnerabilities. Specific CVE identifiers and vulnerability details were not provided in the source article.
+- **Impact**: Attackers can exploit the unpatched flaws to compromise the servers, potentially accessing media libraries, pivoting to internal networks, or using the servers as proxies for further attacks.
+- **Status**: Servers remain unpatched as of publication. No exploitation activity confirmed in the article, but the exposure scale presents high risk.
 - **Severity**: high
 - **Exploitation Status**: potential
-- **Action**: investigate
-- **Reporting**: [The Hacker News — ChatGPT Flaw Let a Planted Prompt Send a Victim's Gmail Data to Another Account](https://thehackernews.com/2026/09/chatgpt-flaw-let-planted-prompt-send.html)
+- **Action**: patch
+- **Reporting**: [Bleeping Computer — Over 36,000 exposed Plex servers vulnerable to recent flaws](https://www.bleepingcomputer.com/news/security/over-36-000-plex-servers-unpatched-against-recently-disclosed-flaws/)
 
 ## Affected Systems and Products
 
-- **Adobe Commerce / Magento Open Source**: Multiple versions affected by CVE-2026-75650 (StyleSmuggler); emergency patches released September 8, 2026
-- **Microsoft Windows 10**: All supported versions; KB5122878 extended security update includes September 2026 Patch Tuesday fixes
-- **Microsoft Windows 11**: Versions 25H2/24H2 and 23H2; KB5124008 and KB5122880 cumulative updates
-- **Microsoft Windows Server 2016**: August 2026 updates may trigger 0xc0000409 errors when Compatibility Appraiser diagnostic service is enabled
-- **F5 BIG-IP Access Policy Manager (APM)**: Devices targeted by Linux rootkit campaign deploying fileless web shells
-- **SAP Kernel**: Multiple SAP products affected by OVERPASS memory corruption flaw and 19 other vulnerabilities; September 2026 security updates released
-- **FreeIPA / 389 Directory Server**: Red Hat identity management system and underlying LDAP database; flaw chain enables anonymous admin credential creation
-- **WeChat (iOS and Android)**: Zero-click worm via incoming call handling; Tencent addressed after July 2026 disclosure
-- **ChatGPT with Gmail Integration**: Connected Gmail accounts vulnerable to prompt injection data exfiltration
-- **Google Services (Multi-hop Redirects)**: Multiple Google services abused for phishing credential harvesting and ScreenConnect remote access deployment
+- **Google Chrome**: All versions prior to the September 2026 stable channel update (which includes the fix for CVE-2026-87491). Platform: Windows, macOS, Linux.
+- **Microsoft Defender**: Windows systems running the September 2026 Patch Tuesday version where the ShieldBreak (CVE-2026-69414) patch was applied but the ShieldCrash bypass remains effective. Platform: Windows 10, Windows 11, Windows Server.
+- **SAP Systems**: SAP NetWeaver / ABAP Platform and related products using SAP Kernel with Extended Passport (EPP) Processing. Specific affected kernel versions detailed in SAP Security Note for CVE-2026-44756. Platform: Any OS running vulnerable SAP Kernel.
+- **N-able N-central**: All versions prior to the patched release addressing CVE-2026-86218. Platform: Windows Server (primary N-central server OS).
+- **Microsoft Windows**: Windows 10 (KB5122878 extended security update), Windows 11 25H2/24H2 (KB5124008), Windows 11 23H2 (KB5122880), and corresponding Windows Server versions. Platform: x64, ARM64.
+- **cPanel & WHM**: Every supported version as of September 8, 2026. Platform: Linux servers running cPanel/WHM (CentOS, AlmaLinux, Rocky Linux, Ubuntu, CloudLinux).
+- **F5 BIG-IP Access Policy Manager (APM)**: Appliances running vulnerable APM firmware versions. Specific versions not listed in source articles. Platform: F5 BIG-IP hardware and virtual editions (TMOS).
+- **Plex Media Server**: Versions prior to the patches for the recently disclosed flaws. Platform: Windows, macOS, Linux, NAS devices (Synology, QNAP, Asustor, etc.), Docker, FreeBSD.
 
 ## Attack Vectors and Techniques
 
-- **AI-Driven Autonomous Multi-Agent Attack Frameworks**: Financially motivated threat actors (observed by Google Threat Intelligence Group) deploying autonomous, multi-agent AI systems that automate every stage of credential harvesting campaigns, compromising thousands of credentials in under six hours.
-- **Multi-Hop Google Service Redirects for Phishing**: Threat actors chaining multiple legitimate Google services (e.g., Google Sites, Google Docs, Google AMP) to evade URL filtering and reputation checks, ultimately harvesting credentials or deploying ScreenConnect remote access agents.
-- **ClickFix Social Engineering**: Attackers abusing legitimate services and familiar UI patterns (fake CAPTCHAs, browser verification prompts) to trick users into executing malicious PowerShell commands, establishing persistent access.
-- **Prompt Injection via Planted Instructions**: Malicious instructions embedded in ChatGPT conversations (shared links, imported contexts) that hijack the model's connected-tool behavior to exfiltrate data from integrated services (Gmail) via covert channels.
-- **Fileless Linux Rootkit with In-Memory PHP Web Shell Injection**: Rootkit targeting F5 BIG-IP APM intercepts PHP file loading at runtime to inject web shell code directly into process memory, avoiding disk artifacts and traditional file-based detection.
-- **Zero-Click Worm Propagation via Incoming Call Handling**: WeChat vulnerability triggered by receiving a call (no answer required) enabling automatic account takeover and wormable spread to the victim's contact list.
-- **Kerberos/LDAP Identity Spoofing via Anonymous Binding**: FreeIPA flaw chain allowing unauthenticated clients to create arbitrary Kerberos principals in the directory and leverage a 389 Directory Server flaw to escalate to domain administrators.
-- **Mass-Scale Fake E-Commerce Infrastructure (DoppelCart)**: 119,000+ domains operating as interconnected fake online shops to harvest payment card credentials at industrial scale.
-- **Rust-Based Backdoor and PHP Web Shell Deployment**: Post-exploitation tooling deployed via CVE-2026-75650 (StyleSmuggler) on Magento servers, combining modern Rust implants for persistence with PHP web shells for web-accessible command execution.
+- **V8 Out-of-Bounds Write for Sandbox Code Execution**: Attackers exploit CVE-2026-87491 by crafting malicious JavaScript/WebAssembly that triggers an out-of-bounds write in the V8 engine, achieving code execution within the Chrome renderer sandbox. This serves as the initial stage in an exploit chain. **Vector**: Drive-by download or malicious link leading to a compromised or attacker-controlled website.
+- **EmailTrack File Write to Root RCE**: Authenticated cPanel users with mail privileges leverage the EmailTrack feature to write controlled files to arbitrary locations on the filesystem, then execute them as root via a secondary mechanism (e.g., cron, sudo misconfiguration, or service restart). **Vector**: Compromised hosting account credentials or malicious customer on shared hosting.
+- **Fileless PHP Web Shell via Memory Injection**: The Linux rootkit on F5 BIG-IP APM hooks the PHP interpreter (via LD_PRELOAD or similar) to modify the in-memory image of three specific appliance PHP scripts when loaded by Apache, appending a web shell. No files are written to disk. **Vector**: Initial access to the APM appliance (method not specified in articles—likely credential theft, VPN vulnerability, or exposed management interface).
+- **Microsoft Defender ShieldCrash SYSTEM Escalation**: The ShieldCrash exploit (and ShieldBreak bypass) leverages a logic flaw or race condition in Defender's driver or user-mode service to escalate from a low-privilege context to NT AUTHORITY\SYSTEM, disabling tamper protection. **Vector**: Local access (malware execution, phishing payload, or lateral movement) on a Windows endpoint with Defender enabled.
+- **Multi-Hop Google Redirect Phishing**: Threat actors chain multiple legitimate Google services (e.g., Google Docs, Google Sites, Google Forms, open redirects) to obfuscate the final phishing destination, evading URL reputation filters and secure email gateways. **Vector**: Phishing emails containing links that traverse several Google domains before landing on a credential harvester or ScreenConnect installer.
+- **ClickFix Social Engineering for Persistent Access**: Attackers use the "ClickFix" technique—tricking users into copying and pasting a malicious command (often via Run dialog, PowerShell, or browser console) under the guise of fixing an error or verification step. The command downloads and executes a payload that establishes persistence via legitimate services (e.g., scheduled tasks, WMI, ScreenConnect). **Vector**: Malicious websites, fake CAPTCHA/verification pages, or error messages injected via compromised sites or malvertising.
+- **AI-Generated Synthetic Media for Extortion**: Perpetrators create realistic sexually explicit images/videos of victims using generative AI, then threaten distribution to coerce payment or compliance. **Vector**: Social media reconnaissance for source images, direct messaging/email for threat delivery.
+- **Fake E-Commerce Network (DoppelCart) for Card Skimming**: Operators register 119,000+ domains mimicking legitimate brands, deploy e-commerce platforms with malicious checkout pages or formjacking scripts, and harvest payment card data entered by unsuspecting shoppers. **Vector**: Search engine poisoning, social media ads, typosquatting, phishing emails linking to fake store fronts.
 
 ## Threat Actor Activities
 
-- **Slim Spider (CrowdStrike-tracked)**: Previously undocumented financially motivated threat actor targeting Brazilian financial institutions since at least March 2026. Demonstrates deep operational knowledge of Brazilian financial infrastructure, including the instant payment system (PIX), and focuses on stealing crypto custody secrets.
-- **ShinyHunters**: Extortion gang claiming breach of Florida Department of Motor Vehicles "DAVID" database platform, alleging theft of over 200,000 driver records. Known for data theft and extortion campaigns against high-profile targets.
-- **DoppelCart Operators**: Organized fraud network operating 119,000+ fake e-commerce domains to systematically harvest payment card data. Represents industrial-scale carding infrastructure.
-- **F5 BIG-IP APM Rootkit Operators**: Unidentified threat actors deploying sophisticated Linux rootkits with fileless web shell injection on compromised F5 BIG-IP APM appliances. High technical capability suggesting advanced persistent threat or skilled cybercrime group.
-- **Google GTIG-Observed AI Framework Operators**: Diverse threat actors (financially motivated and otherwise) leveraging multi-agent AI frameworks to automate credential harvesting, vulnerability research, and attack execution at scale.
-- **ClickFix Campaign Operators**: Multiple threat actor groups adopting the ClickFix social engineering technique, abusing legitimate cloud services (GitHub, Cloudflare, etc.) for payload hosting and command-and-control to achieve persistent access.
-- **Liquid Network Hackers**: Unidentified actors who exploited an "Elements Bug" in the Liquid Bitcoin sidechain to steal nearly 4,000 BTC on September 6, 2026; returned 3,400 BTC the following day but still hold approximately 598.5 BTC (~$47M). Liquid Network remains paused.
+- **Nightmare Eclipse (Researcher)**: Released a functional Microsoft Defender zero-day exploit ("ShieldCrash") granting SYSTEM access immediately after Microsoft's September 2026 Patch Tuesday. The exploit targets a vulnerability distinct from or bypassing the patched ShieldBreak (CVE-2026-69414). Activity: Public exploit disclosure; no attribution to malicious campaigns.
+- **Chaotic Eclipse (Researcher)**: Published a proof-of-concept demonstrating that Microsoft's patch for ShieldBreak (CVE-2026-69414) is bypassable, naming the bypass "ShieldCrash." Reported the original ShieldBreak vulnerability to Microsoft last month. Activity: Vulnerability research, PoC release, patch quality critique.
+- **ShinyHunters (Extortion Gang)**: Claimed responsibility for breaching the Florida Department of Motor Vehicles "DAVID" database platform, exfiltrating over 200,000 driver records. The group operates as an extortion gang, typically threatening to leak or sell stolen data. Activity: Data theft, extortion, public claim on breach forums.
+- **Slim Spider (Brazil-based Financially Motivated Actor)**: Tracked by CrowdStrike since at least March 2026. Targets Brazilian financial institutions with deep operational knowledge of local infrastructure, including the instant payment system (PIX). Focuses on crypto custody secrets and financial credential theft. Activity: Targeted intrusion, credential access, financial fraud.
+- **DoppelCart Operators (Fraud Network)**: Run a massive network of over 119,000 fake e-commerce domains to steal payment card details. The operation is highly automated, using lookalike domains and branding to deceive shoppers. Activity: Payment card harvesting, financial fraud, infrastructure deployment at scale.
+- **Unknown Operators (F5 BIG-IP APM Intrusions)**: Conducted breaches of F5 BIG-IP APM appliances to deploy a custom Linux rootkit with fileless PHP web shell injection. The malware's sophistication (memory-only persistence, hooking specific appliance scripts) suggests a capable actor, possibly state-sponsored or advanced criminal group. Activity: Initial access, persistence, credential access, command and control via web shell.
+- **Unknown Operators (Multi-Hop Google Redirect Phishing)**: Leverage chains of legitimate Google services to deliver credential phishing pages and ScreenConnect remote access installers. The technique demonstrates advanced evasion of email and web security controls. Activity: Credential harvesting, remote access deployment, phishing infrastructure abuse.
+- **Unknown Operators (ClickFix Campaigns)**: Conduct at least two distinct campaigns using the ClickFix social engineering tactic to trick users into self-executing malicious commands that establish persistent access via legitimate system services. Activity: Initial access, persistence, defense evasion.
