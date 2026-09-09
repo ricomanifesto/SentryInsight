@@ -8,6 +8,7 @@ from typing import Iterable, List
 
 from markdown_it import MarkdownIt
 
+from .article_policy import contains_virtual_event_tag
 from .heading_identity import normalize_heading_identity
 
 REQUIRED_SECTIONS = (
@@ -969,6 +970,14 @@ def validate_report_content(
                 message="Report is empty.",
             )
         ]
+
+    if contains_virtual_event_tag(content):
+        issues.append(
+            ReportValidationIssue(
+                code="virtual_event_promotion",
+                message="Report contains a blocked [Virtual Event] promotion.",
+            )
+        )
 
     active_content = strip_markdown_code(content)
     html_active_content = preserve_markdown_escaped_html(active_content)
