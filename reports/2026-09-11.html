@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>SentryInsight report for Friday, September 11, 2026</title>
+  <meta name="description" content="Current exploitation intelligence for rapid defensive triage.">
+  <link rel="canonical" href="https://ricomanifesto.github.io/SentryInsight/reports/2026-09-11.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="SentryInsight report for Friday, September 11, 2026">
+  <meta property="og:description" content="Current exploitation intelligence for rapid defensive triage.">
+  <meta property="og:url" content="https://ricomanifesto.github.io/SentryInsight/reports/2026-09-11.html">
+  <meta property="og:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SentryInsight report for Friday, September 11, 2026">
+  <meta name="twitter:description" content="Current exploitation intelligence for rapid defensive triage.">
+  <meta name="twitter:image" content="https://ricomanifesto.github.io/SentryInsight/assets/social-preview.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"SentryInsight","url":"https://ricomanifesto.github.io/SentryInsight/reports/2026-09-11.html","description":"Current exploitation intelligence for rapid defensive triage.","datePublished":"2026-09-11","dateModified":"2026-09-11T23:11:17Z","author":{"@type":"Person","name":"Michael Rico","url":"https://ricomanifesto.com/"},"sameAs":"https://github.com/ricomanifesto/SentryInsight"}</script>
+  <script>(() => {
+  let theme = "light";
+  try {
+    const savedTheme = localStorage.getItem("sentryinsight-theme");
+    if (savedTheme === "light" || savedTheme === "dark") theme = savedTheme;
+  } catch {}
+  document.documentElement.dataset.theme = theme;
+})();</script>
+  <link rel="icon" href="../assets/favicon.ico">
+  <link rel="stylesheet" href="../assets/site.css?v=e0102e68d772">
+</head>
+<body>
+  <a class="skip-link" href="#report-content">Skip to report</a>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="SentryInsight latest report">
+      <img class="brand-logo brand-logo-light" src="../assets/logo-lockup-light.png" alt="SentryInsight" width="264" height="62">
+      <img class="brand-logo brand-logo-dark" src="../assets/logo-lockup-dark.png" alt="" width="264" height="62">
+    </a>
+    <nav class="site-actions" aria-label="Report actions">
+      <a href="../reports/">Archive</a>
+      <button id="theme-toggle" type="button" aria-pressed="false">Theme</button>
+    </nav>
+  </header>
+  <div class="report-date" aria-label="Report metadata">
+    <span class="report-generated">Generated <time datetime="2026-09-11T23:11:17Z">September 11, 2026 at 23:11 UTC</time><span class="report-frozen"> · Archived snapshot</span></span>
+    <span class="report-shape">15 findings · 2 CVEs</span>
+  </div>
+  <aside class="report-method" aria-label="How this report is made">
+    <strong>AI-assisted defensive triage.</strong>
+    <span>Built from cybersecurity reporting retained in the <a href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/">Sentry Digest issue for this report date</a>. Verify NVD and vendor guidance before action.</span>
+  </aside>
+  <p id="handoff-status" class="handoff-status" role="status" aria-live="polite" hidden></p>
+  <details class="mobile-toc">
+    <summary>On this page</summary>
+    <nav aria-label="Report sections"><a class="section-link" href="#executive-summary">Executive Summary</a><a class="section-link" href="#active-exploitation-details">Active Exploitation Details</a><a class="finding-link" href="#gitlab-path-traversal-cve-2026-85706">GitLab Path Traversal (CVE-2026-85706)</a><a class="finding-link" href="#cisco-fmc-authentication-bypass-cve-2026-20079">Cisco FMC Authentication Bypass (CVE-2026-20079)</a><a class="finding-link" href="#jfrog-artifactory-chained-vulnerabilities">JFrog Artifactory Chained Vulnerabilities</a><a class="finding-link" href="#papercut-ng-mf-actively-exploited-flaws">PaperCut NG/MF Actively Exploited Flaws</a><a class="finding-link" href="#sogou-input-method-flaw">Sogou Input Method Flaw</a><a class="finding-link" href="#claude-ai-model-abuse-for-credential-extraction">Claude AI Model Abuse for Credential Extraction</a><a class="finding-link" href="#passkey-themed-phishing-for-microsoft-365-compromise">Passkey-Themed Phishing for Microsoft 365 Compromise</a><a class="finding-link" href="#ai-platform-weaponization-claude-artifacts-and-shared-conversations">AI Platform Weaponization (Claude Artifacts and Shared Conversations)</a><a class="finding-link" href="#russian-state-sponsored-malware-rebuild-via-claude-gtg-20006">Russian State-Sponsored Malware Rebuild via Claude (GTG-20006)</a><a class="finding-link" href="#china-based-ai-lab-distillation-attacks">China-Based AI Lab Distillation Attacks</a><a class="finding-link" href="#android-work-profile-abuse-goldfactory-gigabud">Android Work Profile Abuse (GoldFactory/Gigabud)</a><a class="finding-link" href="#mantax-otax-android-malware">Mantax Otax Android Malware</a><a class="finding-link" href="#florida-dmv-database-breach-via-stolen-credentials">Florida DMV Database Breach via Stolen Credentials</a><a class="finding-link" href="#trezor-phishing-campaign-post-brevo-breach">Trezor Phishing Campaign Post-Brevo Breach</a><a class="finding-link" href="#microsoft-graph-api-reconnaissance-for-extortion">Microsoft Graph API Reconnaissance for Extortion</a><a class="section-link" href="#affected-systems-and-products">Affected Systems and Products</a><a class="section-link" href="#attack-vectors-and-techniques">Attack Vectors and Techniques</a><a class="section-link" href="#threat-actor-activities">Threat Actor Activities</a></nav>
+  </details>
+  <div class="page-shell">
+    <aside class="desktop-toc">
+      <p>On this page</p>
+      <nav aria-label="Report sections"><a class="section-link" href="#executive-summary">Executive Summary</a><a class="section-link" href="#active-exploitation-details">Active Exploitation Details</a><a class="finding-link" href="#gitlab-path-traversal-cve-2026-85706">GitLab Path Traversal (CVE-2026-85706)</a><a class="finding-link" href="#cisco-fmc-authentication-bypass-cve-2026-20079">Cisco FMC Authentication Bypass (CVE-2026-20079)</a><a class="finding-link" href="#jfrog-artifactory-chained-vulnerabilities">JFrog Artifactory Chained Vulnerabilities</a><a class="finding-link" href="#papercut-ng-mf-actively-exploited-flaws">PaperCut NG/MF Actively Exploited Flaws</a><a class="finding-link" href="#sogou-input-method-flaw">Sogou Input Method Flaw</a><a class="finding-link" href="#claude-ai-model-abuse-for-credential-extraction">Claude AI Model Abuse for Credential Extraction</a><a class="finding-link" href="#passkey-themed-phishing-for-microsoft-365-compromise">Passkey-Themed Phishing for Microsoft 365 Compromise</a><a class="finding-link" href="#ai-platform-weaponization-claude-artifacts-and-shared-conversations">AI Platform Weaponization (Claude Artifacts and Shared Conversations)</a><a class="finding-link" href="#russian-state-sponsored-malware-rebuild-via-claude-gtg-20006">Russian State-Sponsored Malware Rebuild via Claude (GTG-20006)</a><a class="finding-link" href="#china-based-ai-lab-distillation-attacks">China-Based AI Lab Distillation Attacks</a><a class="finding-link" href="#android-work-profile-abuse-goldfactory-gigabud">Android Work Profile Abuse (GoldFactory/Gigabud)</a><a class="finding-link" href="#mantax-otax-android-malware">Mantax Otax Android Malware</a><a class="finding-link" href="#florida-dmv-database-breach-via-stolen-credentials">Florida DMV Database Breach via Stolen Credentials</a><a class="finding-link" href="#trezor-phishing-campaign-post-brevo-breach">Trezor Phishing Campaign Post-Brevo Breach</a><a class="finding-link" href="#microsoft-graph-api-reconnaissance-for-extortion">Microsoft Graph API Reconnaissance for Extortion</a><a class="section-link" href="#affected-systems-and-products">Affected Systems and Products</a><a class="section-link" href="#attack-vectors-and-techniques">Attack Vectors and Techniques</a><a class="section-link" href="#threat-actor-activities">Threat Actor Activities</a></nav>
+    </aside>
+    <main id="report-content" class="report-content"><h1 id="exploitation-report"><span class="report-kicker">Exploitation Report</span><time datetime="2026-09-11">September 11, 2026</time></h1><h2 id="executive-summary">Executive Summary</h2>
+<p>Active exploitation campaigns are intensifying across multiple vectors, with threat actors leveraging both newly disclosed critical vulnerabilities and AI platforms to accelerate attacks. GitLab's maximum-severity path traversal flaw (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-85706" class="cve-link" target="_blank" rel="noopener noreferrer">CVE-2026-85706</a>) drew in-the-wild probes within hours of disclosure, while Cisco FMC authentication bypass (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-20079" class="cve-link" target="_blank" rel="noopener noreferrer">CVE-2026-20079</a>) is being exploited by three distinct threat clusters—including ransomware and state-sponsored groups—to steal credentials and deploy Qilin ransomware. Simultaneously, attackers are chaining two JFrog Artifactory vulnerabilities to seize administrative control of self-hosted servers and implant Rust-based backdoors, with observed activity between August 15 and September 8 on unpatched instances.</p>
+<p>A parallel surge in AI-assisted operations sees Russian state-sponsored actors (GTG-20006, linked to Midnight Blizzard) using Claude to rebuild malware after detection, while seven China-based AI labs conduct industrial-scale model distillation attacks. Financially motivated groups including ShinyHunters and Helix deploy passkey-themed phishing to compromise Microsoft 365 environments, and China-linked UNC3569 exploits a Sogou Input Method flaw to deliver the GRAYRABBIT backdoor. PaperCut has issued maintenance releases replacing emergency patches for two actively exploited flaws, and Android-focused campaigns—including GoldFactory's Work Profile abuse and the Mantax Otax ransomware-spyware hybrid—demonstrate expanding mobile threat landscapes.</p>
+<h2 id="active-exploitation-details">Active Exploitation Details</h2>
+<h3 id="gitlab-path-traversal-cve-2026-85706" data-severity="critical" data-exploitation-status="active" data-action="patch" data-cves="CVE-2026-85706" class="finding-heading" data-expanded="true">
+<span id="cve-2026-85706" class="cve-handoff-target" aria-hidden="true"></span><button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="gitlab-path-traversal-cve-2026-85706-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">GitLab Path Traversal (CVE-2026-85706)</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="critical">Critical</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="patch">Patch</span></span><span class="cve-list"><a class="cve-chip" href="https://nvd.nist.gov/vuln/detail/CVE-2026-85706" target="_blank" rel="noopener noreferrer">CVE-2026-85706</a></span><a class="heading-anchor" href="#gitlab-path-traversal-cve-2026-85706" aria-label="Copy link to GitLab Path Traversal (CVE-2026-85706)">#</a></span></h3>
+<div id="gitlab-path-traversal-cve-2026-85706-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for GitLab Path Traversal (CVE-2026-85706)"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://thehackernews.com/2026/09/gitlab-cvss-10-file-read-flaw-draws-in.html" target="_blank" rel="noopener noreferrer">The Hacker News — GitLab CVSS 10 File-Read Flaw Draws In-the-Wild Probes After Disclosure</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-a8b89596a45d">Digest context</a></li><li><a class="reporting-source" href="https://www.bleepingcomputer.com/news/security/gitlab-urges-users-to-patch-max-severity-path-traversal-flaw/" target="_blank" rel="noopener noreferrer">Bleeping Computer — GitLab urges users to patch max severity path traversal flaw</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-3b1ca1686e68">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: A maximum-severity path traversal vulnerability in the GitLab repository commits API that allows an unauthenticated user to read arbitrary files from the GitLab server.</li>
+<li><strong>Impact</strong>: Unauthenticated remote attackers can access sensitive files on the GitLab server, potentially including configuration files, source code, and authentication tokens.</li>
+<li><strong>Status</strong>: Actively probed in the wild within hours of public disclosure; patches released by GitLab.</li>
+</ul>
+</div>
+<h3 id="cisco-fmc-authentication-bypass-cve-2026-20079" data-severity="critical" data-exploitation-status="active" data-action="patch" data-cves="CVE-2026-20079" class="finding-heading" data-expanded="true">
+<span id="cve-2026-20079" class="cve-handoff-target" aria-hidden="true"></span><button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="cisco-fmc-authentication-bypass-cve-2026-20079-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Cisco FMC Authentication Bypass (CVE-2026-20079)</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="critical">Critical</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="patch">Patch</span></span><span class="cve-list"><a class="cve-chip" href="https://nvd.nist.gov/vuln/detail/CVE-2026-20079" target="_blank" rel="noopener noreferrer">CVE-2026-20079</a></span><a class="heading-anchor" href="#cisco-fmc-authentication-bypass-cve-2026-20079" aria-label="Copy link to Cisco FMC Authentication Bypass (CVE-2026-20079)">#</a></span></h3>
+<div id="cisco-fmc-authentication-bypass-cve-2026-20079-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Cisco FMC Authentication Bypass (CVE-2026-20079)"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://thehackernews.com/2026/09/cisco-fmc-flaws-exploited-to-steal.html" target="_blank" rel="noopener noreferrer">The Hacker News — Cisco FMC Flaws Exploited to Steal Credentials and Deploy Qilin Ransomware</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-788925358fae">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: An authentication bypass vulnerability in the web interface of Cisco Secure Firewall Management Center (FMC) software that allows an unauthenticated, remote attacker to bypass authentication controls.</li>
+<li><strong>Impact</strong>: Attackers can gain unauthorized administrative access to FMC, enabling credential theft and deployment of Qilin ransomware.</li>
+<li><strong>Status</strong>: Actively exploited by three distinct threat clusters (ransomware and state-sponsored) since recent patch release.</li>
+</ul>
+</div>
+<h3 id="jfrog-artifactory-chained-vulnerabilities" data-severity="critical" data-exploitation-status="active" data-action="patch" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="jfrog-artifactory-chained-vulnerabilities-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">JFrog Artifactory Chained Vulnerabilities</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="critical">Critical</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="patch">Patch</span></span><a class="heading-anchor" href="#jfrog-artifactory-chained-vulnerabilities" aria-label="Copy link to JFrog Artifactory Chained Vulnerabilities">#</a></span></h3>
+<div id="jfrog-artifactory-chained-vulnerabilities-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for JFrog Artifactory Chained Vulnerabilities"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.bleepingcomputer.com/news/security/artifactory-flaws-chained-in-attacks-deploying-backdoor-malware/" target="_blank" rel="noopener noreferrer">Bleeping Computer — Artifactory flaws chained in attacks deploying backdoor malware</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-a9e03aba59c7">Digest context</a></li><li><a class="reporting-source" href="https://thehackernews.com/2026/09/attackers-chain-jfrog-artifactory-flaws.html" target="_blank" rel="noopener noreferrer">The Hacker News — Attackers Chain JFrog Artifactory Flaws to Gain Admin Control and Plant Backdoors</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-6d77d0f66755">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Two vulnerabilities in JFrog Artifactory that attackers chain to bypass authentication and gain administrative privileges on self-hosted servers, followed by deployment of a Rust-based backdoor.</li>
+<li><strong>Impact</strong>: Full administrative control of Artifactory instances, allowing supply chain compromise through malicious artifact injection and persistent backdoor access.</li>
+<li><strong>Status</strong>: Actively exploited between August 15 and September 8, 2026; JFrog released fixes prior to observed attacks, leaving only unpatched servers vulnerable.</li>
+</ul>
+</div>
+<h3 id="papercut-ng-mf-actively-exploited-flaws" data-severity="critical" data-exploitation-status="active" data-action="patch" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="papercut-ng-mf-actively-exploited-flaws-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">PaperCut NG/MF Actively Exploited Flaws</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="critical">Critical</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="patch">Patch</span></span><a class="heading-anchor" href="#papercut-ng-mf-actively-exploited-flaws" aria-label="Copy link to PaperCut NG/MF Actively Exploited Flaws">#</a></span></h3>
+<div id="papercut-ng-mf-actively-exploited-flaws-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for PaperCut NG/MF Actively Exploited Flaws"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://thehackernews.com/2026/09/papercut-replaces-emergency-patches.html" target="_blank" rel="noopener noreferrer">The Hacker News — PaperCut Replaces Emergency Patches With Fixes for Two Actively Exploited Flaws</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-af3b87dfbf9c">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Two security flaws in PaperCut NG/MF that have come under active exploitation, prompting emergency patches now replaced by regular maintenance releases.</li>
+<li><strong>Impact</strong>: Attackers can exploit these flaws to compromise PaperCut print management servers, potentially leading to lateral movement and data access.</li>
+<li><strong>Status</strong>: Actively exploited; PaperCut released versions 26.0.5, 25.0.13, and 24.1.10 as regular maintenance releases replacing earlier emergency patches.</li>
+</ul>
+</div>
+<h3 id="sogou-input-method-flaw" data-severity="high" data-exploitation-status="active" data-action="patch" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="sogou-input-method-flaw-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Sogou Input Method Flaw</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="patch">Patch</span></span><a class="heading-anchor" href="#sogou-input-method-flaw" aria-label="Copy link to Sogou Input Method Flaw">#</a></span></h3>
+<div id="sogou-input-method-flaw-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Sogou Input Method Flaw"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://thehackernews.com/2026/09/china-linked-unc3569-exploited-sogou.html" target="_blank" rel="noopener noreferrer">The Hacker News — China-Linked UNC3569 Exploited Sogou Input Method Flaw to Deploy GRAYRABBIT Backdoor</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-11c8b517d375">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: A vulnerability in Sogou Input Method, a widely used Chinese character input tool for Windows, exploited via a crafted link to install the GRAYRABBIT backdoor.</li>
+<li><strong>Impact</strong>: Attackers gain the same privileges as the logged-in user, enabling full system control, data theft, and persistent access via the GRAYRABBIT backdoor.</li>
+<li><strong>Status</strong>: Actively exploited by China-linked threat group UNC3569; Tencent (Sogou owner) notified.</li>
+</ul>
+</div>
+<h3 id="claude-ai-model-abuse-for-credential-extraction" data-severity="high" data-exploitation-status="active" data-action="investigate" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="claude-ai-model-abuse-for-credential-extraction-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Claude AI Model Abuse for Credential Extraction</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="investigate">Investigate</span></span><a class="heading-anchor" href="#claude-ai-model-abuse-for-credential-extraction" aria-label="Copy link to Claude AI Model Abuse for Credential Extraction">#</a></span></h3>
+<div id="claude-ai-model-abuse-for-credential-extraction-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Claude AI Model Abuse for Credential Extraction"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.bleepingcomputer.com/news/security/hackers-abused-claude-to-extract-secrets-from-18m-android-apps/" target="_blank" rel="noopener noreferrer">Bleeping Computer — Hackers abused Claude to extract secrets from 1.8M Android apps</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-ed5e0e272a95">Digest context</a></li><li><a class="reporting-source" href="https://thehackernews.com/2026/09/claude-used-to-automate-exploitation.html" target="_blank" rel="noopener noreferrer">The Hacker News — Claude Used to Automate Exploitation and Data Theft Across Multiple Victims</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-0f8accb03f10">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Multiple threat groups—including financially motivated and state-sponsored espionage actors linked to Russia and China—abuse Anthropic's Claude AI model to extract secrets from 1.8 million Android applications.</li>
+<li><strong>Impact</strong>: Massive credential harvesting from Android apps, enabling supply chain attacks, unauthorized access to backend services, and intellectual property theft.</li>
+<li><strong>Status</strong>: Ongoing campaigns identified and disrupted by Anthropic between December 2025 and August 2026.</li>
+</ul>
+</div>
+<h3 id="passkey-themed-phishing-for-microsoft-365-compromise" data-severity="high" data-exploitation-status="active" data-action="mitigate" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="passkey-themed-phishing-for-microsoft-365-compromise-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Passkey-Themed Phishing for Microsoft 365 Compromise</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="mitigate">Mitigate</span></span><a class="heading-anchor" href="#passkey-themed-phishing-for-microsoft-365-compromise" aria-label="Copy link to Passkey-Themed Phishing for Microsoft 365 Compromise">#</a></span></h3>
+<div id="passkey-themed-phishing-for-microsoft-365-compromise-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Passkey-Themed Phishing for Microsoft 365 Compromise"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.bleepingcomputer.com/news/security/passkey-themed-phishing-attacks-lead-to-microsoft-365-data-theft/" target="_blank" rel="noopener noreferrer">Bleeping Computer — Passkey-themed phishing attacks lead to Microsoft 365 data theft</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-82dfd2b2ae38">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Social engineering campaigns using passkey and single sign-on-themed lures to compromise corporate Microsoft accounts and exfiltrate data from Microsoft 365 services.</li>
+<li><strong>Impact</strong>: Unauthorized access to corporate Microsoft 365 environments, data theft, and potential business email compromise.</li>
+<li><strong>Status</strong>: Active campaigns attributed to ShinyHunters, Helix, and other extortion gangs.</li>
+</ul>
+</div>
+<h3 id="ai-platform-weaponization-claude-artifacts-and-shared-conversations" data-severity="high" data-exploitation-status="active" data-action="mitigate" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="ai-platform-weaponization-claude-artifacts-and-shared-conversations-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">AI Platform Weaponization (Claude Artifacts and Shared Conversations)</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="mitigate">Mitigate</span></span><a class="heading-anchor" href="#ai-platform-weaponization-claude-artifacts-and-shared-conversations" aria-label="Copy link to AI Platform Weaponization (Claude Artifacts and Shared Conversations)">#</a></span></h3>
+<div id="ai-platform-weaponization-claude-artifacts-and-shared-conversations-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for AI Platform Weaponization (Claude Artifacts and Shared Conversations)"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.bleepingcomputer.com/news/security/how-threat-actors-are-turning-trusted-ai-platforms-into-an-attack-surface/" target="_blank" rel="noopener noreferrer">Bleeping Computer — How Threat Actors Are Turning Trusted AI Platforms Into an Attack Surface</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-4cfe00191671">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Threat actors weaponize trusted AI platform features—including Claude Artifacts, shared AI conversations, sponsored search results, and ClickFix-style lures—to host malicious content, poison search results, and trick users into installing malware.</li>
+<li><strong>Impact</strong>: Malware delivery, credential harvesting, and initial access via social engineering leveraging trust in legitimate AI platforms.</li>
+<li><strong>Status</strong>: Active campaigns observed by Huntress targeting AI users.</li>
+</ul>
+</div>
+<h3 id="russian-state-sponsored-malware-rebuild-via-claude-gtg-20006" data-severity="high" data-exploitation-status="observed" data-action="monitor" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="russian-state-sponsored-malware-rebuild-via-claude-gtg-20006-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Russian State-Sponsored Malware Rebuild via Claude (GTG-20006)</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="observed">Observed</span><span class="badge badge-action" data-value="monitor">Monitor</span></span><a class="heading-anchor" href="#russian-state-sponsored-malware-rebuild-via-claude-gtg-20006" aria-label="Copy link to Russian State-Sponsored Malware Rebuild via Claude (GTG-20006)">#</a></span></h3>
+<div id="russian-state-sponsored-malware-rebuild-via-claude-gtg-20006-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Russian State-Sponsored Malware Rebuild via Claude (GTG-20006)"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://thehackernews.com/2026/09/russian-state-sponsored-hackers-use.html" target="_blank" rel="noopener noreferrer">The Hacker News — Russian State-Sponsored Hackers Use Claude to Rebuild Malware After Detection</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-dae251a2004b">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Russian state-sponsored threat actor GTG-20006 (aligned with Midnight Blizzard) uses Claude for an AI-assisted workflow to rapidly rebuild malware after detection, staying ahead of defensive signatures.</li>
+<li><strong>Impact</strong>: Accelerated malware iteration and evasion capabilities, reducing defender response windows and increasing campaign resilience.</li>
+<li><strong>Status</strong>: Campaign disrupted by Anthropic; attributed to GTG-20006.</li>
+</ul>
+</div>
+<h3 id="china-based-ai-lab-distillation-attacks" data-severity="medium" data-exploitation-status="observed" data-action="monitor" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="china-based-ai-lab-distillation-attacks-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">China-Based AI Lab Distillation Attacks</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="medium">Medium</span><span class="badge badge-exploitation-status" data-value="observed">Observed</span><span class="badge badge-action" data-value="monitor">Monitor</span></span><a class="heading-anchor" href="#china-based-ai-lab-distillation-attacks" aria-label="Copy link to China-Based AI Lab Distillation Attacks">#</a></span></h3>
+<div id="china-based-ai-lab-distillation-attacks-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for China-Based AI Lab Distillation Attacks"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://thehackernews.com/2026/09/anthropic-says-seven-china-based-ai.html" target="_blank" rel="noopener noreferrer">The Hacker News — Anthropic Says Seven China-Based AI Labs Ran Industrial-Scale Claude Distillation Attacks</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-ec242e7e40e9">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Seven China-based AI labs (Alibaba, Moonshot, DeepSeek, Z.ai/Zhipu, MiniMax) conduct industrial-scale illicit knowledge distillation attacks against Claude to replicate model capabilities without authorization.</li>
+<li><strong>Impact</strong>: Intellectual property theft, model capability replication, and potential erosion of AI safety controls.</li>
+<li><strong>Status</strong>: Identified and disrupted by Anthropic; ongoing industrial-scale activity.</li>
+</ul>
+</div>
+<h3 id="android-work-profile-abuse-goldfactory-gigabud" data-severity="high" data-exploitation-status="active" data-action="mitigate" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="android-work-profile-abuse-goldfactory-gigabud-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Android Work Profile Abuse (GoldFactory/Gigabud)</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="mitigate">Mitigate</span></span><a class="heading-anchor" href="#android-work-profile-abuse-goldfactory-gigabud" aria-label="Copy link to Android Work Profile Abuse (GoldFactory/Gigabud)">#</a></span></h3>
+<div id="android-work-profile-abuse-goldfactory-gigabud-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Android Work Profile Abuse (GoldFactory/Gigabud)"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.darkreading.com/mobile-security/indonesia-android-banking-app-cloning-campaign" target="_blank" rel="noopener noreferrer">Dark Reading — Indonesia Hit by Android Banking App-Cloning Campaign</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-133227570f5c">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: The GoldFactory threat group exploits the Android Work Profile feature to deliver the Gigabud Trojan, targeting banking applications in Indonesia.</li>
+<li><strong>Impact</strong>: Financial credential theft, banking fraud, and persistent mobile device compromise.</li>
+<li><strong>Status</strong>: Active campaign targeting Indonesian users.</li>
+</ul>
+</div>
+<h3 id="mantax-otax-android-malware" data-severity="high" data-exploitation-status="active" data-action="investigate" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="mantax-otax-android-malware-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Mantax Otax Android Malware</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="active">Active exploitation</span><span class="badge badge-action" data-value="investigate">Investigate</span></span><a class="heading-anchor" href="#mantax-otax-android-malware" aria-label="Copy link to Mantax Otax Android Malware">#</a></span></h3>
+<div id="mantax-otax-android-malware-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Mantax Otax Android Malware"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.bleepingcomputer.com/news/security/new-android-malware-encrypts-files-steals-data-and-harasses-victims/" target="_blank" rel="noopener noreferrer">Bleeping Computer — New Android malware encrypts files, steals data, and harasses victims</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-b8fb164281cc">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: A new Android malware strain combining ransomware and spyware capabilities to encrypt files, steal sensitive data, and harass victims via spam.</li>
+<li><strong>Impact</strong>: Data encryption, exfiltration of personal information, financial loss, and psychological harassment.</li>
+<li><strong>Status</strong>: Active distribution; capabilities include ransomware, spyware, and harassment modules.</li>
+</ul>
+</div>
+<h3 id="florida-dmv-database-breach-via-stolen-credentials" data-severity="high" data-exploitation-status="observed" data-action="investigate" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="florida-dmv-database-breach-via-stolen-credentials-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Florida DMV Database Breach via Stolen Credentials</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="observed">Observed</span><span class="badge badge-action" data-value="investigate">Investigate</span></span><a class="heading-anchor" href="#florida-dmv-database-breach-via-stolen-credentials" aria-label="Copy link to Florida DMV Database Breach via Stolen Credentials">#</a></span></h3>
+<div id="florida-dmv-database-breach-via-stolen-credentials-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Florida DMV Database Breach via Stolen Credentials"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.bleepingcomputer.com/news/security/florida-confirms-dmv-database-breached-via-stolen-police-account/" target="_blank" rel="noopener noreferrer">Bleeping Computer — Florida confirms DMV database breached via stolen police account</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-a16d62911725">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Attackers accessed the Florida Department of Highway Safety and Motor Vehicles (FLHSMV) DAVID driver database using credentials stolen from a police department employee.</li>
+<li><strong>Impact</strong>: Exposure of driver license records and personal identifiable information for Florida residents.</li>
+<li><strong>Status</strong>: Confirmed breach; investigation ongoing.</li>
+</ul>
+</div>
+<h3 id="trezor-phishing-campaign-post-brevo-breach" data-severity="high" data-exploitation-status="observed" data-action="investigate" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="trezor-phishing-campaign-post-brevo-breach-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Trezor Phishing Campaign Post-Brevo Breach</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="observed">Observed</span><span class="badge badge-action" data-value="investigate">Investigate</span></span><a class="heading-anchor" href="#trezor-phishing-campaign-post-brevo-breach" aria-label="Copy link to Trezor Phishing Campaign Post-Brevo Breach">#</a></span></h3>
+<div id="trezor-phishing-campaign-post-brevo-breach-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Trezor Phishing Campaign Post-Brevo Breach"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.bleepingcomputer.com/news/security/trezor-347-000-users-targeted-in-phishing-attacks-after-brevo-breach/" target="_blank" rel="noopener noreferrer">Bleeping Computer — Trezor: 347,000 users targeted in phishing attacks after Brevo breach</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-42df196f2b73">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Phishing attacks targeting 347,000 Trezor cryptocurrency wallet users using email addresses exposed in the Brevo breach, with 2,500 users clicking malicious links.</li>
+<li><strong>Impact</strong>: Cryptocurrency wallet compromise, credential theft, and financial loss for affected users.</li>
+<li><strong>Status</strong>: Active campaign leveraging breached contact data.</li>
+</ul>
+</div>
+<h3 id="microsoft-graph-api-reconnaissance-for-extortion" data-severity="high" data-exploitation-status="observed" data-action="monitor" class="finding-heading" data-expanded="true">
+<button type="button" class="finding-disclosure" aria-expanded="true" aria-controls="microsoft-graph-api-reconnaissance-for-extortion-details"><span class="disclosure-icon" aria-hidden="true">−</span><span class="finding-title">Microsoft Graph API Reconnaissance for Extortion</span></button><span class="finding-supporting"><span class="badge-list" aria-label="Finding classification"><span class="badge badge-severity" data-value="high">High</span><span class="badge badge-exploitation-status" data-value="observed">Observed</span><span class="badge badge-action" data-value="monitor">Monitor</span></span><a class="heading-anchor" href="#microsoft-graph-api-reconnaissance-for-extortion" aria-label="Copy link to Microsoft Graph API Reconnaissance for Extortion">#</a></span></h3>
+<div id="microsoft-graph-api-reconnaissance-for-extortion-details" class="finding-body">
+<aside class="finding-reporting" aria-label="Reporting for Microsoft Graph API Reconnaissance for Extortion"><strong>Reporting</strong><ul><li><a class="reporting-source" href="https://www.darkreading.com/threat-intelligence/voice-callers-exploit-byod-microsoft-365-corporate-data" target="_blank" rel="noopener noreferrer">Dark Reading — Voice Callers Exploit BYOD to Reach Microsoft 365, Corporate Data</a><span aria-hidden="true"> · </span><a class="reporting-context" href="https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/#reporting-432786c4f1ef">Digest context</a></li></ul></aside>
+<ul>
+<li><strong>Description</strong>: Threat actors leverage Microsoft's Graph API to identify high-value targets in BYOD environments, then pass access to extortion groups including ShinyHunters.</li>
+<li><strong>Impact</strong>: Targeted credential theft, data exfiltration from Microsoft 365, and extortion operations.</li>
+<li><strong>Status</strong>: Active technique observed in voice caller campaigns.</li>
+</ul>
+</div>
+<h2 id="affected-systems-and-products">Affected Systems and Products</h2>
+<ul>
+<li><strong>GitLab (self-hosted)</strong>: All versions prior to patched releases addressing <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-85706" class="cve-link" target="_blank" rel="noopener noreferrer">CVE-2026-85706</a>; repository commits API component affected.</li>
+<li><strong>Cisco Secure Firewall Management Center (FMC)</strong>: Versions vulnerable to <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-20079" class="cve-link" target="_blank" rel="noopener noreferrer">CVE-2026-20079</a>; web interface authentication bypass.</li>
+<li><strong>JFrog Artifactory (self-hosted)</strong>: Unpatched instances vulnerable to two chained flaws allowing auth bypass and admin escalation; Rust backdoor deployed post-exploitation.</li>
+<li><strong>PaperCut NG/MF</strong>: Versions prior to 26.0.5, 25.0.13, and 24.1.10; two actively exploited flaws addressed in maintenance releases.</li>
+<li><strong>Sogou Input Method (Windows)</strong>: Vulnerable versions exploited via crafted links; Tencent-owned input method editor for Chinese characters.</li>
+<li><strong>Android Applications</strong>: 1.8 million apps analyzed via Claude for secret extraction; API keys, tokens, and credentials harvested.</li>
+<li><strong>Microsoft 365 / Entra ID</strong>: Corporate environments targeted via passkey-themed phishing and Graph API reconnaissance; ShinyHunters and Helix extortion activity.</li>
+<li><strong>Claude AI Platform (Anthropic)</strong>: Model abused for credential extraction, malware development, distillation attacks, and automated exploitation across multiple victims.</li>
+<li><strong>Android Devices (Work Profile)</strong>: Devices with Work Profile feature enabled targeted by GoldFactory/Gigabud banking trojan campaign in Indonesia.</li>
+<li><strong>Android Devices (General)</strong>: Mantax Otax malware infecting devices with ransomware, spyware, and harassment capabilities.</li>
+<li><strong>Florida DAVID Driver Database</strong>: FLHSMV database accessed via compromised police department employee credentials.</li>
+<li><strong>Trezor Hardware Wallet Users</strong>: 347,000 email addresses targeted in phishing campaign following Brevo breach.</li>
+<li><strong>Surfshark VPN Internal Infrastructure</strong>: Internal test and proxy servers breached via configuration error exposure.</li>
+</ul>
+<h2 id="attack-vectors-and-techniques">Attack Vectors and Techniques</h2>
+<ul>
+<li>
+<p><strong>AI-Assisted Credential Harvesting</strong>: Attackers use LLMs (Claude) to automate extraction of secrets from massive datasets (1.8M Android apps), accelerating supply chain reconnaissance.</p>
+<ul>
+<li><strong>Vector</strong>: AI model API abuse; prompt injection for data extraction tasks.</li>
+</ul>
+</li>
+<li>
+<p><strong>AI-Assisted Malware Development</strong>: State-sponsored actors (GTG-20006) use Claude to rapidly rebuild and obfuscate malware after detection, creating an AI-augmented development lifecycle.</p>
+<ul>
+<li><strong>Vector</strong>: Legitimate AI platform access; iterative code generation and testing.</li>
+</ul>
+</li>
+<li>
+<p><strong>Model Distillation Attacks</strong>: Industrial-scale knowledge distillation from proprietary models (Claude) by competitor labs to replicate capabilities without authorization.</p>
+<ul>
+<li><strong>Vector</strong>: High-volume API queries to extract model behavior patterns; teacher-student training paradigm abuse.</li>
+</ul>
+</li>
+<li>
+<p><strong>Passkey/SSO-Themed Social Engineering</strong>: Phishing lures mimicking passkey enrollment and single sign-on flows to harvest Microsoft 365 credentials.</p>
+<ul>
+<li><strong>Vector</strong>: Email and web-based phishing; exploitation of user familiarity with new authentication methods.</li>
+</ul>
+</li>
+<li>
+<p><strong>Authentication Bypass via Path Traversal</strong>: Unauthenticated file read via GitLab commits API (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-85706" class="cve-link" target="_blank" rel="noopener noreferrer">CVE-2026-85706</a>) enabling server filesystem access.</p>
+<ul>
+<li><strong>Vector</strong>: HTTP requests to vulnerable API endpoint; directory traversal sequences in repository paths.</li>
+</ul>
+</li>
+<li>
+<p><strong>Authentication Bypass in Management Interface</strong>: Cisco FMC web interface flaw (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-20079" class="cve-link" target="_blank" rel="noopener noreferrer">CVE-2026-20079</a>) allowing unauthenticated remote admin access.</p>
+<ul>
+<li><strong>Vector</strong>: Direct HTTP requests to FMC management console; no credentials required.</li>
+</ul>
+</li>
+<li>
+<p><strong>Vulnerability Chaining for Privilege Escalation</strong>: Two Artifactory flaws chained—first for authentication bypass, second for administrative privilege escalation—followed by backdoor deployment.</p>
+<ul>
+<li><strong>Vector</strong>: Sequential exploitation of repository manager endpoints; Rust backdoor implantation for persistence.</li>
+</ul>
+</li>
+<li>
+<p><strong>Input Method Editor Exploitation</strong>: Sogou IME flaw triggered by crafted link, achieving user-context code execution for GRAYRABBIT backdoor installation.</p>
+<ul>
+<li><strong>Vector</strong>: Malicious link delivery (likely phishing or watering hole); IME component handling of crafted input.</li>
+</ul>
+</li>
+<li>
+<p><strong>Android Work Profile Abuse</strong>: Legitimate enterprise feature (Work Profile) exploited to install Gigabud Trojan in isolated profile, evading user suspicion.</p>
+<ul>
+<li><strong>Vector</strong>: Social engineering to enable Work Profile; malicious app distribution via phishing or third-party stores.</li>
+</ul>
+</li>
+<li>
+<p><strong>AI Platform Feature Weaponization</strong>: Claude Artifacts, shared conversations, and sponsored search results used to host and deliver malicious payloads.</p>
+<ul>
+<li><strong>Vector</strong>: Legitimate AI platform features repurposed for malware hosting and social engineering (ClickFix-style lures).</li>
+</ul>
+</li>
+<li>
+<p><strong>Graph API Reconnaissance</strong>: Attackers use Microsoft Graph API to enumerate high-value targets in BYOD environments before passing access to extortion groups.</p>
+<ul>
+<li><strong>Vector</strong>: Compromised credentials or tokens with Graph API permissions; automated tenant enumeration.</li>
+</ul>
+</li>
+<li>
+<p><strong>Credential Theft and Reuse</strong>: Stolen police employee credentials used to access Florida DMV database; Brevo breach data used for Trezor phishing.</p>
+<ul>
+<li><strong>Vector</strong>: Credential stuffing, phishing, and infostealer malware output leveraged for downstream access.</li>
+</ul>
+</li>
+<li>
+<p><strong>Mobile Ransomware-Spyware Hybrid</strong>: Mantax Otax combines file encryption, data exfiltration, and victim harassment in single Android malware strain.</p>
+<ul>
+<li><strong>Vector</strong>: Malicious app installation; overlay attacks, accessibility service abuse, and contact enumeration.</li>
+</ul>
+</li>
+</ul>
+<h2 id="threat-actor-activities">Threat Actor Activities</h2>
+<ul>
+<li>
+<p><strong>GTG-20006 (Russian State-Sponsored, Midnight Blizzard-aligned)</strong>: Uses Claude for AI-assisted malware rebuild workflow to evade detection; campaign disrupted by Anthropic. Attribution links to broader Midnight Blizzard activity.</p>
+<ul>
+<li><strong>Campaign</strong>: Automated malware iteration via LLM; accelerated development cycle to stay ahead of signatures.</li>
+</ul>
+</li>
+<li>
+<p><strong>ShinyHunters and Helix (Financially Motivated Extortion Groups)</strong>: Conduct passkey-themed phishing campaigns targeting Microsoft 365 environments; receive target access from Graph API reconnaissance operators. Active data theft and extortion operations.</p>
+<ul>
+<li><strong>Campaign</strong>: Social engineering leveraging new authentication paradigms; Microsoft 365 data exfiltration for extortion.</li>
+</ul>
+</li>
+<li>
+<p><strong>UNC3569 (China-Linked)</strong>: Exploits Sogou Input Method flaw to deploy GRAYRABBIT backdoor; targets Windows users in Chinese-language environments. Tencent notified as Sogou owner.</p>
+<ul>
+<li><strong>Campaign</strong>: Crafted link delivery → IME exploitation → GRAYRABBIT installation → full user-context control.</li>
+</ul>
+</li>
+<li>
+<p><strong>GoldFactory (Android Threat Group)</strong>: Exploits Android Work Profile feature to deliver Gigabud banking trojan in Indonesia; Mantax Otax spreads separately with ransomware-spyware capabilities.</p>
+<ul>
+<li><strong>Campaign</strong>: Regional banking credential theft via Work Profile abuse; parallel Mantax Otax deployment for broader compromise.</li>
+</ul>
+</li>
+<li>
+<p><strong>Seven China-Based AI Labs (Alibaba, Moonshot, DeepSeek, Z.ai/Zhipu, MiniMax)</strong>: Conduct industrial-scale illicit distillation attacks against Claude; identified and disrupted by Anthropic.</p>
+<ul>
+<li><strong>Campaign</strong>: High-volume API abuse for model capability extraction; competitive intelligence and IP theft.</li>
+</ul>
+</li>
+<li>
+<p><strong>Generative Threat Groups (GTGs) - Multiple</strong>: Anthropic-tracked clusters spanning state-sponsored, financially motivated, and commercial actors using Claude for cyber attacks, weapons design, propaganda, and mass surveillance (Dec 2025–Aug 2026).</p>
+<ul>
+<li><strong>Campaign</strong>: Broad AI-assisted offensive operations across multiple verticals; automation of exploitation and data theft.</li>
+</ul>
+</li>
+<li>
+<p><strong>Three Distinct Threat Clusters (Ransomware + State-Sponsored)</strong>: Exploit Cisco FMC flaws (<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-20079" class="cve-link" target="_blank" rel="noopener noreferrer">CVE-2026-20079</a>) for credential theft and Qilin ransomware deployment; mixed motivation actors sharing vulnerability access.</p>
+<ul>
+<li><strong>Campaign</strong>: FMC compromise → credential harvesting → Qilin ransomware deployment; observed post-patch on unpatched instances.</li>
+</ul>
+</li>
+<li>
+<p><strong>Wiz-Observed Artifactory Attackers</strong>: Chain two Artifactory flaws for admin access and Rust backdoor deployment; active Aug 15–Sep 8, 2026 on unpatched self-hosted servers.</p>
+<ul>
+<li><strong>Campaign</strong>: Supply chain positioning via artifact repository compromise; persistent backdoor access.</li>
+</ul>
+</li>
+<li>
+<p><strong>Conti Ransomware Gang</strong>: Member sentenced to 4 years for 2021–2022 attacks; demonstrates law enforcement progress against ransomware operators.</p>
+<ul>
+<li><strong>Campaign</strong>: Historical ransomware operations; legal accountability milestone.</li>
+</ul>
+</li>
+<li>
+<p><strong>Brevo Breach Exploiters</strong>: Leverage exposed Trezor customer emails (347K) for targeted cryptocurrency phishing; 2,500 link clicks recorded.</p>
+<ul>
+<li><strong>Campaign</strong>: Post-breach credential reuse; cryptocurrency wallet targeting via brand impersonation.</li>
+</ul>
+</li>
+</ul>
+</main>
+  </div>
+  <footer class="site-footer">
+    <p>SentryInsight is maintained by <a href="https://ricomanifesto.com/">Michael Rico</a>. <a class="footer-markdown" href="2026-09-11.md">Report Markdown</a>. <a href="https://github.com/ricomanifesto/SentryInsight">View the project on GitHub</a>.</p>
+  </footer>
+  <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
+  <script id="report-metadata" type="application/json">{"schema_version":2,"report_date":"2026-09-11","generated_at":"2026-09-11T23:11:17Z","finding_count":15,"complete_cve_count":2,"digest_issue_url":"https://ricomanifesto.github.io/SentryDigest/archive/2026-09-11/","findings":[{"title":"GitLab Path Traversal (CVE-2026-85706)","slug":"gitlab-path-traversal-cve-2026-85706","severity":"critical","exploitation_status":"active","action":"patch","cve_ids":["CVE-2026-85706"],"reporting":[{"publisher":"The Hacker News","title":"GitLab CVSS 10 File-Read Flaw Draws In-the-Wild Probes After Disclosure","url":"https://thehackernews.com/2026/09/gitlab-cvss-10-file-read-flaw-draws-in.html","digest_fragment":"reporting-a8b89596a45d"},{"publisher":"Bleeping Computer","title":"GitLab urges users to patch max severity path traversal flaw","url":"https://www.bleepingcomputer.com/news/security/gitlab-urges-users-to-patch-max-severity-path-traversal-flaw/","digest_fragment":"reporting-3b1ca1686e68"}]},{"title":"Cisco FMC Authentication Bypass (CVE-2026-20079)","slug":"cisco-fmc-authentication-bypass-cve-2026-20079","severity":"critical","exploitation_status":"active","action":"patch","cve_ids":["CVE-2026-20079"],"reporting":[{"publisher":"The Hacker News","title":"Cisco FMC Flaws Exploited to Steal Credentials and Deploy Qilin Ransomware","url":"https://thehackernews.com/2026/09/cisco-fmc-flaws-exploited-to-steal.html","digest_fragment":"reporting-788925358fae"}]},{"title":"JFrog Artifactory Chained Vulnerabilities","slug":"jfrog-artifactory-chained-vulnerabilities","severity":"critical","exploitation_status":"active","action":"patch","cve_ids":[],"reporting":[{"publisher":"Bleeping Computer","title":"Artifactory flaws chained in attacks deploying backdoor malware","url":"https://www.bleepingcomputer.com/news/security/artifactory-flaws-chained-in-attacks-deploying-backdoor-malware/","digest_fragment":"reporting-a9e03aba59c7"},{"publisher":"The Hacker News","title":"Attackers Chain JFrog Artifactory Flaws to Gain Admin Control and Plant Backdoors","url":"https://thehackernews.com/2026/09/attackers-chain-jfrog-artifactory-flaws.html","digest_fragment":"reporting-6d77d0f66755"}]},{"title":"PaperCut NG/MF Actively Exploited Flaws","slug":"papercut-ng-mf-actively-exploited-flaws","severity":"critical","exploitation_status":"active","action":"patch","cve_ids":[],"reporting":[{"publisher":"The Hacker News","title":"PaperCut Replaces Emergency Patches With Fixes for Two Actively Exploited Flaws","url":"https://thehackernews.com/2026/09/papercut-replaces-emergency-patches.html","digest_fragment":"reporting-af3b87dfbf9c"}]},{"title":"Sogou Input Method Flaw","slug":"sogou-input-method-flaw","severity":"high","exploitation_status":"active","action":"patch","cve_ids":[],"reporting":[{"publisher":"The Hacker News","title":"China-Linked UNC3569 Exploited Sogou Input Method Flaw to Deploy GRAYRABBIT Backdoor","url":"https://thehackernews.com/2026/09/china-linked-unc3569-exploited-sogou.html","digest_fragment":"reporting-11c8b517d375"}]},{"title":"Claude AI Model Abuse for Credential Extraction","slug":"claude-ai-model-abuse-for-credential-extraction","severity":"high","exploitation_status":"active","action":"investigate","cve_ids":[],"reporting":[{"publisher":"Bleeping Computer","title":"Hackers abused Claude to extract secrets from 1.8M Android apps","url":"https://www.bleepingcomputer.com/news/security/hackers-abused-claude-to-extract-secrets-from-18m-android-apps/","digest_fragment":"reporting-ed5e0e272a95"},{"publisher":"The Hacker News","title":"Claude Used to Automate Exploitation and Data Theft Across Multiple Victims","url":"https://thehackernews.com/2026/09/claude-used-to-automate-exploitation.html","digest_fragment":"reporting-0f8accb03f10"}]},{"title":"Passkey-Themed Phishing for Microsoft 365 Compromise","slug":"passkey-themed-phishing-for-microsoft-365-compromise","severity":"high","exploitation_status":"active","action":"mitigate","cve_ids":[],"reporting":[{"publisher":"Bleeping Computer","title":"Passkey-themed phishing attacks lead to Microsoft 365 data theft","url":"https://www.bleepingcomputer.com/news/security/passkey-themed-phishing-attacks-lead-to-microsoft-365-data-theft/","digest_fragment":"reporting-82dfd2b2ae38"}]},{"title":"AI Platform Weaponization (Claude Artifacts and Shared Conversations)","slug":"ai-platform-weaponization-claude-artifacts-and-shared-conversations","severity":"high","exploitation_status":"active","action":"mitigate","cve_ids":[],"reporting":[{"publisher":"Bleeping Computer","title":"How Threat Actors Are Turning Trusted AI Platforms Into an Attack Surface","url":"https://www.bleepingcomputer.com/news/security/how-threat-actors-are-turning-trusted-ai-platforms-into-an-attack-surface/","digest_fragment":"reporting-4cfe00191671"}]},{"title":"Russian State-Sponsored Malware Rebuild via Claude (GTG-20006)","slug":"russian-state-sponsored-malware-rebuild-via-claude-gtg-20006","severity":"high","exploitation_status":"observed","action":"monitor","cve_ids":[],"reporting":[{"publisher":"The Hacker News","title":"Russian State-Sponsored Hackers Use Claude to Rebuild Malware After Detection","url":"https://thehackernews.com/2026/09/russian-state-sponsored-hackers-use.html","digest_fragment":"reporting-dae251a2004b"}]},{"title":"China-Based AI Lab Distillation Attacks","slug":"china-based-ai-lab-distillation-attacks","severity":"medium","exploitation_status":"observed","action":"monitor","cve_ids":[],"reporting":[{"publisher":"The Hacker News","title":"Anthropic Says Seven China-Based AI Labs Ran Industrial-Scale Claude Distillation Attacks","url":"https://thehackernews.com/2026/09/anthropic-says-seven-china-based-ai.html","digest_fragment":"reporting-ec242e7e40e9"}]},{"title":"Android Work Profile Abuse (GoldFactory/Gigabud)","slug":"android-work-profile-abuse-goldfactory-gigabud","severity":"high","exploitation_status":"active","action":"mitigate","cve_ids":[],"reporting":[{"publisher":"Dark Reading","title":"Indonesia Hit by Android Banking App-Cloning Campaign","url":"https://www.darkreading.com/mobile-security/indonesia-android-banking-app-cloning-campaign","digest_fragment":"reporting-133227570f5c"}]},{"title":"Mantax Otax Android Malware","slug":"mantax-otax-android-malware","severity":"high","exploitation_status":"active","action":"investigate","cve_ids":[],"reporting":[{"publisher":"Bleeping Computer","title":"New Android malware encrypts files, steals data, and harasses victims","url":"https://www.bleepingcomputer.com/news/security/new-android-malware-encrypts-files-steals-data-and-harasses-victims/","digest_fragment":"reporting-b8fb164281cc"}]},{"title":"Florida DMV Database Breach via Stolen Credentials","slug":"florida-dmv-database-breach-via-stolen-credentials","severity":"high","exploitation_status":"observed","action":"investigate","cve_ids":[],"reporting":[{"publisher":"Bleeping Computer","title":"Florida confirms DMV database breached via stolen police account","url":"https://www.bleepingcomputer.com/news/security/florida-confirms-dmv-database-breached-via-stolen-police-account/","digest_fragment":"reporting-a16d62911725"}]},{"title":"Trezor Phishing Campaign Post-Brevo Breach","slug":"trezor-phishing-campaign-post-brevo-breach","severity":"high","exploitation_status":"observed","action":"investigate","cve_ids":[],"reporting":[{"publisher":"Bleeping Computer","title":"Trezor: 347,000 users targeted in phishing attacks after Brevo breach","url":"https://www.bleepingcomputer.com/news/security/trezor-347-000-users-targeted-in-phishing-attacks-after-brevo-breach/","digest_fragment":"reporting-42df196f2b73"}]},{"title":"Microsoft Graph API Reconnaissance for Extortion","slug":"microsoft-graph-api-reconnaissance-for-extortion","severity":"high","exploitation_status":"observed","action":"monitor","cve_ids":[],"reporting":[{"publisher":"Dark Reading","title":"Voice Callers Exploit BYOD to Reach Microsoft 365, Corporate Data","url":"https://www.darkreading.com/threat-intelligence/voice-callers-exploit-byod-microsoft-365-corporate-data","digest_fragment":"reporting-432786c4f1ef"}]}]}</script>
+  <script src="../assets/vendor/dompurify.min.js?v=e0102e68d772" defer></script>
+  <script src="../assets/report.js?v=e0102e68d772" defer></script>
+</body>
+</html>
