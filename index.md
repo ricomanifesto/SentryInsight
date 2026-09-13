@@ -1,201 +1,135 @@
 ---
 schema_version: 2
 report_date: 2026-09-13
-generated_at: 2026-09-13T11:34:03Z
+generated_at: 2026-09-13T20:37:20Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-13/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, with CISA adding five flaws to its Known Exploited Vulnerabilities catalog and threat actors chaining JFrog Artifactory vulnerabilities to deploy backdoors. A maximum-severity GitLab path traversal flaw (CVE-2026-85706) drew in-the-wild probes within hours of disclosure, while two critical Check Point VPN vulnerabilities face imminent exploitation per the Dutch NCSC. Cisco Secure Firewall Management Center flaws, including an authentication bypass (CVE-2026-20079), are being leveraged by three distinct threat clusters to steal credentials and deploy Qilin ransomware.
+Multiple critical vulnerabilities are under active exploitation across diverse technologies, with threat actors rapidly weaponizing flaws in enterprise software, AI platforms, and identity systems. China-aligned espionage group UNC3569 is exploiting CVE-2026-51990 in Tencent's Sogou Input Method to deploy the GrayRabbit backdoor, while Russian state-sponsored actors (GTG-20006/Midnight Blizzard) leverage Anthropic's Claude to rebuild malware and automate exploitation workflows. Simultaneously, financially motivated groups including ShinyHunters and Helix conduct passkey-themed phishing campaigns against Microsoft 365 environments, and ransomware operators chain JFrog Artifactory and Cisco FMC vulnerabilities to deploy backdoors and Qilin ransomware.
 
-Simultaneously, threat actors are weaponizing AI platforms at unprecedented scale. Russian state-sponsored group GTG-20006 uses Claude to rebuild malware post-detection, while seven China-based AI labs conduct industrial-scale distillation attacks. OpenAI agents orchestrated a RubyGems supply chain compromise achieving RCE, and financially motivated groups abuse Claude to extract secrets from 1.8 million Android apps. Passkey-themed phishing campaigns by ShinyHunters, Helix, and associated extortion gangs have compromised Microsoft 365 environments, with over one million fraud emails sent in a single campaign.
+CISA has added five actively exploited flaws to its KEV catalog spanning JFrog Artifactory, ConnectWise ScreenConnect, and MikroTik RouterOS, signaling broad targeting of supply chain and network infrastructure. GitLab's maximum-severity path traversal (CVE-2026-85706) drew in-the-wild probes within hours of disclosure, and Check Point VPN flaws (CVE-2026-85102, CVE-2026-85103) face imminent exploitation per the Dutch NCSC. PaperCut has issued maintenance releases replacing emergency patches for two actively exploited vulnerabilities, while a Florida DMV breach via stolen police credentials highlights persistent identity-based attack vectors.
 
-China-linked UNC3569 exploited a Sogou Input Method flaw to deploy the GRAYRABBIT backdoor, while GoldFactory abuses Android Work Profile for Gigabud Trojan delivery. PaperCut has replaced emergency patches for two actively exploited flaws, and the Florida DMV suffered a database breach via stolen law enforcement credentials. These developments signal a convergence of traditional vulnerability exploitation with AI-augmented attack chains, credential theft, and supply chain compromise.
+AI platforms have emerged as a significant attack surface, with Anthropic documenting industrial-scale abuse of Claude by seven China-based labs for model distillation, and by threat actors for automated exploitation, credential theft from 1.8 million Android apps, and malware redevelopment. The GoldFactory group exploits Android Work Profile features for banking trojan delivery in Indonesia, and Trezor customers face phishing at scale following a Brevo breach. These developments underscore a shift where AI both enables and becomes the target of sophisticated threat activity.
 
 ## Active Exploitation Details
 
-### CVE-2026-42016 - JFrog Artifactory Incorrect Authorization
-- **Description**: An incorrect authorization vulnerability in JFrog Artifactory that allows attackers to bypass access controls. CISA added this flaw to the KEV catalog following reports of active exploitation in the wild.
-- **Impact**: Attackers can bypass authentication and authorization controls to access or manipulate Artifactory repositories, potentially compromising software supply chains.
-- **Status**: Actively exploited in the wild; JFrog released fixes prior to observed attacks (August 15–September 8, 2026), but unpatched self-hosted servers remain vulnerable.
+### CVE-2026-51990 — Tencent Sogou Input Method for Windows
+- **Description**: Critical vulnerability in Tencent's Sogou Input Method for Windows, a widely used tool for typing Chinese characters. Exploitation begins with a crafted link and results in attacker ability to perform any action the logged-in user can perform.
+- **Impact**: Full user-context compromise leading to deployment of the GrayRabbit backdoor, providing persistent remote access and espionage capabilities.
+- **Status**: Actively exploited in the wild by China-linked threat actor UNC3569. Tencent owns Sogou; patch status not specified in source.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-51990
+- **Reporting**: [Bleeping Computer — Hackers exploit Tencent app flaw to deploy GrayRabbit malware](https://www.bleepingcomputer.com/news/security/hackers-exploit-tencent-app-flaw-to-deploy-grayrabbit-malware/), [The Hacker News — China-Linked UNC3569 Exploited Sogou Input Method Flaw to Deploy GRAYRABBIT Backdoor](https://thehackernews.com/2026/09/china-linked-unc3569-exploited-sogou.html)
+
+### CVE-2026-42016 — JFrog Artifactory Incorrect Authorization
+- **Description**: Incorrect authorization vulnerability in JFrog Artifactory (CVSS 8.1) allowing attackers to bypass authentication controls on self-hosted servers.
+- **Impact**: Authentication bypass enabling administrative privilege escalation and deployment of Rust-based backdoor malware on vulnerable self-hosted Artifactory instances.
+- **Status**: Actively exploited in the wild; added to CISA KEV catalog. JFrog released fixes prior to observed attack window (August 15–September 8, 2026).
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-42016
 - **Reporting**: [The Hacker News — CISA Adds 5 Actively Exploited Artifactory, ScreenConnect, and RouterOS Flaws to KEV](https://thehackernews.com/2026/09/cisa-adds-5-actively-exploited.html), [Bleeping Computer — Artifactory flaws chained in attacks deploying backdoor malware](https://www.bleepingcomputer.com/news/security/artifactory-flaws-chained-in-attacks-deploying-backdoor-malware/), [The Hacker News — Attackers Chain JFrog Artifactory Flaws to Gain Admin Control and Plant Backdoors](https://thehackernews.com/2026/09/attackers-chain-jfrog-artifactory-flaws.html)
 
-### CVE-2026-85102 - Check Point VPN Critical Flaw
-- **Description**: A critical vulnerability in Check Point VPN identified by the Dutch NCSC as having imminent exploitation risk. Specific technical details were not disclosed in the advisory.
-- **Impact**: Potential for remote compromise of VPN appliances, enabling network access, lateral movement, and data exfiltration.
-- **Status**: Exploitation assessed as imminent by Dutch NCSC; patches presumed available from vendor.
+### CVE-2026-85102 — Check Point VPN Flaw
+- **Description**: Critical vulnerability in Check Point VPN tracked by the Dutch NCSC as one of two flaws with imminent exploitation risk.
+- **Impact**: Potential for remote compromise of VPN infrastructure, enabling network access and lateral movement.
+- **Status**: Exploitation assessed as imminent by Dutch NCSC; no confirmed active exploitation reported at time of warning.
 - **Severity**: critical
 - **Exploitation Status**: potential
 - **Action**: patch
 - **CVE IDs**: CVE-2026-85102
 - **Reporting**: [Bleeping Computer — Dutch NCSC: Critical Check Point VPN flaws exploitation is imminent](https://www.bleepingcomputer.com/news/security/dutch-ncsc-critical-check-point-vpn-flaws-exploitation-is-imminent/)
 
-### CVE-2026-85103 - Check Point VPN Critical Flaw
-- **Description**: A second critical vulnerability in Check Point VPN identified by the Dutch NCSC as having imminent exploitation risk. Specific technical details were not disclosed in the advisory.
-- **Impact**: Potential for remote compromise of VPN appliances, enabling network access, lateral movement, and data exfiltration.
-- **Status**: Exploitation assessed as imminent by Dutch NCSC; patches presumed available from vendor.
+### CVE-2026-85103 — Check Point VPN Flaw
+- **Description**: Second critical vulnerability in Check Point VPN identified by Dutch NCSC with imminent exploitation risk.
+- **Impact**: Potential for remote compromise of VPN infrastructure, enabling network access and lateral movement.
+- **Status**: Exploitation assessed as imminent by Dutch NCSC; no confirmed active exploitation reported at time of warning.
 - **Severity**: critical
 - **Exploitation Status**: potential
 - **Action**: patch
 - **CVE IDs**: CVE-2026-85103
 - **Reporting**: [Bleeping Computer — Dutch NCSC: Critical Check Point VPN flaws exploitation is imminent](https://www.bleepingcomputer.com/news/security/dutch-ncsc-critical-check-point-vpn-flaws-exploitation-is-imminent/)
 
-### CVE-2026-85706 - GitLab Path Traversal File Read
-- **Description**: A maximum-severity path traversal vulnerability in the GitLab repository commits API that allows unauthenticated users to read arbitrary files from the GitLab server. CVSS 10.0.
-- **Impact**: Unauthenticated remote attackers can read sensitive files including configuration, secrets, source code, and system files, leading to full server compromise.
-- **Status**: In-the-wild probes observed within hours of public disclosure; GitLab released patches and urged immediate updating.
+### CVE-2026-85706 — GitLab Path Traversal in Repository Commits API
+- **Description**: Maximum-severity path traversal vulnerability (CVSS 10.0) in GitLab's repository commits API allowing unauthenticated users to read arbitrary files from the GitLab server.
+- **Impact**: Unauthenticated sensitive file disclosure including potentially source code, configuration files, and secrets on self-hosted GitLab instances.
+- **Status**: In-the-wild probes observed within hours of public disclosure. GitLab released patches and urges immediate updating.
 - **Severity**: critical
 - **Exploitation Status**: observed
 - **Action**: patch
 - **CVE IDs**: CVE-2026-85706
 - **Reporting**: [The Hacker News — GitLab CVSS 10 File-Read Flaw Draws In-the-Wild Probes After Disclosure](https://thehackernews.com/2026/09/gitlab-cvss-10-file-read-flaw-draws-in.html), [Bleeping Computer — GitLab urges users to patch max severity path traversal flaw](https://www.bleepingcomputer.com/news/security/gitlab-urges-users-to-patch-max-severity-path-traversal-flaw/)
 
-### CVE-2026-20079 - Cisco Secure Firewall Management Center Authentication Bypass
-- **Description**: An authentication bypass vulnerability in the web interface of Cisco Secure Firewall Management Center (FMC) software that allows unauthenticated remote attackers to bypass authentication. CVSS 10.0.
-- **Impact**: Attackers gain administrative access to FMC, enabling credential theft, configuration manipulation, and deployment of ransomware (Qilin observed).
-- **Status**: Actively exploited by three distinct threat clusters linked to ransomware and state-sponsored operations.
+### CVE-2026-20079 — Cisco Secure Firewall Management Center Authentication Bypass
+- **Description**: Authentication bypass vulnerability (CVSS 10.0) in the web interface of Cisco Secure Firewall Management Center (FMC) software allowing unauthenticated remote attackers to bypass authentication.
+- **Impact**: Full administrative access to FMC, credential theft, and deployment of Qilin ransomware. Exploited by three distinct threat clusters linked to ransomware and state-sponsored operations.
+- **Status**: Actively exploited in the wild against recently patched vulnerabilities. Cisco disclosed active exploitation by multiple threat groups.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-20079
 - **Reporting**: [The Hacker News — Cisco FMC Flaws Exploited to Steal Credentials and Deploy Qilin Ransomware](https://thehackernews.com/2026/09/cisco-fmc-flaws-exploited-to-steal.html)
 
-### JFrog Artifactory Chained Vulnerabilities (Additional Flaws)
-- **Description**: Attackers are chaining two critical and high-severity vulnerabilities in JFrog Artifactory to bypass authentication, escalate to administrative privileges, and deploy a Rust-based backdoor on self-hosted servers. JFrog fixed both flaws before the observed attack window (August 15–September 8, 2026).
-- **Impact**: Full administrative control of Artifactory servers, persistent backdoor access, and potential software supply chain poisoning.
-- **Status**: Actively exploited in the wild against unpatched self-hosted instances; patches available.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — Artifactory flaws chained in attacks deploying backdoor malware](https://www.bleepingcomputer.com/news/security/artifactory-flaws-chained-in-attacks-deploying-backdoor-malware/), [The Hacker News — Attackers Chain JFrog Artifactory Flaws to Gain Admin Control and Plant Backdoors](https://thehackernews.com/2026/09/attackers-chain-jfrog-artifactory-flaws.html)
-
 ### PaperCut NG/MF Actively Exploited Flaws (Two Vulnerabilities)
-- **Description**: Two security flaws in PaperCut NG/MF that have come under active exploitation, prompting the vendor to release emergency patches followed by regular maintenance releases (versions 26.0.5, 25.0.13, 24.1.10).
-- **Impact**: Exploitation details not fully disclosed; active exploitation confirmed by vendor.
-- **Status**: Actively exploited; maintenance releases with fixes now available.
-- **Severity**: unknown
+- **Description**: Two security flaws in PaperCut NG/MF print management software that have come under active exploitation, prompting emergency patches now replaced by regular maintenance releases.
+- **Impact**: Active exploitation enabling compromise of print management infrastructure; specific technical impact not detailed in source.
+- **Status**: Actively exploited; PaperCut released maintenance releases versions 26.0.5, 25.0.13, and 24.1.10 replacing prior emergency patches.
+- **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [The Hacker News — PaperCut Replaces Emergency Patches With Fixes for Two Actively Exploited Flaws](https://thehackernews.com/2026/09/papercut-replaces-emergency-patches.html)
 
-### Sogou Input Method Flaw Exploited by UNC3569
-- **Description**: A vulnerability in Sogou Input Method, a widely used Chinese character input tool for Windows, exploited via a crafted link to achieve code execution with the logged-in user's privileges.
-- **Impact**: Attackers gain full user-level control, used to deploy the GRAYRABBIT backdoor for persistent access.
-- **Status**: Actively exploited by China-linked threat group UNC3569; patch status unclear from reporting.
-- **Severity**: unknown
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — China-Linked UNC3569 Exploited Sogou Input Method Flaw to Deploy GRAYRABBIT Backdoor](https://thehackernews.com/2026/09/china-linked-unc3569-exploited-sogou.html)
-
-### Passkey-Themed Phishing Campaigns Targeting Microsoft 365
-- **Description**: Threat actors linked to ShinyHunters, Helix, and other extortion gangs are conducting large-scale passkey and single sign-on-themed social engineering attacks to compromise corporate Microsoft accounts and exfiltrate Microsoft 365 data. Over one million scam emails sent in a single campaign (August 3–5, 2026) using abused third-party email delivery infrastructure.
-- **Impact**: Account takeover, data theft from Microsoft 365 services (Exchange, OneDrive, SharePoint), and potential business email compromise.
-- **Status**: Active campaigns observed; no software vulnerability—relies on social engineering and phishing infrastructure abuse.
-- **Severity**: unknown
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [The Hacker News — Attackers Use Passkey Phishing to Hijack Microsoft Cloud Accounts and Exfiltrate Data](https://thehackernews.com/2026/09/attackers-use-passkey-phishing-to.html), [Bleeping Computer — Passkey-themed phishing attacks lead to Microsoft 365 data theft](https://www.bleepingcomputer.com/news/security/passkey-themed-phishing-attacks-lead-to-microsoft-365-data-theft/)
-
-### AI Model Abuse for Automated Exploitation and Data Theft
-- **Description**: Multiple threat groups—including state-sponsored actors from Russia and China, financially motivated criminals, and commercial entities—are abusing Anthropic's Claude and OpenAI models to automate vulnerability exploitation, extract secrets from 1.8 million Android apps, rebuild malware to evade detection, conduct industrial-scale model distillation, and orchestrate supply chain attacks (RubyGems/RubyDoc RCE via OpenAI agents).
-- **Impact**: Accelerated exploit development, massive credential/secret harvesting, malware polymorphism, supply chain compromise, and IP theft via model distillation.
-- **Status**: Ongoing activity observed December 2025–August 2026; Anthropic disrupted some operations (GTG-20006, seven China-based labs).
-- **Severity**: unknown
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [Bleeping Computer — Hackers abused Claude to extract secrets from 1.8M Android apps](https://www.bleepingcomputer.com/news/security/hackers-abused-claude-to-extract-secrets-from-18m-android-apps/), [The Hacker News — Claude Used to Automate Exploitation and Data Theft Across Multiple Victims](https://thehackernews.com/2026/09/claude-used-to-automate-exploitation.html), [The Hacker News — Russian State-Sponsored Hackers Use Claude to Rebuild Malware After Detection](https://thehackernews.com/2026/09/russian-state-sponsored-hackers-use.html), [The Hacker News — Anthropic Says Seven China-Based AI Labs Ran Industrial-Scale Claude Distillation Attacks](https://thehackernews.com/2026/09/anthropic-says-seven-china-based-ai.html), [The Hacker News — OpenAI Agents Linked to RubyGems Campaign That Gained RCE on RubyDoc Servers](https://thehackernews.com/2026/09/openai-agents-linked-to-rubygems.html)
-
-### Cisco FMC Second Vulnerability (Unnamed)
-- **Description**: A second recently patched vulnerability in Cisco Secure Firewall Management Center exploited alongside CVE-2026-20079 by three threat clusters. Specific CVE identifier not disclosed in reporting.
-- **Impact**: Contributes to authentication bypass, credential theft, and Qilin ransomware deployment when chained with CVE-2026-20079.
-- **Status**: Actively exploited in conjunction with CVE-2026-20079; patch available per Cisco disclosure.
-- **Severity**: unknown
+### JFrog Artifactory Chained Vulnerabilities (Second Flaw)
+- **Description**: Second vulnerability in JFrog Artifactory chained with CVE-2026-42016 to achieve administrative control and deploy backdoors on self-hosted servers. JFrog fixed both flaws before the observed attack window (August 15–September 8, 2026).
+- **Impact**: Combined with CVE-2026-42016 to bypass authentication, gain admin privileges, and plant Rust backdoor malware.
+- **Status**: Actively exploited in chained attacks; only unpatched servers were vulnerable during the observed campaign.
+- **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
-- **Reporting**: [The Hacker News — Cisco FMC Flaws Exploited to Steal Credentials and Deploy Qilin Ransomware](https://thehackernews.com/2026/09/cisco-fmc-flaws-exploited-to-steal.html)
-
-### Android Work Profile Abuse - GoldFactory/Gigabud Campaign
-- **Description**: The GoldFactory threat group exploits the Android Work Profile feature to deliver the Gigabud banking Trojan in a targeted campaign against Indonesian users.
-- **Impact**: Financial credential theft, device control, and banking fraud via malicious Work Profile configuration.
-- **Status**: Active campaign observed in Indonesia; no CVE—abuses legitimate Android feature.
-- **Severity**: unknown
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [Dark Reading — Indonesia Hit by Android Banking App-Cloning Campaign](https://www.darkreading.com/mobile-security/indonesia-android-banking-app-cloning-campaign)
-
-### Mantax Otax Android Malware
-- **Description**: A new Android malware strain combining ransomware and spyware capabilities—encrypting files, stealing sensitive data, and harassing victims via spam/notifications.
-- **Impact**: Data encryption, credential/data exfiltration, user harassment, and potential financial extortion.
-- **Status**: Active distribution observed; no CVE—malware behavior, not vulnerability exploitation.
-- **Severity**: unknown
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — New Android malware encrypts files, steals data, and harasses victims](https://www.bleepingcomputer.com/news/security/new-android-malware-encrypts-files-steals-data-and-harasses-victims/)
-
-### Florida DMV Database Breach via Stolen Credentials
-- **Description**: Attackers accessed the Florida DAVID driver database using credentials belonging to a police department employee, resulting in a confirmed data breach.
-- **Impact**: Exposure of driver license records and personally identifiable information; highlights risk of credential reuse and third-party access.
-- **Status**: Breach confirmed; active investigation; no software vulnerability exploited.
-- **Severity**: unknown
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Florida confirms DMV database breached via stolen police account](https://www.bleepingcomputer.com/news/security/florida-confirms-dmv-database-breached-via-stolen-police-account/)
-
-### Trezor Phishing Campaign Post-Brevo Breach
-- **Description**: Following a breach of email marketing provider Brevo, phishing campaigns targeted 347,000 Trezor hardware wallet users, with 2,500 clicking malicious links.
-- **Impact**: Credential theft, potential cryptocurrency wallet compromise, and financial loss for affected users.
-- **Status**: Active phishing campaign leveraging breached contact data; no software vulnerability in Trezor itself.
-- **Severity**: unknown
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [Bleeping Computer — Trezor: 347,000 users targeted in phishing attacks after Brevo breach](https://www.bleepingcomputer.com/news/security/trezor-347-000-users-targeted-in-phishing-attacks-after-brevo-breach/)
+- **Reporting**: [The Hacker News — Attackers Chain JFrog Artifactory Flaws to Gain Admin Control and Plant Backdoors](https://thehackernews.com/2026/09/attackers-chain-jfrog-artifactory-flaws.html), [Bleeping Computer — Artifactory flaws chained in attacks deploying backdoor malware](https://www.bleepingcomputer.com/news/security/artifactory-flaws-chained-in-attacks-deploying-backdoor-malware/)
 
 ## Affected Systems and Products
 
-- **JFrog Artifactory (Self-Hosted)**: Versions prior to security fixes released before August 15, 2026; critical/high-severity flaws chained for admin bypass and backdoor deployment.
-- **ConnectWise ScreenConnect**: Specific versions affected by one of five CISA KEV additions (CVE not individually named in reporting).
-- **MikroTik RouterOS**: Specific versions affected by one of five CISA KEV additions (CVE not individually named in reporting).
-- **Check Point VPN**: Appliances vulnerable to CVE-2026-85102 and CVE-2026-85103; exploitation assessed as imminent by Dutch NCSC.
-- **GitLab (Self-Hosted)**: All versions prior to patched releases for CVE-2026-85706 (path traversal in repository commits API); unauthenticated file read.
-- **Cisco Secure Firewall Management Center (FMC)**: Versions vulnerable to CVE-2026-20079 (authentication bypass) and a second unnamed flaw; exploited for credential theft and Qilin ransomware.
-- **PaperCut NG/MF**: Versions prior to 26.0.5, 25.0.13, and 24.1.10; two actively exploited flaws addressed in maintenance releases.
-- **Sogou Input Method (Windows)**: Versions containing the flaw exploited by UNC3569; widely deployed Chinese IME on Windows endpoints.
-- **Microsoft 365 / Microsoft Cloud**: Targeted via passkey/SSO-themed phishing; no product vulnerability—identity and email infrastructure abused.
-- **RubyGems / RubyDoc**: Supply chain compromise via malicious packages; RCE achieved on RubyDoc servers via OpenAI agent orchestration.
-- **Android Platform**: Work Profile feature abused for Gigabud Trojan delivery; 1.8M apps scanned for secrets via Claude API abuse; Mantax Otax malware distribution.
-- **Anthropic Claude / OpenAI Platforms**: Abused by threat actors (GTGs) for exploit automation, malware development, distillation attacks, and secret extraction.
-- **Florida DAVID Database**: Compromised via stolen law enforcement credentials; Florida Department of Highway Safety and Motor Vehicles.
-- **Trezor Hardware Wallets (Users)**: 347,000 users targeted via phishing using contact data from Brevo breach; no device firmware vulnerability.
+- **Tencent Sogou Input Method for Windows**: All versions vulnerable to CVE-2026-51990; widely deployed Chinese character input tool on Windows endpoints.
+- **JFrog Artifactory (Self-Hosted)**: Versions prior to fixes for CVE-2026-42016 and the second chained flaw; repository servers used in software build pipelines.
+- **Check Point VPN**: Versions affected by CVE-2026-85102 and CVE-2026-85103; enterprise remote access VPN appliances and software.
+- **GitLab (Self-Hosted)**: All versions prior to patched releases for CVE-2026-85706; repository commits API exposed to unauthenticated file read.
+- **Cisco Secure Firewall Management Center (FMC)**: Versions vulnerable to CVE-2026-20079 and a second unnamed FMC flaw; centralized management for Cisco firewall deployments.
+- **PaperCut NG/MF**: Versions prior to 26.0.5, 25.0.13, and 24.1.10; print management software deployed across enterprise and education environments.
+- **Microsoft 365 / Microsoft Cloud**: Targeted via passkey-themed phishing and SSO social engineering; no software flaw, identity-focused attack surface.
+- **Android Applications / Google Play Ecosystem**: 1.8 million Android apps analyzed via abused Claude AI for secret extraction; Android Work Profile feature abused by GoldFactory for Gigabud Trojan delivery in Indonesia.
+- **Trezor Hardware Wallet Users**: 347,000 email addresses targeted in phishing campaign following Brevo breach; 2,500 users clicked malicious links.
+- **Florida DAVID Driver Database**: Breached via stolen law enforcement credentials; identity-based access to driver license records.
+- **Anthropic Claude AI Platform**: Abused by multiple threat groups for automated exploitation, malware development, credential theft, and model distillation attacks.
 
 ## Attack Vectors and Techniques
 
-- **Passkey/SSO-Themed Social Engineering**: Attackers craft phishing emails mimicking passkey enrollment or single sign-on prompts to harvest Microsoft 365 credentials, leveraging abused third-party email delivery services for scale (1M+ emails in 3 days).
-- **Vulnerability Chaining**: JFrog Artifactory flaws chained to bypass authentication → gain admin rights → deploy persistent Rust backdoor; Cisco FMC flaws chained for authentication bypass → credential theft → Qilin ransomware deployment.
-- **AI-Augmented Exploitation**: Threat actors use Claude and OpenAI agents to automate vulnerability discovery, exploit development, malware rewriting for evasion, secret extraction at scale (1.8M Android apps), and supply chain attack orchestration (RubyGems).
-- **Model Distillation Attacks**: Seven China-based AI labs conduct industrial-scale illicit distillation of Claude, extracting model capabilities for unauthorized use—blurring line between ML technique and IP theft.
-- **Supply Chain Compromise**: OpenAI agents deployed malicious packages to RubyGems, achieving RCE on RubyDoc servers; demonstrates AI-agent-driven software supply chain poisoning.
-- **Legitimate Feature Abuse**: Android Work Profile (enterprise feature) repurposed by GoldFactory to sideload Gigabud banking Trojan without user interaction beyond profile installation.
-- **Credential Theft and Reuse**: Stolen police employee credentials used to breach Florida DMV database; Brevo breach data reused for targeted Trezor phishing (347K emails).
-- **Unauthenticated File Read / Path Traversal**: GitLab CVE-2026-85706 allows reading arbitrary server files via repository commits API without authentication.
-- **Authentication Bypass**: Cisco FMC CVE-2026-20079 and JFrog Artifactory flaws enable unauthenticated administrative access to critical infrastructure.
-- **VPN Appliance Targeting**: Check Point VPN critical flaws (CVE-2026-85102/85103) represent high-value targets for initial network access; exploitation deemed imminent.
+- **Passkey-Themed Phishing & SSO Social Engineering**: Attackers send fraudulent emails masquerading as executives or passkey/SSO prompts to harvest Microsoft 365 credentials and bypass MFA. Over 1 million scam emails sent in a single campaign (Aug 3–5, 2026) using third-party email delivery infrastructure.
+- **Crafted Link / Drive-by Exploitation**: UNC3569 delivers GrayRabbit via malicious link exploiting Sogou Input Method flaw, achieving user-context code execution without authentication.
+- **Vulnerability Chaining**: Attackers chain two JFrog Artifactory flaws (CVE-2026-42016 + unnamed) to bypass auth, escalate to admin, and deploy Rust backdoor. Cisco FMC flaws similarly exploited in combination for credential theft and Qilin ransomware deployment.
+- **AI-Assisted Exploitation & Malware Development**: Threat actors (GTGs including GTG-20006) use Claude to automate vulnerability discovery, exploit development, malware rewriting post-detection, and mass credential extraction from 1.8M Android apps. Seven China-based labs conduct industrial-scale model distillation attacks against Claude.
+- **Supply Chain / Package Manager Compromise**: OpenAI agents orchestrated RubyGems campaign achieving RCE on RubyDoc servers (May 2026), demonstrating AI-driven software supply chain attacks.
+- **Stolen Credentials / Identity Theft**: Florida DMV breach via compromised police account; Trezor phishing leveraging Brevo breach data; Cisco FMC credential theft post-exploitation.
+- **Android Work Profile Abuse**: GoldFactory exploits Android's Work Profile feature to deliver Gigabud banking trojan; Mantax/Otax campaigns operate separately in Indonesia.
+- **AI Platform Weaponization**: Threat actors host malicious content on trusted AI platforms, poison search results, weaponize Claude Artifacts and shared conversations, and use ClickFix-style lures to trick users into installing malware.
+- **Rapid Post-Disclosure Probing**: GitLab CVE-2026-85706 probed in-the-wild within hours of public disclosure, highlighting near-instant weaponization of critical flaws.
 
 ## Threat Actor Activities
 
-- **ShinyHunters / Helix / Extortion Gangs**: Conducting large-scale passkey-themed phishing campaigns against Microsoft 365 tenants; over 1M emails in single campaign; data theft and extortion focus.
-- **UNC3569 (China-Linked)**: Exploited Sogou Input Method flaw via crafted links to deploy GRAYRABBIT backdoor; targets Windows users in Chinese-speaking regions; espionage-oriented.
-- **GTG-20006 (Russian State-Sponsored, aligns with Midnight)**: Abuses Claude for AI-assisted malware rebuild workflow to evade detection; part of broader Anthropic-identified Generative Threat Groups (GTGs).
-- **Seven China-Based AI Labs (Alibaba, Moonshot, DeepSeek, Z.ai/Zhipu, MiniMax)**: Conducted industrial-scale illicit distillation attacks against Claude; disrupted by Anthropic; represents state-linked AI IP theft.
-- **GoldFactory**: Deploys Gigabud banking Trojan via Android Work Profile abuse in targeted Indonesian campaign; financially motivated mobile threat actor.
-- **Mantax Otax Operators**: Distributes hybrid ransomware/spyware Android malware; encrypts files, steals data, harasses victims; financially motivated.
-- **Three Distinct Threat Clusters (Ransomware + State-Sponsored)**: Exploiting Cisco FMC flaws (CVE-2026-20079 + unnamed) for credential theft and Qilin ransomware deployment; mixed motivation set.
-- **Wiz-Observed Artifactory Attackers**: Chained two Artifactory flaws (Aug 15–Sep 8, 2026) to gain admin control and plant Rust backdoors on unpatched self-hosted servers; financially motivated or supply chain focused.
-- **OpenAI Agent Swarm (RubyGems Campaign)**: Autonomous agent swarm orchestrated May 2026 RubyGems supply chain attack achieving RCE on RubyDoc servers; novel AI-driven offensive capability.
-- **Florida DMV Breach Actors**: Leveraged stolen police department credentials to access DAVID driver database; attribution unknown; credential-theft-driven data breach.
-- **Trezor Phishing Actors**: Leveraged Brevo breach contact data (347K emails) for targeted cryptocurrency phishing; 2,500 victims clicked; financially motivated.
+- **UNC3569 (China-Linked Espionage)**: Exploited CVE-2026-51990 in Sogou Input Method to deploy GRAYRABBIT backdoor; attributed by Gen Digital research. Targets Windows endpoints in espionage operations.
+- **GTG-20006 / Midnight Blizzard (Russian State-Sponsored)**: Abused Claude for AI-assisted malware redevelopment workflow to evade detection; aligns with broader Midnight Blizzard (APT29/Cozy Bear) attribution per Anthropic.
+- **ShinyHunters & Helix (Financially Motivated Extortion Gangs)**: Conduct passkey-themed phishing against Microsoft 365 environments for data theft and extortion; linked by Microsoft to credential harvesting and cloud data exfiltration campaigns.
+- **Qilin Ransomware Operators (Multiple Threat Clusters)**: Three distinct clusters exploiting Cisco FMC flaws (CVE-2026-20079 + second flaw) to steal credentials and deploy Qilin ransomware; includes both ransomware and state-sponsored groups per Cisco.
+- **GoldFactory (APT/Financially Motivated)**: Exploits Android Work Profile to deliver Gigabud banking trojan in Indonesia; active mobile banking fraud campaign.
+- **Seven China-Based AI Labs (Alibaba, Moonshot, DeepSeek, Z.ai/Zhipu, MiniMax, plus two unnamed)**: Conducted industrial-scale illicit distillation attacks against Anthropic's Claude; identified and disrupted by Anthropic.
+- **Generative Threat Groups (GTGs) — Broad Category**: Anthropic-tracked clusters spanning state-sponsored, financially motivated, and commercial actors using Claude for cyber attacks, weapons design, propaganda, and mass surveillance (Dec 2025–Aug 2026).
+- **OpenAI Agent Swarm Operators**: Orchestrated May 2026 RubyGems supply chain attack achieving RCE on RubyDoc servers; demonstrates AI-agent-driven offensive automation.
+- **Conti Ransomware Gang (Historical)**: Ukrainian national sentenced to 4 years for 2021–2022 Conti operations; reflects law enforcement outcomes for prior ransomware activity.
+- **Unknown Actors — Florida DMV Breach**: Compromised police department credentials to access DAVID driver database; attribution not specified.
+- **Unknown Actors — Trezor Phishing Post-Brevo**: Leveraged Brevo breach data to target 347,000 Trezor users; 2,500 clicked malicious links; operator identity not disclosed.
