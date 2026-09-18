@@ -1,154 +1,209 @@
 ---
 schema_version: 2
 report_date: 2026-09-18
-generated_at: 2026-09-18T10:58:24Z
+generated_at: 2026-09-18T16:15:59Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-18/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-A critical Cisco Identity Services Engine zero-day (CVE-2026-76460) with a maximum CVSS 10.0 score is under active exploitation in the wild, allowing unauthenticated remote attackers to bypass authentication on a core network access control platform. Cisco has released emergency patches, and organizations running ISE must prioritize immediate updating. Simultaneously, supply-chain attacks have surged: the Brevo marketing platform compromise injected ClickFix malware delivery scripts onto customer websites via a stolen Cloudflare API key, while 13 malicious npm packages distributed the novel WeaselBiscuit stealer targeting Chrome extension storage, and a separate PhantomRaven npm stealer was likely authored with LLM assistance. On the infrastructure front, a critical Docker Sandboxes escape (CVE-2026-77179) on macOS and a critical Unbound DNS resolver heap overflow (CVE-2026-81642) enable remote code execution, though active exploitation has not been confirmed for either.
+Multiple active exploitation campaigns are underway across diverse attack surfaces, from supply-chain compromises and infrastructure vulnerabilities to AI-powered malware and state-sponsored espionage. The most impactful incident involves the confirmed breach of Gyazo's image-sharing platform, where a server vulnerability was exploited to exfiltrate 23.6 million user records. Simultaneously, a supply-chain attack against Brevo resulted in malicious ClickFix scripts being injected into customer sites via a compromised Cloudflare API key, distributing malware to downstream victims.
 
-Nation-state activity remains intense. The China-aligned FamousSparrow APT has deployed the previously unknown modular C++ backdoor SparroWocky against government targets across Latin America since at least August 2025. Iran-linked hacktivist persona Handala Hack operates the HEAVYGRAM Telegram backdoor and CRUDEEXCLUDE utility for surveillance, credential theft, and DLL sideloading. The DPRK-continued Contagious Interview campaign now leverages the WeaselBiscuit stealer, showing functional overlap with BeaverTail. Meanwhile, the RatHat Android malware—attributed to China-based actors—uses an AI-powered subsystem to automate device control and abuses ADB to persist shell access even after uninstallation, delivered via smishing and malvertising.
+State-aligned threat actors continue aggressive operations: Pakistan-linked Transparent Tribe (APT36) is deploying novel Rust-based backdoors against government and defense targets in India and Afghanistan, while China-linked FamousSparrow conducts political espionage in Latin America and Iran-linked Handala Hack operates the HEAVYGRAM Telegram backdoor for surveillance. On the cybercrime front, multiple infostealer campaigns—Rapuncel via fake GitHub repositories, WeaselBiscuit through 13 malicious npm packages, and PhantomRaven likely built with LLM assistance—are actively harvesting credentials and browser data. Emerging threats include AI-driven attacks, with a confirmed breach of a Spanish organization by an AI agent that modified personal data, and RatHat Android malware using AI to automate device control via ADB persistence.
+
+Critical vulnerabilities have been disclosed in foundational infrastructure: a CVSS 10.0 flaw in Azure AI Foundry (CVE-2026-85889), a critical heap overflow in Unbound's DNSSEC validator (CVE-2026-81642), a critical Docker Sandboxes escape on macOS (CVE-2026-77179), and a critical Check Point Management Server flaw allowing unauthenticated root code execution. While patches exist for all four, only the Check Point flaw has explicit confirmation of no observed wild exploitation; the others lack exploitation status reporting. An abandoned CDN domain re-registration affects thousands of sites still referencing it, creating a latent supply-chain risk.
 
 ## Active Exploitation Details
 
-### Cisco ISE Authentication Bypass Zero-Day
-- **Description**: A maximum-severity authentication bypass vulnerability in Cisco Identity Services Engine (ISE) caused by insufficient authentication control on an API endpoint. An unauthenticated, remote attacker can bypass authentication entirely and gain access to the ISE administration interface.
-- **Impact**: Full administrative control over the Identity Services Engine, which governs network access policies, guest access, device profiling, and policy enforcement across the enterprise network. Attackers can manipulate authentication policies, create rogue admin accounts, and pivot to connected network segments.
-- **Status**: Actively exploited in the wild. Cisco has released security updates addressing the flaw.
+### Gyazo Server Vulnerability
+- **Description**: A server-side vulnerability in the Gyazo image-sharing platform was exploited by attackers to gain unauthorized access to user databases, resulting in the theft of 23.6 million user records.
+- **Impact**: Attackers obtained 23.6 million user records, likely including account credentials, email addresses, and associated metadata.
+- **Status**: Actively exploited; breach confirmed by Gyazo. Patch or mitigation status not specified in reporting.
 - **Severity**: critical
 - **Exploitation Status**: active
-- **Action**: patch
-- **CVE IDs**: CVE-2026-76460
-- **Reporting**: [Bleeping Computer — Cisco warns of max severity ISE zero-day exploited in attacks](https://www.bleepingcomputer.com/news/security/cisco-warns-of-identity-service-engine-zero-day-exploited-in-attacks/), [The Hacker News — Cisco Warns of New Zero-Day ISE Auth Bypass (CVSS 10.0) Exploited in Active Attacks](https://thehackernews.com/2026/09/cisco-warns-of-new-zero-day-ise-auth.html)
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Gyazo server flaw exploited to steal 23.6 million user records](https://www.bleepingcomputer.com/news/security/gyazo-server-flaw-exploited-to-steal-236-million-user-records/)
 
-### WeaselBiscuit Stealer npm Supply-Chain Campaign
-- **Description**: A cluster of 13 malicious npm packages distributing a previously undocumented JavaScript information stealer codenamed WeaselBiscuit. The malware specifically targets Chrome extension storage to harvest credentials, session tokens, and other sensitive data. Functional overlaps exist with BeaverTail malware associated with the DPRK's Contagious Interview campaign.
-- **Impact**: Theft of browser-stored credentials, session cookies, cryptocurrency wallet data, and extension-specific secrets from developers and users who install the compromised packages. Potential lateral movement into development environments and CI/CD pipelines.
-- **Status**: Active distribution via npm registry. Packages have been identified and reported; removal status varies.
+### Brevo Supply-Chain Attack (ClickFix Injection)
+- **Description**: Attackers stole a Cloudflare API key from Brevo and used it to inject malicious ClickFix scripts into Brevo's websites and JavaScript files embedded on customer sites, creating a supply-chain malware distribution vector.
+- **Impact**: Malware distribution to visitors of Brevo customer sites; compromise of the software supply chain via trusted third-party JavaScript.
+- **Status**: Active attack confirmed by Brevo; Cloudflare API key compromised and used for script injection.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Brevo supply-chain attack injected ClickFix scripts on customer sites](https://www.bleepingcomputer.com/news/security/brevo-supply-chain-attack-injected-clickfix-scripts-on-customer-sites/)
+
+### Transparent Tribe Rust Backdoor Campaign (Operation RUSTYSHADE)
+- **Description**: Pakistan-aligned APT group Transparent Tribe (APT36/Earth Karkaddan) deploys previously undocumented Rust-based tools—RUSTYSHADE, RUSTYMOVE, PSNATCH, and BASHNATCH—using private GitHub repositories for command-and-control infrastructure.
+- **Impact**: Persistent access to government and defense entities in India and Afghanistan; credential theft, file exfiltration, and lateral movement capabilities.
+- **Status**: Active campaign attributed by Zscaler ThreatLabz; novel toolset observed in recent attacks.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [The Hacker News — Transparent Tribe Deploys New Rust Backdoor Using Private GitHub Repositories for C2](https://thehackernews.com/2026/09/transparent-tribe-deploys-new-rust.html)
+
+### Rapuncel Infostealer Campaign (Fake GitHub Repositories)
+- **Description**: An ongoing malware campaign uses SEO-optimized GitHub repositories impersonating legitimate software firms (including LastPass Authenticator) to distribute a previously undocumented information stealer named Rapuncel.
+- **Impact**: Credential theft, browser data harvesting, and potential compromise of developer and end-user systems via trusted platform abuse.
+- **Status**: Active distribution via GitHub; campaign ongoing at time of reporting.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [Bleeping Computer — Fake LastPass Authenticator GitHub repos push new Rapuncel infostealer](https://www.bleepingcomputer.com/news/security/fake-lastpass-authenticator-github-repos-push-new-rapuncel-infostealer/)
+
+### WeaselBiscuit npm Supply-Chain Campaign
+- **Description**: A cluster of 13 malicious npm packages delivers the WeaselBiscuit JavaScript stealer, which harvests Chrome extension storage data. The malware shows functional overlaps with DPRK-linked Contagious Interview campaign tools (BeaverTail, etc.).
+- **Impact**: Theft of Chrome extension storage data, including potential credentials and session tokens; supply-chain risk for developers installing compromised packages.
+- **Status**: 13 packages identified and reported by OpenSourceMalware; active distribution via npm registry.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [The Hacker News — WeaselBiscuit Stealer Spreads via 13 npm Packages to Harvest Chrome Extension Storage](https://thehackernews.com/2026/09/weaselbiscuit-stealer-spreads-via-13.html)
 
-### PhantomRaven npm Stealer Campaign
-- **Description**: A JavaScript-based information stealer distributed via the npm package registry by a financially motivated threat actor assessed to have used a large language model (LLM) to author the malware, evidenced by verbose comments, placeholder code, and statistical token-analysis patterns.
-- **Impact**: Credential theft, exfiltration of environment variables, and potential compromise of development workflows for any project installing the malicious packages.
-- **Status**: Active distribution via npm. Attribution to a claimed bug bounty hunter persona.
+### PhantomRaven npm Stealer
+- **Description**: A financially motivated threat actor distributes the PhantomRaven JavaScript information stealer via the npm package registry. Code analysis suggests the malware was likely authored with LLM assistance based on verbose comments, placeholder code, and token patterns.
+- **Impact**: Information stealing from compromised development environments and downstream applications; demonstrates LLM-assisted malware development.
+- **Status**: Active distribution via npm; attributed to a claimed bug bounty hunter.
 - **Severity**: high
 - **Exploitation Status**: active
-- **Action**: investigate
+- **Action**: monitor
 - **Reporting**: [The Hacker News — Claimed Bug Bounty Hunter Likely Used LLM to Build PhantomRaven npm Stealer](https://thehackernews.com/2026/09/claimed-bug-bounty-hunter-likely-used.html)
 
-### Brevo Supply-Chain ClickFix Injection
-- **Description**: Attackers compromised a Cloudflare API key belonging to Brevo (marketing/email platform) and used it to inject malicious ClickFix scripts into Brevo's websites and JavaScript files embedded on customer sites. The ClickFix technique tricks users into executing malicious PowerShell commands via fake verification dialogs.
-- **Impact**: Malware distribution to visitors of Brevo customer websites. The supply-chain nature amplifies impact across an unknown number of downstream sites. ClickFix leads to information stealer and loader deployment.
-- **Status**: Active campaign confirmed by Brevo. Cloudflare API key rotated; injected scripts removed.
+### RatHat Android Malware Campaign
+- **Description**: China-linked threat actors distribute RatHat Android malware via targeted smishing and malvertising campaigns leading to deceptive third-party download portals. The malware features an AI-powered subsystem for automated device navigation and control, and abuses ADB to retain shell access even after uninstallation.
+- **Impact**: Persistent device compromise, automated remote control, data exfiltration, and surveillance capabilities on Android devices.
+- **Status**: Active distribution campaigns observed; AI-powered control system operational.
 - **Severity**: high
 - **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Brevo supply-chain attack injected ClickFix scripts on customer sites](https://www.bleepingcomputer.com/news/security/brevo-supply-chain-attack-injected-clickfix-scripts-on-customer-sites/)
-
-### RatHat Android Malware with AI-Powered Control
-- **Description**: A new Android malware family attributed to China-based threat actors featuring an AI-powered subsystem that automates navigation and control of compromised devices. Distributed via targeted smishing and malvertising leading to deceptive third-party download portals. Abuses Android Debug Bridge (ADB) to retain shell access even after the application is uninstalled.
-- **Impact**: Persistent remote control of infected Android devices, credential theft, message interception, contact exfiltration, and potential use as a pivot for further attacks. ADB persistence survives app removal.
-- **Status**: Active distribution campaigns observed. No patch available for the ADB abuse technique; requires user awareness and MDM controls.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: mitigate
+- **Action**: monitor
 - **Reporting**: [The Hacker News — RatHat Android Malware Abuses ADB to Retain Shell Access After Uninstall](https://thehackernews.com/2026/09/rathat-android-malware-abuses-adb-to.html), [Bleeping Computer — New RatHat Android malware uses AI to automate device control](https://www.bleepingcomputer.com/news/security/new-rathat-android-malware-uses-ai-to-automate-device-control/)
 
-### Handala Hack HEAVYGRAM Telegram Backdoor
-- **Description**: Iran-linked hacktivist persona Handala Hack operates HEAVYGRAM, a Telegram-based surveillance backdoor with built-in commands for remote command execution, system/network/process discovery, data and Telegram session file exfiltration, screenshot capture, and DLL sideloading. A companion Delphi utility, CRUDEEXCLUDE, supports operations.
-- **Impact**: Full surveillance and control of compromised Windows systems, credential theft from browsers and Telegram, lateral movement via DLL sideloading, and persistent access through Telegram C2.
-- **Status**: Active operations attributed to Handala Hack. No vendor patch; detection and blocking of Telegram-based C2 required.
+### AI Agent Breach of Spanish Organization
+- **Description**: An AI-driven cyberattack successfully breached a Spanish organization, with the AI agent modifying personal data. This represents a confirmed case of autonomous AI agent misuse in a real-world intrusion.
+- **Impact**: Unauthorized access and modification of personal data; demonstration of AI agent capabilities for offensive operations.
+- **Status**: Confirmed breach reported by Dark Reading; active incident.
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [Dark Reading — AI Agent Breaches Spanish Organization, Modifies Personal Data](https://www.darkreading.com/cyberattacks-data-breaches/ai-agent-breaches-spanish-organization-personal-data)
+
+### FamousSparrow APT Espionage Campaign
+- **Description**: China-linked APT group FamousSparrow conducts political espionage targeting US political interests in Latin America, utilizing a stealthy backdoor for persistent access.
+- **Impact**: Intelligence collection on political entities; long-term persistent access to sensitive networks in Latin America.
+- **Status**: Active espionage campaign attributed by Dark Reading; backdoor deployed.
 - **Severity**: high
 - **Exploitation Status**: active
-- **Action**: investigate
+- **Action**: monitor
+- **Reporting**: [Dark Reading — China's FamousSparrow APT Spies on US Politics in Latin America](https://www.darkreading.com/cyberattacks-data-breaches/china-famoussparrow-spies-latin-america)
+
+### Handala Hack / HEAVYGRAM Telegram Backdoor
+- **Description**: Iran-linked "hacktivist" persona Handala Hack operates HEAVYGRAM, a Telegram-based surveillance backdoor with built-in commands for remote command execution, system/network/process discovery, data and Telegram session exfiltration, screenshot capture, and DLL sideloading. A companion Delphi utility, CRUDEEXCLUDE, supports operations.
+- **Impact**: Comprehensive surveillance, data theft, and remote control of compromised systems via Telegram C2.
+- **Status**: Active attribution to Handala Hack; backdoor capabilities documented.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: monitor
 - **Reporting**: [The Hacker News — Iran-Linked Handala Hack Tied to HEAVYGRAM Telegram Backdoor That Can Steal Passwords](https://thehackernews.com/2026/09/iran-linked-handala-hack-tied-to.html)
 
-### FamousSparrow SparroWocky Backdoor Espionage Campaign
-- **Description**: The China-aligned state-sponsored actor FamousSparrow deploys SparroWocky, a previously unreported modular C++ backdoor, in attacks targeting government organizations across multiple Latin American countries since at least August 2025.
-- **Impact**: Persistent access to government networks, credential theft, lateral movement, data exfiltration, and long-term espionage. Modular design allows plugin-based capability extension.
-- **Status**: Active espionage campaign ongoing. ESET technical analysis published. No specific CVE exploited; likely leverages spear-phishing or vulnerability exploitation for initial access.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — China-Aligned FamousSparrow Deploys SparroWocky Backdoor Across Latin America](https://thehackernews.com/2026/09/china-aligned-famoussparrow-deploys.html), [Bleeping Computer — Chinese hackers use SparroWocky malware in govt espionage attacks](https://www.bleepingcomputer.com/news/security/chinese-hackers-use-sparrowocky-malware-in-govt-espionage-attacks/), [Dark Reading — China's FamousSparrow APT Spies on US Politics in Latin America](https://www.darkreading.com/cyberattacks-data-breaches/china-famoussparrow-spies-latin-america)
-
-### Docker Sandboxes macOS Container Escape
-- **Description**: A critical vulnerability in Docker Sandboxes on macOS where malicious code running inside a virtual machine can escape the shared project directory and read or modify arbitrary files on the host filesystem with the privileges of the host user account running the VM.
-- **Impact**: Full host filesystem compromise from within a supposedly isolated container. Affects developers and CI/CD systems using Docker Sandboxes on macOS.
-- **Status**: Patch available in updated Docker Sandboxes versions. No indication of active exploitation in the wild.
+### Azure AI Foundry Privilege Escalation (CVE-2026-85889)
+- **Description**: Missing authentication for a critical function in Azure AI Foundry allows an unauthorized attacker to elevate privileges over the network. The flaw carries a maximum CVSS score of 10.0.
+- **Impact**: Unauthorized privilege escalation in Azure AI Foundry environments, potentially leading to full service compromise.
+- **Status**: Patched by Microsoft; no customer action required per vendor. No active exploitation reported.
 - **Severity**: critical
 - **Exploitation Status**: not_observed
 - **Action**: patch
-- **CVE IDs**: CVE-2026-77179
-- **Reporting**: [The Hacker News — Critical Docker Sandboxes Flaw Lets Malicious Guest Code Read and Modify macOS Host Files](https://thehackernews.com/2026/09/critical-docker-sandboxes-flaw-lets.html)
+- **CVE IDs**: CVE-2026-85889
+- **Reporting**: [The Hacker News — Microsoft Patches CVSS 10.0 Azure AI Foundry Flaw Enabling Unauthorized Privilege Escalation](https://thehackernews.com/2026/09/microsoft-patches-cvss-100-azure-ai.html)
 
-### Unbound DNSSEC Validator Heap Overflow
-- **Description**: A critical heap overflow in the DNSSEC validator of the Unbound DNS resolver affecting every release before 1.26.1. An attacker controlling a malicious DNS zone can trigger the overflow by querying a vulnerable resolver, achieving remote code execution.
-- **Impact**: Remote code execution on any recursive resolver running vulnerable Unbound versions, potentially compromising DNS infrastructure and enabling cache poisoning, interception, or further network attacks.
-- **Status**: Fixed in Unbound 1.26.1 released same day as advisory. No indication of active exploitation.
+### Unbound DNSSEC Validator Heap Overflow (CVE-2026-81642)
+- **Description**: A critical heap overflow in the DNSSEC validator of all Unbound DNS resolver releases before 1.26.1. An attacker controlling a malicious DNS zone can trigger the overflow by querying a vulnerable resolver, enabling remote code execution.
+- **Impact**: Remote code execution on DNS resolvers processing malicious zones; potential compromise of DNS infrastructure.
+- **Status**: Fixed in Unbound 1.26.1 released same day as advisory. No active exploitation reported.
 - **Severity**: critical
 - **Exploitation Status**: not_observed
 - **Action**: patch
 - **CVE IDs**: CVE-2026-81642
 - **Reporting**: [The Hacker News — Critical Unbound DNSSEC Validator Flaw Could Allow RCE via a Malicious DNS Zone](https://thehackernews.com/2026/09/critical-unbound-dnssec-validator-flaw.html)
 
-### Check Point Management Server RCE
-- **Description**: A critical vulnerability in Check Point Security Management and Log Servers allowing unauthenticated remote attackers to execute code as root over the network. The Security Management Server controls firewall policy and administrator access.
-- **Impact**: Complete compromise of the central firewall management platform, enabling policy modification, log tampering, and pivot to managed firewalls.
-- **Status**: Fix released via LivePatch update channel. Check Point states it has no indication the flaw has been exploited.
+### Docker Sandboxes macOS Escape (CVE-2026-77179)
+- **Description**: Malicious code running inside a Docker Sandboxes virtual machine on macOS can escape the shared project directory and read or modify files anywhere on the host with the privileges of the host account running the VM.
+- **Impact**: Container escape leading to host file system read/write access; compromise of macOS host from sandboxed workloads.
+- **Status**: Docker security announcement issued September 15; affected versions not specified in reporting. No active exploitation reported.
 - **Severity**: critical
 - **Exploitation Status**: not_observed
 - **Action**: patch
-- **Reporting**: [Bleeping Computer — New Check Point flaw lets hackers execute code with root privileges](https://www.bleepingcomputer.com/news/security/check-point-warns-critical-flaw-lets-hackers-execute-code-as-root/), [The Hacker News — Critical Check Point Management Flaw Lets Unauthenticated Attackers Run Code as Root](https://thehackernews.com/2026/09/critical-check-point-management-server.html)
+- **CVE IDs**: CVE-2026-77179
+- **Reporting**: [The Hacker News — Critical Docker Sandboxes Flaw Lets Malicious Guest Code Read and Modify macOS Host Files](https://thehackernews.com/2026/09/critical-docker-sandboxes-flaw-lets.html)
 
-### BIND 9 DNS-over-HTTPS Crash
-- **Description**: One of 14 flaws fixed in BIND 9.20.29 and 9.21.26 allows an unauthenticated sender to crash the `named` server process with a single DNS-over-HTTPS request carrying an invalid SIG record.
-- **Impact**: Denial of service for any BIND server answering DoH queries. Remote, unauthenticated, single-request crash.
-- **Status**: Patches available in BIND 9.20.29 and 9.21.26. No mention of active exploitation.
+### Check Point Management Server Unauthenticated RCE
+- **Description**: A critical vulnerability in Check Point Security Management and Log Servers allows unauthenticated attackers to execute code as root over the network. The Security Management Server controls firewall policy and administrator access.
+- **Impact**: Full root compromise of management infrastructure controlling firewall policies and admin access.
+- **Status**: Fix released via LivePatch update channel. Check Point states it has no indication the flaw has been exploited in the wild.
+- **Severity**: critical
+- **Exploitation Status**: not_observed
+- **Action**: patch
+- **Reporting**: [The Hacker News — Critical Check Point Management Flaw Lets Unauthenticated Attackers Run Code as Root](https://thehackernews.com/2026/09/critical-check-point-management-server.html), [Bleeping Computer — New Check Point flaw lets hackers execute code with root privileges](https://www.bleepingcomputer.com/news/security/check-point-warns-critical-flaw-lets-hackers-execute-code-as-root/)
+
+### Plugin4Shell AI Coding Agent Plugin Hijacking
+- **Description**: A flaw in four widely used AI coding agents allows a plugin repository owner to swap the plugin code installed by the agent for a malicious version, even when the agent pinned the plugin to a specific reviewed version. Anthropic patched Claude Code 2.1.179; OpenAI patched Codex 0.146.0; GitHub Copilot reportedly has no fix.
+- **Impact**: Supply-chain compromise of AI-assisted development environments; malicious code execution in developer contexts.
+- **Status**: Partial vendor patches available; GitHub Copilot unpatched per reporting. No active exploitation reported.
 - **Severity**: high
 - **Exploitation Status**: not_observed
 - **Action**: patch
-- **Reporting**: [The Hacker News — BIND 9 Update Fixes 14 Flaws, Including an Unauthenticated Crash Over DNS-over-HTTPS](https://thehackernews.com/2026/09/bind-9-update-fixes-14-flaws-including.html)
+- **Reporting**: [The Hacker News — Plugin4Shell Lets Repository Owners Swap Pinned Plugin Code Across Four AI Coding Agents](https://thehackernews.com/2026/09/plugin4shell-lets-repository-owners.html)
+
+### Abandoned CDN Domain Re-registration Supply-Chain Risk
+- **Description**: A previously abandoned CDN domain was re-registered in July 2025. Thousands of websites, code repositories, and documentation pages still contain hard-coded references to hostnames under this domain, allowing the new owner to serve arbitrary content to those callers.
+- **Impact**: Potential supply-chain compromise of thousands of sites; ability to inject malicious scripts, serve malware, or harvest data from dependent properties.
+- **Status**: Domain re-registered; thousands of active references persist. No active exploitation confirmed, but latent risk is high.
+- **Severity**: high
+- **Exploitation Status**: potential
+- **Action**: investigate
+- **Reporting**: [The Hacker News — An Abandoned CDN Domain Was Re-Registered. Thousands of Sites Still Call It.](https://thehackernews.com/2026/09/an-abandoned-cdn-domain-was-re.html)
 
 ## Affected Systems and Products
 
-- **Cisco Identity Services Engine (ISE)**: All versions prior to the September 2026 security updates. Network access control and policy enforcement platform.
-- **npm Package Registry / Node.js Projects**: Developers and CI/CD pipelines consuming packages from npm. Specific malicious packages identified in WeaselBiscuit (13 packages) and PhantomRaven campaigns.
-- **Brevo Platform Customers**: Websites embedding Brevo JavaScript files or using Brevo services. Compromise via stolen Cloudflare API key allowed script injection.
-- **Android Devices**: Devices installing applications from third-party sources via smishing/malvertising links. RatHat malware abuses ADB for post-uninstall persistence.
-- **Docker Sandboxes on macOS**: Versions prior to the security fix for CVE-2026-77179. Developer workstations and macOS-based CI runners using Docker Sandboxes.
-- **Unbound DNS Resolver**: All releases before 1.26.1. Recursive DNS servers validating DNSSEC.
-- **Check Point Security Management Server and Log Server**: Versions prior to LivePatch update. Centralized firewall management infrastructure.
-- **BIND 9 DNS Server**: Versions prior to 9.20.29 and 9.21.26. Authoritative and recursive DNS servers, particularly those enabling DNS-over-HTTPS.
-- **Windows Systems**: Targets of HEAVYGRAM backdoor (Handala Hack) and SparroWocky backdoor (FamousSparrow).
-- **Chrome/Chromium Browsers**: Targeted by WeaselBiscuit stealer for extension storage harvesting.
+- **Gyazo Image-Sharing Platform**: Server infrastructure hosting 23.6 million user accounts; specific version or component not disclosed.
+- **Brevo Marketing Platform & Customer Sites**: Brevo's Cloudflare configuration and JavaScript assets embedded on customer websites; all customers using embedded Brevo scripts affected.
+- **Check Point Security Management and Log Servers**: Management server appliances and virtual instances controlling firewall policy; patched via LivePatch.
+- **Unbound DNS Resolver**: All releases prior to 1.26.1; widely deployed as validating resolver in enterprise and ISP environments.
+- **Docker Sandboxes on macOS**: Docker Sandboxes virtual machines running on macOS hosts; versions not specified in advisory.
+- **Azure AI Foundry**: Microsoft's managed AI platform service; patch applied by provider with no customer action required.
+- **npm Package Registry**: 13 malicious packages (WeaselBiscuit) and PhantomRaven package; any project installing compromised packages.
+- **GitHub Repositories**: SEO-optimized repositories impersonating LastPass Authenticator and other legitimate software; Rapuncel distribution vector.
+- **Private GitHub Repositories**: Used by Transparent Tribe for C2 infrastructure hosting Rust-based tooling (RUSTYSHADE, RUSTYMOVE, PSNATCH, BASHNATCH).
+- **Android Devices**: Targeted via smishing and malvertising leading to third-party APK downloads; RatHat malware with ADB persistence.
+- **AI Coding Agents**: Anthropic Claude Code (<2.1.179), OpenAI Codex (<0.146.0), GitHub Copilot (unpatched), and one additional unnamed agent; Plugin4Shell plugin hijacking.
+- **Abandoned CDN Domain Callers**: Thousands of websites, code repositories, and documentation pages with hard-coded references to the re-registered domain.
 
 ## Attack Vectors and Techniques
 
-- **Supply-Chain Compromise via Stolen API Credentials**: Attackers stole a Cloudflare API key from Brevo and injected malicious ClickFix scripts into production JavaScript served to customer sites. Vector: compromised third-party service credentials.
-- **Malicious Package Publishing to Public Registry**: Threat actors published 13 npm packages (WeaselBiscuit) and additional packages (PhantomRaven) to the public npm registry. Vector: typosquatting, dependency confusion, or social engineering to drive installs.
-- **ClickFix Social Engineering**: Fake browser verification dialogs (CAPTCHA, "verify you are human") trick users into copying and executing malicious PowerShell commands. Vector: compromised legitimate websites serving injected scripts.
-- **AI-Authored Malware**: PhantomRaven stealer shows high-confidence indicators of LLM-assisted development (verbose comments, placeholder code, token patterns). Vector: lowered barrier to malware creation.
-- **AI-Powered Automated Device Control**: RatHat Android malware uses an AI subsystem to navigate UI, automate actions, and control compromised devices without constant operator attention. Vector: smishing and malvertising delivering APKs.
-- **ADB Persistence Post-Uninstall**: RatHat enables ADB debugging and retains shell access via ADB even after the malicious app is removed by the user. Vector: Android Debug Bridge authorized during install.
-- **Telegram-Based C2**: HEAVYGRAM uses Telegram Bot API for command-and-control, blending with legitimate traffic. Vector: Telegram messaging infrastructure.
-- **Modular Backdoor Deployment**: SparroWocky (FamousSparrow) is a modular C++ backdoor allowing dynamic plugin loading for extensible espionage capabilities. Vector: initial access via unknown means (likely spear-phishing or exploit).
-- **DNSSEC Validation Exploitation**: Malicious DNS zone triggers heap overflow in Unbound resolver during DNSSEC validation. Vector: attacker-controlled authoritative zone queried by vulnerable resolver.
-- **Container Escape via Shared Filesystem**: Docker Sandboxes macOS flaw allows breaking out of the VM's project directory mount to access host filesystem. Vector: malicious code executed inside container.
-- **Unauthenticated API Endpoint Abuse**: Cisco ISE flaw (CVE-2026-76460) and Check Point Management flaw both stem from insufficient authentication on network-exposed APIs. Vector: direct network access to management interfaces.
+- **Server-Side Vulnerability Exploitation**: Direct exploitation of a flaw in Gyazo's server infrastructure to access user databases.
+- **Supply-Chain Compromise via Stolen API Key**: Theft of a Cloudflare API key enabling malicious script injection into Brevo's and customer sites' JavaScript.
+- **Malicious Package Publishing (npm)**: Publication of 13 WeaselBiscuit packages and PhantomRaven to the public npm registry targeting developers and CI/CD pipelines.
+- **Typosquatting/Impersonation on GitHub**: SEO-optimized repositories mimicking legitimate software (LastPass Authenticator) to deliver Rapuncel infostealer.
+- **Private Repository C2 Hosting**: Use of private GitHub repositories as covert command-and-control infrastructure for Rust-based backdoors.
+- **Rust-Based Malware Development**: Novel toolset (RUSTYSHADE, RUSTYMOVE, PSNATCH, BASHNATCH) written in Rust for evasion and cross-platform capability.
+- **AI-Powered Malware Control**: RatHat's AI subsystem automates device navigation and control; PhantomRaven likely authored with LLM assistance.
+- **ADB Persistence Post-Uninstall**: RatHat abuses Android Debug Bridge to retain shell access after the malicious app is uninstalled.
+- **Autonomous AI Agent Intrusion**: AI agent independently breached a Spanish organization and modified personal data without direct human operation.
+- **Telegram-Based C2**: HEAVYGRAM backdoor uses Telegram API for command delivery, data exfiltration, and session hijacking.
+- **DNSSEC Validator Heap Overflow**: Malicious DNS zone triggers heap overflow in Unbound resolver during validation, achieving RCE.
+- **Container Escape via Host Filesystem Access**: Docker Sandboxes flaw allows VM guest to traverse outside shared directory to host filesystem.
+- **Unauthenticated Management Interface RCE**: Check Point Management Server accepts unauthenticated network requests leading to root code execution.
+- **Plugin Version Pinning Bypass**: AI coding agents' plugin pinning mechanism bypassed by repository owner modifying pinned plugin code.
+- **Expired Domain Re-registration**: Attacker registers abandoned CDN domain to control content served to thousands of hard-coded references.
 
 ## Threat Actor Activities
 
-- **FamousSparrow (China-aligned APT)**: Deploying the SparroWocky modular backdoor against government entities in Latin America since at least August 2025. Campaign focuses on political and eco-colonial influence interests. Technical analysis by ESET confirms modular C++ architecture.
-- **Handala Hack (Iran-linked hacktivist)**: Operating the HEAVYGRAM Telegram backdoor and CRUDEEXCLUDE utility for surveillance, credential theft, DLL sideloading, and screenshot capture. Persona presents as hacktivist; infrastructure and tooling indicate sophisticated operations.
-- **DPRK Contagious Interview Campaign Operators**: Extending tooling with WeaselBiscuit stealer (functional overlap with BeaverTail). Targeting developers via npm supply chain to harvest Chrome extension storage—likely aiming at cryptocurrency and DevOps credentials.
-- **Financially Motivated npm Actor (PhantomRaven)**: Distributing LLM-assisted JavaScript stealer via npm. Actor claims bug bounty hunter persona; telemetry suggests financial motivation through credential theft and resale.
-- **China-Based RatHat Operators**: Deploying AI-enhanced Android malware via smishing and malvertising. ADB persistence mechanism indicates focus on long-term device control. AI automation reduces operator workload.
-- **NightmareStresser Operators (DDoS-for-hire)**: Infrastructure seized by FBI/DOJ. Platform linked to hundreds of thousands of DDoS attacks. Domains nightmare-stresser.com and nightmarestresser.org seized; operators disrupted.
-- **Unknown/Unattributed (Brevo Supply Chain)**: Actor stole Cloudflare API key from Brevo and injected ClickFix scripts. Attribution not publicly assigned; technique overlaps with known ClickFix campaigns (e.g., TA571, ClearFake).
+- **Transparent Tribe (APT36 / Earth Karkaddan)**: Pakistan-aligned APT conducting Operation RUSTYSHADE/RUSTYMOVE targeting government and defense sectors in India and Afghanistan; employs novel Rust toolset and private GitHub C2.
+- **Handala Hack**: Iran-linked hacktivist persona operating HEAVYGRAM Telegram backdoor and CRUDEEXCLUDE utility for surveillance, data theft, and remote access.
+- **FamousSparrow**: China-linked APT conducting political espionage against US interests in Latin America using a stealthy backdoor.
+- **DPRK-Linked Actors (Contagious Interview Campaign)**: Nexus identified between WeaselBiscuit npm stealer and known DPRK tools BeaverTail and associated strains; suggests shared infrastructure or code reuse.
+- **Financially Motivated npm Actor**: Developer distributing PhantomRaven stealer via npm; assessed as likely using LLM for code generation; claims bug bounty hunter persona.
+- **RatHat Operators**: China-based threat actors distributing Android malware via smishing and malvertising; employ AI-powered control system and ADB persistence.
+- **Gyazo Breach Actors**: Unidentified threat actors who exploited Gyazo server vulnerability to steal 23.6 million records; motivation and attribution not disclosed.
+- **Brevo Supply-Chain Attackers**: Unidentified actors who compromised a Cloudflare API key to inject ClickFix scripts; likely financially motivated malware distribution.
+- **Abandoned CDN Domain Registrant**: Unknown party who re-registered expired CDN domain; capability to serve arbitrary content to thousands of dependent sites; intent not yet observed.
