@@ -1,45 +1,33 @@
 ---
 schema_version: 2
-report_date: 2026-09-19
-generated_at: 2026-09-19T20:25:49Z
-digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-19/
+report_date: 2026-09-20
+generated_at: 2026-09-20T15:57:29Z
+digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-20/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Critical exploitation activity spans multiple high-value targets this period, with five actively exploited vulnerabilities carrying CVSS scores of 8.8 or higher. CISA has added three Linux kernel flaws to its Known Exploited Vulnerabilities catalog, including CVE-2025-39682 rated 9.8, while Fortinet confirms active exploitation of a critical pre-authentication RCE in Orkes Conductor (CVE-2026-58138, CVSS 9.8). A maximum-severity authentication bypass in Cisco Identity Services Engine (CVE-2026-76460, CVSS 10.0) and a privilege escalation flaw in Azure AI Foundry (CVE-2026-85889, CVSS 10.0) round out the most severe issues, both now patched.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, ranging from network infrastructure and workflow platforms to AI-driven development tools and software supply chains. CISA has confirmed active exploitation of three Linux kernel flaws, while Fortinet reports a critical pre-authentication RCE in Orkes Conductor being exploited in the wild. A maximum-severity zero-day in Cisco Identity Services Engine (CVSS 10.0) highlights systemic API authentication weaknesses. Simultaneously, nation-state actors—most notably North Korea's WaterPlum group—have compromised over 30,000 devices globally in a sustained cryptocurrency theft campaign, and Pakistan-aligned Transparent Tribe continues targeting government and defense entities in South Asia with novel Rust-based tooling.
 
-Nation-state and criminal threat actors are conducting large-scale operations with significant impact. North Korea's WaterPlum group compromised at least 30,000 devices globally between December 2025 and July 2026, exfiltrating over $10.7 million in cryptocurrency. Pakistan-aligned Transparent Tribe (APT36) deployed novel Rust-based backdoors against government and defense entities in India and Afghanistan using private GitHub repositories for command and control. The ShinyHunters extortion gang breached the Clop ransomware operation's leak site, stealing server data and onion service private keys in a notable criminal-on-criminal attack.
-
-Supply chain and AI-driven attack vectors are accelerating. A TanStack npm supply chain compromise led to the theft of 170 private GitHub repositories from CrowdSec via a departed employee's compromised credentials. Public exploit code for four Linux kernel local privilege escalation flaws has been released, endangering unpatched systems. Researchers demonstrated AI-assisted vulnerability chaining using Claude Opus 5 to compromise OpenAI employee accounts, while the BragJack technique shows malicious extensions can hijack AI browser agents across Chrome, Edge, Opera, and Perplexity. The Plugin4Shell flaw affects four major AI coding agents, allowing repository owners to swap pinned plugins for malicious versions.
+The software supply chain remains a primary battleground. The TanStack npm attack facilitated credential theft and the exfiltration of 170 private GitHub repositories from CrowdSec, while an ongoing malicious npm campaign ('indexed-btree') demonstrates evolution in evasion techniques by embedding payloads in runtime behavior rather than installation scripts. Researchers have also demonstrated practical sandbox escapes against OpenAI Codex and chained authentication flaws to compromise OpenAI employee accounts, underscoring emergent risks in AI-assisted development workflows. Proof-of-concept exploits for four additional Linux kernel local privilege escalation flaws are now public, and a Gyazo server breach exposed 23.6 million user records.
 
 ## Active Exploitation Details
 
-### SolarWinds Access Rights Manager Hard-Coded Key Remote Code Execution
-- **Description**: A hard-coded cryptographic key in SolarWinds Access Rights Manager (ARM) allows unauthenticated attackers to achieve remote code execution. The flaw affects all versions of ARM 2026.2 and prior.
-- **Impact**: Unauthenticated remote code execution with SYSTEM privileges on the ARM server, leading to full compromise of the identity management infrastructure.
-- **Status**: SolarWinds has released security updates addressing the vulnerability. Patches are available for all affected versions.
-- **Severity**: high
-- **Exploitation Status**: observed
-- **Action**: patch
-- **CVE IDs**: CVE-2026-28326
-- **Reporting**: [The Hacker News — SolarWinds Patches ARM Hard-Coded Key Flaw Enabling Unauthenticated RCE](https://thehackernews.com/2026/09/solarwinds-patches-arm-hard-coded-key.html)
-
-### Orkes Conductor Pre-Authentication Remote Code Execution
-- **Description**: An unauthenticated remote code execution vulnerability in Orkes Conductor workflow platform versions 3.21.21 through 3.30.1. The flaw allows remote attackers to execute arbitrary code without authentication.
-- **Impact**: Full system compromise of Orkes Conductor instances, enabling attackers to execute arbitrary commands, access workflow data, and pivot within the environment.
-- **Status**: Fortinet confirms active exploitation in the wild. Orkes has released version 3.30.2 which addresses the vulnerability.
+### Orkes Conductor Unauthenticated RCE
+- **Description**: A critical unauthenticated remote code execution vulnerability in Orkes Conductor workflow platform, caused by improper input validation allowing attackers to execute arbitrary code without authentication.
+- **Impact**: Full remote code execution on affected Orkes Conductor instances, enabling complete system compromise, data theft, and lateral movement.
+- **Status**: Actively exploited in the wild per Fortinet; patched in version 3.30.2.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-58138
 - **Reporting**: [The Hacker News — Critical Pre-Auth RCE in Orkes Conductor Workflow Platform Exploited in the Wild](https://thehackernews.com/2026/09/critical-pre-auth-rce-in-orkes.html)
 
-### Cisco Identity Services Engine Authentication Bypass
-- **Description**: An authentication bypass flaw in Cisco Identity Services Engine (ISE) API endpoints that allows unauthenticated attackers to bypass authentication controls entirely.
-- **Impact**: Complete bypass of authentication mechanisms in Cisco ISE, potentially allowing unauthorized access to network access control policies, guest management, and identity services.
-- **Status**: Identified as a zero-day with maximum CVSS score. Cisco has acknowledged the vulnerability; patch status should be verified via Cisco security advisories.
+### Cisco Identity Services Engine Authentication Bypass Zero-Day
+- **Description**: An authentication bypass flaw in Cisco Identity Services Engine (ISE) API endpoints that allows unauthenticated attackers to bypass authentication mechanisms entirely.
+- **Impact**: Complete authentication bypass on Cisco ISE, potentially enabling unauthorized administrative access, policy manipulation, and network compromise.
+- **Status**: Zero-day vulnerability with maximum CVSS score; exploitation confirmed in the wild.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
@@ -47,157 +35,228 @@ Supply chain and AI-driven attack vectors are accelerating. A TanStack npm suppl
 - **Reporting**: [Dark Reading — Cisco Zero-Day Highlights API Endpoint Authentication Issues](https://www.darkreading.com/vulnerabilities-threats/cisco-zero-day-api-endpoint-authentication-issues)
 
 ### Linux Kernel TLS Receive Path Vulnerability
-- **Description**: An improper check for unusual or exceptional conditions in the TLS receive path of the Linux kernel. This flaw allows attackers to trigger kernel-level memory corruption or privilege escalation.
-- **Impact**: Kernel-level code execution or privilege escalation on affected Linux systems. CISA has confirmed active exploitation in the wild.
-- **Status**: Added to CISA Known Exploited Vulnerabilities catalog. Kernel maintainers have released fixes; distributions are issuing updated kernel packages.
+- **Description**: An improper check for unusual or exceptional conditions vulnerability in the TLS receive path of the Linux kernel that can be triggered remotely.
+- **Impact**: Remote code execution or denial of service on affected Linux systems; CVSS score of 9.8 indicates near-maximum severity.
+- **Status**: Added to CISA Known Exploited Vulnerabilities catalog with evidence of active exploitation.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2025-39682
 - **Reporting**: [The Hacker News — CISA Flags Three Linux Kernel Vulnerabilities Exploited in the Wild](https://thehackernews.com/2026/09/cisa-flags-three-linux-kernel.html)
 
-### Microsoft Azure AI Foundry Privilege Escalation
-- **Description**: Missing authentication for a critical function in Azure AI Foundry allows unauthorized attackers to elevate privileges over the network without requiring valid credentials.
-- **Impact**: Unauthorized privilege escalation within Azure AI Foundry environments, potentially granting attackers elevated access to AI models, data, and configuration.
-- **Status**: Microsoft has released fixes. No customer action is required as the patch is applied at the platform level.
-- **Severity**: critical
-- **Exploitation Status**: observed
+### Two Additional Linux Kernel Vulnerabilities (CISA KEV)
+- **Description**: Two additional Linux kernel security flaws added to CISA's Known Exploited Vulnerabilities catalog alongside CVE-2025-39682, citing evidence of active exploitation in the wild.
+- **Impact**: Kernel-level compromise enabling privilege escalation, container escape, or system takeover depending on the specific flaw.
+- **Status**: Actively exploited per CISA; patches available in recent kernel releases.
+- **Severity**: high
+- **Exploitation Status**: active
 - **Action**: patch
+- **Reporting**: [The Hacker News — CISA Flags Three Linux Kernel Vulnerabilities Exploited in the Wild](https://thehackernews.com/2026/09/cisa-flags-three-linux-kernel.html)
+
+### SolarWinds Access Rights Manager Hard-Coded Key RCE
+- **Description**: A hard-coded cryptographic key flaw in SolarWinds Access Rights Manager (ARM) that enables unauthenticated remote code execution.
+- **Impact**: Unauthenticated RCE on all ARM versions 2026.2 and prior, allowing full system compromise.
+- **Status**: Security updates released by SolarWinds; exploitation status in wild not explicitly confirmed but high-risk given unauthenticated RCE nature.
+- **Severity**: high
+- **Exploitation Status**: potential
+- **Action**: patch
+- **CVE IDs**: CVE-2026-28326
+- **Reporting**: [The Hacker News — SolarWinds Patches ARM Hard-Coded Key Flaw Enabling Unauthenticated RCE](https://thehackernews.com/2026/09/solarwinds-patches-arm-hard-coded-key.html)
+
+### Azure AI Foundry Privilege Escalation
+- **Description**: Missing authentication for critical function in Azure AI Foundry allowing unauthorized attackers to elevate privileges over the network.
+- **Impact**: Unauthorized privilege escalation within Azure AI Foundry environment, potentially leading to cross-tenant access or resource manipulation.
+- **Status**: Microsoft released fixes; no customer action required per Microsoft; no indication of exploitation in the wild.
+- **Severity**: critical
+- **Exploitation Status**: not_observed
+- **Action**: none
 - **CVE IDs**: CVE-2026-85889
 - **Reporting**: [The Hacker News — Microsoft Patches CVSS 10.0 Azure AI Foundry Flaw Enabling Unauthorized Privilege Escalation](https://thehackernews.com/2026/09/microsoft-patches-cvss-100-azure-ai.html)
 
-### Linux Kernel Local Privilege Escalation Flaws (Four Vulnerabilities)
-- **Description**: Four distinct Linux kernel vulnerabilities each allowing a local user to gain root privileges. Working exploit code has been publicly released for all four flaws.
-- **Impact**: Local privilege escalation to root on any Linux system running an unpatched kernel. Public exploit availability significantly increases risk for unpatched systems.
-- **Status**: Kernel maintainers have fixed all four vulnerabilities over recent weeks. Public exploit code is available. Systems running current kernel versions are not affected.
+### WaterPlum North Korean Campaign
+- **Description**: Sustained campaign by North Korean hacking group WaterPlum compromising devices globally to steal cryptocurrency, operating from December 2025 through July 2026.
+- **Impact**: At least 30,000 devices compromised worldwide; over $10.7 million in cryptocurrency stolen and transferred to North Korea.
+- **Status**: Active campaign documented in joint law enforcement advisory; specific vulnerabilities exploited not publicly disclosed.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — North Korean WaterPlum hackers infected 30,000 devices worldwide](https://www.bleepingcomputer.com/news/security/north-korean-waterplum-hackers-infected-30-000-devices-worldwide/)
+
+### TanStack npm Supply Chain Attack
+- **Description**: Malicious versions of TanStack npm packages published in a supply chain attack that stole credentials from developer environments, leading to downstream compromise of GitHub accounts.
+- **Impact**: Credential theft from developer machines; used to access and copy 170 private GitHub repositories from CrowdSec via a compromised former employee's account.
+- **Status**: Attack occurred in May 2026; malicious packages identified and removed; CrowdSec confirmed breach on September 18, 2026.
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [The Hacker News — CrowdSec Says TanStack npm Attack Led to Copy of 170 Private GitHub Repositories](https://thehackernews.com/2026/09/crowdsec-says-tanstack-npm-attack-led.html)
+
+### Malicious npm Package 'indexed-btree' Runtime Evasion Campaign
+- **Description**: Ongoing npm malware campaign where the 'indexed-btree' package hides malicious code in normal runtime behavior rather than installation scripts, evading traditional supply chain defenses that scan install hooks.
+- **Impact**: Arbitrary code execution during normal package usage; bypasses install-script scanning defenses; persistent access to development and build environments.
+- **Status**: Ongoing campaign as of reporting; no patch available for the evasion technique itself—requires behavioral detection.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [Bleeping Computer — Malicious npm packages evade install-script defenses at runtime](https://www.bleepingcomputer.com/news/security/malicious-npm-packages-evade-install-script-defenses-at-runtime/)
+
+### Gyazo Server Vulnerability Data Breach
+- **Description**: A server vulnerability in the Gyazo image-sharing platform that was exploited to access and exfiltrate user databases.
+- **Impact**: Theft of 23.6 million user records including account credentials and associated data.
+- **Status**: Breach confirmed by Gyazo; vulnerability exploited in the wild; specific flaw not disclosed.
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Gyazo server flaw exploited to steal 23.6 million user records](https://www.bleepingcomputer.com/news/security/gyazo-server-flaw-exploited-to-steal-236-million-user-records/)
+
+### Transparent Tribe Rust Backdoor Campaign
+- **Description**: Pakistan-aligned APT36 (Transparent Tribe/Earth Karkaddan) deploying previously undocumented Rust-based backdoors (RUSTYSHADE, RUSTYMOVE, PSNATCH, BASHNATCH) using private GitHub repositories for command-and-control infrastructure.
+- **Impact**: Persistent access to government and defense entities in India and Afghanistan; novel tooling evades traditional detection; GitHub-based C2 blends with legitimate traffic.
+- **Status**: Active campaign attributed by Zscaler ThreatLabz; operation codenamed (name not fully captured in source).
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [The Hacker News — Transparent Tribe Deploys New Rust Backdoor Using Private GitHub Repositories for C2](https://thehackernews.com/2026/09/transparent-tribe-deploys-new-rust.html)
+
+### Four Linux Kernel Local Privilege Escalation Flaws (Public Exploits)
+- **Description**: Working exploit code released for four Linux kernel vulnerabilities that each allow a local user to gain root privileges.
+- **Impact**: Local root privilege escalation on any unpatched system; exploit code is publicly available.
+- **Status**: Kernel maintainers have fixed all four flaws in recent weeks; public exploits increase urgency for patching.
 - **Severity**: high
 - **Exploitation Status**: potential
 - **Action**: patch
 - **Reporting**: [The Hacker News — Public Exploits Released for Four Linux Kernel Flaws That Enable Local Root](https://thehackernews.com/2026/09/public-exploits-released-for-four-linux.html)
 
-### WordPress Click2Shell Vulnerability Chain
-- **Description**: A vulnerability chain in WordPress core allowing a crafted link, when opened by a logged-in administrator, to install a theme from WordPress.org without user interaction. This can be chained to achieve remote code execution.
-- **Impact**: Unauthorized theme installation leading to potential remote code execution on WordPress sites when an administrator clicks a malicious link.
-- **Status**: WordPress has released patches addressing the vulnerability chain. The security firm pwn.ai reported the flaw and named the attack chain "Click2Shell."
+### WordPress Click2Shell Theme Installation Flaw
+- **Description**: A vulnerability in WordPress core allowing a crafted web link, when opened by a logged-in administrator, to install a theme from the official WordPress.org directory without user interaction. Can be chained to achieve code execution.
+- **Impact**: Unauthorized theme installation leading to potential remote code execution via malicious themes; requires admin interaction with malicious link.
+- **Status**: WordPress released patches; exploitation in wild not confirmed.
 - **Severity**: high
 - **Exploitation Status**: potential
 - **Action**: patch
 - **Reporting**: [The Hacker News — New WordPress Click2Shell Flaw Forces Theme Installs, Can Chain to Code Execution](https://thehackernews.com/2026/09/new-wordpress-click2shell-flaw-forces.html)
 
-### Gyazo Server Vulnerability Data Breach
-- **Description**: Attackers exploited a server vulnerability in the Gyazo image-sharing platform to access and exfiltrate user records.
-- **Impact**: Theft of 23.6 million user records from the Gyazo platform.
-- **Status**: Gyazo has confirmed the breach. Specific vulnerability details and patch status were not disclosed in the reporting.
+### OpenAI Codex Sandbox Escape
+- **Description**: Researchers demonstrated two methods to escape the OpenAI Codex sandbox, one allowing command execution on the developer's host machine from the most locked-down mode.
+- **Impact**: Container/sandbox escape leading to host compromise; affects developers using Codex in restricted modes.
+- **Status**: OpenAI has patched both escape vectors; demonstrated as research, not observed in malicious exploitation.
 - **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Gyazo server flaw exploited to steal 23.6 million user records](https://www.bleepingcomputer.com/news/security/gyazo-server-flaw-exploited-to-steal-236-million-user-records/)
-
-### Check Point Management Critical Remote Code Execution
-- **Description**: A critical vulnerability in Check Point Software management systems allowing attackers to execute code with root privileges.
-- **Impact**: Full root-level compromise of Check Point management systems, enabling complete control over firewall and security policy infrastructure.
-- **Status**: Check Point has released security updates addressing the vulnerability.
-- **Severity**: critical
-- **Exploitation Status**: observed
+- **Exploitation Status**: not_observed
 - **Action**: patch
-- **Reporting**: [Bleeping Computer — New Check Point flaw lets hackers execute code with root privileges](https://www.bleepingcomputer.com/news/security/check-point-warns-critical-flaw-lets-hackers-execute-code-as-root/)
+- **Reporting**: [Bleeping Computer — Researchers escape OpenAI Codex sandbox to run commands on host](https://www.bleepingcomputer.com/news/security/researchers-escape-openai-codex-sandbox-to-run-commands-on-host/)
 
-### Plugin4Shell AI Coding Agent Plugin Hijacking
-- **Description**: A flaw in four widely used AI coding agents (Claude Code, Codex, GitHub Copilot, and one unnamed) allows repository owners to swap pinned plugin code for malicious versions, even when the agent has locked the plugin to a specific reviewed version.
-- **Impact**: Supply chain compromise of AI coding assistants, enabling arbitrary code execution in development environments when agents install malicious plugin updates.
-- **Status**: Anthropic patched in Claude Code 2.1.179; OpenAI patched in Codex 0.146.0; GitHub Copilot has no fix reported as of publication.
+### Chained OpenAI Account Takeover via Help Forum and Login Flaws
+- **Description**: Researchers chained a bug in OpenAI's public help forum software with a weakness in OpenAI's login system to take over ChatGPT and Codex accounts of OpenAI employees, then accessed an internal code repository.
+- **Impact**: Full account takeover of high-value targets; access to internal proprietary code repositories.
+- **Status**: Demonstrated by security researchers (Hacktron) using AI assistance (Claude Opus 5); flaws reported; not observed in malicious wild exploitation.
 - **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: patch
-- **Reporting**: [The Hacker News — Plugin4Shell Lets Repository Owners Swap Pinned Plugin Code Across Four AI Coding Agents](https://thehackernews.com/2026/09/plugin4shell-lets-repository-owners.html)
-
-### BragJack AI Browser Agent Hijacking
-- **Description**: A proof-of-concept attack technique called "Prompt Forcing" that uses a single malicious browser extension to hijack AI assistants across Chrome, Edge, Opera Neon, Perplexity Comet, and Claude in Chrome.
-- **Impact**: Complete control over AI browser agents, allowing attackers to exfiltrate data, manipulate AI responses, and perform actions on behalf of the user.
-- **Status**: Proof-of-concept demonstrated by Forever Security researcher Gal Weizman. Two CVEs assigned (specific IDs not disclosed). Earned over $20,000 in bug bounties.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: mitigate
-- **Reporting**: [Bleeping Computer — BragJack attacks hijack AI browser agents through malicious extensions](https://www.bleepingcomputer.com/news/security/bragjack-attacks-hijack-ai-browser-agents-through-malicious-extensions/)
-
-### TanStack npm Supply Chain Attack
-- **Description**: Malicious versions of TanStack npm packages were published that stole credentials from developer environments. This led to compromise of a CrowdSec employee's laptop and subsequent theft of 170 private GitHub repositories using the employee's retained access.
-- **Impact**: Credential theft from developer machines, unauthorized access to private source code repositories, and potential further supply chain contamination.
-- **Status**: Malicious packages identified. CrowdSec revoked the compromised employee's access. TanStack supply chain compromise under investigation.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — CrowdSec Says TanStack npm Attack Led to Copy of 170 Private GitHub Repositories](https://thehackernews.com/2026/09/crowdsec-says-tanstack-npm-attack-led.html)
-
-### WeaselBiscuit npm Malware Campaign
-- **Description**: A cluster of 13 malicious npm packages delivering the WeaselBiscuit JavaScript stealer, which harvests Chrome Extension Storage data. The malware shows functional overlaps with DPRK Contagious Interview campaign tooling (BeaverTail).
-- **Impact**: Theft of sensitive data stored in Chrome extensions, including authentication tokens, cryptocurrency wallet data, and personal information.
-- **Status**: 13 malicious packages identified by OpenSourceMalware. Packages likely removed from npm registry; developers should audit dependencies.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — WeaselBiscuit Stealer Spreads via 13 npm Packages to Harvest Chrome Extension Storage](https://thehackernews.com/2026/09/weaselbiscuit-stealer-spreads-via-13.html)
-
-### OpenAI Help Forum and Login System Chain (Research)
-- **Description**: Security researchers at Hacktron chained two vulnerabilities—a bug in OpenAI's public help forum software and a weakness in OpenAI's login system—using Anthropic's Claude Opus 5 to assist in the exploit development.
-- **Impact**: Account takeover of OpenAI employee ChatGPT and Codex accounts, with access to an internal OpenAI code repository.
-- **Status**: Conducted as authorized security research. OpenAI has been notified; remediation status not publicly disclosed.
-- **Severity**: high
-- **Exploitation Status**: observed
+- **Exploitation Status**: not_observed
 - **Action**: investigate
 - **Reporting**: [The Hacker News — Claude Opus 5 Helped Researchers Take Over OpenAI Staff Accounts via Chained Flaws](https://thehackernews.com/2026/09/claude-opus-5-helped-researchers-take.html)
 
-### Google Gemini Security Test Domain Mix-Up
-- **Description**: During a security evaluation by Israeli company Irregular in May 2026, Google's Gemini AI model accessed the internet and inadvertently broke into real company systems due to a test domain configuration error.
-- **Impact**: Unauthorized access to third-party systems by an AI model during authorized testing, demonstrating risks of autonomous AI agents with internet access.
-- **Status**: Incident occurred during controlled evaluation. Irregular and Google notified affected parties. Architectural safeguards under review.
+### BragJack AI Browser Agent Hijacking
+- **Description**: Proof-of-concept attack (BragJack) using a single malicious browser extension to hijack AI assistants in Chrome, Edge, Opera Neon, Perplexity Comet, and Claude in Chrome via a "Prompt Forcing" technique.
+- **Impact**: Complete control over AI browser agents; data exfiltration, action injection, and persistent access across multiple AI platforms simultaneously.
+- **Status**: Proof-of-concept only; earned $20,000+ in bug bounties and two CVEs (not specified in source); not observed in wild exploitation.
+- **Severity**: high
+- **Exploitation Status**: potential
+- **Action**: monitor
+- **Reporting**: [Bleeping Computer — BragJack attacks hijack AI browser agents through malicious extensions](https://www.bleepingcomputer.com/news/security/bragjack-attacks-hijack-ai-browser-agents-through-malicious-extensions/)
+
+### Plugin4Shell AI Coding Agent Plugin Swap
+- **Description**: Flaw in four widely used AI coding agents allowing repository owners to swap pinned plugin code for malicious versions even when agents locked plugins to specific reviewed versions.
+- **Impact**: Supply chain compromise of AI coding assistants; malicious plugin execution in developer environments with high privileges.
+- **Status**: Anthropic patched in Claude Code 2.1.179; OpenAI patched in Codex 0.146.0; GitHub Copilot reportedly has no fix; demonstrated by Air Security researchers.
+- **Severity**: high
+- **Exploitation Status**: not_observed
+- **Action**: patch
+- **Reporting**: [The Hacker News — Plugin4Shell Lets Repository Owners Swap Pinned Plugin Code Across Four AI Coding Agents](https://thehackernews.com/2026/09/plugin4shell-lets-repository-owners.html)
+
+### Abandoned CDN Domain Re-registration Supply Chain Risk
+- **Description**: An abandoned CDN domain re-registered in July 2025; thousands of websites, code repositories, and documentation pages still contain hard-coded references to the domain, enabling potential supply chain attacks.
+- **Impact**: Potential code injection, malware delivery, or data interception for any site still referencing the domain; broad ecosystem impact.
+- **Status**: Domain under new ownership since July 2025; thousands of callers remain; no confirmed exploitation reported.
+- **Severity**: medium
+- **Exploitation Status**: potential
+- **Action**: investigate
+- **Reporting**: [The Hacker News — An Abandoned CDN Domain Was Re-Registered. Thousands of Sites Still Call It.](https://thehackernews.com/2026/09/an-abandoned-cdn-domain-was-re.html)
+
+### Fake LastPass Authenticator GitHub Repos Distributing Rapuncel Infostealer
+- **Description**: Malware campaign using SEO-optimized GitHub repositories impersonating legitimate software firms to distribute a previously undocumented information stealer named Rapuncel.
+- **Impact**: Credential theft, session hijacking, cryptocurrency wallet compromise, and system information exfiltration from victims who download the fake authenticator.
+- **Status**: Ongoing campaign; GitHub repositories actively used for distribution; no CVE associated (malware distribution, not vulnerability exploitation).
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [Bleeping Computer — Fake LastPass Authenticator GitHub repos push new Rapuncel infostealer](https://www.bleepingcomputer.com/news/security/fake-lastpass-authenticator-github-repos-push-new-rapuncel-infostealer/)
+
+### ShinyHunters Breach of Clop Ransomware Leak Site
+- **Description**: The ShinyHunters extortion gang breached the Clop (Cl0p) ransomware operation's data leak site on Tor, defacing the site and allegedly stealing server data and onion service private keys.
+- **Impact**: Compromise of ransomware gang infrastructure; potential exposure of victim data held by Clop; disruption of ransomware operations.
+- **Status**: Active incident; ShinyHunters threatening to extort Clop; no vulnerability exploitation details disclosed.
 - **Severity**: medium
 - **Exploitation Status**: observed
 - **Action**: monitor
+- **Reporting**: [Bleeping Computer — ShinyHunters hacks Clop leak site, threatens to extort ransomware gang](https://www.bleepingcomputer.com/news/security/shinyhunters-hacks-clop-leak-site-threatens-to-extort-ransomware-gang/)
+
+### Google Gemini Security Test Domain Mix-Up
+- **Description**: During a security evaluation by Israeli company Irregular in May 2026, Google's Gemini model accessed the internet and interacted with real company systems due to a test domain configuration error.
+- **Impact**: Unauthorized access to third-party systems by an AI model during authorized testing; highlights risks of AI agency in security evaluations.
+- **Status**: Incident occurred during controlled evaluation; configuration issue remediated; not a vulnerability in Gemini itself.
+- **Severity**: medium
+- **Exploitation Status**: not_observed
+- **Action**: investigate
 - **Reporting**: [The Hacker News — Google Gemini Broke Into Real Company Systems After Security Test Domain Mix-Up](https://thehackernews.com/2026/09/google-gemini-broke-into-real-company.html)
 
 ## Affected Systems and Products
 
-- **SolarWinds Access Rights Manager**: All versions 2026.2 and prior; Windows Server environments running ARM for identity governance
-- **Orkes Conductor**: Versions 3.21.21 through 3.30.1; Workflow orchestration platforms deployed on-premises or in cloud environments
-- **Cisco Identity Services Engine (ISE)**: Affected versions per Cisco security advisory; Network access control and policy management appliances (physical and virtual)
-- **Linux Kernel**: All versions prior to patched releases containing fixes for CVE-2025-39682 and the four local privilege escalation flaws; All Linux distributions and embedded systems running vulnerable kernels
-- **Microsoft Azure AI Foundry**: Platform-level service; No customer-deployed components affected as patch applied by Microsoft
-- **WordPress Core**: Versions prior to the September 2026 security release; All WordPress installations with administrator accounts
-- **Gyazo Platform**: Server-side infrastructure; Image-sharing service users (23.6 million records compromised)
-- **Check Point Management**: Management servers and multi-domain management appliances; Security policy management infrastructure
-- **AI Coding Agents**: Anthropic Claude Code (< 2.1.179), OpenAI Codex (< 0.146.0), GitHub Copilot (all versions), and one additional unnamed agent; Developer workstations and CI/CD pipelines using these tools
-- **Browser AI Assistants**: Chrome, Edge, Opera Neon, Perplexity Comet, and Claude in Chrome with malicious extensions installed; End-user browsers with extension support
-- **TanStack npm Packages**: Compromised package versions published to npm registry; Developer environments and CI/CD systems installing TanStack dependencies
-- **npm Ecosystem**: 13 identified malicious packages delivering WeaselBiscuit stealer; JavaScript/TypeScript projects with compromised dependencies
-- **OpenAI Internal Systems**: Help forum platform and authentication systems; Employee ChatGPT, Codex, and internal repository access
+- **Orkes Conductor**: Versions 3.21.21 through 3.30.1; workflow orchestration platform
+- **Cisco Identity Services Engine (ISE)**: All versions vulnerable to CVE-2026-76460; network access control and policy management platform
+- **Linux Kernel**: Multiple versions affected by CVE-2025-39682 and three additional KEV-listed flaws; plus four additional local privilege escalation flaws with public exploits (patched in recent kernel releases)
+- **SolarWinds Access Rights Manager (ARM)**: All versions 2026.2 and prior; Windows-based identity and access governance
+- **Azure AI Foundry**: Cloud-based AI development platform; server-side patch deployed by Microsoft
+- **TanStack npm Packages**: Malicious versions published to npm registry in May 2026; React query and table libraries
+- **npm Package 'indexed-btree'**: Malicious package on npm registry; ongoing campaign
+- **Gyazo Platform**: Server infrastructure for image-sharing service; specific component not disclosed
+- **WordPress Core**: Versions prior to September 2026 security release; Click2Shell vulnerability chain
+- **OpenAI Codex**: Sandbox environment; patched in recent releases
+- **OpenAI Help Forum & Login Systems**: Internal OpenAI infrastructure; chained flaws patched
+- **AI Coding Agents**: Anthropic Claude Code (< 2.1.179), OpenAI Codex (< 0.146.0), GitHub Copilot (unpatched), and one unnamed agent; Plugin4Shell vulnerability
+- **Browser Extensions / AI Assistants**: Chrome, Edge, Opera Neon, Perplexity Comet, Claude in Chrome; BragJack PoC targets extension ecosystem
+- **Abandoned CDN Domain**: Thousands of websites, repositories, and documentation pages with hard-coded references
+- **GitHub Repositories**: Private repositories compromised via stolen credentials (CrowdSec: 170 repos); also used as C2 by Transparent Tribe
 
 ## Attack Vectors and Techniques
 
-- **AI-Assisted Vulnerability Chaining**: Researchers used Claude Opus 5 to identify and chain a help forum bug with a login system weakness, demonstrating AI-accelerated exploit development against production systems
-- **Prompt Forcing (BragJack)**: Malicious browser extensions inject prompts into AI assistant contexts, hijacking agent behavior across multiple browser platforms and AI providers with a single extension
-- **Supply Chain Credential Theft via Malicious npm Packages**: TanStack supply chain compromise delivered credential stealers to developer machines, enabling downstream repository access using valid stolen credentials
-- **Chrome Extension Storage Harvesting**: WeaselBiscuit stealer targets Chrome Extension Storage APIs to exfiltrate authentication tokens, crypto wallet data, and sensitive credentials stored by legitimate extensions
-- **Private GitHub Repository C2**: Transparent Tribe uses private GitHub repositories as command-and-control infrastructure for Rust-based backdoors (RUSTYSHADE, RUSTYMOVE, PSNATCH, BASHNATCH), blending malicious traffic with legitimate developer workflows
-- **Pinned Plugin Bypass (Plugin4Shell)**: Repository owners exploit trust in pinned plugin versions by swapping underlying code, defeating version pinning protections in AI coding agents
-- **Unauthenticated Pre-Auth RCE**: Orkes Conductor and Cisco ISE vulnerabilities allow remote code execution without any authentication, exposing management interfaces directly to internet-based attacks
-- **Hard-Coded Cryptographic Key Abuse**: SolarWinds ARM flaw leverages a static embedded key to forge authentication tokens and achieve unauthenticated RCE
-- **Kernel TLS Path Memory Corruption**: Linux kernel CVE-2025-39682 exploits improper exception handling in TLS receive processing for kernel-level code execution
-- **Local Privilege Escalation via Public Exploits**: Four Linux kernel flaws with released exploit code enable unprivileged local users to gain root access on unpatched systems
-- **Administrator-Initiated Theme Installation (Click2Shell)**: Crafted URLs trigger unauthorized theme installation when opened by logged-in WordPress administrators, chaining to RCE via theme functionality
-- **AI Model Autonomous Network Access**: Google Gemini accessed external systems during security testing due to domain configuration errors, demonstrating emergent risks of internet-connected autonomous agents
-- **Ransomware Leak Site Compromise**: ShinyHunters breached Clop's Tor-hosted leak site, stealing server data and onion private keys—criminal-on-criminal infrastructure attack
-- **Nation-State Cryptocurrency Theft**: WaterPlum (North Korea) compromised 30,000+ devices globally, exfiltrating $10.7M+ in cryptocurrency over 8-month campaign
-- **SEO-Optimized GitHub Malware Distribution**: Fake LastPass Authenticator repositories use search optimization to deliver Rapuncel infostealer to developers searching for legitimate tools
+- **Unauthenticated Remote Code Execution**: Orkes Conductor (CVE-2026-58138), SolarWinds ARM (CVE-2026-28326), Linux kernel TLS flaw (CVE-2025-39682) — direct network exploitation without credentials
+- **Authentication Bypass / Zero-Day**: Cisco ISE (CVE-2026-76460) — API endpoint authentication failure allowing full bypass
+- **Supply Chain Compromise (npm)**: TanStack packages (credential-stealing malicious versions), 'indexed-btree' (runtime-behavior evasion) — developer machine compromise via package installation/usage
+- **Credential Theft & Reuse**: TanStack attack → GitHub account compromise → private repository exfiltration (CrowdSec); WaterPlum campaign (cryptocurrency theft)
+- **Sandbox/Container Escape**: OpenAI Codex (two distinct escape vectors) — host command execution from restricted environment
+- **Chained Vulnerability Exploitation**: OpenAI help forum bug + login system weakness → account takeover → internal repo access
+- **Prompt Forcing / AI Agent Hijacking**: BragJack — single malicious extension manipulates multiple AI browser agents simultaneously via prompt injection
+- **Plugin Swap / Pinned Version Bypass**: Plugin4Shell — repository owner replaces reviewed plugin code after pinning, affecting four AI coding agents
+- **Hard-Coded Cryptographic Key**: SolarWinds ARM — static key enables unauthenticated RCE
+- **Local Privilege Escalation**: Four Linux kernel flaws with public exploits — local user to root
+- **Theme Installation CSRF/Clickjacking Chain**: WordPress Click2Shell — admin interaction with crafted link → unauthorized theme install → RCE chain
+- **Rust-Based Malware Tooling**: Transparent Tribe (RUSTYSHADE, RUSTYMOVE, PSNATCH, BASHNATCH) — novel backdoors with GitHub-based C2
+- **SEO-Optimized Fake Repositories**: Rapuncel infostealer distribution via GitHub search poisoning
+- **Abandoned Infrastructure Takeover**: Expired CDN domain re-registration — passive supply chain risk to thousands of dependents
+- **Ransomware Gang Infrastructure Attack**: ShinyHunters breaching Clop leak site — Tor service compromise, onion key theft
+- **AI Model Agency Misuse**: Gemini accessing real systems during security test — configuration error enabling unintended external access
 
 ## Threat Actor Activities
 
-- **WaterPlum (North Korea)**: Compromised at least 30,000 devices worldwide from December 2025 through July 2026 per joint law enforcement advisory. Exfiltrated over $10.7 million in stolen cryptocurrency to North Korean infrastructure. Large-scale opportunistic campaign targeting global device population.
-- **Transparent Tribe / APT36 / Earth Karkaddan (Pakistan-aligned)**: Deployed novel Rust-based toolkit (RUSTYSHADE, RUSTYMOVE, PSNATCH, BASHNATCH) against government and defense entities in India and Afghanistan. Uses private GitHub repositories for C2 infrastructure. Activity codenamed Operation (name truncated in reporting).
-- **ShinyHunters (Extortion Gang)**: Breached Clop (Cl0p) ransomware operation's Tor leak site, defacing the site and allegedly stealing server data and onion service private keys. Notable criminal-on-criminal attack targeting ransomware infrastructure.
-- **DPRK Contagious Interview Campaign Operators**: Linked to WeaselBiscuit npm malware campaign through functional code overlaps with BeaverTail and associated tooling. Targets developers via malicious npm packages and fake GitHub repositories.
-- **TanStack Supply Chain Attackers (Unidentified)**: Compromised TanStack npm package publishing pipeline to inject credential-stealing code. Led to compromise of CrowdSec employee laptop and theft of 170 private GitHub repositories.
-- **Forever Security / Gal Weizman (Security Researcher)**: Developed BragJack Prompt Forcing technique demonstrating AI browser agent hijacking via malicious extensions. Proof-of-concept earned $20,000+ in bounties and two CVE assignments.
-- **Hacktron Researchers (Security Research)**: Used Claude Opus 5 to chain OpenAI help forum and login vulnerabilities, achieving employee account takeover and internal repository access as authorized research.
-- **Irregular (Israeli Security Firm)**: Conducted security evaluation where Google Gemini autonomously accessed third-party systems due to test domain misconfiguration. Demonstrates AI safety risks in autonomous agent deployments.
-- **pwn.ai (Security Firm)**: Discovered and reported WordPress Click2Shell vulnerability chain enabling forced theme installation and chained RCE via administrator link clicks.
+- **WaterPlum (North Korea)**: Sustained global campaign (Dec 2025 – Jul 2026) compromising 30,000+ devices, stealing $10.7M+ in cryptocurrency; joint law enforcement advisory issued; financially motivated state-sponsored activity
+- **Transparent Tribe / APT36 / Earth Karkaddan (Pakistan-aligned)**: Active espionage campaign targeting government and defense entities in India and Afghanistan; novel Rust-based toolset (RUSTYSHADE, RUSTYMOVE, PSNATCH, BASHNATCH); private GitHub repositories used for C2; attributed by Zscaler ThreatLabz
+- **ShinyHunters**: Extortion gang; breached Clop ransomware leak site on Tor; defaced site, stole server data and onion private keys; threatening to extort Clop; opportunistic targeting of criminal infrastructure
+- **Clop / Cl0p (Ransomware Gang)**: Victim of ShinyHunters breach; leak site compromised; operational disruption
+- **Hacktron Researchers**: Security research team; used Claude Opus 5 to chain OpenAI help forum and login flaws; took over OpenAI employee accounts; accessed internal code repository; responsible disclosure implied
+- **Forever Security / Gal Weizman**: BragJack PoC developer; Prompt Forcing technique; $20,000+ in bug bounties; two CVEs awarded; defensive research
+- **Air Security**: Plugin4Shell researchers; disclosed to Anthropic, OpenAI, GitHub; Claude Code and Codex patched
+- **pwn.ai**: WordPress Click2Shell researchers; reported to WordPress; patches released
+- **Fortinet**: Reported active exploitation of Orkes Conductor CVE-2026-58138 in the wild
+- **CISA**: Added three Linux kernel vulnerabilities to KEV catalog based on active exploitation evidence
+- **Irregular (Israeli Security Company)**: Conducted security evaluation where Gemini accessed real systems; domain configuration error
+- **Rapuncel Campaign Operators (Unknown)**: SEO-poisoned GitHub repos impersonating legitimate firms; distributing novel infostealer; ongoing
+- **Malicious npm Publishers (Unknown)**: 'indexed-btree' runtime evasion campaign; TanStack supply chain attack; ongoing/active
