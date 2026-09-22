@@ -1,200 +1,175 @@
 ---
 schema_version: 2
 report_date: 2026-09-22
-generated_at: 2026-09-22T16:48:50Z
+generated_at: 2026-09-22T21:10:16Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-22/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, from network infrastructure to cloud management platforms and endpoint security. Check Point Security Management Server, VeloCloud Orchestrator, Zyxel switches, and several Linux kernel flaws have all been confirmed as actively exploited in the wild, with CISA adding multiple entries to its Known Exploited Vulnerabilities catalog.
+Multiple zero-day vulnerabilities and actively exploited flaws have surfaced across diverse technologies this reporting period, with threat actors targeting networking equipment, AI infrastructure, content management systems, and cloud identity services. Chinese-speaking actors are leveraging Zyxel switch vulnerabilities and WordPress flaws to exfiltrate government data at scale, while the ShinyHunters extortion group claims an FBI breach via an Oracle PeopleSoft zero-day. Critically, a CVSS 10.0 flaw in VeloCloud Orchestrator (CVE-2026-93952) and a CVSS 9.8 vulnerability in the Bifrost AI gateway (CVE-2026-90898) are being actively exploited or present immediate unauthenticated remote code execution risk. Microsoft's takedown of the EvilTokens phishing-as-a-service platform—which compromised over 12,000 Microsoft 365 accounts across 10,000 organizations using AI-driven device code phishing—highlights the industrialization of identity-focused attacks.
 
-A maximum-severity zero-day in legacy D-Link routers has public exploit code with no patch forthcoming, while a Windows Defender zero-day actively blocks antivirus updates. Simultaneously, threat actors are conducting large-scale credential theft via Phishing-as-a-Service platforms, supply chain compromises targeting e-commerce merchants, and North Korean campaigns stealing millions in cryptocurrency through social engineering.
+Simultaneously, supply chain threats continue to evolve: the Shai-Hulud campaign compromised 170 private GitHub repositories via a stolen OAuth token originating from the TanStack npm supply chain attack, while malicious npm packages (tw-pkgprobe-7731 and indexed-btree) demonstrate increasingly sophisticated evasion techniques hiding payloads in runtime code. Check Point's Security Management Server zero-day (CVE-2026-93616) was exploited in targeted attacks before a September patch, and a Linux kernel KVM flaw (CVE-2026-89775) enables ARM64 guest-to-host escape. CISA has added the Zyxel GS1900 vulnerability (CVE-2026-7273) to its Known Exploited Vulnerabilities catalog, mandating federal patching, while D-Link's end-of-life DIR-822A routers face a maximum-severity zero-day (CVE-2026-86296) with public exploit code and no patch forthcoming.
 
 ## Active Exploitation Details
 
-### Check Point Security Management Server Zero-Day
-- **Description**: A critical zero-day vulnerability in Check Point Security Management Server that allows attackers to execute arbitrary scripts on the management server, potentially compromising the entire security policy infrastructure.
-- **Impact**: Full compromise of the security management plane, enabling attackers to manipulate firewall policies, access sensitive network configurations, and pivot to managed gateways.
-- **Status**: Emergency hotfixes released by Check Point; actively exploited in attacks prior to patch availability.
+### Check Point Security Management Server Zero-Day (CVE-2026-93616)
+- **Description**: A previously unknown flaw in Check Point's Security Management Server allows an attacker with access to the server's web service to execute arbitrary scripts without authentication. The vulnerability was exploited in a handful of targeted attacks on July 23, 2026, before Check Point released a fix on September 22.
+- **Impact**: Unauthenticated script execution on the server that controls firewall policies for Check Point deployments, potentially allowing full control over network security infrastructure.
+- **Status**: Patched as of September 22, 2026. Emergency hotfixes released for affected versions.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
-- **Reporting**: [Bleeping Computer — Check Point warns of Management Server zero-day exploited in attacks](https://www.bleepingcomputer.com/news/security/check-point-patches-management-server-zero-day-exploited-in-attacks/)
+- **CVE IDs**: CVE-2026-93616
+- **Reporting**: [The Hacker News — Check Point Warns of Management Server Zero-Day Exploited in Targeted Attacks](https://thehackernews.com/2026/09/check-point-warns-of-management-server.html), [Bleeping Computer — Check Point warns of Management Server zero-day exploited in attacks](https://www.bleepingcomputer.com/news/security/check-point-patches-management-server-zero-day-exploited-in-attacks/)
 
-### VeloCloud Orchestrator Certificate Authentication Flaw
-- **Description**: A CVSS 10.0 vulnerability in on-premises VeloCloud Orchestrator (VCO) that allows unauthenticated remote attackers to privilege internal functions and affect the VCO host. Only orchestrators configured to authenticate Edge devices with certificates are vulnerable.
-- **Impact**: Complete takeover of the SD-WAN management platform, enabling network-wide traffic manipulation, device reprogramming, and lateral movement across branch offices.
-- **Status**: Actively exploited in the wild; Arista has released patches for affected VCO versions.
+### VeloCloud Orchestrator Critical Flaw (CVE-2026-93952)
+- **Description**: A maximum-severity vulnerability (CVSS 10.0) in on-premises VeloCloud Orchestrator (VCO), the management server for VeloCloud SD-WAN Edge devices. The flaw allows a remote unauthenticated attacker to privilege internal functions and affect the VCO host, but only impacts orchestrators configured to authenticate Edges with certificates.
+- **Impact**: Full compromise of the SD-WAN management plane, potentially enabling network-wide traffic manipulation, lateral movement, and persistence across branch offices.
+- **Status**: Actively exploited in the wild as of September 22, 2026. Arista has acknowledged active exploitation.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-93952
 - **Reporting**: [The Hacker News — New CVSS 10.0 VeloCloud Orchestrator Flaw Actively Exploited in Certificate-Based Setups](https://thehackernews.com/2026/09/new-cvss-100-velocloud-orchestrator.html)
 
-### Zyxel GS1900 Series Switch Buffer Overflow
-- **Description**: A stack-based buffer overflow vulnerability (CVSS 8.8) in Zyxel GS1900 series switches that allows unauthenticated attackers to achieve arbitrary operating system command execution with elevated privileges.
-- **Impact**: Full device compromise, network traffic interception, configuration tampering, and use as a pivot point for deeper network intrusion. Exploited for data theft according to CISA.
-- **Status**: Patches available; added to CISA Known Exploited Vulnerabilities catalog with active exploitation confirmed.
+### Zyxel GS1900 Series Switches Buffer Overflow (CVE-2026-7273)
+- **Description**: A stack-based buffer overflow vulnerability (CVSS 8.8) in Zyxel GS1900 series Smart Managed Switches that allows arbitrary operating system command execution. CISA has added this vulnerability to its Known Exploited Vulnerabilities catalog citing evidence of active exploitation.
+- **Impact**: Attackers gain command-line access to network switches, enabling network reconnaissance, traffic interception, lateral movement, and persistence in victim environments.
+- **Status**: Patched. CISA ordered federal agencies to patch by September 25, 2026. Actively exploited by Chinese-speaking threat actors against government targets.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-7273
-- **Reporting**: [Bleeping Computer — CISA orders feds to patch Zyxel flaw exploited for data theft](https://www.bleepingcomputer.com/news/security/cisa-orders-feds-to-patch-actively-exploited-zyxel-flaw-by-thursday/), [The Hacker News — Zyxel and Veeam Flaws Under Active Exploitation With Command and SYSTEM Access](https://thehackernews.com/2026/09/zyxel-and-veeam-flaws-under-active.html)
+- **Reporting**: [Bleeping Computer — Chinese hackers exploit WordPress, Zyxel flaws to steal govt data](https://www.bleepingcomputer.com/news/security/chinese-hackers-exploit-multiple-technologies-to-steal-govt-data/), [Bleeping Computer — CISA orders feds to patch Zyxel flaw exploited for data theft](https://www.bleepingcomputer.com/news/security/cisa-orders-feds-to-patch-actively-exploited-zyxel-flaw-by-thursday/), [The Hacker News — Zyxel and Veeam Flaws Under Active Exploitation With Command and SYSTEM Access](https://thehackernews.com/2026/09/zyxel-and-veeam-flaws-under-active.html)
 
-### Veeam Vulnerability Under Active Exploitation
-- **Description**: A security flaw in Veeam backup software that is currently under active exploitation, granting attackers SYSTEM-level access. Specific technical details were not disclosed in the source article.
-- **Impact**: Potential compromise of backup infrastructure, data exfiltration, ransomware deployment, and destruction of recovery capabilities.
-- **Status**: Actively exploited per CISA; patch status not specified in source.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — Zyxel and Veeam Flaws Under Active Exploitation With Command and SYSTEM Access](https://thehackernews.com/2026/09/zyxel-and-veeam-flaws-under-active.html)
-
-### Linux Kernel Vulnerabilities (Three Flaws)
-- **Description**: Three distinct Linux kernel vulnerabilities actively exploited in the wild, one rated critical severity. CISA has issued an alert and added them to the KEV catalog. Specific CVE identifiers were not provided in the source article.
-- **Impact**: Kernel-level code execution, privilege escalation, container escape, and potential host compromise across Linux servers and embedded devices.
-- **Status**: Actively exploited per CISA; patches available in upstream kernel and distribution updates.
+### WordPress Comment2Shell Vulnerability (CVE-2026-93485)
+- **Description**: A WordPress core flaw dubbed "Comment2Shell" (CVE-2026-93485) that allows an anonymous visitor to leave a comment containing a hidden script. When a logged-in administrator views the comment, the script executes and can achieve remote code execution on the server. Fixed in WordPress 7.1.1 on September 17, 2026, with patches backported to all supported branches.
+- **Impact**: Unauthenticated stored XSS that escalates to authenticated RCE via administrator session hijacking, leading to full site and server compromise.
+- **Status**: Patched in WordPress 7.1.1 and all supported branches back to 4.7. Active exploitation reported.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
-- **Reporting**: [Bleeping Computer — CISA alerts of active exploitation of three Linux kernel flaws](https://www.bleepingcomputer.com/news/security/cisa-alerts-of-active-exploitation-of-three-linux-kernel-flaws/)
+- **CVE IDs**: CVE-2026-93485
+- **Reporting**: [The Hacker News — WordPress Comment2Shell Flaw Can Turn Anonymous Comment XSS Into RCE via Admin Session](https://thehackernews.com/2026/09/wordpress-comment2shell-flaw-can-turn.html)
 
-### Windows Defender Zero-Day Blocking AV Updates
-- **Description**: A zero-day exploit in Microsoft Defender released by researcher Abdelhamid Naceri (Nightmare Eclipse) that prevents antivirus definition updates from installing, leaving systems unprotected against new threats.
-- **Impact**: Persistent degradation of endpoint protection, enabling follow-on malware installation without detection. Exploit code is publicly available.
-- **Status**: Zero-day exploit publicly released; Microsoft patch status not confirmed in source.
-- **Severity**: high
-- **Exploitation Status**: observed
-- **Action**: mitigate
-- **Reporting**: [Bleeping Computer — New Windows Defender zero-day blocks Microsoft antivirus updates](https://www.bleepingcomputer.com/news/security/new-windows-defender-zero-day-blocks-microsoft-antivirus-updates/)
+### WordPress Critical Core Flaw (CVE Not Provided)
+- **Description**: A critical vulnerability in WordPress core that allows an unauthenticated attacker to make a site load a PHP file from outside its theme directories. On some server configurations, this enables arbitrary code execution. Fixed in WordPress 7.1.2 on September 22, 2026, with patches for all supported branches back to version 4.7.
+- **Impact**: Unauthenticated remote code execution on vulnerable server configurations, leading to complete site and server compromise.
+- **Status**: Patched as of September 22, 2026. WordPress urges immediate updates.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: [The Hacker News — WordPress Issues Patch for Critical Flaw That Can Enable Code Execution on Some Servers](https://thehackernews.com/2026/09/wordpress-issues-patch-for-critical.html), [Bleeping Computer — Chinese hackers exploit WordPress, Zyxel flaws to steal govt data](https://www.bleepingcomputer.com/news/security/chinese-hackers-exploit-multiple-technologies-to-steal-govt-data/)
 
-### D-Link DIR-822A Router Maximum-Severity Zero-Day
-- **Description**: A maximum-severity vulnerability in legacy D-Link DIR-822A dual-band Wi-Fi routers with public proof-of-concept exploit code. D-Link has stated no patch will be released for these end-of-life devices.
-- **Impact**: Complete router compromise, traffic interception, DNS hijacking, botnet recruitment, and internal network access.
-- **Status**: Public PoC available; no patch forthcoming (legacy/EOL product). Active exploitation not explicitly confirmed but imminent risk.
+### Oracle PeopleSoft Zero-Day (CVE Not Provided)
+- **Description**: The ShinyHunters extortion group claims to have breached FBI systems using a previously unknown (zero-day) vulnerability in Oracle PeopleSoft, gaining access to internal services and stealing sensitive data on employees and job applicants.
+- **Impact**: Alleged compromise of FBI internal systems, exfiltration of sensitive personnel and applicant data.
+- **Status**: Zero-day; no patch information available at time of reporting. ShinyHunters claims active exploitation.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — ShinyHunters claims FBI hack, data theft in PeopleSoft zero-day breach](https://www.bleepingcomputer.com/news/security/shinyhunters-claims-fbi-hack-data-theft-in-peoplesoft-zero-day-breach/)
+
+### Bifrost AI Gateway Unauthenticated RCE (CVE-2026-90898)
+- **Description**: A critical vulnerability (CVSS 9.8) in Bifrost, an open-source AI gateway routing requests to 20+ LLM providers. The flaw allows an unauthenticated attacker to execute arbitrary commands on the gateway server with a single HTTP request when management authentication is enabled. Affects all versions before 2.1.0.
+- **Impact**: Full server compromise of AI inference infrastructure, potential access to LLM API keys, model manipulation, and pivot to connected systems.
+- **Status**: Patched in version 2.1.0. No active exploitation reported but critical severity and trivial exploitation warrant immediate action.
+- **Severity**: critical
+- **Exploitation Status**: potential
+- **Action**: patch
+- **CVE IDs**: CVE-2026-90898
+- **Reporting**: [The Hacker News — Critical Bifrost AI Gateway Flaw Lets Attackers Run Commands Without Credentials](https://thehackernews.com/2026/09/critical-bifrost-ai-gateway-flaw-lets.html)
+
+### D-Link DIR-822A Router Zero-Day (CVE-2026-86296)
+- **Description**: A maximum-severity zero-day vulnerability in legacy DIR-822A dual-band Wi-Fi routers with public proof-of-concept exploit code available. D-Link has confirmed no patch will be released for this end-of-life device.
+- **Impact**: Complete router compromise, enabling network traffic interception, DNS hijacking, and use as a pivot point for internal network attacks.
+- **Status**: Unpatched, end-of-life device. Public PoC exists. No vendor fix forthcoming.
 - **Severity**: critical
 - **Exploitation Status**: potential
 - **Action**: mitigate
 - **CVE IDs**: CVE-2026-86296
 - **Reporting**: [Bleeping Computer — D-Link warns of max severity zero-day bug in DIR-822A routers](https://www.bleepingcomputer.com/news/security/d-link-warns-of-max-severity-zero-day-bug-in-dir-822a-routers/)
 
-### WordPress Click2Shell CSRF Vulnerability
-- **Description**: A cross-site request forgery (CSRF) vulnerability in WordPress Core dubbed "Click2Shell" that allows attackers to execute arbitrary PHP code on the server when an authenticated administrator visits a malicious page.
-- **Impact**: Remote code execution on the web server via administrator interaction, leading to full site compromise, data theft, and malware distribution.
-- **Status**: Technical details and proof-of-concept exploit published; patch status not specified in source.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — WordPress Click2Shell flaw lets hackers execute PHP on the server](https://www.bleepingcomputer.com/news/security/wordpress-click2shell-flaw-lets-hackers-execute-php-on-the-server/)
-
-### WordPress Comment2Shell Vulnerability
-- **Description**: A vulnerability (CVE-2026-93485) allowing anonymous visitors to inject malicious scripts via comments that execute when an administrator views the comment moderation queue, achieving authenticated RCE.
-- **Impact**: Remote code execution on the WordPress server through social engineering of administrative users.
-- **Status**: Patched in WordPress 7.1.1 (released September 17); no active exploitation reported.
-- **Severity**: high
-- **Exploitation Status**: not_observed
-- **Action**: patch
-- **CVE IDs**: CVE-2026-93485
-- **Reporting**: [The Hacker News — WordPress Comment2Shell Flaw Can Turn Anonymous Comment XSS Into RCE via Admin Session](https://thehackernews.com/2026/09/wordpress-comment2shell-flaw-can-turn.html)
-
-### SharePoint Server Authenticated RCE
-- **Description**: A vulnerability (CVE-2026-65660) initially misclassified by Microsoft as spoofing (CVSS 6.5) but actually enabling authenticated remote code execution in SharePoint Server 2016, 2019, and Subscription Edition.
-- **Impact**: Authenticated attackers can execute arbitrary code on SharePoint servers, accessing enterprise document repositories and internal data.
-- **Status**: Patches released by Microsoft; no active exploitation reported in source.
-- **Severity**: high
-- **Exploitation Status**: not_observed
-- **Action**: patch
-- **CVE IDs**: CVE-2026-65660
-- **Reporting**: [The Hacker News — SharePoint Flaw Initially Listed as Spoofing by Microsoft Enables Authenticated RCE](https://thehackernews.com/2026/09/sharepoint-flaw-initially-listed-as.html)
-
-### Linux Kernel KVM ARM64 Guest Escape
-- **Description**: A flaw (CVE-2026-89775) in the Linux kernel's KVM virtualization code for ARM64 processors that exposes freed host memory to guest VMs when nested virtualization is enabled, allowing guest-to-host escape.
-- **Impact**: Virtual machine escape with read-write access to host kernel memory, enabling host compromise from a guest VM.
-- **Status**: Proof-of-concept demonstrated by researcher; requires nested virtualization; no active exploitation reported.
+### Linux Kernel ARM64 KVM Guest Escape (CVE-2026-89775)
+- **Description**: A flaw in the Linux kernel's KVM virtualization code for ARM64 processors that exposes freed host memory to a guest virtual machine when nested virtualization is enabled. The researcher who discovered it confirms the bug can be used to escape the guest and execute code on the host.
+- **Impact**: Virtual machine escape to host kernel code execution, compromising all guests on the host and the hypervisor itself.
+- **Status**: CVE assigned. Patch status not specified in source. Requires nested virtualization enabled to exploit.
 - **Severity**: high
 - **Exploitation Status**: potential
 - **Action**: patch
 - **CVE IDs**: CVE-2026-89775
 - **Reporting**: [The Hacker News — New Linux Kernel Flaw Gives ARM64 KVM Guests Read-Write Access to Host Memory](https://thehackernews.com/2026/09/new-linux-kernel-flaw-gives-arm64-kvm.html)
 
-### EvilTokens Phishing-as-a-Service Campaign
-- **Description**: A large-scale Phishing-as-a-Service platform (EvilTokens) that compromised over 12,000 Microsoft accounts across more than 10,000 organizations before being disrupted by Microsoft's Digital Crimes Unit.
-- **Impact**: Mass credential theft, business email compromise, data exfiltration, and potential ransomware deployment across compromised Microsoft 365 tenants.
-- **Status**: Platform disrupted and taken down by Microsoft DCU; compromised credentials require remediation.
+### SharePoint Server Authenticated RCE (CVE-2026-65660)
+- **Description**: A SharePoint Server vulnerability initially misclassified by Microsoft as spoofing (CVSS 6.5) but actually enables authenticated remote code execution. Affects SharePoint Server 2016, 2019, and Subscription Edition. Technical details published by Viettel Cyber Security researcher Dinh Ho Anh Khoa.
+- **Impact**: Authenticated attackers can achieve remote code execution on SharePoint servers, leading to data theft, lateral movement, and persistence.
+- **Status**: Patches have been released by Microsoft.
 - **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — EvilTokens PhaaS disrupted after compromising 12,000 Microsoft accounts](https://www.bleepingcomputer.com/news/security/eviltokens-phaas-disrupted-after-compromising-12-000-microsoft-accounts/)
+- **Exploitation Status**: potential
+- **Action**: patch
+- **CVE IDs**: CVE-2026-65660
+- **Reporting**: [The Hacker News — SharePoint Flaw Initially Listed as Spoofing by Microsoft Enables Authenticated RCE](https://thehackernews.com/2026/09/sharepoint-flaw-initially-listed-as.html)
 
-### Contagious Interview Campaign (North Korean)
-- **Description**: A sustained North Korean campaign targeting web designers, engineers, and cryptocurrency specialists through fake interview lures, compromising at least 30,000 devices in 100+ countries and stealing $10.71M from 7,000+ cryptocurrency wallets.
-- **Impact**: Large-scale device compromise, cryptocurrency theft, credential harvesting, and potential supply chain access through compromised developers.
-- **Status**: Active campaign documented in joint cybersecurity advisory; ongoing threat.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — Contagious Interview Campaign Compromises 30,000 Devices, Steals $10.71M in Crypto](https://thehackernews.com/2026/09/contagious-interview-campaign.html)
-
-### SideCopy Spear-Phishing Campaign
-- **Description**: Threat actor SideCopy expanding targeting to academic institutions in India using spear-phishing emails that abuse mshta.exe to execute malicious scripts and deploy ReverseRAT malware.
-- **Impact**: Persistent access to academic networks, data theft, espionage, and potential lateral movement to connected research or government networks.
-- **Status**: Active campaign observed by Trellix researchers; ongoing targeting.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [The Hacker News — SideCopy Broadens India Targeting to Academia With ReverseRAT Spear-Phishing](https://thehackernews.com/2026/09/sidecopy-broadens-india-targeting-to.html)
-
-### BigCommerce Supply Chain Compromise via Ribon Apps
-- **Description**: Attackers compromised credentials for third-party Ribon applications and used them to inject malicious scripts into BigCommerce merchant stores, leading to data breaches.
-- **Impact**: Customer data theft, payment card skimming, reputation damage, and regulatory exposure for affected merchants.
-- **Status**: Active breach reported; BigCommerce alerting affected merchants; Ribon credentials compromised.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — BigCommerce alerts merchants of data breach linked to Ribon apps](https://www.bleepingcomputer.com/news/security/bigcommerce-alerts-merchants-of-data-breach-linked-to-ribon-apps/)
-
-### Fake LastPass Installer with Microsoft-Signed Driver
-- **Description**: A trojanized LastPass Authenticator installer distributed on GitHub that installs a Microsoft-signed kernel driver to disable antivirus and EDR before deploying a password stealer.
-- **Impact**: Complete security software bypass, credential theft from password managers and browsers, persistent system access.
-- **Status**: Active distribution on GitHub; driver signed by Microsoft Hardware Compatibility Program; zero VirusTotal detections at time of research.
+### BigDiskBuster / Windows Defender Zero-Day (CVE Not Provided)
+- **Description**: A zero-day proof-of-concept tool (BigDiskBuster) released by researcher Abdelhamid Naceri (Nightmare Eclipse) that prevents Microsoft Defender from installing platform and signature updates by exhausting all available disk space. No patch, CVE, or Microsoft advisory exists.
+- **Impact**: Persistent disablement of antivirus updates, leaving endpoints vulnerable to subsequent malware infections without detection capability refresh.
+- **Status**: Unpatched zero-day with public PoC. No vendor acknowledgment or fix.
 - **Severity**: high
 - **Exploitation Status**: observed
 - **Action**: investigate
-- **Reporting**: [The Hacker News — Fake LastPass Authenticator Installer Abuses Microsoft-Signed Driver to Kill Antivirus and EDR](https://thehackernews.com/2026/09/fake-lastpass-authenticator-installer.html)
+- **Reporting**: [The Hacker News — Researcher Drops BigDiskBuster Zero-Day PoC That Blocks Microsoft Defender Updates](https://thehackernews.com/2026/09/researcher-drops-bigdiskbuster-zero-day.html), [Bleeping Computer — New Windows Defender zero-day blocks Microsoft antivirus updates](https://www.bleepingcomputer.com/news/security/new-windows-defender-zero-day-blocks-microsoft-antivirus-updates/)
 
-### Malicious npm Package indexed-btree
-- **Description**: A malicious npm package mimicking the legitimate "sorted-btree" package that hides its payload in application runtime code rather than lifecycle scripts, evading traditional supply chain scanners.
-- **Impact**: Arbitrary code execution in applications that install the package, potential supply chain compromise of downstream software.
-- **Status**: Package removed from npm registry after detection; demonstrates evolving evasion techniques.
+### EvilTokens Device Code Phishing Service
+- **Description**: A phishing-as-a-service platform (EvilTokens) that compromised over 12,000 Microsoft 365 accounts across 10,000+ organizations using device code authentication flows. The service used AI at every step of the attack chain. Microsoft's Digital Crimes Unit led a court-authorized takedown seizing 50 websites and disabling 150+ domains with support from Health-ISAC, Cloudflare, Coinbase, OpenAI, Railway, SpyCloud, and Shadowserver.
+- **Impact**: Large-scale credential theft and persistent access to Microsoft 365 environments, enabling business email compromise, data exfiltration, and supply chain attacks.
+- **Status**: Service disrupted via legal and technical takedown. Compromised accounts require remediation.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Dark Reading — Microsoft Disrupts EvilTokens Device Code Phishing Service](https://www.darkreading.com/identity-access-management-security/microsoft-disrupts-eviltokens-device-code-phishing-service), [The Hacker News — Microsoft Takes Down EvilTokens Device-Code Phishing Service Tied to 12,000 Inbox Compromises](https://thehackernews.com/2026/09/microsoft-takes-down-eviltokens-device.html), [Bleeping Computer — EvilTokens PhaaS disrupted after compromising 12,000 Microsoft accounts](https://www.bleepingcomputer.com/news/security/eviltokens-phaas-disrupted-after-compromising-12-000-microsoft-accounts/)
+
+### Shai-Hulud / TanStack npm Supply Chain Attack
+- **Description**: Threat actors stole 170 private GitHub repositories from cybersecurity firm CrowdSec using an OAuth token compromised from a former employee's computer through the TanStack npm supply chain attack. The campaign demonstrates downstream impact of developer-targeted supply chain compromises.
+- **Impact**: Theft of proprietary source code, potential injection of malicious code into downstream dependencies, credential exposure.
+- **Status**: Active campaign. OAuth token revoked; repositories compromised.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Dark Reading — Shai-Hulud Attack Nips Cyber-Firm CrowdSec's GitHub Data](https://www.darkreading.com/cyberattacks-data-breaches/shai-hulud-attack-cyber-firm-crowdsec-github-data)
+
+### Malicious npm Package: tw-pkgprobe-7731
+- **Description**: A malicious npm package masquerading as a Twilio bug-bounty security tool ("tw-pkgprobe-7731") uploaded in mid-August 2026 by account "twdepprobe7731." The package targets developers integrating Twilio and attempts to exfiltrate sensitive credentials.
+- **Impact**: Credential theft from development environments, potential access to Twilio accounts and associated communications infrastructure.
+- **Status**: Package removed from npm registry. Developers who installed it should rotate credentials.
+- **Severity**: medium
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [The Hacker News — Malicious npm Package Poses as Twilio Bug-Bounty Probe, Can Exfiltrate Credentials](https://thehackernews.com/2026/09/malicious-npm-package-poses-as-twilio.html)
+
+### Malicious npm Package: indexed-btree
+- **Description**: A malicious npm package ("indexed-btree") mimicking the legitimate "sorted-btree" package that hides its malicious loader within application runtime code rather than lifecycle scripts, indicating evolving evasion tactics against security controls.
+- **Impact**: Supply chain compromise of applications incorporating the package; runtime code execution in production environments.
+- **Status**: Package observed and removed. Detection requires runtime analysis rather than static dependency scanning.
 - **Severity**: medium
 - **Exploitation Status**: observed
 - **Action**: investigate
 - **Reporting**: [The Hacker News — Malicious npm Package indexed-btree Hid Its Loader in Runtime Code Before Removal](https://thehackernews.com/2026/09/malicious-npm-package-indexed-btree-hid.html)
 
-### Malware Distribution via Film Torrents
-- **Description**: Cybercriminals distributing new malware through torrent files for popular films, with identified victims in Africa including Kenya and Uganda.
-- **Impact**: Malware installation on victim systems via social engineering, potential botnet recruitment, data theft, and financial fraud.
-- **Status**: Active distribution campaign; geographic targeting observed.
-- **Severity**: medium
-- **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [Dark Reading — Cybercriminals Are Hiding New Malware in Torrents for Popular Films](https://www.darkreading.com/cyberattacks-data-breaches/cybercriminals-hiding-new-malware-torrents-popular-films)
-
-### ShinyHunters Compromise of Clop Ransomware Infrastructure
-- **Description**: Threat actor ShinyHunters breached Clop ransomware group's dark web site, defaced it, and claims to have stolen victim data, potentially exposing organizations that paid ransoms to renewed extortion.
-- **Impact**: Double extortion risk for previous Clop victims; exposure of sensitive stolen data; disruption of ransomware operations.
-- **Status**: Active incident; data exposure ongoing; implications for prior victims.
+### ClosedQuorum AI-Driven Windows Malware
+- **Description**: A new Windows malware family (ClosedQuorum) that leverages multiple AI models (Google Gemini, DeepSeek, Qwen, Mistral) to autonomously determine post-compromise actions, representing a shift toward AI-orchestrated attack decision-making.
+- **Impact**: Adaptive, resilient post-exploitation behavior that can dynamically respond to environment conditions and defensive measures.
+- **Status**: Active malware family. No specific exploitation vector detailed; initial access method unspecified.
 - **Severity**: high
-- **Exploitation Status**: active
+- **Exploitation Status**: observed
 - **Action**: monitor
-- **Reporting**: [Dark Reading — ShinyHunters Hacked Clop. Now What About Clop's Victims?](https://www.darkreading.com/cyberattacks-data-breaches/shinyhunters-hacked-clop-what-about-clops-victims)
+- **Reporting**: [Bleeping Computer — New ClosedQuorum Windows malware uses AI for attack decisions](https://www.bleepingcomputer.com/news/security/new-closedquorum-windows-malware-uses-ai-for-attack-decisions/)
 
-### Meta Muse AI Assistant Backdoor via Hidden Setting
-- **Description**: A proof-of-concept demonstrating that malware already present on a Mac can modify a hidden Meta Muse setting to redirect voice dictation to an attacker instead of Meta, turning the AI assistant into a surveillance backdoor.
-- **Impact**: Audio surveillance, command injection via voice interface, privacy violation for Mac users with Muse installed.
-- **Status**: Proof-of-concept only; requires pre-existing malware infection; no active exploitation reported.
+### Meta Muse AI Assistant Backdoor (macOS)
+- **Description**: A proof-of-concept demonstrating that malware already running on a Mac can hijack Meta's Muse AI assistant by modifying a hidden setting, redirecting dictated prompts to the attacker instead of Meta. Requires pre-existing malware execution on the target system.
+- **Impact**: Eavesdropping on voice dictation, potential command injection via voice interface, persistence mechanism leveraging legitimate AI assistant permissions.
+- **Status**: Proof-of-concept only. No active exploitation reported. Requires initial compromise.
 - **Severity**: medium
 - **Exploitation Status**: potential
 - **Action**: monitor
@@ -202,50 +177,42 @@ A maximum-severity zero-day in legacy D-Link routers has public exploit code wit
 
 ## Affected Systems and Products
 
-- **Check Point Security Management Server**: All versions prior to emergency hotfix; management plane for Check Point firewall infrastructure
-- **VeloCloud Orchestrator (VCO)**: On-premises deployments with certificate-based Edge authentication; Arista SD-WAN management platform
-- **Zyxel GS1900 Series Switches**: All firmware versions prior to patched release; web-managed Gigabit Ethernet switches
-- **Veeam Backup & Replication**: Specific product/version not disclosed in source; enterprise backup infrastructure
-- **Linux Kernel**: Multiple kernel versions across distributions; three distinct vulnerabilities affecting server, cloud, and embedded deployments
-- **Windows Defender / Microsoft Defender**: Windows endpoints with Defender enabled; exploit blocks definition updates
-- **D-Link DIR-822A Routers**: Legacy dual-band Wi-Fi routers (end-of-life); no patch will be released
-- **WordPress Core**: Versions prior to 7.1.1 for Comment2Shell; Click2Shell affects Core component (version range not specified)
-- **Microsoft SharePoint Server**: 2016, 2019, and Subscription Edition; on-premises deployments
-- **Linux KVM on ARM64**: Hosts with nested virtualization enabled; affects cloud providers and enterprises using ARM64 virtualization
-- **Microsoft 365 / Entra ID**: Accounts targeted via EvilTokens PhaaS; 12,000+ compromised across 10,000+ organizations
-- **BigCommerce Merchant Stores**: Stores using compromised Ribon third-party applications; e-commerce platform merchants
-- **npm Ecosystem**: Projects that installed malicious `indexed-btree` package; JavaScript/TypeScript supply chain
-- **macOS with Meta Muse**: Mac systems running Meta's Muse AI assistant; requires pre-existing malware infection
-- **GitHub / Software Distribution**: Fake LastPass Authenticator installer hosted on GitHub; Windows systems
-- **Torrent Networks**: Users downloading pirated film content; malware-laced torrent files
+- **Check Point Security Management Server**: All versions prior to September 22, 2026 hotfix. Platform: Network security management appliances controlling firewall policies.
+- **VeloCloud Orchestrator (VCO)**: On-premises deployments configured for certificate-based Edge authentication. Platform: VMware/Arista SD-WAN management servers.
+- **Zyxel GS1900 Series Smart Managed Switches**: Vulnerable firmware versions prior to vendor patch. Platform: Network switching equipment deployed in enterprise and government environments.
+- **WordPress Core**: All versions from 4.7 through 7.1.1 (for CVE-2026-93485) and through 7.1.1 (for critical core flaw patched in 7.1.2). Platform: Web servers running WordPress CMS.
+- **Oracle PeopleSoft**: Versions affected by undisclosed zero-day. Platform: Enterprise ERP and HR systems.
+- **Bifrost AI Gateway**: All versions before 2.1.0 with management authentication enabled. Platform: Open-source AI inference gateway servers routing to 20+ LLM providers.
+- **D-Link DIR-822A Dual-Band Wi-Fi Routers**: End-of-life legacy routers. No patch available. Platform: Consumer/small business networking equipment.
+- **Linux Kernel KVM (ARM64)**: Versions with vulnerable KVM virtualization code when nested virtualization is enabled. Platform: ARM64 hypervisors hosting virtual machines.
+- **Microsoft SharePoint Server**: 2016, 2019, and Subscription Edition. Platform: On-premises SharePoint deployments.
+- **Microsoft Defender / Windows**: All versions susceptible to disk-space exhaustion attack (BigDiskBuster). Platform: Windows endpoints with Microsoft Defender.
+- **Microsoft 365 / Entra ID**: Accounts targeted by EvilTokens device code phishing. Platform: Cloud identity and productivity suite.
+- **GitHub / npm Ecosystem**: Repositories and packages affected by TanStack supply chain attack and malicious packages (tw-pkgprobe-7731, indexed-btree). Platform: Developer build environments and CI/CD pipelines.
+- **Meta Muse Assistant**: macOS installations with Muse assistant granted microphone access. Platform: Apple macOS desktop systems.
 
 ## Attack Vectors and Techniques
 
-- **Phishing-as-a-Service (PhaaS)**: EvilTokens platform providing turnkey credential harvesting infrastructure targeting Microsoft 365 accounts at scale, using adversary-in-the-middle techniques to bypass MFA.
-- **Supply Chain Credential Compromise**: Attackers steal third-party application credentials (Ribon apps) to inject malicious scripts into downstream customer environments (BigCommerce merchants).
-- **Spear-Phishing with Living-off-the-Land**: SideCopy abuses `mshta.exe` (Microsoft HTML Application Host) to execute malicious scripts without dropping files, evading detection while deploying ReverseRAT.
-- **Social Engineering via Fake Interviews**: North Korean Contagious Interview campaign uses fictitious job interviews to deliver malware to developers and cryptocurrency professionals across 100+ countries.
-- **Trojanized Legitimate Software**: Fake LastPass Authenticator installer leverages a Microsoft-signed kernel driver to disable security agents (AV/EDR) before deploying password-stealing payload.
-- **Malicious Package Runtime Evasion**: `indexed-btree` npm package hides malicious loader in application runtime code rather than install scripts, bypassing lifecycle-based supply chain scanners.
-- **Zero-Day Exploitation of Management Planes**: Check Point Management Server and VeloCloud Orchestrator vulnerabilities target centralized network/security management infrastructure for maximum blast radius.
-- **Network Device Exploitation**: Zyxel switch buffer overflow and D-Link router zero-day exploit network infrastructure devices often lacking timely patching.
-- **Kernel-Level Virtualization Escape**: Linux KVM flaw (CVE-2026-89775) exploits nested virtualization memory management to break guest isolation on ARM64 hosts.
-- **Authenticated Web Application RCE**: SharePoint and WordPress vulnerabilities chain low-privilege access (authenticated user, admin session) to achieve server-side code execution.
-- **Malvertising / Trojanized Media**: Malware distributed through torrent files for popular films, targeting users seeking pirated content in specific geographic regions.
-- **Ransomware Infrastructure Compromise**: ShinyHunters breaches Clop's dark web infrastructure, stealing victim data and enabling secondary extortion of organizations that already paid ransoms.
-- **AI Assistant Subversion**: Local malware manipulates hidden settings in Meta Muse to redirect voice input, demonstrating post-exploitation abuse of AI integrations.
-- **Certificate-Based Authentication Bypass**: VeloCloud Orchestrator flaw specifically affects certificate-authenticated Edge configurations, highlighting risks in PKI-dependent architectures.
+- **Device Code Phishing (OAuth Device Authorization Flow)**: EvilTokens abused the OAuth device code flow to phish Microsoft 365 credentials without traditional credential harvesting pages. AI automated lure generation, token capture, and session persistence across 10,000+ organizations.
+- **Unauthenticated Remote Code Execution via Web Management Interfaces**: Check Point (CVE-2026-93616), VeloCloud (CVE-2026-93952), and Bifrost (CVE-2026-90898) all expose management web services that allow unauthenticated script/command execution.
+- **Stored XSS to RCE via Privileged User Interaction**: WordPress Comment2Shell (CVE-2026-93485) plants malicious scripts in comments that execute only when an administrator views the page, bridging unauthenticated input to authenticated code execution.
+- **Network Device Buffer Overflow for Command Execution**: Zyxel GS1900 (CVE-2026-7273) stack-based buffer overflow yields arbitrary OS command execution on switching infrastructure.
+- **Supply Chain Compromise via Malicious npm Packages**: Both typosquatting (indexed-btree mimicking sorted-btree) and social engineering (tw-pkgprobe-7731 posing as bug-bounty tool) deliver credential stealers to developer machines.
+- **OAuth Token Theft from Developer Endpoints**: Shai-Hulud campaign stole a former employee's OAuth token from a compromised computer, then accessed 170 private GitHub repositories.
+- **Virtual Machine Escape via Kernel Use-After-Free**: Linux KVM flaw (CVE-2026-89775) on ARM64 with nested virtualization allows guest VMs to read/write freed host kernel memory, achieving hypervisor escape.
+- **AI-Orchestrated Post-Exploitation**: ClosedQuorum malware queries multiple LLM APIs (Gemini, DeepSeek, Qwen, Mistral) to autonomously decide lateral movement, persistence, and data collection actions.
+- **Disk Exhaustion for Security Evasion**: BigDiskBuster fills disk space to prevent Microsoft Defender signature and platform updates, creating a persistent blind spot.
+- **Legacy Device Exploitation with Public PoC**: D-Link DIR-822A (CVE-2026-86296) exploits end-of-life routers with no patch path, using publicly available exploit code.
+- **Spear-Phishing with Living-off-the-Land Binaries**: SideCopy uses mshta.exe to execute malicious scripts via phishing lures targeting Indian academic institutions, deploying ReverseRAT.
+- **AI Assistant Permission Abuse**: Meta Muse PoC shows how broad microphone/accessibility permissions granted to AI assistants can be repurposed as a covert channel by local malware.
 
 ## Threat Actor Activities
 
-- **EvilTokens Operators**: Ran a large-scale Phishing-as-a-Service platform compromising 12,000+ Microsoft accounts across 10,000+ organizations before disruption by Microsoft Digital Crimes Unit. Platform offered adversary-in-the-middle capabilities to defeat MFA.
-- **SideCopy (APT)**: Pakistan-aligned threat actor expanding targeting from Indian government entities to academic institutions. Uses spear-phishing with `mshta.exe` execution and ReverseRAT malware for persistent access and espionage.
-- **North Korean Actors (Contagious Interview Campaign)**: State-sponsored group conducting global campaign targeting web designers, engineers, and crypto specialists via fake interview lures. Compromised 30,000+ devices in 100+ countries, stole $10.71M from 7,000+ cryptocurrency wallets. Documented in joint cybersecurity advisory.
-- **ShinyHunters**: Opportunistic threat actor that breached Clop ransomware group's dark web infrastructure, defaced their leak site, and claims possession of victim data. Creates secondary extortion risk for organizations that previously paid Clop ransoms.
-- **Clop Ransomware Group**: Victim of infrastructure compromise by ShinyHunters; their victim data now exposed, potentially leading to renewed extortion attempts against prior victims.
-- **Unknown Actors (Zyxel/Linux Kernel/Check Point/Veeam Exploitation)**: CISA-confirmed active exploitation of Zyxel switches, three Linux kernel flaws, Check Point Management Server, and Veeam software. Attribution not provided in sources; likely multiple distinct threat groups given target diversity.
-- **Unknown Actors (VeloCloud Exploitation)**: Active exploitation of CVE-2026-93952 in certificate-configured VCO instances; targeting SD-WAN management infrastructure suggests network-focused threat actor.
-- **Abdelhamid Naceri (Nightmare Eclipse)**: Security researcher who publicly released Windows Defender zero-day exploit blocking AV updates; not a threat actor but increases exploitation risk through public disclosure.
-- **Patrick Wardle**: Security researcher who published proof-of-concept for Meta Muse backdoor via hidden setting manipulation; demonstrates post-exploitation technique requiring initial malware foothold.
-- **Cybercriminal Groups (Torrent Malware)**: Financially motivated actors distributing malware via trojanized film torrents, with observed victims in Kenya and Uganda. Geographic targeting suggests regional focus or opportunity.
-- **Ribon Credential Thieves**: Actors who compromised credentials for Ribon third-party applications, enabling supply chain injection into BigCommerce merchant stores. Initial access vector not specified.
+- **Chinese-Speaking Threat Actor (Government Data Theft)**: Actively exploiting Zyxel GS1900 switches (CVE-2026-7273) and WordPress vulnerabilities to compromise 996 devices and exfiltrate over 18,500 records from government backend databases. CISA KEV listing confirms active exploitation.
+- **ShinyHunters Extortion Group**: Claims breach of FBI systems via Oracle PeopleSoft zero-day, stealing employee and applicant data. Known for high-profile data theft and extortion campaigns against corporate and government targets.
+- **EvilTokens Operators (Phishing-as-a-Service)**: Ran a commercial PhaaS platform compromising 12,000+ Microsoft 365 accounts across 10,000+ organizations. Leveraged AI for lure crafting, device code flow abuse, and infrastructure management. Disrupted by Microsoft DCU with multi-industry coalition.
+- **SideCopy (APT)**: Pakistan-nexus threat actor expanding targeting from Indian government entities to academic institutions. Uses spear-phishing with mshta.exe execution and ReverseRAT payload for persistent access.
+- **Shai-Hulud / TanStack Supply Chain Actors**: Compromised npm supply chain to steal OAuth tokens from developer machines, then accessed 170 private GitHub repositories belonging to cybersecurity firm CrowdSec.
+- **Abdelhamid Naceri (Nightmare Eclipse)**: Former Microsoft security researcher publicly releasing Microsoft Defender zero-day exploits (BigDiskBuster and prior Defender exploits used in-the-wild). Demonstrates insider knowledge of AV internals.
+- **Unknown Actors (VeloCloud Exploitation)**: Actively exploiting CVE-2026-93952 in certificate-configured VeloCloud Orchestrators. Attribution not provided in source material.
+- **Malicious npm Publishers**: Operators of "twdepprobe7731" account and indexed-btree package conducting targeted credential theft against Twilio developers and generic supply chain compromise respectively.
