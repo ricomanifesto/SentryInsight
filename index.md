@@ -1,150 +1,140 @@
 ---
 schema_version: 2
 report_date: 2026-09-23
-generated_at: 2026-09-23T04:13:23Z
+generated_at: 2026-09-23T11:15:35Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-23/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical zero-day vulnerabilities are under active exploitation across diverse technology stacks, ranging from network infrastructure and security management platforms to AI gateways and virtualization layers. Chinese-speaking threat actors are leveraging flaws in Zyxel switches and WordPress to compromise government data, while the Check Point Security Management Server zero-day (CVE-2026-93616) has been exploited in targeted attacks since July.
+Multiple critical zero-day vulnerabilities are under active exploitation across diverse technology stacks, with threat actors chaining browser and operating system flaws for initial access and targeting network infrastructure, identity systems, and AI gateways. Chinese-affiliated actors including UTA0565 have weaponized a three-vulnerability Chrome-Windows exploit chain to deploy CLEANGULP malware, while the ShinyHunters extortion group claims breaches of the FBI and other organizations leveraging an alleged Oracle PeopleSoft zero-day. Simultaneously, financially motivated operators run phishing-as-a-service platforms such as EvilTokens, which compromised over 12,000 Microsoft 365 accounts before disruption, and supply chain attacks via malicious npm packages continue to steal credentials from developers.
 
-The VeloCloud Orchestrator flaw (CVE-2026-93952) carries a maximum CVSS 10.0 rating and is actively exploited in certificate-based deployments. Meanwhile, phishing-as-a-service platform EvilTokens compromised over 12,000 Microsoft 365 accounts before a coordinated takedown, and the ShinyHunters extortion gang claims a PeopleSoft zero-day breach of FBI systems.
+Network and security infrastructure vendors have issued emergency patches for actively exploited flaws: F5 BIG-IP APM (CVE-2026-94127) enables unauthenticated remote code execution on OAuth authorization servers; Check Point Security Management Server (CVE-2026-93616) allows unauthenticated script execution; VeloCloud Orchestrator (CVE-2026-93952, CVSS 10.0) is under active exploitation in certificate-based deployments; and Bifrost AI Gateway (CVE-2026-90898, CVSS 9.8) permits unauthenticated command execution. D-Link has disclosed a maximum-severity zero-day (CVE-2026-86296) in legacy DIR-822A routers with public proof-of-concept code and no patch available. WordPress has released fixes for a critical core flaw affecting all supported branches back to 4.7.
+
+New attack techniques are emerging around AI-driven post-exploitation automation, rogue multi-factor authentication providers that harvest credentials, and device-code phishing at scale. The Gulf region—particularly the UAE and Saudi Arabia—absorbs a disproportionate share of global attack volume, while Chinese actors leverage massive relay networks to access frontier AI models. Defenders should prioritize immediate patching of the listed CVEs, investigate potential compromise on internet-exposed management interfaces, and harden identity and supply chain controls.
 
 ## Active Exploitation Details
 
+### F5 BIG-IP APM OAuth Zero-Day
+- **Description**: Critical vulnerability in F5 BIG-IP Access Policy Manager (APM) that allows unauthenticated remote code execution on systems where APM is configured as an OAuth authorization server issuing access tokens to applications.
+- **Impact**: Attackers can execute arbitrary code on the BIG-IP system without authentication, leading to full device compromise and potential lateral movement.
+- **Status**: Actively exploited in the wild as a zero-day. F5 disclosed the flaw on September 22, 2026 and released engineering hotfixes.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-94127
+- **Reporting**: [The Hacker News — F5 Patches Critical BIG-IP APM Zero-Day Exploited for Unauthenticated RCE on OAuth Servers](https://thehackernews.com/2026/09/f5-patches-critical-big-ip-apm-zero-day.html), [Bleeping Computer — F5 patches BIG-IP APM zero-day flaw exploited in RCE attacks](https://www.bleepingcomputer.com/news/security/f5-warns-of-big-ip-apm-remote-code-execution-zero-day-exploited-in-attacks/)
+
+### Chrome-Windows Zero-Day Exploit Chain
+- **Description**: A chain of three zero-day vulnerabilities—two in Google Chrome (CVE-2026-85046, CVE-2026-87491) and one in Windows Advanced Local Procedure Call (CVE-2026-85880)—chained together via fake websites to achieve remote code execution and sandbox escape.
+- **Impact**: Full system compromise on targeted Windows hosts, enabling deployment of the CLEANGULP malware payload.
+- **Status**: Actively exploited as zero-days on September 3–4, 2026. Patches for the individual components are assumed to be in progress or released by vendors.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-85046, CVE-2026-87491, CVE-2026-85880
+- **Reporting**: [The Hacker News — Chinese Hackers Exploit Chrome-Windows Zero-Day Chain to Deploy CLEANGULP Malware](https://thehackernews.com/2026/09/chinese-hackers-exploit-chrome-windows.html)
+
 ### Check Point Security Management Server Zero-Day
-- **Description**: A previously unknown flaw in Check Point's Security Management Server allows an attacker with access to the server's web service to run arbitrary scripts without authentication. The vulnerability affects the server that controls firewall policies for Check Point deployments.
-- **Impact**: Unauthenticated remote code execution on the management server, enabling full control over firewall policies and network security infrastructure.
-- **Status**: Actively exploited in targeted attacks since July 23, 2026. Emergency hotfixes released on September 22, 2026.
+- **Description**: Flaw in Check Point's Security Management Server web service that allows an authenticated or unauthenticated attacker with network access to the web interface to execute arbitrary scripts on the server without logging in.
+- **Impact**: Full control over the management server that controls firewall policies, enabling policy manipulation, credential theft, and lateral movement.
+- **Status**: Exploited in targeted attacks on July 23, 2026. Check Point released a fix on September 22, 2026.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-93616
 - **Reporting**: [The Hacker News — Check Point Warns of Management Server Zero-Day Exploited in Targeted Attacks](https://thehackernews.com/2026/09/check-point-warns-of-management-server.html), [Bleeping Computer — Check Point warns of Management Server zero-day exploited in attacks](https://www.bleepingcomputer.com/news/security/check-point-patches-management-server-zero-day-exploited-in-attacks/)
 
-### Critical Bifrost AI Gateway Flaw
-- **Description**: A critical vulnerability in Bifrost, an open-source AI gateway routing requests to over 20 LLM providers, allows unauthenticated attackers to execute arbitrary commands on the gateway server via a single HTTP request when management authentication is enabled.
-- **Impact**: Full server compromise without credentials, potentially exposing all routed LLM traffic and underlying infrastructure.
-- **Status**: Vulnerability disclosed with CVSS 9.8 rating. Fixed in Bifrost HTTP transport version 2.1.0.
+### Bifrost AI Gateway Unauthenticated RCE
+- **Description**: Critical vulnerability in the Bifrost open-source AI gateway (HTTP transport) that allows an unauthenticated attacker to execute arbitrary commands on the gateway server with a single HTTP request when management authentication is not properly configured.
+- **Impact**: Complete server takeover, potential access to LLM provider credentials, and abuse of routed AI traffic.
+- **Status**: Publicly disclosed with CVSS 9.8. Affects all versions before 2.1.0. Exploitation status in the wild is not explicitly confirmed but the flaw is trivially exploitable.
 - **Severity**: critical
-- **Exploitation Status**: unknown
+- **Exploitation Status**: potential
 - **Action**: patch
 - **CVE IDs**: CVE-2026-90898
 - **Reporting**: [The Hacker News — Critical Bifrost AI Gateway Flaw Lets Attackers Run Commands Without Credentials](https://thehackernews.com/2026/09/critical-bifrost-ai-gateway-flaw-lets.html)
 
-### D-Link DIR-822A Router Maximum Severity Zero-Day
-- **Description**: A maximum-severity vulnerability affecting legacy DIR-822A dual-band Wi-Fi routers with public proof-of-concept exploit code available and no patch released.
-- **Impact**: Complete device compromise on end-of-life router models still deployed in home and small office environments.
-- **Status**: Zero-day with public PoC, no vendor patch available for legacy hardware.
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: investigate
-- **CVE IDs**: CVE-2026-86296
-- **Reporting**: [Bleeping Computer — D-Link warns of max severity zero-day bug in DIR-822A routers](https://www.bleepingcomputer.com/news/security/d-link-warns-of-max-severity-zero-day-bug-in-dir-822a-routers/)
-
-### VeloCloud Orchestrator Critical Flaw
-- **Description**: A CVSS 10.0 vulnerability in on-premises VeloCloud Orchestrator (VCO), the management server for VeloCloud SD-WAN Edge devices, allows remote unauthenticated attackers to privilege internal functions and affect the VCO host. Only orchestrators configured for certificate-based Edge authentication are vulnerable.
-- **Impact**: Full compromise of the SD-WAN management plane, potentially enabling network-wide traffic manipulation and lateral movement.
-- **Status**: Actively exploited in the wild as of September 22, 2026.
+### VeloCloud Orchestrator Certificate Authentication Flaw
+- **Description**: Flaw in on-premises VeloCloud Orchestrator (VCO) that may allow a remote unauthenticated attacker to privilege internal functions and affect the VCO host. Only orchestrators configured to authenticate Edge devices with certificates are affected.
+- **Impact**: Unauthenticated remote compromise of the SD-WAN management plane, potentially affecting all managed Edge devices.
+- **Status**: Actively exploited in the wild as of September 22, 2026. Arista has released mitigations.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-93952
 - **Reporting**: [The Hacker News — New CVSS 10.0 VeloCloud Orchestrator Flaw Actively Exploited in Certificate-Based Setups](https://thehackernews.com/2026/09/new-cvss-100-velocloud-orchestrator.html)
 
-### Linux Kernel KVM ARM64 Virtualization Escape
-- **Description**: A flaw in the Linux kernel's KVM virtualization code for ARM64 processors exposes freed host memory to guest virtual machines when nested virtualization is enabled, allowing guests to read and write host kernel memory.
-- **Impact**: Virtual machine escape to host-level code execution, compromising the hypervisor and all co-located guests.
-- **Status**: Technical details published with exploitability confirmed by researcher; patch status not specified in source.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: investigate
-- **CVE IDs**: CVE-2026-89775
-- **Reporting**: [The Hacker News — New Linux Kernel Flaw Gives ARM64 KVM Guests Read-Write Access to Host Memory](https://thehackernews.com/2026/09/new-linux-kernel-flaw-gives-arm64-kvm.html)
-
-### SharePoint Server Authenticated RCE
-- **Description**: A SharePoint Server vulnerability initially classified by Microsoft as spoofing (CVSS 6.5) actually enables authenticated remote code execution. Affects SharePoint Server 2016, 2019, and Subscription Edition.
-- **Impact**: Authenticated attackers can achieve remote code execution on SharePoint servers, potentially leading to data theft and lateral movement.
-- **Status**: Patches released for all affected versions following corrected classification.
-- **Severity**: high
-- **Exploitation Status**: not_observed
-- **Action**: patch
-- **CVE IDs**: CVE-2026-65660
-- **Reporting**: [The Hacker News — SharePoint Flaw Initially Listed as Spoofing by Microsoft Enables Authenticated RCE](https://thehackernews.com/2026/09/sharepoint-flaw-initially-listed-as.html)
-
-### Zyxel GS1900 Series Switch Vulnerability
-- **Description**: A high-severity vulnerability in Zyxel GS1900 series Smart Managed Switches actively exploited for data theft from government and other targets. CISA has ordered federal agencies to patch by emergency directive.
-- **Impact**: Unauthorized access to switch management and exfiltration of sensitive data from backend databases.
-- **Status**: Actively exploited in the wild; CISA emergency directive issued for federal agencies.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — Chinese hackers exploit WordPress, Zyxel flaws to steal govt data](https://www.bleepingcomputer.com/news/security/chinese-hackers-exploit-multiple-technologies-to-steal-govt-data/), [Bleeping Computer — CISA orders feds to patch Zyxel flaw exploited for data theft](https://www.bleepingcomputer.com/news/security/cisa-orders-feds-to-patch-actively-exploited-zyxel-flaw-by-thursday/)
-
-### WordPress Core Critical Code Execution Flaw
-- **Description**: A critical flaw in WordPress core allows unauthenticated attackers to force a site to load a PHP file from outside theme directories, which on some server configurations enables remote code execution. Fixed in WordPress 7.1.2 with backports to all supported branches down to 4.7.
-- **Impact**: Unauthenticated remote code execution on vulnerable server configurations, leading to full site and server compromise.
-- **Status**: Patched across all supported branches as of September 22, 2026.
+### D-Link DIR-822A Router Zero-Day
+- **Description**: Maximum-severity vulnerability in legacy DIR-822A dual-band Wi-Fi routers with public proof-of-concept exploit code available. No patch exists as the device is end-of-life.
+- **Impact**: Full device compromise, potential network pivot, and recruitment into botnets.
+- **Status**: Zero-day with public PoC; no patch will be issued. D-Link recommends replacing affected devices.
 - **Severity**: critical
-- **Exploitation Status**: unknown
+- **Exploitation Status**: potential
+- **Action**: mitigate
+- **CVE IDs**: CVE-2026-86296
+- **Reporting**: [Bleeping Computer — D-Link warns of max severity zero-day bug in DIR-822A routers](https://www.bleepingcomputer.com/news/security/d-link-warns-of-max-severity-zero-day-bug-in-dir-822a-routers/)
+
+### WordPress Core Critical Flaw
+- **Description**: Critical vulnerability in WordPress core that allows an unauthenticated attacker to cause the site to load a PHP file from outside theme directories. On certain server configurations, this escalates to arbitrary code execution.
+- **Impact**: Unauthenticated remote code execution on vulnerable WordPress installations, leading to site takeover and server compromise.
+- **Status**: Patched on September 22, 2026 in WordPress 7.1.2 with backported fixes for all supported branches back to 4.7. Active exploitation status not explicitly confirmed.
+- **Severity**: critical
+- **Exploitation Status**: potential
 - **Action**: patch
 - **Reporting**: [The Hacker News — WordPress Issues Patch for Critical Flaw That Can Enable Code Execution on Some Servers](https://thehackernews.com/2026/09/wordpress-issues-patch-for-critical.html)
 
-### BigDiskBuster Windows Defender Zero-Day
-- **Description**: A zero-day proof-of-concept tool that prevents Microsoft Defender from installing platform and signature updates by exhausting all available disk space. No patch, CVE, or Microsoft advisory exists.
-- **Impact**: Persistent disabling of antivirus updates, leaving endpoints defenseless against new malware signatures and platform protections.
-- **Status**: Public PoC released September 19, 2026; no vendor fix available.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: investigate
-- **Reporting**: [The Hacker News — Researcher Drops BigDiskBuster Zero-Day PoC That Blocks Microsoft Defender Updates](https://thehackernews.com/2026/09/researcher-drops-bigdiskbuster-zero-day.html), [Bleeping Computer — New Windows Defender zero-day blocks Microsoft antivirus updates](https://www.bleepingcomputer.com/news/security/new-windows-defender-zero-day-blocks-microsoft-antivirus-updates/)
-
-### PeopleSoft Zero-Day (Claimed)
-- **Description**: The ShinyHunters extortion gang claims to have breached FBI systems using a new Oracle PeopleSoft zero-day vulnerability, accessing internal services and stealing sensitive employee and applicant data.
-- **Impact**: Alleged compromise of federal law enforcement HR systems and exfiltration of personally identifiable information.
-- **Status**: Claimed by threat actor; no independent verification or vendor acknowledgment in source materials.
+### Oracle PeopleSoft Zero-Day (Alleged)
+- **Description**: ShinyHunters claims to have breached FBI systems using a previously unknown vulnerability in Oracle PeopleSoft, gaining access to internal services and exfiltrating sensitive personnel data.
+- **Impact**: Unauthorized access to enterprise HR and administrative systems, mass data theft of employee and applicant records.
+- **Status**: Claimed by threat actor; no vendor advisory or CVE published at time of reporting. Verification pending.
 - **Severity**: unknown
 - **Exploitation Status**: observed
 - **Action**: investigate
 - **Reporting**: [Bleeping Computer — ShinyHunters claims FBI hack, data theft in PeopleSoft zero-day breach](https://www.bleepingcomputer.com/news/security/shinyhunters-claims-fbi-hack-data-theft-in-peoplesoft-zero-day-breach/)
 
+### BigDiskBuster Microsoft Defender Denial-of-Service
+- **Description**: Proof-of-concept tool that fills all available disk space to prevent Microsoft Defender from installing platform and signature updates, effectively disabling protection.
+- **Impact**: Persistent degradation of endpoint defenses, facilitating follow-on malware execution.
+- **Status**: PoC published on GitHub September 19, 2026. No patch, CVE, or Microsoft advisory exists. Author is a former Microsoft security researcher.
+- **Severity**: unknown
+- **Exploitation Status**: potential
+- **Action**: monitor
+- **Reporting**: [The Hacker News — Researcher Drops BigDiskBuster Zero-Day PoC That Blocks Microsoft Defender Updates](https://thehackernews.com/2026/09/researcher-drops-bigdiskbuster-zero-day.html)
+
 ## Affected Systems and Products
 
-- **Check Point Security Management Server**: All versions prior to September 22, 2026 hotfix; controls firewall policies for Check Point deployments
-- **Bifrost AI Gateway**: All versions of Bifrost HTTP transport before 2.1.0 when management authentication is enabled; routes requests to 20+ LLM providers
-- **D-Link DIR-822A Routers**: Legacy dual-band Wi-Fi routers (end-of-life); no patch planned
-- **VeloCloud Orchestrator (VCO)**: On-premises deployments configured for certificate-based Edge authentication; manages VeloCloud SD-WAN Edge devices
-- **Linux Kernel KVM (ARM64)**: Hosts with nested virtualization enabled running ARM64 guests; affects kernel versions prior to patched releases
-- **SharePoint Server**: 2016, 2019, and Subscription Edition; patches available for all versions
-- **Zyxel GS1900 Series Switches**: Smart Managed Switches; actively exploited for data theft
-- **WordPress Core**: All versions from 4.7 through 7.1.1; patched in 7.1.2 and all maintained branch updates
-- **Microsoft Defender / Windows**: All versions vulnerable to BigDiskBuster disk exhaustion attack; no patch available
-- **Oracle PeopleSoft**: Version(s) unspecified; zero-day claimed by ShinyHunters in FBI breach
+- **F5 BIG-IP Access Policy Manager (APM)**: Systems configured as OAuth authorization servers; engineering hotfixes available from F5.
+- **Google Chrome (Windows)**: Versions prior to patches for CVE-2026-85046 and CVE-2026-87491; Windows OS versions vulnerable to CVE-2026-85880 (ALPC).
+- **Check Point Security Management Server**: All versions prior to the September 22, 2026 hotfix; manages firewall policies for Check Point gateways.
+- **Bifrost AI Gateway (HTTP transport)**: All versions before 2.1.0 when management authentication is not enforced; routes requests to 20+ LLM providers.
+- **VeloCloud Orchestrator (on-premises)**: Certificate-based Edge authentication deployments; Arista patches released September 22, 2026.
+- **D-Link DIR-822A Dual-Band Wi-Fi Routers**: Legacy end-of-life devices; no patch available; public PoC exploit code circulating.
+- **WordPress Core**: All versions from 4.7 through 7.1.1; patched in 7.1.2 and corresponding branch updates.
+- **Oracle PeopleSoft**: Version(s) unknown; alleged zero-day exploited per ShinyHunters claim; no vendor confirmation.
+- **ZyXEL GS1900 Smart Managed Switches**: Vulnerable firmware versions exploited by Chinese-speaking actor; specific versions not disclosed.
+- **Microsoft 365 / Azure AD**: Targeted by EvilTokens device-code phishing campaign; 12,000+ accounts compromised across 10,000+ organizations.
+- **npm Ecosystem**: Malicious package "tw-pkgprobe-7731" (supply chain); TanStack npm supply chain attack vector used against CrowdSec.
+- **Next.js Applications**: Those using ImageResponse with attacker-controlled input (e.g., URL parameters) in social preview generation; fixed in latest release.
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Remote Code Execution via Web Management Interfaces**: Exploited in Check Point Management Server (CVE-2026-93616), Bifrost AI Gateway (CVE-2026-90898), and VeloCloud Orchestrator (CVE-2026-93952) — attackers send crafted HTTP requests to management web services without authentication
-- **Certificate-Based Authentication Bypass**: VeloCloud Orchestrator flaw (CVE-2026-93952) specifically targets orchestrators using certificate authentication for Edge devices, allowing privilege escalation to internal functions
-- **Virtual Machine Escape via Memory Corruption**: Linux KVM ARM64 flaw (CVE-2026-89775) exploits use-after-free in nested virtualization code to grant guests read-write access to host kernel memory
-- **Authenticated RCE via Misclassified Spoofing Flaw**: SharePoint Server (CVE-2026-65660) — attackers with valid credentials leverage deserialization/path traversal to execute code, despite Microsoft's initial spoofing classification
-- **Network Device Exploitation for Data Theft**: Zyxel GS1900 switches exploited to access backend databases and exfiltrate 18,500+ records from 996 compromised devices
-- **Unauthenticated PHP File Inclusion Leading to RCE**: WordPress core flaw allows forcing inclusion of external PHP files, achieving code execution on permissive server configurations (misconfigured PHP allow_url_include or similar)
-- **Disk Exhaustion Denial-of-Service Against Security Agents**: BigDiskBuster fills all disk space to block Microsoft Defender update installation, a novel anti-forensics and persistence technique
-- **Device Code Phishing (OAuth Device Authorization Flow)**: EvilTokens PhaaS abused Microsoft's device code flow to phish 12,000+ accounts across 10,000+ organizations, using AI at every attack chain step
-- **Spear-Phishing with mshta.exe and ReverseRAT**: SideCopy targets Indian academic institutions using malicious scripts executed via mshta.exe to deploy ReverseRAT payload
-- **NPM Supply Chain Attacks**: Malicious packages (tw-pkgprobe-7731, indexed-btree) masquerade as legitimate tools; indexed-btree hides loader in runtime code to evade lifecycle-script scanning
-- **OAuth Token Theft via Compromised Developer Machine**: Shai-Hulud attackers stole 170 private repositories from CrowdSec using an OAuth token exfiltrated from a former employee's computer through the TanStack npm supply chain compromise
-- **AI-Autonomous Post-Exploitation**: ClosedQuorum malware uses Google Gemini, DeepSeek, Qwen, and Mistral models to autonomously determine post-compromise actions
+- **Browser-OS Exploit Chain**: Chaining Chrome renderer vulnerabilities (CVE-2026-85046, CVE-2026-87491) with a Windows ALPC elevation-of-privilege flaw (CVE-2026-85880) delivered via malicious websites to achieve sandbox escape and code execution.
+- **Device Code Phishing (PhaaS)**: EvilTokens platform abused OAuth 2.0 device authorization flow at scale, using AI-generated lures and automation to compromise 12,000+ Microsoft 365 accounts across 10,000+ organizations.
+- **Rogue External MFA Provider Registration**: Attackers with privileged access register a malicious external multi-factor authentication provider that intercepts user credentials during legitimate login flows.
+- **Supply Chain Compromise via npm**: Malicious packages (e.g., "tw-pkgprobe-7731") masquerading as legitimate security tools exfiltrate credentials; TanStack npm attack stole OAuth tokens from a former employee's machine to access CrowdSec's GitHub repositories.
+- **Unauthenticated Management Interface Exploitation**: Direct exploitation of internet-exposed management consoles (F5 BIG-IP APM, Check Point SMS, VeloCloud Orchestrator, Bifrost AI Gateway) without authentication.
+- **AI-Driven Post-Exploitation Automation**: ClosedQuorum malware leverages Google Gemini, DeepSeek, Qwen, and Mistral models to autonomously decide lateral movement, persistence, and data collection actions.
+- **Malicious OAuth Applications**: Attackers register deceptive OAuth apps to gain persistent access to Google Workspace and Microsoft 365 environments via user consent grants.
+- **Disk Space Exhaustion Anti-Forensics**: BigDiskBuster tool fills disk capacity to block Microsoft Defender signature and platform updates, disabling protective capabilities.
 
 ## Threat Actor Activities
 
-- **Chinese-Speaking Threat Actor**: Exploiting Zyxel GS1900 switch vulnerabilities and WordPress flaws to steal government data; compromised 996 devices and exfiltrated 18,500+ records from backend databases (source-178864dedd5d)
-- **ShinyHunters Extortion Gang**: Claims breach of FBI systems via PeopleSoft zero-day; alleges access to internal services and theft of employee/applicant data (source-5204aaedc51d)
-- **EvilTokens Operators**: Ran phishing-as-a-service platform using device code flow and AI automation; compromised 12,000+ Microsoft 365 accounts across 10,000+ organizations before Microsoft-led takedown seized 50 websites and disabled 150+ domains (source-c75e5a1826c4, source-ac1280aee3db, source-684de1d265d4)
-- **SideCopy (APT)**: Expanded targeting from Indian government entities to academic institutions; uses spear-phishing with mshta.exe script execution to deploy ReverseRAT (source-c8f864c65cb4)
-- **Shai-Hulud Group**: Conducted npm supply chain attack via TanStack compromise; stole OAuth token from former CrowdSec employee's machine to exfiltrate 170 private GitHub repositories (source-5778eb9fbb8b)
-- **Unknown npm Attackers**: Published malicious packages "tw-pkgprobe-7731" (masquerading as Twilio security tool) and "indexed-btree" (mimicking sorted-btree with runtime-hidden loader); both removed from registry after detection (source-b38195d46412, source-9806c677170e)
-- **ClosedQuorum Malware Authors**: Developed Windows malware leveraging multiple commercial AI APIs (Gemini, DeepSeek, Qwen, Mistral) for autonomous post-exploitation decision-making (source-724fc722a895)
-- **Chinese AI Relay Operators**: Operating 80,000+ relay servers to mask Chinese user access to frontier US LLM models, likely for model extraction/cloning (source-723fd7190de3)
+- **UTA0565 (Chinese-nexus)**: Conducted zero-day exploit chain attacks against Chrome and Windows on September 3–4, 2026, deploying CLEANGULP malware via fake websites. Demonstrates advanced exploit development and operational security.
+- **ShinyHunters (Extortion Group)**: Claims responsibility for FBI breach via alleged Oracle PeopleSoft zero-day, advertising stolen agent and applicant data on dark web. Also claimed prior FBI breach in September 2026. Operates as a data theft and extortion collective.
+- **Chinese-Speaking Threat Actor (Unnamed)**: Exploited vulnerabilities in ZyXEL GS1900 switches and WordPress to compromise 996 devices and exfiltrate 18,500+ records from backend databases, targeting government-adjacent entities.
+- **EvilTokens Operators (PhaaS)**: Ran a device-code phishing-as-a-service platform leveraging AI at every attack stage. Compromised 12,000+ Microsoft accounts at 10,000+ organizations before coordinated takedown by Microsoft DCU, Health-ISAC, Cloudflare, Coinbase, OpenAI, Railway, SpyCloud, and Shadowserver.
+- **Shai-Hulud (Supply Chain Actor)**: Executed TanStack npm supply chain attack, stealing OAuth token from former employee's computer to access and exfiltrate 170 private repositories from cybersecurity firm CrowdSec's GitHub organization.
+- **Abdelhamid Naceri (Independent Researcher / Former Microsoft)**: Published BigDiskBuster zero-day PoC for Microsoft Defender update denial; previous Defender exploits attributed to this researcher have been used in real-world attacks.
+- **twdepprobe7731 (npm Threat Actor)**: Published malicious package "tw-pkgprobe-7731" in mid-August 2026, posing as a Twilio bug-bounty probe to harvest developer credentials.
