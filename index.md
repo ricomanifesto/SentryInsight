@@ -1,192 +1,235 @@
 ---
 schema_version: 2
 report_date: 2026-09-23
-generated_at: 2026-09-23T16:39:12Z
+generated_at: 2026-09-23T21:25:58Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-23/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical zero-day vulnerabilities are being actively exploited in the wild across diverse technology stacks, ranging from network infrastructure and container runtimes to AI-driven attack frameworks. Chinese threat actor UTA0565 has weaponized a Chrome-Windows exploit chain (CVE-2026-85046, CVE-2026-87491, CVE-2026-85880) to deploy CLEANGULP malware through fake websites, while the ShinyHunters extortion group claims to have breached the FBI using an Oracle PeopleSoft zero-day.
+Active exploitation of critical zero-day and recently disclosed vulnerabilities has intensified across multiple vendor platforms in September 2026. Chinese threat actor UTA0565 chained three zero-days across Google Chrome and Microsoft Windows to deploy CLEANGULP malware, while separate campaigns actively exploit pre-authentication RCE flaws in Check Point Security Gateway VPN (CVE-2026-85102), F5 BIG-IP APM OAuth servers (CVE-2026-94127), and WordPress (CVE-2026-87902).
 
-Simultaneously, F5 BIG-IP APM (CVE-2026-94127) and Check Point Security Management Server (CVE-2026-93616) zero-days have been exploited for unauthenticated remote code execution, with patches released on September 22. A financially motivated actor is leveraging open-source AI agent frameworks to compromise over 100 e-commerce sites and steal 600,000+ credit card records at unprecedented scale.
+A MikroTik RouterOS SSH vulnerability chain (CVE-2026-67279 + CVE-2026-86060) enables passwordless administrative takeover of internet-exposed devices. Simultaneously, supply chain attacks have compromised the HashiCorp Registry with malicious Terraform providers, the npm/PyPI ecosystems with trojanized MemTensor packages, and GitLab's email-based issue submission workflow. An unpatched Ubuntu container escape (CVE-2026-80521) has a public exploit while vendor patches lag upstream fixes.
 
 ## Active Exploitation Details
 
-### MikroTrick Chain (MikroTik RouterOS SSH Vulnerabilities)
-- **Description**: Two vulnerabilities in MikroTik RouterOS SSH implementation chained together to achieve unauthenticated administrative control. CVE-2026-67279 is an SSH state-machine flaw, and CVE-2026-86060 is an argument-injection bug in the RouterOS login process. The chain, dubbed "MikroTrick" by CERT Polska, allows attackers to take full control of Internet-exposed routers without a password, SSH key, or completed authentication.
-- **Impact**: Full administrative control of affected MikroTik routers, enabling network pivoting, traffic interception, and persistent access.
-- **Status**: Actively exploited; attack logs indicate ongoing activity. Vendor patch status not specified in source.
+### Check Point Security Gateway VPN RCE
+- **Description**: Pre-authentication remote code execution vulnerability in the VPN certificate-handling functionality of Check Point Security Gateway products.
+- **Impact**: Unauthenticated attackers can achieve remote code execution on affected Security Gateway appliances.
+- **Status**: Actively exploited in the wild; Check Point has confirmed exploitation and released advisories.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-85102
+- **Reporting**: [Bleeping Computer — Check Point warns of hackers exploiting Security Gateway VPN RCE flaw](https://www.bleepingcomputer.com/news/security/check-point-warns-of-hackers-exploiting-security-gateway-vpn-rce-flaw/)
+
+### WordPress Critical Code Execution Flaw
+- **Description**: Critical vulnerability in WordPress allowing attackers to write executable files to disk that run shell commands when accessed.
+- **Impact**: Remote code execution on vulnerable WordPress sites; threat actors have moved from probing to active exploitation.
+- **Status**: Active exploitation confirmed; patches available.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-87902
+- **Reporting**: [Bleeping Computer — Hackers start exploiting critical WordPress flaw for code execution](https://www.bleepingcomputer.com/news/security/hackers-start-exploiting-critical-wordpress-flaw-for-code-execution/)
+
+### MikroTik RouterOS SSH Chain (MikroTrick)
+- **Description**: Two chained vulnerabilities in MikroTik RouterOS SSH: an SSH state-machine flaw (CVE-2026-67279) combined with an argument-injection bug in the login process (CVE-2026-86060). The chain allows full administrative control without password, SSH key, or completed authentication.
+- **Impact**: Complete takeover of internet-exposed MikroTik routers; attack logs date back to earlier activity.
+- **Status**: Actively exploited in the wild; CERT Polska tracks the chain as "MikroTrick."
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-67279, CVE-2026-86060
 - **Reporting**: [The Hacker News — MikroTrick Chain Let Attackers Take Over MikroTik Routers Without a Password or SSH Key](https://thehackernews.com/2026/09/mikrotrick-chain-let-attackers-take.html)
 
-### Ubuntu Linux AF_UNIX Socket Use-After-Free (Container Escape)
-- **Description**: A use-after-free vulnerability in the Linux kernel's AF_UNIX socket subsystem (CVE-2026-80521, CVSS 7.8) allows container escape and host root privilege escalation. The flaw was fixed upstream on August 6, 2026, but Ubuntu has not yet shipped the patch for its 26.04, 24.04, or 22.04 LTS releases. DepthFirst published a working exploit on September 22.
-- **Impact**: Attackers with container access can escape to the host and gain root privileges, compromising the entire host system and potentially other containers.
-- **Status**: Exploit publicly released; Ubuntu LTS releases remain unpatched as of September 22.
+### Ubuntu Linux AF_UNIX Container Escape
+- **Description**: Use-after-free in the Linux kernel's AF_UNIX socket subsystem enabling container escape to host root. Fixed upstream on August 6, 2026, but Ubuntu has not shipped patches for 26.04, 24.04, or 22.04 LTS releases.
+- **Impact**: Attackers with container access can escape to host and gain root privileges.
+- **Status**: Public exploit released; Ubuntu LTS releases remain unpatched despite upstream fix.
 - **Severity**: high
 - **Exploitation Status**: observed
 - **Action**: mitigate
 - **CVE IDs**: CVE-2026-80521
 - **Reporting**: [The Hacker News — Exploit Released for Unpatched Ubuntu Linux Flaw Enabling Host-Root Container Escape](https://thehackernews.com/2026/09/exploit-released-for-unpatched-ubuntu.html)
 
-### F5 BIG-IP APM OAuth Authorization Server Zero-Day
-- **Description**: A critical vulnerability in F5 BIG-IP Access Policy Manager (APM) when configured as an OAuth authorization server (CVE-2026-94127). The flaw allows unauthenticated remote code execution on the BIG-IP system. F5 disclosed the vulnerability on September 22 and released engineering hotfixes.
-- **Impact**: Unauthenticated remote code execution on BIG-IP systems serving as OAuth authorization servers, leading to full device compromise.
-- **Status**: Actively exploited in the wild; patches/hotfixes released September 22.
+### F5 BIG-IP APM Zero-Day RCE
+- **Description**: Critical zero-day in F5 BIG-IP Access Policy Manager (APM) when configured as an OAuth authorization server. Allows unauthenticated remote code execution on the BIG-IP system.
+- **Impact**: Unauthenticated RCE on BIG-IP systems serving as OAuth servers; actively exploited before patch release.
+- **Status**: Actively exploited; F5 released engineering hotfixes on September 22, 2026.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-94127
 - **Reporting**: [The Hacker News — F5 Patches Critical BIG-IP APM Zero-Day Exploited for Unauthenticated RCE on OAuth Servers](https://thehackernews.com/2026/09/f5-patches-critical-big-ip-apm-zero-day.html), [Bleeping Computer — F5 patches BIG-IP APM zero-day flaw exploited in RCE attacks](https://www.bleepingcomputer.com/news/security/f5-warns-of-big-ip-apm-remote-code-execution-zero-day-exploited-in-attacks/)
 
-### Chrome-Windows Zero-Day Exploit Chain (CLEANGULP Deployment)
-- **Description**: Chinese threat actor UTA0565 exploited a chain of three zero-day vulnerabilities—two in Google Chrome (CVE-2026-85046, CVE-2026-87491) and one in Windows Advanced Local Procedure Call (CVE-2026-85880)—through fake websites to deploy CLEANGULP malware. Attacks were detected on September 3 and 4, 2026.
-- **Impact**: Remote code execution and malware deployment via drive-by compromise; full system compromise on targeted endpoints.
-- **Status**: Actively exploited as zero-days in early September 2026; vendor patch status not specified in source.
+### Chrome-Windows Zero-Day Exploit Chain (UTA0565)
+- **Description**: Chinese threat actor UTA0565 exploited a chain of three zero-days—two in Google Chrome (CVE-2026-85046, CVE-2026-87491) and one in Windows Advanced Local Procedure Call (CVE-2026-85880)—via fake websites to deploy CLEANGULP malware.
+- **Impact**: Full compromise via browser-to-kernel exploit chain; malware deployment on targeted systems.
+- **Status**: Exploited as zero-days on September 3–4, 2026; patches presumably underway or released by vendors.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-85046, CVE-2026-87491, CVE-2026-85880
 - **Reporting**: [The Hacker News — Chinese Hackers Exploit Chrome-Windows Zero-Day Chain to Deploy CLEANGULP Malware](https://thehackernews.com/2026/09/chinese-hackers-exploit-chrome-windows.html)
 
-### Check Point Security Management Server Zero-Day
-- **Description**: A previously unknown flaw in Check Point's Security Management Server (CVE-2026-93616) allows an attacker with access to the server's web service to execute scripts without authentication. The vulnerability was exploited in a handful of targeted attacks on July 23, 2026. Check Point released a fix on September 22.
-- **Impact**: Unauthenticated script execution on the management server that controls firewall policies, enabling policy manipulation and network control.
-- **Status**: Exploited in targeted attacks July 23; patch released September 22.
-- **Severity**: critical
-- **Exploitation Status**: observed
-- **Action**: patch
-- **CVE IDs**: CVE-2026-93616
-- **Reporting**: [The Hacker News — Check Point Warns of Management Server Zero-Day Exploited in Targeted Attacks](https://thehackernews.com/2026/09/check-point-warns-of-management-server.html)
-
 ### Arista VeloCloud Orchestrator Zero-Day
-- **Description**: A zero-day vulnerability in Arista VeloCloud Orchestrator (VCO) On-Prem deployments that is being actively exploited. Arista Networks released security patches on September 22.
-- **Impact**: Compromise of VCO On-Prem management infrastructure, potentially affecting SD-WAN policy and visibility.
-- **Status**: Actively exploited; patches released September 22.
+- **Description**: Zero-day vulnerability in VeloCloud Orchestrator (VCO) On-Prem deployments actively exploited before patch availability.
+- **Impact**: Compromise of VCO management infrastructure; details limited in public reporting.
+- **Status**: Actively exploited; Arista released security patches on September 22, 2026.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [Bleeping Computer — Arista patches actively exploited VeloCloud Orchestrator zero-day](https://www.bleepingcomputer.com/news/security/arista-patches-actively-exploited-velocloud-orchestrator-zero-day/)
 
-### cPanel CalDAV/CardDAV and WP Toolkit Vulnerabilities
-- **Description**: A flaw in cPanel's CalDAV and CardDAV service allows any hosting account holder to execute code as root and take full server control. A second vulnerability in the WP Toolkit plugin permits an account holder to modify databases belonging to other accounts. cPanel released fixed versions on September 22.
-- **Impact**: Full server compromise via root code execution; cross-account data manipulation in shared hosting environments.
-- **Status**: Patches released September 22; exploitation status not explicitly confirmed in source.
+### cPanel CalDAV/CardDAV Root RCE
+- **Description**: Flaw in cPanel's CalDAV and CardDAV service allowing any hosting account holder to execute code as root and take full server control. A second bug in the WP Toolkit plugin permits cross-account database manipulation.
+- **Impact**: Complete server compromise from a standard hosting account; lateral movement across hosted accounts.
+- **Status**: cPanel released fixed versions for both issues on September 22, 2026; exploitation status not explicitly confirmed but high risk.
 - **Severity**: critical
 - **Exploitation Status**: potential
 - **Action**: patch
 - **Reporting**: [The Hacker News — New cPanel Flaw Lets a Hosting Account Run Code as Root, Take Full Server Control](https://thehackernews.com/2026/09/new-cpanel-flaw-lets-hosting-account_0272795595.html)
 
-### Next.js ImageResponse Server-Side Code Execution
-- **Description**: A vulnerability in Next.js ImageResponse feature allows server-side code execution when attacker-controlled values (such as text from request URLs) are rendered into generated images via crafted SVG input. Vercel fixed the flaw on September 22.
-- **Impact**: Remote code execution on Next.js servers using ImageResponse with user-supplied input.
-- **Status**: Patch released September 22; active exploitation not confirmed in source.
+### Next.js ImageResponse Server Code Execution
+- **Description**: Vulnerability in Next.js ImageResponse feature allowing server code execution via crafted SVG input when attacker-controlled values (e.g., URL parameters) are rendered into images.
+- **Impact**: Remote code execution on Next.js applications using ImageResponse with user-supplied input.
+- **Status**: Fixed by Vercel in version released September 22, 2026; no confirmed exploitation reported.
 - **Severity**: critical
-- **Exploitation Status**: potential
+- **Exploitation Status**: not_observed
 - **Action**: patch
 - **Reporting**: [The Hacker News — Critical Next.js ImageResponse Flaw Can Lead to Server Code Execution via Crafted SVG Input](https://thehackernews.com/2026/09/critical-nextjs-imageresponse-flaw-can.html)
 
-### Oracle PeopleSoft Zero-Day (ShinyHunters FBI Breach Claim)
-- **Description**: ShinyHunters claims to have breached FBI systems using a new Oracle PeopleSoft zero-day vulnerability, gaining access to internal services and stealing sensitive data on employees and job applicants.
-- **Impact**: Unauthorized access to sensitive government personnel data; potential compromise of federal systems.
-- **Status**: Claimed exploitation by threat actor; no vendor advisory or CVE published at time of reporting.
-- **Severity**: critical
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — ShinyHunters claims FBI hack, data theft in PeopleSoft zero-day breach](https://www.bleepingcomputer.com/news/security/shinyhunters-claims-fbi-hack-data-theft-in-peoplesoft-zero-day-breach/)
-
-### AI Agent-Driven Credit Card Skimming Campaign
-- **Description**: A financially motivated threat actor is using open-source AI agent frameworks to automate attacks against hundreds of online retailers at scale, injecting malicious skimmers and stealing over 600,000 credit card records across 100+ compromised sites.
-- **Impact**: Mass payment card theft; persistent compromise of e-commerce infrastructure.
-- **Status**: Active, ongoing campaign at scale.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Malicious AI agents steal 600K credit cards, infect 100+ sites with skimmers](https://www.bleepingcomputer.com/news/security/malicious-ai-agents-steal-600k-credit-cards-infect-100-plus-sites-with-skimmers/)
-
-### CLOSEDQUORUM AI-Driven Windows Malware
-- **Description**: Windows malware (CLOSEDQUORUM) that uses a voting mechanism among up to four AI models (Google Gemini, DeepSeek, Qwen, Mistral) to autonomously determine post-compromise actions including credential theft, browser password extraction, and crypto wallet targeting. Cisco Talos reported the malware on September 22; the public version is non-functional.
-- **Impact**: Autonomous post-exploitation decision-making; credential and cryptocurrency theft.
-- **Status**: Proof-of-concept / developmental; not observed in successful end-to-end operations.
+### GitLab Email Address Supply Chain Vector
+- **Description**: Automatically assigned incoming email addresses in GitLab contain highly privileged access tokens. Leaked addresses allow attackers to push code and run CI/CD jobs as the victim user, including to protected branches.
+- **Impact**: Supply chain compromise via credential theft; unauthorized code commits and CI/CD execution with victim's permissions.
+- **Status**: Design flaw with active risk; no patch indicated—mitigation requires treating the email address as a secret.
 - **Severity**: high
 - **Exploitation Status**: potential
-- **Action**: monitor
-- **Reporting**: [The Hacker News — This Windows Malware is Built to Let Up to Four AI Models Vote on Its Next Move](https://thehackernews.com/2026/09/windows-malware-is-built-to-let-up-to.html), [Bleeping Computer — New ClosedQuorum Windows malware uses AI for attack decisions](https://www.bleepingcomputer.com/news/security/new-closedquorum-windows-malware-uses-ai-for-attack-decisions/)
+- **Action**: mitigate
+- **Reporting**: [Dark Reading — GitLab Email Addresses Can Be Weaponized for Supply Chain Attacks](https://www.darkreading.com/application-security/gitlab-email-addresses-supply-chain-attacks), [The Hacker News — A Leaked GitLab Issue Email Address Lets Anyone Push Code and Run CI Jobs as You](https://thehackernews.com/2026/09/a-leaked-gitlab-issue-email-address.html)
 
-### MemTensor Supply Chain Compromise (sckit Implant)
-- **Description**: Unknown threat actors compromised legitimate MemTensor packages (@memtensor/memos-cloud-openclaw-plugin) on both npm and PyPI to deliver a cross-platform Go-based credential stealer (sckit) targeting Windows, Linux, and macOS.
-- **Impact**: Credential theft across development environments; supply chain contamination affecting downstream consumers.
-- **Status**: Active supply chain compromise; malicious packages identified by multiple security firms.
+### Malicious Terraform Providers on HashiCorp Registry
+- **Description**: First observed use of HashiCorp's centralized Terraform Registry to distribute Go-based malware via two malicious Terraform providers and two Go modules (e.g., gocommunity-io/dockerd, kreuzwenker/...).
+- **Impact**: Supply chain compromise of infrastructure-as-code pipelines; malware execution during Terraform runs.
+- **Status**: Disclosed by Aikido; packages identified with download counts (e.g., 222 downloads for dockerd); no CVE assigned.
+- **Severity**: high
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [The Hacker News — Attackers Use Malicious Terraform Providers to Deliver Go Malware via HashiCorp Registry](https://thehackernews.com/2026/09/attackers-use-malicious-terraform.html)
+
+### Compromised MemTensor Packages (npm/PyPI)
+- **Description**: Legitimate MemTensor packages on npm and PyPI compromised to deliver sckit, a cross-platform Go-based credential stealer for Windows, Linux, and macOS.
+- **Impact**: Credential theft across developer environments; platform-specific implants deployed via trusted package managers.
+- **Status**: Reported by Aikido, SafeDep, Socket, and StepSecurity; affected versions identified.
 - **Severity**: high
 - **Exploitation Status**: observed
 - **Action**: investigate
 - **Reporting**: [The Hacker News — Compromised MemTensor Packages Deliver sckit Credential Stealer via npm and PyPI](https://thehackernews.com/2026/09/compromised-memtensor-packages-deliver.html)
 
-### Kubernetes/GCP Config Connector Privilege Escalation
-- **Description**: A confused deputy vulnerability in Google Kubernetes Config Connector allows a Kubernetes user with limited permissions to escalate to full Google Cloud organization control via a single malicious YAML file.
-- **Impact**: Organization-wide privilege escalation in GCP; complete control over cloud resources.
-- **Status**: Proof-of-concept demonstrated by Varonis; active exploitation not confirmed.
+### EDR Evasion via Process Parameter Poisoning
+- **Description**: Technique injecting code into process initialization structures without using Windows APIs monitored by EDR tools, evading detection during process injection.
+- **Impact**: Bypass of endpoint detection and response controls; stealthy code execution.
+- **Status**: Technique disclosed; no CVE assigned; exploitation potential high against unpatched EDR configurations.
+- **Severity**: high
+- **Exploitation Status**: potential
+- **Action**: mitigate
+- **Reporting**: [Dark Reading — EDR Evasion Stack Helps Process Injection Slip Past Defenses](https://www.darkreading.com/endpoint-security/edr-evasion-stack-helps-process-injection-slip-past-defenses)
+
+### AI Agent-Driven Skimming Campaign
+- **Description**: Financially motivated threat actor using open-source AI agent frameworks to attack hundreds of online retailers at scale, injecting skimmers and stealing over 600,000 credit card records.
+- **Impact**: Mass payment card theft; automated compromise of e-commerce platforms.
+- **Status**: Active campaign observed; infrastructure and tactics documented.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Malicious AI agents steal 600K credit cards, infect 100+ sites with skimmers](https://www.bleepingcomputer.com/news/security/malicious-ai-agents-steal-600k-credit-cards-infect-100-plus-sites-with-skimmers/)
+
+### Network Management Systems Under Attack
+- **Description**: InfraTrust report indicates attackers increasingly targeting enterprise infrastructure management systems, with several critical vulnerabilities exploited before or shortly after vendor disclosure.
+- **Impact**: Potential full control of network infrastructure, lateral movement, persistence.
+- **Status**: Active exploitation of multiple undisclosed vulnerabilities; specific CVEs not enumerated in reporting.
 - **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — InfraTrust report warns network management systems under attack](https://www.bleepingcomputer.com/news/security/infratrust-report-warns-network-management-systems-under-attack/)
+
+### Kubernetes/GCP Privilege Escalation via Config Connector
+- **Description**: Confused deputy problem in Google Kubernetes Config Connector allows a limited-privilege Kubernetes user to escalate to organization-wide control via a single YAML file.
+- **Impact**: Full GCP organization takeover from compromised cluster workload identity.
+- **Status**: Research disclosure by Varonis; no active exploitation reported; mitigation requires IAM hardening.
+- **Severity**: high
 - **Exploitation Status**: potential
 - **Action**: mitigate
 - **Reporting**: [Bleeping Computer — How One Kubernetes YAML Can Hand Over a GCP Organization](https://www.bleepingcomputer.com/news/security/how-one-kubernetes-yaml-can-hand-over-a-gcp-organization/)
 
 ### Rogue External MFA Provider Credential Theft
-- **Description**: Researchers demonstrated an attack where privileged actors can register a rogue external MFA provider to intercept and steal user passwords during legitimate login flows.
-- **Impact**: Credential harvesting from authenticated sessions; bypass of MFA protections.
-- **Status**: Research proof-of-concept; no confirmed active exploitation.
-- **Severity**: high
+- **Description**: Attack allowing privileged actors to register a rogue external MFA provider that intercepts user passwords during legitimate login flows.
+- **Impact**: Credential harvesting bypassing MFA protections; requires initial privileged access.
+- **Status**: Proof-of-concept demonstrated by researchers; no confirmed wild exploitation.
+- **Severity**: medium
 - **Exploitation Status**: potential
 - **Action**: monitor
 - **Reporting**: [Bleeping Computer — Rogue external MFA providers can steal passwords during logins](https://www.bleepingcomputer.com/news/security/rogue-external-mfa-providers-can-steal-passwords-during-logins/)
 
+### CLOSEDQUORUM AI-Driven Malware
+- **Description**: Windows malware (CLOSEDQUORUM) using up to four AI models in a voting mechanism to decide malicious actions (credential theft, browser password extraction, crypto wallet targeting) instead of traditional C2.
+- **Impact**: Autonomous, resilient malware decision-making; potential evasion of static C2 analysis.
+- **Status**: Public version non-functional; Talos has not observed full operational capability.
+- **Severity**: medium
+- **Exploitation Status**: not_observed
+- **Action**: monitor
+- **Reporting**: [The Hacker News — This Windows Malware is Built to Let Up to Four AI Models Vote on Its Next Move](https://thehackernews.com/2026/09/windows-malware-is-built-to-let-up-to.html)
+
 ## Affected Systems and Products
 
-- **MikroTik RouterOS**: Internet-exposed routers running vulnerable RouterOS versions; SSH service accessible from untrusted networks
-- **Ubuntu Linux**: 26.04, 24.04, and 22.04 LTS releases (container hosts running unpatched kernels)
-- **F5 BIG-IP Access Policy Manager**: Systems configured as OAuth authorization servers issuing access tokens
-- **Google Chrome + Microsoft Windows**: Endpoints running unpatched Chrome and Windows versions (ALPC subsystem)
-- **Check Point Security Management Server**: Management servers with web service accessible to attackers (controls firewall policies)
-- **Arista VeloCloud Orchestrator**: On-Prem deployments (cloud-managed SD-WAN orchestration)
-- **cPanel & WHM**: Shared hosting servers running vulnerable CalDAV/CardDAV service and WP Toolkit plugin
-- **Next.js Applications**: Applications using ImageResponse feature with user-controlled input in image generation
-- **Oracle PeopleSoft**: Enterprise deployments potentially vulnerable to undisclosed zero-day
-- **ZyXEL GS1900 Smart Managed Switches**: Network switches exploited by Chinese-speaking threat actor
-- **WordPress**: Sites exploited in conjunction with ZyXEL flaws for government data theft
-- **Google Kubernetes Engine / Config Connector**: GCP organizations using Config Connector for Kubernetes resource management
-- **npm / PyPI Package Repositories**: Developers and CI/CD pipelines consuming compromised @memtensor/memos-cloud-openclaw-plugin packages
-- **Microsoft 365**: Accounts targeted by EvilTokens device code phishing-as-a-service platform
-- **E-commerce Platforms**: Online retailers using platforms vulnerable to AI-agent-driven skimmer injection
+- **Check Point Security Gateway**: VPN certificate-handling component; all versions prior to patched releases.
+- **WordPress**: Core installations vulnerable to CVE-2026-87902; specific version range not disclosed in reporting.
+- **MikroTik RouterOS**: Devices with SSH exposed to internet; versions affected by CVE-2026-67279 and CVE-2026-86060.
+- **Ubuntu Linux**: 26.04, 24.04, and 22.04 LTS releases lacking upstream kernel fix for CVE-2026-80521 (AF_UNIX use-after-free).
+- **F5 BIG-IP APM**: Systems configured as OAuth authorization servers; vulnerable to CVE-2026-94127 prior to engineering hotfixes.
+- **Google Chrome**: Versions prior to fixes for CVE-2026-85046 and CVE-2026-87491.
+- **Microsoft Windows**: Versions vulnerable to ALPC flaw CVE-2026-85880.
+- **Arista VeloCloud Orchestrator (VCO)**: On-Prem deployments prior to September 22, 2026 patches.
+- **cPanel**: CalDAV/CardDAV service and WP Toolkit plugin; fixed versions released September 22, 2026.
+- **Next.js**: Applications using ImageResponse with user-controlled input; fixed in version released September 22, 2026.
+- **GitLab**: All instances using email-based issue submission; incoming email addresses function as high-privilege credentials.
+- **HashiCorp Terraform Registry**: Users of malicious providers `gocommunity-io/dockerd`, `kreuzwenker/...` and associated Go modules.
+- **npm/PyPI**: Consumers of compromised `@memtensor/memos-cloud-openclaw-plugin` and related MemTensor packages.
+- **Enterprise Network Management Systems**: Multiple vendor platforms (per InfraTrust) with critical pre-disclosure exploitation.
+- **Google Cloud Platform**: Organizations using Google Kubernetes Engine with Config Connector enabled.
+- **E-commerce Platforms**: Hundreds of online retailers targeted by AI-agent skimming campaign.
 
 ## Attack Vectors and Techniques
 
-- **AI Agent Framework Automation**: Financially motivated actors using open-source AI agent frameworks (e.g., LangChain, AutoGPT-style architectures) to orchestrate large-scale web attacks, including vulnerability discovery, exploitation, and skimmer injection across hundreds of targets simultaneously
-- **Multi-Stage Browser/OS Exploit Chaining**: UTA0565 combining Chrome renderer exploits (CVE-2026-85046, CVE-2026-87491) with Windows kernel ALPC vulnerability (CVE-2026-85880) for sandbox escape and malware deployment via drive-by download
-- **SSH Protocol State Machine Manipulation**: MikroTrick chain exploiting SSH protocol implementation flaws (state machine + argument injection) to bypass authentication entirely on network infrastructure
-- **Container Escape via Kernel Use-After-Free**: AF_UNIX socket subsystem flaw (CVE-2026-80521) enabling breakout from containerized workloads to host root
-- **OAuth Authorization Server RCE**: Unauthenticated code execution on F5 BIG-IP APM via crafted requests to OAuth endpoints
-- **Management Interface Script Injection**: Unauthenticated script execution on Check Point Management Server web interface (CVE-2026-93616)
-- **Confused Deputy / Privilege Escalation via Config Connector**: Abusing Google Kubernetes Config Connector's elevated service account permissions through malicious Kubernetes YAML to gain GCP organization admin
-- **Supply Chain Compromise (npm/PyPI)**: Legitimate package takeover (@memtensor/memos-cloud-openclaw-plugin) delivering cross-platform Go implant (sckit) for credential theft
-- **AI Model Poisoning for Disinformation/Phishing**: Seeding web content with malicious links/data optimized for LLM ingestion to manipulate ChatGPT, Gemini, and Google AI Overview outputs
-- **AI Voting for Malware C2 Decisions**: CLOSEDQUORUM malware using ensemble of LLMs (Gemini, DeepSeek, Qwen, Mistral) to autonomously select post-exploitation actions
-- **Rogue External MFA Provider Registration**: Privileged attacker registering malicious MFA provider to intercept credentials during legitimate authentication flows
-- **Device Code Phishing (EvilTokens)**: Phishing-as-a-service leveraging OAuth device authorization flow to compromise Microsoft 365 accounts without credential harvesting pages
-- **Web Application Skimmer Injection**: Automated injection of JavaScript payment skimmers into checkout pages via compromised admin interfaces or vulnerable plugins
-- **Zero-Day Exploitation of Network Management Interfaces**: Targeting of vendor management consoles (Check Point, Arista VCO, MikroTik) for network infrastructure control
+- **Pre-authentication RCE via VPN Certificate Handling**: Unauthenticated network-level exploit against Check Point Security Gateway (CVE-2026-85102).
+- **WordPress File Write to RCE**: Attackers write executable PHP/webshell files to disk via CVE-2026-87902, achieving code execution on access.
+- **SSH State-Machine + Argument Injection Chain**: MikroTrick chains CVE-2026-67279 (SSH state desync) with CVE-2026-86060 (login argument injection) for passwordless root access.
+- **Container Escape via Kernel Use-After-Free**: CVE-2026-80521 exploits AF_UNIX socket handling to break out of containers to host root.
+- **OAuth Server RCE**: Unauthenticated code execution on F5 BIG-IP APM acting as OAuth authorization server (CVE-2026-94127).
+- **Browser-to-Kernel Zero-Day Chain**: UTA0565 chains Chrome renderer exploits (CVE-2026-85046, CVE-2026-87491) with Windows ALPC elevation (CVE-2026-85880) via malicious websites.
+- **Supply Chain Compromise (Terraform Registry)**: Malicious providers published to official HashiCorp Registry execute Go malware during `terraform init/apply`.
+- **Supply Chain Compromise (Package Managers)**: Legitimate MemTensor maintainer accounts or build pipelines compromised to inject sckit stealer into npm/PyPI packages.
+- **GitLab Email Token Abuse**: Leaked per-user incoming email addresses (containing scoped tokens) used to push code and trigger CI/CD as victim.
+- **CalDAV/CardDAV Root Execution**: Authenticated cPanel user exploits DAV service flaw to execute commands as root on shared hosting servers.
+- **Next.js SVG Deserialization**: Attacker-controlled text passed to ImageResponse rendered as SVG leads to server-side code execution.
+- **AI-Agent Orchestrated Skimming**: Autonomous AI frameworks used to discover, exploit, and inject payment skimmers across hundreds of retailers at scale.
+- **EDR Evasion via Parameter Poisoning**: Code injection into process initialization structures (e.g., PEB, environment blocks) bypassing API-hooking EDR sensors.
+- **Rogue MFA Provider Registration**: Privileged attacker registers malicious external authentication provider to harvest credentials during legitimate logins.
+- **Kubernetes Config Connector Confused Deputy**: Low-privilege K8s service account exploits excessive IAM bindings via Config Connector to seize GCP organization ownership.
+- **Multi-Model AI Malware C2**: CLOSEDQUORUM uses ensemble voting of local LLMs for command decisions, reducing C2 infrastructure footprint.
 
 ## Threat Actor Activities
 
-- **UTA0565 (Chinese APT)**: Observed exploiting Chrome-Windows zero-day chain (CVE-2026-85046, CVE-2026-87491, CVE-2026-85880) via fake websites on September 3–4, 2026, deploying CLEANGULP malware; high-confidence attribution to Chinese state-sponsored activity
-- **ShinyHunters (Cyber Extortion Group)**: Claims responsibility for FBI breach using alleged Oracle PeopleSoft zero-day; publicized theft of sensitive data on FBI agents and job applicants on dark web; previously associated with major data breaches and extortion campaigns
-- **Chinese-Speaking Threat Actor (Unnamed)**: Exploiting ZyXEL GS1900 switch vulnerabilities and WordPress flaws to compromise 996 devices and exfiltrate 18,500+ records from government backend databases; targeting aligns with espionage objectives
-- **Financially Motivated Actor (AI Agent Operator)**: Deploying open-source AI agent frameworks to automate mass compromise of e-commerce platforms; 100+ sites infected with skimmers; 600,000+ credit cards stolen; represents paradigm shift toward AI-orchestrated crime-at-scale
-- **Unknown Actor (MemTensor Supply Chain)**: Compromised legitimate maintainer accounts or build pipelines for @memtensor/memos-cloud-openclaw-plugin on npm and PyPI; delivered sckit credential stealer across Windows, Linux, macOS; operational security suggests experienced operator
-- **EvilTokens Operators (Phishing-as-a-Service)**: Ran device code phishing platform targeting Microsoft 365; infrastructure disrupted by Microsoft (50 sites seized, 150+ domains disabled); service enabled low-skill affiliates to bypass MFA
-- **Ryuk Ransomware Affiliate (Armenian National)**: Sentenced to 24 months for Ryuk ransomware attacks against U.S. companies; illustrates continued law enforcement pressure on ransomware ecosystem
-- **InfraTrust-Observed Actors (Unattributed)**: Targeting network management systems across enterprises; exploiting critical vulnerabilities in management interfaces before or shortly after vendor disclosure; suggests dedicated infrastructure-targeting capability
+- **UTA0565 (Chinese Threat Actor)**: Exploited Chrome-Windows zero-day chain (CVE-2026-85046, CVE-2026-87491, CVE-2026-85880) on September 3–4, 2026, deploying CLEANGULP malware via fake websites. Attribution by The Hacker News / industry researchers.
+- **ShinyHunters (Cyber Extortion Group)**: Claimed breach of U.S. FBI, asserting theft of sensitive data on nearly all FBI agents and job applicants. Posted claim on dark web; verification pending.
+- **Ryuk Ransomware Affiliate**: Armenian national sentenced to 24 months imprisonment + 3 years supervised release for Ryuk attacks against U.S. companies; indicates ongoing law enforcement pressure on ransomware ecosystems.
+- **Unknown Actors - Check Point Exploitation**: Active exploitation of CVE-2026-85102 confirmed by Check Point; no attribution provided.
+- **Unknown Actors - WordPress Exploitation**: Threat actors moved from scanning to active exploitation of CVE-2026-87902; no specific group identified.
+- **Unknown Actors - MikroTrick Campaign**: Internet-wide scanning and exploitation of MikroTik SSH chain; attack logs predate disclosure.
+- **Unknown Actors - F5 BIG-IP APM Exploitation**: Active RCE attacks against OAuth-configured BIG-IP systems prior to September 22 patch.
+- **Unknown Actors - Arista VeloCloud Exploitation**: Zero-day exploited in the wild against VCO On-Prem; no attribution.
+- **Unknown Actors - Supply Chain (Terraform/npm/PyPI)**: Publishers of malicious Terraform providers and compromised MemTensor packages; infrastructure linked to Go-based malware distribution.
+- **Financially Motivated AI Skimming Operator**: Leverages open-source AI agent frameworks for automated, large-scale e-commerce compromise and credit card theft (600K+ records).
+- **Network Infrastructure Targeters**: Per InfraTrust, actors exploiting critical vulnerabilities in enterprise network management systems pre- or post-disclosure; possible espionage or access brokerage motive.
