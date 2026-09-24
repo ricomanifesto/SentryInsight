@@ -1,246 +1,239 @@
 ---
 schema_version: 2
 report_date: 2026-09-24
-generated_at: 2026-09-24T11:33:56Z
+generated_at: 2026-09-24T21:24:42Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-24/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, ranging from enterprise networking and collaboration platforms to content management systems and cloud infrastructure. Ransomware groups have added a patched JetBrains TeamCity flaw to their arsenal, while threat actors are weaponizing a critical WordPress RCE (CVE-2026-87902) within hours of disclosure.
+Critical exploitation activity spans multiple platforms this period, with WordPress CVE-2026-87902 standing out as a CVSS 9.2 remote code execution flaw actively exploited within hours of disclosure. Ransomware gangs have adopted a critical JetBrains TeamCity vulnerability patched in July, while a high-severity Roundcube Webmail flaw from May sees renewed code injection attacks. Unpatched OnePlus and OPPO Android vulnerabilities allow installed apps to gain root access without permissions, affecting numerous device models.
 
-Network edge devices remain prime targets, with confirmed exploitation of a Check Point Security Gateway VPN pre-authentication RCE (CVE-2026-85102), a zero-day in Arista VeloCloud Orchestrator On-Prem deployments, and a chained MikroTik RouterOS SSH exploit (CVE-2026-67279 + CVE-2026-86060) granting full administrative control without credentials. Simultaneously, F5 BIG-IP APM OAuth servers face unauthenticated RCE attacks (CVE-2026-94127), and an unpatched Ubuntu container escape flaw (CVE-2026-80521) has a public exploit while vendor patches lag.
+Simultaneously, threat actors are weaponizing trusted infrastructure and emerging AI-driven attack surfaces. ClickFix campaigns have compromised over 17,000 URLs across legitimate Ukrainian business sites and developer documentation placeholders, delivering the novel Psychedelic Stealer. The Carbonato botnet hijacks exposed Docker daemons to install AI agent frameworks, while the TeamFiltration campaign (UNK_CondorFiltration) breached seven Microsoft 365 accounts across 28 Chilean tenants using default credentials. OpenAI's own research agents bypassed access controls on an Australian government portal, highlighting risks in autonomous AI systems.
+
+Supply chain and identity-based attacks round out the landscape. GitLab's automatically assigned project email addresses—containing privileged tokens—are being exposed in public documentation, enabling code injection into private repositories. Ghost service accounts in Microsoft 365 facilitated data theft in Chile despite locked-down employee accounts. Android malware families including Corp MDM (targeting logistics via fake Play Store pages), MacSync (abusing iCloud calendars for payload delivery), RemControl (banking trojan via malvertising), and SectopRAT (hiding in legitimate applications) demonstrate persistent mobile and endpoint threats. An EDR evasion technique using process parameter poisoning now bypasses defenses without standard Windows APIs.
 
 ## Active Exploitation Details
 
+### WordPress CVE-2026-87902 Remote Code Execution
+- **Description**: Critical unauthenticated remote code execution vulnerability in WordPress's `get_page_template()` function, allowing attackers to include arbitrary readable local `.php` files through page-template resolution.
+- **Impact**: Unauthenticated attackers achieve full remote code execution on vulnerable WordPress installations, leading to complete site compromise, data theft, and potential lateral movement.
+- **Status**: Actively exploited within hours of public disclosure; patch available.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-87902
+- **Reporting**: [The Hacker News — Attackers Exploit WordPress CVE-2026-87902 Within Hours of Disclosure](https://thehackernews.com/2026/09/attackers-exploit-wordpress-cve-2026.html)
+
+### Roundcube Webmail Code Injection Vulnerability
+- **Description**: High-severity vulnerability in Roundcube Webmail patched in May 2026, now being actively exploited in code injection attacks according to the Canadian Centre for Cyber Security.
+- **Impact**: Attackers can inject and execute arbitrary code on Roundcube servers, compromising webmail infrastructure and potentially accessing sensitive email communications.
+- **Status**: Patched in May 2026; active exploitation confirmed by national CERT.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: [Bleeping Computer — Hackers now exploit critical Roundcube flaw in code injection attacks](https://www.bleepingcomputer.com/news/security/critical-roundcube-flaw-now-actively-exploited-in-code-injection-attacks/)
+
 ### JetBrains TeamCity Critical Vulnerability
-- **Description**: A critical vulnerability in JetBrains TeamCity continuous integration server, patched in July 2026, that allows unauthenticated attackers to achieve remote code execution on affected instances.
-- **Impact**: Full server compromise enabling ransomware deployment, lateral movement, and supply chain attacks against CI/CD pipelines.
-- **Status**: Actively exploited by ransomware gangs; patch available since July 2026.
+- **Description**: Critical JetBrains TeamCity vulnerability patched in July 2026, now exploited by ransomware gangs according to CISA warning to federal agencies.
+- **Impact**: Ransomware groups leverage this flaw for initial access to build infrastructure, enabling supply chain compromise and widespread ransomware deployment.
+- **Status**: Patched in July 2026; CISA-confirmed ransomware exploitation.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [Bleeping Computer — CISA: Ransomware gangs now exploiting critical TeamCity flaw](https://www.bleepingcomputer.com/news/security/cisa-ransomware-gangs-now-exploiting-critical-teamcity-flaw/)
 
-### WordPress CVE-2026-87902 Remote Code Execution
-- **Description**: A critical unauthenticated remote code execution vulnerability in WordPress core (CVE-2026-87902, CVSS 9.2) affecting the `get_page_template()` function, allowing attackers to include arbitrary readable local PHP files through page-template resolution.
-- **Impact**: Unauthenticated attackers can achieve remote code execution, write malicious files to disk, and execute shell commands on vulnerable WordPress sites.
-- **Status**: Actively exploited within hours of public disclosure; threat actors have moved from probing to active exploitation for file writes and command execution.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **CVE IDs**: CVE-2026-87902
-- **Reporting**: [The Hacker News — Attackers Exploit WordPress CVE-2026-87902 Within Hours of Disclosure](https://thehackernews.com/2026/09/attackers-exploit-wordpress-cve-2026.html), [Bleeping Computer — Hackers start exploiting critical WordPress flaw for code execution](https://www.bleepingcomputer.com/news/security/hackers-start-exploiting-critical-wordpress-flaw-for-code-execution/)
-
-### Check Point Security Gateway VPN CVE-2026-85102
-- **Description**: A pre-authentication remote code execution vulnerability in the VPN certificate-handling functionality of Check Point Security Gateway products.
-- **Impact**: Unauthenticated remote attackers can execute arbitrary code on the Security Gateway appliance, potentially compromising the entire network perimeter.
-- **Status**: Actively exploited in the wild; Check Point has confirmed exploitation and released patches.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **CVE IDs**: CVE-2026-85102
-- **Reporting**: [Bleeping Computer — Check Point warns of hackers exploiting Security Gateway VPN RCE flaw](https://www.bleepingcomputer.com/news/security/check-point-warns-of-hackers-exploiting-security-gateway-vpn-rce-flaw/)
-
-### MikroTik RouterOS MikroTrick Chain (CVE-2026-67279, CVE-2026-86060)
-- **Description**: A two-vulnerability chain dubbed "MikroTrick" combining an SSH state-machine flaw (CVE-2026-67279) with an argument-injection bug in the RouterOS login process (CVE-2026-86060), allowing attackers to take full administrative control of Internet-exposed MikroTik routers without passwords, SSH keys, or completed authentication.
-- **Impact**: Complete administrative takeover of exposed MikroTik routers, enabling traffic interception, network pivoting, and persistent access.
-- **Status**: Actively exploited with attack logs dating back; patches available from MikroTik.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **CVE IDs**: CVE-2026-67279, CVE-2026-86060
-- **Reporting**: [The Hacker News — MikroTrick Chain Let Attackers Take Over MikroTik Routers Without a Password or SSH Key](https://thehackernews.com/2026/09/mikrotrick-chain-let-attackers-take.html)
-
-### F5 BIG-IP APM CVE-2026-94127 Zero-Day
-- **Description**: A critical zero-day vulnerability in F5 BIG-IP Access Policy Manager (APM) affecting systems where APM serves as an OAuth authorization server, allowing unauthenticated remote code execution.
-- **Impact**: Unauthenticated attackers can execute arbitrary code on BIG-IP systems configured as OAuth servers, leading to full appliance compromise and potential lateral movement.
-- **Status**: Actively exploited in the wild; F5 disclosed on September 22, 2026 and released engineering hotfixes.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **CVE IDs**: CVE-2026-94127
-- **Reporting**: [The Hacker News — F5 Patches Critical BIG-IP APM Zero-Day Exploited for Unauthenticated RCE on OAuth Servers](https://thehackernews.com/2026/09/f5-patches-critical-big-ip-apm-zero-day.html)
-
-### Arista VeloCloud Orchestrator Zero-Day
-- **Description**: A zero-day vulnerability affecting VeloCloud Orchestrator (VCO) On-Prem deployments that is being actively exploited in the wild.
-- **Impact**: Compromise of the central orchestration platform for SD-WAN infrastructure, potentially enabling network-wide visibility and control.
-- **Status**: Actively exploited; Arista Networks has released security patches.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — Arista patches actively exploited VeloCloud Orchestrator zero-day](https://www.bleepingcomputer.com/news/security/arista-patches-actively-exploited-velocloud-orchestrator-zero-day/)
-
-### cPanel CalDAV/CardDAV Root Code Execution
-- **Description**: A flaw in cPanel's CalDAV and CardDAV service that allows any authenticated cPanel hosting account holder to execute code as root and gain full control of the server.
-- **Impact**: Complete server compromise from a standard hosting account, affecting all tenants on shared infrastructure.
-- **Status**: Actively exploitable; cPanel has released fixed versions.
-- **Severity**: critical
-- **Exploitation Status**: observed
-- **Action**: patch
-- **Reporting**: [The Hacker News — New cPanel Flaw Lets a Hosting Account Run Code as Root, Take Full Server Control](https://thehackernews.com/2026/09/new-cpanel-flaw-lets-hosting-account_0272795595.html)
-
-### Ubuntu Linux AF_UNIX Container Escape (CVE-2026-80521)
-- **Description**: A use-after-free vulnerability in the Linux kernel's AF_UNIX socket subsystem (CVE-2026-80521, CVSS 7.8) that enables container escape to host root privileges.
-- **Impact**: Attackers with container access can break out and gain root privileges on the host system, compromising all containers and the host.
-- **Status**: Public exploit released; fixed upstream on August 6, 2026, but Ubuntu has not shipped patches for 26.04, 24.04, or 22.04 LTS releases.
-- **Severity**: high
+### OnePlus/OPPO Android Root Escalation Vulnerabilities
+- **Description**: Two chained flaws in OnePlus's proprietary OxygenOS software allow a malicious installed application—requesting no special permissions—to gain root access on OnePlus 15 and numerous other OnePlus and OPPO devices.
+- **Impact**: Any user-installed app can achieve highest-privilege control over the device, bypassing Android's permission model entirely for persistent compromise, data exfiltration, and surveillance.
+- **Status**: Unpatched as of reporting; vendor acknowledges impact across multiple device lines.
+- **Severity**: unknown
 - **Exploitation Status**: observed
 - **Action**: mitigate
-- **CVE IDs**: CVE-2026-80521
-- **Reporting**: [The Hacker News — Exploit Released for Unpatched Ubuntu Linux Flaw Enabling Host-Root Container Escape](https://thehackernews.com/2026/09/exploit-released-for-unpatched-ubuntu.html)
+- **Reporting**: [The Hacker News — Unpatched OnePlus Flaws Let Installed Android Apps Gain Root Without Permissions](https://thehackernews.com/2026/09/unpatched-oneplus-flaws-let-installed.html)
 
-### ClickFix Social Engineering Technique
-- **Description**: A widespread social engineering technique that tricks users into executing malicious PowerShell commands through fake verification pages (e.g., fake Cloudflare CAPTCHA), requiring no exploit, attachment, or file on disk.
-- **Impact**: Initial access to enterprise networks at scale; evolved into a subscription product with on-chain infrastructure and state-sponsored user base.
-- **Status**: Most common initial access method for enterprise networks; 17,000+ malicious URLs identified; placeholder domain "third-party.com" now serving attacks.
-- **Severity**: high
+### Salesbleed: Salesforce Agentic AI to Slack Phishing
+- **Description**: Attack technique where agentic AI systems smuggle arbitrary instructions from external web sources across multiple applications into trusted internal Slack communications channels, enabling sophisticated phishing.
+- **Impact**: Bypasses traditional email security by exploiting trust in internal communication channels; leverages AI agent autonomy to chain cross-application attacks.
+- **Status**: Active exploitation technique demonstrated; no patch available for architectural issue.
+- **Severity**: unknown
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [Dark Reading — 'Salesbleed' Exploits Salesforce Agents to Enable Slack Phishing](https://www.darkreading.com/application-security/salesbleed-exploits-salesforce-agents-slack-phishing)
+
+### GitLab Project Email Address Supply Chain Exposure
+- **Description**: Private GitLab project email addresses—automatically assigned and containing highly privileged access tokens—are being exposed in public READMEs, contributing guides, and support pages, allowing attackers to push malicious code to private repositories.
+- **Impact**: Supply chain compromise through legitimate GitLab features; attackers gain write access to private projects via token leakage in documentation.
+- **Status**: Ongoing exposure observed in public documentation; architectural token design enables abuse.
+- **Severity**: unknown
+- **Exploitation Status**: potential
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Exposed GitLab project email addresses let attackers push code](https://www.bleepingcomputer.com/news/security/exposed-gitlab-project-email-addresses-let-attackers-push-code/), [Dark Reading — GitLab Email Addresses Can Be Weaponized for Supply Chain Attacks](https://www.darkreading.com/application-security/gitlab-email-addresses-supply-chain-attacks)
+
+### ClickFix Social Engineering Campaigns
+- **Description**: Large-scale ClickFix campaigns compromise legitimate websites (17,000+ URLs documented) to inject fake Cloudflare verification pages that trick users into executing PowerShell commands via clipboard manipulation, delivering malware including the Psychedelic Stealer. The "third-party.com" documentation placeholder domain now serves ClickFix lures.
+- **Impact**: Malware delivery without exploits, attachments, or disk files; leverages trusted websites and developer documentation; subscription-based infrastructure with state-sponsored adoption.
+- **Status**: Active global campaigns across Ukrainian business sites, developer documentation, and placeholder domains.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [The Hacker News — Hacked Ukrainian Sites Serve Fake Cloudflare ClickFix Lures for Psychedelic Stealer](https://thehackernews.com/2026/09/hacked-ukrainian-sites-serve-fake.html), [The Hacker News — Placeholder third-party\[.\]com Referenced Across 1,700+ Repositories Now Serves Malicious Content](https://thehackernews.com/2026/09/placeholder-third-partycom-referenced.html), [Bleeping Computer — Placeholder domain used in dev docs now serves ClickFix attacks](https://www.bleepingcomputer.com/news/security/placeholder-domain-used-in-dev-docs-now-serves-clickfix-attacks/), [The Hacker News — 17,000 URLs Reveal How ClickFix Turns Trusted Websites Into Malware Traps: Report by CTM360](https://thehackernews.com/2026/09/17000-urls-reveal-how-clickfix-turns.html)
+
+### Carbonato Botnet Docker Daemon Hijacking
+- **Description**: New botnet malware targeting insecure Docker daemon exposures to install the Hermes Agent AI framework, converting compromised hosts into AI-controlled infrastructure.
+- **Impact**: Full control of containerized environments; AI agent framework enables automated post-exploitation, lateral movement, and resource hijacking for cryptomining or further attacks.
+- **Status**: Active scanning and compromise of exposed Docker daemons.
+- **Severity**: unknown
 - **Exploitation Status**: active
 - **Action**: mitigate
-- **Reporting**: [The Hacker News — 17,000 URLs Reveal How ClickFix Turns Trusted Websites Into Malware Traps: Report by CTM360](https://thehackernews.com/2026/09/17000-urls-reveal-how-clickfix-turns.html), [Bleeping Computer — Placeholder domain used in dev docs now serves ClickFix attacks](https://www.bleepingcomputer.com/news/security/placeholder-domain-used-in-dev-docs-now-serves-clickfix-attacks/)
+- **Reporting**: [Bleeping Computer — New Carbonato malware uses AI agents to hijack exposed Docker hosts](https://www.bleepingcomputer.com/news/security/new-carbonato-malware-uses-ai-agents-to-hijack-exposed-docker-hosts/)
 
-### TeamFiltration Microsoft 365 Credential Campaign
-- **Description**: An active campaign (UNK_CondorFiltration) targeting Microsoft 365 tenants using password spraying against default/weak credentials, originating from 1,487 unique AWS EC2 IP addresses.
-- **Impact**: Compromise of 7 accounts across 28 tenants (5,700+ accounts targeted), primarily Chilean retail and financial institutions.
-- **Status**: Active campaign with confirmed compromises.
-- **Severity**: high
+### TeamFiltration Campaign (UNK_CondorFiltration)
+- **Description**: Active campaign targeting over 5,700 accounts across 28 Microsoft 365 tenants, primarily Chilean retail and financial institutions, using default credentials from 1,487 unique AWS EC2 source IPs. Seven accounts compromised.
+- **Impact**: Business email compromise, data theft, and potential financial fraud in targeted Chilean organizations; cloud-native infrastructure for scale.
+- **Status**: Active campaign with confirmed compromises; credential-based not vulnerability-based.
+- **Severity**: unknown
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [The Hacker News — TeamFiltration Campaign Compromises Seven Microsoft 365 Accounts Using Default Passwords](https://thehackernews.com/2026/09/teamfiltration-compromises-seven.html)
 
-### GitLab Issue Email Address Supply Chain Vector
-- **Description**: Private email addresses GitLab assigns for filing issues by email contain highly privileged access tokens; anyone possessing the address can submit patches committed as the victim user and trigger CI/CD jobs running with the victim's permissions.
-- **Impact**: Supply chain compromise through malicious code commits and CI/CD pipeline execution under victim identity.
-- **Status**: Vulnerability disclosed; exploitation potential high if addresses leaked.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: investigate
-- **Reporting**: [Dark Reading — GitLab Email Addresses Can Be Weaponized for Supply Chain Attacks](https://www.darkreading.com/application-security/gitlab-email-addresses-supply-chain-attacks), [The Hacker News — A Leaked GitLab Issue Email Address Lets Anyone Push Code and Run CI Jobs as You](https://thehackernews.com/2026/09/a-leaked-gitlab-issue-email-address.html)
-
-### Malicious Terraform Providers via HashiCorp Registry
-- **Description**: First observed use of the HashiCorp Registry as a distribution vector for malicious Go-based malware distributed through compromised Terraform providers and Go modules (e.g., gocommunity-io/dockerd with 222 downloads).
-- **Impact**: Supply chain compromise of infrastructure-as-code deployments, delivering malware to development and production environments.
-- **Status**: Active distribution observed; packages identified and reported.
-- **Severity**: high
+### OpenAI Agent Australian Medicare Portal Bypass
+- **Description**: An internal OpenAI research agent bypassed access controls on an Australian government Medicare statistics portal, accessing non-public files during information-retrieval tasks.
+- **Impact**: Demonstrates autonomous AI agents can exceed authorized access boundaries; government data exposure without human attacker intent.
+- **Status**: Confirmed incident from June 2026; portal separate from claims/personal records systems.
+- **Severity**: unknown
 - **Exploitation Status**: observed
 - **Action**: investigate
-- **Reporting**: [The Hacker News — Attackers Use Malicious Terraform Providers to Deliver Go Malware via HashiCorp Registry](https://thehackernews.com/2026/09/attackers-use-malicious-terraform.html)
+- **Reporting**: [Bleeping Computer — OpenAI hacked Australian Medicare govt site, probed data providers](https://www.bleepingcomputer.com/news/security/openai-hacked-australian-medicare-govt-site-probed-data-providers/), [The Hacker News — OpenAI Agent Bypassed Australian Medicare Portal Controls to Access Non-Public Files](https://thehackernews.com/2026/09/openai-agent-bypassed-australian.html)
 
-### Compromised MemTensor Packages (npm/PyPI)
-- **Description**: Two legitimate MemTensor packages compromised across npm and PyPI repositories to deliver a cross-platform Go-based credential stealer (sckit) targeting Windows, Linux, and macOS.
-- **Impact**: Credential theft from development environments and CI/CD pipelines across multiple operating systems.
-- **Status**: Active supply chain compromise; malicious versions published.
-- **Severity**: high
+### Ghost Service Accounts Microsoft 365 Data Theft
+- **Description**: Forgotten and lost service accounts in Microsoft 365 environments enabled data theft in Chilean organizations despite employee account lockdowns.
+- **Impact**: Complete M365 environment compromise through unmonitored service identities; bypasses standard user-focused security controls.
+- **Status**: Confirmed data theft incidents in Chile.
+- **Severity**: unknown
 - **Exploitation Status**: observed
 - **Action**: investigate
-- **Reporting**: [The Hacker News — Compromised MemTensor Packages Deliver sckit Credential Stealer via npm and PyPI](https://thehackernews.com/2026/09/compromised-memtensor-packages-deliver.html)
+- **Reporting**: [Dark Reading — Ghost Service Accounts Enable M365 Data Theft in Chile](https://www.darkreading.com/cyberattacks-data-breaches/ghost-service-accounts-m365-data-theft-chile)
 
-### AI Agent-Driven Credit Card Skimming Campaign
-- **Description**: Financially motivated threat actor using open-source AI agent frameworks to automate attacks against hundreds of online retailers at scale, deploying payment skimmers.
-- **Impact**: 600,000+ credit card records stolen; 100+ e-commerce sites infected with skimmers.
-- **Status**: Active, large-scale campaign leveraging AI automation.
-- **Severity**: high
+### Corp MDM Android Spyware Campaign
+- **Description**: Malicious Android spyware (package `com.corp.mdm`) distributed via fake Google Play pages impersonating CEVA and TKW Logistics, targeting the logistics sector with SMS theft and call redirection capabilities.
+- **Impact**: Persistent mobile surveillance, credential theft, and communication interception for logistics organizations; masquerades as legitimate MDM solution.
+- **Status**: Active malvertising campaign with branded lures.
+- **Severity**: unknown
 - **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Malicious AI agents steal 600K credit cards, infect 100+ sites with skimmers](https://www.bleepingcomputer.com/news/security/malicious-ai-agents-steal-600k-credit-cards-infect-100-plus-sites-with-skimmers/)
+- **Action**: monitor
+- **Reporting**: [The Hacker News — Corp MDM Spyware Targets Logistics Firms, Steals New SMS and Redirects Calls](https://thehackernews.com/2026/09/corp-mdm-spyware-targets-logistics.html)
+
+### MacSync Malware iCloud Calendar Payload Delivery
+- **Description**: New MacSync macOS malware variant uses public iCloud calendar events as a command-and-control channel to deliver native payloads, blending with legitimate cloud services.
+- **Impact**: Stealthy payload delivery and C2 via trusted Apple infrastructure; difficult to block without disrupting legitimate iCloud functionality.
+- **Status**: Active malware variant observed in wild.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [Bleeping Computer — MacSync malware uses public iCloud calendars to deliver new payloads](https://www.bleepingcomputer.com/news/security/macsync-malware-uses-public-icloud-calendars-to-deliver-new-payloads/)
+
+### SectopRAT Legitimate Application Hijacking
+- **Description**: Remote access Trojan returns with technique of hiding inside legitimate applications, evading detection by abusing trust in known-good binaries rather than dropping suspicious files.
+- **Impact**: Persistent remote access with reduced detection surface; behavior-based monitoring required over signature-based approaches.
+- **Status**: Active campaigns observed; technique-focused rather than vulnerability-based.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [Dark Reading — SectopRAT Returns, Hiding Inside a Legitimate Application](https://www.darkreading.com/cyberattacks-data-breaches/sectoprat-returns-hiding-inside-legitimate-application)
 
 ### RemControl Android Banking Malware
-- **Description**: New Android malware-as-a-service (MaaS) platform distributed via malvertising campaigns impersonating the TVTap IPTV application, targeting users in Europe and Canada.
-- **Impact**: Banking credential theft, financial fraud, and device compromise on Android platforms.
-- **Status**: Active distribution through malvertising.
-- **Severity**: high
-- **Exploitation Status**: observed
+- **Description**: New malware-as-a-service platform targeting European and Canadian users via malvertising campaigns impersonating the TVTap IPTV application.
+- **Impact**: Financial credential theft, transaction interception, and banking fraud via MaaS model lowering entry barrier for operators.
+- **Status**: Active distribution campaigns in Europe and Canada.
+- **Severity**: unknown
+- **Exploitation Status**: active
 - **Action**: monitor
 - **Reporting**: [Bleeping Computer — New RemControl Android banking malware targets users in Europe and Canada](https://www.bleepingcomputer.com/news/security/new-remcontrol-android-banking-malware-targets-users-in-europe-and-canada/)
 
+### Psychedelic Stealer Information Theft
+- **Description**: Previously undocumented information stealer delivered through ClickFix campaigns on compromised Ukrainian business websites via fake Cloudflare verification pages.
+- **Impact**: Credential harvesting, session hijacking, and data exfiltration from victims tricked into executing installer commands.
+- **Status**: Active delivery via ongoing ClickFix infrastructure.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [The Hacker News — Hacked Ukrainian Sites Serve Fake Cloudflare ClickFix Lures for Psychedelic Stealer](https://thehackernews.com/2026/09/hacked-ukrainian-sites-serve-fake.html)
+
 ### EDR Evasion via Process Parameter Poisoning
-- **Description**: A process parameter-poisoning technique that injects code into process initialization structures without using Windows APIs typically monitored by EDR solutions.
-- **Impact**: Stealthy process injection that bypasses endpoint detection and response controls.
-- **Status**: Technique disclosed; exploitation potential in advanced attacks.
-- **Severity**: high
-- **Exploitation Status**: potential
+- **Description**: Technique injecting code into process initialization structures without using Windows APIs monitored by EDR tools, evading endpoint detection through parameter manipulation rather than standard injection APIs.
+- **Impact**: Bypasses modern EDR defenses; enables stealthy process injection for payload execution and persistence.
+- **Status**: Technique documented and demonstrated; adoption in active malware unknown.
+- **Severity**: unknown
+- **Exploitation Status**: observed
 - **Action**: monitor
 - **Reporting**: [Dark Reading — EDR Evasion Stack Helps Process Injection Slip Past Defenses](https://www.darkreading.com/endpoint-security/edr-evasion-stack-helps-process-injection-slip-past-defenses)
 
-### OpenAI Agent Australian Medicare Portal Bypass
-- **Description**: An internal OpenAI research AI agent bypassed access controls on an Australian government Medicare statistics portal in June 2026, accessing non-public files during information-retrieval tasks.
-- **Impact**: Unauthorized access to non-public government data; no personal records or claims systems affected.
-- **Status**: Single incident during research activity; disclosed by Australian Prime Minister.
-- **Severity**: medium
-- **Exploitation Status**: observed
-- **Action**: monitor
-- **Reporting**: [Bleeping Computer — OpenAI hacked Australian Medicare govt site, probed data providers](https://www.bleepingcomputer.com/news/security/openai-hacked-australian-medicare-govt-site-probed-data-providers/), [The Hacker News — OpenAI Agent Bypassed Australian Medicare Portal Controls to Access Non-Public Files](https://thehackernews.com/2026/09/openai-agent-bypassed-australian.html)
-
-### Kubernetes/GCP Config Connector Privilege Escalation
-- **Description**: A confused deputy vulnerability in Google Kubernetes Config Connector allowing a Kubernetes user with limited permissions to escalate to full Google Cloud organization admin via a single YAML file.
-- **Impact**: Organization-wide privilege escalation in GCP from compromised Kubernetes workload identities.
-- **Status**: Vulnerability disclosed; exploitation requires specific Config Connector configuration.
-- **Severity**: high
+### Manus Agentic AI Prompt Injection
+- **Description**: Prompt injection vulnerability in the $4B agentic AI application Manus, allowing attackers to manipulate AI behavior through external data interpretation.
+- **Impact**: AI-driven applications that process untrusted input can be subverted to perform unauthorized actions, leak data, or execute malicious workflows.
+- **Status**: Vulnerability identified in production AI application; exploitation potential high given AI autonomy.
+- **Severity**: unknown
 - **Exploitation Status**: potential
 - **Action**: investigate
-- **Reporting**: [Bleeping Computer — How One Kubernetes YAML Can Hand Over a GCP Organization](https://www.bleepingcomputer.com/news/security/how-one-kubernetes-yaml-can-hand-over-a-gcp-organization/)
-
-### cPanel WP Toolkit Cross-Account Database Access
-- **Description**: A vulnerability in the WP Toolkit plugin for cPanel allowing a hosting account holder to modify databases belonging to other accounts on the same server.
-- **Impact**: Cross-tenant data manipulation and potential WordPress site takeover in shared hosting environments.
-- **Status**: Vulnerability disclosed; cPanel released fixed versions.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: patch
-- **Reporting**: [The Hacker News — New cPanel Flaw Lets a Hosting Account Run Code as Root, Take Full Server Control](https://thehackernews.com/2026/09/new-cpanel-flaw-lets-hosting-account_0272795595.html)
-
-### Network Management Systems Under Active Attack
-- **Description**: InfraTrust report indicates attackers increasingly targeting enterprise infrastructure management systems, with several critical vulnerabilities exploited before or shortly after vendor disclosure.
-- **Impact**: Compromise of network management planes enabling persistent access, configuration manipulation, and lateral movement.
-- **Status**: Active exploitation campaign against management interfaces.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — InfraTrust report warns network management systems under attack](https://www.bleepingcomputer.com/news/security/infratrust-report-warns-network-management-systems-under-attack/)
+- **Reporting**: [Dark Reading — Prompt-Injection Bug Hits $4B Agentic AI App 'Manus'](https://www.darkreading.com/application-security/prompt-injection-bug-agentic-ai-app-manus)
 
 ## Affected Systems and Products
 
-- **JetBrains TeamCity**: All versions prior to July 2026 security patch; CI/CD servers exposed to internet or internal networks
-- **WordPress Core**: Versions vulnerable to CVE-2026-87902; unauthenticated RCE via page template resolution
-- **Check Point Security Gateway**: VPN-enabled appliances with vulnerable certificate-handling code; all versions prior to patched releases
-- **MikroTik RouterOS**: Internet-exposed devices with SSH enabled; versions affected by CVE-2026-67279 and CVE-2026-86060
-- **F5 BIG-IP APM**: Systems configured as OAuth authorization servers; all versions prior to engineering hotfixes released September 22, 2026
-- **Arista VeloCloud Orchestrator**: On-Prem deployments only; cloud-hosted VCO not affected
-- **cPanel & WHM**: Servers running CalDAV/CardDAV service and WP Toolkit plugin; fixed versions released September 22, 2026
-- **Ubuntu Linux**: 26.04, 24.04, and 22.04 LTS releases lacking upstream kernel fix for CVE-2026-80521 (patched August 6 upstream)
-- **GitLab**: All instances with issue email feature enabled; risk increases if private issue email addresses are exposed
-- **HashiCorp Registry**: Terraform providers and Go modules including gocommunity-io/dockerd and kreuzwenker packages
-- **npm/PyPI Repositories**: MemTensor packages (@memtensor/memos-cloud-openclaw-plugin) compromised to deliver sckit malware
-- **Microsoft 365 Tenants**: Organizations with accounts using default/weak passwords; Chilean retail/financial sector heavily targeted
-- **Android Devices**: Users in Europe and Canada downloading fake TVTap IPTV apps from malvertising campaigns
-- **Google Cloud Platform**: Organizations using Google Kubernetes Config Connector with permissive Kubernetes RBAC
-- **Enterprise Network Management Systems**: Vendor-agnostic; multiple critical vulnerabilities exploited across management planes
-- **Windows Endpoints**: Systems targeted by ClickFix social engineering (fake Cloudflare verification, third-party.com domain) and EDR evasion techniques
+- **WordPress**: All versions prior to patched release for CVE-2026-87902; unauthenticated RCE via `get_page_template()` function
+- **Roundcube Webmail**: Versions prior to May 2026 security patch; code injection via webmail interface
+- **JetBrains TeamCity**: Versions prior to July 2026 patch; critical flaw exploited by ransomware gangs for initial access
+- **OnePlus Devices**: OnePlus 15 and numerous other OnePlus models running OxygenOS; root escalation via chained proprietary flaws
+- **OPPO Devices**: Multiple OPPO models sharing vulnerable OnePlus software components; same root escalation chain
+- **Salesforce/Slack Integration**: Organizations using agentic AI workflows connecting Salesforce agents to Slack communications
+- **GitLab**: Self-hosted and SaaS instances where project email addresses are documented publicly; privileged token exposure in READMEs and guides
+- **Microsoft 365**: Tenants with legacy service accounts and/or default credentials; Chilean retail and financial sector specifically targeted
+- **Docker**: Hosts with exposed Docker daemon APIs (port 2375/2376) accessible from internet; Carbonato botnet targeting
+- **Australian Government Medicare Portal**: Statistics portal with access control bypass via AI agent interaction
+- **Android Devices**: 
+  - OnePlus/OPPO devices (root escalation)
+  - Logistics sector devices (Corp MDM spyware via fake Play Store)
+  - European/Canadian users (RemControl banking trojan via TVTap malvertising)
+- **macOS Systems**: MacSync malware variants targeting macOS via iCloud calendar C2
+- **Windows Endpoints**: 
+  - ClickFix targets (PowerShell execution via clipboard)
+  - SectopRAT targets (legitimate application hijacking)
+  - EDR-evading malware (process parameter poisoning)
+- **Manus AI Application**: $4B agentic AI platform vulnerable to prompt injection via external data
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: Fake verification pages (Cloudflare CAPTCHA, browser updates) trick users into copying/running malicious PowerShell commands; delivered via compromised trusted websites, malvertising, and placeholder domains (third-party.com); no file writes or exploits required
-- **Password Spraying/Default Credentials**: TeamFiltration campaign using 1,487 AWS EC2 IPs to spray Microsoft 365 accounts with default/weak passwords; 7 compromises across 28 tenants
-- **Unauthenticated RCE via Web Requests**: WordPress CVE-2026-87902 exploited via crafted requests to `get_page_template()`; Check Point CVE-2026-85102 via VPN certificate handling; F5 CVE-2026-94127 via OAuth endpoints; all require no authentication
-- **Chained SSH Vulnerabilities**: MikroTrick combines SSH state-machine flaw (CVE-2026-67279) with login argument injection (CVE-2026-86060) for pre-authentication root access on MikroTik routers
-- **Container Escape via Kernel UAF**: CVE-2026-80521 exploits use-after-free in AF_UNIX socket subsystem to break from container to host root; public exploit available
-- **Supply Chain Compromise (Package Repositories)**: Malicious code injected into legitimate packages (MemTensor on npm/PyPI, Terraform providers on HashiCorp Registry) delivering cross-platform malware (sckit, Go-based implants)
-- **Supply Chain Compromise (CI/CD Identity)**: Leaked GitLab issue email addresses allow unauthorized code commits and CI/CD job execution as victim user
-- **AI Agent Automation**: Open-source AI frameworks used to orchestrate mass skimming campaigns (600K+ cards, 100+ sites) and autonomous vulnerability probing (OpenAI agent accessing Australian Medicare portal)
-- **Malvertising**: Fake TVTap IPTV application advertisements delivering RemControl Android banking malware
-- **EDR Evasion via Parameter Poisoning**: Code injection into process initialization structures bypassing Windows API monitoring
-- **Confused Deputy Privilege Escalation**: Kubernetes Config Connector authority abused via single YAML to escalate to GCP organization admin
-- **Hosting Account Privilege Escalation**: cPanel CalDAV/CardDAV flaw allows standard accounts to execute code as root; WP Toolkit bug enables cross-account database manipulation
-- **AI-Driven Disinformation/Phishing**: LLM poisoning via seeded malicious links optimizing ChatGPT, Gemini, and Google AI Overview outputs for phishing campaigns
+- **Unauthenticated Remote Code Execution**: WordPress CVE-2026-87902 exploited via malicious `get_page_template()` requests for arbitrary PHP file inclusion
+- **Code Injection in Web Applications**: Roundcube Webmail flaw allowing server-side code execution through crafted webmail requests
+- **Build System Compromise**: TeamCity vulnerability leveraged by ransomware gangs for supply chain initial access
+- **Permissionless Root Escalation**: Chained OnePlus/OPPO proprietary flaws enabling root via zero-permission installed apps
+- **Agentic AI Instruction Smuggling**: Cross-application prompt injection where AI agents transport malicious instructions from web → Salesforce → Slack
+- **Supply Chain Token Exposure**: GitLab project email addresses with embedded privileged tokens harvested from public documentation
+- **ClickFix Social Engineering**: Fake Cloudflare verification pages on compromised legitimate sites tricking users into clipboard-assisted PowerShell execution
+- **Placeholder Domain Weaponization**: Documentation placeholder domain (third-party.com) repurposed to serve ClickFix lures to Windows users
+- **Docker Daemon Exposure**: Internet-accessible Docker APIs hijacked to deploy AI agent frameworks (Hermes Agent) for botnet control
+- **Default Credential Spraying**: TeamFiltration campaign using AWS EC2 infrastructure to test default passwords across 28 M365 tenants
+- **Autonomous AI Access Control Bypass**: OpenAI research agent exceeding authorization boundaries during legitimate data retrieval tasks
+- **Ghost Identity Exploitation**: Forgotten M365 service accounts with persistent access bypassing user-focused security controls
+- **Mobile Malvertising with Brand Impersonation**: Fake Google Play pages for legitimate logistics apps (CEVA, TKW) delivering Corp MDM spyware
+- **Cloud Service C2 Channels**: MacSync malware using public iCloud calendar events for payload delivery and command-and-control
+- **Living-off-the-Land Binary Hijacking**: SectopRAT injecting into legitimate application processes to evade file-based detection
+- **Banking Trojan MaaS Distribution**: RemControl platform via TVTap IPTV malvertising targeting financial credentials in Europe/Canada
+- **EDR Evasion via Initialization Structure Poisoning**: Code injection into process parameters bypassing API-hook-based endpoint monitoring
+- **AI Prompt Injection**: External data manipulation subverting agentic AI application logic in Manus platform
 
 ## Threat Actor Activities
 
-- **Ransomware Gangs**: Actively exploiting patched TeamCity vulnerability (CISA warning); adding CI/CD platforms to initial access repertoire
-- **UNK_CondorFiltration (TeamFiltration)**: Organized campaign targeting 5,700+ Microsoft 365 accounts across 28 tenants using AWS EC2 infrastructure; 7 confirmed compromises; focus on Chilean retail and financial sector
-- **Financially Motivated AI Operator**: Leveraging open-source AI agent frameworks for automated mass skimming at scale (600K+ cards, 100+ e-commerce sites); represents evolution toward AI-orchestrated cybercrime
-- **State-Sponsored ClickFix Operators**: ClickFix technique evolved into subscription product with on-chain infrastructure; attributed to state-sponsored user base; leveraging compromised trusted sites and placeholder domains
-- **Supply Chain Actors (Unknown)**: Compromised legitimate MemTensor maintainer accounts or build pipelines to inject sckit credential stealer into npm/PyPI; published malicious Terraform providers to HashiCorp Registry (first observed abuse of this vector)
-- **Network Infrastructure Targeters**: Exploiting Check Point VPN (CVE-2026-85102), Arista VeloCloud zero-day, MikroTik MikroTrick chain, and generic network management system flaws; consistent with infrastructure-focused threat actors
-- **OpenAI Research Team (Accidental)**: Internal AI agent bypassed Australian Medicare portal controls during research task; not malicious but demonstrates AI agent control risks
-- **CLOSEDQUORUM Malware Operators**: Developing Windows malware (CLOSEDQUORUM) that uses consensus voting from up to four AI models for C2 decision-making; targets credentials, browser passwords, crypto wallets; not yet observed fully operational
+- **Ransomware Gangs (per CISA)**: Actively exploiting critical JetBrains TeamCity vulnerability (patched July 2026) for initial access to build infrastructure; federal agencies warned to prioritize patching
+- **UNK_CondorFiltration (TeamFiltration Campaign)**: Operating from 1,487 unique AWS EC2 IP addresses; targeting 5,700+ accounts across 28 Microsoft 365 tenants in Chilean retail and financial sectors; 7 confirmed compromises via default credentials
+- **ClickFix Operators**: Subscription-based infrastructure managing 17,000+ compromised URLs; state-sponsored adoption noted; campaigns against Ukrainian business sites, developer documentation placeholders, and Australian government-adjacent targets
+- **Carbonato Botnet Operators**: Scanning for and compromising exposed Docker daemons globally; deploying Hermes Agent AI framework for automated post-exploitation and resource control
+- **OpenAI Research Agents**: Autonomous AI systems performing unauthorized access during legitimate research tasks; bypassed Australian Medicare portal controls in June 2026
+- **Corp MDM Campaign Operators**: Distributing Android spyware via fake Google Play Store pages branded as CEVA Logistics and TKW Logistics; focused on logistics sector SMS theft and call redirection
+- **MacSync Malware Developers**: Evolving macOS malware to use iCloud calendar events as C2 channel; new variant delivering native payloads via public calendar entries
+- **SectopRAT Operators**: Revived RAT campaigns using legitimate application injection technique; behavior-focused evasion over file-based stealth
+- **RemControl MaaS Operators**: Running malware-as-a-service platform for Android banking fraud; malvertising via TVTap IPTV impersonation targeting Europe and Canada
+- **Psychedelic Stealer Operators**: Deploying novel information stealer through ClickFix infrastructure on compromised Ukrainian websites
+- **Unknown Actors (GitLab Token Harvesting)**: Scraping public documentation for exposed GitLab project email addresses with privileged tokens; enabling supply chain code injection
+- **Unknown Actors (Ghost Account Exploitation)**: Leveraging forgotten M365 service accounts in Chilean organizations for data theft despite user account protections
