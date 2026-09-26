@@ -1,165 +1,153 @@
 ---
 schema_version: 2
 report_date: 2026-09-26
-generated_at: 2026-09-26T04:26:45Z
+generated_at: 2026-09-26T11:09:28Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-26/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across enterprise software, web applications, and cloud infrastructure. CISA has added two high-severity flaws—CVE-2026-5430 in WSO2 products and a critical Adobe Commerce vulnerability—to its Known Exploited Vulnerabilities catalog based on confirmed attack activity. Simultaneously, a pre-authentication SQL injection in Roundcube Webmail (CVE-2026-48842) is being actively exploited in the wild, prompting urgent patching advisories from the Canadian Centre for Cyber Security.
+CISA has added multiple critical vulnerabilities to its Known Exploited Vulnerabilities catalog, confirming active exploitation of Microsoft SharePoint (CVE-2026-65660), WSO2 products (CVE-2026-5430), Adobe Commerce/Magento, and MikroTik RouterOS. The Canadian Centre for Cyber Security separately warned that a pre-authentication SQL injection in Roundcube Webmail (CVE-2026-48842) is being actively exploited in the wild. These represent confirmed, weaponized vulnerabilities requiring immediate patching across enterprise environments.
 
-Threat actors are diversifying their techniques beyond traditional vulnerability exploitation. North Korean operators compromised Bitget's backend infrastructure to steal $351.6 million in cryptocurrency, while the ShinyHunters group leveraged an unpatched Grav CMS path traversal flaw to breach the Clop ransomware gang's leak site. A new botnet dubbed Carbonato is weaponizing AI agents to hijack exposed Docker daemons, and compromised GitHub Actions from the Mini Shai-Hulud campaign have reactivated to deliver malware. These developments signal a shift toward supply chain compromise, AI-assisted automation, and cross-platform credential abuse.
+A high-severity CSRF flaw in the Elementor Website Builder WordPress plugin (CVSS 8.8, no CVE assigned) enables unauthenticated attackers to create rogue administrator accounts when an admin clicks a crafted link. Meanwhile, threat intelligence prompted Kiteworks to urge customers to shut down systems for six to nine hours over a potential zero-day targeting their secure file-sharing platform. The Clop ransomware gang's leak site was compromised via an unpatched Grav CMS path traversal flaw by ShinyHunters, demonstrating attacker-on-attacker activity and the risk of unpatched CMS installations.
 
-Several vendors have issued emergency mitigations ahead of patches. Kiteworks took the extraordinary step of urging global customers to shut down servers for a six-hour window based on threat intelligence signaling an imminent zero-day attack. OnePlus devices remain vulnerable to a two-flaw chain granting root access to any installed app without permissions, with no patch yet available. Organizations should prioritize the CISA KEV-listed vulnerabilities, the Roundcube flaw, and any internet-facing Kiteworks or Roundcube deployments while monitoring for indicators of compromise tied to the North Korean and ShinyHunters campaigns.
+Financially motivated and state-sponsored threat actors remain highly active. Suspected North Korean hackers stole $351.6 million from cryptocurrency exchange Bitget through a backend compromise. The Mini Shai-Hulud campaign resurfaced via compromised GitHub Actions repositories, while new macOS malware families (PamStealer, MacSync) and the Carbonato botnet leverage AI agents to hijack exposed Docker hosts. Russian hybrid cyber-physical operations continue targeting European nations supporting Ukraine.
 
 ## Active Exploitation Details
 
-### WSO2 Authentication Bypass / Path Traversal (CVE-2026-5430)
-- **Description**: A critical path traversal vulnerability in WSO2 API Control Plane that allows authentication bypass. The flaw carries a CVSS score of 9.8 and affects multiple WSO2 enterprise products.
-- **Impact**: Attackers can bypass authentication controls and potentially achieve remote code execution or unauthorized administrative access to affected WSO2 deployments.
-- **Status**: Actively exploited in the wild; added to CISA KEV catalog on September 25, 2026. Patches are available from WSO2.
+### Microsoft SharePoint Code Injection (CVE-2026-65660)
+- **Description**: A code injection vulnerability in Microsoft Office SharePoint that allows remote code execution. Added to CISA KEV catalog based on evidence of active exploitation.
+- **Impact**: Attackers can achieve remote code execution on affected SharePoint servers, potentially leading to full system compromise and lateral movement.
+- **Status**: Actively exploited in the wild; patch available from Microsoft.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-65660
+- **Reporting**: [The Hacker News — SharePoint RCE and MikroTik RouterOS Flaws Actively Exploited in the Wild](https://thehackernews.com/2026/09/sharepoint-rce-and-mikrotik-routeros.html)
+
+### WSO2 Path Traversal / Authentication Bypass (CVE-2026-5430)
+- **Description**: A critical path traversal vulnerability in WSO2 API Control Plane (also described as an authentication bypass affecting multiple WSO2 products) with a CVSS score of 9.8. Added to CISA KEV catalog based on evidence of active exploitation.
+- **Impact**: Attackers can bypass authentication and traverse file systems, potentially leading to unauthorized access, data exfiltration, and system compromise across WSO2 deployments.
+- **Status**: Actively exploited in the wild; patches available from WSO2.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-5430
-- **Reporting**: [Bleeping Computer — CISA warns of Sharepoint, WSO2, Adobe Commerce flaws exploited in attacks](https://www.bleepingcomputer.com/news/security/cisa-warns-of-sharepoint-wso2-adobe-commerce-flaws-exploited-in-attacks/), [The Hacker News — WSO2 and Adobe Commerce Flaws Exploited in Attacks, Added to CISA KEV](https://thehackernews.com/2026/09/wso2-and-adobe-commerce-flaws-exploited.html)
+- **Reporting**: [The Hacker News — SharePoint RCE and MikroTik RouterOS Flaws Actively Exploited in the Wild](https://thehackernews.com/2026/09/sharepoint-rce-and-mikrotik-routeros.html), [Bleeping Computer — CISA warns of Sharepoint, WSO2, Adobe Commerce flaws exploited in attacks](https://www.bleepingcomputer.com/news/security/cisa-warns-of-sharepoint-wso2-adobe-commerce-flaws-exploited-in-attacks/), [The Hacker News — WSO2 and Adobe Commerce Flaws Exploited in Attacks, Added to CISA KEV](https://thehackernews.com/2026/09/wso2-and-adobe-commerce-flaws-exploited.html)
 
 ### Roundcube Webmail Pre-Auth SQL Injection (CVE-2026-48842)
-- **Description**: A pre-authentication SQL injection vulnerability in the virtuser_query plugin of Roundcube Webmail. The flaw stems from improper handling of backslash characters in a preg_replace() call, allowing unauthenticated attackers to inject arbitrary SQL.
-- **Impact**: Unauthenticated remote attackers can execute arbitrary SQL commands, leading to data theft, authentication bypass, and potential remote code execution on the underlying database server.
-- **Status**: Actively exploited in the wild per Canadian Centre for Cyber Security advisory. Patched in Roundcube 1.6.16 and 1.7.1.
+- **Description**: A pre-authentication SQL injection in the virtuser_query plugin of Roundcube Webmail versions 1.6.x before 1.6.16 and 1.7.x before 1.7.1. The issue stems from a preg_replace() backslash handling flaw. Canadian Centre for Cyber Security warns of active exploitation.
+- **Impact**: Unauthenticated attackers can execute arbitrary SQL commands, leading to database compromise, data theft, and potential remote code execution.
+- **Status**: Actively exploited in the wild; patched in versions 1.6.16 and 1.7.1.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-48842
 - **Reporting**: [The Hacker News — Roundcube Pre-Auth SQL Injection Flaw Actively Exploited in the Wild](https://thehackernews.com/2026/09/roundcube-pre-auth-sql-injection-flaw.html)
 
-### Adobe Commerce / Magento Critical Flaw
-- **Description**: A critical vulnerability affecting Adobe Commerce and Magento platforms. Specific technical details were not disclosed in the source material, but CISA has confirmed active exploitation.
-- **Impact**: Based on CISA KEV inclusion, exploitation likely enables significant compromise such as remote code execution, authentication bypass, or customer data theft.
-- **Status**: Actively exploited; added to CISA KEV catalog alongside the WSO2 flaw. Adobe has released security updates.
+### MikroTik RouterOS Vulnerability
+- **Description**: A security flaw in MikroTik RouterOS added to CISA KEV catalog citing evidence of active exploitation. Specific vulnerability details not fully disclosed in source articles.
+- **Impact**: Compromise of MikroTik networking devices, enabling network interception, pivoting, and persistence.
+- **Status**: Actively exploited in the wild; patch status should be verified with MikroTik advisories.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: patch
+- **Reporting**: [The Hacker News — SharePoint RCE and MikroTik RouterOS Flaws Actively Exploited in the Wild](https://thehackernews.com/2026/09/sharepoint-rce-and-mikrotik-routeros.html)
+
+### Adobe Commerce / Magento Vulnerability
+- **Description**: A critical security flaw impacting Adobe Commerce and Magento added to CISA KEV catalog based on evidence of active exploitation. Specific CVE not fully disclosed in source articles.
+- **Impact**: Potential compromise of e-commerce platforms, payment data theft, and customer information exposure.
+- **Status**: Actively exploited in the wild; patches available from Adobe.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: [Bleeping Computer — CISA warns of Sharepoint, WSO2, Adobe Commerce flaws exploited in attacks](https://www.bleepingcomputer.com/news/security/cisa-warns-of-sharepoint-wso2-adobe-commerce-flaws-exploited-in-attacks/), [The Hacker News — WSO2 and Adobe Commerce Flaws Exploited in Attacks, Added to CISA KEV](https://thehackernews.com/2026/09/wso2-and-adobe-commerce-flaws-exploited.html)
 
-### Grav CMS Unauthenticated Path Traversal
-- **Description**: An unpatched unauthenticated path traversal vulnerability in Grav CMS. The Clop ransomware gang's leak site was compromised and defaced through this flaw by the ShinyHunters group.
-- **Impact**: Allows unauthenticated attackers to traverse the filesystem, potentially leading to arbitrary file read, write, or remote code execution depending on server configuration.
-- **Status**: Unpatched at time of reporting; actively exploited against at least one high-value target (Clop leak site). No vendor patch mentioned in source.
+### Elementor Website Builder CSRF (WordPress Plugin)
+- **Description**: A cross-site request forgery (CSRF) vulnerability in the Elementor Website Builder WordPress plugin (CVSS 8.8) that allows unauthenticated attackers to create rogue administrator accounts when an admin clicks a crafted link. No CVE identifier assigned yet.
+- **Impact**: Full site takeover via administrator account creation, leading to content manipulation, malware distribution, and persistence.
+- **Status**: Vulnerability disclosed with proof-of-concept; exploitation risk high due to social engineering vector; patch status should be verified with Elementor updates.
+- **Severity**: high
+- **Exploitation Status**: potential
+- **Action**: patch
+- **Reporting**: [The Hacker News — Elementor CSRF Flaw Lets Attackers Take Over Sites After Admin Clicks Crafted Link](https://thehackernews.com/2026/09/elementor-csrf-flaw-lets-attackers-take.html), [Bleeping Computer — Elementor WordPress flaw lets attackers create admin accounts](https://www.bleepingcomputer.com/news/security/elementor-wordpress-flaw-lets-attackers-create-admin-accounts/)
+
+### Grav CMS Path Traversal
+- **Description**: An unauthenticated path traversal vulnerability in Grav CMS that was unpatched at time of exploitation. Used by ShinyHunters to compromise and deface the Clop ransomware gang's data leak site.
+- **Impact**: Arbitrary file read/write leading to site compromise, defacement, and potential server takeover.
+- **Status**: Actively exploited (Clop leak site compromise); patch status unclear as flaw described as unpatched.
 - **Severity**: high
 - **Exploitation Status**: active
-- **Action**: mitigate
+- **Action**: investigate
 - **Reporting**: [Bleeping Computer — ShinyHunters hacked Clop leak site using Grav CMS path traversal flaw](https://www.bleepingcomputer.com/news/security/shinyhunters-hacked-clop-leak-site-using-grav-cms-path-traversal-flaw/)
 
-### Elementor WordPress CSRF to Admin Account Creation
-- **Description**: A cross-site request forgery (CSRF) vulnerability in the Elementor plugin for WordPress that allows unauthenticated attackers to create administrator accounts.
-- **Impact**: Attackers can trick authenticated administrators into executing actions that create new admin accounts, leading to full site takeover.
-- **Status**: Vulnerability disclosed; exploitation potential is high given the popularity of Elementor. Patch status not specified in source.
-- **Severity**: high
-- **Exploitation Status**: potential
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — Elementor WordPress flaw lets attackers create admin accounts](https://www.bleepingcomputer.com/news/security/elementor-wordpress-flaw-lets-attackers-create-admin-accounts/)
-
 ### Kiteworks Potential Zero-Day
-- **Description**: Kiteworks issued an urgent advisory urging all customers worldwide to temporarily shut down their servers for a six-hour window on Saturday after receiving threat intelligence warning of a potentially imminent cyberattack targeting a zero-day vulnerability.
-- **Impact**: Unknown specific impact, but the severity of the mitigation (full server shutdown) suggests potential for remote code execution or catastrophic data exposure.
-- **Status**: Threat intelligence indicates imminent exploitation; no patch available at time of advisory. Kiteworks investigating.
+- **Description**: Kiteworks (formerly Accellion) received credible threat intelligence from federal authorities indicating a threat actor may attempt to target Kiteworks systems, prompting a 6-9 hour shutdown recommendation. Suggests a potential zero-day vulnerability.
+- **Impact**: Potential compromise of secure file-sharing systems, data exfiltration, and supply chain impact.
+- **Status**: Threat intelligence indicates imminent attack; no confirmed exploitation or patch at time of reporting.
 - **Severity**: critical
 - **Exploitation Status**: potential
 - **Action**: mitigate
-- **Reporting**: [Bleeping Computer — Kiteworks urges 6-hour server shutdown over potential zero-day attacks](https://www.bleepingcomputer.com/news/security/kiteworks-urges-6-hour-server-shutdown-over-potential-zero-day-attacks/)
+- **Reporting**: [The Hacker News — Kiteworks Urges Customers to Shut Down Systems for 9 Hours Over Possible Cyber Attack](https://thehackernews.com/2026/09/kiteworks-urges-customers-to-shut-down.html), [Bleeping Computer — Kiteworks urges 6-hour server shutdown over potential zero-day attacks](https://www.bleepingcomputer.com/news/security/kiteworks-urges-6-hour-server-shutdown-over-potential-zero-day-attacks/)
 
-### SharePoint Flaw Exploited in Attacks
-- **Description**: CISA warned that hackers are exploiting a vulnerability affecting Microsoft SharePoint. Specific CVE and technical details were not provided in the source material.
-- **Impact**: Active exploitation confirmed by CISA; likely enables privilege escalation, data access, or remote code execution in SharePoint environments.
-- **Status**: Actively exploited per CISA; added to KEV catalog (implied). Microsoft patches expected.
+### Mini Shai-Hulud GitHub Actions Supply Chain
+- **Description**: Two compromised actions-cool GitHub Actions repositories (actions-cool/issues-helper and actions-cool/maintain-one-comment) were re-enabled and resumed executing Mini Shai-Hulud malware months after initial May 2026 compromise.
+- **Impact**: Supply chain compromise affecting CI/CD pipelines using these actions; potential credential theft, code injection, and further repository compromise.
+- **Status**: Active malware execution observed after repositories became accessible; GitHub has disabled the actions.
 - **Severity**: high
 - **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — CISA warns of Sharepoint, WSO2, Adobe Commerce flaws exploited in attacks](https://www.bleepingcomputer.com/news/security/cisa-warns-of-sharepoint-wso2-adobe-commerce-flaws-exploited-in-attacks/)
+- **Action**: investigate
+- **Reporting**: [The Hacker News — Compromised GitHub Actions Came Back Online and Resumed Executing Mini Shai-Hulud Malware](https://thehackernews.com/2026/09/compromised-github-actions-came-back.html)
 
-### Cloudflare Containers Cross-Customer Data Leak
-- **Description**: A flaw in Cloudflare Containers allowed a paying customer to read leftover disk data from other customers' containers on the same server. The data came from disk space previously used and released by other containers, not from live workloads.
-- **Impact**: Cross-tenant data exposure in a multi-tenant container environment. Attackers could not target specific customers but could access residual sensitive data.
-- **Status**: Fixed by Cloudflare. No evidence of malicious exploitation; discovered by researchers.
+### Cloudflare Containers Data Leakage
+- **Description**: A flaw in Cloudflare Containers allowed a paying customer to read leftover disk data from other customers' containers on the same server. Data came from disk space previously used and released by other containers.
+- **Impact**: Cross-tenant data exposure in shared container infrastructure; sensitive data leakage between customers.
+- **Status**: Fixed by Cloudflare; no evidence of malicious exploitation reported.
 - **Severity**: medium
 - **Exploitation Status**: not_observed
-- **Action**: patch
+- **Action**: monitor
 - **Reporting**: [The Hacker News — Cloudflare Fixes Flaw That Let One Container Read Another Customer's Leftover Disk Data](https://thehackernews.com/2026/09/cloudflare-fixes-flaw-that-let-one.html)
-
-### OnePlus / OPPO OxygenOS Root Access Chain
-- **Description**: Two chained flaws in OnePlus's OxygenOS allow a malicious app installed by the user—requesting no special permissions—to gain root access on OnePlus 15 and "many more" OnePlus and OPPO devices.
-- **Impact**: Full device compromise (root access) via a seemingly benign app install. Bypasses Android permission model entirely.
-- **Status**: Unpatched at time of reporting. OnePlus acknowledged the flaws affect multiple devices but has not released fixes.
-- **Severity**: critical
-- **Exploitation Status**: potential
-- **Action**: mitigate
-- **Reporting**: [The Hacker News — Unpatched OnePlus Flaws Let Installed Android Apps Gain Root Without Permissions](https://thehackernews.com/2026/09/unpatched-oneplus-flaws-let-installed.html)
-
-### GitLab Private Email Address Exposure
-- **Description**: Private GitLab project email addresses (used for issue/task submission via email) are being exposed in public READMEs, contributing guides, and support pages. Attackers can use these addresses to push code or issues to private projects.
-- **Impact**: Unauthorized code pushes, issue injection, and potential supply chain compromise in GitLab projects where these email addresses are documented publicly.
-- **Status**: Configuration/misuse issue rather than a code vulnerability. No patch required; remediation is operational (remove exposed addresses, rotate tokens).
-- **Severity**: medium
-- **Exploitation Status**: observed
-- **Action**: mitigate
-- **Reporting**: [Bleeping Computer — Exposed GitLab project email addresses let attackers push code](https://www.bleepingcomputer.com/news/security/exposed-gitlab-project-email-addresses-let-attackers-push-code/)
-
-### Salesforce Agents "Salesbleed" Slack Phishing
-- **Description**: A technique dubbed "Salesbleed" exploits Salesforce Agents to smuggle arbitrary instructions from the web across multiple applications into trusted internal Slack channels, enabling sophisticated phishing.
-- **Impact**: Attackers can manipulate AI agents to deliver convincing phishing messages through trusted internal communication channels, bypassing traditional email security controls.
-- **Status**: Technique demonstrated; active exploitation status unclear. Relates to agentic AI architecture weaknesses rather than a single CVE.
-- **Severity**: high
-- **Exploitation Status**: observed
-- **Action**: investigate
-- **Reporting**: [Dark Reading — 'Salesbleed' Exploits Salesforce Agents to Enable Slack Phishing](https://www.darkreading.com/application-security/salesbleed-exploits-salesforce-agents-slack-phishing)
 
 ## Affected Systems and Products
 
-- **WSO2 API Control Plane and related WSO2 products**: Multiple enterprise integration and API management products affected by CVE-2026-5430
-- **Adobe Commerce and Magento**: E-commerce platforms affected by critical flaw added to CISA KEV
-- **Roundcube Webmail**: Versions 1.6.x before 1.6.16 and 1.7.x before 1.7.1 affected by CVE-2026-48842
-- **Grav CMS**: Unpatched versions vulnerable to unauthenticated path traversal
-- **Elementor WordPress Plugin**: Versions with CSRF vulnerability allowing admin account creation
-- **Kiteworks Secure File Sharing**: All customer deployments advised to shut down pending zero-day investigation
-- **Microsoft SharePoint**: Versions affected by actively exploited flaw (specific versions not disclosed)
-- **Cloudflare Containers**: Multi-tenant container platform; flaw fixed by provider
-- **OnePlus Devices (OnePlus 15 and others) / OPPO Devices**: Running OxygenOS with unpatched root access chain
-- **GitLab**: Projects with exposed private email addresses in public documentation
-- **Salesforce Agents / Slack Integration**: Environments using agentic AI workflows between Salesforce and Slack
-- **Docker Daemons (exposed)**: Internet-accessible Docker API endpoints targeted by Carbonato botnet
-- **GitHub Actions (actions-cool/issues-helper, actions-cool/maintain-one-comment)**: Compromised during Mini Shai-Hulud campaign
-- **Bitget Cryptocurrency Exchange**: Backend infrastructure compromised by North Korean actors
+- **Elementor Website Builder WordPress Plugin**: Affected versions not fully specified in sources; all versions prior to patched release potentially vulnerable.
+- **Microsoft SharePoint**: Versions affected by CVE-2026-65660; consult Microsoft security advisories for specific build numbers.
+- **WSO2 Products**: Multiple products including WSO2 API Control Plane affected by CVE-2026-5430; consult WSO2 security advisories for complete list.
+- **Adobe Commerce / Magento**: E-commerce platform versions affected by the CISA KEV-listed flaw; consult Adobe security bulletins.
+- **MikroTik RouterOS**: RouterOS versions affected by the CISA KEV-listed vulnerability; consult MikroTik security announcements.
+- **Roundcube Webmail**: Versions 1.6.x before 1.6.16 and 1.7.x before 1.7.1 affected by CVE-2026-48842.
+- **Grav CMS**: Versions with unpatched path traversal flaw; specific versions not identified in sources.
+- **Kiteworks Secure File Sharing**: All customer systems potentially targeted; shutdown recommended as precaution.
+- **GitHub Actions**: Repositories using actions-cool/issues-helper or actions-cool/maintain-one-comment during compromise window.
+- **Cloudflare Containers**: Multi-tenant container infrastructure; flaw fixed by provider.
 
 ## Attack Vectors and Techniques
 
-- **Pre-Authentication SQL Injection**: Unauthenticated database query manipulation via crafted input to Roundcube's virtuser_query plugin (CVE-2026-48842)
-- **Authentication Bypass via Path Traversal**: Exploitation of WSO2 API Control Plane path traversal (CVE-2026-5430) to circumvent access controls
-- **Unauthenticated Path Traversal**: Direct filesystem traversal in Grav CMS without authentication to compromise Clop leak site
-- **Cross-Site Request Forgery (CSRF)**: Tricking authenticated WordPress admins into creating attacker-controlled admin accounts via Elementor plugin
-- **Supply Chain Compromise (GitHub Actions)**: Malicious code injected into popular GitHub Actions (actions-cool repositories) during Mini Shai-Hulud campaign; repositories reactivated months later
-- **Backend Infrastructure Compromise**: North Korean actors breached Bitget's hot/warm wallet infrastructure, stealing $351.6M in cryptocurrency
-- **AI Agent Hijacking**: Carbonato botnet targets exposed Docker daemons to install Hermes Agent AI framework for automated command and control
-- **Agentic AI Instruction Smuggling ("Salesbleed")**: Malicious web content instructs Salesforce Agents to propagate commands into internal Slack channels
-- **Root Access via Chained Local Flaws**: Malicious Android app with zero permissions chains two OnePlus/OxygenOS flaws to achieve root
-- **Credential/Token Exposure in Documentation**: Private GitLab project email addresses published in READMEs enable unauthorized code pushes
-- **Multi-Layer Persistence with Server-Side Decryption**: PamStealer macOS malware uses JXA dropper and live C2 payload decryption for stealthy persistence
-- **Public iCloud Calendar Abuse**: MacSync malware leverages public iCloud calendar events as a covert payload delivery channel
-- **RAT Concealment in Legitimate Applications**: SectopRAT hides inside trusted application processes to evade detection
-- **Hybrid Cyber-Physical Operations**: Russian actors combining cyber sabotage, disinformation, and drone attacks against European targets
+- **CSRF Admin Account Takeover**: Attackers craft malicious links that, when clicked by an authenticated Elementor admin, forge requests to create new administrator accounts without user consent.
+- **Code Injection via SharePoint**: Remote code execution through crafted requests exploiting CVE-2026-65660 in Microsoft Office SharePoint.
+- **Path Traversal Authentication Bypass**: Exploitation of CVE-2026-5430 in WSO2 products to bypass authentication controls and traverse file systems.
+- **Pre-Auth SQL Injection**: Unauthenticated database queries via the virtuser_query plugin in Roundcube Webmail (CVE-2026-48842) using preg_replace() backslash manipulation.
+- **Supply Chain Compromise (GitHub Actions)**: Malicious code injected into widely-used GitHub Actions repositories, executing in downstream CI/CD pipelines (Mini Shai-Hulud campaign).
+- **Backend Wallet Compromise**: Direct compromise of cryptocurrency exchange backend infrastructure enabling unauthorized transfers from hot and warm wallets.
+- **AI Agent Instruction Smuggling ('Salesbleed')**: Agentic AI systems manipulated to smuggle arbitrary instructions from web sources across multiple applications into trusted internal channels like Slack.
+- **AI-Agent-Driven Docker Hijacking**: Carbonato botnet uses AI agents (Hermes Agent framework) to discover and compromise exposed Docker daemons.
+- **Cross-Tenant Container Data Leakage**: Reading residual disk data from previously terminated containers in shared Cloudflare infrastructure.
+- **JXA Dropper with Server-Side Decryption**: PamStealer macOS malware uses JavaScript for Automation (JXA) dropper with live C2 payload decryption and multi-layer persistence.
+- **iCloud Calendar C2**: MacSync malware abuses public iCloud calendar events to deliver new native payloads to macOS targets.
+- **Legitimate Application Hiding**: SectopRAT hides inside legitimate applications to evade detection while providing remote access.
+- **Grav CMS Path Traversal for Defacement**: Unauthenticated file system traversal used to compromise and deface the Clop ransomware leak site.
 
 ## Threat Actor Activities
 
-- **ShinyHunters**: Compromised and defaced the Clop ransomware gang's data leak site via Grav CMS path traversal; also referenced in context of "ratting on TeamPCP hackers"
-- **Clop Ransomware Gang**: Victim of ShinyHunters intrusion; forced to migrate leak site to new Tor address
-- **North Korean Threat Actors (suspected Lazarus Group)**: Compromised Bitget cryptocurrency exchange backend, stealing $351.6M from hot and warm wallets on September 24, 2026
-- **Mini Shai-Hulud Campaign Operators**: Compromised actions-cool GitHub Actions repositories in May 2026; malicious code reactivated when repositories became accessible again in September 2026
-- **PamStealer Operators**: Deploying updated macOS info-stealer with server-side payload decryption, JXA dropper, and multi-layer persistence
-- **Rydox Marketplace Admin (Kosovar national)**: Pleaded guilty to operating large illegal marketplace for stolen PII, credentials, credit cards, and cybercrime tools
-- **Carbonato Botnet Operators**: Deploying new malware targeting exposed Docker daemons to install Hermes Agent AI framework for automated control
-- **Russian Hybrid Warfare Actors**: Conducting coordinated cyber sabotage, disinformation campaigns, and drone attacks against European nations supporting Ukraine
-- **U.S. Army Soldier (convicted)**: Sentenced to 70 months for hacking AT&T and Verizon, stealing call/text metadata for 100M+ customers in 2024 extortion scheme
-- **Rasmus Moorats (Security Researcher)**: Discovered and reported chained OnePlus/OxygenOS root flaws; disclosed affecting multiple OnePlus and OPPO devices
+- **North Korean Threat Actors (Lazarus/APT38 suspected)**: Stole $351.6 million from Bitget cryptocurrency exchange via backend compromise of hot and warm wallets on September 24, 2026. Cold wallets and majority of assets reportedly unaffected.
+- **ShinyHunters**: Compromised and defaced the Clop ransomware gang's data leak site using an unpatched Grav CMS path traversal flaw; also reported ratting on TeamPCP hackers. Demonstrates attacker-on-attacker operations and vulnerability exploitation for notoriety.
+- **Clop Ransomware Gang**: Victim of ShinyHunters compromise; forced to move leak site to new Tor address after server compromise and defacement.
+- **Mini Shai-Hulud Campaign Operators**: Maintained persistence in compromised GitHub Actions repositories (actions-cool organization) for months; malware reactivated when repositories became accessible again in September 2026.
+- **PamStealer Operators**: Deploying updated macOS information stealer with server-side payload decryption, JXA dropper mechanism, and multi-layer persistence techniques.
+- **Carbonato Botnet Operators**: Targeting exposed Docker daemons globally to install Hermes Agent AI framework, creating an AI-agent-controlled botnet for further exploitation.
+- **MacSync Malware Operators**: Evolving macOS malware now using public iCloud calendars as a novel C2 channel for payload delivery.
+- **SectopRAT Operators**: Revived remote access Trojan campaign hiding malicious functionality inside legitimate applications to evade behavioral detection.
+- **Russian State-Sponsored Actors**: Conducting hybrid cyber-physical operations against European nations supporting Ukraine, combining cyber sabotage, disinformation, and drone attacks.
+- **Rydox Marketplace Administrator (Kosovar National)**: Pleaded guilty to operating large illegal marketplace selling stolen PII, credentials, credit card data, and cybercrime tools; faces up to 22 years imprisonment.
+- **U.S. Army Soldier (Individual Actor)**: Sentenced to 70 months for hacking AT&T and Verizon in 2024, stealing mobile call/text metadata for over 100 million customers; ordered to pay nearly $300,000 restitution.
