@@ -1,155 +1,206 @@
 ---
 schema_version: 2
 report_date: 2026-09-29
-generated_at: 2026-09-29T03:25:56Z
+generated_at: 2026-09-29T09:30:10Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-09-29/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Critical exploitation activity is surging across multiple vectors, with two Citrix NetScaler zero-day vulnerabilities (CVE-2026-88771 and CVE-2026-88772) now confirmed under active global exploitation and added to CISA's Known Exploited Vulnerabilities catalog. Federal agencies have been ordered to patch by Wednesday.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, from enterprise networking and mobile operating systems to cloud infrastructure and AI-driven attack frameworks. CISA has added two critical Citrix NetScaler flaws to its Known Exploited Vulnerabilities catalog following confirmed global exploitation, mandating emergency patching for federal agencies. Apple has patched a CoreGraphics zero-day (CVE-2026-86950) exploited in highly sophisticated targeted attacks against iOS devices, while Kiteworks lifted a system shutdown advisory after remediating a critical flaw in its platform. Simultaneously, threat actors are leveraging compromised credentials, misconfigurations, and novel AI-powered tooling—including the Carbonato botnet deploying Hermes Agent on exposed Docker hosts and the JadePuffer/Storm-3168 actor conducting destructive Azure tenant takeovers—to achieve high-impact breaches such as the $388 million Bitget cryptocurrency heist and the theft of AI credentials from over 80,000 organizations.
 
-Simultaneously, Apple has patched a CoreGraphics flaw (CVE-2026-86950) that may have been exploited in targeted attacks against older iOS, iPadOS, and macOS versions. A high-severity zero-day in the TDengine time-series database—widely deployed across industrial, energy, automotive, and IoT environments—allows server crash with a single packet, posing immediate risk to operational technology sectors.
+Ransomware and data extortion campaigns remain pervasive, with Japan's Keio Corporation railway systems disrupted, Times Car exposing 6.6 million user records, and the ShinyHunters group escalating attacks against the FBI and rival ransomware operators following a key arrest. The NeedyMantis malware family enables persistent access across telecommunications, government, and healthcare sectors, while the RatHat Android banking trojan incorporates generative AI for victim prioritization. Supply chain and third-party risks are underscored by the Bitget breach originating from a security product vulnerability and the widespread exposure of sensitive data across 16,000+ misconfigured Supabase databases. Malicious Chrome extensions with millions of downloads further demonstrate the expanding attack surface through trusted software distribution channels.
 
 ## Active Exploitation Details
 
-### Citrix NetScaler ADC and Gateway RCE Zero-Days
-- **Description**: Two critical remote code execution vulnerabilities in Citrix NetScaler ADC and NetScaler Gateway. CVE-2026-88771 is an improper input validation flaw (CVSS 9.5) allowing unauthenticated attackers to execute arbitrary code. CVE-2026-88772 is a companion RCE vulnerability. One of the two affects every deployment on an affected version, including default configurations.
-- **Impact**: Unauthenticated remote code execution leading to full appliance compromise, lateral movement, and data theft.
-- **Status**: Actively exploited in the wild globally. Citrix has released security updates for both vulnerabilities plus six additional flaws. CISA has added both to the KEV catalog and ordered U.S. federal agencies to patch immediately.
+### CVE-2026-86950 - Apple CoreGraphics Zero-Day
+- **Description**: An out-of-bounds write vulnerability in the CoreGraphics component affecting older versions of iOS, iPadOS, and macOS. Processing a maliciously crafted file can lead to arbitrary code execution.
+- **Impact**: Arbitrary code execution on targeted iOS devices through crafted file processing, enabling full device compromise in sophisticated attack chains.
+- **Status**: Actively exploited in targeted attacks; Apple has released security updates addressing the flaw.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: patch
+- **CVE IDs**: CVE-2026-86950
+- **Reporting**: [Bleeping Computer — Apple patches CoreGraphics zero-day flaw exploited in attacks](https://www.bleepingcomputer.com/news/security/apple-patches-coregraphics-zero-day-flaw-exploited-in-attacks/), [The Hacker News — Apple Patches CoreGraphics Flaw Possibly Exploited in Targeted Attacks](https://thehackernews.com/2026/09/apple-patches-coregraphics-flaw.html)
+
+### CVE-2026-88771 - Citrix NetScaler ADC/Gateway Improper Input Validation
+- **Description**: An improper input validation vulnerability in Citrix NetScaler ADC and Gateway that allows an unauthenticated attacker to exploit the system remotely.
+- **Impact**: Unauthenticated remote compromise of critical enterprise networking infrastructure providing VPN and application delivery services.
+- **Status**: Actively exploited globally; added to CISA Known Exploited Vulnerabilities catalog with emergency patching directive for federal agencies.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
-- **CVE IDs**: CVE-2026-88771, CVE-2026-88772
-- **Reporting**: [The Hacker News — CISA Says Attackers Are Exploiting Two Critical Citrix NetScaler Flaws Globally](https://thehackernews.com/2026/09/cisa-says-attackers-are-exploiting-two.html), [Bleeping Computer — CISA orders feds to patch exploited Citrix flaws by Wednesday](https://www.bleepingcomputer.com/news/security/cisa-orders-feds-to-patch-exploited-citrix-flaws-by-wednesday/), [Bleeping Computer — Citrix confirms two NetScaler RCE zero-days exploited in attacks](https://www.bleepingcomputer.com/news/security/citrix-admins-warned-to-shut-down-netscalers-over-2-exploited-zero-days/), [The Hacker News — Warning: Two Unpatched Citrix NetScaler RCE Zero-Days Under Active Exploitation](https://thehackernews.com/2026/09/warning-two-unpatched-citrix-netscaler.html)
+- **CVE IDs**: CVE-2026-88771
+- **Reporting**: [The Hacker News — CISA Says Attackers Are Exploiting Two Critical Citrix NetScaler Flaws Globally](https://thehackernews.com/2026/09/cisa-says-attackers-are-exploiting-two.html), [Bleeping Computer — CISA orders feds to patch exploited Citrix flaws by Wednesday](https://www.bleepingcomputer.com/news/security/cisa-orders-feds-to-patch-exploited-citrix-flaws-by-wednesday/)
 
-### Apple CoreGraphics Out-of-Bounds Write
-- **Description**: An out-of-bounds write vulnerability in the CoreGraphics component affecting older versions of iOS, iPadOS, and macOS. Processing a maliciously crafted file can trigger arbitrary code execution.
-- **Impact**: Arbitrary code execution on targeted devices via malicious file processing.
-- **Status**: Apple has released security updates. Apple stated the vulnerability "may have been exploited in targeted attacks."
-- **Severity**: high
-- **Exploitation Status**: observed
+### Kiteworks Critical Vulnerability
+- **Description**: A critical vulnerability in the Kiteworks platform that prompted the vendor to issue a precautionary advisory asking customers to shut down systems until a patch was deployed.
+- **Impact**: Potential full compromise of Kiteworks content governance and secure file sharing systems used by enterprise customers.
+- **Status**: Patched; vendor lifted shutdown advisory after deploying fixes and bringing customer systems back online.
+- **Severity**: critical
+- **Exploitation Status**: active
 - **Action**: patch
-- **CVE IDs**: CVE-2026-86950
-- **Reporting**: [The Hacker News — Apple Patches CoreGraphics Flaw Possibly Exploited in Targeted Attacks](https://thehackernews.com/2026/09/apple-patches-coregraphics-flaw.html)
+- **Reporting**: [Bleeping Computer — Kiteworks patches critical flaw, brings customer systems online](https://www.bleepingcomputer.com/news/security/kiteworks-lifts-shutdown-warning-after-patching-critical-flaw/)
+
+### MCP Python SDK OAuth Credential Theft
+- **Description**: A flaw in the official Model Context Protocol (MCP) Python SDK where affected versions transmit the client secret, authorization code, and PKCE proof key to an attacker-controlled token endpoint when interacting with a malicious MCP server.
+- **Impact**: Theft of OAuth credentials used to authenticate to legitimate services, enabling unauthorized access to connected applications and data.
+- **Status**: Fixed in version 1.30.0 and later; maintainers issued security advisory detailing the vulnerability.
+- **Severity**: unknown
+- **Exploitation Status**: potential
+- **Action**: patch
+- **Reporting**: [The Hacker News — Official MCP Python SDK Flaw Can Let Malicious Servers Steal OAuth Credentials](https://thehackernews.com/2026/09/official-mcp-python-sdk-flaw-can-let.html)
 
 ### TDengine Time-Series Database Zero-Day
-- **Description**: A high-severity zero-day vulnerability in the TDengine time-series database used across industrial, IoT, energy, and automotive environments. A single malformed packet can crash OT servers.
-- **Impact**: Denial of service against critical operational technology infrastructure; potential for further exploitation.
-- **Status**: Zero-day with no patch mentioned in reporting. Actively exploitable with minimal complexity (one packet).
+- **Description**: A high-severity zero-day vulnerability in TDengine, a time-series database widely deployed across industrial, IoT, energy, and automotive operational technology environments. A single malicious packet can crash OT servers.
+- **Impact**: Denial of service and potential instability in critical industrial control systems and operational technology infrastructure.
+- **Status**: Zero-day disclosed; no patch mentioned in source reporting.
 - **Severity**: high
-- **Exploitation Status**: active
+- **Exploitation Status**: potential
 - **Action**: mitigate
 - **Reporting**: [Dark Reading — One Packet Can Crash OT Servers in Industrial Sectors](https://www.darkreading.com/ics-ot-security/one-packet-crash-servers-tdengine)
 
-### Carbonato Botnet Docker Daemon Compromise
-- **Description**: The Carbonato botnet targets exposed Docker daemons to deploy the open-source Hermes Agent AI framework. The implant overwrites the framework's SOUL.md persona file with a 39-line prompt directing it to execute tasks received through Telegram and steal AI API keys.
-- **Impact**: Full compromise of Docker hosts, theft of AI API keys, persistent backdoor via Telegram-controlled AI agent.
-- **Status**: Active botnet campaign observed by ThreatDown researchers. No vendor patch required; exploitation relies on exposed Docker daemons.
-- **Severity**: high
+### Carbonato Botnet Docker Daemon Exploitation
+- **Description**: The Carbonato botnet targets exposed Docker daemons to deploy the open-source Hermes Agent AI framework, overwriting its SOUL.md persona file with a 39-line prompt directing it to execute commands received via Telegram and steal AI API keys.
+- **Impact**: Full compromise of Docker hosts, theft of AI service credentials, and persistent remote control through an AI agent framework.
+- **Status**: Actively compromising exposed Docker hosts; researchers have observed deployments since April 2026.
+- **Severity**: unknown
 - **Exploitation Status**: active
 - **Action**: mitigate
 - **Reporting**: [Dark Reading — Carbonato Botnet Puts an AI Agent on Hacked Docker Hosts](https://www.darkreading.com/identity-access-management-security/carbonato-botnet-ai-agent-hacked-docker-hosts), [The Hacker News — Carbonato Botnet Compromises Docker Hosts to Deploy Telegram-Controlled Hermes AI Agent](https://thehackernews.com/2026/09/carbonato-botnet-compromises-docker.html)
 
-### NeedyMantis Persistent Access Malware
-- **Description**: A malware family used by hackers to maintain long-term access in already-breached networks. Observed in a small number of targeted intrusions against telecommunications organizations, universities, medical nonprofits, intergovernmental organizations, and government contractors. Activity dates back to at least 2022.
-- **Impact**: Persistent foothold enabling extended espionage, data exfiltration, and lateral movement.
-- **Status**: Active use in targeted intrusions. Microsoft tracks this activity.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [The Hacker News — Hackers Use NeedyMantis to Maintain Long-Term Access in Breached Networks](https://thehackernews.com/2026/09/hackers-use-needymantis-to-maintain.html)
-
-### JADEPUFFER (Storm-3168) Azure Destructive Attacks
-- **Description**: The threat actor JADEPUFFER (tracked by Microsoft as Storm-3168) conducts agent-driven attacks against Azure tenants using compromised service principals. Operations include reconnaissance, credential theft, and destructive deletion of core cloud components—storage, applications, and databases. A observed attack in early June 2026 lasted approximately 18 hours.
-- **Impact**: Complete destruction of Azure resources, data loss, service disruption, potential extortion.
-- **Status**: Active destructive campaign. Microsoft has published technical analysis.
-- **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — JadePuffer agentic AI attacks target Azure, destroy cloud resources](https://www.bleepingcomputer.com/news/security/jadepuffer-agentic-ai-attacks-target-azure-destroy-cloud-resources/), [Dark Reading — JadePuffer AI Actor Compromises Azure Tenant in Destructive Cloud Attack](https://www.darkreading.com/cloud-security/jadepuffer-ai-actor-azure-tenant-destructive-cloud-attack), [The Hacker News — JADEPUFFER-Linked Attackers Used Compromised Service Principals to Delete Azure Resources](https://thehackernews.com/2026/09/jadepuffer-linked-attackers-used.html)
-
-### Bitget Third-Party Security Product Exploitation
-- **Description**: Attackers exploited a vulnerability in a third-party security product used by cryptocurrency exchange Bitget to obtain high-level internal credentials, then issued fraudulent withdrawal commands stealing approximately $388 million. Suspected North Korean attribution.
-- **Impact**: Massive financial theft ($388M), credential compromise, potential supply chain risk for other users of the unnamed security product.
-- **Status**: Exploitation confirmed by Bitget. Withdrawals resumed after investigation. Third-party product vendor not publicly identified.
-- **Severity**: critical
+### Bitget Third-Party Security Product Flaw
+- **Description**: Attackers exploited a vulnerability in a third-party security product used by the Bitget cryptocurrency exchange to obtain high-level internal credentials, which were then used to send fraudulent withdrawal commands to the wallet system.
+- **Impact**: Theft of approximately $388 million in cryptocurrency; suspected North Korean state-sponsored attribution.
+- **Status**: Actively exploited in September 2026; Bitget resumed Bitcoin withdrawals after incident response.
+- **Severity**: unknown
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [The Hacker News — Bitget Says Attacker Exploited Third-Party Security Product Flaw to Steal $388M](https://thehackernews.com/2026/09/bitget-says-attacker-exploited-third.html), [Bleeping Computer — Bitget resumes Bitcoin withdrawals after $387.5 million crypto heist](https://www.bleepingcomputer.com/news/security/bitget-resumes-bitcoin-withdrawals-after-3875-million-crypto-heist/)
 
-### ShinyHunters Data Theft and Extortion Campaign
-- **Description**: The ShinyHunters hacking group continues large-scale data theft and extortion operations. Following the arrest of a 23-year-old alleged member in the Netherlands, remaining members dramatically escalated attacks, stealing highly sensitive data from the FBI and extorting the Russian ransomware group Cl0p.
-- **Impact**: High-value data breaches, extortion of government and criminal entities, ongoing credential and PII theft.
-- **Status**: Active and escalating campaign. Dutch authorities investigating; one arrest made.
-- **Severity**: high
+### JadePuffer/Storm-3168 Azure Service Principal Compromise
+- **Description**: The JadePuffer threat actor (tracked by Microsoft as Storm-3168) uses compromised service principals to conduct destructive operations in Microsoft Azure tenants, including reconnaissance, credential theft, and deletion of core cloud resources such as storage, applications, and databases over an 18-hour period.
+- **Impact**: Destructive compromise of Azure cloud environments with data destruction and infrastructure deletion.
+- **Status**: Observed in active intrusions since at least June 2026; Microsoft characterizes it as an evolution of the actor's tradecraft.
+- **Severity**: unknown
 - **Exploitation Status**: active
-- **Action**: monitor
-- **Reporting**: [Bleeping Computer — Dutch police confirm arrest in ShinyHunters hacking investigation](https://www.bleepingcomputer.com/news/security/dutch-police-confirm-arrest-in-shinyhunters-hacking-investigation/), [Krebs on Security — Dutch Police Arrest ‘Reformed’ Hacker in Shiny Hunters Investigation](https://krebsonsecurity.com/2026/09/dutch-police-arrest-reformed-hacker-in-shiny-hunters-investigation/)
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — JadePuffer agentic AI attacks target Azure, destroy cloud resources](https://www.bleepingcomputer.com/news/security/jadepuffer-agentic-ai-attacks-target-azure-destroy-cloud-resources/), [Dark Reading — JadePuffer AI Actor Compromises Azure Tenant in Destructive Cloud Attack](https://www.darkreading.com/cloud-security/jadepuffer-ai-actor-azure-tenant-destructive-cloud-attack), [The Hacker News — JADEPUFFER-Linked Attackers Used Compromised Service Principals to Delete Azure Resources](https://thehackernews.com/2026/09/jadepuffer-linked-attackers-used.html)
 
-### RatHat Android Banking Trojan (Malware-as-a-Service)
-- **Description**: RatHat operators build and publish an Android banking trojan controlled via a web console that uses Google's Gemini AI to identify higher-value victims. Nearly 100 console deployments traced since April 2026, operating under a malware-as-a-service model where each customer runs a separate copy.
-- **Impact**: Financial theft, credential harvesting, PII exfiltration from Android devices; AI-enhanced victim prioritization.
-- **Status**: Active MaaS operation with growing deployment count.
-- **Severity**: high
+### NeedyMantis Persistent Access Malware
+- **Description**: A malware family used to maintain long-term access in already-breached networks, observed in targeted intrusions against telecommunications organizations, universities, medical nonprofits, intergovernmental organizations, and government contractors.
+- **Impact**: Persistent foothold enabling extended espionage, data exfiltration, and lateral movement across high-value targets.
+- **Status**: Active use in targeted campaigns dating back to at least 2024; Microsoft technical analysis published.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [The Hacker News — Hackers Use NeedyMantis to Maintain Long-Term Access in Breached Networks](https://thehackernews.com/2026/09/hackers-use-needymantis-to-maintain.html)
+
+### RatHat Android Banking Trojan with AI Targeting
+- **Description**: An Android banking trojan distributed through a malware-as-a-service model, controlled via a web console that uses Google's Gemini AI to identify higher-value victims from infected devices.
+- **Impact**: Financial theft, credential harvesting, and personalized targeting of nearly 100 separate console deployments since April 2026.
+- **Status**: Actively deployed and operated as a service; Cleafy traced console activity.
+- **Severity**: unknown
 - **Exploitation Status**: active
 - **Action**: monitor
 - **Reporting**: [The Hacker News — RatHat Android Malware Console Uses Gemini to Identify Higher-Value Victims](https://thehackernews.com/2026/09/rathat-android-malware-console-uses.html)
 
 ### Poper Blocker Chrome Extension Spyware
-- **Description**: A purported ad-blocker extension hosted on the Chrome Web Store exfiltrates sensitive user data while benefiting from Google's implied approval. Downloaded by millions of users despite researcher warnings.
-- **Impact**: Mass surveillance of browsing activity, credential theft, PII exfiltration affecting millions of users.
-- **Status**: Active in Chrome Store at time of reporting. Google's response not detailed.
-- **Severity**: high
+- **Description**: A purported ad-blocker extension on the Chrome Web Store that exfiltrates sensitive user data while benefiting from Google's platform approval, downloaded by millions of users.
+- **Impact**: Large-scale surveillance and data theft from browser activity, including potentially sensitive personal and corporate information.
+- **Status**: Actively distributed through official Chrome Store with millions of installations; researcher warnings noted.
+- **Severity**: unknown
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [Dark Reading — Chrome Store Hosts 'Poper Blocker' Spyware Downloaded by Millions](https://www.darkreading.com/application-security/chrome-store-poper-blocker-spyware-downloaded-millions)
 
-### Cloudflare Containers Cross-Tenant Data Exposure
-- **Description**: A vulnerability in Cloudflare Containers and Sandboxes allowed customers with a Workers Paid account to recover residual data from other customers' containers on the same physical host.
-- **Impact**: Cross-tenant data leakage exposing customer secrets, code, and configurations.
-- **Status**: Cloudflare has fixed the vulnerability.
-- **Severity**: high
-- **Exploitation Status**: not_observed
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — Cloudflare fixes Containers cross-tenant flaw exposing customer data](https://www.bleepingcomputer.com/news/security/cloudflare-fixes-containers-cross-tenant-flaw-exposing-customer-data/)
+### ShinyHunters Data Theft and Extortion Campaign
+- **Description**: The ShinyHunters hacking group conducts large-scale data theft and extortion operations, dramatically escalating attacks—including theft of sensitive FBI data and extortion of the Cl0p ransomware group—following the arrest of a suspected member.
+- **Impact**: High-profile data breaches, extortion of government and criminal entities, and continued proliferation of stolen data markets.
+- **Status**: Actively escalating operations as of September 2026; Dutch authorities arrested a 23-year-old suspect linked to the group.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: monitor
+- **Reporting**: [Bleeping Computer — Dutch police confirm arrest in ShinyHunters hacking investigation](https://www.bleepingcomputer.com/news/security/dutch-police-confirm-arrest-in-shinyhunters-hacking-investigation/), [Krebs on Security — Dutch Police Arrest ‘Reformed’ Hacker in Shiny Hunters Investigation](https://krebsonsecurity.com/2026/09/dutch-police-arrest-reformed-hacker-in-shiny-hunters-investigation/)
+
+### Supabase Database Misconfiguration Exposure
+- **Description**: Over 16,000 misconfigured Supabase databases expose readable tables containing personally identifiable information, passwords, and authentication tokens due to improper access controls.
+- **Impact**: Mass exposure of sensitive authentication credentials and personal data across thousands of organizations using the platform.
+- **Status**: Discovered by researchers; ongoing exposure requiring configuration remediation by affected organizations.
+- **Severity**: unknown
+- **Exploitation Status**: observed
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Over 16,000 Supabase databases expose PII, passwords, auth tokens](https://www.bleepingcomputer.com/news/security/misconfigured-supabase-apps-expose-data-in-over-16-000-databases/)
+
+### AI Credential Theft and LLMjacking
+- **Description**: Infostealer malware logs have exposed AI account credentials and active sessions tied to more than 80,000 corporate domains, enabling unauthorized access to generative AI services and potential LLMjacking—hijacking of AI model access for malicious use.
+- **Impact**: Compromise of enterprise AI subscriptions, theft of proprietary conversations and data, and resale of AI access on underground markets.
+- **Status**: Actively harvested via infostealers; SOCRadar analysis identifies growing market for stolen AI logins.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — 80,000+ Organizations Had AI Logins Stolen: From Shadow AI to LLMjacking](https://www.bleepingcomputer.com/news/security/80-000-plus-organizations-had-ai-logins-stolen-from-shadow-ai-to-llmjacking/)
+
+### Keio Corporation Ransomware Attack
+- **Description**: A ransomware attack against Keio Corporation, a major private railway operator in Japan, disrupting business systems over a weekend period.
+- **Impact**: Operational disruption to critical transportation infrastructure business systems; potential data theft alongside encryption.
+- **Status**: Confirmed by victim organization; investigation ongoing.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Japan's Keio confirms ransomware attack disrupted business systems](https://www.bleepingcomputer.com/news/security/japans-keio-confirms-ransomware-attack-disrupted-business-systems/)
+
+### Times Car Data Breach
+- **Description**: A cyberattack compromising approximately 6.6 million user accounts at the Japanese car-sharing service Times Car.
+- **Impact**: Large-scale exposure of customer personal data; potential credential stuffing and identity theft risks for affected users.
+- **Status**: Confirmed by organization; breach disclosed late September 2026.
+- **Severity**: unknown
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [Bleeping Computer — Times Car confirms data breach affecting 6.6 million user accounts](https://www.bleepingcomputer.com/news/security/times-car-confirms-data-breach-affecting-66-million-user-accounts/)
 
 ## Affected Systems and Products
 
-- **Citrix NetScaler ADC and Gateway**: All deployments on affected versions, including default configurations. Critical infrastructure, enterprise remote access, and application delivery controllers globally.
-- **Apple iOS, iPadOS, macOS**: Older versions prior to the security updates addressing CVE-2026-86950. Specific version ranges not detailed in reporting.
-- **TDengine Time-Series Database**: Versions deployed across industrial control systems, IoT platforms, energy sector SCADA/historian systems, automotive telemetry, and manufacturing OT environments.
-- **Docker Daemons**: Exposed Docker Engine APIs (TCP port 2375/2376) without authentication or TLS, allowing unauthenticated container deployment.
-- **Microsoft Azure**: Tenants with compromised service principals, particularly those with excessive permissions or lacking conditional access policies.
-- **Third-Party Security Product (unnamed)**: Used by Bitget and potentially other cryptocurrency exchanges and enterprises; vendor and product not publicly disclosed.
-- **Android Devices**: Devices installing applications from untrusted sources or compromised legitimate apps delivering the RatHat banking trojan.
-- **Google Chrome Browser**: Users who installed the "Poper Blocker" extension from the Chrome Web Store.
-- **Cloudflare Containers and Sandboxes**: Customers using Workers Paid plans with containers deployed prior to the fix.
-- **Supabase Database Instances**: Over 16,000 misconfigured projects exposing readable tables with PII, passwords, and authentication tokens due to anonymous access enabled.
+- **Kiteworks Platform**: Enterprise content governance and secure file sharing systems; all versions prior to patched release
+- **Apple iOS, iPadOS, macOS**: Older versions lacking the CoreGraphics security update (CVE-2026-86950)
+- **Citrix NetScaler ADC and Gateway**: Versions affected by CVE-2026-88771 and a second critical flaw; enterprise VPN and application delivery controllers
+- **MCP Python SDK**: Versions prior to 1.30.0; applications integrating with Model Context Protocol servers
+- **TDengine Time-Series Database**: Deployments across industrial control systems, IoT platforms, energy sector OT, and automotive manufacturing environments
+- **Docker Engine/Daemon**: Exposed Docker API endpoints accessible without authentication; hosts running container workloads
+- **Bitget Cryptocurrency Exchange**: Internal wallet management systems; third-party security product integration (specific product unnamed)
+- **Microsoft Azure**: Tenants with compromised service principals; Azure Resource Manager, storage accounts, databases, and application registrations
+- **Android Devices**: Devices installing malicious applications delivering the RatHat banking trojan; Google Play and third-party app stores
+- **Google Chrome Browser**: Installations with the "Poper Blocker" extension (millions of downloads); browser sync and stored credential data
+- **Supabase PostgreSQL Databases**: Projects with misconfigured Row Level Security or public schema permissions; over 16,000 identified instances
+- **Enterprise AI Platform Accounts**: Corporate subscriptions to generative AI services (OpenAI, Anthropic, etc.) compromised via infostealer malware
+- **Keio Corporation IT Systems**: Business operations and potential operational technology for railway management
+- **Times Car Platform**: User account database and car-sharing service infrastructure serving 6.6 million customers
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated RCE via Single Packet**: Citrix NetScaler flaws (CVE-2026-88771/88772) and TDengine zero-day allow pre-authentication remote code execution or crash with minimal network interaction.
-- **Exposed Management Interfaces**: Carbonato botnet scans for and exploits unauthenticated Docker daemon APIs—a persistent cloud/container misconfiguration pattern.
-- **Compromised Service Principals**: JADEPUFFER/Storm-3168 leverages stolen or leaked Azure service principal credentials for initial access and destructive operations.
-- **AI-Agent Weaponization**: Carbonato deploys Hermes Agent AI framework controlled via Telegram; JadePuffer uses "agentic" automation for reconnaissance and destruction; RatHat console uses Gemini AI for victim triage.
-- **Malicious File Parsing**: Apple CoreGraphics flaw triggered by processing crafted image/font files—classic client-side exploitation via messaging, email, or web.
-- **Supply Chain / Third-Party Product Exploitation**: Bitget breach originated from a vulnerability in a security product the exchange relied upon, highlighting transitive trust risk.
-- **Malware-as-a-Service (MaaS)**: RatHat operates affiliate model with per-customer console deployments; Carbonato uses off-the-shelf AI framework as implant.
-- **Browser Extension Supply Chain**: Poper Blocker masquerades as legitimate ad-blocker in official Chrome Store, abusing extension permissions for data exfiltration.
-- **Cross-Tenant Container Escape**: Cloudflare flaw allowed residual data recovery from shared physical hosts—a cloud multi-tenancy boundary violation.
-- **Infostealer-Driven Credential Harvesting**: Over 80,000 organizations had AI platform credentials (OpenAI, Anthropic, etc.) stolen via infostealer logs, enabling LLMjacking and shadow AI abuse.
+- **Zero-Day Exploitation**: Use of previously unknown vulnerabilities (CVE-2026-86950, TDengine flaw) in targeted attacks against high-value targets before patches are available
+- **Credential Theft via Malicious Protocol Implementation**: MCP Python SDK flaw redirects OAuth secrets to attacker-controlled endpoints during legitimate authorization flows
+- **Single-Packet Denial of Service**: One malformed network packet crashes TDengine database servers in OT environments without authentication
+- **Exposed Management Interface Exploitation**: Carbonato botnet scans for and compromises unauthenticated Docker daemon APIs to deploy AI agent payloads
+- **Third-Party Supply Chain Compromise**: Attackers exploit vulnerabilities in security products integrated into target environments (Bitget) to pivot to core systems
+- **Cloud Identity Abuse**: JadePuffer/Storm-3168 leverages compromised service principals with excessive permissions to destroy Azure resources at scale
+- **AI-Enhanced Victim Profiling**: RatHat operators use Gemini AI within their C2 console to analyze stolen device data and prioritize high-value targets
+- **Malicious Browser Extension Distribution**: Poper Blocker masquerades as legitimate ad-blocking software on the official Chrome Web Store to achieve mass installation
+- **Infostealer-Driven Credential Harvesting**: Mass collection of AI service credentials from infected endpoints, fueling LLMjacking and unauthorized model access
+- **Ransomware Deployment**: Encryption and disruption of critical business systems (Keio) and mass data exfiltration for extortion (Times Car, ShinyHunters)
+- **Service Account and Principal Compromise**: Attackers target non-human identities with broad permissions (service principals, API keys) for lateral movement and destruction
+- **Malware-as-a-Service Operations**: RatHat and Carbonato demonstrate commoditized attack frameworks with AI-enhanced capabilities sold to affiliates
 
 ## Threat Actor Activities
 
-- **JADEPUFFER / Storm-3168**: Destructive Azure-focused threat actor using compromised service principals for automated reconnaissance, credential theft, and resource deletion. Microsoft attributes June 2026 attack to this group. Evolution of tradecraft toward "agentic" AI-driven operations.
-- **ShinyHunters**: Prolific data theft and extortion group. Despite Dutch arrest of a 23-year-old member, remaining operators escalated to breach FBI systems and extort Cl0p ransomware group. High-profile targeting of government and criminal entities alike.
-- **Carbonato Botnet Operators**: Campaign targeting exposed Docker hosts globally to deploy Telegram-controlled Hermes AI agents for API key theft and persistent access. Technical sophistication in repurposing legitimate AI frameworks.
-- **RatHat MaaS Operators**: Android banking trojan distributors using AI-enhanced victim selection (Gemini) and web-based C2 consoles. Nearly 100 affiliate deployments since April 2026.
-- **North Korean Actors (suspected)**: Attributed by Bitget and industry analysts to the $388M cryptocurrency exchange heist via third-party security product exploit. Consistent with Lazarus Group tradecraft targeting crypto financial infrastructure.
-- **NeedyMantis Operators**: Targeted intrusion actors maintaining long-term access in telecommunications, education, healthcare, intergovernmental, and defense industrial base sectors since at least 2022. Microsoft-tracked activity.
-- **Poper Blocker Developers**: Malicious extension publishers abusing Chrome Web Store trust to deploy spyware to millions of users under guise of ad-blocking functionality.
-- **Unknown Actor (Keio Railway Ransomware)**: Ransomware attack disrupting business systems of major Japanese private railway operator Keio Corporation. Attribution not established.
-- **Unknown Actor (Times Car Breach)**: Compromise of 6.6 million user accounts at Japanese car-sharing service Times Car. Method and attribution not disclosed.
-- **U.S. Army Soldier (convicted)**: Former soldier sentenced to 70 months for hacking and extorting 10+ U.S. technology and telecommunications companies (2023-2024). Insider threat / lone actor case.
+- **JadePuffer / Storm-3168**: Agentic threat actor conducting destructive Azure tenant compromises using compromised service principals; observed in June 2026 operations lasting ~18 hours with reconnaissance, credential theft, and resource deletion; Microsoft tracks as evolution of tradecraft
+- **ShinyHunters**: Prolific data theft and extortion group; Dutch authorities arrested a 23-year-old suspect in September 2026; remaining members escalated attacks against FBI systems and extorted Cl0p ransomware group in retaliation
+- **Carbonato Botnet Operators**: Deploy Hermes Agent AI framework on compromised Docker hosts via Telegram C2; steal AI API keys; operate since at least April 2026 with automated AI-driven post-exploitation
+- **RatHat Operators**: Run malware-as-a-service for Android banking trojan; ~100 console deployments since April 2026; integrate Gemini AI for victim value assessment; Cleafy attributes to organized cybercrime
+- **North Korean State-Sponsored Actors (suspected)**: Attributed to $388M Bitget cryptocurrency heist via third-party security product exploit; used stolen credentials for fraudulent withdrawal commands
+- **NeedyMantis Operators**: Maintain persistent access in telecommunications, university, medical nonprofit, intergovernmental, and government contractor networks; activity tracked by Microsoft since at least 2024
+- **Poper Blocker Developers**: Distribute spyware-adware hybrid through Chrome Web Store to millions; exfiltrate browsing data, credentials, and sensitive information under guise of ad blocking
+- **US Army Soldier (convicted)**: Former soldier sentenced to 70 months for hacking and extorting 10 U.S. technology and telecommunications companies between April 2023 and December 2024
+- **Cl0p Ransomware Group**: Targeted by ShinyHunters for extortion following ShinyHunters member arrest; indicates cross-group conflict in cybercrime ecosystem
+- **Infostealer Operators (various)**: Harvest AI credentials from 80,000+ corporate domains; feed underground markets for LLMjacking and unauthorized AI service access
