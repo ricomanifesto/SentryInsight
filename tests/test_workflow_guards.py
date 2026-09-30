@@ -6,7 +6,9 @@ import tempfile
 import types
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
+
+import pytest
 
 
 def import_workflow_with_stubs(analysis_result=None):
@@ -69,6 +71,84 @@ def import_workflow_with_stubs(analysis_result=None):
         },
     ):
         return importlib.import_module("src.core.workflow")
+
+
+@pytest.mark.parametrize(
+    "analysis_error",
+    [
+        "OpenRouter response did not include choices (HTTP 200)",
+        "OpenRouter provider error: HTTP 200; provider_code=503",
+    ],
+)
+def test_real_graph_stops_after_failed_analysis(
+    analysis_error, monkeypatch, tmp_path, caplog
+):
+    from langgraph.graph import END, START, StateGraph
+
+    workflow = import_workflow_with_stubs(
+        analysis_result={
+            "error": analysis_error,
+            "exploitation_report": "# Error Generating Exploitation Report",
+        }
+    )
+    monkeypatch.setattr(workflow, "StateGraph", StateGraph)
+    monkeypatch.setattr(workflow, "START", START)
+    monkeypatch.setattr(workflow, "END", END)
+    articles = [{"title": "New exploitation story", "link": "https://example.test/new"}]
+    monkeypatch.setattr(
+        workflow,
+        "SentryDigestFeedClient",
+        lambda *_args: types.SimpleNamespace(
+            fetch_articles=AsyncMock(return_value=articles),
+            enrich_article_content=AsyncMock(return_value=articles),
+        ),
+    )
+    output = tmp_path / "index.md"
+    output.write_text("Last valid report")
+    fingerprint = tmp_path / ".sentryinsight-articles-fingerprint"
+    fingerprint.write_text("last-valid-fingerprint\n")
+    monkeypatch.setattr(
+        workflow,
+        "load_config",
+        lambda: {"feed_url": "test", "output_path": str(output)},
+    )
+    generate = AsyncMock(wraps=workflow.generate_report)
+    publish = AsyncMock(wraps=workflow.publish_results)
+    monkeypatch.setattr(workflow, "generate_report", generate)
+    monkeypatch.setattr(workflow, "publish_results", publish)
+
+    with caplog.at_level("INFO", logger="src.core.workflow"):
+        result = asyncio.run(workflow.run_exploitation_analysis())
+
+    assert result["status"] == "failed"
+    assert result["analysis_results"]["error"] == analysis_error
+    generate.assert_not_awaited()
+    publish.assert_not_awaited()
+    assert output.read_text() == "Last valid report"
+    assert fingerprint.read_text() == "last-valid-fingerprint\n"
+    assert not (tmp_path / "reports").exists()
+    assert "report_validation_errors" not in result
+    assert "Workflow completed successfully" not in caplog.text
+    assert "Completed article analysis" not in caplog.text
+    assert "Workflow failed" in caplog.text
+
+
+def test_failed_state_does_not_enter_report_validation(monkeypatch):
+    workflow = import_workflow_with_stubs()
+    state = {
+        "status": "failed",
+        "analysis_results": {"error": "original provider error"},
+        "config": {},
+    }
+    resolve = unittest.mock.Mock(side_effect=AssertionError("must not validate"))
+    monkeypatch.setattr(workflow, "resolve_reporting_keys", resolve)
+
+    result = asyncio.run(workflow.generate_report(state))
+
+    assert result["status"] == "failed"
+    assert result["analysis_results"]["error"] == "original provider error"
+    assert "report_validation_errors" not in result
+    resolve.assert_not_called()
 
 
 class WorkflowGuardTests(unittest.TestCase):
