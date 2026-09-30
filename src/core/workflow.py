@@ -174,6 +174,7 @@ async def analyze_articles(
     if analysis_results.get("error"):
         logger.error(f"Analysis failed: {analysis_results['error']}")
         state["status"] = "failed"
+        return state
 
     logger.info("Completed article analysis")
     return state
@@ -183,6 +184,9 @@ async def generate_report(
     state: ExploitationAnalysisState,
 ) -> ExploitationAnalysisState:
     """Generate the exploitation report"""
+    if state.get("status") == "failed":
+        return state
+
     logger.info("Generating exploitation report")
 
     analysis_results = state["analysis_results"]
@@ -404,7 +408,11 @@ def create_exploitation_analysis_graph() -> Any:
     workflow.add_edge(START, "fetch_articles")
     workflow.add_edge("fetch_articles", "enrich_articles")
     workflow.add_edge("enrich_articles", "filter_articles")
-    workflow.add_edge("analyze_articles", "generate_report")
+    workflow.add_conditional_edges(
+        "analyze_articles",
+        lambda state: "error" if state.get("status") == "failed" else "continue",
+        {"error": END, "continue": "generate_report"},
+    )
     workflow.add_edge("generate_report", "publish_results")
     workflow.add_edge("publish_results", END)
 
@@ -451,7 +459,10 @@ async def run_exploitation_analysis():
     # Run the graph
     try:
         final_state = await graph.ainvoke(initial_state)
-        logger.info("Workflow completed successfully")
+        if final_state.get("status") == "failed":
+            logger.error("Workflow failed")
+        else:
+            logger.info("Workflow completed successfully")
         return final_state
     except Exception as e:
         logger.error(f"Error during workflow execution: {e}")
