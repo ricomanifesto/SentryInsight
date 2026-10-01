@@ -1,23 +1,23 @@
 ---
 schema_version: 2
 report_date: 2026-10-01
-generated_at: 2026-10-01T03:29:40Z
+generated_at: 2026-10-01T06:39:19Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-10-01/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, ranging from network infrastructure and collaboration platforms to AI-driven services. Russian state actor Star Blizzard has adopted a novel "RedFlick" technique to deploy its CosmicPulse backdoor against Ukrainian-linked targets, while financially motivated campaigns weaponize ChatGPT Custom GPTs and dual-RMM phishing lures to deliver remote access trojans. Simultaneously, three high-severity zero-days—in Cisco Catalyst SD-WAN Manager, Citrix NetScaler ADC/Gateway, and Zimbra Collaboration Suite—have been weaponized for pre-authentication remote code execution and administrative privilege escalation, with patches available but exploitation ongoing.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, with threat actors leveraging zero-days in networking appliances, collaboration platforms, and third-party security products. Cisco Catalyst SD-WAN Manager (CVE-2026-76504), Citrix NetScaler ADC/Gateway (CVE-2026-88772), and Zimbra Collaboration Suite (CVE-2026-73570) are all confirmed targets of in-the-wild attacks, while Apple has acknowledged targeted exploitation of CVE-2026-86950.
 
-A supply-chain compromise of third-party security products enabled the $387.5 million theft from cryptocurrency exchange Bitget, and a chain of two zero-days in the open-source Zammad ticketing system facilitated an AI-driven breach of the Dutch Institute for Vulnerability Disclosure itself. Apple has confirmed targeted exploitation of an out-of-bounds write flaw, and TeamViewer has disclosed high-severity client vulnerabilities requiring immediate patching. Credential exposure at scale—over 543,000 valid secrets in public GitHub repositories and 13,000 internal images leaked by AI coding agents—amplifies the risk of follow-on intrusion.
+A $387.5 million cryptocurrency theft at Bitget was enabled by a zero-day in unspecified third-party security products, and the Dutch Institute for Vulnerability Disclosure (DIVD) suffered a network breach via a chain of two zero-days in the Zammad ticketing system. Russian state actor Star Blizzard has adopted a novel "RedFlick" technique to deploy its CosmicPulse backdoor against Ukrainian-linked targets, while multiple threat groups are abusing ChatGPT Custom GPTs and ClickFix social-engineering lures to deliver remote access trojans.
 
 ## Active Exploitation Details
 
 ### Cisco Catalyst SD-WAN Manager Authentication Bypass (CVE-2026-76504)
-- **Description**: A critical zero-day authentication bypass in Cisco Catalyst SD-WAN Manager allows unauthenticated remote attackers to access the Manager's API with administrative privileges. The flaw resides in the API authentication mechanism and requires no user interaction.
-- **Impact**: Attackers gain full administrative control over SD-WAN infrastructure, enabling network traffic manipulation, policy changes, and lateral movement across managed devices.
-- **Status**: Actively exploited in the wild. Cisco has released fixed software versions; no workaround exists.
+- **Description**: A critical zero-day authentication bypass in Cisco Catalyst SD-WAN Manager allows unauthenticated remote attackers to access the Manager's API with administrative privileges. The flaw affects the central management system for Cisco SD-WAN networks.
+- **Impact**: Attackers can escalate to admin privileges, potentially gaining full control over SD-WAN infrastructure, network policies, and connected devices across the enterprise.
+- **Status**: Actively exploited in the wild. Cisco has released fixed software versions; no workaround is available.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
@@ -25,130 +25,138 @@ A supply-chain compromise of third-party security products enabled the $387.5 mi
 - **Reporting**: [The Hacker News — Cisco Warns of Attackers Exploiting Critical Authentication Bypass in SD-WAN Manager](https://thehackernews.com/2026/09/cisco-warns-of-attackers-exploiting.html), [Bleeping Computer — Cisco warns of new SD-WAN zero-day exploited in attacks](https://www.bleepingcomputer.com/news/security/cisco-warns-of-new-sd-wan-authentication-bypass-zero-day-exploited-in-attacks/)
 
 ### Citrix NetScaler ADC/Gateway DTLS Memory Overflow (CVE-2026-88772)
-- **Description**: A critical memory overflow vulnerability in the Datagram Transport Layer Security (DTLS) protocol handling of Citrix NetScaler ADC and NetScaler Gateway appliances. The flaw is pre-authentication and allows shellcode execution.
-- **Impact**: Unauthenticated remote attackers achieve root-level code execution on the appliance, enabling deployment of persistent implants such as WHIPSHOT and SLAPSHOT, credential harvesting, and network pivoting.
-- **Status**: Actively exploited since at least September 2026. Citrix has released patches; exploitation observed by Mandiant and Google Threat Intelligence Group targeting government, financial, technology, education, and legal sectors in North America and Europe.
+- **Description**: A critical memory overflow vulnerability in the Datagram Transport Layer Security (DTLS) protocol handling of Citrix NetScaler ADC and NetScaler Gateway. The pre-authentication flaw (CVSS 9.5) enables shellcode execution without credentials.
+- **Impact**: Attackers achieve root-level remote code execution, enabling deployment of web shells (WHIPSHOT, SLAPSHOT), theft of configuration data, creation of superuser accounts, and persistent access via CSS-mapped web shell URLs.
+- **Status**: Actively exploited in the wild since at least September 2026. Patches are available. Targeted sectors include government, financial services, technology, education, and legal/professional services across North America and Europe.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-88772
-- **Reporting**: [The Hacker News — Attackers Exploit NetScaler Flaw for Root Access, Deploy WHIPSHOT and SLAPSHOT](https://thehackernews.com/2026/09/attackers-exploit-netscaler-flaw-for.html), [The Hacker News — Citrix NetScaler CVE-2026-88772 Exploit Details Show Pre-Auth Path to Shellcode Execution](https://thehackernews.com/2026/09/citrix-netscaler-cve-2026-88772-exploit.html)
+- **Reporting**: [The Hacker News — Citrix NetScaler CVE-2026-88772 Exploit Details Show Pre-Auth Path to Shellcode Execution](https://thehackernews.com/2026/09/citrix-netscaler-cve-2026-88772-exploit.html), [The Hacker News — Citrix NetScaler Post-Exploitation Payload Creates Superuser, Maps Web Shell to CSS-Like URLs](https://thehackernews.com/2026/10/citrix-netscaler-post-exploitation.html), [The Hacker News — Attackers Exploit NetScaler Flaw for Root Access, Deploy WHIPSHOT and SLAPSHOT](https://thehackernews.com/2026/09/attackers-exploit-netscaler-flaw-for.html)
 
 ### Zimbra Collaboration Suite Command Injection (CVE-2026-73570)
-- **Description**: An unauthenticated operating system command injection flaw in Zimbra Collaboration Suite (ZCS) triggered via Simple Network Management Protocol (SNMP) handling. CVSS 8.9.
-- **Impact**: Remote code execution without authentication, leading to web shell deployment, mailbox data exfiltration, and authentication secret harvesting.
-- **Status**: Actively exploited in the wild. Microsoft Security Research observed threat actors weaponizing the now-patched vulnerability.
+- **Description**: An unauthenticated operating system command injection flaw (CVSS 8.9) in Zimbra Collaboration Suite that triggers when Simple Network Management Protocol (SNMP) is enabled, leading to remote code execution.
+- **Impact**: Threat actors deploy web shells and harvest authentication secrets and mailbox data. The vulnerability has been weaponized post-patch.
+- **Status**: Actively exploited; patches available. Microsoft Security Research observed weaponization.
 - **Severity**: high
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-73570
 - **Reporting**: [The Hacker News — Attackers Exploit Zimbra Flaw to Deploy Web Shells and Harvest Authentication Secrets](https://thehackernews.com/2026/09/attackers-exploit-zimbra-flaw-to-deploy.html)
 
-### Apple Out-of-Bounds Write (CVE-2026-86950)
-- **Description**: An out-of-bounds write vulnerability in Apple platforms, exploited in an "extremely sophisticated fashion" according to Apple's advisory.
-- **Impact**: Targeted code execution on affected Apple devices, likely enabling spyware deployment against high-value individuals.
-- **Status**: Actively exploited in targeted attacks. Apple has released patches.
-- **Severity**: critical
+### Apple Zero-Day Out-of-Bounds Write (CVE-2026-86950)
+- **Description**: An out-of-bounds write vulnerability in Apple platforms being exploited in an "extremely sophisticated fashion" according to Apple's advisory.
+- **Impact**: Targeted attacks against specific individuals or organizations; exact impact depends on the affected component but out-of-bounds writes typically enable code execution or memory corruption.
+- **Status**: Actively exploited in targeted attacks. Apple has acknowledged the exploitation.
+- **Severity**: unknown
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-86950
 - **Reporting**: [Dark Reading — Apple Zero-Day Vulnerability Weaponized in Targeted Attacks](https://www.darkreading.com/cyberattacks-data-breaches/apple-zero-day-vulnerability-weaponized-targeted-attacks)
 
+### Bitget Third-Party Security Product Zero-Day
+- **Description**: A zero-day vulnerability in unspecified third-party security products used by cryptocurrency exchange Bitget. SlowMist's investigation identified malicious activity involving these products and recovered a customized attacker tool.
+- **Impact**: Full system breach enabling theft of $387.5 million in cryptocurrency assets.
+- **Status**: Actively exploited; investigation ongoing. The specific vendor and product have not been publicly disclosed.
+- **Severity**: critical
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [The Hacker News — Bitget Confirms Third-Party Zero-Day Behind $387.5 Million Cryptocurrency Theft](https://thehackernews.com/2026/10/bitget-confirms-third-party-zero-day.html), [Bleeping Computer — Bitget hacked via zero-day in third-party security products](https://www.bleepingcomputer.com/news/security/bitget-hacked-via-zero-day-in-third-party-security-products/)
+
 ### Zammad Ticketing System Zero-Day Chain
-- **Description**: A chain of two zero-day vulnerabilities in the open-source Zammad ticketing system, exploited together to breach the Dutch Institute for Vulnerability Disclosure (DIVD) network in an AI-driven intrusion.
-- **Impact**: Full network compromise of a security research organization, demonstrating the feasibility of chaining ticketing-system flaws for initial access and lateral movement.
-- **Status**: Exploited in a confirmed breach (DIVD). No CVE IDs assigned at time of reporting; patches or mitigations not publicly detailed in source.
+- **Description**: A chain of two zero-day vulnerabilities in the open-source Zammad ticketing system that enabled an AI-driven network breach of the Dutch Institute for Vulnerability Disclosure (DIVD).
+- **Impact**: Complete network compromise of a vulnerability disclosure organization, demonstrating the risk of chained zero-days in internet-facing helpdesk platforms.
+- **Status**: Actively exploited (breach confirmed). Patches or mitigations not specified in reporting.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [Bleeping Computer — DIVD says Zammad zero-days enabled AI-driven network breach](https://www.bleepingcomputer.com/news/security/divd-says-zammad-zero-days-enabled-ai-driven-network-breach/)
 
-### Third-Party Security Product Zero-Day (Bitget Supply-Chain Compromise)
-- **Description**: A zero-day vulnerability in unspecified third-party security products used by cryptocurrency exchange Bitget, exploited to breach internal systems and steal $387.5 million in assets.
-- **Impact**: Complete compromise of exchange infrastructure via trusted security tooling, enabling large-scale asset theft.
-- **Status**: Exploited in a confirmed high-value breach. Vendor and CVE details not disclosed in source.
+### MikroTik RouterOS Pre-Authentication RCE
+- **Description**: A critical pre-authentication remote code execution vulnerability in MikroTik RouterOS that could also lead to denial-of-service conditions. CISA has issued an active warning.
+- **Impact**: Unauthenticated remote code execution on networking infrastructure, potentially enabling traffic interception, network pivoting, and infrastructure takeover.
+- **Status**: CISA warning indicates active or imminent exploitation risk. Patch availability not specified in reporting.
 - **Severity**: critical
-- **Exploitation Status**: active
-- **Action**: investigate
-- **Reporting**: [Bleeping Computer — Bitget hacked via zero-day in third-party security products](https://www.bleepingcomputer.com/news/security/bitget-hacked-via-zero-day-in-third-party-security-products/)
+- **Exploitation Status**: observed
+- **Action**: patch
+- **Reporting**: [Bleeping Computer — CISA warns of critical pre-auth RCE flaw in MikroTik RouterOS](https://www.bleepingcomputer.com/news/security/cisa-warns-of-critical-pre-auth-rce-flaw-in-mikrotik-routeros/)
 
 ### TeamViewer Client/Host High-Severity Vulnerabilities
-- **Description**: A set of high-severity vulnerabilities affecting TeamViewer client and host software across platforms, disclosed by the vendor with an urgent patching advisory.
-- **Impact**: Potential remote code execution or privilege escalation on systems running vulnerable TeamViewer versions, threatening the remote-access supply chain.
-- **Status**: Actively disclosed with urgent patching recommendation. No CVE IDs provided in source; exploitation status not explicitly confirmed but severity warrants immediate action.
+- **Description**: A set of high-severity vulnerabilities affecting TeamViewer client and host software across platforms. Specific vulnerability classes not detailed in reporting.
+- **Impact**: Potential remote access or control compromise given TeamViewer's purpose as remote management software.
+- **Status**: TeamViewer urges immediate patching; active exploitation status not confirmed but risk assessed as severe.
 - **Severity**: high
 - **Exploitation Status**: potential
 - **Action**: patch
 - **Reporting**: [Bleeping Computer — TeamViewer urges users to patch severe flaws “as soon as possible”](https://www.bleepingcomputer.com/news/security/teamviewer-urges-users-to-patch-severe-flaws-as-soon-as-possible/)
 
-### ChatGPT Custom GPTs ClickFix RAT Delivery
-- **Description**: Threat actors create malicious Custom GPTs on OpenAI's platform, promoted via sponsored Google results, to lure victims to sites employing ClickFix social-engineering techniques that deliver remote access trojans (RATs).
-- **Impact**: Malware installation and persistent remote access on victim endpoints, bypassing traditional email or web filters by abusing a trusted AI platform.
-- **Status**: Actively observed by Huntress in late September 2026; ongoing campaign leveraging legitimate OpenAI and Google domains.
+### OpenSSL DTLS Heap Memory Leak
+- **Description**: A high-severity flaw in OpenSSL's DTLS implementation where heap memory can be leaked to the peer or cause a program crash during handshake message retransmission under specific timing conditions.
+- **Impact**: Memory disclosure to communicating peers or denial of service via crash. No confirmed exploitation.
+- **Status**: Fixed in OpenSSL releases dated September 29, 2026. No active exploitation reported.
 - **Severity**: high
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [Dark Reading — Malicious Custom GPTs Turn ChatGPT Into RAT Delivery Lure](https://www.darkreading.com/cyberattacks-data-breaches/malicious-custom-gpts-chatgpt-rat-delivery-lure), [The Hacker News — Attackers Abuse ChatGPT Custom GPTs to Deliver RAT via ClickFix Lures](https://thehackernews.com/2026/09/attackers-abuse-chatgpt-custom-gpts-to.html), [Bleeping Computer — Custom ChatGPTs push ClickFix attacks to deploy RAT malware](https://www.bleepingcomputer.com/news/security/custom-chatgpts-push-clickfix-attacks-to-deploy-rat-malware/)
+- **Exploitation Status**: not_observed
+- **Action**: patch
+- **Reporting**: [The Hacker News — OpenSSL Fixes High-Severity DTLS Flaw That Can Leak Heap Memory Unencrypted](https://thehackernews.com/2026/09/openssl-fixes-high-severity-dtls-flaw.html)
 
-### MSP360/ScreenConnect Dual-RMM Phishing
-- **Description**: Phishing campaigns distribute trojanized MSP360 RMM installers disguised as meeting invitations, PDF lures, and software-update prompts. Execution establishes legitimate MSP360 remote management access, followed by ScreenConnect deployment for redundant persistence.
-- **Impact**: Full remote control of compromised endpoints via two legitimate RMM tools, enabling data theft, lateral movement, and ransomware staging.
-- **Status**: Actively observed by Microsoft; campaign ongoing against diverse sectors.
-- **Severity**: high
+### MetaMask Infrastructure Security Incident
+- **Description**: An ongoing security incident affecting part of MetaMask's infrastructure. The wallet provider states no immediate threat to user wallets has been identified.
+- **Impact**: Potential exposure of backend systems; user wallet compromise not confirmed.
+- **Status**: Active incident response underway with external partners and security advisors.
+- **Severity**: unknown
 - **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [The Hacker News — Attackers Abuse MSP360 to Deploy ScreenConnect in Dual-RMM Phishing Attacks](https://thehackernews.com/2026/09/attackers-abuse-msp360-to-deploy.html)
-
-### CSuite Phishing with Microsoft 365 Session Theft and RMM Deployment
-- **Description**: US-focused phishing campaign (CSuite) steals Microsoft 365 session tokens and deploys remote monitoring and management (RMM) tools for persistent access. 351 sandbox submissions analyzed, 51% from United States; technology, manufacturing, government, and consulting sectors most targeted.
-- **Impact**: Account takeover, business email compromise, fraud, and persistent remote access via RMM tooling.
-- **Status**: Active campaign with broad US targeting observed by ANY.RUN researchers.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [The Hacker News — US-Focused CSuite Phishing Steals Microsoft 365 Sessions and Deploys RMM Tools for Remote Access](https://thehackernews.com/2026/09/us-focused-csuite-phishing-steals.html)
-
-### Star Blizzard RedFlick Technique with CosmicPulse Backdoor
-- **Description**: Russian state actor Star Blizzard (APT29/Cozy Bear) employs a new "RedFlick" phishing technique—moving away from ClickFix—to target Ukrainian-linked NGOs, think tanks, and journalists, deploying the CosmicPulse backdoor.
-- **Impact**: Long-term espionage access to high-value targets aligned with Russian strategic interests; credential theft, data exfiltration, and network persistence.
-- **Status**: Active campaign confirmed by multiple intelligence sources; technique specifically designed to evade ClickFix mitigations.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: mitigate
-- **Reporting**: [Bleeping Computer — Russian state hackers use new RedFlick technique to push malware](https://www.bleepingcomputer.com/news/security/russian-state-hackers-use-new-redflick-technique-to-push-malware/), [Dark Reading — Russia's Star Blizzard Ditches ClickFix to Widen Phishing Net](https://www.darkreading.com/threat-intelligence/russia-star-blizzard-apt-ditches-clickfix-widen-phishing-net)
+- **Action**: investigate
+- **Reporting**: [The Hacker News — MetaMask Security Incident Prompts Exit of Affected Ethereum Validators](https://thehackernews.com/2026/10/metamask-security-incident-prompts-exit.html)
 
 ## Affected Systems and Products
 
-- **Cisco Catalyst SD-WAN Manager**: All versions prior to fixed releases; enterprise SD-WAN management platforms.
-- **Citrix NetScaler ADC and NetScaler Gateway**: Appliances running vulnerable DTLS implementations; widely deployed in enterprise and government networks.
-- **Zimbra Collaboration Suite (ZCS)**: Versions vulnerable to CVE-2026-73570; on-premises email and collaboration servers.
-- **Apple Platforms**: iOS, iPadOS, macOS, and related operating systems affected by CVE-2026-86950; targeted exploitation suggests high-value individuals.
-- **Zammad Ticketing System**: Open-source helpdesk/ticketing platform; two zero-days chained for initial access (specific versions not disclosed).
-- **Third-Party Security Products (Bitget)**: Unspecified security tooling used by Bitget; supply-chain vector affecting cryptocurrency exchange infrastructure.
-- **TeamViewer Client and Host Software**: Cross-platform remote access software; high-severity flaws in current versions prior to vendor patches.
-- **OpenAI ChatGPT Custom GPTs / Google Search**: Legitimate AI platform features abused for lure hosting and distribution; no software vulnerability in the platforms themselves.
-- **MSP360 RMM and ScreenConnect**: Legitimate remote monitoring and management tools weaponized via trojanized installers and dual-deployment technique.
-- **Microsoft 365 / Entra ID**: Session token theft via phishing; Entra ID script injection protections rolling out October 2026.
-- **GitHub Public Repositories**: Over 543,000 valid credentials exposed; 13,000+ internal images leaked via AI coding agents across 300+ organizations.
+- **Cisco Catalyst SD-WAN Manager**: All versions prior to fixed releases; central management for Cisco SD-WAN fabric
+- **Citrix NetScaler ADC and NetScaler Gateway**: Appliances running vulnerable DTLS implementations; pre-authentication attack surface
+- **Zimbra Collaboration Suite (ZCS)**: Versions with SNMP enabled prior to patch; email and collaboration platform
+- **Apple Platforms (iOS, macOS, etc.)**: Versions affected by CVE-2026-86950; targeted attack surface
+- **Third-Party Security Products (undisclosed vendor)**: Products deployed at Bitget; zero-day enabled $387.5M theft
+- **Zammad Ticketing System**: Open-source helpdesk platform; chain of two zero-days enabled DIVD breach
+- **MikroTik RouterOS**: Network operating system on RouterBOARD hardware and Cloud Hosted Routers; pre-auth RCE vector
+- **TeamViewer Client and Host Software**: Cross-platform remote access software; high-severity flaws in recent versions
+- **OpenSSL**: Versions with vulnerable DTLS implementation; fixed in September 29, 2026 releases
+- **MetaMask Infrastructure**: Backend services and APIs; ongoing incident investigation
 
 ## Attack Vectors and Techniques
 
-- **ClickFix Social Engineering**: Victims tricked into executing malicious commands (e.g., "Run as Administrator" PowerShell) via fake verification pages, CAPTCHA mimics, or browser-based lures. Now delivered through ChatGPT Custom GPTs and sponsored search results.
-- **RedFlick Phishing Technique**: Evolution of ClickFix tailored by Star Blizzard; uses dynamic lure generation and evasion of automated analysis to deploy CosmicPulse backdoor against specific geopolitical targets.
-- **Dual-RMM Deployment**: Simultaneous installation of two legitimate RMM agents (MSP360 + ScreenConnect) for redundancy and evasion; distributed via phishing lures mimicking meeting invites, PDFs, and update prompts.
-- **Microsoft 365 Session Token Theft + RMM**: Phishing kits (CSuite) harvest Entra ID session cookies, then deploy RMM tools for persistent remote access without needing credentials.
-- **Pre-Authentication RCE via Protocol Flaws**: DTLS memory overflow (NetScaler), SNMP command injection (Zimbra), and API authentication bypass (Cisco SD-WAN) enable unauthenticated root/admin access on internet-facing appliances.
-- **Supply-Chain Zero-Day in Security Tooling**: Exploitation of a zero-day in third-party security products to breach a high-value target (Bitget), demonstrating trust inversion.
-- **AI-Driven Network Breach**: Chained zero-days in Zammad ticketing system exploited in an automated/AI-augmented intrusion against a vulnerability disclosure organization.
-- **Malicious AI Model Inspection (Unsloth Studio)**: Patched flaw where `trust_remote_code` during model inspection leads to arbitrary Python execution; supply-chain risk for ML practitioners.
-- **Credential/Secret Exposure at Scale**: 543,000+ valid credentials and 13,000+ internal images in public GitHub repos, exacerbated by AI coding agents auto-committing screenshots and artifacts.
+- **RedFlick Malware Installation Technique**: Novel tactic used by Star Blizzard (Russian state actor) to deploy CosmicPulse backdoor. Replaces prior ClickFix usage. Targets Ukrainian-linked NGOs, think tanks, and journalists via phishing.
+  - **Vector**: Phishing emails with malicious links/attachments triggering RedFlick execution chain
+
+- **ClickFix Social Engineering via ChatGPT Custom GPTs**: Threat actors create malicious Custom GPTs on OpenAI's platform that masquerade as legitimate tools, directing victims to ClickFix pages that trick users into executing PowerShell commands to install RATs.
+  - **Vector**: Abuse of trusted AI platform (chatgpt.com domains) → malicious Custom GPT → ClickFix lure → PowerShell execution → malware delivery
+
+- **Dual-RMM Phishing (MSP360 + ScreenConnect)**: Phishing campaigns distribute legitimate MSP360 RMM installers under deceptive filenames (meeting invites, PDF lures, update prompts). Once installed, attackers deploy ScreenConnect for persistent remote access.
+  - **Vector**: Email phishing → legitimate RMM installer execution → ScreenConnect deployment → persistent remote control
+
+- **CSuite Phishing with M365 Session Theft**: US-focused campaign stealing Microsoft 365 session tokens via phishing, then deploying RMM tools for remote access. 351 sandbox analyses, 51% US submissions. Targets technology, manufacturing, government, consulting sectors.
+  - **Vector**: Phishing → M365 session cookie theft → RMM tool deployment → account compromise and fraud
+
+- **NetScaler Post-Exploitation (WHIPSHOT/SLAPSHOT)**: After exploiting CVE-2026-88772, attackers deploy WHIPSHOT and SLAPSHOT web shells, create superuser accounts, map web shells to CSS-like URLs for stealth, and exfiltrate configuration data.
+  - **Vector**: Pre-auth DTLS exploit → root shell → web shell deployment → persistence and data theft
+
+- **Zimbra Web Shell Deployment**: Exploitation of CVE-2026-73570 via SNMP-enabled instances to drop web shells and access mailbox data and authentication secrets.
+  - **Vector**: Unauthenticated command injection via SNMP → web shell → mailbox data harvesting
 
 ## Threat Actor Activities
 
-- **Star Blizzard (APT29/Cozy Bear)**: Russian state-sponsored actor. Shifted from ClickFix to novel "RedFlick" technique; targets Ukrainian-linked NGOs, think tanks, journalists; deploys CosmicPulse backdoor for persistent espionage. Active since at least September 2026.
-- **ShinyHunters**: Financially motivated extortion group. Dutch police arrested an alleged leader; FBI urging members to surrender. Associated with data theft and extortion campaigns against numerous organizations.
-- **Unknown / Unattributed - NetScaler Exploitation**: Mandiant and GTIG observed exploitation of CVE-2026-88772 deploying WHIPSHOT and SLAPSHOT implants against government, financial, technology, education, and legal sectors in North America and Europe (September 2026).
-- **Unknown / Unattributed - Zimbra Exploitation**: Microsoft Security Research observed web shell deployment and mailbox data harvesting via CVE-2026-73570; actor not publicly attributed.
-- **Unknown / Unattributed - CSuite Phishing**: US-focused campaign stealing M365 sessions and deploying RMM tools; high volume (351 sandbox analyses) with concentration in technology, manufacturing, government, consulting.
-- **Unknown / Unattributed - Bitget Supply-Chain Attack**: Exploited zero-day in third-party security products to steal $387.5M; actor not identified, sophistication suggests well-resourced group.
-- **Opportunistic Cybercriminals - ChatGPT Custom GPT / ClickFix**: Abusing legitimate AI platforms and search ads for RAT distribution; low barrier to entry, broad targeting via sponsored results.
+- **Star Blizzard (Russian State Actor / APT29/Cozy Bear)**: Active deployment of RedFlick technique against Ukrainian-linked targets (NGOs, think tanks, journalists) to install CosmicPulse backdoor. Has shifted from ClickFix to RedFlick to widen phishing effectiveness.
+  - **Campaign**: Ongoing espionage operations leveraging novel social-engineering and malware delivery techniques; infrastructure overlaps with prior Star Blizzard activity
+
+- **Unknown Threat Actors (NetScaler Exploitation)**: Multiple campaigns exploiting CVE-2026-88772 across North America and Europe targeting government, financial services, technology, education, and legal sectors. Mandiant and Google Threat Intelligence Group observed WHIPSHOT/SLAPSHOT deployment in September 2026.
+  - **Campaign**: Broad opportunistic and targeted exploitation of NetScaler appliances post-patch release
+
+- **Unknown Threat Actors (Bitget Heist)**: Sophisticated attackers who exploited a zero-day in third-party security products to breach Bitget and steal $387.5 million. Used customized tools recovered by SlowMist.
+  - **Campaign**: High-value cryptocurrency exchange targeting with supply-chain-style zero-day exploitation
+
+- **Multiple Threat Groups (ChatGPT Custom GPT Abuse)**: Huntress and Dark Reading report separate but similar campaigns abusing ChatGPT Custom GPTs for ClickFix-based RAT delivery. Indicates trend of AI platform feature abuse.
+  - **Campaign**: Late September 2026 activity; leveraging trust in OpenAI domains to bypass security controls
+
+- **CSuite Phishing Operators**: US-focused threat group conducting large-scale phishing (351 samples analyzed) combining M365 session theft with RMM deployment for persistent access and fraud.
+  - **Campaign**: Sector-agnostic but concentrated in technology, manufacturing, government, consulting; 51% US-origin submissions
+
+- **Zimbra Exploitation Actors**: Threat actors weaponizing CVE-2026-73570 post-patch to deploy web shells and harvest mailbox data, per Microsoft Security Research.
+  - **Campaign**: Post-patch exploitation of known vulnerability; targeting organizations with SNMP-enabled Zimbra instances
