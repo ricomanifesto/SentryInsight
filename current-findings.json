@@ -1,11 +1,12 @@
 {
   "schema_version": 1,
-  "report_date": "2026-10-01",
-  "generated_at": "2026-10-01T21:25:57Z",
+  "report_date": "2026-10-02",
+  "generated_at": "2026-10-02T00:51:41Z",
   "report_url": "https://ricomanifesto.github.io/SentryInsight/",
   "finding_count": 8,
-  "complete_cve_count": 3,
+  "complete_cve_count": 4,
   "cve_ids": [
+    "CVE-2026-104286",
     "CVE-2026-76504",
     "CVE-2026-73570",
     "CVE-2026-86950"
