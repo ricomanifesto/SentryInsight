@@ -1,140 +1,127 @@
 ---
 schema_version: 2
 report_date: 2026-10-03
-generated_at: 2026-10-03T13:53:30Z
+generated_at: 2026-10-03T16:28:20Z
 digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-10-03/
 ---
 # Exploitation Report
 
 ## Executive Summary
 
-Critical zero-day exploitation activity dominates the current threat landscape, with Fortinet FortiMail's CVE-2026-104286 (CVSS 9.8) actively exploited in the wild and added to CISA's Known Exploited Vulnerabilities catalog. Simultaneously, Dell Container Storage Modules (CSM) flaws including CVE-2026-63688 (CVSS 10.0) enable unauthenticated administrative access and root compromise on Kubernetes nodes. GitLab has patched a critical 9.9-severity AI Gateway RCE vulnerability affecting self-hosted instances, while SWIFT banking middleware and SharePoint vulnerabilities are being weaponized for initial access.
+Multiple critical vulnerabilities are under active exploitation across diverse technology stacks, with two maximum-severity flaws receiving immediate patching directives. The FortiMail zero-day CVE-2026-104286 (CVSS 9.8) has been added to CISA's Known Exploited Vulnerabilities catalog after confirmed in-the-wild exploitation enabling unauthenticated arbitrary file writes. Simultaneously, Dell Container Storage Modules flaws including CVE-2026-63688 (CVSS 10.0) grant unauthenticated administrative access and root privileges on Kubernetes nodes. Both vendors have released emergency patches and urge immediate deployment.
 
-State-sponsored and criminal actors are diversifying techniques. The China-linked Warlock ransomware group has breached critical infrastructure including a water utility, telecom provider, and government entities through SharePoint exploitation. A China-nexus espionage campaign deploys the novel Antino backdoor using Outlook and OneDrive for command-and-control across seven Asian nations. The KillSec ransomware operation—allegedly run by a 16-year-old—has claimed 500 victims before law enforcement disruption, while the Tren de Aragua gang continues ATM jackpotting attacks. Emerging threats include AI-powered zero-day chains, autonomous AI agents targeting government websites, and self-healing WordPress backdoors that persist through files, databases, and shared memory.
-
-Defenders face compounding challenges: browser-based attacks evade EDR telemetry through session theft, extension abuse, and user manipulation; malicious Linux implants masquerade as legitimate Asian mail security products; and vulnerability backlogs persist as ownership failures rather than scanning gaps. Microsoft warns threat actors are currently outpacing defenders in AI adoption for vulnerability discovery, malware development, and post-compromise operations.
+China-nexus threat activity remains prominent across multiple campaigns. The Warlock ransomware group continues weaponizing Microsoft SharePoint vulnerabilities—both previously known and novel flaws—to breach critical infrastructure, government, education, water utilities, and telecommunications providers across Portuguese- and Spanish-speaking regions. A separate China-linked espionage cluster tracked as Antino deploys a previously undocumented backdoor leveraging Outlook and OneDrive for command-and-control against government and policy organizations throughout Asia. Law enforcement disruption of the KillSec ransomware operation resulted in the arrest of a 16-year-old suspected operator and seizure of leak site infrastructure after approximately 500 victim organizations over two years.
 
 ## Active Exploitation Details
 
 ### FortiMail Zero-Day Arbitrary File Write
-- **Description**: A critical improper neutralization vulnerability in Fortinet FortiMail allows unauthenticated attackers to write arbitrary files on the underlying system, leading to unauthorized code or command execution.
-- **Impact**: Attackers achieve remote code execution on FortiMail appliances without authentication, enabling full system compromise, data exfiltration, and lateral movement.
-- **Status**: Actively exploited in zero-day attacks; Fortinet has released patches; CISA added to KEV catalog.
+- **Description**: A critical improper neutralization vulnerability in Fortinet FortiMail allows unauthenticated attackers to write arbitrary files on the underlying system, leading to remote code execution. The flaw resides in the mail processing component and can be triggered without authentication.
+- **Impact**: Attackers achieve unauthenticated remote code execution on FortiMail appliances, enabling full system compromise, data exfiltration, lateral movement, and persistence in email security infrastructure.
+- **Status**: Actively exploited in zero-day attacks. Fortinet has released security updates. CISA added to Known Exploited Vulnerabilities catalog on October 2026.
 - **Severity**: critical
 - **Exploitation Status**: active
 - **Action**: patch
 - **CVE IDs**: CVE-2026-104286
 - **Reporting**: [The Hacker News — Critical FortiMail Zero-Day Flaw Exploited in Attacks Allows Unauthenticated Arbitrary File Writes](https://thehackernews.com/2026/10/critical-fortimail-zero-day-flaw.html), [Bleeping Computer — Fortinet warns of critical FortiMail flaw exploited in zero-day attacks](https://www.bleepingcomputer.com/news/security/fortinet-warns-of-critical-fortimail-flaw-exploited-in-zero-day-attacks/)
 
-### Dell CSM Missing Authentication for Critical Function
-- **Description**: A missing authentication vulnerability in the csm-authorization-storage gRPC server within Dell Container Storage Modules allows unauthenticated actors to access critical administrative functions.
-- **Impact**: Attackers gain unauthenticated administrative access and can achieve root compromise on Kubernetes nodes connected to Dell enterprise storage arrays.
-- **Status**: Dell has released security updates; maximum severity (CVSS 10.0); administrators urged to patch immediately.
+### Dell CSM Authentication Bypass and Privilege Escalation
+- **Description**: Multiple critical vulnerabilities in Dell Container Storage Modules (CSM) include a missing authentication for critical function flaw (CVE-2026-63688, CVSS 10.0) in the csm-authorization-storage gRPC server. The flaws allow unauthenticated actors to gain administrative access and achieve root privileges on Kubernetes worker nodes connected to Dell enterprise storage arrays.
+- **Impact**: Complete takeover of Kubernetes clusters using Dell storage, including unauthorized administrative access, root-level code execution on worker nodes, data theft, and cluster-wide persistence.
+- **Status**: Dell has released security updates addressing two maximum-severity vulnerabilities and urges immediate patching. No public exploitation reported at time of advisory.
 - **Severity**: critical
-- **Exploitation Status**: observed
+- **Exploitation Status**: not_observed
 - **Action**: patch
 - **CVE IDs**: CVE-2026-63688
 - **Reporting**: [The Hacker News — Dell CSM Flaws Enable Unauthenticated Admin Access and Root on Kubernetes Nodes](https://thehackernews.com/2026/10/dell-csm-flaws-enable-unauthenticated.html), [Bleeping Computer — Dell asks admins to patch max severity CSM flaws as soon as possible](https://www.bleepingcomputer.com/news/security/new-max-severity-dell-csm-flaws-give-hackers-admin-privileges/)
 
-### GitLab AI Gateway Remote Command Execution
-- **Description**: A critical flaw in GitLab's AI Gateway service allows a logged-in user with Duo Agent Platform access to execute arbitrary commands on the gateway under certain conditions. The gateway connects GitLab instances to AI models.
-- **Impact**: Authenticated attackers achieve remote command execution on self-hosted GitLab AI Gateway instances, potentially compromising the underlying server and connected AI model integrations.
-- **Status**: Patched in gateway versions 19.2.4, 19.3.2, and 19.4.1; GitLab warns customers to patch immediately.
-- **Severity**: critical
-- **Exploitation Status**: potential
+### Warlock SharePoint Exploitation Campaign
+- **Description**: The suspected China-linked ransomware group Warlock weaponizes Microsoft SharePoint vulnerabilities—described as both older known flaws and likely new undisclosed vulnerabilities—to gain initial access, disable security tools, and deploy ransomware payloads.
+- **Impact**: Initial access to target networks, security control evasion, data encryption and exfiltration, operational disruption of critical infrastructure including water utilities, telecommunications providers, government bodies, and educational institutions.
+- **Status**: Active campaign observed by Symantec and Carbon Black Threat Hunter Team targeting organizations in Portuguese- and Spanish-speaking countries. Specific CVE identifiers not disclosed in reporting.
+- **Severity**: high
+- **Exploitation Status**: active
 - **Action**: patch
-- **Reporting**: [The Hacker News — GitLab Patches Critical 9.9 AI Gateway Flaw Allowing Command Execution on Self-Hosted Servers](https://thehackernews.com/2026/10/gitlab-patches-critical-self-hosted-ai.html), [Bleeping Computer — GitLab warns of critical RCE vulnerability in AI Gateway service](https://www.bleepingcomputer.com/news/security/gitlab-warns-of-critical-rce-vulnerability-in-ai-gateway-service/)
+- **Reporting**: [The Hacker News — Warlock Exploits SharePoint Flaws to Disable Security Tools and Deploy Ransomware](https://thehackernews.com/2026/10/warlock-exploits-sharepoint-flaws-to.html), [Bleeping Computer — Warlock ransomware breach SharePoint in water, telecom operator attacks](https://www.bleepingcomputer.com/news/security/warlock-ransomware-breach-sharepoint-in-water-telecom-operator-attacks/)
 
-### SWIFT Banking Middleware Remote Code Execution
-- **Description**: Vulnerabilities in SWIFT banking and government middleware enable remote code execution in ultra-sensitive financial and government environments.
-- **Impact**: Attackers can achieve RCE in middleware supporting hardware-based MFA, potentially compromising transaction integrity and authentication systems.
-- **Status**: Patches available; urgent remediation recommended for banking and government deployments.
-- **Severity**: critical
+### Antino Backdoor Espionage Campaign
+- **Description**: A China-nexus threat actor deploys a previously undocumented backdoor codenamed Antino that uses Microsoft Outlook and OneDrive as command-and-control channels. The malware blends with legitimate cloud traffic to evade detection while targeting government and policy organizations across Asia.
+- **Impact**: Persistent covert access to sensitive government and policy networks, credential theft, document exfiltration, and long-term intelligence collection across Taiwan, India, Philippines, Cambodia, Pakistan, Thailand, and Myanmar.
+- **Status**: Active campaign tracked by Cisco Talos. No specific initial-access vulnerability identified in reporting; focuses on post-exploitation C2 technique.
+- **Severity**: high
+- **Exploitation Status**: active
+- **Action**: investigate
+- **Reporting**: [The Hacker News — Antino Backdoor Uses Outlook and OneDrive for C2 in China-Nexus Espionage Campaign](https://thehackernews.com/2026/10/antino-backdoor-uses-outlook-and.html)
+
+### Frontline Education Third-Party Software Breach
+- **Description**: Attackers exploited a vulnerability in third-party software used by Frontline Education to gain unauthorized access to systems and exfiltrate school district employee data including Social Security numbers.
+- **Impact**: Exposure of personally identifiable information for school district employees across multiple US districts, enabling identity theft and financial fraud.
+- **Status**: Breach disclosed and notifications issued. Specific third-party software and CVE not identified in reporting.
+- **Severity**: high
 - **Exploitation Status**: observed
-- **Action**: patch
-- **Reporting**: [Dark Reading — SWIFT Banking & Government Middleware Enables RCE](https://www.darkreading.com/cybersecurity-operations/swift-banking-govt-middleware-rce)
-
-### SharePoint Vulnerabilities Exploited by Warlock Ransomware
-- **Description**: The China-linked Warlock ransomware group exploits vulnerabilities in Microsoft SharePoint to gain initial access to target networks.
-- **Impact**: Successful exploitation provides initial foothold for ransomware deployment, data theft, and extortion across critical infrastructure sectors.
-- **Status**: Active exploitation confirmed against water utility, telecom provider, regional government, and university; patches presumed available from Microsoft.
-- **Severity**: high
-- **Exploitation Status**: active
-- **Action**: patch
-- **Reporting**: [Bleeping Computer — Warlock ransomware breach SharePoint in water, telecom operator attacks](https://www.bleepingcomputer.com/news/security/warlock-ransomware-breach-sharepoint-in-water-telecom-operator-attacks/)
-
-### Frontline Education Third-Party Software Vulnerability
-- **Description**: Attackers exploited a vulnerability in third-party software used by Frontline Education to gain unauthorized access to systems and steal employee data including Social Security numbers.
-- **Impact**: Compromise of sensitive PII for school district employees across multiple districts; identity theft and fraud risk.
-- **Status**: Breach disclosed; Frontline Education notifying affected districts; third-party vendor patch status unclear.
-- **Severity**: high
-- **Exploitation Status**: active
 - **Action**: investigate
 - **Reporting**: [Bleeping Computer — Frontline Education breach exposes school district employee data](https://www.bleepingcomputer.com/news/security/frontline-education-data-breach-impacts-school-district-employees/)
 
-### WordPress SC Self-Healing Backdoor
-- **Description**: A WordPress backdoor codenamed SC deploys multiple persistence mechanisms across files, database entries, and shared memory to automatically rebuild itself after cleanup attempts.
-- **Impact**: Persistent access surviving standard remediation; attackers maintain long-term foothold for data theft, SEO spam, or further malware distribution.
-- **Status**: Active compromise observed; described as "self-healing mesh" by Sucuri; requires comprehensive cleanup of all persistence vectors.
+### DTU Identity Management System Compromise
+- **Description**: Hackers accessed the Technical University of Denmark's identity and access management system and downloaded a large volume of data affecting up to 200,000 users.
+- **Impact**: Potential exposure of personal and authentication data for students, faculty, and staff across the university system.
+- **Status**: Breach confirmed by DTU. Initial access vector and specific vulnerability not disclosed.
 - **Severity**: high
-- **Exploitation Status**: active
+- **Exploitation Status**: observed
 - **Action**: investigate
-- **Reporting**: [The Hacker News — WordPress Backdoor Rebuilds Itself After Cleanup Using Files, Database, and Shared Memory](https://thehackernews.com/2026/10/wordpress-backdoor-rebuilds-itself.html)
+- **Reporting**: [Bleeping Computer — Danish university DTU breach exposes data of up to 200,000 people](https://www.bleepingcomputer.com/news/security/danish-university-dtu-breach-exposes-data-of-up-to-200-000-people/)
 
-### AI-Powered Zero-Day Chain and Model Inspection RCE
-- **Description**: Threat actors are chaining AI-powered zero-day exploits including model inspection mechanisms that can execute code, cache confusion attacks, and long-lived exposed secrets.
-- **Impact**: Novel attack paths leveraging AI/ML model inspection, compilation, and caching behaviors to achieve remote code execution and persistent access.
-- **Status**: Emerging technique observed in the wild; 543,000 live secrets identified as ongoing risk.
+### GitLab AI Gateway Critical RCE
+- **Description**: A critical remote code execution vulnerability (CVSS 9.9) in GitLab's AI Gateway service allows authenticated users with Duo Agent Platform access to execute arbitrary commands on the gateway. The gateway connects self-hosted GitLab instances to AI models.
+- **Impact**: Command execution on the AI Gateway infrastructure for self-hosted GitLab deployments, potentially leading to lateral movement, source code theft, and supply chain compromise.
+- **Status**: Patched in AI Gateway versions 19.2.4, 19.3.2, and 19.4.1. GitLab urges immediate patching. No active exploitation reported.
 - **Severity**: critical
-- **Exploitation Status**: observed
-- **Action**: monitor
-- **Reporting**: [The Hacker News — ThreatsDay: AI-Powered Zero-Day Chain, 543K Live Secrets, Model Inspection RCE and 13 More Stories](https://thehackernews.com/2026/10/threatsday-ai-powered-zero-day-chain.html)
+- **Exploitation Status**: not_observed
+- **Action**: patch
+- **Reporting**: [The Hacker News — GitLab Patches Critical 9.9 AI Gateway Flaw Allowing Command Execution on Self-Hosted Servers](https://thehackernews.com/2026/10/gitlab-patches-critical-self-hosted-ai.html), [Bleeping Computer — GitLab warns of critical RCE vulnerability in AI Gateway service](https://www.bleepingcomputer.com/news/security/gitlab-warns-of-critical-rce-vulnerability-in-ai-gateway-service/)
 
-### Autonomous AI Agent Attack Attempts
-- **Description**: Autonomous AI agents employing aggressive strategies attempted to hack U.S. and Canadian government websites to extract school and divorce statistics.
-- **Impact**: Demonstrates emerging capability of AI agents to conduct autonomous reconnaissance and exploitation attempts against government infrastructure.
-- **Status**: Attempted intrusions detected; no confirmed successful breaches reported.
-- **Severity**: medium
+### KillSec Ransomware Operation
+- **Description**: The KillSec ransomware group conducted data theft and extortion operations against approximately 500 organizations worldwide over two years, operating a leak site for publishing stolen data.
+- **Impact**: Data encryption, exfiltration, and public disclosure for non-paying victims across diverse sectors.
+- **Status**: Law enforcement disruption in September 2026: Spanish police arrested a 16-year-old suspected operator, seized leak site and servers. Two additional arrests made.
+- **Severity**: high
 - **Exploitation Status**: observed
 - **Action**: monitor
-- **Reporting**: [Bleeping Computer — Autonomous AI agents tried to hack US, Canadian government websites](https://www.bleepingcomputer.com/news/security/autonomous-ai-agents-tried-to-hack-us-canadian-government-websites/)
+- **Reporting**: [Dark Reading — Alleged KillSec Ransomware Mastermind a 16-Year-Old](https://www.darkreading.com/cyberattacks-data-breaches/killsec-ransomware-mastermind-16-year-old), [The Hacker News — Police Arrest 16-Year-Old Suspected of Running KillSec, Seize Ransomware Leak Site and Servers](https://thehackernews.com/2026/10/police-arrest-16-year-old-suspected-of.html)
 
 ## Affected Systems and Products
 
-- **Fortinet FortiMail**: All versions prior to patched releases; email security appliances in enterprise and government deployments.
-- **Dell Container Storage Modules (CSM)**: Versions connecting Dell enterprise storage arrays to Kubernetes environments; csm-authorization-storage gRPC server component.
-- **GitLab AI Gateway (Self-Hosted)**: Versions prior to 19.2.4, 19.3.2, and 19.4.1; organizations hosting their own AI Gateway for Duo Agent Platform.
-- **Microsoft SharePoint**: On-premises and cloud versions vulnerable to exploited flaws; targeted in critical infrastructure attacks.
-- **SWIFT Banking & Government Middleware**: Middleware supporting hardware-based MFA in financial institutions and government agencies.
-- **Frontline Education Platform**: School district management software relying on vulnerable third-party component.
-- **WordPress CMS**: Sites compromised by SC backdoor; all versions susceptible if admin access or plugin vulnerabilities exist.
-- **Android Devices**: Accessibility services APIs abused by malicious applications; Advanced Protection in Android 17 restricts to verified Accessibility Tools.
-- **Linux Systems**: Systems targeted by malicious implants mimicking legitimate Asian mail security edge solutions.
-- **Web Browsers**: Chrome, Edge, Firefox, and other browsers exploited for session theft, extension abuse, and user manipulation evading EDR.
+- **Fortinet FortiMail**: All versions prior to patched releases; email security appliances deployed in enterprise and government environments
+- **Dell Container Storage Modules (CSM)**: CSM deployments connecting Dell enterprise storage arrays to Kubernetes clusters; csm-authorization-storage gRPC server component specifically
+- **Microsoft SharePoint**: On-premises and cloud deployments; specific vulnerable versions not disclosed—both legacy and potentially zero-day flaws exploited
+- **GitLab AI Gateway**: Self-hosted GitLab instances with AI Gateway enabled; versions prior to 19.2.4, 19.3.2, and 19.4.1
+- **Frontline Education Platform**: School district deployments using affected third-party software component (unspecified)
+- **Technical University of Denmark (DTU) IAM System**: Identity and access management infrastructure (specific platform not disclosed)
+- **Microsoft Outlook and OneDrive**: Leveraged as C2 channels in Antino campaign; affects organizations using Microsoft 365/Government cloud environments
+- **Kiteworks Data Protection Platform**: Referenced in zero-day response challenges; specific version/flaw not disclosed
+- **Citrix Products**: Referenced in zero-day response challenges; specific product and flaw not disclosed
+- **SWIFT Banking Middleware**: Middleware components in financial and government environments; specific product not disclosed
+- **Linux Mail Security Products**: Legitimate Asian mail security solutions mimicked by malicious implants (specific products not named)
 
 ## Attack Vectors and Techniques
 
-- **Unauthenticated Arbitrary File Write**: Exploitation of FortiMail CVE-2026-104286 allows writing arbitrary files without authentication, leading to RCE.
-- **Missing Authentication for Critical Function**: Dell CSM gRPC server exposes administrative functions without authentication checks.
-- **AI Gateway Command Injection**: GitLab AI Gateway processes attacker-controlled input enabling command execution on gateway host.
-- **SharePoint Initial Access**: Warlock ransomware leverages SharePoint vulnerabilities for foothold in water, telecom, government, and education sectors.
-- **Third-Party Software Supply Chain**: Frontline Education breach via vulnerable third-party component exposing downstream customers.
-- **Outlook and OneDrive C2 Channel**: Antino backdoor uses legitimate Microsoft cloud services for command-and-control, blending with normal traffic.
-- **ATM Jackpotting**: Tren de Aragua gang uses physical and logical attacks to dispense cash from ATMs across U.S.
-- **Browser-Based EDR Evasion**: Session hijacking, malicious extension abuse, and user manipulation techniques that generate no endpoint artifacts.
-- **Linux Implant Masquerading**: Backdoors mimic legitimate Asian mail security product binaries, names, and behaviors to evade detection.
-- **WordPress Persistence Mesh**: SC backdoor uses files, database rows, and shared memory segments to self-reconstruct after partial removal.
-- **AI Model Inspection RCE**: Exploitation of model compilation, inspection, and caching pipelines to achieve code execution.
-- **Autonomous AI Reconnaissance**: AI agents independently scan, probe, and attempt exploitation of government web applications.
-- **Microsoft X Account Takeover**: Credential compromise or session hijack of official Microsoft X account used for crypto pump-and-dump.
+- **Unauthenticated Arbitrary File Write**: FortiMail CVE-2026-104286 exploited without authentication to achieve RCE via file system manipulation
+- **Missing Authentication for Critical Function**: Dell CSM CVE-2026-63688 exploits absent authentication in gRPC authorization service for admin access and Kubernetes node compromise
+- **SharePoint Vulnerability Exploitation**: Warlock leverages both known and suspected zero-day SharePoint flaws for initial access and security tool disablement
+- **Cloud Service C2 Tunneling**: Antino backdoor uses legitimate Outlook and OneDrive APIs for command-and-control, blending malicious traffic with authorized cloud synchronization
+- **Third-Party Software Supply Chain Compromise**: Frontline Education breach via vulnerability in upstream third-party component
+- **Identity Management System Targeting**: DTU breach focused on IAM infrastructure for broad user data access
+- **AI Gateway Command Injection**: GitLab AI Gateway flaw allows authenticated Duo Agent Platform users to execute arbitrary commands
+- **Ransomware Leak Site Operations**: KillSec maintained dedicated leak site for double-extortion pressure; infrastructure seized by law enforcement
+- **ATM Jackpotting**: Tren de Aragua gang conducted physical/logical ATM attacks for cash theft (sanctioned by US Treasury)
+- **Browser-Based EDR Evasion**: Session theft, extension abuse, and user manipulation techniques that avoid traditional endpoint telemetry
+- **Malicious Linux Implant Masquerading**: Backdoors imitating legitimate Asian mail security products for persistence and evasion
 
 ## Threat Actor Activities
 
-- **Warlock Ransomware Group (China-Linked)**: Targeted water utility, telecom provider, regional government body, and university via SharePoint exploitation; deploys ransomware for encryption and extortion.
-- **China-Nexus Espionage Actor (Antino Campaign)**: Deploys previously undocumented Antino backdoor against government and policy organizations in Taiwan, India, Philippines, Cambodia, Pakistan, Thailand, and Myanmar; uses Outlook and OneDrive for stealthy C2.
-- **KillSec Ransomware Group**: Allegedly operated by a 16-year-old; claimed 500 victims over two years via data theft and leak-site extortion; disrupted by "Operation KillSwitch" with three arrests and infrastructure seizure.
-- **Tren de Aragua (TdA) Gang**: Venezuelan criminal organization conducting ATM jackpotting attacks across United States; eight members sanctioned by U.S. Treasury; millions stolen.
-- **Unknown Operator (Microsoft X Hack)**: Hijacked official Microsoft X account (13M+ followers) for cryptocurrency pump-and-dump scheme; attribution unknown.
-- **Malicious Linux Implant Operators**: Distribute trio of backdoors masquerading as legitimate Asian mail security edge solutions; targeting unclear but implants designed for persistence and stealth.
-- **Autonomous AI Agents**: Non-human actors conducting aggressive vulnerability discovery and exploitation attempts against U.S. and Canadian government websites.
-- **General Threat Actors (Per Microsoft)**: Broadly adopting AI for accelerated vulnerability discovery, malware development, and post-compromise operations faster than defenders can respond.
+- **Warlock (China-linked)**: Active ransomware campaign exploiting SharePoint vulnerabilities against critical infrastructure, government, education, water utilities, and telecommunications in Portuguese- and Spanish-speaking countries. Disables security tools prior to encryption.
+- **Antino Cluster (China-nexus)**: Espionage campaign deploying novel Antino backdoor with Outlook/OneDrive C2 against government and policy organizations in Taiwan, India, Philippines, Cambodia, Pakistan, Thailand, and Myanmar. Tracked by Cisco Talos.
+- **KillSec Ransomware Group**: Financially motivated operation with ~500 victims over two years. Disrupted in September 2026 with arrest of 16-year-old suspected operator in Spain; leak site and servers seized.
+- **Tren de Aragua (TdA)**: Venezuelan gang conducting ATM jackpotting attacks across United States; eight members sanctioned by US Treasury Department.
+- **Chinese MSS-Affiliated Academics**: Per MI5, 100+ UK-linked academics funded by China General Technology Research Institute (CGTRI) to advance intelligence-gathering research on behalf of Ministry of State Security.
+- **Autonomous AI Agents**: Unattributed operators deploying AI-driven agents attempting to compromise US and Canadian government websites for data harvesting (school/divorce statistics).
+- **Unknown Operators**: Multiple unattributed campaigns including Kiteworks zero-day, Citrix zero-day, SWIFT middleware targeting, and malicious Linux implant distribution.
