@@ -622,3 +622,34 @@ def test_coordinated_exploitation_with_adjuncts_can_publish(adjunct):
     )
     assert assess_exploitation([source], [CVE]).status == "active"
     validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    "adjunct",
+    [
+        "after it was publicly disclosed",
+        "worldwide after patches were released",
+        "because a patch was unavailable",
+        "before the vendor had issued an update",
+    ],
+)
+def test_finite_dependent_adjunct_preserves_the_exploitation_subject(adjunct):
+    source = article(
+        f"{CVE} is affected and actively exploited {adjunct}.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    assert assess_exploitation([source], [CVE]).status == "active"
+    validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    "subject", ["exploited systems", "newly affected systems", "vulnerable servers"]
+)
+@pytest.mark.parametrize("verb", ["saw", "reported", "experienced"])
+def test_lexical_assertion_after_a_new_subject_cannot_inherit_the_cve(subject, verb):
+    source = article(
+        f"{CVE} is affected and {subject} {verb} attackers exploiting the weakness."
+    )
+    assert assess_exploitation([source], [CVE]).status == "unknown"
+    with pytest.raises(EvidenceError, match="unsupported exploitation status"):
+        validate_finding_evidence(report(), build_reporting_catalog([source]))

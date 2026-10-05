@@ -86,6 +86,41 @@ PARTICIPIAL_PREDICATE_HEADS = frozenset(
 PREDICATE_HEADS = (
     FINITE_PREDICATE_HEADS | PARTICIPIAL_PREDICATE_HEADS | {"be", "been", "being"}
 )
+ADJUNCT_INTRODUCERS = frozenset(
+    {
+        "after",
+        "before",
+        "when",
+        "because",
+        "since",
+        "until",
+        "once",
+        "although",
+        "though",
+        "unless",
+        "if",
+        "where",
+        "during",
+        "upon",
+        "in",
+        "by",
+        "on",
+        "at",
+        "through",
+        "via",
+        "against",
+        "for",
+        "to",
+        "from",
+        "with",
+        "without",
+        "as",
+        "within",
+        "across",
+        "under",
+    }
+)
+PREDICATE_ADVERBS = frozenset({"worldwide", "abroad", "overseas", "here", "there"})
 
 
 class EvidenceError(ValueError):
@@ -164,12 +199,18 @@ def _predicate_head(clause: str) -> str:
             if word in PARTICIPIAL_PREDICATE_HEADS:
                 # An adjective/participle can instead introduce a noun subject:
                 # "newly affected issue" is not the prior CVE's predicate.
-                # A following finite verb establishes a separate assertion
-                # after that noun phrase. Otherwise preserve adjuncts such as
-                # "worldwide" or "after public disclosure" without requiring
-                # every possible adjunct word in a fixed vocabulary.
-                tail = words[index + 1 :]
-                if any(token in FINITE_PREDICATE_HEADS for token in tail):
+                # Parse the continuation as adverbs followed by an optional
+                # adjunct. A new noun phrase ends attribution regardless of
+                # which lexical verb follows it. An adjunct's own finite verb
+                # does not establish a new subject for the main predicate.
+                for token in words[index + 1 :]:
+                    if token in ADJUNCT_INTRODUCERS:
+                        break
+                    if (
+                        token in PREDICATE_MODIFIERS | PREDICATE_ADVERBS
+                        or re.fullmatch(r"[a-z]+ly", token)
+                    ):
+                        continue
                     return ""
             return word
     return ""
