@@ -305,3 +305,45 @@ def test_unsupported_claims_in_titles_and_rendered_prose_are_rejected(variant):
         )
     with pytest.raises(EvidenceError, match="claim|prose"):
         validate_finding_evidence(text, build_reporting_catalog([source]))
+
+
+def test_unknown_which_clause_does_not_confirm_exploitation():
+    source = article(f"It is unknown which attackers are exploiting {CVE}.")
+    assert assess_exploitation([source], [CVE]).status == "unknown"
+
+
+def test_uncertain_subject_cannot_confirm_a_following_ambiguous_clause():
+    source = article(
+        f"It is unknown whether {CVE} is actively exploited and attackers are exploiting it."
+    )
+    assert assess_exploitation([source], [CVE]).status == "unknown"
+
+
+def test_conflicting_clauses_cannot_hide_confirmed_source_evidence():
+    source = article(
+        f"No evidence of exploitation of {CVE}, but {CVE} is actively exploited in attacks."
+    )
+    result = assess_exploitation([source], [CVE])
+    assert result.status == "unknown"
+    assert result.conflicting
+
+
+@pytest.mark.parametrize(
+    "claim",
+    [
+        "Active exploitation confirmed and could be exploited to gain privileges.",
+        "No evidence of exploitation, but active exploitation confirmed.",
+        "![Active exploitation confirmed](https://example.test/missing.png)",
+        "![Active **exploitation** confirmed](https://example.test/missing.png)",
+        "Active\nexploitation confirmed.",
+    ],
+)
+def test_rendered_claims_cannot_hide_in_clauses_or_accessible_text(claim):
+    source = article(
+        f"No evidence that {CVE} has been exploited.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    text = report("not_observed", "No evidence of exploitation.")
+    text = text.replace("- **Severity**:", claim + "\n- **Severity**:")
+    with pytest.raises(EvidenceError, match="claim|prose"):
+        validate_finding_evidence(text, build_reporting_catalog([source]))

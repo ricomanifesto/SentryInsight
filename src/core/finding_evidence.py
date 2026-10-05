@@ -9,6 +9,7 @@ import re
 from typing import Any, Mapping, Sequence
 
 from markdown_it import MarkdownIt
+from markdown_it.token import Token
 
 from .cve import extract_cve_ids
 from .reporting import ACTIVE_SECTION_PATTERN, FINDING_PATTERN, ReportingSource
@@ -80,15 +81,25 @@ def _scoped_sentences(source: Any, cves: Sequence[str]) -> list[tuple[str, bool]
     return result
 
 
-def _uncertain_exploitation(sentence: str) -> bool:
-    # Impact language in a separate clause does not qualify an explicit
-    # exploitation statement ("actively exploited and could allow RCE").
-    clauses = re.split(
-        r"[;,]|\b(?:and|but|while|whereas|which)\b", sentence, flags=re.I
-    )
-    return any(
-        EXPLOIT.search(clause) and UNCERTAIN.search(clause) for clause in clauses
-    )
+def _clauses(sentence: str) -> list[str]:
+    # Do not split relative/interrogative "which": uncertainty before it can
+    # qualify exploitation after it. Impact in a separate conjunction clause
+    # does not qualify an explicit exploitation statement.
+    return re.split(r"[;,]|\b(?:and|but|while|whereas)\b", sentence, flags=re.I)
+
+
+def _clause_status(clause: str) -> str:
+    if not EXPLOIT.search(clause):
+        return "unknown"
+    if NEGATIVE.search(clause):
+        return "not_observed"
+    if UNCERTAIN.search(clause):
+        if re.search(
+            r"\b(?:unknown|unclear|unconfirmed|unverified|whether)\b", clause, re.I
+        ):
+            return "unknown"
+        return "potential"
+    return "active" if CONFIRMED.search(clause) else "unknown"
 
 
 def assess_exploitation(
@@ -108,17 +119,20 @@ def assess_exploitation(
     positive, negative, potential = [], [], []
     for source in sources:
         for sentence, direct in _scoped_sentences(source, cves):
-            if NEGATIVE.search(sentence) and EXPLOIT.search(sentence):
-                negative.append(sentence)
-            elif _uncertain_exploitation(sentence):
-                if EXPLOIT.search(sentence) and not re.search(
-                    r"\b(?:unknown|unclear|unconfirmed|unverified|whether)\b",
-                    sentence,
-                    re.I,
-                ):
+            for clause in _clauses(sentence):
+                status = _clause_status(clause)
+                if status == "not_observed":
+                    negative.append(sentence)
+                elif status == "potential":
                     potential.append(sentence)
-            elif direct and CONFIRMED.search(sentence):
-                positive.append(sentence)
+                elif (
+                    direct
+                    and status == "active"
+                    and set(cves) & set(extract_cve_ids(clause))
+                ):
+                    # A following pronoun/subjectless clause cannot acquire a
+                    # CVE from an earlier, uncertain statement.
+                    positive.append(sentence)
     conflict = bool(positive and negative)
     status = (
         "unknown"
@@ -136,25 +150,30 @@ def _plain(text: str) -> str:
     return " ".join(text.split()).casefold()
 
 
+def _rendered_text(tokens: Sequence[Token]) -> str:
+    parts = []
+    for token in tokens:
+        if token.type in {"softbreak", "hardbreak"}:
+            parts.append(" ")
+        elif token.children:
+            parts.append(_rendered_text(token.children))
+        elif token.type in {"text", "code_inline"}:
+            parts.append(token.content)
+    return "".join(parts)
+
+
 def _positive_claim(text: str) -> bool:
     # Check reader-visible Markdown text so emphasis/entities cannot split a
     # claim into a form that the evidence guard fails to recognize.
     blocks = []
     for token in MarkdownIt("commonmark").parse(text):
         if token.type == "inline":
-            blocks.append(
-                "".join(
-                    child.content
-                    for child in token.children or []
-                    if child.type in {"text", "code_inline", "softbreak", "hardbreak"}
-                )
-            )
+            blocks.append(_rendered_text(token.children or []))
     text = "\n".join(blocks)
     return any(
-        CONFIRMED.search(sentence)
-        and not NEGATIVE.search(sentence)
-        and not _uncertain_exploitation(sentence)
+        _clause_status(clause) == "active"
         for sentence in _sentences(text)
+        for clause in _clauses(sentence)
     )
 
 
