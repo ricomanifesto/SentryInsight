@@ -696,3 +696,45 @@ def test_quantified_or_temporal_noun_subjects_are_not_predicate_adjuncts(subject
         f"{CVE} is affected and exploited {subject} saw attackers exploiting the weakness."
     )
     assert assess_exploitation([source], [CVE]).status == "unknown"
+
+
+@pytest.mark.parametrize(
+    "cue", ["Affected versions are ", "Affected versions: ", "Versions affected: "]
+)
+@pytest.mark.parametrize("separator", [" and ", ", "])
+def test_inline_version_lists_require_every_source_entry(cue, separator):
+    source = article(
+        f"{CVE} is actively exploited.\n\n{cue}Example Server 2.3{separator}Example Server 2.4.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Example Server 2.3; Example Server 2.4"}),
+        catalog,
+    )
+
+
+@pytest.mark.parametrize(
+    "link",
+    [
+        "https://example.test/vendor#mitigation",
+        "https://EXAMPLE.test:443/vendor#patch",
+        "https://example.test/old/../vendor",
+    ],
+)
+def test_copied_vendor_links_share_the_catalog_url_identity(link):
+    source = article(
+        f"{CVE} is actively exploited.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=[link],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(**{"Vendor Links": link}), catalog)
+    for invalid in [
+        "javascript:alert(1)",
+        "https://user:secret@example.test/vendor",
+        "https://different.test/vendor",
+    ]:
+        with pytest.raises(EvidenceError, match="unsupported vendor link"):
+            validate_finding_evidence(report(**{"Vendor Links": invalid}), catalog)

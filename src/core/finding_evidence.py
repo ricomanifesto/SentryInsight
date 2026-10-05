@@ -15,7 +15,13 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from .cve import extract_cve_ids
-from .reporting import ACTIVE_SECTION_PATTERN, FINDING_PATTERN, ReportingSource
+from .reporting import (
+    ACTIVE_SECTION_PATTERN,
+    FINDING_PATTERN,
+    ReportingGroundingError,
+    ReportingSource,
+    normalize_reporting_url,
+)
 
 ABSENT = "Not stated in supplied sources."
 DETAIL_FIELDS = (
@@ -505,12 +511,24 @@ def validate_finding_evidence(
         version_lines = []
         in_versions = False
         for line in scoped.splitlines():
-            if re.search(
+            cue = re.search(
                 r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected))\b",
                 line,
                 re.I,
-            ):
+            )
+            if cue:
                 in_versions = True
+                remainder = re.sub(
+                    r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
+                    "",
+                    line[cue.end() :],
+                    flags=re.I,
+                ).rstrip(". ")
+                version_lines.extend(
+                    entry.strip()
+                    for entry in re.split(r"[,;]|\s+(?:and|or)\s+", remainder)
+                    if re.search(r"\d|\bRTM\b", entry) and not extract_cve_ids(entry)
+                )
                 continue
             if in_versions:
                 if re.search(r"\d|\bRTM\b", line) and not extract_cve_ids(line):
@@ -544,7 +562,11 @@ def validate_finding_evidence(
             entries = [entry.strip() for entry in value.split(";")]
             if name == "Vendor Links":
                 links = {link for source in sources for link in source.links}
-                if any(entry not in links for entry in entries):
+                try:
+                    normalized = [normalize_reporting_url(entry) for entry in entries]
+                except ReportingGroundingError as exc:
+                    raise EvidenceError(f"{title}: unsupported vendor link") from exc
+                if any(entry not in links for entry in normalized):
                     raise EvidenceError(f"{title}: unsupported vendor link")
             elif any(_plain(entry) not in _plain(scoped) for entry in entries):
                 raise EvidenceError(

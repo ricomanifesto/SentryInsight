@@ -140,8 +140,6 @@ class SentryDigestFeedClient:
                     response = await client.get(article_link)
 
                     if response.status_code == 200:
-                        if is_virtual_event_promotion({"content": response.text}):
-                            continue
                         extracted = extract_article_content(response.text, article_link)
                         article["content"] = extracted.text or full_content
                         article["content_kind"] = (
