@@ -573,3 +573,40 @@ def test_temporal_adverbs_do_not_discard_confirmed_subject(modifier):
 def test_a_noun_ending_in_ly_is_not_a_predicate_modifier():
     source = article(f"{CVE} is affected and family is actively exploited in attacks.")
     assert assess_exploitation([source], [CVE]).status == "unknown"
+
+
+@pytest.mark.parametrize(
+    "subject",
+    [
+        "newly affected issue",
+        "recently exploited flaw",
+        "affected systems",
+        "also vulnerable servers",
+        "potentially exploitable bugs",
+        "newly weaponized exploits",
+    ],
+)
+def test_participial_noun_subject_ends_coordinated_cve_attribution(subject):
+    source = article(
+        f"{CVE} is affected and {subject} is actively exploited in attacks."
+    )
+    assert assess_exploitation([source], [CVE]).status == "unknown"
+    with pytest.raises(EvidenceError, match="unsupported exploitation status"):
+        validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    "predicate",
+    [
+        "recently exploited in attacks",
+        "actively exploited by attackers",
+        "weaponized in the wild",
+        "affected",
+        "vulnerable to attack",
+    ],
+)
+def test_predicate_complements_retain_subject_for_a_later_assertion(predicate):
+    source = article(
+        f"{CVE} is affected and {predicate} and is actively exploited in attacks."
+    )
+    assert assess_exploitation([source], [CVE]).status == "active"

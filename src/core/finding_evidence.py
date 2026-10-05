@@ -74,16 +74,37 @@ FINITE_PREDICATE_HEADS = frozenset(
         "would",
     }
 )
-PREDICATE_HEADS = FINITE_PREDICATE_HEADS | {
-    "be",
-    "been",
-    "being",
-    "exploited",
-    "weaponized",
-    "affected",
-    "vulnerable",
-    "exploitable",
-}
+PARTICIPIAL_PREDICATE_HEADS = frozenset(
+    {
+        "exploited",
+        "weaponized",
+        "affected",
+        "vulnerable",
+        "exploitable",
+    }
+)
+PREDICATE_HEADS = (
+    FINITE_PREDICATE_HEADS | PARTICIPIAL_PREDICATE_HEADS | {"be", "been", "being"}
+)
+PREDICATE_COMPLEMENTS = frozenset(
+    {
+        "in",
+        "by",
+        "on",
+        "at",
+        "through",
+        "via",
+        "against",
+        "for",
+        "to",
+        "from",
+        "with",
+        "without",
+        "as",
+        "during",
+        "since",
+    }
+)
 
 
 class EvidenceError(ValueError):
@@ -156,8 +177,19 @@ def _clause_status(clause: str) -> str:
 def _predicate_head(clause: str) -> str:
     # Only known modifiers may precede an inherited predicate. In particular,
     # an arbitrary -ly suffix is not enough: it can also occur in noun subjects.
-    for word in clause.casefold().split():
+    words = clause.casefold().rstrip(".!?").split()
+    for index, word in enumerate(words):
         if word not in PREDICATE_MODIFIERS:
+            if word in PARTICIPIAL_PREDICATE_HEADS:
+                # An adjective/participle can instead introduce a noun subject:
+                # "newly affected issue" is not the prior CVE's predicate.
+                # Accept only a complete predicate or a recognized complement;
+                # unknown continuations deliberately terminate attribution.
+                tail = words[index + 1 :]
+                while tail and tail[0] in PREDICATE_MODIFIERS:
+                    tail = tail[1:]
+                if tail and tail[0] not in PREDICATE_COMPLEMENTS:
+                    return ""
             return word
     return ""
 
