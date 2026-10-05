@@ -118,9 +118,44 @@ ADJUNCT_INTRODUCERS = frozenset(
         "within",
         "across",
         "under",
+        "over",
+        "throughout",
+        "around",
+        "despite",
     }
 )
-PREDICATE_ADVERBS = frozenset({"worldwide", "abroad", "overseas", "here", "there"})
+PREDICATE_ADVERBS = frozenset(
+    {
+        "worldwide",
+        "abroad",
+        "overseas",
+        "here",
+        "there",
+        "today",
+        "yesterday",
+        "tomorrow",
+        "tonight",
+        "earlier",
+        "later",
+        "again",
+        "already",
+        "often",
+        "sometimes",
+        "always",
+        "ever",
+        "soon",
+        "twice",
+        "ago",
+    }
+)
+TIME_UNIT = r"(?:second|minute|hour|day|week|fortnight|month|quarter|year|weekend|night|morning|afternoon|evening)s?"
+WEEKDAY = r"(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)"
+QUANTITY = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several|many|a|an)"
+NOMINAL_ADJUNCT = re.compile(
+    rf"(?:(?:the )?(?:last|next|previous|following|this|that|every|each|all) (?:{QUANTITY} )?(?:{TIME_UNIT}|{WEEKDAY})"
+    rf"|{QUANTITY} {TIME_UNIT}"
+    rf"|(?:(?:more|less|fewer) than |at (?:least|most) |up to )?{QUANTITY} (?:times|occasions))(?= |$)"
+)
 
 
 class EvidenceError(ValueError):
@@ -203,13 +238,20 @@ def _predicate_head(clause: str) -> str:
                 # adjunct. A new noun phrase ends attribution regardless of
                 # which lexical verb follows it. An adjunct's own finite verb
                 # does not establish a new subject for the main predicate.
-                for token in words[index + 1 :]:
+                tail = words[index + 1 :]
+                while tail:
+                    token = tail[0]
                     if token in ADJUNCT_INTRODUCERS:
                         break
+                    nominal = NOMINAL_ADJUNCT.match(" ".join(tail))
+                    if nominal:
+                        tail = tail[len(nominal.group().split()) :]
+                        continue
                     if (
                         token in PREDICATE_MODIFIERS | PREDICATE_ADVERBS
                         or re.fullmatch(r"[a-z]+ly", token)
                     ):
+                        tail = tail[1:]
                         continue
                     return ""
             return word

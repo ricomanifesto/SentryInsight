@@ -653,3 +653,39 @@ def test_lexical_assertion_after_a_new_subject_cannot_inherit_the_cve(subject, v
     assert assess_exploitation([source], [CVE]).status == "unknown"
     with pytest.raises(EvidenceError, match="unsupported exploitation status"):
         validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    "adjunct",
+    [
+        "last week",
+        "today",
+        "over the weekend",
+        "more than 100 times",
+        "yesterday",
+        "earlier this month",
+        "the previous year",
+        "three days ago",
+        "at least two times",
+        "100 times last week",
+        "last Friday",
+        "again",
+    ],
+)
+def test_nominal_time_and_frequency_adjuncts_can_publish(adjunct):
+    source = article(
+        f"{CVE} is affected and actively exploited {adjunct}.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    assert assess_exploitation([source], [CVE]).status == "active"
+    validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    "subject", ["100 systems", "more than 100 systems", "last week's systems"]
+)
+def test_quantified_or_temporal_noun_subjects_are_not_predicate_adjuncts(subject):
+    source = article(
+        f"{CVE} is affected and exploited {subject} saw attackers exploiting the weakness."
+    )
+    assert assess_exploitation([source], [CVE]).status == "unknown"
