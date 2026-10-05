@@ -398,6 +398,26 @@ def _plain(text: str) -> str:
     return " ".join(text.split()).casefold()
 
 
+def _version_entries(text: str) -> list[str]:
+    """Parse complete constraints without discarding nonnumeric range tails."""
+    parts = re.split(r"([,;]|\s+(?:and|or)\s+)", text.strip().rstrip("."), flags=re.I)
+    entries: list[str] = []
+    for index in range(0, len(parts), 2):
+        entry = parts[index].strip()
+        if not entry:
+            continue
+        qualifier = re.match(
+            r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior)\b",
+            entry,
+            re.I,
+        )
+        if entries and (qualifier or not re.search(r"\d|\bRTM\b", entry, re.I)):
+            entries[-1] += parts[index - 1] + entry
+        else:
+            entries.append(entry)
+    return entries
+
+
 def _rendered_text(tokens: Sequence[Token]) -> str:
     parts = []
     for token in tokens:
@@ -525,20 +545,21 @@ def validate_finding_evidence(
                     flags=re.I,
                 ).rstrip(". ")
                 version_lines.extend(
-                    entry.strip()
-                    for entry in re.split(r"[,;]|\s+(?:and|or)\s+", remainder)
+                    entry
+                    for entry in _version_entries(remainder)
                     if re.search(r"\d|\bRTM\b", entry) and not extract_cve_ids(entry)
                 )
                 continue
             if in_versions:
                 if re.search(r"\d|\bRTM\b", line) and not extract_cve_ids(line):
-                    version_lines.append(line)
+                    version_lines.extend(_version_entries(line))
                 else:
                     in_versions = False
-        if any(
-            _plain(line) not in _plain(fields.get("Affected Versions", ""))
-            for line in version_lines
-        ):
+        reported_versions = {
+            _plain(entry)
+            for entry in _version_entries(fields.get("Affected Versions", ""))
+        }
+        if any(_plain(line) not in reported_versions for line in version_lines):
             raise EvidenceError(
                 f"{title}: Affected Versions omits supplied version list entries"
             )

@@ -738,3 +738,41 @@ def test_copied_vendor_links_share_the_catalog_url_identity(link):
     ]:
         with pytest.raises(EvidenceError, match="unsupported vendor link"):
             validate_finding_evidence(report(**{"Vendor Links": invalid}), catalog)
+
+
+@pytest.mark.parametrize(
+    "qualifier", ["and earlier", "or later", "and older", "or newer", "or higher"]
+)
+def test_inline_version_range_cannot_be_narrowed(qualifier):
+    constraint = f"Example Server 2.3 {qualifier}"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {constraint}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(report(**{"Affected Versions": constraint}), catalog)
+
+
+@pytest.mark.parametrize(
+    "version_list",
+    [
+        "Affected versions are Example Server 1.0 and Example Server 1.0.1.",
+        "Affected versions:\nExample Server 1.0\nExample Server 1.0.1",
+    ],
+)
+def test_version_prefix_does_not_satisfy_a_distinct_source_entry(version_list):
+    source = article(
+        f"{CVE} is actively exploited.\n\n{version_list}\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": "Example Server 1.0.1"}), catalog
+        )
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Example Server 1.0; Example Server 1.0.1"}),
+        catalog,
+    )
