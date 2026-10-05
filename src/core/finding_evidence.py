@@ -8,6 +8,8 @@ from dataclasses import dataclass
 import re
 from typing import Any, Mapping, Sequence
 
+from markdown_it import MarkdownIt
+
 from .cve import extract_cve_ids
 from .reporting import ACTIVE_SECTION_PATTERN, FINDING_PATTERN, ReportingSource
 
@@ -20,7 +22,7 @@ DETAIL_FIELDS = (
 )
 FIELD = re.compile(r"^-\s+\*\*([^*]+)\*\*:\s*(.*?)\s*$", re.MULTILINE)
 NEGATIVE = re.compile(
-    r"\b(?:no (?:evidence|signs?|reports?|exploitation)|(?:not|never) (?:yet |been |being |actively |publicly |known to be |observed to be )*(?:exploit\w*|weaponiz\w*)|(?:has|have) not been (?:actively )?(?:exploit\w*|weaponiz\w*)|without (?:evidence|reports?) of exploitation)\b",
+    r"\b(?:exploit\w* (?:has |have |is |was |were )?not (?:yet |been )*(?:observed|detected|confirmed)|no (?:known exploitation|evidence|signs?|reports?|exploitation)|(?:not|never) (?:yet |been |being |actively |publicly |known to be |observed to be )*(?:exploit\w*|weaponiz\w*)|(?:has|have) not been (?:actively )?(?:exploit\w*|weaponiz\w*)|without (?:evidence|reports?) of exploitation)\b",
     re.I,
 )
 UNCERTAIN = re.compile(
@@ -78,6 +80,17 @@ def _scoped_sentences(source: Any, cves: Sequence[str]) -> list[tuple[str, bool]
     return result
 
 
+def _uncertain_exploitation(sentence: str) -> bool:
+    # Impact language in a separate clause does not qualify an explicit
+    # exploitation statement ("actively exploited and could allow RCE").
+    clauses = re.split(
+        r"[;,]|\b(?:and|but|while|whereas|which)\b", sentence, flags=re.I
+    )
+    return any(
+        EXPLOIT.search(clause) and UNCERTAIN.search(clause) for clause in clauses
+    )
+
+
 def assess_exploitation(
     sources: Sequence[Any], cves: Sequence[str]
 ) -> ExploitationAssessment:
@@ -97,7 +110,7 @@ def assess_exploitation(
         for sentence, direct in _scoped_sentences(source, cves):
             if NEGATIVE.search(sentence) and EXPLOIT.search(sentence):
                 negative.append(sentence)
-            elif UNCERTAIN.search(sentence):
+            elif _uncertain_exploitation(sentence):
                 if EXPLOIT.search(sentence) and not re.search(
                     r"\b(?:unknown|unclear|unconfirmed|unverified|whether)\b",
                     sentence,
@@ -124,10 +137,23 @@ def _plain(text: str) -> str:
 
 
 def _positive_claim(text: str) -> bool:
+    # Check reader-visible Markdown text so emphasis/entities cannot split a
+    # claim into a form that the evidence guard fails to recognize.
+    blocks = []
+    for token in MarkdownIt("commonmark").parse(text):
+        if token.type == "inline":
+            blocks.append(
+                "".join(
+                    child.content
+                    for child in token.children or []
+                    if child.type in {"text", "code_inline", "softbreak", "hardbreak"}
+                )
+            )
+    text = "\n".join(blocks)
     return any(
         CONFIRMED.search(sentence)
         and not NEGATIVE.search(sentence)
-        and not UNCERTAIN.search(sentence)
+        and not _uncertain_exploitation(sentence)
         for sentence in _sentences(text)
     )
 
@@ -182,7 +208,7 @@ def validate_finding_evidence(
         )
         if status not in {"active", "observed"}:
             nonconfirmed.append((title, cves))
-            if _positive_claim(narrative):
+            if _positive_claim(title + "\n\n" + narrative):
                 raise EvidenceError(f"{title}: unsupported exploitation claim in prose")
         if assessment.negative and not NEGATIVE.search(narrative):
             raise EvidenceError(f"{title}: prose omits negative exploitation evidence")

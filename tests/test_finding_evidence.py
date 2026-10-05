@@ -261,3 +261,47 @@ def test_evidence_failure_preserves_existing_report_and_fingerprint(tmp_path):
     assert output.read_text() == "Last validated report"
     assert fingerprint.read_text() == "previous"
     assert not (tmp_path / "index.html").exists()
+
+
+@pytest.mark.parametrize("word", ["observed", "detected", "confirmed"])
+def test_passive_negative_statement_is_not_observed(word):
+    assert (
+        assess_exploitation(
+            [article(f"{CVE} exploitation has not been {word}.")], [CVE]
+        ).status
+        == "not_observed"
+    )
+
+
+def test_confirmed_exploitation_with_possible_impact_stays_confirmed():
+    assert (
+        assess_exploitation(
+            [
+                article(
+                    f"{CVE} is actively exploited and could allow remote code execution."
+                )
+            ],
+            [CVE],
+        ).status
+        == "active"
+    )
+
+
+@pytest.mark.parametrize("variant", ["title", "formatted"])
+def test_unsupported_claims_in_titles_and_rendered_prose_are_rejected(variant):
+    source = article(
+        f"No evidence that {CVE} has been exploited.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    text = report("not_observed", "No evidence of exploitation.")
+    if variant == "title":
+        text = text.replace(
+            "### Example Server", "### Active exploitation of Example Server"
+        )
+    else:
+        text = text.replace(
+            "No evidence of exploitation.",
+            "No evidence of exploitation. Active **exploitation** confirmed.",
+        )
+    with pytest.raises(EvidenceError, match="claim|prose"):
+        validate_finding_evidence(text, build_reporting_catalog([source]))
