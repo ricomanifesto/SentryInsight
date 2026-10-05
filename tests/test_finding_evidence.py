@@ -347,3 +347,104 @@ def test_rendered_claims_cannot_hide_in_clauses_or_accessible_text(claim):
     text = text.replace("- **Severity**:", claim + "\n- **Severity**:")
     with pytest.raises(EvidenceError, match="claim|prose"):
         validate_finding_evidence(text, build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        (
+            f"{CVE} allows remote code execution and is actively exploited in attacks.",
+            "active",
+        ),
+        (
+            f"{CVE} allows remote code execution, and is actively exploited in attacks.",
+            "active",
+        ),
+        (
+            f"{CVE} could allow remote code execution but is actively exploited in attacks.",
+            "active",
+        ),
+        (
+            f"{CVE} allows remote code execution and is actively exploited and has now been patched.",
+            "active",
+        ),
+        (
+            f"{CVE} allows remote code execution and has not been exploited.",
+            "not_observed",
+        ),
+        (f"{CVE} allows remote code execution and may be exploited.", "potential"),
+        (
+            f"It is unknown whether {CVE} allows remote code execution and is actively exploited.",
+            "unknown",
+        ),
+        (
+            f"It is unknown whether {CVE} allows remote code execution and {CVE} is actively exploited.",
+            "unknown",
+        ),
+        (f"{CVE} might be actively exploited and weaponized in the wild.", "potential"),
+        (
+            f"{CVE} was not actively exploited and weaponized in the wild.",
+            "not_observed",
+        ),
+        (
+            f"{CVE} allows remote code execution and another flaw is actively exploited.",
+            "unknown",
+        ),
+        (
+            f"{CVE} allows remote code execution but attackers are exploiting another flaw.",
+            "unknown",
+        ),
+        (
+            f"{CVE} allows remote code execution; is actively exploited in attacks.",
+            "unknown",
+        ),
+        (
+            f"{CVE} allows remote code execution. It is actively exploited in attacks.",
+            "unknown",
+        ),
+        (
+            f"{CVE} allows remote code execution and another flaw is disclosed and is actively exploited.",
+            "unknown",
+        ),
+    ],
+)
+def test_subject_and_stance_are_preserved_across_predicates(text, expected):
+    assert assess_exploitation([article(text)], [CVE]).status == expected
+
+
+def test_coordinated_negative_and_positive_evidence_remain_conflicting():
+    result = assess_exploitation(
+        [article(f"{CVE} is not exploited but is actively exploited in attacks.")],
+        [CVE],
+    )
+    assert result.status == "unknown"
+    assert result.conflicting
+
+
+def test_coordinated_confirmation_can_publish_without_repeating_the_cve():
+    source = article(
+        f"{CVE} allows remote code execution and is actively exploited in attacks.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize("location", ["summary", "finding"])
+def test_summary_checks_the_same_rendered_statements_as_findings(location):
+    source = article(
+        f"No evidence that {CVE} has been exploited.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    text = report("not_observed", "No evidence of exploitation.")
+    if location == "summary":
+        text = text.replace(
+            "Example Server: No evidence of exploitation.",
+            "The vulnerability is actively\nexploited in attacks.",
+        )
+    else:
+        text = text.replace(
+            "- **Severity**:",
+            "\n```\nActive exploitation confirmed.\n```\n- **Severity**:",
+        )
+    with pytest.raises(EvidenceError, match="summary|claim|prose"):
+        validate_finding_evidence(text, build_reporting_catalog([source]))

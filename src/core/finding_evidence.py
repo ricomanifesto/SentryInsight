@@ -6,7 +6,7 @@ model may not discard negative evidence by selecting only a positive excerpt.
 
 from dataclasses import dataclass
 import re
-from typing import Any, Mapping, Sequence
+from typing import Any, Literal, Mapping, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
@@ -35,6 +35,20 @@ CONFIRMED = re.compile(
     re.I,
 )
 EXPLOIT = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
+EPISTEMIC = re.compile(r"\b(?:unknown|unclear|unconfirmed|unverified|whether)\b", re.I)
+MODAL = re.compile(r"\b(?:may|might|could)\b", re.I)
+CLAUSE_BOUNDARY = re.compile(
+    r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)",
+    re.I,
+)
+PREDICATE = re.compile(
+    r"^(?:(?:also|currently|now|still|not|never|actively)\s+)*(?:is|are|was|were|has|have|had|may|might|could|can|will|would|be|been|being|exploited|weaponized)\b",
+    re.I,
+)
+FINITE_PREDICATE = re.compile(
+    r"^(?:(?:also|currently|now|still)\s+)*(?:is|are|was|were|has|have|had|may|might|could|can|will|would)\b",
+    re.I,
+)
 
 
 class EvidenceError(ValueError):
@@ -47,6 +61,16 @@ class ExploitationAssessment:
     negative: tuple[str, ...] = ()
     positive: tuple[str, ...] = ()
     conflicting: bool = False
+
+
+@dataclass(frozen=True)
+class ExploitationStatement:
+    """A source span with its own subject attribution and evidence state."""
+
+    text: str
+    cves: tuple[str, ...]
+    attribution: Literal["explicit", "coordinated", "unscoped"]
+    status: str
 
 
 def _sentences(text: str) -> list[str]:
@@ -81,25 +105,67 @@ def _scoped_sentences(source: Any, cves: Sequence[str]) -> list[tuple[str, bool]
     return result
 
 
-def _clauses(sentence: str) -> list[str]:
-    # Do not split relative/interrogative "which": uncertainty before it can
-    # qualify exploitation after it. Impact in a separate conjunction clause
-    # does not qualify an explicit exploitation statement.
-    return re.split(r"[;,]|\b(?:and|but|while|whereas)\b", sentence, flags=re.I)
-
-
 def _clause_status(clause: str) -> str:
     if not EXPLOIT.search(clause):
         return "unknown"
     if NEGATIVE.search(clause):
         return "not_observed"
     if UNCERTAIN.search(clause):
-        if re.search(
-            r"\b(?:unknown|unclear|unconfirmed|unverified|whether)\b", clause, re.I
-        ):
+        if EPISTEMIC.search(clause):
             return "unknown"
         return "potential"
     return "active" if CONFIRMED.search(clause) else "unknown"
+
+
+def _statements(sentence: str) -> list[ExploitationStatement]:
+    """Track subjects and stance through recognized coordinated predicates.
+
+    This deliberately does not resolve pronouns, new noun subjects, or subjects
+    across sentences/semicolons. Relative ``which`` stays in its original span.
+    A shared modal or negation qualifies a bare coordinated predicate; a new
+    finite auxiliary starts its own assertion. Epistemic scope ("unknown
+    whether ... and ...") also applies when the CVE is repeated.
+    """
+    parts = CLAUSE_BOUNDARY.split(sentence)
+    statements: list[ExploitationStatement] = []
+    subjects: tuple[str, ...] = ()
+    epistemic = modal = negative = False
+    for index in range(0, len(parts), 2):
+        clause = parts[index].strip()
+        if not clause:
+            continue
+        boundary = " ".join(parts[index - 1].lower().split()) if index else ""
+        coordinate = boundary in {"and", "but", ", and", ", but"}
+        predicate = coordinate and bool(PREDICATE.match(clause))
+        finite = bool(FINITE_PREDICATE.match(clause))
+        mentioned = tuple(extract_cve_ids(clause))
+        attribution: Literal["explicit", "coordinated", "unscoped"]
+        if mentioned:
+            subjects = mentioned
+            attribution = "explicit"
+        elif predicate and len(subjects) == 1:
+            attribution = "coordinated"
+        else:
+            subjects = ()
+            attribution = "unscoped"
+
+        epistemic = bool(EPISTEMIC.search(clause)) or (
+            epistemic and (boundary in {"and", ", and"} or predicate)
+        )
+        modal = bool(MODAL.search(clause)) or (modal and predicate and not finite)
+        negative = bool(NEGATIVE.search(clause)) or (
+            negative and predicate and not finite
+        )
+        status = _clause_status(clause)
+        if EXPLOIT.search(clause):
+            if epistemic:
+                status = "unknown"
+            elif negative:
+                status = "not_observed"
+            elif modal:
+                status = "potential"
+        statements.append(ExploitationStatement(clause, subjects, attribution, status))
+    return statements
 
 
 def assess_exploitation(
@@ -119,19 +185,15 @@ def assess_exploitation(
     positive, negative, potential = [], [], []
     for source in sources:
         for sentence, direct in _scoped_sentences(source, cves):
-            for clause in _clauses(sentence):
-                status = _clause_status(clause)
-                if status == "not_observed":
+            for statement in _statements(sentence):
+                attributed = bool(set(cves) & set(statement.cves))
+                if direct and not attributed:
+                    continue
+                if statement.status == "not_observed":
                     negative.append(sentence)
-                elif status == "potential":
+                elif statement.status == "potential":
                     potential.append(sentence)
-                elif (
-                    direct
-                    and status == "active"
-                    and set(cves) & set(extract_cve_ids(clause))
-                ):
-                    # A following pronoun/subjectless clause cannot acquire a
-                    # CVE from an earlier, uncertain statement.
+                elif attributed and statement.status == "active":
                     positive.append(sentence)
     conflict = bool(positive and negative)
     status = (
@@ -162,19 +224,25 @@ def _rendered_text(tokens: Sequence[Token]) -> str:
     return "".join(parts)
 
 
-def _positive_claim(text: str) -> bool:
+def _rendered_statements(text: str) -> list[ExploitationStatement]:
     # Check reader-visible Markdown text so emphasis/entities cannot split a
     # claim into a form that the evidence guard fails to recognize.
     blocks = []
     for token in MarkdownIt("commonmark").parse(text):
         if token.type == "inline":
             blocks.append(_rendered_text(token.children or []))
+        elif token.type in {"fence", "code_block"}:
+            blocks.append(" ".join(token.content.split()))
     text = "\n".join(blocks)
-    return any(
-        _clause_status(clause) == "active"
+    return [
+        statement
         for sentence in _sentences(text)
-        for clause in _clauses(sentence)
-    )
+        for statement in _statements(sentence)
+    ]
+
+
+def _positive_claim(text: str) -> bool:
+    return any(statement.status == "active" for statement in _rendered_statements(text))
 
 
 def validate_finding_evidence(
@@ -306,10 +374,10 @@ def validate_finding_evidence(
     # Require explicit CVEs for confirmed claims outside finding bodies whenever
     # the report contains mixed evidence states.
     outside = report[: section.start()] + report[section.end() :]
-    for sentence in _sentences(outside):
-        if not _positive_claim(sentence):
+    for statement in _rendered_statements(outside):
+        if statement.status != "active":
             continue
-        mentioned = set(extract_cve_ids(sentence))
+        mentioned = set(statement.cves)
         if nonconfirmed and (
             not mentioned or any(mentioned & set(cves) for _, cves in nonconfirmed)
         ):
