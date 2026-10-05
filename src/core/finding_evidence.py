@@ -86,25 +86,6 @@ PARTICIPIAL_PREDICATE_HEADS = frozenset(
 PREDICATE_HEADS = (
     FINITE_PREDICATE_HEADS | PARTICIPIAL_PREDICATE_HEADS | {"be", "been", "being"}
 )
-PREDICATE_COMPLEMENTS = frozenset(
-    {
-        "in",
-        "by",
-        "on",
-        "at",
-        "through",
-        "via",
-        "against",
-        "for",
-        "to",
-        "from",
-        "with",
-        "without",
-        "as",
-        "during",
-        "since",
-    }
-)
 
 
 class EvidenceError(ValueError):
@@ -183,12 +164,12 @@ def _predicate_head(clause: str) -> str:
             if word in PARTICIPIAL_PREDICATE_HEADS:
                 # An adjective/participle can instead introduce a noun subject:
                 # "newly affected issue" is not the prior CVE's predicate.
-                # Accept only a complete predicate or a recognized complement;
-                # unknown continuations deliberately terminate attribution.
+                # A following finite verb establishes a separate assertion
+                # after that noun phrase. Otherwise preserve adjuncts such as
+                # "worldwide" or "after public disclosure" without requiring
+                # every possible adjunct word in a fixed vocabulary.
                 tail = words[index + 1 :]
-                while tail and tail[0] in PREDICATE_MODIFIERS:
-                    tail = tail[1:]
-                if tail and tail[0] not in PREDICATE_COMPLEMENTS:
+                if any(token in FINITE_PREDICATE_HEADS for token in tail):
                     return ""
             return word
     return ""

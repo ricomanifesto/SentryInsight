@@ -610,3 +610,15 @@ def test_predicate_complements_retain_subject_for_a_later_assertion(predicate):
         f"{CVE} is affected and {predicate} and is actively exploited in attacks."
     )
     assert assess_exploitation([source], [CVE]).status == "active"
+
+
+@pytest.mark.parametrize(
+    "adjunct", ["worldwide", "after public disclosure", "before a patch", "extensively"]
+)
+def test_coordinated_exploitation_with_adjuncts_can_publish(adjunct):
+    source = article(
+        f"{CVE} is affected and actively exploited {adjunct}.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    assert assess_exploitation([source], [CVE]).status == "active"
+    validate_finding_evidence(report(), build_reporting_catalog([source]))
