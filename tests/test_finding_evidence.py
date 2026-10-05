@@ -448,3 +448,40 @@ def test_summary_checks_the_same_rendered_statements_as_findings(location):
         )
     with pytest.raises(EvidenceError, match="summary|claim|prose"):
         validate_finding_evidence(text, build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    ("claim", "expected"),
+    [
+        (
+            f"It is unknown whether {CVE} was exploited, but is now actively exploited in attacks.",
+            "active",
+        ),
+        (f"{CVE} could be actively exploited, but weaponized in the wild.", "active"),
+        (f"{CVE} was not actively exploited, but weaponized in the wild.", "unknown"),
+    ],
+)
+def test_adversative_predicates_start_a_new_evidence_assertion(claim, expected):
+    result = assess_exploitation([article(claim)], [CVE])
+    assert result.status == expected
+    if expected == "unknown":
+        assert result.conflicting
+
+
+@pytest.mark.parametrize(
+    "claim",
+    [
+        f"It is unknown whether {CVE} was exploited, but is now actively exploited in attacks.",
+        f"{CVE} could be actively exploited, but weaponized in the wild.",
+        f"{CVE} was not actively exploited, but weaponized in the wild.",
+    ],
+)
+def test_adversative_assertions_cannot_hide_unsupported_report_claims(claim):
+    source = article(
+        f"No evidence that {CVE} has been exploited.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    text = report("not_observed", "No evidence of exploitation.")
+    text = text.replace("- **Severity**:", claim + "\n- **Severity**:")
+    with pytest.raises(EvidenceError, match="claim|prose"):
+        validate_finding_evidence(text, build_reporting_catalog([source]))

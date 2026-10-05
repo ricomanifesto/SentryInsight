@@ -124,7 +124,8 @@ def _statements(sentence: str) -> list[ExploitationStatement]:
     across sentences/semicolons. Relative ``which`` stays in its original span.
     A shared modal or negation qualifies a bare coordinated predicate; a new
     finite auxiliary starts its own assertion. Epistemic scope ("unknown
-    whether ... and ...") also applies when the CVE is repeated.
+    whether ... and ...") also applies when the CVE is repeated. Adversative
+    ``but`` may retain the subject but always starts a new assertion scope.
     """
     parts = CLAUSE_BOUNDARY.split(sentence)
     statements: list[ExploitationStatement] = []
@@ -135,6 +136,7 @@ def _statements(sentence: str) -> list[ExploitationStatement]:
         if not clause:
             continue
         boundary = " ".join(parts[index - 1].lower().split()) if index else ""
+        additive = boundary in {"and", ", and"}
         coordinate = boundary in {"and", "but", ", and", ", but"}
         predicate = coordinate and bool(PREDICATE.match(clause))
         finite = bool(FINITE_PREDICATE.match(clause))
@@ -149,13 +151,10 @@ def _statements(sentence: str) -> list[ExploitationStatement]:
             subjects = ()
             attribution = "unscoped"
 
-        epistemic = bool(EPISTEMIC.search(clause)) or (
-            epistemic and (boundary in {"and", ", and"} or predicate)
-        )
-        modal = bool(MODAL.search(clause)) or (modal and predicate and not finite)
-        negative = bool(NEGATIVE.search(clause)) or (
-            negative and predicate and not finite
-        )
+        shared_predicate = additive and predicate and not finite
+        epistemic = bool(EPISTEMIC.search(clause)) or (epistemic and additive)
+        modal = bool(MODAL.search(clause)) or (modal and shared_predicate)
+        negative = bool(NEGATIVE.search(clause)) or (negative and shared_predicate)
         status = _clause_status(clause)
         if EXPLOIT.search(clause):
             if epistemic:
