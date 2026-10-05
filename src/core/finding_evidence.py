@@ -26,8 +26,9 @@ NEGATIVE = re.compile(
     r"\b(?:exploit\w* (?:has |have |is |was |were )?not (?:yet |been )*(?:observed|detected|confirmed)|no (?:known exploitation|evidence|signs?|reports?|exploitation)|(?:not|never) (?:yet |been |being |actively |publicly |known to be |observed to be )*(?:exploit\w*|weaponiz\w*)|(?:has|have) not been (?:actively )?(?:exploit\w*|weaponiz\w*)|without (?:evidence|reports?) of exploitation)\b",
     re.I,
 )
+UNCERTAIN_ADVERBS = ("potentially", "likely", "possibly", "probably", "unlikely")
 UNCERTAIN = re.compile(
-    r"\b(?:may|might|could|potential(?:ly)?|likely|possible|risk|proof.of.concept|assessment|unknown|unclear|unconfirmed|unverified|investigat\w*|whether)\b",
+    rf"\b(?:{'|'.join(UNCERTAIN_ADVERBS)}|may|might|could|potential|possible|risk|proof.of.concept|assessment|unknown|unclear|unconfirmed|unverified|investigat\w*|whether)\b",
     re.I,
 )
 CONFIRMED = re.compile(
@@ -42,14 +43,47 @@ CLAUSE_BOUNDARY = re.compile(
     r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)",
     re.I,
 )
-PREDICATE = re.compile(
-    r"^(?:(?:also|currently|now|still|not|never|actively)\s+)*(?:is|are|was|were|has|have|had|may|might|could|can|will|would|be|been|being|exploited|weaponized|affected|vulnerable|exploitable)\b",
-    re.I,
+PREDICATE_MODIFIERS = frozenset(UNCERTAIN_ADVERBS) | {
+    "also",
+    "currently",
+    "now",
+    "still",
+    "not",
+    "never",
+    "actively",
+    "newly",
+    "recently",
+    "widely",
+    "publicly",
+    "successfully",
+}
+FINITE_PREDICATE_HEADS = frozenset(
+    {
+        "is",
+        "are",
+        "was",
+        "were",
+        "has",
+        "have",
+        "had",
+        "may",
+        "might",
+        "could",
+        "can",
+        "will",
+        "would",
+    }
 )
-FINITE_PREDICATE = re.compile(
-    r"^(?:(?:also|currently|now|still)\s+)*(?:is|are|was|were|has|have|had|may|might|could|can|will|would)\b",
-    re.I,
-)
+PREDICATE_HEADS = FINITE_PREDICATE_HEADS | {
+    "be",
+    "been",
+    "being",
+    "exploited",
+    "weaponized",
+    "affected",
+    "vulnerable",
+    "exploitable",
+}
 
 
 class EvidenceError(ValueError):
@@ -119,6 +153,15 @@ def _clause_status(clause: str) -> str:
     return "active" if CONFIRMED.search(clause) else "unknown"
 
 
+def _predicate_head(clause: str) -> str:
+    # Only known modifiers may precede an inherited predicate. In particular,
+    # an arbitrary -ly suffix is not enough: it can also occur in noun subjects.
+    for word in clause.casefold().split():
+        if word not in PREDICATE_MODIFIERS:
+            return word
+    return ""
+
+
 def _statements(sentence: str) -> list[ExploitationStatement]:
     """Track subjects and stance through recognized coordinated predicates.
 
@@ -155,8 +198,9 @@ def _statements(sentence: str) -> list[ExploitationStatement]:
             correlative_scopes.clear()
         additive = relation in {"additive", "correlative"}
         coordinate = relation in {"additive", "correlative", "adversative"}
-        predicate = coordinate and bool(PREDICATE.match(clause))
-        finite = bool(FINITE_PREDICATE.match(clause))
+        head = _predicate_head(clause)
+        predicate = coordinate and head in PREDICATE_HEADS
+        finite = head in FINITE_PREDICATE_HEADS
         mentioned = tuple(extract_cve_ids(clause))
         attribution: Literal["explicit", "coordinated", "unscoped"]
         if mentioned:

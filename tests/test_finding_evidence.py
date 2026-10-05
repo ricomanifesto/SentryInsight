@@ -544,3 +544,32 @@ def test_uncertainty_inside_one_correlative_part_does_not_qualify_both():
     text = text.replace("- **Severity**:", claim + "\n- **Severity**:")
     with pytest.raises(EvidenceError, match="claim|prose"):
         validate_finding_evidence(text, build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    "qualifier", ["potentially", "likely", "possibly", "probably", "unlikely"]
+)
+def test_local_uncertainty_adverbs_preserve_subject_and_publish_as_potential(qualifier):
+    claim = f"{CVE} is not only affected but also {qualifier} exploited in attacks."
+    source = article(
+        claim
+        + "\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    assert assess_exploitation([source], [CVE]).status == "potential"
+    validate_finding_evidence(
+        report("potential", claim), build_reporting_catalog([source])
+    )
+
+
+@pytest.mark.parametrize("modifier", ["newly", "recently"])
+def test_temporal_adverbs_do_not_discard_confirmed_subject(modifier):
+    source = article(
+        f"{CVE} is affected and {modifier} is actively exploited in attacks."
+    )
+    assert assess_exploitation([source], [CVE]).status == "active"
+
+
+def test_a_noun_ending_in_ly_is_not_a_predicate_modifier():
+    source = article(f"{CVE} is affected and family is actively exploited in attacks.")
+    assert assess_exploitation([source], [CVE]).status == "unknown"
