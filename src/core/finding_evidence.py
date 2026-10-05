@@ -2,6 +2,9 @@
 
 Relevance is not confirmation. Ambiguous subject attribution fails closed; a
 model may not discard negative evidence by selecting only a positive excerpt.
+This is a bounded recognition grammar, not a general English parser.
+Unrecognized constructions remain unknown and can block publication; genuine
+source confirmations are not guaranteed to be recognized in every phrasing.
 """
 
 from dataclasses import dataclass
@@ -150,12 +153,12 @@ PREDICATE_ADVERBS = frozenset(
     }
 )
 TIME_UNIT = r"(?:second|minute|hour|day|week|fortnight|month|quarter|year|weekend|night|morning|afternoon|evening)s?"
-WEEKDAY = r"(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)"
+WEEKDAY = r"(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?: (?:morning|afternoon|evening|night))?"
 QUANTITY = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several|many|multiple|numerous|a|an|(?:hundreds|thousands|millions|dozens) of)"
 NOMINAL_ADJUNCT = re.compile(
     rf"(?:(?:the )?(?:last|next|previous|following|this|that|every|each|all) (?:{QUANTITY} )?(?:{TIME_UNIT}|{WEEKDAY})"
     rf"|{QUANTITY} {TIME_UNIT}"
-    rf"|{WEEKDAY}(?: (?:morning|afternoon|evening|night))?"
+    rf"|{WEEKDAY}"
     rf"|(?:(?:more|less|fewer) than |at (?:least|most) |up to )?{QUANTITY} (?:times|occasions))(?= |$)"
 )
 
