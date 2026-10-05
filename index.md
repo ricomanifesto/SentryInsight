@@ -8,7 +8,7 @@ digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-10-0
 
 ## Executive Summary
 
-Three critical vulnerabilities with confirmed active exploitation dominate the current threat landscape. A zero-day in Citrix NetScaler (CVE-2026-88779) has been weaponized in targeted attacks against SAML deployments, prompting emergency patches. Microsoft Exchange Server privilege escalation (CVE-2026-96940) received out-of-band updates after attackers demonstrated authenticated mailbox access. The Rejetto HTTP File Server flaw (CVE-2026-61500) is undergoing active exploitation attempts leveraging predictable session keys for remote code execution.
+The current report covers confirmed exploitation alongside vulnerabilities with no observed exploitation. A zero-day in Citrix NetScaler (CVE-2026-88779) has been weaponized in targeted attacks against SAML deployments, prompting emergency patches. Microsoft issued out-of-band updates for Exchange Server privilege escalation (CVE-2026-96940). The linked report says exploitation has not been observed; Microsoft assesses future exploitation as more likely. The Rejetto HTTP File Server flaw (CVE-2026-61500) is undergoing active exploitation attempts leveraging predictable session keys for remote code execution.
 
 Simultaneously, multiple threat actors are conducting sustained campaigns. China-aligned TA419 is targeting U.S. AI policy experts through adversary-in-the-middle phishing that impersonates legitimate officials and Anthropic employees. The suspected China-linked Warlock group continues weaponizing Microsoft SharePoint vulnerabilities—both older and newer flaws—to disable security tools and deploy ransomware across Portuguese- and Spanish-speaking critical infrastructure, government, and education sectors. The Cling botnet operators are exploiting a now-patched critical Realtek Jungle SDK vulnerability, innovating with STUN-based command-and-control channels.
 
@@ -29,11 +29,15 @@ Law enforcement actions have disrupted two notable operations: the alleged devel
 ### Microsoft Exchange Server Privilege Escalation (CVE-2026-96940)
 - **Description**: Weak authorization in Microsoft Exchange Server allows an authenticated attacker to elevate privileges over a network. The flaw enables attackers to read other users' mailboxes after authenticating with valid credentials.
 - **Impact**: Authenticated attackers can access and read email communications of other users within the same Exchange environment, compromising confidentiality of sensitive communications.
-- **Status**: Out-of-band security updates released by Microsoft. Active exploitation confirmed.
+- **Status**: Microsoft released out-of-band updates. No evidence of exploitation in the wild was reported; the Exploitation More Likely assessment describes risk, not confirmed attacks.
 - **Severity**: high
-- **Exploitation Status**: active
+- **Exploitation Status**: not_observed
 - **Action**: patch
 - **CVE IDs**: CVE-2026-96940
+- **Affected Versions**: Microsoft Exchange Server Subscription Edition RTM; Microsoft Exchange Server 2016 Cumulative Update 23; Microsoft Exchange Server 2019 Cumulative Update 15; Microsoft Exchange Server 2019 Cumulative Update 14
+- **Exceptions**: Exchange Online already received a service-side fix and needs no customer action. Cross-tenant access is not enabled by this flaw.
+- **Recommended Actions**: Install the security updates on affected on-premises Exchange Server deployments.
+- **Vendor Links**: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-96940
 - **Reporting**: [The Hacker News — Microsoft Exchange Flaw Lets Authenticated Attackers Read Other Users' Mailboxes](https://thehackernews.com/2026/10/microsoft-exchange-flaw-lets.html)
 
 ### Rejetto HTTP File Server Session Forgery and RCE (CVE-2026-61500)
@@ -85,7 +89,7 @@ Law enforcement actions have disrupted two notable operations: the alleged devel
 ## Affected Systems and Products
 
 - **Citrix NetScaler ADC and NetScaler Gateway**: Versions vulnerable to CVE-2026-88779 SAML memory overflow; SAML deployments specifically targeted
-- **Microsoft Exchange Server**: Versions affected by CVE-2026-96940 weak authorization flaw; all deployments with authenticated users at risk
+- **Microsoft Exchange Server**: Subscription Edition RTM, 2016 Cumulative Update 23, and 2019 Cumulative Updates 15 and 14 require the security updates for CVE-2026-96940. Exchange Online received a service-side fix and requires no customer action; the flaw does not enable cross-tenant access.
 - **Rejetto HTTP File Server (HFS)**: Instances using vulnerable session key generation; administrative interfaces exposed to session forgery
 - **Dell System Update (DSU) Command-Line Interface**: Deployment tool versions with root privilege escalation flaw; Windows and Linux deployment environments
 - **Realtek Jungle SDK**: Embedded devices and IoT systems incorporating the vulnerable SDK versions; patched versions available
@@ -98,7 +102,7 @@ Law enforcement actions have disrupted two notable operations: the alleged devel
 ## Attack Vectors and Techniques
 
 - **SAML Memory Overflow Exploitation**: Targeted zero-day attacks against Citrix NetScaler SAML authentication endpoints causing denial of service; potential RCE under investigation
-- **Authenticated Privilege Escalation via Weak Authorization**: Valid credentials used to exploit Microsoft Exchange authorization flaws for cross-mailbox access
+- **Authenticated Privilege Escalation via Weak Authorization**: The Exchange flaw could allow cross-mailbox access within the same organization using valid credentials; exploitation in the wild has not been observed.
 - **Session Forgery via Predictable PRNG**: Weak pseudo-random number generation in Rejetto HFS enables administrative session prediction and forgery leading to RCE
 - **CLI Tool Privilege Escalation**: Dell System Update deployment tool exploited for local root privilege escalation
 - **STUN-Based Command and Control**: Cling botnet repurposes legitimate STUN traffic for covert C2 communications, evading traditional network monitoring

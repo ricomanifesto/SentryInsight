@@ -34,7 +34,7 @@ from src.core.report_artifact import (
 PUBLIC_ROOT = "https://ricomanifesto.github.io/SentryInsight/"
 CVE_TEXT_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
 STRUCTURED_FINDING_FIELD_PATTERN = re.compile(
-    r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting)\*\*:",
+    r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Vendor Links)\*\*:",
     re.IGNORECASE,
 )
 BADGE_LABELS = {
@@ -238,8 +238,19 @@ def _finding_heading_html(finding: Finding, claimed_cves: set[str]) -> str:
 
 
 def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> str:
+    vendor = ""
+    if finding.vendor_links:
+        links = ", ".join(
+            f'<a href="{html.escape(url)}" target="_blank" rel="noopener noreferrer">Vendor advisory {index}</a>'
+            for index, url in enumerate(finding.vendor_links, start=1)
+        )
+        vendor = (
+            f'<p class="vendor-guidance"><strong>Vendor guidance:</strong> {links}</p>'
+        )
+    elif finding.affected_versions is not None:
+        vendor = '<p class="vendor-guidance"><strong>Vendor guidance:</strong> Not stated in supplied sources.</p>'
     if not finding.reporting or not digest_issue_url:
-        return ""
+        return vendor
     items = []
     for reference in finding.reporting:
         label = f"{reference.publisher} — {reference.title}"
@@ -255,7 +266,11 @@ def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> s
         )
     return (
         f'<aside class="finding-reporting" aria-label="Reporting for {html.escape(finding.title)}">'
-        "<strong>Reporting</strong><ul>" + "".join(items) + "</ul></aside>\n"
+        "<strong>Reporting</strong><ul>"
+        + "".join(items)
+        + "</ul>"
+        + vendor
+        + "</aside>\n"
     )
 
 

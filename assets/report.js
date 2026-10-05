@@ -94,6 +94,23 @@
     status.hidden = !message;
   }
 
+  function revealFinding(heading) {
+    const disclosure = heading?.querySelector("button.finding-disclosure");
+    if (!disclosure) return;
+    if (disclosure.getAttribute("aria-expanded") === "false") disclosure.click();
+    window.requestAnimationFrame(() => {
+      heading.scrollIntoView({ block: "start" });
+      disclosure.focus({ preventScroll: true });
+    });
+  }
+
+  function receiveFindingHash() {
+    let id;
+    try { id = decodeURIComponent(window.location.hash.slice(1)); }
+    catch { return; }
+    revealFinding(document.getElementById(id));
+  }
+
   function receiveCveHandoff(metadata) {
     document.querySelectorAll('.finding-heading[data-handoff-match="true"]').forEach((heading) => {
       heading.removeAttribute("data-handoff-match");
@@ -114,14 +131,10 @@
       return;
     }
 
-    const disclosure = heading.querySelector("button.finding-disclosure");
-    if (disclosure?.getAttribute("aria-expanded") === "false") disclosure.click();
+    revealFinding(heading);
     heading.dataset.handoffMatch = "true";
     showHandoffStatus(`Opened finding for ${cve}: ${finding.title}`);
-    window.requestAnimationFrame(() => {
-      heading.scrollIntoView({ block: "start" });
-      disclosure?.focus({ preventScroll: true });
-    });
+
   }
 
   function enhanceExecutiveSummary() {
@@ -213,7 +226,20 @@
   enhanceExecutiveSummary();
   setupFindings();
   receiveCveHandoff(metadata);
-  window.addEventListener("hashchange", () => receiveCveHandoff(metadata));
+  receiveFindingHash();
+  window.addEventListener("hashchange", () => {
+    receiveCveHandoff(metadata);
+    receiveFindingHash();
+  });
+  document.querySelectorAll('nav[aria-label="Report sections"] a').forEach((link) => {
+    link.addEventListener("click", () => {
+      // Same-fragment clicks do not dispatch hashchange. Keep native history.
+      let id;
+      try { id = decodeURIComponent(link.hash.slice(1)); }
+      catch { return; }
+      revealFinding(document.getElementById(id));
+    });
+  });
   renderAge(metadata);
   setupScrollSpy();
 })();

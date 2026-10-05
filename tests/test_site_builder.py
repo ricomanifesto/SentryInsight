@@ -427,3 +427,13 @@ def test_site_check_detects_generated_output_drift(tmp_path):
         output_path=output_path,
         template_path=ROOT / "site",
     ) == ["index.html"]
+
+
+def test_vendor_advisory_remains_a_link_instead_of_an_embedded_nvd_cve(tmp_path):
+    source = REPORT.replace(
+        "- **CVE IDs**:",
+        "- **Vendor Links**: https://vendor.example/security/CVE-2026-1234\n- **CVE IDs**:",
+        1,
+    )
+    html = (build_fixture(tmp_path, source) / "index.html").read_text()
+    assert 'href="https://vendor.example/security/CVE-2026-1234"' in html

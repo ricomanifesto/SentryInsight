@@ -46,6 +46,7 @@ def news_article():
         "link": "https://example.test/news?edition=1#details",
         "summary": "Security events reveal active exploitation.",
         "content": "Malware is exploiting CVE-2026-1234.",
+        "content_kind": "article",
         "cves": ["CVE-2026-1234"],
         "source": "Example Source",
     }

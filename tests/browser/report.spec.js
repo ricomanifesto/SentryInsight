@@ -509,3 +509,39 @@ test("renders a phone dark-mode report", async ({ page }) => {
   });
   expect(failures).toEqual([]);
 });
+
+for (const width of [1440, 390]) {
+  test(`Contents and hash navigation reveal collapsed findings at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/index.html');
+    const { findings } = await readReportMetadata(page);
+    const target = findings[0];
+    const disclosure = page.locator(`#${target.slug} button.finding-disclosure`);
+    const body = page.locator(`#${target.slug}-details`);
+    const nav = page.locator(`nav[aria-label="Report sections"] a[href="#${target.slug}"]:visible`);
+    for (let repeat = 0; repeat < 2; repeat++) {
+      await disclosure.click();
+      await expect(body).toBeHidden();
+      if (width < 600) await page.locator('details.mobile-toc').evaluate(el => { el.open = true; });
+      await nav.click();
+      await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+      await expect(body).toBeVisible();
+      await expect(disclosure).toBeFocused();
+    }
+    await disclosure.click();
+    await page.evaluate(() => { window.location.hash = 'executive-summary'; });
+    await page.evaluate(slug => { window.location.hash = slug; }, target.slug);
+    await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+    await expect(disclosure).toBeFocused();
+  });
+}
+
+test('vendor guidance links retain their supplied URL in the finding', async ({page}) => {
+  await page.goto('/index.html');
+  const metadata = await readReportMetadata(page);
+  for (const finding of metadata.findings) {
+    for (const url of finding.vendor_links || []) {
+      await expect(page.locator(`#${finding.slug}-details .vendor-guidance a[href="${url}"]`)).toBeVisible();
+    }
+  }
+});

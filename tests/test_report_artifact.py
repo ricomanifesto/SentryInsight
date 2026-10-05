@@ -153,3 +153,12 @@ def test_parse_report_artifact_requires_explicit_time_metadata(metadata):
 
     with pytest.raises(ReportArtifactError, match=metadata):
         parse_report_artifact(malformed)
+
+
+def test_version_three_requires_per_finding_details():
+    source = REPORT.replace("schema_version: 1", "schema_version: 3").replace(
+        "generated_at: 2026-08-13T13:21:22Z",
+        "generated_at: 2026-08-13T13:21:22Z\ndigest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-13/",
+    )
+    with pytest.raises(ReportArtifactError, match="Reporting|Affected Versions"):
+        parse_report_artifact(source)

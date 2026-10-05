@@ -2,6 +2,8 @@ import logging
 from typing import List, Dict, Any
 import httpx
 import feedparser
+
+from .article_content import extract_article_content, normalize_feed_content
 from datetime import datetime
 
 from ..core.article_policy import (
@@ -107,17 +109,21 @@ class SentryDigestFeedClient:
             logger.info(f"Enriching article: {article.get('title', '')}")
 
             # Skip if the article already has content
-            if "content" in article and article["content"]:
+            if article.get("content_kind") == "article" and article.get("content"):
                 enriched_articles.append(article)
                 continue
 
-            # Combine title and summary for basic content
-            full_content = article.get("title", "") + "\n"
+            # Keep the complete feed body if static article retrieval fails.
+            full_content = normalize_feed_content(article.get("content"))
+            if not full_content:
+                full_content = "# " + article.get("title", "") + "\n"
 
             # Add summary if available
-            if "summary" in article and article["summary"]:
-                full_content += article["summary"] + "\n"
+            if not article.get("content") and article.get("summary"):
+                full_content += normalize_feed_content(article["summary"]) + "\n"
 
+            article["content_kind"] = "feed"
+            article["source_links"] = []
             article_link = article.get("link", "")
             if not article_link:
                 article["content"] = full_content
@@ -134,8 +140,14 @@ class SentryDigestFeedClient:
                     response = await client.get(article_link)
 
                     if response.status_code == 200:
-                        # Add full article content
-                        article["content"] = full_content + "\n\n" + response.text
+                        if is_virtual_event_promotion({"content": response.text}):
+                            continue
+                        extracted = extract_article_content(response.text, article_link)
+                        article["content"] = extracted.text or full_content
+                        article["content_kind"] = (
+                            "article" if extracted.text else "feed"
+                        )
+                        article["source_links"] = list(extracted.links)
                     else:
                         # Use what we have if we can't fetch the full article
                         logger.warning(

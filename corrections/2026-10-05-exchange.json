@@ -1,0 +1,31 @@
+{
+  "report_date": "2026-10-05",
+  "source_url": "https://thehackernews.com/2026/10/microsoft-exchange-flaw-lets.html",
+  "vendor_url": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-96940",
+  "source_retrieved_on": "2026-10-05",
+  "scope": "Exchange exploitation claims, affected versions and exceptions only; other findings have not been revalidated. Report generation timestamp remains unchanged.",
+  "source_sha256": "da9893f7fc9ea5f2af29888804fed225ba661d69243e0fef2e73c431d1a57251",
+  "corrected_sha256": "ffc32b506da40e4571dcf430f8635d852c2c3dcd355ad24e96f4bbdf789d226a",
+  "replacements": [
+    {
+      "before": "Three critical vulnerabilities with confirmed active exploitation dominate the current threat landscape.",
+      "after": "The current report covers confirmed exploitation alongside vulnerabilities with no observed exploitation."
+    },
+    {
+      "before": "Microsoft Exchange Server privilege escalation (CVE-2026-96940) received out-of-band updates after attackers demonstrated authenticated mailbox access.",
+      "after": "Microsoft issued out-of-band updates for Exchange Server privilege escalation (CVE-2026-96940). The linked report says exploitation has not been observed; Microsoft assesses future exploitation as more likely."
+    },
+    {
+      "before": "- **Status**: Out-of-band security updates released by Microsoft. Active exploitation confirmed.\n- **Severity**: high\n- **Exploitation Status**: active\n- **Action**: patch\n- **CVE IDs**: CVE-2026-96940",
+      "after": "- **Status**: Microsoft released out-of-band updates. No evidence of exploitation in the wild was reported; the Exploitation More Likely assessment describes risk, not confirmed attacks.\n- **Severity**: high\n- **Exploitation Status**: not_observed\n- **Action**: patch\n- **CVE IDs**: CVE-2026-96940\n- **Affected Versions**: Microsoft Exchange Server Subscription Edition RTM; Microsoft Exchange Server 2016 Cumulative Update 23; Microsoft Exchange Server 2019 Cumulative Update 15; Microsoft Exchange Server 2019 Cumulative Update 14\n- **Exceptions**: Exchange Online already received a service-side fix and needs no customer action. Cross-tenant access is not enabled by this flaw.\n- **Recommended Actions**: Install the security updates on affected on-premises Exchange Server deployments.\n- **Vendor Links**: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-96940"
+    },
+    {
+      "before": "- **Microsoft Exchange Server**: Versions affected by CVE-2026-96940 weak authorization flaw; all deployments with authenticated users at risk",
+      "after": "- **Microsoft Exchange Server**: Subscription Edition RTM, 2016 Cumulative Update 23, and 2019 Cumulative Updates 15 and 14 require the security updates for CVE-2026-96940. Exchange Online received a service-side fix and requires no customer action; the flaw does not enable cross-tenant access."
+    },
+    {
+      "before": "- **Authenticated Privilege Escalation via Weak Authorization**: Valid credentials used to exploit Microsoft Exchange authorization flaws for cross-mailbox access",
+      "after": "- **Authenticated Privilege Escalation via Weak Authorization**: The Exchange flaw could allow cross-mailbox access within the same organization using valid credentials; exploitation in the wild has not been observed."
+    }
+  ]
+}

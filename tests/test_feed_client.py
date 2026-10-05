@@ -95,7 +95,7 @@ def test_enrich_article_content_skips_full_fetch_when_link_is_missing(monkeypatc
         )
     )
 
-    assert articles[0]["content"] == "Sparse article\nSummary only\n"
+    assert articles[0]["content"] == "# Sparse article\nSummary only\n"
     assert TrackingArticleClient.called is False
 
 
