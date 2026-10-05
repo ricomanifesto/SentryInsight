@@ -485,3 +485,62 @@ def test_adversative_assertions_cannot_hide_unsupported_report_claims(claim):
     text = text.replace("- **Severity**:", claim + "\n- **Severity**:")
     with pytest.raises(EvidenceError, match="claim|prose"):
         validate_finding_evidence(text, build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize("opener", ["not only", "not just", "not merely"])
+@pytest.mark.parametrize(
+    "scope,expected",
+    [
+        ("It is unknown whether", "unknown"),
+        ("It is possible that", "potential"),
+        ("", "active"),
+    ],
+)
+def test_correlative_predicates_keep_their_shared_scope(opener, scope, expected):
+    source = article(
+        f"{scope} {CVE} is {opener} actively exploited but also weaponized in the wild."
+    )
+    assert assess_exploitation([source], [CVE]).status == expected
+
+
+def test_correlative_modal_scope_applies_to_repeated_finite_predicate():
+    source = article(
+        f"{CVE} might not only be actively exploited but also is weaponized in the wild."
+    )
+    assert assess_exploitation([source], [CVE]).status == "potential"
+
+
+def test_correlative_pair_does_not_capture_a_later_adversative():
+    source = article(
+        f"It is unknown whether {CVE} is not only exploitable but also affected, but is now actively exploited in attacks."
+    )
+    assert assess_exploitation([source], [CVE]).status == "active"
+
+
+def test_uncertain_correlative_evidence_cannot_publish_as_active():
+    source = article(
+        f"It is unknown whether {CVE} is not only actively exploited but also weaponized in the wild.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="unsupported exploitation status"):
+        validate_finding_evidence(report(), build_reporting_catalog([source]))
+    validate_finding_evidence(
+        report(
+            "unknown",
+            f"It is unknown whether {CVE} is not only actively exploited but also weaponized in the wild.",
+        ),
+        build_reporting_catalog([source]),
+    )
+
+
+def test_uncertainty_inside_one_correlative_part_does_not_qualify_both():
+    claim = f"{CVE} is not only potentially exploited but also is actively exploited in attacks."
+    assert assess_exploitation([article(claim)], [CVE]).status == "active"
+    source = article(
+        f"No evidence that {CVE} has been exploited.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    text = report("not_observed", "No evidence of exploitation.")
+    text = text.replace("- **Severity**:", claim + "\n- **Severity**:")
+    with pytest.raises(EvidenceError, match="claim|prose"):
+        validate_finding_evidence(text, build_reporting_catalog([source]))

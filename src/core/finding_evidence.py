@@ -37,12 +37,13 @@ CONFIRMED = re.compile(
 EXPLOIT = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
 EPISTEMIC = re.compile(r"\b(?:unknown|unclear|unconfirmed|unverified|whether)\b", re.I)
 MODAL = re.compile(r"\b(?:may|might|could)\b", re.I)
+CORRELATIVE_START = re.compile(r"\bnot (?:only|just|merely|simply)\b", re.I)
 CLAUSE_BOUNDARY = re.compile(
     r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)",
     re.I,
 )
 PREDICATE = re.compile(
-    r"^(?:(?:also|currently|now|still|not|never|actively)\s+)*(?:is|are|was|were|has|have|had|may|might|could|can|will|would|be|been|being|exploited|weaponized)\b",
+    r"^(?:(?:also|currently|now|still|not|never|actively)\s+)*(?:is|are|was|were|has|have|had|may|might|could|can|will|would|be|been|being|exploited|weaponized|affected|vulnerable|exploitable)\b",
     re.I,
 )
 FINITE_PREDICATE = re.compile(
@@ -70,6 +71,7 @@ class ExploitationStatement:
     text: str
     cves: tuple[str, ...]
     attribution: Literal["explicit", "coordinated", "unscoped"]
+    relation: Literal["root", "additive", "adversative", "correlative", "boundary"]
     status: str
 
 
@@ -125,19 +127,34 @@ def _statements(sentence: str) -> list[ExploitationStatement]:
     A shared modal or negation qualifies a bare coordinated predicate; a new
     finite auxiliary starts its own assertion. Epistemic scope ("unknown
     whether ... and ...") also applies when the CVE is repeated. Adversative
-    ``but`` may retain the subject but always starts a new assertion scope.
+    ``but`` may retain the subject but starts a new assertion scope. Paired
+    ``not only ... but [also]`` is correlative addition and keeps its opener's
+    scope; consuming the pair lets a later adversative start a new assertion.
     """
     parts = CLAUSE_BOUNDARY.split(sentence)
     statements: list[ExploitationStatement] = []
     subjects: tuple[str, ...] = ()
     epistemic = modal = negative = False
+    correlative_scopes: list[tuple[bool, bool, bool]] = []
     for index in range(0, len(parts), 2):
         clause = parts[index].strip()
         if not clause:
             continue
         boundary = " ".join(parts[index - 1].lower().split()) if index else ""
-        additive = boundary in {"and", ", and"}
-        coordinate = boundary in {"and", "but", ", and", ", but"}
+        relation: Literal["root", "additive", "adversative", "correlative", "boundary"]
+        correlative_scope = None
+        if boundary in {"but", ", but"} and correlative_scopes:
+            relation = "correlative"
+            correlative_scope = correlative_scopes.pop()
+        elif boundary in {"but", ", but"}:
+            relation = "adversative"
+        elif boundary in {"and", ", and"}:
+            relation = "additive"
+        else:
+            relation = "boundary" if index else "root"
+            correlative_scopes.clear()
+        additive = relation in {"additive", "correlative"}
+        coordinate = relation in {"additive", "correlative", "adversative"}
         predicate = coordinate and bool(PREDICATE.match(clause))
         finite = bool(FINITE_PREDICATE.match(clause))
         mentioned = tuple(extract_cve_ids(clause))
@@ -152,9 +169,15 @@ def _statements(sentence: str) -> list[ExploitationStatement]:
             attribution = "unscoped"
 
         shared_predicate = additive and predicate and not finite
-        epistemic = bool(EPISTEMIC.search(clause)) or (epistemic and additive)
-        modal = bool(MODAL.search(clause)) or (modal and shared_predicate)
-        negative = bool(NEGATIVE.search(clause)) or (negative and shared_predicate)
+        if correlative_scope is not None:
+            inherited_epistemic, inherited_modal, inherited_negative = correlative_scope
+        else:
+            inherited_epistemic = epistemic and additive
+            inherited_modal = modal and shared_predicate
+            inherited_negative = negative and shared_predicate
+        epistemic = bool(EPISTEMIC.search(clause)) or inherited_epistemic
+        modal = bool(MODAL.search(clause)) or inherited_modal
+        negative = bool(NEGATIVE.search(clause)) or inherited_negative
         status = _clause_status(clause)
         if EXPLOIT.search(clause):
             if epistemic:
@@ -163,7 +186,20 @@ def _statements(sentence: str) -> list[ExploitationStatement]:
                 status = "not_observed"
             elif modal:
                 status = "potential"
-        statements.append(ExploitationStatement(clause, subjects, attribution, status))
+        for opener in CORRELATIVE_START.finditer(clause):
+            # Only qualifiers governing the pair transfer to its second part.
+            # A qualifier inside the first constituent belongs to that part.
+            prefix = clause[: opener.start()]
+            correlative_scopes.append(
+                (
+                    inherited_epistemic or bool(EPISTEMIC.search(prefix)),
+                    inherited_modal or bool(UNCERTAIN.search(prefix)),
+                    inherited_negative or bool(NEGATIVE.search(prefix)),
+                )
+            )
+        statements.append(
+            ExploitationStatement(clause, subjects, attribution, relation, status)
+        )
     return statements
 
 
