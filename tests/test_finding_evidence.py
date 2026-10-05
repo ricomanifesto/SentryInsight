@@ -670,6 +670,10 @@ def test_lexical_assertion_after_a_new_subject_cannot_inherit_the_cve(subject, v
         "100 times last week",
         "last Friday",
         "again",
+        "Monday",
+        "Monday morning",
+        "overnight",
+        "hundreds of times",
     ],
 )
 def test_nominal_time_and_frequency_adjuncts_can_publish(adjunct):
