@@ -400,13 +400,26 @@ def _plain(text: str) -> str:
 
 @dataclass(frozen=True)
 class VersionClause:
-    kind: Literal["affected", "unaffected", "recommendation", "information", "list"]
+    kind: Literal[
+        "affected",
+        "unaffected",
+        "audience",
+        "exception",
+        "recommendation",
+        "information",
+        "list",
+    ]
     text: str
 
 
 VERSION_AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
+VERSION_FINITE_PREDICATE = (
+    r"\b(?:"
+    + "|".join(sorted(FINITE_PREDICATE_HEADS | {"must", "should", "remain", "remains"}))
+    + r")\b"
+)
 VERSION_AUDIENCE_QUALIFIER = re.compile(
-    rf"(?:{VERSION_AUDIENCE}) (?:only|with .+)", re.I
+    rf"(?!.*{VERSION_FINITE_PREDICATE})(?:{VERSION_AUDIENCE}) (?:only|with .+)", re.I
 )
 VERSION_AFFECTED_CLAUSE = re.compile(
     rf"\b(?:{VERSION_AUDIENCE}) of (?P<versions>.+?) "
@@ -425,24 +438,36 @@ VERSION_INFORMATION_CLAUSE = re.compile(
     r"(?:available|provided|published)\b.*",
     re.I,
 )
+VERSION_AUDIENCE_ASSERTION = re.compile(
+    rf"\b(?P<audience>(?:{VERSION_AUDIENCE}) (?:only|with .+?)) "
+    r"(?:are|were|remain) (?P<qualifiers>(?:(?:also|still|not|no longer) )*)"
+    r"(?P<state>affected|impacted|vulnerable|unaffected)\b",
+    re.I,
+)
+
+
+def _version_assertion_is_negative(match: re.Match[str]) -> bool:
+    negated = bool(re.search(r"\b(?:not|no longer)\b", match["qualifiers"], re.I))
+    if negated and match["state"].casefold() == "unaffected":
+        raise EvidenceError("ambiguous affected-version polarity")
+    return negated or match["state"].casefold() == "unaffected"
 
 
 def _version_clause(text: str) -> VersionClause:
     """Classify complete clauses before interpreting their version constraints."""
     affected = VERSION_AFFECTED_CLAUSE.fullmatch(text)
     if affected:
-        negated = bool(
-            re.search(r"\b(?:not|no longer)\b", affected["qualifiers"], re.I)
-        )
-        if negated and affected["state"].casefold() == "unaffected":
-            raise EvidenceError("ambiguous affected-version polarity")
         return VersionClause(
-            (
-                "unaffected"
-                if negated or affected["state"].casefold() == "unaffected"
-                else "affected"
-            ),
+            "unaffected" if _version_assertion_is_negative(affected) else "affected",
             affected["versions"],
+        )
+    audience = VERSION_AUDIENCE_ASSERTION.fullmatch(text)
+    if audience:
+        if not VERSION_AUDIENCE_QUALIFIER.fullmatch(audience["audience"]):
+            raise EvidenceError("ambiguous affected-version audience")
+        return VersionClause(
+            "exception" if _version_assertion_is_negative(audience) else "audience",
+            text,
         )
     recommendation = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
     information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
@@ -451,12 +476,19 @@ def _version_clause(text: str) -> VersionClause:
             return VersionClause("recommendation", text)
         if information:
             return VersionClause("information", text)
+    if re.search(
+        rf"\b(?:{VERSION_AUDIENCE}) (?:only\b|with\b).*{VERSION_FINITE_PREDICATE}",
+        text,
+        re.I,
+    ):
+        raise EvidenceError("ambiguous affected-version audience predicate")
     # Recognizable clauses left inside a numeric fragment are not list entries.
     # Reuse the same grammar so an unknown separator cannot bypass role checks.
     if re.match(rf"(?:{VERSION_AUDIENCE}) of\b", text, re.I) or any(
         pattern.search(text)
         for pattern in (
             VERSION_AFFECTED_CLAUSE,
+            VERSION_AUDIENCE_ASSERTION,
             VERSION_RECOMMENDATION_CLAUSE,
             VERSION_INFORMATION_CLAUSE,
         )
@@ -508,33 +540,41 @@ def _version_constraints(
         text.strip().rstrip("."),
         flags=re.I,
     )
-    clauses = [parts[0]]
+    clauses = [("", parts[0])]
     for index in range(1, len(parts), 2):
         separator, candidate = parts[index : index + 2]
         if any(
             pattern.fullmatch(candidate.strip())
             for pattern in (
                 VERSION_AFFECTED_CLAUSE,
+                VERSION_AUDIENCE_ASSERTION,
                 VERSION_RECOMMENDATION_CLAUSE,
                 VERSION_INFORMATION_CLAUSE,
             )
         ):
-            clauses.append(candidate)
+            clauses.append((separator, candidate))
         else:
             # An audience restriction is part of the complete constraint.
-            clauses[-1] += separator + candidate
+            prefix, previous = clauses[-1]
+            clauses[-1] = (prefix, previous + separator + candidate)
     entries: list[str] = []
     exclusions: list[str] = []
-    for text in clauses:
+    for separator, text in clauses:
         if not text.strip():
             continue
         clause = _version_clause(text.strip())
-        if require_affected and clause.kind not in {"affected", "list"}:
+        if require_affected and clause.kind not in {"affected", "audience", "list"}:
             raise EvidenceError("Affected Versions contains a non-affected clause")
         if clause.kind in {"affected", "list"}:
             entries.extend(_version_list_entries(clause.text))
+        elif clause.kind == "audience":
+            if not entries:
+                raise EvidenceError("ambiguous affected-version audience")
+            entries[-1] += separator + clause.text
         elif clause.kind == "unaffected":
             exclusions.extend(_version_list_entries(clause.text))
+        elif clause.kind == "exception":
+            exclusions.append(clause.text)
     return entries, exclusions
 
 

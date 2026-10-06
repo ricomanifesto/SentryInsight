@@ -1032,6 +1032,52 @@ def test_dash_audience_qualifier_remains_part_of_the_version_constraint(
         validate_finding_evidence(report(), catalog)
 
 
+@pytest.mark.parametrize("separator", [", ", "; ", " and ", " or "])
+@pytest.mark.parametrize("predicate", ["are not affected", "remain unaffected"])
+def test_qualified_audience_exception_is_not_an_affected_version(separator, predicate):
+    text = f"Example Server 2.3{separator}users with premium licenses {predicate}"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {text}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(), catalog)
+    with pytest.raises(EvidenceError, match="non-affected"):
+        validate_finding_evidence(report(**{"Affected Versions": text}), catalog)
+
+
+@pytest.mark.parametrize("separator", [", ", "; ", " and ", " or "])
+def test_positive_audience_assertion_preserves_the_qualified_constraint(separator):
+    text = f"Example Server 2.3{separator}users with premium licenses are affected"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {text}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(**{"Affected Versions": text}), catalog)
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)
+
+
+@pytest.mark.parametrize("separator", [", ", " — ", " / "])
+@pytest.mark.parametrize(
+    "predicate",
+    ["are never affected", "are not currently affected", "may not be affected"],
+)
+def test_unrecognized_audience_predicates_cannot_fall_through_as_version_text(
+    separator, predicate
+):
+    text = f"Example Server 2.3{separator}users with premium licenses {predicate}"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {text}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": text}), build_reporting_catalog([source])
+        )
+
+
 @pytest.mark.parametrize("separator", [" / ", " | ", " (", " : "])
 @pytest.mark.parametrize(
     "clause",
