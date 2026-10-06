@@ -750,6 +750,10 @@ def test_copied_vendor_links_share_the_catalog_url_identity(link):
         "or higher",
         "and any earlier versions",
         "or all subsequent releases",
+        "and up",
+        "or greater",
+        "and onwards",
+        "or less",
     ],
 )
 def test_inline_version_range_cannot_be_narrowed(qualifier):
@@ -793,6 +797,7 @@ def test_version_prefix_does_not_satisfy_a_distinct_source_entry(version_list):
         "customers should install the update",
         "admins must patch immediately",
         "further details are available from the vendor",
+        "customers should install update 2.4",
     ],
 )
 def test_unrelated_clause_ends_an_inline_version_list(continuation):
@@ -801,3 +806,38 @@ def test_unrelated_clause_ends_an_inline_version_list(continuation):
         source_links=["https://example.test/vendor"],
     )
     validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize("cue", ["Affected versions: ", ""])
+def test_version_prefix_cannot_add_an_unsupported_version(cue):
+    source = article(
+        f"{CVE} is actively exploited.\n\n{cue}Example Server 1.0.1\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Example Server 1.0.1"}), catalog
+    )
+    with pytest.raises(EvidenceError, match="source-supported|unsupported"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": "Example Server 1.0.1; Example Server 1.0"}),
+            catalog,
+        )
+
+
+@pytest.mark.parametrize(
+    "tail",
+    [
+        "and successor releases",
+        "or successive generations",
+        "and versions that are earlier",
+        "or those that are newer",
+    ],
+)
+def test_ambiguous_version_tail_cannot_be_silently_discarded(tail):
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3 {tail}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous"):
+        validate_finding_evidence(report(), build_reporting_catalog([source]))

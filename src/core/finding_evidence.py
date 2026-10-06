@@ -399,7 +399,7 @@ def _plain(text: str) -> str:
 
 
 def _version_entries(text: str) -> list[str]:
-    """Keep recognized range tails and stop at unrelated nonnumeric clauses."""
+    """Keep range tails, stop at clear clauses, and reject ambiguous tails."""
     parts = re.split(r"([,;]|\s+(?:and|or)\s+)", text.strip().rstrip("."), flags=re.I)
     entries: list[str] = []
     for index in range(0, len(parts), 2):
@@ -408,14 +408,21 @@ def _version_entries(text: str) -> list[str]:
             continue
         qualifier = re.match(
             r"(?:(?:all|any|the|other)\s+)*(?:(?:versions?|releases?|builds?)\s+)?"
-            r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior|previous|subsequent)\b",
+            r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior|previous|subsequent|up|down|greater|less|lesser|onwards?|beyond)\b",
             entry,
             re.I,
         )
         if entries and qualifier:
             entries[-1] += parts[index - 1] + entry
-        elif entries and not re.search(r"\d|\bRTM\b", entry, re.I):
+        elif entries and re.match(
+            r"(?:(?:customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you)\b|(?:further |more )?(?:details|information)\b)"
+            r".*?\b(?:is|are|was|were|has|have|had|should|must|can|could|will|would|needs?|recommends?|install|patch|upgrade)\b",
+            entry,
+            re.I,
+        ):
             break
+        elif entries and not re.search(r"\d|\bRTM\b", entry, re.I):
+            raise EvidenceError("ambiguous affected-version continuation")
         else:
             entries.append(entry)
     return entries
@@ -566,6 +573,10 @@ def validate_finding_evidence(
             raise EvidenceError(
                 f"{title}: Affected Versions omits supplied version list entries"
             )
+        if version_lines and reported_versions - {
+            _plain(line) for line in version_lines
+        }:
+            raise EvidenceError(f"{title}: unsupported affected-version entry")
         for name in DETAIL_FIELDS:
             value = fields.get(name, "")
             if not value:
@@ -592,6 +603,16 @@ def validate_finding_evidence(
                     raise EvidenceError(f"{title}: unsupported vendor link") from exc
                 if any(entry not in links for entry in normalized):
                     raise EvidenceError(f"{title}: unsupported vendor link")
+            elif name == "Affected Versions" and any(
+                not re.search(
+                    rf"(?<!\w){re.escape(_plain(entry))}(?![\w+-]|\.\w|/\w)",
+                    _plain(scoped),
+                )
+                for entry in entries
+            ):
+                raise EvidenceError(
+                    f"{title}: {name} must preserve exact source-supported details"
+                )
             elif any(_plain(entry) not in _plain(scoped) for entry in entries):
                 raise EvidenceError(
                     f"{title}: {name} must preserve exact source-supported details"
