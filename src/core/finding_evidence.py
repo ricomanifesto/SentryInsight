@@ -643,8 +643,10 @@ VERSION_AUDIENCE_ASSERTION = re.compile(
     re.I,
 )
 VERSION_AFFECTED_PREDICATE = re.compile(
-    r"\b(?:is|are|was|were|remains?) "
-    r"(?:(?:also|still|not|no longer) )*"
+    r"\b(?:is|are|was|were|remain(?:s|ed)?|becomes?|became|gets?|got|"
+    r"has|have|had|do|does|did|will|would|can|could|may|might|must|shall|should|[a-z]+n['’]t)"
+    r"(?: (?:have|be|been|being|remain|remained|also|still|not|never|no longer|"
+    r"already|currently|now|yet|ever|[a-z]+ly))* "
     r"(?:affected|impacted|vulnerable|unaffected)\b",
     re.I,
 )
@@ -679,10 +681,17 @@ def _version_clause(text: str) -> VersionClause:
     # valid qualifiers in advice ("on affected systems").
     if VERSION_AFFECTED_PREDICATE.search(text):
         raise EvidenceError("ambiguous affected-version clause")
-    if VERSION_RECOMMENDATION_CLAUSE.fullmatch(text):
-        return VersionClause("recommendation", text)
-    if VERSION_INFORMATION_CLAUSE.fullmatch(text):
-        return VersionClause("information", text)
+    recommendation = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
+    information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
+    if recommendation or information:
+        # Known independent clauses were separated by _version_clauses. A
+        # remaining structural boundary is ambiguous; never let the broad
+        # advice/information tail swallow it based on a finite-verb vocabulary.
+        if re.search(r"[;|—–]|\s/\s|\s-\s", text):
+            raise EvidenceError("ambiguous affected-version clause")
+        return VersionClause(
+            "recommendation" if recommendation else "information", text
+        )
     if re.search(
         rf"\b(?:{VERSION_AUDIENCE}) (?:only\b|with\b).*{VERSION_FINITE_PREDICATE}",
         text,

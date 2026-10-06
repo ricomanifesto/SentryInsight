@@ -2044,10 +2044,63 @@ def test_recommendation_qualifiers_do_not_hide_a_separate_version_assertion():
 
 @pytest.mark.parametrize("separator", [" / ", " | ", "; "])
 @pytest.mark.parametrize(
-    "predicate", ["is affected", "are unaffected", "was impacted", "remains vulnerable"]
+    "predicate",
+    [
+        "is affected",
+        "are unaffected",
+        "was impacted",
+        "remains vulnerable",
+        "will be affected",
+        "has been affected",
+        "may have been impacted",
+        "will not be affected",
+        "has not been vulnerable",
+        "could still be affected",
+        "would have remained unaffected",
+        "does not remain affected",
+        "won't be affected",
+        "hasn't been affected",
+        "isn't affected",
+        "becomes affected",
+    ],
 )
 def test_advice_cannot_hide_unclassified_version_first_assertions(separator, predicate):
     statement = f"Customers should install Example Server 2019 Cumulative Update 16 on affected systems{separator}Example Server 2019 Cumulative Update 15 {predicate}."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous affected-version clause"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": "Not stated in supplied sources.",
+                    "Recommended Actions": statement,
+                }
+            ),
+            build_reporting_catalog([source]),
+        )
+
+
+@pytest.mark.parametrize(
+    "predicate",
+    [
+        "will be affected",
+        "has been affected",
+        "may have been impacted",
+        "will not be affected",
+        "has not been vulnerable",
+        "could still be affected",
+        "would have remained unaffected",
+        "does not remain affected",
+        "won't be affected",
+        "hasn't been affected",
+        "isn't affected",
+        "becomes affected",
+    ],
+)
+def test_auxiliary_assertions_in_unclassified_conjunctions_fail_closed(predicate):
+    statement = f"Customers should install Example Server 2019 Cumulative Update 16 on affected systems and Example Server 2019 Cumulative Update 15 {predicate}."
     source = article(
         f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
         source_links=["https://example.test/vendor"],
