@@ -249,6 +249,14 @@ class DetailSpan:
     text: str
     role: Literal["heading", "body", "boundary"]
     fields: tuple[str, ...] = ()
+    source_block: str = ""
+
+
+def _recommendation_text(text: str) -> str:
+    text = _plain(text)
+    # A terminal sentence period is optional in the report field. Question
+    # marks, exclamations and ellipses remain part of the source statement.
+    return text[:-1] if text.endswith(".") and not text.endswith("..") else text
 
 
 def _validate_recommendation_statements(
@@ -256,12 +264,14 @@ def _validate_recommendation_statements(
 ) -> None:
     """Match complete source statements before interpreting field delimiters.
 
+    Original source paragraphs/list items own their internal punctuation and
+    audience qualifiers; sentence splitting cannot trim those boundaries.
     Source statements own their internal semicolons. Longest matching statements
     are consumed first, so a delimiter inside a statement is never mistaken for
     the delimiter between two report entries.
     """
     required = {
-        _plain(span.text).rstrip(".!?")
+        _recommendation_text(span.source_block or span.text)
         for span in spans
         if span.role == "body" and "Recommended Actions" in span.fields
     }
@@ -272,7 +282,7 @@ def _validate_recommendation_statements(
         for statement in candidates:
             if not remaining.startswith(statement):
                 continue
-            delimiter = re.match(r"[.!?]*(?:\s*;\s*|$)", remaining[len(statement) :])
+            delimiter = re.match(r"\.?(?:\s*;\s*|$)", remaining[len(statement) :])
             if delimiter:
                 remaining = remaining[len(statement) + delimiter.end() :]
                 break
@@ -284,7 +294,7 @@ def _validate_recommendation_statements(
     # from another source; do not require duplicated clauses in that case.
     if any(
         not re.search(
-            rf"(?:^|;\s*){re.escape(statement)}[.!?]*(?=\s*;|$)", normalized_value
+            rf"(?:^|;\s*){re.escape(statement)}\.?(?=\s*;|$)", normalized_value
         )
         for statement in required
     ):
@@ -336,11 +346,22 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
         for sentence in _sentences(line):
             mentioned = set(extract_cve_ids(sentence))
             selected = mentioned <= wanted if mentioned and wanted else owned
+            body_fields = _detail_roles(sentence) or (
+                sections[-1][2] if sections else ()
+            )
+            if (
+                selected
+                and "Recommended Actions" in body_fields
+                and wanted
+                and not set(extract_cve_ids(line)) <= wanted
+            ):
+                raise EvidenceError("ambiguous recommendation block CVE scope")
             result.append(
                 DetailSpan(
                     sentence,
                     "body",
-                    _detail_roles(sentence) or (sections[-1][2] if sections else ()),
+                    body_fields,
+                    line.strip(),
                 )
                 if selected
                 else DetailSpan("", "boundary")

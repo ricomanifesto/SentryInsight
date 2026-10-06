@@ -339,7 +339,7 @@ Generate a report following this EXACT structure with professional markdown form
 - **Reporting**: [Comma-separated Reporting keys copied exactly from the supporting articles]
 - **Affected Versions**: [Exact source version names separated by semicolons]
 - **Exceptions**: [Short exact source phrases for unaffected products/environments; semicolon-separated]
-- **Recommended Actions**: [Complete source recommendation statements from every supplied source for these CVEs; preserve qualifiers and internal punctuation; separate statements with semicolons]
+- **Recommended Actions**: [Complete source paragraphs or list items containing recommendations for these CVEs; preserve qualifiers and internal punctuation; separate source blocks with semicolons]
 - **Vendor Links**: [Supporting advisory URLs copied exactly from the supplied source links; semicolon-separated]
 ]
 

@@ -232,7 +232,7 @@ Recent exploitation activity is concentrated in edge systems.
 - **Reporting**: source-1e8f5cb3245d
 - **Affected Versions**: Not stated in supplied sources.
 - **Exceptions**: Not stated in supplied sources.
-- **Recommended Actions**: Install the update.
+- **Recommended Actions**: CVE-2026-1234 is actively exploited in the wild. Install the update.
 - **Vendor Links**: Not stated in supplied sources.
 
 ## Affected Systems and Products
@@ -315,7 +315,7 @@ Recent exploitation activity is concentrated in edge systems.
 - **Reporting**: source-1e8f5cb3245d
 - **Affected Versions**: Not stated in supplied sources.
 - **Exceptions**: Not stated in supplied sources.
-- **Recommended Actions**: Install the update.
+- **Recommended Actions**: CVE-2026-1234 is actively exploited in the wild. Install the update.
 - **Vendor Links**: Not stated in supplied sources.
 
 ## Affected Systems and Products
@@ -584,7 +584,7 @@ Recent exploitation activity is concentrated in edge systems.
 - **Reporting**: source-1e8f5cb3245d
 - **Affected Versions**: Not stated in supplied sources.
 - **Exceptions**: Not stated in supplied sources.
-- **Recommended Actions**: Install the update.
+- **Recommended Actions**: CVE-2026-1234 is actively exploited in the wild. Install the update.
 - **Vendor Links**: Not stated in supplied sources.
 
 ## Affected Systems and Products

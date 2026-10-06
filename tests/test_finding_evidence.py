@@ -1577,3 +1577,49 @@ def test_overlapping_recommendation_statements_do_not_require_duplicate_clauses(
         validate_finding_evidence(
             report(**{"Recommended Actions": "Do not install the update."}), catalog
         )
+
+
+@pytest.mark.parametrize("prefix", ["U.S.", "Acme Inc.", "Authorized operators, e.g."])
+def test_recommendation_audience_abbreviations_keep_the_original_source_block(prefix):
+    statement = f"{prefix} customers should install the update."
+    source = article(
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n{statement}",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="source-supported|complete"):
+        validate_finding_evidence(
+            report(**{"Recommended Actions": "customers should install the update."}),
+            catalog,
+        )
+    validate_finding_evidence(report(**{"Recommended Actions": statement}), catalog)
+
+
+def test_recommendation_block_with_foreign_cve_cannot_lose_its_scope():
+    first = f"{CVE} customers should install the update."
+    block = f"{first} CVE-2026-5678 customers should install the other patch."
+    source = article(
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n{block}",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(
+        EvidenceError, match="ambiguous.*recommendation|recommendation.*scope"
+    ):
+        validate_finding_evidence(
+            report(**{"Recommended Actions": first}), build_reporting_catalog([source])
+        )
+
+
+@pytest.mark.parametrize("punctuation", ["?", "!", "..."])
+def test_recommendation_source_punctuation_is_not_discarded(punctuation):
+    statement = f"Install the update{punctuation}"
+    source = article(
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n{statement}",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="source-supported|complete"):
+        validate_finding_evidence(
+            report(**{"Recommended Actions": "Install the update"}), catalog
+        )
+    validate_finding_evidence(report(**{"Recommended Actions": statement}), catalog)
