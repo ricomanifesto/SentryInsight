@@ -788,9 +788,36 @@ VERSION_RANGE_QUALIFIER = re.compile(
 )
 
 
+def _version_list_parts(text: str) -> list[str]:
+    """Retain grouped qualifiers while separating top-level release entries."""
+    pairs = {"(": ")", "[": "]", "{": "}"}
+    closing: list[str] = []
+    parts: list[str] = []
+    start = index = 0
+    while index < len(text):
+        char = text[index]
+        if char in pairs:
+            closing.append(pairs[char])
+        elif char in pairs.values():
+            if not closing or closing.pop() != char:
+                raise EvidenceError("ambiguous affected-version grouping")
+        if not closing:
+            separator = re.match(r"[,;]|\s+(?:and|or)\s+", text[index:], re.I)
+            if separator:
+                end = index + separator.end()
+                parts.extend((text[start:index], text[index:end]))
+                start = index = end
+                continue
+        index += 1
+    if closing:
+        raise EvidenceError("ambiguous affected-version grouping")
+    parts.append(text[start:])
+    return parts
+
+
 def _version_list_entries(text: str) -> list[str]:
     """Split constraints without detaching range tails or product names."""
-    parts = re.split(r"([,;]|\s+(?:and|or)\s+)", text, flags=re.I)
+    parts = _version_list_parts(text)
     entries: list[str] = []
     pending = ""
     for index in range(0, len(parts), 2):
@@ -885,6 +912,10 @@ def _version_source_text(text: str) -> str:
         text,
         flags=re.I,
     )
+    text = re.sub(r"([\(\[])\s*[,;:|—–-]+\s*", r"\1", text)
+    text = re.sub(r"\s*[,;:|—–-]+\s*([\)\]])", r"\1", text)
+    text = re.sub(r"([\(\[])\s+", r"\1", text)
+    text = re.sub(r"\s+([,;\)\]])", r"\1", text)
     text = re.sub(r"\(\s*\)|\[\s*\]", "", text)
     text = text.strip(" \t.,;:|—–-")
     text = re.sub(r"\bfor\s*$", "", text, flags=re.I)

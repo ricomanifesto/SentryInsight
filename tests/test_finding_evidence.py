@@ -2516,3 +2516,63 @@ def test_release_qualifiers_after_cve_tags_remain_complete(annotation, qualifier
         validate_finding_evidence(
             report(**{"Recommended Actions": introduction}), catalog
         )
+
+
+@pytest.mark.parametrize("wrappers", [("(", ")"), ("[", "]")])
+@pytest.mark.parametrize(
+    "annotated, qualifier",
+    [
+        ("{cve}, Windows", "Windows"),
+        ("{cve}; Windows", "Windows"),
+        ("{cve} — Windows", "Windows"),
+        ("Windows, {cve}", "Windows"),
+        ("Windows, {cve}, x64", "Windows, x64"),
+        ("{cve}, Windows, x64", "Windows, x64"),
+        ("{cve}, Windows and Linux", "Windows and Linux"),
+        ("Windows (x64), {cve}", "Windows (x64)"),
+    ],
+)
+def test_wrapped_cve_metadata_preserves_complete_grouped_qualifiers(
+    wrappers, annotated, qualifier
+):
+    left, right = wrappers
+    introduction = "Customers should install the fix for affected versions."
+    version = f"Example Server 2.3 {left}{qualifier}{right}"
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n- Example Server 2.3 {left}{annotated.format(cve=CVE)}{right}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(
+        report(**{"Affected Versions": version, "Recommended Actions": introduction}),
+        catalog,
+    )
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(**{"Recommended Actions": introduction}), catalog
+        )
+
+
+def test_grouped_qualifiers_do_not_consume_a_following_version_entry():
+    introduction = "Customers should install the fix for affected versions."
+    first = "Example Server 2.3 (Windows, x64)"
+    second = "Example Server 2.4 (Linux)"
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n- Example Server 2.3 ({CVE}, Windows, x64); {second}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": first, "Recommended Actions": introduction}),
+            catalog,
+        )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": f"{first}; {second}",
+                "Recommended Actions": introduction,
+            }
+        ),
+        catalog,
+    )
