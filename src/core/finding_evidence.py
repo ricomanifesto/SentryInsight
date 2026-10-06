@@ -31,6 +31,24 @@ DETAIL_FIELDS = (
     "Vendor Links",
 )
 FIELD = re.compile(r"^-\s+\*\*([^*]+)\*\*:\s*(.*?)\s*$", re.MULTILINE)
+DETAIL_CUES = {
+    "Affected Versions": r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected)|cumulative update)\b",
+    "Exceptions": r"\b(?:need(?:s)? no action|not (?:required|affected|impacted|vulnerable)|no longer (?:affected|impacted|vulnerable)|unaffected|exempt|does not allow|no customer action)\b",
+    "Recommended Actions": r"\b(?:install (?:the )?(?:updates?|patch)|apply (?:the )?(?:fix|patch|update)|advised to|recommended to|(?:should|must) (?:install|apply|patch|upgrade|update)|restart (?:the )?service)\b",
+}
+
+
+def _detail_roles(text: str) -> tuple[str, ...]:
+    return tuple(
+        name for name, cue in DETAIL_CUES.items() if re.search(cue, text, re.I)
+    )
+
+
+def _heading_detail_roles(text: str) -> tuple[str, ...]:
+    label = re.sub(r"^\d+[.)]\s*", "", text).strip(" :").casefold()
+    return tuple(name for name in DETAIL_CUES if name.casefold() == label)
+
+
 NEGATIVE = re.compile(
     r"\b(?:exploit\w* (?:has |have |is |was |were )?not (?:yet |been )*(?:observed|detected|confirmed)|no (?:known exploitation|evidence|signs?|reports?|exploitation)|(?:not|never) (?:yet |been |being |actively |publicly |known to be |observed to be )*(?:exploit\w*|weaponiz\w*)|(?:has|have) not been (?:actively )?(?:exploit\w*|weaponiz\w*)|without (?:evidence|reports?) of exploitation)\b",
     re.I,
@@ -230,6 +248,7 @@ class DetailSpan:
 
     text: str
     role: Literal["heading", "body", "boundary"]
+    fields: tuple[str, ...] = ()
 
 
 def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
@@ -242,7 +261,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
         for line in content.splitlines()
         if (match := re.match(r"^(#{1,6})\s+(.+)", line.strip()))
     )
-    sections: list[tuple[int, set[str]]] = []
+    sections: list[tuple[int, set[str], tuple[str, ...]]] = []
     # Boundaries prevent version-list context crossing sources or excluded spans.
     result = [DetailSpan("", "boundary")]
     for line in content.splitlines():
@@ -253,7 +272,9 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                 sections.pop()
             mentioned = set(extract_cve_ids(heading[2]))
             inherited = sections[-1][1] if sections else set()
-            sections.append((level, mentioned or inherited))
+            inherited_fields = sections[-1][2] if sections and not mentioned else ()
+            fields = _heading_detail_roles(heading[2]) or inherited_fields
+            sections.append((level, mentioned or inherited, fields))
         owner = sections[-1][1] if sections else set()
         owned = not wanted or bool(
             owner
@@ -274,7 +295,13 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             mentioned = set(extract_cve_ids(sentence))
             selected = mentioned <= wanted if mentioned and wanted else owned
             result.append(
-                DetailSpan(sentence, "body") if selected else DetailSpan("", "boundary")
+                DetailSpan(
+                    sentence,
+                    "body",
+                    _detail_roles(sentence) or (sections[-1][2] if sections else ()),
+                )
+                if selected
+                else DetailSpan("", "boundary")
             )
     return result
 
@@ -557,6 +584,13 @@ def _version_clause(text: str) -> VersionClause:
     return VersionClause("list", text)
 
 
+VERSION_RANGE_QUALIFIER = re.compile(
+    r"(?:(?:all|any|the|other)\s+)*(?:(?:versions?|releases?|builds?)\s+)?"
+    r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior|previous|subsequent|up|down|greater|less|lesser|onwards?|beyond|through|to)\b",
+    re.I,
+)
+
+
 def _version_list_entries(text: str) -> list[str]:
     """Split constraints without detaching range tails or product names."""
     parts = re.split(r"([,;]|\s+(?:and|or)\s+)", text, flags=re.I)
@@ -571,12 +605,7 @@ def _version_list_entries(text: str) -> list[str]:
                 raise EvidenceError("ambiguous affected-version continuation")
             entry = pending + parts[index - 1] + entry
             pending = ""
-        qualifier = re.match(
-            r"(?:(?:all|any|the|other)\s+)*(?:(?:versions?|releases?|builds?)\s+)?"
-            r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior|previous|subsequent|up|down|greater|less|lesser|onwards?|beyond)\b",
-            entry,
-            re.I,
-        )
+        qualifier = VERSION_RANGE_QUALIFIER.match(entry)
         if entries and (qualifier or VERSION_AUDIENCE_QUALIFIER.fullmatch(entry)):
             entries[-1] += parts[index - 1] + entry
         elif not re.search(r"\d|\bRTM\b", entry, re.I):
@@ -646,7 +675,9 @@ def _version_entries(text: str) -> list[str]:
 def _supported_version_text(entry: str, source: str) -> bool:
     """Match full source tokens, including unknown version suffix syntax."""
     source = _plain(source)
-    for match in re.finditer(rf"(?<!\w){re.escape(_plain(entry))}", source):
+    for match in re.finditer(
+        rf"(?<![^\s,;()\[\]{{}}\"']){re.escape(_plain(entry))}", source
+    ):
         tail = re.match(r"[^\s,;()\[\]{}\"']*", source[match.end() :])
         if tail and not tail.group().strip(".!?:"):
             return True
@@ -754,19 +785,29 @@ def validate_finding_evidence(
                 f"{title}: action badge omits a supported recommendation"
             )
         detail_spans = [
-            span for source in sources for span in _scoped_detail_spans(source, cves)
+            span for source in relevant for span in _scoped_detail_spans(source, cves)
         ]
         # Headings guide parsing, but only body text can ground a detail value.
         scoped = "\n".join(span.text for span in detail_spans if span.role == "body")
+        field_evidence = {
+            name: "\n".join(
+                span.text
+                for span in detail_spans
+                if span.role == "body" and name in span.fields
+            )
+            for name in DETAIL_CUES
+        }
         # Version lists are easy to lose even when one supported version remains.
         version_lines = []
         excluded_version_lines = []
         in_versions = False
         known_version_list = False
+        range_target: list[str] | None = None
         for span in detail_spans:
             line = span.text
             if span.role != "body":
                 in_versions = False
+                range_target = None
             cue = re.search(
                 r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected))\b",
                 line,
@@ -790,14 +831,35 @@ def validate_finding_evidence(
                     for entry in included
                     if re.search(r"\d|\bRTM\b", entry) and not extract_cve_ids(entry)
                 )
+                range_target = (
+                    excluded_version_lines
+                    if excluded and not included
+                    else version_lines if included and not excluded else None
+                )
                 continue
             if in_versions:
+                continuation = re.sub(r"^(?:and|or)\s+", "", line, flags=re.I)
+                if VERSION_RANGE_QUALIFIER.match(continuation):
+                    if not range_target:
+                        raise EvidenceError(
+                            "ambiguous affected-version range continuation"
+                        )
+                    range_target[-1] = (
+                        range_target[-1].rstrip(". ") + " " + line.rstrip(". ")
+                    )
+                    continue
                 if re.search(r"\d|\bRTM\b", line) and not extract_cve_ids(line):
                     included, excluded = _version_constraints(line)
                     version_lines.extend(included)
                     excluded_version_lines.extend(excluded)
+                    range_target = (
+                        excluded_version_lines
+                        if excluded and not included
+                        else version_lines if included and not excluded else None
+                    )
                 else:
                     in_versions = False
+                    range_target = None
         reported_versions = {
             _plain(entry)
             for entry in _version_entries(fields.get("Affected Versions", ""))
@@ -822,11 +884,6 @@ def validate_finding_evidence(
                 raise EvidenceError(
                     f"{title}: missing {name}; use {ABSENT!r} when absent"
                 )
-            cues = {
-                "Affected Versions": r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected)|cumulative update)\b",
-                "Exceptions": r"\b(?:need(?:s)? no action|not (?:required|affected)|unaffected|does not allow|no customer action)\b",
-                "Recommended Actions": r"\b(?:install (?:the )?(?:updates?|patch)|apply (?:the )?(?:fix|patch|update)|advised to|recommended to)\b",
-            }
             if value == ABSENT:
                 if (
                     name == "Affected Versions"
@@ -835,7 +892,11 @@ def validate_finding_evidence(
                     and not version_lines
                 ):
                     continue
-                if name in cues and re.search(cues[name], scoped, re.I):
+                if name in DETAIL_CUES and (
+                    field_evidence[name]
+                    or name == "Affected Versions"
+                    and known_version_list
+                ):
                     raise EvidenceError(
                         f"{title}: {name} omits supplied source details"
                     )
@@ -849,6 +910,18 @@ def validate_finding_evidence(
                     raise EvidenceError(f"{title}: unsupported vendor link") from exc
                 if any(entry not in links for entry in normalized):
                     raise EvidenceError(f"{title}: unsupported vendor link")
+            elif name in {"Exceptions", "Recommended Actions"}:
+                evidence = field_evidence[name]
+                if name == "Exceptions":
+                    evidence += "\n" + "\n".join(excluded_version_lines)
+                for entry in entries:
+                    roles = _detail_roles(entry)
+                    if (roles and name not in roles) or _plain(entry) not in _plain(
+                        evidence
+                    ):
+                        raise EvidenceError(
+                            f"{title}: {name} must preserve exact source-supported details with the matching semantic role"
+                        )
             elif (
                 name == "Affected Versions"
                 and not known_version_list

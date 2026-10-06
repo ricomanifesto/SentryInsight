@@ -1298,3 +1298,113 @@ def test_numeric_non_version_heading_ends_affected_version_list():
         source_links=["https://example.test/vendor"],
     )
     validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    "field,detail",
+    [
+        (
+            "Affected Versions",
+            "Affected versions are Example Server 2.3 and Example Server 2.4.",
+        ),
+        ("Exceptions", "Hosted users need no action."),
+        ("Recommended Actions", "Install the update."),
+    ],
+)
+def test_uncited_relevant_article_cannot_hide_required_details(field, detail):
+    cited = article(
+        f"{CVE} is actively exploited.\nExample Server 2.3",
+        source_links=["https://example.test/vendor"],
+    )
+    uncited = article(f"## {CVE}\n{detail}", link="https://example.test/second")
+    catalog = build_reporting_catalog([cited, uncited])
+    generated = report(
+        **{
+            "Exceptions": "Not stated in supplied sources.",
+            "Recommended Actions": "Not stated in supplied sources.",
+        }
+    ).replace("- **Action**: patch", "- **Action**: monitor")
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(generated, catalog)
+    correct = (
+        "Example Server 2.3; Example Server 2.4"
+        if field == "Affected Versions"
+        else detail
+    )
+    generated = generated.replace(
+        f"- **{field}**: "
+        + (
+            "Example Server 2.3"
+            if field == "Affected Versions"
+            else "Not stated in supplied sources."
+        ),
+        f"- **{field}**: {correct}",
+    )
+    validate_finding_evidence(generated, catalog)
+
+
+@pytest.mark.parametrize(
+    "qualifier",
+    ["and earlier", "or later", "and up", "or all subsequent releases", "through 2.4"],
+)
+def test_multiline_version_ranges_preserve_qualifiers(qualifier):
+    source = article(
+        f"{CVE} is actively exploited.\nAffected versions:\nExample Server 2.3\n{qualifier}\nHosted users need no action.\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(**{"Affected Versions": f"Example Server 2.3 {qualifier}"}), catalog
+    )
+
+
+@pytest.mark.parametrize("layout", ["sentences", "headings", "combined"])
+def test_exception_and_action_roles_cannot_be_swapped(layout):
+    details = {
+        "sentences": "Hosted users need no action.\nInstall the update.",
+        "headings": "### Exceptions\nHosted service is exempt.\n### Recommended Actions\nRestart the service.",
+        "combined": "Hosted users need no action, but administrators should install the update.",
+    }[layout]
+    exception = (
+        "Hosted service is exempt."
+        if layout == "headings"
+        else "Hosted users need no action"
+    )
+    action = "Restart the service." if layout == "headings" else "install the update"
+    source = article(
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\n{details}",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="source-supported|semantic role"):
+        validate_finding_evidence(
+            report(**{"Exceptions": action, "Recommended Actions": exception}), catalog
+        )
+    validate_finding_evidence(
+        report(**{"Exceptions": exception, "Recommended Actions": action}), catalog
+    )
+
+
+@pytest.mark.parametrize(
+    "source_version,reported",
+    [
+        ("2.1.0", "1.0"),
+        ("1:2.3", "2.3"),
+        ("1!2.3", "2.3"),
+        ("2.3-rc1", "rc1"),
+        ("2.3+build1", "build1"),
+    ],
+)
+def test_version_suffix_cannot_be_grounded_inside_a_larger_token(
+    source_version, reported
+):
+    source = article(
+        f"{CVE} is actively exploited.\nRelease {source_version} is vulnerable.\nHosted users need no action.\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="source-supported"):
+        validate_finding_evidence(report(**{"Affected Versions": reported}), catalog)
+    validate_finding_evidence(report(**{"Affected Versions": source_version}), catalog)
