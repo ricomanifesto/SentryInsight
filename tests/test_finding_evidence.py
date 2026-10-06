@@ -916,10 +916,18 @@ def test_unaffected_user_clauses_do_not_add_affected_versions(predicate, version
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
-    validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(
+            **{"Exceptions": f"users of {versions} {predicate}"},
+        ),
+        catalog,
+    )
     with pytest.raises(EvidenceError, match="unsupported"):
         validate_finding_evidence(
-            report(**{"Affected Versions": "Example Server 2.3; Example Server 2.4"}),
+            report(
+                **{"Exceptions": f"users of {versions} {predicate}"},
+                **{"Affected Versions": "Example Server 2.3; Example Server 2.4"},
+            ),
             catalog,
         )
 
@@ -931,9 +939,17 @@ def test_excluded_clause_does_not_hide_a_later_affected_clause():
     )
     catalog = build_reporting_catalog([source])
     with pytest.raises(EvidenceError, match="omits"):
-        validate_finding_evidence(report(), catalog)
+        validate_finding_evidence(
+            report(
+                **{"Exceptions": "users of Example Server 2.4 are not affected"},
+            ),
+            catalog,
+        )
     validate_finding_evidence(
-        report(**{"Affected Versions": "Example Server 2.3; Example Server 2.5"}),
+        report(
+            **{"Exceptions": "users of Example Server 2.4 are not affected"},
+            **{"Affected Versions": "Example Server 2.3; Example Server 2.5"},
+        ),
         catalog,
     )
 
@@ -957,11 +973,19 @@ def test_known_version_list_with_only_excluded_versions_stays_empty():
     )
     catalog = build_reporting_catalog([source])
     validate_finding_evidence(
-        report(**{"Affected Versions": "Not stated in supplied sources."}), catalog
+        report(
+            **{"Exceptions": "users of Example Server 2.4 are not affected"},
+            **{"Affected Versions": "Not stated in supplied sources."},
+        ),
+        catalog,
     )
     with pytest.raises(EvidenceError, match="unsupported"):
         validate_finding_evidence(
-            report(**{"Affected Versions": "Example Server 2.4"}), catalog
+            report(
+                **{"Exceptions": "users of Example Server 2.4 are not affected"},
+                **{"Affected Versions": "Example Server 2.4"},
+            ),
+            catalog,
         )
 
 
@@ -992,10 +1016,31 @@ def test_reported_version_field_rejects_nonaffected_source_clauses(clause):
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
-    validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(
+            **{
+                "Exceptions": (
+                    clause
+                    if "not affected" in clause
+                    else "Hosted users need no action."
+                )
+            },
+        ),
+        catalog,
+    )
     with pytest.raises(EvidenceError, match="non-affected"):
         validate_finding_evidence(
-            report(**{"Affected Versions": f"Example Server 2.3; {clause}"}), catalog
+            report(
+                **{
+                    "Exceptions": (
+                        clause
+                        if "not affected" in clause
+                        else "Hosted users need no action."
+                    )
+                },
+                **{"Affected Versions": f"Example Server 2.3; {clause}"},
+            ),
+            catalog,
         )
 
 
@@ -1007,9 +1052,20 @@ def test_dash_delimited_version_clause_retains_its_role(separator):
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
-    validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(
+            **{"Exceptions": "users of Example Server 2.4 are not affected"},
+        ),
+        catalog,
+    )
     with pytest.raises(EvidenceError, match="non-affected"):
-        validate_finding_evidence(report(**{"Affected Versions": text}), catalog)
+        validate_finding_evidence(
+            report(
+                **{"Exceptions": "users of Example Server 2.4 are not affected"},
+                **{"Affected Versions": text},
+            ),
+            catalog,
+        )
 
 
 @pytest.mark.parametrize(
@@ -1041,9 +1097,20 @@ def test_qualified_audience_exception_is_not_an_affected_version(separator, pred
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
-    validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(
+            **{"Exceptions": f"users with premium licenses {predicate}"},
+        ),
+        catalog,
+    )
     with pytest.raises(EvidenceError, match="non-affected"):
-        validate_finding_evidence(report(**{"Affected Versions": text}), catalog)
+        validate_finding_evidence(
+            report(
+                **{"Exceptions": f"users with premium licenses {predicate}"},
+                **{"Affected Versions": text},
+            ),
+            catalog,
+        )
 
 
 @pytest.mark.parametrize("separator", [", ", "; ", " and ", " or "])
@@ -1098,4 +1165,69 @@ def test_unsplit_embedded_clauses_cannot_fall_through_as_numeric_entries(
     with pytest.raises(EvidenceError, match="ambiguous|non-affected"):
         validate_finding_evidence(
             report(**{"Affected Versions": text}), build_reporting_catalog([source])
+        )
+
+
+@pytest.mark.parametrize("separator", [", ", "; ", " and ", " / "])
+@pytest.mark.parametrize("predicate", ["need", "needs"])
+def test_lexical_audience_action_predicates_cannot_be_version_qualifiers(
+    separator, predicate
+):
+    text = f"Example Server 2.3{separator}users with premium licenses {predicate} no action"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {text}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": text}), build_reporting_catalog([source])
+        )
+
+
+@pytest.mark.parametrize(
+    "exceptions",
+    [
+        "Not stated in supplied sources.",
+        "Legacy clients are exempt.",
+        "users with premium licenses are no longer affected",
+    ],
+)
+def test_every_parsed_exclusion_is_required_in_exceptions(exceptions):
+    first = "users with premium licenses are no longer affected"
+    second = "users with trial licenses are no longer vulnerable"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3, and {first}, and {second}.\n\nLegacy clients are exempt.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="Exceptions omits"):
+        validate_finding_evidence(report(**{"Exceptions": exceptions}), catalog)
+    validate_finding_evidence(report(**{"Exceptions": f"{first}; {second}"}), catalog)
+
+
+def sectioned_advisory():
+    return article(
+        f"# Vendor advisory\n\n## {CVE}\n\n{CVE} is actively exploited.\n\n### Affected versions\n\nExample Server 2.3\n\n### Exceptions\n\nHosted users need no action.\n\n### Recommended actions\n\nInstall the update.\n\n## CVE-2026-5678\n\nCVE-2026-5678 is not exploited.\n\n### Affected versions\n\nOther Server 9.9\n\n### Recommended actions\n\nInstall the other patch.\n\n## General information\n\nShared Server 8.8 is available.",
+        source_links=["https://example.test/vendor"],
+    )
+
+
+@pytest.mark.parametrize(
+    "field", ["Affected Versions", "Exceptions", "Recommended Actions"]
+)
+def test_cve_section_details_are_retained_and_cannot_be_omitted(field):
+    catalog = build_reporting_catalog([sectioned_advisory()])
+    validate_finding_evidence(report(), catalog)
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(**{field: "Not stated in supplied sources."}), catalog
+        )
+
+
+@pytest.mark.parametrize("version", ["Other Server 9.9", "Shared Server 8.8"])
+def test_detail_scope_does_not_borrow_from_sibling_cve_or_parent_sections(version):
+    catalog = build_reporting_catalog([sectioned_advisory()])
+    with pytest.raises(EvidenceError, match="unsupported"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": f"Example Server 2.3; {version}"}), catalog
         )

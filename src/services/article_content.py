@@ -100,12 +100,14 @@ def _extract(node: _Node, url: str) -> ArticleContent:
             "h2",
             "h3",
             "h4",
+            "h5",
+            "h6",
             "tr",
         }
         if block:
             chunks.append("\n\n")
-        if item.tag in {"h1", "h2", "h3", "h4"}:
-            chunks.append("# ")
+        if item.tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            chunks.append("#" * int(item.tag[1]) + " ")
         if item.tag == "a":
             target = urljoin(url, item.attrs.get("href", ""))
             parsed = urlsplit(target)

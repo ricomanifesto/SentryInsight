@@ -37,6 +37,8 @@ Analysis retains article-owned text and links, or the complete available feed co
 
 Before publication, finding status and rendered claims are checked against the retained sources. Conflicting evidence and ambiguous CVE attribution cannot establish confirmed exploitation. These checks use a bounded recognition grammar: unrecognized source phrasing can remain unknown and block publication. A failed validation preserves the previous report and fingerprint. Passing these checks does not establish general English comprehension or independently verify every source claim.
 
+Finding details can inherit an explicit CVE section, including nested headings; sibling CVE sections stay separate. Headings alone do not establish active exploitation. Parsed version exclusions must be preserved in the finding's Exceptions field.
+
 ## Run It Locally
 
 SentryInsight requires Python 3.11 and [`uv`](https://docs.astral.sh/uv/):

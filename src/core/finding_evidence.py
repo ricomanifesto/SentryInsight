@@ -224,6 +224,34 @@ def _scoped_sentences(source: Any, cves: Sequence[str]) -> list[tuple[str, bool]
     return result
 
 
+def _scoped_detail_sentences(source: Any, cves: Sequence[str]) -> list[str]:
+    """Retain detail ownership under CVE headings without asserting exploitation."""
+    content = str(_value(source, "content"))
+    source_cves = set(extract_cve_ids(content))
+    wanted = set(cves)
+    sections: list[tuple[int, set[str]]] = []
+    result: list[str] = []
+    for line in content.splitlines():
+        heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
+        if heading:
+            level = len(heading[1])
+            while sections and sections[-1][0] >= level:
+                sections.pop()
+            mentioned = set(extract_cve_ids(heading[2]))
+            inherited = sections[-1][1] if sections else set()
+            sections.append((level, mentioned or inherited))
+            line = heading[2]
+        owner = sections[-1][1] if sections else set()
+        for sentence in _sentences(line):
+            mentioned = set(extract_cve_ids(sentence))
+            if mentioned:
+                if mentioned <= wanted and mentioned & wanted:
+                    result.append(sentence)
+            elif wanted and (owner == wanted or (not owner and source_cves == wanted)):
+                result.append(sentence)
+    return result
+
+
 def _clause_status(clause: str) -> str:
     if not EXPLOIT.search(clause):
         return "unknown"
@@ -415,7 +443,12 @@ class VersionClause:
 VERSION_AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
 VERSION_FINITE_PREDICATE = (
     r"\b(?:"
-    + "|".join(sorted(FINITE_PREDICATE_HEADS | {"must", "should", "remain", "remains"}))
+    + "|".join(
+        sorted(
+            FINITE_PREDICATE_HEADS
+            | {"must", "should", "remain", "remains", "need", "needs"}
+        )
+    )
     + r")\b"
 )
 VERSION_AUDIENCE_QUALIFIER = re.compile(
@@ -696,7 +729,7 @@ def validate_finding_evidence(
         scoped = "\n".join(
             sentence
             for source in sources
-            for sentence, _ in _scoped_sentences(source, cves)
+            for sentence in _scoped_detail_sentences(source, cves)
         )
         # Without a CVE, exact source details remain usable, but exploitation is
         # unknown until an unambiguous subject identity is available.
@@ -750,6 +783,11 @@ def validate_finding_evidence(
             _plain(line) for line in version_lines
         }:
             raise EvidenceError(f"{title}: unsupported affected-version entry")
+        if any(
+            _plain(exclusion) not in _plain(fields.get("Exceptions", ""))
+            for exclusion in excluded_version_lines
+        ):
+            raise EvidenceError(f"{title}: Exceptions omits supplied source exclusions")
         for name in DETAIL_FIELDS:
             value = fields.get(name, "")
             if not value:

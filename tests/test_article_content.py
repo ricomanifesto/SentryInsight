@@ -26,6 +26,19 @@ def test_no_article_container_is_not_misrepresented_as_full_content():
     )
 
 
+def test_article_and_feed_extraction_preserve_heading_depth_for_detail_ownership():
+    markup = "<article><h1>Advisory</h1><h2>CVE-2026-1234</h2><h3>Affected versions</h3><p>Example Server 2.3</p><h5>Deployment notes</h5><h6>Exceptions</h6><p>Hosted users need no action.</p></article>"
+    for text in [
+        extract_article_content(markup, "https://example.test").text,
+        normalize_feed_content(markup),
+    ]:
+        assert "# Advisory" in text
+        assert "## CVE-2026-1234" in text
+        assert "### Affected versions" in text
+        assert "##### Deployment notes" in text
+        assert "###### Exceptions" in text
+
+
 def test_feed_content_list_and_prompt_keep_qualifications():
     text = normalize_feed_content(
         [
