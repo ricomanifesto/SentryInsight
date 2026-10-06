@@ -912,20 +912,17 @@ def _version_group_members(text: str) -> str:
     parts = _version_list_parts(text, attribution=True)
     retained: list[str] = []
     for index in range(0, len(parts), 2):
-        member = parts[index].strip()
-        if not member or re.fullmatch(
-            rf"(?:for\s+)?(?:{CVE_ID_PATTERN.pattern})", member, re.I
+        member = parts[index]
+        if not member.strip() or re.fullmatch(
+            rf"(?:for\s+)?(?:{CVE_ID_PATTERN.pattern})", member.strip(), re.I
         ):
             continue
         if CVE_ID_PATTERN.search(member):
             raise EvidenceError("ambiguous CVE attribution in version constraint")
         if retained:
-            connector = parts[index - 1].strip()
-            retained.append(
-                connector + " " if connector in {",", ";", ":"} else f" {connector} "
-            )
+            retained.append(parts[index - 1])
         retained.append(member)
-    return "".join(retained)
+    return "".join(retained).strip()
 
 
 def _version_attribution_groups(text: str) -> str:

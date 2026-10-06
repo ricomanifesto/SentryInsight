@@ -2636,3 +2636,28 @@ def test_unclassified_grouped_attribution_cannot_become_a_malformed_constraint(
             ),
             build_reporting_catalog([source]),
         )
+
+
+@pytest.mark.parametrize("wrappers", [("(", ")"), ("[", "]")])
+@pytest.mark.parametrize("connector", ["—", "–", "|", ":", ",", ";"])
+def test_grouped_qualifiers_preserve_compact_connector_spacing(wrappers, connector):
+    left, right = wrappers
+    introduction = "Customers should install the fix for affected versions."
+    version = f"Example Server 2.3 {left}Windows{connector}x64{right}"
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n- Example Server 2.3 {left}{CVE}, Windows{connector}x64{right}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(
+        report(**{"Affected Versions": version, "Recommended Actions": introduction}),
+        catalog,
+    )
+    altered = f"Example Server 2.3 {left}Windows {connector} x64{right}"
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(
+                **{"Affected Versions": altered, "Recommended Actions": introduction}
+            ),
+            catalog,
+        )
