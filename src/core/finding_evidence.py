@@ -41,11 +41,13 @@ DETAIL_CUES = {
 
 
 def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
+    version_cue = _version_list_cue(text)
     return tuple(
         name
         for name, cue in DETAIL_CUES.items()
         if (
-            bool(_version_list_cue(text)) or _cumulative_version_list(text, context)
+            bool(version_cue and version_cue.kind == "explicit")
+            or _cumulative_version_list(text, context)
             if name == "Affected Versions"
             else re.search(cue, text, re.I)
         )
@@ -381,7 +383,8 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                 else DetailSpan("", "boundary")
             )
             continue
-        for sentence in _sentences(line):
+        body_line = re.sub(r"^\s*(?:[-+*]|\d+[.)])\s+", "", line)
+        for sentence in _sentences(body_line):
             # Position matters: later advice cannot change an earlier row's
             # role, even when the same release name occurs more than once.
             preceding.append(sentence)
@@ -653,20 +656,28 @@ VERSION_DESCRIPTIVE_STATE = re.compile(
 )
 
 
-def _version_list_cue(text: str) -> re.Match[str] | None:
+@dataclass(frozen=True)
+class VersionListCue:
+    end: int
+    kind: Literal["explicit", "pending"]
+
+
+def _version_list_cue(text: str) -> VersionListCue | None:
     """Separate an actual list cue from a terminal advice description."""
     description = VERSION_DESCRIPTIVE_STATE.search(text)
     advice = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
     information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
+    pending = None
     for cue in re.finditer(VERSION_LIST_CUE, text, re.I):
         if (
             description
             and (advice or information)
             and description.start() <= cue.start() < description.end()
         ):
+            pending = VersionListCue(cue.end(), "pending")
             continue
-        return cue
-    return None
+        return VersionListCue(cue.end(), "explicit")
+    return pending
 
 
 def _version_assertion_is_negative(match: re.Match[str]) -> bool:
@@ -992,15 +1003,29 @@ def validate_finding_evidence(
         # Version lists are easy to lose even when one supported version remains.
         version_lines = []
         excluded_version_lines = []
-        in_versions = False
+        list_state: Literal["none", "pending", "active"] = "none"
         known_version_list = False
         range_target: list[str] | None = None
         for span in detail_spans:
             line = span.text
             if span.role != "body":
-                in_versions = False
+                list_state = "none"
                 range_target = None
             cue = _version_list_cue(line)
+            if cue and cue.kind == "pending":
+                list_state = "pending"
+                range_target = None
+                continue
+            if list_state == "pending":
+                release_row = (
+                    bool(re.search(r"\d|\bRTM\b", line, re.I))
+                    and not extract_cve_ids(line)
+                    and all(
+                        clause.kind == "list" for _, clause in _version_clauses(line)
+                    )
+                )
+                list_state = "active" if release_row else "none"
+                known_version_list = known_version_list or release_row
             cumulative_list = not cue and _cumulative_version_list(
                 line, span.version_context
             )
@@ -1009,24 +1034,24 @@ def validate_finding_evidence(
                 and re.search(CUMULATIVE_UPDATE_CUE, line, re.I)
                 and not cumulative_list
                 and not (
-                    in_versions
+                    list_state == "active"
                     and all(
                         clause.kind == "list" for _, clause in _version_clauses(line)
                     )
                 )
             ):
-                in_versions = False
+                list_state = "none"
                 range_target = None
                 continue
             if cue or cumulative_list:
                 known_version_list = True
-                in_versions = True
+                list_state = "active"
                 if span.role == "heading":
                     continue
                 remainder = re.sub(
                     r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
                     "",
-                    line[cue.end() :] if cue else line,
+                    line[cue.end :] if cue else line,
                     flags=re.I,
                 ).rstrip(". ")
                 included, excluded = _version_constraints(remainder)
@@ -1042,7 +1067,7 @@ def validate_finding_evidence(
                     else version_lines if included and not excluded else None
                 )
                 continue
-            if in_versions:
+            if list_state == "active":
                 continuation = re.sub(r"^(?:and|or)\s+", "", line, flags=re.I)
                 if VERSION_RANGE_QUALIFIER.match(continuation):
                     if not range_target:
@@ -1057,7 +1082,7 @@ def validate_finding_evidence(
                     included, excluded = _version_constraints(line)
                     # Advice/information can contain a product version before
                     # its wrapped target. End the list at that typed clause.
-                    in_versions = bool(included or excluded)
+                    list_state = "active" if included or excluded else "none"
                     version_lines.extend(included)
                     excluded_version_lines.extend(excluded)
                     range_target = (
@@ -1066,7 +1091,7 @@ def validate_finding_evidence(
                         else version_lines if included and not excluded else None
                     )
                 else:
-                    in_versions = False
+                    list_state = "none"
                     range_target = None
         reported_versions = {
             _plain(entry)

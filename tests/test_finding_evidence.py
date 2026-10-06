@@ -2340,3 +2340,76 @@ def test_advice_list_heading_retains_following_release_lines(label):
         ),
         catalog,
     )
+
+
+@pytest.mark.parametrize("label", ["affected versions", "affected releases"])
+@pytest.mark.parametrize("punctuation", [".", "!"])
+@pytest.mark.parametrize("marker", ["- ", "1. "])
+def test_terminal_advice_cue_owns_following_markdown_release_rows(
+    label, punctuation, marker
+):
+    first = "Example Server 2.3"
+    second = "Example Server 2.4"
+    statement = f"Customers should install the fix for {label}{punctuation}"
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\n{marker}{first}\n{marker}{second}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    for missing in ["Not stated in supplied sources.", first]:
+        with pytest.raises(EvidenceError, match="omits"):
+            validate_finding_evidence(
+                report(
+                    **{"Affected Versions": missing, "Recommended Actions": statement}
+                ),
+                catalog,
+            )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": f"{first}; {second}",
+                "Recommended Actions": statement,
+            }
+        ),
+        catalog,
+    )
+
+
+def test_terminal_advice_cue_owns_following_html_release_rows():
+    statement = "Customers should install the fix for affected versions."
+    source = article(
+        f"<h2>{CVE}</h2><p>{CVE} is actively exploited.</p><p>{statement}</p><ul><li>Example Server 2.3</li><li>Example Server 2.4</li></ul><p>Hosted users need no action.</p>",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(**{"Recommended Actions": statement}), catalog)
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": "Example Server 2.3; Example Server 2.4",
+                "Recommended Actions": statement,
+            }
+        ),
+        catalog,
+    )
+
+
+@pytest.mark.parametrize(
+    "boundary", ["Hosted users need no action.", "## Additional information"]
+)
+def test_pending_advice_cue_expires_before_unrelated_release_mentions(boundary):
+    statement = "Customers should install the fix for affected versions."
+    source = article(
+        f"{CVE} is actively exploited.\n\nHosted users need no action.\n\n{statement}\n\n{boundary}\n\n- Example Server 2.3",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": "Not stated in supplied sources.",
+                "Recommended Actions": statement,
+            }
+        ),
+        build_reporting_catalog([source]),
+    )
