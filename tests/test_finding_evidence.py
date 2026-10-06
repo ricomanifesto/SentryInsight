@@ -2115,3 +2115,61 @@ def test_auxiliary_assertions_in_unclassified_conjunctions_fail_closed(predicate
             ),
             build_reporting_catalog([source]),
         )
+
+
+@pytest.mark.parametrize("connector", [", ", " and ", " or "])
+@pytest.mark.parametrize(
+    "predicate",
+    [
+        "cannot be affected",
+        "cannot possibly be affected",
+        "cannot have been unaffected",
+    ],
+)
+def test_uncontracted_cannot_assertions_cannot_be_omitted(connector, predicate):
+    statement = f"Customers should install Example Server 2019 Cumulative Update 16{connector}Example Server 2019 Cumulative Update 15 {predicate}."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous affected-version clause"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": "Not stated in supplied sources.",
+                    "Recommended Actions": statement,
+                }
+            ),
+            build_reporting_catalog([source]),
+        )
+
+
+@pytest.mark.parametrize("connector", [", ", " and "])
+@pytest.mark.parametrize(
+    "predicate",
+    [
+        "need not be affected",
+        "ought not to be affected",
+        "used to be affected",
+        "does not have to be affected",
+        "has not had to be affected",
+        "must not be affected",
+        "will likely have been affected",
+    ],
+)
+def test_standard_modal_chains_cannot_hide_version_assertions(connector, predicate):
+    statement = f"Customers should install Example Server 2019 Cumulative Update 16{connector}Example Server 2019 Cumulative Update 15 {predicate}."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous affected-version clause"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": "Not stated in supplied sources.",
+                    "Recommended Actions": statement,
+                }
+            ),
+            build_reporting_catalog([source]),
+        )

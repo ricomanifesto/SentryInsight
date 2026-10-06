@@ -644,8 +644,9 @@ VERSION_AUDIENCE_ASSERTION = re.compile(
 )
 VERSION_AFFECTED_PREDICATE = re.compile(
     r"\b(?:is|are|was|were|remain(?:s|ed)?|becomes?|became|gets?|got|"
-    r"has|have|had|do|does|did|will|would|can|could|may|might|must|shall|should|[a-z]+n['’]t)"
-    r"(?: (?:have|be|been|being|remain|remained|also|still|not|never|no longer|"
+    r"has|have|had|do|does|did|will|would|can(?:not)?|could|may|might|must|shall|should|"
+    r"need(?:s|ed)?|dare(?:s|d)?|ought|used|[a-z]+n['’]t)"
+    r"(?: (?:have|had|to|be|been|being|remain|remained|also|still|not|never|no longer|"
     r"already|currently|now|yet|ever|[a-z]+ly))* "
     r"(?:affected|impacted|vulnerable|unaffected)\b",
     re.I,
