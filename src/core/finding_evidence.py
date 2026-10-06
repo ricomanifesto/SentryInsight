@@ -911,14 +911,25 @@ def validate_finding_evidence(
                 if any(entry not in links for entry in normalized):
                     raise EvidenceError(f"{title}: unsupported vendor link")
             elif name in {"Exceptions", "Recommended Actions"}:
-                evidence = field_evidence[name]
-                if name == "Exceptions":
-                    evidence += "\n" + "\n".join(excluded_version_lines)
                 for entry in entries:
                     roles = _detail_roles(entry)
-                    if (roles and name not in roles) or _plain(entry) not in _plain(
-                        evidence
-                    ):
+                    # A phrase with no role cue can inherit one unambiguous
+                    # source role. Mixed-role sentences require a role-bearing
+                    # phrase so truncation cannot turn advice into an exception.
+                    grounded = any(
+                        span.role == "body"
+                        and name in span.fields
+                        and (name in roles or span.fields == (name,))
+                        and _plain(entry) in _plain(span.text)
+                        for span in detail_spans
+                    ) or (
+                        name == "Exceptions"
+                        and any(
+                            _plain(entry) == _plain(item)
+                            for item in excluded_version_lines
+                        )
+                    )
+                    if (roles and name not in roles) or not grounded:
                         raise EvidenceError(
                             f"{title}: {name} must preserve exact source-supported details with the matching semantic role"
                         )

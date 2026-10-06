@@ -1408,3 +1408,24 @@ def test_version_suffix_cannot_be_grounded_inside_a_larger_token(
     with pytest.raises(EvidenceError, match="source-supported"):
         validate_finding_evidence(report(**{"Affected Versions": reported}), catalog)
     validate_finding_evidence(report(**{"Affected Versions": source_version}), catalog)
+
+
+@pytest.mark.parametrize(
+    "field,value", [("Exceptions", "install"), ("Recommended Actions", "no action")]
+)
+def test_ambiguous_mixed_role_span_needs_a_role_bearing_value(field, value):
+    source = article(
+        f"{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action, but administrators should install the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="semantic role"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Exceptions": "Hosted users need no action",
+                    "Recommended Actions": "install the update",
+                    field: value,
+                }
+            ),
+            build_reporting_catalog([source]),
+        )
