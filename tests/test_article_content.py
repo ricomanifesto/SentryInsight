@@ -149,3 +149,10 @@ def test_input_budget_fails_before_model_call_instead_of_truncating(monkeypatch)
         )
     )
     assert "no source text was truncated" in result["error"]
+
+
+def test_outer_html_list_items_keep_nested_context_and_sibling_boundaries():
+    markup = "<article><ul><li>Do not:<ul><li><p>install the update</p></li><li>restart the service</li></ul></li><li>Contact support.</li></ul></article>"
+    expected = "Do not: install the update; restart the service\n\nContact support."
+    assert extract_article_content(markup, "https://example.test").text == expected
+    assert normalize_feed_content(markup) == expected

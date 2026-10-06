@@ -63,7 +63,7 @@ def _extract(node: _Node, url: str) -> ArticleContent:
     chunks: list[str] = []
     links: list[str] = []
 
-    def visit(item):
+    def visit(item, list_depth=0):
         if isinstance(item, str):
             chunks.append(re.sub(r"\s+", " ", item))
             return
@@ -90,7 +90,7 @@ def _extract(node: _Node, url: str) -> ArticleContent:
         ):
             return
         if item.tag == "br":
-            chunks.append("\n")
+            chunks.append(" " if list_depth else "\n")
             return
         block = item.tag in {
             "p",
@@ -107,9 +107,10 @@ def _extract(node: _Node, url: str) -> ArticleContent:
             "h6",
             "tr",
         }
+        separator = " " if list_depth else "\n\n"
         if block:
-            chunks.append("\n\n")
-        if item.tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            chunks.append(separator)
+        if not list_depth and item.tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
             chunks.append("#" * int(item.tag[1]) + " ")
         if item.tag == "a":
             target = urljoin(url, item.attrs.get("href", ""))
@@ -121,10 +122,25 @@ def _extract(node: _Node, url: str) -> ArticleContent:
                 and not parsed.password
             ):
                 links.append(target)
+        child_depth = list_depth + (item.tag == "li")
+        seen_item = False
         for child in item.children:
-            visit(child)
+            if (
+                child_depth
+                and item.tag in {"ul", "ol"}
+                and isinstance(child, _Node)
+                and child.tag == "li"
+            ):
+                if seen_item:
+                    while chunks and not chunks[-1].strip():
+                        chunks.pop()
+                    if chunks:
+                        chunks[-1] = chunks[-1].rstrip()
+                    chunks.append("; ")
+                seen_item = True
+            visit(child, child_depth)
         if block:
-            chunks.append("\n\n")
+            chunks.append(separator)
 
     visit(node)
     text = "\n\n".join(

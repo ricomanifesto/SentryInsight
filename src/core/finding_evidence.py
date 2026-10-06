@@ -31,8 +31,10 @@ DETAIL_FIELDS = (
     "Vendor Links",
 )
 FIELD = re.compile(r"^-\s+\*\*([^*]+)\*\*:\s*(.*?)\s*$", re.MULTILINE)
+VERSION_LIST_CUE = r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected)|supported releases?)\b"
+CUMULATIVE_UPDATE_CUE = r"\bcumulative updates?\b"
 DETAIL_CUES = {
-    "Affected Versions": r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected)|cumulative update)\b",
+    "Affected Versions": rf"{VERSION_LIST_CUE}|{CUMULATIVE_UPDATE_CUE}",
     "Exceptions": r"\b(?:need(?:s)? no action|not (?:required|affected|impacted|vulnerable)|no longer (?:affected|impacted|vulnerable)|unaffected|exempt|does not allow|no customer action)\b",
     "Recommended Actions": r"\b(?:install (?:the )?(?:updates?|patch)|apply (?:the )?(?:fix|patch|update)|advised to|recommended to|(?:should|must) (?:install|apply|patch|upgrade|update)|restart (?:the )?service)\b",
 }
@@ -901,11 +903,11 @@ def validate_finding_evidence(
                 in_versions = False
                 range_target = None
             cue = re.search(
-                r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected))\b",
+                VERSION_LIST_CUE,
                 line,
                 re.I,
             )
-            if cue:
+            if cue or re.search(CUMULATIVE_UPDATE_CUE, line, re.I):
                 known_version_list = True
                 in_versions = True
                 if span.role == "heading":
@@ -913,7 +915,7 @@ def validate_finding_evidence(
                 remainder = re.sub(
                     r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
                     "",
-                    line[cue.end() :],
+                    line[cue.end() :] if cue else line,
                     flags=re.I,
                 ).rstrip(". ")
                 included, excluded = _version_constraints(remainder)

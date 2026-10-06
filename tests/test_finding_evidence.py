@@ -1709,3 +1709,72 @@ def test_html_line_breaks_preserve_individual_version_list_entries():
     )
     with pytest.raises(EvidenceError, match="omits"):
         validate_finding_evidence(report(), catalog)
+
+
+@pytest.mark.parametrize(
+    "nested,complete",
+    [
+        (
+            "<ul><li>install the update on hosted systems</li></ul>",
+            "Do not: install the update on hosted systems",
+        ),
+        (
+            "<h3>Hosted systems</h3><ul><li><p>install the update on hosted systems</p></li></ul>",
+            "Do not: Hosted systems install the update on hosted systems",
+        ),
+        (
+            "<ul><li>install the update on hosted systems</li><li>restart the service</li></ul>",
+            "Do not: install the update on hosted systems; restart the service",
+        ),
+    ],
+)
+def test_nested_html_recommendations_keep_outer_item_qualifications(nested, complete):
+    source = article(
+        f"<h2>{CVE}</h2><p>{CVE} is actively exploited.</p><p>Example Server 2.3</p><p>Hosted users need no action.</p><ul><li>Do not:{nested}</li></ul>",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="source-supported|complete"):
+        validate_finding_evidence(
+            report(**{"Recommended Actions": "install the update on hosted systems"}),
+            catalog,
+        )
+    validate_finding_evidence(report(**{"Recommended Actions": complete}), catalog)
+
+
+@pytest.mark.parametrize(
+    "intro",
+    [
+        "Supported releases include ",
+        "Supported releases are ",
+        "Supported release includes ",
+        "",
+    ],
+)
+def test_cumulative_update_lists_require_all_releases(intro):
+    first = "Example Server 2019 Cumulative Update 14"
+    second = "Example Server 2019 Cumulative Update 15"
+    source = article(
+        f"{CVE} is actively exploited.\n\n{intro}{first} and {second}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(**{"Affected Versions": first}), catalog)
+    validate_finding_evidence(
+        report(**{"Affected Versions": f"{first}; {second}"}), catalog
+    )
+
+
+def test_nested_html_version_entries_remain_separate_constraints():
+    source = article(
+        f"<h2>{CVE}</h2><p>{CVE} is actively exploited.</p><ul><li>Affected versions:<ul><li>Example Server 2.3</li><li>Example Server 2.4</li></ul></li></ul><p>Hosted users need no action.</p><p>Install the update.</p>",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Example Server 2.3; Example Server 2.4"}),
+        catalog,
+    )
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)
