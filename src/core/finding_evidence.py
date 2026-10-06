@@ -669,7 +669,13 @@ def _version_clause(text: str) -> VersionClause:
         )
     recommendation = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
     information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
-    if not re.search(r"\b(?:affected|impacted|vulnerable|unaffected)\b", text, re.I):
+    # A descriptive qualifier ("on affected systems") is part of the advice.
+    # Only a complete embedded assertion can prevent recommendation or
+    # information classification; unknown separators must still fail closed.
+    if not any(
+        pattern.search(text)
+        for pattern in (VERSION_AFFECTED_CLAUSE, VERSION_AUDIENCE_ASSERTION)
+    ):
         if recommendation:
             return VersionClause("recommendation", text)
         if information:

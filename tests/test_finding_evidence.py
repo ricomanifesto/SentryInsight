@@ -1787,6 +1787,10 @@ def test_nested_html_version_entries_remain_separate_constraints():
         "Customers should install\nExample Server 2019 Cumulative Update 15.",
         "Customers are advised to install Example Server 2019 Cumulative Update 15.",
         "Administrators must apply Example Server 2019 Cumulative Update 15.",
+        *[
+            f"Customers should install Example Server 2019 Cumulative Update 15 on {qualifier} systems."
+            for qualifier in ["affected", "impacted", "vulnerable", "unaffected"]
+        ],
     ],
 )
 def test_cumulative_update_recommendations_are_not_affected_version_lists(
@@ -2023,4 +2027,16 @@ def test_explicit_version_roles_after_advice_take_precedence(separator, state):
                 }
             ),
             catalog,
+        )
+
+
+def test_recommendation_qualifiers_do_not_hide_a_separate_version_assertion():
+    source = article(
+        f"{CVE} is actively exploited.\n\nCustomers should install Example Server 2019 Cumulative Update 16 on affected systems / customers of Example Server 2019 Cumulative Update 15 are unaffected.\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous affected-version clause"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": "Not stated in supplied sources."}),
+            build_reporting_catalog([source]),
         )
