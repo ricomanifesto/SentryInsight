@@ -997,3 +997,39 @@ def test_reported_version_field_rejects_nonaffected_source_clauses(clause):
         validate_finding_evidence(
             report(**{"Affected Versions": f"Example Server 2.3; {clause}"}), catalog
         )
+
+
+@pytest.mark.parametrize("separator", [" — ", " – ", " - ", "—", "–"])
+def test_dash_delimited_version_clause_retains_its_role(separator):
+    text = f"Example Server 2.3{separator}users of Example Server 2.4 are not affected"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {text}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(), catalog)
+    with pytest.raises(EvidenceError, match="non-affected"):
+        validate_finding_evidence(report(**{"Affected Versions": text}), catalog)
+
+
+@pytest.mark.parametrize("separator", [" / ", " | ", " (", " : "])
+@pytest.mark.parametrize(
+    "clause",
+    [
+        "users of Example Server 2.4 are not affected",
+        "customers are recommended to install the update",
+        "further details are available from the vendor",
+    ],
+)
+def test_unsplit_embedded_clauses_cannot_fall_through_as_numeric_entries(
+    separator, clause
+):
+    text = f"Example Server 2.3{separator}{clause}"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {text}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous|non-affected"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": text}), build_reporting_catalog([source])
+        )

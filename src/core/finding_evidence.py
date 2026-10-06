@@ -405,17 +405,28 @@ class VersionClause:
 
 
 VERSION_AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
+VERSION_AFFECTED_CLAUSE = re.compile(
+    rf"\b(?:{VERSION_AUDIENCE}) of (?P<versions>.+?) "
+    r"(?:are|were|remain) (?P<qualifiers>(?:(?:also|still|not|no longer) )*)"
+    r"(?P<state>affected|impacted|vulnerable|unaffected)\b",
+    re.I,
+)
+VERSION_RECOMMENDATION_CLAUSE = re.compile(
+    rf"\b(?:{VERSION_AUDIENCE})\b.*?\b"
+    r"(?:should|must|needs? to|(?:are|is) (?:advised|recommended|urged|encouraged) to) "
+    r"(?:\w+ly )*(?:install|apply|patch|upgrade|update|consult|review|contact)\b.*",
+    re.I,
+)
+VERSION_INFORMATION_CLAUSE = re.compile(
+    r"\b(?:(?:further|more) )?(?:details|information)\b.*?\b(?:is|are) "
+    r"(?:available|provided|published)\b.*",
+    re.I,
+)
 
 
 def _version_clause(text: str) -> VersionClause:
     """Classify complete clauses before interpreting their version constraints."""
-    affected = re.fullmatch(
-        rf"(?:{VERSION_AUDIENCE}) of (?P<versions>.+?) "
-        r"(?:are|were|remain) (?P<qualifiers>(?:(?:also|still|not|no longer) )*)"
-        r"(?P<state>affected|impacted|vulnerable|unaffected)",
-        text,
-        re.I,
-    )
+    affected = VERSION_AFFECTED_CLAUSE.fullmatch(text)
     if affected:
         negated = bool(
             re.search(r"\b(?:not|no longer)\b", affected["qualifiers"], re.I)
@@ -430,25 +441,23 @@ def _version_clause(text: str) -> VersionClause:
             ),
             affected["versions"],
         )
-    recommendation = re.fullmatch(
-        rf"(?:{VERSION_AUDIENCE})\b.*?\b"
-        r"(?:should|must|needs? to|(?:are|is) (?:advised|recommended|urged|encouraged) to) "
-        r"(?:\w+ly )*(?:install|apply|patch|upgrade|update|consult|review|contact)\b.*",
-        text,
-        re.I,
-    )
-    information = re.fullmatch(
-        r"(?:(?:further|more) )?(?:details|information)\b.*?\b(?:is|are) "
-        r"(?:available|provided|published)\b.*",
-        text,
-        re.I,
-    )
+    recommendation = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
+    information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
     if not re.search(r"\b(?:affected|impacted|vulnerable|unaffected)\b", text, re.I):
         if recommendation:
             return VersionClause("recommendation", text)
         if information:
             return VersionClause("information", text)
-    if re.match(rf"(?:{VERSION_AUDIENCE}) of\b", text, re.I):
+    # Recognizable clauses left inside a numeric fragment are not list entries.
+    # Reuse the same grammar so an unknown separator cannot bypass role checks.
+    if re.match(rf"(?:{VERSION_AUDIENCE}) of\b", text, re.I) or any(
+        pattern.search(text)
+        for pattern in (
+            VERSION_AFFECTED_CLAUSE,
+            VERSION_RECOMMENDATION_CLAUSE,
+            VERSION_INFORMATION_CLAUSE,
+        )
+    ):
         raise EvidenceError("ambiguous affected-version clause")
     return VersionClause("list", text)
 
@@ -491,7 +500,7 @@ def _version_constraints(
     if text == ABSENT:
         return [], []
     clauses = re.split(
-        r"(?:[,;]\s*(?:(?:and|or|but)\s+)?|\s+(?:and|or|but)\s+)"
+        r"(?:(?:[,;—–]|\s+-\s+)\s*(?:(?:and|or|but)\s+)?|\s+(?:and|or|but)\s+)"
         rf"(?=(?:{VERSION_AUDIENCE}|(?:(?:further|more) )?(?:details|information))\b)",
         text.strip().rstrip("."),
         flags=re.I,
@@ -716,9 +725,13 @@ def validate_finding_evidence(
                     raise EvidenceError(f"{title}: unsupported vendor link") from exc
                 if any(entry not in links for entry in normalized):
                     raise EvidenceError(f"{title}: unsupported vendor link")
-            elif name == "Affected Versions" and any(
-                not _supported_version_text(entry, scoped) for entry in entries
+            elif (
+                name == "Affected Versions"
+                and not known_version_list
+                and any(not _supported_version_text(entry, scoped) for entry in entries)
             ):
+                # Parsed lists already establish exact complete constraints above.
+                # Without a list, grounding must enforce source token boundaries.
                 raise EvidenceError(
                     f"{title}: {name} must preserve exact source-supported details"
                 )
