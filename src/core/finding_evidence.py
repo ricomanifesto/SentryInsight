@@ -642,6 +642,12 @@ VERSION_AUDIENCE_ASSERTION = re.compile(
     r"(?P<state>affected|impacted|vulnerable|unaffected)\b",
     re.I,
 )
+VERSION_AFFECTED_PREDICATE = re.compile(
+    r"\b(?:is|are|was|were|remains?) "
+    r"(?:(?:also|still|not|no longer) )*"
+    r"(?:affected|impacted|vulnerable|unaffected)\b",
+    re.I,
+)
 
 
 def _version_assertion_is_negative(match: re.Match[str]) -> bool:
@@ -667,19 +673,16 @@ def _version_clause(text: str) -> VersionClause:
             "exception" if _version_assertion_is_negative(audience) else "audience",
             text,
         )
-    recommendation = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
-    information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
-    # A descriptive qualifier ("on affected systems") is part of the advice.
-    # Only a complete embedded assertion can prevent recommendation or
-    # information classification; unknown separators must still fail closed.
-    if not any(
-        pattern.search(text)
-        for pattern in (VERSION_AFFECTED_CLAUSE, VERSION_AUDIENCE_ASSERTION)
-    ):
-        if recommendation:
-            return VersionClause("recommendation", text)
-        if information:
-            return VersionClause("information", text)
+    # Known complete assertions were classified above. Any remaining finite
+    # affected predicate is unclassified, including product-first assertions
+    # hidden behind unknown separators. Descriptive adjectives alone remain
+    # valid qualifiers in advice ("on affected systems").
+    if VERSION_AFFECTED_PREDICATE.search(text):
+        raise EvidenceError("ambiguous affected-version clause")
+    if VERSION_RECOMMENDATION_CLAUSE.fullmatch(text):
+        return VersionClause("recommendation", text)
+    if VERSION_INFORMATION_CLAUSE.fullmatch(text):
+        return VersionClause("information", text)
     if re.search(
         rf"\b(?:{VERSION_AUDIENCE}) (?:only\b|with\b).*{VERSION_FINITE_PREDICATE}",
         text,

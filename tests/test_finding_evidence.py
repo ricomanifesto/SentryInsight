@@ -2040,3 +2040,25 @@ def test_recommendation_qualifiers_do_not_hide_a_separate_version_assertion():
             report(**{"Affected Versions": "Not stated in supplied sources."}),
             build_reporting_catalog([source]),
         )
+
+
+@pytest.mark.parametrize("separator", [" / ", " | ", "; "])
+@pytest.mark.parametrize(
+    "predicate", ["is affected", "are unaffected", "was impacted", "remains vulnerable"]
+)
+def test_advice_cannot_hide_unclassified_version_first_assertions(separator, predicate):
+    statement = f"Customers should install Example Server 2019 Cumulative Update 16 on affected systems{separator}Example Server 2019 Cumulative Update 15 {predicate}."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous affected-version clause"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": "Not stated in supplied sources.",
+                    "Recommended Actions": statement,
+                }
+            ),
+            build_reporting_catalog([source]),
+        )
