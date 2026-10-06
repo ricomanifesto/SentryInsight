@@ -879,11 +879,16 @@ def _version_source_text(text: str) -> str:
     """Remove attribution tags only after detail spans have established CVE scope."""
     if not CVE_ID_PATTERN.search(text):
         return text
-    text = CVE_ID_PATTERN.sub("", text)
+    text = re.sub(
+        rf"(?:\s*[,;:|—–-]\s*|\s+for\s+)?(?:{CVE_ID_PATTERN.pattern})",
+        " ",
+        text,
+        flags=re.I,
+    )
     text = re.sub(r"\(\s*\)|\[\s*\]", "", text)
     text = text.strip(" \t.,;:|—–-")
     text = re.sub(r"\bfor\s*$", "", text, flags=re.I)
-    return text.strip()
+    return " ".join(text.split())
 
 
 def _supported_version_text(entry: str, source: str) -> bool:
@@ -1180,16 +1185,16 @@ def validate_finding_evidence(
                         raise EvidenceError(
                             f"{title}: {name} must preserve exact source-supported details with the matching semantic role"
                         )
-            elif (
-                name == "Affected Versions"
-                and not known_version_list
-                and any(not _supported_version_text(entry, scoped) for entry in entries)
-            ):
+            elif name == "Affected Versions":
                 # Parsed lists already establish exact complete constraints above.
+                # Compare that canonical representation, not raw attribution tags.
                 # Without a list, grounding must enforce source token boundaries.
-                raise EvidenceError(
-                    f"{title}: {name} must preserve exact source-supported details"
-                )
+                if not known_version_list and any(
+                    not _supported_version_text(entry, scoped) for entry in entries
+                ):
+                    raise EvidenceError(
+                        f"{title}: {name} must preserve exact source-supported details"
+                    )
             elif any(_plain(entry) not in _plain(scoped) for entry in entries):
                 raise EvidenceError(
                     f"{title}: {name} must preserve exact source-supported details"

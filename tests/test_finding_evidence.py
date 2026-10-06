@@ -2493,3 +2493,26 @@ def test_cve_metadata_normalization_preserves_release_qualifiers(version, tag):
         report(**{"Affected Versions": version, "Recommended Actions": introduction}),
         build_reporting_catalog([source]),
     )
+
+
+@pytest.mark.parametrize(
+    "annotation",
+    [" — {cve}", " - {cve}", " | {cve}", " for {cve}", " ({cve})", " [{cve}]"],
+)
+@pytest.mark.parametrize("qualifier", ["(Windows)", "and later"])
+def test_release_qualifiers_after_cve_tags_remain_complete(annotation, qualifier):
+    introduction = "Customers should install the fix for affected versions."
+    version = f"Example Server 2.3 {qualifier}"
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n- Example Server 2.3{annotation.format(cve=CVE)} {qualifier}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(
+        report(**{"Affected Versions": version, "Recommended Actions": introduction}),
+        catalog,
+    )
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(**{"Recommended Actions": introduction}), catalog
+        )
