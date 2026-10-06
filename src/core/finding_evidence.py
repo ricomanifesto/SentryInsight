@@ -399,7 +399,7 @@ def _plain(text: str) -> str:
 
 
 def _version_entries(text: str) -> list[str]:
-    """Parse complete constraints without discarding nonnumeric range tails."""
+    """Keep recognized range tails and stop at unrelated nonnumeric clauses."""
     parts = re.split(r"([,;]|\s+(?:and|or)\s+)", text.strip().rstrip("."), flags=re.I)
     entries: list[str] = []
     for index in range(0, len(parts), 2):
@@ -407,12 +407,15 @@ def _version_entries(text: str) -> list[str]:
         if not entry:
             continue
         qualifier = re.match(
-            r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior)\b",
+            r"(?:(?:all|any|the|other)\s+)*(?:(?:versions?|releases?|builds?)\s+)?"
+            r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior|previous|subsequent)\b",
             entry,
             re.I,
         )
-        if entries and (qualifier or not re.search(r"\d|\bRTM\b", entry, re.I)):
+        if entries and qualifier:
             entries[-1] += parts[index - 1] + entry
+        elif entries and not re.search(r"\d|\bRTM\b", entry, re.I):
+            break
         else:
             entries.append(entry)
     return entries
