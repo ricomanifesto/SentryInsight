@@ -976,3 +976,24 @@ def test_unresolved_version_list_is_not_an_explicit_empty_list(constraint):
             report(**{"Affected Versions": "Not stated in supplied sources."}),
             build_reporting_catalog([source]),
         )
+
+
+@pytest.mark.parametrize(
+    "clause",
+    [
+        "users of Example Server 2.4 are not affected",
+        "customers are recommended to install the update",
+        "further details are available from the vendor",
+    ],
+)
+def test_reported_version_field_rejects_nonaffected_source_clauses(clause):
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3, and {clause}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(), catalog)
+    with pytest.raises(EvidenceError, match="non-affected"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": f"Example Server 2.3; {clause}"}), catalog
+        )

@@ -484,7 +484,9 @@ def _version_list_entries(text: str) -> list[str]:
     return entries
 
 
-def _version_constraints(text: str) -> tuple[list[str], list[str]]:
+def _version_constraints(
+    text: str, *, require_affected: bool = False
+) -> tuple[list[str], list[str]]:
     """Retain separate affected and explicitly excluded constraint sets."""
     if text == ABSENT:
         return [], []
@@ -500,6 +502,8 @@ def _version_constraints(text: str) -> tuple[list[str], list[str]]:
         if not text.strip():
             continue
         clause = _version_clause(text.strip())
+        if require_affected and clause.kind not in {"affected", "list"}:
+            raise EvidenceError("Affected Versions contains a non-affected clause")
         if clause.kind in {"affected", "list"}:
             entries.extend(_version_list_entries(clause.text))
         elif clause.kind == "unaffected":
@@ -508,7 +512,8 @@ def _version_constraints(text: str) -> tuple[list[str], list[str]]:
 
 
 def _version_entries(text: str) -> list[str]:
-    return _version_constraints(text)[0]
+    """Validate the report field without dropping any non-affected clauses."""
+    return _version_constraints(text, require_affected=True)[0]
 
 
 def _supported_version_text(entry: str, source: str) -> bool:
