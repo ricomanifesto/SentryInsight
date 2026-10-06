@@ -1015,7 +1015,9 @@ def test_dash_delimited_version_clause_retains_its_role(separator):
 @pytest.mark.parametrize(
     "qualifier", ["users with premium licenses", "administrators only"]
 )
-@pytest.mark.parametrize("separator", [" — ", " – ", " - "])
+@pytest.mark.parametrize(
+    "separator", [" — ", " – ", " - ", ", ", "; ", " and ", " or "]
+)
 def test_dash_audience_qualifier_remains_part_of_the_version_constraint(
     qualifier, separator
 ):

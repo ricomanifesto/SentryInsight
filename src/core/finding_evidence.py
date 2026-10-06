@@ -405,6 +405,9 @@ class VersionClause:
 
 
 VERSION_AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
+VERSION_AUDIENCE_QUALIFIER = re.compile(
+    rf"(?:{VERSION_AUDIENCE}) (?:only|with .+)", re.I
+)
 VERSION_AFFECTED_CLAUSE = re.compile(
     rf"\b(?:{VERSION_AUDIENCE}) of (?P<versions>.+?) "
     r"(?:are|were|remain) (?P<qualifiers>(?:(?:also|still|not|no longer) )*)"
@@ -482,7 +485,7 @@ def _version_list_entries(text: str) -> list[str]:
             entry,
             re.I,
         )
-        if entries and qualifier:
+        if entries and (qualifier or VERSION_AUDIENCE_QUALIFIER.fullmatch(entry)):
             entries[-1] += parts[index - 1] + entry
         elif not re.search(r"\d|\bRTM\b", entry, re.I):
             pending = entry
