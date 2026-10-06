@@ -705,6 +705,14 @@ def _cumulative_version_list(text: str, context: str = "") -> bool:
     """
     if not re.search(CUMULATIVE_UPDATE_CUE, text, re.I):
         return False
+    clauses = _version_clauses(text)
+    # Explicit assertions own their role regardless of surrounding advice.
+    # Context is needed only for implicit release names and wrapped targets.
+    if any(
+        clause.kind in {"affected", "unaffected", "audience", "exception"}
+        for _, clause in clauses
+    ):
+        return True
     current = _plain(text)
     prior = _sentences(_plain(context or text))[-1].removesuffix(current)
     update = re.search(CUMULATIVE_UPDATE_CUE, current, re.I)
@@ -716,10 +724,7 @@ def _cumulative_version_list(text: str, context: str = "") -> bool:
     if not re.search(r"\d|\bRTM\b", text, re.I):
         # A heading can introduce following rows; generic advice/information
         # does not establish a release list just by naming cumulative updates.
-        return _version_clause(text.strip().rstrip(".")).kind not in {
-            "recommendation",
-            "information",
-        }
+        return any(clause.kind == "list" for _, clause in clauses)
     included, excluded = _version_constraints(text)
     return bool(included or excluded)
 
@@ -757,12 +762,10 @@ def _version_list_entries(text: str) -> list[str]:
     return entries
 
 
-def _version_constraints(
-    text: str, *, require_affected: bool = False
-) -> tuple[list[str], list[str]]:
-    """Retain separate affected and explicitly excluded constraint sets."""
+def _version_clauses(text: str) -> list[tuple[str, VersionClause]]:
+    """Share complete clause classification between list detection and collection."""
     if text == ABSENT:
-        return [], []
+        return []
     parts = re.split(
         r"((?:[,;—–]|\s+-\s+)\s*(?:(?:and|or|but)\s+)?|\s+(?:and|or|but)\s+)"
         rf"(?=(?:{VERSION_AUDIENCE}|(?:(?:further|more) )?(?:details|information))\b)",
@@ -786,12 +789,20 @@ def _version_constraints(
             # An audience restriction is part of the complete constraint.
             prefix, previous = clauses[-1]
             clauses[-1] = (prefix, previous + separator + candidate)
+    return [
+        (separator, _version_clause(value.strip()))
+        for separator, value in clauses
+        if value.strip()
+    ]
+
+
+def _version_constraints(
+    text: str, *, require_affected: bool = False
+) -> tuple[list[str], list[str]]:
+    """Retain separate affected and explicitly excluded constraint sets."""
     entries: list[str] = []
     exclusions: list[str] = []
-    for separator, text in clauses:
-        if not text.strip():
-            continue
-        clause = _version_clause(text.strip())
+    for separator, clause in _version_clauses(text):
         if require_affected and clause.kind not in {"affected", "audience", "list"}:
             raise EvidenceError("Affected Versions contains a non-affected clause")
         if clause.kind in {"affected", "list"}:

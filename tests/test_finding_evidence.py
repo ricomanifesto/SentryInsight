@@ -1983,3 +1983,44 @@ def test_explicit_cumulative_update_exclusions_keep_their_clause_role():
         ),
         build_reporting_catalog([source]),
     )
+
+
+@pytest.mark.parametrize("separator", ["; ", ", ", "\n"])
+@pytest.mark.parametrize("state", ["affected", "unaffected"])
+def test_explicit_version_roles_after_advice_take_precedence(separator, state):
+    version = "Example Server 2019 Cumulative Update 15"
+    target = "Example Server 2019 Cumulative Update 16"
+    paragraph = f"Customers should install {target}{separator}customers of {version} are {state}."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{paragraph}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    values = {
+        "Affected Versions": (
+            version if state == "affected" else "Not stated in supplied sources."
+        ),
+        "Exceptions": "Hosted users need no action."
+        + (f"; {version}" if state == "unaffected" else ""),
+        "Recommended Actions": " ".join(paragraph.split()),
+    }
+    validate_finding_evidence(report(**values), catalog)
+    missing = (
+        {"Affected Versions": "Not stated in supplied sources."}
+        if state == "affected"
+        else {"Exceptions": "Hosted users need no action."}
+    )
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(**{**values, **missing}), catalog)
+    with pytest.raises(EvidenceError, match="unsupported affected-version"):
+        validate_finding_evidence(
+            report(
+                **{
+                    **values,
+                    "Affected Versions": (
+                        f"{version}; {target}" if state == "affected" else target
+                    ),
+                }
+            ),
+            catalog,
+        )
