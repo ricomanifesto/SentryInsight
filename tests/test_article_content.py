@@ -1,3 +1,5 @@
+import pytest
+
 from src.services.article_content import extract_article_content, normalize_feed_content
 from src.core.analyze import format_article_summary
 
@@ -171,3 +173,42 @@ def test_repeated_breaks_outside_lists_remain_paragraph_separators():
         expected = "Background.\n\nInstall the update."
         assert extract_article_content(markup, "https://example.test").text == expected
         assert normalize_feed_content(markup) == expected
+
+
+@pytest.mark.parametrize(
+    "markup, expected",
+    [
+        (
+            "<ul><li>Example Server 2.3<li>Example Server 2.4</ul>",
+            "Example Server 2.3\n\nExample Server 2.4",
+        ),
+        (
+            "<ol><li>Example Server 2.3<li>Example Server 2.4</ol>",
+            "Example Server 2.3\n\nExample Server 2.4",
+        ),
+        (
+            "<ul><li>Do not:<ul><li>install the update<li>restart the service</ul><li>Contact support.</ul>",
+            "Do not: install the update; restart the service\n\nContact support.",
+        ),
+        (
+            "<ol><li>Do not:<ol><li>install the update<li>restart the service</ol><li>Contact support.</ol>",
+            "Do not: install the update; restart the service\n\nContact support.",
+        ),
+        (
+            "<ul><li><span>Example Server</span> 2.3<li>Example Server <strong>2.4</strong></ul>",
+            "Example Server 2.3\n\nExample Server 2.4",
+        ),
+        (
+            "<ul><li><p>Example Server 2.3<li><p>Example Server 2.4</ul>",
+            "Example Server 2.3\n\nExample Server 2.4",
+        ),
+        (
+            "<ul><li>Example Server 2.3<li>Example Server 2.4</ul><p>Hosted users need no action.</p>",
+            "Example Server 2.3\n\nExample Server 2.4\n\nHosted users need no action.",
+        ),
+    ],
+)
+def test_html_optional_end_tags_preserve_list_ownership(markup, expected):
+    markup = f"<article>{markup}</article>"
+    assert extract_article_content(markup, "https://example.test").text == expected
+    assert normalize_feed_content(markup) == expected

@@ -1,7 +1,7 @@
 """Static article-owned text extraction; no rendered-page or whole-page fallback."""
 
 from dataclasses import dataclass, field
-from html.parser import HTMLParser
+import html5lib
 import re
 from typing import Any
 from urllib.parse import urljoin, urlsplit
@@ -14,43 +14,24 @@ class _Node:
     children: list[Any] = field(default_factory=list)
 
 
-class _Document(HTMLParser):
-    def __init__(self):
-        super().__init__(convert_charrefs=True)
-        self.root = _Node("root", {})
-        self.stack = [self.root]
+class _Document:
+    def __init__(self, html: str, *, fragment: bool = False):
+        parse = html5lib.parseFragment if fragment else html5lib.parse
+        tree = parse(html, treebuilder="etree", namespaceHTMLElements=False)
         self.nodes = []
+        self.root = self._from_element(tree)
 
-    def handle_starttag(self, tag, attrs):
-        node = _Node(tag, {key: value or "" for key, value in attrs})
-        self.stack[-1].children.append(node)
+    def _from_element(self, element):
+        node = _Node(element.tag.rsplit("}", 1)[-1], dict(element.attrib))
         self.nodes.append(node)
-        if tag not in {
-            "area",
-            "base",
-            "br",
-            "col",
-            "embed",
-            "hr",
-            "img",
-            "input",
-            "link",
-            "meta",
-            "param",
-            "source",
-            "track",
-            "wbr",
-        }:
-            self.stack.append(node)
-
-    def handle_endtag(self, tag):
-        for index in range(len(self.stack) - 1, 0, -1):
-            if self.stack[index].tag == tag:
-                del self.stack[index:]
-                break
-
-    def handle_data(self, data):
-        self.stack[-1].children.append(data)
+        if element.text:
+            node.children.append(element.text)
+        for child in element:
+            if isinstance(child.tag, str):
+                node.children.append(self._from_element(child))
+            if child.tail:
+                node.children.append(child.tail)
+        return node
 
 
 @dataclass(frozen=True)
@@ -154,8 +135,7 @@ def _extract(node: _Node, url: str) -> ArticleContent:
 
 
 def extract_article_content(html: str, url: str) -> ArticleContent:
-    document = _Document()
-    document.feed(html)
+    document = _Document(html)
     explicit = [
         node
         for node in document.nodes
@@ -179,6 +159,5 @@ def normalize_feed_content(value: Any) -> str:
     text = str(value or "")
     if "<" not in text:
         return text.strip()
-    document = _Document()
-    document.feed(text)
+    document = _Document(text, fragment=True)
     return _extract(document.root, "").text

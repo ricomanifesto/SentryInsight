@@ -2693,3 +2693,27 @@ def test_grouped_metadata_removal_preserves_connector_owned_spacing(
             ),
             catalog,
         )
+
+
+@pytest.mark.parametrize("list_tag", ["ul", "ol"])
+def test_html_implicit_list_closures_retain_separate_version_constraints(list_tag):
+    from src.services.article_content import extract_article_content
+
+    content = extract_article_content(
+        f"<article><p>{CVE} is actively exploited.</p>"
+        f"<p>Affected versions:</p><{list_tag}>"
+        f"<li>Example Server 2.3<li>Example Server 2.4</{list_tag}>"
+        "<p>Hosted users need no action.</p><p>Install the update.</p>"
+        '<a href="https://example.test/vendor">Vendor advisory</a></article>',
+        URL,
+    )
+    catalog = build_reporting_catalog(
+        [article(content.text, source_links=list(content.links))]
+    )
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Example Server 2.3; Example Server 2.4"}),
+        catalog,
+    )
+    for altered in ["Example Server 2.3", "Example Server 2.3 Example Server 2.4"]:
+        with pytest.raises(EvidenceError, match="omits"):
+            validate_finding_evidence(report(**{"Affected Versions": altered}), catalog)
