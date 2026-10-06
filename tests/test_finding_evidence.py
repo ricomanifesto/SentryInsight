@@ -2576,3 +2576,63 @@ def test_grouped_qualifiers_do_not_consume_a_following_version_entry():
         ),
         catalog,
     )
+
+
+@pytest.mark.parametrize("wrappers", [("(", ")"), ("[", "]")])
+@pytest.mark.parametrize(
+    "annotated, qualifier",
+    [
+        ("{cve} and Windows", "Windows"),
+        ("Windows and {cve}", "Windows"),
+        ("Windows and {cve} and Linux", "Windows and Linux"),
+        ("{cve} or Windows", "Windows"),
+        ("Windows or {cve}", "Windows"),
+        ("Windows or {cve} or Linux", "Windows or Linux"),
+        ("Windows and ({cve}) and Linux", "Windows and Linux"),
+        ("Windows and {cve} or Linux", "Windows or Linux"),
+    ],
+)
+def test_grouped_attribution_members_preserve_remaining_connectors(
+    wrappers, annotated, qualifier
+):
+    left, right = wrappers
+    introduction = "Customers should install the fix for affected versions."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n- Example Server 2.3 {left}{annotated.format(cve=CVE)}{right}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": f"Example Server 2.3 {left}{qualifier}{right}",
+                "Recommended Actions": introduction,
+            }
+        ),
+        catalog,
+    )
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(**{"Recommended Actions": introduction}), catalog
+        )
+
+
+@pytest.mark.parametrize("connector", ["together with", "as well as"])
+def test_unclassified_grouped_attribution_cannot_become_a_malformed_constraint(
+    connector,
+):
+    introduction = "Customers should install the fix for affected versions."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n- Example Server 2.3 ({CVE} {connector} Windows)\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous.*attribution"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": f"Example Server 2.3 ({connector} Windows)",
+                    "Recommended Actions": introduction,
+                }
+            ),
+            build_reporting_catalog([source]),
+        )

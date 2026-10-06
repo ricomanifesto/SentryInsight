@@ -788,11 +788,16 @@ VERSION_RANGE_QUALIFIER = re.compile(
 )
 
 
-def _version_list_parts(text: str) -> list[str]:
+def _version_list_parts(text: str, *, attribution: bool = False) -> list[str]:
     """Retain grouped qualifiers while separating top-level release entries."""
     pairs = {"(": ")", "[": "]", "{": "}"}
     closing: list[str] = []
     parts: list[str] = []
+    separator_pattern = (
+        r"[,;:|—–]|\s+-(?=\s)|\s+(?:and|or|for)(?=\s)"
+        if attribution
+        else r"[,;]|\s+(?:and|or)\s+"
+    )
     start = index = 0
     while index < len(text):
         char = text[index]
@@ -802,7 +807,7 @@ def _version_list_parts(text: str) -> list[str]:
             if not closing or closing.pop() != char:
                 raise EvidenceError("ambiguous affected-version grouping")
         if not closing:
-            separator = re.match(r"[,;]|\s+(?:and|or)\s+", text[index:], re.I)
+            separator = re.match(separator_pattern, text[index:], re.I)
             if separator:
                 end = index + separator.end()
                 parts.extend((text[start:index], text[index:end]))
@@ -902,21 +907,73 @@ def _version_entries(text: str) -> list[str]:
     return _version_constraints(text, require_affected=True)[0]
 
 
+def _version_group_members(text: str) -> str:
+    """Remove attribution members without inventing or duplicating connectors."""
+    parts = _version_list_parts(text, attribution=True)
+    retained: list[str] = []
+    for index in range(0, len(parts), 2):
+        member = parts[index].strip()
+        if not member or re.fullmatch(
+            rf"(?:for\s+)?(?:{CVE_ID_PATTERN.pattern})", member, re.I
+        ):
+            continue
+        if CVE_ID_PATTERN.search(member):
+            raise EvidenceError("ambiguous CVE attribution in version constraint")
+        if retained:
+            connector = parts[index - 1].strip()
+            retained.append(
+                connector + " " if connector in {",", ";", ":"} else f" {connector} "
+            )
+        retained.append(member)
+    return "".join(retained)
+
+
+def _version_attribution_groups(text: str) -> str:
+    """Normalize nested qualifier groups while preserving their boundaries."""
+    if not CVE_ID_PATTERN.search(text):
+        return text
+    pairs = {"(": ")", "[": "]", "{": "}"}
+    pieces: list[str] = []
+    start = index = 0
+    while index < len(text):
+        if text[index] not in pairs:
+            index += 1
+            continue
+        closing = [pairs[text[index]]]
+        end = index + 1
+        while closing and end < len(text):
+            char = text[end]
+            if char in pairs:
+                closing.append(pairs[char])
+            elif char in pairs.values():
+                if closing.pop() != char:
+                    raise EvidenceError("ambiguous affected-version grouping")
+            end += 1
+        if closing:
+            raise EvidenceError("ambiguous affected-version grouping")
+        original = text[index + 1 : end - 1]
+        content = _version_attribution_groups(original)
+        if CVE_ID_PATTERN.search(original):
+            content = _version_group_members(content)
+        pieces.append(text[start:index])
+        if content.strip():
+            pieces.append(text[index] + content + text[end - 1])
+        start = index = end
+    pieces.append(text[start:])
+    return "".join(pieces)
+
+
 def _version_source_text(text: str) -> str:
     """Remove attribution tags only after detail spans have established CVE scope."""
     if not CVE_ID_PATTERN.search(text):
         return text
+    text = _version_attribution_groups(text)
     text = re.sub(
-        rf"(?:\s*[,;:|—–-]\s*|\s+for\s+)?(?:{CVE_ID_PATTERN.pattern})",
+        rf"(?:\s*[,;:|—–-]\s*|\s+(?:for|and|or)\s+)?(?:{CVE_ID_PATTERN.pattern})",
         " ",
         text,
         flags=re.I,
     )
-    text = re.sub(r"([\(\[])\s*[,;:|—–-]+\s*", r"\1", text)
-    text = re.sub(r"\s*[,;:|—–-]+\s*([\)\]])", r"\1", text)
-    text = re.sub(r"([\(\[])\s+", r"\1", text)
-    text = re.sub(r"\s+([,;\)\]])", r"\1", text)
-    text = re.sub(r"\(\s*\)|\[\s*\]", "", text)
     text = text.strip(" \t.,;:|—–-")
     text = re.sub(r"\bfor\s*$", "", text, flags=re.I)
     return " ".join(text.split())
