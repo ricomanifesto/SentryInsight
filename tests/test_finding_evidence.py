@@ -2173,3 +2173,65 @@ def test_standard_modal_chains_cannot_hide_version_assertions(connector, predica
             ),
             build_reporting_catalog([source]),
         )
+
+
+@pytest.mark.parametrize("connector", [", ", " and "])
+@pytest.mark.parametrize(
+    "predicate",
+    [
+        "is expected to be affected",
+        "was supposed to be impacted",
+        "is going to be vulnerable",
+        "is not expected to have been affected",
+        "is considered unaffected",
+        "seems likely to be affected",
+        "appears to remain vulnerable",
+        "was deemed to be affected",
+        "is reported as unaffected",
+        "has been described as vulnerable",
+        "counts as affected",
+        "qualifies as unaffected",
+    ],
+)
+def test_unclassified_version_states_cannot_be_absorbed_by_advice(connector, predicate):
+    statement = f"Customers should install Example Server 2019 Cumulative Update 16{connector}Example Server 2019 Cumulative Update 15 {predicate}."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="ambiguous affected-version clause"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": "Not stated in supplied sources.",
+                    "Recommended Actions": statement,
+                }
+            ),
+            build_reporting_catalog([source]),
+        )
+
+
+@pytest.mark.parametrize(
+    "description",
+    [
+        "on affected systems",
+        "for all impacted installations",
+        "to vulnerable servers",
+        "within the unaffected deployments",
+    ],
+)
+def test_advised_updates_preserve_supported_descriptive_state_phrases(description):
+    statement = f"Customers are advised to install Example Server 2019 Cumulative Update 16 {description}."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": "Not stated in supplied sources.",
+                "Recommended Actions": statement,
+            }
+        ),
+        build_reporting_catalog([source]),
+    )

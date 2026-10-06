@@ -642,13 +642,11 @@ VERSION_AUDIENCE_ASSERTION = re.compile(
     r"(?P<state>affected|impacted|vulnerable|unaffected)\b",
     re.I,
 )
-VERSION_AFFECTED_PREDICATE = re.compile(
-    r"\b(?:is|are|was|were|remain(?:s|ed)?|becomes?|became|gets?|got|"
-    r"has|have|had|do|does|did|will|would|can(?:not)?|could|may|might|must|shall|should|"
-    r"need(?:s|ed)?|dare(?:s|d)?|ought|used|[a-z]+n['’]t)"
-    r"(?: (?:have|had|to|be|been|being|remain|remained|also|still|not|never|no longer|"
-    r"already|currently|now|yet|ever|[a-z]+ly))* "
-    r"(?:affected|impacted|vulnerable|unaffected)\b",
+VERSION_STATE = r"affected|impacted|vulnerable|unaffected"
+VERSION_DESCRIPTIVE_STATE = re.compile(
+    rf"\b(?:on|for|to|in|within|across) (?:(?:all|any|the|these|those|their) )?"
+    rf"(?:{VERSION_STATE}) (?:systems?|servers?|devices?|installations?|deployments?|"
+    r"versions?|releases?|products?|applications?|software|platforms?|hosts?)\b",
     re.I,
 )
 
@@ -676,14 +674,20 @@ def _version_clause(text: str) -> VersionClause:
             "exception" if _version_assertion_is_negative(audience) else "audience",
             text,
         )
-    # Known complete assertions were classified above. Any remaining finite
-    # affected predicate is unclassified, including product-first assertions
-    # hidden behind unknown separators. Descriptive adjectives alone remain
-    # valid qualifiers in advice ("on affected systems").
-    if VERSION_AFFECTED_PREDICATE.search(text):
-        raise EvidenceError("ambiguous affected-version clause")
     recommendation = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
     information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
+    # Only complete typed assertions above can establish a version state.
+    # Advice may retain supported prepositional descriptions, but any other
+    # state token is unclassified evidence, regardless of the preceding verb.
+    # This deliberately rejects unknown grammar instead of treating it as
+    # advice or an implicit release name.
+    unclassified = (
+        VERSION_DESCRIPTIVE_STATE.sub("", text)
+        if recommendation or information
+        else text
+    )
+    if re.search(rf"\b(?:{VERSION_STATE})\b", unclassified, re.I):
+        raise EvidenceError("ambiguous affected-version clause")
     if recommendation or information:
         # Known independent clauses were separated by _version_clauses. A
         # remaining structural boundary is ambiguous; never let the broad
