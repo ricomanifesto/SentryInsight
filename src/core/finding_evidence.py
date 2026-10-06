@@ -303,6 +303,28 @@ def _validate_recommendation_statements(
         )
 
 
+def _logical_source_blocks(content: str) -> list[str]:
+    """Map physical lines to original paragraphs or outer list items."""
+    lines = content.splitlines()
+    blocks = list(lines)
+    item_depth = 0
+    for token in MarkdownIt("commonmark").parse(content):
+        owns_block = False
+        if token.type == "list_item_open":
+            owns_block = item_depth == 0
+            item_depth += 1
+        elif token.type == "list_item_close":
+            item_depth -= 1
+        elif token.type in {"paragraph_open", "fence", "code_block"}:
+            owns_block = item_depth == 0
+        if owns_block and token.map:
+            start, end = token.map
+            block = "\n".join(lines[start:end]).strip()
+            for index in range(start, end):
+                blocks[index] = block
+    return blocks
+
+
 def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     """Retain detail ownership under CVE headings without asserting exploitation."""
     content = str(_value(source, "content"))
@@ -316,7 +338,9 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     sections: list[tuple[int, set[str], tuple[str, ...]]] = []
     # Boundaries prevent version-list context crossing sources or excluded spans.
     result = [DetailSpan("", "boundary")]
-    for line in content.splitlines():
+    source_blocks = _logical_source_blocks(content)
+    for line_index, line in enumerate(content.splitlines()):
+        source_block = source_blocks[line_index]
         heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
         if heading:
             level = len(heading[1])
@@ -349,11 +373,16 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             body_fields = _detail_roles(sentence) or (
                 sections[-1][2] if sections else ()
             )
+            # Recommendation cues can themselves cross a physical line break.
+            if "Recommended Actions" in _detail_roles(" ".join(source_block.split())):
+                body_fields = tuple(
+                    dict.fromkeys((*body_fields, "Recommended Actions"))
+                )
             if (
                 selected
                 and "Recommended Actions" in body_fields
                 and wanted
-                and not set(extract_cve_ids(line)) <= wanted
+                and not set(extract_cve_ids(source_block)) <= wanted
             ):
                 raise EvidenceError("ambiguous recommendation block CVE scope")
             result.append(
@@ -361,7 +390,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                     sentence,
                     "body",
                     body_fields,
-                    line.strip(),
+                    source_block,
                 )
                 if selected
                 else DetailSpan("", "boundary")

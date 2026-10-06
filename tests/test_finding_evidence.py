@@ -1380,7 +1380,7 @@ def test_uncited_relevant_article_cannot_hide_required_details(field, detail):
 )
 def test_multiline_version_ranges_preserve_qualifiers(qualifier):
     source = article(
-        f"{CVE} is actively exploited.\nAffected versions:\nExample Server 2.3\n{qualifier}\nHosted users need no action.\nInstall the update.",
+        f"{CVE} is actively exploited.\nAffected versions:\nExample Server 2.3\n{qualifier}\nHosted users need no action.\n\nInstall the update.",
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
@@ -1394,7 +1394,7 @@ def test_multiline_version_ranges_preserve_qualifiers(qualifier):
 @pytest.mark.parametrize("layout", ["sentences", "headings", "combined"])
 def test_exception_and_action_roles_cannot_be_swapped(layout):
     details = {
-        "sentences": "Hosted users need no action.\nInstall the update.",
+        "sentences": "Hosted users need no action.\n\nInstall the update.",
         "headings": "### Exceptions\nHosted service is exempt.\n### Recommended Actions\nRestart the service.",
         "combined": "Hosted users need no action, but administrators should install the update.",
     }[layout]
@@ -1409,7 +1409,7 @@ def test_exception_and_action_roles_cannot_be_swapped(layout):
         else details if layout == "combined" else "install the update"
     )
     source = article(
-        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\n{details}",
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\n\n{details}",
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
@@ -1436,7 +1436,7 @@ def test_version_suffix_cannot_be_grounded_inside_a_larger_token(
     source_version, reported
 ):
     source = article(
-        f"{CVE} is actively exploited.\nRelease {source_version} is vulnerable.\nHosted users need no action.\nInstall the update.",
+        f"{CVE} is actively exploited.\nRelease {source_version} is vulnerable.\nHosted users need no action.\n\nInstall the update.",
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
@@ -1500,7 +1500,7 @@ def test_recommendation_cannot_discard_source_prohibition(prohibition, fragment)
 
 def test_positive_source_cannot_hide_another_sources_action_prohibition():
     positive = article(
-        f"{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\nInstall the update.",
+        f"{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n\nInstall the update.",
         source_links=["https://example.test/vendor"],
     )
     negative = article(
@@ -1545,7 +1545,7 @@ def test_recommendations_preserve_complete_source_statements(statement):
 def test_source_statement_semicolons_remain_inside_the_recommendation():
     statement = "Do not install the update; wait for the fixed release."
     source = article(
-        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n### Recommended Actions\n{statement}\nRestart the service.",
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n### Recommended Actions\n{statement}\n\nRestart the service.",
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
@@ -1583,7 +1583,7 @@ def test_overlapping_recommendation_statements_do_not_require_duplicate_clauses(
 def test_recommendation_audience_abbreviations_keep_the_original_source_block(prefix):
     statement = f"{prefix} customers should install the update."
     source = article(
-        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n{statement}",
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n\n{statement}",
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
@@ -1614,7 +1614,7 @@ def test_recommendation_block_with_foreign_cve_cannot_lose_its_scope():
 def test_recommendation_source_punctuation_is_not_discarded(punctuation):
     statement = f"Install the update{punctuation}"
     source = article(
-        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n{statement}",
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n\n{statement}",
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
@@ -1623,3 +1623,89 @@ def test_recommendation_source_punctuation_is_not_discarded(punctuation):
             report(**{"Recommended Actions": "Install the update"}), catalog
         )
     validate_finding_evidence(report(**{"Recommended Actions": statement}), catalog)
+
+
+@pytest.mark.parametrize(
+    "wrapped,fragment",
+    [
+        (
+            "U.S. customers should install\nthe update immediately.",
+            "U.S. customers should install",
+        ),
+        (
+            "U.S. customers should\ninstall the update immediately.",
+            "install the update immediately.",
+        ),
+        (
+            "- U.S. customers should install\n  the update immediately.",
+            "- U.S. customers should install",
+        ),
+        (
+            "- Do not:\n  - install the update\n    on hosted systems.",
+            "- install the update",
+        ),
+    ],
+)
+def test_wrapped_recommendations_preserve_logical_paragraph_or_list_item(
+    wrapped, fragment
+):
+    source = article(
+        f"## {CVE}\n\n{CVE} is actively exploited.\n\nExample Server 2.3\n\nHosted users need no action.\n\n{wrapped}",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="source-supported|complete"):
+        validate_finding_evidence(report(**{"Recommended Actions": fragment}), catalog)
+    validate_finding_evidence(
+        report(**{"Recommended Actions": " ".join(wrapped.split())}), catalog
+    )
+
+
+def test_recommendation_cue_can_cross_a_wrapped_line_boundary():
+    source = article(
+        f"## {CVE}\n\n{CVE} is actively exploited.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall\nthe update immediately.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    absent = report(
+        **{"Recommended Actions": "Not stated in supplied sources."}
+    ).replace("- **Action**: patch", "- **Action**: monitor")
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(absent, catalog)
+    validate_finding_evidence(
+        report(**{"Recommended Actions": "Install the update immediately."}), catalog
+    )
+
+
+def test_html_line_break_cannot_truncate_a_recommendation_paragraph():
+    source = article(
+        f"<h2>{CVE}</h2><p>{CVE} is actively exploited.</p><p>Example Server 2.3</p><p>Hosted users need no action.</p><p>U.S. customers should install<br>the update immediately.</p>",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="source-supported|complete"):
+        validate_finding_evidence(
+            report(**{"Recommended Actions": "U.S. customers should install"}), catalog
+        )
+    validate_finding_evidence(
+        report(
+            **{
+                "Recommended Actions": "U.S. customers should install the update immediately."
+            }
+        ),
+        catalog,
+    )
+
+
+def test_html_line_breaks_preserve_individual_version_list_entries():
+    source = article(
+        f"<h2>{CVE}</h2><p>{CVE} is actively exploited.</p><p>Affected versions:<br>Example Server 2.3<br>Example Server 2.4</p><p>Hosted users need no action.</p><p>Install the update.</p>",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Example Server 2.3; Example Server 2.4"}),
+        catalog,
+    )
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)

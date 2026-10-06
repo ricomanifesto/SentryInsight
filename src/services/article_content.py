@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
+import re
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
@@ -64,7 +65,7 @@ def _extract(node: _Node, url: str) -> ArticleContent:
 
     def visit(item):
         if isinstance(item, str):
-            chunks.append(item)
+            chunks.append(re.sub(r"\s+", " ", item))
             return
         if (
             item.tag
@@ -88,6 +89,9 @@ def _extract(node: _Node, url: str) -> ArticleContent:
             for word in classes
         ):
             return
+        if item.tag == "br":
+            chunks.append("\n")
+            return
         block = item.tag in {
             "p",
             "li",
@@ -95,7 +99,6 @@ def _extract(node: _Node, url: str) -> ArticleContent:
             "section",
             "article",
             "blockquote",
-            "br",
             "h1",
             "h2",
             "h3",
@@ -125,7 +128,9 @@ def _extract(node: _Node, url: str) -> ArticleContent:
 
     visit(node)
     text = "\n\n".join(
-        " ".join(part.split()) for part in "".join(chunks).split("\n\n") if part.strip()
+        "\n".join(" ".join(line.split()) for line in part.splitlines() if line.strip())
+        for part in "".join(chunks).split("\n\n")
+        if part.strip()
     )
     return ArticleContent(text, tuple(dict.fromkeys(links)))
 
