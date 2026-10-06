@@ -224,13 +224,27 @@ def _scoped_sentences(source: Any, cves: Sequence[str]) -> list[tuple[str, bool]
     return result
 
 
-def _scoped_detail_sentences(source: Any, cves: Sequence[str]) -> list[str]:
+@dataclass(frozen=True)
+class DetailSpan:
+    """Keep source structure separate from factual body evidence."""
+
+    text: str
+    role: Literal["heading", "body", "boundary"]
+
+
+def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     """Retain detail ownership under CVE headings without asserting exploitation."""
     content = str(_value(source, "content"))
     source_cves = set(extract_cve_ids(content))
     wanted = set(cves)
+    has_cve_sections = any(
+        extract_cve_ids(match[2])
+        for line in content.splitlines()
+        if (match := re.match(r"^(#{1,6})\s+(.+)", line.strip()))
+    )
     sections: list[tuple[int, set[str]]] = []
-    result: list[str] = []
+    # Boundaries prevent version-list context crossing sources or excluded spans.
+    result = [DetailSpan("", "boundary")]
     for line in content.splitlines():
         heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
         if heading:
@@ -240,15 +254,28 @@ def _scoped_detail_sentences(source: Any, cves: Sequence[str]) -> list[str]:
             mentioned = set(extract_cve_ids(heading[2]))
             inherited = sections[-1][1] if sections else set()
             sections.append((level, mentioned or inherited))
-            line = heading[2]
         owner = sections[-1][1] if sections else set()
+        owned = not wanted or bool(
+            owner
+            and owner <= wanted
+            or not owner
+            and not has_cve_sections
+            and source_cves
+            and source_cves <= wanted
+        )
+        if heading:
+            result.append(
+                DetailSpan(heading[2], "heading")
+                if owned
+                else DetailSpan("", "boundary")
+            )
+            continue
         for sentence in _sentences(line):
             mentioned = set(extract_cve_ids(sentence))
-            if mentioned:
-                if mentioned <= wanted and mentioned & wanted:
-                    result.append(sentence)
-            elif wanted and (owner == wanted or (not owner and source_cves == wanted)):
-                result.append(sentence)
+            selected = mentioned <= wanted if mentioned and wanted else owned
+            result.append(
+                DetailSpan(sentence, "body") if selected else DetailSpan("", "boundary")
+            )
     return result
 
 
@@ -726,21 +753,20 @@ def validate_finding_evidence(
             raise EvidenceError(
                 f"{title}: action badge omits a supported recommendation"
             )
-        scoped = "\n".join(
-            sentence
-            for source in sources
-            for sentence in _scoped_detail_sentences(source, cves)
-        )
-        # Without a CVE, exact source details remain usable, but exploitation is
-        # unknown until an unambiguous subject identity is available.
-        if not cves:
-            scoped = "\n".join(source.content for source in sources)
+        detail_spans = [
+            span for source in sources for span in _scoped_detail_spans(source, cves)
+        ]
+        # Headings guide parsing, but only body text can ground a detail value.
+        scoped = "\n".join(span.text for span in detail_spans if span.role == "body")
         # Version lists are easy to lose even when one supported version remains.
         version_lines = []
         excluded_version_lines = []
         in_versions = False
         known_version_list = False
-        for line in scoped.splitlines():
+        for span in detail_spans:
+            line = span.text
+            if span.role != "body":
+                in_versions = False
             cue = re.search(
                 r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected))\b",
                 line,
@@ -749,6 +775,8 @@ def validate_finding_evidence(
             if cue:
                 known_version_list = True
                 in_versions = True
+                if span.role == "heading":
+                    continue
                 remainder = re.sub(
                     r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
                     "",
@@ -784,7 +812,7 @@ def validate_finding_evidence(
         }:
             raise EvidenceError(f"{title}: unsupported affected-version entry")
         if any(
-            _plain(exclusion) not in _plain(fields.get("Exceptions", ""))
+            not _supported_version_text(exclusion, fields.get("Exceptions", ""))
             for exclusion in excluded_version_lines
         ):
             raise EvidenceError(f"{title}: Exceptions omits supplied source exclusions")

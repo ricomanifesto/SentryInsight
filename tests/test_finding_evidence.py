@@ -1231,3 +1231,70 @@ def test_detail_scope_does_not_borrow_from_sibling_cve_or_parent_sections(versio
         validate_finding_evidence(
             report(**{"Affected Versions": f"Example Server 2.3; {version}"}), catalog
         )
+
+
+@pytest.mark.parametrize("position", ["before", "after"])
+def test_explicit_cve_sections_exclude_unowned_single_cve_details(position):
+    source = sectioned_advisory()
+    owned = source["content"].split("## CVE-2026-5678")[0]
+    general = "## General information\n\nAffected versions are Shared Server 8.8.\n\n"
+    source["content"] = general + owned if position == "before" else owned + general
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(), catalog)
+    with pytest.raises(EvidenceError, match="unsupported"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": "Example Server 2.3; Shared Server 8.8"}),
+            catalog,
+        )
+
+
+def test_multi_cve_finding_requires_details_from_each_owned_section():
+    source = sectioned_advisory()
+    source["content"] = source["content"].replace(
+        "CVE-2026-5678 is not exploited.", "CVE-2026-5678 is actively exploited."
+    )
+    catalog = build_reporting_catalog([source])
+    combined = report(
+        **{"Affected Versions": "Example Server 2.3; Other Server 9.9"}
+    ).replace(f"- **CVE IDs**: {CVE}", f"- **CVE IDs**: {CVE}, CVE-2026-5678")
+    validate_finding_evidence(combined, catalog)
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(combined.replace("; Other Server 9.9", ""), catalog)
+
+
+@pytest.mark.parametrize("field", ["Exceptions", "Recommended Actions"])
+@pytest.mark.parametrize("has_cve", [True, False])
+def test_structural_heading_labels_cannot_ground_detail_values(field, has_cve):
+    source = sectioned_advisory()
+    generated = report(**{field: field})
+    if not has_cve:
+        source["content"] = (
+            "Affected versions are Example Server 2.3.\n### Exceptions\nHosted users need no action.\n### Recommended Actions\nInstall the update."
+        )
+        generated = report(
+            status="unknown", prose="No subject identity supplied.", **{field: field}
+        ).replace(CVE, "Not assigned")
+    with pytest.raises(EvidenceError, match="source-supported"):
+        validate_finding_evidence(generated, build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize("suffix", ["0", ".1", "-rc1"])
+def test_exclusion_prefix_cannot_satisfy_another_complete_exclusion(suffix):
+    first = "Example Server 2"
+    second = first + suffix
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3; users of {first} and {second} are not affected.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="Exceptions omits"):
+        validate_finding_evidence(report(**{"Exceptions": second}), catalog)
+    validate_finding_evidence(report(**{"Exceptions": f"{first}; {second}"}), catalog)
+
+
+def test_numeric_non_version_heading_ends_affected_version_list():
+    source = article(
+        f"## {CVE}\n{CVE} is actively exploited.\n### Affected versions\nExample Server 2.3\n### 2. Exceptions\nHosted users need no action.\n### 3. Recommended actions\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(report(), build_reporting_catalog([source]))
