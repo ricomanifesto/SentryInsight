@@ -895,3 +895,84 @@ def test_conjunction_product_name_can_follow_another_version_entry():
         ),
         build_reporting_catalog([source]),
     )
+
+
+@pytest.mark.parametrize(
+    "predicate",
+    [
+        "are not affected",
+        "are unaffected",
+        "remain unaffected",
+        "are no longer vulnerable",
+        "were not impacted",
+    ],
+)
+@pytest.mark.parametrize(
+    "versions", ["Example Server 2.4", "Example Server 2.4 and Example Server 2.5"]
+)
+def test_unaffected_user_clauses_do_not_add_affected_versions(predicate, versions):
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3, and users of {versions} {predicate}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(), catalog)
+    with pytest.raises(EvidenceError, match="unsupported"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": "Example Server 2.3; Example Server 2.4"}),
+            catalog,
+        )
+
+
+def test_excluded_clause_does_not_hide_a_later_affected_clause():
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3 and users of Example Server 2.4 are not affected, but users of Example Server 2.5 are affected.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Example Server 2.3; Example Server 2.5"}),
+        catalog,
+    )
+
+
+@pytest.mark.parametrize(
+    "predicate",
+    ["are advised to", "are recommended to", "are urged to", "are encouraged to"],
+)
+def test_recommendation_predicates_do_not_become_version_entries(predicate):
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3, and customers {predicate} install the update.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+def test_known_version_list_with_only_excluded_versions_stays_empty():
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions: users of Example Server 2.4 are not affected.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Not stated in supplied sources."}), catalog
+    )
+    with pytest.raises(EvidenceError, match="unsupported"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": "Example Server 2.4"}), catalog
+        )
+
+
+@pytest.mark.parametrize("constraint", ["all supported releases", ""])
+def test_unresolved_version_list_is_not_an_explicit_empty_list(constraint):
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions: {constraint}\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="omits|ambiguous"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": "Not stated in supplied sources."}),
+            build_reporting_catalog([source]),
+        )

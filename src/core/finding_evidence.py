@@ -398,16 +398,64 @@ def _plain(text: str) -> str:
     return " ".join(text.split()).casefold()
 
 
-def _version_entries(text: str) -> list[str]:
-    """Keep range tails, stop at clear clauses, and reject ambiguous tails."""
-    text = re.sub(
-        r"\b(?:users|customers|operators|administrators) of ([^,;]+?) "
-        r"(?:are|were|remain) (?:(?:also|still) )?(?:affected|impacted|vulnerable)\b",
-        r"\1",
+@dataclass(frozen=True)
+class VersionClause:
+    kind: Literal["affected", "unaffected", "recommendation", "information", "list"]
+    text: str
+
+
+VERSION_AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
+
+
+def _version_clause(text: str) -> VersionClause:
+    """Classify complete clauses before interpreting their version constraints."""
+    affected = re.fullmatch(
+        rf"(?:{VERSION_AUDIENCE}) of (?P<versions>.+?) "
+        r"(?:are|were|remain) (?P<qualifiers>(?:(?:also|still|not|no longer) )*)"
+        r"(?P<state>affected|impacted|vulnerable|unaffected)",
         text,
-        flags=re.I,
+        re.I,
     )
-    parts = re.split(r"([,;]|\s+(?:and|or)\s+)", text.strip().rstrip("."), flags=re.I)
+    if affected:
+        negated = bool(
+            re.search(r"\b(?:not|no longer)\b", affected["qualifiers"], re.I)
+        )
+        if negated and affected["state"].casefold() == "unaffected":
+            raise EvidenceError("ambiguous affected-version polarity")
+        return VersionClause(
+            (
+                "unaffected"
+                if negated or affected["state"].casefold() == "unaffected"
+                else "affected"
+            ),
+            affected["versions"],
+        )
+    recommendation = re.fullmatch(
+        rf"(?:{VERSION_AUDIENCE})\b.*?\b"
+        r"(?:should|must|needs? to|(?:are|is) (?:advised|recommended|urged|encouraged) to) "
+        r"(?:\w+ly )*(?:install|apply|patch|upgrade|update|consult|review|contact)\b.*",
+        text,
+        re.I,
+    )
+    information = re.fullmatch(
+        r"(?:(?:further|more) )?(?:details|information)\b.*?\b(?:is|are) "
+        r"(?:available|provided|published)\b.*",
+        text,
+        re.I,
+    )
+    if not re.search(r"\b(?:affected|impacted|vulnerable|unaffected)\b", text, re.I):
+        if recommendation:
+            return VersionClause("recommendation", text)
+        if information:
+            return VersionClause("information", text)
+    if re.match(rf"(?:{VERSION_AUDIENCE}) of\b", text, re.I):
+        raise EvidenceError("ambiguous affected-version clause")
+    return VersionClause("list", text)
+
+
+def _version_list_entries(text: str) -> list[str]:
+    """Split constraints without detaching range tails or product names."""
+    parts = re.split(r"([,;]|\s+(?:and|or)\s+)", text, flags=re.I)
     entries: list[str] = []
     pending = ""
     for index in range(0, len(parts), 2):
@@ -425,48 +473,42 @@ def _version_entries(text: str) -> list[str]:
             entry,
             re.I,
         )
-        recommendation = re.match(
-            r"(?P<subject>(?:customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you)\b.*?)"
-            r"\b(?:should|must|needs? to|are advised to|is advised to)\s+(?:\w+ly\s+)*"
-            r"(?:install|apply|patch|upgrade|update|consult|review|contact)\b",
-            entry,
-            re.I,
-        )
-        information = re.match(
-            r"(?:(?:further|more) )?(?:details|information)\b.*?\b(?:is|are) "
-            r"(?:available|provided|published)\b",
-            entry,
-            re.I,
-        )
         if entries and qualifier:
             entries[-1] += parts[index - 1] + entry
-        elif (
-            entries
-            and not re.search(
-                r"\b(?:affected|impacted|vulnerable)\b",
-                entry,
-                re.I,
-            )
-            and (
-                information
-                or (
-                    recommendation
-                    and not re.search(
-                        r"\d|\bRTM\b", recommendation.group("subject"), re.I
-                    )
-                )
-            )
-        ):
-            break
         elif not re.search(r"\d|\bRTM\b", entry, re.I):
             pending = entry
         else:
             entries.append(entry)
     if pending:
-        if entries:
-            raise EvidenceError("ambiguous affected-version continuation")
-        entries.append(pending)
+        raise EvidenceError("ambiguous affected-version continuation")
     return entries
+
+
+def _version_constraints(text: str) -> tuple[list[str], list[str]]:
+    """Retain separate affected and explicitly excluded constraint sets."""
+    if text == ABSENT:
+        return [], []
+    clauses = re.split(
+        r"(?:[,;]\s*(?:(?:and|or|but)\s+)?|\s+(?:and|or|but)\s+)"
+        rf"(?=(?:{VERSION_AUDIENCE}|(?:(?:further|more) )?(?:details|information))\b)",
+        text.strip().rstrip("."),
+        flags=re.I,
+    )
+    entries: list[str] = []
+    exclusions: list[str] = []
+    for text in clauses:
+        if not text.strip():
+            continue
+        clause = _version_clause(text.strip())
+        if clause.kind in {"affected", "list"}:
+            entries.extend(_version_list_entries(clause.text))
+        elif clause.kind == "unaffected":
+            exclusions.extend(_version_list_entries(clause.text))
+    return entries, exclusions
+
+
+def _version_entries(text: str) -> list[str]:
+    return _version_constraints(text)[0]
 
 
 def _supported_version_text(entry: str, source: str) -> bool:
@@ -590,7 +632,9 @@ def validate_finding_evidence(
             scoped = "\n".join(source.content for source in sources)
         # Version lists are easy to lose even when one supported version remains.
         version_lines = []
+        excluded_version_lines = []
         in_versions = False
+        known_version_list = False
         for line in scoped.splitlines():
             cue = re.search(
                 r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected))\b",
@@ -598,6 +642,7 @@ def validate_finding_evidence(
                 re.I,
             )
             if cue:
+                known_version_list = True
                 in_versions = True
                 remainder = re.sub(
                     r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
@@ -605,26 +650,31 @@ def validate_finding_evidence(
                     line[cue.end() :],
                     flags=re.I,
                 ).rstrip(". ")
+                included, excluded = _version_constraints(remainder)
+                excluded_version_lines.extend(excluded)
                 version_lines.extend(
                     entry
-                    for entry in _version_entries(remainder)
+                    for entry in included
                     if re.search(r"\d|\bRTM\b", entry) and not extract_cve_ids(entry)
                 )
                 continue
             if in_versions:
                 if re.search(r"\d|\bRTM\b", line) and not extract_cve_ids(line):
-                    version_lines.extend(_version_entries(line))
+                    included, excluded = _version_constraints(line)
+                    version_lines.extend(included)
+                    excluded_version_lines.extend(excluded)
                 else:
                     in_versions = False
         reported_versions = {
             _plain(entry)
             for entry in _version_entries(fields.get("Affected Versions", ""))
+            if fields.get("Affected Versions") != ABSENT
         }
         if any(_plain(line) not in reported_versions for line in version_lines):
             raise EvidenceError(
                 f"{title}: Affected Versions omits supplied version list entries"
             )
-        if version_lines and reported_versions - {
+        if known_version_list and reported_versions - {
             _plain(line) for line in version_lines
         }:
             raise EvidenceError(f"{title}: unsupported affected-version entry")
@@ -640,6 +690,13 @@ def validate_finding_evidence(
                 "Recommended Actions": r"\b(?:install (?:the )?(?:updates?|patch)|apply (?:the )?(?:fix|patch|update)|advised to|recommended to)\b",
             }
             if value == ABSENT:
+                if (
+                    name == "Affected Versions"
+                    and known_version_list
+                    and excluded_version_lines
+                    and not version_lines
+                ):
+                    continue
                 if name in cues and re.search(cues[name], scoped, re.I):
                     raise EvidenceError(
                         f"{title}: {name} omits supplied source details"

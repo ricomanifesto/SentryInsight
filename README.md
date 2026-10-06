@@ -21,6 +21,8 @@ SentryInsight reads security news and publishes a report about vulnerabilities t
 
 Each published report is available as a web page and Markdown file. Older reports remain in the [dated archive](https://ricomanifesto.github.io/SentryInsight/reports/).
 
+Contents links and direct finding links open collapsed findings and focus their disclosure controls, including when revisiting the same finding.
+
 ## How It Works
 
 1. SentryInsight reads the RSS feed from [SentryDigest](https://github.com/ricomanifesto/SentryDigest).
@@ -30,6 +32,10 @@ Each published report is available as a web page and Markdown file. Older report
 5. A successful Validate run for a push to `main` starts the automatic GitHub Pages deployment. A maintainer can also dispatch the Pages workflow for a selected branch or tag; that manual path deploys the selected commit without requiring Validate to pass first.
 
 Every current finding cites one or more SentryDigest article identities. Those identities follow SentryDigest's [reporting identity contract](https://github.com/ricomanifesto/SentryDigest/blob/main/contracts/README.md), which keeps links stable across all three reporting projects.
+
+Analysis retains article-owned text and links, or the complete available feed content when article extraction fails. It rejects inputs that exceed the model budget rather than truncating source qualifications. Newly generated reports use schema 3 and require affected versions, exceptions, recommended actions, and vendor links, with explicit absent values. Existing schema 1 and 2 reports remain readable.
+
+Before publication, finding status and rendered claims are checked against the retained sources. Conflicting evidence and ambiguous CVE attribution cannot establish confirmed exploitation. These checks use a bounded recognition grammar: unrecognized source phrasing can remain unknown and block publication. A failed validation preserves the previous report and fingerprint. Passing these checks does not establish general English comprehension or independently verify every source claim.
 
 ## Run It Locally
 
