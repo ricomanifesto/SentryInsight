@@ -339,7 +339,7 @@ Generate a report following this EXACT structure with professional markdown form
 - **Reporting**: [Comma-separated Reporting keys copied exactly from the supporting articles]
 - **Affected Versions**: [Exact source version names separated by semicolons]
 - **Exceptions**: [Short exact source phrases for unaffected products/environments; semicolon-separated]
-- **Recommended Actions**: [Short exact source action phrases; semicolon-separated]
+- **Recommended Actions**: [Complete source recommendation statements from every supplied source for these CVEs; preserve qualifiers and internal punctuation; separate statements with semicolons]
 - **Vendor Links**: [Supporting advisory URLs copied exactly from the supplied source links; semicolon-separated]
 ]
 
@@ -388,7 +388,7 @@ Evidence requirements:
 - Confirmation requires a direct affirmative statement identifying this CVE. Another vulnerability or a related story cannot confirm this finding. If subject attribution is ambiguous, use unknown.
 - The Executive Summary and all prose must agree with each finding's state. In mixed reports, attach each confirmed exploitation claim to its exact CVE; avoid aggregate claims of confirmed exploitation.
 - Include every affected version and unaffected-environment exception supplied for the finding. Keep these details within the finding even when a separate product summary exists.
-- The four detail fields are required. Use exactly Not stated in supplied sources. for genuinely absent information. Do not invent a version, exception, recommendation or URL. Use short exact source phrases for detail fields, separated by semicolons, not Markdown links.
+- The four detail fields are required. Use exactly Not stated in supplied sources. for genuinely absent information. Do not invent a version, exception, recommendation or URL. Separate detail entries with semicolons, not Markdown links.
 - Feed coverage means full article retrieval was unavailable. Do not imply that a feed excerpt is the complete advisory.
 
 Focus specifically on:

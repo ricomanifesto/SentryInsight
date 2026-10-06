@@ -49,28 +49,6 @@ def _heading_detail_roles(text: str) -> tuple[str, ...]:
     return tuple(name for name in DETAIL_CUES if name.casefold() == label)
 
 
-def _recommendation_requires_complete(source: str) -> bool:
-    # A mixed sentence may mention an unaffected audience separately from its
-    # affirmative advice. Other negation/prohibition language requires the
-    # complete span, avoiding guesses about the scope of a truncated phrase.
-    polarity_text = re.sub(
-        r"\b(?:needs? no action|no customer action)\b", "", source, flags=re.I
-    )
-    return bool(
-        re.search(
-            r"\b(?:not|never|no|avoid|without|refrain|stop)\b|n['’]t\b",
-            polarity_text,
-            re.I,
-        )
-    )
-
-
-def _preserves_recommendation_polarity(entry: str, source: str) -> bool:
-    return not _recommendation_requires_complete(source) or (
-        _plain(entry).rstrip(".!?") == _plain(source).rstrip(".!?")
-    )
-
-
 NEGATIVE = re.compile(
     r"\b(?:exploit\w* (?:has |have |is |was |were )?not (?:yet |been )*(?:observed|detected|confirmed)|no (?:known exploitation|evidence|signs?|reports?|exploitation)|(?:not|never) (?:yet |been |being |actively |publicly |known to be |observed to be )*(?:exploit\w*|weaponiz\w*)|(?:has|have) not been (?:actively )?(?:exploit\w*|weaponiz\w*)|without (?:evidence|reports?) of exploitation)\b",
     re.I,
@@ -271,6 +249,48 @@ class DetailSpan:
     text: str
     role: Literal["heading", "body", "boundary"]
     fields: tuple[str, ...] = ()
+
+
+def _validate_recommendation_statements(
+    value: str, spans: Sequence[DetailSpan]
+) -> None:
+    """Match complete source statements before interpreting field delimiters.
+
+    Source statements own their internal semicolons. Longest matching statements
+    are consumed first, so a delimiter inside a statement is never mistaken for
+    the delimiter between two report entries.
+    """
+    required = {
+        _plain(span.text).rstrip(".!?")
+        for span in spans
+        if span.role == "body" and "Recommended Actions" in span.fields
+    }
+    candidates = sorted(required, key=len, reverse=True)
+    normalized_value = _plain(value)
+    remaining = normalized_value
+    while remaining:
+        for statement in candidates:
+            if not remaining.startswith(statement):
+                continue
+            delimiter = re.match(r"[.!?]*(?:\s*;\s*|$)", remaining[len(statement) :])
+            if delimiter:
+                remaining = remaining[len(statement) + delimiter.end() :]
+                break
+        else:
+            raise EvidenceError(
+                "Recommended Actions must preserve complete source-supported statements with their semantic role"
+            )
+    # A longer copied statement can also contain a complete shorter statement
+    # from another source; do not require duplicated clauses in that case.
+    if any(
+        not re.search(
+            rf"(?:^|;\s*){re.escape(statement)}[.!?]*(?=\s*;|$)", normalized_value
+        )
+        for statement in required
+    ):
+        raise EvidenceError(
+            "Recommended Actions omits a complete source recommendation or prohibition"
+        )
 
 
 def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
@@ -932,20 +952,9 @@ def validate_finding_evidence(
                     raise EvidenceError(f"{title}: unsupported vendor link") from exc
                 if any(entry not in links for entry in normalized):
                     raise EvidenceError(f"{title}: unsupported vendor link")
-            elif name in {"Exceptions", "Recommended Actions"}:
-                if name == "Recommended Actions" and any(
-                    span.role == "body"
-                    and name in span.fields
-                    and _recommendation_requires_complete(span.text)
-                    and not any(
-                        _plain(entry).rstrip(".!?") == _plain(span.text).rstrip(".!?")
-                        for entry in entries
-                    )
-                    for span in detail_spans
-                ):
-                    raise EvidenceError(
-                        f"{title}: recommendation omits a source prohibition or negation"
-                    )
+            elif name == "Recommended Actions":
+                _validate_recommendation_statements(value, detail_spans)
+            elif name == "Exceptions":
                 for entry in entries:
                     roles = _detail_roles(entry)
                     # A phrase with no role cue can inherit one unambiguous
@@ -956,10 +965,6 @@ def validate_finding_evidence(
                         and name in span.fields
                         and (name in roles or span.fields == (name,))
                         and _plain(entry) in _plain(span.text)
-                        and (
-                            name != "Recommended Actions"
-                            or _preserves_recommendation_polarity(entry, span.text)
-                        )
                         for span in detail_spans
                     ) or (
                         name == "Exceptions"
