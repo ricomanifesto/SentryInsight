@@ -440,15 +440,29 @@ def build_finding_detail_context(
     """
     context = []
     assessments = {}
+    scopes = {}
     for source in catalog.values():
-        for cve in extract_cve_ids(source.content) or [None]:
-            cves = [cve] if cve else []
-            if cve not in assessments:
-                assessments[cve] = assess_exploitation(list(catalog.values()), cves)
-            assessment = assessments[cve]
+        scopes.update(dict.fromkeys((cve,) for cve in extract_cve_ids(source.content)))
+        # Actual source ownership supplies joint scopes, not a powerset of all
+        # article CVEs. Paragraph/list blocks also own complete recommendations
+        # whose qualifications can span several sentences.
+        for block in dict.fromkeys(_logical_source_blocks(source.content)):
+            for text in [block, *_sentences(block)]:
+                joint = tuple(sorted(extract_cve_ids(text)))
+                if len(joint) > 1:
+                    scopes[joint] = None
+    for source in catalog.values():
+        source_cves = set(extract_cve_ids(source.content))
+        relevant_scopes = [scope for scope in scopes if source_cves & set(scope)]
+        # A joint finding also includes other sources naming any member, even
+        # if those sources do not themselves introduce the combined scope.
+        for cves in relevant_scopes if source_cves else [()]:
+            if cves not in assessments:
+                assessments[cves] = assess_exploitation(list(catalog.values()), cves)
+            assessment = assessments[cves]
             item: dict[str, Any] = {
                 "source_key": source.key,
-                "cves": cves,
+                "cves": list(cves),
                 "exploitation": {
                     "status": assessment.status,
                     "conflicting": assessment.conflicting,
@@ -499,13 +513,13 @@ def grounding_failure_diagnostic(
     cves = evidence_error.cves if evidence_error else ()
     logged_cves = [cve for cve in cves if len(cve) <= 64][:32]
     selected = evidence_error.source_keys if evidence_error else ()
-    relevant = [
+    relevant = [catalog[key] for key in dict.fromkeys(selected) if key in catalog]
+    relevant.extend(
         source
         for key, source in catalog.items()
-        if not cves
-        or key in selected
-        or set(cves) & set(extract_cve_ids(source.content))
-    ]
+        if key not in selected
+        and (not cves or set(cves) & set(extract_cve_ids(source.content)))
+    )
     return {
         "schema_version": 1,
         "stage": "finding_evidence" if evidence_error else "reporting_identity",

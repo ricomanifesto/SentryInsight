@@ -298,3 +298,89 @@ def test_context_assessment_cannot_drop_an_uncited_negative_source():
         item["exploitation"] == {"status": "unknown", "conflicting": True}
         for item in context
     )
+
+
+@pytest.mark.parametrize("ownership", ["heading", "sentence", "paragraph"])
+def test_joint_scopes_preserve_shared_details_and_recommendations(ownership):
+    confirmation = f"{CVE} is actively exploited. {OTHER} is actively exploited."
+    if ownership == "heading":
+        details = f"## {CVE} and {OTHER}\n\nAffected versions:\n\nExample Gateway 2.3"
+        recommendation = "Customers should install the update."
+    elif ownership == "sentence":
+        details = f"Affected versions: Example Gateway 2.3 ({CVE}, {OTHER})"
+        recommendation = f"Customers should install the update for {CVE} and {OTHER}."
+    else:
+        details = ""
+        recommendation = f"Customers should install the update for {CVE}. Apply the patch for {OTHER}."
+    catalog = build_reporting_catalog(
+        [source(f"{confirmation}\n\n{details}\n\n{recommendation}")]
+    )
+    context = finding_evidence.build_finding_detail_context(catalog)
+    joint = next(item for item in context if set(item["cves"]) == {CVE, OTHER})
+    assert joint["exploitation"] == {"status": "active", "conflicting": False}
+    assert any(span.get("source_block") == recommendation for span in joint["spans"])
+    candidate = finding(
+        next(iter(catalog)), "Example Gateway 2.3" if details else ABSENT
+    )
+    candidate = candidate.replace(CVE, f"{CVE}, {OTHER}").replace(
+        f"**Recommended Actions**: {ABSENT}",
+        f"**Recommended Actions**: {recommendation}",
+    )
+    finding_evidence.validate_finding_evidence(
+        "## Active Exploitation Details\n\n" + candidate, catalog
+    )
+
+
+@pytest.mark.parametrize("cves", [(), (CVE,)])
+def test_diagnostic_keeps_cited_sources_ahead_of_uncited_context(cves):
+    catalog = build_reporting_catalog(
+        [
+            dict(
+                source(f"{CVE} is actively exploited."),
+                link=f"https://example.test/{i}",
+            )
+            for i in range(40)
+        ]
+    )
+    selected_key = list(catalog)[-1]
+    error = finding_evidence.EvidenceError("rejected")
+    error.cves = cves
+    error.source_keys = (selected_key,)
+    diagnostic = finding_evidence.grounding_failure_diagnostic(
+        "candidate", catalog, error
+    )
+    assert diagnostic["sources"][0]["key"] == selected_key
+    assert len(diagnostic["sources"]) == 32
+    assert diagnostic["sources_truncated"] == 8
+
+
+def test_joint_scope_includes_details_from_other_sources_naming_one_member():
+    shared = source(
+        f"{CVE} is actively exploited. {OTHER} is actively exploited.\n\n## {CVE} and {OTHER}\n\nAffected versions:\n\nExample Gateway 2.3"
+    )
+    extra = dict(
+        source(
+            f"{CVE} is actively exploited.\n\nAffected versions:\n\nExample Gateway 2.4"
+        ),
+        link="https://example.test/extra",
+    )
+    catalog = build_reporting_catalog([shared, extra])
+    context = finding_evidence.build_finding_detail_context(catalog)
+    extra_key = list(catalog)[1]
+    joint_extra = next(
+        item
+        for item in context
+        if set(item["cves"]) == {CVE, OTHER} and item["source_key"] == extra_key
+    )
+    assert "Example Gateway 2.4" in json.dumps(joint_extra)
+    prefix = "## Active Exploitation Details\n\n"
+    candidate = finding(
+        next(iter(catalog)), "Example Gateway 2.3; Example Gateway 2.4"
+    ).replace(CVE, f"{CVE}, {OTHER}")
+    finding_evidence.validate_finding_evidence(prefix + candidate, catalog)
+    with pytest.raises(
+        finding_evidence.EvidenceError, match="omits supplied version list"
+    ):
+        finding_evidence.validate_finding_evidence(
+            prefix + candidate.replace("; Example Gateway 2.4", ""), catalog
+        )
