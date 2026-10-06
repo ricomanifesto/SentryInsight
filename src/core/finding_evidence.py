@@ -439,10 +439,21 @@ def build_finding_detail_context(
     Full articles remain in the prompt for narrative and negative evidence.
     """
     context = []
+    assessments = {}
     for source in catalog.values():
         for cve in extract_cve_ids(source.content) or [None]:
             cves = [cve] if cve else []
-            item: dict[str, Any] = {"source_key": source.key, "cves": cves}
+            if cve not in assessments:
+                assessments[cve] = assess_exploitation(list(catalog.values()), cves)
+            assessment = assessments[cve]
+            item: dict[str, Any] = {
+                "source_key": source.key,
+                "cves": cves,
+                "exploitation": {
+                    "status": assessment.status,
+                    "conflicting": assessment.conflicting,
+                },
+            }
             try:
                 spans = _scoped_detail_spans(source, cves)
             except EvidenceError:

@@ -259,3 +259,42 @@ def test_scope_metadata_does_not_expand_unrelated_prose_for_each_cve():
     assert len(json.dumps(context)) < len(content)
     assert "Unattributed context" not in json.dumps(context)
     assert "actively exploited" in json.dumps(context)
+
+
+@pytest.mark.parametrize(
+    ("content", "expected"),
+    [
+        (
+            f"Attackers are exploiting the service. The issue is tracked as {CVE}.",
+            "unknown",
+        ),
+        (f"{CVE} is actively exploited.", "active"),
+        (f"{CVE} may be exploited in the wild.", "potential"),
+    ],
+)
+def test_context_includes_the_validator_exploitation_assessment(content, expected):
+    catalog = build_reporting_catalog([source(content)])
+    context = finding_evidence.build_finding_detail_context(catalog)
+    assert context[0]["exploitation"] == {"status": expected, "conflicting": False}
+    prefix = "## Active Exploitation Details\n\n"
+    candidate = finding(next(iter(catalog))).replace(
+        "**Exploitation Status**: active", f"**Exploitation Status**: {expected}"
+    )
+    finding_evidence.validate_finding_evidence(prefix + candidate, catalog)
+
+
+def test_context_assessment_cannot_drop_an_uncited_negative_source():
+    catalog = build_reporting_catalog(
+        [
+            source(f"{CVE} is actively exploited."),
+            dict(
+                source(f"{CVE} has not been exploited."),
+                link="https://example.test/negative",
+            ),
+        ]
+    )
+    context = finding_evidence.build_finding_detail_context(catalog)
+    assert all(
+        item["exploitation"] == {"status": "unknown", "conflicting": True}
+        for item in context
+    )
