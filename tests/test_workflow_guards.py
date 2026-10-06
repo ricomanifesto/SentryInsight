@@ -222,7 +222,7 @@ Recent exploitation activity is concentrated in edge systems.
 
 ## Active Exploitation Details
 
-### Example Vulnerability
+### Example Vulnerability (CVE-2026-1234)
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
@@ -230,6 +230,10 @@ Recent exploitation activity is concentrated in edge systems.
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: source-1e8f5cb3245d
+- **Affected Versions**: Not stated in supplied sources.
+- **Exceptions**: Not stated in supplied sources.
+- **Recommended Actions**: CVE-2026-1234 is actively exploited in the wild. Install the update.
+- **Vendor Links**: Not stated in supplied sources.
 
 ## Affected Systems and Products
 
@@ -257,6 +261,7 @@ Recent exploitation activity is concentrated in edge systems.
                             "publisher": "Example Source",
                             "title": "Example report",
                             "url": "https://example.test/report",
+                            "content": "CVE-2026-1234 is actively exploited in the wild. Install the update.",
                         }
                     ],
                 },
@@ -272,7 +277,7 @@ Recent exploitation activity is concentrated in edge systems.
             self.assertNotIn("## Source Attribution", output_path.read_text())
             self.assertIn("report_date:", output_path.read_text())
             self.assertIn("generated_at:", output_path.read_text())
-            self.assertIn("schema_version: 2", output_path.read_text())
+            self.assertIn("schema_version: 3", output_path.read_text())
             self.assertIn("digest_issue_url:", output_path.read_text())
             self.assertIn("**Reporting**:", output_path.read_text())
             self.assertTrue((Path(tmpdir) / "index.html").exists())
@@ -300,7 +305,7 @@ Recent exploitation activity is concentrated in edge systems.
 
 ## Active Exploitation Details
 
-### Example Vulnerability
+### Example Vulnerability (CVE-2026-1234)
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
@@ -308,6 +313,10 @@ Recent exploitation activity is concentrated in edge systems.
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: source-1e8f5cb3245d
+- **Affected Versions**: Not stated in supplied sources.
+- **Exceptions**: Not stated in supplied sources.
+- **Recommended Actions**: CVE-2026-1234 is actively exploited in the wild. Install the update.
+- **Vendor Links**: Not stated in supplied sources.
 
 ## Affected Systems and Products
 
@@ -327,6 +336,7 @@ Recent exploitation activity is concentrated in edge systems.
                             "publisher": "Example Source",
                             "title": "Example report",
                             "url": "https://example.test/report",
+                            "content": "CVE-2026-1234 is actively exploited in the wild. Install the update.",
                         }
                     ],
                 },
@@ -362,7 +372,7 @@ Recent exploitation activity is concentrated in edge systems.
 
 ## Active Exploitation Details
 
-### Example Vulnerability
+### Example Vulnerability (CVE-2026-1234)
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
@@ -370,6 +380,10 @@ Recent exploitation activity is concentrated in edge systems.
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: source-1e8f5cb3245d
+- **Affected Versions**: Not stated in supplied sources.
+- **Exceptions**: Not stated in supplied sources.
+- **Recommended Actions**: Install the update.
+- **Vendor Links**: Not stated in supplied sources.
 
 ## Affected Systems and Products
 
@@ -560,7 +574,7 @@ Recent exploitation activity is concentrated in edge systems.
 
 ## Active Exploitation Details
 
-### Example Vulnerability
+### Example Vulnerability (CVE-2026-1234)
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
@@ -568,6 +582,10 @@ Recent exploitation activity is concentrated in edge systems.
 - **Exploitation Status**: active
 - **Action**: patch
 - **Reporting**: source-1e8f5cb3245d
+- **Affected Versions**: Not stated in supplied sources.
+- **Exceptions**: Not stated in supplied sources.
+- **Recommended Actions**: CVE-2026-1234 is actively exploited in the wild. Install the update.
+- **Vendor Links**: Not stated in supplied sources.
 
 ## Affected Systems and Products
 
@@ -587,6 +605,7 @@ Recent exploitation activity is concentrated in edge systems.
                                 "publisher": "Example Source",
                                 "title": "Example report",
                                 "url": "https://example.test/report",
+                                "content": "CVE-2026-1234 is actively exploited in the wild. Install the update.",
                             }
                         ],
                     },

@@ -20,6 +20,7 @@ from .report_validation import (
     split_overlong_executive_summary,
     validate_report_content,
 )
+from .finding_evidence import EvidenceError, validate_finding_evidence
 from .report_artifact import ReportArtifactError, parse_report_artifact
 from .reporting import (
     ReportingGroundingError,
@@ -226,8 +227,9 @@ async def generate_report(
         reporting_catalog = deserialize_reporting_catalog(
             analysis_results.get("reporting_sources", [])
         )
+        validate_finding_evidence(report, reporting_catalog)
         report = resolve_reporting_keys(report, reporting_catalog)
-    except ReportingGroundingError as exc:
+    except (ReportingGroundingError, EvidenceError) as exc:
         logger.error("Report grounding failed: %s", exc)
         state["report_validation_errors"] = [str(exc)]
         state["status"] = "failed"
@@ -258,7 +260,7 @@ async def generate_report(
     )
     report_source = (
         "---\n"
-        "schema_version: 2\n"
+        "schema_version: 3\n"
         f"report_date: {report_date}\n"
         f"generated_at: {generated_at}\n"
         "digest_issue_url: https://ricomanifesto.github.io/"

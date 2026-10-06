@@ -21,7 +21,7 @@ CVE_ID_PATTERN = re.compile(r"^CVE-\d{4}-\d{4,}$", re.IGNORECASE)
 PARTIAL_CVE_PATTERN = re.compile(r"\bCVE-\d{4}-\d{0,3}(?!\d)", re.IGNORECASE)
 HEADING_PATTERN = re.compile(r"^###\s+(.+?)\s*$", re.MULTILINE)
 FIELD_PATTERN = re.compile(
-    r"^-[ \t]+\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting)\*\*:[ \t]*(.*?)[ \t]*$",
+    r"^-[ \t]+\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Affected Versions|Exceptions|Recommended Actions|Vendor Links)\*\*:[ \t]*(.*?)[ \t]*$",
     re.MULTILINE,
 )
 DIGEST_ARCHIVE_ROOT = "https://ricomanifesto.github.io/SentryDigest/archive/"
@@ -75,6 +75,10 @@ class Finding:
     action: Action
     cve_ids: tuple[str, ...]
     reporting: tuple[ReportingReference, ...] = ()
+    affected_versions: str | None = None
+    exceptions: str | None = None
+    recommended_actions: str | None = None
+    vendor_links: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -239,7 +243,9 @@ def _active_exploitation_section(body: str) -> str:
     return match.group("section")
 
 
-def _parse_findings(body: str, *, require_reporting: bool) -> tuple[Finding, ...]:
+def _parse_findings(
+    body: str, *, require_reporting: bool, require_details: bool = False
+) -> tuple[Finding, ...]:
     section = _active_exploitation_section(body)
     matches = list(HEADING_PATTERN.finditer(section))
     if not matches:
@@ -267,6 +273,28 @@ def _parse_findings(body: str, *, require_reporting: bool) -> tuple[Finding, ...
         if require_reporting and "Reporting" not in fields:
             raise ReportArtifactError(f"{title}: missing required Reporting field")
 
+        if require_details:
+            for name in (
+                "Affected Versions",
+                "Exceptions",
+                "Recommended Actions",
+                "Vendor Links",
+            ):
+                if not fields.get(name):
+                    raise ReportArtifactError(f"{title}: missing required {name} field")
+        vendor_links = ()
+        if (
+            fields.get("Vendor Links")
+            and fields["Vendor Links"] != "Not stated in supplied sources."
+        ):
+            try:
+                vendor_links = tuple(
+                    normalize_reporting_url(link.strip())
+                    for link in fields["Vendor Links"].split(";")
+                )
+            except ReportingGroundingError as exc:
+                raise ReportArtifactError(str(exc)) from exc
+
         slug = slugify(title)
         if slug in seen_slugs:
             raise ReportArtifactError(f"Duplicate finding slug: {slug}")
@@ -283,6 +311,10 @@ def _parse_findings(body: str, *, require_reporting: bool) -> tuple[Finding, ...
                     fields["Exploitation Status"],
                 ),
                 action=_parse_enum(Action, "Action", fields["Action"]),
+                affected_versions=fields.get("Affected Versions"),
+                exceptions=fields.get("Exceptions"),
+                recommended_actions=fields.get("Recommended Actions"),
+                vendor_links=vendor_links,
                 cve_ids=_parse_cves(fields["CVE IDs"]) if "CVE IDs" in fields else (),
                 reporting=(
                     _parse_reporting(fields["Reporting"])
@@ -303,7 +335,7 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         schema_version = int(_required_metadata(metadata, "schema_version"))
     except ValueError as exc:
         raise ReportArtifactError("schema_version must be an integer") from exc
-    if schema_version not in {1, 2}:
+    if schema_version not in {1, 2, 3}:
         raise ReportArtifactError(f"Unsupported schema_version: {schema_version}")
 
     try:
@@ -312,7 +344,7 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         raise ReportArtifactError("report_date must use YYYY-MM-DD") from exc
     generated_at = _parse_timestamp(_required_metadata(metadata, "generated_at"))
     digest_issue_url: str | None = None
-    if schema_version == 2:
+    if schema_version >= 2:
         digest_issue_url = _required_metadata(metadata, "digest_issue_url")
         expected_digest_url = f"{DIGEST_ARCHIVE_ROOT}{report_date.isoformat()}/"
         if digest_issue_url != expected_digest_url:
@@ -320,7 +352,9 @@ def parse_report_artifact(source: str) -> ReportArtifact:
                 "digest_issue_url must identify the report date SentryDigest archive: "
                 f"{expected_digest_url}"
             )
-    findings = _parse_findings(body, require_reporting=schema_version == 2)
+    findings = _parse_findings(
+        body, require_reporting=schema_version >= 2, require_details=schema_version >= 3
+    )
     if partial_cve := PARTIAL_CVE_PATTERN.search(body):
         raise ReportArtifactError(
             f"Report contains a partial CVE identifier: {partial_cve.group(0)}"

@@ -9,6 +9,8 @@ from dataclasses import asdict, dataclass
 from typing import Any, Iterable, Mapping
 from urllib.parse import quote, urlsplit
 
+from ..services.article_content import normalize_feed_content
+
 import idna
 
 REPORTING_KEY_PATTERN = re.compile(r"^source-[0-9a-f]{12}$")
@@ -37,6 +39,9 @@ class ReportingSource:
     publisher: str
     title: str
     url: str
+    content: str = ""
+    content_kind: str = "feed"
+    links: tuple[str, ...] = ()
 
 
 def normalize_reporting_url(value: Any) -> str:
@@ -140,6 +145,14 @@ def build_reporting_catalog(
             publisher=_clean_text(article.get("source"), "publisher"),
             title=_clean_text(article.get("title"), "title"),
             url=url,
+            content=normalize_feed_content(
+                article.get("content") or article.get("summary")
+            ),
+            content_kind=str(article.get("content_kind", "feed")),
+            links=tuple(
+                normalize_reporting_url(link)
+                for link in article.get("source_links", [])
+            ),
         )
         existing = catalog.get(source.key)
         if existing and existing != source:
@@ -150,7 +163,7 @@ def build_reporting_catalog(
 
 def serialize_reporting_catalog(
     catalog: Mapping[str, ReportingSource],
-) -> list[dict[str, str]]:
+) -> list[dict[str, Any]]:
     return [asdict(source) for source in catalog.values()]
 
 
@@ -165,6 +178,11 @@ def deserialize_reporting_catalog(
             publisher=_clean_text(record.get("publisher"), "publisher"),
             title=_clean_text(record.get("title"), "title"),
             url=url,
+            content=str(record.get("content", "")),
+            content_kind=str(record.get("content_kind", "feed")),
+            links=tuple(
+                normalize_reporting_url(link) for link in record.get("links", [])
+            ),
         )
         if source.key != reporting_key(url):
             raise ReportingGroundingError(

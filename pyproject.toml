@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "feedparser",
+    "html5lib>=1.1",
     "httpx",
     "idna>=3.18",
     "langchain>=0.1.0",

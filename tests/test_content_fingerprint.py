@@ -41,3 +41,18 @@ def test_write_and_read_stored_fingerprint_round_trip(tmp_path):
     write_stored_fingerprint("abc123", str(path))
 
     assert read_stored_fingerprint(str(path)) == "abc123"
+
+
+def test_source_content_change_invalidates_fingerprint():
+    from src.core.content_fingerprint import compute_articles_fingerprint
+
+    before = [
+        {"link": "https://example.test/advisory", "content": "Exploitation is unknown."}
+    ]
+    after = [
+        {
+            "link": "https://example.test/advisory",
+            "content": "No evidence of exploitation.",
+        }
+    ]
+    assert compute_articles_fingerprint(before) != compute_articles_fingerprint(after)

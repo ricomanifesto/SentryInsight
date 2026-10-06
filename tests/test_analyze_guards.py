@@ -161,7 +161,7 @@ class AnalyzeGuardTests(unittest.TestCase):
             )
 
         self.assertIn("**Untitled article**", FakeOpenCodeClient.user_prompt)
-        self.assertIn("Summary only...", FakeOpenCodeClient.user_prompt)
+        self.assertIn("Summary only\n", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
         self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
 
@@ -796,6 +796,9 @@ class AnalyzeGuardTests(unittest.TestCase):
                     "publisher": "Example Source",
                     "title": "Example exploitation report",
                     "url": "https://example.test/report",
+                    "content": "Summary only",
+                    "content_kind": "feed",
+                    "links": (),
                 }
             ],
         )

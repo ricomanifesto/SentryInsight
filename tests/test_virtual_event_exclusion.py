@@ -46,6 +46,7 @@ def news_article():
         "link": "https://example.test/news?edition=1#details",
         "summary": "Security events reveal active exploitation.",
         "content": "Malware is exploiting CVE-2026-1234.",
+        "content_kind": "article",
         "cves": ["CVE-2026-1234"],
         "source": "Example Source",
     }
@@ -161,7 +162,9 @@ def test_virtual_event_newly_revealed_by_enrichment_is_excluded(monkeypatch, mar
 
         async def get(self, url):
             self.calls.append(url)
-            return SimpleNamespace(status_code=200, text=f"<p>{marker} Register</p>")
+            return SimpleNamespace(
+                status_code=200, text=f"<article><p>{marker} Register</p></article>"
+            )
 
     monkeypatch.setattr(fetch_module.httpx, "AsyncClient", FullContentClient)
     client = SentryDigestFeedClient("https://example.test/feed.xml")
@@ -172,6 +175,39 @@ def test_virtual_event_newly_revealed_by_enrichment_is_excluded(monkeypatch, mar
 
     assert result == [clean]
     assert FullContentClient.calls == [tagged["link"]]
+
+
+@pytest.mark.parametrize("surrounding", ["nav", "aside", "script"])
+def test_unrelated_page_promotion_does_not_remove_an_article(monkeypatch, surrounding):
+    class FullContentClient:
+        def __init__(self, **_kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_args):
+            pass
+
+        async def get(self, _url):
+            return SimpleNamespace(
+                status_code=200,
+                text=f"<{surrounding}>[Virtual Event] Register</{surrounding}>"
+                "<article><p>CVE-2026-1234 is actively exploited.</p></article>",
+            )
+
+    monkeypatch.setattr(fetch_module.httpx, "AsyncClient", FullContentClient)
+    article = {
+        "title": "Security advisory",
+        "link": "https://example.test/advisory",
+        "content": "A legitimate feed summary.",
+    }
+    result = asyncio.run(
+        SentryDigestFeedClient("unused").enrich_article_content([article])
+    )
+    assert result == [article]
+    assert article["content_kind"] == "article"
+    assert article["content"] == "CVE-2026-1234 is actively exploited."
 
 
 @pytest.mark.parametrize("text", ORDINARY_TEXT)

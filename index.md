@@ -8,7 +8,7 @@ digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-10-0
 
 ## Executive Summary
 
-Active exploitation campaigns are targeting critical infrastructure and enterprise systems across multiple vectors. A NetScaler zero-day (CVE-2026-88779) has been exploited in targeted attacks against SAML deployments, while Rejetto HFS servers face active scanning and exploitation attempts for a critical session forgery flaw (CVE-2026-61500) that enables remote code execution. Microsoft Exchange Server privilege escalation (CVE-2026-96940) has prompted out-of-band patches. Meanwhile, threat actors are weaponizing both old and new SharePoint vulnerabilities for ransomware deployment, and a Realtek Jungle SDK flaw is being exploited to deliver the Cling botnet with novel STUN-based command-and-control infrastructure.
+Active exploitation campaigns are targeting critical infrastructure and enterprise systems across multiple vectors. A NetScaler zero-day (CVE-2026-88779) has been exploited in targeted attacks against SAML deployments, while Rejetto HFS servers face active scanning and exploitation attempts for a critical session forgery flaw (CVE-2026-61500) that enables remote code execution. Microsoft issued out-of-band updates for Exchange Server privilege escalation (CVE-2026-96940). The linked report says exploitation has not been observed; Microsoft assesses future exploitation as more likely. Meanwhile, threat actors are weaponizing both old and new SharePoint vulnerabilities for ransomware deployment, and a Realtek Jungle SDK flaw is being exploited to deliver the Cling botnet with novel STUN-based command-and-control infrastructure.
 
 China-aligned threat group TA419 is conducting sophisticated adversary-in-the-middle phishing campaigns against U.S. AI policy experts, impersonating prominent officials and Anthropic employees. The suspected China-linked actor Warlock continues exploiting SharePoint flaws against critical infrastructure, government, and education sectors in Portuguese- and Spanish-speaking countries. The ShinyHunters extortion group faces disruption with the reported detention of a key member in Jordan who is cooperating with the FBI. Additionally, IoT devices are being compromised at scale through 24 known vulnerabilities to form proxy networks via the ClingSTUN operation.
 
@@ -37,11 +37,15 @@ China-aligned threat group TA419 is conducting sophisticated adversary-in-the-mi
 ### Microsoft Exchange Server Privilege Escalation (CVE-2026-96940)
 - **Description**: Weak authorization in Microsoft Exchange Server allows an authenticated attacker to elevate privileges and read other users' mailboxes under certain conditions.
 - **Impact**: Authenticated attackers can escalate privileges to access and read mailboxes of other users, compromising email confidentiality.
-- **Status**: Out-of-band security updates released by Microsoft. CVSS 8.8.
+- **Status**: Microsoft released out-of-band updates. No evidence of exploitation in the wild was reported; the Exploitation More Likely assessment describes risk, not confirmed attacks.
 - **Severity**: high
-- **Exploitation Status**: observed
+- **Exploitation Status**: not_observed
 - **Action**: patch
 - **CVE IDs**: CVE-2026-96940
+- **Affected Versions**: Microsoft Exchange Server Subscription Edition RTM; Microsoft Exchange Server 2016 Cumulative Update 23; Microsoft Exchange Server 2019 Cumulative Update 15; Microsoft Exchange Server 2019 Cumulative Update 14
+- **Exceptions**: Exchange Online already received a service-side fix and needs no customer action. Cross-tenant access is not enabled by this flaw.
+- **Recommended Actions**: Install the security updates on affected on-premises Exchange Server deployments.
+- **Vendor Links**: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-96940
 - **Reporting**: [The Hacker News — Microsoft Exchange Flaw Lets Authenticated Attackers Read Other Users' Mailboxes](https://thehackernews.com/2026/10/microsoft-exchange-flaw-lets.html)
 
 ### Dell System Update (DSU) CLI Critical Vulnerability
@@ -93,7 +97,7 @@ China-aligned threat group TA419 is conducting sophisticated adversary-in-the-mi
 
 - **Citrix NetScaler ADC and NetScaler Gateway**: Versions vulnerable to CVE-2026-88779 memory overflow in SAML deployments
 - **Rejetto HTTP File Server (HFS)**: Versions with weak PRNG-based signing key generation vulnerable to CVE-2026-61500
-- **Microsoft Exchange Server**: Versions affected by CVE-2026-96940 weak authorization allowing mailbox access
+- **Microsoft Exchange Server**: Subscription Edition RTM, 2016 Cumulative Update 23, and 2019 Cumulative Updates 15 and 14 require the security updates for CVE-2026-96940. Exchange Online received a service-side fix and requires no customer action; the flaw does not enable cross-tenant access.
 - **Dell System Update (DSU) CLI**: Deployment tool versions with critical root privilege escalation flaw
 - **Realtek Jungle SDK**: Versions with patched critical flaw exploited for Cling botnet delivery
 - **Microsoft SharePoint**: Multiple versions with old and new vulnerabilities exploited by Warlock for ransomware
@@ -104,7 +108,7 @@ China-aligned threat group TA419 is conducting sophisticated adversary-in-the-mi
 
 - **Zero-Day Exploitation**: CVE-2026-88779 exploited as zero-day in targeted attacks against NetScaler SAML deployments before patch availability
 - **Session Forgery via Weak PRNG**: CVE-2026-61500 exploited through predictable signing keys from weak pseudo-random number generation, enabling admin session forgery and RCE
-- **Privilege Escalation via Weak Authorization**: CVE-2026-96940 exploited by authenticated attackers to elevate privileges and access other users' mailboxes
+- **Privilege Escalation via Weak Authorization**: CVE-2026-96940 could allow authenticated cross-mailbox access within the same organization; exploitation in the wild has not been observed.
 - **Adversary-in-the-Middle (AitM) Phishing**: TA419 uses AitM phishing infrastructure impersonating prominent economists, AI policymakers, and Anthropic employees to harvest credentials from AI policy experts
 - **STUN-Based Command and Control**: Cling botnet repurposes legitimate public STUN servers as C2 channels, obscuring malicious traffic within normal NAT traversal behavior
 - **IoT Proxy Network via Known Flaws**: ClingSTUN exploits 24 known IoT vulnerabilities to build proxy infrastructure using STUN servers for communication obfuscation
