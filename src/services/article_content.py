@@ -90,7 +90,9 @@ def _extract(node: _Node, url: str) -> ArticleContent:
         ):
             return
         if item.tag == "br":
-            chunks.append(" " if list_depth else "\n")
+            # Soft breaks are distinct from structural paragraph separators.
+            # Repeated breaks must not detach a nested action from its owner.
+            chunks.append("\v")
             return
         block = item.tag in {
             "p",

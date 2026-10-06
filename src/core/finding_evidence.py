@@ -34,15 +34,19 @@ FIELD = re.compile(r"^-\s+\*\*([^*]+)\*\*:\s*(.*?)\s*$", re.MULTILINE)
 VERSION_LIST_CUE = r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected)|supported releases?)\b"
 CUMULATIVE_UPDATE_CUE = r"\bcumulative updates?\b"
 DETAIL_CUES = {
-    "Affected Versions": rf"{VERSION_LIST_CUE}|{CUMULATIVE_UPDATE_CUE}",
+    "Affected Versions": VERSION_LIST_CUE,
     "Exceptions": r"\b(?:need(?:s)? no action|not (?:required|affected|impacted|vulnerable)|no longer (?:affected|impacted|vulnerable)|unaffected|exempt|does not allow|no customer action)\b",
     "Recommended Actions": r"\b(?:install (?:the )?(?:updates?|patch)|apply (?:the )?(?:fix|patch|update)|advised to|recommended to|(?:should|must) (?:install|apply|patch|upgrade|update)|restart (?:the )?service)\b",
 }
 
 
-def _detail_roles(text: str) -> tuple[str, ...]:
+def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
     return tuple(
-        name for name, cue in DETAIL_CUES.items() if re.search(cue, text, re.I)
+        name
+        for name, cue in DETAIL_CUES.items()
+        if re.search(cue, text, re.I)
+        or name == "Affected Versions"
+        and _cumulative_version_list(text, context)
     )
 
 
@@ -372,11 +376,13 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
         for sentence in _sentences(line):
             mentioned = set(extract_cve_ids(sentence))
             selected = mentioned <= wanted if mentioned and wanted else owned
-            body_fields = _detail_roles(sentence) or (
+            body_fields = _detail_roles(sentence, source_block) or (
                 sections[-1][2] if sections else ()
             )
             # Recommendation cues can themselves cross a physical line break.
-            if "Recommended Actions" in _detail_roles(" ".join(source_block.split())):
+            if re.search(
+                DETAIL_CUES["Recommended Actions"], " ".join(source_block.split()), re.I
+            ):
                 body_fields = tuple(
                     dict.fromkeys((*body_fields, "Recommended Actions"))
                 )
@@ -678,6 +684,28 @@ def _version_clause(text: str) -> VersionClause:
     return VersionClause("list", text)
 
 
+def _cumulative_version_list(text: str, context: str = "") -> bool:
+    """An update named by advice is not an implicit affected-release list.
+
+    Use the same role decision for required fields and version collection. The
+    Unwrapped sentence context preserves advice whose cue and update name span
+    lines without assigning that advice to a separate release-list sentence.
+    Explicit release-list introductions are handled separately.
+    """
+    if not re.search(CUMULATIVE_UPDATE_CUE, text, re.I):
+        return False
+    if any(
+        _plain(text) in sentence
+        and re.search(DETAIL_CUES["Recommended Actions"], sentence, re.I)
+        for sentence in _sentences(_plain(context or text))
+    ):
+        return False
+    return _version_clause(text.strip().rstrip(".")).kind not in {
+        "recommendation",
+        "information",
+    }
+
+
 VERSION_RANGE_QUALIFIER = re.compile(
     r"(?:(?:all|any|the|other)\s+)*(?:(?:versions?|releases?|builds?)\s+)?"
     r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior|previous|subsequent|up|down|greater|less|lesser|onwards?|beyond|through|to)\b",
@@ -907,7 +935,7 @@ def validate_finding_evidence(
                 line,
                 re.I,
             )
-            if cue or re.search(CUMULATIVE_UPDATE_CUE, line, re.I):
+            if cue or _cumulative_version_list(line, span.source_block):
                 known_version_list = True
                 in_versions = True
                 if span.role == "heading":

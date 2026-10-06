@@ -156,3 +156,10 @@ def test_outer_html_list_items_keep_nested_context_and_sibling_boundaries():
     expected = "Do not: install the update; restart the service\n\nContact support."
     assert extract_article_content(markup, "https://example.test").text == expected
     assert normalize_feed_content(markup) == expected
+
+
+def test_html_list_breaks_preserve_lines_without_splitting_the_outer_item():
+    markup = "<article><ul><li>Affected versions:<br><br>Example Server 2.3<br>Example Server 2.4</li><li>Do not:<br> <br>install the update.</li></ul></article>"
+    expected = "Affected versions:\nExample Server 2.3\nExample Server 2.4\n\nDo not:\ninstall the update."
+    assert extract_article_content(markup, "https://example.test").text == expected
+    assert normalize_feed_content(markup) == expected
