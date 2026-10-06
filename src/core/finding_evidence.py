@@ -499,12 +499,27 @@ def _version_constraints(
     """Retain separate affected and explicitly excluded constraint sets."""
     if text == ABSENT:
         return [], []
-    clauses = re.split(
-        r"(?:(?:[,;—–]|\s+-\s+)\s*(?:(?:and|or|but)\s+)?|\s+(?:and|or|but)\s+)"
+    parts = re.split(
+        r"((?:[,;—–]|\s+-\s+)\s*(?:(?:and|or|but)\s+)?|\s+(?:and|or|but)\s+)"
         rf"(?=(?:{VERSION_AUDIENCE}|(?:(?:further|more) )?(?:details|information))\b)",
         text.strip().rstrip("."),
         flags=re.I,
     )
+    clauses = [parts[0]]
+    for index in range(1, len(parts), 2):
+        separator, candidate = parts[index : index + 2]
+        if any(
+            pattern.fullmatch(candidate.strip())
+            for pattern in (
+                VERSION_AFFECTED_CLAUSE,
+                VERSION_RECOMMENDATION_CLAUSE,
+                VERSION_INFORMATION_CLAUSE,
+            )
+        ):
+            clauses.append(candidate)
+        else:
+            # An audience restriction is part of the complete constraint.
+            clauses[-1] += separator + candidate
     entries: list[str] = []
     exclusions: list[str] = []
     for text in clauses:

@@ -1012,6 +1012,24 @@ def test_dash_delimited_version_clause_retains_its_role(separator):
         validate_finding_evidence(report(**{"Affected Versions": text}), catalog)
 
 
+@pytest.mark.parametrize(
+    "qualifier", ["users with premium licenses", "administrators only"]
+)
+@pytest.mark.parametrize("separator", [" — ", " – ", " - "])
+def test_dash_audience_qualifier_remains_part_of_the_version_constraint(
+    qualifier, separator
+):
+    text = f"Example Server 2.3{separator}{qualifier}"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {text}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(**{"Affected Versions": text}), catalog)
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)
+
+
 @pytest.mark.parametrize("separator", [" / ", " | ", " (", " : "])
 @pytest.mark.parametrize(
     "clause",
