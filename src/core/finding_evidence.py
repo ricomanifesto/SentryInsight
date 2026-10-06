@@ -31,7 +31,7 @@ DETAIL_FIELDS = (
     "Vendor Links",
 )
 FIELD = re.compile(r"^-\s+\*\*([^*]+)\*\*:\s*(.*?)\s*$", re.MULTILINE)
-VERSION_LIST_CUE = r"\b(?:affected versions?|versions? (?:are )?(?:impacted|affected)|supported releases?)\b"
+VERSION_LIST_CUE = r"\b(?:affected (?:versions?|releases?)|versions? (?:are )?(?:impacted|affected)|supported releases?)\b"
 CUMULATIVE_UPDATE_CUE = r"\bcumulative updates?\b"
 DETAIL_CUES = {
     "Affected Versions": VERSION_LIST_CUE,
@@ -646,7 +646,7 @@ VERSION_STATE = r"affected|impacted|vulnerable|unaffected"
 VERSION_DESCRIPTIVE_STATE = re.compile(
     rf"\b(?:on|for|to|in|within|across) (?:(?:all|any|the|these|those|their) )?"
     rf"(?:{VERSION_STATE}) (?:systems?|servers?|devices?|installations?|deployments?|"
-    r"versions?|releases?|products?|applications?|software|platforms?|hosts?)\b",
+    r"versions?|releases?|products?|applications?|software|platforms?|hosts?)\b(?=\s*$)",
     re.I,
 )
 
@@ -677,7 +677,7 @@ def _version_clause(text: str) -> VersionClause:
     recommendation = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
     information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
     # Only complete typed assertions above can establish a version state.
-    # Advice may retain supported prepositional descriptions, but any other
+    # Advice may end with supported prepositional descriptions, but any other
     # state token is unclassified evidence, regardless of the preceding verb.
     # This deliberately rejects unknown grammar instead of treating it as
     # advice or an implicit release name.
