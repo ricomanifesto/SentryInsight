@@ -809,18 +809,21 @@ def test_unrelated_clause_ends_an_inline_version_list(continuation):
 
 
 @pytest.mark.parametrize("cue", ["Affected versions: ", ""])
-def test_version_prefix_cannot_add_an_unsupported_version(cue):
+@pytest.mark.parametrize("version", ["1.0.1", "1.0~rc1", "1.0:1", "1.0!1"])
+def test_version_prefix_cannot_add_an_unsupported_version(cue, version):
     source = article(
-        f"{CVE} is actively exploited.\n\n{cue}Example Server 1.0.1\n\nHosted users need no action.\n\nInstall the update.",
+        f"{CVE} is actively exploited.\n\n{cue}Example Server {version}\n\nHosted users need no action.\n\nInstall the update.",
         source_links=["https://example.test/vendor"],
     )
     catalog = build_reporting_catalog([source])
     validate_finding_evidence(
-        report(**{"Affected Versions": "Example Server 1.0.1"}), catalog
+        report(**{"Affected Versions": f"Example Server {version}"}), catalog
     )
     with pytest.raises(EvidenceError, match="source-supported|unsupported"):
         validate_finding_evidence(
-            report(**{"Affected Versions": "Example Server 1.0.1; Example Server 1.0"}),
+            report(
+                **{"Affected Versions": f"Example Server {version}; Example Server 1.0"}
+            ),
             catalog,
         )
 
@@ -841,3 +844,54 @@ def test_ambiguous_version_tail_cannot_be_silently_discarded(tail):
     )
     with pytest.raises(EvidenceError, match="ambiguous"):
         validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize(
+    "clause",
+    [
+        "users of Example Server 2.4 are also affected",
+        "customers of Example Server 2.4 are still vulnerable",
+    ],
+)
+def test_affected_user_clause_contributes_its_version(clause):
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3, and {clause}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Example Server 2.3; Example Server 2.4"}),
+        catalog,
+    )
+
+
+@pytest.mark.parametrize("conjunction", ["and", "or"])
+def test_product_name_conjunction_is_not_a_version_separator(conjunction):
+    version = f"Research {conjunction} Development Server 2.3"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are {version}.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    validate_finding_evidence(report(**{"Affected Versions": version}), catalog)
+    with pytest.raises(EvidenceError):
+        validate_finding_evidence(
+            report(**{"Affected Versions": "Development Server 2.3"}), catalog
+        )
+
+
+def test_conjunction_product_name_can_follow_another_version_entry():
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions are Example Server 2.3 and Research and Development Server 2.4.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": "Example Server 2.3; Research and Development Server 2.4"
+            }
+        ),
+        build_reporting_catalog([source]),
+    )

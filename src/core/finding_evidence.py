@@ -400,32 +400,83 @@ def _plain(text: str) -> str:
 
 def _version_entries(text: str) -> list[str]:
     """Keep range tails, stop at clear clauses, and reject ambiguous tails."""
+    text = re.sub(
+        r"\b(?:users|customers|operators|administrators) of ([^,;]+?) "
+        r"(?:are|were|remain) (?:(?:also|still) )?(?:affected|impacted|vulnerable)\b",
+        r"\1",
+        text,
+        flags=re.I,
+    )
     parts = re.split(r"([,;]|\s+(?:and|or)\s+)", text.strip().rstrip("."), flags=re.I)
     entries: list[str] = []
+    pending = ""
     for index in range(0, len(parts), 2):
         entry = parts[index].strip()
         if not entry:
             continue
+        if pending:
+            if parts[index - 1].strip().casefold() not in {"and", "or"}:
+                raise EvidenceError("ambiguous affected-version continuation")
+            entry = pending + parts[index - 1] + entry
+            pending = ""
         qualifier = re.match(
             r"(?:(?:all|any|the|other)\s+)*(?:(?:versions?|releases?|builds?)\s+)?"
             r"(?:earlier|later|older|newer|higher|lower|above|below|before|after|prior|previous|subsequent|up|down|greater|less|lesser|onwards?|beyond)\b",
             entry,
             re.I,
         )
-        if entries and qualifier:
-            entries[-1] += parts[index - 1] + entry
-        elif entries and re.match(
-            r"(?:(?:customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you)\b|(?:further |more )?(?:details|information)\b)"
-            r".*?\b(?:is|are|was|were|has|have|had|should|must|can|could|will|would|needs?|recommends?|install|patch|upgrade)\b",
+        recommendation = re.match(
+            r"(?P<subject>(?:customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you)\b.*?)"
+            r"\b(?:should|must|needs? to|are advised to|is advised to)\s+(?:\w+ly\s+)*"
+            r"(?:install|apply|patch|upgrade|update|consult|review|contact)\b",
             entry,
             re.I,
+        )
+        information = re.match(
+            r"(?:(?:further|more) )?(?:details|information)\b.*?\b(?:is|are) "
+            r"(?:available|provided|published)\b",
+            entry,
+            re.I,
+        )
+        if entries and qualifier:
+            entries[-1] += parts[index - 1] + entry
+        elif (
+            entries
+            and not re.search(
+                r"\b(?:affected|impacted|vulnerable)\b",
+                entry,
+                re.I,
+            )
+            and (
+                information
+                or (
+                    recommendation
+                    and not re.search(
+                        r"\d|\bRTM\b", recommendation.group("subject"), re.I
+                    )
+                )
+            )
         ):
             break
-        elif entries and not re.search(r"\d|\bRTM\b", entry, re.I):
-            raise EvidenceError("ambiguous affected-version continuation")
+        elif not re.search(r"\d|\bRTM\b", entry, re.I):
+            pending = entry
         else:
             entries.append(entry)
+    if pending:
+        if entries:
+            raise EvidenceError("ambiguous affected-version continuation")
+        entries.append(pending)
     return entries
+
+
+def _supported_version_text(entry: str, source: str) -> bool:
+    """Match full source tokens, including unknown version suffix syntax."""
+    source = _plain(source)
+    for match in re.finditer(rf"(?<!\w){re.escape(_plain(entry))}", source):
+        tail = re.match(r"[^\s,;()\[\]{}\"']*", source[match.end() :])
+        if tail and not tail.group().strip(".!?:"):
+            return True
+    return False
 
 
 def _rendered_text(tokens: Sequence[Token]) -> str:
@@ -604,11 +655,7 @@ def validate_finding_evidence(
                 if any(entry not in links for entry in normalized):
                     raise EvidenceError(f"{title}: unsupported vendor link")
             elif name == "Affected Versions" and any(
-                not re.search(
-                    rf"(?<!\w){re.escape(_plain(entry))}(?![\w+-]|\.\w|/\w)",
-                    _plain(scoped),
-                )
-                for entry in entries
+                not _supported_version_text(entry, scoped) for entry in entries
             ):
                 raise EvidenceError(
                     f"{title}: {name} must preserve exact source-supported details"
