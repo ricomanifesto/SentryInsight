@@ -1429,3 +1429,57 @@ def test_ambiguous_mixed_role_span_needs_a_role_bearing_value(field, value):
             ),
             build_reporting_catalog([source]),
         )
+
+
+@pytest.mark.parametrize(
+    "prohibition,fragment",
+    [
+        ("Do not install the update on hosted systems.", "install the update"),
+        ("Customers should not apply the patch on hosted systems.", "apply the patch"),
+        ("Never restart the service during recovery.", "restart the service"),
+        (
+            "Avoid the unstable release and do not install the update.",
+            "install the update",
+        ),
+        (
+            "There is no need to install the update on hosted systems.",
+            "install the update",
+        ),
+        (
+            "The vendor does not recommend that you install the update.",
+            "install the update",
+        ),
+        ("Don't install the update on hosted systems.", "install the update"),
+    ],
+)
+def test_recommendation_cannot_discard_source_prohibition(prohibition, fragment):
+    source = article(
+        f"## {CVE}\n{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\n### Recommended Actions\n{prohibition}",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="source-supported|prohibition"):
+        validate_finding_evidence(report(**{"Recommended Actions": fragment}), catalog)
+    validate_finding_evidence(report(**{"Recommended Actions": prohibition}), catalog)
+
+
+def test_positive_source_cannot_hide_another_sources_action_prohibition():
+    positive = article(
+        f"{CVE} is actively exploited.\nExample Server 2.3\nHosted users need no action.\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    negative = article(
+        f"## {CVE}\nDo not install the update on hosted systems.",
+        link="https://example.test/second",
+    )
+    catalog = build_reporting_catalog([positive, negative])
+    with pytest.raises(EvidenceError, match="prohibition"):
+        validate_finding_evidence(report(), catalog)
+    validate_finding_evidence(
+        report(
+            **{
+                "Recommended Actions": "Install the update.; Do not install the update on hosted systems."
+            }
+        ),
+        catalog,
+    )

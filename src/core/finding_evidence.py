@@ -49,6 +49,28 @@ def _heading_detail_roles(text: str) -> tuple[str, ...]:
     return tuple(name for name in DETAIL_CUES if name.casefold() == label)
 
 
+def _recommendation_requires_complete(source: str) -> bool:
+    # A mixed sentence may mention an unaffected audience separately from its
+    # affirmative advice. Other negation/prohibition language requires the
+    # complete span, avoiding guesses about the scope of a truncated phrase.
+    polarity_text = re.sub(
+        r"\b(?:needs? no action|no customer action)\b", "", source, flags=re.I
+    )
+    return bool(
+        re.search(
+            r"\b(?:not|never|no|avoid|without|refrain|stop)\b|n['’]t\b",
+            polarity_text,
+            re.I,
+        )
+    )
+
+
+def _preserves_recommendation_polarity(entry: str, source: str) -> bool:
+    return not _recommendation_requires_complete(source) or (
+        _plain(entry).rstrip(".!?") == _plain(source).rstrip(".!?")
+    )
+
+
 NEGATIVE = re.compile(
     r"\b(?:exploit\w* (?:has |have |is |was |were )?not (?:yet |been )*(?:observed|detected|confirmed)|no (?:known exploitation|evidence|signs?|reports?|exploitation)|(?:not|never) (?:yet |been |being |actively |publicly |known to be |observed to be )*(?:exploit\w*|weaponiz\w*)|(?:has|have) not been (?:actively )?(?:exploit\w*|weaponiz\w*)|without (?:evidence|reports?) of exploitation)\b",
     re.I,
@@ -911,6 +933,19 @@ def validate_finding_evidence(
                 if any(entry not in links for entry in normalized):
                     raise EvidenceError(f"{title}: unsupported vendor link")
             elif name in {"Exceptions", "Recommended Actions"}:
+                if name == "Recommended Actions" and any(
+                    span.role == "body"
+                    and name in span.fields
+                    and _recommendation_requires_complete(span.text)
+                    and not any(
+                        _plain(entry).rstrip(".!?") == _plain(span.text).rstrip(".!?")
+                        for entry in entries
+                    )
+                    for span in detail_spans
+                ):
+                    raise EvidenceError(
+                        f"{title}: recommendation omits a source prohibition or negation"
+                    )
                 for entry in entries:
                     roles = _detail_roles(entry)
                     # A phrase with no role cue can inherit one unambiguous
@@ -921,6 +956,10 @@ def validate_finding_evidence(
                         and name in span.fields
                         and (name in roles or span.fields == (name,))
                         and _plain(entry) in _plain(span.text)
+                        and (
+                            name != "Recommended Actions"
+                            or _preserves_recommendation_polarity(entry, span.text)
+                        )
                         for span in detail_spans
                     ) or (
                         name == "Exceptions"
