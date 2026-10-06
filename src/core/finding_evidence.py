@@ -256,6 +256,7 @@ class DetailSpan:
     role: Literal["heading", "body", "boundary"]
     fields: tuple[str, ...] = ()
     source_block: str = ""
+    version_context: str = ""
 
 
 def _recommendation_text(text: str) -> str:
@@ -345,8 +346,13 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     # Boundaries prevent version-list context crossing sources or excluded spans.
     result = [DetailSpan("", "boundary")]
     source_blocks = _logical_source_blocks(content)
+    previous_block = None
+    preceding: list[str] = []
     for line_index, line in enumerate(content.splitlines()):
         source_block = source_blocks[line_index]
+        if source_block != previous_block:
+            preceding = []
+            previous_block = source_block
         heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
         if heading:
             level = len(heading[1])
@@ -374,9 +380,13 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             )
             continue
         for sentence in _sentences(line):
+            # Position matters: later advice cannot change an earlier row's
+            # role, even when the same release name occurs more than once.
+            preceding.append(sentence)
+            version_context = " ".join(preceding)
             mentioned = set(extract_cve_ids(sentence))
             selected = mentioned <= wanted if mentioned and wanted else owned
-            body_fields = _detail_roles(sentence, source_block) or (
+            body_fields = _detail_roles(sentence, version_context) or (
                 sections[-1][2] if sections else ()
             )
             # Recommendation cues can themselves cross a physical line break.
@@ -399,6 +409,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                     "body",
                     body_fields,
                     source_block,
+                    version_context,
                 )
                 if selected
                 else DetailSpan("", "boundary")
@@ -687,23 +698,30 @@ def _version_clause(text: str) -> VersionClause:
 def _cumulative_version_list(text: str, context: str = "") -> bool:
     """An update named by advice is not an implicit affected-release list.
 
-    Use the same role decision for required fields and version collection. The
-    Unwrapped sentence context preserves advice whose cue and update name span
-    lines without assigning that advice to a separate release-list sentence.
-    Explicit release-list introductions are handled separately.
+    Use the same role decision for required fields and version collection.
+    Context ends at this source occurrence. Advice can govern an update name
+    on a following line, but cannot reach backward into preceding release rows.
+    Complete version clauses keep later advice separate from list constraints.
     """
     if not re.search(CUMULATIVE_UPDATE_CUE, text, re.I):
         return False
-    if any(
-        _plain(text) in sentence
-        and re.search(DETAIL_CUES["Recommended Actions"], sentence, re.I)
-        for sentence in _sentences(_plain(context or text))
+    current = _plain(text)
+    prior = _sentences(_plain(context or text))[-1].removesuffix(current)
+    update = re.search(CUMULATIVE_UPDATE_CUE, current, re.I)
+    advice = re.search(DETAIL_CUES["Recommended Actions"], current, re.I)
+    if re.search(DETAIL_CUES["Recommended Actions"], prior, re.I) or (
+        update and advice and advice.start() < update.start()
     ):
         return False
-    return _version_clause(text.strip().rstrip(".")).kind not in {
-        "recommendation",
-        "information",
-    }
+    if not re.search(r"\d|\bRTM\b", text, re.I):
+        # A heading can introduce following rows; generic advice/information
+        # does not establish a release list just by naming cumulative updates.
+        return _version_clause(text.strip().rstrip(".")).kind not in {
+            "recommendation",
+            "information",
+        }
+    included, excluded = _version_constraints(text)
+    return bool(included or excluded)
 
 
 VERSION_RANGE_QUALIFIER = re.compile(
@@ -935,7 +953,18 @@ def validate_finding_evidence(
                 line,
                 re.I,
             )
-            if cue or _cumulative_version_list(line, span.source_block):
+            cumulative_list = not cue and _cumulative_version_list(
+                line, span.version_context
+            )
+            if (
+                not cue
+                and re.search(CUMULATIVE_UPDATE_CUE, line, re.I)
+                and not cumulative_list
+            ):
+                in_versions = False
+                range_target = None
+                continue
+            if cue or cumulative_list:
                 known_version_list = True
                 in_versions = True
                 if span.role == "heading":
@@ -991,9 +1020,12 @@ def validate_finding_evidence(
             raise EvidenceError(
                 f"{title}: Affected Versions omits supplied version list entries"
             )
-        if known_version_list and reported_versions - {
-            _plain(line) for line in version_lines
-        }:
+        if (
+            known_version_list
+            or re.search(
+                CUMULATIVE_UPDATE_CUE, fields.get("Affected Versions", ""), re.I
+            )
+        ) and reported_versions - {_plain(line) for line in version_lines}:
             raise EvidenceError(f"{title}: unsupported affected-version entry")
         if any(
             not _supported_version_text(exclusion, fields.get("Exceptions", ""))
@@ -1037,23 +1069,25 @@ def validate_finding_evidence(
             elif name == "Exceptions":
                 for entry in entries:
                     roles = _detail_roles(entry)
+                    parsed_exclusion = any(
+                        _plain(entry) == _plain(item) for item in excluded_version_lines
+                    )
                     # A phrase with no role cue can inherit one unambiguous
                     # source role. Mixed-role sentences require a role-bearing
                     # phrase so truncation cannot turn advice into an exception.
-                    grounded = any(
-                        span.role == "body"
-                        and name in span.fields
-                        and (name in roles or span.fields == (name,))
-                        and _plain(entry) in _plain(span.text)
-                        for span in detail_spans
-                    ) or (
-                        name == "Exceptions"
-                        and any(
-                            _plain(entry) == _plain(item)
-                            for item in excluded_version_lines
+                    grounded = (
+                        any(
+                            span.role == "body"
+                            and name in span.fields
+                            and (name in roles or span.fields == (name,))
+                            and _plain(entry) in _plain(span.text)
+                            for span in detail_spans
                         )
+                        or parsed_exclusion
                     )
-                    if (roles and name not in roles) or not grounded:
+                    if (
+                        roles and name not in roles and not parsed_exclusion
+                    ) or not grounded:
                         raise EvidenceError(
                             f"{title}: {name} must preserve exact source-supported details with the matching semantic role"
                         )

@@ -90,9 +90,9 @@ def _extract(node: _Node, url: str) -> ArticleContent:
         ):
             return
         if item.tag == "br":
-            # Soft breaks are distinct from structural paragraph separators.
-            # Repeated breaks must not detach a nested action from its owner.
-            chunks.append("\v")
+            # List-item breaks cannot detach nested actions from their owner.
+            # Outside lists, repeated breaks can separate prose paragraphs.
+            chunks.append("\v" if list_depth else "\n")
             return
         block = item.tag in {
             "p",
@@ -147,7 +147,7 @@ def _extract(node: _Node, url: str) -> ArticleContent:
     visit(node)
     text = "\n\n".join(
         "\n".join(" ".join(line.split()) for line in part.splitlines() if line.strip())
-        for part in "".join(chunks).split("\n\n")
+        for part in re.split(r"\n[ \t]*\n", "".join(chunks))
         if part.strip()
     )
     return ArticleContent(text, tuple(dict.fromkeys(links)))

@@ -163,3 +163,11 @@ def test_html_list_breaks_preserve_lines_without_splitting_the_outer_item():
     expected = "Affected versions:\nExample Server 2.3\nExample Server 2.4\n\nDo not:\ninstall the update."
     assert extract_article_content(markup, "https://example.test").text == expected
     assert normalize_feed_content(markup) == expected
+
+
+def test_repeated_breaks_outside_lists_remain_paragraph_separators():
+    for breaks in ["<br><br>", "<br> \n<br>"]:
+        markup = f"<article>Background.{breaks}Install the update.</article>"
+        expected = "Background.\n\nInstall the update."
+        assert extract_article_content(markup, "https://example.test").text == expected
+        assert normalize_feed_content(markup) == expected

@@ -1838,10 +1838,13 @@ def test_html_list_item_breaks_keep_version_entries_and_recommendation_owner(bre
         )
 
 
-def test_cumulative_list_and_recommendation_share_a_paragraph_without_losing_releases():
+@pytest.mark.parametrize("separator", [". ", "; ", ", "])
+def test_cumulative_list_and_recommendation_share_a_paragraph_without_losing_releases(
+    separator,
+):
     first = "Example Server 2019 Cumulative Update 14"
     second = "Example Server 2019 Cumulative Update 15"
-    paragraph = f"{first} and {second}. Customers should install the update."
+    paragraph = f"{first} and {second}{separator}Customers should install the update."
     source = article(
         f"{CVE} is actively exploited.\n\n{paragraph}\n\nHosted users need no action.",
         source_links=["https://example.test/vendor"],
@@ -1860,4 +1863,123 @@ def test_cumulative_list_and_recommendation_share_a_paragraph_without_losing_rel
             }
         ),
         catalog,
+    )
+
+
+@pytest.mark.parametrize("breaks", ["<br><br>", "<br> \n<br>"])
+def test_repeated_html_breaks_outside_lists_keep_recommendation_paragraphs(breaks):
+    source = article(
+        f"<h2>{CVE}</h2><p>{CVE} is actively exploited.</p><p>Example Server 2.3</p>"
+        f"<p>Hosted users need no action.</p><div>Background information.{breaks}Install the update.</div>",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(report(), build_reporting_catalog([source]))
+
+
+@pytest.mark.parametrize("breaks", ["<br>", "<br><br>"])
+@pytest.mark.parametrize("repeat_release", [False, True])
+def test_cumulative_rows_before_advice_remain_complete_version_evidence(
+    breaks, repeat_release
+):
+    first = "Example Server 2019 Cumulative Update 14"
+    second = "Example Server 2019 Cumulative Update 15"
+    advice = f"Customers should install {first if repeat_release else 'the update'}."
+    source = article(
+        f"<h2>{CVE}</h2><p>{CVE} is actively exploited.</p>"
+        f"<ul><li>{first}{breaks}{second}{breaks}{advice}</li></ul><p>Hosted users need no action.</p>",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    actions = f"{first} {second} {advice}"
+    for value in ["Not stated in supplied sources.", first, second]:
+        with pytest.raises(EvidenceError, match="omits"):
+            validate_finding_evidence(
+                report(**{"Affected Versions": value, "Recommended Actions": actions}),
+                catalog,
+            )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": f"{first}; {second}",
+                "Recommended Actions": actions,
+            }
+        ),
+        catalog,
+    )
+
+
+def test_update_named_only_in_advice_cannot_ground_an_affected_version_claim():
+    version = "Example Server 2019 Cumulative Update 15"
+    advice = f"Customers should install {version}."
+    source = article(
+        f"{CVE} is actively exploited.\n\nHosted users need no action.\n\n{advice}",
+        source_links=["https://example.test/vendor"],
+    )
+    with pytest.raises(EvidenceError, match="unsupported affected-version"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": version, "Recommended Actions": advice}),
+            build_reporting_catalog([source]),
+        )
+
+
+@pytest.mark.parametrize("wrap", [" ", "<br>"])
+@pytest.mark.parametrize("audience", ["Customers", "Customers of Example Server 2.3"])
+def test_advice_after_release_rows_does_not_add_its_target_update(wrap, audience):
+    first = "Example Server 2019 Cumulative Update 14"
+    second = "Example Server 2019 Cumulative Update 15"
+    target = "Example Server 2019 Cumulative Update 16"
+    advice = f"{audience} should install{wrap}{target}."
+    source = article(
+        f"<h2>{CVE}</h2><p>{CVE} is actively exploited.</p>"
+        f"<ul><li>{first}<br>{second}<br>{advice}</li></ul><p>Hosted users need no action.</p>",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    actions = f"{first} {second} {audience} should install {target}."
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": f"{first}; {second}",
+                "Recommended Actions": actions,
+            }
+        ),
+        catalog,
+    )
+    with pytest.raises(EvidenceError, match="unsupported affected-version"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": f"{first}; {second}; {target}",
+                    "Recommended Actions": actions,
+                }
+            ),
+            catalog,
+        )
+
+
+def test_generic_information_about_cumulative_updates_does_not_require_versions():
+    source = article(
+        f"{CVE} is actively exploited.\n\nFurther information about cumulative updates is available.\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(
+        report(**{"Affected Versions": "Not stated in supplied sources."}),
+        build_reporting_catalog([source]),
+    )
+
+
+def test_explicit_cumulative_update_exclusions_keep_their_clause_role():
+    version = "Example Server 2019 Cumulative Update 15"
+    source = article(
+        f"{CVE} is actively exploited.\n\nAffected versions: Customers of {version} are unaffected.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": "Not stated in supplied sources.",
+                "Exceptions": version,
+            }
+        ),
+        build_reporting_catalog([source]),
     )
