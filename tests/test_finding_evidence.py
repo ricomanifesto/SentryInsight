@@ -2661,3 +2661,35 @@ def test_grouped_qualifiers_preserve_compact_connector_spacing(wrappers, connect
             ),
             catalog,
         )
+
+
+@pytest.mark.parametrize("wrappers", [("(", ")"), ("[", "]")])
+@pytest.mark.parametrize("connector", ["—", "–", "|", ":", ",", ";"])
+@pytest.mark.parametrize("retained_space", ["", " "])
+def test_grouped_metadata_removal_preserves_connector_owned_spacing(
+    wrappers, connector, retained_space
+):
+    left, right = wrappers
+    discarded_space = "" if retained_space else " "
+    introduction = "Customers should install the fix for affected versions."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n"
+        f"- Example Server 2.3 {left}Windows{discarded_space}, "
+        f"{CVE}{retained_space}{connector} x64{right}\n\n"
+        "Hosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    version = f"Example Server 2.3 {left}Windows{retained_space}{connector} x64{right}"
+    validate_finding_evidence(
+        report(**{"Affected Versions": version, "Recommended Actions": introduction}),
+        catalog,
+    )
+    altered = f"Example Server 2.3 {left}Windows{discarded_space}{connector} x64{right}"
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(
+                **{"Affected Versions": altered, "Recommended Actions": introduction}
+            ),
+            catalog,
+        )

@@ -794,7 +794,7 @@ def _version_list_parts(text: str, *, attribution: bool = False) -> list[str]:
     closing: list[str] = []
     parts: list[str] = []
     separator_pattern = (
-        r"[,;:|—–]|\s+-(?=\s)|\s+(?:and|or|for)(?=\s)"
+        r"\s*[,;:|—–]|\s+-(?=\s)|\s+(?:and|or|for)(?=\s)"
         if attribution
         else r"[,;]|\s+(?:and|or)\s+"
     )
