@@ -2284,3 +2284,59 @@ def test_descriptive_state_exemptions_cannot_hide_following_details(description,
             ),
             build_reporting_catalog([source]),
         )
+
+
+@pytest.mark.parametrize("punctuation", [".", "!", "?", "…"])
+@pytest.mark.parametrize(
+    "description",
+    [
+        "on affected systems",
+        "for vulnerable products",
+        "for affected releases",
+        "for affected versions",
+    ],
+)
+def test_terminal_descriptive_advice_does_not_introduce_a_version_list(
+    description, punctuation
+):
+    statement = f"Customers should install Example Server 2019 Cumulative Update 16 {description}{punctuation}"
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": "Not stated in supplied sources.",
+                "Recommended Actions": statement,
+            }
+        ),
+        build_reporting_catalog([source]),
+    )
+
+
+@pytest.mark.parametrize("label", ["affected releases", "affected versions"])
+def test_advice_list_heading_retains_following_release_lines(label):
+    first = "Example Server 2019 Cumulative Update 14"
+    second = "Example Server 2019 Cumulative Update 15"
+    statement = f"Customers should install the fix for {label}:\n{first}\n{second}."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{statement}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    actions = " ".join(statement.split())
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(**{"Affected Versions": first, "Recommended Actions": actions}),
+            catalog,
+        )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": f"{first}; {second}",
+                "Recommended Actions": actions,
+            }
+        ),
+        catalog,
+    )

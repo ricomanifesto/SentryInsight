@@ -44,9 +44,11 @@ def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
     return tuple(
         name
         for name, cue in DETAIL_CUES.items()
-        if re.search(cue, text, re.I)
-        or name == "Affected Versions"
-        and _cumulative_version_list(text, context)
+        if (
+            bool(_version_list_cue(text)) or _cumulative_version_list(text, context)
+            if name == "Affected Versions"
+            else re.search(cue, text, re.I)
+        )
     )
 
 
@@ -646,9 +648,25 @@ VERSION_STATE = r"affected|impacted|vulnerable|unaffected"
 VERSION_DESCRIPTIVE_STATE = re.compile(
     rf"\b(?:on|for|to|in|within|across) (?:(?:all|any|the|these|those|their) )?"
     rf"(?:{VERSION_STATE}) (?:systems?|servers?|devices?|installations?|deployments?|"
-    r"versions?|releases?|products?|applications?|software|platforms?|hosts?)\b(?=\s*$)",
+    r"versions?|releases?|products?|applications?|software|platforms?|hosts?)\b(?=[.!?…]*\s*$)",
     re.I,
 )
+
+
+def _version_list_cue(text: str) -> re.Match[str] | None:
+    """Separate an actual list cue from a terminal advice description."""
+    description = VERSION_DESCRIPTIVE_STATE.search(text)
+    advice = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
+    information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
+    for cue in re.finditer(VERSION_LIST_CUE, text, re.I):
+        if (
+            description
+            and (advice or information)
+            and description.start() <= cue.start() < description.end()
+        ):
+            continue
+        return cue
+    return None
 
 
 def _version_assertion_is_negative(match: re.Match[str]) -> bool:
@@ -982,11 +1000,7 @@ def validate_finding_evidence(
             if span.role != "body":
                 in_versions = False
                 range_target = None
-            cue = re.search(
-                VERSION_LIST_CUE,
-                line,
-                re.I,
-            )
+            cue = _version_list_cue(line)
             cumulative_list = not cue and _cumulative_version_list(
                 line, span.version_context
             )
@@ -994,6 +1008,12 @@ def validate_finding_evidence(
                 not cue
                 and re.search(CUMULATIVE_UPDATE_CUE, line, re.I)
                 and not cumulative_list
+                and not (
+                    in_versions
+                    and all(
+                        clause.kind == "list" for _, clause in _version_clauses(line)
+                    )
+                )
             ):
                 in_versions = False
                 range_target = None
@@ -1035,6 +1055,9 @@ def validate_finding_evidence(
                     continue
                 if re.search(r"\d|\bRTM\b", line) and not extract_cve_ids(line):
                     included, excluded = _version_constraints(line)
+                    # Advice/information can contain a product version before
+                    # its wrapped target. End the list at that typed clause.
+                    in_versions = bool(included or excluded)
                     version_lines.extend(included)
                     excluded_version_lines.extend(excluded)
                     range_target = (
