@@ -14,7 +14,7 @@ from typing import Any, Literal, Mapping, Sequence
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
-from .cve import extract_cve_ids
+from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .reporting import (
     ACTIVE_SECTION_PATTERN,
     FINDING_PATTERN,
@@ -875,6 +875,17 @@ def _version_entries(text: str) -> list[str]:
     return _version_constraints(text, require_affected=True)[0]
 
 
+def _version_source_text(text: str) -> str:
+    """Remove attribution tags only after detail spans have established CVE scope."""
+    if not CVE_ID_PATTERN.search(text):
+        return text
+    text = CVE_ID_PATTERN.sub("", text)
+    text = re.sub(r"\(\s*\)|\[\s*\]", "", text)
+    text = text.strip(" \t.,;:|—–-")
+    text = re.sub(r"\bfor\s*$", "", text, flags=re.I)
+    return text.strip()
+
+
 def _supported_version_text(entry: str, source: str) -> bool:
     """Match full source tokens, including unknown version suffix syntax."""
     source = _plain(source)
@@ -1007,7 +1018,9 @@ def validate_finding_evidence(
         known_version_list = False
         range_target: list[str] | None = None
         for span in detail_spans:
-            line = span.text
+            line = _version_source_text(span.text) if span.role == "body" else span.text
+            if not line and span.role == "body" and extract_cve_ids(span.text):
+                continue
             if span.role != "body":
                 list_state = "none"
                 range_target = None
@@ -1017,12 +1030,8 @@ def validate_finding_evidence(
                 range_target = None
                 continue
             if list_state == "pending":
-                release_row = (
-                    bool(re.search(r"\d|\bRTM\b", line, re.I))
-                    and not extract_cve_ids(line)
-                    and all(
-                        clause.kind == "list" for _, clause in _version_clauses(line)
-                    )
+                release_row = bool(re.search(r"\d|\bRTM\b", line, re.I)) and all(
+                    clause.kind == "list" for _, clause in _version_clauses(line)
                 )
                 list_state = "active" if release_row else "none"
                 known_version_list = known_version_list or release_row
@@ -1057,9 +1066,7 @@ def validate_finding_evidence(
                 included, excluded = _version_constraints(remainder)
                 excluded_version_lines.extend(excluded)
                 version_lines.extend(
-                    entry
-                    for entry in included
-                    if re.search(r"\d|\bRTM\b", entry) and not extract_cve_ids(entry)
+                    entry for entry in included if re.search(r"\d|\bRTM\b", entry)
                 )
                 range_target = (
                     excluded_version_lines
@@ -1078,7 +1085,7 @@ def validate_finding_evidence(
                         range_target[-1].rstrip(". ") + " " + line.rstrip(". ")
                     )
                     continue
-                if re.search(r"\d|\bRTM\b", line) and not extract_cve_ids(line):
+                if re.search(r"\d|\bRTM\b", line):
                     included, excluded = _version_constraints(line)
                     # Advice/information can contain a product version before
                     # its wrapped target. End the list at that typed clause.

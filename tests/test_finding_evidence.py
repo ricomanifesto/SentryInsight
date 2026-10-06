@@ -2413,3 +2413,83 @@ def test_pending_advice_cue_expires_before_unrelated_release_mentions(boundary):
         ),
         build_reporting_catalog([source]),
     )
+
+
+@pytest.mark.parametrize(
+    "introduction",
+    [
+        "Customers should install the fix for affected versions.",
+        "Customers should install the fix for affected versions:",
+    ],
+)
+@pytest.mark.parametrize(
+    "annotation",
+    [" — {cve}", " - {cve}", " | {cve}", " ({cve})", " [{cve}]", " for {cve}"],
+)
+def test_same_cve_annotations_do_not_remove_release_constraints(
+    introduction, annotation
+):
+    tag = annotation.format(cve=CVE)
+    first = "Example Server 2.3"
+    second = "Example Server 2.4"
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n- {first}{tag}\n- {second}{tag}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    for missing in ["Not stated in supplied sources.", first]:
+        with pytest.raises(EvidenceError, match="omits"):
+            validate_finding_evidence(
+                report(
+                    **{
+                        "Affected Versions": missing,
+                        "Recommended Actions": introduction,
+                    }
+                ),
+                catalog,
+            )
+    validate_finding_evidence(
+        report(
+            **{
+                "Affected Versions": f"{first}; {second}",
+                "Recommended Actions": introduction,
+            }
+        ),
+        catalog,
+    )
+
+
+def test_pending_list_keeps_same_cve_metadata_but_excludes_foreign_rows():
+    introduction = "Customers should install the fix for affected versions."
+    source = article(
+        f"## {CVE}\n{CVE} is actively exploited.\n\n{introduction}\n\n{CVE}\n\n- {CVE}: Example Server 2.3\n- Example Server 9.9 — CVE-2026-9999\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    catalog = build_reporting_catalog([source])
+    with pytest.raises(EvidenceError, match="omits"):
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": "Not stated in supplied sources.",
+                    "Recommended Actions": introduction,
+                }
+            ),
+            catalog,
+        )
+    validate_finding_evidence(report(**{"Recommended Actions": introduction}), catalog)
+
+
+@pytest.mark.parametrize(
+    "version", ["Example Server 2.3", "Example Server 2.3 (Windows)"]
+)
+@pytest.mark.parametrize("tag", [" — {cve}.", " for {cve}."])
+def test_cve_metadata_normalization_preserves_release_qualifiers(version, tag):
+    introduction = "Customers should install the fix for affected versions."
+    source = article(
+        f"{CVE} is actively exploited.\n\n{introduction}\n\n- {version}{tag.format(cve=CVE)}\n\nHosted users need no action.",
+        source_links=["https://example.test/vendor"],
+    )
+    validate_finding_evidence(
+        report(**{"Affected Versions": version, "Recommended Actions": introduction}),
+        build_reporting_catalog([source]),
+    )
