@@ -199,9 +199,20 @@ NOMINAL_ADJUNCT = re.compile(
 
 
 class EvidenceError(ValueError):
-    def __init__(self, message: str, *, code: str = "finding_evidence_rejected"):
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = "finding_evidence_rejected",
+        field: str | None = None,
+        expected: str | int | bool | None = None,
+        observed: str | int | bool | None = None,
+    ):
         super().__init__(message)
         self.code = code
+        self.field = field
+        self.expected = expected
+        self.observed = observed
         self.finding_index: int | None = None
         self.cves: tuple[str, ...] = ()
         self.source_keys: tuple[str, ...] = ()
@@ -306,7 +317,11 @@ def _validate_recommendation_statements(
                 break
         else:
             raise EvidenceError(
-                "Recommended Actions must preserve complete source-supported statements with their semantic role"
+                "Recommended Actions must preserve complete source-supported statements with their semantic role",
+                code="recommendation_not_grounded",
+                field="Recommended Actions",
+                expected=True,
+                observed=False,
             )
     # A longer copied statement can also contain a complete shorter statement
     # from another source; do not require duplicated clauses in that case.
@@ -317,7 +332,11 @@ def _validate_recommendation_statements(
         for statement in required
     ):
         raise EvidenceError(
-            "Recommended Actions omits a complete source recommendation or prohibition"
+            "Recommended Actions omits a complete source recommendation or prohibition",
+            code="missing_source_recommendation",
+            field="Recommended Actions",
+            expected=True,
+            observed=False,
         )
 
 
@@ -414,7 +433,11 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                 and wanted
                 and not set(extract_cve_ids(source_block)) <= wanted
             ):
-                raise EvidenceError("ambiguous recommendation block CVE scope")
+                raise EvidenceError(
+                    "ambiguous recommendation block CVE scope",
+                    code="ambiguous_recommendation_scope",
+                    field="Recommended Actions",
+                )
             result.append(
                 DetailSpan(
                     sentence,
@@ -503,6 +526,28 @@ def build_finding_detail_context(
     return context
 
 
+def _safe_diagnostic_value(value: str | int | bool | None) -> str | int | bool | None:
+    """Only categorical states, booleans and bounded counts may reach logs."""
+    if value is None or isinstance(value, bool):
+        return value
+    if isinstance(value, int):
+        return value if 0 <= value <= 1_000_000 else "invalid"
+    return (
+        value
+        if value
+        in {
+            "active",
+            "observed",
+            "potential",
+            "not_observed",
+            "unknown",
+            "missing",
+            "invalid",
+        }
+        else "invalid"
+    )
+
+
 def grounding_failure_diagnostic(
     report: str,
     catalog: Mapping[str, ReportingSource],
@@ -525,6 +570,26 @@ def grounding_failure_diagnostic(
         "stage": "finding_evidence" if evidence_error else "reporting_identity",
         "code": (
             evidence_error.code if evidence_error else "reporting_identity_rejected"
+        ),
+        "field": (
+            evidence_error.field
+            if evidence_error
+            and evidence_error.field
+            in {
+                *DETAIL_FIELDS,
+                "Exploitation Status",
+                "Reporting",
+                "Action",
+                "prose",
+                "summary",
+            }
+            else None
+        ),
+        "expected": (
+            _safe_diagnostic_value(evidence_error.expected) if evidence_error else None
+        ),
+        "observed": (
+            _safe_diagnostic_value(evidence_error.observed) if evidence_error else None
         ),
         "finding_index": evidence_error.finding_index if evidence_error else None,
         "finding_sha256": evidence_error.finding_sha256 if evidence_error else None,
@@ -809,7 +874,11 @@ def _version_list_cue(text: str) -> VersionListCue | None:
 def _version_assertion_is_negative(match: re.Match[str]) -> bool:
     negated = bool(re.search(r"\b(?:not|no longer)\b", match["qualifiers"], re.I))
     if negated and match["state"].casefold() == "unaffected":
-        raise EvidenceError("ambiguous affected-version polarity")
+        raise EvidenceError(
+            "ambiguous affected-version polarity",
+            code="ambiguous_affected_version_polarity",
+            field="Affected Versions",
+        )
     return negated or match["state"].casefold() == "unaffected"
 
 
@@ -824,7 +893,11 @@ def _version_clause(text: str) -> VersionClause:
     audience = VERSION_AUDIENCE_ASSERTION.fullmatch(text)
     if audience:
         if not VERSION_AUDIENCE_QUALIFIER.fullmatch(audience["audience"]):
-            raise EvidenceError("ambiguous affected-version audience")
+            raise EvidenceError(
+                "ambiguous affected-version audience",
+                code="ambiguous_affected_version_audience",
+                field="Affected Versions",
+            )
         return VersionClause(
             "exception" if _version_assertion_is_negative(audience) else "audience",
             text,
@@ -845,6 +918,7 @@ def _version_clause(text: str) -> VersionClause:
         raise EvidenceError(
             "ambiguous affected-version clause",
             code="ambiguous_affected_version_clause",
+            field="Affected Versions",
         )
     if recommendation or information:
         # Known independent clauses were separated by _version_clauses. A
@@ -854,6 +928,7 @@ def _version_clause(text: str) -> VersionClause:
             raise EvidenceError(
                 "ambiguous affected-version clause",
                 code="ambiguous_affected_version_clause",
+                field="Affected Versions",
             )
         return VersionClause(
             "recommendation" if recommendation else "information", text
@@ -863,7 +938,11 @@ def _version_clause(text: str) -> VersionClause:
         text,
         re.I,
     ):
-        raise EvidenceError("ambiguous affected-version audience predicate")
+        raise EvidenceError(
+            "ambiguous affected-version audience predicate",
+            code="ambiguous_affected_version_audience_predicate",
+            field="Affected Versions",
+        )
     # Recognizable clauses left inside a numeric fragment are not list entries.
     # Reuse the same grammar so an unknown separator cannot bypass role checks.
     if re.match(rf"(?:{VERSION_AUDIENCE}) of\b", text, re.I) or any(
@@ -878,6 +957,7 @@ def _version_clause(text: str) -> VersionClause:
         raise EvidenceError(
             "ambiguous affected-version clause",
             code="ambiguous_affected_version_clause",
+            field="Affected Versions",
         )
     return VersionClause("list", text)
 
@@ -940,7 +1020,11 @@ def _version_list_parts(text: str, *, attribution: bool = False) -> list[str]:
             closing.append(pairs[char])
         elif char in pairs.values():
             if not closing or closing.pop() != char:
-                raise EvidenceError("ambiguous affected-version grouping")
+                raise EvidenceError(
+                    "ambiguous affected-version grouping",
+                    code="ambiguous_affected_version_grouping",
+                    field="Affected Versions",
+                )
         if not closing:
             separator = re.match(separator_pattern, text[index:], re.I)
             if separator:
@@ -950,7 +1034,11 @@ def _version_list_parts(text: str, *, attribution: bool = False) -> list[str]:
                 continue
         index += 1
     if closing:
-        raise EvidenceError("ambiguous affected-version grouping")
+        raise EvidenceError(
+            "ambiguous affected-version grouping",
+            code="ambiguous_affected_version_grouping",
+            field="Affected Versions",
+        )
     parts.append(text[start:])
     return parts
 
@@ -966,7 +1054,11 @@ def _version_list_entries(text: str) -> list[str]:
             continue
         if pending:
             if parts[index - 1].strip().casefold() not in {"and", "or"}:
-                raise EvidenceError("ambiguous affected-version continuation")
+                raise EvidenceError(
+                    "ambiguous affected-version continuation",
+                    code="ambiguous_affected_version_continuation",
+                    field="Affected Versions",
+                )
             entry = pending + parts[index - 1] + entry
             pending = ""
         qualifier = VERSION_RANGE_QUALIFIER.match(entry)
@@ -977,7 +1069,11 @@ def _version_list_entries(text: str) -> list[str]:
         else:
             entries.append(entry)
     if pending:
-        raise EvidenceError("ambiguous affected-version continuation")
+        raise EvidenceError(
+            "ambiguous affected-version continuation",
+            code="ambiguous_affected_version_continuation",
+            field="Affected Versions",
+        )
     return entries
 
 
@@ -1023,12 +1119,20 @@ def _version_constraints(
     exclusions: list[str] = []
     for separator, clause in _version_clauses(text):
         if require_affected and clause.kind not in {"affected", "audience", "list"}:
-            raise EvidenceError("Affected Versions contains a non-affected clause")
+            raise EvidenceError(
+                "Affected Versions contains a non-affected clause",
+                code="non_affected_version_clause",
+                field="Affected Versions",
+            )
         if clause.kind in {"affected", "list"}:
             entries.extend(_version_list_entries(clause.text))
         elif clause.kind == "audience":
             if not entries:
-                raise EvidenceError("ambiguous affected-version audience")
+                raise EvidenceError(
+                    "ambiguous affected-version audience",
+                    code="ambiguous_affected_version_audience",
+                    field="Affected Versions",
+                )
             entries[-1] += separator + clause.text
         elif clause.kind == "unaffected":
             exclusions.extend(_version_list_entries(clause.text))
@@ -1053,7 +1157,11 @@ def _version_group_members(text: str) -> str:
         ):
             continue
         if CVE_ID_PATTERN.search(member):
-            raise EvidenceError("ambiguous CVE attribution in version constraint")
+            raise EvidenceError(
+                "ambiguous CVE attribution in version constraint",
+                code="ambiguous_version_cve_attribution",
+                field="Affected Versions",
+            )
         if retained:
             retained.append(parts[index - 1])
         retained.append(member)
@@ -1079,10 +1187,18 @@ def _version_attribution_groups(text: str) -> str:
                 closing.append(pairs[char])
             elif char in pairs.values():
                 if closing.pop() != char:
-                    raise EvidenceError("ambiguous affected-version grouping")
+                    raise EvidenceError(
+                        "ambiguous affected-version grouping",
+                        code="ambiguous_affected_version_grouping",
+                        field="Affected Versions",
+                    )
             end += 1
         if closing:
-            raise EvidenceError("ambiguous affected-version grouping")
+            raise EvidenceError(
+                "ambiguous affected-version grouping",
+                code="ambiguous_affected_version_grouping",
+                field="Affected Versions",
+            )
         original = text[index + 1 : end - 1]
         content = _version_attribution_groups(original)
         if CVE_ID_PATTERN.search(original):
@@ -1166,13 +1282,30 @@ def _validate_finding(
     pairs = FIELD.findall(body)
     fields = dict(pairs)
     if len(pairs) != len(fields):
-        raise EvidenceError(f"{title}: duplicate finding field")
+        raise EvidenceError(
+            f"{title}: duplicate finding field",
+            code="duplicate_finding_field",
+            expected=len(fields),
+            observed=len(pairs),
+        )
     keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
     if not keys or any(key not in catalog for key in keys):
-        raise EvidenceError(f"{title}: missing retained source evidence")
+        raise EvidenceError(
+            f"{title}: missing retained source evidence",
+            code="missing_retained_source_evidence",
+            field="Reporting",
+            expected=True,
+            observed=False,
+        )
     sources = [catalog[key] for key in keys]
     if any(not source.content.strip() for source in sources):
-        raise EvidenceError(f"{title}: missing retained source content")
+        raise EvidenceError(
+            f"{title}: missing retained source content",
+            code="missing_retained_source_content",
+            field="Reporting",
+            expected=True,
+            observed=False,
+        )
     cves = extract_cve_ids(fields.get("CVE IDs", "") + " " + title)
     # Assess every supplied source naming this CVE, even when the model
     # omits that source from its chosen citations.
@@ -1189,7 +1322,11 @@ def _validate_finding(
         allowed.add("observed")
     if status not in allowed:
         raise EvidenceError(
-            f"{title}: unsupported exploitation status {status!r}; source evidence is {assessment.status}"
+            f"{title}: unsupported exploitation status {status!r}; source evidence is {assessment.status}",
+            code="unsupported_exploitation_status",
+            field="Exploitation Status",
+            expected=assessment.status,
+            observed=status or "missing",
         )
     # Check narrative separately; changing only the badge cannot pass.
     narrative = FIELD.sub(
@@ -1203,18 +1340,40 @@ def _validate_finding(
     if status not in {"active", "observed"}:
         nonconfirmed.append((title, cves))
         if _positive_claim(title + "\n\n" + narrative):
-            raise EvidenceError(f"{title}: unsupported exploitation claim in prose")
+            raise EvidenceError(
+                f"{title}: unsupported exploitation claim in prose",
+                code="unsupported_finding_exploitation_claim",
+                field="prose",
+                expected=False,
+                observed=True,
+            )
     if assessment.negative and not NEGATIVE.search(narrative):
-        raise EvidenceError(f"{title}: prose omits negative exploitation evidence")
+        raise EvidenceError(
+            f"{title}: prose omits negative exploitation evidence",
+            code="missing_negative_exploitation_evidence",
+            field="prose",
+            expected=True,
+            observed=False,
+        )
     if assessment.conflicting and not re.search(r"\bconflict\w*\b", narrative, re.I):
         raise EvidenceError(
-            f"{title}: prose must disclose conflicting exploitation evidence"
+            f"{title}: prose must disclose conflicting exploitation evidence",
+            code="missing_conflicting_exploitation_evidence",
+            field="prose",
+            expected=True,
+            observed=False,
         )
     if (
         fields.get("Action") in {"patch", "mitigate"}
         and fields.get("Recommended Actions") == ABSENT
     ):
-        raise EvidenceError(f"{title}: action badge omits a supported recommendation")
+        raise EvidenceError(
+            f"{title}: action badge omits a supported recommendation",
+            code="action_without_recommendation",
+            field="Action",
+            expected=True,
+            observed=False,
+        )
     detail_spans = [
         span for source in relevant for span in _scoped_detail_spans(source, cves)
     ]
@@ -1293,7 +1452,11 @@ def _validate_finding(
             continuation = re.sub(r"^(?:and|or)\s+", "", line, flags=re.I)
             if VERSION_RANGE_QUALIFIER.match(continuation):
                 if not range_target:
-                    raise EvidenceError("ambiguous affected-version range continuation")
+                    raise EvidenceError(
+                        "ambiguous affected-version range continuation",
+                        code="ambiguous_affected_version_range_continuation",
+                        field="Affected Versions",
+                    )
                 range_target[-1] = (
                     range_target[-1].rstrip(". ") + " " + line.rstrip(". ")
                 )
@@ -1320,22 +1483,44 @@ def _validate_finding(
     }
     if any(_plain(line) not in reported_versions for line in version_lines):
         raise EvidenceError(
-            f"{title}: Affected Versions omits supplied version list entries"
+            f"{title}: Affected Versions omits supplied version list entries",
+            code="missing_affected_version_entries",
+            field="Affected Versions",
+            expected=len({_plain(line) for line in version_lines}),
+            observed=len(reported_versions),
         )
     if (
         known_version_list
         or re.search(CUMULATIVE_UPDATE_CUE, fields.get("Affected Versions", ""), re.I)
     ) and reported_versions - {_plain(line) for line in version_lines}:
-        raise EvidenceError(f"{title}: unsupported affected-version entry")
+        raise EvidenceError(
+            f"{title}: unsupported affected-version entry",
+            code="unsupported_affected_version_entry",
+            field="Affected Versions",
+            expected=len({_plain(line) for line in version_lines}),
+            observed=len(reported_versions),
+        )
     if any(
         not _supported_version_text(exclusion, fields.get("Exceptions", ""))
         for exclusion in excluded_version_lines
     ):
-        raise EvidenceError(f"{title}: Exceptions omits supplied source exclusions")
+        raise EvidenceError(
+            f"{title}: Exceptions omits supplied source exclusions",
+            code="missing_source_exclusions",
+            field="Exceptions",
+            expected=True,
+            observed=False,
+        )
     for name in DETAIL_FIELDS:
         value = fields.get(name, "")
         if not value:
-            raise EvidenceError(f"{title}: missing {name}; use {ABSENT!r} when absent")
+            raise EvidenceError(
+                f"{title}: missing {name}; use {ABSENT!r} when absent",
+                code="missing_detail_field",
+                field=name,
+                expected=True,
+                observed=False,
+            )
         if value == ABSENT:
             if (
                 name == "Affected Versions"
@@ -1349,7 +1534,13 @@ def _validate_finding(
                 or name == "Affected Versions"
                 and known_version_list
             ):
-                raise EvidenceError(f"{title}: {name} omits supplied source details")
+                raise EvidenceError(
+                    f"{title}: {name} omits supplied source details",
+                    code="missing_source_details",
+                    field=name,
+                    expected=True,
+                    observed=False,
+                )
             continue
         entries = [entry.strip() for entry in value.split(";")]
         if name == "Vendor Links":
@@ -1357,9 +1548,21 @@ def _validate_finding(
             try:
                 normalized = [normalize_reporting_url(entry) for entry in entries]
             except ReportingGroundingError as exc:
-                raise EvidenceError(f"{title}: unsupported vendor link") from exc
+                raise EvidenceError(
+                    f"{title}: unsupported vendor link",
+                    code="invalid_vendor_link",
+                    field=name,
+                    expected=True,
+                    observed=False,
+                ) from exc
             if any(entry not in links for entry in normalized):
-                raise EvidenceError(f"{title}: unsupported vendor link")
+                raise EvidenceError(
+                    f"{title}: unsupported vendor link",
+                    code="unsupported_vendor_link",
+                    field=name,
+                    expected=True,
+                    observed=False,
+                )
         elif name == "Recommended Actions":
             _validate_recommendation_statements(value, detail_spans)
         elif name == "Exceptions":
@@ -1385,7 +1588,11 @@ def _validate_finding(
                     roles and name not in roles and not parsed_exclusion
                 ) or not grounded:
                     raise EvidenceError(
-                        f"{title}: {name} must preserve exact source-supported details with the matching semantic role"
+                        f"{title}: {name} must preserve exact source-supported details with the matching semantic role",
+                        code="exception_not_grounded",
+                        field=name,
+                        expected=True,
+                        observed=False,
                     )
         elif name == "Affected Versions":
             # Parsed lists already establish exact complete constraints above.
@@ -1397,10 +1604,17 @@ def _validate_finding(
                 raise EvidenceError(
                     f"{title}: {name} must preserve exact source-supported details",
                     code="affected_version_not_grounded",
+                    field=name,
+                    expected=True,
+                    observed=False,
                 )
         elif any(_plain(entry) not in _plain(scoped) for entry in entries):
             raise EvidenceError(
-                f"{title}: {name} must preserve exact source-supported details"
+                f"{title}: {name} must preserve exact source-supported details",
+                code="detail_not_grounded",
+                field=name,
+                expected=True,
+                observed=False,
             )
 
 
@@ -1409,7 +1623,12 @@ def validate_finding_evidence(
 ) -> None:
     section = ACTIVE_SECTION_PATTERN.search(report)
     if not section:
-        raise EvidenceError("Missing finding evidence section")
+        raise EvidenceError(
+            "Missing finding evidence section",
+            code="missing_finding_section",
+            expected=True,
+            observed=False,
+        )
     nonconfirmed = []
     for index, finding in enumerate(
         FINDING_PATTERN.finditer(section.group("section")), start=1
@@ -1443,5 +1662,9 @@ def validate_finding_evidence(
             not mentioned or any(mentioned & set(cves) for _, cves in nonconfirmed)
         ):
             raise EvidenceError(
-                "Unsupported exploitation claim in summary or cross-finding prose"
+                "Unsupported exploitation claim in summary or cross-finding prose",
+                code="unsupported_summary_exploitation_claim",
+                field="summary",
+                expected=False,
+                observed=True,
             )
