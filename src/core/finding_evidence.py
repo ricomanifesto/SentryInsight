@@ -8,6 +8,7 @@ source confirmations are not guaranteed to be recognized in every phrasing.
 """
 
 from dataclasses import dataclass
+import hashlib
 import re
 from typing import Any, Literal, Mapping, Sequence
 
@@ -198,7 +199,13 @@ NOMINAL_ADJUNCT = re.compile(
 
 
 class EvidenceError(ValueError):
-    pass
+    def __init__(self, message: str, *, code: str = "finding_evidence_rejected"):
+        super().__init__(message)
+        self.code = code
+        self.finding_index: int | None = None
+        self.cves: tuple[str, ...] = ()
+        self.source_keys: tuple[str, ...] = ()
+        self.finding_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -420,6 +427,125 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                 else DetailSpan("", "boundary")
             )
     return result
+
+
+def build_finding_detail_context(
+    catalog: Mapping[str, ReportingSource],
+) -> list[dict[str, Any]]:
+    """Show generation the same per-CVE detail scope used by publication.
+
+    These are eligible source spans, not assertions that every mentioned
+    release is affected. Keep headings and boundaries distinct from body text.
+    Full articles remain in the prompt for narrative and negative evidence.
+    """
+    context = []
+    assessments = {}
+    scopes = {}
+    for source in catalog.values():
+        scopes.update(dict.fromkeys((cve,) for cve in extract_cve_ids(source.content)))
+        # Actual source ownership supplies joint scopes, not a powerset of all
+        # article CVEs. Paragraph/list blocks also own complete recommendations
+        # whose qualifications can span several sentences.
+        for block in dict.fromkeys(_logical_source_blocks(source.content)):
+            for text in [block, *_sentences(block)]:
+                joint = tuple(sorted(extract_cve_ids(text)))
+                if len(joint) > 1:
+                    scopes[joint] = None
+    for source in catalog.values():
+        source_cves = set(extract_cve_ids(source.content))
+        relevant_scopes = [scope for scope in scopes if source_cves & set(scope)]
+        # A joint finding also includes other sources naming any member, even
+        # if those sources do not themselves introduce the combined scope.
+        for cves in relevant_scopes if source_cves else [()]:
+            if cves not in assessments:
+                assessments[cves] = assess_exploitation(list(catalog.values()), cves)
+            assessment = assessments[cves]
+            item: dict[str, Any] = {
+                "source_key": source.key,
+                "cves": list(cves),
+                "exploitation": {
+                    "status": assessment.status,
+                    "conflicting": assessment.conflicting,
+                },
+            }
+            try:
+                spans = _scoped_detail_spans(source, cves)
+            except EvidenceError:
+                # An unrelated CVE must not block all analysis. If a finding
+                # uses this scope, the unchanged publication check rejects it.
+                item["scope_error"] = "ambiguous_detail_scope"
+            else:
+                rendered = []
+                recommendation_blocks = set()
+                for span in spans:
+                    # Consecutive excluded sentences have the same boundary
+                    # effect. Do not multiply them by every CVE in a recap.
+                    if (
+                        span.role == "boundary"
+                        and rendered
+                        and rendered[-1]["role"] == "boundary"
+                    ):
+                        continue
+                    entry: dict[str, Any] = {
+                        "text": span.text,
+                        "role": span.role,
+                        "fields": span.fields,
+                    }
+                    if (
+                        "Recommended Actions" in span.fields
+                        and span.source_block not in recommendation_blocks
+                    ):
+                        entry["source_block"] = span.source_block
+                        recommendation_blocks.add(span.source_block)
+                    rendered.append(entry)
+                item["spans"] = rendered
+            context.append(item)
+    return context
+
+
+def grounding_failure_diagnostic(
+    report: str,
+    catalog: Mapping[str, ReportingSource],
+    error: EvidenceError | ReportingGroundingError,
+) -> dict[str, Any]:
+    """Bounded metadata for logs; never include source, candidate, URL or error text."""
+    evidence_error = error if isinstance(error, EvidenceError) else None
+    cves = evidence_error.cves if evidence_error else ()
+    logged_cves = [cve for cve in cves if len(cve) <= 64][:32]
+    selected = evidence_error.source_keys if evidence_error else ()
+    relevant = [catalog[key] for key in dict.fromkeys(selected) if key in catalog]
+    relevant.extend(
+        source
+        for key, source in catalog.items()
+        if key not in selected
+        and (not cves or set(cves) & set(extract_cve_ids(source.content)))
+    )
+    return {
+        "schema_version": 1,
+        "stage": "finding_evidence" if evidence_error else "reporting_identity",
+        "code": (
+            evidence_error.code if evidence_error else "reporting_identity_rejected"
+        ),
+        "finding_index": evidence_error.finding_index if evidence_error else None,
+        "finding_sha256": evidence_error.finding_sha256 if evidence_error else None,
+        "cves": logged_cves,
+        "cves_truncated": len(cves) - len(logged_cves),
+        "report_sha256": hashlib.sha256(report.encode()).hexdigest(),
+        "sources": [
+            {
+                "key": source.key,
+                "content_kind": (
+                    source.content_kind
+                    if source.content_kind in {"feed", "article"}
+                    else "unknown"
+                ),
+                "content_chars": len(source.content),
+                "content_sha256": hashlib.sha256(source.content.encode()).hexdigest(),
+            }
+            for source in relevant[:32]
+        ],
+        "sources_truncated": max(0, len(relevant) - 32),
+    }
 
 
 def _clause_status(clause: str) -> str:
@@ -716,13 +842,19 @@ def _version_clause(text: str) -> VersionClause:
         else text
     )
     if re.search(rf"\b(?:{VERSION_STATE})\b", unclassified, re.I):
-        raise EvidenceError("ambiguous affected-version clause")
+        raise EvidenceError(
+            "ambiguous affected-version clause",
+            code="ambiguous_affected_version_clause",
+        )
     if recommendation or information:
         # Known independent clauses were separated by _version_clauses. A
         # remaining structural boundary is ambiguous; never let the broad
         # advice/information tail swallow it based on a finite-verb vocabulary.
         if re.search(r"[;|—–]|\s/\s|\s-\s", text):
-            raise EvidenceError("ambiguous affected-version clause")
+            raise EvidenceError(
+                "ambiguous affected-version clause",
+                code="ambiguous_affected_version_clause",
+            )
         return VersionClause(
             "recommendation" if recommendation else "information", text
         )
@@ -743,7 +875,10 @@ def _version_clause(text: str) -> VersionClause:
             VERSION_INFORMATION_CLAUSE,
         )
     ):
-        raise EvidenceError("ambiguous affected-version clause")
+        raise EvidenceError(
+            "ambiguous affected-version clause",
+            code="ambiguous_affected_version_clause",
+        )
     return VersionClause("list", text)
 
 
@@ -1021,6 +1156,254 @@ def _positive_claim(text: str) -> bool:
     return any(statement.status == "active" for statement in _rendered_statements(text))
 
 
+def _validate_finding(
+    finding: re.Match[str],
+    catalog: Mapping[str, ReportingSource],
+    nonconfirmed: list[tuple[str, list[str]]],
+) -> None:
+    title = finding.group("heading").removeprefix("###").strip()
+    body = finding.group("body")
+    pairs = FIELD.findall(body)
+    fields = dict(pairs)
+    if len(pairs) != len(fields):
+        raise EvidenceError(f"{title}: duplicate finding field")
+    keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
+    if not keys or any(key not in catalog for key in keys):
+        raise EvidenceError(f"{title}: missing retained source evidence")
+    sources = [catalog[key] for key in keys]
+    if any(not source.content.strip() for source in sources):
+        raise EvidenceError(f"{title}: missing retained source content")
+    cves = extract_cve_ids(fields.get("CVE IDs", "") + " " + title)
+    # Assess every supplied source naming this CVE, even when the model
+    # omits that source from its chosen citations.
+    relevant = list(sources)
+    relevant.extend(
+        source
+        for source in catalog.values()
+        if source not in relevant and set(cves) & set(extract_cve_ids(source.content))
+    )
+    assessment = assess_exploitation(relevant, cves)
+    status = fields.get("Exploitation Status", "")
+    allowed = {assessment.status}
+    if assessment.status == "active":
+        allowed.add("observed")
+    if status not in allowed:
+        raise EvidenceError(
+            f"{title}: unsupported exploitation status {status!r}; source evidence is {assessment.status}"
+        )
+    # Check narrative separately; changing only the badge cannot pass.
+    narrative = FIELD.sub(
+        lambda match: (
+            ""
+            if match.group(1) in {"Reporting", "CVE IDs", "Exploitation Status"}
+            else match.group(2)
+        ),
+        body,
+    )
+    if status not in {"active", "observed"}:
+        nonconfirmed.append((title, cves))
+        if _positive_claim(title + "\n\n" + narrative):
+            raise EvidenceError(f"{title}: unsupported exploitation claim in prose")
+    if assessment.negative and not NEGATIVE.search(narrative):
+        raise EvidenceError(f"{title}: prose omits negative exploitation evidence")
+    if assessment.conflicting and not re.search(r"\bconflict\w*\b", narrative, re.I):
+        raise EvidenceError(
+            f"{title}: prose must disclose conflicting exploitation evidence"
+        )
+    if (
+        fields.get("Action") in {"patch", "mitigate"}
+        and fields.get("Recommended Actions") == ABSENT
+    ):
+        raise EvidenceError(f"{title}: action badge omits a supported recommendation")
+    detail_spans = [
+        span for source in relevant for span in _scoped_detail_spans(source, cves)
+    ]
+    # Headings guide parsing, but only body text can ground a detail value.
+    scoped = "\n".join(span.text for span in detail_spans if span.role == "body")
+    field_evidence = {
+        name: "\n".join(
+            span.text
+            for span in detail_spans
+            if span.role == "body" and name in span.fields
+        )
+        for name in DETAIL_CUES
+    }
+    # Version lists are easy to lose even when one supported version remains.
+    version_lines = []
+    excluded_version_lines = []
+    list_state: Literal["none", "pending", "active"] = "none"
+    known_version_list = False
+    range_target: list[str] | None = None
+    for span in detail_spans:
+        line = _version_source_text(span.text) if span.role == "body" else span.text
+        if not line and span.role == "body" and extract_cve_ids(span.text):
+            continue
+        if span.role != "body":
+            list_state = "none"
+            range_target = None
+        cue = _version_list_cue(line)
+        if cue and cue.kind == "pending":
+            list_state = "pending"
+            range_target = None
+            continue
+        if list_state == "pending":
+            release_row = bool(re.search(r"\d|\bRTM\b", line, re.I)) and all(
+                clause.kind == "list" for _, clause in _version_clauses(line)
+            )
+            list_state = "active" if release_row else "none"
+            known_version_list = known_version_list or release_row
+        cumulative_list = not cue and _cumulative_version_list(
+            line, span.version_context
+        )
+        if (
+            not cue
+            and re.search(CUMULATIVE_UPDATE_CUE, line, re.I)
+            and not cumulative_list
+            and not (
+                list_state == "active"
+                and all(clause.kind == "list" for _, clause in _version_clauses(line))
+            )
+        ):
+            list_state = "none"
+            range_target = None
+            continue
+        if cue or cumulative_list:
+            known_version_list = True
+            list_state = "active"
+            if span.role == "heading":
+                continue
+            remainder = re.sub(
+                r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
+                "",
+                line[cue.end :] if cue else line,
+                flags=re.I,
+            ).rstrip(". ")
+            included, excluded = _version_constraints(remainder)
+            excluded_version_lines.extend(excluded)
+            version_lines.extend(
+                entry for entry in included if re.search(r"\d|\bRTM\b", entry)
+            )
+            range_target = (
+                excluded_version_lines
+                if excluded and not included
+                else version_lines if included and not excluded else None
+            )
+            continue
+        if list_state == "active":
+            continuation = re.sub(r"^(?:and|or)\s+", "", line, flags=re.I)
+            if VERSION_RANGE_QUALIFIER.match(continuation):
+                if not range_target:
+                    raise EvidenceError("ambiguous affected-version range continuation")
+                range_target[-1] = (
+                    range_target[-1].rstrip(". ") + " " + line.rstrip(". ")
+                )
+                continue
+            if re.search(r"\d|\bRTM\b", line):
+                included, excluded = _version_constraints(line)
+                # Advice/information can contain a product version before
+                # its wrapped target. End the list at that typed clause.
+                list_state = "active" if included or excluded else "none"
+                version_lines.extend(included)
+                excluded_version_lines.extend(excluded)
+                range_target = (
+                    excluded_version_lines
+                    if excluded and not included
+                    else version_lines if included and not excluded else None
+                )
+            else:
+                list_state = "none"
+                range_target = None
+    reported_versions = {
+        _plain(entry)
+        for entry in _version_entries(fields.get("Affected Versions", ""))
+        if fields.get("Affected Versions") != ABSENT
+    }
+    if any(_plain(line) not in reported_versions for line in version_lines):
+        raise EvidenceError(
+            f"{title}: Affected Versions omits supplied version list entries"
+        )
+    if (
+        known_version_list
+        or re.search(CUMULATIVE_UPDATE_CUE, fields.get("Affected Versions", ""), re.I)
+    ) and reported_versions - {_plain(line) for line in version_lines}:
+        raise EvidenceError(f"{title}: unsupported affected-version entry")
+    if any(
+        not _supported_version_text(exclusion, fields.get("Exceptions", ""))
+        for exclusion in excluded_version_lines
+    ):
+        raise EvidenceError(f"{title}: Exceptions omits supplied source exclusions")
+    for name in DETAIL_FIELDS:
+        value = fields.get(name, "")
+        if not value:
+            raise EvidenceError(f"{title}: missing {name}; use {ABSENT!r} when absent")
+        if value == ABSENT:
+            if (
+                name == "Affected Versions"
+                and known_version_list
+                and excluded_version_lines
+                and not version_lines
+            ):
+                continue
+            if name in DETAIL_CUES and (
+                field_evidence[name]
+                or name == "Affected Versions"
+                and known_version_list
+            ):
+                raise EvidenceError(f"{title}: {name} omits supplied source details")
+            continue
+        entries = [entry.strip() for entry in value.split(";")]
+        if name == "Vendor Links":
+            links = {link for source in sources for link in source.links}
+            try:
+                normalized = [normalize_reporting_url(entry) for entry in entries]
+            except ReportingGroundingError as exc:
+                raise EvidenceError(f"{title}: unsupported vendor link") from exc
+            if any(entry not in links for entry in normalized):
+                raise EvidenceError(f"{title}: unsupported vendor link")
+        elif name == "Recommended Actions":
+            _validate_recommendation_statements(value, detail_spans)
+        elif name == "Exceptions":
+            for entry in entries:
+                roles = _detail_roles(entry)
+                parsed_exclusion = any(
+                    _plain(entry) == _plain(item) for item in excluded_version_lines
+                )
+                # A phrase with no role cue can inherit one unambiguous
+                # source role. Mixed-role sentences require a role-bearing
+                # phrase so truncation cannot turn advice into an exception.
+                grounded = (
+                    any(
+                        span.role == "body"
+                        and name in span.fields
+                        and (name in roles or span.fields == (name,))
+                        and _plain(entry) in _plain(span.text)
+                        for span in detail_spans
+                    )
+                    or parsed_exclusion
+                )
+                if (
+                    roles and name not in roles and not parsed_exclusion
+                ) or not grounded:
+                    raise EvidenceError(
+                        f"{title}: {name} must preserve exact source-supported details with the matching semantic role"
+                    )
+        elif name == "Affected Versions":
+            # Parsed lists already establish exact complete constraints above.
+            # Compare that canonical representation, not raw attribution tags.
+            # Without a list, grounding must enforce source token boundaries.
+            if not known_version_list and any(
+                not _supported_version_text(entry, scoped) for entry in entries
+            ):
+                raise EvidenceError(
+                    f"{title}: {name} must preserve exact source-supported details",
+                    code="affected_version_not_grounded",
+                )
+        elif any(_plain(entry) not in _plain(scoped) for entry in entries):
+            raise EvidenceError(
+                f"{title}: {name} must preserve exact source-supported details"
+            )
+
+
 def validate_finding_evidence(
     report: str, catalog: Mapping[str, ReportingSource]
 ) -> None:
@@ -1028,262 +1411,26 @@ def validate_finding_evidence(
     if not section:
         raise EvidenceError("Missing finding evidence section")
     nonconfirmed = []
-    for finding in FINDING_PATTERN.finditer(section.group("section")):
-        title = finding.group("heading").removeprefix("###").strip()
-        body = finding.group("body")
-        pairs = FIELD.findall(body)
-        fields = dict(pairs)
-        if len(pairs) != len(fields):
-            raise EvidenceError(f"{title}: duplicate finding field")
-        keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
-        if not keys or any(key not in catalog for key in keys):
-            raise EvidenceError(f"{title}: missing retained source evidence")
-        sources = [catalog[key] for key in keys]
-        if any(not source.content.strip() for source in sources):
-            raise EvidenceError(f"{title}: missing retained source content")
-        cves = extract_cve_ids(fields.get("CVE IDs", "") + " " + title)
-        # Assess every supplied source naming this CVE, even when the model
-        # omits that source from its chosen citations.
-        relevant = list(sources)
-        relevant.extend(
-            source
-            for source in catalog.values()
-            if source not in relevant
-            and set(cves) & set(extract_cve_ids(source.content))
-        )
-        assessment = assess_exploitation(relevant, cves)
-        status = fields.get("Exploitation Status", "")
-        allowed = {assessment.status}
-        if assessment.status == "active":
-            allowed.add("observed")
-        if status not in allowed:
-            raise EvidenceError(
-                f"{title}: unsupported exploitation status {status!r}; source evidence is {assessment.status}"
-            )
-        # Check narrative separately; changing only the badge cannot pass.
-        narrative = FIELD.sub(
-            lambda match: (
-                ""
-                if match.group(1) in {"Reporting", "CVE IDs", "Exploitation Status"}
-                else match.group(2)
-            ),
-            body,
-        )
-        if status not in {"active", "observed"}:
-            nonconfirmed.append((title, cves))
-            if _positive_claim(title + "\n\n" + narrative):
-                raise EvidenceError(f"{title}: unsupported exploitation claim in prose")
-        if assessment.negative and not NEGATIVE.search(narrative):
-            raise EvidenceError(f"{title}: prose omits negative exploitation evidence")
-        if assessment.conflicting and not re.search(
-            r"\bconflict\w*\b", narrative, re.I
-        ):
-            raise EvidenceError(
-                f"{title}: prose must disclose conflicting exploitation evidence"
-            )
-        if (
-            fields.get("Action") in {"patch", "mitigate"}
-            and fields.get("Recommended Actions") == ABSENT
-        ):
-            raise EvidenceError(
-                f"{title}: action badge omits a supported recommendation"
-            )
-        detail_spans = [
-            span for source in relevant for span in _scoped_detail_spans(source, cves)
-        ]
-        # Headings guide parsing, but only body text can ground a detail value.
-        scoped = "\n".join(span.text for span in detail_spans if span.role == "body")
-        field_evidence = {
-            name: "\n".join(
-                span.text
-                for span in detail_spans
-                if span.role == "body" and name in span.fields
-            )
-            for name in DETAIL_CUES
-        }
-        # Version lists are easy to lose even when one supported version remains.
-        version_lines = []
-        excluded_version_lines = []
-        list_state: Literal["none", "pending", "active"] = "none"
-        known_version_list = False
-        range_target: list[str] | None = None
-        for span in detail_spans:
-            line = _version_source_text(span.text) if span.role == "body" else span.text
-            if not line and span.role == "body" and extract_cve_ids(span.text):
-                continue
-            if span.role != "body":
-                list_state = "none"
-                range_target = None
-            cue = _version_list_cue(line)
-            if cue and cue.kind == "pending":
-                list_state = "pending"
-                range_target = None
-                continue
-            if list_state == "pending":
-                release_row = bool(re.search(r"\d|\bRTM\b", line, re.I)) and all(
-                    clause.kind == "list" for _, clause in _version_clauses(line)
+    for index, finding in enumerate(
+        FINDING_PATTERN.finditer(section.group("section")), start=1
+    ):
+        try:
+            _validate_finding(finding, catalog, nonconfirmed)
+        except EvidenceError as exc:
+            fields = dict(FIELD.findall(finding.group("body")))
+            exc.finding_index = index
+            exc.cves = tuple(
+                extract_cve_ids(
+                    fields.get("CVE IDs", "") + " " + finding.group("heading")
                 )
-                list_state = "active" if release_row else "none"
-                known_version_list = known_version_list or release_row
-            cumulative_list = not cue and _cumulative_version_list(
-                line, span.version_context
             )
-            if (
-                not cue
-                and re.search(CUMULATIVE_UPDATE_CUE, line, re.I)
-                and not cumulative_list
-                and not (
-                    list_state == "active"
-                    and all(
-                        clause.kind == "list" for _, clause in _version_clauses(line)
-                    )
-                )
-            ):
-                list_state = "none"
-                range_target = None
-                continue
-            if cue or cumulative_list:
-                known_version_list = True
-                list_state = "active"
-                if span.role == "heading":
-                    continue
-                remainder = re.sub(
-                    r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
-                    "",
-                    line[cue.end :] if cue else line,
-                    flags=re.I,
-                ).rstrip(". ")
-                included, excluded = _version_constraints(remainder)
-                excluded_version_lines.extend(excluded)
-                version_lines.extend(
-                    entry for entry in included if re.search(r"\d|\bRTM\b", entry)
-                )
-                range_target = (
-                    excluded_version_lines
-                    if excluded and not included
-                    else version_lines if included and not excluded else None
-                )
-                continue
-            if list_state == "active":
-                continuation = re.sub(r"^(?:and|or)\s+", "", line, flags=re.I)
-                if VERSION_RANGE_QUALIFIER.match(continuation):
-                    if not range_target:
-                        raise EvidenceError(
-                            "ambiguous affected-version range continuation"
-                        )
-                    range_target[-1] = (
-                        range_target[-1].rstrip(". ") + " " + line.rstrip(". ")
-                    )
-                    continue
-                if re.search(r"\d|\bRTM\b", line):
-                    included, excluded = _version_constraints(line)
-                    # Advice/information can contain a product version before
-                    # its wrapped target. End the list at that typed clause.
-                    list_state = "active" if included or excluded else "none"
-                    version_lines.extend(included)
-                    excluded_version_lines.extend(excluded)
-                    range_target = (
-                        excluded_version_lines
-                        if excluded and not included
-                        else version_lines if included and not excluded else None
-                    )
-                else:
-                    list_state = "none"
-                    range_target = None
-        reported_versions = {
-            _plain(entry)
-            for entry in _version_entries(fields.get("Affected Versions", ""))
-            if fields.get("Affected Versions") != ABSENT
-        }
-        if any(_plain(line) not in reported_versions for line in version_lines):
-            raise EvidenceError(
-                f"{title}: Affected Versions omits supplied version list entries"
+            exc.source_keys = tuple(
+                key.strip()
+                for key in fields.get("Reporting", "").split(",")
+                if key.strip() in catalog
             )
-        if (
-            known_version_list
-            or re.search(
-                CUMULATIVE_UPDATE_CUE, fields.get("Affected Versions", ""), re.I
-            )
-        ) and reported_versions - {_plain(line) for line in version_lines}:
-            raise EvidenceError(f"{title}: unsupported affected-version entry")
-        if any(
-            not _supported_version_text(exclusion, fields.get("Exceptions", ""))
-            for exclusion in excluded_version_lines
-        ):
-            raise EvidenceError(f"{title}: Exceptions omits supplied source exclusions")
-        for name in DETAIL_FIELDS:
-            value = fields.get(name, "")
-            if not value:
-                raise EvidenceError(
-                    f"{title}: missing {name}; use {ABSENT!r} when absent"
-                )
-            if value == ABSENT:
-                if (
-                    name == "Affected Versions"
-                    and known_version_list
-                    and excluded_version_lines
-                    and not version_lines
-                ):
-                    continue
-                if name in DETAIL_CUES and (
-                    field_evidence[name]
-                    or name == "Affected Versions"
-                    and known_version_list
-                ):
-                    raise EvidenceError(
-                        f"{title}: {name} omits supplied source details"
-                    )
-                continue
-            entries = [entry.strip() for entry in value.split(";")]
-            if name == "Vendor Links":
-                links = {link for source in sources for link in source.links}
-                try:
-                    normalized = [normalize_reporting_url(entry) for entry in entries]
-                except ReportingGroundingError as exc:
-                    raise EvidenceError(f"{title}: unsupported vendor link") from exc
-                if any(entry not in links for entry in normalized):
-                    raise EvidenceError(f"{title}: unsupported vendor link")
-            elif name == "Recommended Actions":
-                _validate_recommendation_statements(value, detail_spans)
-            elif name == "Exceptions":
-                for entry in entries:
-                    roles = _detail_roles(entry)
-                    parsed_exclusion = any(
-                        _plain(entry) == _plain(item) for item in excluded_version_lines
-                    )
-                    # A phrase with no role cue can inherit one unambiguous
-                    # source role. Mixed-role sentences require a role-bearing
-                    # phrase so truncation cannot turn advice into an exception.
-                    grounded = (
-                        any(
-                            span.role == "body"
-                            and name in span.fields
-                            and (name in roles or span.fields == (name,))
-                            and _plain(entry) in _plain(span.text)
-                            for span in detail_spans
-                        )
-                        or parsed_exclusion
-                    )
-                    if (
-                        roles and name not in roles and not parsed_exclusion
-                    ) or not grounded:
-                        raise EvidenceError(
-                            f"{title}: {name} must preserve exact source-supported details with the matching semantic role"
-                        )
-            elif name == "Affected Versions":
-                # Parsed lists already establish exact complete constraints above.
-                # Compare that canonical representation, not raw attribution tags.
-                # Without a list, grounding must enforce source token boundaries.
-                if not known_version_list and any(
-                    not _supported_version_text(entry, scoped) for entry in entries
-                ):
-                    raise EvidenceError(
-                        f"{title}: {name} must preserve exact source-supported details"
-                    )
-            elif any(_plain(entry) not in _plain(scoped) for entry in entries):
-                raise EvidenceError(
-                    f"{title}: {name} must preserve exact source-supported details"
-                )
+            exc.finding_sha256 = hashlib.sha256(finding.group().encode()).hexdigest()
+            raise
     # Free-standing aggregate claims cannot safely inherit the heading's state.
     # Require explicit CVEs for confirmed claims outside finding bodies whenever
     # the report contains mixed evidence states.

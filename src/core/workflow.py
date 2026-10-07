@@ -20,7 +20,11 @@ from .report_validation import (
     split_overlong_executive_summary,
     validate_report_content,
 )
-from .finding_evidence import EvidenceError, validate_finding_evidence
+from .finding_evidence import (
+    EvidenceError,
+    grounding_failure_diagnostic,
+    validate_finding_evidence,
+)
 from .report_artifact import ReportArtifactError, parse_report_artifact
 from .reporting import (
     ReportingGroundingError,
@@ -223,6 +227,7 @@ async def generate_report(
             "Split an overlong Executive Summary at a sentence boundary before validation"
         )
     report = normalized_report
+    reporting_catalog = {}
     try:
         reporting_catalog = deserialize_reporting_catalog(
             analysis_results.get("reporting_sources", [])
@@ -230,7 +235,10 @@ async def generate_report(
         validate_finding_evidence(report, reporting_catalog)
         report = resolve_reporting_keys(report, reporting_catalog)
     except (ReportingGroundingError, EvidenceError) as exc:
-        logger.error("Report grounding failed: %s", exc)
+        logger.error(
+            "Report grounding failed: %s",
+            json.dumps(grounding_failure_diagnostic(report, reporting_catalog, exc)),
+        )
         state["report_validation_errors"] = [str(exc)]
         state["status"] = "failed"
         return state
