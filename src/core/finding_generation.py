@@ -15,6 +15,7 @@ from .finding_evidence import (
     collect_finding_details,
     detail_statement_roles,
     recommendation_action,
+    source_assertions,
     validate_finding_evidence,
 )
 from .reporting import ReportingSource
@@ -229,12 +230,11 @@ def _finding_scopes(
 ):
     """Join only scopes needed to own otherwise-lost complete detail blocks."""
     contexts = build_finding_detail_context(catalog)
-    signatures = {}
+    signatures: dict[tuple[str, ...], set[tuple[str, str, str]]] = {}
     no_cves = []
-    metadata = {
-        key: set(source.metadata_cves) & set(required_cves)
-        for key, source in catalog.items()
-    }
+    # Identity is source provenance. Eligibility and mandatory coverage may
+    # select identities, but never construct or erase that inventory.
+    metadata = {key: set(source.metadata_cves) for key, source in catalog.items()}
     for item in contexts:
         scope = tuple(item["cves"])
         if not scope:
@@ -257,6 +257,16 @@ def _finding_scopes(
     for identities in metadata.values():
         for cve in sorted(identities):
             signatures.setdefault((cve,), set())
+    # Assertion ownership is a grouping requirement independent of detail
+    # fields. Keep complete joint claims (including negatives/unsupported
+    # forms), without merging incidental co-mentions or distributing a joint
+    # predicate across invented singleton findings.
+    for key, source in catalog.items():
+        for clause in source_assertions(source):
+            if clause.cves:
+                signatures.setdefault(tuple(sorted(clause.cves)), set()).add(
+                    (key, "Exploitation assertion", _one_line(clause.source_text))
+                )
     cves = list(dict.fromkeys(cve for scope in signatures for cve in scope))
     groups = [{cve} for cve in cves]
     covered = set().union(
@@ -347,11 +357,14 @@ def compile_finding_records(
             ]
             + list(details.excluded_version_lines)
         )
-        recommendations = _unique(
-            span.source_block or span.text
-            for span in details.spans
-            if span.role == "body" and "Recommended Actions" in span.fields
+        recommendation_blocks = tuple(
+            dict.fromkeys(
+                span.source_block or span.text
+                for span in details.spans
+                if span.role == "body" and "Recommended Actions" in span.fields
+            )
         )
+        recommendations = _unique(recommendation_blocks)
         # References are local to this immutable catalog, not persistent IDs.
         # Short IDs keep the complete plan inside the existing output budget.
         key = f"f{len(records) + 1}"
@@ -363,7 +376,7 @@ def compile_finding_records(
                 _severity([span.text for span in narrative_spans]),
             ),
             ("Exploitation Status", assessment.status),
-            ("Action", recommendation_action(recommendations)),
+            ("Action", recommendation_action(recommendation_blocks)),
         ]
         if dict(fields)["Severity"] == "unknown":
             fields.append(

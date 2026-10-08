@@ -7,35 +7,24 @@ evidence. Unrecognized advice stays guidance, but cannot supply a guessed badge.
 
 from dataclasses import dataclass, replace
 import re
-from typing import Literal, Sequence
+from typing import Callable, Literal, Sequence
 
 from .cve import CVE_ID_PATTERN
 from .report_artifact import Action
+from .relations import OwnedClause
 
 ArgumentRelation = Literal["direct", "destination", "direct_destination"]
 CoordinationRelation = Literal[
     "initial", "conjunctive", "alternative", "adversative", "sequential"
 ]
-
-
-@dataclass(frozen=True)
-class DirectiveClause:
-    verb: str
-    object_text: str
-    object_role: str | None
-    object_members: tuple[str, ...]
-    polarity: Literal["affirmative", "negative"]
-    conditions: tuple[str, ...]
-    reference: bool = False
-    argument_relation: ArgumentRelation = "direct"
-    coordination: CoordinationRelation = "initial"
+VersionIdentity = Callable[[str], tuple[str, ...] | None]
 
 
 @dataclass(frozen=True)
 class RecommendationDirective:
     source_text: str
     modality: Literal["advice", "imperative", "continuation", "unclassified"]
-    clauses: tuple[DirectiveClause, ...]
+    clauses: tuple[OwnedClause, ...]
     conditions: tuple[str, ...]
     ambiguous: bool = False
 
@@ -63,8 +52,14 @@ CONDITION = re.compile(
 # A verb is insufficient to infer remediation. These closed argument frames
 # own both recognized target shapes and their artifact projection.
 ACTION_FRAMES: dict[str, dict[ArgumentRelation, dict[str, Action]]] = {
-    "install": {"direct": {"patch": Action.PATCH}},
-    "apply": {"direct": {"patch": Action.PATCH, "mitigation": Action.MITIGATE}},
+    "install": {"direct": {"patch": Action.PATCH, "release": Action.PATCH}},
+    "apply": {
+        "direct": {
+            "patch": Action.PATCH,
+            "release": Action.PATCH,
+            "mitigation": Action.MITIGATE,
+        }
+    },
     "patch": {
         "direct": dict.fromkeys(
             ("system", "identifier", "vulnerability", "release"), Action.PATCH
@@ -134,9 +129,19 @@ COORDINATION_KINDS: dict[str, CoordinationRelation] = {
 }
 
 
-def _nominal_members(text: str) -> tuple[str, ...] | None:
+def _nominal_members(
+    text: str, version_identity: VersionIdentity | None = None
+) -> tuple[str, ...] | None:
     """Complete noun phrases only; subordinate clauses cannot be subjects."""
     core = text.strip(" .!?")
+    if version_identity and (identity := version_identity(core)):
+        return tuple(
+            "release" if role == "release_scope" else role for role in identity
+        )
+    correlative = re.fullmatch(r"neither (.+) nor (.+)", core, re.I)
+    if correlative:
+        left, right = (_nominal_members(part) for part in correlative.groups())
+        return left + right if left and right else None
     # Coordinated objects (logs and traffic) remain objects, not directives.
     parts = re.split(r"\s+and\s+|,\s*", core, flags=re.I)
     roles = []
@@ -161,9 +166,17 @@ def _nominal_members(text: str) -> tuple[str, ...] | None:
     return tuple(roles)
 
 
-def _object_members(text: str, depth: int = 0) -> tuple[str, ...] | None:
+def _object_members(
+    text: str, depth: int = 0, version_identity: VersionIdentity | None = None
+) -> tuple[str, ...] | None:
     if depth > 2:
         return None
+    if (
+        version_identity
+        and (identity := version_identity(text))
+        and set(identity) == {"release_scope"}
+    ):
+        return tuple("release" for _ in identity)
     modifier = OBJECT_MODIFIER.search(text)
     core = text[: modifier.start()] if modifier else text
     if modifier:
@@ -179,193 +192,240 @@ def _object_members(text: str, depth: int = 0) -> tuple[str, ...] | None:
             )
         if (
             relation not in {"until", "when", "if", "only"}
-            and _object_members(tail, depth + 1) is None
+            and _object_members(tail, depth + 1, version_identity) is None
+            and not (
+                version_identity and version_identity(text[modifier.start() :].strip())
+            )
         ):
             return None
-    return _nominal_members(core)
+    return _nominal_members(core, version_identity)
 
 
-def _argument(text: str) -> tuple[ArgumentRelation, tuple[str, ...]]:
+def _argument(
+    text: str, version_identity: VersionIdentity | None = None
+) -> tuple[ArgumentRelation, tuple[str, ...]]:
+    if (
+        version_identity
+        and (identity := version_identity(text))
+        and set(identity) == {"release_scope"}
+    ):
+        return "direct", tuple("release" for _ in identity)
     destination = re.match(r"^to\s+(.+)$", text, re.I)
     if destination:
-        roles = _object_members(destination[1]) or ()
+        roles = _object_members(destination[1], version_identity=version_identity) or ()
         return "destination", roles if set(roles) <= {"release"} else ()
     parts = re.split(r"\s+to\s+", text, maxsplit=1, flags=re.I)
     if len(parts) == 2:
-        destination_roles = _object_members(parts[1])
-        roles = _object_members(parts[0]) or ()
+        destination_roles = _object_members(parts[1], version_identity=version_identity)
+        roles = _object_members(parts[0], version_identity=version_identity) or ()
         return "direct_destination", (
             roles if destination_roles and set(destination_roles) <= {"release"} else ()
         )
-    return "direct", _object_members(text) or ()
+    return "direct", _object_members(text, version_identity=version_identity) or ()
 
 
-def _frame_actions(clause: DirectiveClause) -> dict[str, Action] | None:
+def _frame_actions(clause: OwnedClause) -> dict[str, Action] | None:
+    if clause.object_role == "implicit":
+        # Only prohibited/qualified implicit arguments are admitted. Their
+        # finite verb constrains its possible actions without asserting one.
+        return {
+            action.value: action
+            for frame in ACTION_FRAMES.get(clause.verb, {}).values()
+            for action in frame.values()
+        }
     frame = ACTION_FRAMES.get(clause.verb, {}).get(clause.argument_relation, {})
     if not clause.object_members or not set(clause.object_members) <= frame.keys():
         return None
     return {role: frame[role] for role in clause.object_members}
 
 
-def _advice_relation(text: str) -> tuple[str, str, bool] | None:
+@dataclass(frozen=True)
+class DirectiveBinding:
+    subject: str = ""
+    modal: str = ""
+    negative: bool = False
+    audience_negative: bool = False
+    qualifications: tuple[str, ...] = ()
+    unsupported: bool = False
+
+
+def _binding(text: str, inherited: DirectiveBinding) -> tuple[str, DirectiveBinding]:
+    """Consume one subject/modal production, retaining its owner for children."""
     audience = re.match(ADVICE_AUDIENCE, text, re.I)
-    if not audience:
-        return None
-    remainder = text[audience.end() :].strip()
-    modal = re.search(rf"\b(?P<modal>{ADVICE_MODAL})\s+(?P<body>.+)$", remainder, re.I)
-    if not modal:
-        return None
-    qualifier = remainder[: modal.start()].strip()
-    if qualifier:
-        relation = re.fullmatch(r"(?:of|with|on|running|using)\s+(.+)", qualifier, re.I)
-        roles = _nominal_members(relation[1]) if relation else None
-        if not roles or not set(roles) <= {
-            "system",
-            "release",
-            "identifier",
-        }:
-            return None
-    return modal["modal"], modal["body"], bool(NEGATION.search(qualifier))
-
-
-def _polarity_scope(text: str, inherited: bool) -> bool:
-    advice = _advice_relation(text)
-    if advice:
-        inherited = advice[2] or bool(NEGATION.search(advice[0]))
-        text = advice[1]
-    return inherited or bool(re.match(r"^(?:do not|don't|not|never)\b", text, re.I))
-
-
-def _clause(text: str, negative: bool) -> DirectiveClause | None:
-    advice = _advice_relation(text)
-    if advice:
-        # An explicitly restated audience/modal owns its own polarity.
-        negative = advice[2] or bool(NEGATION.search(advice[0]))
-        text = advice[1]
-    body = re.sub(r"^(?:(?:do not|don't|not|never)\s+)+", "", text, flags=re.I)
-    if re.match(r"^(?:do so|do it|(?:this|that) action)\b", body, re.I):
-        return DirectiveClause(
-            "reference",
-            body,
-            None,
-            (),
-            "negative" if negative or NEGATION.search(text) else "affirmative",
-            tuple(match.group() for match in CONDITION.finditer(text)),
-            True,
+    state = inherited
+    if audience:
+        remainder = text[audience.end() :].strip()
+        state = DirectiveBinding(subject=audience.group())
+        modal = re.search(rf"\b(?:{ADVICE_MODAL})\s+", remainder, re.I)
+        if not modal:
+            return text, inherited
+        qualifier = remainder[: modal.start()].strip()
+        if qualifier:
+            nominal = re.fullmatch(
+                r"(?:of|with|on|running|using)\s+(.+)", qualifier, re.I
+            )
+            roles = _nominal_members(nominal[1]) if nominal else None
+            if nominal and roles and set(roles) <= {"system", "release", "identifier"}:
+                state = replace(
+                    state,
+                    audience_negative=bool(re.search(r"\bno\b", nominal[1], re.I)),
+                )
+            elif re.fullmatch(
+                r"(?:deny|denies|say|says|wonder|question|are unsure)\s+(?:that|if|whether)\s+(?:they|operators|investigators)",
+                qualifier,
+                re.I,
+            ):
+                state = replace(state, qualifications=(qualifier,))
+            else:
+                return remainder[modal.end() :], replace(state, unsupported=True)
+        text = remainder[modal.start() :]
+    modal = re.match(rf"(?:{ADVICE_MODAL})\s+", text, re.I)
+    if modal:
+        # A repeated finite modal owns a new polarity, while the subject's
+        # negative quantifier remains a property of that subject.
+        state = replace(
+            state,
+            modal=modal.group().strip(),
+            negative=state.audience_negative or bool(NEGATION.search(modal.group())),
         )
-    words = body.split()
-    while (
-        words
-        and words[0].casefold() not in VERBS
-        and words[0].casefold().endswith("ly")
-    ):
-        words.pop(0)
-    body = " ".join(words)
-    verb, separator, obj = body.partition(" ")
-    if verb.casefold() not in VERBS or not separator or not re.search(r"\w", obj):
-        return None
-    relation, members = _argument(obj)
-    return DirectiveClause(
-        verb.casefold(),
-        obj,
-        None if not members else members[0] if len(set(members)) == 1 else "mixed",
-        members,
-        "negative" if negative or NEGATION.search(text) else "affirmative",
-        tuple(match.group() for match in CONDITION.finditer(text)),
-        argument_relation=relation,
-    )
+        text = text[modal.end() :]
+    elif audience:
+        return text, replace(state, unsupported=True)
+    neg = re.match(r"(?:(?:do not|don't|not|never)\s+)+", text, re.I)
+    if neg:
+        state = replace(state, negative=True)
+        text = text[neg.end() :]
+    return text, state
 
 
-def parse_recommendation(text: str) -> RecommendationDirective | None:
-    """Retain instruction structure independently from action prioritization."""
+def _directive_segments(body: str, version_identity: VersionIdentity | None):
+    """Object conjunctions are parsed as objects, never unknown-clause fallback."""
+    pieces = COORDINATION.split(body)
+    result = [("initial", pieces[0])]
+    alternatives = False
+    for connector, part in zip(pieces[1::2], pieces[2::2]):
+        relation = COORDINATION_KINDS[connector.strip().strip(",").strip().casefold()]
+        alternatives |= relation == "alternative"
+        if relation in {"conjunctive", "alternative"} and _object_members(
+            part, version_identity=version_identity
+        ):
+            previous, text = result[-1]
+            result[-1] = (previous, text + " and " + part)
+        else:
+            result.append((relation, part))
+    return result, alternatives
+
+
+def parse_recommendation(
+    text: str, *, version_identity: VersionIdentity | None = None
+) -> RecommendationDirective | None:
+    """Parse complete directive relations; projection never reparses their text."""
     normalized = " ".join(text.split()).rstrip(".!")
-    conditions = tuple(match.group() for match in CONDITION.finditer(normalized))
-    prefix = re.match(r"^(?:if|unless|when|until)\b[^,]+,\s*", normalized, re.I)
-    if not prefix and re.match(
+    leading = re.match(r"^(?:if|unless|when|until)\b[^,]+,\s*", normalized, re.I)
+    if not leading and re.match(
         r"^(?:only if|unless|until|provided that)\b", normalized, re.I
     ):
         return RecommendationDirective(
             text, "continuation", (), (normalized,), bool(NEGATION.search(normalized))
         )
-    direct_text = normalized[prefix.end() :] if prefix else normalized
-    advice = _advice_relation(direct_text)
-    related_modal = re.search(rf"\b(?:{ADVICE_MODAL})\b", normalized, re.I)
-    modality: Literal["advice", "imperative", "unclassified"] = (
-        "advice" if advice else "unclassified" if related_modal else "imperative"
-    )
-    # Unknown modal relations may identify a constrained action target, never
-    # positive advice. Direct audience ownership is still required above.
-    body = (
-        advice[1]
-        if advice
-        else (
-            normalized[related_modal.end() :].strip() if related_modal else normalized
+    conditions = (leading.group().rstrip(", "),) if leading else ()
+    source = normalized[leading.end() :] if leading else normalized
+    source, initial_binding = _binding(source, DirectiveBinding())
+    segments, alternative = _directive_segments(source, version_identity)
+    if alternative:
+        conditions += ("Alternative source directives: " + source,)
+    clauses = []
+    inherited = initial_binding
+    advice = bool(initial_binding.subject or initial_binding.modal)
+    for connector, raw in segments:
+        if connector == "adversative":
+            inherited = replace(inherited, negative=inherited.audience_negative)
+        body, binding = _binding(raw, inherited)
+        advice |= bool(binding.subject or binding.modal)
+        reference = re.match(r"^(?:do so|do it|(?:this|that) action)\b", body, re.I)
+        words = body.split()
+        while (
+            words
+            and words[0].casefold() not in VERBS
+            and words[0].casefold().endswith("ly")
+        ):
+            words.pop(0)
+        verb = words.pop(0).casefold() if words else ""
+        argument = " ".join(words)
+        relation, members = (
+            _argument(argument, version_identity) if verb in VERBS else ("direct", ())
         )
-    )
-    conditions = (prefix.group().rstrip(", "),) if prefix else ()
-    negative = bool(advice and (advice[2] or NEGATION.search(advice[0])))
-    audience_negative = bool(advice and advice[2])
-    shared_negative = _polarity_scope(body, negative)
-    parts = COORDINATION.split(body)
-    first = _clause(parts[0], shared_negative)
-    if not first:
-        return (
-            RecommendationDirective(text, modality, (), conditions, True)
-            if modality == "advice"
-            else None
+        own_conditions = tuple(match.group() for match in CONDITION.finditer(body))
+        qualification = binding.qualifications + (
+            ("Question",) if "?" in normalized else ()
         )
-    clauses = [first]
-    ambiguous = "?" in normalized or modality == "unclassified"
-    for connector, part in zip(parts[1::2], parts[2::2]):
-        kind = COORDINATION_KINDS[connector.strip().strip(",").strip().casefold()]
-        if kind == "alternative":
-            conditions += ("Alternative source directives: " + body,)
-        inherited_negative = (
-            audience_negative if kind == "adversative" else shared_negative
+        implicit = bool(
+            verb in VERBS
+            and (binding.negative or conditions or own_conditions or qualification)
+            and (not argument or CONDITION.fullmatch(argument))
         )
-        clause = _clause(part, inherited_negative)
-        if clause:
-            clauses.append(replace(clause, coordination=kind))
-            shared_negative = _polarity_scope(part, inherited_negative)
-            restated = _advice_relation(part)
-            if restated:
-                audience_negative = restated[2]
-        else:
-            # A coordinated noun must complete a known object phrase. Unknown
-            # verbs/clauses cannot silently disappear behind the first action.
-            previous = clauses[-1]
-            combined = previous.object_text + " and " + part
-            relation, members = _argument(combined)
-            role = (
-                None
-                if not members
-                else members[0] if len(set(members)) == 1 else "mixed"
+        if (
+            not reference
+            and verb in VERBS
+            and re.match(
+                r"^(?:it|that)(?:\s+(?:if|until|when|only|immediately)|$)",
+                argument,
+                re.I,
             )
-            ambiguous |= role is None or kind not in {"conjunctive", "alternative"}
-            clauses[-1] = replace(
-                previous,
-                object_text=combined,
-                object_role=role,
-                object_members=members,
-                argument_relation=relation,
-                conditions=previous.conditions
-                + tuple(match.group() for match in CONDITION.finditer(part)),
-                polarity=(
-                    "negative"
-                    if previous.polarity == "negative" or NEGATION.search(part)
-                    else "affirmative"
-                ),
-            )
-    ambiguous |= any(_frame_actions(c) is None and not c.reference for c in clauses)
-    if (
-        modality == "imperative"
-        and first.object_role is None
-        and not first.reference
-        and not re.match(r"^(?:do not|don't|never)\s+", body, re.I)
-    ):
-        return None
+        ):
+            reference = True
+        if reference:
+            verb, argument, members = "reference", body, ()
+        unsupported = binding.unsupported or (
+            not reference and not implicit and (verb not in VERBS or not members)
+        )
+        if (
+            unsupported
+            and not advice
+            and not clauses
+            and not binding.negative
+            and not re.match(r"^(?:do not|don't|never)\s+", raw, re.I)
+        ):
+            return None
+        # Negative objects are owned by their nominal argument; a negation
+        # inside a conditional tail cannot become predicate polarity.
+        object_negative = bool(re.match(r"^(?:the )?(?:no|neither)\b", argument, re.I))
+        clause = OwnedClause(
+            text=raw,
+            subject=binding.subject,
+            kind="directive",
+            verb=verb,
+            modal=binding.modal,
+            polarity=(
+                "negative" if binding.negative or object_negative else "affirmative"
+            ),
+            conditions=own_conditions + qualification,
+            unsupported=unsupported,
+            object_text=argument,
+            object_role=(
+                "implicit"
+                if implicit
+                else (
+                    None
+                    if not members
+                    else members[0] if len(set(members)) == 1 else "mixed"
+                )
+            ),
+            object_members=members,
+            reference=bool(reference),
+            argument_relation=relation,
+            coordination=connector,
+        )
+        if not clause.reference and _frame_actions(clause) is None:
+            clause = replace(clause, unsupported=True)
+        clauses.append(clause)
+        inherited = binding
     return RecommendationDirective(
-        text, modality, tuple(clauses), conditions, ambiguous
+        text,
+        "advice" if advice else "imperative",
+        tuple(clauses),
+        conditions,
+        any(c.unsupported for c in clauses),
     )
 
 
@@ -374,7 +434,7 @@ def directive_units(text: str) -> tuple[str, ...]:
     return tuple(part.strip() for part in text.split(";") if part.strip())
 
 
-def _targets(clause: DirectiveClause) -> set[tuple[Action, str]]:
+def _targets(clause: OwnedClause) -> set[tuple[Action, str]]:
     # The finding owns remediation/investigation scope. Monitoring objects can
     # establish narrower independent roles (e.g. evidence versus advisories).
     # Members, determiners and polarity share canonical identity; wording alone

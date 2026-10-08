@@ -2,15 +2,24 @@
 
 import pytest
 
+from src.core.finding_evidence import recommendation_action
 from src.core.report_artifact import parse_report_artifact
 from test_finding_generation_pipeline import run_real_pipeline
 
 
-def pipeline_action(monkeypatch, tmp_path, guidance):
+def pipeline_action(monkeypatch, tmp_path, guidance, *, unsupported=False):
     paragraph = (
         "CVE-2026-1234 exploitation status is unknown. "
         f"CVE-2026-1234 allows remote code execution on the gateway. {guidance}"
     )
+    previous = {
+        "index.md": b"Previous validated report",
+        "index.html": b"Previous site",
+        "current-findings.json": b'{"previous":true}',
+    }
+    if unsupported:
+        for name, content in previous.items():
+            (tmp_path / name).write_bytes(content)
     result = run_real_pipeline(
         monkeypatch,
         tmp_path / "index.md",
@@ -23,7 +32,16 @@ def pipeline_action(monkeypatch, tmp_path, guidance):
                 content=paragraph,
             )
         ],
+        expect_model_call=not unsupported,
     )
+    if unsupported:
+        assert result["status"] == "failed", result
+        assert result["analysis_results"]["error"] == "unsupported_evidence_relation"
+        assert all(
+            (tmp_path / name).read_bytes() == content
+            for name, content in previous.items()
+        )
+        return None
     assert result["status"] == "completed", result
     finding = parse_report_artifact((tmp_path / "index.md").read_text()).findings[0]
     assert paragraph in finding.recommended_actions
@@ -64,7 +82,20 @@ def test_bounded_frames_keep_action_polarity_and_conditions(
     monkeypatch, tmp_path, instruction, action, form
 ):
     expected = action if form == "Users should {}." else "none"
-    assert pipeline_action(monkeypatch, tmp_path, form.format(instruction)) == expected
+    guidance = form.format(instruction)
+    # These original negative argument cases still cannot project an action.
+    # The stricter publication contract also rejects their unclassified frame.
+    if instruction in {
+        "update the advisory",
+        "upgrade to the vendor",
+        "upgrade the appliance to the advisory",
+    }:
+        assert recommendation_action([guidance]) == expected == "none"
+        assert (
+            pipeline_action(monkeypatch, tmp_path, guidance, unsupported=True) is None
+        )
+    else:
+        assert pipeline_action(monkeypatch, tmp_path, guidance) == expected
 
 
 @pytest.mark.parametrize(

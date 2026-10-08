@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from src.core.finding_evidence import recommendation_action
+from src.core.finding_evidence import EvidenceError, recommendation_action
 from src.core.report_artifact import Action, parse_report_artifact
 from test_finding_generation import CVE, catalog_for, render
 from test_finding_generation_pipeline import run_real_pipeline
@@ -147,6 +147,15 @@ def test_descriptive_nouns_never_become_recommendations(narrative):
 def test_coordinated_directives_preserve_structure_before_badge_priority(
     advice, action
 ):
+    assert recommendation_action([advice]) == action
+    if advice in {
+        "Users should monitor logs and consider installing an update.",
+        "Monitor logs and consider installing an update.",
+    }:
+        with pytest.raises(EvidenceError) as error:
+            render(catalog_for(f"## {CVE}\n\n{advice}"))
+        assert error.value.code == "unsupported_evidence_relation"
+        return
     _, report = render(catalog_for(f"## {CVE}\n\n{advice}"))
     assert f"**Action**: {action}" in report
     assert f"**Recommended Actions**: {advice}" in report
@@ -192,6 +201,16 @@ def test_actions_follow_singleton_and_shared_cve_ownership():
 def test_real_pipeline_keeps_qualified_and_coordinated_guidance(
     monkeypatch, tmp_path, advice, action
 ):
+    unsupported = advice == "Monitor logs and consider installing an update."
+    previous = {
+        "index.md": b"Previous validated report",
+        "index.html": b"Previous site",
+        "current-findings.json": b'{"previous":true}',
+    }
+    if unsupported:
+        assert recommendation_action([advice]) == action == "none"
+        for name, content in previous.items():
+            (tmp_path / name).write_bytes(content)
     result = run_real_pipeline(
         monkeypatch,
         tmp_path / "index.md",
@@ -204,7 +223,16 @@ def test_real_pipeline_keeps_qualified_and_coordinated_guidance(
                 content_kind="article",
             )
         ],
+        expect_model_call=not unsupported,
     )
+    if unsupported:
+        assert result["status"] == "failed", result
+        assert result["analysis_results"]["error"] == "unsupported_evidence_relation"
+        assert all(
+            (tmp_path / name).read_bytes() == content
+            for name, content in previous.items()
+        )
+        return
     assert result["status"] == "completed", result
     artifact = parse_report_artifact((tmp_path / "index.md").read_text())
     assert artifact.findings[0].action.value == action
@@ -246,6 +274,16 @@ def test_parsed_directive_retains_modality_polarity_conditions_and_coordination(
 def test_intervening_relations_cannot_establish_advice_ownership(advice, with_patch):
     for prefix in ("", "Users should install the patch. "):
         source = prefix + advice
+        assert recommendation_action([source]) == (with_patch if prefix else "none")
+        if advice in {
+            "Users with an unclassified relation should install the patch.",
+            "Users of systems if they are unsure whether they should install the patch.",
+            "Users of systems when they deny that they should install the patch.",
+        }:
+            with pytest.raises(EvidenceError) as error:
+                render(catalog_for(f"## {CVE}\n\n{source}"))
+            assert error.value.code == "unsupported_evidence_relation"
+            continue
         _, report = render(catalog_for(f"## {CVE}\n\n{source}"))
         assert f"**Action**: {with_patch if prefix else 'none'}" in report
         assert f"**Recommended Actions**: {source}" in report
