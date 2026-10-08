@@ -18,6 +18,7 @@ from markdown_it.token import Token
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .recommendations import (
     RecommendationBlock,
+    directive_units,
     parse_recommendation,
     project_recommendation_action,
 )
@@ -46,7 +47,7 @@ DETAIL_CUES = {
 }
 
 
-def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
+def detail_statement_roles(text: str, context: str = "") -> tuple[str, ...]:
     version_cue = _version_list_cue(text)
     return tuple(
         name
@@ -56,7 +57,10 @@ def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
             or _cumulative_version_list(text, context)
             if name == "Affected Versions"
             else re.search(cue, text, re.I)
-            or (name == "Recommended Actions" and parse_recommendation(text))
+            or (
+                name == "Recommended Actions"
+                and any(parse_recommendation(unit) for unit in directive_units(text))
+            )
         )
     )
 
@@ -423,7 +427,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             version_context = " ".join(preceding)
             mentioned = set(extract_cve_ids(sentence))
             selected = mentioned <= wanted if mentioned and wanted else owned
-            body_fields = _detail_roles(sentence, version_context) or (
+            body_fields = detail_statement_roles(sentence, version_context) or (
                 sections[-1][2] if sections else ()
             )
             # Recommendation cues can themselves cross a physical line break.
@@ -935,9 +939,9 @@ def recommendation_action(blocks: Sequence[str]) -> str:
         RecommendationBlock(
             block,
             tuple(
-                directive
+                parse_recommendation(unit)
                 for sentence in _sentences(block)
-                if (directive := parse_recommendation(sentence)) is not None
+                for unit in directive_units(sentence)
             ),
         )
         for block in blocks
@@ -1713,7 +1717,7 @@ def _validate_finding(
             _validate_recommendation_statements(value, detail_spans)
         elif name == "Exceptions":
             for entry in entries:
-                roles = _detail_roles(entry)
+                roles = detail_statement_roles(entry)
                 parsed_exclusion = any(
                     _plain(entry) == _plain(item) for item in excluded_version_lines
                 )

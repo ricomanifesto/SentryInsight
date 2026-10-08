@@ -21,6 +21,7 @@ class DirectiveClause:
     object_members: tuple[str, ...]
     polarity: Literal["affirmative", "negative"]
     conditions: tuple[str, ...]
+    reference: bool = False
 
 
 @dataclass(frozen=True)
@@ -35,7 +36,7 @@ class RecommendationDirective:
 @dataclass(frozen=True)
 class RecommendationBlock:
     source_text: str
-    directives: tuple[RecommendationDirective, ...]
+    directives: tuple[RecommendationDirective | None, ...]
 
 
 AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
@@ -97,7 +98,7 @@ def _nominal_members(text: str) -> tuple[str, ...] | None:
     roles = []
     for part in parts:
         part = re.sub(
-            r"^(?:(?:the|a|an|no|available|latest|security|affected|impacted|vulnerable)\s+)+",
+            r"^(?:(?:the|a|an|all|any|each|every|no|available|latest|security|affected|impacted|vulnerable)\s+)+",
             "",
             part,
             flags=re.I,
@@ -145,7 +146,7 @@ def _object_role(text: str) -> str | None:
     return None if not roles else roles[0] if len(set(roles)) == 1 else "mixed"
 
 
-def _advice_relation(text: str) -> tuple[str, str] | None:
+def _advice_relation(text: str) -> tuple[str, str, bool] | None:
     audience = re.match(ADVICE_AUDIENCE, text, re.I)
     if not audience:
         return None
@@ -163,11 +164,26 @@ def _advice_relation(text: str) -> tuple[str, str] | None:
             "identifier",
         }:
             return None
-    return modal["modal"], modal["body"]
+    return modal["modal"], modal["body"], bool(NEGATION.search(qualifier))
 
 
 def _clause(text: str, negative: bool) -> DirectiveClause | None:
+    advice = _advice_relation(text)
+    if advice:
+        # An explicitly restated audience/modal owns its own polarity.
+        negative = advice[2] or bool(NEGATION.search(advice[0]))
+        text = advice[1]
     body = re.sub(r"^(?:(?:do not|don't|not|never)\s+)+", "", text, flags=re.I)
+    if re.match(r"^(?:do so|do it|(?:this|that) action)\b", body, re.I):
+        return DirectiveClause(
+            "reference",
+            body,
+            None,
+            (),
+            "negative" if negative or NEGATION.search(text) else "affirmative",
+            tuple(match.group() for match in CONDITION.finditer(text)),
+            True,
+        )
     words = body.split()
     while (
         words
@@ -193,11 +209,13 @@ def parse_recommendation(text: str) -> RecommendationDirective | None:
     """Retain instruction structure independently from action prioritization."""
     normalized = " ".join(text.split()).rstrip(".!")
     conditions = tuple(match.group() for match in CONDITION.finditer(normalized))
-    if re.search(r"\b(?:do so|do it|this action|that action)\b", normalized, re.I):
-        return RecommendationDirective(
-            text, "continuation", (), conditions, bool(NEGATION.search(normalized))
-        )
     prefix = re.match(r"^(?:if|unless|when|until)\b[^,]+,\s*", normalized, re.I)
+    if not prefix and re.match(
+        r"^(?:only if|unless|until|provided that)\b", normalized, re.I
+    ):
+        return RecommendationDirective(
+            text, "continuation", (), (normalized,), bool(NEGATION.search(normalized))
+        )
     direct_text = normalized[prefix.end() :] if prefix else normalized
     advice = _advice_relation(direct_text)
     related_modal = re.search(rf"\b(?:{ADVICE_MODAL})\b", normalized, re.I)
@@ -214,7 +232,7 @@ def parse_recommendation(text: str) -> RecommendationDirective | None:
         )
     )
     conditions = (prefix.group().rstrip(", "),) if prefix else ()
-    negative = bool(advice and NEGATION.search(advice[0]))
+    negative = bool(advice and (advice[2] or NEGATION.search(advice[0])))
     parts = COORDINATION.split(body)
     first = _clause(parts[0], negative)
     if not first:
@@ -244,16 +262,22 @@ def parse_recommendation(text: str) -> RecommendationDirective | None:
                 object_role=role,
                 object_members=_object_members(combined) or (),
             )
-    ambiguous |= any(c.object_role is None for c in clauses)
+    ambiguous |= any(c.object_role is None and not c.reference for c in clauses)
     if (
         modality == "imperative"
         and first.object_role is None
+        and not first.reference
         and not re.match(r"^(?:do not|don't|never)\s+", body, re.I)
     ):
         return None
     return RecommendationDirective(
         text, modality, tuple(clauses), conditions, ambiguous
     )
+
+
+def directive_units(text: str) -> tuple[str, ...]:
+    """Semicolon-separated statements retain order inside their source block."""
+    return tuple(part.strip() for part in text.split(";") if part.strip())
 
 
 def _clause_action(clause: DirectiveClause) -> Action | None:
@@ -293,6 +317,11 @@ def project_recommendation_action(blocks: Sequence[RecommendationBlock]) -> str:
     for block in blocks:
         previous: set[tuple[Action, str]] | None = None
         for directive in block.directives:
+            if directive is None:
+                # Intervening unparsed statements break explicit reference
+                # ownership; they never become a guessed antecedent.
+                previous = None
+                continue
             if directive.modality == "continuation":
                 if directive.ambiguous or directive.conditions:
                     if previous is None:
@@ -302,13 +331,30 @@ def project_recommendation_action(blocks: Sequence[RecommendationBlock]) -> str:
                 continue
             if directive.ambiguous and (
                 not directive.clauses
-                or any(clause.object_role is None for clause in directive.clauses)
+                or any(
+                    clause.object_role is None and not clause.reference
+                    for clause in directive.clauses
+                )
             ):
                 # Unknown targets cannot be proven independent of any action.
                 return Action.NONE.value
-            known = set().union(*(_targets(clause) for clause in directive.clauses))
+            known: set[tuple[Action, str]] = set()
+            antecedent = previous
             for clause in directive.clauses:
+                if clause.reference:
+                    if (
+                        directive.ambiguous
+                        or directive.conditions
+                        or clause.conditions
+                        or clause.polarity == "negative"
+                    ):
+                        if antecedent is None:
+                            return Action.NONE.value
+                        constraints.update(antecedent)
+                    continue
                 targets = _targets(clause)
+                known.update(targets)
+                antecedent = targets
                 if (
                     directive.ambiguous
                     or directive.conditions
@@ -318,7 +364,8 @@ def project_recommendation_action(blocks: Sequence[RecommendationBlock]) -> str:
                     constraints.update(targets)
                 else:
                     candidates.update(targets)
-            previous = known
+            if any(not clause.reference for clause in directive.clauses):
+                previous = known
     actions = {action for action, _ in candidates - constraints}
     return next(
         (action.value for action in Action if action in actions), Action.NONE.value

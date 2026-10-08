@@ -13,10 +13,12 @@ from .finding_evidence import (
     assess_exploitation,
     build_finding_detail_context,
     collect_finding_details,
+    detail_statement_roles,
     recommendation_action,
     validate_finding_evidence,
 )
 from .reporting import ReportingSource
+from .recommendations import directive_units
 
 
 @dataclass(frozen=True)
@@ -157,10 +159,10 @@ def _anchored_spans(spans, cves):
                 yield span
 
 
-def _substantive_prose(text):
+def _substantive_prose(text, *, statement=False):
     return bool(
         len(text.split()) >= 5
-        and re.search(r"[.!?]", text)
+        and (statement or re.search(r"[.!?]", text))
         and not re.search(
             r"^(?:by\s|(?:image|photo|picture|screenshot|illustration)(?:\s|:)"
             r"|(?:the |a )?(?:logo|image|photo|picture|screenshot) (?:of|for|shows)\b)",
@@ -379,7 +381,18 @@ def compile_finding_records(
         for text in _unique(
             span.source_block or span.text
             for span in narrative_spans
-            if not span.fields and _substantive_prose(span.source_block or span.text)
+            if _substantive_prose(span.source_block or span.text)
+            and (
+                not span.fields
+                or (
+                    set(span.fields) == {"Recommended Actions"}
+                    and any(
+                        _substantive_prose(unit, statement=True)
+                        and not detail_statement_roles(unit)
+                        for unit in directive_units(span.text)
+                    )
+                )
+            )
         ):
             try:
                 _check_finding(record, catalog, [text])
