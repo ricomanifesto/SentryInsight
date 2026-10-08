@@ -6,7 +6,7 @@ import pytest
 
 from src.core import finding_evidence as evidence
 from src.core.reporting import build_reporting_catalog
-from test_analyze_guards import import_analyze_with_stubs
+from test_analyze_guards import import_analyze_with_stubs, reference_plan_from_prompt
 from test_generation_grounding import ABSENT, CVE, OTHER, finding, source
 
 
@@ -146,18 +146,18 @@ def test_joint_article_distinguishes_rejected_assertions(
     assert "SECRET" not in json.dumps(diagnostic)
 
 
-def test_generation_unknown_example_agrees_with_badge_and_narrative_guards(monkeypatch):
-    article, catalog, candidate = joint_case()
+def test_generation_reference_plan_agrees_with_badge_and_narrative_guards(monkeypatch):
+    article, catalog, _ = joint_case()
     analyze = import_analyze_with_stubs()
-    client = type("Client", (), {"generate": AsyncMock(return_value=candidate)})()
+    client = type(
+        "Client", (), {"generate": AsyncMock(side_effect=reference_plan_from_prompt)}
+    )()
     monkeypatch.setattr(analyze, "build_model_client", lambda **_: client)
     result = asyncio.run(analyze.analyze_exploitation([article], {}))
-    prompt = client.generate.call_args.kwargs["user_prompt"]
-    assert (
-        'Unknown-scope example: use Exploitation Status: unknown and prose "Exploitation status is unknown."'
-        in prompt
-    )
-    assert "titles, descriptions, Status prose, and the Executive Summary" in prompt
+    assert "error" not in result
+    assert "**Exploitation Status**: unknown" in result["exploitation_report"]
+    assert "**Exploitation Status**: active" not in result["exploitation_report"]
+    assert "Commerce 2.3; Forms 4.5" in result["exploitation_report"]
     evidence.validate_finding_evidence(result["exploitation_report"], catalog)
     assert client.generate.await_count == 1
 

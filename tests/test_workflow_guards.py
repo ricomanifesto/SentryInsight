@@ -286,12 +286,15 @@ Recent exploitation activity is concentrated in edge systems.
     def test_overlong_summary_is_split_before_report_validation(self):
         workflow = import_workflow_with_stubs()
         summary_sentences = [
-            "Attackers are exploiting multiple exposed systems across sectors.",
+            "CVE-2026-1234 is actively exploited in the wild across countries.",
             "Credential theft and remote code execution remain the dominant risks.",
             "Supply chain compromise is expanding across developer ecosystems.",
             "Security teams should prioritize patching and credential rotation.",
             "Defenders should monitor for follow-on access attempts.",
         ]
+        # Preserve the original five-sentence, 65-character opening fixture.
+        self.assertEqual(len(summary_sentences), 5)
+        self.assertEqual(len(summary_sentences[0]), 65)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "index.md"
@@ -356,6 +359,9 @@ Recent exploitation activity is concentrated in edge systems.
             )
             for sentence in summary_sentences:
                 self.assertIn(sentence, summary_body)
+            from src.core.report_validation import validate_report_content
+
+            self.assertEqual(validate_report_content(written_report), [])
 
     def test_missing_expected_cve_does_not_write_output_file(self):
         workflow = import_workflow_with_stubs()

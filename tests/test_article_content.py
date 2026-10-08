@@ -212,3 +212,51 @@ def test_html_optional_end_tags_preserve_list_ownership(markup, expected):
     markup = f"<article>{markup}</article>"
     assert extract_article_content(markup, "https://example.test").text == expected
     assert normalize_feed_content(markup) == expected
+
+
+def test_article_links_retain_labels_and_original_paragraph_without_changing_text():
+    result = extract_article_content(
+        "<article><p>CVE-2026-1234 affects Gateway. See the "
+        '<a href="/advisory"><strong>vendor security advisory</strong></a>.</p>'
+        '<figure><a href="/photo.png">Gateway photo</a></figure></article>',
+        "https://example.test/news",
+    )
+    assert (
+        result.text
+        == "CVE-2026-1234 affects Gateway. See the vendor security advisory.\n\nGateway photo"
+    )
+    assert result.link_contexts[0].label == "vendor security advisory"
+    assert (
+        result.link_contexts[0].context
+        == "CVE-2026-1234 affects Gateway. See the vendor security advisory."
+    )
+    assert result.link_contexts[0].url == "https://example.test/advisory"
+
+
+def test_article_link_provenance_survives_catalog_roundtrip():
+    from dataclasses import asdict
+    from src.core.reporting import (
+        build_reporting_catalog,
+        serialize_reporting_catalog,
+        deserialize_reporting_catalog,
+    )
+
+    result = extract_article_content(
+        '<article><p>CVE-2026-1234 is described in the <a href="/advisory">vendor advisory</a>.</p></article>',
+        "https://example.test/news",
+    )
+    catalog = build_reporting_catalog(
+        [
+            dict(
+                title="Example",
+                source="Publisher",
+                link="https://example.test/news",
+                content=result.text,
+                source_links=result.links,
+                source_link_contexts=[asdict(item) for item in result.link_contexts],
+            )
+        ]
+    )
+    restored = deserialize_reporting_catalog(serialize_reporting_catalog(catalog))
+    assert restored == catalog
+    assert next(iter(restored.values())).link_contexts == result.link_contexts

@@ -7,7 +7,7 @@ Unrecognized constructions remain unknown and can block publication; genuine
 source confirmations are not guaranteed to be recognized in every phrasing.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import hashlib
 import re
 from typing import Any, Literal, Mapping, Sequence
@@ -16,6 +16,16 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
+from .assertions import FINITE_PREDICATE_HEADS, parse_assertions
+from .relations import OwnedClause
+from .recommendations import (
+    RecommendationBlock,
+    RecommendationContext,
+    RecommendationDirective,
+    directive_units,
+    parse_recommendation,
+    project_recommendation_action,
+)
 from .reporting import (
     ACTIVE_SECTION_PATTERN,
     FINDING_PATTERN,
@@ -41,7 +51,7 @@ DETAIL_CUES = {
 }
 
 
-def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
+def detail_statement_roles(text: str, context: str = "") -> tuple[str, ...]:
     version_cue = _version_list_cue(text)
     return tuple(
         name
@@ -51,6 +61,13 @@ def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
             or _cumulative_version_list(text, context)
             if name == "Affected Versions"
             else re.search(cue, text, re.I)
+            or (
+                name == "Recommended Actions"
+                and any(
+                    isinstance(item, RecommendationDirective)
+                    for item in _recommendation_directives(text)
+                )
+            )
         )
     )
 
@@ -58,144 +75,6 @@ def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
 def _heading_detail_roles(text: str) -> tuple[str, ...]:
     label = re.sub(r"^\d+[.)]\s*", "", text).strip(" :").casefold()
     return tuple(name for name in DETAIL_CUES if name.casefold() == label)
-
-
-NEGATIVE = re.compile(
-    r"\b(?:exploit\w* (?:has |have |is |was |were )?not (?:yet |been )*(?:observed|detected|confirmed)|no (?:known exploitation|evidence|signs?|reports?|exploitation)|(?:not|never) (?:yet |been |being |actively |publicly |known to be |observed to be )*(?:exploit\w*|weaponiz\w*)|(?:has|have) not been (?:actively )?(?:exploit\w*|weaponiz\w*)|without (?:evidence|reports?) of exploitation)\b",
-    re.I,
-)
-UNCERTAIN_ADVERBS = ("potentially", "likely", "possibly", "probably", "unlikely")
-UNCERTAIN = re.compile(
-    rf"\b(?:{'|'.join(UNCERTAIN_ADVERBS)}|may|might|could|potential|possible|risk|proof.of.concept|assessment|unknown|unclear|unconfirmed|unverified|investigat\w*|whether)\b",
-    re.I,
-)
-CONFIRMED = re.compile(
-    r"\b(?:actively exploited|active exploitation(?: attempts)?|(?:is|are|was|were|been|being) exploited (?:in|by)|(?:attackers?|actors?|operators?) (?:are |were )?exploit(?:ing|ed)?|exploitation (?:was |is )?(?:confirmed|observed|detected)|weaponized in (?:the wild|attacks))\b",
-    re.I,
-)
-EXPLOIT = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
-EPISTEMIC = re.compile(r"\b(?:unknown|unclear|unconfirmed|unverified|whether)\b", re.I)
-MODAL = re.compile(r"\b(?:may|might|could)\b", re.I)
-CORRELATIVE_START = re.compile(r"\bnot (?:only|just|merely|simply)\b", re.I)
-CLAUSE_BOUNDARY = re.compile(
-    r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)",
-    re.I,
-)
-PREDICATE_MODIFIERS = frozenset(UNCERTAIN_ADVERBS) | {
-    "also",
-    "currently",
-    "now",
-    "still",
-    "not",
-    "never",
-    "actively",
-    "newly",
-    "recently",
-    "widely",
-    "publicly",
-    "successfully",
-}
-FINITE_PREDICATE_HEADS = frozenset(
-    {
-        "is",
-        "are",
-        "was",
-        "were",
-        "has",
-        "have",
-        "had",
-        "may",
-        "might",
-        "could",
-        "can",
-        "will",
-        "would",
-    }
-)
-PARTICIPIAL_PREDICATE_HEADS = frozenset(
-    {
-        "exploited",
-        "weaponized",
-        "affected",
-        "vulnerable",
-        "exploitable",
-    }
-)
-PREDICATE_HEADS = (
-    FINITE_PREDICATE_HEADS | PARTICIPIAL_PREDICATE_HEADS | {"be", "been", "being"}
-)
-ADJUNCT_INTRODUCERS = frozenset(
-    {
-        "after",
-        "before",
-        "when",
-        "because",
-        "since",
-        "until",
-        "once",
-        "although",
-        "though",
-        "unless",
-        "if",
-        "where",
-        "during",
-        "upon",
-        "in",
-        "by",
-        "on",
-        "at",
-        "through",
-        "via",
-        "against",
-        "for",
-        "to",
-        "from",
-        "with",
-        "without",
-        "as",
-        "within",
-        "across",
-        "under",
-        "over",
-        "throughout",
-        "around",
-        "despite",
-    }
-)
-PREDICATE_ADVERBS = frozenset(
-    {
-        "worldwide",
-        "abroad",
-        "overseas",
-        "here",
-        "there",
-        "today",
-        "yesterday",
-        "tomorrow",
-        "tonight",
-        "earlier",
-        "later",
-        "again",
-        "already",
-        "often",
-        "sometimes",
-        "always",
-        "ever",
-        "soon",
-        "twice",
-        "ago",
-        "overnight",
-    }
-)
-TIME_UNIT = r"(?:second|minute|hour|day|week|fortnight|month|quarter|year|weekend|night|morning|afternoon|evening)s?"
-WEEKDAY = r"(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?: (?:morning|afternoon|evening|night))?"
-QUANTITY = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several|many|multiple|numerous|a|an|(?:hundreds|thousands|millions|dozens) of)"
-NOMINAL_ADJUNCT = re.compile(
-    rf"(?:(?:the )?(?:last|next|previous|following|this|that|every|each|all) (?:{QUANTITY} )?(?:{TIME_UNIT}|{WEEKDAY})"
-    rf"|{QUANTITY} {TIME_UNIT}"
-    rf"|{WEEKDAY}"
-    rf"|(?:(?:more|less|fewer) than |at (?:least|most) |up to )?{QUANTITY} (?:times|occasions))(?= |$)"
-)
 
 
 class EvidenceError(ValueError):
@@ -225,17 +104,8 @@ class ExploitationAssessment:
     negative: tuple[str, ...] = ()
     positive: tuple[str, ...] = ()
     conflicting: bool = False
-
-
-@dataclass(frozen=True)
-class ExploitationStatement:
-    """A source span with its own subject attribution and evidence state."""
-
-    text: str
-    cves: tuple[str, ...]
-    attribution: Literal["explicit", "coordinated", "unscoped"]
-    relation: Literal["root", "additive", "adversative", "correlative", "boundary"]
-    status: str
+    unsupported: tuple[str, ...] = ()
+    relations: tuple[OwnedClause, ...] = ()
 
 
 def _sentences(text: str) -> list[str]:
@@ -252,22 +122,81 @@ def _value(source: Any, field: str, default=""):
     )
 
 
-def _scoped_sentences(source: Any, cves: Sequence[str]) -> list[tuple[str, bool]]:
+def source_assertions(source: Any) -> tuple[OwnedClause, ...]:
+    """Interpret before selecting scope; a joint claim is never two singletons."""
     content = str(_value(source, "content"))
     source_cves = set(extract_cve_ids(content))
-    wanted = set(cves)
     result = []
     for sentence in _sentences(content):
         if sentence.startswith("#"):
             continue
-        mentioned = set(extract_cve_ids(sentence))
-        # A sentence about two vulnerabilities is ambiguous, even if one matches.
-        if mentioned and (not mentioned <= wanted or not mentioned & wanted):
-            continue
-        direct = bool(mentioned and mentioned <= wanted)
-        if direct or (not mentioned and wanted and source_cves == wanted):
-            result.append((sentence, direct))
-    return result
+        for clause in parse_assertions(sentence):
+            if clause.kind != "assertion":
+                continue
+            # Preserve the existing limited source-context rule. A body naming
+            # one CVE may supply unscoped absence/possibility, never positive
+            # confirmation or metadata-to-body attribution.
+            if (
+                not clause.cves
+                and not extract_cve_ids(sentence)
+                and len(source_cves) == 1
+                and clause.status in {"not_observed", "potential"}
+            ):
+                clause = replace(
+                    clause, cves=tuple(source_cves), attribution="source_context"
+                )
+            result.append(replace(clause, source_text=sentence))
+    return tuple(result)
+
+
+def source_evidence_text(
+    sources: Sequence[ReportingSource], cves: Sequence[str]
+) -> str:
+    """Complete attributed context for owned assertions, not an aggregate claim.
+
+    Keep whole source sentences even when their other clauses have different
+    owners or conflicting states. The same typed relations used by assessment
+    determine membership; presentation cannot select away contrary evidence.
+    """
+    entries = []
+    owned = _scope_assertions(sources, cves)
+    for source in sources:
+        sentences = dict.fromkeys(
+            " ".join(clause.source_text.split())
+            for owner, clause in owned
+            if owner is source
+        )
+        for sentence in sentences:
+            entries.append(f"[Source](<{source.url}>): “{sentence}”")
+    return " ".join(entries)
+
+
+def _has_cve_identity(source: Any) -> bool:
+    return bool(
+        extract_cve_ids(str(_value(source, "content")))
+        or _value(source, "metadata_cves", ())
+    )
+
+
+def _scope_assertions(sources: Sequence[Any], cves: Sequence[str]):
+    """An empty identity is owned by one source, never the entire catalog."""
+    if not cves and len(sources) > 1:
+        raise EvidenceError(
+            "A finding without CVEs requires one source owner",
+            code="ambiguous_source_scope",
+            field="Reporting",
+        )
+    wanted = set(cves)
+    return tuple(
+        (source, clause)
+        for source in sources
+        for clause in source_assertions(source)
+        if (
+            bool(wanted & set(clause.cves))
+            if wanted
+            else not clause.cves and not _has_cve_identity(source)
+        )
+    )
 
 
 @dataclass(frozen=True)
@@ -367,6 +296,10 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     content = str(_value(source, "content"))
     source_cves = set(extract_cve_ids(content))
     wanted = set(cves)
+    # Metadata-only identity still needs its unattributed body inventory for
+    # relevance. It cannot become an empty-scope finding at publication.
+    if not wanted and source_cves:
+        return [DetailSpan("", "boundary")]
     has_cve_sections = any(
         extract_cve_ids(match[2])
         for line in content.splitlines()
@@ -417,7 +350,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             version_context = " ".join(preceding)
             mentioned = set(extract_cve_ids(sentence))
             selected = mentioned <= wanted if mentioned and wanted else owned
-            body_fields = _detail_roles(sentence, version_context) or (
+            body_fields = detail_statement_roles(sentence, version_context) or (
                 sections[-1][2] if sections else ()
             )
             # Recommendation cues can themselves cross a physical line break.
@@ -480,9 +413,12 @@ def build_finding_detail_context(
         # A joint finding also includes other sources naming any member, even
         # if those sources do not themselves introduce the combined scope.
         for cves in relevant_scopes if source_cves else [()]:
-            if cves not in assessments:
-                assessments[cves] = assess_exploitation(list(catalog.values()), cves)
-            assessment = assessments[cves]
+            scope_key = (cves, source.key if not cves else None)
+            if scope_key not in assessments:
+                assessments[scope_key] = assess_exploitation(
+                    list(catalog.values()) if cves else [source], cves
+                )
+            assessment = assessments[scope_key]
             item: dict[str, Any] = {
                 "source_key": source.key,
                 "cves": list(cves),
@@ -579,6 +515,7 @@ def grounding_failure_diagnostic(
                 *DETAIL_FIELDS,
                 "Exploitation Status",
                 "Reporting",
+                "Source Evidence",
                 "Action",
                 "prose",
                 "summary",
@@ -613,174 +550,53 @@ def grounding_failure_diagnostic(
     }
 
 
-def _clause_status(clause: str) -> str:
-    if not EXPLOIT.search(clause):
-        return "unknown"
-    if NEGATIVE.search(clause):
-        return "not_observed"
-    if UNCERTAIN.search(clause):
-        if EPISTEMIC.search(clause):
-            return "unknown"
-        return "potential"
-    return "active" if CONFIRMED.search(clause) else "unknown"
-
-
-def _predicate_head(clause: str) -> str:
-    # Only known modifiers may precede an inherited predicate. In particular,
-    # an arbitrary -ly suffix is not enough: it can also occur in noun subjects.
-    words = clause.casefold().rstrip(".!?").split()
-    for index, word in enumerate(words):
-        if word not in PREDICATE_MODIFIERS:
-            if word in PARTICIPIAL_PREDICATE_HEADS:
-                # An adjective/participle can instead introduce a noun subject:
-                # "newly affected issue" is not the prior CVE's predicate.
-                # Parse the continuation as adverbs followed by an optional
-                # adjunct. A new noun phrase ends attribution regardless of
-                # which lexical verb follows it. An adjunct's own finite verb
-                # does not establish a new subject for the main predicate.
-                tail = words[index + 1 :]
-                while tail:
-                    token = tail[0]
-                    if token in ADJUNCT_INTRODUCERS:
-                        break
-                    nominal = NOMINAL_ADJUNCT.match(" ".join(tail))
-                    if nominal:
-                        tail = tail[len(nominal.group().split()) :]
-                        continue
-                    if (
-                        token in PREDICATE_MODIFIERS | PREDICATE_ADVERBS
-                        or re.fullmatch(r"[a-z]+ly", token)
-                    ):
-                        tail = tail[1:]
-                        continue
-                    return ""
-            return word
-    return ""
-
-
-def _statements(sentence: str) -> list[ExploitationStatement]:
-    """Track subjects and stance through recognized coordinated predicates.
-
-    This deliberately does not resolve pronouns, new noun subjects, or subjects
-    across sentences/semicolons. Relative ``which`` stays in its original span.
-    A shared modal or negation qualifies a bare coordinated predicate; a new
-    finite auxiliary starts its own assertion. Epistemic scope ("unknown
-    whether ... and ...") also applies when the CVE is repeated. Adversative
-    ``but`` may retain the subject but starts a new assertion scope. Paired
-    ``not only ... but [also]`` is correlative addition and keeps its opener's
-    scope; consuming the pair lets a later adversative start a new assertion.
-    """
-    parts = CLAUSE_BOUNDARY.split(sentence)
-    statements: list[ExploitationStatement] = []
-    subjects: tuple[str, ...] = ()
-    epistemic = modal = negative = False
-    correlative_scopes: list[tuple[bool, bool, bool]] = []
-    for index in range(0, len(parts), 2):
-        clause = parts[index].strip()
-        if not clause:
-            continue
-        boundary = " ".join(parts[index - 1].lower().split()) if index else ""
-        relation: Literal["root", "additive", "adversative", "correlative", "boundary"]
-        correlative_scope = None
-        if boundary in {"but", ", but"} and correlative_scopes:
-            relation = "correlative"
-            correlative_scope = correlative_scopes.pop()
-        elif boundary in {"but", ", but"}:
-            relation = "adversative"
-        elif boundary in {"and", ", and"}:
-            relation = "additive"
-        else:
-            relation = "boundary" if index else "root"
-            correlative_scopes.clear()
-        additive = relation in {"additive", "correlative"}
-        coordinate = relation in {"additive", "correlative", "adversative"}
-        head = _predicate_head(clause)
-        predicate = coordinate and head in PREDICATE_HEADS
-        finite = head in FINITE_PREDICATE_HEADS
-        mentioned = tuple(extract_cve_ids(clause))
-        attribution: Literal["explicit", "coordinated", "unscoped"]
-        if mentioned:
-            subjects = mentioned
-            attribution = "explicit"
-        elif predicate and len(subjects) == 1:
-            attribution = "coordinated"
-        else:
-            subjects = ()
-            attribution = "unscoped"
-
-        shared_predicate = additive and predicate and not finite
-        if correlative_scope is not None:
-            inherited_epistemic, inherited_modal, inherited_negative = correlative_scope
-        else:
-            inherited_epistemic = epistemic and additive
-            inherited_modal = modal and shared_predicate
-            inherited_negative = negative and shared_predicate
-        epistemic = bool(EPISTEMIC.search(clause)) or inherited_epistemic
-        modal = bool(MODAL.search(clause)) or inherited_modal
-        negative = bool(NEGATIVE.search(clause)) or inherited_negative
-        status = _clause_status(clause)
-        if EXPLOIT.search(clause):
-            if epistemic:
-                status = "unknown"
-            elif negative:
-                status = "not_observed"
-            elif modal:
-                status = "potential"
-        for opener in CORRELATIVE_START.finditer(clause):
-            # Only qualifiers governing the pair transfer to its second part.
-            # A qualifier inside the first constituent belongs to that part.
-            prefix = clause[: opener.start()]
-            correlative_scopes.append(
-                (
-                    inherited_epistemic or bool(EPISTEMIC.search(prefix)),
-                    inherited_modal or bool(UNCERTAIN.search(prefix)),
-                    inherited_negative or bool(NEGATIVE.search(prefix)),
-                )
-            )
-        statements.append(
-            ExploitationStatement(clause, subjects, attribution, relation, status)
-        )
-    return statements
-
-
 def assess_exploitation(
     sources: Sequence[Any], cves: Sequence[str]
 ) -> ExploitationAssessment:
-    unique_cves = tuple(dict.fromkeys(cves))
-    if len(unique_cves) > 1:
-        assessments = [assess_exploitation(sources, [cve]) for cve in unique_cves]
-        statuses = {item.status for item in assessments}
-        return ExploitationAssessment(
-            assessments[0].status if len(statuses) == 1 else "unknown",
-            tuple(text for item in assessments for text in item.negative),
-            tuple(text for item in assessments for text in item.positive),
-            any(item.conflicting for item in assessments)
-            or ("active" in statuses and "not_observed" in statuses),
-        )
-    positive, negative, potential = [], [], []
-    for source in sources:
-        for sentence, direct in _scoped_sentences(source, cves):
-            for statement in _statements(sentence):
-                attributed = bool(set(cves) & set(statement.cves))
-                if direct and not attributed:
-                    continue
-                if statement.status == "not_observed":
-                    negative.append(sentence)
-                elif statement.status == "potential":
-                    potential.append(sentence)
-                elif attributed and statement.status == "active":
-                    positive.append(sentence)
-    conflict = bool(positive and negative)
-    status = (
-        "unknown"
-        if conflict
-        else (
-            "not_observed"
-            if negative
-            else "active" if positive else "potential" if potential else "unknown"
-        )
+    wanted = set(cves)
+    relations = tuple(clause for _, clause in _scope_assertions(sources, cves))
+    # Keep every intersecting relation, including unsupported and contrary
+    # joint evidence. Projection only consumes complete owned scopes.
+    scopes: dict[frozenset[str], set[str]] = {}
+    for clause in relations:
+        scope = frozenset(clause.cves)
+        if scope <= wanted:
+            scopes.setdefault(scope, set()).add(clause.status)
+    positive = [r for r in relations if r.status in {"active", "observed"}]
+    negative = [r for r in relations if r.status == "not_observed"]
+    conflict = any(
+        not wanted or set(p.cves) & set(n.cves) for p in positive for n in negative
     )
-    return ExploitationAssessment(status, tuple(negative), tuple(positive), conflict)
+    projected = set()
+    covered = set()
+    for scope, states in scopes.items():
+        covered.update(scope)
+        projected.add(
+            "not_observed"
+            if "not_observed" in states
+            else (
+                "active"
+                if "active" in states
+                else (
+                    "observed"
+                    if "observed" in states
+                    else "potential" if "potential" in states else "unknown"
+                )
+            )
+        )
+    status = (
+        next(iter(projected))
+        if not conflict and relations and covered == wanted and len(projected) == 1
+        else "unknown"
+    )
+    return ExploitationAssessment(
+        status,
+        tuple(dict.fromkeys(r.source_text for r in negative)),
+        tuple(dict.fromkeys(r.source_text for r in positive)),
+        conflict,
+        tuple(dict.fromkeys(r.source_text for r in relations if r.unsupported)),
+        relations,
+    )
 
 
 def _plain(text: str) -> str:
@@ -824,7 +640,7 @@ VERSION_AFFECTED_CLAUSE = re.compile(
 VERSION_RECOMMENDATION_CLAUSE = re.compile(
     rf"\b(?:{VERSION_AUDIENCE})\b.*?\b"
     r"(?:should|must|needs? to|(?:are|is) (?:advised|recommended|urged|encouraged) to) "
-    r"(?:\w+ly )*(?:install|apply|patch|upgrade|update|consult|review|contact)\b.*",
+    r"(?:\w+ly )*(?P<verb>install|apply|patch|upgrade|update|consult|review|contact)\b.*",
     re.I,
 )
 VERSION_INFORMATION_CLAUSE = re.compile(
@@ -845,6 +661,119 @@ VERSION_DESCRIPTIVE_STATE = re.compile(
     r"versions?|releases?|products?|applications?|software|platforms?|hosts?)\b(?=[.!?…]*\s*$)",
     re.I,
 )
+
+
+def recommendation_action(blocks: Sequence[str]) -> str:
+    """Project badges from parsed source directives, retaining whole guidance."""
+    parsed = [
+        RecommendationBlock(
+            block,
+            tuple(_recommendation_directives(block)),
+        )
+        for block in blocks
+    ]
+    return project_recommendation_action(parsed)
+
+
+def _version_argument_identity(text: str) -> tuple[str, ...] | None:
+    """Delegate release identities/qualifiers to the existing version owner.
+
+    This never supplies audience, modal or polarity. A typed argument may be
+    used only after the directive parser establishes that separate relation.
+    """
+    value = text.strip(" .!?…:")
+    if re.fullmatch(VERSION_LIST_CUE, value, re.I):
+        return ("release",)
+    cue = _version_list_cue(value)
+    cue_match = re.search(VERSION_LIST_CUE, value, re.I)
+    if cue and cue_match:
+        if cue_match.start() == 0:
+            included, excluded = _version_constraints(_version_remainder(value, cue))
+            if (included or excluded) and all(
+                re.search(r"\d|\bRTM\b", item) for item in (*included, *excluded)
+            ):
+                return ("version_scope",)
+        # A later list cue belongs to a modifier of another object, not to
+        # the entire argument. Let the directive structure split that owner.
+        return None
+    if VERSION_DESCRIPTIVE_STATE.fullmatch(value):
+        return ("version_scope",)
+    if re.search(CUMULATIVE_UPDATE_CUE, value, re.I):
+        description = VERSION_DESCRIPTIVE_STATE.search(value)
+        if description:
+            value = value[: description.start()].strip()
+        normalized = _version_source_text(value)
+        if _cumulative_version_list(normalized):
+            included, excluded = _version_constraints(normalized)
+            if (
+                included
+                and not excluded
+                and all(re.search(r"\d|\bRTM\b", item) for item in included)
+            ):
+                return tuple(
+                    "release_scope" if description else "release" for _ in included
+                )
+    return None
+
+
+def _owned_recommendation(unit: str):
+    parsed = parse_recommendation(unit, version_identity=_version_argument_identity)
+    if parsed is not None:
+        return parsed
+    if re.search(DETAIL_CUES["Recommended Actions"], unit, re.I):
+        return RecommendationDirective(
+            unit,
+            "unclassified",
+            (OwnedClause(text=unit, kind="directive", unsupported=True),),
+            (),
+            True,
+        )
+    return RecommendationContext(unit, "narrative")
+
+
+def _recommendation_directives(block: str):
+    """Keep version clauses and wrapped release arguments under their owner."""
+    sentences = _sentences(block)
+    index = 0
+    while index < len(sentences):
+        sentence = sentences[index]
+        index += 1
+        if (
+            index < len(sentences)
+            and re.search(r"\b(?:install|apply|upgrade|update)$", sentence, re.I)
+            and _version_argument_identity(sentences[index])
+        ):
+            sentence += " " + sentences[index]
+            index += 1
+        cue = _version_list_cue(sentence)
+        cue_match = re.search(VERSION_LIST_CUE, sentence, re.I)
+        if cue and cue.kind == "explicit" and cue_match:
+            remainder = _version_remainder(sentence, cue)
+            if remainder:
+                # The existing list owner validates following identities;
+                # the directive owns only the preceding list introduction.
+                _version_constraints(remainder)
+                if cue_match.start():
+                    yield _owned_recommendation(sentence[: cue.end])
+                yield RecommendationContext(remainder, "version")
+                continue
+        typed = (
+            _version_clauses(sentence)
+            if re.search(CUMULATIVE_UPDATE_CUE, sentence, re.I)
+            else [("", VersionClause("list", sentence))]
+        )
+        for _, clause in typed:
+            if clause.kind in {
+                "affected",
+                "unaffected",
+                "audience",
+                "exception",
+                "information",
+            }:
+                yield RecommendationContext(clause.text, "version")
+                continue
+            for unit in directive_units(clause.text):
+                yield _owned_recommendation(unit)
 
 
 @dataclass(frozen=True)
@@ -869,6 +798,15 @@ def _version_list_cue(text: str) -> VersionListCue | None:
             continue
         return VersionListCue(cue.end(), "explicit")
     return pending
+
+
+def _version_remainder(text: str, cue: VersionListCue) -> str:
+    return re.sub(
+        r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
+        "",
+        text[cue.end :],
+        flags=re.I,
+    ).rstrip(". ")
 
 
 def _version_assertion_is_negative(match: re.Match[str]) -> bool:
@@ -903,6 +841,14 @@ def _version_clause(text: str) -> VersionClause:
             text,
         )
     recommendation = VERSION_RECOMMENDATION_CLAUSE.fullmatch(text)
+    if not recommendation:
+        directive = parse_recommendation(
+            text, version_identity=_version_argument_identity
+        )
+        # A parsed prohibition/qualified directive is still guidance, not an
+        # affected-release assertion. Modality comes from the shared relation;
+        # the existing version-state ambiguity checks below remain mandatory.
+        recommendation = bool(directive and not directive.ambiguous)
     information = VERSION_INFORMATION_CLAUSE.fullmatch(text)
     # Only complete typed assertions above can establish a version state.
     # Advice may end with supported prepositional descriptions, but any other
@@ -982,6 +928,12 @@ def _cumulative_version_list(text: str, context: str = "") -> bool:
         return True
     current = _plain(text)
     prior = _sentences(_plain(context or text))[-1].removesuffix(current)
+    if prior and not _version_list_cue(prior):
+        directive = parse_recommendation(
+            prior + current, version_identity=_version_argument_identity
+        )
+        if directive and not directive.ambiguous:
+            return False
     update = re.search(CUMULATIVE_UPDATE_CUE, current, re.I)
     advice = re.search(DETAIL_CUES["Recommended Actions"], current, re.I)
     if re.search(DETAIL_CUES["Recommended Actions"], prior, re.I) or (
@@ -1251,12 +1203,22 @@ def _rendered_text(tokens: Sequence[Token]) -> str:
     return "".join(parts)
 
 
-def _rendered_statements(text: str) -> list[ExploitationStatement]:
+def _rendered_statements(text: str) -> list[OwnedClause]:
     # Check reader-visible Markdown text so emphasis/entities cannot split a
     # claim into a form that the evidence guard fails to recognize.
     blocks = []
+    heading = False
     for token in MarkdownIt("commonmark").parse(text):
+        if token.type == "heading_open":
+            heading = True
+        elif token.type == "heading_close":
+            heading = False
         if token.type == "inline":
+            if heading and token.content in {
+                "Exploitation Report",
+                "Active Exploitation Details",
+            }:
+                continue
             blocks.append(_rendered_text(token.children or []))
         elif token.type in {"fence", "code_block"}:
             blocks.append(" ".join(token.content.split()))
@@ -1264,118 +1226,35 @@ def _rendered_statements(text: str) -> list[ExploitationStatement]:
     return [
         statement
         for sentence in _sentences(text)
-        for statement in _statements(sentence)
+        for statement in parse_assertions(sentence)
     ]
 
 
 def _positive_claim(text: str) -> bool:
-    return any(statement.status == "active" for statement in _rendered_statements(text))
+    return any(
+        statement.status in {"active", "observed"}
+        for statement in _rendered_statements(text)
+    )
 
 
-def _validate_finding(
-    finding: re.Match[str],
-    catalog: Mapping[str, ReportingSource],
-    nonconfirmed: list[tuple[str, list[str]]],
-) -> None:
-    title = finding.group("heading").removeprefix("###").strip()
-    body = finding.group("body")
-    pairs = FIELD.findall(body)
-    fields = dict(pairs)
-    if len(pairs) != len(fields):
-        raise EvidenceError(
-            f"{title}: duplicate finding field",
-            code="duplicate_finding_field",
-            expected=len(fields),
-            observed=len(pairs),
-        )
-    keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
-    if not keys or any(key not in catalog for key in keys):
-        raise EvidenceError(
-            f"{title}: missing retained source evidence",
-            code="missing_retained_source_evidence",
-            field="Reporting",
-            expected=True,
-            observed=False,
-        )
-    sources = [catalog[key] for key in keys]
-    if any(not source.content.strip() for source in sources):
-        raise EvidenceError(
-            f"{title}: missing retained source content",
-            code="missing_retained_source_content",
-            field="Reporting",
-            expected=True,
-            observed=False,
-        )
-    cves = extract_cve_ids(fields.get("CVE IDs", "") + " " + title)
-    # Assess every supplied source naming this CVE, even when the model
-    # omits that source from its chosen citations.
-    relevant = list(sources)
-    relevant.extend(
-        source
-        for source in catalog.values()
-        if source not in relevant and set(cves) & set(extract_cve_ids(source.content))
-    )
-    assessment = assess_exploitation(relevant, cves)
-    status = fields.get("Exploitation Status", "")
-    allowed = {assessment.status}
-    if assessment.status == "active":
-        allowed.add("observed")
-    if status not in allowed:
-        raise EvidenceError(
-            f"{title}: unsupported exploitation status {status!r}; source evidence is {assessment.status}",
-            code="unsupported_exploitation_status",
-            field="Exploitation Status",
-            expected=assessment.status,
-            observed=status or "missing",
-        )
-    # Check narrative separately; changing only the badge cannot pass.
-    narrative = FIELD.sub(
-        lambda match: (
-            ""
-            if match.group(1) in {"Reporting", "CVE IDs", "Exploitation Status"}
-            else match.group(2)
-        ),
-        body,
-    )
-    if status not in {"active", "observed"}:
-        nonconfirmed.append((title, cves))
-        if _positive_claim(title + "\n\n" + narrative):
-            raise EvidenceError(
-                f"{title}: unsupported exploitation claim in prose",
-                code="unsupported_finding_exploitation_claim",
-                field="prose",
-                expected=False,
-                observed=True,
-            )
-    if assessment.negative and not NEGATIVE.search(narrative):
-        raise EvidenceError(
-            f"{title}: prose omits negative exploitation evidence",
-            code="missing_negative_exploitation_evidence",
-            field="prose",
-            expected=True,
-            observed=False,
-        )
-    if assessment.conflicting and not re.search(r"\bconflict\w*\b", narrative, re.I):
-        raise EvidenceError(
-            f"{title}: prose must disclose conflicting exploitation evidence",
-            code="missing_conflicting_exploitation_evidence",
-            field="prose",
-            expected=True,
-            observed=False,
-        )
-    if (
-        fields.get("Action") in {"patch", "mitigate"}
-        and fields.get("Recommended Actions") == ABSENT
-    ):
-        raise EvidenceError(
-            f"{title}: action badge omits a supported recommendation",
-            code="action_without_recommendation",
-            field="Action",
-            expected=True,
-            observed=False,
-        )
+@dataclass(frozen=True)
+class FindingDetails:
+    """One source interpretation shared by generation and publication."""
+
+    spans: tuple[DetailSpan, ...]
+    scoped: str
+    field_evidence: Mapping[str, str]
+    version_lines: tuple[str, ...]
+    excluded_version_lines: tuple[str, ...]
+    known_version_list: bool
+
+
+def collect_finding_details(
+    sources: Sequence[ReportingSource], cves: Sequence[str]
+) -> FindingDetails:
+    """Collect complete source constraints; ambiguous source grammar still raises."""
     detail_spans = [
-        span for source in relevant for span in _scoped_detail_spans(source, cves)
+        span for source in sources for span in _scoped_detail_spans(source, cves)
     ]
     # Headings guide parsing, but only body text can ground a detail value.
     scoped = "\n".join(span.text for span in detail_spans if span.role == "body")
@@ -1431,12 +1310,7 @@ def _validate_finding(
             list_state = "active"
             if span.role == "heading":
                 continue
-            remainder = re.sub(
-                r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
-                "",
-                line[cue.end :] if cue else line,
-                flags=re.I,
-            ).rstrip(". ")
+            remainder = _version_remainder(line, cue) if cue else line.rstrip(". ")
             included, excluded = _version_constraints(remainder)
             excluded_version_lines.extend(excluded)
             version_lines.extend(
@@ -1476,6 +1350,188 @@ def _validate_finding(
             else:
                 list_state = "none"
                 range_target = None
+    return FindingDetails(
+        tuple(detail_spans),
+        scoped,
+        field_evidence,
+        tuple(version_lines),
+        tuple(excluded_version_lines),
+        known_version_list,
+    )
+
+
+def _validate_finding(
+    finding: re.Match[str],
+    catalog: Mapping[str, ReportingSource],
+    nonconfirmed: list[tuple[str, list[str], str]],
+) -> None:
+    title = finding.group("heading").removeprefix("###").strip()
+    body = finding.group("body")
+    pairs = FIELD.findall(body)
+    fields = dict(pairs)
+    if len(pairs) != len(fields):
+        raise EvidenceError(
+            f"{title}: duplicate finding field",
+            code="duplicate_finding_field",
+            expected=len(fields),
+            observed=len(pairs),
+        )
+    keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
+    if not keys or any(key not in catalog for key in keys):
+        raise EvidenceError(
+            f"{title}: missing retained source evidence",
+            code="missing_retained_source_evidence",
+            field="Reporting",
+            expected=True,
+            observed=False,
+        )
+    sources = [catalog[key] for key in keys]
+    if any(not source.content.strip() for source in sources):
+        raise EvidenceError(
+            f"{title}: missing retained source content",
+            code="missing_retained_source_content",
+            field="Reporting",
+            expected=True,
+            observed=False,
+        )
+    cves = extract_cve_ids(fields.get("CVE IDs", "") + " " + title)
+    # Assess every supplied source naming this CVE, even when the model
+    # omits that source from its chosen citations.
+    relevant = list(sources)
+    relevant.extend(
+        source
+        for source in catalog.values()
+        if source not in relevant and set(cves) & set(extract_cve_ids(source.content))
+    )
+    assessment = assess_exploitation(relevant, cves)
+    status = fields.get("Exploitation Status", "")
+    allowed = {assessment.status}
+    if assessment.status == "active":
+        allowed.add("observed")
+    if status not in allowed:
+        raise EvidenceError(
+            f"{title}: unsupported exploitation status {status!r}; source evidence is {assessment.status}",
+            code="unsupported_exploitation_status",
+            field="Exploitation Status",
+            expected=assessment.status,
+            observed=status or "missing",
+        )
+    if assessment.unsupported:
+        raise EvidenceError(
+            "Selected finding requires an unsupported assertion relation",
+            code="unsupported_evidence_relation",
+            field="Exploitation Status",
+        )
+    # Conflicts and independent clauses in shared sentences need their whole
+    # attributed context. Exact source/context equality is checked before this
+    # field is separated from the report's own narrative claims. Legacy simple
+    # findings remain readable; newly compiled records always carry this field.
+    context_required = assessment.conflicting or any(
+        set(extract_cve_ids(clause.source_text)) - set(cves)
+        for clause in assessment.relations
+    )
+    if "Source Evidence" in fields:
+        expected_context = source_evidence_text(relevant, cves)
+        if not expected_context or fields.get("Source Evidence") != expected_context:
+            raise EvidenceError(
+                "Finding must retain complete attributed source evidence",
+                code="incomplete_source_evidence",
+                field="Source Evidence",
+                expected=True,
+                observed=False,
+            )
+    # Check narrative separately; changing only the badge cannot pass.
+    narrative = FIELD.sub(
+        lambda match: (
+            ""
+            if match.group(1)
+            in {"Reporting", "CVE IDs", "Exploitation Status", "Source Evidence"}
+            else "\n\n" + match.group(2) + "\n\n"
+        ),
+        body,
+    )
+    if not cves and extract_cve_ids(narrative):
+        raise EvidenceError(
+            "Source-only narrative cannot introduce a CVE-owned claim",
+            code="ambiguous_source_scope",
+            field="prose",
+        )
+    if any(
+        statement.unsupported
+        for statement in _rendered_statements(title + "\n\n" + narrative)
+    ):
+        raise EvidenceError(
+            "Unsupported rendered exploitation claim relation",
+            code="unsupported_evidence_relation",
+            field="prose",
+        )
+    if assessment.status != "active":
+        nonconfirmed.append((title, cves, assessment.status))
+    if assessment.status == "observed" and any(
+        statement.status == "active"
+        for statement in _rendered_statements(title + "\n\n" + narrative)
+    ):
+        raise EvidenceError(
+            f"{title}: historical observation does not establish current exploitation",
+            code="unsupported_current_exploitation_claim",
+            field="prose",
+            expected="observed",
+            observed="active",
+        )
+    if status not in {"active", "observed"}:
+        if _positive_claim(title + "\n\n" + narrative):
+            raise EvidenceError(
+                f"{title}: unsupported exploitation claim in prose",
+                code="unsupported_finding_exploitation_claim",
+                field="prose",
+                expected=False,
+                observed=True,
+            )
+    if assessment.negative and not any(
+        statement.status == "not_observed"
+        for statement in _rendered_statements(narrative)
+    ):
+        raise EvidenceError(
+            f"{title}: prose omits negative exploitation evidence",
+            code="missing_negative_exploitation_evidence",
+            field="prose",
+            expected=True,
+            observed=False,
+        )
+    if assessment.conflicting and not re.search(r"\bconflict\w*\b", narrative, re.I):
+        raise EvidenceError(
+            f"{title}: prose must disclose conflicting exploitation evidence",
+            code="missing_conflicting_exploitation_evidence",
+            field="prose",
+            expected=True,
+            observed=False,
+        )
+    if context_required and "Source Evidence" not in fields:
+        raise EvidenceError(
+            "Finding must retain complete attributed source evidence",
+            code="incomplete_source_evidence",
+            field="Source Evidence",
+            expected=True,
+            observed=False,
+        )
+    if (
+        fields.get("Action") in {"patch", "mitigate"}
+        and fields.get("Recommended Actions") == ABSENT
+    ):
+        raise EvidenceError(
+            f"{title}: action badge omits a supported recommendation",
+            code="action_without_recommendation",
+            field="Action",
+            expected=True,
+            observed=False,
+        )
+    details = collect_finding_details(relevant, cves)
+    detail_spans = details.spans
+    scoped = details.scoped
+    field_evidence = details.field_evidence
+    version_lines = details.version_lines
+    excluded_version_lines = details.excluded_version_lines
+    known_version_list = details.known_version_list
     reported_versions = {
         _plain(entry)
         for entry in _version_entries(fields.get("Affected Versions", ""))
@@ -1567,7 +1623,7 @@ def _validate_finding(
             _validate_recommendation_statements(value, detail_spans)
         elif name == "Exceptions":
             for entry in entries:
-                roles = _detail_roles(entry)
+                roles = detail_statement_roles(entry)
                 parsed_exclusion = any(
                     _plain(entry) == _plain(item) for item in excluded_version_lines
                 )
@@ -1617,6 +1673,28 @@ def _validate_finding(
                 observed=False,
             )
 
+    # Preserve the existing complete-detail/version gate before interpreting
+    # directives. Unsupported semantics cannot mask a missing source qualifier,
+    # and remain a publication blocker after exact-source grounding succeeds.
+    for span in detail_spans:
+        if span.role != "body" or "Recommended Actions" not in span.fields:
+            continue
+        for parsed in _recommendation_directives(span.source_block or span.text):
+            if isinstance(parsed, RecommendationDirective) and any(
+                clause.unsupported for clause in parsed.clauses
+            ):
+                raise EvidenceError(
+                    "Selected finding requires an unsupported directive relation",
+                    code="unsupported_evidence_relation",
+                    field="Recommended Actions",
+                )
+    if not cves and any(_has_cve_identity(source) for source in sources):
+        raise EvidenceError(
+            "A CVE-owned source cannot replace a source-only finding owner",
+            code="ambiguous_source_scope",
+            field="Reporting",
+        )
+
 
 def validate_finding_evidence(
     report: str, catalog: Mapping[str, ReportingSource]
@@ -1630,9 +1708,8 @@ def validate_finding_evidence(
             observed=False,
         )
     nonconfirmed = []
-    for index, finding in enumerate(
-        FINDING_PATTERN.finditer(section.group("section")), start=1
-    ):
+    findings = list(FINDING_PATTERN.finditer(section.group("section")))
+    for index, finding in enumerate(findings, start=1):
         try:
             _validate_finding(finding, catalog, nonconfirmed)
         except EvidenceError as exc:
@@ -1654,12 +1731,51 @@ def validate_finding_evidence(
     # Require explicit CVEs for confirmed claims outside finding bodies whenever
     # the report contains mixed evidence states.
     outside = report[: section.start()] + report[section.end() :]
+    # Source-only findings have no CVE label for cross-finding prose. Their
+    # explicit heading reference binds a summary/rollup row to the same complete
+    # finding validation, rather than treating an empty CVE set as a wildcard.
+    source_findings: dict[str, list[re.Match[str]]] = {}
+    for finding in findings:
+        fields = dict(FIELD.findall(finding.group("body")))
+        title = finding.group("heading").removeprefix("###").strip()
+        if not extract_cve_ids(title + " " + fields.get("CVE IDs", "")):
+            source_findings.setdefault(title, []).append(finding)
+
+    def validate_owned_row(match: re.Match[str]) -> str:
+        owners = source_findings.get(match[1], [])
+        if not owners:
+            return match[0]
+        if len(owners) != 1:
+            raise EvidenceError(
+                "Ambiguous source finding reference", code="ambiguous_source_scope"
+            )
+        augmented = FINDING_PATTERN.search(
+            owners[0].group().rstrip() + "\n- **Summary Context**: " + match[2] + "\n"
+        )
+        assert augmented is not None
+        _validate_finding(augmented, catalog, [])
+        return ""
+
+    outside = re.sub(
+        r"^- \*\*([^\n]+)\*\*: ([^\n]+)$", validate_owned_row, outside, flags=re.M
+    )
     for statement in _rendered_statements(outside):
-        if statement.status != "active":
+        if statement.unsupported:
+            raise EvidenceError(
+                "Unsupported exploitation claim relation in summary or cross-finding prose",
+                code="unsupported_evidence_relation",
+                field="summary",
+            )
+        if statement.status not in {"active", "observed"}:
             continue
         mentioned = set(statement.cves)
-        if nonconfirmed and (
-            not mentioned or any(mentioned & set(cves) for _, cves in nonconfirmed)
+        constrained = [
+            cves
+            for _, cves, status in nonconfirmed
+            if statement.status == "active" or status != "observed"
+        ]
+        if constrained and (
+            not mentioned or any(mentioned & set(cves) for cves in constrained)
         ):
             raise EvidenceError(
                 "Unsupported exploitation claim in summary or cross-finding prose",

@@ -2,13 +2,33 @@ import pytest
 
 from src.core.finding_evidence import (
     EvidenceError,
+    _validate_recommendation_statements,
     assess_exploitation,
+    collect_finding_details,
+    recommendation_action,
     validate_finding_evidence,
 )
 from src.core.reporting import build_reporting_catalog, reporting_key
 
 CVE = "CVE-2026-1234"
 URL = "https://example.test/advisory"
+
+
+def assert_unsupported_complete_guidance(text, catalog, guidance):
+    """Keep exact-source safety separate from unsupported semantic publication."""
+    details = collect_finding_details(list(catalog.values()), [CVE])
+    _validate_recommendation_statements(guidance, details.spans)
+    blocks = tuple(
+        dict.fromkeys(
+            span.source_block or span.text
+            for span in details.spans
+            if span.role == "body" and "Recommended Actions" in span.fields
+        )
+    )
+    assert recommendation_action(blocks) == "none"
+    with pytest.raises(EvidenceError) as error:
+        validate_finding_evidence(text, catalog)
+    assert error.value.code == "unsupported_evidence_relation"
 
 
 def article(content, **extra):
@@ -1417,9 +1437,11 @@ def test_exception_and_action_roles_cannot_be_swapped(layout):
         validate_finding_evidence(
             report(**{"Exceptions": action, "Recommended Actions": exception}), catalog
         )
-    validate_finding_evidence(
-        report(**{"Exceptions": exception, "Recommended Actions": action}), catalog
-    )
+    complete = report(**{"Exceptions": exception, "Recommended Actions": action})
+    if layout == "combined":
+        assert_unsupported_complete_guidance(complete, catalog, action)
+    else:
+        validate_finding_evidence(complete, catalog)
 
 
 @pytest.mark.parametrize(
@@ -1495,7 +1517,18 @@ def test_recommendation_cannot_discard_source_prohibition(prohibition, fragment)
     catalog = build_reporting_catalog([source])
     with pytest.raises(EvidenceError, match="source-supported|prohibition"):
         validate_finding_evidence(report(**{"Recommended Actions": fragment}), catalog)
-    validate_finding_evidence(report(**{"Recommended Actions": prohibition}), catalog)
+    complete = report(**{"Recommended Actions": prohibition})
+    if prohibition in {
+        "Do not install the update on hosted systems.",
+        "Customers should not apply the patch on hosted systems.",
+        "Don't install the update on hosted systems.",
+        "Avoid the unstable release and do not install the update.",
+        "There is no need to install the update on hosted systems.",
+        "The vendor does not recommend that you install the update.",
+    }:
+        assert_unsupported_complete_guidance(complete, catalog, prohibition)
+    else:
+        validate_finding_evidence(complete, catalog)
 
 
 def test_positive_source_cannot_hide_another_sources_action_prohibition():
@@ -1510,13 +1543,14 @@ def test_positive_source_cannot_hide_another_sources_action_prohibition():
     catalog = build_reporting_catalog([positive, negative])
     with pytest.raises(EvidenceError, match="prohibition"):
         validate_finding_evidence(report(), catalog)
-    validate_finding_evidence(
+    assert_unsupported_complete_guidance(
         report(
             **{
                 "Recommended Actions": "Install the update.; Do not install the update on hosted systems."
             }
         ),
         catalog,
+        "Install the update.; Do not install the update on hosted systems.",
     )
 
 
@@ -1539,7 +1573,9 @@ def test_recommendations_preserve_complete_source_statements(statement):
         validate_finding_evidence(
             report(**{"Recommended Actions": "install the update"}), catalog
         )
-    validate_finding_evidence(report(**{"Recommended Actions": statement}), catalog)
+    assert_unsupported_complete_guidance(
+        report(**{"Recommended Actions": statement}), catalog, statement
+    )
 
 
 def test_source_statement_semicolons_remain_inside_the_recommendation():
@@ -1656,9 +1692,9 @@ def test_wrapped_recommendations_preserve_logical_paragraph_or_list_item(
     catalog = build_reporting_catalog([source])
     with pytest.raises(EvidenceError, match="source-supported|complete"):
         validate_finding_evidence(report(**{"Recommended Actions": fragment}), catalog)
-    validate_finding_evidence(
-        report(**{"Recommended Actions": " ".join(wrapped.split())}), catalog
-    )
+    complete = " ".join(wrapped.split())
+    text = report(**{"Recommended Actions": complete})
+    assert_unsupported_complete_guidance(text, catalog, complete)
 
 
 def test_recommendation_cue_can_cross_a_wrapped_line_boundary():
@@ -1687,13 +1723,14 @@ def test_html_line_break_cannot_truncate_a_recommendation_paragraph():
         validate_finding_evidence(
             report(**{"Recommended Actions": "U.S. customers should install"}), catalog
         )
-    validate_finding_evidence(
+    assert_unsupported_complete_guidance(
         report(
             **{
                 "Recommended Actions": "U.S. customers should install the update immediately."
             }
         ),
         catalog,
+        "U.S. customers should install the update immediately.",
     )
 
 
@@ -1739,7 +1776,9 @@ def test_nested_html_recommendations_keep_outer_item_qualifications(nested, comp
             report(**{"Recommended Actions": "install the update on hosted systems"}),
             catalog,
         )
-    validate_finding_evidence(report(**{"Recommended Actions": complete}), catalog)
+    assert_unsupported_complete_guidance(
+        report(**{"Recommended Actions": complete}), catalog, complete
+    )
 
 
 @pytest.mark.parametrize(
@@ -1824,7 +1863,9 @@ def test_html_list_item_breaks_keep_version_entries_and_recommendation_owner(bre
         "Affected Versions": "Example Server 2.3; Example Server 2.4",
         "Recommended Actions": "Do not: install the update on hosted systems.",
     }
-    validate_finding_evidence(report(**values), catalog)
+    assert_unsupported_complete_guidance(
+        report(**values), catalog, values["Recommended Actions"]
+    )
     for omitted in ["Example Server 2.3", "Example Server 2.4"]:
         with pytest.raises(EvidenceError, match="omits"):
             validate_finding_evidence(
@@ -1940,15 +1981,16 @@ def test_advice_after_release_rows_does_not_add_its_target_update(wrap, audience
     )
     catalog = build_reporting_catalog([source])
     actions = f"{first} {second} {audience} should install {target}."
-    validate_finding_evidence(
-        report(
-            **{
-                "Affected Versions": f"{first}; {second}",
-                "Recommended Actions": actions,
-            }
-        ),
-        catalog,
+    complete = report(
+        **{
+            "Affected Versions": f"{first}; {second}",
+            "Recommended Actions": actions,
+        }
     )
+    if audience == "Customers of Example Server 2.3":
+        assert_unsupported_complete_guidance(complete, catalog, actions)
+    else:
+        validate_finding_evidence(complete, catalog)
     with pytest.raises(EvidenceError, match="unsupported affected-version"):
         validate_finding_evidence(
             report(

@@ -57,7 +57,7 @@ BADGE_LABELS = {
         "mitigate": "Mitigate",
         "investigate": "Investigate",
         "monitor": "Monitor",
-        "none": "No action listed",
+        "none": "Action not classified",
     },
 }
 

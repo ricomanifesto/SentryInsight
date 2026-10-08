@@ -1,4 +1,5 @@
 import logging
+from dataclasses import asdict
 from typing import List, Dict, Any
 import httpx
 import feedparser
@@ -124,6 +125,7 @@ class SentryDigestFeedClient:
 
             article["content_kind"] = "feed"
             article["source_links"] = []
+            article["source_link_contexts"] = []
             article_link = article.get("link", "")
             if not article_link:
                 article["content"] = full_content
@@ -146,6 +148,9 @@ class SentryDigestFeedClient:
                             "article" if extracted.text else "feed"
                         )
                         article["source_links"] = list(extracted.links)
+                        article["source_link_contexts"] = [
+                            asdict(item) for item in extracted.link_contexts
+                        ]
                     else:
                         # Use what we have if we can't fetch the full article
                         logger.warning(

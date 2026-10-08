@@ -35,16 +35,25 @@ class _Document:
 
 
 @dataclass(frozen=True)
+class ArticleLink:
+    url: str
+    label: str
+    context: str
+
+
+@dataclass(frozen=True)
 class ArticleContent:
     text: str
     links: tuple[str, ...] = ()
+    link_contexts: tuple[ArticleLink, ...] = ()
 
 
-def _extract(node: _Node, url: str) -> ArticleContent:
+def _extract(node: _Node, url: str, *, collect_links: bool = True) -> ArticleContent:
     chunks: list[str] = []
     links: list[str] = []
+    link_contexts: list[ArticleLink] = []
 
-    def visit(item, list_depth=0):
+    def visit(item, list_depth=0, context=None):
         if isinstance(item, str):
             chunks.append(re.sub(r"\s+", " ", item))
             return
@@ -95,7 +104,9 @@ def _extract(node: _Node, url: str) -> ArticleContent:
             chunks.append(separator)
         if not list_depth and item.tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
             chunks.append("#" * int(item.tag[1]) + " ")
-        if item.tag == "a":
+        if item.tag in {"p", "li", "tr"} and not list_depth:
+            context = item
+        if item.tag == "a" and collect_links:
             target = urljoin(url, item.attrs.get("href", ""))
             parsed = urlsplit(target)
             if (
@@ -105,6 +116,14 @@ def _extract(node: _Node, url: str) -> ArticleContent:
                 and not parsed.password
             ):
                 links.append(target)
+                if context is not None:
+                    link_contexts.append(
+                        ArticleLink(
+                            target,
+                            _extract(item, url, collect_links=False).text,
+                            _extract(context, url, collect_links=False).text,
+                        )
+                    )
         child_depth = list_depth + (item.tag == "li")
         seen_item = False
         for child in item.children:
@@ -121,7 +140,7 @@ def _extract(node: _Node, url: str) -> ArticleContent:
                         chunks[-1] = chunks[-1].rstrip()
                     chunks.append("; ")
                 seen_item = True
-            visit(child, child_depth)
+            visit(child, child_depth, context)
         if block:
             chunks.append(separator)
 
@@ -131,7 +150,9 @@ def _extract(node: _Node, url: str) -> ArticleContent:
         for part in re.split(r"\n[ \t]*\n", "".join(chunks))
         if part.strip()
     )
-    return ArticleContent(text, tuple(dict.fromkeys(links)))
+    return ArticleContent(
+        text, tuple(dict.fromkeys(links)), tuple(dict.fromkeys(link_contexts))
+    )
 
 
 def extract_article_content(html: str, url: str) -> ArticleContent:
