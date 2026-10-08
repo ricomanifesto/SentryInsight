@@ -152,9 +152,11 @@ def test_actions_follow_singleton_and_shared_cve_ownership():
         ("Users should monitor logs and install the update only if exposed.", "none"),
         ("Users should monitor logs or install the update.", "none"),
         ("Monitor logs and consider installing an update.", "none"),
+        ("Users deny that they should install the patch.", "none"),
+        ("Users are unsure whether they should install the patch.", "none"),
     ],
 )
-def test_real_pipeline_keeps_coordinated_guidance(
+def test_real_pipeline_keeps_qualified_and_coordinated_guidance(
     monkeypatch, tmp_path, advice, action
 ):
     result = run_real_pipeline(
@@ -189,6 +191,25 @@ def test_parsed_directive_retains_modality_polarity_conditions_and_coordination(
         ("install", "negative"),
     ]
     assert directive.conditions == ("until verification completes",)
+
+
+@pytest.mark.parametrize(
+    "advice",
+    [
+        "Users deny that they should install the patch.",
+        "Users are unsure whether they should install the patch.",
+        "Users say that operators should monitor logs.",
+        "Users wonder if they should apply the workaround.",
+        "Users question whether investigators are advised to review logs.",
+        "Users with an unclassified relation should install the patch.",
+    ],
+)
+def test_intervening_relations_cannot_establish_advice_ownership(advice):
+    for prefix in ("", "Users should install the patch. "):
+        source = prefix + advice
+        _, report = render(catalog_for(f"## {CVE}\n\n{source}"))
+        assert "**Action**: none" in report
+        assert f"**Recommended Actions**: {source}" in report
 
 
 @pytest.mark.parametrize(("directive", "action"), DIRECTIVES)

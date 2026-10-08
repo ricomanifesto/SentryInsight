@@ -24,17 +24,23 @@ class DirectiveClause:
 @dataclass(frozen=True)
 class RecommendationDirective:
     source_text: str
-    modality: Literal["advice", "imperative", "continuation"]
+    modality: Literal["advice", "imperative", "continuation", "unclassified"]
     clauses: tuple[DirectiveClause, ...]
     conditions: tuple[str, ...]
     ambiguous: bool = False
 
 
 AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
+ADVICE_MODAL = (
+    r"should|must|needs? to|(?:are|is) (?:not )?"
+    r"(?:advised|recommended|urged|encouraged) (?:not )?to"
+)
+ADVICE_AUDIENCE = (
+    rf"^(?:For {CVE_ID_PATTERN.pattern}(?: and {CVE_ID_PATTERN.pattern})*,\s*)?"
+    rf"(?:{AUDIENCE})\b"
+)
 ADVICE = re.compile(
-    rf"^(?:For [^,]+,\s*)?(?:{AUDIENCE})\b.*?\b"
-    r"(?P<modal>should|must|needs? to|(?:are|is) (?:not )?"
-    r"(?:advised|recommended|urged|encouraged) (?:not )?to)\s+(?P<body>.+)$",
+    rf"{ADVICE_AUDIENCE}\s+(?P<modal>{ADVICE_MODAL})\s+(?P<body>.+)$",
     re.I,
 )
 NEGATION = re.compile(r"\b(?:not|never|no|neither|nor|don't)\b", re.I)
@@ -150,6 +156,14 @@ def parse_recommendation(text: str) -> RecommendationDirective | None:
             text, "continuation", (), conditions, bool(NEGATION.search(normalized))
         )
     advice = ADVICE.fullmatch(normalized)
+    if (
+        not advice
+        and re.match(ADVICE_AUDIENCE, normalized, re.I)
+        and re.search(rf"\b(?:{ADVICE_MODAL})\b", normalized, re.I)
+    ):
+        # A modal elsewhere in an audience-led sentence does not belong to
+        # that audience. Keep reported/unknown relations, never execute them.
+        return RecommendationDirective(text, "unclassified", (), conditions, True)
     modality: Literal["advice", "imperative"] = "advice" if advice else "imperative"
     body = advice["body"] if advice else normalized
     negative = bool(advice and NEGATION.search(advice["modal"]))
