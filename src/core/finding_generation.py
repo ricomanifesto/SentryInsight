@@ -16,6 +16,7 @@ from .finding_evidence import (
     detail_statement_roles,
     recommendation_action,
     source_assertions,
+    source_evidence_text,
     validate_finding_evidence,
 )
 from .reporting import ReportingSource
@@ -264,8 +265,13 @@ def _finding_scopes(
     for key, source in catalog.items():
         for clause in source_assertions(source):
             if clause.cves:
-                signatures.setdefault(tuple(sorted(clause.cves)), set()).add(
-                    (key, "Exploitation assertion", _one_line(clause.source_text))
+                scope = tuple(sorted(clause.cves))
+                signatures.setdefault(scope, set()).add(
+                    (
+                        key,
+                        f"Exploitation assertion for {','.join(scope)}",
+                        _one_line(clause.text),
+                    )
                 )
     cves = list(dict.fromkeys(cve for scope in signatures for cve in scope))
     groups = [{cve} for cve in cves]
@@ -296,6 +302,15 @@ def _finding_scopes(
 
     def eligible(scope, keys):
         if set(scope) & set(required_cves):
+            return True
+        # A paragraph may contain independent assertions for different CVEs.
+        # Their typed owners, not the paragraph's combined identity set,
+        # establish relevance. Genuinely joint owners were grouped above.
+        if any(
+            clause.cves and set(clause.cves) <= set(scope) and is_relevant(clause.text)
+            for key in keys
+            for clause in source_assertions(catalog[key])
+        ):
             return True
         texts = [
             span["text"]
@@ -378,6 +393,8 @@ def compile_finding_records(
             ("Exploitation Status", assessment.status),
             ("Action", recommendation_action(recommendation_blocks)),
         ]
+        if context := source_evidence_text(sources, cves):
+            fields.append(("Source Evidence", context))
         if dict(fields)["Severity"] == "unknown":
             fields.append(
                 (
@@ -447,8 +464,9 @@ def compile_finding_records(
                     "unsupported_current_exploitation_claim",
                 }:
                     raise
-                # The assessment retains the contrary evidence. An affirmative
-                # quote cannot become a new assertion under an unknown badge.
+                # Complete context is mandatory in Source Evidence. Optional
+                # narrative excerpts cannot promote its quoted clauses to a
+                # report-level assertion under a different aggregate state.
                 continue
             excerpt_key = f"{key}e{len(excerpts) + 1}"
             excerpts.append(SourceExcerpt(excerpt_key, text, _excerpt_roles(text)))

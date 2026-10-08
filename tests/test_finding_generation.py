@@ -90,7 +90,13 @@ def test_conflicting_sources_keep_negative_evidence_and_disclosure():
     assert "**Exploitation Status**: unknown" in report
     assert "conflicting" in report
     assert "not been observed" in report
-    assert f"{CVE} is actively exploited." not in report
+    evidence = next(
+        line for line in report.splitlines() if "**Source Evidence**:" in line
+    )
+    assert f"{CVE} is actively exploited." in evidence
+    assert f"{CVE} exploitation has not been observed." in evidence
+    # Complete attributed source context is distinct from an aggregate claim.
+    assert f"{CVE} is actively exploited." not in report.replace(evidence, "")
 
 
 def test_mixed_joint_scope_keeps_negative_evidence_without_inventing_conflict():

@@ -48,6 +48,32 @@ FINITE_PREDICATE_HEADS = frozenset(
         "would",
     }
 )
+# Complete auxiliary productions have explicit semantics. Perfect evidence
+# without an owned qualification is deliberately unresolved; unknown chains
+# never acquire a state from an incidental auxiliary elsewhere in the prefix.
+AUXILIARY_STATES = {
+    **{(word,): "current" for word in ("is", "are")},
+    **{(word, "being"): "current" for word in ("is", "are")},
+    **{(word,): "past" for word in ("was", "were")},
+    **{(word, "being"): "past" for word in ("was", "were")},
+    ("had", "been"): "past",
+    ("has", "been"): "unspecified",
+    ("have", "been"): "unspecified",
+    **{
+        (word, *tail): "possible"
+        for word in ("may", "might", "could", "would")
+        for tail in ((), ("be",), ("have", "been"))
+    },
+    **{
+        (word, "known", "to", "be"): state
+        for word, state in (
+            ("is", "current"),
+            ("are", "current"),
+            ("was", "past"),
+            ("were", "past"),
+        )
+    },
+}
 PARTICIPIAL_PREDICATE_HEADS = frozenset(
     {
         "exploited",
@@ -201,31 +227,33 @@ def _prefix(text):
     return text, modal, negative
 
 
-def _intrusion(text):
-    """Two closed historical frames, expressed using the same owned relation."""
-    cves = tuple(extract_cve_ids(text))
-    if len(cves) != 1:
-        return None
-    cve = re.escape(cves[0])
-    access = re.search(
-        rf"\b(?:gained|obtained) access\b[^.!?;]*?\bby exploiting (?:a |the )?(?:vulnerability|flaw|bug)\s*\(?{cve}\)?",
-        text,
+INTRUSION_FRAMES = (
+    re.compile(
+        r"\b(?:gained|obtained) access\b[^.!?;]*?\bby exploiting (?:a |the )?"
+        r"(?:vulnerability|flaw|bug)\s*\(?(?P<cve>CVE-\d{4}-\d{4,})\)?",
         re.I,
-    )
-    relative = re.search(
-        rf"{cve}\s*,\s*which\s+(?P<subject>[^.!?;]*?)\bbegan exploiting\b"
+    ),
+    re.compile(
+        r"(?P<cve>CVE-\d{4}-\d{4,})\s*,\s*which\s+(?P<subject>[^.!?;]*?)\bbegan exploiting\b"
         r"(?=\s*(?:[,.!?;]|$)|\s+(?:as|in|on|during|before|after)\b)",
-        text,
         re.I,
-    )
-    if not access and not relative:
+    ),
+)
+
+
+def _intrusion_frames(text):
+    return [match for frame in INTRUSION_FRAMES for match in frame.finditer(text)]
+
+
+def _intrusion(text):
+    """Consume one closed historical frame and its non-predicate context."""
+    frames = _intrusion_frames(text)
+    if not frames:
         return None
-    if access:
-        prefix = text[: access.start()]
-    elif relative:
-        prefix = relative["subject"]
-    else:
-        return None
+    frame = frames[0]
+    prefix = frame.groupdict().get("subject") or text[: frame.start()]
+    suffix = text[frame.end() :].strip(" ,")
+    cves = tuple(extract_cve_ids(text))
     # The prefix governs this event; the suffix remains separately attributed
     # context. These productions cannot create an ongoing-activity predicate.
     qualifier = re.search(
@@ -253,6 +281,10 @@ def _intrusion(text):
         modal=modal,
         polarity="negative" if qualifier and qualifier["negative"] else "affirmative",
         conditions=conditions,
+        unsupported=len(frames) != 1
+        or len(cves) != 1
+        or bool(TOPIC.search(prefix) or TOPIC.search(suffix))
+        or not _tail(suffix),
     )
 
 
@@ -277,6 +309,8 @@ def _tail(text):
 
 def _unit(raw):
     core, reporting = _reporting(raw)
+    if intrusion := _intrusion(core):
+        return replace(intrusion, text=raw, reporting=reporting)
     label = re.match(r"^([^:]+):\s*", core)
     if label and not TOPIC.search(label[1]):
         core = core[label.end() :]
@@ -381,6 +415,7 @@ def _unit(raw):
         )
     words = body.strip(" .!?").split()
     tense, finite, correlative = "unspecified", False, None
+    auxiliaries = []
     modifiers = PREDICATE_MODIFIERS | {
         "be",
         "been",
@@ -406,6 +441,8 @@ def _unit(raw):
     }
     while words and words[0].lower() in modifiers:
         word = words.pop(0).lower()
+        if word in FINITE_PREDICATE_HEADS | {"be", "been", "being", "known", "to"}:
+            auxiliaries.append(word)
         if (
             word == "not"
             and words
@@ -419,10 +456,11 @@ def _unit(raw):
             modal = modal or "possible"
         if word in FINITE_PREDICATE_HEADS:
             finite = True
-            if word in {"was", "were", "had"}:
-                tense = "past"
-            elif word in {"is", "are"}:
-                tense = "current"
+    auxiliary_state = AUXILIARY_STATES.get(tuple(auxiliaries))
+    if auxiliary_state == "possible":
+        modal = modal or "possible"
+    elif auxiliary_state:
+        tense = auxiliary_state
     verb = words.pop(0).lower() if words else ""
     argument = " ".join(words)
     if actor:
@@ -437,6 +475,14 @@ def _unit(raw):
             argument = argument[target.end() :]
         if verb == "exploited" and not finite:
             tense = "past"
+        elif verb == "exploit" and not auxiliaries:
+            tense = "current"
+    if (
+        not auxiliaries
+        and verb == "weaponized"
+        and re.fullmatch(r"in (?:the wild|attacks)", argument, re.I)
+    ):
+        tense = "current"
     known = verb in {"exploit", "exploited", "exploiting", "weaponized"}
     context = verb in {
         "affected",
@@ -461,7 +507,8 @@ def _unit(raw):
         tense=tense,
         conditions=conditions,
         object_text=argument,
-        unsupported=(known and not _tail(argument))
+        unsupported=(known and bool(auxiliaries) and auxiliary_state is None)
+        or (known and not _tail(argument))
         or (not known and not context and bool(TOPIC.search(core))),
         finite=finite,
         correlative=correlative,
@@ -470,16 +517,25 @@ def _unit(raw):
 
 def parse_assertions(sentence):
     """Resolve coordination using each parsed relation's owned qualifiers once."""
-    if intrusion := _intrusion(sentence):
-        return [intrusion]
     identities = [(m.start(), m.end()) for m in re.finditer(CVE_LIST, sentence, re.I)]
+    frames = _intrusion_frames(sentence)
+    # Object conjunctions and the relative subject belong to these exact
+    # productions. Coordinated predicates outside them use the ordinary owner.
+    protected = identities + [(frame.start(), frame.end()) for frame in frames]
     parts = []
     start = 0
     for boundary in BOUNDARY.finditer(sentence):
         if any(
             left <= boundary.start() and boundary.end() <= right
-            for left, right in identities
+            for left, right in protected
         ):
+            continue
+        if (
+            boundary.group() == ","
+            and any(frame.end() <= boundary.start() for frame in frames)
+            and re.match(r"\s*(?:if|unless)\b", sentence[boundary.end() :], re.I)
+        ):
+            # A trailing condition qualifies the frame, not a new assertion.
             continue
         parts.extend((sentence[start : boundary.start()], boundary.group()))
         start = boundary.end()
@@ -530,6 +586,15 @@ def parse_assertions(sentence):
             modal=modal,
             polarity="negative" if negative else "affirmative",
         )
+        if (
+            inherited_subject
+            and not clause.finite
+            and clause.tense == "unspecified"
+            and previous.tense in {"current", "past"}
+        ):
+            clause = replace(clause, tense=previous.tense)
+        if clause.kind == "assertion" and clause.assertion_status is None:
+            clause = replace(clause, unsupported=True)
         if clause.correlative is not None:
             groups.append(
                 (

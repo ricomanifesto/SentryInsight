@@ -20,6 +20,8 @@ from .assertions import FINITE_PREDICATE_HEADS, parse_assertions
 from .relations import OwnedClause
 from .recommendations import (
     RecommendationBlock,
+    RecommendationContext,
+    RecommendationDirective,
     directive_units,
     parse_recommendation,
     project_recommendation_action,
@@ -59,7 +61,13 @@ def detail_statement_roles(text: str, context: str = "") -> tuple[str, ...]:
             or _cumulative_version_list(text, context)
             if name == "Affected Versions"
             else re.search(cue, text, re.I)
-            or (name == "Recommended Actions" and any(_recommendation_directives(text)))
+            or (
+                name == "Recommended Actions"
+                and any(
+                    isinstance(item, RecommendationDirective)
+                    for item in _recommendation_directives(text)
+                )
+            )
         )
     )
 
@@ -139,6 +147,28 @@ def source_assertions(source: Any) -> tuple[OwnedClause, ...]:
                 )
             result.append(replace(clause, source_text=sentence))
     return tuple(result)
+
+
+def source_evidence_text(
+    sources: Sequence[ReportingSource], cves: Sequence[str]
+) -> str:
+    """Complete attributed context for owned assertions, not an aggregate claim.
+
+    Keep whole source sentences even when their other clauses have different
+    owners or conflicting states. The same typed relations used by assessment
+    determine membership; presentation cannot select away contrary evidence.
+    """
+    wanted = set(cves)
+    entries = []
+    for source in sources:
+        sentences = dict.fromkeys(
+            " ".join(clause.source_text.split())
+            for clause in source_assertions(source)
+            if wanted & set(clause.cves)
+        )
+        for sentence in sentences:
+            entries.append(f"[Source](<{source.url}>): “{sentence}”")
+    return " ".join(entries)
 
 
 @dataclass(frozen=True)
@@ -450,6 +480,7 @@ def grounding_failure_diagnostic(
                 *DETAIL_FIELDS,
                 "Exploitation Status",
                 "Reporting",
+                "Source Evidence",
                 "Action",
                 "prose",
                 "summary",
@@ -653,6 +684,21 @@ def _version_argument_identity(text: str) -> tuple[str, ...] | None:
     return None
 
 
+def _owned_recommendation(unit: str):
+    parsed = parse_recommendation(unit, version_identity=_version_argument_identity)
+    if parsed is not None:
+        return parsed
+    if re.search(DETAIL_CUES["Recommended Actions"], unit, re.I):
+        return RecommendationDirective(
+            unit,
+            "unclassified",
+            (OwnedClause(text=unit, kind="directive", unsupported=True),),
+            (),
+            True,
+        )
+    return RecommendationContext(unit, "narrative")
+
+
 def _recommendation_directives(block: str):
     """Keep version clauses and wrapped release arguments under their owner."""
     sentences = _sentences(block)
@@ -676,10 +722,8 @@ def _recommendation_directives(block: str):
                 # the directive owns only the preceding list introduction.
                 _version_constraints(remainder)
                 if cue_match.start():
-                    yield parse_recommendation(
-                        sentence[: cue.end], version_identity=_version_argument_identity
-                    )
-                yield None
+                    yield _owned_recommendation(sentence[: cue.end])
+                yield RecommendationContext(remainder, "version")
                 continue
         typed = (
             _version_clauses(sentence)
@@ -694,12 +738,10 @@ def _recommendation_directives(block: str):
                 "exception",
                 "information",
             }:
-                yield None
+                yield RecommendationContext(clause.text, "version")
                 continue
             for unit in directive_units(clause.text):
-                yield parse_recommendation(
-                    unit, version_identity=_version_argument_identity
-                )
+                yield _owned_recommendation(unit)
 
 
 @dataclass(frozen=True)
@@ -1348,11 +1390,30 @@ def _validate_finding(
             code="unsupported_evidence_relation",
             field="Exploitation Status",
         )
+    # Conflicts and independent clauses in shared sentences need their whole
+    # attributed context. Exact source/context equality is checked before this
+    # field is separated from the report's own narrative claims. Legacy simple
+    # findings remain readable; newly compiled records always carry this field.
+    context_required = assessment.conflicting or any(
+        set(extract_cve_ids(clause.source_text)) - set(cves)
+        for clause in assessment.relations
+    )
+    if "Source Evidence" in fields:
+        expected_context = source_evidence_text(relevant, cves)
+        if not expected_context or fields.get("Source Evidence") != expected_context:
+            raise EvidenceError(
+                "Finding must retain complete attributed source evidence",
+                code="incomplete_source_evidence",
+                field="Source Evidence",
+                expected=True,
+                observed=False,
+            )
     # Check narrative separately; changing only the badge cannot pass.
     narrative = FIELD.sub(
         lambda match: (
             ""
-            if match.group(1) in {"Reporting", "CVE IDs", "Exploitation Status"}
+            if match.group(1)
+            in {"Reporting", "CVE IDs", "Exploitation Status", "Source Evidence"}
             else "\n\n" + match.group(2) + "\n\n"
         ),
         body,
@@ -1404,6 +1465,14 @@ def _validate_finding(
             f"{title}: prose must disclose conflicting exploitation evidence",
             code="missing_conflicting_exploitation_evidence",
             field="prose",
+            expected=True,
+            observed=False,
+        )
+    if context_required and "Source Evidence" not in fields:
+        raise EvidenceError(
+            "Finding must retain complete attributed source evidence",
+            code="incomplete_source_evidence",
+            field="Source Evidence",
             expected=True,
             observed=False,
         )
@@ -1573,7 +1642,9 @@ def _validate_finding(
         if span.role != "body" or "Recommended Actions" not in span.fields:
             continue
         for parsed in _recommendation_directives(span.source_block or span.text):
-            if parsed and any(clause.unsupported for clause in parsed.clauses):
+            if isinstance(parsed, RecommendationDirective) and any(
+                clause.unsupported for clause in parsed.clauses
+            ):
                 raise EvidenceError(
                     "Selected finding requires an unsupported directive relation",
                     code="unsupported_evidence_relation",

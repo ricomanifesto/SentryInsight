@@ -34,13 +34,17 @@ class OwnedClause:
     coordination: str = "initial"
 
     @property
-    def status(self) -> str:
+    def assertion_status(self) -> str | None:
         if self.kind != "assertion" or self.unsupported:
-            return "unknown"
+            return None
         if self.modal == "unknown" or self.conditions:
             return "unknown"
         if self.polarity == "negative":
             return "not_observed"
         if self.modal == "possible":
             return "potential"
-        return "observed" if self.tense == "past" else "active"
+        return {"past": "observed", "current": "active"}.get(self.tense)
+
+    @property
+    def status(self) -> str:
+        return self.assertion_status or "unknown"

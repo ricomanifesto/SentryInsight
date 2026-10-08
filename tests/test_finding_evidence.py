@@ -1437,9 +1437,11 @@ def test_exception_and_action_roles_cannot_be_swapped(layout):
         validate_finding_evidence(
             report(**{"Exceptions": action, "Recommended Actions": exception}), catalog
         )
-    validate_finding_evidence(
-        report(**{"Exceptions": exception, "Recommended Actions": action}), catalog
-    )
+    complete = report(**{"Exceptions": exception, "Recommended Actions": action})
+    if layout == "combined":
+        assert_unsupported_complete_guidance(complete, catalog, action)
+    else:
+        validate_finding_evidence(complete, catalog)
 
 
 @pytest.mark.parametrize(
@@ -1519,8 +1521,10 @@ def test_recommendation_cannot_discard_source_prohibition(prohibition, fragment)
     if prohibition in {
         "Do not install the update on hosted systems.",
         "Customers should not apply the patch on hosted systems.",
-        "Never restart the service during recovery.",
         "Don't install the update on hosted systems.",
+        "Avoid the unstable release and do not install the update.",
+        "There is no need to install the update on hosted systems.",
+        "The vendor does not recommend that you install the update.",
     }:
         assert_unsupported_complete_guidance(complete, catalog, prohibition)
     else:
@@ -1569,7 +1573,9 @@ def test_recommendations_preserve_complete_source_statements(statement):
         validate_finding_evidence(
             report(**{"Recommended Actions": "install the update"}), catalog
         )
-    validate_finding_evidence(report(**{"Recommended Actions": statement}), catalog)
+    assert_unsupported_complete_guidance(
+        report(**{"Recommended Actions": statement}), catalog, statement
+    )
 
 
 def test_source_statement_semicolons_remain_inside_the_recommendation():
@@ -1688,13 +1694,7 @@ def test_wrapped_recommendations_preserve_logical_paragraph_or_list_item(
         validate_finding_evidence(report(**{"Recommended Actions": fragment}), catalog)
     complete = " ".join(wrapped.split())
     text = report(**{"Recommended Actions": complete})
-    if wrapped in {
-        "U.S. customers should install\nthe update immediately.",
-        "- U.S. customers should install\n  the update immediately.",
-    }:
-        assert_unsupported_complete_guidance(text, catalog, complete)
-    else:
-        validate_finding_evidence(text, catalog)
+    assert_unsupported_complete_guidance(text, catalog, complete)
 
 
 def test_recommendation_cue_can_cross_a_wrapped_line_boundary():
@@ -1776,7 +1776,9 @@ def test_nested_html_recommendations_keep_outer_item_qualifications(nested, comp
             report(**{"Recommended Actions": "install the update on hosted systems"}),
             catalog,
         )
-    validate_finding_evidence(report(**{"Recommended Actions": complete}), catalog)
+    assert_unsupported_complete_guidance(
+        report(**{"Recommended Actions": complete}), catalog, complete
+    )
 
 
 @pytest.mark.parametrize(
@@ -1861,7 +1863,9 @@ def test_html_list_item_breaks_keep_version_entries_and_recommendation_owner(bre
         "Affected Versions": "Example Server 2.3; Example Server 2.4",
         "Recommended Actions": "Do not: install the update on hosted systems.",
     }
-    validate_finding_evidence(report(**values), catalog)
+    assert_unsupported_complete_guidance(
+        report(**values), catalog, values["Recommended Actions"]
+    )
     for omitted in ["Example Server 2.3", "Example Server 2.4"]:
         with pytest.raises(EvidenceError, match="omits"):
             validate_finding_evidence(

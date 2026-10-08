@@ -30,9 +30,15 @@ class RecommendationDirective:
 
 
 @dataclass(frozen=True)
+class RecommendationContext:
+    source_text: str
+    owner: Literal["narrative", "version"]
+
+
+@dataclass(frozen=True)
 class RecommendationBlock:
     source_text: str
-    directives: tuple[RecommendationDirective | None, ...]
+    directives: tuple[RecommendationDirective | RecommendationContext, ...]
 
 
 AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
@@ -99,6 +105,7 @@ ACTION_FRAMES: dict[str, dict[ArgumentRelation, dict[str, Action]]] = {
     },
     "consult": {"direct": dict.fromkeys(("advisory", "support"), Action.NONE)},
     "contact": {"direct": {"support": Action.NONE}},
+    "restart": {"direct": {"service": Action.NONE, "system": Action.NONE}},
 }
 VERBS = frozenset(ACTION_FRAMES)
 # These are complete direct-object phrases, not substring cues. Modifiers stay
@@ -110,6 +117,7 @@ OBJECT_ROLES = {
     "mitigation": r"workarounds?|mitigations?",
     "evidence": r"logs|indicators(?: of compromise)?|suspicious activity|alerts?|incidents?",
     "system": r"appliances?|systems?|servers?|gateways?|devices?|software|installations?|products?",
+    "service": r"services?",
     "vulnerability": r"vulnerabilit(?:y|ies)|flaws?|risks?|issues?",
     "advisory": r"(?:vendor |security )?advisor(?:y|ies)|documentation",
     "support": r"support|(?:the )?vendor",
@@ -352,8 +360,18 @@ def parse_recommendation(
             words.pop(0)
         verb = words.pop(0).casefold() if words else ""
         argument = " ".join(words)
+        # Supporting restart retains these source-order/context adjuncts but
+        # requires its own complete service/system target. They do not give
+        # another verb a new argument frame or create a primary action.
+        target_argument = (
+            re.sub(r"\s+(?:afterward|during recovery)$", "", argument, flags=re.I)
+            if verb == "restart"
+            else argument
+        )
         relation, members = (
-            _argument(argument, version_identity) if verb in VERBS else ("direct", ())
+            _argument(target_argument, version_identity)
+            if verb in VERBS
+            else ("direct", ())
         )
         own_conditions = tuple(match.group() for match in CONDITION.finditer(body))
         qualification = binding.qualifications + (
@@ -361,12 +379,14 @@ def parse_recommendation(
         )
         implicit = bool(
             verb in VERBS
+            and verb != "restart"
             and (binding.negative or conditions or own_conditions or qualification)
             and (not argument or CONDITION.fullmatch(argument))
         )
         if (
             not reference
             and verb in VERBS
+            and verb != "restart"
             and re.match(
                 r"^(?:it|that)(?:\s+(?:if|until|when|only|immediately)|$)",
                 argument,
@@ -384,6 +404,7 @@ def parse_recommendation(
             and not advice
             and not clauses
             and not binding.negative
+            and verb != "restart"
             and not re.match(r"^(?:do not|don't|never)\s+", raw, re.I)
         ):
             return None
@@ -453,9 +474,9 @@ def project_recommendation_action(blocks: Sequence[RecommendationBlock]) -> str:
     for block in blocks:
         previous: set[tuple[Action, str]] | None = None
         for directive in block.directives:
-            if directive is None:
-                # Intervening unparsed statements break explicit reference
-                # ownership; they never become a guessed antecedent.
+            if isinstance(directive, RecommendationContext):
+                # Explicitly non-directive context breaks reference ownership.
+                # Unsupported required advice is a directive, never context.
                 previous = None
                 continue
             if directive.modality == "continuation":
