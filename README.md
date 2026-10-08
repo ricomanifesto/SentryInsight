@@ -51,6 +51,8 @@ Finding details can inherit an explicit CVE section, including nested headings; 
 
 Generated findings retain complete owned assertion sentences in an attributed Source Evidence field, including affirmative, negative and conflicting clauses. Independent CVEs sharing a sentence retain separate finding identities; a genuinely joint assertion remains joint. Eligibility uses those parsed owners as well as existing detail relevance. The publication gate checks the complete attributed context against retained sources before separating it from the report's own claims. Conflicting or mixed-scope evidence cannot be omitted, truncated, reassigned or promoted into a stronger badge, narrative or summary. Optional narrative excerpts remain subject to the existing strict claim checks.
 
+Findings without a CVE remain owned by one retained source. Their assessments and complete Source Evidence use that source's parsed assertions; an empty CVE scope cannot absorb CVE-owned claims or combine unrelated articles. Their summary and rollup rows explicitly name the finding and pass its same evidence gate. Metadata-only CVE identities remain distinct from source-only findings. Unsupported required relations still block publication before model transport.
+
 ## Run It Locally
 
 SentryInsight requires Python 3.11 and [`uv`](https://docs.astral.sh/uv/):

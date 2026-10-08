@@ -158,17 +158,45 @@ def source_evidence_text(
     owners or conflicting states. The same typed relations used by assessment
     determine membership; presentation cannot select away contrary evidence.
     """
-    wanted = set(cves)
     entries = []
+    owned = _scope_assertions(sources, cves)
     for source in sources:
         sentences = dict.fromkeys(
             " ".join(clause.source_text.split())
-            for clause in source_assertions(source)
-            if wanted & set(clause.cves)
+            for owner, clause in owned
+            if owner is source
         )
         for sentence in sentences:
             entries.append(f"[Source](<{source.url}>): “{sentence}”")
     return " ".join(entries)
+
+
+def _has_cve_identity(source: Any) -> bool:
+    return bool(
+        extract_cve_ids(str(_value(source, "content")))
+        or _value(source, "metadata_cves", ())
+    )
+
+
+def _scope_assertions(sources: Sequence[Any], cves: Sequence[str]):
+    """An empty identity is owned by one source, never the entire catalog."""
+    if not cves and len(sources) > 1:
+        raise EvidenceError(
+            "A finding without CVEs requires one source owner",
+            code="ambiguous_source_scope",
+            field="Reporting",
+        )
+    wanted = set(cves)
+    return tuple(
+        (source, clause)
+        for source in sources
+        for clause in source_assertions(source)
+        if (
+            bool(wanted & set(clause.cves))
+            if wanted
+            else not clause.cves and not _has_cve_identity(source)
+        )
+    )
 
 
 @dataclass(frozen=True)
@@ -268,6 +296,10 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     content = str(_value(source, "content"))
     source_cves = set(extract_cve_ids(content))
     wanted = set(cves)
+    # Metadata-only identity still needs its unattributed body inventory for
+    # relevance. It cannot become an empty-scope finding at publication.
+    if not wanted and source_cves:
+        return [DetailSpan("", "boundary")]
     has_cve_sections = any(
         extract_cve_ids(match[2])
         for line in content.splitlines()
@@ -381,9 +413,12 @@ def build_finding_detail_context(
         # A joint finding also includes other sources naming any member, even
         # if those sources do not themselves introduce the combined scope.
         for cves in relevant_scopes if source_cves else [()]:
-            if cves not in assessments:
-                assessments[cves] = assess_exploitation(list(catalog.values()), cves)
-            assessment = assessments[cves]
+            scope_key = (cves, source.key if not cves else None)
+            if scope_key not in assessments:
+                assessments[scope_key] = assess_exploitation(
+                    list(catalog.values()) if cves else [source], cves
+                )
+            assessment = assessments[scope_key]
             item: dict[str, Any] = {
                 "source_key": source.key,
                 "cves": list(cves),
@@ -519,12 +554,7 @@ def assess_exploitation(
     sources: Sequence[Any], cves: Sequence[str]
 ) -> ExploitationAssessment:
     wanted = set(cves)
-    relations = tuple(
-        clause
-        for source in sources
-        for clause in source_assertions(source)
-        if wanted & set(clause.cves)
-    )
+    relations = tuple(clause for _, clause in _scope_assertions(sources, cves))
     # Keep every intersecting relation, including unsupported and contrary
     # joint evidence. Projection only consumes complete owned scopes.
     scopes: dict[frozenset[str], set[str]] = {}
@@ -534,7 +564,9 @@ def assess_exploitation(
             scopes.setdefault(scope, set()).add(clause.status)
     positive = [r for r in relations if r.status in {"active", "observed"}]
     negative = [r for r in relations if r.status == "not_observed"]
-    conflict = any(set(p.cves) & set(n.cves) for p in positive for n in negative)
+    conflict = any(
+        not wanted or set(p.cves) & set(n.cves) for p in positive for n in negative
+    )
     projected = set()
     covered = set()
     for scope, states in scopes.items():
@@ -554,7 +586,7 @@ def assess_exploitation(
         )
     status = (
         next(iter(projected))
-        if not conflict and wanted and covered == wanted and len(projected) == 1
+        if not conflict and relations and covered == wanted and len(projected) == 1
         else "unknown"
     )
     return ExploitationAssessment(
@@ -1418,6 +1450,12 @@ def _validate_finding(
         ),
         body,
     )
+    if not cves and extract_cve_ids(narrative):
+        raise EvidenceError(
+            "Source-only narrative cannot introduce a CVE-owned claim",
+            code="ambiguous_source_scope",
+            field="prose",
+        )
     if any(
         statement.unsupported
         for statement in _rendered_statements(title + "\n\n" + narrative)
@@ -1650,6 +1688,12 @@ def _validate_finding(
                     code="unsupported_evidence_relation",
                     field="Recommended Actions",
                 )
+    if not cves and any(_has_cve_identity(source) for source in sources):
+        raise EvidenceError(
+            "A CVE-owned source cannot replace a source-only finding owner",
+            code="ambiguous_source_scope",
+            field="Reporting",
+        )
 
 
 def validate_finding_evidence(
@@ -1664,9 +1708,8 @@ def validate_finding_evidence(
             observed=False,
         )
     nonconfirmed = []
-    for index, finding in enumerate(
-        FINDING_PATTERN.finditer(section.group("section")), start=1
-    ):
+    findings = list(FINDING_PATTERN.finditer(section.group("section")))
+    for index, finding in enumerate(findings, start=1):
         try:
             _validate_finding(finding, catalog, nonconfirmed)
         except EvidenceError as exc:
@@ -1688,6 +1731,34 @@ def validate_finding_evidence(
     # Require explicit CVEs for confirmed claims outside finding bodies whenever
     # the report contains mixed evidence states.
     outside = report[: section.start()] + report[section.end() :]
+    # Source-only findings have no CVE label for cross-finding prose. Their
+    # explicit heading reference binds a summary/rollup row to the same complete
+    # finding validation, rather than treating an empty CVE set as a wildcard.
+    source_findings: dict[str, list[re.Match[str]]] = {}
+    for finding in findings:
+        fields = dict(FIELD.findall(finding.group("body")))
+        title = finding.group("heading").removeprefix("###").strip()
+        if not extract_cve_ids(title + " " + fields.get("CVE IDs", "")):
+            source_findings.setdefault(title, []).append(finding)
+
+    def validate_owned_row(match: re.Match[str]) -> str:
+        owners = source_findings.get(match[1], [])
+        if not owners:
+            return match[0]
+        if len(owners) != 1:
+            raise EvidenceError(
+                "Ambiguous source finding reference", code="ambiguous_source_scope"
+            )
+        augmented = FINDING_PATTERN.search(
+            owners[0].group().rstrip() + "\n- **Summary Context**: " + match[2] + "\n"
+        )
+        assert augmented is not None
+        _validate_finding(augmented, catalog, [])
+        return ""
+
+    outside = re.sub(
+        r"^- \*\*([^\n]+)\*\*: ([^\n]+)$", validate_owned_row, outside, flags=re.M
+    )
     for statement in _rendered_statements(outside):
         if statement.unsupported:
             raise EvidenceError(

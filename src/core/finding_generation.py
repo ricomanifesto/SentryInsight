@@ -58,6 +58,23 @@ def _unique(values):
 
 
 def _state_prose(assessment: ExploitationAssessment, subject: str) -> str:
+    if not subject:
+        # A source-owned finding has no CVE noun phrase. Use the existing
+        # nominal productions; source identity is carried by its heading and
+        # Reporting reference, not guessed by the assertion parser.
+        if assessment.conflicting:
+            return (
+                "Reporting contains conflicting evidence. Some supplied reporting "
+                "states that exploitation has not been observed; "
+                "the combined exploitation status is unknown."
+            )
+        return {
+            "active": "Supplied reporting confirms active exploitation.",
+            "observed": "Exploitation was observed in prior reporting. Current exploitation activity is not established by the supplied evidence.",
+            "not_observed": "Supplied reporting states exploitation has not been observed.",
+            "potential": "Supplied reporting describes potential exploitation.",
+            "unknown": "Exploitation status is unknown from the supplied evidence.",
+        }[assessment.status]
     if assessment.conflicting:
         return (
             f"Reporting contains conflicting exploitation evidence for {subject}. "
@@ -383,7 +400,7 @@ def compile_finding_records(
         # References are local to this immutable catalog, not persistent IDs.
         # Short IDs keep the complete plan inside the existing output budget.
         key = f"f{len(records) + 1}"
-        subject = ", ".join(cves) or "this source finding"
+        subject = ", ".join(cves)
         heading = ", ".join(cves) or f"Security reporting {len(records) + 1}"
         fields = [
             (
@@ -590,7 +607,14 @@ def render_finding_plan(
         )
         for record, choices in selected
     )
-    summary = "\n\n".join(record.state_prose for record, _ in selected)
+    summary = "\n\n".join(
+        (
+            record.state_prose
+            if record.cves
+            else f"- **{record.heading}**: {record.state_prose}"
+        )
+        for record, _ in selected
+    )
 
     def rollup(role):
         rows = []
