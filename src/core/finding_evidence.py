@@ -16,6 +16,7 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
+from .report_artifact import Action
 from .reporting import (
     ACTIVE_SECTION_PATTERN,
     FINDING_PATTERN,
@@ -51,6 +52,10 @@ def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
             or _cumulative_version_list(text, context)
             if name == "Affected Versions"
             else re.search(cue, text, re.I)
+            or (
+                name == "Recommended Actions"
+                and RECOMMENDATION_INSTRUCTION.fullmatch(text)
+            )
         )
     )
 
@@ -905,6 +910,33 @@ VERSION_RECOMMENDATION_CLAUSE = re.compile(
     r"(?:\w+ly )*(?P<verb>install|apply|patch|upgrade|update|consult|review|contact)\b.*",
     re.I,
 )
+# One directive inventory serves recommendation retention and badge derivation.
+# Version-clause classification above retains its narrower existing grammar.
+RECOMMENDATION_VERBS = "install|apply|patch|upgrade|update|consult|review|contact|mitigate|investigate|monitor"
+RECOMMENDATION_INSTRUCTION = re.compile(
+    rf"(?:(?:{VERSION_AUDIENCE})\b.*?\b"
+    r"(?:should|must|needs? to|(?:are|is) (?:not )?"
+    r"(?:advised|recommended|urged|encouraged) (?:not )?to) "
+    r"|(?:(?:do not|don't|never) )?)"
+    rf"(?:(?:not|never|\w+ly) )*(?P<verb>{RECOMMENDATION_VERBS})\b"
+    r"(?P<object>[^?]*)",
+    re.I,
+)
+# Ordered by the established single-badge priority. Object roles refer to the
+# direct recommendation, not a matching word elsewhere in the paragraph.
+RECOMMENDATION_ACTIONS = (
+    (Action.PATCH, {"patch", "upgrade", "update"}, None),
+    (
+        Action.PATCH,
+        {"install", "apply"},
+        r"(?:patch(?:es)?|updates?|hotfix(?:es)?|fix(?:es)?)",
+    ),
+    (Action.MITIGATE, {"mitigate"}, None),
+    (Action.MITIGATE, {"apply"}, r"(?:workarounds?|mitigations?)"),
+    (Action.INVESTIGATE, {"investigate"}, None),
+    (Action.INVESTIGATE, {"review"}, r"(?:compromise|indicators|logs)"),
+    (Action.MONITOR, {"monitor"}, None),
+)
 VERSION_INFORMATION_CLAUSE = re.compile(
     r"\b(?:(?:further|more) )?(?:details|information)\b.*?\b(?:is|are) "
     r"(?:available|provided|published)\b.*",
@@ -933,10 +965,13 @@ def recommendation_action(blocks: Sequence[str]) -> str:
     Unknown instruction grammar supplies no badge, rather than a guessed verb.
     """
     statements = [sentence for block in blocks for sentence in _sentences(block)]
-    action_verbs = r"\b(?:install|apply|patch|upgrade|update|review|consult|contact)\b"
     condition = r"\b(?:if|unless|until|when|only|provided|depending|may|might|could)\b"
     unsafe_instruction = any(
-        re.search(action_verbs, sentence, re.I)
+        re.search(
+            rf"\b(?:{RECOMMENDATION_VERBS}|do so|do it|this action|that action)\b",
+            sentence,
+            re.I,
+        )
         and re.search(
             r"\b(?:not|never|no|neither|nor|don't)\b|" + condition, sentence, re.I
         )
@@ -946,37 +981,23 @@ def recommendation_action(blocks: Sequence[str]) -> str:
         return "none"
     actions = set()
     for sentence in statements:
-        advice = VERSION_RECOMMENDATION_CLAUSE.fullmatch(sentence)
-        if not advice:
-            advice = re.fullmatch(
-                r"(?P<verb>install|apply|patch|upgrade|update|review)\b[^?]*",
-                sentence,
-                re.I,
-            )
-        if not advice or re.search(condition, sentence, re.I):
+        advice = RECOMMENDATION_INSTRUCTION.fullmatch(sentence)
+        if not advice or not re.search(r"\w", advice["object"]):
             continue
         verb = advice["verb"].casefold()
-        if (
-            verb in {"patch", "upgrade", "update"}
-            or verb in {"install", "apply"}
-            and re.search(r"\b(?:patch|update|hotfix|fix)\b", sentence, re.I)
-        ):
-            actions.add("patch")
-        elif verb == "apply" and re.search(
-            r"\b(?:workaround|mitigation)\b", sentence, re.I
-        ):
-            actions.add("mitigate")
-        elif verb == "review" and re.search(
-            r"\b(?:compromise|indicators|logs)\b", sentence, re.I
-        ):
-            actions.add("investigate")
+        for action, verbs, object_role in RECOMMENDATION_ACTIONS:
+            if verb in verbs and (
+                object_role is None
+                or re.match(
+                    rf"\s*(?:(?:the|a|an|available|latest|security)\s+)*{object_role}\b",
+                    advice["object"],
+                    re.I,
+                )
+            ):
+                actions.add(action)
+                break
     return next(
-        (
-            action
-            for action in ("patch", "mitigate", "investigate")
-            if action in actions
-        ),
-        "none",
+        (action.value for action in Action if action in actions), Action.NONE.value
     )
 
 
