@@ -154,3 +154,31 @@ def test_invalid_plan_preserves_previous_report_and_fingerprint(
     assert fingerprint.read_text() == "previous-inputs\n"
     assert not (tmp_path / "index.html").exists()
     assert not (tmp_path / "current-findings.json").exists()
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        {"cves": ["CVE-2026-1234"]},
+        {"title": "Active exploitation of CVE-2026-1234"},
+        {"link": "https://example.test/CVE-2026-1234"},
+    ],
+)
+def test_real_pipeline_retains_metadata_only_cves_without_claiming_confirmation(
+    monkeypatch, tmp_path, metadata
+):
+    article = dict(
+        title="Gateway exploitation",
+        source="Publisher",
+        link="https://example.test/story",
+        content="Attackers are exploiting the gateway.",
+        content_kind="article",
+    )
+    article.update(metadata)
+    result = run_real_pipeline(monkeypatch, tmp_path / "index.md", articles=[article])
+    assert result["status"] == "completed", result
+    artifact = json.loads((tmp_path / "current-findings.json").read_text())
+    assert artifact["cve_ids"] == ["CVE-2026-1234"]
+    report = (tmp_path / "index.md").read_text()
+    assert "**Exploitation Status**: unknown" in report
+    assert "metadata" in report

@@ -812,6 +812,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                     "content_kind": "feed",
                     "links": (),
                     "link_contexts": (),
+                    "metadata_cves": (),
                 }
             ],
         )

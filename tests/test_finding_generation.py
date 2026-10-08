@@ -424,3 +424,56 @@ def test_explicit_section_does_not_make_a_foreign_cve_paragraph_optional_context
     records = compile_finding_records(catalog_for(text))
     record = next(item for item in records if item.cves == (CVE,))
     assert all(OTHER not in item.text for item in record.excerpts)
+
+
+def test_repeated_advisory_paragraphs_do_not_cross_cve_sections():
+    from dataclasses import asdict
+    from src.services.article_content import extract_article_content
+
+    extracted = extract_article_content(
+        f'<article><h2>{CVE}</h2><p>See the <a href="https://vendor.example/first">vendor security advisory</a>.</p>'
+        f'<h2>{OTHER}</h2><p>See the <a href="https://vendor.example/second">vendor security advisory</a>.</p></article>',
+        "https://example.test/story",
+    )
+    catalog = build_reporting_catalog(
+        [
+            dict(
+                title="Example",
+                source="Publisher",
+                link="https://example.test/story",
+                content=extracted.text,
+                source_links=extracted.links,
+                source_link_contexts=[asdict(x) for x in extracted.link_contexts],
+            )
+        ]
+    )
+    with pytest.raises(EvidenceError) as error:
+        compile_finding_records(catalog)
+    assert error.value.code == "ambiguous_advisory_link_scope"
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        {"cves": [CVE]},
+        {"title": f"Active exploitation of {CVE}"},
+        {"link": f"https://example.test/{CVE}"},
+    ],
+)
+def test_metadata_only_cve_coverage_does_not_fabricate_body_attribution(metadata):
+    article = dict(
+        title="Gateway exploitation",
+        source="Publisher",
+        link="https://example.test/story",
+        content="Attackers are exploiting the gateway. The service permits mailbox access.",
+    )
+    article.update(metadata)
+    catalog = build_reporting_catalog([article])
+    records = compile_finding_records(catalog, [CVE])
+    assert len(records) == 1 and records[0].cves == (CVE,)
+    assert records[0].status == "unknown"
+    report = render_finding_plan(json.dumps(plan_for(records)), records, catalog)
+    assert "**CVE IDs**: " + CVE in report
+    assert "metadata" in report
+    assert "Attackers are exploiting" not in report
+    validate_finding_evidence(report, catalog)

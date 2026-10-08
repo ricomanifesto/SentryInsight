@@ -10,6 +10,7 @@ from typing import Any, Iterable, Mapping
 from urllib.parse import quote, urlsplit
 
 from ..services.article_content import ArticleLink, normalize_feed_content
+from .cve import extract_cve_ids
 
 import idna
 
@@ -43,6 +44,7 @@ class ReportingSource:
     content_kind: str = "feed"
     links: tuple[str, ...] = ()
     link_contexts: tuple[ArticleLink, ...] = ()
+    metadata_cves: tuple[str, ...] = ()
 
 
 def normalize_reporting_url(value: Any) -> str:
@@ -155,6 +157,17 @@ def build_reporting_catalog(
                 for link in article.get("source_links", [])
             ),
             link_contexts=_link_contexts(article.get("source_link_contexts", [])),
+            metadata_cves=tuple(
+                extract_cve_ids(
+                    " ".join(
+                        [
+                            str(article.get("title", "")),
+                            url,
+                            *(str(value) for value in article.get("cves", [])),
+                        ]
+                    )
+                )
+            ),
         )
         existing = catalog.get(source.key)
         if existing and existing != source:
@@ -197,6 +210,11 @@ def deserialize_reporting_catalog(
                 normalize_reporting_url(link) for link in record.get("links", [])
             ),
             link_contexts=_link_contexts(record.get("link_contexts", [])),
+            metadata_cves=tuple(
+                extract_cve_ids(
+                    " ".join(str(value) for value in record.get("metadata_cves", []))
+                )
+            ),
         )
         if source.key != reporting_key(url):
             raise ReportingGroundingError(

@@ -187,6 +187,12 @@ def _advisory_urls(sources, cves):
                     re.I,
                 )
             ):
+                if _one_line(source.content).count(context) != 1:
+                    raise EvidenceError(
+                        "Repeated advisory paragraphs have ambiguous link ownership",
+                        code="ambiguous_advisory_link_scope",
+                        field="Vendor Links",
+                    )
                 urls.append(link.url)
     return tuple(dict.fromkeys(urls))
 
@@ -216,15 +222,20 @@ def _check_finding(record, catalog, excerpts=()):
     )
 
 
-def _finding_scopes(catalog):
+def _finding_scopes(catalog, required_cves):
     """Join only scopes needed to own otherwise-lost complete detail blocks."""
     contexts = build_finding_detail_context(catalog)
     signatures = {}
     no_cves = []
+    metadata = {
+        key: set(source.metadata_cves) & set(required_cves)
+        for key, source in catalog.items()
+    }
     for item in contexts:
         scope = tuple(item["cves"])
         if not scope:
-            no_cves.append(((), (item["source_key"],)))
+            if not metadata[item["source_key"]]:
+                no_cves.append(((), (item["source_key"],)))
             continue
         owned = signatures.setdefault(scope, set())
         for span in item.get("spans", []):
@@ -237,6 +248,11 @@ def _finding_scopes(catalog):
                     else span["text"]
                 )
                 owned.add((item["source_key"], field, _one_line(value)))
+    # Metadata supplies identity coverage, never an implicit body assertion or
+    # a synthetic CVE heading. Unattributed body facts still fail the same gate.
+    for identities in metadata.values():
+        for cve in sorted(identities):
+            signatures.setdefault((cve,), set())
     cves = list(dict.fromkeys(cve for scope in signatures for cve in scope))
     groups = [{cve} for cve in cves]
     covered = set().union(
@@ -256,7 +272,7 @@ def _finding_scopes(catalog):
         keys = tuple(
             key
             for key, source in catalog.items()
-            if group & set(extract_cve_ids(source.content))
+            if group & (set(extract_cve_ids(source.content)) | metadata[key])
         )
         result.append((scope, keys))
     return result + list(dict.fromkeys(no_cves))
@@ -270,7 +286,7 @@ def compile_finding_records(
     Joint detail ownership determines grouping; incidental co-mentions cannot
     create duplicate findings. The complete selected group is validated again.
     """
-    scopes = _finding_scopes(catalog)
+    scopes = _finding_scopes(catalog, required_cves)
     represented = {cve for cves, _ in scopes for cve in cves}
     if set(required_cves) - represented:
         raise EvidenceError(
@@ -331,6 +347,15 @@ def compile_finding_records(
             )
         if cves:
             fields.append(("CVE IDs", ", ".join(cves)))
+            if not any(
+                set(cves) & set(extract_cve_ids(source.content)) for source in sources
+            ):
+                fields.append(
+                    (
+                        "Attribution Context",
+                        "This identifier is supplied by article metadata. The retained body does not explicitly attribute finding details to it.",
+                    )
+                )
         fields.extend(
             [
                 ("Reporting", ", ".join(keys)),
