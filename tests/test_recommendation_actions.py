@@ -78,6 +78,32 @@ def test_action_contract_covers_the_published_enum():
 
 
 @pytest.mark.parametrize(
+    "audience",
+    [
+        "Users of affected systems",
+        "Customers running version 2.0",
+        "Administrators of the affected appliances",
+        "Users on version 2.0",
+    ],
+)
+@pytest.mark.parametrize(
+    ("modal", "action"),
+    [
+        ("should", "patch"),
+        ("are advised to", "patch"),
+        ("should not", "none"),
+    ],
+)
+def test_bounded_audience_noun_qualifiers_keep_direct_modal_ownership(
+    audience, modal, action
+):
+    advice = f"{audience} {modal} install the patch."
+    _, report = render(catalog_for(f"## {CVE}\n\n{advice}"))
+    assert f"**Action**: {action}" in report
+    assert f"**Recommended Actions**: {advice}" in report
+
+
+@pytest.mark.parametrize(
     "narrative",
     [
         "Patch Tuesday updates addressed 50 flaws.",
@@ -87,6 +113,7 @@ def test_action_contract_covers_the_published_enum():
         "Patch Tuesday updates will fail if the service is running.",
         "Update 1.2 does not fix the vulnerability.",
         "Patch systems with updates addressed 50 flaws.",
+        "When asked why anyone should believe the interviewee, the reporter questioned the story.",
     ],
 )
 def test_descriptive_nouns_never_become_recommendations(narrative):
@@ -106,8 +133,11 @@ def test_descriptive_nouns_never_become_recommendations(narrative):
             "Users should monitor logs, review indicators of compromise, and apply the patch.",
             "patch",
         ),
-        ("Users should monitor logs and not install the update.", "none"),
-        ("Users should monitor logs and install the update only if exposed.", "none"),
+        ("Users should monitor logs and not install the update.", "monitor"),
+        (
+            "Users should monitor logs and install the update only if exposed.",
+            "monitor",
+        ),
         ("Users should monitor logs or install the update.", "none"),
         ("Users should monitor logs and consider installing an update.", "none"),
         ("Monitor logs and consider installing an update.", "none"),
@@ -148,8 +178,11 @@ def test_actions_follow_singleton_and_shared_cve_ownership():
     ("advice", "action"),
     [
         ("Users should monitor logs and install the update.", "patch"),
-        ("Users should monitor logs and not install the update.", "none"),
-        ("Users should monitor logs and install the update only if exposed.", "none"),
+        ("Users should monitor logs and not install the update.", "monitor"),
+        (
+            "Users should monitor logs and install the update only if exposed.",
+            "monitor",
+        ),
         ("Users should monitor logs or install the update.", "none"),
         ("Monitor logs and consider installing an update.", "none"),
         ("Users deny that they should install the patch.", "none"),
@@ -190,26 +223,116 @@ def test_parsed_directive_retains_modality_polarity_conditions_and_coordination(
         ("monitor", "affirmative"),
         ("install", "negative"),
     ]
-    assert directive.conditions == ("until verification completes",)
+    assert directive.clauses[0].conditions == ()
+    assert directive.clauses[1].conditions == ("until verification completes",)
 
 
 @pytest.mark.parametrize(
-    "advice",
+    ("advice", "with_patch"),
     [
-        "Users deny that they should install the patch.",
-        "Users are unsure whether they should install the patch.",
-        "Users say that operators should monitor logs.",
-        "Users wonder if they should apply the workaround.",
-        "Users question whether investigators are advised to review logs.",
-        "Users with an unclassified relation should install the patch.",
+        ("Users deny that they should install the patch.", "none"),
+        ("Users are unsure whether they should install the patch.", "none"),
+        ("Users say that operators should monitor logs.", "patch"),
+        ("Users wonder if they should apply the workaround.", "patch"),
+        ("Users question whether investigators are advised to review logs.", "patch"),
+        ("Users with an unclassified relation should install the patch.", "none"),
+        (
+            "Users of systems if they are unsure whether they should install the patch.",
+            "none",
+        ),
+        ("Users of systems when they deny that they should install the patch.", "none"),
     ],
 )
-def test_intervening_relations_cannot_establish_advice_ownership(advice):
+def test_intervening_relations_cannot_establish_advice_ownership(advice, with_patch):
     for prefix in ("", "Users should install the patch. "):
         source = prefix + advice
         _, report = render(catalog_for(f"## {CVE}\n\n{source}"))
-        assert "**Action**: none" in report
+        assert f"**Action**: {with_patch if prefix else 'none'}" in report
         assert f"**Recommended Actions**: {source}" in report
+
+
+@pytest.mark.parametrize(
+    ("guidance", "action"),
+    [
+        (
+            "Users should install the patch. Users should monitor logs if suspicious activity occurs.",
+            "patch",
+        ),
+        ("Users should install the patch. Users should not monitor logs.", "patch"),
+        ("Users should install the patch. Users should apply no workaround.", "patch"),
+        (
+            "Users should install the patch. Users should consult the advisory. Do not do so until access is approved.",
+            "patch",
+        ),
+        (
+            "Users should monitor logs. Users should install the patch if exposed.",
+            "monitor",
+        ),
+        ("Users should install the patch. Users should not install the patch.", "none"),
+        (
+            "Users should install the patch. Users should install the patch only if exposed.",
+            "none",
+        ),
+        (
+            "Users should monitor vendor advisories. Users should not monitor logs.",
+            "monitor",
+        ),
+        (
+            "Users should monitor logs. Users should not monitor logs from the gateway.",
+            "none",
+        ),
+        ("Users should monitor logs. Users should monitor no logs.", "none"),
+        (
+            "Users should monitor logs. Users should not monitor logs and traffic.",
+            "none",
+        ),
+        (
+            "Users should monitor logs and traffic. Users should not monitor logs.",
+            "monitor",
+        ),
+        (
+            "Users should install the patch. Users should monitor logs. Do not do so until access is approved.",
+            "patch",
+        ),
+        (
+            "Users should install the patch. Do not do so until access is approved.",
+            "none",
+        ),
+        (
+            "Users should install the patch.\n\nDo not do so until access is approved.",
+            "none",
+        ),
+        (
+            "Users should install the patch. If exposed, users should monitor logs.",
+            "patch",
+        ),
+        (
+            "Users should install the patch. If exposed, users should install the patch.",
+            "none",
+        ),
+    ],
+)
+def test_directive_qualification_ownership_in_real_pipeline(
+    monkeypatch, tmp_path, guidance, action
+):
+    result = run_real_pipeline(
+        monkeypatch,
+        tmp_path / "index.md",
+        articles=[
+            dict(
+                title="Example advisory",
+                source="Publisher",
+                link="https://example.test/advisory",
+                content=f"## {CVE}\n\n{guidance}",
+                content_kind="article",
+            )
+        ],
+    )
+    assert result["status"] == "completed", result
+    artifact = parse_report_artifact((tmp_path / "index.md").read_text())
+    assert artifact.findings[0].action.value == action
+    for block in guidance.split("\n\n"):
+        assert block in artifact.findings[0].recommended_actions
 
 
 @pytest.mark.parametrize(("directive", "action"), DIRECTIVES)

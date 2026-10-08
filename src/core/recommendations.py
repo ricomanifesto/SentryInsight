@@ -18,7 +18,9 @@ class DirectiveClause:
     verb: str
     object_text: str
     object_role: str | None
+    object_members: tuple[str, ...]
     polarity: Literal["affirmative", "negative"]
+    conditions: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -30,6 +32,12 @@ class RecommendationDirective:
     ambiguous: bool = False
 
 
+@dataclass(frozen=True)
+class RecommendationBlock:
+    source_text: str
+    directives: tuple[RecommendationDirective, ...]
+
+
 AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
 ADVICE_MODAL = (
     r"should|must|needs? to|(?:are|is) (?:not )?"
@@ -38,10 +46,6 @@ ADVICE_MODAL = (
 ADVICE_AUDIENCE = (
     rf"^(?:For {CVE_ID_PATTERN.pattern}(?: and {CVE_ID_PATTERN.pattern})*,\s*)?"
     rf"(?:{AUDIENCE})\b"
-)
-ADVICE = re.compile(
-    rf"{ADVICE_AUDIENCE}\s+(?P<modal>{ADVICE_MODAL})\s+(?P<body>.+)$",
-    re.I,
 )
 NEGATION = re.compile(r"\b(?:not|never|no|neither|nor|don't)\b", re.I)
 CONDITION = re.compile(
@@ -67,6 +71,7 @@ VERBS = frozenset(
 # in object_text; unknown objects cannot establish a bare imperative.
 OBJECT_ROLES = {
     "identifier": CVE_ID_PATTERN.pattern,
+    "release": r"versions? \d+(?:\.\d+)*",
     "patch": r"patch(?:es)?|updates?|hotfix(?:es)?|fix(?:es)?",
     "mitigation": r"workarounds?|mitigations?",
     "evidence": r"logs|indicators(?: of compromise)?|suspicious activity|alerts?|incidents?",
@@ -84,11 +89,38 @@ COORDINATION = re.compile(
 )
 
 
-def _object_role(text: str, depth: int = 0) -> str | None:
+def _nominal_members(text: str) -> tuple[str, ...] | None:
+    """Complete noun phrases only; subordinate clauses cannot be subjects."""
+    core = text.strip(" .!?")
+    # Coordinated objects (logs and traffic) remain objects, not directives.
+    parts = re.split(r"\s+and\s+|,\s*", core, flags=re.I)
+    roles = []
+    for part in parts:
+        part = re.sub(
+            r"^(?:(?:the|a|an|no|available|latest|security|affected|impacted|vulnerable)\s+)+",
+            "",
+            part,
+            flags=re.I,
+        )
+        role = next(
+            (
+                role
+                for role, grammar in OBJECT_ROLES.items()
+                if re.fullmatch(grammar, part, re.I)
+            ),
+            None,
+        )
+        if role is None:
+            return None
+        roles.append(role)
+    return tuple(roles)
+
+
+def _object_members(text: str, depth: int = 0) -> tuple[str, ...] | None:
     if depth > 2:
         return None
     modifier = OBJECT_MODIFIER.search(text)
-    core = (text[: modifier.start()] if modifier else text).strip(" .!?")
+    core = text[: modifier.start()] if modifier else text
     if modifier:
         relation = modifier.group().strip().casefold()
         tail = text[modifier.end() :].strip()
@@ -102,28 +134,36 @@ def _object_role(text: str, depth: int = 0) -> str | None:
             )
         if (
             relation not in {"until", "when", "if", "only"}
-            and _object_role(tail, depth + 1) is None
+            and _object_members(tail, depth + 1) is None
         ):
             return None
-    core = re.sub(
-        r"^(?:(?:the|a|an|available|latest|security)\s+)+", "", core, flags=re.I
-    )
-    # Coordinated objects (logs and traffic) remain objects, not directives.
-    parts = re.split(r"\s+and\s+|,\s*", core, flags=re.I)
-    roles = []
-    for part in parts:
-        role = next(
-            (
-                role
-                for role, grammar in OBJECT_ROLES.items()
-                if re.fullmatch(grammar, part, re.I)
-            ),
-            None,
-        )
-        if role is None:
+    return _nominal_members(core)
+
+
+def _object_role(text: str) -> str | None:
+    roles = _object_members(text)
+    return None if not roles else roles[0] if len(set(roles)) == 1 else "mixed"
+
+
+def _advice_relation(text: str) -> tuple[str, str] | None:
+    audience = re.match(ADVICE_AUDIENCE, text, re.I)
+    if not audience:
+        return None
+    remainder = text[audience.end() :].strip()
+    modal = re.search(rf"\b(?P<modal>{ADVICE_MODAL})\s+(?P<body>.+)$", remainder, re.I)
+    if not modal:
+        return None
+    qualifier = remainder[: modal.start()].strip()
+    if qualifier:
+        relation = re.fullmatch(r"(?:of|with|on|running|using)\s+(.+)", qualifier, re.I)
+        roles = _nominal_members(relation[1]) if relation else None
+        if not roles or not set(roles) <= {
+            "system",
+            "release",
+            "identifier",
+        }:
             return None
-        roles.append(role)
-    return roles[0] if len(set(roles)) == 1 else "mixed"
+    return modal["modal"], modal["body"]
 
 
 def _clause(text: str, negative: bool) -> DirectiveClause | None:
@@ -143,7 +183,9 @@ def _clause(text: str, negative: bool) -> DirectiveClause | None:
         verb.casefold(),
         obj,
         _object_role(obj),
+        _object_members(obj) or (),
         "negative" if negative or NEGATION.search(text) else "affirmative",
+        tuple(match.group() for match in CONDITION.finditer(text)),
     )
 
 
@@ -155,28 +197,34 @@ def parse_recommendation(text: str) -> RecommendationDirective | None:
         return RecommendationDirective(
             text, "continuation", (), conditions, bool(NEGATION.search(normalized))
         )
-    advice = ADVICE.fullmatch(normalized)
-    if (
-        not advice
-        and re.match(ADVICE_AUDIENCE, normalized, re.I)
-        and re.search(rf"\b(?:{ADVICE_MODAL})\b", normalized, re.I)
-    ):
-        # A modal elsewhere in an audience-led sentence does not belong to
-        # that audience. Keep reported/unknown relations, never execute them.
-        return RecommendationDirective(text, "unclassified", (), conditions, True)
-    modality: Literal["advice", "imperative"] = "advice" if advice else "imperative"
-    body = advice["body"] if advice else normalized
-    negative = bool(advice and NEGATION.search(advice["modal"]))
+    prefix = re.match(r"^(?:if|unless|when|until)\b[^,]+,\s*", normalized, re.I)
+    direct_text = normalized[prefix.end() :] if prefix else normalized
+    advice = _advice_relation(direct_text)
+    related_modal = re.search(rf"\b(?:{ADVICE_MODAL})\b", normalized, re.I)
+    modality: Literal["advice", "imperative", "unclassified"] = (
+        "advice" if advice else "unclassified" if related_modal else "imperative"
+    )
+    # Unknown modal relations may identify a constrained action target, never
+    # positive advice. Direct audience ownership is still required above.
+    body = (
+        advice[1]
+        if advice
+        else (
+            normalized[related_modal.end() :].strip() if related_modal else normalized
+        )
+    )
+    conditions = (prefix.group().rstrip(", "),) if prefix else ()
+    negative = bool(advice and NEGATION.search(advice[0]))
     parts = COORDINATION.split(body)
     first = _clause(parts[0], negative)
     if not first:
         return (
             RecommendationDirective(text, modality, (), conditions, True)
-            if advice
+            if modality == "advice"
             else None
         )
     clauses = [first]
-    ambiguous = "?" in normalized
+    ambiguous = "?" in normalized or modality == "unclassified"
     for connector, part in zip(parts[1::2], parts[2::2]):
         clause = _clause(part, negative)
         if clause:
@@ -190,7 +238,12 @@ def parse_recommendation(text: str) -> RecommendationDirective | None:
             combined = previous.object_text + " and " + part
             role = _object_role(combined)
             ambiguous |= role is None
-            clauses[-1] = replace(previous, object_text=combined, object_role=role)
+            clauses[-1] = replace(
+                previous,
+                object_text=combined,
+                object_role=role,
+                object_members=_object_members(combined) or (),
+            )
     ambiguous |= any(c.object_role is None for c in clauses)
     if (
         modality == "imperative"
@@ -203,27 +256,70 @@ def parse_recommendation(text: str) -> RecommendationDirective | None:
     )
 
 
-def project_recommendation_action(directives: Sequence[RecommendationDirective]) -> str:
-    """Project parsed affirmative clauses only; source qualifications dominate."""
-    if any(
-        d.ambiguous or d.conditions or any(c.polarity == "negative" for c in d.clauses)
-        for d in directives
+def _clause_action(clause: DirectiveClause) -> Action | None:
+    verb, role = clause.verb, clause.object_role
+    if role is None:
+        return None
+    if verb in {"patch", "upgrade", "update"} or (
+        verb in {"apply", "install"} and role == "patch"
     ):
-        return Action.NONE.value
-    actions = set()
-    for directive in directives:
-        for clause in directive.clauses:
-            verb, role = clause.verb, clause.object_role
-            if verb in {"patch", "upgrade", "update"} or (
-                verb in {"apply", "install"} and role == "patch"
+        return Action.PATCH
+    if verb == "mitigate" or (verb == "apply" and role == "mitigation"):
+        return Action.MITIGATE
+    if verb == "investigate" or (verb == "review" and role == "evidence"):
+        return Action.INVESTIGATE
+    if verb == "monitor":
+        return Action.MONITOR
+    return None
+
+
+def _targets(clause: DirectiveClause) -> set[tuple[Action, str]]:
+    action = _clause_action(clause)
+    if action is None:
+        return set()
+    # The finding owns remediation/investigation scope. Monitoring objects can
+    # establish narrower independent roles (e.g. evidence versus advisories).
+    # Members, determiners and polarity share canonical identity; wording alone
+    # cannot establish that two objects are independent.
+    if action == Action.MONITOR:
+        return {(action, role) for role in clause.object_members}
+    return {(action, "finding")}
+
+
+def project_recommendation_action(blocks: Sequence[RecommendationBlock]) -> str:
+    """Resolve qualified targets before prioritizing independent supported ones."""
+    candidates: set[tuple[Action, str]] = set()
+    constraints: set[tuple[Action, str]] = set()
+    for block in blocks:
+        previous: set[tuple[Action, str]] | None = None
+        for directive in block.directives:
+            if directive.modality == "continuation":
+                if directive.ambiguous or directive.conditions:
+                    if previous is None:
+                        # Cross-block or missing antecedents are unresolved.
+                        return Action.NONE.value
+                    constraints.update(previous)
+                continue
+            if directive.ambiguous and (
+                not directive.clauses
+                or any(clause.object_role is None for clause in directive.clauses)
             ):
-                actions.add(Action.PATCH)
-            elif verb == "mitigate" or (verb == "apply" and role == "mitigation"):
-                actions.add(Action.MITIGATE)
-            elif verb == "investigate" or (verb == "review" and role == "evidence"):
-                actions.add(Action.INVESTIGATE)
-            elif verb == "monitor":
-                actions.add(Action.MONITOR)
+                # Unknown targets cannot be proven independent of any action.
+                return Action.NONE.value
+            known = set().union(*(_targets(clause) for clause in directive.clauses))
+            for clause in directive.clauses:
+                targets = _targets(clause)
+                if (
+                    directive.ambiguous
+                    or directive.conditions
+                    or clause.conditions
+                    or clause.polarity == "negative"
+                ):
+                    constraints.update(targets)
+                else:
+                    candidates.update(targets)
+            previous = known
+    actions = {action for action, _ in candidates - constraints}
     return next(
         (action.value for action in Action if action in actions), Action.NONE.value
     )

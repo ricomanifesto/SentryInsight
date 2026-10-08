@@ -16,7 +16,11 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
-from .recommendations import parse_recommendation, project_recommendation_action
+from .recommendations import (
+    RecommendationBlock,
+    parse_recommendation,
+    project_recommendation_action,
+)
 from .reporting import (
     ACTIVE_SECTION_PATTERN,
     FINDING_PATTERN,
@@ -73,11 +77,6 @@ UNCERTAIN = re.compile(
 )
 CONFIRMED = re.compile(
     r"\b(?:actively exploited|active exploitation(?: attempts)?|(?:is|are|was|were|been|being) exploited (?:in|by)|(?:attackers?|actors?|operators?) (?:are |were )?exploit(?:ing|ed)?|exploitation (?:was |is )?(?:confirmed|observed|detected)|weaponized in (?:the wild|attacks))\b",
-    re.I,
-)
-HISTORICAL = re.compile(
-    r"\b(?:previously|historically|in prior reporting|last (?:year|month|week)"
-    r"|in (?:January|February|March|April|May|June|July|August|September|October|November|December|20\d{2}))\b",
     re.I,
 )
 EXPLOIT = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
@@ -631,11 +630,14 @@ def _clause_status(clause: str) -> str:
         return "potential"
     if CONFIRMED.search(clause):
         past_predicate = re.search(
-            r"\b(?:was|were|had been)\s+(?:actively )?(?:exploited|observed|detected|confirmed)\b",
+            r"\b(?:(?:was|were|had been)\s+(?:actively )?(?:exploited|observed|detected|confirmed)"
+            r"|(?:attackers?|actors?|operators?)\s+(?:were\s+(?:actively\s+)?exploiting|exploited))\b",
             clause,
             re.I,
         )
-        return "observed" if past_predicate and HISTORICAL.search(clause) else "active"
+        # Tense establishes a past observation independently of date wording.
+        # Only a separate current predicate can establish ongoing activity.
+        return "observed" if past_predicate else "active"
     return "unknown"
 
 
@@ -929,13 +931,18 @@ VERSION_DESCRIPTIVE_STATE = re.compile(
 
 def recommendation_action(blocks: Sequence[str]) -> str:
     """Project badges from parsed source directives, retaining whole guidance."""
-    directives = [
-        directive
+    parsed = [
+        RecommendationBlock(
+            block,
+            tuple(
+                directive
+                for sentence in _sentences(block)
+                if (directive := parse_recommendation(sentence)) is not None
+            ),
+        )
         for block in blocks
-        for sentence in _sentences(block)
-        if (directive := parse_recommendation(sentence)) is not None
     ]
-    return project_recommendation_action(directives)
+    return project_recommendation_action(parsed)
 
 
 @dataclass(frozen=True)
