@@ -16,7 +16,7 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
-from .report_artifact import Action
+from .recommendations import parse_recommendation, project_recommendation_action
 from .reporting import (
     ACTIVE_SECTION_PATTERN,
     FINDING_PATTERN,
@@ -52,10 +52,7 @@ def _detail_roles(text: str, context: str = "") -> tuple[str, ...]:
             or _cumulative_version_list(text, context)
             if name == "Affected Versions"
             else re.search(cue, text, re.I)
-            or (
-                name == "Recommended Actions"
-                and RECOMMENDATION_INSTRUCTION.fullmatch(text)
-            )
+            or (name == "Recommended Actions" and parse_recommendation(text))
         )
     )
 
@@ -910,33 +907,6 @@ VERSION_RECOMMENDATION_CLAUSE = re.compile(
     r"(?:\w+ly )*(?P<verb>install|apply|patch|upgrade|update|consult|review|contact)\b.*",
     re.I,
 )
-# One directive inventory serves recommendation retention and badge derivation.
-# Version-clause classification above retains its narrower existing grammar.
-RECOMMENDATION_VERBS = "install|apply|patch|upgrade|update|consult|review|contact|mitigate|investigate|monitor"
-RECOMMENDATION_INSTRUCTION = re.compile(
-    rf"(?:(?:{VERSION_AUDIENCE})\b.*?\b"
-    r"(?:should|must|needs? to|(?:are|is) (?:not )?"
-    r"(?:advised|recommended|urged|encouraged) (?:not )?to) "
-    r"|(?:(?:do not|don't|never) )?)"
-    rf"(?:(?:not|never|\w+ly) )*(?P<verb>{RECOMMENDATION_VERBS})\b"
-    r"(?P<object>[^?]*)",
-    re.I,
-)
-# Ordered by the established single-badge priority. Object roles refer to the
-# direct recommendation, not a matching word elsewhere in the paragraph.
-RECOMMENDATION_ACTIONS = (
-    (Action.PATCH, {"patch", "upgrade", "update"}, None),
-    (
-        Action.PATCH,
-        {"install", "apply"},
-        r"(?:patch(?:es)?|updates?|hotfix(?:es)?|fix(?:es)?)",
-    ),
-    (Action.MITIGATE, {"mitigate"}, None),
-    (Action.MITIGATE, {"apply"}, r"(?:workarounds?|mitigations?)"),
-    (Action.INVESTIGATE, {"investigate"}, None),
-    (Action.INVESTIGATE, {"review"}, r"(?:compromise|indicators|logs)"),
-    (Action.MONITOR, {"monitor"}, None),
-)
 VERSION_INFORMATION_CLAUSE = re.compile(
     r"\b(?:(?:further|more) )?(?:details|information)\b.*?\b(?:is|are) "
     r"(?:available|provided|published)\b.*",
@@ -958,47 +928,14 @@ VERSION_DESCRIPTIVE_STATE = re.compile(
 
 
 def recommendation_action(blocks: Sequence[str]) -> str:
-    """Derive a badge only from an unqualified complete recommendation clause.
-
-    Full source blocks still carry every qualification. A negated/prohibited or
-    conditional patch instruction cannot become an unconditional patch badge.
-    Unknown instruction grammar supplies no badge, rather than a guessed verb.
-    """
-    statements = [sentence for block in blocks for sentence in _sentences(block)]
-    condition = r"\b(?:if|unless|until|when|only|provided|depending|may|might|could)\b"
-    unsafe_instruction = any(
-        re.search(
-            rf"\b(?:{RECOMMENDATION_VERBS}|do so|do it|this action|that action)\b",
-            sentence,
-            re.I,
-        )
-        and re.search(
-            r"\b(?:not|never|no|neither|nor|don't)\b|" + condition, sentence, re.I
-        )
-        for sentence in statements
-    )
-    if unsafe_instruction:
-        return "none"
-    actions = set()
-    for sentence in statements:
-        advice = RECOMMENDATION_INSTRUCTION.fullmatch(sentence)
-        if not advice or not re.search(r"\w", advice["object"]):
-            continue
-        verb = advice["verb"].casefold()
-        for action, verbs, object_role in RECOMMENDATION_ACTIONS:
-            if verb in verbs and (
-                object_role is None
-                or re.match(
-                    rf"\s*(?:(?:the|a|an|available|latest|security)\s+)*{object_role}\b",
-                    advice["object"],
-                    re.I,
-                )
-            ):
-                actions.add(action)
-                break
-    return next(
-        (action.value for action in Action if action in actions), Action.NONE.value
-    )
+    """Project badges from parsed source directives, retaining whole guidance."""
+    directives = [
+        directive
+        for block in blocks
+        for sentence in _sentences(block)
+        if (directive := parse_recommendation(sentence)) is not None
+    ]
+    return project_recommendation_action(directives)
 
 
 @dataclass(frozen=True)

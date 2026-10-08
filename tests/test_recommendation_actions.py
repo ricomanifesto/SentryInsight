@@ -77,6 +77,120 @@ def test_action_contract_covers_the_published_enum():
     assert {action for _, action in DIRECTIVES} == {action.value for action in Action}
 
 
+@pytest.mark.parametrize(
+    "narrative",
+    [
+        "Patch Tuesday updates addressed 50 flaws.",
+        "Update 1.2 fixes the vulnerability.",
+        "Monitor logs indicate that the service restarted.",
+        "Patch systems are available for download.",
+        "Patch Tuesday updates will fail if the service is running.",
+        "Update 1.2 does not fix the vulnerability.",
+        "Patch systems with updates addressed 50 flaws.",
+    ],
+)
+def test_descriptive_nouns_never_become_recommendations(narrative):
+    _, report = render(catalog_for(f"## {CVE}\n\n{narrative}"))
+    assert "**Action**: none" in report
+    assert "**Recommended Actions**: Not stated in supplied sources." in report
+
+
+@pytest.mark.parametrize(
+    ("advice", "action"),
+    [
+        ("Users should monitor logs and install the update.", "patch"),
+        ("Users should investigate suspicious activity and patch systems.", "patch"),
+        ("Users should install the update and monitor logs.", "patch"),
+        ("Monitor logs and apply the workaround.", "mitigate"),
+        (
+            "Users should monitor logs, review indicators of compromise, and apply the patch.",
+            "patch",
+        ),
+        ("Users should monitor logs and not install the update.", "none"),
+        ("Users should monitor logs and install the update only if exposed.", "none"),
+        ("Users should monitor logs or install the update.", "none"),
+        ("Users should monitor logs and consider installing an update.", "none"),
+        ("Monitor logs and consider installing an update.", "none"),
+        ("Users should monitor logs and traffic.", "monitor"),
+    ],
+)
+def test_coordinated_directives_preserve_structure_before_badge_priority(
+    advice, action
+):
+    _, report = render(catalog_for(f"## {CVE}\n\n{advice}"))
+    assert f"**Action**: {action}" in report
+    assert f"**Recommended Actions**: {advice}" in report
+
+
+def test_actions_follow_singleton_and_shared_cve_ownership():
+    other = "CVE-2026-5678"
+    records, _ = render(
+        catalog_for(
+            f"## {CVE}\n\nUsers should monitor logs.\n\n"
+            f"## {other}\n\nUsers should apply the update."
+        )
+    )
+    assert {record.cves: dict(record.fields)["Action"] for record in records} == {
+        (CVE,): "monitor",
+        (other,): "patch",
+    }
+    records, report = render(
+        catalog_for(
+            f"For {CVE} and {other}, users should monitor logs and install the update."
+        )
+    )
+    assert len(records) == 1
+    assert set(records[0].cves) == {CVE, other}
+    assert "**Action**: patch" in report
+
+
+@pytest.mark.parametrize(
+    ("advice", "action"),
+    [
+        ("Users should monitor logs and install the update.", "patch"),
+        ("Users should monitor logs and not install the update.", "none"),
+        ("Users should monitor logs and install the update only if exposed.", "none"),
+        ("Users should monitor logs or install the update.", "none"),
+        ("Monitor logs and consider installing an update.", "none"),
+    ],
+)
+def test_real_pipeline_keeps_coordinated_guidance(
+    monkeypatch, tmp_path, advice, action
+):
+    result = run_real_pipeline(
+        monkeypatch,
+        tmp_path / "index.md",
+        articles=[
+            dict(
+                title="Example advisory",
+                source="Publisher",
+                link="https://example.test/advisory",
+                content=f"## {CVE}\n\n{advice}",
+                content_kind="article",
+            )
+        ],
+    )
+    assert result["status"] == "completed", result
+    artifact = parse_report_artifact((tmp_path / "index.md").read_text())
+    assert artifact.findings[0].action.value == action
+    assert artifact.findings[0].recommended_actions == advice
+
+
+def test_parsed_directive_retains_modality_polarity_conditions_and_coordination():
+    from src.core.recommendations import parse_recommendation
+
+    text = "Users should monitor logs and not install the update until verification completes."
+    directive = parse_recommendation(text)
+    assert directive is not None
+    assert directive.source_text == text
+    assert directive.modality == "advice"
+    assert [(clause.verb, clause.polarity) for clause in directive.clauses] == [
+        ("monitor", "affirmative"),
+        ("install", "negative"),
+    ]
+    assert directive.conditions == ("until verification completes",)
+
+
 @pytest.mark.parametrize(("directive", "action"), DIRECTIVES)
 def test_real_pipeline_serializes_source_owned_action(
     monkeypatch, tmp_path, directive, action
