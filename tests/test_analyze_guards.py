@@ -42,7 +42,7 @@ VALID_ARTICLE = {
     "title": "Example security report",
     "source": "Example publisher",
     "link": "https://example.test/advisory",
-    "content": "Example Gateway has a service issue.",
+    "content": "Example Gateway has a service issue. Exploitation status is unknown.",
 }
 
 
@@ -729,7 +729,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "title": "Example exploitation report",
                             "source": "Example Source",
                             "link": "https://example.test/report",
-                            "summary": "Summary only",
+                            "summary": "Exploitation status is unknown.",
                         }
                     ],
                     config={

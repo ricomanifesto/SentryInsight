@@ -7,7 +7,10 @@ from test_finding_generation_pipeline import run_real_pipeline
 
 
 def pipeline_action(monkeypatch, tmp_path, guidance):
-    paragraph = f"CVE-2026-1234 allows remote code execution on the gateway. {guidance}"
+    paragraph = (
+        "CVE-2026-1234 exploitation status is unknown. "
+        f"CVE-2026-1234 allows remote code execution on the gateway. {guidance}"
+    )
     result = run_real_pipeline(
         monkeypatch,
         tmp_path / "index.md",

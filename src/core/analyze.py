@@ -334,7 +334,9 @@ async def analyze_exploitation(
     if len(tokenizer.encode("".join(all_article_summaries))) > max_input_tokens:
         return budget_error
     try:
-        records = compile_finding_records(reporting_catalog, sorted(all_cves))
+        records = compile_finding_records(
+            reporting_catalog, sorted(all_cves), relevance=has_exploitation_relevance
+        )
     except EvidenceError as exc:
         logger.error(
             "Generation evidence failed: %s",

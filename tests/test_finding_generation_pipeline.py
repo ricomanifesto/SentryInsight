@@ -59,7 +59,13 @@ REPRESENTATIVE_ARTICLES = [
 
 
 def run_real_pipeline(
-    monkeypatch, output_path, *, mutation=None, articles=None, select_plan=None
+    monkeypatch,
+    output_path,
+    *,
+    mutation=None,
+    articles=None,
+    select_plan=None,
+    expect_model_call=True,
 ):
     from langgraph.graph import END, START, StateGraph
 
@@ -112,7 +118,7 @@ def run_real_pipeline(
         },
     )
     result = asyncio.run(workflow.run_exploitation_analysis())
-    assert client.generate.await_count == 1
+    assert client.generate.await_count == int(expect_model_call)
     return result
 
 

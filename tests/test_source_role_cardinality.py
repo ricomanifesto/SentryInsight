@@ -52,7 +52,10 @@ def test_mixed_roles_and_reference_ownership_through_real_pipeline(
     monkeypatch, tmp_path, quantifier, separator, joint, advice_first, guidance, action
 ):
     cves = "CVE-2026-1234 and CVE-2026-5678" if joint else "CVE-2026-1234"
-    detail = f"{cves} allows remote code execution on the gateway."
+    detail = (
+        f"{cves} exploitation status is unknown. "
+        f"{cves} allows remote code execution on the gateway."
+    )
     noun = "system" if quantifier in {"each", "every"} else "systems"
     advice = guidance.format(audience=f"Users of {quantifier} affected {noun}")
     ordered = [advice, detail] if advice_first else [detail, advice]

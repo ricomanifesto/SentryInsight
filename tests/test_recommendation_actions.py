@@ -200,7 +200,7 @@ def test_real_pipeline_keeps_qualified_and_coordinated_guidance(
                 title="Example advisory",
                 source="Publisher",
                 link="https://example.test/advisory",
-                content=f"## {CVE}\n\n{advice}",
+                content=f"## {CVE}\n\n{CVE} exploitation status is unknown.\n\n{advice}",
                 content_kind="article",
             )
         ],
@@ -323,7 +323,7 @@ def test_directive_qualification_ownership_in_real_pipeline(
                 title="Example advisory",
                 source="Publisher",
                 link="https://example.test/advisory",
-                content=f"## {CVE}\n\n{guidance}",
+                content=f"## {CVE}\n\n{CVE} exploitation status is unknown.\n\n{guidance}",
                 content_kind="article",
             )
         ],

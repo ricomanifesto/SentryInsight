@@ -633,14 +633,23 @@ def _clause_status(clause: str) -> str:
             return "unknown"
         return "potential"
     if CONFIRMED.search(clause):
-        past_predicate = re.search(
-            r"\b(?:(?:was|were|had been)\s+(?:actively )?(?:exploited|observed|detected|confirmed)"
-            r"|(?:attackers?|actors?|operators?)\s+(?:were\s+(?:actively\s+)?exploiting|exploited))\b",
+        current_exploitation = re.search(
+            r"\b(?:(?:is|are)\s+(?:(?:currently|now|actively)\s+)*exploited"
+            r"|(?:attackers?|actors?|operators?)\s+(?:are\s+(?:actively\s+)?exploiting|exploit))\b",
             clause,
             re.I,
         )
-        # Tense establishes a past observation independently of date wording.
-        # Only a separate current predicate can establish ongoing activity.
+        if current_exploitation:
+            return "active"
+        past_predicate = re.search(
+            r"\b(?:(?:was|were|had been)\s+(?:actively )?exploited"
+            r"|(?:attackers?|actors?|operators?)\s+(?:were\s+(?:actively\s+)?exploiting|exploited)"
+            r"|exploitation\s+(?:was|had been)\s+(?:observed|detected|confirmed))\b",
+            clause,
+            re.I,
+        )
+        # Tense belongs to the exploitation predicate, not an incidental
+        # reporting adjunct such as "as was confirmed yesterday".
         return "observed" if past_predicate else "active"
     return "unknown"
 

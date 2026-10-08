@@ -3,7 +3,7 @@
 from dataclasses import dataclass, replace
 import json
 import re
-from typing import Mapping, Sequence
+from typing import Callable, Mapping, Sequence
 
 from .cve import extract_cve_ids
 from .finding_evidence import (
@@ -224,7 +224,9 @@ def _check_finding(record, catalog, excerpts=()):
     )
 
 
-def _finding_scopes(catalog, required_cves):
+def _finding_scopes(
+    catalog, required_cves, relevance: Callable[[str], bool] | None = None
+):
     """Join only scopes needed to own otherwise-lost complete detail blocks."""
     contexts = build_finding_detail_context(catalog)
     signatures = {}
@@ -277,18 +279,48 @@ def _finding_scopes(catalog, required_cves):
             if group & (set(extract_cve_ids(source.content)) | metadata[key])
         )
         result.append((scope, keys))
-    return result + list(dict.fromkeys(no_cves))
+    candidates = result + list(dict.fromkeys(no_cves))
+    if relevance is None:
+        return candidates
+    is_relevant: Callable[[str], bool] = relevance
+
+    def eligible(scope, keys):
+        if set(scope) & set(required_cves):
+            return True
+        texts = [
+            span["text"]
+            for item in contexts
+            if item["source_key"] in keys and set(item["cves"]) <= set(scope)
+            for span in item.get("spans", [])
+            if span["role"] == "body"
+        ]
+        # Membership is distinct from confirmation. Explicit negative/unknown
+        # exploitation discussion remains relevant. The original report also
+        # covers explicitly rated high-impact risks without observed activity.
+        return any(is_relevant(text) for text in texts) or (
+            _severity(texts) in {"high", "critical"}
+            and any(set(_excerpt_roles(text)) & {"impact", "vectors"} for text in texts)
+        )
+
+    # Select complete groups, never trim supporting or contrary source keys.
+    return [(scope, keys) for scope, keys in candidates if eligible(scope, keys)]
 
 
 def compile_finding_records(
-    catalog: Mapping[str, ReportingSource], required_cves: Sequence[str] = ()
+    catalog: Mapping[str, ReportingSource],
+    required_cves: Sequence[str] = (),
+    *,
+    relevance: Callable[[str], bool] | None = None,
 ) -> tuple[FindingRecord, ...]:
-    """Compile every supplied scope without converting ambiguity into absence.
+    """Compile selected groups without converting ambiguity into absence.
 
     Joint detail ownership determines grouping; incidental co-mentions cannot
     create duplicate findings. The complete selected group is validated again.
+
+    Explicit compiler callers can inspect candidate scopes; production supplies
+    the established relevance predicate and unchanged required-CVE coverage.
     """
-    scopes = _finding_scopes(catalog, required_cves)
+    scopes = _finding_scopes(catalog, required_cves, relevance)
     represented = {cve for cves, _ in scopes for cve in cves}
     if set(required_cves) - represented:
         raise EvidenceError(
