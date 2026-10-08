@@ -7,7 +7,7 @@ import pytest
 
 from src.core import finding_evidence
 from src.core.reporting import build_reporting_catalog, serialize_reporting_catalog
-from test_analyze_guards import import_analyze_with_stubs
+from test_analyze_guards import import_analyze_with_stubs, reference_plan_from_prompt
 from test_workflow_guards import import_workflow_with_stubs
 
 CVE = "CVE-2026-1234"
@@ -48,20 +48,28 @@ def test_prompt_exposes_validator_scope_without_losing_full_article(monkeypatch)
         "Example Gateway 14.1-73.41 and later releases\n\n"
         f"{OTHER} is also mentioned."
     )
-    client = type("Client", (), {"generate": AsyncMock(return_value="candidate")})()
+    client = type(
+        "Client", (), {"generate": AsyncMock(side_effect=reference_plan_from_prompt)}
+    )()
     monkeypatch.setattr(analyze, "build_model_client", lambda **_: client)
     result = asyncio.run(analyze.analyze_exploitation([source(content)], {}))
     prompt = client.generate.call_args.kwargs["user_prompt"]
     assert content in prompt
     context = json.loads(
-        prompt.split("BEGIN SCOPED FINDING DETAIL EVIDENCE\n", 1)[1].split(
-            "\nEND SCOPED FINDING DETAIL EVIDENCE", 1
-        )[0]
+        prompt.split("BEGIN FINDING RECORDS\n", 1)[1].split("\nEND FINDING RECORDS", 1)[
+            0
+        ]
     )
     scoped = next(item for item in context if item["cves"] == [CVE])
     assert "14.1-73.41" not in json.dumps(scoped)
-    assert "fixed releases are not affected releases" in prompt.lower()
-    assert "do not infer earlier affected ranges" in prompt.lower()
+    assert "14.1-73.41" not in result["exploitation_report"]
+    assert (
+        "**Affected Versions**: Not stated in supplied sources."
+        in result["exploitation_report"]
+    )
+    finding_evidence.validate_finding_evidence(
+        result["exploitation_report"], build_reporting_catalog([source(content)])
+    )
     assert result["reporting_sources"][0]["content"] == content
     assert client.generate.await_count == 1
 

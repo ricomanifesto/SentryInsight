@@ -1,10 +1,49 @@
 import asyncio
 import importlib
+import json
 import os
 import sys
 import types
 import unittest
 from unittest.mock import patch
+
+
+def reference_plan_from_prompt(**kwargs):
+    records = json.loads(
+        kwargs["user_prompt"]
+        .split("BEGIN FINDING RECORDS\n", 1)[1]
+        .split("\nEND FINDING RECORDS", 1)[0]
+    )
+    return json.dumps(
+        {
+            "findings": [
+                {
+                    "id": record["id"],
+                    "excerpts": [item["id"] for item in record["excerpts"][:1]],
+                    **{
+                        role: [
+                            item["id"]
+                            for item in record["excerpts"]
+                            if role in item["roles"]
+                        ][:1]
+                        for role in ("impact", "systems", "vectors", "actors")
+                    },
+                    "vendor_links": [
+                        item["id"] for item in record["links"] if item["required"]
+                    ],
+                }
+                for record in records
+            ]
+        }
+    )
+
+
+VALID_ARTICLE = {
+    "title": "Example security report",
+    "source": "Example publisher",
+    "link": "https://example.test/advisory",
+    "content": "Example Gateway has a service issue.",
+}
 
 
 def import_analyze_with_stubs():
@@ -80,14 +119,14 @@ class AnalyzeGuardTests(unittest.TestCase):
                 assert (
                     kwargs["model"].model_id == "nvidia/nemotron-3-ultra-550b-a55b:free"
                 )
-                return "# Exploitation Report\n\nGenerated through OpenCode."
+                return reference_plan_from_prompt(**kwargs)
 
         analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
 
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
                 analyze.analyze_exploitation(
-                    articles=[],
+                    articles=[VALID_ARTICLE],
                     config={
                         "analysis": {
                             "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
@@ -97,7 +136,9 @@ class AnalyzeGuardTests(unittest.TestCase):
             )
 
         self.assertNotIn("error", result)
-        self.assertIn("Generated through OpenCode", result["exploitation_report"])
+        self.assertIn(
+            "Example Gateway has a service issue.", result["exploitation_report"]
+        )
 
     def test_unavailable_opencode_server_returns_skip_result(self):
         analyze = import_analyze_with_stubs()
@@ -114,7 +155,7 @@ class AnalyzeGuardTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
                 analyze.analyze_exploitation(
-                    articles=[],
+                    articles=[VALID_ARTICLE],
                     config={
                         "analysis": {
                             "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
@@ -129,41 +170,18 @@ class AnalyzeGuardTests(unittest.TestCase):
 
     def test_article_prompt_omits_empty_source_and_url_fields(self):
         analyze = import_analyze_with_stubs()
-
-        class FakeOpenCodeClient:
-            def __init__(self, **_kwargs):
-                pass
-
-            async def generate(self, **kwargs):
-                user_prompt = kwargs["user_prompt"]
-                self.__class__.user_prompt = user_prompt
-                return "# Exploitation Report\n\nGenerated through OpenCode."
-
-        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
-
-        with patch.dict(os.environ, {}, clear=True):
-            asyncio.run(
-                analyze.analyze_exploitation(
-                    articles=[
-                        {
-                            "title": None,
-                            "source": None,
-                            "link": None,
-                            "summary": "Summary only",
-                        }
-                    ],
-                    config={
-                        "analysis": {
-                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
-                        }
-                    },
-                )
-            )
-
-        self.assertIn("**Untitled article**", FakeOpenCodeClient.user_prompt)
-        self.assertIn("Summary only\n", FakeOpenCodeClient.user_prompt)
-        self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
-        self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
+        summary = analyze.format_article_summary(
+            {
+                "title": None,
+                "source": None,
+                "link": None,
+                "summary": "Summary only",
+            }
+        )
+        self.assertIn("**Untitled article**", summary)
+        self.assertIn("Summary only\n", summary)
+        self.assertNotIn("(Source: )", summary)
+        self.assertNotIn("URL: \n", summary)
 
     def test_article_summary_omits_unknown_source_sentinel(self):
         analyze = import_analyze_with_stubs()
@@ -730,23 +748,17 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertIn(
             "Reporting key: source-1e8f5cb3245d", FakeOpenCodeClient.user_prompt
         )
+        self.assertIn("- **Severity**: unknown", FakeOpenCodeClient.user_prompt)
         self.assertIn(
-            "- **Severity**: critical|high|medium|low|unknown",
-            FakeOpenCodeClient.user_prompt,
+            "- **Exploitation Status**: unknown", FakeOpenCodeClient.user_prompt
         )
-        self.assertIn(
-            "- **Exploitation Status**: active|observed|potential|not_observed|unknown",
-            FakeOpenCodeClient.user_prompt,
-        )
-        self.assertIn(
-            "- **Action**: patch|mitigate|investigate|monitor|none",
-            FakeOpenCodeClient.user_prompt,
-        )
-        self.assertIn("- **CVE IDs**:", FakeOpenCodeClient.user_prompt)
-        self.assertIn("Omit the CVE IDs field", FakeOpenCodeClient.user_prompt)
+        self.assertIn("- **Action**: none", FakeOpenCodeClient.user_prompt)
+        self.assertNotIn("- **CVE IDs**:", FakeOpenCodeClient.user_prompt)
         self.assertIn("- **Reporting**:", FakeOpenCodeClient.user_prompt)
+        self.assertIn("never write a URL", FakeOpenCodeClient.user_prompt)
         self.assertIn(
-            "never invent a Reporting key or URL", FakeOpenCodeClient.user_prompt
+            "Include every supplied finding id exactly once",
+            FakeOpenCodeClient.user_prompt,
         )
 
     def test_analysis_result_omits_source_attribution_contract(self):
@@ -799,6 +811,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                     "content": "Summary only",
                     "content_kind": "feed",
                     "links": (),
+                    "link_contexts": (),
                 }
             ],
         )

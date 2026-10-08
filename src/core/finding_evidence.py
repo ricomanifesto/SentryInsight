@@ -73,6 +73,11 @@ CONFIRMED = re.compile(
     r"\b(?:actively exploited|active exploitation(?: attempts)?|(?:is|are|was|were|been|being) exploited (?:in|by)|(?:attackers?|actors?|operators?) (?:are |were )?exploit(?:ing|ed)?|exploitation (?:was |is )?(?:confirmed|observed|detected)|weaponized in (?:the wild|attacks))\b",
     re.I,
 )
+HISTORICAL = re.compile(
+    r"\b(?:previously|historically|in prior reporting|last (?:year|month|week)"
+    r"|in (?:January|February|March|April|May|June|July|August|September|October|November|December|20\d{2}))\b",
+    re.I,
+)
 EXPLOIT = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
 EPISTEMIC = re.compile(r"\b(?:unknown|unclear|unconfirmed|unverified|whether)\b", re.I)
 MODAL = re.compile(r"\b(?:may|might|could)\b", re.I)
@@ -622,7 +627,70 @@ def _clause_status(clause: str) -> str:
         if EPISTEMIC.search(clause):
             return "unknown"
         return "potential"
-    return "active" if CONFIRMED.search(clause) else "unknown"
+    if CONFIRMED.search(clause):
+        past_predicate = re.search(
+            r"\b(?:was|were|had been)\s+(?:actively )?(?:exploited|observed|detected|confirmed)\b",
+            clause,
+            re.I,
+        )
+        return "observed" if past_predicate and HISTORICAL.search(clause) else "active"
+    return "unknown"
+
+
+def _intrusion_statement(sentence: str) -> ExploitationStatement | None:
+    """Recognize explicit past intrusion predicates with a bound CVE object.
+
+    Object coordination ("service and other victims") and a CVE-relative
+    predicate ("CVE, which ... began exploiting") must stay together. These
+    attest an observation, not continuing activity. Multiple CVE subjects and
+    unrecognized qualifiers never acquire confirmation through this rule.
+    """
+    cves = tuple(extract_cve_ids(sentence))
+    if len(cves) != 1:
+        return None
+    cve = re.escape(cves[0])
+    access = re.search(
+        rf"\b(?:gained|obtained) access\b[^.!?;]*?\bby exploiting "
+        rf"(?:a |the )?(?:vulnerability|flaw|bug)\s*\(?{cve}\)?",
+        sentence,
+        re.I,
+    )
+    relative = re.search(
+        rf"{cve}\s*,\s*which\s+(?P<predicate>[^.!?;]*?\bbegan exploiting\b)"
+        r"(?=\s*(?:[,.!?;]|$)|\s+(?:as|in|on|during|before|after)\b)",
+        sentence,
+        re.I,
+    )
+    if access:
+        prefix = re.split(r"[;,]", sentence[: access.start()])[-1]
+        predicate = prefix + access.group()
+        governing = sentence[: access.end()]
+    elif relative:
+        predicate = relative["predicate"]
+        governing = sentence[: relative.end()]
+    else:
+        return None
+    if EPISTEMIC.search(governing) or re.search(
+        r"\b(?:if|unless|alleged|reportedly|speculat\w*|rumou?r\w*|denied|denies|deny|disputed|not true)\b",
+        sentence,
+        re.I,
+    ):
+        status = "unknown"
+    elif NEGATIVE.search(predicate) or re.search(
+        r"\b(?:not|never)\s+(?:(?:have|had|previously|actually|first)\s+)*(?:gained|obtained|began)\b",
+        predicate,
+        re.I,
+    ):
+        status = "not_observed"
+    elif UNCERTAIN.search(predicate):
+        status = "potential"
+    elif re.search(
+        r"\b(?:no|not|never|without|if|unless|would|should)\b", predicate, re.I
+    ):
+        status = "unknown"
+    else:
+        status = "observed"
+    return ExploitationStatement(sentence, cves, "explicit", "root", status)
 
 
 def _predicate_head(clause: str) -> str:
@@ -740,6 +808,8 @@ def _statements(sentence: str) -> list[ExploitationStatement]:
         statements.append(
             ExploitationStatement(clause, subjects, attribution, relation, status)
         )
+    if intrusion := _intrusion_statement(sentence):
+        statements.append(intrusion)
     return statements
 
 
@@ -755,9 +825,9 @@ def assess_exploitation(
             tuple(text for item in assessments for text in item.negative),
             tuple(text for item in assessments for text in item.positive),
             any(item.conflicting for item in assessments)
-            or ("active" in statuses and "not_observed" in statuses),
+            or (bool(statuses & {"active", "observed"}) and "not_observed" in statuses),
         )
-    positive, negative, potential = [], [], []
+    positive, negative, potential, observed = [], [], [], []
     for source in sources:
         for sentence, direct in _scoped_sentences(source, cves):
             for statement in _statements(sentence):
@@ -770,17 +840,25 @@ def assess_exploitation(
                     potential.append(sentence)
                 elif attributed and statement.status == "active":
                     positive.append(sentence)
-    conflict = bool(positive and negative)
+                elif attributed and statement.status == "observed":
+                    observed.append(sentence)
+    conflict = bool((positive or observed) and negative)
     status = (
         "unknown"
         if conflict
         else (
             "not_observed"
             if negative
-            else "active" if positive else "potential" if potential else "unknown"
+            else (
+                "active"
+                if positive
+                else "observed" if observed else "potential" if potential else "unknown"
+            )
         )
     )
-    return ExploitationAssessment(status, tuple(negative), tuple(positive), conflict)
+    return ExploitationAssessment(
+        status, tuple(negative), tuple(positive + observed), conflict
+    )
 
 
 def _plain(text: str) -> str:
@@ -824,7 +902,7 @@ VERSION_AFFECTED_CLAUSE = re.compile(
 VERSION_RECOMMENDATION_CLAUSE = re.compile(
     rf"\b(?:{VERSION_AUDIENCE})\b.*?\b"
     r"(?:should|must|needs? to|(?:are|is) (?:advised|recommended|urged|encouraged) to) "
-    r"(?:\w+ly )*(?:install|apply|patch|upgrade|update|consult|review|contact)\b.*",
+    r"(?:\w+ly )*(?P<verb>install|apply|patch|upgrade|update|consult|review|contact)\b.*",
     re.I,
 )
 VERSION_INFORMATION_CLAUSE = re.compile(
@@ -845,6 +923,61 @@ VERSION_DESCRIPTIVE_STATE = re.compile(
     r"versions?|releases?|products?|applications?|software|platforms?|hosts?)\b(?=[.!?…]*\s*$)",
     re.I,
 )
+
+
+def recommendation_action(blocks: Sequence[str]) -> str:
+    """Derive a badge only from an unqualified complete recommendation clause.
+
+    Full source blocks still carry every qualification. A negated/prohibited or
+    conditional patch instruction cannot become an unconditional patch badge.
+    Unknown instruction grammar supplies no badge, rather than a guessed verb.
+    """
+    statements = [sentence for block in blocks for sentence in _sentences(block)]
+    action_verbs = r"\b(?:install|apply|patch|upgrade|update|review|consult|contact)\b"
+    condition = r"\b(?:if|unless|until|when|only|provided|depending|may|might|could)\b"
+    unsafe_instruction = any(
+        re.search(action_verbs, sentence, re.I)
+        and re.search(
+            r"\b(?:not|never|no|neither|nor|don't)\b|" + condition, sentence, re.I
+        )
+        for sentence in statements
+    )
+    if unsafe_instruction:
+        return "none"
+    actions = set()
+    for sentence in statements:
+        advice = VERSION_RECOMMENDATION_CLAUSE.fullmatch(sentence)
+        if not advice:
+            advice = re.fullmatch(
+                r"(?P<verb>install|apply|patch|upgrade|update|review)\b[^?]*",
+                sentence,
+                re.I,
+            )
+        if not advice or re.search(condition, sentence, re.I):
+            continue
+        verb = advice["verb"].casefold()
+        if (
+            verb in {"patch", "upgrade", "update"}
+            or verb in {"install", "apply"}
+            and re.search(r"\b(?:patch|update|hotfix|fix)\b", sentence, re.I)
+        ):
+            actions.add("patch")
+        elif verb == "apply" and re.search(
+            r"\b(?:workaround|mitigation)\b", sentence, re.I
+        ):
+            actions.add("mitigate")
+        elif verb == "review" and re.search(
+            r"\b(?:compromise|indicators|logs)\b", sentence, re.I
+        ):
+            actions.add("investigate")
+    return next(
+        (
+            action
+            for action in ("patch", "mitigate", "investigate")
+            if action in actions
+        ),
+        "none",
+    )
 
 
 @dataclass(frozen=True)
@@ -1269,113 +1402,30 @@ def _rendered_statements(text: str) -> list[ExploitationStatement]:
 
 
 def _positive_claim(text: str) -> bool:
-    return any(statement.status == "active" for statement in _rendered_statements(text))
+    return any(
+        statement.status in {"active", "observed"}
+        for statement in _rendered_statements(text)
+    )
 
 
-def _validate_finding(
-    finding: re.Match[str],
-    catalog: Mapping[str, ReportingSource],
-    nonconfirmed: list[tuple[str, list[str]]],
-) -> None:
-    title = finding.group("heading").removeprefix("###").strip()
-    body = finding.group("body")
-    pairs = FIELD.findall(body)
-    fields = dict(pairs)
-    if len(pairs) != len(fields):
-        raise EvidenceError(
-            f"{title}: duplicate finding field",
-            code="duplicate_finding_field",
-            expected=len(fields),
-            observed=len(pairs),
-        )
-    keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
-    if not keys or any(key not in catalog for key in keys):
-        raise EvidenceError(
-            f"{title}: missing retained source evidence",
-            code="missing_retained_source_evidence",
-            field="Reporting",
-            expected=True,
-            observed=False,
-        )
-    sources = [catalog[key] for key in keys]
-    if any(not source.content.strip() for source in sources):
-        raise EvidenceError(
-            f"{title}: missing retained source content",
-            code="missing_retained_source_content",
-            field="Reporting",
-            expected=True,
-            observed=False,
-        )
-    cves = extract_cve_ids(fields.get("CVE IDs", "") + " " + title)
-    # Assess every supplied source naming this CVE, even when the model
-    # omits that source from its chosen citations.
-    relevant = list(sources)
-    relevant.extend(
-        source
-        for source in catalog.values()
-        if source not in relevant and set(cves) & set(extract_cve_ids(source.content))
-    )
-    assessment = assess_exploitation(relevant, cves)
-    status = fields.get("Exploitation Status", "")
-    allowed = {assessment.status}
-    if assessment.status == "active":
-        allowed.add("observed")
-    if status not in allowed:
-        raise EvidenceError(
-            f"{title}: unsupported exploitation status {status!r}; source evidence is {assessment.status}",
-            code="unsupported_exploitation_status",
-            field="Exploitation Status",
-            expected=assessment.status,
-            observed=status or "missing",
-        )
-    # Check narrative separately; changing only the badge cannot pass.
-    narrative = FIELD.sub(
-        lambda match: (
-            ""
-            if match.group(1) in {"Reporting", "CVE IDs", "Exploitation Status"}
-            else match.group(2)
-        ),
-        body,
-    )
-    if status not in {"active", "observed"}:
-        nonconfirmed.append((title, cves))
-        if _positive_claim(title + "\n\n" + narrative):
-            raise EvidenceError(
-                f"{title}: unsupported exploitation claim in prose",
-                code="unsupported_finding_exploitation_claim",
-                field="prose",
-                expected=False,
-                observed=True,
-            )
-    if assessment.negative and not NEGATIVE.search(narrative):
-        raise EvidenceError(
-            f"{title}: prose omits negative exploitation evidence",
-            code="missing_negative_exploitation_evidence",
-            field="prose",
-            expected=True,
-            observed=False,
-        )
-    if assessment.conflicting and not re.search(r"\bconflict\w*\b", narrative, re.I):
-        raise EvidenceError(
-            f"{title}: prose must disclose conflicting exploitation evidence",
-            code="missing_conflicting_exploitation_evidence",
-            field="prose",
-            expected=True,
-            observed=False,
-        )
-    if (
-        fields.get("Action") in {"patch", "mitigate"}
-        and fields.get("Recommended Actions") == ABSENT
-    ):
-        raise EvidenceError(
-            f"{title}: action badge omits a supported recommendation",
-            code="action_without_recommendation",
-            field="Action",
-            expected=True,
-            observed=False,
-        )
+@dataclass(frozen=True)
+class FindingDetails:
+    """One source interpretation shared by generation and publication."""
+
+    spans: tuple[DetailSpan, ...]
+    scoped: str
+    field_evidence: Mapping[str, str]
+    version_lines: tuple[str, ...]
+    excluded_version_lines: tuple[str, ...]
+    known_version_list: bool
+
+
+def collect_finding_details(
+    sources: Sequence[ReportingSource], cves: Sequence[str]
+) -> FindingDetails:
+    """Collect complete source constraints; ambiguous source grammar still raises."""
     detail_spans = [
-        span for source in relevant for span in _scoped_detail_spans(source, cves)
+        span for source in sources for span in _scoped_detail_spans(source, cves)
     ]
     # Headings guide parsing, but only body text can ground a detail value.
     scoped = "\n".join(span.text for span in detail_spans if span.role == "body")
@@ -1476,6 +1526,137 @@ def _validate_finding(
             else:
                 list_state = "none"
                 range_target = None
+    return FindingDetails(
+        tuple(detail_spans),
+        scoped,
+        field_evidence,
+        tuple(version_lines),
+        tuple(excluded_version_lines),
+        known_version_list,
+    )
+
+
+def _validate_finding(
+    finding: re.Match[str],
+    catalog: Mapping[str, ReportingSource],
+    nonconfirmed: list[tuple[str, list[str], str]],
+) -> None:
+    title = finding.group("heading").removeprefix("###").strip()
+    body = finding.group("body")
+    pairs = FIELD.findall(body)
+    fields = dict(pairs)
+    if len(pairs) != len(fields):
+        raise EvidenceError(
+            f"{title}: duplicate finding field",
+            code="duplicate_finding_field",
+            expected=len(fields),
+            observed=len(pairs),
+        )
+    keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
+    if not keys or any(key not in catalog for key in keys):
+        raise EvidenceError(
+            f"{title}: missing retained source evidence",
+            code="missing_retained_source_evidence",
+            field="Reporting",
+            expected=True,
+            observed=False,
+        )
+    sources = [catalog[key] for key in keys]
+    if any(not source.content.strip() for source in sources):
+        raise EvidenceError(
+            f"{title}: missing retained source content",
+            code="missing_retained_source_content",
+            field="Reporting",
+            expected=True,
+            observed=False,
+        )
+    cves = extract_cve_ids(fields.get("CVE IDs", "") + " " + title)
+    # Assess every supplied source naming this CVE, even when the model
+    # omits that source from its chosen citations.
+    relevant = list(sources)
+    relevant.extend(
+        source
+        for source in catalog.values()
+        if source not in relevant and set(cves) & set(extract_cve_ids(source.content))
+    )
+    assessment = assess_exploitation(relevant, cves)
+    status = fields.get("Exploitation Status", "")
+    allowed = {assessment.status}
+    if assessment.status == "active":
+        allowed.add("observed")
+    if status not in allowed:
+        raise EvidenceError(
+            f"{title}: unsupported exploitation status {status!r}; source evidence is {assessment.status}",
+            code="unsupported_exploitation_status",
+            field="Exploitation Status",
+            expected=assessment.status,
+            observed=status or "missing",
+        )
+    # Check narrative separately; changing only the badge cannot pass.
+    narrative = FIELD.sub(
+        lambda match: (
+            ""
+            if match.group(1) in {"Reporting", "CVE IDs", "Exploitation Status"}
+            else match.group(2)
+        ),
+        body,
+    )
+    if assessment.status != "active":
+        nonconfirmed.append((title, cves, assessment.status))
+    if assessment.status == "observed" and any(
+        statement.status == "active"
+        for statement in _rendered_statements(title + "\n\n" + narrative)
+    ):
+        raise EvidenceError(
+            f"{title}: historical observation does not establish current exploitation",
+            code="unsupported_current_exploitation_claim",
+            field="prose",
+            expected="observed",
+            observed="active",
+        )
+    if status not in {"active", "observed"}:
+        if _positive_claim(title + "\n\n" + narrative):
+            raise EvidenceError(
+                f"{title}: unsupported exploitation claim in prose",
+                code="unsupported_finding_exploitation_claim",
+                field="prose",
+                expected=False,
+                observed=True,
+            )
+    if assessment.negative and not NEGATIVE.search(narrative):
+        raise EvidenceError(
+            f"{title}: prose omits negative exploitation evidence",
+            code="missing_negative_exploitation_evidence",
+            field="prose",
+            expected=True,
+            observed=False,
+        )
+    if assessment.conflicting and not re.search(r"\bconflict\w*\b", narrative, re.I):
+        raise EvidenceError(
+            f"{title}: prose must disclose conflicting exploitation evidence",
+            code="missing_conflicting_exploitation_evidence",
+            field="prose",
+            expected=True,
+            observed=False,
+        )
+    if (
+        fields.get("Action") in {"patch", "mitigate"}
+        and fields.get("Recommended Actions") == ABSENT
+    ):
+        raise EvidenceError(
+            f"{title}: action badge omits a supported recommendation",
+            code="action_without_recommendation",
+            field="Action",
+            expected=True,
+            observed=False,
+        )
+    details = collect_finding_details(relevant, cves)
+    detail_spans = details.spans
+    scoped = details.scoped
+    field_evidence = details.field_evidence
+    version_lines = details.version_lines
+    excluded_version_lines = details.excluded_version_lines
+    known_version_list = details.known_version_list
     reported_versions = {
         _plain(entry)
         for entry in _version_entries(fields.get("Affected Versions", ""))
@@ -1655,11 +1836,16 @@ def validate_finding_evidence(
     # the report contains mixed evidence states.
     outside = report[: section.start()] + report[section.end() :]
     for statement in _rendered_statements(outside):
-        if statement.status != "active":
+        if statement.status not in {"active", "observed"}:
             continue
         mentioned = set(statement.cves)
-        if nonconfirmed and (
-            not mentioned or any(mentioned & set(cves) for _, cves in nonconfirmed)
+        constrained = [
+            cves
+            for _, cves, status in nonconfirmed
+            if statement.status == "active" or status != "observed"
+        ]
+        if constrained and (
+            not mentioned or any(mentioned & set(cves) for cves in constrained)
         ):
             raise EvidenceError(
                 "Unsupported exploitation claim in summary or cross-finding prose",
