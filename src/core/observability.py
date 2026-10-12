@@ -2,7 +2,8 @@
 
 Span attributes carry identifiers, counts, outcomes and bounded failure codes.
 Article text and titles, prompts, model output, validation messages and
-credentials are never recorded.
+credentials are never recorded. Recorded exceptions keep only their type, because
+messages and tracebacks can carry header values or source content.
 """
 
 from collections.abc import Awaitable, Callable, Mapping
@@ -10,6 +11,8 @@ import functools
 from typing import Any, TypeVar
 
 import logfire
+from logfire.types import ExceptionCallbackHelper
+from opentelemetry.trace import Status, StatusCode
 
 from .model_config import resolve_model, validate_model
 
@@ -18,19 +21,35 @@ SERVICE_NAME = "sentryinsight"
 StateT = TypeVar("StateT", bound=Mapping[str, Any])
 
 
+def record_exception_type(helper: ExceptionCallbackHelper) -> None:
+    """Replace a recorded exception with its type alone."""
+    exception_type = type(helper.exception).__qualname__
+    helper.no_record_exception()
+    helper.span.set_attribute("error.type", exception_type)
+    if helper.span.status.status_code is StatusCode.ERROR:
+        helper.span.set_status(Status(StatusCode.ERROR, exception_type))
+
+
+def logfire_options() -> dict[str, Any]:
+    """Return the configuration shared by the entrypoint and its tests."""
+    return {
+        "service_name": SERVICE_NAME,
+        "send_to_logfire": "if-token-present",
+        "console": False,
+        # Span messages use templates, never f-strings.
+        "inspect_arguments": False,
+        "advanced": logfire.AdvancedOptions(exception_callback=record_exception_type),
+    }
+
+
 def configure_observability() -> None:
     """Configure export from the executable entrypoint.
 
-    Nothing leaves the process unless ``LOGFIRE_TOKEN`` is set.
+    Nothing leaves the process unless ``LOGFIRE_TOKEN`` is set. HTTP clients are
+    not auto-instrumented: their spans record raw transport exception text in the
+    span status, after any exception callback runs.
     """
-    logfire.configure(
-        service_name=SERVICE_NAME,
-        send_to_logfire="if-token-present",
-        console=False,
-        # Span messages use templates, never f-strings.
-        inspect_arguments=False,
-    )
-    logfire.instrument_httpx()
+    logfire.configure(**logfire_options())
 
 
 def model_attributes(config: Mapping[str, Any]) -> dict[str, str]:

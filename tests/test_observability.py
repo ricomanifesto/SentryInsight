@@ -4,17 +4,21 @@ import types
 from pathlib import Path
 from unittest.mock import AsyncMock
 
+import logfire
 import pytest
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.trace import StatusCode
 
 from src.core import workflow
 from src.core.model_config import DEFAULT_MODEL
-from src.core.observability import model_attributes, traced_stage
+from src.core.observability import logfire_options, model_attributes, traced_stage
 from src.core.report_validation import ReportValidationIssue
 
 ARTICLE_TEXT = "SECRET_ARTICLE_BODY"
 ARTICLE_TITLE = "SECRET_ARTICLE_TITLE"
 MODEL_PROSE = "SECRET_MODEL_PROSE"
 VALIDATION_MESSAGE = "SECRET_VALIDATION_MESSAGE"
+CREDENTIAL = "sk-or-SECRET_CREDENTIAL"
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -199,6 +203,48 @@ def test_invalid_model_identifier_is_not_recorded(model, monkeypatch):
     monkeypatch.setenv("SENTRYINSIGHT_MODEL", model)
 
     assert model_attributes({}) == {"model.id_valid": "false"}
+
+
+@pytest.fixture
+def production_capfire(capfire):
+    """Capture spans with the entrypoint's own Logfire options."""
+    options = {**logfire_options(), "send_to_logfire": False}
+    logfire.configure(
+        **options, additional_span_processors=[SimpleSpanProcessor(capfire.exporter)]
+    )
+    return capfire
+
+
+def test_escaping_exception_records_only_its_type(production_capfire):
+    async def stage(_state):
+        raise RuntimeError(f"Illegal header value b'Bearer {CREDENTIAL}'")
+
+    with pytest.raises(RuntimeError, match="Illegal header value"):
+        asyncio.run(traced_stage("enrich", stage)({"status": "started"}))
+
+    [span] = [
+        span
+        for span in production_capfire.exporter.exported_spans
+        if span.attributes.get("logfire.span_type") == "span"
+    ]
+    assert span.attributes["error.type"] == "RuntimeError"
+    assert span.status.status_code is StatusCode.ERROR
+    assert span.status.description == "RuntimeError"
+    assert not [event for event in span.events if event.name == "exception"]
+    assert CREDENTIAL not in json.dumps(exported(production_capfire))
+    assert CREDENTIAL not in str(span.status.description)
+
+
+def test_handled_exception_logging_records_only_its_type(production_capfire):
+    with logfire.span("handled"):
+        try:
+            raise ValueError(CREDENTIAL)
+        except ValueError:
+            logfire.exception("handled failure")
+
+    payload = json.dumps(exported(production_capfire))
+    assert CREDENTIAL not in payload
+    assert '"error.type": "ValueError"' in payload
 
 
 def test_logfire_token_reaches_only_the_generation_step():
