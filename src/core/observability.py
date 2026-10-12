@@ -8,6 +8,7 @@ messages and tracebacks can carry header values or source content.
 
 from collections.abc import Awaitable, Callable, Mapping
 import functools
+import os
 from typing import Any, TypeVar
 
 import logfire
@@ -31,10 +32,16 @@ def record_exception_type(helper: ExceptionCallbackHelper) -> None:
 
 
 def logfire_options() -> dict[str, Any]:
-    """Return the configuration shared by the entrypoint and its tests."""
+    """Return the configuration shared by the entrypoint and its tests.
+
+    Export requires ``LOGFIRE_TOKEN``. ``send_to_logfire="if-token-present"``
+    would also use a token saved under ``.logfire`` by the Logfire CLI.
+    """
+    token = os.environ.get("LOGFIRE_TOKEN", "").strip() or None
     return {
         "service_name": SERVICE_NAME,
-        "send_to_logfire": "if-token-present",
+        "send_to_logfire": token is not None,
+        "token": token,
         "console": False,
         # Span messages use templates, never f-strings.
         "inspect_arguments": False,

@@ -247,6 +247,29 @@ def test_handled_exception_logging_records_only_its_type(production_capfire):
     assert '"error.type": "ValueError"' in payload
 
 
+@pytest.mark.parametrize("value", [None, "", "   "])
+def test_export_is_disabled_without_an_environment_token(value, monkeypatch):
+    if value is None:
+        monkeypatch.delenv("LOGFIRE_TOKEN", raising=False)
+    else:
+        monkeypatch.setenv("LOGFIRE_TOKEN", value)
+
+    options = logfire_options()
+
+    # False also stops Logfire from reading a token saved under .logfire.
+    assert options["send_to_logfire"] is False
+    assert options["token"] is None
+
+
+def test_export_uses_only_the_environment_token(monkeypatch):
+    monkeypatch.setenv("LOGFIRE_TOKEN", " pylf_v1_us_example ")
+
+    options = logfire_options()
+
+    assert options["send_to_logfire"] is True
+    assert options["token"] == "pylf_v1_us_example"
+
+
 def test_logfire_token_reaches_only_the_generation_step():
     workflow_file = REPO_ROOT / ".github" / "workflows" / "generate-report.yml"
     header, *steps = workflow_file.read_text().split("\n      - name: ")
