@@ -7,6 +7,9 @@ from .cve import CVE_ID_PATTERN, extract_cve_ids
 
 CVE_LIST = rf"{CVE_ID_PATTERN.pattern}(?:\s*(?:,\s*(?:and\s+)?|and\s+){CVE_ID_PATTERN.pattern})*"
 NAME = r"[A-Z][A-Za-z0-9'-]*(?: [A-Z][A-Za-z0-9'-]*){0,6}"
+# Complete system argument language shared with recommendation targets. This
+# is the existing nominal production, moved without widening its vocabulary.
+SYSTEM_ARGUMENT = r"(?:(?:(?-i:[A-Z][A-Za-z0-9-]*)|and) ){0,8}(?:instances?|appliances?|systems?|servers?|gateways?|devices?|software|installations?|products?)"
 PRODUCT_HEAD = (
     r"operating systems?|systems?|software|servers?|gateways?|appliances?|switch(?:es)?"
 )

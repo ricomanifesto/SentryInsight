@@ -21,7 +21,12 @@ from .relations import EvidenceOperation, EvidenceReporter, OwnedClause
 from .source_document import reporting_envelope
 from .advisory_relations import bind_advisory
 
-from .assertion_bindings import bind_subject as _bind_subject, REPORTER_SUBJECT
+from .assertion_bindings import (
+    bind_subject as _bind_subject,
+    REPORTER_SUBJECT,
+    NAME,
+    SYSTEM_ARGUMENT,
+)
 
 REPORTER_EVIDENCE = re.compile(
     rf"^(?P<subject>{REPORTER_SUBJECT}) (?P<finite>has|have|had) "
@@ -88,6 +93,8 @@ def source_qualification(text):
     default/exception clauses. A recognized family with an unknown residual is
     required unsupported context; it cannot disappear into optional excerpts.
     """
+    if prerequisite := _configuration_prerequisite(text):
+        return prerequisite
     name = r"(?:[A-Z][A-Za-z0-9-]*|\d+|\([A-Za-z0-9-]+\)|over)(?: (?:[A-Z][A-Za-z0-9-]*|\d+|\([A-Za-z0-9-]+\)|over)){0,14}"
     families = (
         (
@@ -130,6 +137,47 @@ def source_qualification(text):
                 unsupported=matched is None,
             )
     return None
+
+
+def _configuration_prerequisite(text):
+    """Explicit vulnerability purpose owns configuration necessity, not advice.
+
+    Complete protocol/provider alternatives are arguments of that necessity.
+    Existing reporting/condition owners retain their qualifications; no role
+    or residual can be discarded to make a prerequisite complete.
+    """
+    envelope = reporting_envelope(text)
+    body = envelope.body if envelope else text
+    leading = leading_assertion_condition(body)
+    core = leading["event"] if leading else body
+    if not re.match(r"To be vulnerable,\s+", core, re.I):
+        return None
+    alias = r"(?: \([A-Za-z][A-Za-z0-9]*\))?"
+    provider = rf"(?:(?:a|an) )?(?:{NAME}{alias} )?(?:Identity|Service) Provider{alias}"
+    match = re.fullmatch(
+        rf"To be vulnerable, (?P<system>{SYSTEM_ARGUMENT}) must (?P<negative>not )?be configured as "
+        rf"{provider}(?: or {provider})?{END_MARKS}",
+        core,
+    )
+    return OwnedClause(
+        text=text,
+        source_text=text,
+        subject=match["system"] if match else "",
+        kind="context",
+        modal="capability",
+        verb="configured",
+        polarity="negative" if match and match["negative"] else "affirmative",
+        context_role="composed:configuration_prerequisite",
+        conditions=((leading["condition"],) if leading else ()) + (core,),
+        reporter=(
+            EvidenceReporter(
+                envelope.subject, envelope.finite, "affirmative", as_of=envelope.adjunct
+            )
+            if envelope
+            else None
+        ),
+        unsupported=match is None,
+    )
 
 
 def _closed_composition(core):

@@ -15,8 +15,12 @@ from .report_artifact import Action
 from .relations import OwnedClause
 from .relations import EvidenceReporter
 from .source_document import reporting_envelope
+from .assertions import source_qualification
+from .assertion_bindings import NAME, SYSTEM_ARGUMENT
 
-ArgumentRelation = Literal["direct", "destination", "direct_destination"]
+ArgumentRelation = Literal[
+    "direct", "destination", "direct_destination", "classification"
+]
 CoordinationRelation = Literal[
     "initial", "conjunctive", "alternative", "adversative", "sequential"
 ]
@@ -37,7 +41,7 @@ class RecommendationDirective:
 @dataclass(frozen=True)
 class RecommendationContext:
     source_text: str
-    owner: Literal["narrative", "version", "exception"]
+    owner: Literal["narrative", "version", "exception", "constraint"]
 
 
 @dataclass(frozen=True)
@@ -91,6 +95,7 @@ CONDITION = re.compile(
 # A verb is insufficient to infer remediation. These closed argument frames
 # own both recognized target shapes and their artifact projection.
 ACTION_FRAMES: dict[str, dict[ArgumentRelation, dict[str, Action]]] = {
+    "view": {"classification": {"infrastructure": Action.NONE}},
     "install": {"direct": {"patch": Action.PATCH, "release": Action.PATCH}},
     "apply": {
         "direct": {
@@ -174,6 +179,19 @@ ACTION_FRAMES["review"]["direct"].update(
     dict.fromkeys(("credential", "account", "extension"), Action.NONE)
 )
 VERBS = frozenset(ACTION_FRAMES)
+PASSIVE_PARTICIPLES = {
+    "viewed": "view",
+    "installed": "install",
+    "applied": "apply",
+    "patched": "patch",
+    "upgraded": "upgrade",
+    "updated": "update",
+    "mitigated": "mitigate",
+    "investigated": "investigate",
+    "reviewed": "review",
+    "monitored": "monitor",
+    "restarted": "restart",
+}
 
 
 def has_owned_advice_cue(text: str) -> bool:
@@ -183,7 +201,7 @@ def has_owned_advice_cue(text: str) -> bool:
     An intervening unknown clause remains unsupported in the actual parser.
     """
     return bool(
-        re.search(rf"\b(?:{AUDIENCE})\b[^.!?]*\b(?:{ADVICE_MODAL})\b", text, re.I)
+        bind_directive_frame(text).required
         or REPORTED_ADVICE_CUE.search(text)
         or re.match(r"They (?:should|must|need to)\b", text)
         or re.match(r'^["“]?(?:However, )?please\b', text, re.I)
@@ -192,6 +210,9 @@ def has_owned_advice_cue(text: str) -> bool:
 
 def recommendation_context(text: str) -> RecommendationContext | None:
     """Explicit non-directive contexts may close a source statement boundary."""
+    qualification = source_qualification(text)
+    if qualification and not qualification.unsupported:
+        return RecommendationContext(text, "constraint")
     envelope = reporting_envelope(text)
     body = envelope.body if envelope else text
     if re.fullmatch(r'["“][^"”]+["”]', body):
@@ -242,7 +263,8 @@ OBJECT_ROLES = {
     "patch": r"patch(?:es)?|updates?|hotfix(?:es)?|fix(?:es)?|monthly (?:(?-i:[A-Z][A-Za-z0-9-]*) )?updates",
     "mitigation": r"workarounds?|mitigations?",
     "evidence": r"(?:data warehouse |web application )?logs(?: for (?:signs of unauthorized access|attack attempts))?|indicators(?: of compromise)?|suspicious activity|alerts?|incidents?",
-    "system": r"(?:(?:(?-i:[A-Z][A-Za-z0-9-]*)|and) ){0,8}(?:instances?|appliances?|systems?|servers?|gateways?|devices?|software|installations?|products?)",
+    "system": SYSTEM_ARGUMENT,
+    "infrastructure": rf"infrastructure(?: behind (?-i:{NAME}))?",
     "service": r"services?",
     "vulnerability": r"vulnerabilit(?:y|ies)|flaws?|risks?|issues?|zero-days disclosed during the (?:[A-Z][A-Za-z0-9-]*|research) competition",
     "advisory": r"(?:vendor |security )?advisor(?:y|ies)|documentation",
@@ -455,6 +477,8 @@ def _argument(
     # Only a remaining relational argument may introduce a destination.
     if roles := _nominal_members(text):
         return "direct", roles
+    if _classification_argument(text):
+        return "classification", ("infrastructure",)
     if (
         version_identity
         and (identity := version_identity(text))
@@ -473,6 +497,28 @@ def _argument(
             roles if destination_roles and set(destination_roles) <= {"release"} else ()
         )
     return "direct", _object_members(text, version_identity=version_identity) or ()
+
+
+@dataclass(frozen=True)
+class ClassificationArgument:
+    target: str
+    classification: str
+    modifier: str
+
+
+def _classification_argument(text: str) -> ClassificationArgument | None:
+    """A complete analytical complement; embedded blocking is not an action."""
+    match = re.fullmatch(
+        r"(?P<target>.+?)(?: (?P<modifier>simply))? as "
+        r"(?P<classification>a list of domains(?: to block)?)",
+        text,
+        re.I,
+    )
+    if not match or _nominal_members(match["target"]) != ("infrastructure",):
+        return None
+    return ClassificationArgument(
+        match["target"], match["classification"], match["modifier"] or ""
+    )
 
 
 def _frame_actions(clause: OwnedClause) -> dict[str, Action] | None:
@@ -512,6 +558,51 @@ class AdviceOperator:
     finite: str
     end: int
     negative: bool = False
+
+
+@dataclass(frozen=True)
+class DirectiveFrame:
+    """Positioned directive operands; passive patients are not audiences.
+
+    Every span addresses ``text``. Inherited patients use an explicit frame
+    edge instead of fabricated offsets or a rewritten active sentence.
+    """
+
+    text: str
+    voice: Literal["active", "passive"]
+    binding: DirectiveBinding
+    verb: str
+    argument: DirectiveArgument
+    argument_relation: ArgumentRelation
+    object_members: tuple[str, ...]
+    operator_span: tuple[int, int] | None
+    verb_span: tuple[int, int] | None
+    patient_span: tuple[int, int] | None
+    tail_span: tuple[int, int] | None
+    patient_text: str
+    patient_owner: "DirectiveFrame | None" = None
+    required: bool = False
+    unsupported: bool = False
+    body: str = ""
+    classification_span: tuple[int, int] | None = None
+    classification_modifier_span: tuple[int, int] | None = None
+
+    @property
+    def starts_relation(self):
+        if self.voice == "passive" and self.patient_span:
+            # Lookahead is local to the next clause. An unowned conjunction
+            # before the modal may separate a condition's nominal subject
+            # from a later directive; that later operator is not this start.
+            if COORDINATION.search(self.patient_text) and not _nominal_members(
+                self.patient_text
+            ):
+                return False
+        return bool(
+            self.operator_span is not None
+            or re.match(ADVICE_AUDIENCE, self.text.strip(), re.I)
+            or self.verb in VERBS
+            or re.match(r"^(?:do so|do it|this action|that action)\b", self.body, re.I)
+        )
 
 
 def _advice_operator(
@@ -635,12 +726,23 @@ def _reported_advice(text: str) -> AdviceEnvelope | None:
     return None
 
 
-def _binding(text: str, inherited: DirectiveBinding) -> tuple[str, DirectiveBinding]:
+def _active_binding(
+    text: str, inherited: DirectiveBinding
+) -> tuple[str, DirectiveBinding]:
     """Consume one subject/modal production, retaining its owner for children."""
     polite = re.match(r"^(?:However, )?please\s+", text, re.I)
     if polite:
         text = text[polite.end() :]
         inherited = replace(inherited, modal="please")
+    copular = re.match(
+        r"(?:Furthermore, )?(?P<subject>the source for installing AI skills and MCP servers) (?P<modal>should) ",
+        text,
+        re.I,
+    )
+    if copular:
+        return text[copular.end() :], DirectiveBinding(
+            subject=copular["subject"], modal=copular["modal"]
+        )
     audience = re.match(ADVICE_AUDIENCE, text, re.I)
     state = inherited
     if audience:
@@ -693,24 +795,230 @@ def _binding(text: str, inherited: DirectiveBinding) -> tuple[str, DirectiveBind
     if neg:
         state = replace(state, negative=True)
         text = text[neg.end() :]
+    text = re.sub(r"^also (?=(?:deploy|create)\b)", "", text)
     return text, state
 
 
-def _verb_argument(body: str) -> tuple[str, str]:
-    normalized = INITIAL_URGENCY.sub("", body)
-    head = re.fullmatch(r"([A-Za-z]+)(?=\s|[,;]|$)(.*)", normalized)
-    return (head[1].casefold(), head[2].strip()) if head else ("", "")
+def bind_directive_frame(
+    text: str,
+    *,
+    inherited: DirectiveFrame | None = None,
+    binding: DirectiveBinding | None = None,
+    version_identity: VersionIdentity | None = None,
+    reference_target: ReferenceTarget | None = None,
+) -> DirectiveFrame:
+    """Own one active/passive finite, verb and complete positioned argument.
+
+    The same result supplies structural lookahead and required-cue detection.
+    Unsupported required operands cannot become narrative merely because no
+    action frame accepts them. Existing argument owners alone assign roles.
+    """
+    inherited_binding = binding or (
+        inherited.binding if inherited else DirectiveBinding()
+    )
+    core = text.strip().rstrip(".!")
+    offset = len(text) - len(text.lstrip())
+    body, state = _active_binding(core, inherited_binding)
+    explicit_audience = bool(re.match(ADVICE_AUDIENCE, core, re.I))
+    operator_match = re.search(rf"\b(?:{ADVICE_MODAL})\s+", core, re.I)
+    prefix = core[: operator_match.start()].strip() if operator_match else ""
+    passive = bool(
+        operator_match
+        and prefix
+        and not explicit_audience
+        and body == core
+        # An explicitly owned patient makes an unknown operator required.
+        # Otherwise a voice auxiliary must start this modal's operand, not
+        # occur in a later event or sentence. Perfect voice is recognized
+        # here solely to reject its unsupported operator in the frame below.
+        and (
+            _nominal_members(prefix, version_identity)
+            or re.match(
+                r"(?:(?:not|never)\s+)?(?:be\b|have\s+been\b)",
+                core[operator_match.end() :],
+                re.I,
+            )
+        )
+    )
+    # A finite inside a subordinate reported/epistemic clause is not a root
+    # patient/modal relation. Known target material still makes an unresolved
+    # advice relation required; arbitrary embedded actor behavior does not.
+    if passive and re.search(r"\b(?:that|whether|if)\b", prefix, re.I):
+        parts = re.split(r"\b(?:that|whether|if)\b", prefix, flags=re.I)
+        passive = any(
+            _nominal_members(part.strip(), version_identity) for part in parts
+        )
+    inherited_passive = bool(
+        inherited
+        and inherited.voice == "passive"
+        and not explicit_audience
+        and (
+            re.match(rf"(?:{BASIC_ADVICE_MODAL})\b", core, re.I)
+            or (body.split(" ", 1)[0].casefold() not in VERBS and not prefix)
+        )
+    )
+    operator_span = verb_span = patient_span = tail_span = None
+    patient_owner = None
+    unsupported = state.unsupported
+    if passive or inherited_passive:
+        voice: Literal["active", "passive"] = "passive"
+        if passive:
+            assert operator_match is not None
+            patient = prefix
+            patient_span = (offset, offset + len(prefix))
+            rest_start = operator_match.start()
+            state = DirectiveBinding()
+        else:
+            assert inherited is not None
+            patient, patient_owner, rest_start = inherited.patient_text, inherited, 0
+            unsupported |= inherited.unsupported
+        rest = core[rest_start:]
+        operator = _direct_modal(rest)
+        if operator:
+            operator_span = (
+                offset + rest_start,
+                offset + rest_start + len(operator.finite),
+            )
+            state = replace(state, modal=operator.finite, negative=operator.negative)
+            rest_start += operator.end
+            rest = core[rest_start:]
+            # Only the existing basic deontic operators compose this passive
+            # voice. Other advice envelopes retain their existing audience.
+            unsupported |= not bool(
+                re.fullmatch(BASIC_ADVICE_MODAL, operator.finite, re.I)
+            )
+        elif passive:
+            unsupported = True
+        negative = re.match(r"(?:not|never)\s+", rest, re.I)
+        if negative:
+            state = replace(state, negative=True)
+            rest_start += negative.end()
+            rest = core[rest_start:]
+        passive_head = re.match(
+            r"(?:(?P<be>be)\s+)?(?P<participle>[A-Za-z]+)\b", rest, re.I
+        )
+        verb = ""
+        tail = rest
+        if passive_head:
+            participle = passive_head["participle"].casefold()
+            verb = PASSIVE_PARTICIPLES.get(participle, "")
+            verb_span = (
+                offset + rest_start + passive_head.start("participle"),
+                offset + rest_start + passive_head.end("participle"),
+            )
+            unsupported |= not verb or bool(operator and not passive_head["be"])
+            tail_start = rest_start + passive_head.end()
+            tail = core[tail_start:].strip()
+            tail_start += len(core[tail_start:]) - len(core[tail_start:].lstrip())
+            tail_span = (offset + tail_start, offset + tail_start + len(tail))
+        else:
+            unsupported = True
+        adjunct = _bind_directive_argument(" " + tail, reference_target)
+        remainder = adjunct.target_text.strip()
+        argument = replace(
+            adjunct,
+            source_text=core,
+            target_text=patient + (" " + remainder if remainder else ""),
+        )
+        required = True
+        body = core
+    else:
+        voice = "active"
+        body_offset = offset + len(core) - len(body)
+        urgency = INITIAL_URGENCY.match(body)
+        predicate = body[urgency.end() :] if urgency else body
+        predicate_offset = body_offset + (urgency.end() if urgency else 0)
+        head = re.fullmatch(r"([A-Za-z]+)(?=\s|[,;]|$)(.*)", predicate)
+        verb, raw_argument = (head[1].casefold(), head[2].strip()) if head else ("", "")
+        if head:
+            verb_span = (predicate_offset, predicate_offset + len(head[1]))
+            start = (
+                predicate_offset + head.start(2) + len(head[2]) - len(head[2].lstrip())
+            )
+            tail_span = (start, start + len(raw_argument))
+        argument = _bind_directive_argument(raw_argument, reference_target)
+        marker = CONDITION.search(argument.target_text)
+        patient = (
+            argument.target_text[: marker.start()].rstrip(" ,")
+            if marker
+            else argument.target_text
+        )
+        if tail_span:
+            patient_span = (tail_span[0], tail_span[0] + len(patient))
+        operators = list(
+            re.finditer(rf"\b(?:{ADVICE_MODAL})\s+", core[: body_offset - offset], re.I)
+        )
+        if operators:
+            found = operators[-1]
+            operator_span = (
+                offset + found.start(),
+                offset + found.start() + len(found.group().rstrip()),
+            )
+        required = bool(
+            state.subject
+            or state.modal
+            or re.search(
+                rf"\b(?:{AUDIENCE})\b[^.!?]*\b(?:{ADVICE_MODAL})\b", core, re.I
+            )
+        )
+    marker = CONDITION.search(argument.target_text)
+    target = (
+        argument.target_text[: marker.start()].rstrip(" ,")
+        if marker
+        else argument.target_text
+    )
+    relation, members = (
+        _argument(target, version_identity) if verb in VERBS else ("direct", ())
+    )
+    classification_span = classification_modifier_span = None
+    if relation == "classification" and (
+        classified := _classification_argument(target)
+    ):
+        start = core.rfind(classified.classification)
+        classification_span = (
+            offset + start,
+            offset + start + len(classified.classification),
+        )
+        if classified.modifier:
+            modifier_start = core.rfind(classified.modifier, 0, start)
+            classification_modifier_span = (
+                offset + modifier_start,
+                offset + modifier_start + len(classified.modifier),
+            )
+        if voice == "active" and patient_span:
+            patient = classified.target
+            patient_span = (patient_span[0], patient_span[0] + len(patient))
+    unsupported |= required and (
+        not members
+        or _frame_actions(
+            OwnedClause(verb=verb, object_members=members, argument_relation=relation)
+        )
+        is None
+    )
+    return DirectiveFrame(
+        text,
+        voice,
+        state,
+        verb,
+        argument,
+        relation,
+        members,
+        operator_span,
+        verb_span,
+        patient_span,
+        tail_span,
+        patient,
+        patient_owner,
+        required,
+        bool(unsupported),
+        body,
+        classification_span,
+        classification_modifier_span,
+    )
 
 
 def _starts_directive(text: str) -> bool:
-    body, binding = _binding(text, DirectiveBinding())
-    verb, _ = _verb_argument(body)
-    return bool(
-        binding.subject
-        or binding.modal
-        or verb in VERBS
-        or re.match(r"^(?:do so|do it|this action|that action)\b", body, re.I)
-    )
+    return bind_directive_frame(text).starts_relation
 
 
 def _directive_segments(
@@ -718,11 +1026,18 @@ def _directive_segments(
     version_identity: VersionIdentity | None,
     reference_target: ReferenceTarget | None = None,
     release_destinations: tuple[str, ...] = (),
+    binding: DirectiveBinding | None = None,
 ):
     """Object conjunctions are parsed as objects, never unknown-clause fallback."""
-    verb, raw_argument = _verb_argument(body)
-    argument = _bind_directive_argument(raw_argument)
+    initial = bind_directive_frame(
+        body, binding=binding, reference_target=reference_target
+    )
+    verb, argument = initial.verb, initial.argument
     protected = []
+    if initial.voice == "active" and initial.verb_span:
+        # The complete audience/modal relation owns its internal conjunctions
+        # and epistemic/relative qualifiers before action coordination starts.
+        protected.append((0, initial.verb_span[0]))
     if reference_target:
         suffix = ", including for " + reference_target[0]
         for match in re.finditer(re.escape(suffix), body):
@@ -736,38 +1051,64 @@ def _directive_segments(
         if condition
         else argument.target_text
     )
-    if verb in VERBS and _nominal_members(complete_target, version_identity):
-        start = len(body) - len(raw_argument)
-        protected.append((start, start + len(complete_target)))
+    if (
+        initial.voice == "passive"
+        and initial.patient_span
+        and _nominal_members(initial.patient_text, version_identity)
+    ):
+        protected.append(initial.patient_span)
+    if (
+        initial.voice == "active"
+        and initial.patient_span
+        and verb in VERBS
+        and _nominal_members(complete_target, version_identity)
+    ):
+        protected.append(
+            (initial.patient_span[0], initial.patient_span[0] + len(complete_target))
+        )
     if verb in {"upgrade", "update"} and "to " in complete_target:
         relation, members = _argument(complete_target, version_identity)
         if relation in {"destination", "direct_destination"} and members:
-            start = len(body) - len(raw_argument)
-            protected.append((start, start + len(complete_target)))
+            span = (
+                initial.patient_span if initial.voice == "active" else initial.tail_span
+            )
+            if span:
+                protected.append(span)
     if (
         release_destinations
         and argument.target_text.endswith(" to:")
         and _nominal_members(argument.target_text[:-4], version_identity)
     ):
-        protected.append((len(body) - len(raw_argument), len(body)))
+        if initial.tail_span:
+            protected.append(initial.tail_span)
     # A later coordinated directive owns its whole nominal argument too.
     # Test candidate boundaries with the same argument/frame owner; an object
     # conjunction cannot be split merely because this is not the first verb.
     boundaries = tuple(COORDINATION.finditer(body))
     for preceding in boundaries:
         start = preceding.end()
-        predicate, binding = _binding(body[start:], DirectiveBinding())
-        owning_verb, _ = _verb_argument(predicate)
-        if binding.unsupported or owning_verb not in VERBS:
+        candidate = bind_directive_frame(body[start:])
+        if candidate.binding.unsupported or candidate.verb not in VERBS:
             continue
         for end in sorted(
             {len(body), *(b.start() for b in boundaries if b.start() > start)},
         ):
-            predicate, binding = _binding(body[start:end], DirectiveBinding())
-            owning_verb, raw_target = _verb_argument(predicate)
-            if binding.unsupported or owning_verb not in VERBS:
+            candidate = bind_directive_frame(body[start:end])
+            owning_verb = candidate.verb
+            if candidate.binding.unsupported or owning_verb not in VERBS:
                 continue
-            target = _bind_directive_argument(raw_target).target_text
+            if (
+                candidate.voice == "passive"
+                and candidate.patient_span
+                and _nominal_members(candidate.patient_text)
+            ):
+                protected.append(
+                    (
+                        start + candidate.patient_span[0],
+                        start + candidate.patient_span[1],
+                    )
+                )
+            target = candidate.argument.target_text
             marker = CONDITION.search(target)
             if marker:
                 target = target[: marker.start()].rstrip(" ,")
@@ -776,7 +1117,7 @@ def _directive_segments(
             # the actual directive still delegates releases to their owner.
             relation, members = _argument(target, None)
             if (
-                not binding.unsupported
+                not candidate.binding.unsupported
                 and members
                 and _frame_actions(
                     OwnedClause(
@@ -788,14 +1129,17 @@ def _directive_segments(
                 )
                 is not None
             ):
-                offset = start + body[start:end].find(raw_target)
-                protected.append((offset, offset + len(target)))
+                if candidate.patient_span and candidate.voice == "active":
+                    offset = start + candidate.patient_span[0]
+                    protected.append((offset, offset + len(target)))
                 break
     pieces = bind_condition_boundaries(
         body,
         boundary=COORDINATION,
         condition=CONDITION,
-        starts_relation=_starts_directive,
+        starts_relation=lambda text: bind_directive_frame(
+            text, inherited=initial
+        ).starts_relation,
         protected=protected,
     )
     result: list[tuple[str, ConditionSegment]] = []
@@ -809,9 +1153,9 @@ def _directive_segments(
         alternatives |= relation == "alternative"
 
         def joins_owned_object():
-            earlier, _ = _binding(result[-1][1].predicate, DirectiveBinding())
-            owning_verb, existing = _verb_argument(earlier)
-            if owning_verb not in VERBS:
+            earlier = bind_directive_frame(result[-1][1].predicate, binding=binding)
+            owning_verb, existing = earlier.verb, earlier.argument.target_text
+            if owning_verb not in VERBS or earlier.voice == "passive":
                 return False
             combined = _bind_directive_argument(existing + " and " + part.predicate)
             relation, members = _argument(combined.target_text, version_identity)
@@ -928,44 +1272,47 @@ def parse_recommendation(
         pronoun = re.match(r"They (?=(?:should|must|need to)\b)", source)
         if pronoun:
             source = source[pronoun.end() :]
-        source, initial_binding = _binding(
-            source,
-            DirectiveBinding(
-                subject=audience_reference if pronoun else "",
-                unsupported=bool(pronoun and not audience_reference),
-            ),
+        initial_binding = DirectiveBinding(
+            subject=audience_reference if pronoun else "",
+            unsupported=bool(pronoun and not audience_reference),
         )
-        copular = re.match(
-            r"(?:Furthermore, )?(?P<subject>the source for installing AI skills and MCP servers) (?P<modal>should) ",
-            source,
-            re.I,
-        )
-        if copular:
-            source, initial_binding = source[copular.end() :], DirectiveBinding(
-                subject=copular["subject"], modal=copular["modal"]
-            )
     source = re.sub(r"^also (?=(?:deploy|create)\b)", "", source)
     if release_audience:
         initial_binding = replace(initial_binding, subject=release_audience)
     segments, alternative = _directive_segments(
-        source, version_identity, reference_target, release_destinations
+        source,
+        version_identity,
+        reference_target,
+        release_destinations,
+        initial_binding,
     )
     if alternative:
         conditions += ("Alternative source directives: " + source,)
     clauses = []
-    inherited = initial_binding
+    inherited = None
     previous_members = ()
     previous_index = None
     advice = bool(initial_binding.subject or initial_binding.modal)
     for connector, segment in segments:
         raw = segment.text
-        if connector == "adversative":
-            inherited = replace(inherited, negative=inherited.audience_negative)
-        body, binding = _binding(segment.predicate, inherited)
-        advice |= bool(binding.subject or binding.modal)
+        if connector == "adversative" and inherited:
+            inherited = replace(
+                inherited,
+                binding=replace(
+                    inherited.binding, negative=inherited.binding.audience_negative
+                ),
+            )
+        frame = bind_directive_frame(
+            segment.predicate,
+            inherited=inherited,
+            binding=initial_binding if inherited is None else None,
+            version_identity=version_identity,
+            reference_target=reference_target,
+        )
+        body, binding = frame.body, frame.binding
+        advice |= frame.required
         reference = re.match(r"^(?:do so|do it|(?:this|that) action)\b", body, re.I)
-        verb, argument = _verb_argument(body)
-        argument_binding = _bind_directive_argument(argument, reference_target)
+        verb, argument_binding = frame.verb, frame.argument
         argument = argument_binding.target_text
         # Supporting restart retains these source-order/context adjuncts but
         # requires its own complete service/system target. They do not give
@@ -1030,6 +1377,7 @@ def parse_recommendation(
         unsupported = (
             segment.unsupported
             or binding.unsupported
+            or (frame.voice == "passive" and frame.unsupported)
             or (not reference and not implicit and (verb not in VERBS or not members))
         )
         if (
@@ -1047,6 +1395,8 @@ def parse_recommendation(
         object_negative = bool(re.match(r"^(?:the )?(?:no|neither)\b", argument, re.I))
         clause = OwnedClause(
             text=raw,
+            source_text=text,
+            directive_frame=frame,
             subject=binding.subject,
             kind="directive",
             cves=argument_binding.reference,
@@ -1095,7 +1445,7 @@ def parse_recommendation(
             previous_members, previous_index = clause.object_members, len(clauses) - 1
         else:
             previous_members, previous_index = (), None
-        inherited = binding
+        inherited = frame
     return RecommendationDirective(
         text,
         "advice" if advice else "imperative",

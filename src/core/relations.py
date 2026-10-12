@@ -5,7 +5,10 @@ belong to a parsed predicate; projections never search its source text again.
 """
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from .recommendations import DirectiveFrame
 
 # Columns are event current / past / unspecified, never reporter tense. A
 # negative evidence operator applied to a qualified or negative event does not
@@ -154,6 +157,7 @@ class OwnedClause:
     reference: bool = False
     argument_relation: str = "direct"
     coordination: str = "initial"
+    directive_frame: "DirectiveFrame | None" = None
 
     @property
     def assertion_status(self) -> str | None:
