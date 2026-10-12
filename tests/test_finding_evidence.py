@@ -285,12 +285,9 @@ def test_evidence_failure_preserves_existing_report_and_fingerprint(tmp_path):
 
 @pytest.mark.parametrize("word", ["observed", "detected", "confirmed"])
 def test_passive_negative_statement_is_not_observed(word):
-    assert (
-        assess_exploitation(
-            [article(f"{CVE} exploitation has not been {word}.")], [CVE]
-        ).status
-        == "not_observed"
-    )
+    assert assess_exploitation(
+        [article(f"{CVE} exploitation has not been {word}.")], [CVE]
+    ).status == ("unknown" if word == "confirmed" else "not_observed")
 
 
 def test_confirmed_exploitation_with_possible_impact_stays_confirmed():

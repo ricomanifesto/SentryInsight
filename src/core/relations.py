@@ -73,6 +73,55 @@ class EvidenceReporter:
 
 
 @dataclass(frozen=True)
+class EvidenceOperation:
+    """A nominal evidence predicate is not an exploitation-event predicate."""
+
+    predicate: str
+    auxiliary: str
+    polarity: str
+    text: str
+    auxiliary_span: tuple[int, int]
+    predicate_span: tuple[int, int]
+    temporal: tuple[TemporalConstraint, ...] = ()
+    absence: bool = False
+
+    @property
+    def supported(self):
+        return (
+            self.predicate in {"confirmed", "observed", "detected"}
+            and self.auxiliary in {"", "is", "was", "has been", "has not been"}
+            and self.polarity in {"affirmative", "negative"}
+            and self.polarity
+            == ("negative" if self.auxiliary == "has not been" else "affirmative")
+            and self.text[slice(*self.auxiliary_span)].lower() == self.auxiliary
+            and self.text[slice(*self.predicate_span)].lower() == self.predicate
+            and temporal_compatible(self.temporal, self.tense)
+        )
+
+    @property
+    def tense(self):
+        return (
+            "current"
+            if self.auxiliary == "is"
+            else (
+                "past"
+                if self.auxiliary in {"was", "has been", "has not been"}
+                else "unspecified"
+            )
+        )
+
+
+_NOMINAL_PROJECTION = {
+    ("confirmed", "affirmative"): "observed",
+    ("confirmed", "negative"): "unknown",
+    ("observed", "affirmative"): "observed",
+    ("observed", "negative"): "not_observed",
+    ("detected", "affirmative"): "observed",
+    ("detected", "negative"): "not_observed",
+}
+
+
+@dataclass(frozen=True)
 class OwnedClause:
     text: str = ""
     source_text: str = ""
@@ -89,6 +138,7 @@ class OwnedClause:
     conditions: tuple[str, ...] = ()
     reporting: tuple[str, ...] = ()
     reporter: EvidenceReporter | None = None
+    evidence_operation: EvidenceOperation | None = None
     temporal: tuple[TemporalConstraint, ...] = ()
     finite: bool = False
     correlative: tuple[str, str] | None = None
@@ -116,6 +166,7 @@ class OwnedClause:
             or self.polarity not in {"affirmative", "negative"}
             or self.tense not in _EVENT_TENSES
             or not temporal_compatible(self.temporal, self.tense)
+            or (self.evidence_operation and not self.evidence_operation.supported)
             or (
                 self.reporter
                 and self.reporter.polarity not in {"affirmative", "negative"}
@@ -129,6 +180,22 @@ class OwnedClause:
         ):
             return "unknown"
         negative_reporter = bool(self.reporter and self.reporter.polarity == "negative")
+        if operation := self.evidence_operation:
+            # Neither an outer denial nor two nested negatives establishes an
+            # event. Confirmation absence is weaker than observation absence.
+            if negative_reporter or (
+                operation.absence and operation.polarity == "negative"
+            ):
+                return "unknown"
+            polarity = "negative" if operation.absence else operation.polarity
+            if self.polarity == "negative":
+                return "unknown"
+            if self.modal == "possible":
+                return "potential" if polarity == "affirmative" else "unknown"
+            status = _NOMINAL_PROJECTION[operation.predicate, polarity]
+            if status == "observed" and self.tense == "current":
+                return "active"
+            return status
         return _ASSERTION_PROJECTION[negative_reporter, self.polarity, self.modal][
             _EVENT_TENSES.index(self.tense)
         ]

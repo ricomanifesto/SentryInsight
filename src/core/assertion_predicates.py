@@ -231,6 +231,20 @@ class PredicateFrame:
     inherits_subject: bool
     requires_inheritance: bool = False
     correlative: tuple[str, str] | None = None
+    operators: tuple[str, ...] = ()
+
+    @property
+    def capability(self):
+        """A simple modal passive is distinct from a possible past event."""
+        return (
+            self.supported
+            and self.kind == "assertion"
+            and self.modal == "possible"
+            and self.aspect == "simple"
+            and len(self.operators) == 2
+            and self.operators[-1] == "be"
+            and self.verb == "exploited"
+        )
 
 
 ASPECT_HEADS = frozenset(
@@ -399,6 +413,7 @@ def bind_predicate(
     inherits &= initial not in ASPECT_HEADS or rule is not None
     starts = inherits or (initial in ASPECT_HEADS and bool(TOPIC.search(text)))
     return PredicateFrame(
+        operators=tuple(auxiliaries),
         text=text,
         end=len(text),
         operator_span=(0, len(text[:event_start].rstrip())),

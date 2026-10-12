@@ -19,6 +19,15 @@ class ConditionSegment:
     unsupported: bool = False
 
 
+def leading_assertion_condition(text):
+    """The existing finite leading assertion condition, shared by compositions."""
+    return re.fullmatch(
+        r"(?P<condition>(?:If|Unless) [A-Za-z][\w-]*(?: and [A-Za-z][\w-]*)* "
+        r"(?:is|are|was|were) [A-Za-z][\w-]*),\s*(?P<event>.+)",
+        text,
+    )
+
+
 def _nominal_condition_join(text: str, boundary_offset: int) -> bool:
     """Recognize coordination inside one condition's finite nominal subject.
 

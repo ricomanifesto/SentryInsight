@@ -6,6 +6,35 @@ from typing import Literal
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 
 CVE_LIST = rf"{CVE_ID_PATTERN.pattern}(?:\s*(?:,\s*(?:and\s+)?|and\s+){CVE_ID_PATTERN.pattern})*"
+NAME = r"[A-Z][A-Za-z0-9'-]*(?: [A-Z][A-Za-z0-9'-]*){0,6}"
+PRODUCT_HEAD = (
+    r"operating systems?|systems?|software|servers?|gateways?|appliances?|switch(?:es)?"
+)
+PRODUCT_PRODUCTION = rf"(?P<name>{NAME}) (?P<data>data center )?(?P<network>network )?(?P<head>{PRODUCT_HEAD})"
+# Embedding the same production must not duplicate named captures in a parent
+# relation. Its accepted language remains the typed product owner's language.
+PRODUCT_NOMINAL = re.sub(r"\(\?P<\w+>", "(?:", PRODUCT_PRODUCTION)
+
+
+@dataclass(frozen=True)
+class ProductBinding:
+    text: str
+    name: str
+    modifiers: tuple[str, ...]
+    head: str
+
+
+def bind_product(text):
+    """Bind a complete named product argument, never an arbitrary noun tail."""
+    match = re.fullmatch(PRODUCT_PRODUCTION, text)
+    if match is None:
+        return None
+    return ProductBinding(
+        text,
+        match["name"],
+        tuple(match[key].strip() for key in ("data", "network") if match[key]),
+        match["head"],
+    )
 
 
 @dataclass(frozen=True)

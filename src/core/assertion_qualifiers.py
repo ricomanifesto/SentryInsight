@@ -7,7 +7,13 @@ role or preposition cannot consume an unknown subordinate proposition.
 from dataclasses import dataclass
 import re
 
-from .assertion_bindings import CVE_LIST, REPORTER_SUBJECT, bind_subject
+from .assertion_bindings import (
+    CVE_LIST,
+    REPORTER_SUBJECT,
+    bind_subject,
+    PRODUCT_NOMINAL,
+)
+from .assertion_bindings import NAME as NAME
 from .cve import extract_cve_ids
 from .relations import TemporalConstraint, TemporalDirection
 
@@ -22,7 +28,6 @@ NOMINAL_TIME = (
 )
 MONTH = r"(?:January|February|March|April|May|June|July|August|September|October|November|December)"
 DATE = rf"(?:{MONTH}(?: \d{{1,2}})?|{NOMINAL_TIME}|(?P<relative_day>today|yesterday))"
-NAME = r"[A-Z][A-Za-z0-9'-]*(?: [A-Z][A-Za-z0-9'-]*){0,6}"
 
 
 @dataclass(frozen=True)
@@ -122,6 +127,15 @@ PRODUCTIONS = (
     ("role", _production(r"as (?P<object>a zero-day)")),
     ("identity", _production(rf"for (?P<object>{CVE_LIST}|the gateway)")),
     ("purpose", _production(r"to (?P<predicate>gain) (?P<object>privileges)")),
+    (
+        "purpose",
+        _production(
+            rf"to (?P<predicate>run) (?P<object>arbitrary code)"
+            rf"(?: with (?P<privilege>root privileges))?"
+            rf"(?: on (?P<target>{PRODUCT_NOMINAL}))?",
+            flags=0,
+        ),
+    ),
     (
         "purpose",
         _production(

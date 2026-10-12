@@ -15,10 +15,11 @@ from .assertion_predicates import (
     bind_predicate,
     bind_target as bind_target,
 )
-from .condition_boundaries import bind_condition_boundaries
+from .condition_boundaries import bind_condition_boundaries, leading_assertion_condition
 from .assertion_qualifiers import bind_qualifiers, detach_reporting
-from .relations import EvidenceReporter, OwnedClause
-from .source_document import ADVISORY_DECLARATION, reporting_envelope
+from .relations import EvidenceOperation, EvidenceReporter, OwnedClause
+from .source_document import reporting_envelope
+from .advisory_relations import bind_advisory
 
 from .assertion_bindings import bind_subject as _bind_subject, REPORTER_SUBJECT
 
@@ -139,14 +140,16 @@ def _closed_composition(core):
     incidental date supplies a state, and a residual cannot be accepted here.
     """
     base = OwnedClause(text=core, cves=tuple(extract_cve_ids(core)))
-    declaration = ADVISORY_DECLARATION.match(core)
-    if declaration and re.fullmatch(
-        r"(?:[A-Z][A-Za-z0-9-]* )+data center network operating system that could be exploited "
-        r"to run arbitrary code with root privileges on (?:[A-Z][A-Za-z0-9-]* )+switches[.!?]*",
-        core[declaration.end() :],
-    ):
+    if advisory := bind_advisory(core):
+        required_unknown = not advisory.complete and bool(TOPIC.search(core))
         return replace(
-            base, modal="capability", context_role="composed:advisory_capability"
+            base,
+            kind="assertion" if required_unknown else "context",
+            modal="capability" if advisory.complete else "",
+            polarity=advisory.frame.polarity if advisory.frame else "affirmative",
+            conditions=advisory.declaration_conditions + advisory.relative_conditions,
+            unsupported=required_unknown,
+            context_role="composed:advisory_capability",
         )
     capability = CAPABILITY_PREREQUISITE.fullmatch(core.rstrip('.!?"”'))
     if capability:
@@ -640,16 +643,44 @@ def _unit(raw):
         certainty = (noun["qualifier"] or "").lower()
         qualifiers = bind_qualifiers(noun["tail"])
         unknown_tail = not qualifiers.complete
+        operation = (
+            EvidenceOperation(
+                noun["event"].lower(),
+                auxiliary,
+                "negative" if auxiliary == "has not been" else "affirmative",
+                nominal,
+                noun.span("aux") if auxiliary else (0, 0),
+                noun.span("event"),
+                tuple(q.temporal for q in qualifiers.spans if q.temporal),
+                absence=negative,
+            )
+            if noun["event"]
+            else None
+        )
         return replace(
             base,
             kind="assertion",
             verb="exploitation",
             temporal=base.temporal
-            + tuple(q.temporal for q in qualifiers.spans if q.temporal),
+            + (
+                ()
+                if operation
+                else tuple(q.temporal for q in qualifiers.spans if q.temporal)
+            ),
+            evidence_operation=operation,
             modal=modal
             or ("possible" if certainty in {"potential", "possible"} else ""),
-            polarity="negative" if negative or "not" in auxiliary else "affirmative",
-            tense="past" if auxiliary in {"was", "has been"} else "current",
+            polarity="negative" if negative and not operation else "affirmative",
+            tense=(
+                "current"
+                if certainty == "active"
+                and auxiliary not in {"was", "has been", "has not been"}
+                else (
+                    "unspecified"
+                    if operation
+                    else "past" if auxiliary in {"was", "has been"} else "current"
+                )
+            ),
             unsupported=unknown_tail
             or not (negative or auxiliary or certainty or noun["event"]),
         )
@@ -827,11 +858,7 @@ def _parse_assertions(sentence):
     composed = _unit(sentence)
     if composed.context_role.startswith("composed:"):
         return [composed]
-    leading = re.fullmatch(
-        r"(?P<condition>(?:If|Unless) [A-Za-z][\w-]*(?: and [A-Za-z][\w-]*)* "
-        r"(?:is|are|was|were) [A-Za-z][\w-]*),\s*(?P<event>.+)",
-        sentence,
-    )
+    leading = leading_assertion_condition(sentence)
     if leading:
         relations = parse_assertions(leading["event"])
         return [

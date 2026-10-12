@@ -8,6 +8,9 @@ from typing import Callable, Mapping, Sequence
 from .cve import extract_cve_ids
 from .finding_evidence import (
     ABSENT,
+    DetailSpan,
+    anchored_detail_spans as _anchored_spans,
+    assess_severity,
     EvidenceError,
     ExploitationAssessment,
     assess_exploitation,
@@ -96,50 +99,10 @@ def _state_prose(assessment: ExploitationAssessment, subject: str) -> str:
 
 
 def _severity(texts: Sequence[str]) -> str:
-    """Recognize explicit scoped ratings, never article-wide severity keywords."""
-    values = set()
-
-    def qualified(text, start):
-        prefix = re.split(r"[;,.!?]", text[:start])[-1]
-        return bool(
-            re.search(
-                r"\b(?:not|never|no|neither|nor|may|might|could|potentially|possibly|unlikely|non)\b",
-                prefix,
-                re.I,
-            )
-        )
-
-    for text in texts:
-        for match in re.finditer(
-            r"\b(?:(?P<label>critical|high|medium|low)(?:-severity)? (?:vulnerabilit(?:y|ies)|flaws?|bugs?)"
-            r"|(?:severity(?: rating)?[: ]+|rated )(?P<rated>critical|high|medium|low))\b",
-            text,
-            re.I,
-        ):
-            if qualified(text, match.start()):
-                continue
-            values.add((match["label"] or match["rated"]).lower())
-        for match in re.finditer(
-            r"\bCVSS(?: v(?:ersion)?\s*[34](?:\.\d)?)?"
-            r"(?:\s+(?:base )?(?:score|rating)(?: of| is)?\s*:?|\s*:)\s*"
-            r"(10(?:\.0)?|[0-9](?:\.\d)?)(?![\d/]|\.\d)",
-            text,
-            re.I,
-        ):
-            if qualified(text, match.start()):
-                continue
-            score = float(match[1])
-            # FIRST CVSS qualitative bands. A zero rating has no enum equivalent.
-            values.add(
-                "critical"
-                if score >= 9
-                else (
-                    "high"
-                    if score >= 7
-                    else "medium" if score >= 4 else "low" if score > 0 else "unknown"
-                )
-            )
-    return next(iter(values)) if len(values) == 1 else "unknown"
+    """Unscoped compatibility adapter; production uses owned detail spans."""
+    return assess_severity(
+        [DetailSpan(text, "body", source_block=text) for text in texts], ()
+    ).value
 
 
 EXCERPT_ROLES = {
@@ -156,33 +119,6 @@ def _excerpt_roles(text: str) -> tuple[str, ...]:
     return tuple(
         role for role, cue in EXCERPT_ROLES.items() if re.search(cue, text, re.I)
     )
-
-
-def _anchored_spans(spans, cves):
-    """Narrow optional presentation to explicit paragraph/section ownership.
-
-    The evidence collector intentionally retains broader article context for
-    negative statements and complete detail fields. That does not make every
-    page sentence a useful description of its only mentioned CVE.
-    """
-    wanted = set(cves)
-    section_owned = False
-    for span in spans:
-        if span.role == "boundary":
-            section_owned = False
-        elif span.role == "heading":
-            mentioned = set(extract_cve_ids(span.text))
-            if mentioned:
-                section_owned = mentioned <= wanted
-        else:
-            mentioned = set(extract_cve_ids(span.source_block))
-            if not wanted or (
-                mentioned <= wanted
-                if mentioned
-                else bool(span.owned_cves and set(span.owned_cves) <= wanted)
-                or section_owned
-            ):
-                yield span
 
 
 def _substantive_prose(text, *, statement=False):
@@ -272,7 +208,8 @@ def _finding_scopes(
     catalog, required_cves, relevance: Callable[[str], bool] | None = None
 ):
     """Join only scopes needed to own otherwise-lost complete detail blocks."""
-    contexts = build_finding_detail_context(catalog)
+    owned_spans = {}
+    contexts = build_finding_detail_context(catalog, owned_spans=owned_spans)
     signatures: dict[tuple[str, ...], set[tuple[str, str, str]]] = {}
     no_cves = []
     # Identity is source provenance. Eligibility and mandatory coverage may
@@ -375,7 +312,16 @@ def _finding_scopes(
         # exploitation discussion remains relevant. The original report also
         # covers explicitly rated high-impact risks without observed activity.
         return any(is_relevant(text) for text in texts) or (
-            _severity(texts) in {"high", "critical"}
+            assess_severity(
+                [
+                    span
+                    for (key, identities), spans in owned_spans.items()
+                    if key in keys and set(identities) <= set(scope)
+                    for span in spans
+                ],
+                scope,
+            ).value
+            in {"high", "critical"}
             and any(set(_excerpt_roles(text)) & {"impact", "vectors"} for text in texts)
         )
 
@@ -437,23 +383,25 @@ def compile_finding_records(
         key = f"f{len(records) + 1}"
         subject = ", ".join(cves)
         heading = ", ".join(cves) or f"Security reporting {len(records) + 1}"
+        severity = assess_severity(details.spans, cves)
         fields = [
             (
                 "Severity",
-                _severity([span.text for span in narrative_spans]),
+                severity.value,
             ),
             ("Exploitation Status", assessment.status),
             ("Action", project_recommendation_action(details.recommendation_blocks)),
         ]
         if context := source_evidence_text(sources, cves):
             fields.append(("Source Evidence", context))
-        if dict(fields)["Severity"] == "unknown":
-            fields.append(
-                (
-                    "Severity Context",
-                    "No single unqualified severity rating is supported for this finding scope.",
-                )
+        severity_context = list(severity.context)
+        if severity.value == "unknown":
+            severity_context.insert(
+                0,
+                "No single unqualified severity rating is supported for this finding scope.",
             )
+        if severity_context:
+            fields.append(("Severity Context", " ".join(severity_context)))
         if recommendations and dict(fields)["Action"] == "none":
             fields.append(
                 (

@@ -20,6 +20,7 @@ from markdown_it.token import Token
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .assertions import FINITE_PREDICATE_HEADS, parse_assertions, source_qualification
 from .relations import OwnedClause
+from .severity import rating_relation, project_ratings
 from .source_document import SourceSpan, source_document
 from .source_markup import source_literal, source_literal_value
 from .recommendations import (
@@ -317,6 +318,49 @@ class DetailSpan:
     document_list: SourceSpan | None = None
 
 
+def anchored_detail_spans(spans, cves):
+    """Narrow optional presentation to explicit paragraph/section ownership.
+
+    The evidence collector intentionally retains broader article context for
+    negative statements and complete detail fields. That does not make every
+    page sentence a useful description of its only mentioned CVE.
+    """
+    wanted = set(cves)
+    section_owned = False
+    for span in spans:
+        if span.role == "boundary":
+            section_owned = False
+        elif span.role == "heading":
+            mentioned = set(extract_cve_ids(span.text))
+            if mentioned:
+                section_owned = mentioned <= wanted
+        else:
+            mentioned = set(extract_cve_ids(span.source_block))
+            if not wanted or (
+                mentioned <= wanted
+                if mentioned
+                else bool(span.owned_cves and set(span.owned_cves) <= wanted)
+                or section_owned
+            ):
+                yield span
+
+
+def assess_severity(spans, cves):
+    """Use the same document/paragraph ownership for every rating consumer."""
+    relations = []
+    for span in anchored_detail_spans(spans, cves):
+        for statement in _sentences(span.text):
+            relation = rating_relation(
+                statement,
+                source_url=span.source_url,
+                cves=span.owned_cves or tuple(cves),
+                source_block=span.source_block or span.text,
+            )
+            if relation is not None and relation not in relations:
+                relations.append(relation)
+    return project_ratings(relations)
+
+
 def _recommendation_text(text: str) -> str:
     text = _plain(text)
     # A terminal sentence period is optional in the report field. Question
@@ -590,6 +634,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                         fields,
                         block.text,
                         version_context,
+                        source_url=_value(source, "url"),
                         owned_cves=tuple(sorted(narrative_owner)),
                         reference_target=(
                             (block.reference_text, block.reference)
@@ -603,6 +648,10 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
 
 def build_finding_detail_context(
     catalog: Mapping[str, ReportingSource],
+    *,
+    owned_spans: (
+        dict[tuple[str, tuple[str, ...]], tuple[DetailSpan, ...]] | None
+    ) = None,
 ) -> list[dict[str, Any]]:
     """Show generation the same per-CVE detail scope used by publication.
 
@@ -650,6 +699,8 @@ def build_finding_detail_context(
                 # uses this scope, the unchanged publication check rejects it.
                 item["scope_error"] = "ambiguous_detail_scope"
             else:
+                if owned_spans is not None:
+                    owned_spans[source.key, cves] = tuple(spans)
                 rendered = []
                 recommendation_blocks = set()
                 for span in spans:
