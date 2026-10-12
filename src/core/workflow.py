@@ -1,5 +1,6 @@
 from typing import Dict, Any, NotRequired, TypedDict, cast
 from langgraph.graph import START, END, StateGraph
+import logfire
 import logging
 import asyncio
 import json
@@ -25,6 +26,7 @@ from .finding_evidence import (
     grounding_failure_diagnostic,
     validate_finding_evidence,
 )
+from .observability import model_attributes, state_attributes, traced_stage
 from .report_artifact import ReportArtifactError, parse_report_artifact
 from .reporting import (
     ReportingGroundingError,
@@ -48,6 +50,14 @@ logger = logging.getLogger(__name__)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+class WorkflowFailure(TypedDict):
+    """Bounded failure classification; never carries source or report text."""
+
+    stage: str
+    codes: list[str]
+    field: NotRequired[str | None]
+
+
 # Define the state type
 class ExploitationAnalysisState(TypedDict):
     articles: list
@@ -58,6 +68,16 @@ class ExploitationAnalysisState(TypedDict):
     report_path: NotRequired[str]
     report_validation_errors: NotRequired[list[str]]
     articles_fingerprint: NotRequired[str]
+    failure: NotRequired[WorkflowFailure]
+
+
+def _record_failure(
+    state: ExploitationAnalysisState,
+    stage: str,
+    codes: list[str],
+    field: str | None = None,
+) -> None:
+    state["failure"] = {"stage": stage, "codes": codes, "field": field}
 
 
 # Load configuration
@@ -81,6 +101,7 @@ async def fetch_articles(state: ExploitationAnalysisState) -> ExploitationAnalys
 
     if not rss_feed_url:
         logger.error("RSS feed URL not configured")
+        _record_failure(state, "fetch", ["feed_url_missing"])
         state["status"] = "failed"
         return state
 
@@ -89,6 +110,7 @@ async def fetch_articles(state: ExploitationAnalysisState) -> ExploitationAnalys
         articles = await feed_client.fetch_articles()
     except Exception as e:
         logger.error(f"Error in RSS feed: {e}")
+        _record_failure(state, "fetch", ["feed_fetch_failed"])
         state["status"] = "failed"
         return state
 
@@ -178,6 +200,7 @@ async def analyze_articles(
         return state
     if analysis_results.get("error"):
         logger.error(f"Analysis failed: {analysis_results['error']}")
+        _record_failure(state, "analysis", ["analysis_failed"])
         state["status"] = "failed"
         return state
 
@@ -215,6 +238,7 @@ async def generate_report(
         state["report_validation_errors"] = [
             "Report contains a blocked [Virtual Event] promotion."
         ]
+        _record_failure(state, "report_policy", ["virtual_event_promotion"])
         state["status"] = "failed"
         return state
 
@@ -235,11 +259,12 @@ async def generate_report(
         validate_finding_evidence(report, reporting_catalog)
         report = resolve_reporting_keys(report, reporting_catalog)
     except (ReportingGroundingError, EvidenceError) as exc:
-        logger.error(
-            "Report grounding failed: %s",
-            json.dumps(grounding_failure_diagnostic(report, reporting_catalog, exc)),
-        )
+        diagnostic = grounding_failure_diagnostic(report, reporting_catalog, exc)
+        logger.error("Report grounding failed: %s", json.dumps(diagnostic))
         state["report_validation_errors"] = [str(exc)]
+        _record_failure(
+            state, diagnostic["stage"], [diagnostic["code"]], diagnostic["field"]
+        )
         state["status"] = "failed"
         return state
     validation_issues = validate_report_content(
@@ -254,6 +279,11 @@ async def generate_report(
         state["report_validation_errors"] = [
             issue.message for issue in validation_issues
         ]
+        _record_failure(
+            state,
+            "report_validation",
+            list(dict.fromkeys(issue.code for issue in validation_issues)),
+        )
         state["status"] = "failed"
         return state
 
@@ -281,6 +311,7 @@ async def generate_report(
     except ReportArtifactError as exc:
         logger.error("Report artifact validation failed: %s", exc)
         state["report_validation_errors"] = [str(exc)]
+        _record_failure(state, "report_artifact", ["report_artifact_invalid"])
         state["status"] = "failed"
         return state
 
@@ -291,6 +322,7 @@ async def generate_report(
         state["report_validation_errors"] = [
             "The canonical report output must be named index.md"
         ]
+        _record_failure(state, "report_output", ["report_output_name_invalid"])
         state["status"] = "failed"
         return state
 
@@ -345,6 +377,7 @@ async def generate_report(
     except (ArchiveConflictError, SiteBuildError, OSError) as exc:
         logger.error("Static report publication failed: %s", exc)
         state["report_validation_errors"] = [str(exc)]
+        _record_failure(state, "site_publication", [_publication_failure_code(exc)])
         state["status"] = "failed"
         return state
 
@@ -355,6 +388,14 @@ async def generate_report(
 
     state["report_path"] = output_path
     return state
+
+
+def _publication_failure_code(exc: Exception) -> str:
+    if isinstance(exc, ArchiveConflictError):
+        return "archive_conflict"
+    if isinstance(exc, SiteBuildError):
+        return "site_build_failed"
+    return "filesystem_error"
 
 
 async def publish_results(
@@ -406,13 +447,13 @@ def create_exploitation_analysis_graph() -> Any:
     """Create the exploitation analysis workflow graph"""
     workflow: Any = StateGraph(cast(Any, ExploitationAnalysisState))
 
-    # Add nodes
-    workflow.add_node("fetch_articles", fetch_articles)
-    workflow.add_node("enrich_articles", enrich_articles)
-    workflow.add_node("filter_articles", filter_articles)
-    workflow.add_node("analyze_articles", analyze_articles)
-    workflow.add_node("generate_report", generate_report)
-    workflow.add_node("publish_results", publish_results)
+    # Add nodes; each stage records one span with bounded state attributes.
+    workflow.add_node("fetch_articles", traced_stage("fetch", fetch_articles))
+    workflow.add_node("enrich_articles", traced_stage("enrich", enrich_articles))
+    workflow.add_node("filter_articles", traced_stage("filter", filter_articles))
+    workflow.add_node("analyze_articles", traced_stage("analyze", analyze_articles))
+    workflow.add_node("generate_report", traced_stage("generate", generate_report))
+    workflow.add_node("publish_results", traced_stage("publish", publish_results))
 
     # Define edges
     workflow.add_edge(START, "fetch_articles")
@@ -447,36 +488,54 @@ async def run_exploitation_analysis():
     """Run the exploitation analysis workflow"""
     logger.info("Starting exploitation analysis workflow")
 
-    # Load configuration
-    config = load_config()
+    with logfire.span(
+        "sentryinsight report run", _span_name="sentryinsight.run"
+    ) as span:
+        # Load configuration
+        config = load_config()
 
-    if not config:
-        logger.error("Failed to load configuration, exiting")
-        return None
+        if not config:
+            logger.error("Failed to load configuration, exiting")
+            span.set_attributes(
+                {
+                    "workflow.status": "failed",
+                    "failure.stage": "config",
+                    "failure.codes": ["config_unavailable"],
+                }
+            )
+            return None
 
-    # Initialize state
-    initial_state = {
-        "articles": [],
-        "filtered_articles": [],
-        "analysis_results": {},
-        "config": config,
-        "status": "started",
-    }
+        span.set_attributes(model_attributes(config))
 
-    # Create the graph
-    graph = create_exploitation_analysis_graph()
+        # Initialize state
+        initial_state = {
+            "articles": [],
+            "filtered_articles": [],
+            "analysis_results": {},
+            "config": config,
+            "status": "started",
+        }
 
-    # Run the graph
-    try:
-        final_state = await graph.ainvoke(initial_state)
+        # Create the graph
+        graph = create_exploitation_analysis_graph()
+
+        # Run the graph
+        try:
+            final_state = await graph.ainvoke(initial_state)
+        except Exception as e:
+            logger.error(f"Error during workflow execution: {e}")
+            span.set_attributes(
+                {"workflow.status": "failed", "error.type": type(e).__qualname__}
+            )
+            span.set_level("error")
+            return None
+
+        span.set_attributes(state_attributes(final_state))
         if final_state.get("status") == "failed":
             logger.error("Workflow failed")
         else:
             logger.info("Workflow completed successfully")
         return final_state
-    except Exception as e:
-        logger.error(f"Error during workflow execution: {e}")
-        return None
 
 
 # For direct execution

@@ -11,6 +11,7 @@ try:
 except ImportError:
     pass
 
+from src.core.observability import configure_observability
 from src.core.workflow import run_exploitation_analysis
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ def configure_logging():
 async def main():
     """Main function to run the LangGraph workflow."""
     configure_logging()
+    configure_observability()
     logger.info("Starting SentryInsight exploitation report generation")
 
     try:
