@@ -90,6 +90,10 @@ jobs:
           VIRUSTOTAL_API_KEY: ${{ secrets.VIRUSTOTAL_API_KEY }}
           VT_INTELLIGENCE_API_KEY: ${{ secrets.VT_INTELLIGENCE_API_KEY }}
           GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
+          # Optional tracing, scoped to this step so test runs never export.
+          # Without the secret, nothing is sent.
+          LOGFIRE_TOKEN: ${{ secrets.LOGFIRE_TOKEN }}
+          LOGFIRE_ENVIRONMENT: github-actions
       
       - name: Validate report content before publishing
         run: |
