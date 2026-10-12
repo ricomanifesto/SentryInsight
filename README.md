@@ -53,6 +53,8 @@ Generated findings retain complete owned assertion sentences in an attributed So
 
 Findings without a CVE remain owned by one retained source. Their assessments and complete Source Evidence use that source's parsed assertions; an empty CVE scope cannot absorb CVE-owned claims or combine unrelated articles. Their summary and rollup rows explicitly name the finding and pass its same evidence gate. Metadata-only CVE identities remain distinct from source-only findings. Unsupported required relations still block publication before model transport.
 
+Assertion and directive parsing share a structural boundary operation that binds trailing conditions before splitting punctuation and coordination. An attaching comma cannot detach a condition, and an independent later predicate retains its own identity, tense, polarity and qualifications. Supported nominal coordination inside a condition remains with that condition; unclassified residual clauses fail closed instead of being consumed as opaque context. Assertion conditions outside the supported if/unless forms, including only-when, remain unsupported. Unclassified coordinated condition predicates also block publication before model transport, preserving the previous Markdown, HTML, findings JSON and input fingerprint. Complete source guidance remains available even when it cannot establish an unconditional action.
+
 ## Run It Locally
 
 SentryInsight requires Python 3.11 and [`uv`](https://docs.astral.sh/uv/):

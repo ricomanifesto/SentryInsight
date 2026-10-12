@@ -10,6 +10,7 @@ import re
 from typing import Callable, Literal, Sequence
 
 from .cve import CVE_ID_PATTERN
+from .condition_boundaries import ConditionSegment, bind_condition_boundaries
 from .report_artifact import Action
 from .relations import OwnedClause
 
@@ -306,19 +307,61 @@ def _binding(text: str, inherited: DirectiveBinding) -> tuple[str, DirectiveBind
     return text, state
 
 
+def _verb_argument(body: str) -> tuple[str, str]:
+    words = body.split()
+    while (
+        words
+        and words[0].casefold() not in VERBS
+        and words[0].casefold().endswith("ly")
+    ):
+        words.pop(0)
+    return (words[0].casefold(), " ".join(words[1:])) if words else ("", "")
+
+
+def _starts_directive(text: str) -> bool:
+    body, binding = _binding(text, DirectiveBinding())
+    verb, _ = _verb_argument(body)
+    return bool(
+        binding.subject
+        or binding.modal
+        or verb in VERBS
+        or re.match(r"^(?:do so|do it|this action|that action)\b", body, re.I)
+    )
+
+
 def _directive_segments(body: str, version_identity: VersionIdentity | None):
     """Object conjunctions are parsed as objects, never unknown-clause fallback."""
-    pieces = COORDINATION.split(body)
-    result = [("initial", pieces[0])]
+    pieces = bind_condition_boundaries(
+        body,
+        boundary=COORDINATION,
+        condition=CONDITION,
+        starts_relation=_starts_directive,
+    )
+    result: list[tuple[str, ConditionSegment]] = []
     alternatives = False
-    for connector, part in zip(pieces[1::2], pieces[2::2]):
-        relation = COORDINATION_KINDS[connector.strip().strip(",").strip().casefold()]
+    for part in pieces:
+        relation = (
+            COORDINATION_KINDS[part.connector.strip(",").strip().casefold()]
+            if result
+            else "initial"
+        )
         alternatives |= relation == "alternative"
-        if relation in {"conjunctive", "alternative"} and _object_members(
-            part, version_identity=version_identity
+        if (
+            result
+            and relation in {"conjunctive", "alternative"}
+            and _object_members(part.predicate, version_identity=version_identity)
         ):
-            previous, text = result[-1]
-            result[-1] = (previous, text + " and " + part)
+            previous, earlier = result[-1]
+            result[-1] = (
+                previous,
+                replace(
+                    earlier,
+                    text=earlier.text + " and " + part.text,
+                    predicate=earlier.predicate + " and " + part.predicate,
+                    conditions=earlier.conditions + part.conditions,
+                    unsupported=earlier.unsupported or part.unsupported,
+                ),
+            )
         else:
             result.append((relation, part))
     return result, alternatives
@@ -345,21 +388,14 @@ def parse_recommendation(
     clauses = []
     inherited = initial_binding
     advice = bool(initial_binding.subject or initial_binding.modal)
-    for connector, raw in segments:
+    for connector, segment in segments:
+        raw = segment.text
         if connector == "adversative":
             inherited = replace(inherited, negative=inherited.audience_negative)
-        body, binding = _binding(raw, inherited)
+        body, binding = _binding(segment.predicate, inherited)
         advice |= bool(binding.subject or binding.modal)
         reference = re.match(r"^(?:do so|do it|(?:this|that) action)\b", body, re.I)
-        words = body.split()
-        while (
-            words
-            and words[0].casefold() not in VERBS
-            and words[0].casefold().endswith("ly")
-        ):
-            words.pop(0)
-        verb = words.pop(0).casefold() if words else ""
-        argument = " ".join(words)
+        verb, argument = _verb_argument(body)
         # Supporting restart retains these source-order/context adjuncts but
         # requires its own complete service/system target. They do not give
         # another verb a new argument frame or create a primary action.
@@ -373,7 +409,9 @@ def parse_recommendation(
             if verb in VERBS
             else ("direct", ())
         )
-        own_conditions = tuple(match.group() for match in CONDITION.finditer(body))
+        own_conditions = segment.conditions + tuple(
+            match.group() for match in CONDITION.finditer(body)
+        )
         qualification = binding.qualifications + (
             ("Question",) if "?" in normalized else ()
         )
@@ -396,8 +434,10 @@ def parse_recommendation(
             reference = True
         if reference:
             verb, argument, members = "reference", body, ()
-        unsupported = binding.unsupported or (
-            not reference and not implicit and (verb not in VERBS or not members)
+        unsupported = (
+            segment.unsupported
+            or binding.unsupported
+            or (not reference and not implicit and (verb not in VERBS or not members))
         )
         if (
             unsupported

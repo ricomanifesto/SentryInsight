@@ -4,6 +4,7 @@ from dataclasses import replace
 import re
 
 from .cve import extract_cve_ids
+from .condition_boundaries import bind_condition_boundaries
 from .relations import OwnedClause
 
 CVE_LIST = r"CVE-\d{4}-\d{4,}(?:\s*(?:,|and)\s*CVE-\d{4}-\d{4,})*"
@@ -16,6 +17,10 @@ POSSIBILITY_WORDS = ("potentially", "likely", "possibly", "probably", "unlikely"
 TOPIC = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
 BOUNDARY = re.compile(
     r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)", re.I
+)
+CONDITION = re.compile(r"\b(?:if|unless)\b", re.I)
+REQUIRED_ADJUNCT = re.compile(
+    r"\b(?:if|unless|when|until|once|although|though|only|provided|depending)\b", re.I
 )
 PREDICATE_MODIFIERS = frozenset(POSSIBILITY_WORDS) | {
     "also",
@@ -30,6 +35,7 @@ PREDICATE_MODIFIERS = frozenset(POSSIBILITY_WORDS) | {
     "widely",
     "publicly",
     "successfully",
+    "extensively",
 }
 FINITE_PREDICATE_HEADS = frozenset(
     {
@@ -268,9 +274,6 @@ def _intrusion(text):
         if qualifier and qualifier["unknown"]
         else "possible" if qualifier and qualifier["possible"] else ""
     )
-    conditions = tuple(
-        m.group() for m in re.finditer(r"\b(?:if|unless)\b[^.!?]*", text, re.I)
-    )
     return OwnedClause(
         text=text,
         cves=cves,
@@ -280,7 +283,6 @@ def _intrusion(text):
         tense="past",
         modal=modal,
         polarity="negative" if qualifier and qualifier["negative"] else "affirmative",
-        conditions=conditions,
         unsupported=len(frames) != 1
         or len(cves) != 1
         or bool(TOPIC.search(prefix) or TOPIC.search(suffix))
@@ -290,17 +292,23 @@ def _intrusion(text):
 
 def _tail(text):
     """A complete predicate may have an adjunct, never an unbound noun subject."""
-    words = text.casefold().strip(" .!?").split()
+    words = text.casefold().strip(" ,.!?").split()
     while words:
         token = words[0]
-        if token in ADJUNCT_INTRODUCERS:
+        if token in ADJUNCT_INTRODUCERS - {
+            "when",
+            "once",
+            "until",
+            "although",
+            "though",
+            "if",
+            "unless",
+        }:
             return True
         nominal = NOMINAL_ADJUNCT.match(" ".join(words))
         if nominal:
             words = words[len(nominal.group().split()) :]
-        elif token in PREDICATE_MODIFIERS | PREDICATE_ADVERBS or re.fullmatch(
-            r"[a-z]+ly", token
-        ):
+        elif token in PREDICATE_MODIFIERS | PREDICATE_ADVERBS:
             words.pop(0)
         else:
             return False
@@ -495,9 +503,6 @@ def _unit(raw):
         "patched",
         "disclosed",
     }
-    conditions = tuple(
-        m.group() for m in re.finditer(r"\b(?:if|unless)\b.*", argument, re.I)
-    )
     return replace(
         base,
         kind="assertion" if known or TOPIC.search(core) else "context",
@@ -505,7 +510,6 @@ def _unit(raw):
         modal=modal,
         polarity="negative" if negative else "affirmative",
         tense=tense,
-        conditions=conditions,
         object_text=argument,
         unsupported=(known and bool(auxiliaries) and auxiliary_state is None)
         or (known and not _tail(argument))
@@ -522,32 +526,24 @@ def parse_assertions(sentence):
     # Object conjunctions and the relative subject belong to these exact
     # productions. Coordinated predicates outside them use the ordinary owner.
     protected = identities + [(frame.start(), frame.end()) for frame in frames]
-    parts = []
-    start = 0
-    for boundary in BOUNDARY.finditer(sentence):
-        if any(
-            left <= boundary.start() and boundary.end() <= right
-            for left, right in protected
-        ):
-            continue
-        if (
-            boundary.group() == ","
-            and any(frame.end() <= boundary.start() for frame in frames)
-            and re.match(r"\s*(?:if|unless)\b", sentence[boundary.end() :], re.I)
-        ):
-            # A trailing condition qualifies the frame, not a new assertion.
-            continue
-        parts.extend((sentence[start : boundary.start()], boundary.group()))
-        start = boundary.end()
-    parts.append(sentence[start:])
+    parts = bind_condition_boundaries(
+        sentence,
+        boundary=BOUNDARY,
+        condition=REQUIRED_ADJUNCT,
+        starts_relation=lambda right: bool(
+            DESCRIPTIVE_SUBJECT.match(right)
+            or TOPIC.search(BOUNDARY.split(right, maxsplit=1)[0])
+            or _predicate_head(right) in PREDICATE_HEADS
+        ),
+        protected=protected,
+        can_qualify=lambda prefix: _unit(prefix).kind == "assertion",
+    )
     results = []
     previous = OwnedClause()
     groups = []
-    for index in range(0, len(parts), 2):
-        raw = parts[index].strip()
-        if not raw:
-            continue
-        boundary = " ".join(parts[index - 1].lower().split()) if index else ""
+    for index, part in enumerate(parts):
+        raw = part.text
+        boundary = " ".join(part.connector.lower().split())
         group = None
         if boundary in {"but", ", but"} and groups:
             relation = "correlative"
@@ -559,7 +555,15 @@ def parse_assertions(sentence):
         else:
             relation = "boundary" if index else "root"
             groups.clear()
-        clause = _unit(raw)
+        clause = _unit(part.predicate)
+        clause = replace(
+            clause,
+            text=raw,
+            conditions=part.conditions,
+            unsupported=clause.unsupported
+            or part.unsupported
+            or any(not CONDITION.match(value) for value in part.conditions),
+        )
         head = _predicate_head(raw)
         inherited_subject = (
             relation in {"additive", "adversative", "correlative"}
