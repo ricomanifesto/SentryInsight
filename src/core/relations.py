@@ -7,6 +7,21 @@ belong to a parsed predicate; projections never search its source text again.
 from dataclasses import dataclass
 from typing import Literal
 
+# Columns are event current / past / unspecified, never reporter tense. A
+# negative evidence operator applied to a qualified or negative event does not
+# establish non-observation of exploitation.
+_ASSERTION_PROJECTION = {
+    (False, "affirmative", ""): ("active", "observed", None),
+    (False, "negative", ""): ("not_observed",) * 3,
+    (False, "affirmative", "possible"): ("potential",) * 3,
+    (False, "negative", "possible"): ("unknown",) * 3,
+    (True, "affirmative", ""): ("not_observed",) * 3,
+    (True, "negative", ""): ("unknown",) * 3,
+    (True, "affirmative", "possible"): ("unknown",) * 3,
+    (True, "negative", "possible"): ("unknown",) * 3,
+}
+_EVENT_TENSES = ("current", "past", "unspecified")
+
 
 @dataclass(frozen=True)
 class EvidenceReporter:
@@ -55,19 +70,28 @@ class OwnedClause:
     def assertion_status(self) -> str | None:
         if self.kind != "assertion" or self.unsupported:
             return None
+        # Qualification cannot rescue an unrecognized semantic state. Nominal
+        # assertions remain valid without a verbal finite predicate.
+        if (
+            self.modal not in {"", "possible", "unknown"}
+            or self.polarity not in {"affirmative", "negative"}
+            or self.tense not in _EVENT_TENSES
+            or (
+                self.reporter
+                and self.reporter.polarity not in {"affirmative", "negative"}
+            )
+        ):
+            return None
         if (
             self.modal == "unknown"
             or self.conditions
             or (self.reporter and self.reporter.qualification)
         ):
             return "unknown"
-        if self.reporter and self.reporter.polarity == "negative":
-            return "not_observed"
-        if self.polarity == "negative":
-            return "not_observed"
-        if self.modal == "possible":
-            return "potential"
-        return {"past": "observed", "current": "active"}.get(self.tense)
+        negative_reporter = bool(self.reporter and self.reporter.polarity == "negative")
+        return _ASSERTION_PROJECTION[negative_reporter, self.polarity, self.modal][
+            _EVENT_TENSES.index(self.tense)
+        ]
 
     @property
     def status(self) -> str:

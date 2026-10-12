@@ -88,6 +88,101 @@ class ReportingSource:
     blocks: tuple[ArticleBlock, ...] = ()
 
 
+@dataclass(frozen=True)
+class PreparedReportingInput:
+    """Canonical generation input, including valid but uncitable metadata.
+
+    Catalog, prompt and cache consume this record. Encoding declarations and
+    unused feed metadata are ingress concerns, not a second evidence identity.
+    """
+
+    title: str
+    publisher: str
+    url: str
+    content: str
+    content_kind: str
+    blocks: tuple[ArticleBlock, ...]
+    links: tuple[str, ...]
+    link_contexts: tuple[ArticleLink, ...]
+    cves: tuple[str, ...]
+    affected_systems: tuple[str, ...]
+    attack_vectors: tuple[str, ...]
+
+
+def _input_text(value: Any) -> str:
+    return "" if value is None else str(value).strip()
+
+
+def prepare_reporting_input(
+    article: Mapping[str, Any] | PreparedReportingInput,
+) -> PreparedReportingInput:
+    """Normalize evidence once, without inventing missing citation identity."""
+    if isinstance(article, PreparedReportingInput):
+        validate_retained_content(article.content, article.blocks)
+        _content_kind(article.content_kind)
+        _source_links(article.links)
+        _link_contexts(article.link_contexts)
+        return article
+    content = reporting_content(article)
+    try:
+        links = _source_links(article.get("source_links", []))
+        contexts = _link_contexts(article.get("source_link_contexts", []))
+    except ReportingGroundingError as exc:
+        # Malformed evidence is distinct from an absent/uncitable story URL.
+        raise ReportingContentError("Invalid retained source links") from exc
+    return PreparedReportingInput(
+        title=_input_text(article.get("title")),
+        publisher=_input_text(article.get("source")),
+        url=_input_text(article.get("link")),
+        content=content.text,
+        content_kind=_content_kind(article.get("content_kind", "feed")),
+        blocks=content.blocks,
+        links=links,
+        link_contexts=contexts,
+        cves=tuple(str(value).strip() for value in article.get("cves", [])),
+        affected_systems=tuple(article.get("affected_systems", [])),
+        attack_vectors=tuple(article.get("attack_vectors", [])),
+    )
+
+
+def clean_article_source(value: Any) -> str:
+    source = " ".join(_input_text(value).split())
+    return "" if source.casefold() == "unknown source" else source
+
+
+def collect_structured_cves(
+    article: Mapping[str, Any] | PreparedReportingInput,
+) -> list[str]:
+    cves = [value for value in prepare_reporting_input(article).cves if value]
+    cves.extend(extract_cve_ids("\n".join(cves)))
+    return list(dict.fromkeys(value.upper() for value in cves))
+
+
+def format_article_summary(
+    article: Mapping[str, Any] | PreparedReportingInput,
+) -> str:
+    source = prepare_reporting_input(article)
+    title = source.title or "Untitled article"
+    publisher = clean_article_source(source.publisher)
+    content = source.content or "No content available"
+    metadata = []
+    if publisher:
+        metadata.append(f"Source: {publisher}")
+    if source.url:
+        metadata.append(f"URL: {source.url}")
+        try:
+            metadata.append(f"Reporting key: {reporting_key(source.url)}")
+        except ReportingGroundingError:
+            pass
+    if cves := collect_structured_cves(source):
+        metadata.append(f"CVEs: {', '.join(cves)}")
+    heading = f"**{title}**"
+    if metadata:
+        heading += f" ({'; '.join(metadata)})"
+    links = "\n".join(source.links)
+    return f"{heading}\nContent coverage: {source.content_kind}\n\n{content}\nSource links: {links or 'Not stated in supplied sources.'}\n\n"
+
+
 def normalize_reporting_url(value: Any) -> str:
     """Return the stable safe URL identity used across both public products."""
     raw = str(value or "").strip()
@@ -178,30 +273,30 @@ def _clean_text(value: Any, field: str) -> str:
 
 
 def build_reporting_catalog(
-    articles: Iterable[Mapping[str, Any]],
+    articles: Iterable[Mapping[str, Any] | PreparedReportingInput],
 ) -> dict[str, ReportingSource]:
     """Build a deterministic allowlist from the exact model input articles."""
     catalog: dict[str, ReportingSource] = {}
     for article in _source_records(articles):
-        content = reporting_content(article)
-        url = normalize_reporting_url(article.get("link"))
+        prepared = prepare_reporting_input(article)
+        url = normalize_reporting_url(prepared.url)
         source = ReportingSource(
             key=reporting_key(url),
-            publisher=_clean_text(article.get("source"), "publisher"),
-            title=_clean_text(article.get("title"), "title"),
+            publisher=_clean_text(prepared.publisher, "publisher"),
+            title=_clean_text(prepared.title, "title"),
             url=url,
-            content=content.text,
-            blocks=content.blocks,
-            content_kind=_content_kind(article.get("content_kind", "feed")),
-            links=_source_links(article.get("source_links", [])),
-            link_contexts=_link_contexts(article.get("source_link_contexts", [])),
+            content=prepared.content,
+            blocks=prepared.blocks,
+            content_kind=prepared.content_kind,
+            links=prepared.links,
+            link_contexts=prepared.link_contexts,
             metadata_cves=tuple(
                 extract_cve_ids(
                     " ".join(
                         [
-                            str(article.get("title", "")),
+                            prepared.title,
                             url,
-                            *(str(value) for value in article.get("cves", [])),
+                            *prepared.cves,
                         ]
                     )
                 )

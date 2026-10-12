@@ -20,8 +20,8 @@ from .reporting import (
     ReportingContentError,
     ReportingGroundingError,
     build_reporting_catalog,
-    reporting_key,
-    reporting_content,
+    prepare_reporting_input,
+    format_article_summary,
     serialize_reporting_catalog,
 )
 
@@ -29,8 +29,6 @@ logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
-
-UNKNOWN_SOURCE_SENTINELS = {"unknown source"}
 
 EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r"\b(?:"
@@ -76,15 +74,6 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 
 
-def clean_article_source(value: Any) -> str:
-    if value is None:
-        return ""
-    source = " ".join(str(value).split())
-    if source.casefold() in UNKNOWN_SOURCE_SENTINELS:
-        return ""
-    return source
-
-
 def filter_exploitation_articles(
     articles: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
@@ -102,59 +91,6 @@ def filter_exploitation_articles(
     # Pass all articles to the AI for analysis
     # This gives the AI more context to work with
     return articles
-
-
-def format_article_summary(
-    article: Dict[str, Any], *, retained_text: str | None = None
-) -> str:
-    def clean_text(value: Any, default: str = "") -> str:
-        if value is None:
-            return default
-        return str(value).strip()
-
-    title = clean_text(article.get("title"), "Untitled article") or "Untitled article"
-    source = clean_article_source(article.get("source"))
-    link = clean_text(article.get("link"))
-    content = (
-        retained_text if retained_text is not None else reporting_content(article).text
-    ) or "No content available"
-
-    metadata = []
-    if source:
-        metadata.append(f"Source: {source}")
-    if link:
-        metadata.append(f"URL: {link}")
-        try:
-            metadata.append(f"Reporting key: {reporting_key(link)}")
-        except ReportingGroundingError:
-            pass
-    if article_cves := collect_structured_cves(article):
-        metadata.append(f"CVEs: {', '.join(article_cves)}")
-
-    heading = f"**{title}**"
-    if metadata:
-        heading = f"{heading} ({'; '.join(metadata)})"
-
-    links = "\n".join(str(link) for link in article.get("source_links", []))
-    return f"{heading}\nContent coverage: {article.get('content_kind', 'feed')}\n\n{content}\nSource links: {links or 'Not stated in supplied sources.'}\n\n"
-
-
-def collect_structured_cves(article: Dict[str, Any]) -> list[str]:
-    """Collect CVE IDs from structured article metadata."""
-    cves: list[str] = []
-    cves.extend(str(cve).strip() for cve in article.get("cves", []) if str(cve).strip())
-    cves.extend(extract_cve_ids("\n".join(cves)))
-
-    seen: set[str] = set()
-    unique_cves: list[str] = []
-    for cve in cves:
-        normalized_cve = cve.upper()
-        if normalized_cve in seen:
-            continue
-        seen.add(normalized_cve)
-        unique_cves.append(normalized_cve)
-
-    return unique_cves
 
 
 def collect_prompt_cves(article_summary: str) -> list[str]:
@@ -301,12 +237,13 @@ async def analyze_exploitation(
     all_attack_vectors = set()
 
     reporting_catalog = {}
-    retained_texts = {}
+    prepared_inputs = []
     for article in articles:
         try:
-            catalog = build_reporting_catalog([article])
+            prepared = prepare_reporting_input(article)
+            prepared_inputs.append(prepared)
+            catalog = build_reporting_catalog([prepared])
             reporting_catalog.update(catalog)
-            retained_texts[id(article)] = next(iter(catalog.values())).content
         except ReportingContentError:
             logger.error("Generation evidence failed: invalid_retained_source")
             return {
@@ -320,23 +257,16 @@ async def analyze_exploitation(
             logger.warning("Article cannot be used as reporting evidence: %s", exc)
             # Catalog validation checks content before reporting identity. An
             # uncitable but valid article still supplies the original prompt.
-            retained_texts[id(article)] = reporting_content(article).text
 
-    for article in articles:
-        article_summary = format_article_summary(
-            article, retained_text=retained_texts.get(id(article))
-        )
+    for prepared in prepared_inputs:
+        article_summary = format_article_summary(prepared)
         all_article_summaries.append(article_summary)
 
         # Extract expected CVEs only when prompt text ties them to exploit activity.
         for cve in collect_exploitation_relevant_prompt_cves(article_summary):
             all_cves.add(cve)
-        if "affected_systems" in article:
-            for system in article.get("affected_systems", []):
-                all_systems.add(system)
-        if "attack_vectors" in article:
-            for vector in article.get("attack_vectors", []):
-                all_attack_vectors.add(vector)
+        all_systems.update(prepared.affected_systems)
+        all_attack_vectors.update(prepared.attack_vectors)
 
     result_metadata = {
         "date": datetime.now(timezone.utc).date().isoformat(),

@@ -27,6 +27,7 @@ from .finding_evidence import (
 )
 from .report_artifact import ReportArtifactError, parse_report_artifact
 from .reporting import (
+    ReportingContentError,
     ReportingGroundingError,
     deserialize_reporting_catalog,
     resolve_reporting_keys,
@@ -132,7 +133,19 @@ async def filter_articles(
 
     if filtered:
         output_path = state["config"].get("output_path", "index.md")
-        fingerprint = compute_articles_fingerprint(filtered)
+        try:
+            fingerprint = compute_articles_fingerprint(filtered)
+        except ReportingContentError:
+            logger.error("Generation evidence failed: invalid_retained_source")
+            state["analysis_results"] = {
+                "error": "invalid_retained_source",
+                "exploitation_report": "",
+                "reporting_sources": [],
+                "date": datetime.now(timezone.utc).date().isoformat(),
+                "analyzed_article_count": len(filtered),
+            }
+            state["status"] = "failed"
+            return state
         previous_fingerprint = read_stored_fingerprint(
             _fingerprint_path_for(output_path)
         )
