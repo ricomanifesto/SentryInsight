@@ -237,9 +237,14 @@ def test_useful_triage_and_substantive_source_rollups():
     records, report = render(catalog)
     assert "**Severity**: critical" in report
     assert "**Action**: patch" in report
-    assert (
-        "**Vendor Links**: https://vendor.example/security/advisories/example" in report
+    expected_url = "https://vendor.example/security/advisories/example"
+    field = next(
+        line.split(": ", 1)[1]
+        for line in report.splitlines()
+        if line.startswith("- **Vendor Links**:")
     )
+    assert field == 'urls-v1:["https://vendor.example/security/advisories/example"]'
+    assert json.loads(field.removeprefix("urls-v1:")) == [expected_url]
     assert "only after backing up" in report
     for heading, expected in [
         ("Affected Systems and Products", "Windows"),

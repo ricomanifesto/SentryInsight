@@ -15,6 +15,7 @@ from .source_markup import source_literal_value
 from .reporting import (
     ReportingGroundingError,
     normalize_reporting_url,
+    parse_url_collection,
     reporting_fragment,
     reporting_markdown_link,
 )
@@ -310,10 +311,7 @@ def _parse_findings(
             and fields["Vendor Links"] != "Not stated in supplied sources."
         ):
             try:
-                vendor_links = tuple(
-                    normalize_reporting_url(link.strip())
-                    for link in fields["Vendor Links"].split(";")
-                )
+                vendor_links = parse_url_collection(fields["Vendor Links"])
             except ReportingGroundingError as exc:
                 raise ReportArtifactError(str(exc)) from exc
 

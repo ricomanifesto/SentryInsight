@@ -1,8 +1,7 @@
 """Finite assertion relations: bind qualifiers before projecting evidence state."""
 
-from dataclasses import dataclass, replace
+from dataclasses import replace
 import re
-from typing import Literal
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .assertion_predicates import (
@@ -14,58 +13,15 @@ from .assertion_predicates import (
     TOPIC,
     FINITE_PREDICATE_HEADS as FINITE_PREDICATE_HEADS,
     bind_predicate,
-    bind_target,
-    valid_adjunct as _tail,
+    bind_target as bind_target,
 )
 from .condition_boundaries import bind_condition_boundaries
+from .assertion_qualifiers import bind_qualifiers, detach_reporting
 from .relations import EvidenceReporter, OwnedClause
 from .source_document import ADVISORY_DECLARATION, reporting_envelope
 
-DESCRIPTIVE_SUBJECT = re.compile(
-    rf"^(?i:(?:two|the) )(?:(?:[A-Z][A-Za-z0-9-]* ){{0,4}})"
-    rf"(?i:zero-days|vulnerabilities|flaws) \((?P<identities>{CVE_LIST})\)\s+"
-)
+from .assertion_bindings import bind_subject as _bind_subject, REPORTER_SUBJECT
 
-
-@dataclass(frozen=True)
-class SubjectBinding:
-    """A complete nominal prefix; predicate semantics belong to its consumer."""
-
-    kind: Literal["vulnerability", "actor"]
-    text: str
-    end: int
-
-
-SUBJECT_PRODUCTIONS = (
-    ("vulnerability", DESCRIPTIVE_SUBJECT),
-    (
-        "actor",
-        re.compile(
-            r"^(?:the\s+)?(?:attackers?|operators?|(?:threat\s+)?actors?)\s+",
-            re.I,
-        ),
-    ),
-)
-
-
-def _bind_subject(text: str) -> SubjectBinding | None:
-    """Bind a closed subject production without discarding unknown modifiers.
-
-    Actor determiners and compound heads are nominal ownership, not predicate
-    modifiers. Any unconsumed bridge remains with the strict predicate owner.
-    """
-    if target := bind_target(text):
-        end = target.end
-        while end < len(text) and text[end].isspace():
-            end += 1
-        return SubjectBinding("vulnerability", target.text, end)
-    for kind, production in SUBJECT_PRODUCTIONS:
-        if match := production.match(text):
-            return SubjectBinding(kind, match.group().rstrip(), match.end())
-    return None
-
-
-REPORTER_SUBJECT = r"(?:[Tt]he (?:vendor|company|researchers|agencies)|[A-Z][A-Za-z/-]*(?: [A-Z][A-Za-z/-]*){0,3}|it)"
 REPORTER_EVIDENCE = re.compile(
     rf"^(?P<subject>{REPORTER_SUBJECT}) (?P<finite>has|have|had) "
     r"(?P<negative>not )?found (?P<double>no )?evidence that (?P<event>.+)$"
@@ -462,29 +418,12 @@ def _reported_event(text):
         "negative" if match["negative"] else "affirmative",
         "denied report" if denied else "double negation" if match["double"] else "",
     )
-    adjunct = re.fullmatch(
-        r"(?:in the wild|at the time of publication|last year|last week|today|yesterday)?",
-        event.object_text.strip(" .!?"),
-        re.I,
-    )
     return replace(
         event,
         text=text,
         reporter=reporter,
-        unsupported=event.unsupported or event.kind != "assertion" or adjunct is None,
+        unsupported=event.unsupported or event.kind != "assertion",
     )
-
-
-def _reporting(text):
-    """An explicit reporting adjunct has its own complete finite relation."""
-    match = re.search(
-        r"\s+as\s+(?:(?:was|is)\s+|(?:investigators|researchers|the vendor)\s+)"
-        r"(?:confirmed|confirm|observed|observe|detected|detect)"
-        r"(?:\s+(?:today|yesterday|last year|last week|two years ago))?[.!?]*$",
-        text,
-        re.I,
-    )
-    return (text[: match.start()], (match.group().strip(),)) if match else (text, ())
 
 
 def _prefix(text):
@@ -499,13 +438,17 @@ def _prefix(text):
         modal = "possible" if epistemic[1].lower() == "possible" else "unknown"
         text = text[epistemic.end() :]
     absent = re.match(
-        r"^(?:There is |There are )?(?:no (?:evidence|signs?|reports?|known exploitation|exploitation)|without (?:evidence|reports?))\s*(?:(?:that|of)\s+)?",
+        r"^(?:There is |There are )?(?:no (?:evidence|signs?|reports?|(?P<nominal>known exploitation|exploitation))|without (?:evidence|reports?))\b\s*(?:(?:that|of)\s+)?",
         text,
         re.I,
     )
     if absent:
         negative = True
         text = text[absent.end() :]
+        if absent["nominal"]:
+            # Preserve the assertion's noun head after consuming its negative
+            # determiner, so nominal predicates still consume their own tail.
+            text = "exploitation " + text
     return text, modal, negative
 
 
@@ -562,14 +505,14 @@ def _intrusion(text):
         unsupported=len(frames) != 1
         or len(cves) != 1
         or bool(TOPIC.search(prefix) or TOPIC.search(suffix))
-        or not _tail(suffix),
+        or not bind_qualifiers(suffix).complete,
     )
 
 
 def _unit(raw):
     if quoted := _quoted_event(raw):
         return quoted
-    core, reporting = _reporting(raw)
+    core, reporting = detach_reporting(raw)
     if intrusion := _intrusion(core):
         return replace(intrusion, text=raw, reporting=reporting)
     label = re.match(r"^([^:]+):\s*", core)
@@ -680,7 +623,9 @@ def _unit(raw):
     if noun:
         auxiliary = (noun["aux"] or "").lower()
         certainty = (noun["qualifier"] or "").lower()
-        unknown_tail = bool(noun["tail"].strip() and not _tail(noun["tail"]))
+        unknown_tail = bool(
+            noun["tail"].strip() and not bind_qualifiers(noun["tail"]).complete
+        )
         return replace(
             base,
             kind="assertion",
@@ -692,13 +637,38 @@ def _unit(raw):
             unsupported=unknown_tail
             or not (negative or auxiliary or certainty or noun["event"]),
         )
-    if negative and TOPIC.search(raw):
+    # The legacy negative envelope must still own a complete event. Its
+    # existing nominal gerund frame has no finite auxiliary to borrow; every
+    # other event proceeds through the canonical subject/predicate owner.
+    absence_subject = _bind_subject(core) if negative else None
+    if absence_subject and absence_subject.kind != "vulnerability":
+        absence_subject = None
+    implicit_absence = (
+        re.match(r"^(the (?:flaw|issue|vulnerability))\s+", core, re.I)
+        if negative
+        else None
+    )
+    absence_end = (
+        absence_subject.end
+        if absence_subject
+        else implicit_absence.end() if implicit_absence else 0
+    )
+    absent_nominal = (
+        re.match(r"being (?P<event>weaponized|exploited)\b", core[absence_end:], re.I)
+        if absence_end
+        else None
+    )
+    if absent_nominal:
+        tail = core[absence_end + absent_nominal.end() :]
         return replace(
             base,
             kind="assertion",
-            verb="exploitation",
+            subject=core[:absence_end].strip(),
+            verb=absent_nominal["event"],
             polarity="negative",
             modal=modal,
+            object_text=tail,
+            unsupported=not bind_qualifiers(tail).complete,
         )
     # CVE subjects and actor/object frames are distinct productions. An opaque
     # new subject cannot inherit a previous vulnerability's predicate.

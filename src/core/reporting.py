@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from html import escape
 import ipaddress
 import re
@@ -231,6 +232,42 @@ def normalize_reporting_url(value: Any) -> str:
     raw_without_fragment = raw.split("#", maxsplit=1)[0]
     query = f"?{encoded_query}" if "?" in raw_without_fragment else ""
     return f"{scheme}://{host}{encoded_path}{query}"
+
+
+URL_COLLECTION_PREFIX = "urls-v1:"
+
+
+def serialize_url_collection(urls: Iterable[str]) -> str:
+    """Frame whole URL identities without changing semicolon/query semantics."""
+    if not isinstance(urls, Iterable) or isinstance(urls, (str, bytes, Mapping)):
+        raise ReportingGroundingError("Invalid URL collection")
+    values = list(urls)
+    if any(not isinstance(value, str) or not value for value in values):
+        raise ReportingGroundingError("Invalid URL collection member")
+    normalized = [normalize_reporting_url(value) for value in values]
+    return URL_COLLECTION_PREFIX + json.dumps(normalized, separators=(",", ":"))
+
+
+def parse_url_collection(value: str) -> tuple[str, ...]:
+    """Read one complete versioned field or the unchanged legacy format.
+
+    Legacy semicolon fields retain their old identity/error behavior. Only new
+    versioned fields can represent a semicolon inside a URL; no stored artifact
+    is migrated or reinterpreted. Order and duplicates are preserved.
+    """
+    if not isinstance(value, str):
+        raise ReportingGroundingError("Invalid URL collection field")
+    if value.startswith(URL_COLLECTION_PREFIX):
+        try:
+            values = json.loads(value[len(URL_COLLECTION_PREFIX) :])
+            if not isinstance(values, list):
+                raise ReportingGroundingError("Invalid URL collection")
+            if serialize_url_collection(values) != value:
+                raise ReportingGroundingError("Noncanonical URL collection")
+        except (ValueError, TypeError) as exc:
+            raise ReportingGroundingError("Invalid canonical URL collection") from exc
+        return tuple(values)
+    return tuple(normalize_reporting_url(entry.strip()) for entry in value.split(";"))
 
 
 def _remove_dot_segments(path: str) -> str:

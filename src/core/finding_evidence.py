@@ -37,7 +37,7 @@ from .reporting import (
     FINDING_PATTERN,
     ReportingGroundingError,
     ReportingSource,
-    normalize_reporting_url,
+    parse_url_collection,
     reporting_markdown_link,
 )
 
@@ -2179,7 +2179,7 @@ def _validate_finding(
         if name == "Vendor Links":
             links = {link for source in sources for link in source.links}
             try:
-                normalized = [normalize_reporting_url(entry) for entry in entries]
+                normalized = parse_url_collection(value)
             except ReportingGroundingError as exc:
                 raise EvidenceError(
                     f"{title}: unsupported vendor link",

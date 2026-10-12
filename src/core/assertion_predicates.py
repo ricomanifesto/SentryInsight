@@ -1,11 +1,11 @@
 """One finite verbal frame owns operators, event, target and residual spans."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import re
 
-from .cve import CVE_ID_PATTERN, extract_cve_ids
-
-CVE_LIST = rf"{CVE_ID_PATTERN.pattern}(?:\s*(?:,\s*(?:and\s+)?|and\s+){CVE_ID_PATTERN.pattern})*"
+from .cve import extract_cve_ids
+from .assertion_bindings import CVE_LIST as CVE_LIST, TargetBinding, bind_target
+from .assertion_qualifiers import QualifierSpan, bind_qualifiers
 
 POSSIBILITY_WORDS = ("potentially", "likely", "possibly", "probably", "unlikely")
 TOPIC = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
@@ -90,130 +90,6 @@ PARTICIPIAL_PREDICATE_HEADS = frozenset(
 PREDICATE_HEADS = (
     FINITE_PREDICATE_HEADS | PARTICIPIAL_PREDICATE_HEADS | {"be", "been", "being"}
 )
-ADJUNCT_INTRODUCERS = frozenset(
-    {
-        "after",
-        "before",
-        "when",
-        "because",
-        "since",
-        "until",
-        "once",
-        "although",
-        "though",
-        "unless",
-        "if",
-        "where",
-        "during",
-        "upon",
-        "in",
-        "by",
-        "on",
-        "at",
-        "through",
-        "via",
-        "against",
-        "for",
-        "to",
-        "from",
-        "with",
-        "without",
-        "as",
-        "within",
-        "across",
-        "under",
-        "over",
-        "throughout",
-        "around",
-        "despite",
-    }
-)
-PREDICATE_ADVERBS = frozenset(
-    {
-        "worldwide",
-        "abroad",
-        "overseas",
-        "here",
-        "there",
-        "today",
-        "yesterday",
-        "tomorrow",
-        "tonight",
-        "earlier",
-        "later",
-        "again",
-        "already",
-        "often",
-        "sometimes",
-        "always",
-        "ever",
-        "soon",
-        "twice",
-        "ago",
-        "overnight",
-    }
-)
-TIME_UNIT = r"(?:second|minute|hour|day|week|fortnight|month|quarter|year|weekend|night|morning|afternoon|evening)s?"
-WEEKDAY = r"(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?: (?:morning|afternoon|evening|night))?"
-QUANTITY = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several|many|multiple|numerous|a|an|(?:hundreds|thousands|millions|dozens) of)"
-NOMINAL_ADJUNCT = re.compile(
-    rf"(?:(?:the )?(?:last|next|previous|following|this|that|every|each|all) (?:{QUANTITY} )?(?:{TIME_UNIT}|{WEEKDAY})"
-    rf"|{QUANTITY} {TIME_UNIT}"
-    rf"|{WEEKDAY}"
-    rf"|(?:(?:more|less|fewer) than |at (?:least|most) |up to )?{QUANTITY} (?:times|occasions))(?= |$)"
-)
-
-
-def valid_adjunct(text):
-    """A complete predicate may have an adjunct, never an unbound noun subject."""
-    words = text.casefold().strip(" ,.!?").split()
-    while words:
-        token = words[0]
-        if token in ADJUNCT_INTRODUCERS - {
-            "when",
-            "once",
-            "until",
-            "although",
-            "though",
-            "if",
-            "unless",
-        }:
-            return True
-        nominal = NOMINAL_ADJUNCT.match(" ".join(words))
-        if nominal:
-            words = words[len(nominal.group().split()) :]
-        elif token in PREDICATE_MODIFIERS | PREDICATE_ADVERBS:
-            words.pop(0)
-        else:
-            return False
-    return True
-
-
-@dataclass(frozen=True)
-class TargetBinding:
-    text: str
-    start: int
-    end: int
-    cves: tuple[str, ...] = ()
-    kind: str = "empty"
-
-
-def bind_target(text: str, start: int = 0, *, implicit: bool = False):
-    """Consume an exact existing identity list or complete implicit object."""
-    match = re.match(rf"(?:{CVE_LIST})\b", text[start:], re.I)
-    kind = "explicit"
-    if match is None and implicit:
-        match = re.fullmatch(
-            r"(?:(?:the|a|an|another) (?:(?:vulnerable|affected) )?[a-z]+|it)",
-            text[start:].rstrip(" .!?"),
-            re.I,
-        )
-        kind = "implicit"
-    if match is None:
-        return None
-    end = start + match.end()
-    value = text[start:end]
-    return TargetBinding(value, start, end, tuple(extract_cve_ids(value)), kind)
 
 
 @dataclass(frozen=True)
@@ -224,6 +100,7 @@ class PredicateFrame:
     event_span: tuple[int, int]
     target: TargetBinding
     adjunct_span: tuple[int, int]
+    qualifiers: tuple[QualifierSpan, ...]
     verb: str
     kind: str
     tense: str
@@ -262,25 +139,6 @@ AUXILIARY_WORDS = FINITE_PREDICATE_HEADS | {
     "to",
 }
 PREFIX_WORDS = PREDICATE_MODIFIERS | AUXILIARY_WORDS | {"yet", "observed", "first"}
-
-
-def _participial_continuation(verb: str, argument: str) -> bool:
-    """Existing nominal-versus-predicate boundary, after the verb is owned."""
-    if verb not in PARTICIPIAL_PREDICATE_HEADS:
-        return True
-    words = argument.casefold().split()
-    while words:
-        if words[0] in ADJUNCT_INTRODUCERS:
-            return True
-        if nominal := NOMINAL_ADJUNCT.match(" ".join(words)):
-            words = words[len(nominal.group().split()) :]
-        elif words[0] in PREDICATE_MODIFIERS | PREDICATE_ADVERBS or re.fullmatch(
-            r"[a-z]+ly", words[0]
-        ):
-            words.pop(0)
-        else:
-            return False
-    return True
 
 
 def bind_predicate(
@@ -373,20 +231,11 @@ def bind_predicate(
         and re.fullmatch(r"in (?:the wild|attacks)", argument, re.I)
     ):
         tense = "current"
+    qualifiers = bind_qualifiers(argument, complement=verb)
     known = verb in EVENTS
     kind = "assertion" if known or TOPIC.search(text) else "context"
     if continuation:
-        supported &= verb == expected_event and valid_adjunct(argument)
-        # A second event/finite predicate is not a free-form adjunct. The
-        # shared clause boundary must consume it separately or reject it.
-        supported &= not bool(
-            TOPIC.search(argument)
-            or re.search(
-                r"\b(?:" + "|".join(sorted(FINITE_PREDICATE_HEADS)) + r")\b",
-                argument,
-                re.I,
-            )
-        )
+        supported &= verb == expected_event and qualifiers.complete
         supported &= voice != "actor" or target.kind != "empty"
     elif verb == "under" and re.fullmatch(
         r"(?:limited, targeted|active) exploitation", argument, re.I
@@ -405,7 +254,7 @@ def bind_predicate(
         supported &= not (
             known and auxiliaries and AUXILIARY_STATES.get(tuple(auxiliaries)) is None
         )
-        supported &= not (known and not valid_adjunct(argument))
+        supported &= not (known and not qualifiers.complete)
         supported &= not (not known and verb not in CONTEXT and TOPIC.search(text))
     # Target identities are never borrowed from an adjunct or another object.
     if extract_cve_ids(argument):
@@ -424,7 +273,7 @@ def bind_predicate(
     # adjective followed by a noun cannot inherit the preceding CVE subject.
     inherits = (
         (finite or verb in PREDICATE_HEADS or initial in {"be", "been", "being"})
-        and _participial_continuation(verb, text[event_end:end].strip())
+        and (verb not in PARTICIPIAL_PREDICATE_HEADS or qualifiers.complete)
         and (not continuation or verb == expected_event)
     )
     starts = inherits or (continuation and bool(TOPIC.search(text)))
@@ -435,6 +284,12 @@ def bind_predicate(
         event_span=(event_start, event_end),
         target=target,
         adjunct_span=(argument_start, end),
+        qualifiers=tuple(
+            replace(
+                span, start=span.start + argument_start, end=span.end + argument_start
+            )
+            for span in qualifiers.spans
+        ),
         verb=verb,
         kind=kind,
         tense=tense,

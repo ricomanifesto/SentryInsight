@@ -19,7 +19,7 @@ from .finding_evidence import (
     source_constraint_text,
     validate_finding_evidence,
 )
-from .reporting import ReportingSource
+from .reporting import ReportingSource, serialize_url_collection
 from .recommendations import directive_units, project_recommendation_action
 from .source_document import ADVISORY_DECLARATION, source_document
 from .source_markup import source_literal
@@ -250,7 +250,7 @@ def _finding(
         lines.append(f"- **Impact**: {source_literal(' '.join(impact))}")
     for name, value in record.fields:
         if name == "Vendor Links" and links is not None:
-            value = "; ".join(links) or ABSENT
+            value = serialize_url_collection(links) if links else ABSENT
         elif name in {
             "Affected Versions",
             "Exceptions",
