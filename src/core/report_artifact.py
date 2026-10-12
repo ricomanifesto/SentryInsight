@@ -11,6 +11,7 @@ from typing import TypeVar
 from markdown_it import MarkdownIt
 
 from .heading_identity import normalize_heading_identity
+from .source_markup import source_literal_value
 from .reporting import (
     ReportingGroundingError,
     normalize_reporting_url,
@@ -265,7 +266,13 @@ def _parse_findings(
             canonical_field = "CVE IDs" if field in {"CVE ID", "CVE IDs"} else field
             if canonical_field in fields:
                 raise ReportArtifactError(f"{title}: duplicate {canonical_field} field")
-            fields[canonical_field] = field_match.group(2).strip()
+            value = field_match.group(2).strip()
+            fields[canonical_field] = (
+                source_literal_value(value)
+                if canonical_field
+                in {"Affected Versions", "Exceptions", "Recommended Actions"}
+                else value
+            )
 
         for required in ("Severity", "Exploitation Status", "Action"):
             if required not in fields:

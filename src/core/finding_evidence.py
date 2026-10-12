@@ -21,6 +21,7 @@ from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .assertions import FINITE_PREDICATE_HEADS, parse_assertions, source_qualification
 from .relations import OwnedClause
 from .source_document import SourceSpan, source_document
+from .source_markup import source_literal, source_literal_value
 from .recommendations import (
     RecommendationBlock,
     RecommendationContext,
@@ -263,7 +264,7 @@ def source_evidence_text(
             if owner is source
         )
         for sentence in sentences:
-            entries.append(f"[Source](<{source.url}>): “{sentence}”")
+            entries.append(f"[Source](<{source.url}>): “{source_literal(sentence)}”")
     return " ".join(entries)
 
 
@@ -1558,7 +1559,7 @@ class FindingDetails:
 def source_constraint_text(details: FindingDetails) -> str:
     return (
         " ".join(
-            f"[Source](<{url}>): “{text}”"
+            f"[Source](<{url}>): “{source_literal(text)}”"
             for url, text in dict.fromkeys(details.constraint_evidence)
         )
         or ABSENT
@@ -1881,7 +1882,20 @@ def _validate_finding(
     title = finding.group("heading").removeprefix("###").strip()
     body = finding.group("body")
     pairs = FIELD.findall(body)
-    fields = dict(pairs)
+    fields = {
+        name: (
+            source_literal_value(value)
+            if name
+            in {
+                "Affected Versions",
+                "Exceptions",
+                "Recommended Actions",
+                "Release Details",
+            }
+            else value
+        )
+        for name, value in pairs
+    }
     if len(pairs) != len(fields):
         raise EvidenceError(
             f"{title}: duplicate finding field",

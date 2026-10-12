@@ -14,6 +14,7 @@ from markdown_it import MarkdownIt
 
 from ..services.article_content import ArticleBlock, article_blocks
 from .cve import extract_cve_ids
+from .reporting import validate_retained_content
 
 ADVISORY_DECLARATION = re.compile(
     r"^(?P<vendor>[A-Z][A-Za-z-]*(?: [A-Z][A-Za-z-]*){0,3}) released security advisories for "
@@ -628,4 +629,5 @@ def source_document(source: Any) -> SourceDocument:
         if isinstance(source, dict)
         else getattr(source, "blocks", ())
     )
-    return _document(str(content), article_blocks(blocks, str(content)))
+    retained = validate_retained_content(content, blocks)
+    return _document(retained.text, retained.blocks)

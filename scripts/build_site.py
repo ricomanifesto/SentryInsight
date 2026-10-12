@@ -350,10 +350,20 @@ def _without_source_title(tokens: list[Token]) -> list[Token]:
     return tokens
 
 
+def _render_literal_code(renderer, tokens, index, _options, _env):
+    # Code token content is data. Entity-encode equals as well as HTML syntax
+    # so literal event-handler examples cannot resemble serialized attributes
+    # to the final active-content guard. The DOM text remains exact.
+    token = tokens[index]
+    text = html.escape(token.content).replace("=", "&#61;")
+    return f"<code{renderer.renderAttrs(token)}>{text}</code>"
+
+
 def _render_markdown(
     artifact: ReportArtifact,
 ) -> tuple[str, list[tuple[int, str, str]]]:
     markdown = MarkdownIt("commonmark", {"html": True})
+    markdown.add_render_rule("code_inline", _render_literal_code)
     tokens = markdown.parse(artifact.body)
     _strip_raw_html(tokens)
     tokens = _strip_structured_finding_fields(tokens)

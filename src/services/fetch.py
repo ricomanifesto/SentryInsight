@@ -4,7 +4,11 @@ from typing import List, Dict, Any
 import httpx
 import feedparser
 
-from .article_content import extract_article_content, normalize_feed_content
+from .article_content import (
+    article_content,
+    content_is_retained,
+    extract_article_content,
+)
 from datetime import datetime
 
 from ..core.article_policy import (
@@ -109,24 +113,27 @@ class SentryDigestFeedClient:
                 continue
             logger.info(f"Enriching article: {article.get('title', '')}")
 
-            # Skip if the article already has content
+            # Validate before retrieval/fallback. Canonical plaintext must never
+            # re-enter the raw feed HTML parser, including on enrichment re-entry.
+            retained = article_content(article)
+            canonical = content_is_retained(article)
             if article.get("content_kind") == "article" and article.get("content"):
                 enriched_articles.append(article)
                 continue
 
             # Keep the complete feed body if static article retrieval fails.
-            full_content = normalize_feed_content(article.get("content"))
-            if not full_content:
+            full_content = retained.text
+            if not canonical and (not full_content or not article.get("content")):
                 full_content = "# " + article.get("title", "") + "\n"
-
-            # Add summary if available
-            if not article.get("content") and article.get("summary"):
-                full_content += normalize_feed_content(article["summary"]) + "\n"
+                if not article.get("content") and article.get("summary"):
+                    full_content += retained.text + "\n"
 
             article["content_kind"] = "feed"
-            article["source_links"] = []
-            article["source_link_contexts"] = []
-            article["source_blocks"] = []
+            article["content_format"] = "text"
+            if not canonical:
+                article["source_links"] = []
+                article["source_link_contexts"] = []
+                article["source_blocks"] = []
             article_link = article.get("link", "")
             if not article_link:
                 article["content"] = full_content
@@ -148,13 +155,14 @@ class SentryDigestFeedClient:
                         article["content_kind"] = (
                             "article" if extracted.text else "feed"
                         )
-                        article["source_links"] = list(extracted.links)
-                        article["source_link_contexts"] = [
-                            asdict(item) for item in extracted.link_contexts
-                        ]
-                        article["source_blocks"] = [
-                            asdict(item) for item in extracted.blocks
-                        ]
+                        if extracted.text:
+                            article["source_links"] = list(extracted.links)
+                            article["source_link_contexts"] = [
+                                asdict(item) for item in extracted.link_contexts
+                            ]
+                            article["source_blocks"] = [
+                                asdict(item) for item in extracted.blocks
+                            ]
                     else:
                         # Use what we have if we can't fetch the full article
                         logger.warning(

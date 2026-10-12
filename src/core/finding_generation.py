@@ -22,6 +22,7 @@ from .finding_evidence import (
 from .reporting import ReportingSource
 from .recommendations import directive_units, project_recommendation_action
 from .source_document import ADVISORY_DECLARATION, source_document
+from .source_markup import source_literal
 
 
 @dataclass(frozen=True)
@@ -242,15 +243,22 @@ def _finding(
     description = " ".join(excerpts) or record.state_prose
     lines = [
         f"### {record.heading}",
-        f"- **Description**: {description}",
+        f"- **Description**: {source_literal(description)}",
         f"- **Status**: {record.state_prose}",
     ]
     if impact:
-        lines.append(f"- **Impact**: {' '.join(impact)}")
-    lines.extend(
-        f"- **{name}**: {('; '.join(links) or ABSENT) if name == 'Vendor Links' and links is not None else value}"
-        for name, value in record.fields
-    )
+        lines.append(f"- **Impact**: {source_literal(' '.join(impact))}")
+    for name, value in record.fields:
+        if name == "Vendor Links" and links is not None:
+            value = "; ".join(links) or ABSENT
+        elif name in {
+            "Affected Versions",
+            "Exceptions",
+            "Recommended Actions",
+            "Release Details",
+        }:
+            value = source_literal(value)
+        lines.append(f"- **{name}**: {value}")
     return "\n".join(lines) + "\n\n"
 
 
@@ -666,7 +674,8 @@ def render_finding_plan(
                 # Joining quotes and release lists into one sentence destroys
                 # their reporting/condition boundaries during validation.
                 rows.extend(
-                    f"- **{record.heading}**: {value}" for value in _unique(values)
+                    f"- **{record.heading}**: {source_literal(value)}"
+                    for value in _unique(values)
                 )
         return (
             "\n".join(rows)

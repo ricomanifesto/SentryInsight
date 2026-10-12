@@ -11,9 +11,10 @@ from urllib.parse import quote, urlsplit
 
 from ..services.article_content import (
     ArticleBlock,
+    ArticleContentError,
     ArticleLink,
-    article_blocks,
-    normalize_feed_content,
+    article_content,
+    retained_content,
 )
 from .cve import extract_cve_ids
 
@@ -37,6 +38,38 @@ FINDING_PATTERN = re.compile(
 
 class ReportingGroundingError(ValueError):
     """Raised when reporting evidence cannot be grounded in supplied inputs."""
+
+
+class ReportingContentError(ReportingGroundingError):
+    """Malformed retained evidence requires terminal rejection, never omission."""
+
+
+def reporting_content(article):
+    try:
+        return article_content(article)
+    except ArticleContentError as exc:
+        raise ReportingContentError("Invalid retained source content") from exc
+
+
+def validate_retained_content(text, blocks=()):
+    try:
+        return retained_content(text, blocks)
+    except ArticleContentError as exc:
+        raise ReportingContentError("Invalid retained source structure") from exc
+
+
+def _source_records(records):
+    if not isinstance(records, Iterable) or isinstance(records, (str, bytes, Mapping)):
+        raise ReportingContentError("Invalid retained source collection")
+    return records
+
+
+def _content_kind(value):
+    # Provenance is open text, not an encoding declaration. Do not coerce a
+    # malformed value or make unknown publisher/provider names a new enum.
+    if not isinstance(value, str):
+        raise ReportingContentError("Invalid retained source provenance type")
+    return value
 
 
 @dataclass(frozen=True)
@@ -147,23 +180,18 @@ def build_reporting_catalog(
 ) -> dict[str, ReportingSource]:
     """Build a deterministic allowlist from the exact model input articles."""
     catalog: dict[str, ReportingSource] = {}
-    for article in articles:
+    for article in _source_records(articles):
+        content = reporting_content(article)
         url = normalize_reporting_url(article.get("link"))
-        content = normalize_feed_content(
-            article.get("content") or article.get("summary")
-        )
         source = ReportingSource(
             key=reporting_key(url),
             publisher=_clean_text(article.get("source"), "publisher"),
             title=_clean_text(article.get("title"), "title"),
             url=url,
-            content=content,
-            blocks=article_blocks(article.get("source_blocks", ()), content),
-            content_kind=str(article.get("content_kind", "feed")),
-            links=tuple(
-                normalize_reporting_url(link)
-                for link in article.get("source_links", [])
-            ),
+            content=content.text,
+            blocks=content.blocks,
+            content_kind=_content_kind(article.get("content_kind", "feed")),
+            links=_source_links(article.get("source_links", [])),
             link_contexts=_link_contexts(article.get("source_link_contexts", [])),
             metadata_cves=tuple(
                 extract_cve_ids(
@@ -189,6 +217,10 @@ def serialize_reporting_catalog(
 ) -> list[dict[str, Any]]:
     records = []
     for source in catalog.values():
+        validate_retained_content(source.content, source.blocks)
+        _content_kind(source.content_kind)
+        _source_links(source.links)
+        _link_contexts(source.link_contexts)
         record = asdict(source)
         if not source.blocks:
             record.pop("blocks")
@@ -196,14 +228,38 @@ def serialize_reporting_catalog(
     return records
 
 
+def _source_links(records) -> tuple[str, ...]:
+    if not isinstance(records, (list, tuple)) or any(
+        not isinstance(link, str) for link in records
+    ):
+        raise ReportingContentError("Invalid retained source links")
+    return tuple(normalize_reporting_url(link) for link in records)
+
+
 def _link_contexts(records) -> tuple[ArticleLink, ...]:
+    if not isinstance(records, (list, tuple)):
+        raise ReportingContentError("Invalid retained link context")
+    values = [
+        asdict(record) if isinstance(record, ArticleLink) else record
+        for record in records
+    ]
+    if any(
+        not isinstance(record, dict)
+        or "url" not in record
+        or any(
+            not isinstance(record.get(field, ""), str)
+            for field in ("url", "label", "context")
+        )
+        for record in values
+    ):
+        raise ReportingContentError("Invalid retained link context")
     return tuple(
         ArticleLink(
             normalize_reporting_url(record["url"]),
-            str(record.get("label", "")),
-            str(record.get("context", "")),
+            record.get("label", ""),
+            record.get("context", ""),
         )
-        for record in records
+        for record in values
     )
 
 
@@ -211,21 +267,22 @@ def deserialize_reporting_catalog(
     records: Iterable[Mapping[str, Any]],
 ) -> dict[str, ReportingSource]:
     catalog: dict[str, ReportingSource] = {}
-    for record in records:
+    for record in _source_records(records):
+        if not isinstance(record, Mapping):
+            raise ReportingContentError("Invalid retained source record")
         url = normalize_reporting_url(record.get("url"))
+        content = validate_retained_content(
+            record.get("content", ""), record.get("blocks", ())
+        )
         source = ReportingSource(
             key=_clean_text(record.get("key"), "key"),
             publisher=_clean_text(record.get("publisher"), "publisher"),
             title=_clean_text(record.get("title"), "title"),
             url=url,
-            content=str(record.get("content", "")),
-            blocks=article_blocks(
-                record.get("blocks", ()), str(record.get("content", ""))
-            ),
-            content_kind=str(record.get("content_kind", "feed")),
-            links=tuple(
-                normalize_reporting_url(link) for link in record.get("links", [])
-            ),
+            content=content.text,
+            blocks=content.blocks,
+            content_kind=_content_kind(record.get("content_kind", "feed")),
+            links=_source_links(record.get("links", [])),
             link_contexts=_link_contexts(record.get("link_contexts", [])),
             metadata_cves=tuple(
                 extract_cve_ids(

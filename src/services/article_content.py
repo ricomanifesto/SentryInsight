@@ -4,8 +4,12 @@ from dataclasses import dataclass, field
 import hashlib
 import html5lib
 import re
-from typing import Any
+from typing import Any, Mapping
 from urllib.parse import urljoin, urlsplit
+
+
+class ArticleContentError(ValueError):
+    """Retained content or structure is malformed; never repair its provenance."""
 
 
 @dataclass
@@ -81,6 +85,8 @@ def _excluded(node: _Node) -> bool:
 
 def article_blocks(records, text: str) -> tuple[ArticleBlock, ...]:
     """Reject stale or inconsistent provenance at both catalog boundaries."""
+    if not isinstance(text, str) or not isinstance(records, (list, tuple)):
+        raise ArticleContentError("Invalid retained text or structure sequence")
     digest = hashlib.sha256(text.encode()).hexdigest()
     blocks = []
     end = 0
@@ -88,12 +94,37 @@ def article_blocks(records, text: str) -> tuple[ArticleBlock, ...]:
         if isinstance(value, ArticleBlock):
             block = value
         else:
+            required = {"start", "end", "text", "text_sha256", "kind"}
+            optional = {"level", "table", "cells", "header", "list_id", "children"}
+            if (
+                not isinstance(value, dict)
+                or not required <= value.keys()
+                or value.keys() - required - optional
+                or not isinstance(value.get("cells", ()), (list, tuple))
+            ):
+                raise ArticleContentError("Invalid retained structure record")
             fields: dict[str, Any] = {
                 **value,
                 "cells": tuple(value.get("cells", ())),
                 "children": article_blocks(value.get("children", ()), text),
             }
             block = ArticleBlock(**fields)
+        if (
+            any(type(v) is not int for v in (block.start, block.end, block.level))
+            or any(
+                not isinstance(v, str)
+                for v in (block.text, block.text_sha256, block.kind)
+            )
+            or any(
+                v is not None and (type(v) is not int or v < 0)
+                for v in (block.table, block.list_id)
+            )
+            or type(block.header) is not bool
+            or not isinstance(block.cells, tuple)
+            or any(not isinstance(cell, str) for cell in block.cells)
+            or not isinstance(block.children, tuple)
+        ):
+            raise ArticleContentError("Invalid retained structure field type")
         if (
             block.text_sha256 != digest
             or not 0 <= end <= block.start < block.end <= len(text)
@@ -112,13 +143,17 @@ def article_blocks(records, text: str) -> tuple[ArticleBlock, ...]:
             or (block.kind == "table_row") != (block.table is not None)
             or (block.kind != "table_row" and (block.cells or block.header))
         ):
-            raise ValueError("Article structure does not match retained source text")
+            raise ArticleContentError(
+                "Article structure does not match retained source text"
+            )
         if block.cells:
             # DOM cell boundaries can occur without whitespace in the original
             # extraction. They may only partition the existing row, never add
             # names, release values or column labels.
             if re.sub(r"\s", "", "".join(block.cells)) != re.sub(r"\s", "", block.text):
-                raise ValueError("Article table cells do not match their source row")
+                raise ArticleContentError(
+                    "Article table cells do not match their source row"
+                )
         if block.children:
             children = article_blocks(block.children, text)
             if block.kind != "list_item" or any(
@@ -126,12 +161,59 @@ def article_blocks(records, text: str) -> tuple[ArticleBlock, ...]:
                 or not block.start <= child.start < child.end <= block.end
                 for child in children
             ):
-                raise ValueError(
+                raise ArticleContentError(
                     "Article list children do not belong to their source item"
                 )
         blocks.append(block)
         end = block.end
     return tuple(blocks)
+
+
+def retained_content(text, blocks=()) -> ArticleContent:
+    """Canonical text and exact structure; no coercion or HTML interpretation."""
+    return ArticleContent(text, blocks=article_blocks(blocks, text))
+
+
+def content_is_retained(record) -> bool:
+    """Representation is explicit; provenance alone does not mean plaintext."""
+    if not isinstance(record, Mapping):
+        raise ArticleContentError("Invalid article record")
+    content_format = record.get("content_format")
+    if content_format is not None and content_format != "text":
+        raise ArticleContentError("Unknown content representation")
+    if not isinstance(record.get("content_kind", "feed"), str):
+        raise ArticleContentError("Invalid content provenance type")
+    structured = "source_blocks" in record and record.get("content_kind") == "article"
+    return content_format == "text" or structured
+
+
+def article_content(record) -> ArticleContent:
+    """Normalize raw feed ingress once; extracted/marked plaintext stays exact."""
+    retained = content_is_retained(record)
+    blocks = record.get("source_blocks", ())
+    if retained:
+        return retained_content(record.get("content"), blocks)
+    if blocks:
+        raise ArticleContentError("Raw feed content cannot carry extracted structure")
+    # Validate the sequence even when empty; None or a mapping is not evidence.
+    article_blocks(blocks, "")
+
+    def valid_feed(value):
+        if value is None or isinstance(value, str):
+            return True
+        return isinstance(value, list) and all(
+            (
+                isinstance(item.get("value", ""), str)
+                if isinstance(item, dict)
+                else isinstance(item, str)
+            )
+            for item in value
+        )
+
+    if not valid_feed(record.get("content")) or not valid_feed(record.get("summary")):
+        raise ArticleContentError("Invalid raw feed content type")
+    raw = record.get("content") or record.get("summary")
+    return retained_content(normalize_feed_content(raw))
 
 
 def _dom_blocks(node: _Node, text: str, url: str) -> tuple[ArticleBlock, ...]:

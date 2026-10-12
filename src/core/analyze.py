@@ -16,11 +16,12 @@ from .finding_generation import (
     generation_plan_context,
     render_finding_plan,
 )
-from ..services.article_content import normalize_feed_content
 from .reporting import (
+    ReportingContentError,
     ReportingGroundingError,
     build_reporting_catalog,
     reporting_key,
+    reporting_content,
     serialize_reporting_catalog,
 )
 
@@ -103,7 +104,9 @@ def filter_exploitation_articles(
     return articles
 
 
-def format_article_summary(article: Dict[str, Any]) -> str:
+def format_article_summary(
+    article: Dict[str, Any], *, retained_text: str | None = None
+) -> str:
     def clean_text(value: Any, default: str = "") -> str:
         if value is None:
             return default
@@ -113,9 +116,8 @@ def format_article_summary(article: Dict[str, Any]) -> str:
     source = clean_article_source(article.get("source"))
     link = clean_text(article.get("link"))
     content = (
-        normalize_feed_content(article.get("content") or article.get("summary"))
-        or "No content available"
-    )
+        retained_text if retained_text is not None else reporting_content(article).text
+    ) or "No content available"
 
     metadata = []
     if source:
@@ -299,14 +301,31 @@ async def analyze_exploitation(
     all_attack_vectors = set()
 
     reporting_catalog = {}
+    retained_texts = {}
     for article in articles:
         try:
-            reporting_catalog.update(build_reporting_catalog([article]))
+            catalog = build_reporting_catalog([article])
+            reporting_catalog.update(catalog)
+            retained_texts[id(article)] = next(iter(catalog.values())).content
+        except ReportingContentError:
+            logger.error("Generation evidence failed: invalid_retained_source")
+            return {
+                "date": datetime.now(timezone.utc).date().isoformat(),
+                "analyzed_article_count": len(articles),
+                "error": "invalid_retained_source",
+                "exploitation_report": "",
+                "reporting_sources": [],
+            }
         except ReportingGroundingError as exc:
             logger.warning("Article cannot be used as reporting evidence: %s", exc)
+            # Catalog validation checks content before reporting identity. An
+            # uncitable but valid article still supplies the original prompt.
+            retained_texts[id(article)] = reporting_content(article).text
 
     for article in articles:
-        article_summary = format_article_summary(article)
+        article_summary = format_article_summary(
+            article, retained_text=retained_texts.get(id(article))
+        )
         all_article_summaries.append(article_summary)
 
         # Extract expected CVEs only when prompt text ties them to exploit activity.
