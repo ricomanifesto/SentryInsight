@@ -16,6 +16,7 @@ from .reporting import (
     ReportingGroundingError,
     normalize_reporting_url,
     reporting_fragment,
+    reporting_markdown_link,
 )
 
 CVE_ID_PATTERN = re.compile(r"^CVE-\d{4}-\d{4,}$", re.IGNORECASE)
@@ -182,6 +183,7 @@ def _parse_reporting(value: str) -> tuple[ReportingReference, ...]:
         raise ReportArtifactError("Reporting must contain at least one source link")
 
     references: list[ReportingReference] = []
+    literal_labels = False
     index = 0
     while index < len(children):
         if children[index].type != "link_open":
@@ -191,11 +193,17 @@ def _parse_reporting(value: str) -> tuple[ReportingReference, ...]:
         href = children[index].attrGet("href") or ""
         index += 1
         label_parts: list[str] = []
+        label_tokens = []
         while index < len(children) and children[index].type != "link_close":
-            if children[index].type != "text":
+            if children[index].type not in {"text", "code_inline"}:
                 raise ReportArtifactError("Reporting link labels must be plain text")
+            label_tokens.append(children[index])
             label_parts.append(children[index].content)
             index += 1
+        if any(token.type == "code_inline" for token in label_tokens):
+            if len(label_tokens) != 1:
+                raise ReportArtifactError("Reporting literals must own the whole label")
+            literal_labels = True
         if index >= len(children):
             raise ReportArtifactError("Reporting contains an unclosed source link")
         index += 1
@@ -230,6 +238,13 @@ def _parse_reporting(value: str) -> tuple[ReportingReference, ...]:
     urls = [reference.url for reference in references]
     if len(urls) != len(set(urls)):
         raise ReportArtifactError("Reporting contains duplicate source links")
+    if literal_labels and value != ", ".join(
+        reporting_markdown_link(f"{ref.publisher} — {ref.title}", ref.url)
+        for ref in references
+    ):
+        raise ReportArtifactError(
+            "Reporting literal labels must use canonical encoding"
+        )
     return tuple(references)
 
 

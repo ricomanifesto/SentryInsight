@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from html import escape
 import ipaddress
 import re
 from dataclasses import asdict, dataclass
@@ -17,6 +18,7 @@ from ..services.article_content import (
     retained_content,
 )
 from .cve import extract_cve_ids
+from .source_markup import source_literal
 
 import idna
 
@@ -304,9 +306,14 @@ def deserialize_reporting_catalog(
     return catalog
 
 
-def _markdown_label(source: ReportingSource) -> str:
-    label = f"{source.publisher} — {source.title}"
-    return label.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
+def reporting_markdown_link(label: str, url: str) -> str:
+    """Serialize intended evidence links without reinterpreting owned data.
+
+    Angle destinations contain parentheses; entity escaping survives the
+    parser's one destination decode without changing URL identity.
+    """
+    destination = escape(normalize_reporting_url(url), quote=False)
+    return f"[{source_literal(label)}](<{destination}>)"
 
 
 def _resolve_finding(
@@ -331,7 +338,10 @@ def _resolve_finding(
             f"{title}: Reporting contains unknown source keys: {', '.join(unknown)}"
         )
     links = ", ".join(
-        f"[{_markdown_label(catalog[key])}]({catalog[key].url})" for key in keys
+        reporting_markdown_link(
+            f"{catalog[key].publisher} — {catalog[key].title}", catalog[key].url
+        )
+        for key in keys
     )
     field = fields[0]
     resolved_body = (

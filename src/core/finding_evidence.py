@@ -38,6 +38,7 @@ from .reporting import (
     ReportingGroundingError,
     ReportingSource,
     normalize_reporting_url,
+    reporting_markdown_link,
 )
 
 ABSENT = "Not stated in supplied sources."
@@ -264,7 +265,9 @@ def source_evidence_text(
             if owner is source
         )
         for sentence in sentences:
-            entries.append(f"[Source](<{source.url}>): “{source_literal(sentence)}”")
+            entries.append(
+                f"{reporting_markdown_link('Source', source.url)}: “{source_literal(sentence)}”"
+            )
     return " ".join(entries)
 
 
@@ -1559,7 +1562,7 @@ class FindingDetails:
 def source_constraint_text(details: FindingDetails) -> str:
     return (
         " ".join(
-            f"[Source](<{url}>): “{source_literal(text)}”"
+            f"{reporting_markdown_link('Source', url)}: “{source_literal(text)}”"
             for url, text in dict.fromkeys(details.constraint_evidence)
         )
         or ABSENT

@@ -113,9 +113,16 @@ def test_model_source_keys_resolve_to_input_owned_markdown_links():
 
     assert (
         "[Example Security — Critical vendor flaw exploited]"
-        "(https://example.com/security/advisory)" in resolved
+        "(<https://example.com/security/advisory>)" in resolved
     )
     assert "source-cc16b55febdc" not in resolved
+    from src.core.report_artifact import _parse_reporting
+
+    field = resolved.split("- **Reporting**: ", 1)[1].split("\n", 1)[0]
+    (reference,) = _parse_reporting(field)
+    assert reference.publisher == "Example Security"
+    assert reference.title == "Critical vendor flaw exploited"
+    assert reference.url == "https://example.com/security/advisory"
 
 
 def test_model_cannot_publish_an_unknown_or_authored_reporting_url():

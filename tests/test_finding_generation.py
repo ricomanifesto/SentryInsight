@@ -419,10 +419,16 @@ def test_owned_intrusion_narrative_has_useful_technique_and_actor_roles():
 
 
 def test_optional_excerpt_keeps_its_paragraph_antecedent_and_qualifications():
+    from markdown_it import MarkdownIt
+
     paragraph = f"{CVE} is actively exploited. Its CVSS score is 7.5. The server could permit remote code execution."
     records, report = render(catalog_for(paragraph))
     assert [item.text for item in records[0].excerpts] == [paragraph]
-    assert f"**Description**: {paragraph}" in report
+    value = report.split("- **Description**: ", 1)[1].split("\n", 1)[0]
+    tokens = MarkdownIt("commonmark").parseInline(value)[0].children
+    assert [(token.type, token.content) for token in tokens] == [
+        ("code_inline", paragraph)
+    ]
 
 
 def test_explicit_section_does_not_make_a_foreign_cve_paragraph_optional_context():

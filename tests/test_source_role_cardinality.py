@@ -1,6 +1,7 @@
 """Source roles and directive references are nonexclusive, ordered ownership."""
 
 import pytest
+from markdown_it import MarkdownIt
 
 from src.core.report_artifact import parse_report_artifact
 from test_finding_generation_pipeline import run_real_pipeline
@@ -80,8 +81,12 @@ def test_mixed_roles_and_reference_ownership_through_real_pipeline(
     finding = artifact.findings[0]
     assert finding.action.value == action
     assert paragraph in finding.recommended_actions
-    assert f"**Description**: {paragraph}" in report
-    assert f"**Impact**: {paragraph}" in report
+    for name in ("Description", "Impact"):
+        value = report.split(f"- **{name}**: ", 1)[1].split("\n", 1)[0]
+        tokens = MarkdownIt("commonmark").parseInline(value)[0].children
+        assert [(token.type, token.content) for token in tokens] == [
+            ("code_inline", paragraph)
+        ]
     assert paragraph in report.split("## Attack Vectors and Techniques", 1)[1]
 
 
