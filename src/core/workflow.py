@@ -200,6 +200,7 @@ async def analyze_articles(
         return state
     if analysis_results.get("error"):
         logger.error(f"Analysis failed: {analysis_results['error']}")
+        _record_failure(state, "analysis", ["analysis_failed"])
         state["status"] = "failed"
         return state
 
@@ -487,41 +488,54 @@ async def run_exploitation_analysis():
     """Run the exploitation analysis workflow"""
     logger.info("Starting exploitation analysis workflow")
 
-    # Load configuration
-    config = load_config()
+    with logfire.span(
+        "sentryinsight report run", _span_name="sentryinsight.run"
+    ) as span:
+        # Load configuration
+        config = load_config()
 
-    if not config:
-        logger.error("Failed to load configuration, exiting")
-        return None
+        if not config:
+            logger.error("Failed to load configuration, exiting")
+            span.set_attributes(
+                {
+                    "workflow.status": "failed",
+                    "failure.stage": "config",
+                    "failure.codes": ["config_unavailable"],
+                }
+            )
+            return None
 
-    # Initialize state
-    initial_state = {
-        "articles": [],
-        "filtered_articles": [],
-        "analysis_results": {},
-        "config": config,
-        "status": "started",
-    }
+        span.set_attributes(model_attributes(config))
 
-    # Create the graph
-    graph = create_exploitation_analysis_graph()
+        # Initialize state
+        initial_state = {
+            "articles": [],
+            "filtered_articles": [],
+            "analysis_results": {},
+            "config": config,
+            "status": "started",
+        }
 
-    # Run the graph
-    try:
-        with logfire.span(
-            "sentryinsight report run", _span_name="sentryinsight.run"
-        ) as span:
-            span.set_attributes(model_attributes(config))
+        # Create the graph
+        graph = create_exploitation_analysis_graph()
+
+        # Run the graph
+        try:
             final_state = await graph.ainvoke(initial_state)
-            span.set_attributes(state_attributes(final_state))
+        except Exception as e:
+            logger.error(f"Error during workflow execution: {e}")
+            span.set_attributes(
+                {"workflow.status": "failed", "error.type": type(e).__qualname__}
+            )
+            span.set_level("error")
+            return None
+
+        span.set_attributes(state_attributes(final_state))
         if final_state.get("status") == "failed":
             logger.error("Workflow failed")
         else:
             logger.info("Workflow completed successfully")
         return final_state
-    except Exception as e:
-        logger.error(f"Error during workflow execution: {e}")
-        return None
 
 
 # For direct execution

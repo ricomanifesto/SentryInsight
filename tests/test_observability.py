@@ -199,6 +199,51 @@ def test_run_nests_stage_spans_under_one_root(capfire, monkeypatch, tmp_path):
     assert "sentryinsight.analyze" not in spans
 
 
+def test_handled_analysis_error_records_failure_code(capfire, monkeypatch):
+    async def failed_analysis(_articles, _config):
+        return {"error": MODEL_PROSE, "exploitation_report": MODEL_PROSE}
+
+    monkeypatch.setattr(workflow, "analyze_exploitation", failed_analysis)
+    state = report_state("")
+
+    result = asyncio.run(traced_stage("analyze", workflow.analyze_articles)(state))
+
+    assert result["status"] == "failed"
+    attributes = spans_by_name(capfire)["sentryinsight.analyze"]["attributes"]
+    assert attributes["analysis.outcome"] == "error"
+    assert attributes["failure.stage"] == "analysis"
+    assert attributes["failure.codes"] == ["analysis_failed"]
+    assert_no_content(capfire)
+
+
+def test_missing_configuration_still_records_a_run_span(capfire, monkeypatch):
+    monkeypatch.setattr(workflow, "load_config", lambda: {})
+
+    assert asyncio.run(workflow.run_exploitation_analysis()) is None
+
+    root = spans_by_name(capfire)["sentryinsight.run"]
+    assert root["attributes"]["workflow.status"] == "failed"
+    assert root["attributes"]["failure.stage"] == "config"
+    assert root["attributes"]["failure.codes"] == ["config_unavailable"]
+
+
+def test_graph_exception_marks_the_run_span_with_its_type(capfire, monkeypatch):
+    class BrokenGraph:
+        async def ainvoke(self, _state):
+            raise RuntimeError(f"Illegal header value b'Bearer {CREDENTIAL}'")
+
+    monkeypatch.setattr(workflow, "load_config", lambda: {"feed_url": "test"})
+    monkeypatch.setattr(workflow, "create_exploitation_analysis_graph", BrokenGraph)
+
+    assert asyncio.run(workflow.run_exploitation_analysis()) is None
+
+    root = spans_by_name(capfire)["sentryinsight.run"]
+    assert root["attributes"]["workflow.status"] == "failed"
+    assert root["attributes"]["error.type"] == "RuntimeError"
+    assert root["attributes"]["logfire.level_num"] == 17
+    assert CREDENTIAL not in json.dumps(exported(capfire))
+
+
 @pytest.mark.parametrize("model", ["Not A Model", "openrouter/" + ARTICLE_TITLE])
 def test_invalid_model_identifier_is_not_recorded(model, monkeypatch):
     monkeypatch.setenv("SENTRYINSIGHT_MODEL", model)
