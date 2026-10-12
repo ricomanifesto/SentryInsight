@@ -23,6 +23,44 @@ _ASSERTION_PROJECTION = {
 _EVENT_TENSES = ("current", "past", "unspecified")
 
 
+TemporalDirection = Literal[
+    "past", "current", "window", "future", "context", "relative"
+]
+
+
+@dataclass(frozen=True)
+class TemporalConstraint:
+    """A parsed time relation belongs to its event or reporting predicate."""
+
+    owner: Literal["event", "reporter"]
+    direction: TemporalDirection
+    text: str
+    reporter_tense: str = "unspecified"
+
+
+def temporal_compatible(constraints, event_tense):
+    """Validate owned temporal meaning without guessing a new event state."""
+    event_directions = set()
+    for constraint in constraints:
+        if constraint.owner not in {"event", "reporter"}:
+            return False
+        direction = constraint.direction
+        if direction not in {"past", "current", "window", "context"}:
+            # Future facts and unresolved relative anchors are outside this
+            # finite contract, even under negative or qualified evidence.
+            return False
+        tense = (
+            event_tense if constraint.owner == "event" else constraint.reporter_tense
+        )
+        if tense not in _EVENT_TENSES:
+            return False
+        if (direction, tense) in {("past", "current"), ("current", "past")}:
+            return False
+        if constraint.owner == "event":
+            event_directions.add(direction)
+    return not {"past", "current"}.issubset(event_directions)
+
+
 @dataclass(frozen=True)
 class EvidenceReporter:
     """The reporting operator does not lend its tense to its embedded event."""
@@ -51,6 +89,7 @@ class OwnedClause:
     conditions: tuple[str, ...] = ()
     reporting: tuple[str, ...] = ()
     reporter: EvidenceReporter | None = None
+    temporal: tuple[TemporalConstraint, ...] = ()
     finite: bool = False
     correlative: tuple[str, str] | None = None
     unsupported: bool = False
@@ -76,6 +115,7 @@ class OwnedClause:
             self.modal not in {"", "possible", "unknown"}
             or self.polarity not in {"affirmative", "negative"}
             or self.tense not in _EVENT_TENSES
+            or not temporal_compatible(self.temporal, self.tense)
             or (
                 self.reporter
                 and self.reporter.polarity not in {"affirmative", "negative"}

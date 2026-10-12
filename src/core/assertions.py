@@ -5,7 +5,7 @@ import re
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .assertion_predicates import (
-    AUXILIARY_STATES,
+    operator_tense,
     BOUNDARY,
     CONDITION,
     CVE_LIST,
@@ -322,7 +322,7 @@ def _closed_composition(core):
             kind="assertion",
             subject="attackers",
             verb="exploiting",
-            tense=AUXILIARY_STATES[(campaign["aux"],)],
+            tense=operator_tense((campaign["aux"],)),
             finite=True,
             polarity="negative" if campaign["negative"] else "affirmative",
             context_role="composed:coordinated_activity",
@@ -493,10 +493,12 @@ def _intrusion(text):
         if qualifier and qualifier["unknown"]
         else "possible" if qualifier and qualifier["possible"] else ""
     )
+    qualifiers = bind_qualifiers(suffix)
     return OwnedClause(
         text=text,
         cves=cves,
         attribution="explicit",
+        temporal=tuple(q.temporal for q in qualifiers.spans if q.temporal),
         kind="assertion",
         verb="exploited",
         tense="past",
@@ -505,16 +507,23 @@ def _intrusion(text):
         unsupported=len(frames) != 1
         or len(cves) != 1
         or bool(TOPIC.search(prefix) or TOPIC.search(suffix))
-        or not bind_qualifiers(suffix).complete,
+        or not qualifiers.complete,
     )
 
 
 def _unit(raw):
     if quoted := _quoted_event(raw):
         return quoted
-    core, reporting = detach_reporting(raw)
+    core, reporting_spans = detach_reporting(raw)
+    reporting = tuple(q.text for q in reporting_spans)
+    reporter_time = tuple(q.temporal for q in reporting_spans if q.temporal)
     if intrusion := _intrusion(core):
-        return replace(intrusion, text=raw, reporting=reporting)
+        return replace(
+            intrusion,
+            text=raw,
+            reporting=reporting,
+            temporal=intrusion.temporal + reporter_time,
+        )
     label = re.match(r"^([^:]+):\s*", core)
     if label and not TOPIC.search(label[1]):
         core = core[label.end() :]
@@ -526,10 +535,15 @@ def _unit(raw):
             modal=modal or composed.modal,
             polarity="negative" if negative else composed.polarity,
             reporting=reporting,
+            temporal=composed.temporal + reporter_time,
         )
     if reported := _reported_event(core):
         return replace(
-            reported, text=raw, modal=modal or reported.modal, reporting=reporting
+            reported,
+            text=raw,
+            modal=modal or reported.modal,
+            reporting=reporting,
+            temporal=reported.temporal + reporter_time,
         )
     cves = tuple(extract_cve_ids(core))
     base = OwnedClause(
@@ -537,6 +551,7 @@ def _unit(raw):
         cves=cves,
         attribution="explicit" if cves else "unscoped",
         reporting=reporting,
+        temporal=reporter_time,
     )
     other = re.fullmatch(
         rf"(?P<reporter>{REPORTER_SUBJECT}) warned of several other "
@@ -623,13 +638,14 @@ def _unit(raw):
     if noun:
         auxiliary = (noun["aux"] or "").lower()
         certainty = (noun["qualifier"] or "").lower()
-        unknown_tail = bool(
-            noun["tail"].strip() and not bind_qualifiers(noun["tail"]).complete
-        )
+        qualifiers = bind_qualifiers(noun["tail"])
+        unknown_tail = not qualifiers.complete
         return replace(
             base,
             kind="assertion",
             verb="exploitation",
+            temporal=base.temporal
+            + tuple(q.temporal for q in qualifiers.spans if q.temporal),
             modal=modal
             or ("possible" if certainty in {"potential", "possible"} else ""),
             polarity="negative" if negative or "not" in auxiliary else "affirmative",
@@ -660,6 +676,7 @@ def _unit(raw):
     )
     if absent_nominal:
         tail = core[absence_end + absent_nominal.end() :]
+        qualifiers = bind_qualifiers(tail)
         return replace(
             base,
             kind="assertion",
@@ -668,7 +685,9 @@ def _unit(raw):
             polarity="negative",
             modal=modal,
             object_text=tail,
-            unsupported=not bind_qualifiers(tail).complete,
+            temporal=base.temporal
+            + tuple(q.temporal for q in qualifiers.spans if q.temporal),
+            unsupported=not qualifiers.complete,
         )
     # CVE subjects and actor/object frames are distinct productions. An opaque
     # new subject cannot inherit a previous vulnerability's predicate.
@@ -703,6 +722,8 @@ def _unit(raw):
         modal=frame.modal,
         polarity=frame.polarity,
         tense=frame.tense,
+        temporal=base.temporal
+        + tuple(q.temporal for q in frame.qualifiers if q.temporal),
         object_text=body[slice(*frame.adjunct_span)],
         unsupported=not frame.supported and not frame.requires_inheritance,
         finite=frame.finite,
@@ -769,6 +790,18 @@ def _agent_capabilities(sentence):
 
 
 def parse_assertions(sentence):
+    """Finalize every assertion through the same owned semantic projection."""
+    return [
+        (
+            replace(item, unsupported=True)
+            if item.kind == "assertion" and item.assertion_status is None
+            else item
+        )
+        for item in _parse_assertions(sentence)
+    ]
+
+
+def _parse_assertions(sentence):
     """Resolve coordination using each parsed relation's owned qualifiers once."""
     if qualification := source_qualification(sentence):
         return [qualification]
@@ -892,8 +925,6 @@ def parse_assertions(sentence):
             and previous.tense in {"current", "past"}
         ):
             clause = replace(clause, tense=previous.tense)
-        if clause.kind == "assertion" and clause.assertion_status is None:
-            clause = replace(clause, unsupported=True)
         if clause.correlative is not None:
             groups.append(
                 (

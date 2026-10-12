@@ -255,12 +255,15 @@ def test_collection_types_reach_domain_error(value):
         serialize_url_collection(value)
 
 
-def test_predicate_frame_qualifier_offsets_share_its_source_coordinate_system():
+@pytest.mark.parametrize("copula,supported", [("are", False), ("were", True)])
+def test_predicate_frame_qualifier_offsets_share_its_source_coordinate_system(
+    copula, supported
+):
     from src.core.assertion_predicates import bind_predicate
 
-    text = f"are actively exploiting {A} in the wild yesterday"
+    text = f"{copula} actively exploiting {A} in the wild yesterday"
     frame = bind_predicate(text, voice="actor")
-    assert frame.supported
+    assert frame.supported is supported
     assert [(q.kind, q.text) for q in frame.qualifiers] == [
         ("context", "in the wild"),
         ("temporal", "yesterday"),

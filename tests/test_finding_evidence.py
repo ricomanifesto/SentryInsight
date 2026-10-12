@@ -699,11 +699,57 @@ def test_lexical_assertion_after_a_new_subject_cannot_inherit_the_cve(subject, v
         "next Tuesday afternoon",
     ],
 )
-def test_nominal_time_and_frequency_adjuncts_can_publish(adjunct):
+def test_nominal_time_and_frequency_adjuncts_can_publish(
+    adjunct, monkeypatch, tmp_path
+):
     source = article(
         f"{CVE} is affected and actively exploited {adjunct}.\n\nExample Server 2.3\n\nHosted users need no action.\n\nInstall the update.",
         source_links=["https://example.test/vendor"],
     )
+    if adjunct in {
+        "last week",
+        "yesterday",
+        "earlier this month",
+        "the previous year",
+        "three days ago",
+        "100 times last week",
+        "last Friday",
+        "last Friday night",
+        "next Tuesday afternoon",
+    }:
+        # Preserve the original source/nominal-boundary fixture. The inherited
+        # current predicate cannot discard an incompatible event-time span.
+        assessment = assess_exploitation([source], [CVE])
+        assert assessment.unsupported and assessment.status != "active"
+        assert any(
+            " ".join(t.text for t in r.temporal) == adjunct
+            for r in assessment.relations
+        )
+        with pytest.raises(EvidenceError) as error:
+            validate_finding_evidence(report(), build_reporting_catalog([source]))
+        assert error.value.code == "unsupported_exploitation_status"
+        from test_finding_generation_pipeline import run_real_pipeline
+
+        previous = {
+            "index.md": b"Previous report",
+            "index.html": b"Previous site",
+            "current-findings.json": b'{"previous":true}',
+            ".sentryinsight-articles-fingerprint": b"previous inputs\n",
+        }
+        for name, data in previous.items():
+            (tmp_path / name).write_bytes(data)
+        result = run_real_pipeline(
+            monkeypatch,
+            tmp_path / "index.md",
+            articles=[source],
+            expect_model_call=False,
+        )
+        assert result["status"] == "failed"
+        assert result["analysis_results"]["error"] == "unsupported_evidence_relation"
+        assert all(
+            (tmp_path / name).read_bytes() == data for name, data in previous.items()
+        )
+        return
     assert assess_exploitation([source], [CVE]).status == "active"
     validate_finding_evidence(report(), build_reporting_catalog([source]))
 

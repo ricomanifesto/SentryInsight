@@ -9,18 +9,19 @@ import re
 
 from .assertion_bindings import CVE_LIST, REPORTER_SUBJECT, bind_subject
 from .cve import extract_cve_ids
+from .relations import TemporalConstraint, TemporalDirection
 
 # The existing temporal owner, now shared by all assertion-tail consumers.
 TIME_UNIT = r"(?:second|minute|hour|day|week|fortnight|month|quarter|year|weekend|night|morning|afternoon|evening)s?"
 WEEKDAY = r"(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?: (?:morning|afternoon|evening|night))?"
 QUANTITY = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several|many|multiple|numerous|a|an|(?:hundreds|thousands|millions|dozens) of)"
 NOMINAL_TIME = (
-    rf"(?:(?:the )?(?:last|next|previous|following|this|that|every|each|all) (?:{QUANTITY} )?(?:{TIME_UNIT}|{WEEKDAY})"
+    rf"(?:(?:the )?(?P<time_relation>last|next|previous|following|this|that|every|each|all) (?:{QUANTITY} )?(?:{TIME_UNIT}|{WEEKDAY})"
     rf"|{QUANTITY} {TIME_UNIT}|{WEEKDAY}"
     rf"|(?:(?:more|less|fewer) than |at (?:least|most) |up to )?{QUANTITY} (?:times|occasions))"
 )
 MONTH = r"(?:January|February|March|April|May|June|July|August|September|October|November|December)"
-DATE = rf"(?:{MONTH}(?: \d{{1,2}})?|{NOMINAL_TIME}|today|yesterday)"
+DATE = rf"(?:{MONTH}(?: \d{{1,2}})?|{NOMINAL_TIME}|(?P<relative_day>today|yesterday))"
 NAME = r"[A-Z][A-Za-z0-9'-]*(?: [A-Z][A-Za-z0-9'-]*){0,6}"
 
 
@@ -34,6 +35,7 @@ class QualifierSpan:
     predicate: str = ""
     object_text: str = ""
     cves: tuple[str, ...] = ()
+    temporal: TemporalConstraint | None = None
 
 
 @dataclass(frozen=True)
@@ -97,7 +99,7 @@ PRODUCTIONS = (
     (
         "temporal",
         _production(
-            r"currently|now|still|recently|today|yesterday|tomorrow|tonight|earlier|later|again|already|often|sometimes|always|ever|soon|twice|ago|overnight"
+            r"(?P<time_adverb>currently|now|still|recently|today|yesterday|tomorrow|tonight|earlier|later|again|already|often|sometimes|always|ever|soon|twice|ago|overnight)"
         ),
     ),
     (
@@ -131,6 +133,79 @@ PRODUCTIONS = (
 
 
 COMPLEMENTS = {"vulnerable": _production(r"to (?P<object>attack)")}
+
+
+# Direction belongs to a captured temporal production, never a substring in
+# arbitrary evidence. Calendar/frequency/duration contexts do not invent dates.
+TIME_DIRECTIONS: dict[str, TemporalDirection] = {
+    "last": "past",
+    "previous": "past",
+    "yesterday": "past",
+    "earlier": "past",
+    "ago": "past",
+    "next": "future",
+    "tomorrow": "future",
+    "now": "current",
+    "currently": "current",
+    "today": "window",
+    "this": "window",
+    "recently": "window",
+    "following": "relative",
+    "later": "relative",
+    "soon": "relative",
+    "tonight": "relative",
+    "that": "relative",
+    "every": "context",
+    "each": "context",
+    "all": "context",
+    "still": "context",
+    "again": "context",
+    "already": "context",
+    "often": "context",
+    "sometimes": "context",
+    "always": "context",
+    "ever": "context",
+    "twice": "context",
+    "overnight": "context",
+}
+
+
+def _temporal_constraint(kind, match):
+    if kind not in {"temporal", "reporter"}:
+        return None
+    fields = match.groupdict()
+    marker = next(
+        (
+            fields.get(key)
+            for key in ("time_relation", "relative_day", "time_adverb")
+            if fields.get(key)
+        ),
+        "",
+    )
+    direction = TIME_DIRECTIONS[marker.casefold()] if marker else "context"
+    reporter_tense = "unspecified"
+    if kind == "reporter":
+        finite = fields.get("subject", "").casefold()
+        predicate = fields.get("predicate", "").casefold()
+        reporter_tense = (
+            "past"
+            if finite == "was"
+            else (
+                "current"
+                if finite == "is"
+                else (
+                    "past"
+                    if predicate in {"confirmed", "observed", "detected", "said"}
+                    else "current"
+                )
+            )
+        )
+    return TemporalConstraint(
+        "reporter" if kind == "reporter" else "event",
+        direction,
+        match.group(),
+        reporter_tense,
+    )
 
 
 def bind_qualifiers(text: str, *, complement: str = "") -> QualifierBinding:
@@ -173,6 +248,7 @@ def bind_qualifiers(text: str, *, complement: str = "") -> QualifierBinding:
                         fields.get("predicate") or "",
                         fields.get("object") or "",
                         tuple(extract_cve_ids(match.group())),
+                        _temporal_constraint(kind, match),
                     )
                 )
                 cursor = match.end()
@@ -192,7 +268,5 @@ def detach_reporting(text: str):
             if binding.complete and all(
                 span.kind == "reporter" for span in binding.spans
             ):
-                return text[: match.start()].rstrip(" ,"), tuple(
-                    span.text for span in binding.spans
-                )
+                return text[: match.start()].rstrip(" ,"), binding.spans
     return text, ()
