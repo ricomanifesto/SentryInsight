@@ -51,10 +51,34 @@ REPORTING_SUBJECT = r"(?:We|[Rr]esearchers|[Tt]he company|[Tt]he vendor|(?:[A-Z]
 REPORTED_ADVICE_CUE = re.compile(
     r"\b(?:advise[ds]?|recommend(?:s|ed)?|urge[ds]?|urging)\b", re.I
 )
-ADVICE_MODAL = (
-    r"should|must|needs? to|(?:are|is) (?:not )?"
-    r"(?:advised|recommended|urged|encouraged) (?:not )?to"
+# One finite advice production owns the existing voice-specific forms and
+# their optional intensifier. Envelope consumers do not reinterpret this text.
+ADVICE_FORMS = (
+    ("advised", r"advise[ds]?"),
+    ("recommended", r"recommend(?:s|ed)?"),
+    ("urged", r"urge[ds]?"),
+    ("encouraged", None),
 )
+ADVICE_INTENSIFIER = r"(?:strongly )?"
+ADVICE_OPERATORS = {
+    "direct": (
+        r"(?:are|is) (?P<operator_negative>not )?"
+        + ADVICE_INTENSIFIER
+        + "(?:"
+        + "|".join(direct for direct, _ in ADVICE_FORMS)
+        + ") "
+        + r"(?P<operand_negative>not )?to"
+    ),
+    "reported": (
+        r"(?P<operator_negative>did not |does not |do not )?"
+        + ADVICE_INTENSIFIER
+        + "(?:"
+        + "|".join(reported for _, reported in ADVICE_FORMS if reported)
+        + ")"
+    ),
+}
+BASIC_ADVICE_MODAL = r"should|must|needs? to"
+ADVICE_MODAL = rf"{BASIC_ADVICE_MODAL}|{ADVICE_OPERATORS['direct']}"
 ADVICE_AUDIENCE = (
     rf"^(?:For {CVE_ID_PATTERN.pattern}(?: and {CVE_ID_PATTERN.pattern})*,\s*)?"
     rf"(?:{AUDIENCE})(?: and (?:{AUDIENCE}))*\b"
@@ -483,6 +507,38 @@ class AdviceEnvelope:
     reporter: EvidenceReporter
 
 
+@dataclass(frozen=True)
+class AdviceOperator:
+    finite: str
+    end: int
+    negative: bool = False
+
+
+def _advice_operator(
+    text: str, voice: Literal["direct", "reported"]
+) -> AdviceOperator | None:
+    """Consume one complete finite operator without borrowing its operand."""
+    match = re.match(
+        rf"(?P<finite>{ADVICE_OPERATORS[voice]})\s+",
+        text,
+        re.I if voice == "direct" else 0,
+    )
+    if not match:
+        return None
+    return AdviceOperator(
+        match["finite"],
+        match.end(),
+        bool(match["operator_negative"] or match.groupdict().get("operand_negative")),
+    )
+
+
+def _direct_modal(text: str) -> AdviceOperator | None:
+    basic = re.match(rf"(?:{BASIC_ADVICE_MODAL})\s+", text, re.I)
+    if basic:
+        return AdviceOperator(basic.group().strip(), basic.end())
+    return _advice_operator(text, "direct")
+
+
 def _reported_advice(text: str) -> AdviceEnvelope | None:
     """Bind a complete finite reporting operator to its directive operand.
 
@@ -522,17 +578,18 @@ def _reported_advice(text: str) -> AdviceEnvelope | None:
             if parsed
             else None
         )
-    operator = re.match(
-        rf"^(?P<subject>{REPORTING_SUBJECT}) (?P<finite>(?:did not |does not |do not )?(?:strongly )?(?:advise[ds]?|recommend(?:s|ed)?|urge[ds]?)) ",
+    subject = re.match(
+        rf"^(?P<subject>{REPORTING_SUBJECT}) (?={ADVICE_OPERATORS['reported']}\s)",
         text,
     )
-    if operator is None:
+    operator = _advice_operator(text[subject.end() :], "reported") if subject else None
+    if subject is None or operator is None:
         return None
-    operand = text[operator.end() :]
+    operand = text[subject.end() + operator.end :]
     reporter = EvidenceReporter(
-        operator["subject"],
-        operator["finite"],
-        "negative" if re.search(r"\bnot\b", operator["finite"]) else "affirmative",
+        subject["subject"],
+        operator.finite,
+        "negative" if operator.negative else "affirmative",
     )
     audience = re.match(
         rf"(?P<audience>(?:(?:affected|impacted|IT) )?(?:{AUDIENCE})) (?P<negative>not )?to ",
@@ -544,7 +601,7 @@ def _reported_advice(text: str) -> AdviceEnvelope | None:
             operand[audience.end() :],
             DirectiveBinding(
                 subject=audience["audience"],
-                modal=operator["finite"] + " to",
+                modal=operator.finite + " to",
                 negative=bool(audience["negative"]),
             ),
             reporter,
@@ -555,14 +612,14 @@ def _reported_advice(text: str) -> AdviceEnvelope | None:
             operand[that.end() :],
             DirectiveBinding(
                 subject=that["audience"],
-                modal=operator["finite"] + " that",
+                modal=operator.finite + " that",
             ),
             reporter,
         )
     gerund = re.match(
         r"(?P<verb>upgrading|installing|applying|updating|disabling) ", operand
     )
-    if gerund and re.search(r"recommend", operator["finite"]):
+    if gerund and re.search(r"recommend", operator.finite):
         verbs = {
             "upgrading": "upgrade",
             "installing": "install",
@@ -572,7 +629,7 @@ def _reported_advice(text: str) -> AdviceEnvelope | None:
         }
         return AdviceEnvelope(
             verbs[gerund["verb"]] + " " + operand[gerund.end() :],
-            DirectiveBinding(modal=operator["finite"]),
+            DirectiveBinding(modal=operator.finite),
             reporter,
         )
     return None
@@ -620,16 +677,16 @@ def _binding(text: str, inherited: DirectiveBinding) -> tuple[str, DirectiveBind
             else:
                 return remainder[modal.end() :], replace(state, unsupported=True)
         text = remainder[modal.start() :]
-    modal = re.match(rf"(?:{ADVICE_MODAL})\s+", text, re.I)
+    modal = _direct_modal(text)
     if modal:
         # A repeated finite modal owns a new polarity, while the subject's
         # negative quantifier remains a property of that subject.
         state = replace(
             state,
-            modal=modal.group().strip(),
-            negative=state.audience_negative or bool(NEGATION.search(modal.group())),
+            modal=modal.finite,
+            negative=state.audience_negative or modal.negative,
         )
-        text = text[modal.end() :]
+        text = text[modal.end :]
     elif audience:
         return text, replace(state, unsupported=True)
     neg = re.match(r"(?:(?:do not|don't|not|never)\s+)+", text, re.I)
