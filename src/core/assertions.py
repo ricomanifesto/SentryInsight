@@ -1,7 +1,8 @@
 """Finite assertion relations: bind qualifiers before projecting evidence state."""
 
-from dataclasses import replace
+from dataclasses import dataclass, replace
 import re
+from typing import Literal
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .condition_boundaries import bind_condition_boundaries
@@ -13,6 +14,41 @@ DESCRIPTIVE_SUBJECT = re.compile(
     rf"^(?i:(?:two|the) )(?:(?:[A-Z][A-Za-z0-9-]* ){{0,4}})"
     rf"(?i:zero-days|vulnerabilities|flaws) \((?P<identities>{CVE_LIST})\)\s+"
 )
+
+
+@dataclass(frozen=True)
+class SubjectBinding:
+    """A complete nominal prefix; predicate semantics belong to its consumer."""
+
+    kind: Literal["vulnerability", "actor"]
+    text: str
+    end: int
+
+
+SUBJECT_PRODUCTIONS = (
+    ("vulnerability", re.compile(rf"^(?:{CVE_LIST})\b\s*", re.I)),
+    ("vulnerability", DESCRIPTIVE_SUBJECT),
+    (
+        "actor",
+        re.compile(
+            r"^(?:the\s+)?(?:attackers?|operators?|(?:threat\s+)?actors?)\s+",
+            re.I,
+        ),
+    ),
+)
+
+
+def _bind_subject(text: str) -> SubjectBinding | None:
+    """Bind a closed subject production without discarding unknown modifiers.
+
+    Actor determiners and compound heads are nominal ownership, not predicate
+    modifiers. Any unconsumed bridge remains with the strict predicate owner.
+    """
+    for kind, production in SUBJECT_PRODUCTIONS:
+        if match := production.match(text):
+            return SubjectBinding(kind, match.group().rstrip(), match.end())
+    return None
+
 
 POSSIBILITY_WORDS = ("potentially", "likely", "possibly", "probably", "unlikely")
 TOPIC = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
@@ -867,13 +903,10 @@ def _unit(raw):
     # CVE subjects and actor/object frames are distinct productions. An opaque
     # new subject cannot inherit a previous vulnerability's predicate.
     body = re.sub(r"^Although\s+", "", core, flags=re.I)
-    subject = re.match(
-        rf"^(?:{CVE_LIST})\b\s*", body, re.I
-    ) or DESCRIPTIVE_SUBJECT.match(body)
-    actor = re.match(r"^(?:attackers?|actors?|operators?)\s+", body, re.I)
-    owner = subject or actor
+    owner = _bind_subject(body)
     if owner:
-        body = body[owner.end() :]
+        base = replace(base, subject=owner.text)
+        body = body[owner.end :]
     elif cves:
         # Direct ownership without a supported subject/argument production.
         return replace(
@@ -952,7 +985,7 @@ def _unit(raw):
             finite=finite,
             unsupported=auxiliary_state is None,
         )
-    if actor:
+    if owner and owner.kind == "actor":
         if re.fullmatch(
             r"(?:(?:the|a|an|another) (?:(?:vulnerable|affected) )?[a-z]+|it)",
             argument,
@@ -1133,7 +1166,7 @@ def parse_assertions(sentence):
         boundary=BOUNDARY,
         condition=REQUIRED_ADJUNCT,
         starts_relation=lambda right: bool(
-            DESCRIPTIVE_SUBJECT.match(right)
+            _bind_subject(right)
             or TOPIC.search(BOUNDARY.split(right, maxsplit=1)[0])
             or _predicate_head(right) in PREDICATE_HEADS
             or _unit(BOUNDARY.split(right, maxsplit=1)[0]).finite
