@@ -53,15 +53,17 @@ def bind_condition_boundaries(
     spans = []
     start, connector, unresolved = 0, "", False
 
-    def qualification(value):
-        return next(
-            (
-                match
-                for match in condition.finditer(value)
-                if can_qualify(value[: match.start()].rstrip(" ,"))
-            ),
-            None,
-        )
+    def qualification(value, offset):
+        position = 0
+        while match := condition.search(value, position):
+            if not any(
+                left <= offset + match.start() < right for left, right in protected
+            ) and can_qualify(value[: match.start()].rstrip(" ,")):
+                return match
+            # Some consumers supply a tail production. Skipping a protected
+            # token (e.g. a month in a deadline) must not skip a later qualifier.
+            position = match.start() + 1
+        return None
 
     for match in boundary.finditer(text):
         if any(
@@ -74,20 +76,30 @@ def bind_condition_boundaries(
         independent = not attached and starts_relation(right)
         if marker == "," and not independent:
             continue
-        owned = qualification(left)
+        owned = qualification(left, start)
         if owned and marker != ";" and not independent:
             unresolved |= not _nominal_condition_join(
                 text[start + owned.start() :], match.start() - start - owned.start()
             )
             continue
-        spans.append((connector, left.strip(), unresolved))
+        spans.append(
+            (
+                connector,
+                left.strip(),
+                unresolved,
+                start + len(left) - len(left.lstrip()),
+            )
+        )
         start, connector, unresolved = match.end(), marker, False
-    spans.append((connector, text[start:].strip(), unresolved))
+    tail = text[start:]
+    spans.append(
+        (connector, tail.strip(), unresolved, start + len(tail) - len(tail.lstrip()))
+    )
     result = []
-    for connector, raw, unresolved in spans:
+    for connector, raw, unresolved, offset in spans:
         if not raw:
             continue
-        qualified = qualification(raw)
+        qualified = qualification(raw, offset)
         # Leading conditions belong to each consumer's existing leading-form
         # production. Do not turn an unknown subject bridge into a predicate.
         trailing = qualified is not None and qualified.start() > 0

@@ -126,6 +126,7 @@ class SentryDigestFeedClient:
             article["content_kind"] = "feed"
             article["source_links"] = []
             article["source_link_contexts"] = []
+            article["source_blocks"] = []
             article_link = article.get("link", "")
             if not article_link:
                 article["content"] = full_content
@@ -150,6 +151,9 @@ class SentryDigestFeedClient:
                         article["source_links"] = list(extracted.links)
                         article["source_link_contexts"] = [
                             asdict(item) for item in extracted.link_contexts
+                        ]
+                        article["source_blocks"] = [
+                            asdict(item) for item in extracted.blocks
                         ]
                     else:
                         # Use what we have if we can't fetch the full article

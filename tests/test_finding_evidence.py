@@ -1628,7 +1628,9 @@ def test_recommendation_audience_abbreviations_keep_the_original_source_block(pr
             report(**{"Recommended Actions": "customers should install the update."}),
             catalog,
         )
-    validate_finding_evidence(report(**{"Recommended Actions": statement}), catalog)
+    assert_unsupported_complete_guidance(
+        report(**{"Recommended Actions": statement}), catalog, statement
+    )
 
 
 def test_recommendation_block_with_foreign_cve_cannot_lose_its_scope():

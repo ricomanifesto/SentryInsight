@@ -14,13 +14,14 @@ from .finding_evidence import (
     build_finding_detail_context,
     collect_finding_details,
     detail_statement_roles,
-    recommendation_action,
     source_assertions,
     source_evidence_text,
+    source_constraint_text,
     validate_finding_evidence,
 )
 from .reporting import ReportingSource
-from .recommendations import directive_units
+from .recommendations import directive_units, project_recommendation_action
+from .source_document import ADVISORY_DECLARATION, source_document
 
 
 @dataclass(frozen=True)
@@ -109,7 +110,7 @@ def _severity(texts: Sequence[str]) -> str:
 
     for text in texts:
         for match in re.finditer(
-            r"\b(?:(?P<label>critical|high|medium|low)(?:-severity)? (?:vulnerability|flaw|bug)"
+            r"\b(?:(?P<label>critical|high|medium|low)(?:-severity)? (?:vulnerabilit(?:y|ies)|flaws?|bugs?)"
             r"|(?:severity(?: rating)?[: ]+|rated )(?P<rated>critical|high|medium|low))\b",
             text,
             re.I,
@@ -174,7 +175,12 @@ def _anchored_spans(spans, cves):
                 section_owned = mentioned <= wanted
         else:
             mentioned = set(extract_cve_ids(span.source_block))
-            if not wanted or (mentioned <= wanted if mentioned else section_owned):
+            if not wanted or (
+                mentioned <= wanted
+                if mentioned
+                else bool(span.owned_cves and set(span.owned_cves) <= wanted)
+                or section_owned
+            ):
                 yield span
 
 
@@ -196,16 +202,27 @@ def _advisory_urls(sources, cves):
     for source in sources:
         spans = collect_finding_details([source], cves).spans
         blocks = {_one_line(span.source_block) for span in _anchored_spans(spans, cves)}
+        vendors = {
+            match.group("vendor")
+            for block in blocks
+            if (match := ADVISORY_DECLARATION.match(block))
+        }
         for link in source.link_contexts:
             label, context = _one_line(link.label), _one_line(link.context)
             if (
                 link.url in source.links
                 and context in blocks
                 and label in context
-                and re.fullmatch(
-                    r"(?:(?:vendor|security|official|product)\s+)*(?:advisory|bulletin|security notice)(?:\s+for\s+CVE-\d{4}-\d{4,})?",
-                    label,
-                    re.I,
+                and (
+                    re.fullmatch(
+                        r"(?:(?:vendor|security|official|product)\s+)*(?:advisory|bulletin|security notice)(?:\s+for\s+CVE-\d{4}-\d{4,})?",
+                        label,
+                        re.I,
+                    )
+                    or any(
+                        label in (f"{vendor}'s advisory", f"{vendor}’s advisory")
+                        for vendor in vendors
+                    )
                 )
             ):
                 if _one_line(source.content).count(context) != 1:
@@ -320,6 +337,16 @@ def _finding_scopes(
     def eligible(scope, keys):
         if set(scope) & set(required_cves):
             return True
+        if not scope and any(
+            is_relevant(span.text)
+            for key in keys
+            for span in source_document(catalog[key]).spans
+            if span.kind != "heading"
+        ):
+            # Preserve source-level selection from complete retained context.
+            # A contextual relevance cue is never an exploitation assertion or
+            # a finding detail. Body filtering must not silently change policy.
+            return True
         # A paragraph may contain independent assertions for different CVEs.
         # Their typed owners, not the paragraph's combined identity set,
         # establish relevance. Genuinely joint owners were grouped above.
@@ -408,7 +435,7 @@ def compile_finding_records(
                 _severity([span.text for span in narrative_spans]),
             ),
             ("Exploitation Status", assessment.status),
-            ("Action", recommendation_action(recommendation_blocks)),
+            ("Action", project_recommendation_action(details.recommendation_blocks)),
         ]
         if context := source_evidence_text(sources, cves):
             fields.append(("Source Evidence", context))
@@ -437,6 +464,12 @@ def compile_finding_records(
                         "This identifier is supplied by article metadata. The retained body does not explicitly attribute finding details to it.",
                     )
                 )
+        if details.release_details:
+            fields.append(
+                ("Release Details", "; ".join(dict.fromkeys(details.release_details)))
+            )
+        if details.source_constraints:
+            fields.append(("Source Constraints", source_constraint_text(details)))
         fields.extend(
             [
                 ("Reporting", ", ".join(keys)),
@@ -460,14 +493,15 @@ def compile_finding_records(
         for text in _unique(
             span.source_block or span.text
             for span in narrative_spans
-            if _substantive_prose(span.source_block or span.text)
+            if not span.table_cells
+            and _substantive_prose(span.source_block or span.text)
             and (
                 not span.fields
                 or (
                     set(span.fields) == {"Recommended Actions"}
                     and any(
                         _substantive_prose(unit, statement=True)
-                        and not detail_statement_roles(unit)
+                        and not detail_statement_roles(unit, span.version_context)
                         for unit in directive_units(span.text)
                     )
                 )
@@ -628,7 +662,12 @@ def render_finding_plan(
                     if fields[name] != ABSENT
                 )
             if values:
-                rows.append(f"- **{record.heading}**: {' '.join(_unique(values))}")
+                # Each source paragraph or labeled detail keeps its own block.
+                # Joining quotes and release lists into one sentence destroys
+                # their reporting/condition boundaries during validation.
+                rows.extend(
+                    f"- **{record.heading}**: {value}" for value in _unique(values)
+                )
         return (
             "\n".join(rows)
             or "No additional source-grounded detail is available for these finding scopes."

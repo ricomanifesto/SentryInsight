@@ -8,6 +8,8 @@ source confirmations are not guaranteed to be recognized in every phrasing.
 """
 
 from dataclasses import dataclass, replace
+from functools import lru_cache
+from itertools import groupby
 import hashlib
 import re
 from typing import Any, Literal, Mapping, Sequence
@@ -16,14 +18,17 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
-from .assertions import FINITE_PREDICATE_HEADS, parse_assertions
+from .assertions import FINITE_PREDICATE_HEADS, parse_assertions, source_qualification
 from .relations import OwnedClause
+from .source_document import SourceSpan, source_document
 from .recommendations import (
     RecommendationBlock,
     RecommendationContext,
     RecommendationDirective,
     directive_units,
+    has_owned_advice_cue,
     parse_recommendation,
+    recommendation_context,
     project_recommendation_action,
 )
 from .reporting import (
@@ -52,7 +57,14 @@ DETAIL_CUES = {
 
 
 def detail_statement_roles(text: str, context: str = "") -> tuple[str, ...]:
+    # Context is occurrence-bound, ending at this fragment. A caller inspecting
+    # an earlier independent clause cannot inherit a later directive's target.
+    if context and not _plain(context).endswith(_plain(text)):
+        context = ""
     version_cue = _version_list_cue(text)
+    recommendation_text = (
+        list(_recommendation_source_statements(context))[-1] if context else text
+    )
     return tuple(
         name
         for name, cue in DETAIL_CUES.items()
@@ -61,11 +73,22 @@ def detail_statement_roles(text: str, context: str = "") -> tuple[str, ...]:
             or _cumulative_version_list(text, context)
             if name == "Affected Versions"
             else re.search(cue, text, re.I)
+            or name == "Exceptions"
+            and any(
+                isinstance(item, RecommendationContext) and item.owner == "exception"
+                for item in _recommendation_directives(recommendation_text)
+            )
             or (
                 name == "Recommended Actions"
                 and any(
                     isinstance(item, RecommendationDirective)
-                    for item in _recommendation_directives(text)
+                    and (
+                        _plain(text).rstrip(".!?…")
+                        in _plain(item.source_text).rstrip(".!?…")
+                        or _plain(item.source_text).rstrip(".!?…")
+                        in _plain(text).rstrip(".!?…")
+                    )
+                    for item in _recommendation_directives(recommendation_text)
                 )
             )
         )
@@ -109,9 +132,21 @@ class ExploitationAssessment:
 
 
 def _sentences(text: str) -> list[str]:
-    return [
-        part.strip() for part in re.split(r"(?<=[.!?])\s+|\n+", text) if part.strip()
-    ]
+    # An initialism's internal/full stop belongs to its token, not a new
+    # subject. This is structural punctuation protection, not an abbreviation
+    # vocabulary or permission to drop an unknown prefix.
+    protected = {match.end() for match in re.finditer(r"\b(?:[A-Za-z]\.){2,}", text)}
+    start = 0
+    result = []
+    for boundary in re.finditer(r"(?<=[.!?])\s+|\n+", text):
+        if boundary.start() in protected:
+            continue
+        if text[start : boundary.start()].strip():
+            result.append(text[start : boundary.start()].strip())
+        start = boundary.end()
+    if text[start:].strip():
+        result.append(text[start:].strip())
+    return result
 
 
 def _value(source: Any, field: str, default=""):
@@ -124,28 +159,89 @@ def _value(source: Any, field: str, default=""):
 
 def source_assertions(source: Any) -> tuple[OwnedClause, ...]:
     """Interpret before selecting scope; a joint claim is never two singletons."""
-    content = str(_value(source, "content"))
-    source_cves = set(extract_cve_ids(content))
+    return _document_assertions(source_document(source))
+
+
+@lru_cache(maxsize=128)
+def _document_assertions(document) -> tuple[OwnedClause, ...]:
+    """One immutable document interpretation is shared by all finding scopes."""
+    source_cves = set(extract_cve_ids(document.text))
     result = []
-    for sentence in _sentences(content):
-        if sentence.startswith("#"):
+    for span in document.spans:
+        if span.role != "body":
             continue
-        for clause in parse_assertions(sentence):
-            if clause.kind != "assertion":
-                continue
-            # Preserve the existing limited source-context rule. A body naming
-            # one CVE may supply unscoped absence/possibility, never positive
-            # confirmation or metadata-to-body attribution.
-            if (
-                not clause.cves
-                and not extract_cve_ids(sentence)
-                and len(source_cves) == 1
-                and clause.status in {"not_observed", "potential"}
-            ):
-                clause = replace(
-                    clause, cves=tuple(source_cves), attribution="source_context"
+        for sentence in _sentences(span.text):
+            parsed_text = sentence
+            if span.reference and span.reference_kind == "singular":
+                parsed_text = re.sub(
+                    r"\b(?:The|This|the|this) (?:issue|flaw|vulnerability)\b",
+                    " and ".join(span.reference),
+                    sentence,
                 )
-            result.append(replace(clause, source_text=sentence))
+            elif span.reference and span.reference_kind == "group":
+                parsed_text = re.sub(
+                    r"^All (?:\d+|one|two|three|four|five|six|seven|eight|nine|ten) vulnerabilities\b",
+                    " and ".join(span.reference),
+                    sentence,
+                    count=1,
+                )
+            if span.reference and span.reference_kind == "table_product":
+                parsed_text = re.sub(
+                    r"^(?:The |the )?[A-Z][\w-]*(?: [A-Z][\w-]*)* flaw\b",
+                    " and ".join(span.reference),
+                    sentence,
+                    count=1,
+                )
+            for clause in parse_assertions(parsed_text):
+                if clause.kind != "assertion" and not clause.unsupported:
+                    continue
+                if (
+                    clause.context_role == "composed:source_qualification"
+                    and not clause.cves
+                ):
+                    clause = replace(clause, cves=span.reference or span.section)
+                if span.reference_kind == "forward_declared_group":
+                    clause = replace(
+                        clause,
+                        cves=span.reference,
+                        attribution=span.reference_kind,
+                        unsupported=clause.unsupported or not span.reference_valid,
+                    )
+                if (
+                    span.reference_kind == "declared_group"
+                    and clause.context_role == "composed:exhaustive_list"
+                ):
+                    result.extend(
+                        replace(
+                            clause,
+                            cves=(identity,),
+                            source_text=sentence,
+                            attribution="table_row",
+                            unsupported=clause.unsupported or not span.reference_valid,
+                        )
+                        for identity in span.reference
+                    )
+                    continue
+                if span.reference and parsed_text != sentence:
+                    clause = replace(
+                        clause,
+                        cves=span.reference,
+                        text=sentence,
+                        attribution=span.reference_kind,
+                        unsupported=clause.unsupported or not span.reference_valid,
+                    )
+                # Preserve the limited unscoped negative/possible legacy rule;
+                # explicit local references above own positive events too.
+                if (
+                    not clause.cves
+                    and not extract_cve_ids(sentence)
+                    and len(source_cves) == 1
+                    and clause.status in {"not_observed", "potential"}
+                ):
+                    clause = replace(
+                        clause, cves=tuple(source_cves), attribution="source_context"
+                    )
+                result.append(replace(clause, source_text=sentence))
     return tuple(result)
 
 
@@ -208,6 +304,13 @@ class DetailSpan:
     fields: tuple[str, ...] = ()
     source_block: str = ""
     version_context: str = ""
+    table_cells: tuple[tuple[str, str], ...] = ()
+    constraint_text: str = ""
+    product: str = ""
+    source_url: str = ""
+    owned_cves: tuple[str, ...] = ()
+    reference_target: tuple[str, tuple[str, ...]] | None = None
+    document_list: SourceSpan | None = None
 
 
 def _recommendation_text(text: str) -> str:
@@ -269,119 +372,228 @@ def _validate_recommendation_statements(
         )
 
 
-def _logical_source_blocks(content: str) -> list[str]:
-    """Map physical lines to original paragraphs or outer list items."""
-    lines = content.splitlines()
-    blocks = list(lines)
-    item_depth = 0
-    for token in MarkdownIt("commonmark").parse(content):
-        owns_block = False
-        if token.type == "list_item_open":
-            owns_block = item_depth == 0
-            item_depth += 1
-        elif token.type == "list_item_close":
-            item_depth -= 1
-        elif token.type in {"paragraph_open", "fence", "code_block"}:
-            owns_block = item_depth == 0
-        if owns_block and token.map:
-            start, end = token.map
-            block = "\n".join(lines[start:end]).strip()
-            for index in range(start, end):
-                blocks[index] = block
-    return blocks
-
-
 def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
-    """Retain detail ownership under CVE headings without asserting exploitation."""
-    content = str(_value(source, "content"))
-    source_cves = set(extract_cve_ids(content))
+    """Detail roles consume the same retained document spans as assertions."""
+    document = source_document(source)
+    source_cves = set(extract_cve_ids(document.text))
     wanted = set(cves)
-    # Metadata-only identity still needs its unattributed body inventory for
-    # relevance. It cannot become an empty-scope finding at publication.
     if not wanted and source_cves:
         return [DetailSpan("", "boundary")]
     has_cve_sections = any(
-        extract_cve_ids(match[2])
-        for line in content.splitlines()
-        if (match := re.match(r"^(#{1,6})\s+(.+)", line.strip()))
+        span.kind == "heading"
+        and (span.identities or span.section)
+        or span.headings
+        and span.section
+        for span in document.spans
     )
-    sections: list[tuple[int, set[str], tuple[str, ...]]] = []
-    # Boundaries prevent version-list context crossing sources or excluded spans.
     result = [DetailSpan("", "boundary")]
-    source_blocks = _logical_source_blocks(content)
-    previous_block = None
-    preceding: list[str] = []
-    for line_index, line in enumerate(content.splitlines()):
-        source_block = source_blocks[line_index]
-        if source_block != previous_block:
-            preceding = []
-            previous_block = source_block
-        heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
-        if heading:
-            level = len(heading[1])
-            while sections and sections[-1][0] >= level:
-                sections.pop()
-            mentioned = set(extract_cve_ids(heading[2]))
-            inherited = sections[-1][1] if sections else set()
-            inherited_fields = sections[-1][2] if sections and not mentioned else ()
-            fields = _heading_detail_roles(heading[2]) or inherited_fields
-            sections.append((level, mentioned or inherited, fields))
-        owner = sections[-1][1] if sections else set()
+    for index, block in enumerate(document.spans):
+        if block.role == "table_row":
+            owner = set(block.identities or block.reference or block.section)
+            if owner and owner <= wanted or not wanted and not source_cves:
+                release_table = any(
+                    re.search(r"\b(?:versions?|releases?|fixed|fixes)\b", header, re.I)
+                    for header in block.headers
+                )
+                if not release_table:
+                    # Layout and other non-release tables remain retained
+                    # context; their cells cannot acquire version roles.
+                    continue
+                if not block.headers or len(block.headers) != len(block.cells):
+                    raise EvidenceError(
+                        "Required release table lacks column provenance",
+                        code="unsupported_evidence_relation",
+                        field="Affected Versions",
+                    )
+                result.append(
+                    DetailSpan(
+                        block.text,
+                        "body",
+                        (),
+                        block.text,
+                        table_cells=tuple(zip(block.headers, block.cells)),
+                    )
+                )
+            continue
+        if block.role not in {"body", "heading"}:
+            result.append(DetailSpan("", "boundary"))
+            continue
+        owner = set(block.reference or block.section)
+        if not block.reference_valid and (
+            not wanted
+            or owner & wanted
+            or block.reference_kind == "listed_group"
+            and not owner
+            and source_cves & wanted
+        ):
+            raise EvidenceError(
+                "Required source reference is ambiguous",
+                code="unsupported_evidence_relation",
+                field="Reporting",
+            )
         owned = not wanted or bool(
             owner
             and owner <= wanted
+            or block.reference_kind in {"table_note", "listed_group"}
+            and owner & wanted
             or not owner
             and not has_cve_sections
             and source_cves
             and source_cves <= wanted
         )
-        if heading:
+        if block.kind == "heading":
             result.append(
-                DetailSpan(heading[2], "heading")
+                DetailSpan(re.sub(r"^#+\s*", "", block.text), "heading")
                 if owned
                 else DetailSpan("", "boundary")
             )
             continue
-        body_line = re.sub(r"^\s*(?:[-+*]|\d+[.)])\s+", "", line)
-        for sentence in _sentences(body_line):
-            # Position matters: later advice cannot change an earlier row's
-            # role, even when the same release name occurs more than once.
-            preceding.append(sentence)
-            version_context = " ".join(preceding)
-            mentioned = set(extract_cve_ids(sentence))
-            selected = mentioned <= wanted if mentioned and wanted else owned
-            body_fields = detail_statement_roles(sentence, version_context) or (
-                sections[-1][2] if sections else ()
+        if owned and not block.reference_valid:
+            raise EvidenceError(
+                "Required source reference is ambiguous",
+                code="unsupported_evidence_relation",
+                field="Reporting",
             )
-            # Recommendation cues can themselves cross a physical line break.
-            if re.search(
-                DETAIL_CUES["Recommended Actions"], " ".join(source_block.split()), re.I
-            ):
-                body_fields = tuple(
-                    dict.fromkeys((*body_fields, "Recommended Actions"))
-                )
-            if (
-                selected
-                and "Recommended Actions" in body_fields
-                and wanted
-                and not set(extract_cve_ids(source_block)) <= wanted
-            ):
-                raise EvidenceError(
-                    "ambiguous recommendation block CVE scope",
-                    code="ambiguous_recommendation_scope",
-                    field="Recommended Actions",
-                )
+        qualification = source_qualification(block.text) if owned else None
+        if qualification and qualification.unsupported:
+            raise EvidenceError(
+                "Required source qualification is unsupported",
+                code="unsupported_evidence_relation",
+                field="Source Constraints",
+            )
+        if owned and block.constraint_text:
             result.append(
                 DetailSpan(
-                    sentence,
+                    block.text,
                     "body",
-                    body_fields,
-                    source_block,
-                    version_context,
+                    (),
+                    block.text,
+                    constraint_text=block.constraint_text,
+                    product=block.product,
+                    source_url=_value(source, "url"),
                 )
-                if selected
-                else DetailSpan("", "boundary")
             )
+        elif owned and (
+            qualification
+            or any(
+                clause.kind == "context"
+                and clause.modal == "capability"
+                and not clause.unsupported
+                for sentence in _sentences(block.text)
+                for clause in parse_assertions(sentence)
+            )
+        ):
+            # A prerequisite is required context, not contrary observation.
+            # Preserve its complete source paragraph independently of optional
+            # model-selected excerpts, using the existing constraint gate.
+            result.append(
+                DetailSpan(
+                    block.text,
+                    "body",
+                    (),
+                    block.text,
+                    constraint_text=block.text,
+                    source_url=_value(source, "url"),
+                    owned_cves=tuple(sorted(owner)),
+                )
+            )
+        if owned and block.list_role:
+            detail = DetailSpan(
+                block.text,
+                "body",
+                (
+                    ("Recommended Actions",)
+                    if block.list_role in {"destination", "audience"}
+                    else ()
+                ),
+                block.text,
+                source_url=_value(source, "url"),
+                document_list=block,
+            )
+            if block.list_role == "audience" and any(
+                isinstance(item, RecommendationContext) and item.owner == "exception"
+                for item in _source_recommendation_block(detail).directives
+            ):
+                detail = replace(detail, fields=(*detail.fields, "Exceptions"))
+            result.append(detail)
+            continue
+        if re.fullmatch(r"The table shows affected and fixed versions\.", block.text):
+            following = document.spans[index + 1 : index + 2]
+            if not following or following[0].role != "table_header":
+                raise EvidenceError(
+                    "Required release table lacks column provenance",
+                    code="unsupported_evidence_relation",
+                    field="Affected Versions",
+                )
+            continue
+        preceding = []
+        for line in block.text.splitlines():
+            body_line = re.sub(r"^\s*(?:[-+*]|\d+[.)])\s+", "", line)
+            for sentence in _sentences(body_line):
+                preceding.append(sentence)
+                version_context = "\n".join(preceding)
+                mentioned = set(extract_cve_ids(sentence))
+                selected = mentioned <= wanted if mentioned and wanted else owned
+                # Ownership precedes version/advice interpretation. An unrelated
+                # product's required grammar cannot contaminate a selected CVE.
+                if not selected:
+                    result.append(DetailSpan("", "boundary"))
+                    continue
+                fields = detail_statement_roles(sentence, version_context) or next(
+                    (
+                        roles
+                        for title in reversed(block.headings)
+                        if (roles := _heading_detail_roles(title))
+                    ),
+                    (),
+                )
+                if re.search(
+                    DETAIL_CUES["Recommended Actions"],
+                    " ".join(block.text.split()),
+                    re.I,
+                ):
+                    fields = tuple(dict.fromkeys((*fields, "Recommended Actions")))
+                if block.reference_kind == "listed_group" and any(
+                    isinstance(item, RecommendationDirective)
+                    for item in _recommendation_directives(
+                        block.text, (block.reference_text, block.reference)
+                    )
+                ):
+                    fields = tuple(dict.fromkeys((*fields, "Recommended Actions")))
+                if (
+                    "Recommended Actions" in fields
+                    and wanted
+                    and not set(extract_cve_ids(block.text)) <= wanted
+                ):
+                    raise EvidenceError(
+                        "ambiguous recommendation block CVE scope",
+                        code="ambiguous_recommendation_scope",
+                        field="Recommended Actions",
+                    )
+                narrative_owner = (
+                    mentioned
+                    or set(block.reference)
+                    or (
+                        owner
+                        if any(extract_cve_ids(title) for title in block.headings)
+                        else set()
+                    )
+                )
+                result.append(
+                    DetailSpan(
+                        sentence,
+                        "body",
+                        fields,
+                        block.text,
+                        version_context,
+                        owned_cves=tuple(sorted(narrative_owner)),
+                        reference_target=(
+                            (block.reference_text, block.reference)
+                            if block.reference_kind == "listed_group"
+                            else None
+                        ),
+                    )
+                )
     return result
 
 
@@ -402,7 +614,7 @@ def build_finding_detail_context(
         # Actual source ownership supplies joint scopes, not a powerset of all
         # article CVEs. Paragraph/list blocks also own complete recommendations
         # whose qualifications can span several sentences.
-        for block in dict.fromkeys(_logical_source_blocks(source.content)):
+        for block in dict.fromkeys(span.text for span in source_document(source).spans):
             for text in [block, *_sentences(block)]:
                 joint = tuple(sorted(extract_cve_ids(text)))
                 if len(joint) > 1:
@@ -682,6 +894,24 @@ def _version_argument_identity(text: str) -> tuple[str, ...] | None:
     used only after the directive parser establishes that separate relation.
     """
     value = text.strip(" .!?…:")
+    if re.fullmatch(
+        r"(?:a |the )?supported version of (?:[A-Z][A-Za-z0-9-]* ?){1,4}(?: client or (?:[A-Z][A-Za-z0-9-]* )?[Ss]erver)?",
+        value,
+    ):
+        return ("release",)
+    if re.fullmatch(r"(?:the )?recommended (?:[A-Z][A-Za-z0-9-]* )?versions", value):
+        return ("release",)
+    if re.fullmatch(r"Other [A-Z][A-Za-z0-9-]* versions", value):
+        return ("version_scope",)
+    if re.fullmatch(r"(?:a |the )?fixed version|[A-Z][A-Za-z0-9-]* releases", value):
+        return ("release",)
+    if re.fullmatch(
+        r"(?:the )?(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4} security update(?: or later)?",
+        value,
+    ):
+        included, excluded = _version_constraints(value)
+        if included and not excluded:
+            return ("release",)
     if re.fullmatch(VERSION_LIST_CUE, value, re.I):
         return ("release",)
     cue = _version_list_cue(value)
@@ -716,11 +946,26 @@ def _version_argument_identity(text: str) -> tuple[str, ...] | None:
     return None
 
 
-def _owned_recommendation(unit: str):
-    parsed = parse_recommendation(unit, version_identity=_version_argument_identity)
+def _owned_recommendation(unit: str, reference_target=None, audience_reference=""):
+    if context := recommendation_context(unit):
+        return context
+    parsed = parse_recommendation(
+        unit,
+        version_identity=_version_argument_identity,
+        reference_target=reference_target,
+        audience_reference=audience_reference,
+    )
     if parsed is not None:
         return parsed
-    if re.search(DETAIL_CUES["Recommended Actions"], unit, re.I):
+    if (
+        has_owned_advice_cue(unit)
+        or re.search(DETAIL_CUES["Recommended Actions"], unit, re.I)
+        or any(
+            parse_recommendation(fragment, version_identity=_version_argument_identity)
+            is not None
+            for fragment in _sentences(unit)
+        )
+    ):
         return RecommendationDirective(
             unit,
             "unclassified",
@@ -731,20 +976,59 @@ def _owned_recommendation(unit: str):
     return RecommendationContext(unit, "narrative")
 
 
-def _recommendation_directives(block: str):
+def _complete_recommendation_fragment(text: str) -> bool:
+    """Only an existing owner can certify a source-statement boundary.
+
+    A nominal prefix, incomplete audience/modal or incomplete argument stays
+    with its continuation. Punctuation alone cannot turn that continuation into
+    an independent imperative. Version identities and roles retain their own
+    row boundaries before physical recommendation wraps are joined.
+    """
+    if recommendation_context(text):
+        return True
+    parsed = parse_recommendation(text, version_identity=_version_argument_identity)
+    if parsed is not None:
+        # Qualified advice may legally omit a target. A physical wrap alone
+        # cannot certify that omission when the target can follow on the next
+        # line; explicit terminal punctuation can close the implicit relation.
+        return not parsed.ambiguous and (
+            text.endswith((".", "!", "?"))
+            or all(clause.object_role != "implicit" for clause in parsed.clauses)
+        )
+    if re.search(DETAIL_CUES["Recommended Actions"], text, re.I):
+        return False
+    cue = _version_list_cue(text)
+    if cue and cue.kind == "explicit":
+        return True
+    if re.search(CUMULATIVE_UPDATE_CUE, text, re.I):
+        clauses = _version_clauses(text)
+        if all(clause.kind not in {"list", "recommendation"} for _, clause in clauses):
+            return True
+        if _version_argument_identity(text):
+            return True
+    return any(
+        clause.kind == "assertion" or clause.attribution == "explicit"
+        for clause in parse_assertions(text)
+    )
+
+
+def _recommendation_source_statements(block: str):
+    """Preserve typed rows and whole unclassified prefixes in source order."""
+    pending = ""
+    for fragment in _sentences(block):
+        pending = f"{pending} {fragment}".strip()
+        if _complete_recommendation_fragment(pending):
+            yield pending
+            pending = ""
+    if pending:
+        yield pending
+
+
+def _recommendation_directives(
+    block: str, reference_target=None, audience_reference=""
+):
     """Keep version clauses and wrapped release arguments under their owner."""
-    sentences = _sentences(block)
-    index = 0
-    while index < len(sentences):
-        sentence = sentences[index]
-        index += 1
-        if (
-            index < len(sentences)
-            and re.search(r"\b(?:install|apply|upgrade|update)$", sentence, re.I)
-            and _version_argument_identity(sentences[index])
-        ):
-            sentence += " " + sentences[index]
-            index += 1
+    for sentence in _recommendation_source_statements(block):
         cue = _version_list_cue(sentence)
         cue_match = re.search(VERSION_LIST_CUE, sentence, re.I)
         if cue and cue.kind == "explicit" and cue_match:
@@ -754,7 +1038,7 @@ def _recommendation_directives(block: str):
                 # the directive owns only the preceding list introduction.
                 _version_constraints(remainder)
                 if cue_match.start():
-                    yield _owned_recommendation(sentence[: cue.end])
+                    yield _owned_recommendation(sentence[: cue.end], reference_target)
                 yield RecommendationContext(remainder, "version")
                 continue
         typed = (
@@ -773,7 +1057,7 @@ def _recommendation_directives(block: str):
                 yield RecommendationContext(clause.text, "version")
                 continue
             for unit in directive_units(clause.text):
-                yield _owned_recommendation(unit)
+                yield _owned_recommendation(unit, reference_target, audience_reference)
 
 
 @dataclass(frozen=True)
@@ -927,7 +1211,8 @@ def _cumulative_version_list(text: str, context: str = "") -> bool:
     ):
         return True
     current = _plain(text)
-    prior = _sentences(_plain(context or text))[-1].removesuffix(current)
+    statements = list(_recommendation_source_statements(context)) if context else [text]
+    prior = _plain(statements[-1]).removesuffix(current)
     if prior and not _version_list_cue(prior):
         directive = parse_recommendation(
             prior + current, version_identity=_version_argument_identity
@@ -980,6 +1265,17 @@ def _version_list_parts(text: str, *, attribution: bool = False) -> list[str]:
         if not closing:
             separator = re.match(separator_pattern, text[index:], re.I)
             if separator:
+                if (
+                    not attribution
+                    and separator.group().strip().lower() == "and"
+                    and re.search(
+                        r"\bbetween\s+\d[\w.-]*(?: (?:\d[\w.-]*|[A-Z][A-Z0-9-]*))*\s*$",
+                        text[start:index],
+                    )
+                    and re.match(r"\s*\d", text[index + separator.end() :])
+                ):
+                    index += separator.end()
+                    continue
                 end = index + separator.end()
                 parts.extend((text[start:index], text[index:end]))
                 start = index = end
@@ -1013,9 +1309,18 @@ def _version_list_entries(text: str) -> list[str]:
                 )
             entry = pending + parts[index - 1] + entry
             pending = ""
-        qualifier = VERSION_RANGE_QUALIFIER.match(entry)
+        exclusion = re.fullmatch(r"but not including \d[\w.-]*", entry, re.I)
+        endpoint = r"\d[\w.-]*(?: (?:\d[\w.-]*|[A-Z][A-Z0-9-]*))*"
+        inclusive = (
+            entries
+            and re.search(rf"\bbetween\s+{endpoint}\s+and\s+{endpoint}$", entries[-1])
+            and re.fullmatch(r"inclusive", entry, re.I)
+        )
+        qualifier = VERSION_RANGE_QUALIFIER.match(entry) or exclusion or inclusive
         if entries and (qualifier or VERSION_AUDIENCE_QUALIFIER.fullmatch(entry)):
-            entries[-1] += parts[index - 1] + entry
+            entries[-1] += parts[index - 1] + (
+                parts[index] if exclusion or inclusive else entry
+            )
         elif not re.search(r"\d|\bRTM\b", entry, re.I):
             pending = entry
         else:
@@ -1222,12 +1527,9 @@ def _rendered_statements(text: str) -> list[OwnedClause]:
             blocks.append(_rendered_text(token.children or []))
         elif token.type in {"fence", "code_block"}:
             blocks.append(" ".join(token.content.split()))
-    text = "\n".join(blocks)
-    return [
-        statement
-        for sentence in _sentences(text)
-        for statement in parse_assertions(sentence)
-    ]
+    # Reader-visible paragraphs keep the same explicit/local reference owners
+    # as source paragraphs. No second pronoun or temporal interpreter is used.
+    return list(source_assertions({"content": "\n\n".join(blocks)}))
 
 
 def _positive_claim(text: str) -> bool:
@@ -1247,6 +1549,117 @@ class FindingDetails:
     version_lines: tuple[str, ...]
     excluded_version_lines: tuple[str, ...]
     known_version_list: bool
+    release_details: tuple[str, ...] = ()
+    source_constraints: tuple[str, ...] = ()
+    constraint_evidence: tuple[tuple[str, str], ...] = ()
+    recommendation_blocks: tuple[RecommendationBlock, ...] = ()
+
+
+def source_constraint_text(details: FindingDetails) -> str:
+    return (
+        " ".join(
+            f"[Source](<{url}>): “{text}”"
+            for url, text in dict.fromkeys(details.constraint_evidence)
+        )
+        or ABSENT
+    )
+
+
+def _document_release_identity(value: str) -> tuple[str, ...] | None:
+    """A DOM release-list role supplies identity context, never an action.
+
+    Called only for a typed list row/audience. Ordinary narrative and directive
+    fragments cannot enter the version list owner merely by containing digits.
+    """
+    if generic := _version_argument_identity(value):
+        return generic
+    if re.search(r"\d", value) and all(
+        clause.kind == "list" for _, clause in _version_clauses(value)
+    ):
+        included, excluded = _version_constraints(value)
+        if included and not excluded:
+            return ("release",)
+    return None
+
+
+def _source_recommendation_block(
+    span: DetailSpan, audience_reference=""
+) -> RecommendationBlock:
+    """Compile a document-owned list once into the existing directive owner."""
+    if not (block := span.document_list):
+        return RecommendationBlock(
+            span.source_block or span.text,
+            tuple(
+                _recommendation_directives(
+                    span.source_block or span.text,
+                    span.reference_target,
+                    audience_reference,
+                )
+            ),
+        )
+    parsed = None
+    if block.list_role == "destination":
+        identities = {
+            value: _document_release_identity(value) for value in block.list_members
+        }
+        parsed = parse_recommendation(
+            block.list_intro,
+            version_identity=lambda value: identities.get(value)
+            or _version_argument_identity(value),
+            release_destinations=block.list_members,
+        )
+    elif block.list_role == "audience":
+        prefix, separator, body = block.text.partition(":")
+        if separator and _document_release_identity(prefix):
+            if body.strip() == "No action is required.":
+                return RecommendationBlock(
+                    block.text, (RecommendationContext(block.text, "exception"),)
+                )
+            parsed = parse_recommendation(
+                body.strip(),
+                version_identity=_version_argument_identity,
+                release_audience=prefix,
+            )
+    if parsed is None:
+        parsed = RecommendationDirective(
+            block.text,
+            "unclassified",
+            (OwnedClause(text=block.text, kind="directive", unsupported=True),),
+            (),
+            True,
+        )
+    return RecommendationBlock(block.text, (replace(parsed, source_text=block.text),))
+
+
+def _source_recommendation_blocks(spans):
+    """A pronoun can use only the immediately preceding unique advice audience."""
+    result = []
+    audience = ""
+    for _, grouped in groupby(spans, lambda span: span.source_block or span.text):
+        group = list(grouped)
+        selected = next(
+            (
+                span
+                for span in group
+                if span.role == "body" and "Recommended Actions" in span.fields
+            ),
+            None,
+        )
+        if selected is None:
+            audience = ""
+            continue
+        block = _source_recommendation_block(selected, audience)
+        result.append(block)
+        subjects = {
+            clause.subject
+            for directive in block.directives
+            if isinstance(directive, RecommendationDirective)
+            and not directive.ambiguous
+            for clause in directive.clauses
+            if clause.subject
+        }
+        audience = next(iter(subjects)) if len(subjects) == 1 else ""
+    return tuple(dict.fromkeys(result))
 
 
 def collect_finding_details(
@@ -1269,10 +1682,106 @@ def collect_finding_details(
     # Version lists are easy to lose even when one supported version remains.
     version_lines = []
     excluded_version_lines = []
+    release_details = []
+    source_constraints = []
+    constraint_evidence = []
     list_state: Literal["none", "pending", "active"] = "none"
     known_version_list = False
     range_target: list[str] | None = None
     for span in detail_spans:
+        if block := span.document_list:
+            list_state = "none"
+            range_target = None
+            if block.list_role in {"destination", "audience"}:
+                continue
+            known_version_list |= block.list_role == "affected"
+            for member in block.list_items:
+                condition = ""
+                values = [member.text]
+                if member.children:
+                    prefix = member.text[
+                        : member.children[0].start - member.start
+                    ].strip(" :-")
+                    if not re.fullmatch(
+                        r"When configured as a (?:[A-Z][A-Za-z0-9-]* )(?:IdP|SP)(?: or (?:[A-Z][A-Za-z0-9-]* )(?:IdP|SP))?",
+                        prefix,
+                    ):
+                        raise EvidenceError(
+                            "Unsupported qualified release list",
+                            code="unsupported_evidence_relation",
+                            field="Affected Versions",
+                        )
+                    condition = prefix
+                    values = [child.text for child in member.children]
+                    source_constraints.append(member.text)
+                    constraint_evidence.append((span.source_url, member.text))
+                for value in values:
+                    if not _document_release_identity(value):
+                        raise EvidenceError(
+                            "Unsupported release list identity",
+                            code="unsupported_evidence_relation",
+                            field="Affected Versions",
+                        )
+                    included, excluded = _version_constraints(value)
+                    label = (
+                        "Affected Versions"
+                        if block.list_role == "affected"
+                        else "Fixed Versions"
+                    )
+                    release_details.append(
+                        (f"Condition: {condition} | " if condition else "")
+                        + label
+                        + ": "
+                        + value
+                    )
+                    if block.list_role == "affected":
+                        version_lines.extend(included)
+                        excluded_version_lines.extend(excluded)
+            continue
+        if span.constraint_text:
+            source_constraints.append(span.constraint_text)
+            constraint_evidence.append((span.source_url, span.constraint_text))
+            # The document owner supplies the product/row reference. The
+            # existing version owner still parses the complete range, including
+            # exclusions, without treating a fixed release as affected.
+            wider = re.fullmatch(
+                r"[^.!?]+(?:'s|’s) own advisory gives a wider range than the joint advisory\. It says versions (?P<range>.+), are affected\.",
+                span.constraint_text,
+            )
+            if wider:
+                included, excluded = _version_constraints(
+                    f"{span.product} {wider['range']}"
+                )
+                version_lines.extend(included)
+                excluded_version_lines.extend(excluded)
+                known_version_list = True
+            list_state = "none"
+            range_target = None
+            continue
+        if span.table_cells:
+            list_state = "none"
+            range_target = None
+            product = next(
+                (
+                    value
+                    for header, value in span.table_cells
+                    if header.casefold() == "product"
+                ),
+                "",
+            )
+            row_labels = []
+            for header, value in span.table_cells:
+                label = header.casefold()
+                if label in {"affected versions", "affected versions in the advisory"}:
+                    included, excluded = _version_constraints(
+                        " ".join(filter(None, (product, value)))
+                    )
+                    version_lines.extend(included)
+                    excluded_version_lines.extend(excluded)
+                    known_version_list = True
+                row_labels.append(f"{header}: {value}")
+            release_details.append(" | ".join(row_labels))
+            continue
         line = _version_source_text(span.text) if span.role == "body" else span.text
         if not line and span.role == "body" and extract_cve_ids(span.text):
             continue
@@ -1357,6 +1866,10 @@ def collect_finding_details(
         tuple(version_lines),
         tuple(excluded_version_lines),
         known_version_list,
+        tuple(release_details),
+        tuple(source_constraints),
+        tuple(constraint_evidence),
+        _source_recommendation_blocks(detail_spans),
     )
 
 
@@ -1440,12 +1953,52 @@ def _validate_finding(
                 expected=True,
                 observed=False,
             )
+    details = collect_finding_details(relevant, cves)
+    if fields.get("Source Constraints", ABSENT) != source_constraint_text(details):
+        raise EvidenceError(
+            "Finding must retain complete attributed source constraints",
+            code="source_constraints_not_grounded",
+            field="Source Constraints",
+        )
+    # Guidance has source-owned paragraph/list/quotation boundaries. Validate
+    # the complete serialized field first, then use those same owned relations;
+    # do not reinterpret semicolon-joined display text as an invented sentence.
+    guidance_relations = ()
+    guidance_owned = False
+    if fields.get("Recommended Actions", ABSENT) != ABSENT:
+        try:
+            _validate_recommendation_statements(
+                fields["Recommended Actions"], details.spans
+            )
+        except EvidenceError:
+            # Unowned output remains narrative here and reaches the existing
+            # complete-detail rejection below; preserve diagnostic precedence.
+            pass
+        else:
+            guidance_owned = True
+            guidance_relations = tuple(
+                clause
+                for clause in assessment.relations
+                if any(
+                    _plain(clause.source_text or clause.text)
+                    in _plain(block.source_text)
+                    for block in details.recommendation_blocks
+                )
+            )
     # Check narrative separately; changing only the badge cannot pass.
     narrative = FIELD.sub(
         lambda match: (
             ""
             if match.group(1)
-            in {"Reporting", "CVE IDs", "Exploitation Status", "Source Evidence"}
+            in {
+                "Reporting",
+                "CVE IDs",
+                "Exploitation Status",
+                "Source Evidence",
+                "Source Constraints",
+            }
+            or guidance_owned
+            and match.group(1) == "Recommended Actions"
             else "\n\n" + match.group(2) + "\n\n"
         ),
         body,
@@ -1489,7 +2042,7 @@ def _validate_finding(
             )
     if assessment.negative and not any(
         statement.status == "not_observed"
-        for statement in _rendered_statements(narrative)
+        for statement in (*_rendered_statements(narrative), *guidance_relations)
     ):
         raise EvidenceError(
             f"{title}: prose omits negative exploitation evidence",
@@ -1525,13 +2078,20 @@ def _validate_finding(
             expected=True,
             observed=False,
         )
-    details = collect_finding_details(relevant, cves)
     detail_spans = details.spans
     scoped = details.scoped
     field_evidence = details.field_evidence
     version_lines = details.version_lines
     excluded_version_lines = details.excluded_version_lines
     known_version_list = details.known_version_list
+    if fields.get("Release Details", ABSENT) != (
+        "; ".join(dict.fromkeys(details.release_details)) or ABSENT
+    ):
+        raise EvidenceError(
+            "Release details must retain complete source-owned column labels and values",
+            code="release_details_not_grounded",
+            field="Release Details",
+        )
     reported_versions = {
         _plain(entry)
         for entry in _version_entries(fields.get("Affected Versions", ""))
@@ -1624,6 +2184,12 @@ def _validate_finding(
         elif name == "Exceptions":
             for entry in entries:
                 roles = detail_statement_roles(entry)
+                owned_list_exception = any(
+                    span.document_list is not None
+                    and name in span.fields
+                    and _plain(entry) == _plain(span.text)
+                    for span in detail_spans
+                )
                 parsed_exclusion = any(
                     _plain(entry) == _plain(item) for item in excluded_version_lines
                 )
@@ -1639,9 +2205,13 @@ def _validate_finding(
                         for span in detail_spans
                     )
                     or parsed_exclusion
+                    or owned_list_exception
                 )
                 if (
-                    roles and name not in roles and not parsed_exclusion
+                    roles
+                    and name not in roles
+                    and not parsed_exclusion
+                    and not owned_list_exception
                 ) or not grounded:
                     raise EvidenceError(
                         f"{title}: {name} must preserve exact source-supported details with the matching semantic role",
@@ -1676,10 +2246,8 @@ def _validate_finding(
     # Preserve the existing complete-detail/version gate before interpreting
     # directives. Unsupported semantics cannot mask a missing source qualifier,
     # and remain a publication blocker after exact-source grounding succeeds.
-    for span in detail_spans:
-        if span.role != "body" or "Recommended Actions" not in span.fields:
-            continue
-        for parsed in _recommendation_directives(span.source_block or span.text):
+    for block in details.recommendation_blocks:
+        for parsed in block.directives:
             if isinstance(parsed, RecommendationDirective) and any(
                 clause.unsupported for clause in parsed.clauses
             ):
@@ -1731,15 +2299,13 @@ def validate_finding_evidence(
     # Require explicit CVEs for confirmed claims outside finding bodies whenever
     # the report contains mixed evidence states.
     outside = report[: section.start()] + report[section.end() :]
-    # Source-only findings have no CVE label for cross-finding prose. Their
-    # explicit heading reference binds a summary/rollup row to the same complete
-    # finding validation, rather than treating an empty CVE set as a wildcard.
+    # An explicit heading reference binds a rollup to the same complete finding
+    # gate. The heading is a structural owner, not a prefix of the source
+    # sentence; flattening it into prose breaks owned group/reporter clauses.
     source_findings: dict[str, list[re.Match[str]]] = {}
     for finding in findings:
-        fields = dict(FIELD.findall(finding.group("body")))
         title = finding.group("heading").removeprefix("###").strip()
-        if not extract_cve_ids(title + " " + fields.get("CVE IDs", "")):
-            source_findings.setdefault(title, []).append(finding)
+        source_findings.setdefault(title, []).append(finding)
 
     def validate_owned_row(match: re.Match[str]) -> str:
         owners = source_findings.get(match[1], [])
@@ -1748,6 +2314,16 @@ def validate_finding_evidence(
         if len(owners) != 1:
             raise EvidenceError(
                 "Ambiguous source finding reference", code="ambiguous_source_scope"
+            )
+        owner_fields = dict(FIELD.findall(owners[0].group("body")))
+        owner_cves = set(
+            extract_cve_ids(match[1] + " " + owner_fields.get("CVE IDs", ""))
+        )
+        if not set(extract_cve_ids(match[2])) <= owner_cves:
+            raise EvidenceError(
+                "A rollup cannot introduce another finding's CVE scope",
+                code="ambiguous_source_scope",
+                field="summary",
             )
         augmented = FINDING_PATTERN.search(
             owners[0].group().rstrip() + "\n- **Summary Context**: " + match[2] + "\n"

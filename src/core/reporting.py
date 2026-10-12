@@ -9,7 +9,12 @@ from dataclasses import asdict, dataclass
 from typing import Any, Iterable, Mapping
 from urllib.parse import quote, urlsplit
 
-from ..services.article_content import ArticleLink, normalize_feed_content
+from ..services.article_content import (
+    ArticleBlock,
+    ArticleLink,
+    article_blocks,
+    normalize_feed_content,
+)
 from .cve import extract_cve_ids
 
 import idna
@@ -45,6 +50,7 @@ class ReportingSource:
     links: tuple[str, ...] = ()
     link_contexts: tuple[ArticleLink, ...] = ()
     metadata_cves: tuple[str, ...] = ()
+    blocks: tuple[ArticleBlock, ...] = ()
 
 
 def normalize_reporting_url(value: Any) -> str:
@@ -143,14 +149,16 @@ def build_reporting_catalog(
     catalog: dict[str, ReportingSource] = {}
     for article in articles:
         url = normalize_reporting_url(article.get("link"))
+        content = normalize_feed_content(
+            article.get("content") or article.get("summary")
+        )
         source = ReportingSource(
             key=reporting_key(url),
             publisher=_clean_text(article.get("source"), "publisher"),
             title=_clean_text(article.get("title"), "title"),
             url=url,
-            content=normalize_feed_content(
-                article.get("content") or article.get("summary")
-            ),
+            content=content,
+            blocks=article_blocks(article.get("source_blocks", ()), content),
             content_kind=str(article.get("content_kind", "feed")),
             links=tuple(
                 normalize_reporting_url(link)
@@ -179,7 +187,13 @@ def build_reporting_catalog(
 def serialize_reporting_catalog(
     catalog: Mapping[str, ReportingSource],
 ) -> list[dict[str, Any]]:
-    return [asdict(source) for source in catalog.values()]
+    records = []
+    for source in catalog.values():
+        record = asdict(source)
+        if not source.blocks:
+            record.pop("blocks")
+        records.append(record)
+    return records
 
 
 def _link_contexts(records) -> tuple[ArticleLink, ...]:
@@ -205,6 +219,9 @@ def deserialize_reporting_catalog(
             title=_clean_text(record.get("title"), "title"),
             url=url,
             content=str(record.get("content", "")),
+            blocks=article_blocks(
+                record.get("blocks", ()), str(record.get("content", ""))
+            ),
             content_kind=str(record.get("content_kind", "feed")),
             links=tuple(
                 normalize_reporting_url(link) for link in record.get("links", [])
