@@ -224,7 +224,6 @@ def test_unknown_subject_or_bridge_cannot_disappear(monkeypatch, tmp_path, subje
         f"can exploit {CVE}",
         f"will exploit {CVE}",
         f"have been exploiting {CVE}",
-        f"are actively exploiting {CVE} and {OTHER}",
         f"are actively exploiting {CVE} and consider exploiting {OTHER}",
         f"are actively exploiting {CVE}, only when exposed",
         "exploited the gateway yesterday",

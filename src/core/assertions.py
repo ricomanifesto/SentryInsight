@@ -5,11 +5,22 @@ import re
 from typing import Literal
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
+from .assertion_predicates import (
+    AUXILIARY_STATES,
+    BOUNDARY,
+    CONDITION,
+    CVE_LIST,
+    REQUIRED_ADJUNCT,
+    TOPIC,
+    FINITE_PREDICATE_HEADS as FINITE_PREDICATE_HEADS,
+    bind_predicate,
+    bind_target,
+    valid_adjunct as _tail,
+)
 from .condition_boundaries import bind_condition_boundaries
 from .relations import EvidenceReporter, OwnedClause
 from .source_document import ADVISORY_DECLARATION, reporting_envelope
 
-CVE_LIST = rf"{CVE_ID_PATTERN.pattern}(?:\s*(?:,\s*(?:and\s+)?|and\s+){CVE_ID_PATTERN.pattern})*"
 DESCRIPTIVE_SUBJECT = re.compile(
     rf"^(?i:(?:two|the) )(?:(?:[A-Z][A-Za-z0-9-]* ){{0,4}})"
     rf"(?i:zero-days|vulnerabilities|flaws) \((?P<identities>{CVE_LIST})\)\s+"
@@ -26,7 +37,6 @@ class SubjectBinding:
 
 
 SUBJECT_PRODUCTIONS = (
-    ("vulnerability", re.compile(rf"^(?:{CVE_LIST})\b\s*", re.I)),
     ("vulnerability", DESCRIPTIVE_SUBJECT),
     (
         "actor",
@@ -44,82 +54,16 @@ def _bind_subject(text: str) -> SubjectBinding | None:
     Actor determiners and compound heads are nominal ownership, not predicate
     modifiers. Any unconsumed bridge remains with the strict predicate owner.
     """
+    if target := bind_target(text):
+        end = target.end
+        while end < len(text) and text[end].isspace():
+            end += 1
+        return SubjectBinding("vulnerability", target.text, end)
     for kind, production in SUBJECT_PRODUCTIONS:
         if match := production.match(text):
             return SubjectBinding(kind, match.group().rstrip(), match.end())
     return None
 
-
-POSSIBILITY_WORDS = ("potentially", "likely", "possibly", "probably", "unlikely")
-TOPIC = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
-BOUNDARY = re.compile(
-    r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)", re.I
-)
-CONDITION = re.compile(r"\b(?:if|unless)\b", re.I)
-REQUIRED_ADJUNCT = re.compile(
-    r"\b(?:if|unless|when|until|once|although|though|only|provided|depending)\b", re.I
-)
-PREDICATE_MODIFIERS = frozenset(POSSIBILITY_WORDS) | {
-    "also",
-    "currently",
-    "now",
-    "still",
-    "not",
-    "never",
-    "actively",
-    "newly",
-    "recently",
-    "widely",
-    "publicly",
-    "successfully",
-    "extensively",
-}
-FINITE_PREDICATE_HEADS = frozenset(
-    {
-        "is",
-        "are",
-        "was",
-        "were",
-        "has",
-        "have",
-        "had",
-        "may",
-        "might",
-        "could",
-        "can",
-        "will",
-        "would",
-    }
-)
-# Complete auxiliary productions have explicit semantics. Perfect evidence
-# without an owned qualification is deliberately unresolved; unknown chains
-# never acquire a state from an incidental auxiliary elsewhere in the prefix.
-AUXILIARY_STATES = {
-    **{(word,): "current" for word in ("is", "are")},
-    **{(word, "being"): "current" for word in ("is", "are")},
-    **{(word,): "past" for word in ("was", "were")},
-    **{(word, "being"): "past" for word in ("was", "were")},
-    ("had", "been"): "past",
-    ("has", "been"): "unspecified",
-    ("have", "been"): "unspecified",
-    ("have", "begun"): "past",
-    ("has", "begun"): "past",
-    ("had", "begun"): "past",
-    **{
-        (word, *tail): "possible"
-        for word in ("may", "might", "could", "would")
-        for tail in ((), ("be",), ("have", "been"))
-    },
-    **{
-        (word, "known", "to", "be"): state
-        for word, state in (
-            ("is", "current"),
-            ("are", "current"),
-            ("was", "past"),
-            ("were", "past"),
-        )
-    },
-}
 
 REPORTER_SUBJECT = r"(?:[Tt]he (?:vendor|company|researchers|agencies)|[A-Z][A-Za-z/-]*(?: [A-Z][A-Za-z/-]*){0,3}|it)"
 REPORTER_EVIDENCE = re.compile(
@@ -531,125 +475,6 @@ def _reported_event(text):
     )
 
 
-PARTICIPIAL_PREDICATE_HEADS = frozenset(
-    {
-        "exploited",
-        "weaponized",
-        "affected",
-        "vulnerable",
-        "exploitable",
-    }
-)
-PREDICATE_HEADS = (
-    FINITE_PREDICATE_HEADS | PARTICIPIAL_PREDICATE_HEADS | {"be", "been", "being"}
-)
-ADJUNCT_INTRODUCERS = frozenset(
-    {
-        "after",
-        "before",
-        "when",
-        "because",
-        "since",
-        "until",
-        "once",
-        "although",
-        "though",
-        "unless",
-        "if",
-        "where",
-        "during",
-        "upon",
-        "in",
-        "by",
-        "on",
-        "at",
-        "through",
-        "via",
-        "against",
-        "for",
-        "to",
-        "from",
-        "with",
-        "without",
-        "as",
-        "within",
-        "across",
-        "under",
-        "over",
-        "throughout",
-        "around",
-        "despite",
-    }
-)
-PREDICATE_ADVERBS = frozenset(
-    {
-        "worldwide",
-        "abroad",
-        "overseas",
-        "here",
-        "there",
-        "today",
-        "yesterday",
-        "tomorrow",
-        "tonight",
-        "earlier",
-        "later",
-        "again",
-        "already",
-        "often",
-        "sometimes",
-        "always",
-        "ever",
-        "soon",
-        "twice",
-        "ago",
-        "overnight",
-    }
-)
-TIME_UNIT = r"(?:second|minute|hour|day|week|fortnight|month|quarter|year|weekend|night|morning|afternoon|evening)s?"
-WEEKDAY = r"(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?: (?:morning|afternoon|evening|night))?"
-QUANTITY = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several|many|multiple|numerous|a|an|(?:hundreds|thousands|millions|dozens) of)"
-NOMINAL_ADJUNCT = re.compile(
-    rf"(?:(?:the )?(?:last|next|previous|following|this|that|every|each|all) (?:{QUANTITY} )?(?:{TIME_UNIT}|{WEEKDAY})"
-    rf"|{QUANTITY} {TIME_UNIT}"
-    rf"|{WEEKDAY}"
-    rf"|(?:(?:more|less|fewer) than |at (?:least|most) |up to )?{QUANTITY} (?:times|occasions))(?= |$)"
-)
-
-
-def _predicate_head(clause: str) -> str:
-    # Only known modifiers may precede an inherited predicate. In particular,
-    # an arbitrary -ly suffix is not enough: it can also occur in noun subjects.
-    words = clause.casefold().rstrip(".!?").split()
-    for index, word in enumerate(words):
-        if word not in PREDICATE_MODIFIERS:
-            if word in PARTICIPIAL_PREDICATE_HEADS:
-                # An adjective/participle can instead introduce a noun subject:
-                # "newly affected issue" is not the prior CVE's predicate.
-                # Parse the continuation as adverbs followed by an optional
-                # adjunct. A new noun phrase ends attribution regardless of
-                # which lexical verb follows it. An adjunct's own finite verb
-                # does not establish a new subject for the main predicate.
-                tail = words[index + 1 :]
-                while tail:
-                    token = tail[0]
-                    if token in ADJUNCT_INTRODUCERS:
-                        break
-                    nominal = NOMINAL_ADJUNCT.match(" ".join(tail))
-                    if nominal:
-                        tail = tail[len(nominal.group().split()) :]
-                        continue
-                    if (
-                        token in PREDICATE_MODIFIERS | PREDICATE_ADVERBS
-                        or re.fullmatch(r"[a-z]+ly", token)
-                    ):
-                        tail = tail[1:]
-                        continue
-                    return ""
-            return word
-    return ""
-
-
 def _reporting(text):
     """An explicit reporting adjunct has its own complete finite relation."""
     match = re.search(
@@ -739,31 +564,6 @@ def _intrusion(text):
         or bool(TOPIC.search(prefix) or TOPIC.search(suffix))
         or not _tail(suffix),
     )
-
-
-def _tail(text):
-    """A complete predicate may have an adjunct, never an unbound noun subject."""
-    words = text.casefold().strip(" ,.!?").split()
-    while words:
-        token = words[0]
-        if token in ADJUNCT_INTRODUCERS - {
-            "when",
-            "once",
-            "until",
-            "although",
-            "though",
-            "if",
-            "unless",
-        }:
-            return True
-        nominal = NOMINAL_ADJUNCT.match(" ".join(words))
-        if nominal:
-            words = words[len(nominal.group().split()) :]
-        elif token in PREDICATE_MODIFIERS | PREDICATE_ADVERBS:
-            words.pop(0)
-        else:
-            return False
-    return True
 
 
 def _unit(raw):
@@ -914,142 +714,29 @@ def _unit(raw):
             kind="assertion" if TOPIC.search(core) else "context",
             unsupported=bool(TOPIC.search(core)),
         )
-    words = body.strip(" .!?").split()
-    tense, finite, correlative = "unspecified", False, None
-    auxiliaries = []
-    modifiers = PREDICATE_MODIFIERS | {
-        "be",
-        "been",
-        "being",
-        "begun",
-        "have",
-        "had",
-        "has",
-        "is",
-        "are",
-        "was",
-        "were",
-        "may",
-        "might",
-        "could",
-        "can",
-        "will",
-        "would",
-        "to",
-        "yet",
-        "known",
-        "observed",
-        "first",
-    }
-    while words and words[0].lower() in modifiers:
-        word = words.pop(0).lower()
-        if word in FINITE_PREDICATE_HEADS | {
-            "be",
-            "been",
-            "being",
-            "begun",
-            "known",
-            "to",
-        }:
-            auxiliaries.append(word)
-        if (
-            word == "not"
-            and words
-            and words[0].lower() in {"only", "just", "merely", "simply"}
-        ):
-            words.pop(0)
-            correlative = (modal, "negative" if negative else "affirmative")
-        elif word in {"not", "never"}:
-            negative = True
-        elif word in POSSIBILITY_WORDS or word in {"may", "might", "could", "would"}:
-            modal = modal or "possible"
-        if word in FINITE_PREDICATE_HEADS:
-            finite = True
-    auxiliary_state = AUXILIARY_STATES.get(tuple(auxiliaries))
-    if auxiliary_state == "possible":
-        modal = modal or "possible"
-    elif auxiliary_state:
-        tense = auxiliary_state
-    verb = words.pop(0).lower() if words else ""
-    argument = " ".join(words)
-    if verb == "under" and re.fullmatch(
-        r"(?:limited, targeted|active) exploitation", argument, re.I
-    ):
-        return replace(
-            base,
-            kind="assertion",
-            verb="exploitation",
-            modal=modal,
-            polarity="negative" if negative else "affirmative",
-            tense=tense,
-            finite=finite,
-            unsupported=auxiliary_state is None,
-        )
-    if owner and owner.kind == "actor":
-        if re.fullmatch(
-            r"(?:(?:the|a|an|another) (?:(?:vulnerable|affected) )?[a-z]+|it)",
-            argument,
-            re.I,
-        ):
-            argument = ""
-        target = re.match(r"CVE-\d{4}-\d{4,}\b\s*", argument, re.I)
-        if target:
-            argument = argument[target.end() :]
-        if verb == "exploited" and not finite:
-            tense = "past"
-        elif verb == "exploit" and not auxiliaries:
-            tense = "current"
-    if (
-        not auxiliaries
-        and verb == "weaponized"
-        and re.fullmatch(r"in (?:the wild|attacks)", argument, re.I)
-    ):
-        tense = "current"
-    known = verb in {"exploit", "exploited", "exploiting", "weaponized"}
-    context = verb in {
-        "affected",
-        "vulnerable",
-        "exploitable",
-        "allows",
-        "allow",
-        "permits",
-        "permit",
-        "patched",
-        "disclosed",
-    }
-    # A copular capability is not an observation. Its adjuncts must either
-    # have been consumed by a complete prerequisite production or remain an
-    # explicit unsupported required relation; never silently discard a tail.
-    if verb == "exploitable":
-        supported = not argument and tuple(auxiliaries) in {
-            ("is",),
-            ("are",),
-            ("was",),
-            ("were",),
-        }
-        return replace(
-            base,
-            kind="context" if supported else "assertion",
-            context_role="capability" if supported else "",
-            verb=verb,
-            modal="capability",
-            polarity="negative" if negative else "affirmative",
-            finite=finite,
-            unsupported=not supported,
-        )
+    frame = bind_predicate(
+        body, voice=owner.kind if owner else "unscoped", modal=modal, negative=negative
+    )
+    owned_cves = (
+        frame.target.cves
+        if owner and owner.kind == "actor" and frame.target.kind == "explicit"
+        else tuple(extract_cve_ids(owner.text)) if owner else base.cves
+    )
     return replace(
         base,
-        kind="assertion" if known or TOPIC.search(core) else "context",
-        verb=verb,
-        modal=modal,
-        polarity="negative" if negative else "affirmative",
-        tense=tense,
-        object_text=argument,
-        unsupported=(known and bool(auxiliaries) and auxiliary_state is None)
-        or (known and not _tail(argument))
-        or (not known and not context and bool(TOPIC.search(core))),
-        finite=finite,
-        correlative=correlative,
+        cves=owned_cves if frame.supported else base.cves,
+        kind=frame.kind,
+        context_role=(
+            "capability" if frame.verb == "exploitable" and frame.supported else ""
+        ),
+        verb=frame.verb,
+        modal=frame.modal,
+        polarity=frame.polarity,
+        tense=frame.tense,
+        object_text=body[slice(*frame.adjunct_span)],
+        unsupported=not frame.supported and not frame.requires_inheritance,
+        finite=frame.finite,
+        correlative=frame.correlative,
     )
 
 
@@ -1168,7 +855,9 @@ def parse_assertions(sentence):
         starts_relation=lambda right: bool(
             _bind_subject(right)
             or TOPIC.search(BOUNDARY.split(right, maxsplit=1)[0])
-            or _predicate_head(right) in PREDICATE_HEADS
+            or bind_predicate(right).starts_relation
+            # Closed reporter/composition productions retain their own typed
+            # finite boundary. Ordinary verbal parsing still has one owner.
             or _unit(BOUNDARY.split(right, maxsplit=1)[0]).finite
         ),
         protected=protected,
@@ -1200,10 +889,10 @@ def parse_assertions(sentence):
             or part.unsupported
             or any(not CONDITION.match(value) for value in part.conditions),
         )
-        head = _predicate_head(raw)
+        frame = bind_predicate(part.predicate)
         inherited_subject = (
             relation in {"additive", "adversative", "correlative"}
-            and head in PREDICATE_HEADS
+            and frame.inherits_subject
             and len(previous.cves) == 1
         )
         if not clause.cves and inherited_subject:

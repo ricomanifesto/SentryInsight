@@ -22,6 +22,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from markdown_it import MarkdownIt
+from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
 
 from src.core.report_artifact import (
@@ -237,11 +238,25 @@ def _finding_heading_html(finding: Finding, claimed_cves: set[str]) -> str:
     )
 
 
+def _html_data(value: str) -> str:
+    """Keep literal text/attribute values distinct from HTML attribute syntax."""
+    return html.escape(value).replace("=", "&#61;")
+
+
+class _DataRenderer(RendererHTML):
+    @staticmethod
+    def renderAttrs(token: Token) -> str:
+        return "".join(
+            f' {html.escape(key)}="{_html_data(str(value))}"'
+            for key, value in token.attrItems()
+        )
+
+
 def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> str:
     vendor = ""
     if finding.vendor_links:
         links = ", ".join(
-            f'<a href="{html.escape(url)}" target="_blank" rel="noopener noreferrer">Vendor advisory {index}</a>'
+            f'<a href="{_html_data(url)}" target="_blank" rel="noopener noreferrer">Vendor advisory {index}</a>'
             for index, url in enumerate(finding.vendor_links, start=1)
         )
         vendor = (
@@ -257,10 +272,10 @@ def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> s
         digest_url = f"{digest_issue_url}#{reference.digest_fragment}"
         items.append(
             "<li>"
-            f'<a class="reporting-source" href="{html.escape(reference.url)}" '
-            f'target="_blank" rel="noopener noreferrer">{html.escape(label)}</a>'
+            f'<a class="reporting-source" href="{_html_data(reference.url)}" '
+            f'target="_blank" rel="noopener noreferrer">{_html_data(label)}</a>'
             '<span aria-hidden="true"> · </span>'
-            f'<a class="reporting-context" href="{html.escape(digest_url)}">'
+            f'<a class="reporting-context" href="{_html_data(digest_url)}">'
             "Digest context</a>"
             "</li>"
         )
@@ -355,14 +370,14 @@ def _render_literal_code(renderer, tokens, index, _options, _env):
     # so literal event-handler examples cannot resemble serialized attributes
     # to the final active-content guard. The DOM text remains exact.
     token = tokens[index]
-    text = html.escape(token.content).replace("=", "&#61;")
+    text = _html_data(token.content)
     return f"<code{renderer.renderAttrs(token)}>{text}</code>"
 
 
 def _render_markdown(
     artifact: ReportArtifact,
 ) -> tuple[str, list[tuple[int, str, str]]]:
-    markdown = MarkdownIt("commonmark", {"html": True})
+    markdown = MarkdownIt("commonmark", {"html": True}, renderer_cls=_DataRenderer)
     markdown.add_render_rule("code_inline", _render_literal_code)
     tokens = markdown.parse(artifact.body)
     _strip_raw_html(tokens)
