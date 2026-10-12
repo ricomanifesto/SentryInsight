@@ -52,11 +52,16 @@ def logfire_options() -> dict[str, Any]:
 def configure_observability() -> None:
     """Configure export from the executable entrypoint.
 
-    Nothing leaves the process unless ``LOGFIRE_TOKEN`` is set. HTTP clients are
-    not auto-instrumented: their spans record raw transport exception text in the
-    span status, after any exception callback runs.
+    Nothing leaves the process unless ``LOGFIRE_TOKEN`` is set. Without it,
+    Logfire stays unconfigured and spans are no-ops: configuring would still add
+    an exporter for any ``OTEL_EXPORTER_OTLP_*ENDPOINT`` set by the host. HTTP
+    clients are not auto-instrumented: their spans record raw transport exception
+    text in the span status, after any exception callback runs.
     """
-    logfire.configure(**logfire_options())
+    options = logfire_options()
+    if not options["send_to_logfire"]:
+        return
+    logfire.configure(**options)
 
 
 def model_attributes(config: Mapping[str, Any]) -> dict[str, str]:

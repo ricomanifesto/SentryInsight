@@ -11,6 +11,7 @@ from opentelemetry.trace import StatusCode
 
 from src.core import workflow
 from src.core.model_config import DEFAULT_MODEL
+from src.core import observability
 from src.core.observability import logfire_options, model_attributes, traced_stage
 from src.core.report_validation import ReportValidationIssue
 
@@ -259,6 +260,38 @@ def test_export_is_disabled_without_an_environment_token(value, monkeypatch):
     # False also stops Logfire from reading a token saved under .logfire.
     assert options["send_to_logfire"] is False
     assert options["token"] is None
+
+
+@pytest.mark.parametrize("token", [None, ""])
+def test_logfire_stays_unconfigured_without_a_token(token, monkeypatch):
+    calls = []
+    if token is None:
+        monkeypatch.delenv("LOGFIRE_TOKEN", raising=False)
+    else:
+        monkeypatch.setenv("LOGFIRE_TOKEN", token)
+    # Logfire adds an OTLP exporter for these regardless of send_to_logfire.
+    monkeypatch.setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "https://collector.example")
+    monkeypatch.setattr(
+        observability.logfire, "configure", lambda **kw: calls.append(kw)
+    )
+
+    observability.configure_observability()
+
+    assert calls == []
+
+
+def test_logfire_is_configured_with_the_environment_token(monkeypatch):
+    calls = []
+    monkeypatch.setenv("LOGFIRE_TOKEN", "pylf_v1_us_example")
+    monkeypatch.setattr(
+        observability.logfire, "configure", lambda **kw: calls.append(kw)
+    )
+
+    observability.configure_observability()
+
+    [options] = calls
+    assert options["token"] == "pylf_v1_us_example"
+    assert options["send_to_logfire"] is True
 
 
 def test_export_uses_only_the_environment_token(monkeypatch):
