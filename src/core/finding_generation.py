@@ -11,6 +11,7 @@ from .finding_evidence import (
     DetailSpan,
     anchored_detail_spans as _anchored_spans,
     assess_severity,
+    severity_context_text,
     EvidenceError,
     ExploitationAssessment,
     assess_exploitation,
@@ -187,11 +188,19 @@ def _finding(
     for name, value in record.fields:
         if name == "Vendor Links" and links is not None:
             value = serialize_url_collection(links) if links else ABSENT
-        elif name in {
-            "Affected Versions",
-            "Exceptions",
-            "Recommended Actions",
-            "Release Details",
+        elif name not in {
+            # Only generated identities/enums and canonically composed syntax
+            # bypass literal data encoding. New optional data fields are safe
+            # by default instead of relying on an expanding field allowlist.
+            "Severity",
+            "Exploitation Status",
+            "Action",
+            "CVE IDs",
+            "Reporting",
+            "Vendor Links",
+            "Source Evidence",
+            "Source Constraints",
+            "Severity Context",
         }:
             value = source_literal(value)
         lines.append(f"- **{name}**: {value}")
@@ -394,14 +403,8 @@ def compile_finding_records(
         ]
         if context := source_evidence_text(sources, cves):
             fields.append(("Source Evidence", context))
-        severity_context = list(severity.context)
-        if severity.value == "unknown":
-            severity_context.insert(
-                0,
-                "No single unqualified severity rating is supported for this finding scope.",
-            )
-        if severity_context:
-            fields.append(("Severity Context", " ".join(severity_context)))
+        if context := severity_context_text(severity):
+            fields.append(("Severity Context", context))
         if recommendations and dict(fields)["Action"] == "none":
             fields.append(
                 (

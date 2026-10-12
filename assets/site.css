@@ -147,7 +147,7 @@ button { font: inherit; }
 .executive-summary-card > :last-child { margin-bottom: 0; }
 .finding-heading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   margin-bottom: 0 !important;

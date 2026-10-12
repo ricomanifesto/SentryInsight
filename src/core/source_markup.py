@@ -50,3 +50,14 @@ def source_literal_value(value: str) -> str:
         if source_literal(text) == value:
             return text
     return value
+
+
+def source_text_collection(values, *, prefix: str = "") -> str:
+    """Compose literal source items after an optional renderer-owned prefix.
+
+    Encode each item before joining so adjacent source delimiters cannot form
+    markup together. The prefix is fixed renderer prose, never source data.
+    """
+    rendered = [prefix] if prefix else []
+    rendered.extend(source_literal(value) for value in values)
+    return " ".join(rendered)

@@ -22,7 +22,7 @@ from .assertions import FINITE_PREDICATE_HEADS, parse_assertions, source_qualifi
 from .relations import OwnedClause
 from .severity import rating_relation, project_ratings
 from .source_document import SourceSpan, source_document
-from .source_markup import source_literal, source_literal_value
+from .source_markup import source_literal, source_literal_value, source_text_collection
 from .recommendations import (
     RecommendationBlock,
     RecommendationContext,
@@ -359,6 +359,16 @@ def assess_severity(spans, cves):
             if relation is not None and relation not in relations:
                 relations.append(relation)
     return project_ratings(relations)
+
+
+def severity_context_text(assessment) -> str:
+    """One canonical presentation of complete owned rating statements."""
+    prefix = (
+        "No single unqualified severity rating is supported for this finding scope."
+        if assessment.value == "unknown"
+        else ""
+    )
+    return source_text_collection(assessment.context, prefix=prefix)
 
 
 def _recommendation_text(text: str) -> str:
@@ -2022,6 +2032,14 @@ def _validate_finding(
                 observed=False,
             )
     details = collect_finding_details(relevant, cves)
+    if "Severity Context" in fields and fields[
+        "Severity Context"
+    ] != severity_context_text(assess_severity(details.spans, cves)):
+        raise EvidenceError(
+            "Severity context must retain canonical complete source statements",
+            code="severity_context_not_grounded",
+            field="Severity Context",
+        )
     if fields.get("Source Constraints", ABSENT) != source_constraint_text(details):
         raise EvidenceError(
             "Finding must retain complete attributed source constraints",
