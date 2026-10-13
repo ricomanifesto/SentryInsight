@@ -22,6 +22,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "black",
+    "pydantic-evals[logfire]>=2.55.0,<3",
     "pytest",
     "ruff",
     "ty",
@@ -50,4 +51,4 @@ ignore_no_config = true
 python-version = "3.11"
 
 [tool.ty.src]
-include = ["main.py", "scripts", "src"]
+include = ["main.py", "scripts", "src", "evals"]

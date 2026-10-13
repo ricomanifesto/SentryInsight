@@ -9,9 +9,21 @@ same ``generate`` contract.
 from __future__ import annotations
 
 import os
+from typing import Protocol
 
-from .opencode_client import OpenCodeClient
+from .opencode_client import ModelSelection, OpenCodeClient
 from .openrouter_client import OPENROUTER_API_KEY_ENV_VAR, OpenRouterClient
+
+
+class ReportModelClient(Protocol):
+    async def generate(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        model: ModelSelection | None = None,
+        title: str = "Report generation",
+    ) -> str: ...
 
 
 def build_model_client(
