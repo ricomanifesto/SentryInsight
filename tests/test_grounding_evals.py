@@ -375,3 +375,33 @@ def test_inline_html_cannot_hide_report_structure():
     case = load_cases()[0]
     report = "Report follows <style>\n\n" + case.reference_report + "\nEnd </style>"
     assert not grade_report(case, report)["well_formed"]
+
+
+def test_all_error_slices_keep_every_metric_denominator(tmp_path):
+    async def failed(inputs):
+        raise TimeoutError("provider unavailable")
+
+    summary = asyncio.run(
+        run_evaluation(
+            load_cases()[:1], task=failed, repetitions=1, output=tmp_path / "all-errors"
+        )
+    )
+    metrics = {
+        "well_formed",
+        "finding_coverage",
+        "cve_ownership",
+        "citations",
+        "exploitation_status",
+        "affected_versions",
+        "exceptions",
+        "recommendations",
+        "vendor_links",
+    }
+    for result in [summary, *summary["by_variant_and_split"].values()]:
+        assert set(result["field_checks"]) == metrics
+        assert result["completed"] == 0
+        assert result["execution_errors"] == result["planned"]
+        assert all(
+            value == {"passed": 0, "evaluated": 0, "planned": result["planned"]}
+            for value in result["field_checks"].values()
+        )

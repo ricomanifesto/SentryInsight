@@ -19,6 +19,13 @@ FIELDS = {
     "recommendations": ("Recommended Actions", "recommended_actions"),
     "vendor_links": ("Vendor Links", "vendor_links"),
 }
+GRADER_METRICS = (
+    "well_formed",
+    "finding_coverage",
+    "cve_ownership",
+    "citations",
+    *FIELDS,
+)
 CVE = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
 
 
@@ -28,10 +35,7 @@ def normalize(value: str, *, terminal_period: bool = True) -> str:
 
 
 def grade_report(case: SourceCase, report: str) -> dict[str, bool]:
-    checks = dict.fromkeys(
-        ["well_formed", "finding_coverage", "cve_ownership", "citations", *FIELDS],
-        False,
-    )
+    checks = dict.fromkeys(GRADER_METRICS, False)
     sections = re.findall(
         r"^## Active Exploitation Details\s*\n(.*?)(?=^## |\Z)",
         report,

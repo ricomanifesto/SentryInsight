@@ -35,7 +35,7 @@ from src.core.reporting import (
 )
 
 from .dataset import SourceCase, TaskInput, digest
-from .grading import grade_report
+from .grading import GRADER_METRICS, grade_report
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -234,11 +234,11 @@ async def run_evaluation(
             "field_pass_trials": sum(all(row["checks"].values()) for row in completed),
             "field_checks": {
                 key: {
-                    "passed": value,
+                    "passed": counters[key],
                     "evaluated": len(completed),
                     "planned": len(selected),
                 }
-                for key, value in sorted(counters.items())
+                for key in GRADER_METRICS
             },
             "gate_acceptance_disagreements": sum(
                 row["gate"]["passed"] and not all(row["checks"].values())
