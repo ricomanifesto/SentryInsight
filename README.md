@@ -89,6 +89,13 @@ bash scripts/local_validation.sh
 
 The script installs locked Python and Node dependencies, runs linting, formatting, type checks, and tests, verifies the report and packaged Pages files, and exercises the current and archived pages in Chromium. Browser checks cover accessibility, responsive layouts, stable CVE links, and light and dark themes.
 
+## Report Evaluations
+
+The [frozen-source evaluation pilot](evals/grounding/README.md) compares two prompts
+on synthetic article cases, with independent field checks, held-out cases and
+complete trial accounting. Calibration runs make no model calls; live runs require
+an explicit free model route. Evaluation outputs do not publish reports.
+
 ## Publishing
 
 - `.github/workflows/generate-report.yml` runs after a SentryDigest update, once daily as a backup, or by manual trigger.
