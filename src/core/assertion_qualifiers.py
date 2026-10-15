@@ -25,8 +25,22 @@ from .relations import (
     TemporalDirection,
 )
 
-# Classification of the already accepted modifier vocabulary. Recognition
-# remains with each existing finite production, not this semantic mapping.
+# One vocabulary and semantic classification for positioned epistemic terms.
+# Each finite production still owns its operand and permitted placements.
+EPISTEMIC_MODIFIERS = {
+    "potentially": "epistemic",
+    "likely": "epistemic",
+    "possibly": "epistemic",
+    "probably": "epistemic",
+    "unlikely": "epistemic",
+    "reportedly": "reported",
+    "allegedly": "reported",
+}
+REPORTED_MODIFIERS = frozenset(
+    word for word, kind in EPISTEMIC_MODIFIERS.items() if kind == "reported"
+)
+REPORTED_PATTERN = "(?:" + "|".join(sorted(REPORTED_MODIFIERS)) + ")"
+
 MODIFIER_KINDS = {
     "actively": "activity",
     "active": "activity",
@@ -42,11 +56,7 @@ MODIFIER_KINDS = {
     "publicly": "disclosure",
     "successfully": "outcome",
     "also": "addition",
-    "potentially": "epistemic",
-    "likely": "epistemic",
-    "possibly": "epistemic",
-    "probably": "epistemic",
-    "unlikely": "epistemic",
+    **EPISTEMIC_MODIFIERS,
     "potential": "epistemic",
     "possible": "epistemic",
     "observed": "unclassified",

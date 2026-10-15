@@ -1,0 +1,891 @@
+{
+  "cases": [
+    {
+      "id": "reported-001",
+      "group": "reported",
+      "text": "CVE-2026-1234 is reportedly being exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-002",
+      "group": "reported",
+      "text": "CVE-2026-1234 was reportedly exploited yesterday.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-003",
+      "group": "reported",
+      "text": "Hackers are reportedly exploiting CVE-2026-1234.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-004",
+      "group": "reported",
+      "text": "Hackers have reportedly exploited CVE-2026-1234.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-005",
+      "group": "reported",
+      "text": "CVE-2026-1234 is reportedly known to be exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-006",
+      "group": "reported",
+      "text": "CVE-2026-1234 is known to be reportedly exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-007",
+      "group": "reported",
+      "text": "Exploitation of CVE-2026-1234 has reportedly been confirmed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-008",
+      "group": "reported",
+      "text": "CVE-2026-1234 exploitation was reportedly observed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-009",
+      "group": "reported",
+      "text": "CVE-2026-1234 has reportedly seen active exploitation.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-010",
+      "group": "reported",
+      "text": "Hackers reportedly gained access by exploiting a flaw (CVE-2026-1234).",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-011",
+      "group": "reported",
+      "text": "The vendor issued a fix for CVE-2026-1234, which Hackers reportedly began exploiting as a zero-day in June.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-012",
+      "group": "reported",
+      "text": "\"CVE-2026-1234 is reportedly being exploited,\" the company said.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-013",
+      "group": "reported",
+      "text": "If reports are accurate, CVE-2026-1234 is reportedly being exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-014",
+      "group": "reported",
+      "text": "CVE-2026-1234 is reportedly not being exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-015",
+      "group": "reported",
+      "text": "CVE-2026-1234 may reportedly be exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-016",
+      "group": "reported",
+      "text": "CVE-2026-1234 exploitation has not reportedly been observed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "source-only-001",
+      "group": "source-only",
+      "text": "Hackers reportedly exploited the gateway.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "": "unknown"
+        }
+      }
+    },
+    {
+      "id": "joint-001",
+      "group": "joint",
+      "text": "Hackers reportedly exploited CVE-2026-1234 and CVE-2026-5678.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "joint": "unknown"
+        },
+        "joint_cves": [
+          "CVE-2026-1234",
+          "CVE-2026-5678"
+        ],
+        "singleton_statuses": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "unknown"
+        }
+      }
+    },
+    {
+      "id": "independent-001",
+      "group": "independent",
+      "text": "CVE-2026-1234 is reportedly being exploited and CVE-2026-5678 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "active"
+        }
+      }
+    },
+    {
+      "id": "independent-002",
+      "group": "independent",
+      "text": "CVE-2026-1234 is reportedly being exploited, but CVE-2026-5678 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "active"
+        }
+      }
+    },
+    {
+      "id": "correlative-001",
+      "group": "correlative",
+      "text": "CVE-2026-1234 is reportedly not only exploited but also weaponized.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "clause_states": [
+          "unknown",
+          "unknown"
+        ]
+      }
+    },
+    {
+      "id": "correlative-002",
+      "group": "correlative",
+      "text": "CVE-2026-1234 is not only reportedly exploited but also weaponized.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "clause_states": [
+          "unknown",
+          "active"
+        ]
+      }
+    },
+    {
+      "id": "independent-confirmation-001",
+      "group": "independent-confirmation",
+      "text": "CVE-2026-1234 was reportedly exploited yesterday. CVE-2026-1234 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "conflicting": false
+      }
+    },
+    {
+      "id": "qualified-history-absence-001",
+      "group": "qualified-history-absence",
+      "text": "CVE-2026-1234 was reportedly exploited yesterday. CVE-2026-1234 exploitation has not been observed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "not_observed"
+        },
+        "conflicting": false
+      }
+    },
+    {
+      "id": "required-rejection-001",
+      "group": "required-rejection",
+      "text": "CVE-2026-1234 will reportedly be exploited.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "required-rejection-002",
+      "group": "required-rejection",
+      "text": "CVE-2026-1234 is reportedly exploited tomorrow.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "required-rejection-003",
+      "group": "required-rejection",
+      "text": "Northstar reportedly exploits CVE-2026-1234.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "required-rejection-004",
+      "group": "required-rejection",
+      "text": "Hackers reportedly used a scanner for CVE-2026-1234 in attacks.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "required-rejection-005",
+      "group": "required-rejection",
+      "text": "CVE-2026-1234 is reportedly reportedly exploited.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "reported-017",
+      "group": "reported",
+      "text": "CVE-2026-1234 is allegedly being exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-018",
+      "group": "reported",
+      "text": "CVE-2026-1234 was allegedly exploited yesterday.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-019",
+      "group": "reported",
+      "text": "Hackers are allegedly exploiting CVE-2026-1234.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-020",
+      "group": "reported",
+      "text": "Hackers have allegedly exploited CVE-2026-1234.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-021",
+      "group": "reported",
+      "text": "CVE-2026-1234 is allegedly known to be exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-022",
+      "group": "reported",
+      "text": "CVE-2026-1234 is known to be allegedly exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-023",
+      "group": "reported",
+      "text": "Exploitation of CVE-2026-1234 has allegedly been confirmed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-024",
+      "group": "reported",
+      "text": "CVE-2026-1234 exploitation was allegedly observed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-025",
+      "group": "reported",
+      "text": "CVE-2026-1234 has allegedly seen active exploitation.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-026",
+      "group": "reported",
+      "text": "Hackers allegedly gained access by exploiting a flaw (CVE-2026-1234).",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-027",
+      "group": "reported",
+      "text": "The vendor issued a fix for CVE-2026-1234, which Hackers allegedly began exploiting as a zero-day in June.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-028",
+      "group": "reported",
+      "text": "\"CVE-2026-1234 is allegedly being exploited,\" the company said.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-029",
+      "group": "reported",
+      "text": "If reports are accurate, CVE-2026-1234 is allegedly being exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-030",
+      "group": "reported",
+      "text": "CVE-2026-1234 is allegedly not being exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-031",
+      "group": "reported",
+      "text": "CVE-2026-1234 may allegedly be exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "reported-032",
+      "group": "reported",
+      "text": "CVE-2026-1234 exploitation has not allegedly been observed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "complete_source_required": true
+      }
+    },
+    {
+      "id": "source-only-002",
+      "group": "source-only",
+      "text": "Hackers allegedly exploited the gateway.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "": "unknown"
+        }
+      }
+    },
+    {
+      "id": "joint-002",
+      "group": "joint",
+      "text": "Hackers allegedly exploited CVE-2026-1234 and CVE-2026-5678.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "joint": "unknown"
+        },
+        "joint_cves": [
+          "CVE-2026-1234",
+          "CVE-2026-5678"
+        ],
+        "singleton_statuses": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "unknown"
+        }
+      }
+    },
+    {
+      "id": "independent-003",
+      "group": "independent",
+      "text": "CVE-2026-1234 is allegedly being exploited and CVE-2026-5678 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "active"
+        }
+      }
+    },
+    {
+      "id": "independent-004",
+      "group": "independent",
+      "text": "CVE-2026-1234 is allegedly being exploited, but CVE-2026-5678 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "active"
+        }
+      }
+    },
+    {
+      "id": "correlative-003",
+      "group": "correlative",
+      "text": "CVE-2026-1234 is allegedly not only exploited but also weaponized.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "clause_states": [
+          "unknown",
+          "unknown"
+        ]
+      }
+    },
+    {
+      "id": "correlative-004",
+      "group": "correlative",
+      "text": "CVE-2026-1234 is not only allegedly exploited but also weaponized.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "clause_states": [
+          "unknown",
+          "active"
+        ]
+      }
+    },
+    {
+      "id": "independent-confirmation-002",
+      "group": "independent-confirmation",
+      "text": "CVE-2026-1234 was allegedly exploited yesterday. CVE-2026-1234 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "conflicting": false
+      }
+    },
+    {
+      "id": "qualified-history-absence-002",
+      "group": "qualified-history-absence",
+      "text": "CVE-2026-1234 was allegedly exploited yesterday. CVE-2026-1234 exploitation has not been observed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "not_observed"
+        },
+        "conflicting": false
+      }
+    },
+    {
+      "id": "required-rejection-006",
+      "group": "required-rejection",
+      "text": "CVE-2026-1234 will allegedly be exploited.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "required-rejection-007",
+      "group": "required-rejection",
+      "text": "CVE-2026-1234 is allegedly exploited tomorrow.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "required-rejection-008",
+      "group": "required-rejection",
+      "text": "Northstar allegedly exploits CVE-2026-1234.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "required-rejection-009",
+      "group": "required-rejection",
+      "text": "Hackers allegedly used a scanner for CVE-2026-1234 in attacks.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "required-rejection-010",
+      "group": "required-rejection",
+      "text": "CVE-2026-1234 is allegedly allegedly exploited.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "possibility-preserve-001",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is potentially exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-002",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is potentially not exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-003",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is likely exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-004",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is likely not exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-005",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is possibly exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-006",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is possibly not exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-007",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is probably exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-008",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is probably not exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-009",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is unlikely exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        }
+      }
+    },
+    {
+      "id": "possibility-preserve-010",
+      "group": "possibility-preserve",
+      "text": "CVE-2026-1234 is unlikely not exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        }
+      }
+    },
+    {
+      "id": "governing-preserve-001",
+      "group": "governing-preserve",
+      "text": "It is unknown whether CVE-2026-1234 is actively exploited and CVE-2026-5678 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "unknown"
+        }
+      }
+    },
+    {
+      "id": "governing-preserve-002",
+      "group": "governing-preserve",
+      "text": "It is unclear whether CVE-2026-1234 is actively exploited and CVE-2026-5678 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "unknown"
+        }
+      }
+    },
+    {
+      "id": "governing-preserve-003",
+      "group": "governing-preserve",
+      "text": "It is unconfirmed whether CVE-2026-1234 is actively exploited and CVE-2026-5678 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "unknown"
+        }
+      }
+    },
+    {
+      "id": "governing-preserve-004",
+      "group": "governing-preserve",
+      "text": "It is unverified whether CVE-2026-1234 is actively exploited and CVE-2026-5678 is actively exploited.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "unknown"
+        }
+      }
+    },
+    {
+      "id": "historical-conflict-preserve-001",
+      "group": "historical-conflict-preserve",
+      "text": "CVE-2026-1234 was exploited yesterday. CVE-2026-1234 exploitation has not been observed.",
+      "expected": {
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "conflicting": true
+      }
+    },
+    {
+      "id": "reported-stacking-rejection-001",
+      "group": "reported-stacking-rejection",
+      "text": "CVE-2026-1234 is reportedly allegedly exploited.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "unknown-synonym-preserve-001",
+      "group": "unknown-synonym-preserve",
+      "text": "CVE-2026-1234 is apparently exploited.",
+      "expected": {
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-boundary-preserve-001",
+      "group": "advice-boundary-preserve",
+      "text": "The vendor allegedly strongly advised users to install the patch.",
+      "expected": {
+        "unsupported": true,
+        "layer": "directive"
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "cases": [
+    {
+      "id": "leading-possibly",
+      "text": "Possibly attackers gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "potential",
+      "event_modifier": "Possibly",
+      "unsupported": false,
+      "basis": "Leading modifier qualifies the intrusion proposition"
+    },
+    {
+      "id": "leading-reportedly",
+      "text": "Reportedly attackers gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "unknown",
+      "event_modifier": "Reportedly",
+      "unsupported": false,
+      "basis": "Leading modifier qualifies the intrusion proposition"
+    },
+    {
+      "id": "leading-potentially",
+      "text": "Potentially attackers gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "potential",
+      "event_modifier": "Potentially",
+      "unsupported": false,
+      "basis": "Leading modifier qualifies the intrusion proposition"
+    },
+    {
+      "id": "actor-description-reportedly",
+      "text": "The reportedly compromised group gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "observed",
+      "event_modifier": null,
+      "unsupported": false,
+      "basis": "Modifier is internal to actor description, not the event"
+    },
+    {
+      "id": "independent-reporter-reportedly",
+      "text": "The vendor reportedly described the incident; attackers gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "observed",
+      "event_modifier": null,
+      "unsupported": false,
+      "basis": "Modifier belongs to independent reporting context, not event"
+    },
+    {
+      "id": "actor-description-possibly",
+      "text": "The possibly compromised group gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "observed",
+      "event_modifier": null,
+      "unsupported": false,
+      "basis": "Modifier is internal to actor description, not the event"
+    },
+    {
+      "id": "independent-reporter-possibly",
+      "text": "The vendor possibly described the incident; attackers gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "observed",
+      "event_modifier": null,
+      "unsupported": false,
+      "basis": "Modifier belongs to independent reporting context, not event"
+    },
+    {
+      "id": "actor-description-potentially",
+      "text": "The potentially compromised group gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "observed",
+      "event_modifier": null,
+      "unsupported": false,
+      "basis": "Modifier is internal to actor description, not the event"
+    },
+    {
+      "id": "independent-reporter-potentially",
+      "text": "The vendor potentially described the incident; attackers gained access by exploiting a flaw (CVE-2026-1234).",
+      "status": "observed",
+      "event_modifier": null,
+      "unsupported": false,
+      "basis": "Modifier belongs to independent reporting context, not event"
+    }
+  ]
+}

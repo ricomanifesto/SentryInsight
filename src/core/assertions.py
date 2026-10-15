@@ -19,6 +19,9 @@ from .assertion_predicates import (
 )
 from .condition_boundaries import bind_condition_boundaries, leading_assertion_condition
 from .assertion_qualifiers import (
+    EPISTEMIC_MODIFIERS,
+    REPORTED_MODIFIERS,
+    REPORTED_PATTERN,
     TIME_DIRECTIONS,
     assertion_scope,
     bind_qualifiers,
@@ -598,8 +601,8 @@ def _intrusion(text):
     # The prefix governs this event; the suffix remains separately attributed
     # context. These productions cannot create an ongoing-activity predicate.
     qualifier = re.search(
-        r"\b(?:(?P<unknown>is alleged to have|reportedly|speculated that|unknown whether|denied|disputed)"
-        r"|(?P<possible>may have|might have|could have|possibly|potentially)"
+        r"\b(?:(?P<unknown>is alleged to have|speculated that|unknown whether|denied|disputed)"
+        r"|(?P<possible>may have|might have|could have)"
         r"|(?P<negative>never|not))\b",
         prefix,
         re.I,
@@ -613,13 +616,19 @@ def _intrusion(text):
     # Only the already accepted terminal operator/modifier sequence belongs
     # to this event. Words inside its actor or preceding disclosure do not.
     tokens = list(re.finditer(r"\S+", prefix))
-    positioned = []
+    positioned = {}
+    # A leading modifier owns the complete existing intrusion proposition,
+    # including its actor. Internal actor/reporting words are not that edge.
+    for token in tokens:
+        if token.group().casefold() not in EPISTEMIC_MODIFIERS:
+            break
+        positioned[token.start()] = token
     for token in reversed(tokens):
         if token.group().casefold() not in PREFIX_WORDS:
             break
-        positioned.append(token)
+        positioned[token.start()] = token
     terms, operators, prefix_time = [], [], []
-    for token in reversed(positioned):
+    for _, token in sorted(positioned.items()):
         word = token.group().casefold()
         if word in {"not", "never"}:
             operators.append(
@@ -634,6 +643,18 @@ def _intrusion(text):
                     TemporalConstraint("event", TIME_DIRECTIONS[word], token.group())
                 )
     prefix_scope = assertion_scope(prefix, terms, operators, event_tense="past")
+    if not modal and any(term.kind == "epistemic" for term in terms):
+        modal = "possible"
+    if qualifier and qualifier["unknown"]:
+        prefix_scope = replace(
+            prefix_scope,
+            operators=prefix_scope.operators
+            + (
+                ScopeOperator(
+                    qualifier[0], *qualifier.span(), "qualification", "envelope"
+                ),
+            ),
+        )
     tail_scope = assertion_scope(suffix, qualifier_terms(suffix, qualifiers.spans))
     # Every governing negation must belong to the completely consumed
     # terminal operator sequence. An unclassified bridge cannot erase it and
@@ -820,12 +841,39 @@ def _unit(raw):
     ):
         return replace(base, kind="assertion", verb="exploitation", modal="possible")
     noun = re.fullmatch(
-        rf"(?:(?P<qualifier>active|potential|possible) )?exploitation(?: of| for)?(?: {CVE_LIST})?(?: (?P<aux>has not been|has been|was|is))?(?: (?P<event>confirmed|observed|detected))?(?P<tail>[^.!?]*)[.!?]*",
+        rf"(?:(?P<qualifier>active|potential|possible) )?exploitation(?: of| for)?(?: {CVE_LIST})?"
+        rf"(?P<operators>(?: (?:has|not|been|was|is|{REPORTED_PATTERN}))*)"
+        r"(?: (?P<event>confirmed|observed|detected))?(?P<tail>[^.!?]*)[.!?]*",
         nominal,
         re.I,
     )
     if noun:
-        auxiliary = (noun["aux"] or "").lower()
+        tokens = list(
+            re.finditer(
+                r"\S+", nominal[noun.start("operators") : noun.end("operators")]
+            )
+        )
+        auxiliary_spans = tuple(
+            (
+                noun.start("operators") + token.start(),
+                noun.start("operators") + token.end(),
+            )
+            for token in tokens
+            if token.group().casefold() not in REPORTED_MODIFIERS
+        )
+        auxiliary = " ".join(
+            nominal[start:end].lower() for start, end in auxiliary_spans
+        )
+        modifiers = tuple(
+            modifier_term(
+                nominal,
+                noun.start("operators") + token.start(),
+                noun.start("operators") + token.end(),
+                owner="evidence",
+            )
+            for token in tokens
+            if token.group().casefold() in REPORTED_MODIFIERS
+        )
         certainty = (noun["qualifier"] or "").lower()
         qualifiers = bind_qualifiers(noun["tail"])
         unknown_tail = not qualifiers.complete
@@ -835,15 +883,20 @@ def _unit(raw):
                 auxiliary,
                 "negative" if auxiliary == "has not been" else "affirmative",
                 nominal,
-                noun.span("aux") if auxiliary else (0, 0),
+                (
+                    (auxiliary_spans[0][0], auxiliary_spans[-1][1])
+                    if auxiliary
+                    else (0, 0)
+                ),
                 noun.span("event"),
                 tuple(q.temporal for q in qualifiers.spans if q.temporal),
                 absence=negative,
+                auxiliary_spans=auxiliary_spans if modifiers else (),
             )
             if noun["event"]
             else None
         )
-        terms = qualifier_terms(
+        terms = modifiers + qualifier_terms(
             nominal,
             qualifiers.spans,
             offset=noun.start("tail"),
@@ -853,7 +906,7 @@ def _unit(raw):
             terms = (modifier_term(nominal, *noun.span("qualifier")), *terms)
         operators = ()
         if auxiliary == "has not been":
-            start = noun.start("aux") + len("has ")
+            start = auxiliary_spans[1][0]
             operators = (
                 ScopeOperator(
                     nominal[start : start + 3],
@@ -890,6 +943,9 @@ def _unit(raw):
                 )
             ),
             unsupported=unknown_tail
+            or auxiliary not in {"", "is", "was", "has been", "has not been"}
+            or not scope.supported
+            or bool(modifiers and operation is None)
             or not (negative or auxiliary or certainty or noun["event"]),
         )
     # The legacy negative envelope must still own a complete event. Its
@@ -1213,10 +1269,14 @@ def _parse_assertions(sentence):
         if group is not None:
             modal = group[0] or modal
             negative |= group[1] == "negative"
-            if group[1] == "negative" or (
-                inherited_subject
-                and not clause.finite
-                and any(s.knowledge_negative for s in group[2])
+            if (
+                any(t.kind == "reported" for s in group[2] for t in s.terms)
+                or group[1] == "negative"
+                or (
+                    inherited_subject
+                    and not clause.finite
+                    and any(s.knowledge_negative for s in group[2])
+                )
             ):
                 scopes = group[2] + scopes
         elif relation == "additive":
@@ -1226,7 +1286,11 @@ def _parse_assertions(sentence):
                 modal = previous.modal or modal
             if inherited_subject and not clause.finite:
                 negative |= previous.polarity == "negative"
-                if previous.polarity == "negative" or previous.knowledge_negative:
+                if (
+                    previous.polarity == "negative"
+                    or previous.knowledge_negative
+                    or previous.reported_proposition
+                ):
                     scopes = previous.scopes + scopes
         if (
             relation == "adversative"

@@ -170,6 +170,7 @@ class AssertionScope:
                 for item in (*self.terms, *self.operators)
             )
             and all(term.kind != "unclassified" for term in self.terms)
+            and sum(term.kind == "reported" for term in self.terms) <= 1
             and sum(o.kind == "negation" for o in self.operators) <= 1
             and self.event_tense in _EVENT_TENSES
         )
@@ -247,6 +248,7 @@ class EvidenceOperation:
     predicate_span: tuple[int, int]
     temporal: tuple[TemporalConstraint, ...] = ()
     absence: bool = False
+    auxiliary_spans: tuple[tuple[int, int], ...] = ()
 
     @property
     def supported(self):
@@ -256,7 +258,22 @@ class EvidenceOperation:
             and self.polarity in {"affirmative", "negative"}
             and self.polarity
             == ("negative" if self.auxiliary == "has not been" else "affirmative")
-            and self.text[slice(*self.auxiliary_span)].lower() == self.auxiliary
+            and (
+                " ".join(
+                    self.text[start:end].lower() for start, end in self.auxiliary_spans
+                )
+                if self.auxiliary_spans
+                else self.text[slice(*self.auxiliary_span)].lower()
+            )
+            == self.auxiliary
+            and all(
+                self.auxiliary_span[0] <= start < end <= self.auxiliary_span[1]
+                for start, end in self.auxiliary_spans
+            )
+            and all(
+                left[1] < right[0]
+                for left, right in zip(self.auxiliary_spans, self.auxiliary_spans[1:])
+            )
             and self.text[slice(*self.predicate_span)].lower() == self.predicate
             and temporal_compatible(self.temporal, self.tense)
         )
@@ -299,6 +316,7 @@ class ObservationConstruction:
     event_span: tuple[int, int]
     negative_span: tuple[int, int] | None = None
     activity_span: tuple[int, int] | None = None
+    modifiers: tuple[ScopeTerm, ...] = ()
 
     @property
     def polarity(self):
@@ -315,13 +333,28 @@ class ObservationConstruction:
         spans.append(self.event_span)
         if any(not 0 <= start < end <= len(self.text) for start, end in spans):
             return False
-        values = [self.text[slice(*span)].casefold() for span in spans]
+        spans.extend((term.start, term.end) for term in self.modifiers)
+        spans.sort()
         return (
-            self.auxiliary_span[0] == 0
-            and values[0] in {"has", "have", "had"}
+            spans[0][0] == 0
+            and self.text[slice(*self.auxiliary_span)].casefold()
+            in {"has", "have", "had"}
             and self.text[slice(*self.predicate_span)].casefold() == "seen"
             and self.text[slice(*self.event_span)].casefold() == "exploitation"
-            and (not self.negative_span or values[1] in {"not", "never"})
+            and (
+                not self.negative_span
+                or self.text[slice(*self.negative_span)].casefold() in {"not", "never"}
+                and self.auxiliary_span[1]
+                < self.negative_span[0]
+                < self.predicate_span[0]
+            )
+            and AssertionScope(self.text, self.modifiers).supported
+            and all(
+                term.kind == "reported"
+                and term.owner == "evidence"
+                and term.end < self.predicate_span[0]
+                for term in self.modifiers
+            )
             and (
                 not self.activity_span
                 or self.text[slice(*self.activity_span)].casefold() == "active"
@@ -404,6 +437,12 @@ class OwnedClause:
         return any(scope.knowledge_negative for scope in self.scopes)
 
     @property
+    def reported_proposition(self):
+        return any(
+            term.kind == "reported" for scope in self.scopes for term in scope.terms
+        )
+
+    @property
     def _base_assertion_status(self) -> str | None:
         if self.kind != "assertion" or self.unsupported:
             return None
@@ -434,6 +473,7 @@ class OwnedClause:
             return None
         if (
             self.knowledge_negative
+            or self.reported_proposition
             or self.modal == "unknown"
             or self.conditions
             or (self.reporter and self.reporter.qualification)

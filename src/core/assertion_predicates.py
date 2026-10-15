@@ -14,6 +14,9 @@ from .exploitation_contract import (
 )
 from .assertion_bindings import CVE_LIST as CVE_LIST, TargetBinding, bind_target
 from .assertion_qualifiers import (
+    EPISTEMIC_MODIFIERS,
+    REPORTED_MODIFIERS,
+    REPORTED_PATTERN,
     QualifierSpan,
     TIME_DIRECTIONS,
     assertion_scope,
@@ -30,7 +33,6 @@ from .relations import (
     temporal_compatible,
 )
 
-POSSIBILITY_WORDS = ("potentially", "likely", "possibly", "probably", "unlikely")
 BOUNDARY = re.compile(
     r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)", re.I
 )
@@ -38,7 +40,7 @@ CONDITION = re.compile(r"\b(?:only\s+if|if|unless)\b", re.I)
 REQUIRED_ADJUNCT = re.compile(
     r"\b(?:if|unless|when|until|once|although|though|only|provided|depending)\b", re.I
 )
-PREDICATE_MODIFIERS = frozenset(POSSIBILITY_WORDS) | {
+PREDICATE_MODIFIERS = frozenset(EPISTEMIC_MODIFIERS) | {
     "also",
     "currently",
     "now",
@@ -354,18 +356,22 @@ PREFIX_WORDS = PREDICATE_MODIFIERS | AUXILIARY_WORDS | {"yet", "observed", "firs
 def _observation_frame(text, voice, modal, negative):
     """Reserve a perfect-seen operand before admitting its complete grammar."""
     start = re.match(
-        r"(?P<aux>has|have|had)\b(?P<middle>(?:\s+[A-Za-z]+)*?)"
+        rf"(?:{REPORTED_PATTERN}\s+)*(?P<aux>has|have|had)\b(?P<middle>(?:\s+[A-Za-z]+)*?)"
         r"\s+(?P<predicate>seen)\b",
         text,
         re.I,
     )
     if start is None:
         return None
-    neg = re.fullmatch(r"\s*(not|never)\s*", start["middle"], re.I)
-    neg_span = (
-        (start.start("middle") + neg.start(1), start.start("middle") + neg.end(1))
-        if neg
-        else None
+    tokens = list(re.finditer(r"\S+", text[: start.start("predicate")]))
+    negatives = [
+        token for token in tokens if token.group().casefold() in {"not", "never"}
+    ]
+    neg_span = negatives[0].span() if len(negatives) == 1 else None
+    modifiers = tuple(
+        modifier_term(text, *token.span(), owner="evidence")
+        for token in tokens
+        if token.group().casefold() in REPORTED_MODIFIERS
     )
     nominal = re.match(
         r"\s+(?P<nominal>(?:(?P<activity>active)\s+)?(?P<event>exploitation))"
@@ -387,12 +393,13 @@ def _observation_frame(text, voice, modal, negative):
         span("event"),
         neg_span,
         span("activity") if nominal and nominal["activity"] else None,
+        modifiers,
     )
     end = len(text.rstrip(" .!?"))
     tail_start = span("nominal")[1]
     qualifiers = bind_qualifiers(text[tail_start:end])
     temporal = tuple(q.temporal for q in qualifiers.spans if q.temporal)
-    terms = list(qualifier_terms(text, qualifiers.spans, offset=tail_start))
+    terms = [*modifiers, *qualifier_terms(text, qualifiers.spans, offset=tail_start)]
     if observation.activity_span:
         left, right = observation.activity_span
         terms.append(ScopeTerm(text[left:right], left, right, "activity"))
@@ -497,7 +504,7 @@ def bind_predicate(
                     token.group(), token.start(), token.end(), "negation", "event"
                 )
             )
-        elif word in POSSIBILITY_WORDS:
+        elif EPISTEMIC_MODIFIERS.get(word) == "epistemic":
             modal = modal or "possible"
         if word not in AUXILIARY_WORDS and word not in {"not", "never"}:
             terms.append(modifier_term(text, token.start(), token.end()))
