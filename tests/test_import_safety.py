@@ -26,3 +26,31 @@ if root_logger.handlers:
     )
 
     assert result.returncode == 0, result.stderr
+
+
+def test_library_imports_do_not_configure_logfire():
+    script = """
+import logfire
+
+
+def refuse(*_args, **_kwargs):
+    raise SystemExit("library imports configured Logfire")
+
+
+logfire.configure = refuse
+logfire.instrument_httpx = refuse
+
+import src.core.analyze
+import src.core.observability
+import src.core.workflow
+import src.services.fetch
+"""
+
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr

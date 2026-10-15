@@ -119,6 +119,8 @@ Set `OPENCODE_BASE_URL` if the server is not listening on `http://127.0.0.1:4096
 
 Report generation fetches live feeds and calls the configured model service. Local validation does neither.
 
+Set `LOGFIRE_TOKEN` to send a trace of each generation run to [Pydantic Logfire](https://logfire.pydantic.dev/docs/). The trace has one span per workflow stage, with counts, outcomes and failure codes. Without the token nothing is exported. Spans never include article text or titles, prompts, model output or validation messages, and recorded exceptions keep only their type. The report workflow reads the optional `LOGFIRE_TOKEN` repository secret in the generation step only.
+
 ## Validation
 
 Install Chromium once, then run the full local gate:
@@ -130,6 +132,13 @@ bash scripts/local_validation.sh
 ```
 
 The script installs locked Python and Node dependencies, runs linting, formatting, type checks, and tests, verifies the report and packaged Pages files, and exercises the current and archived pages in Chromium. Browser checks cover accessibility, responsive layouts, stable CVE links, and light and dark themes.
+
+## Report Evaluations
+
+The [frozen-source evaluation pilot](evals/grounding/README.md) compares two prompts
+on synthetic article cases, with independent field checks, held-out cases and
+complete trial accounting. Calibration runs make no model calls; live runs require
+an explicit free model route. Evaluation outputs do not publish reports.
 
 ## Publishing
 
