@@ -616,6 +616,11 @@ def bind_predicate(
             (event_start, event_end),
             (argument_start, end),
             attack_context=attack_context,
+            unowned_infinitive=(
+                voice == "unscoped"
+                and tuple(auxiliaries) == ("to",)
+                and not has_required_event(text)
+            ),
         )
     known = event.descriptor is not None
     kind = "context" if event.kind == "context" else "assertion"
