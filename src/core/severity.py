@@ -28,6 +28,61 @@ RATING_CUE = re.compile(
     rf"(?:{BAND})(?:-severity)? (?:vulnerabilit(?:y|ies)|flaws?|bugs?)\b)",
     re.I,
 )
+PROPERTY_SUBJECT = (
+    rf"(?:{CVE_LIST}|The (?:vulnerability|flaw|bug|severity(?: rating)?))"
+)
+# A cue retains the whole statement, including reporters and qualifications.
+# It does not authorize a rating: only a complete property below can do that.
+PROPERTY_CUE = re.compile(
+    rf"\b(?:{PROPERTY_SUBJECT}|It|Its severity(?: rating)?)\s+"
+    rf"(?:is|was|are|were|may|might|will|has|have|had|could|can|would|should|must)\b"
+    rf"[^.!?\n]*\b(?:{BAND})\b",
+    re.I,
+)
+PROPERTY = re.compile(
+    rf"(?P<subject>(?P<cves>{CVE_LIST})|The (?P<vulnerability>vulnerability|flaw|bug)"
+    rf"|The (?P<property>severity(?: rating)?)) "
+    rf"(?P<finite>is|was|are|were) (?P<band>{BAND})",
+    re.I,
+)
+
+
+@dataclass(frozen=True)
+class SeverityProperty:
+    """Literal property spans, relative to the owning rating statement."""
+
+    subject_kind: str
+    subject_span: tuple[int, int]
+    finite_span: tuple[int, int]
+    band_span: tuple[int, int]
+    property_span: tuple[int, int] | None = None
+
+
+def _severity_property(text):
+    body = text.strip().removesuffix(".")
+    match = PROPERTY.fullmatch(body)
+    if not match:
+        return None
+    plural = len(extract_cve_ids(match["cves"] or "")) > 1
+    if (match["finite"].casefold() in {"are", "were"}) != plural:
+        return None
+    offset = len(text) - len(text.lstrip())
+
+    def span(name):
+        start, end = match.span(name)
+        return start + offset, end + offset
+
+    return SeverityProperty(
+        (
+            "cve"
+            if match["cves"]
+            else "vulnerability" if match["vulnerability"] else "severity"
+        ),
+        span("subject"),
+        span("finite"),
+        span("band"),
+        span("property") if match["property"] else None,
+    )
 
 
 @dataclass(frozen=True)
@@ -41,6 +96,7 @@ class RatingRelation:
     predicate: str = "unclassified"
     values: tuple[str, ...] = ()
     complete: bool = False
+    property: SeverityProperty | None = None
 
 
 @dataclass(frozen=True)
@@ -87,11 +143,12 @@ RATING_PRODUCTIONS = (
 
 def rating_relation(text, *, source_url="", cves=(), source_block=""):
     """Bind one complete source statement, preserving rejected rating data."""
-    if not RATING_CUE.search(text):
+    if not (RATING_CUE.search(text) or PROPERTY_CUE.search(text)):
         return None
     body = text.strip().removesuffix(".")
     values = ()
     predicate = "unclassified"
+    prop = None
     if (
         (declaration := bind_advisory(text))
         and declaration.complete
@@ -113,6 +170,9 @@ def rating_relation(text, *, source_url="", cves=(), source_block=""):
                     if value
                 )
                 break
+        if not values and (prop := _severity_property(text)):
+            predicate = "property"
+            values = (text[slice(*prop.band_span)].lower(),)
     block = source_block or text
     start = block.find(text)
     return RatingRelation(
@@ -125,6 +185,7 @@ def rating_relation(text, *, source_url="", cves=(), source_block=""):
         predicate,
         values,
         bool(values),
+        prop,
     )
 
 

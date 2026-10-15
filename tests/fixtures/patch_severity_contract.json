@@ -1,0 +1,2498 @@
+{
+  "patch": [
+    {
+      "id": "p000",
+      "text": "Users should install the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p001",
+      "text": "Users should install the available patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p002",
+      "text": "Users should install the vendor patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p003",
+      "text": "Users should install the available patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p004",
+      "text": "Users should install the vendor update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p005",
+      "text": "Users should install the available update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p006",
+      "text": "Users should install the vendor updates.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p007",
+      "text": "Users should install the available updates.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p008",
+      "text": "Users should install the vendor hotfix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p009",
+      "text": "Users should install the available hotfix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p010",
+      "text": "Users should install the vendor hotfixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p011",
+      "text": "Users should install the available hotfixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p012",
+      "text": "Users should install the vendor fix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p013",
+      "text": "Users should install the available fix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p014",
+      "text": "Users should install the vendor fixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p015",
+      "text": "Users should install the available fixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p016",
+      "text": "Users should apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p017",
+      "text": "Users should apply the available patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p018",
+      "text": "Users should apply the vendor patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p019",
+      "text": "Users should apply the available patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p020",
+      "text": "Users should apply the vendor update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p021",
+      "text": "Users should apply the available update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p022",
+      "text": "Users should apply the vendor updates.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p023",
+      "text": "Users should apply the available updates.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p024",
+      "text": "Users should apply the vendor hotfix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p025",
+      "text": "Users should apply the available hotfix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p026",
+      "text": "Users should apply the vendor hotfixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p027",
+      "text": "Users should apply the available hotfixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p028",
+      "text": "Users should apply the vendor fix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p029",
+      "text": "Users should apply the available fix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p030",
+      "text": "Users should apply the vendor fixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p031",
+      "text": "Users should apply the available fixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p032",
+      "text": "Users should deploy the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p033",
+      "text": "Users should deploy the available patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p034",
+      "text": "Users should deploy the vendor patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p035",
+      "text": "Users should deploy the available patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p036",
+      "text": "Users should deploy the vendor update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p037",
+      "text": "Users should deploy the available update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p038",
+      "text": "Users should deploy the vendor updates.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p039",
+      "text": "Users should deploy the available updates.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p040",
+      "text": "Users should deploy the vendor hotfix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p041",
+      "text": "Users should deploy the available hotfix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p042",
+      "text": "Users should deploy the vendor hotfixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p043",
+      "text": "Users should deploy the available hotfixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p044",
+      "text": "Users should deploy the vendor fix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p045",
+      "text": "Users should deploy the available fix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p046",
+      "text": "Users should deploy the vendor fixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p047",
+      "text": "Users should deploy the available fixes.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p048",
+      "text": "The vendor patch should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p049",
+      "text": "The security patch should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p050",
+      "text": "The vendor patches should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p051",
+      "text": "The security patches should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p052",
+      "text": "The vendor update should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p053",
+      "text": "The security update should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p054",
+      "text": "The vendor updates should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p055",
+      "text": "The security updates should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p056",
+      "text": "The vendor hotfix should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p057",
+      "text": "The security hotfix should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p058",
+      "text": "The vendor hotfixes should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p059",
+      "text": "The security hotfixes should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p060",
+      "text": "The vendor fix should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p061",
+      "text": "The security fix should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p062",
+      "text": "The vendor fixes should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p063",
+      "text": "The security fixes should be installed.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p064",
+      "text": "The vendor patch should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p065",
+      "text": "The security patch should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p066",
+      "text": "The vendor patches should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p067",
+      "text": "The security patches should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p068",
+      "text": "The vendor update should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p069",
+      "text": "The security update should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p070",
+      "text": "The vendor updates should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p071",
+      "text": "The security updates should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p072",
+      "text": "The vendor hotfix should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p073",
+      "text": "The security hotfix should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p074",
+      "text": "The vendor hotfixes should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p075",
+      "text": "The security hotfixes should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p076",
+      "text": "The vendor fix should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p077",
+      "text": "The security fix should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p078",
+      "text": "The vendor fixes should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p079",
+      "text": "The security fixes should be applied.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p080",
+      "text": "Users should apply the available vendor patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p081",
+      "text": "Users should apply the latest vendor patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p082",
+      "text": "Users should apply the security vendor patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p083",
+      "text": "Users should apply the supported vendor patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p084",
+      "text": "Users should apply all vendor patches.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p085",
+      "text": "Users should apply no vendor patches.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p086",
+      "text": "Users should apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p087",
+      "text": "Users should apply the Vendor patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p088",
+      "text": "Users should apply the VENDOR patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p089",
+      "text": "Users should not install the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p090",
+      "text": "Users must not install the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p091",
+      "text": "Users should never install the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p092",
+      "text": "Users should install the vendor patch if exposed.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p093",
+      "text": "If exposed, users should install the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p094",
+      "text": "Users should not apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p095",
+      "text": "Users must not apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p096",
+      "text": "Users should never apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p097",
+      "text": "Users should apply the vendor patch if exposed.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p098",
+      "text": "If exposed, users should apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p099",
+      "text": "Users should not deploy the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p100",
+      "text": "Users must not deploy the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p101",
+      "text": "Users should never deploy the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p102",
+      "text": "Users should deploy the vendor patch if exposed.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p103",
+      "text": "If exposed, users should deploy the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p104",
+      "text": "Apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p105",
+      "text": "The vendor urges users to apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p106",
+      "text": "The vendor did not urge users to apply the vendor patch.",
+      "expected_supported": true,
+      "expected_action": "none"
+    },
+    {
+      "id": "p107",
+      "text": "Users should apply the vendor patch and the security update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p108",
+      "text": "Users should apply the vendor patch and the vendor hotfix.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p109",
+      "text": "Users should apply the vendor patch and admins should install the vendor update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p110",
+      "text": "Users should apply the vendor patch and monitor logs.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p111",
+      "text": "Users should not apply the vendor patch and should monitor logs.",
+      "expected_supported": true,
+      "expected_action": "monitor"
+    },
+    {
+      "id": "p112",
+      "text": "Users should apply the vendor patch before Friday.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p113",
+      "text": "Users should apply the vendor patch for CVE-2026-1234.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p114",
+      "text": "Users should apply the vendor vendor patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p115",
+      "text": "Users should apply the vendor security patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p116",
+      "text": "Users should apply the vendor-supplied patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p117",
+      "text": "Users should apply the vendor's patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p118",
+      "text": "Users should apply the Acme patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p119",
+      "text": "Users should apply their vendor patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p120",
+      "text": "Users should apply the vendor patch from an unclassified source.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p121",
+      "text": "Users should apply the vendor patch with invented guarantees.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p122",
+      "text": "Users should apply the vendor patch and arbitrary objects.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p123",
+      "text": "Users should monitor the vendor patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p124",
+      "text": "Users should update the vendor update.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p125",
+      "text": "Users should rotate vendor credentials.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p126",
+      "text": "Users should upgrade to the vendor version.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p127",
+      "text": "Users should install the vendor advisory.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p128",
+      "text": "The vendor patch should be deployed.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p129",
+      "text": "The vendor patch will be applied tomorrow.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p130",
+      "text": "Users may apply the vendor patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p131",
+      "text": "Users should review logs after applying the vendor patch.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p132",
+      "text": "Users should rotate credentials after installing the vendor update.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p133",
+      "text": "Users should install the patch after applying the vendor hotfix.",
+      "expected_supported": false,
+      "expected_action": "none"
+    },
+    {
+      "id": "p134",
+      "text": "Users should apply the vendor patch after reviewing logs.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p135",
+      "text": "Users should review logs after applying the available patch.",
+      "expected_supported": true,
+      "expected_action": "investigate"
+    },
+    {
+      "id": "p136",
+      "text": "Users should install the patch after applying the security update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p137",
+      "text": "Users should apply the vendor patch and you should install the vendor update.",
+      "expected_supported": true,
+      "expected_action": "patch"
+    },
+    {
+      "id": "p138",
+      "text": "Users should apply the available patch before Friday.",
+      "expected_supported": false,
+      "expected_action": "none"
+    }
+  ],
+  "severity": [
+    {
+      "id": "s000",
+      "text": "CVE-2026-1234 is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s001",
+      "text": "CVE-2026-1234 was critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s002",
+      "text": "CVE-2026-1234 is high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s003",
+      "text": "CVE-2026-1234 was high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s004",
+      "text": "CVE-2026-1234 is medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s005",
+      "text": "CVE-2026-1234 was medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s006",
+      "text": "CVE-2026-1234 is low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s007",
+      "text": "CVE-2026-1234 was low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s008",
+      "text": "CVE-2026-1234 and CVE-2026-5678 are critical.",
+      "scope": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s009",
+      "text": "CVE-2026-1234 and CVE-2026-5678 were critical.",
+      "scope": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s010",
+      "text": "CVE-2026-1234 and CVE-2026-5678 are high.",
+      "scope": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s011",
+      "text": "CVE-2026-1234 and CVE-2026-5678 were high.",
+      "scope": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s012",
+      "text": "CVE-2026-1234 and CVE-2026-5678 are medium.",
+      "scope": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s013",
+      "text": "CVE-2026-1234 and CVE-2026-5678 were medium.",
+      "scope": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s014",
+      "text": "CVE-2026-1234 and CVE-2026-5678 are low.",
+      "scope": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s015",
+      "text": "CVE-2026-1234 and CVE-2026-5678 were low.",
+      "scope": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s016",
+      "text": "The vulnerability is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s017",
+      "text": "The vulnerability was critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s018",
+      "text": "The vulnerability is high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s019",
+      "text": "The vulnerability was high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s020",
+      "text": "The vulnerability is medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s021",
+      "text": "The vulnerability was medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s022",
+      "text": "The vulnerability is low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s023",
+      "text": "The vulnerability was low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s024",
+      "text": "The flaw is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s025",
+      "text": "The flaw was critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s026",
+      "text": "The flaw is high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s027",
+      "text": "The flaw was high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s028",
+      "text": "The flaw is medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s029",
+      "text": "The flaw was medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s030",
+      "text": "The flaw is low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s031",
+      "text": "The flaw was low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s032",
+      "text": "The bug is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s033",
+      "text": "The bug was critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s034",
+      "text": "The bug is high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s035",
+      "text": "The bug was high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s036",
+      "text": "The bug is medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s037",
+      "text": "The bug was medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s038",
+      "text": "The bug is low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s039",
+      "text": "The bug was low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s040",
+      "text": "The severity is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s041",
+      "text": "The severity was critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s042",
+      "text": "The severity is high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s043",
+      "text": "The severity was high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s044",
+      "text": "The severity is medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s045",
+      "text": "The severity was medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s046",
+      "text": "The severity is low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s047",
+      "text": "The severity was low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s048",
+      "text": "The severity rating is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s049",
+      "text": "The severity rating was critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s050",
+      "text": "The severity rating is high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s051",
+      "text": "The severity rating was high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s052",
+      "text": "The severity rating is medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s053",
+      "text": "The severity rating was medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s054",
+      "text": "The severity rating is low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s055",
+      "text": "The severity rating was low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s056",
+      "text": "CVE-2026-1234 is not critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s057",
+      "text": "CVE-2026-1234 was not critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s058",
+      "text": "CVE-2026-1234 may be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s059",
+      "text": "CVE-2026-1234 might be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s060",
+      "text": "CVE-2026-1234 will be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s061",
+      "text": "CVE-2026-1234 has been critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s062",
+      "text": "CVE-2026-1234 is possibly critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s063",
+      "text": "CVE-2026-1234 is probably critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s064",
+      "text": "CVE-2026-1234 is critical if reports are accurate.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s065",
+      "text": "CVE-2026-1234 is critical pending confirmation.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s066",
+      "text": "CVE-2026-1234 is critical yesterday.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s067",
+      "text": "CVE-2026-1234 is critical today.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s068",
+      "text": "CVE-2026-1234 is critical tomorrow.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s069",
+      "text": "CVE-2026-1234 is critical to system safety.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s070",
+      "text": "CVE-2026-1234 is critical for unexplained reasons.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s071",
+      "text": "CVE-2026-1234 is critical and unknown prose follows.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s072",
+      "text": "CVE-2026-1234 is critical or high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s073",
+      "text": "CVE-2026-1234 is critical, with a CVSS score of 9.8.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s074",
+      "text": "The severity is not critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s075",
+      "text": "The severity was not critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s076",
+      "text": "The severity may be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s077",
+      "text": "The severity might be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s078",
+      "text": "The severity will be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s079",
+      "text": "The severity has been critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s080",
+      "text": "The severity is possibly critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s081",
+      "text": "The severity is probably critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s082",
+      "text": "The severity is critical if reports are accurate.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s083",
+      "text": "The severity is critical pending confirmation.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s084",
+      "text": "The severity is critical yesterday.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s085",
+      "text": "The severity is critical today.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s086",
+      "text": "The severity is critical tomorrow.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s087",
+      "text": "The severity is critical to system safety.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s088",
+      "text": "The severity is critical for unexplained reasons.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s089",
+      "text": "The severity is critical and unknown prose follows.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s090",
+      "text": "The severity is critical or high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s091",
+      "text": "The severity is critical, with a CVSS score of 9.8.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s092",
+      "text": "The vulnerability is not critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s093",
+      "text": "The vulnerability was not critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s094",
+      "text": "The vulnerability may be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s095",
+      "text": "The vulnerability might be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s096",
+      "text": "The vulnerability will be critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s097",
+      "text": "The vulnerability has been critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s098",
+      "text": "The vulnerability is possibly critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s099",
+      "text": "The vulnerability is probably critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s100",
+      "text": "The vulnerability is critical if reports are accurate.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s101",
+      "text": "The vulnerability is critical pending confirmation.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s102",
+      "text": "The vulnerability is critical yesterday.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s103",
+      "text": "The vulnerability is critical today.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s104",
+      "text": "The vulnerability is critical tomorrow.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s105",
+      "text": "The vulnerability is critical to system safety.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s106",
+      "text": "The vulnerability is critical for unexplained reasons.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s107",
+      "text": "The vulnerability is critical and unknown prose follows.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s108",
+      "text": "The vulnerability is critical or high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s109",
+      "text": "The vulnerability is critical, with a CVSS score of 9.8.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s110",
+      "text": "The vendor says CVE-2026-1234 is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s111",
+      "text": "The vendor denies that CVE-2026-1234 is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s112",
+      "text": "It is unknown whether CVE-2026-1234 is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s113",
+      "text": "If reports are accurate, CVE-2026-1234 is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s114",
+      "text": "CVE-2026-1234 is critical as the vendor confirmed yesterday.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s115",
+      "text": "CVE-2026-1234 is critical and CVE-2026-5678 is high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s116",
+      "text": "It is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s117",
+      "text": "Its severity is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s118",
+      "text": "The vendor is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s119",
+      "text": "The service is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s120",
+      "text": "Critical infrastructure is important.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s121",
+      "text": "The risk is high.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s122",
+      "text": "The operator is critical of the vendor.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s123",
+      "text": "The patch is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s124",
+      "text": "Critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s125",
+      "text": "Severity: critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "critical",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s126",
+      "text": "It is rated medium.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "medium",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s127",
+      "text": "It was rated low.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "low",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s128",
+      "text": "Its CVSS score is 7.5.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "high",
+      "expected_retained": true,
+      "expected_complete": true
+    },
+    {
+      "id": "s129",
+      "text": "A critical vulnerability was not present.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s130",
+      "text": "Severity: critical pending confirmation.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s131",
+      "text": "Permit: The grant is low risk and can stay in place.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s132",
+      "text": "The vendor patch is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s133",
+      "text": "Critical infrastructure is critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": false,
+      "expected_complete": false
+    },
+    {
+      "id": "s134",
+      "text": "CVE-2026-1234 is critical for CVE-2026-5678.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s135",
+      "text": "The severity is high for CVE-2026-5678.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s136",
+      "text": "CVE-2026-1234 is critical; unexplained appended material.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    },
+    {
+      "id": "s137",
+      "text": "CVE-2026-1234 is not not critical.",
+      "scope": [
+        "CVE-2026-1234"
+      ],
+      "expected_value": "unknown",
+      "expected_retained": true,
+      "expected_complete": false
+    }
+  ],
+  "composition": [
+    {
+      "id": "c000",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nCVE-2026-1234 is critical."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "critical",
+        "context_includes": [
+          "CVE-2026-1234 is critical."
+        ]
+      }
+    },
+    {
+      "id": "c001",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nThe severity is critical."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "critical",
+        "context_includes": [
+          "The severity is critical."
+        ]
+      }
+    },
+    {
+      "id": "c002",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nSeverity: critical.\n\nCVE-2026-1234 is not critical."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "unknown",
+        "context_includes": [
+          "Severity: critical.",
+          "CVE-2026-1234 is not critical."
+        ]
+      }
+    },
+    {
+      "id": "c003",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nSeverity: critical.\n\nCVE-2026-1234 may be critical."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "unknown",
+        "context_includes": [
+          "Severity: critical.",
+          "CVE-2026-1234 may be critical."
+        ]
+      }
+    },
+    {
+      "id": "c004",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nSeverity: critical.\n\nCVE-2026-1234 is critical pending confirmation."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "unknown",
+        "context_includes": [
+          "Severity: critical.",
+          "CVE-2026-1234 is critical pending confirmation."
+        ]
+      }
+    },
+    {
+      "id": "c005",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nCVE-2026-1234 was high.\n\nCVE-2026-1234 is critical."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "unknown",
+        "context_includes": [
+          "CVE-2026-1234 was high.",
+          "CVE-2026-1234 is critical."
+        ]
+      }
+    },
+    {
+      "id": "c006",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nCVE-2026-1234 is critical.\n\nIts CVSS score is 9.8."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "critical",
+        "context_includes": [
+          "CVE-2026-1234 is critical.",
+          "Its CVSS score is 9.8."
+        ]
+      }
+    },
+    {
+      "id": "c007",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nThe severity is critical.\n\n## CVE-2026-5678\n\nCVE-2026-5678 is actively exploited.\n\nThe severity is low."
+      ],
+      "required_cves": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected": {
+        "severity_by_cve": {
+          "CVE-2026-1234": "critical",
+          "CVE-2026-5678": "low"
+        }
+      }
+    },
+    {
+      "id": "c008",
+      "sources": [
+        "CVE-2026-1234 is actively exploited. CVE-2026-1234 is critical.",
+        "CVE-2026-1234 is actively exploited. CVE-2026-1234 is high."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "unknown"
+      }
+    },
+    {
+      "id": "c009",
+      "sources": [
+        "Exploitation has not been observed.\n\nThe severity is critical.",
+        "Exploitation has not been observed.\n\nThe severity is low."
+      ],
+      "required_cves": [],
+      "expected": {
+        "severity_values": [
+          "critical",
+          "low"
+        ]
+      }
+    },
+    {
+      "id": "c010",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\n## CVE-2026-5678\n\nCVE-2026-5678 is actively exploited.\n\nThe severity is critical."
+      ],
+      "required_cves": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected": {
+        "severity_by_cve": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "critical"
+        }
+      }
+    },
+    {
+      "id": "c011",
+      "sources": [
+        "Exploitation of CVE-2026-1234 and CVE-2026-5678 has not been observed.\n\nCVE-2026-1234 and CVE-2026-5678 are critical."
+      ],
+      "required_cves": [
+        "CVE-2026-1234",
+        "CVE-2026-5678"
+      ],
+      "expected": {
+        "severity": "critical",
+        "scope": [
+          "CVE-2026-1234",
+          "CVE-2026-5678"
+        ]
+      }
+    },
+    {
+      "id": "c012",
+      "sources": [
+        "CVE-2026-1234 is actively exploited. Users should apply the vendor patch."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "compile": "accepted",
+        "action": "patch",
+        "guidance": "Users should apply the vendor patch."
+      }
+    },
+    {
+      "id": "c013",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nUsers should apply the vendor patch."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "compile": "accepted",
+        "action": "patch",
+        "affected_versions": "Not stated in supplied sources.",
+        "vendor_links": "Not stated in supplied sources."
+      }
+    },
+    {
+      "id": "conflict-retains-both-sources",
+      "sources": [
+        "CVE-2026-1234 is actively exploited. CVE-2026-1234 is critical.",
+        "CVE-2026-1234 is actively exploited. CVE-2026-1234 is high."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "unknown",
+        "context_includes": [
+          "CVE-2026-1234 is critical.",
+          "CVE-2026-1234 is high."
+        ],
+        "context_excludes": []
+      }
+    },
+    {
+      "id": "non-rating-prose-cannot-poison-explicit-rating",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nSeverity: critical.\n\nThe service is critical."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "critical",
+        "context_includes": [
+          "Severity: critical."
+        ],
+        "context_excludes": [
+          "The service is critical."
+        ]
+      }
+    },
+    {
+      "id": "qualification-cannot-be-dropped",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 is actively exploited.\n\nSeverity: critical.\n\nThe severity is critical if reports are accurate."
+      ],
+      "required_cves": [
+        "CVE-2026-1234"
+      ],
+      "expected": {
+        "severity": "unknown",
+        "context_includes": [
+          "Severity: critical.",
+          "The severity is critical if reports are accurate."
+        ],
+        "context_excludes": []
+      }
+    }
+  ]
+}

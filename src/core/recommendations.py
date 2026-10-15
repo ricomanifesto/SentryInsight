@@ -257,9 +257,10 @@ def recommendation_context(text: str) -> RecommendationContext | None:
 
 # These are complete direct-object phrases, not substring cues. Source text
 # retains modifiers; unknown objects cannot establish a bare imperative.
+PATCH_HEAD = r"patch(?:es)?|updates?|hotfix(?:es)?|fix(?:es)?"
 OBJECT_ROLES = {
     "identifier": CVE_ID_PATTERN.pattern,
-    "patch": r"patch(?:es)?|updates?|hotfix(?:es)?|fix(?:es)?|monthly (?:(?-i:[A-Z][A-Za-z0-9-]*) )?updates",
+    "patch": rf"{PATCH_HEAD}|monthly (?:(?-i:[A-Z][A-Za-z0-9-]*) )?updates",
     "mitigation": r"workarounds?|mitigations?",
     "evidence": r"(?:data warehouse |web application )?logs(?: for (?:signs of unauthorized access|attack attempts))?|indicators(?: of compromise)?|suspicious activity|alerts?|incidents?",
     "system": SYSTEM_ARGUMENT,
@@ -427,6 +428,14 @@ class DeterminerBinding:
 
 
 @dataclass(frozen=True)
+class PatchProvenance:
+    """Literal provenance qualifier, without an inferred vendor identity."""
+
+    text: str
+    span: tuple[int, int]
+
+
+@dataclass(frozen=True)
 class NominalMember:
     role: str
     span: tuple[int, int]
@@ -434,6 +443,7 @@ class NominalMember:
     negative: bool = False
     determiner: DeterminerBinding | None = None
     head_span: tuple[int, int] | None = None
+    provenance: PatchProvenance | None = None
 
     def shifted(self, offset):
         def shift(span):
@@ -448,6 +458,11 @@ class NominalMember:
                 else None
             ),
             head_span=shift(self.head_span) if self.head_span else None,
+            provenance=(
+                replace(self.provenance, span=shift(self.provenance.span))
+                if self.provenance
+                else None
+            ),
         )
 
 
@@ -470,6 +485,19 @@ class NominalBinding:
                 raise ValueError("Release roles require a release reference")
             if member.release and self.text[start:end] != member.release.text:
                 raise ValueError("Release reference does not match its nominal owner")
+            if provenance := member.provenance:
+                head = member.head_span
+                if not (
+                    member.role == "patch"
+                    and provenance.text.casefold() == "vendor"
+                    and start <= provenance.span[0] < provenance.span[1] <= end
+                    and self.text[slice(*provenance.span)] == provenance.text
+                    and head
+                    and provenance.span[1] < head[0] < head[1] <= end
+                    and self.text[provenance.span[1] : head[0]].isspace()
+                    and re.fullmatch(PATCH_HEAD, self.text[slice(*head)], re.I)
+                ):
+                    raise ValueError("Invalid patch provenance or head source spans")
             if determiner := member.determiner:
                 head = member.head_span
                 if not (
@@ -682,6 +710,25 @@ def _simple_nominal(
     )
     start = prefix.end() if prefix else 0
     whole = text[start:]
+    if match := re.fullmatch(
+        rf"(?P<vendor>vendor) (?P<head>{PATCH_HEAD})", whole, re.I
+    ):
+        return NominalBinding(
+            text,
+            (
+                NominalMember(
+                    "patch",
+                    (0, len(text)),
+                    negative=bool(negative_prefix),
+                    head_span=(start + match.start("head"), start + match.end("head")),
+                    provenance=PatchProvenance(
+                        match["vendor"],
+                        (start + match.start("vendor"), start + match.end("vendor")),
+                    ),
+                ),
+            ),
+            bool(negative_prefix),
+        )
     if RESERVED_POSSESSIVE.match(whole) and not re.fullmatch(
         OBJECT_ROLES["asset"], whole, re.I
     ):
@@ -815,6 +862,10 @@ def _bind_object(
     if depth > 2:
         return None
     if binding := _bind_nominal(text, version_identity, audience=audience):
+        if depth and any(member.provenance for member in binding.members):
+            # Nested modifier bindings are checked but not retained in the
+            # final target. They cannot introduce provenance that would be lost.
+            return None
         return binding
     if (
         version_identity
@@ -846,6 +897,8 @@ def _bind_object(
         ):
             return None
     binding = _bind_nominal(core, version_identity, audience=audience)
+    if depth and binding and any(member.provenance for member in binding.members):
+        return None
     return replace(binding, text=text) if binding else None
 
 
