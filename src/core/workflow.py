@@ -4,8 +4,6 @@ import logfire
 import logging
 import asyncio
 import json
-import shutil
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -37,14 +35,15 @@ from .reporting import (
 from scripts.build_site import (
     ArchiveConflictError,
     SiteBuildError,
-    archive_previous_report,
     build_site,
 )
 from .content_fingerprint import (
-    FINGERPRINT_PATH,
     compute_articles_fingerprint,
-    read_stored_fingerprint,
-    write_stored_fingerprint,
+)
+from .publication import (
+    PublicationError,
+    publish_report_artifacts,
+    read_publication_fingerprint,
 )
 
 logger = logging.getLogger(__name__)
@@ -70,6 +69,7 @@ class ExploitationAnalysisState(TypedDict):
     report_validation_errors: NotRequired[list[str]]
     articles_fingerprint: NotRequired[str]
     failure: NotRequired[WorkflowFailure]
+    publication_cleanup_pending: NotRequired[bool]
 
 
 def _record_failure(
@@ -136,11 +136,6 @@ async def enrich_articles(
     return state
 
 
-def _fingerprint_path_for(output_path: str) -> str:
-    """Resolve the fingerprint file alongside the report's output path."""
-    return str(Path(output_path).parent / Path(FINGERPRINT_PATH).name)
-
-
 async def filter_articles(
     state: ExploitationAnalysisState,
 ) -> ExploitationAnalysisState:
@@ -168,9 +163,15 @@ async def filter_articles(
             }
             state["status"] = "failed"
             return state
-        previous_fingerprint = read_stored_fingerprint(
-            _fingerprint_path_for(output_path)
-        )
+        try:
+            previous_fingerprint = read_publication_fingerprint(
+                Path(output_path).parent
+            )
+        except OSError as exc:
+            logger.error("Publication recovery before analysis failed: %s", exc)
+            _record_failure(state, "site_publication", [_publication_failure_code(exc)])
+            state["status"] = "failed"
+            return state
         state["articles_fingerprint"] = fingerprint
         if fingerprint == previous_fingerprint:
             logger.info(
@@ -339,54 +340,15 @@ async def generate_report(
         state["status"] = "failed"
         return state
 
-    # Build the complete next public tree before replacing any current files.
-    # Git commits publish the resulting paths together, while this staging step
-    # prevents validation or renderer failures from splitting local state.
     try:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            staged_root = Path(temp_dir) / "site"
-            staged_reports = staged_root / "reports"
-            staged_reports.mkdir(parents=True)
-
-            current_reports = output_file.parent / "reports"
-            if current_reports.exists():
-                for archived_path in current_reports.glob("????-??-??.md"):
-                    shutil.copy2(archived_path, staged_reports / archived_path.name)
-
-            if output_file.exists():
-                archive_previous_report(
-                    current_source=output_file.read_text(),
-                    next_report=artifact,
-                    reports_path=staged_reports,
-                )
-
-            staged_report = staged_root / "index.md"
-            staged_report.write_text(report_source)
-            build_site(
-                report_path=staged_report,
-                output_path=staged_root,
-                template_path=REPO_ROOT / "site",
-            )
-
-            staged_files = sorted(
-                (path for path in staged_root.rglob("*") if path.is_file()),
-                key=lambda path: (
-                    path.relative_to(staged_root) == Path("index.html"),
-                    path.as_posix(),
-                ),
-            )
-            for staged_path in staged_files:
-                relative_path = staged_path.relative_to(staged_root)
-                destination = output_file.parent / relative_path
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                temporary_destination = destination.with_name(
-                    f".{destination.name}.sentryinsight.tmp"
-                )
-                try:
-                    shutil.copy2(staged_path, temporary_destination)
-                    temporary_destination.replace(destination)
-                finally:
-                    temporary_destination.unlink(missing_ok=True)
+        cleanup_pending = publish_report_artifacts(
+            artifact,
+            report_source,
+            output_file.parent,
+            state.get("articles_fingerprint"),
+            REPO_ROOT / "site",
+            builder=build_site,
+        )
     except (ArchiveConflictError, SiteBuildError, OSError) as exc:
         logger.error("Static report publication failed: %s", exc)
         state["report_validation_errors"] = [str(exc)]
@@ -394,16 +356,15 @@ async def generate_report(
         state["status"] = "failed"
         return state
 
-    if state.get("articles_fingerprint"):
-        write_stored_fingerprint(
-            state["articles_fingerprint"], _fingerprint_path_for(output_path)
-        )
-
+    if cleanup_pending:
+        state["publication_cleanup_pending"] = True
     state["report_path"] = output_path
     return state
 
 
 def _publication_failure_code(exc: Exception) -> str:
+    if isinstance(exc, PublicationError):
+        return exc.code
     if isinstance(exc, ArchiveConflictError):
         return "archive_conflict"
     if isinstance(exc, SiteBuildError):
