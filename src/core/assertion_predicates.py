@@ -4,6 +4,12 @@ from dataclasses import dataclass, replace
 import re
 
 from .cve import extract_cve_ids
+from .exploitation_contract import (
+    EventBinding,
+    TOPIC as TOPIC,
+    bind_event,
+    has_required_event,
+)
 from .assertion_bindings import CVE_LIST as CVE_LIST, TargetBinding, bind_target
 from .assertion_qualifiers import (
     QualifierSpan,
@@ -22,7 +28,6 @@ from .relations import (
 )
 
 POSSIBILITY_WORDS = ("potentially", "likely", "possibly", "probably", "unlikely")
-TOPIC = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
 BOUNDARY = re.compile(
     r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)", re.I
 )
@@ -250,6 +255,7 @@ class PredicateFrame:
     operators: tuple[str, ...] = ()
     scope: AssertionScope = AssertionScope("")
     temporal: tuple[TemporalConstraint, ...] = ()
+    event_binding: EventBinding | None = None
 
     @property
     def capability(self):
@@ -268,7 +274,6 @@ class PredicateFrame:
 ASPECT_HEADS = frozenset(
     rule.operators[0] for rule in OPERATOR_PRODUCTIONS if rule.aspect == "continuative"
 )
-EVENTS = frozenset({"exploit", "exploited", "exploiting", "weaponized"})
 CONTEXT = frozenset(
     {
         "affected",
@@ -449,26 +454,20 @@ def bind_predicate(
     ):
         tense = "current"
     qualifiers = bind_qualifiers(argument, complement=verb)
-    known = verb in EVENTS
-    kind = "assertion" if known or TOPIC.search(text) else "context"
+    event = bind_event(text, (event_start, event_end), (argument_start, end))
+    known = event.descriptor is not None
+    kind = "context" if event.kind == "context" else "assertion"
     if initial in ASPECT_HEADS and rule is None and kind == "context":
         # An aspect word in unrelated prose is not an exploitation relation.
         # Required malformed exploitation still advertises its boundary.
         finite = False
-    if verb == "under" and re.fullmatch(
-        r"(?:limited, targeted|active) exploitation", argument, re.I
-    ):
-        modifier_end = argument_start + argument.lower().index(" exploitation")
+    if event.descriptor and event.descriptor.complement:
+        start, stop = event.qualifier_span
         terms.append(
-            ScopeTerm(
-                text[argument_start:modifier_end],
-                argument_start,
-                modifier_end,
-                "activity" if argument.casefold().startswith("active ") else "degree",
-            )
+            ScopeTerm(text[start:stop], start, stop, event.descriptor.qualifier_kind)
         )
-        verb, kind = "exploitation", "assertion"
-        supported &= rule is not None
+        verb = "exploitation"
+        supported &= rule is not None and event.kind == "complete"
     elif verb == "exploitable":
         supported &= not argument and tuple(auxiliaries) in {
             ("is",),
@@ -480,7 +479,9 @@ def bind_predicate(
     else:
         supported &= not (known and rule is None)
         supported &= not (known and not qualifiers.complete)
-        supported &= not (not known and verb not in CONTEXT and TOPIC.search(text))
+        # A context verb cannot consume a required event elsewhere in its
+        # argument. Recognition without a bound complement is never admission.
+        supported &= event.kind != "required"
     temporal = tuple(prefix_time) + tuple(
         q.temporal for q in qualifiers.spans if q.temporal
     )
@@ -513,7 +514,7 @@ def bind_predicate(
         finite or verb in PREDICATE_HEADS or initial in {"be", "been", "being"}
     ) and (verb not in PARTICIPIAL_PREDICATE_HEADS or qualifiers.complete)
     inherits &= initial not in ASPECT_HEADS or rule is not None
-    starts = inherits or (initial in ASPECT_HEADS and bool(TOPIC.search(text)))
+    starts = inherits or (initial in ASPECT_HEADS and has_required_event(text))
     return PredicateFrame(
         operators=tuple(auxiliaries),
         scope=scope,
@@ -522,6 +523,7 @@ def bind_predicate(
         end=len(text),
         operator_span=(0, len(text[:event_start].rstrip())),
         event_span=(event_start, event_end),
+        event_binding=event,
         target=target,
         adjunct_span=(argument_start, end),
         qualifiers=tuple(

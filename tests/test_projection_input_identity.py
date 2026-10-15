@@ -15,6 +15,7 @@ from src.services.article_content import extract_article_content
 from test_assertion_subject_contract import publish
 from test_owned_relation_contract import article
 from test_finding_generation_pipeline import run_real_pipeline, REPRESENTATIVE_ARTICLES
+from publication_evidence import capture_generated_evidence
 
 A = "CVE-2026-1234"
 REPORTERS = {
@@ -191,27 +192,30 @@ def test_actual_graph_projection(monkeypatch, tmp_path, text, expected):
     ids = extract_cve_ids(text)
     clauses = parse_assertions(text)
     assert not any(c.unsupported for c in clauses)
+    published_baseline = capture_generated_evidence(monkeypatch)
     findings = publish(monkeypatch, tmp_path, text, ids, [expected])
     assert len(findings) == 1
     report = (tmp_path / "index.md").read_text()
     if expected == "unknown":
-        damaged = report.replace(
+        catalog = build_reporting_catalog(
+            [article(text, cves=ids)]
+            + [
+                article(
+                    f"Attackers are actively exploiting {c}.",
+                    link=f"https://example.test/{c}",
+                )
+                for c in ["CVE-2026-9998", "CVE-2026-9999"]
+            ]
+        )
+        baseline = published_baseline(report, catalog)
+        damaged = baseline.replace(
             "**Exploitation Status**: unknown", "**Exploitation Status**: not_observed"
         )
-        with pytest.raises(EvidenceError):
-            validate_finding_evidence(
-                damaged,
-                build_reporting_catalog(
-                    [article(text, cves=ids)]
-                    + [
-                        article(
-                            f"Attackers are actively exploiting {c}.",
-                            link=f"https://example.test/{c}",
-                        )
-                        for c in ["CVE-2026-9998", "CVE-2026-9999"]
-                    ]
-                ),
-            )
+        assert damaged != baseline
+        with pytest.raises(EvidenceError) as failure:
+            validate_finding_evidence(damaged, catalog)
+        assert failure.value.code == "unsupported_exploitation_status"
+        assert failure.value.field == "Exploitation Status"
 
 
 def structured(markup="<p>CVE-2026-1234 is actively exploited.</p>"):

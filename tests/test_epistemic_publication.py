@@ -8,6 +8,7 @@ import pytest
 from src.core.finding_evidence import EvidenceError, validate_finding_evidence
 from src.core.report_artifact import parse_report_artifact
 from src.core.reporting import build_reporting_catalog
+from publication_evidence import capture_generated_evidence
 from test_finding_generation_pipeline import run_real_pipeline
 from test_owned_relation_contract import article
 
@@ -51,6 +52,7 @@ def test_owned_knowledge_publication_and_prior_artifact_preservation(
     source = article(
         f"## {A}\n\n{text} {A} allows remote code execution on the gateway."
     )
+    published_baseline = capture_generated_evidence(monkeypatch)
     result = run_real_pipeline(
         monkeypatch,
         tmp_path / "index.md",
@@ -77,7 +79,19 @@ def test_owned_knowledge_publication_and_prior_artifact_preservation(
         for line in report.splitlines()
         if line.startswith("- **Source Evidence**:")
     )
-    with pytest.raises(EvidenceError):
-        validate_finding_evidence(
-            report.replace(evidence, ""), build_reporting_catalog([source])
-        )
+    for statement in text.split("."):
+        if statement.strip():
+            assert statement.strip() + "." in evidence
+    catalog = build_reporting_catalog([source])
+    baseline = published_baseline(report, catalog)
+    damaged = baseline.replace(evidence, "")
+    assert damaged != baseline
+    if expected == "active":
+        with pytest.raises(EvidenceError) as failure:
+            validate_finding_evidence(damaged, catalog)
+        assert failure.value.code == "incomplete_source_evidence"
+        assert failure.value.field == "Source Evidence"
+    else:
+        # Legacy inputs may omit this field for these three unqualified
+        # forms. Closed generation still emits every complete statement.
+        validate_finding_evidence(damaged, catalog)

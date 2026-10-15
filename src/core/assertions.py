@@ -4,13 +4,13 @@ from dataclasses import replace
 import re
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
+from .exploitation_contract import has_required_event
 from .assertion_predicates import (
     operator_tense,
     BOUNDARY,
     CONDITION,
     CVE_LIST,
     REQUIRED_ADJUNCT,
-    TOPIC,
     FINITE_PREDICATE_HEADS as FINITE_PREDICATE_HEADS,
     bind_predicate,
     bind_target as bind_target,
@@ -205,7 +205,7 @@ def _closed_composition(core):
     """
     base = OwnedClause(text=core, cves=tuple(extract_cve_ids(core)))
     if advisory := bind_advisory(core):
-        required_unknown = not advisory.complete and bool(TOPIC.search(core))
+        required_unknown = not advisory.complete and has_required_event(core)
         return replace(
             base,
             kind="assertion" if required_unknown else "context",
@@ -329,7 +329,7 @@ def _closed_composition(core):
         core,
         flags=re.I,
     )
-    if nominal != core and not TOPIC.search(nominal):
+    if nominal != core and not has_required_event(nominal):
         return replace(base, context_role="composed:technique")
     patch_capability = re.fullmatch(
         rf"Earlier this month, {ENTITY} issued emergency updates to address a {ENTITY} denial-of-service zero-day flaw "
@@ -646,7 +646,7 @@ def _intrusion(text):
         polarity="negative" if operators else "affirmative",
         unsupported=len(frames) != 1
         or len(cves) != 1
-        or bool(TOPIC.search(prefix) or TOPIC.search(suffix))
+        or (has_required_event(prefix) or has_required_event(suffix))
         or not prefix_scope.supported
         or negation_spans != bound_negations
         or not qualifiers.complete,
@@ -667,7 +667,7 @@ def _unit(raw):
             temporal=intrusion.temporal + reporter_time,
         )
     label = re.match(r"^([^:]+):\s*", core)
-    if label and not TOPIC.search(label[1]):
+    if label and not has_required_event(label[1]):
         core = core[label.end() :]
     core, modal, negative, prefix_scopes = _prefix(core.strip())
     if composed := _closed_composition(core):
@@ -923,8 +923,8 @@ def _unit(raw):
         # Direct ownership without a supported subject/argument production.
         return replace(
             base,
-            kind="assertion" if TOPIC.search(core) else "context",
-            unsupported=bool(TOPIC.search(core)),
+            kind="assertion" if has_required_event(core) else "context",
+            unsupported=has_required_event(core),
         )
     frame = bind_predicate(
         body, voice=owner.kind if owner else "unscoped", modal=modal, negative=negative
@@ -1076,7 +1076,7 @@ def _parse_assertions(sentence):
         condition=REQUIRED_ADJUNCT,
         starts_relation=lambda right: bool(
             _bind_subject(right)
-            or TOPIC.search(BOUNDARY.split(right, maxsplit=1)[0])
+            or has_required_event(BOUNDARY.split(right, maxsplit=1)[0])
             or bind_predicate(right).starts_relation
             # Closed reporter/composition productions retain their own typed
             # finite boundary. Ordinary verbal parsing still has one owner.

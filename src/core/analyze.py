@@ -6,6 +6,10 @@ from datetime import datetime, timezone
 
 import tiktoken
 
+from .exploitation_contract import (
+    EXPLOITATION_RELEVANCE_PATTERN as EXPLOITATION_RELEVANCE_PATTERN,
+    NEGATED_EXPLOITATION_PATTERN as NEGATED_EXPLOITATION_PATTERN,
+)
 from .model_config import resolve_model, validate_model
 from .model_client import ReportModelClient, build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
@@ -30,48 +34,10 @@ logger = logging.getLogger(__name__)
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
 
-EXPLOITATION_RELEVANCE_PATTERN = re.compile(
-    r"\b(?:"
-    r"active(?:ly)? exploit(?:s|ed|ing|ation)?|"
-    r"exploit(?:s|ed|ing|ation)?|"
-    r"in the wild|"
-    r"zero[\s-]?day|"
-    r"0day|"
-    r"weaponiz(?:ed|ation)|"
-    r"under attack|"
-    r"attackers? (?:are )?exploit(?:s|ed|ing)?|"
-    r"backdoor|"
-    r"malware|"
-    r"threat actor|"
-    r"campaign"
-    r")\b",
-    re.IGNORECASE,
-)
 CVE_CONTEXT_PATTERN = re.compile(r"CVE[-\s]?(\d{4})[-\s]?(\d{1,})", re.IGNORECASE)
 STRUCTURED_CVES_PATTERN = re.compile(r"CVEs:\s*([^)]*)", re.IGNORECASE)
 SENTENCE_PATTERN = re.compile(r"[^.!?\n]+(?:[.!?]+|$)")
 URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
-NEGATED_EXPLOITATION_PATTERN = re.compile(
-    r"\b(?:"
-    r"no evidence(?:\s+(?:of|that))?|"
-    r"not\s+(?:actively\s+|being\s+)?(?=exploit)|"
-    r"without\s+(?:evidence|signs?|reports?)(?:\s+of)?|"
-    r"has not been|"
-    r"have not been|"
-    r"not known to be|"
-    r"not reported to be|"
-    r"not observed to be|"
-    r"not detected as|"
-    r"no signs? of|"
-    r"no reports? of"
-    r")\b.{0,120}\b(?:"
-    r"exploit(?:ed|ing|ation)?|"
-    r"in the wild|"
-    r"weaponiz(?:ed|ation)|"
-    r"under attack"
-    r")\b",
-    re.IGNORECASE | re.DOTALL,
-)
 
 
 def filter_exploitation_articles(
