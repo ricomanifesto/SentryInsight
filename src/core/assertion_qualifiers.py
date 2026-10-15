@@ -88,7 +88,7 @@ def assertion_scope(text, terms=(), operators=(), *, event_tense="unspecified"):
         tuple(
             (
                 ScopeOperator(o.text, o.start, o.end, o.kind, target)
-                if o.kind == "negation"
+                if o.kind == "negation" and o.target in {"event", "qualified_event"}
                 else o
             )
             for o in scope.operators

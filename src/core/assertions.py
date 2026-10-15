@@ -1125,7 +1125,11 @@ def _parse_assertions(sentence):
         if group is not None:
             modal = group[0] or modal
             negative |= group[1] == "negative"
-            if group[1] == "negative":
+            if group[1] == "negative" or (
+                inherited_subject
+                and not clause.finite
+                and any(s.knowledge_negative for s in group[2])
+            ):
                 scopes = group[2] + scopes
         elif relation == "additive":
             if previous.modal == "unknown":
@@ -1134,14 +1138,19 @@ def _parse_assertions(sentence):
                 modal = previous.modal or modal
             if inherited_subject and not clause.finite:
                 negative |= previous.polarity == "negative"
-                if previous.polarity == "negative":
+                if previous.polarity == "negative" or previous.knowledge_negative:
                     scopes = previous.scopes + scopes
         if (
             relation == "adversative"
             and inherited_subject
             and not clause.finite
-            and previous.polarity == "negative"
-            and any(scope.restrictions for scope in previous.scopes)
+            and (
+                previous.knowledge_negative
+                or (
+                    previous.polarity == "negative"
+                    and any(scope.restrictions for scope in previous.scopes)
+                )
+            )
         ):
             # An elided branch supplies no new current finite. Neither the
             # legacy weaponized default nor guessed past scope can settle it.

@@ -73,6 +73,7 @@ class OperatorProduction:
     aspect: str = "simple"
     modal: str = ""
     allows_negation: bool = True
+    knowledge_head: int | None = None
 
 
 # One production owns the entire operator AND grammatical event complement.
@@ -148,7 +149,9 @@ OPERATOR_PRODUCTIONS = (
         )
     ),
     *(
-        OperatorProduction((word, "known", "to", "be"), voice, events, tense)
+        OperatorProduction(
+            (word, "known", "to", "be"), voice, events, tense, knowledge_head=1
+        )
         for word, tense in (
             ("is", "current"),
             ("are", "current"),
@@ -308,6 +311,8 @@ def bind_predicate(
     i, finite, correlative = 0, False, None
     correlative_operator_count = 0
     tense, aspect, auxiliaries = "unspecified", "simple", []
+    auxiliary_spans = []
+    inherited_negative = negative
     supported = True
     terms, scope_operators, prefix_time = [], [], []
     initial = words[0] if words else ""
@@ -317,6 +322,7 @@ def bind_predicate(
         i += 1
         if word in AUXILIARY_WORDS:
             auxiliaries.append(word)
+            auxiliary_spans.append((token.start(), token.end()))
         if (
             word == "not"
             and i < len(words)
@@ -389,6 +395,49 @@ def bind_predicate(
             if context_rule:
                 governing = context_rule
                 modal = modal or context_rule.modal
+    if governing and governing.knowledge_head is not None:
+        head_start, head_end = auxiliary_spans[governing.knowledge_head]
+        # The matched complete production owns this boundary. Negation and
+        # modifiers before its head qualify knowledge, not the embedded event.
+        scope_operators = [
+            (
+                replace(o, target="knowledge")
+                if o.kind == "negation" and o.end <= head_start
+                else o
+            )
+            for o in scope_operators
+        ]
+        terms = [
+            replace(term, owner="knowledge") if term.end <= head_start else term
+            for term in terms
+        ]
+        scope_operators.append(
+            ScopeOperator(
+                text[head_start:head_end], head_start, head_end, "knowledge", "event"
+            )
+        )
+        scope_operators.sort(key=lambda operator: operator.start)
+        negative = inherited_negative or any(
+            o.kind == "negation" and o.target == "event" for o in scope_operators
+        )
+        if correlative:
+            boundary = next(
+                o.start for o in reversed(scope_operators) if o.kind == "correlative"
+            )
+            correlative = (
+                correlative[0],
+                (
+                    "negative"
+                    if inherited_negative
+                    or any(
+                        o.kind == "negation"
+                        and o.target == "event"
+                        and o.end <= boundary
+                        for o in scope_operators
+                    )
+                    else "affirmative"
+                ),
+            )
     if correlative and correlative_operator_count and governing and governing.modal:
         # A governing operator before the correlative boundary qualifies both
         # predicates. A modifier inside its first branch does not move scope.

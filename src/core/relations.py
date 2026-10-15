@@ -56,6 +56,12 @@ class AssertionScope:
     event_tense: str = "unspecified"
 
     @property
+    def knowledge_negative(self):
+        return any(
+            o.kind == "negation" and o.target == "knowledge" for o in self.operators
+        )
+
+    @property
     def restrictions(self):
         negatives = [o.start for o in self.operators if o.kind == "negation"]
         return tuple(
@@ -71,6 +77,37 @@ class AssertionScope:
 
     @property
     def supported(self):
+        heads = [o for o in self.operators if o.kind == "knowledge"]
+        if len(heads) > 1:
+            return False
+        if heads:
+            head = heads[0]
+            if head.text.casefold() != "known" or head.target != "event":
+                return False
+            for operator in self.operators:
+                if operator.kind != "negation":
+                    continue
+                if operator.target == "knowledge":
+                    if operator.end > head.start:
+                        return False
+                elif operator.target in {"event", "qualified_event"}:
+                    if operator.start < head.end:
+                        return False
+                else:
+                    return False
+            for term in self.terms:
+                if term.owner == "knowledge":
+                    if term.end > head.start:
+                        return False
+                elif term.owner == "event":
+                    if term.start < head.end:
+                        return False
+                elif term.owner != "reporter":
+                    return False
+        elif self.knowledge_negative or any(
+            term.owner == "knowledge" for term in self.terms
+        ):
+            return False
         return (
             all(
                 0 <= item.start < item.end <= len(self.text)
@@ -225,6 +262,10 @@ class OwnedClause:
     directive_frame: "DirectiveFrame | None" = None
 
     @property
+    def knowledge_negative(self):
+        return any(scope.knowledge_negative for scope in self.scopes)
+
+    @property
     def _base_assertion_status(self) -> str | None:
         if self.kind != "assertion" or self.unsupported:
             return None
@@ -244,7 +285,8 @@ class OwnedClause:
         ):
             return None
         if (
-            self.modal == "unknown"
+            self.knowledge_negative
+            or self.modal == "unknown"
             or self.conditions
             or (self.reporter and self.reporter.qualification)
         ):
@@ -276,9 +318,14 @@ class OwnedClause:
         if status is None:
             return AssertionProjection(None)
         restrictions = tuple(t for s in self.scopes for t in s.restrictions)
+        if self.knowledge_negative:
+            return AssertionProjection("unknown", qualified_denial=bool(restrictions))
         operators = tuple(o for s in self.scopes for o in s.operators)
         absence = any(o.kind == "absence" for o in operators)
-        direct_negative = any(o.kind == "negation" for o in operators)
+        direct_negative = any(
+            o.kind == "negation" and o.target in {"event", "qualified_event"}
+            for o in operators
+        )
         negative_reporter = bool(self.reporter and self.reporter.polarity == "negative")
         negative_operation = bool(
             self.evidence_operation
