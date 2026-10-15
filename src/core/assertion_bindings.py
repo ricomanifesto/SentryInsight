@@ -87,7 +87,7 @@ SUBJECT_PRODUCTIONS = (
     (
         "actor",
         re.compile(
-            r"^(?:the\s+)?(?:attackers?|operators?|(?:threat\s+)?actors?)\s+",
+            r"^(?:the\s+)?(?:attackers?|operators?|(?:threat\s+)?actors?|hackers?|cybercriminals?|adversar(?:y|ies))\s+",
             re.I,
         ),
     ),

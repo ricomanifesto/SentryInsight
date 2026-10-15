@@ -27,6 +27,7 @@ from .assertion_qualifiers import (
     qualifier_terms,
 )
 from .relations import (
+    ActorParticipation,
     EvidenceOperation,
     EvidenceReporter,
     OwnedClause,
@@ -38,11 +39,18 @@ from .source_document import reporting_envelope
 from .advisory_relations import bind_advisory
 
 from .assertion_bindings import (
+    SubjectBinding,
     bind_subject as _bind_subject,
     REPORTER_SUBJECT,
     NAME,
     SYSTEM_ARGUMENT,
 )
+
+
+def _actor_at(clause, text, offset):
+    participant = clause.actor_participation
+    return participant.rebase(text, offset) if participant else None
+
 
 REPORTER_EVIDENCE = re.compile(
     rf"^(?P<subject>{REPORTER_SUBJECT}) (?P<finite>has|have|had) "
@@ -78,6 +86,7 @@ def _quoted_event(text):
     return replace(
         event,
         text=text,
+        actor_participation=_actor_at(event, text, match.start("event")),
         cves=tuple(extract_cve_ids(match["identity"])),
         attribution="quoted",
         reporter=EvidenceReporter(
@@ -513,6 +522,9 @@ def _reported_event(text):
         event,
         text=text,
         reporter=reporter,
+        actor_participation=_actor_at(
+            event, text, match.start("event") + (denied.start("event") if denied else 0)
+        ),
         scopes=scopes,
         unsupported=event.unsupported or event.kind != "assertion",
     )
@@ -657,6 +669,7 @@ def _unit(raw):
     if quoted := _quoted_event(raw):
         return quoted
     core, reporting_spans = detach_reporting(raw)
+    core_start = 0
     reporting = tuple(q.text for q in reporting_spans)
     reporter_time = tuple(q.temporal for q in reporting_spans if q.temporal)
     if intrusion := _intrusion(core):
@@ -668,8 +681,12 @@ def _unit(raw):
         )
     label = re.match(r"^([^:]+):\s*", core)
     if label and not has_required_event(label[1]):
+        core_start += label.end()
         core = core[label.end() :]
-    core, modal, negative, prefix_scopes = _prefix(core.strip())
+    core_start += len(core) - len(core.lstrip())
+    unprefixed = core.strip()
+    core, modal, negative, prefix_scopes = _prefix(unprefixed)
+    core_start += len(unprefixed) - len(core)
     if composed := _closed_composition(core):
         return replace(
             composed,
@@ -684,6 +701,7 @@ def _unit(raw):
         return replace(
             reported,
             text=raw,
+            actor_participation=_actor_at(reported, raw, core_start),
             modal=modal or reported.modal,
             scopes=prefix_scopes + reported.scopes,
             reporting=reporting,
@@ -915,6 +933,7 @@ def _unit(raw):
     # CVE subjects and actor/object frames are distinct productions. An opaque
     # new subject cannot inherit a previous vulnerability's predicate.
     body = re.sub(r"^Although\s+", "", core, flags=re.I)
+    subject_start = core_start + len(core) - len(body)
     owner = _bind_subject(body)
     if owner:
         base = replace(base, subject=owner.text)
@@ -934,6 +953,33 @@ def _unit(raw):
         if owner and owner.kind == "actor" and frame.target.kind == "explicit"
         else tuple(extract_cve_ids(owner.text)) if owner else base.cves
     )
+    participant = None
+    if frame.supported and frame.kind == "assertion":
+        if owner and owner.kind == "actor":
+            participant = ActorParticipation(
+                owner,
+                "subject",
+                raw,
+                (subject_start, subject_start + len(owner.text)),
+            )
+        else:
+            agents = [
+                term
+                for term in frame.scope.terms
+                if term.kind == "agent" and term.owner == "event"
+            ]
+            if len(agents) == 1:
+                # This term was admitted by the shared subject production.
+                # Keep its literal binding; do not recognize names again.
+                agent = agents[0]
+                nominal = agent.text[3:]
+                start = subject_start + (owner.end if owner else 0) + agent.start + 3
+                participant = ActorParticipation(
+                    SubjectBinding("actor", nominal, len(nominal)),
+                    "agent",
+                    raw,
+                    (start, start + len(nominal)),
+                )
     return replace(
         base,
         cves=owned_cves if frame.supported else base.cves,
@@ -953,6 +999,7 @@ def _unit(raw):
         unsupported=not frame.supported and not frame.requires_inheritance,
         finite=frame.finite,
         correlative=frame.correlative,
+        actor_participation=participant,
     )
 
 
@@ -1016,7 +1063,7 @@ def _agent_capabilities(sentence):
 
 def parse_assertions(sentence):
     """Finalize every assertion through the same owned semantic projection."""
-    return [
+    results = [
         (
             replace(item, unsupported=True)
             if item.kind == "assertion" and item.assertion_status is None
@@ -1024,6 +1071,11 @@ def parse_assertions(sentence):
         )
         for item in _parse_assertions(sentence)
     ]
+    # An incomplete statement cannot supply presentation participants from a
+    # partially admitted branch, even when that branch has a lexical subject.
+    if any(item.unsupported for item in results):
+        return [replace(item, actor_participation=None) for item in results]
+    return results
 
 
 def _parse_assertions(sentence):
@@ -1035,6 +1087,7 @@ def _parse_assertions(sentence):
             replace(
                 clause,
                 text=sentence,
+                actor_participation=_actor_at(clause, sentence, 1),
                 reporter=clause.reporter
                 or EvidenceReporter(
                     envelope.subject,
@@ -1058,6 +1111,7 @@ def _parse_assertions(sentence):
         return [
             replace(
                 item,
+                actor_participation=_actor_at(item, sentence, leading.start("event")),
                 conditions=(leading["condition"], *item.conditions),
                 unsupported=item.unsupported or len(relations) != 1,
             )
@@ -1139,6 +1193,7 @@ def _parse_assertions(sentence):
         clause = replace(
             clause,
             text=raw,
+            actor_participation=_actor_at(clause, sentence, part.start),
             conditions=clause.conditions + part.conditions,
             unsupported=clause.unsupported
             or part.unsupported

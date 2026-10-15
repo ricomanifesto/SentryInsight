@@ -17,6 +17,7 @@ class ConditionSegment:
     predicate: str
     conditions: tuple[str, ...]
     unsupported: bool = False
+    start: int = 0
 
 
 def leading_assertion_condition(text):
@@ -119,6 +120,7 @@ def bind_condition_boundaries(
                 raw[: qualified.start()].rstrip(" ,") if trailing else raw,
                 (raw[qualified.start() :].rstrip(".!?"),) if trailing else (),
                 unresolved,
+                offset,
             )
         )
     return tuple(result)

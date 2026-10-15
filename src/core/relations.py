@@ -4,8 +4,10 @@ Recognition returns a relation or an explicit unsupported result. Qualifiers
 belong to a parsed predicate; projections never search its source text again.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Literal
+
+from .assertion_bindings import SubjectBinding
 
 if TYPE_CHECKING:
     from .recommendations import DirectiveFrame
@@ -334,6 +336,30 @@ class ObservationConstruction:
 
 
 @dataclass(frozen=True)
+class ActorParticipation:
+    """An admitted subject or event agent, positioned in its literal source."""
+
+    binding: SubjectBinding
+    role: Literal["subject", "agent"]
+    coordinate_text: str
+    nominal_span: tuple[int, int]
+
+    def rebase(self, text: str, offset: int):
+        start, end = (value + offset for value in self.nominal_span)
+        if not (0 <= start < end <= len(text)) or text[start:end] != self.binding.text:
+            raise ValueError("Actor origin must preserve its literal nominal")
+        return replace(self, coordinate_text=text, nominal_span=(start, end))
+
+
+@dataclass(frozen=True)
+class AssertionOrigin:
+    document_sha256: str
+    block_index: int
+    sentence_index: int
+    clause_index: int
+
+
+@dataclass(frozen=True)
 class OwnedClause:
     text: str = ""
     source_text: str = ""
@@ -370,6 +396,8 @@ class OwnedClause:
     argument_relation: str = "direct"
     coordination: str = "initial"
     directive_frame: "DirectiveFrame | None" = None
+    actor_participation: ActorParticipation | None = None
+    assertion_origin: AssertionOrigin | None = None
 
     @property
     def knowledge_negative(self):

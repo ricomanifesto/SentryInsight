@@ -19,6 +19,7 @@ from .finding_evidence import (
     collect_finding_details,
     detail_statement_roles,
     source_assertions,
+    owned_actor_blocks,
     source_evidence_text,
     source_constraint_text,
     validate_finding_evidence,
@@ -413,23 +414,24 @@ def compile_finding_records(
         )
         _check_finding(record, catalog)
         excerpts = []
-        for text in _unique(
-            span.source_block or span.text
-            for span in narrative_spans
-            if not span.table_cells
-            and _substantive_prose(span.source_block or span.text)
-            and (
-                not span.fields
-                or (
-                    set(span.fields) == {"Recommended Actions"}
-                    and any(
-                        _substantive_prose(unit, statement=True)
-                        and not detail_statement_roles(unit, span.version_context)
-                        for unit in directive_units(span.text)
-                    )
+        actor_blocks = owned_actor_blocks(sources, cves)
+        candidates = {}
+        for span in narrative_spans:
+            if span.table_cells or not _substantive_prose(
+                span.source_block or span.text
+            ):
+                continue
+            if not span.fields or (
+                set(span.fields) == {"Recommended Actions"}
+                and any(
+                    _substantive_prose(unit, statement=True)
+                    and not detail_statement_roles(unit, span.version_context)
+                    for unit in directive_units(span.text)
                 )
-            )
-        ):
+            ):
+                text = _one_line(span.source_block or span.text)
+                candidates.setdefault(text, []).append(span.source_origin)
+        for text, origins in candidates.items():
             try:
                 _check_finding(record, catalog, [text])
             except EvidenceError as error:
@@ -443,7 +445,12 @@ def compile_finding_records(
                 # report-level assertion under a different aggregate state.
                 continue
             excerpt_key = f"{key}e{len(excerpts) + 1}"
-            excerpts.append(SourceExcerpt(excerpt_key, text, _excerpt_roles(text)))
+            roles = _excerpt_roles(text)
+            if "actors" not in roles and any(
+                origin in actor_blocks for origin in origins
+            ):
+                roles += ("actors",)
+            excerpts.append(SourceExcerpt(excerpt_key, text, roles))
         links = tuple(
             SourceLink(f"{key}l{index + 1}", url, True)
             for index, url in enumerate(_advisory_urls(sources, cves))

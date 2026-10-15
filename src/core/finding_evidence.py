@@ -20,7 +20,7 @@ from markdown_it.token import Token
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .assertions import FINITE_PREDICATE_HEADS, parse_assertions, source_qualification
 from .exploitation_contract import requires_attack_context
-from .relations import OwnedClause
+from .relations import AssertionOrigin, OwnedClause
 from .severity import rating_relation, project_ratings
 from .source_document import SourceSpan, source_document
 from .source_markup import source_literal, source_literal_value, source_text_collection
@@ -179,7 +179,7 @@ def exploitation_state_text(assessment: ExploitationAssessment, subject: str) ->
     return prose
 
 
-def _sentences(text: str) -> list[str]:
+def _sentence_spans(text: str) -> list[tuple[int, int]]:
     # An initialism's internal/full stop belongs to its token, not a new
     # subject. This is structural punctuation protection, not an abbreviation
     # vocabulary or permission to drop an unknown prefix.
@@ -189,12 +189,48 @@ def _sentences(text: str) -> list[str]:
     for boundary in re.finditer(r"(?<=[.!?])\s+|\n+", text):
         if boundary.start() in protected:
             continue
-        if text[start : boundary.start()].strip():
-            result.append(text[start : boundary.start()].strip())
+        fragment = text[start : boundary.start()]
+        if fragment.strip():
+            result.append(
+                (
+                    start + len(fragment) - len(fragment.lstrip()),
+                    boundary.start() - len(fragment) + len(fragment.rstrip()),
+                )
+            )
         start = boundary.end()
-    if text[start:].strip():
-        result.append(text[start:].strip())
+    fragment = text[start:]
+    if fragment.strip():
+        result.append(
+            (
+                start + len(fragment) - len(fragment.lstrip()),
+                start + len(fragment.rstrip()),
+            )
+        )
     return result
+
+
+def _sentences(text: str) -> list[str]:
+    return [text[start:end] for start, end in _sentence_spans(text)]
+
+
+def _original_actor(participant, sentence, substitutions):
+    """Map a bound nominal through explicit CVE replacement ranges only."""
+    if participant is None:
+        return None
+    start, end = participant.nominal_span
+    shift = correction = 0
+    for left, right, replacement_length in substitutions:
+        replaced_start = left + shift
+        replaced_end = replaced_start + replacement_length
+        if start < replaced_end and end > replaced_start:
+            return None  # Synthesized identity bytes cannot supply an actor.
+        delta = replacement_length - (right - left)
+        if start >= replaced_end:
+            correction -= delta
+        shift += delta
+    return replace(
+        participant, nominal_span=(start + correction, end + correction)
+    ).rebase(sentence, 0)
 
 
 def _value(source: Any, field: str, default=""):
@@ -214,29 +250,40 @@ def source_assertions(source: Any) -> tuple[OwnedClause, ...]:
 def _document_assertions(document) -> tuple[OwnedClause, ...]:
     """One immutable document interpretation is shared by all finding scopes."""
     source_cves = set(extract_cve_ids(document.text))
+    document_hash = hashlib.sha256(document.text.encode()).hexdigest()
     result = []
-    for span in document.spans:
+    for block_index, span in enumerate(document.spans):
         if span.role != "body":
             continue
-        for sentence in _sentences(span.text):
+        for sentence_index, (sentence_start, sentence_end) in enumerate(
+            _sentence_spans(span.text)
+        ):
+            sentence = span.text[sentence_start:sentence_end]
             parsed_text = sentence
+            substitutions = []
+
+            def reference(match):
+                value = " and ".join(span.reference)
+                substitutions.append((match.start(), match.end(), len(value)))
+                return value
+
             if span.reference and span.reference_kind == "singular":
                 parsed_text = re.sub(
                     r"\b(?:The|This|the|this) (?:issue|flaw|vulnerability)\b",
-                    " and ".join(span.reference),
+                    reference,
                     sentence,
                 )
             elif span.reference and span.reference_kind == "group":
                 parsed_text = re.sub(
                     r"^All (?:\d+|one|two|three|four|five|six|seven|eight|nine|ten) vulnerabilities\b",
-                    " and ".join(span.reference),
+                    reference,
                     sentence,
                     count=1,
                 )
             if span.reference and span.reference_kind == "table_product":
                 parsed_text = re.sub(
                     r"^(?:The |the )?[A-Z][\w-]*(?: [A-Z][\w-]*)* flaw\b",
-                    " and ".join(span.reference),
+                    reference,
                     sentence,
                     count=1,
                 )
@@ -289,7 +336,31 @@ def _document_assertions(document) -> tuple[OwnedClause, ...]:
                     clause = replace(
                         clause, cves=tuple(source_cves), attribution="source_context"
                     )
-                result.append(replace(clause, source_text=sentence))
+                participant = (
+                    None
+                    if clause.unsupported
+                    else _original_actor(
+                        clause.actor_participation, sentence, substitutions
+                    )
+                )
+                result.append(
+                    replace(
+                        clause,
+                        source_text=sentence,
+                        actor_participation=(
+                            participant.rebase(span.text, sentence_start)
+                            if participant
+                            else None
+                        ),
+                        assertion_origin=(
+                            AssertionOrigin(
+                                document_hash, block_index, sentence_index, len(result)
+                            )
+                            if participant
+                            else None
+                        ),
+                    )
+                )
     return tuple(result)
 
 
@@ -346,6 +417,30 @@ def _scope_assertions(sources: Sequence[Any], cves: Sequence[str]):
 
 
 @dataclass(frozen=True)
+class SourceBlockIdentity:
+    source_key: str
+    source_url: str
+    document_sha256: str
+    block_index: int
+
+
+def owned_actor_blocks(sources, cves):
+    """Project existing source/clause owners, never match excerpt substrings."""
+    wanted = set(cves)
+    return frozenset(
+        SourceBlockIdentity(
+            source.key, source.url, origin.document_sha256, origin.block_index
+        )
+        for source, clause in _scope_assertions(sources, cves)
+        if not clause.unsupported
+        and clause.kind == "assertion"
+        and clause.actor_participation is not None
+        and (origin := clause.assertion_origin) is not None
+        and set(clause.cves) <= wanted
+    )
+
+
+@dataclass(frozen=True)
 class DetailSpan:
     """Keep source structure separate from factual body evidence."""
 
@@ -361,6 +456,7 @@ class DetailSpan:
     owned_cves: tuple[str, ...] = ()
     reference_target: tuple[str, tuple[str, ...]] | None = None
     document_list: SourceSpan | None = None
+    source_origin: SourceBlockIdentity | None = None
 
 
 def anchored_detail_spans(spans, cves):
@@ -490,7 +586,11 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
         for span in document.spans
     )
     result = [DetailSpan("", "boundary")]
+    document_hash = hashlib.sha256(document.text.encode()).hexdigest()
     for index, block in enumerate(document.spans):
+        origin = SourceBlockIdentity(
+            _value(source, "key"), _value(source, "url"), document_hash, index
+        )
         if block.role == "table_row":
             owner = set(block.identities or block.reference or block.section)
             if owner and owner <= wanted or not wanted and not source_cves:
@@ -515,6 +615,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                         (),
                         block.text,
                         table_cells=tuple(zip(block.headers, block.cells)),
+                        source_origin=origin,
                     )
                 )
             continue
@@ -588,6 +689,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                     constraint_text=block.constraint_text,
                     product=block.product,
                     source_url=_value(source, "url"),
+                    source_origin=origin,
                 )
             )
         elif owned and (
@@ -612,6 +714,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                     constraint_text=block.text,
                     source_url=_value(source, "url"),
                     owned_cves=tuple(sorted(owner)),
+                    source_origin=origin,
                 )
             )
         if owned and block.list_role:
@@ -626,6 +729,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                 block.text,
                 source_url=_value(source, "url"),
                 document_list=block,
+                source_origin=origin,
             )
             if block.list_role == "audience" and any(
                 isinstance(item, RecommendationContext) and item.owner == "exception"
@@ -710,6 +814,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                             if block.reference_kind == "listed_group"
                             else None
                         ),
+                        source_origin=origin,
                     )
                 )
     return result
