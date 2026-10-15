@@ -4,6 +4,8 @@ Only the existing actor heads, a leading `the`, and threat actor(s) are accepted
 Unknown noun modifiers or bridges cannot disappear at a predicate boundary.
 """
 
+import json
+
 import pytest
 
 from src.core.assertions import parse_assertions
@@ -40,9 +42,8 @@ SUBJECTS = [
 
 
 def publish(monkeypatch, tmp_path, text, identities, expected):
-    # Keep the existing report-breadth gate active with an independent actor
-    # finding. It intentionally rejects a one-item actor rollup when broader
-    # activity markers are repeated across the report's mandatory sections.
+    # Independent actor controls keep these subject cases separate from the
+    # single-item report-coverage proof exercised below.
     control_ids = {"CVE-2026-9998", "CVE-2026-9999"}
     result = run_real_pipeline(
         monkeypatch,
@@ -246,7 +247,7 @@ def test_subject_identity_cannot_replace_source_ownership_or_hide_conflict(sourc
     ]
     control_ids = {"CVE-2026-9998", "CVE-2026-9999"}
     if not source_only:
-        # Independent actors keep the existing report-breadth gate active.
+        # Retain independent actor controls for this subject-conflict case.
         texts += [
             f"Attackers are actively exploiting {control}."
             for control in sorted(control_ids)
@@ -289,7 +290,11 @@ def test_subject_support_does_not_bypass_existing_report_breadth_gate(
     }
     for name, data in previous.items():
         (tmp_path / name).write_bytes(data)
-    text = f"Threat actors are actively exploiting {CVE} in the wild."
+    # Two distinct statements require independent complete rollup witnesses.
+    text = (
+        f"Threat actors are actively exploiting {CVE} in the wild.\n\n"
+        f"Threat actors exploited {CVE} yesterday."
+    )
     result = run_real_pipeline(
         monkeypatch, tmp_path / "index.md", articles=[article(text)]
     )
@@ -301,3 +306,23 @@ def test_subject_support_does_not_bypass_existing_report_breadth_gate(
     assert all(
         (tmp_path / name).read_bytes() == data for name, data in previous.items()
     )
+
+
+def test_complete_repeated_subject_activity_passes_report_coverage(
+    monkeypatch, tmp_path
+):
+    text = f"Threat actors are actively exploiting {CVE} in the wild."
+    result = run_real_pipeline(
+        monkeypatch, tmp_path / "index.md", articles=[article(text)]
+    )
+    assert result["status"] == "completed", result
+    report = (tmp_path / "index.md").read_text()
+    (finding,) = parse_report_artifact(report).findings
+    assert finding.cve_ids == (CVE,)
+    assert finding.exploitation_status.value == "active"
+    assert text in report
+    assert text in (tmp_path / "index.html").read_text()
+    metadata = json.loads((tmp_path / "current-findings.json").read_text())
+    assert metadata["finding_count"] == metadata["complete_cve_count"] == 1
+    assert metadata["cve_ids"] == [CVE]
+    assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text().strip()

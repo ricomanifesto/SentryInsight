@@ -83,6 +83,10 @@ class SubjectBinding:
 
     @property
     def number(self) -> Literal["singular", "plural"] | None:
+        if self.kind == "vulnerability":
+            target = bind_target(self.text)
+            if target and target.cves and target.end == len(self.text):
+                return "singular" if len(target.cves) == 1 else "plural"
         if self.kind != "actor":
             return None
         match = ACTOR_SUBJECT.fullmatch(self.text + " ")

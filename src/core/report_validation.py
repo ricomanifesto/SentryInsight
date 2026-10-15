@@ -10,6 +10,10 @@ from markdown_it import MarkdownIt
 
 from .article_policy import contains_virtual_event_tag
 from .heading_identity import normalize_heading_identity
+from .report_activity_coverage import (
+    THREAT_ACTIVITY_MARKER_PATTERN,
+    has_complete_activity_coverage,
+)
 
 REQUIRED_SECTIONS = (
     "# Exploitation Report",
@@ -61,10 +65,6 @@ CVE_ID_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
 SECTION_HEADING_PATTERN = re.compile(r"^##\s+", re.MULTILINE)
 SENTENCE_END_PATTERN = re.compile(r"[.!?](?:\s+|$)")
 THEMATIC_BREAK_PATTERN = re.compile(r"^[ \t]{0,3}(?:[-*_][ \t]*){3,}$")
-THREAT_ACTIVITY_MARKER_PATTERN = re.compile(
-    r"\b(?:campaigns?|threat actors?)\b",
-    re.IGNORECASE,
-)
 STRONG_MARKER = "**"
 MARKDOWN_PARSER = MarkdownIt("commonmark")
 HTML_BLOCK_OPEN_PATTERN = re.compile(
@@ -952,7 +952,9 @@ def has_underpopulated_threat_actor_activities(markdown: str) -> bool:
     broader_activity_markers = THREAT_ACTIVITY_MARKER_PATTERN.findall(
         body_without_headings
     )
-    return len(broader_activity_markers) >= 2
+    return len(broader_activity_markers) >= 2 and not has_complete_activity_coverage(
+        report_without_attribution
+    )
 
 
 def validate_report_content(

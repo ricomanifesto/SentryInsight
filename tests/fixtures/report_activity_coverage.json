@@ -1,0 +1,312 @@
+{
+  "cases": [
+    {
+      "id": "repeated-complete-literal",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": true,
+        "underpopulated_threat_actor_activities": false,
+        "grounding": "unchanged; separate gate",
+        "reason": "One complete owned statement repeated in Description and Source Evidence is fully covered."
+      }
+    },
+    {
+      "id": "same-actor-distinct-paragraph-missing",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234. The same threat actors steal credentials.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d [Source](https://example.test/source-a): \u201cThe same threat actors steal credentials.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A second distinct statement by the same actor is omitted."
+      }
+    },
+    {
+      "id": "same-actor-distinct-paragraphs-covered",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234. The same threat actors steal credentials.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d [Source](https://example.test/source-a): \u201cThe same threat actors steal credentials.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234. The same threat actors steal credentials.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": true,
+        "underpopulated_threat_actor_activities": false,
+        "grounding": "unchanged; separate gate",
+        "reason": "The rollup and joined Description have unique complete partitions into the two owned Source Evidence atoms."
+      }
+    },
+    {
+      "id": "same-paragraph-two-campaigns-covered",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors conduct a malware campaign and a credential-harvesting campaign.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors conduct a malware campaign and a credential-harvesting campaign.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors conduct a malware campaign and a credential-harvesting campaign.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": true,
+        "underpopulated_threat_actor_activities": false,
+        "grounding": "unchanged; separate gate",
+        "reason": "The entire paragraph containing both campaigns is covered."
+      }
+    },
+    {
+      "id": "same-paragraph-second-campaign-missing",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors conduct a malware campaign and a credential-harvesting campaign.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors conduct a malware campaign and a credential-harvesting campaign.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors conduct a malware campaign.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A partial paragraph cannot cover the second campaign."
+      }
+    },
+    {
+      "id": "partial-literal",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A prefix is not a complete literal."
+      }
+    },
+    {
+      "id": "all-qualifications-preserved",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": true,
+        "underpopulated_threat_actor_activities": false,
+        "grounding": "unchanged; separate gate",
+        "reason": "Coverage keeps the complete qualified literal; status/source truth remains separate."
+      }
+    },
+    {
+      "id": "negation-lost",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors have reportedly exploited CVE-2026-1234 if the service is disabled.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A changed qualification invalidates exact coverage."
+      }
+    },
+    {
+      "id": "attribution-lost",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors have not exploited CVE-2026-1234 if the service is disabled.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A changed qualification invalidates exact coverage."
+      }
+    },
+    {
+      "id": "condition-lost",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors have reportedly not exploited CVE-2026-1234 if the service is disabled.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors have reportedly not exploited CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A changed qualification invalidates exact coverage."
+      }
+    },
+    {
+      "id": "same-literal-other-owner-missing",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n### Finding B\n\n- **CVE IDs**: CVE-2026-5678\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-b)\n- **Source Evidence**: [Source](https://example.test/source-b): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Identical wording in Finding B needs its own owner witness."
+      }
+    },
+    {
+      "id": "foreign-finding-label",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding B**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "No exact unique finding owns the rollup label."
+      }
+    },
+    {
+      "id": "actor-name-label",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Threat actors**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Actor spelling does not establish the finding owner."
+      }
+    },
+    {
+      "id": "duplicate-finding-heading",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-5678\n- **Description**: Threat actors exploit CVE-2026-5678.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-5678.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Duplicate finding headings are ambiguous."
+      }
+    },
+    {
+      "id": "normalized-heading-collision",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n### finding a!\n\n- **CVE IDs**: CVE-2026-5678\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-b)\n- **Source Evidence**: [Source](https://example.test/source-b): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Punctuation/case normalization cannot hide a duplicate owner."
+      }
+    },
+    {
+      "id": "foreign-source-evidence-link",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://foreign.test/source): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "The evidence link is outside the explicit Reporting owner."
+      }
+    },
+    {
+      "id": "duplicate-scope-field",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **CVE IDs**: CVE-2026-5678\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A duplicate scope field cannot certify a unique owner."
+      }
+    },
+    {
+      "id": "extra-unowned-summary",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nAnother campaign steals credentials.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Unowned Executive Summary activity retains fallback rejection."
+      }
+    },
+    {
+      "id": "nested-rollup-only",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: See details.\n  - Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A nested item cannot be used as a top-level coverage witness."
+      }
+    },
+    {
+      "id": "malformed-source-quote",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Malformed complete-atom boundaries cannot prove coverage."
+      }
+    },
+    {
+      "id": "unrecognized-activity-field",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Unknown Activity Field**: Threat actors exploit CVE-2026-1234.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "An unknown marker-bearing field is not silently excluded."
+      }
+    },
+    {
+      "id": "fabricated-certificate-comment",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Service access.\n<!-- coverage_complete=true; finding=Finding A -->",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "A self-authored certificate comment has no authority."
+      }
+    },
+    {
+      "id": "fabricated-certificate-metadata",
+      "markdown": "---\nactivity_coverage: complete\n---\n# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Service access.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Metadata cannot certify an incomplete rollup."
+      }
+    },
+    {
+      "id": "canonical-literal-encoding",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: ` Threat actors exploit *literal* service names. `\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201c` Threat actors exploit *literal* service names. `\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: ` Threat actors exploit *literal* service names. `\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": true,
+        "underpopulated_threat_actor_activities": false,
+        "grounding": "unchanged; separate gate",
+        "reason": "The same canonical complete literal decodes reversibly without changing its text."
+      }
+    },
+    {
+      "id": "markup-paraphrase",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: ` Threat actors exploit *literal* service names. `\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201c` Threat actors exploit *literal* service names. `\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit *literal* service names.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Styled text cannot stand in for literal punctuation."
+      }
+    },
+    {
+      "id": "repeated-fabricated-source-claim",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": true,
+        "underpopulated_threat_actor_activities": false,
+        "grounding": "must reject against a catalog containing only not-observed evidence",
+        "reason": "This proof only establishes report coverage; the integration test must supply an incompatible real catalog and preserve grounding rejection."
+      }
+    },
+    {
+      "id": "changed-rollup-after-validation",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Service access.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "No previous validation receipt can cover altered report bytes."
+      }
+    },
+    {
+      "id": "ambiguous-atom-partition",
+      "markdown": "# Exploitation Report\n\n## Executive Summary\n\nRecent activity affects edge services.\n\n## Active Exploitation Details\n\n### Finding A\n\n- **CVE IDs**: CVE-2026-1234\n- **Description**: Threat actors exploit CVE-2026-1234. The same threat actors steal credentials. Threat actors exploit CVE-2026-1234. The same threat actors steal credentials.\n- **Impact**: Service access.\n- **Status**: Active exploitation observed.\n- **Reporting**: [Source](https://example.test/source-a)\n- **Source Evidence**: [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234.\u201d [Source](https://example.test/source-a): \u201cThe same threat actors steal credentials.\u201d [Source](https://example.test/source-a): \u201cThreat actors exploit CVE-2026-1234. The same threat actors steal credentials.\u201d\n\n## Affected Systems and Products\n\n- **Edge service**: Exposed versions.\n\n## Attack Vectors and Techniques\n\n- **Service access**: External requests.\n\n## Threat Actor Activities\n\n- **Finding A**: Threat actors exploit CVE-2026-1234. The same threat actors steal credentials.\n",
+      "expected": {
+        "legacy_underpopulation": true,
+        "complete_report_coverage": false,
+        "underpopulated_threat_actor_activities": true,
+        "grounding": "unchanged; separate gate",
+        "reason": "Two complete partition choices make the bounded proof unavailable."
+      }
+    }
+  ]
+}

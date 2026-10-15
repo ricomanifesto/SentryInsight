@@ -877,12 +877,14 @@
     {
       "id": "unlicensed-do-operator",
       "text": "The attacker does not exploit CVE-2026-1234.",
-      "disposition": "preserve",
-      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "disposition": "admit_do_support",
+      "reason": "A singular actor and finite does bind a base event with direct negation.",
       "expected": {
-        "compile": false,
-        "unsupported": true,
-        "error": "unsupported_evidence_relation"
+        "compile": true,
+        "unsupported": false,
+        "states": {"CVE-2026-1234": "not_observed"},
+        "action": "none",
+        "retain_complete_source": true
       }
     },
     {

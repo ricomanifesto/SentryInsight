@@ -1050,7 +1050,13 @@ def _unit(raw):
         verb=frame.verb,
         modal=frame.modal,
         polarity=frame.polarity,
-        scopes=base.scopes + (frame.scope,),
+        scopes=base.scopes
+        + (frame.scope,)
+        + (
+            (frame.observation.observation_scope,)
+            if frame.observation and frame.observation.observation_scope
+            else ()
+        ),
         tense=frame.tense,
         aspect=frame.aspect,
         temporal=base.temporal + frame.temporal,

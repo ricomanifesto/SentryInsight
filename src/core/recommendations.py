@@ -13,13 +13,14 @@ from .cve import CVE_ID_PATTERN
 from .condition_boundaries import ConditionSegment, bind_condition_boundaries
 from .report_artifact import Action
 from .relations import OwnedClause
-from .relations import EvidenceReporter
+from .relations import EvidenceReporter, RemediationScope
 from .source_document import reporting_envelope
 from .assertions import source_qualification
 from .assertion_bindings import NAME, SYSTEM_ARGUMENT
+from .assertion_qualifiers import EPISTEMIC_MODIFIERS
 
 ArgumentRelation = Literal[
-    "direct", "destination", "direct_destination", "classification"
+    "direct", "destination", "direct_destination", "classification", "scope"
 ]
 CoordinationRelation = Literal[
     "initial", "conjunctive", "alternative", "adversative", "sequential"
@@ -106,9 +107,10 @@ ACTION_FRAMES: dict[str, dict[ArgumentRelation, dict[str, Action]]] = {
         }
     },
     "patch": {
+        "scope": {"scope": Action.PATCH},
         "direct": dict.fromkeys(
             ("system", "identifier", "vulnerability", "release"), Action.PATCH
-        )
+        ),
     },
     **{
         verb: {
@@ -540,6 +542,7 @@ class DirectiveTarget:
     relation: ArgumentRelation
     direct: NominalBinding | None = None
     destination: NominalBinding | tuple[NominalBinding, ...] | None = None
+    scope: RemediationScope | None = None
 
     @property
     def destinations(self) -> tuple[NominalBinding, ...]:
@@ -551,6 +554,15 @@ class DirectiveTarget:
 
     @property
     def roles(self) -> tuple[str, ...]:
+        if self.relation == "scope":
+            return (
+                ("scope",)
+                if self.scope
+                and self.scope.supported
+                and self.direct is None
+                and self.destination is None
+                else ()
+            )
         if self.relation == "destination":
             return tuple(role for item in self.destinations for role in item.roles)
         if self.relation == "direct_destination" and (
@@ -591,6 +603,7 @@ class DirectiveArgument:
     purposes: tuple[str, ...] = ()
     deadlines: tuple[str, ...] = ()
     reference: tuple[str, ...] = ()
+    modifier_spans: tuple[tuple[int, int], ...] = ()
 
 
 def _bind_directive_argument(
@@ -638,7 +651,9 @@ def _bind_directive_argument(
         return DirectiveArgument(
             original, text[: means.start()], (means[1],), purposes, deadlines, reference
         )
-    modifier = re.search(r"(?:,\s*|\s+)(immediately|as soon as possible)$", text, re.I)
+    modifier = re.search(
+        r"(?:^|,\s*|\s+)(immediately|as soon as possible)$", text, re.I
+    )
     if modifier is None:
         return DirectiveArgument(original, text, (), purposes, deadlines, reference)
     return DirectiveArgument(
@@ -648,6 +663,7 @@ def _bind_directive_argument(
         purposes,
         deadlines,
         reference,
+        (modifier.span(1),),
     )
 
 
@@ -1012,6 +1028,10 @@ def _classification_argument(text: str) -> ClassificationArgument | None:
 
 
 def _frame_actions(clause: OwnedClause) -> dict[str, Action] | None:
+    if clause.argument_relation == "scope" and not (
+        clause.directive_frame and clause.directive_frame.scope_supported
+    ):
+        return None
     if clause.verb in PREPARATORY_TARGETS:
         roles = DIRECTIVE_VALENCIES[clause.verb].get(clause.argument_relation, ())
         if clause.object_members and set(clause.object_members) <= set(roles):
@@ -1040,6 +1060,7 @@ class DirectiveBinding:
     qualifications: tuple[str, ...] = ()
     unsupported: bool = False
     audience: DirectiveAudience | None = None
+    scoped_qualifications: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1090,6 +1111,40 @@ class DirectiveFrame:
     classification_modifier_span: tuple[int, int] | None = None
     target_binding: DirectiveTarget | None = None
     deferred_target: bool = False
+
+    @property
+    def requires_scope(self):
+        argument = self.argument
+        if not (
+            self.voice == "active"
+            and self.verb == "patch"
+            and self.verb_span
+            and self.text[slice(*self.verb_span)].casefold() == "patch"
+            and not argument.target_text
+            and not argument.purposes
+            and not argument.deadlines
+            and len(argument.modifiers) == len(argument.modifier_spans) <= 1
+        ):
+            return False
+        if not argument.modifiers:
+            return not argument.source_text
+        start, end = argument.modifier_spans[0]
+        return bool(
+            (start, end) == (0, len(argument.source_text))
+            and argument.source_text[start:end] == argument.modifiers[0]
+            and argument.modifiers[0].casefold()
+            in {"immediately", "as soon as possible"}
+        )
+
+    @property
+    def scope_supported(self):
+        target = self.target_binding
+        return bool(
+            self.requires_scope
+            and target
+            and target.relation == "scope"
+            and target.roles == ("scope",)
+        )
 
     @property
     def starts_relation(self):
@@ -1340,6 +1395,12 @@ def _active_binding(
     if neg:
         state = replace(state, negative=True)
         text = text[neg.end() :]
+    qualifiers = []
+    while text.split(" ", 1)[0].casefold() in EPISTEMIC_MODIFIERS:
+        word, _, text = text.partition(" ")
+        qualifiers.append(word)
+    if qualifiers:
+        state = replace(state, scoped_qualifications=tuple(qualifiers))
     text = re.sub(r"^also (?=(?:deploy|create)\b)", "", text)
     return text, state
 
@@ -1352,6 +1413,7 @@ def bind_directive_frame(
     version_identity: VersionIdentity | None = None,
     reference_target: ReferenceTarget | None = None,
     release_destinations: tuple[str, ...] = (),
+    remediation_scope: RemediationScope | None = None,
 ) -> DirectiveFrame:
     """Own one active/passive finite, verb and complete positioned argument.
 
@@ -1568,7 +1630,7 @@ def bind_directive_frame(
             <= DIRECTIVE_VALENCIES.get(verb, {}).get(relation, frozenset())
         )
     )
-    return DirectiveFrame(
+    frame = DirectiveFrame(
         text,
         voice,
         state,
@@ -1590,6 +1652,20 @@ def bind_directive_frame(
         target_binding,
         deferred_target,
     )
+    if frame.requires_scope:
+        frame = replace(frame, required=True)
+    if remediation_scope and frame.requires_scope:
+        target_binding = DirectiveTarget("scope", scope=remediation_scope)
+        frame = replace(
+            frame,
+            target_binding=target_binding,
+            argument_relation="scope",
+            object_members=target_binding.roles,
+            unsupported=state.unsupported
+            or not target_binding.roles
+            or len(state.scoped_qualifications) > 1,
+        )
+    return frame
 
 
 def _starts_directive(text: str) -> bool:
@@ -1857,6 +1933,7 @@ def parse_recommendation(
     release_destinations: tuple[str, ...] = (),
     release_audience: str = "",
     audience_reference: str = "",
+    remediation_scope: RemediationScope | None = None,
 ) -> RecommendationDirective | None:
     """Parse complete directive relations; projection never reparses their text."""
     if envelope := reporting_envelope(text):
@@ -1867,6 +1944,7 @@ def parse_recommendation(
             release_destinations=release_destinations,
             release_audience=release_audience,
             audience_reference=audience_reference,
+            remediation_scope=remediation_scope,
         )
         if parsed is None:
             return None
@@ -1961,6 +2039,7 @@ def parse_recommendation(
             version_identity=version_identity,
             reference_target=reference_target,
             release_destinations=release_destinations,
+            remediation_scope=remediation_scope,
         )
         body, binding = frame.body, frame.binding
         advice |= frame.required
@@ -1976,14 +2055,18 @@ def parse_recommendation(
             else argument
         )
         target_binding = (
-            _bind_argument(
-                target_argument,
-                version_identity,
-                release_destinations,
-                audience=binding.audience,
+            frame.target_binding
+            if frame.scope_supported and frame.target_binding is not None
+            else (
+                _bind_argument(
+                    target_argument,
+                    version_identity,
+                    release_destinations,
+                    audience=binding.audience,
+                )
+                if verb in VERBS
+                else DirectiveTarget("direct")
             )
-            if verb in VERBS
-            else DirectiveTarget("direct")
         )
         relation, members = target_binding.relation, target_binding.roles
         frame = replace(
@@ -2009,8 +2092,10 @@ def parse_recommendation(
             _bind_directive_argument(value) for value in segment.conditions
         )
         own_conditions = tuple(value.target_text for value in bound_conditions)
-        qualification = binding.qualifications + (
-            ("Question",) if "?" in normalized else ()
+        qualification = (
+            binding.qualifications
+            + binding.scoped_qualifications
+            + (("Question",) if "?" in normalized else ())
         )
         implicit = bool(
             verb in VERBS
@@ -2032,9 +2117,13 @@ def parse_recommendation(
             reference = True
         if reference:
             verb, argument, members = "reference", body, ()
-        unsupported = (
+        unsupported = bool(
             segment.unsupported
             or binding.unsupported
+            or (
+                binding.scoped_qualifications
+                and (not frame.scope_supported or frame.unsupported)
+            )
             or (frame.voice == "passive" and frame.unsupported)
             or (not reference and not implicit and (verb not in VERBS or not members))
         )

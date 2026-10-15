@@ -61,11 +61,21 @@ def test_existing_complete_productions_are_the_frozen_admission_boundary():
     assert expected_nonperfect[0]["events"] == ["exploit", "use"]
     expected_nonperfect[0]["events"] = ["exploit", "exploits", "use", "uses"]
     nonperfect = [
-        asdict(rule) for rule in OPERATOR_PRODUCTIONS if not is_perfect(rule.operators)
+        asdict(rule)
+        for rule in OPERATOR_PRODUCTIONS
+        if not is_perfect(rule.operators)
+        and rule.operators not in {("do",), ("does",), ("did",)}
     ]
     assert json.loads(json.dumps(nonperfect)) == expected_nonperfect
-    assert len(OPERATOR_PRODUCTIONS) == 74  # 53 established + 7 * 3 perfect frames.
-    assert sum(len(rule.events) for rule in OPERATOR_PRODUCTIONS) == 193
+    assert len(OPERATOR_PRODUCTIONS) == 77  # 74 established + three do-support forms.
+    assert sum(len(rule.events) for rule in OPERATOR_PRODUCTIONS) == 199
+    assert [
+        (r.operators, r.voice, r.events, r.tense) for r in OPERATOR_PRODUCTIONS[-3:]
+    ] == [
+        (("do",), "actor", ("exploit", "use"), "current"),
+        (("does",), "actor", ("exploit", "use"), "current"),
+        (("did",), "actor", ("exploit", "use"), "past"),
+    ]
 
 
 def is_perfect(operators):
@@ -146,6 +156,10 @@ def expected_meaning(rule, event, insertions):
     possible = bool(rule.modal) or any(word in POSSIBLE for _, word, _ in modifiers)
     supported = not (
         len(negatives) > 1
+        or (
+            rule.operators in {("do",), ("does",), ("did",)}
+            and any(gap == 0 for _, gap in negatives)
+        )
         or (negatives and not rule.allows_negation)
         or any(word == "observed" for _, word, _ in modifiers)
         or (
@@ -232,7 +246,11 @@ def test_all_existing_negation_modifier_positions_keep_their_owner(rule):
                 text,
                 voice=rule.voice,
                 subject=(
-                    bind_subject("The attacker ") if rule.voice == "actor" else None
+                    bind_subject(
+                        "Attackers " if rule.operators == ("do",) else "The attacker "
+                    )
+                    if rule.voice == "actor"
+                    else None
                 ),
             )
             clause = OwnedClause(
@@ -283,7 +301,13 @@ def test_correlative_markers_and_unrecognized_stacks_preserve_admission(rule):
                     text,
                     voice=rule.voice,
                     subject=(
-                        bind_subject("The attacker ") if rule.voice == "actor" else None
+                        bind_subject(
+                            "Attackers "
+                            if rule.operators == ("do",)
+                            else "The attacker "
+                        )
+                        if rule.voice == "actor"
+                        else None
                     ),
                 )
                 assert frame.supported == (

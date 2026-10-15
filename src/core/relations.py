@@ -8,8 +8,11 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Literal
 
 from .assertion_bindings import SubjectBinding
+from .cve import extract_cve_ids
 
 if TYPE_CHECKING:
+    from .assertion_predicates import FiniteOperatorBinding
+    from .exploitation_contract import EventBinding
     from .recommendations import DirectiveFrame
 
 # Columns are event current / past / unspecified, never reporter tense. A
@@ -312,18 +315,39 @@ class ObservationConstruction:
     text: str
     auxiliary_span: tuple[int, int]
     predicate_span: tuple[int, int]
-    nominal_span: tuple[int, int]
+    nominal_span: tuple[int, int] | None
     event_span: tuple[int, int]
     negative_span: tuple[int, int] | None = None
     activity_span: tuple[int, int] | None = None
     modifiers: tuple[ScopeTerm, ...] = ()
+    construction: Literal["seen_nominal", "observed_passive"] = "seen_nominal"
+    finite_binding: "FiniteOperatorBinding | None" = None
+    event_binding: "EventBinding | None" = None
+    complement_spans: tuple[tuple[int, int], ...] = ()
+    observation_scope: AssertionScope | None = None
+    event_scope: AssertionScope | None = None
 
     @property
     def polarity(self):
         return "negative" if self.negative_span else "affirmative"
 
     @property
+    def event_polarity(self):
+        return (
+            "negative"
+            if self.event_scope
+            and any(
+                operator.kind == "negation" for operator in self.event_scope.operators
+            )
+            else "affirmative"
+        )
+
+    @property
     def supported(self):
+        if self.construction == "observed_passive":
+            return self._passive_supported
+        if self.construction != "seen_nominal":
+            return False
         spans = [self.auxiliary_span]
         if self.negative_span:
             spans.append(self.negative_span)
@@ -367,6 +391,82 @@ class ObservationConstruction:
             )
         )
 
+    @property
+    def _passive_supported(self):
+        finite, event = self.finite_binding, self.event_binding
+        outer, inner = self.observation_scope, self.event_scope
+        if not (
+            finite
+            and finite.supported
+            and finite.text == self.text
+            and finite.construction == "observed_passive"
+            and event
+            and event.kind == "complete"
+            and event.descriptor
+            and "participle" in event.descriptor.slots
+            and event.head_span == self.event_span
+            and self.text[slice(*self.event_span)].casefold() == event.descriptor.head
+            and self.text[slice(*self.predicate_span)].casefold() == "observed"
+            and self.auxiliary_span == finite.spans[0]
+            and self.nominal_span is None
+            and self.activity_span is None
+            and outer
+            and inner
+            and outer.supported
+            and inner.supported
+            and outer.text == inner.text == self.text
+            and len(self.complement_spans) == 2
+            and tuple(self.text[slice(*s)].casefold() for s in self.complement_spans)
+            == ("to", "be")
+        ):
+            return False
+        outer_end = self.predicate_span[0]
+        outer_items = (*outer.terms, *outer.operators)
+        inner_items = (*inner.terms, *inner.operators)
+        if not (
+            all(item.end < outer_end for item in outer_items)
+            and all(item.start > self.predicate_span[1] for item in inner_items)
+            and all(
+                o.kind == "negation" and o.text.casefold() in {"not", "never"}
+                for o in (*outer.operators, *inner.operators)
+            )
+            and finite.negations == tuple((o.start, o.end) for o in outer.operators)
+            and all(
+                term.kind == "reported" and term.owner == "evidence"
+                for term in outer.terms
+            )
+            and all(
+                o.target in {"event", "qualified_event"}
+                and o.start > finite.spans[0][1]
+                for o in outer.operators
+            )
+            and self.modifiers == outer.terms
+            and self.negative_span
+            == next(((o.start, o.end) for o in outer.operators), None)
+        ):
+            return False
+        spans = sorted(
+            [
+                *finite.spans,
+                self.predicate_span,
+                *self.complement_spans,
+                self.event_span,
+                *(
+                    (item.start, item.end)
+                    for item in (*outer_items, *inner_items)
+                    if item.end <= self.event_span[0]
+                ),
+            ]
+        )
+        return bool(
+            spans[0][0] == 0
+            and all(0 <= a < b <= len(self.text) for a, b in spans)
+            and all(
+                a[1] < b[0] and self.text[a[1] : b[0]].isspace()
+                for a, b in zip(spans, spans[1:])
+            )
+        )
+
 
 @dataclass(frozen=True)
 class ActorParticipation:
@@ -382,6 +482,44 @@ class ActorParticipation:
         if not (0 <= start < end <= len(text)) or text[start:end] != self.binding.text:
             raise ValueError("Actor origin must preserve its literal nominal")
         return replace(self, coordinate_text=text, nominal_span=(start, end))
+
+
+@dataclass(frozen=True)
+class SourceBlockIdentity:
+    source_key: str
+    source_url: str
+    document_sha256: str
+    block_index: int
+
+
+@dataclass(frozen=True)
+class RemediationScope:
+    """Exact document-owned scope for a syntactically omitted patch object."""
+
+    origin: SourceBlockIdentity
+    kind: Literal["cves", "source"]
+    cves: tuple[str, ...]
+    ownership_kind: Literal["body", "section", "reference", "source"]
+
+    @property
+    def supported(self):
+        return bool(
+            self.origin.source_key
+            and self.origin.source_url
+            and len(self.origin.document_sha256) == 64
+            and all(c in "0123456789abcdef" for c in self.origin.document_sha256)
+            and self.origin.block_index >= 0
+            and self.cves == tuple(sorted(set(self.cves)))
+            and tuple(extract_cve_ids(" ".join(self.cves))) == self.cves
+            and (
+                self.kind == "cves"
+                and self.cves
+                and self.ownership_kind in {"body", "section", "reference"}
+                or self.kind == "source"
+                and not self.cves
+                and self.ownership_kind == "source"
+            )
+        )
 
 
 @dataclass(frozen=True)
@@ -495,6 +633,16 @@ class OwnedClause:
                 if negative_reporter
                 or self.polarity == "negative"
                 or self.observation.polarity == "negative"
+                or self.observation.event_polarity == "negative"
+                or any(
+                    term.kind == "reported"
+                    for scope in (
+                        self.observation.observation_scope,
+                        self.observation.event_scope,
+                    )
+                    if scope
+                    for term in scope.terms
+                )
                 or self.modal
                 else "observed"
             )

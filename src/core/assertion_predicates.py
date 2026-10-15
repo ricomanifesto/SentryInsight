@@ -75,6 +75,9 @@ FINITE_PREDICATE_HEADS = frozenset(
         "can",
         "will",
         "would",
+        "do",
+        "does",
+        "did",
     }
 )
 
@@ -89,6 +92,18 @@ class OperatorProduction:
     modal: str = ""
     allows_negation: bool = True
     knowledge_head: int | None = None
+
+
+DO_SUPPORT = {
+    "do": ("current", "plural"),
+    "does": ("current", "singular"),
+    "did": ("past", None),
+}
+OBSERVATION_FINITE = {
+    "has": ("current", "singular"),
+    "have": ("current", "plural"),
+    "had": ("past", None),
+}
 
 
 # These established non-perfect constructions retain their bounded policies.
@@ -248,18 +263,27 @@ def _perfect_operator(operators, voice):
     return OperatorProduction(tuple(operators), voice, events, tense, aspect, modal)
 
 
+_DO_PRODUCTIONS = tuple(
+    OperatorProduction((word,), "actor", event_forms("base"), tense)
+    for word, (tense, _) in DO_SUPPORT.items()
+)
+
 # Exhaustive conformance inventory, derived from the same bounded transition.
 # Recognition does not search this inventory for perfect operator strings.
-OPERATOR_PRODUCTIONS = _NONPERFECT_PRODUCTIONS + tuple(
-    rule
-    for finite in (("has",), ("have",), ("had",))
-    + tuple((modal, "have") for modal in ("may", "might", "could", "would"))
-    for complement, voice in (
-        ((), "actor"),
-        (("been",), "actor"),
-        (("been",), "vulnerability"),
+OPERATOR_PRODUCTIONS = (
+    _NONPERFECT_PRODUCTIONS
+    + tuple(
+        rule
+        for finite in (("has",), ("have",), ("had",))
+        + tuple((modal, "have") for modal in ("may", "might", "could", "would"))
+        for complement, voice in (
+            ((), "actor"),
+            (("been",), "actor"),
+            (("been",), "vulnerability"),
+        )
+        if (rule := _perfect_operator((*finite, *complement), voice)) is not None
     )
-    if (rule := _perfect_operator((*finite, *complement), voice)) is not None
+    + _DO_PRODUCTIONS
 )
 
 
@@ -270,7 +294,7 @@ def operator_production(operators, voice, event):
     return next(
         (
             rule
-            for rule in _NONPERFECT_PRODUCTIONS
+            for rule in (*_NONPERFECT_PRODUCTIONS, *_DO_PRODUCTIONS)
             if rule.operators == tuple(operators)
             and rule.voice == voice
             and event in rule.events
@@ -288,7 +312,7 @@ def operator_tense(operators):
     return next(
         (
             rule.tense
-            for rule in _NONPERFECT_PRODUCTIONS
+            for rule in (*_NONPERFECT_PRODUCTIONS, *_DO_PRODUCTIONS)
             if rule.operators == tuple(operators)
         ),
         "unspecified",
@@ -308,6 +332,90 @@ PARTICIPIAL_PREDICATE_HEADS = frozenset(
 PREDICATE_HEADS = (
     FINITE_PREDICATE_HEADS | PARTICIPIAL_PREDICATE_HEADS | {"be", "been", "being"}
 )
+
+
+@dataclass(frozen=True)
+class FiniteOperatorBinding:
+    """A literal finite chain owns agreement and its complement requirement."""
+
+    text: str
+    spans: tuple[tuple[int, int], ...]
+    construction: str
+    subject: SubjectBinding | None
+    production: OperatorProduction | None
+    negations: tuple[tuple[int, int], ...] = ()
+
+    @property
+    def words(self):
+        return tuple(self.text[start:end].casefold() for start, end in self.spans)
+
+    @property
+    def required_slot(self):
+        if self.construction == "observed_passive":
+            return "participle"
+        return "base" if self.words and self.words[0] in DO_SUPPORT else None
+
+    @property
+    def supported(self):
+        rule = self.production
+        if (
+            rule is None
+            or self.words != rule.operators
+            or any(not 0 <= start < end <= len(self.text) for start, end in self.spans)
+            or any(
+                left[1] >= right[0] for left, right in zip(self.spans, self.spans[1:])
+            )
+        ):
+            return False
+        if self.construction == "observed_passive":
+            agreement = OBSERVATION_FINITE.get(self.words[0], (None, None))[1]
+            return bool(
+                self.subject
+                and self.subject.kind == "vulnerability"
+                and self.subject.number
+                and (agreement is None or self.subject.number == agreement)
+            )
+        if self.words and self.words[0] in DO_SUPPORT:
+            agreement = DO_SUPPORT[self.words[0]][1]
+            return bool(
+                self.subject
+                and self.subject.kind == "actor"
+                and self.subject.number
+                and (agreement is None or self.subject.number == agreement)
+                and len(self.negations) <= 1
+                and all(start > self.spans[0][1] for start, _ in self.negations)
+            )
+        return True
+
+
+def bind_operator(
+    text,
+    *,
+    spans,
+    subject,
+    construction="event",
+    voice="unscoped",
+    event="",
+    negations=(),
+):
+    words = tuple(text[start:end].casefold() for start, end in spans)
+    if construction == "observed_passive":
+        rule = (
+            OperatorProduction(
+                words,
+                "vulnerability",
+                ("observed",),
+                OBSERVATION_FINITE[words[0]][0],
+                "perfect",
+            )
+            if len(words) == 2 and words[0] in OBSERVATION_FINITE and words[1] == "been"
+            else None
+        )
+    else:
+        rule = operator_production(words, voice, event)
+    return FiniteOperatorBinding(
+        text, tuple(spans), construction, subject, rule, tuple(negations)
+    )
 
 
 @dataclass(frozen=True)
@@ -336,6 +444,7 @@ class PredicateFrame:
     temporal: tuple[TemporalConstraint, ...] = ()
     event_binding: EventBinding | None = None
     observation: ObservationConstruction | None = None
+    operator_binding: FiniteOperatorBinding | None = None
 
     @property
     def capability(self):
@@ -481,6 +590,187 @@ def _observation_frame(text, voice, modal, negative):
     )
 
 
+def _position_qualifiers(text, qualifiers, offset, event):
+    positioned = []
+    for span in qualifiers:
+        context = span.attack_context
+        if context:
+            quantity = context.cardinality
+            context = replace(
+                context,
+                text=text,
+                start=context.start + offset,
+                end=context.end + offset,
+                relation_span=tuple(x + offset for x in context.relation_span),
+                head_span=tuple(x + offset for x in context.head_span),
+                cardinality=(
+                    replace(
+                        quantity,
+                        start=quantity.start + offset,
+                        end=quantity.end + offset,
+                    )
+                    if quantity
+                    else None
+                ),
+            )
+            if event.attack_context is span.attack_context:
+                event = replace(event, attack_context=context)
+        positioned.append(
+            replace(
+                span,
+                start=span.start + offset,
+                end=span.end + offset,
+                attack_context=context,
+            )
+        )
+    return tuple(positioned), event
+
+
+def _passive_observation_frame(text, voice, modal, negative, subject):
+    """Bind observation and event as separate, literal propositions."""
+    end = len(text.rstrip(" .!?"))
+    tokens = list(re.finditer(r"\S+", text[:end]))
+    words = [token.group().casefold() for token in tokens]
+    # The envelope advertises ownership only; every component is validated below.
+    outer_words = (
+        set(OBSERVATION_FINITE) | {"been", "not", "never"} | REPORTED_MODIFIERS
+    )
+    i = 0
+    while i < len(words) and words[i] in outer_words:
+        i += 1
+    if i == len(words) or words[i] != "observed":
+        return None
+    predicate = tokens[i].span()
+    auxiliary = [
+        t.span()
+        for t in tokens[:i]
+        if t.group().casefold() in OBSERVATION_FINITE or t.group().casefold() == "been"
+    ]
+    if tuple(text[slice(*s)].casefold() for s in auxiliary) not in {
+        (finite, "been") for finite in OBSERVATION_FINITE
+    }:
+        return None
+    outer_terms = tuple(
+        modifier_term(text, *t.span(), owner="evidence")
+        for t in tokens[:i]
+        if t.group().casefold() in REPORTED_MODIFIERS
+    )
+    outer_negations = tuple(
+        ScopeOperator(t.group(), *t.span(), "negation", "event")
+        for t in tokens[:i]
+        if t.group().casefold() in {"not", "never"}
+    )
+    operator = bind_operator(
+        text,
+        spans=auxiliary,
+        subject=subject,
+        construction="observed_passive",
+        negations=[(o.start, o.end) for o in outer_negations],
+    )
+    outer = assertion_scope(
+        text,
+        outer_terms,
+        outer_negations,
+        event_tense=operator.production.tense if operator.production else "unspecified",
+    )
+    i += 1
+    inner_terms, inner_negations, complement = [], [], []
+    while i < len(words) and words[i] in (
+        {"to", "be", "not", "never"} | REPORTED_MODIFIERS
+    ):
+        token, word = tokens[i], words[i]
+        if word in {"to", "be"}:
+            complement.append(token.span())
+        elif word in {"not", "never"}:
+            inner_negations.append(
+                ScopeOperator(token.group(), *token.span(), "negation", "event")
+            )
+        else:
+            inner_terms.append(modifier_term(text, *token.span()))
+        i += 1
+    event_span = tokens[i].span() if i < len(tokens) else (end, end)
+    if not complement or text[slice(*complement[0])].casefold() != "to":
+        # A rejected legacy modifier such as "has been observed exploited"
+        # remains with its original frame; only an infinitive advertises this
+        # new observation operand.
+        return None
+    verb = words[i] if i < len(words) else ""
+    tail_start = tokens[i + 1].start() if i + 1 < len(tokens) else end
+    qualifiers = bind_qualifiers(text[tail_start:end], complement=verb)
+    context = next(
+        (q.attack_context for q in qualifiers.spans if q.attack_context), None
+    )
+    event = bind_event(text, event_span, (tail_start, end), attack_context=context)
+    # Ordinary use remains non-exploitation context, including inside an envelope.
+    if event.kind == "context":
+        return None
+    positioned, event = _position_qualifiers(text, qualifiers.spans, tail_start, event)
+    inner = assertion_scope(
+        text,
+        (*inner_terms, *qualifier_terms(text, qualifiers.spans, offset=tail_start)),
+        inner_negations,
+        event_tense="past",
+    )
+    observation = ObservationConstruction(
+        text,
+        auxiliary[0],
+        predicate,
+        None,
+        event_span,
+        (
+            (outer_negations[0].start, outer_negations[0].end)
+            if len(outer_negations) == 1
+            else None
+        ),
+        modifiers=outer_terms,
+        construction="observed_passive",
+        finite_binding=operator,
+        event_binding=event,
+        complement_spans=tuple(complement),
+        observation_scope=outer,
+        event_scope=inner,
+    )
+    temporal = tuple(q.temporal for q in qualifiers.spans if q.temporal)
+    supported = bool(
+        observation.supported
+        and voice == "vulnerability"
+        and not modal
+        and not negative
+        and qualifiers.complete
+        and temporal_compatible(temporal, "past")
+        and all(
+            t.owner == "reporter" or t.direction in {"past", "context"}
+            for t in temporal
+        )
+        and not extract_cve_ids(text[tail_start:])
+    )
+    return PredicateFrame(
+        text=text,
+        end=len(text),
+        operator_span=(0, predicate[0]),
+        event_span=event_span,
+        target=TargetBinding("", tail_start, tail_start),
+        adjunct_span=(tail_start, end),
+        qualifiers=positioned,
+        verb=verb,
+        kind="assertion",
+        tense="past",
+        aspect="perfect-observation",
+        finite=True,
+        modal=modal,
+        polarity="negative" if inner_negations else "affirmative",
+        supported=supported,
+        starts_relation=True,
+        inherits_subject=True,
+        operators=operator.words,
+        scope=inner,
+        temporal=temporal,
+        event_binding=event,
+        observation=observation,
+        operator_binding=operator,
+    )
+
+
 def bind_predicate(
     text: str,
     *,
@@ -495,6 +785,8 @@ def bind_predicate(
     or lexical scan. A recognized start is not a promise of a supported state.
     """
     if observation := _observation_frame(text, voice, modal, negative):
+        return observation
+    if observation := _passive_observation_frame(text, voice, modal, negative, subject):
         return observation
     end = len(text.rstrip(" .!?"))
     tokens = list(re.finditer(r"\S+", text[:end]))
@@ -560,12 +852,21 @@ def bind_predicate(
             while argument_start < end and text[argument_start].isspace():
                 argument_start += 1
             argument = text[argument_start:end]
-    rule = operator_production(auxiliaries, voice, verb)
+    operator = bind_operator(
+        text,
+        spans=auxiliary_spans,
+        subject=subject,
+        voice=voice,
+        event=verb,
+        negations=[(o.start, o.end) for o in scope_operators if o.kind == "negation"],
+    )
+    rule = operator.production
     governing = rule
     if rule:
         tense, aspect = rule.tense, rule.aspect
         modal = modal or rule.modal
         supported &= rule.allows_negation or not negative
+        supported &= operator.supported
     else:
         tense = operator_tense(auxiliaries)
         if verb in CONTEXT:
@@ -697,6 +998,11 @@ def bind_predicate(
     temporal = tuple(prefix_time) + tuple(
         q.temporal for q in qualifiers.spans if q.temporal
     )
+    if operator.words and operator.words[0] in DO_SUPPORT and tense == "past":
+        supported &= all(
+            t.owner == "reporter" or t.direction in {"past", "context"}
+            for t in temporal[len(prefix_time) :]
+        )
     scope = assertion_scope(
         text,
         (*terms, *qualifier_terms(text, qualifiers.spans, offset=argument_start)),
@@ -731,39 +1037,11 @@ def bind_predicate(
     ) and (verb not in PARTICIPIAL_PREDICATE_HEADS or qualifiers.complete)
     inherits &= initial not in ASPECT_HEADS or rule is not None
     starts = inherits or (initial in ASPECT_HEADS and has_required_event(text))
-    positioned_qualifiers = []
-    for span in qualifiers.spans:
-        context = span.attack_context
-        if context:
-            quantity = context.cardinality
-            context = replace(
-                context,
-                text=text,
-                start=context.start + argument_start,
-                end=context.end + argument_start,
-                relation_span=tuple(x + argument_start for x in context.relation_span),
-                head_span=tuple(x + argument_start for x in context.head_span),
-                cardinality=(
-                    replace(
-                        quantity,
-                        start=quantity.start + argument_start,
-                        end=quantity.end + argument_start,
-                    )
-                    if quantity
-                    else None
-                ),
-            )
-            if event.attack_context is span.attack_context:
-                event = replace(event, attack_context=context)
-        positioned_qualifiers.append(
-            replace(
-                span,
-                start=span.start + argument_start,
-                end=span.end + argument_start,
-                attack_context=context,
-            )
-        )
+    positioned_qualifiers, event = _position_qualifiers(
+        text, qualifiers.spans, argument_start, event
+    )
     return PredicateFrame(
+        operator_binding=operator,
         operators=tuple(auxiliaries),
         scope=scope,
         temporal=temporal,

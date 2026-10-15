@@ -20,7 +20,12 @@ from markdown_it.token import Token
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .assertions import FINITE_PREDICATE_HEADS, parse_assertions, source_qualification
 from .exploitation_contract import requires_attack_context
-from .relations import AssertionOrigin, OwnedClause
+from .relations import (
+    AssertionOrigin,
+    OwnedClause,
+    RemediationScope,
+    SourceBlockIdentity,
+)
 from .severity import rating_relation, project_ratings
 from .source_document import SourceSpan, source_document
 from .source_markup import source_literal, source_literal_value, source_text_collection
@@ -416,14 +421,6 @@ def _scope_assertions(sources: Sequence[Any], cves: Sequence[str]):
     )
 
 
-@dataclass(frozen=True)
-class SourceBlockIdentity:
-    source_key: str
-    source_url: str
-    document_sha256: str
-    block_index: int
-
-
 def owned_actor_blocks(sources, cves):
     """Project existing source/clause owners, never match excerpt substrings."""
     wanted = set(cves)
@@ -457,6 +454,7 @@ class DetailSpan:
     reference_target: tuple[str, tuple[str, ...]] | None = None
     document_list: SourceSpan | None = None
     source_origin: SourceBlockIdentity | None = None
+    remediation_scope: RemediationScope | None = None
 
 
 def anchored_detail_spans(spans, cves):
@@ -587,6 +585,11 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     )
     result = [DetailSpan("", "boundary")]
     document_hash = hashlib.sha256(document.text.encode()).hexdigest()
+    assertions = source_assertions(source)
+    source_scope = not _has_cve_identity(source) and any(
+        clause.kind == "assertion" and not clause.unsupported and not clause.cves
+        for clause in assertions
+    )
     for index, block in enumerate(document.spans):
         origin = SourceBlockIdentity(
             _value(source, "key"), _value(source, "url"), document_hash, index
@@ -623,6 +626,32 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             result.append(DetailSpan("", "boundary"))
             continue
         owner = set(block.reference or block.section)
+        body_owners = {
+            clause.cves
+            for clause in assertions
+            if clause.cves
+            and clause.assertion_origin
+            and clause.assertion_origin.block_index == index
+        }
+        scope_cves = tuple(
+            sorted(
+                block.reference
+                or block.section
+                or (next(iter(body_owners)) if len(body_owners) == 1 else ())
+            )
+        )
+        ownership_kind = (
+            "reference" if block.reference else "section" if block.section else "body"
+        )
+        remediation_scope = (
+            RemediationScope(origin, "cves", scope_cves, ownership_kind)
+            if scope_cves and block.reference_valid
+            else (
+                RemediationScope(origin, "source", (), "source")
+                if source_scope
+                else None
+            )
+        )
         if not block.reference_valid and (
             not wanted
             or owner & wanted
@@ -730,6 +759,8 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                 source_url=_value(source, "url"),
                 document_list=block,
                 source_origin=origin,
+                owned_cves=scope_cves,
+                remediation_scope=remediation_scope,
             )
             if block.list_role == "audience" and any(
                 isinstance(item, RecommendationContext) and item.owner == "exception"
@@ -815,6 +846,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                             else None
                         ),
                         source_origin=origin,
+                        remediation_scope=remediation_scope,
                     )
                 )
     return result
@@ -1181,7 +1213,9 @@ def _version_argument_identity(text: str) -> tuple[str, ...] | None:
     return None
 
 
-def _owned_recommendation(unit: str, reference_target=None, audience_reference=""):
+def _owned_recommendation(
+    unit: str, reference_target=None, audience_reference="", remediation_scope=None
+):
     if context := recommendation_context(unit):
         return context
     parsed = parse_recommendation(
@@ -1189,6 +1223,7 @@ def _owned_recommendation(unit: str, reference_target=None, audience_reference="
         version_identity=_version_argument_identity,
         reference_target=reference_target,
         audience_reference=audience_reference,
+        remediation_scope=remediation_scope,
     )
     if parsed is not None:
         return parsed
@@ -1226,9 +1261,16 @@ def _complete_recommendation_fragment(text: str) -> bool:
         # Qualified advice may legally omit a target. A physical wrap alone
         # cannot certify that omission when the target can follow on the next
         # line; explicit terminal punctuation can close the implicit relation.
-        return not parsed.ambiguous and (
+        pending_scope = bool(parsed.clauses) and all(
+            clause.directive_frame
+            and clause.directive_frame.requires_scope
+            and not clause.directive_frame.binding.unsupported
+            for clause in parsed.clauses
+        )
+        return (not parsed.ambiguous or pending_scope) and (
             text.endswith((".", "!", "?"))
-            or all(clause.object_role != "implicit" for clause in parsed.clauses)
+            or not pending_scope
+            and all(clause.object_role != "implicit" for clause in parsed.clauses)
         )
     if re.search(DETAIL_CUES["Recommended Actions"], text, re.I):
         return False
@@ -1260,7 +1302,7 @@ def _recommendation_source_statements(block: str):
 
 
 def _recommendation_directives(
-    block: str, reference_target=None, audience_reference=""
+    block: str, reference_target=None, audience_reference="", remediation_scope=None
 ):
     """Keep version clauses and wrapped release arguments under their owner."""
     for sentence in _recommendation_source_statements(block):
@@ -1273,7 +1315,11 @@ def _recommendation_directives(
                 # the directive owns only the preceding list introduction.
                 _version_constraints(remainder)
                 if cue_match.start():
-                    yield _owned_recommendation(sentence[: cue.end], reference_target)
+                    yield _owned_recommendation(
+                        sentence[: cue.end],
+                        reference_target,
+                        remediation_scope=remediation_scope,
+                    )
                 yield RecommendationContext(remainder, "version")
                 continue
         typed = (
@@ -1292,7 +1338,9 @@ def _recommendation_directives(
                 yield RecommendationContext(clause.text, "version")
                 continue
             for unit in directive_units(clause.text):
-                yield _owned_recommendation(unit, reference_target, audience_reference)
+                yield _owned_recommendation(
+                    unit, reference_target, audience_reference, remediation_scope
+                )
 
 
 @dataclass(frozen=True)
@@ -1854,6 +1902,44 @@ def _source_recommendation_block(
     span: DetailSpan, audience_reference=""
 ) -> RecommendationBlock:
     """Compile a document-owned list once into the existing directive owner."""
+    scope = span.remediation_scope
+    block = _compile_source_recommendation_block(span, audience_reference)
+    consumes_scope = any(
+        clause.argument_relation == "scope"
+        for directive in block.directives
+        if isinstance(directive, RecommendationDirective)
+        for clause in directive.clauses
+    )
+    if (
+        consumes_scope
+        and scope
+        and (
+            not scope.supported
+            or scope.origin != span.source_origin
+            or scope.kind == "cves"
+            and scope.cves != span.owned_cves
+            and not (
+                scope.ownership_kind == "body"
+                and set(scope.cves)
+                == set(extract_cve_ids(span.source_block or span.text))
+            )
+            or scope.kind == "source"
+            and span.owned_cves
+        )
+    ):
+        raise EvidenceError(
+            "Remediation scope has a foreign document owner",
+            code="unsupported_evidence_relation",
+            field="Recommended Actions",
+        )
+    return block
+
+
+def _compile_source_recommendation_block(
+    span: DetailSpan, audience_reference=""
+) -> RecommendationBlock:
+    """Bind literal advice before checking any scope the directive consumes."""
+    scope = span.remediation_scope
     if not (block := span.document_list):
         return RecommendationBlock(
             span.source_block or span.text,
@@ -1862,6 +1948,7 @@ def _source_recommendation_block(
                     span.source_block or span.text,
                     span.reference_target,
                     audience_reference,
+                    scope,
                 )
             ),
         )
@@ -1875,6 +1962,7 @@ def _source_recommendation_block(
             version_identity=lambda value: identities.get(value)
             or _version_argument_identity(value),
             release_destinations=block.list_members,
+            remediation_scope=scope,
         )
     elif block.list_role == "audience":
         prefix, separator, body = block.text.partition(":")
@@ -1887,6 +1975,7 @@ def _source_recommendation_block(
                 body.strip(),
                 version_identity=_version_argument_identity,
                 release_audience=prefix,
+                remediation_scope=scope,
             )
     if parsed is None:
         parsed = RecommendationDirective(
@@ -1899,11 +1988,14 @@ def _source_recommendation_block(
     return RecommendationBlock(block.text, (replace(parsed, source_text=block.text),))
 
 
-def _source_recommendation_blocks(spans):
+def _source_recommendation_blocks(spans, cves):
     """A pronoun can use only the immediately preceding unique advice audience."""
     result = []
     audience = ""
-    for _, grouped in groupby(spans, lambda span: span.source_block or span.text):
+    previous_origin = None
+    for _, grouped in groupby(
+        spans, lambda span: (span.source_origin, span.source_block or span.text)
+    ):
         group = list(grouped)
         selected = next(
             (
@@ -1916,7 +2008,31 @@ def _source_recommendation_blocks(spans):
         if selected is None:
             audience = ""
             continue
+        origin = selected.source_origin
+        if previous_origin and (
+            not origin
+            or origin.source_key != previous_origin.source_key
+            or origin.source_url != previous_origin.source_url
+            or origin.document_sha256 != previous_origin.document_sha256
+        ):
+            audience = ""
+        previous_origin = origin
         block = _source_recommendation_block(selected, audience)
+        if (
+            any(
+                clause.argument_relation == "scope"
+                for directive in block.directives
+                if isinstance(directive, RecommendationDirective)
+                for clause in directive.clauses
+            )
+            and selected.remediation_scope
+            and set(selected.remediation_scope.cves) != set(cves)
+        ):
+            raise EvidenceError(
+                "Remediation scope must match the complete finding owner",
+                code="unsupported_evidence_relation",
+                field="Recommended Actions",
+            )
         result.append(block)
         subjects = {
             clause.subject
@@ -1934,6 +2050,12 @@ def collect_finding_details(
     sources: Sequence[ReportingSource], cves: Sequence[str]
 ) -> FindingDetails:
     """Collect complete source constraints; ambiguous source grammar still raises."""
+    if not cves and len(sources) != 1:
+        raise EvidenceError(
+            "An empty remediation scope requires one source owner",
+            code="ambiguous_source_scope",
+            field="Reporting",
+        )
     detail_spans = [
         span for source in sources for span in _scoped_detail_spans(source, cves)
     ]
@@ -2137,7 +2259,7 @@ def collect_finding_details(
         tuple(release_details),
         tuple(source_constraints),
         tuple(constraint_evidence),
-        _source_recommendation_blocks(detail_spans),
+        _source_recommendation_blocks(detail_spans, cves),
     )
 
 
