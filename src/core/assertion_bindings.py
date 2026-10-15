@@ -81,16 +81,41 @@ class SubjectBinding:
     text: str
     end: int
 
+    @property
+    def number(self) -> Literal["singular", "plural"] | None:
+        if self.kind != "actor":
+            return None
+        match = ACTOR_SUBJECT.fullmatch(self.text + " ")
+        if match is None:
+            return None
+        return ACTOR_NUMBERS[" ".join(match["head"].casefold().split())]
+
+
+ACTOR_HEADS = (
+    ("attacker", "attackers"),
+    ("operator", "operators"),
+    ("actor", "actors"),
+    ("threat actor", "threat actors"),
+    ("hacker", "hackers"),
+    ("cybercriminal", "cybercriminals"),
+    ("adversary", "adversaries"),
+)
+ACTOR_NUMBERS: dict[str, Literal["singular", "plural"]] = {
+    head: number
+    for forms in ACTOR_HEADS
+    for head, number in zip(forms, ("singular", "plural"))
+}
+ACTOR_SUBJECT = re.compile(
+    r"^(?:the\s+)?(?P<head>"
+    + "|".join(r"\s+".join(map(re.escape, head.split())) for head in ACTOR_NUMBERS)
+    + r")\s+",
+    re.I,
+)
+
 
 SUBJECT_PRODUCTIONS = (
     ("vulnerability", DESCRIPTIVE_SUBJECT),
-    (
-        "actor",
-        re.compile(
-            r"^(?:the\s+)?(?:attackers?|operators?|(?:threat\s+)?actors?|hackers?|cybercriminals?|adversar(?:y|ies))\s+",
-            re.I,
-        ),
-    ),
+    ("actor", ACTOR_SUBJECT),
 )
 
 

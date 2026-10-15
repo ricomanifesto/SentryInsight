@@ -10,9 +10,14 @@ from .exploitation_contract import (
     bind_event,
     has_required_event,
     event_forms,
-    USE_MORPHOLOGY,
+    requires_attack_context,
 )
-from .assertion_bindings import CVE_LIST as CVE_LIST, TargetBinding, bind_target
+from .assertion_bindings import (
+    CVE_LIST as CVE_LIST,
+    SubjectBinding,
+    TargetBinding,
+    bind_target,
+)
 from .assertion_qualifiers import (
     EPISTEMIC_MODIFIERS,
     REPORTED_MODIFIERS,
@@ -89,9 +94,16 @@ class OperatorProduction:
 # These established non-perfect constructions retain their bounded policies.
 # Perfect auxiliaries compose with morphological complements below.
 _NONPERFECT_PRODUCTIONS = (
-    OperatorProduction((), "actor", ("exploit",), "current"),
-    OperatorProduction((), "actor", ("exploited",), "past"),
-    OperatorProduction((), "vulnerability", ("exploited", "weaponized"), "unspecified"),
+    OperatorProduction(
+        (), "actor", event_forms(("finite_present", "finite_present_3sg")), "current"
+    ),
+    OperatorProduction((), "actor", event_forms("past"), "past"),
+    OperatorProduction(
+        (),
+        "vulnerability",
+        event_forms("participle", ("exploit", "weaponize", "use")),
+        "unspecified",
+    ),
     *(
         OperatorProduction((word,), voice, events, tense)
         for word, tense in (
@@ -101,13 +113,21 @@ _NONPERFECT_PRODUCTIONS = (
             ("were", "past"),
         )
         for voice, events in (
-            ("actor", ("exploiting",)),
-            ("vulnerability", ("exploited", "weaponized", "under")),
+            ("actor", event_forms("progressive")),
+            (
+                "vulnerability",
+                event_forms(
+                    ("participle", "state"), ("exploit", "weaponize", "under", "use")
+                ),
+            ),
         )
     ),
     *(
         OperatorProduction(
-            (word, "being"), "vulnerability", ("exploited", "weaponized"), tense
+            (word, "being"),
+            "vulnerability",
+            event_forms("participle", ("exploit", "weaponize", "use")),
+            tense,
         )
         for word, tense in (
             ("is", "current"),
@@ -127,10 +147,10 @@ _NONPERFECT_PRODUCTIONS = (
         )
         for word in ("has", "have", "had")
         for complement, voice, events in (
-            ((), "actor", ("exploiting",)),
-            (("to",), "actor", ("exploit",)),
-            (("to", "be"), "vulnerability", ("exploited",)),
-            (("being",), "vulnerability", ("exploited",)),
+            ((), "actor", event_forms("progressive")),
+            (("to",), "actor", event_forms("base")),
+            (("to", "be"), "vulnerability", event_forms("participle")),
+            (("being",), "vulnerability", event_forms("participle")),
         )
     ),
     *(
@@ -139,9 +159,15 @@ _NONPERFECT_PRODUCTIONS = (
         )
         for word in ("may", "might", "could", "would")
         for complement, voice, events in (
-            ((), "actor", ("exploit",)),
-            (("be",), "actor", ("exploiting",)),
-            (("be",), "vulnerability", ("exploited", "weaponized", "under")),
+            ((), "actor", event_forms("base")),
+            (("be",), "actor", event_forms("progressive")),
+            (
+                ("be",),
+                "vulnerability",
+                event_forms(
+                    ("participle", "state"), ("exploit", "weaponize", "under", "use")
+                ),
+            ),
         )
     ),
     *(
@@ -155,8 +181,13 @@ _NONPERFECT_PRODUCTIONS = (
             ("were", "past"),
         )
         for voice, events in (
-            ("actor", ("exploiting",)),
-            ("vulnerability", ("exploited", "weaponized", "under")),
+            ("actor", event_forms("progressive")),
+            (
+                "vulnerability",
+                event_forms(
+                    ("participle", "state"), ("exploit", "weaponize", "under", "use")
+                ),
+            ),
         )
     ),
     *(
@@ -174,15 +205,10 @@ _NONPERFECT_PRODUCTIONS = (
             ("continued", "past"),
         )
         for complement, voice, events in (
-            ((), "actor", ("exploit",)),
-            (("be",), "vulnerability", ("exploited",)),
+            ((), "actor", event_forms("base")),
+            (("be",), "vulnerability", event_forms("participle")),
         )
     ),
-)
-
-
-_NONPERFECT_PRODUCTIONS = tuple(
-    replace(rule, events=event_forms(rule.events)) for rule in _NONPERFECT_PRODUCTIONS
 )
 
 
@@ -204,19 +230,22 @@ def _perfect_operator(operators, voice):
     tense = "unspecified" if modal else "past" if words[0] == "had" else "current"
     complement = words[1:]
     if not complement and voice == "actor":
-        events, aspect = ("exploited",), "perfect"
+        events, aspect = event_forms("participle"), "perfect"
     elif complement == ("been",):
         if voice == "actor":
-            events, aspect = ("exploiting",), "perfect_progressive"
+            events, aspect = event_forms("progressive"), "perfect_progressive"
         elif voice == "vulnerability":
-            events, aspect = ("exploited", "weaponized", "under"), "perfect"
+            events, aspect = (
+                event_forms(
+                    ("participle", "state"), ("exploit", "weaponize", "under", "use")
+                ),
+                "perfect",
+            )
         else:
             return None
     else:
         return None
-    return OperatorProduction(
-        tuple(operators), voice, event_forms(events), tense, aspect, modal
-    )
+    return OperatorProduction(tuple(operators), voice, events, tense, aspect, modal)
 
 
 # Exhaustive conformance inventory, derived from the same bounded transition.
@@ -453,7 +482,12 @@ def _observation_frame(text, voice, modal, negative):
 
 
 def bind_predicate(
-    text: str, *, voice: str = "unscoped", modal: str = "", negative: bool = False
+    text: str,
+    *,
+    voice: str = "unscoped",
+    modal: str = "",
+    negative: bool = False,
+    subject: SubjectBinding | None = None,
 ) -> PredicateFrame:
     """Return one complete frame or an explicit unsupported required frame.
 
@@ -614,7 +648,7 @@ def bind_predicate(
             argument_start += 1
         argument = text[argument_start:end]
     qualifiers = bind_qualifiers(argument, complement=verb)
-    if verb in USE_MORPHOLOGY.values():
+    if requires_attack_context(verb):
         attack_context = next(
             (q.attack_context for q in qualifiers.spans if q.attack_context), None
         )
@@ -673,6 +707,10 @@ def bind_predicate(
         supported &= scope.supported and temporal_compatible(temporal, tense, aspect)
     if known and voice == "actor":
         supported &= target.kind != "empty"
+    if event.descriptor and event.descriptor.singular_actor:
+        supported &= bool(
+            subject and subject.kind == "actor" and subject.number == "singular"
+        )
     # Target identities are never borrowed from an adjunct or another object.
     if extract_cve_ids(argument):
         supported = False

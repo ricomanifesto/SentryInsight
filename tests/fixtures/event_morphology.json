@@ -1,0 +1,1002 @@
+{
+  "schema": 1,
+  "contract": "Bounded event inflection and valency; existing operators retain their semantics.",
+  "cases": [
+    {
+      "id": "present-plural",
+      "text": "Attackers exploit CVE-2026-1234 in the wild.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "legacy-singular-base",
+      "text": "The attacker exploit CVE-2026-1234 in the wild.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "past",
+      "text": "The attacker exploited CVE-2026-1234 yesterday.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "observed"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "modal-base",
+      "text": "The attacker may exploit CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "initiation-infinitive",
+      "text": "The attacker has begun to exploit CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "observed"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "continuative-infinitive",
+      "text": "The attacker continues to exploit CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "perfect-participle",
+      "text": "The attacker has exploited CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "observed"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "progressive",
+      "text": "The attacker is exploiting CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "passive-participle",
+      "text": "CVE-2026-1234 is exploited.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "modal-passive",
+      "text": "CVE-2026-1234 may be exploited.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "weaponized-passive",
+      "text": "CVE-2026-1234 is weaponized.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "nominal-under",
+      "text": "CVE-2026-1234 is under attack.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "use-present-base",
+      "text": "Attackers use CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "use-past",
+      "text": "The attacker used CVE-2026-1234 in attacks yesterday.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "observed"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "use-progressive",
+      "text": "The attacker is using CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "use-modal-base",
+      "text": "The attacker may use CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "use-perfect-participle",
+      "text": "The attacker has used CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "observed"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "use-passive-participle",
+      "text": "CVE-2026-1234 was used in attacks.",
+      "disposition": "preserve",
+      "reason": "Preserve the already admitted operator, complement slot, valency and status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "observed"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "singular-present-seed",
+      "text": "The attacker exploits CVE-2026-1234 in the wild.",
+      "disposition": "change",
+      "reason": "Admit the bounded singular actor's third-person finite present, with existing complete target and use-context requirements.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "actor",
+          "text": "The attacker",
+          "span": [
+            0,
+            12
+          ],
+          "owner": "event"
+        },
+        {
+          "kind": "event",
+          "text": "exploits",
+          "span": [
+            13,
+            21
+          ],
+          "lemma": "exploit",
+          "slot": "finite_present_3sg"
+        },
+        {
+          "kind": "target",
+          "text": "CVE-2026-1234",
+          "span": [
+            22,
+            35
+          ],
+          "owner": "event"
+        }
+      ]
+    },
+    {
+      "id": "singular-present-hacker",
+      "text": "The hacker exploits CVE-2026-1234.",
+      "disposition": "change",
+      "reason": "Admit the bounded singular actor's third-person finite present, with existing complete target and use-context requirements.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "actor",
+          "text": "The hacker",
+          "span": [
+            0,
+            10
+          ],
+          "owner": "event"
+        },
+        {
+          "kind": "event",
+          "text": "exploits",
+          "span": [
+            11,
+            19
+          ],
+          "lemma": "exploit",
+          "slot": "finite_present_3sg"
+        },
+        {
+          "kind": "target",
+          "text": "CVE-2026-1234",
+          "span": [
+            20,
+            33
+          ],
+          "owner": "event"
+        }
+      ]
+    },
+    {
+      "id": "singular-casefold",
+      "text": "THE ADVERSARY EXPLOITS CVE-2026-1234 in the wild.",
+      "disposition": "change",
+      "reason": "Admit the bounded singular actor's third-person finite present, with existing complete target and use-context requirements.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "actor",
+          "text": "THE ADVERSARY",
+          "span": [
+            0,
+            13
+          ],
+          "owner": "event"
+        },
+        {
+          "kind": "event",
+          "text": "EXPLOITS",
+          "span": [
+            14,
+            22
+          ],
+          "lemma": "exploit",
+          "slot": "finite_present_3sg"
+        },
+        {
+          "kind": "target",
+          "text": "CVE-2026-1234",
+          "span": [
+            23,
+            36
+          ],
+          "owner": "event"
+        }
+      ]
+    },
+    {
+      "id": "singular-use",
+      "text": "The attacker uses CVE-2026-1234 in attacks.",
+      "disposition": "change",
+      "reason": "Admit the bounded singular actor's third-person finite present, with existing complete target and use-context requirements.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "actor",
+          "text": "The attacker",
+          "span": [
+            0,
+            12
+          ],
+          "owner": "event"
+        },
+        {
+          "kind": "event",
+          "text": "uses",
+          "span": [
+            13,
+            17
+          ],
+          "lemma": "use",
+          "slot": "finite_present_3sg"
+        },
+        {
+          "kind": "target",
+          "text": "CVE-2026-1234",
+          "span": [
+            18,
+            31
+          ],
+          "owner": "event"
+        },
+        {
+          "kind": "attack_context",
+          "text": "in attacks",
+          "span": [
+            32,
+            42
+          ],
+          "owner": "event",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "singular-use-quantity",
+      "text": "The cybercriminal uses CVE-2026-1234 in 2 attacks.",
+      "disposition": "change",
+      "reason": "Admit the bounded singular actor's third-person finite present, with existing complete target and use-context requirements.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "actor",
+          "text": "The cybercriminal",
+          "span": [
+            0,
+            17
+          ],
+          "owner": "event"
+        },
+        {
+          "kind": "event",
+          "text": "uses",
+          "span": [
+            18,
+            22
+          ],
+          "lemma": "use",
+          "slot": "finite_present_3sg"
+        },
+        {
+          "kind": "target",
+          "text": "CVE-2026-1234",
+          "span": [
+            23,
+            36
+          ],
+          "owner": "event"
+        },
+        {
+          "kind": "attack_context",
+          "text": "in 2 attacks",
+          "span": [
+            37,
+            49
+          ],
+          "owner": "event",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "negative",
+      "text": "The attacker never exploits CVE-2026-1234.",
+      "disposition": "change",
+      "reason": "Only the finite form changes admission; existing negation, qualification, condition or reporting ownership keeps its status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "not_observed"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "negation",
+          "text": "never",
+          "span": [
+            13,
+            18
+          ],
+          "owner": "event"
+        }
+      ]
+    },
+    {
+      "id": "reported",
+      "text": "The attacker reportedly exploits CVE-2026-1234.",
+      "disposition": "change",
+      "reason": "Only the finite form changes admission; existing negation, qualification, condition or reporting ownership keeps its status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "reported",
+          "text": "reportedly",
+          "span": [
+            13,
+            23
+          ],
+          "owner": "event"
+        }
+      ]
+    },
+    {
+      "id": "possible",
+      "text": "The attacker potentially exploits CVE-2026-1234.",
+      "disposition": "change",
+      "reason": "Only the finite form changes admission; existing negation, qualification, condition or reporting ownership keeps its status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "potential"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "epistemic",
+          "text": "potentially",
+          "span": [
+            13,
+            24
+          ],
+          "owner": "event"
+        }
+      ]
+    },
+    {
+      "id": "conditional",
+      "text": "If reports are accurate, the attacker exploits CVE-2026-1234.",
+      "disposition": "change",
+      "reason": "Only the finite form changes admission; existing negation, qualification, condition or reporting ownership keeps its status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "condition",
+          "text": "If reports are accurate",
+          "span": [
+            0,
+            23
+          ],
+          "owner": "event"
+        }
+      ]
+    },
+    {
+      "id": "quoted",
+      "text": "\"The attacker exploits CVE-2026-1234,\" the company said.",
+      "disposition": "change",
+      "reason": "Only the finite form changes admission; existing negation, qualification, condition or reporting ownership keeps its status.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      },
+      "literal_expectations": [
+        {
+          "kind": "actor",
+          "text": "The attacker",
+          "span": [
+            1,
+            13
+          ],
+          "owner": "event"
+        },
+        {
+          "kind": "event",
+          "text": "exploits",
+          "span": [
+            14,
+            22
+          ],
+          "lemma": "exploit",
+          "slot": "finite_present_3sg"
+        },
+        {
+          "kind": "reporter",
+          "text": "the company",
+          "span": [
+            39,
+            50
+          ],
+          "owner": "reporting"
+        }
+      ]
+    },
+    {
+      "id": "explicit-coordination",
+      "text": "The attacker reportedly exploits CVE-2026-1234 and the hacker exploits CVE-2026-5678.",
+      "disposition": "change",
+      "reason": "Explicit actor/CVE owners remain independent; reported qualification stays on its clause.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown",
+          "CVE-2026-5678": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "negative-coordination",
+      "text": "The attacker never exploits CVE-2026-1234, but the hacker exploits CVE-2026-5678.",
+      "disposition": "change",
+      "reason": "Adversative explicit ownership preserves separate negative and affirmative events.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "not_observed",
+          "CVE-2026-5678": "active"
+        },
+        "action": "none",
+        "retain_complete_source": true
+      }
+    },
+    {
+      "id": "inherited-base-boundary",
+      "text": "The attacker exploit CVE-2026-1234 and exploit CVE-2026-5678.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing unsupported bare finite event after an elided actor; do not widen coordination inheritance.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "inherited-third-boundary",
+      "text": "The attacker exploits CVE-2026-1234 and exploits CVE-2026-5678.",
+      "disposition": "preserve",
+      "reason": "A recognized first event does not license a new elided-subject coordination production.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "exploit-modal-third",
+      "text": "The attacker may exploits CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "exploit-infinitive-third",
+      "text": "The attacker continues to exploits CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "exploit-perfect-third",
+      "text": "The attacker has exploits CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "exploit-perfect-base",
+      "text": "The attacker has exploit CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "exploit-progressive-third",
+      "text": "The attacker is exploits CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "exploit-passive-third",
+      "text": "CVE-2026-1234 is exploits.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "use-modal-third",
+      "text": "The attacker may uses CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "use-infinitive-third",
+      "text": "The attacker continues to uses CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "use-perfect-third",
+      "text": "The attacker has uses CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "use-perfect-base",
+      "text": "The attacker has use CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "use-progressive-third",
+      "text": "The attacker is uses CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "use-passive-third",
+      "text": "CVE-2026-1234 is uses in attacks.",
+      "disposition": "preserve",
+      "reason": "Finite present cannot substitute for the operator's base, participle or progressive complement slot.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "plural-third-exploit",
+      "text": "Attackers exploits CVE-2026-1234 in the wild.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "plural-third-use",
+      "text": "Attackers uses CVE-2026-1234 in attacks.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "unlicensed-do-operator",
+      "text": "The attacker does not exploit CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "scanner-not-vulnerability",
+      "text": "The attacker uses a scanner in attacks. CVE-2026-1234 exploitation status is unknown.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "unknown-actor",
+      "text": "The researcher exploits CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "weaponize-active-not-added",
+      "text": "The attacker weaponizes CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "missing-target",
+      "text": "The attacker exploits.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "foreign-target-in-adjunct",
+      "text": "The attacker exploits logs for CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "future-incompatible",
+      "text": "The attacker exploits CVE-2026-1234 tomorrow.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "vulnerability-active-subject",
+      "text": "CVE-2026-1234 exploits.",
+      "disposition": "preserve",
+      "reason": "Preserve the existing subject, required-target, operator, temporal or unsupported-event boundary; this proposal adds no wider grammar.",
+      "expected": {
+        "compile": false,
+        "unsupported": true,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "ordinary-use-no-attack-context",
+      "text": "The attacker uses CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "Use without the required attack relation stays context and cannot establish exploitation. Its current context-only sentence is absent from the rendered evidence; preserve that absence rather than promote it.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "action": "none",
+        "retain_complete_source": false
+      }
+    },
+    {
+      "id": "unknown-synonym-context",
+      "text": "The attacker abuses CVE-2026-1234.",
+      "disposition": "preserve",
+      "reason": "No synonym expansion; ordinary unrecognized context cannot establish exploitation. Its current context-only sentence is absent from the rendered evidence; preserve that absence rather than promote it.",
+      "expected": {
+        "compile": true,
+        "unsupported": false,
+        "states": {
+          "CVE-2026-1234": "unknown"
+        },
+        "action": "none",
+        "retain_complete_source": false
+      }
+    }
+  ],
+  "policy": [
+    "Only exploit/exploits and use/uses gain singular finite-present admission.",
+    "New third-person forms require a bound singular actor; legacy base-form admission remains unchanged.",
+    "No new do-support, synonyms, targets, qualification rules or coordination inheritance.",
+    "Weaponized and exact nominal complements preserve only existing admitted forms."
+  ]
+}

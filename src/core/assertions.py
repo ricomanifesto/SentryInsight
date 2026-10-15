@@ -1002,7 +1002,11 @@ def _unit(raw):
             unsupported=has_required_event(core),
         )
     frame = bind_predicate(
-        body, voice=owner.kind if owner else "unscoped", modal=modal, negative=negative
+        body,
+        voice=owner.kind if owner else "unscoped",
+        modal=modal,
+        negative=negative,
+        subject=owner,
     )
     owned_cves = (
         frame.target.cves
@@ -1192,7 +1196,9 @@ def _parse_assertions(sentence):
         owner = _bind_subject(candidate)
         body_start = owner.end if owner else 0
         frame = bind_predicate(
-            candidate[body_start:], voice=owner.kind if owner else "unscoped"
+            candidate[body_start:],
+            voice=owner.kind if owner else "unscoped",
+            subject=owner,
         )
         event = frame.event_binding
         if event and event.descriptor and event.descriptor.complement:

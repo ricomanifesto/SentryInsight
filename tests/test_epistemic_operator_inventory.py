@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from src.core.assertion_predicates import OPERATOR_PRODUCTIONS, bind_predicate
+from src.core.assertion_bindings import bind_subject
 from src.core.relations import OwnedClause
 
 MODIFIERS = (
@@ -55,12 +56,16 @@ def test_existing_complete_productions_are_the_frozen_admission_boundary():
         }
         for rule in old_nonperfect
     ]
+    # Only the existing actor-present slot gains these two singular forms.
+    # Every other frozen operator and old spelling remains exact.
+    assert expected_nonperfect[0]["events"] == ["exploit", "use"]
+    expected_nonperfect[0]["events"] = ["exploit", "exploits", "use", "uses"]
     nonperfect = [
         asdict(rule) for rule in OPERATOR_PRODUCTIONS if not is_perfect(rule.operators)
     ]
     assert json.loads(json.dumps(nonperfect)) == expected_nonperfect
     assert len(OPERATOR_PRODUCTIONS) == 74  # 53 established + 7 * 3 perfect frames.
-    assert sum(len(rule.events) for rule in OPERATOR_PRODUCTIONS) == 191
+    assert sum(len(rule.events) for rule in OPERATOR_PRODUCTIONS) == 193
 
 
 def is_perfect(operators):
@@ -212,7 +217,7 @@ def predicate(rule, event, insertions):
     tail = " active exploitation" if event == "under" else ""
     if rule.voice == "actor":
         tail += " CVE-2026-1234"
-    if event in {"use", "used", "using"}:
+    if event in {"use", "uses", "used", "using"}:
         tail += " in attacks"
     return " ".join([*tokens, event]) + tail
 
@@ -223,7 +228,13 @@ def test_all_existing_negation_modifier_positions_keep_their_owner(rule):
         for insertions in positions(rule, event):
             text = predicate(rule, event, insertions)
             expected = expected_meaning(rule, event, insertions)
-            frame = bind_predicate(text, voice=rule.voice)
+            frame = bind_predicate(
+                text,
+                voice=rule.voice,
+                subject=(
+                    bind_subject("The attacker ") if rule.voice == "actor" else None
+                ),
+            )
             clause = OwnedClause(
                 kind=frame.kind,
                 modal=frame.modal,
@@ -268,7 +279,13 @@ def test_correlative_markers_and_unrecognized_stacks_preserve_admission(rule):
         for gap in range(len(rule.operators) + 1):
             for word in ("only", "just", "merely", "simply"):
                 text = predicate(rule, event, [(gap, ["not", word])])
-                frame = bind_predicate(text, voice=rule.voice)
+                frame = bind_predicate(
+                    text,
+                    voice=rule.voice,
+                    subject=(
+                        bind_subject("The attacker ") if rule.voice == "actor" else None
+                    ),
+                )
                 assert frame.supported == (
                     rule.tense != "unspecified" or bool(rule.modal)
                 ), text
