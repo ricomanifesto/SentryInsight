@@ -19,6 +19,7 @@ from markdown_it.token import Token
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .assertions import FINITE_PREDICATE_HEADS, parse_assertions, source_qualification
+from .exploitation_contract import requires_attack_context
 from .relations import OwnedClause
 from .severity import rating_relation, project_ratings
 from .source_document import SourceSpan, source_document
@@ -557,6 +558,20 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                 field="Reporting",
             )
         qualification = source_qualification(block.text) if owned else None
+        if owned and any(
+            clause.kind == "assertion"
+            and clause.unsupported
+            and requires_attack_context(clause.verb)
+            for sentence in _sentences(block.text)
+            for clause in parse_assertions(sentence)
+        ):
+            # A selected block owns this failure, not the missing event target.
+            # Do not lend its heading's CVE to an incomplete use/attack frame.
+            raise EvidenceError(
+                "Required contextual event has no complete owned operand",
+                code="unsupported_evidence_relation",
+                field="Exploitation Status",
+            )
         if qualification and qualification.unsupported:
             raise EvidenceError(
                 "Required source qualification is unsupported",

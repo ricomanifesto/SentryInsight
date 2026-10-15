@@ -47,6 +47,59 @@ class ScopeOperator:
 
 
 @dataclass(frozen=True)
+class AttackCardinality:
+    text: str
+    start: int
+    end: int
+    kind: Literal["plurality", "exact_positive"]
+
+    @property
+    def supported(self):
+        if self.kind == "plurality":
+            return self.text.casefold() in {"multiple", "several"}
+        return bool(
+            self.kind == "exact_positive"
+            and self.text.isascii()
+            and self.text.isdecimal()
+            and not self.text.startswith("0")
+        )
+
+
+@dataclass(frozen=True)
+class AttackContext:
+    """One positioned attack relation, shared by qualifier and event binding."""
+
+    text: str
+    start: int
+    end: int
+    relation_span: tuple[int, int]
+    head_span: tuple[int, int]
+    cardinality: AttackCardinality | None = None
+
+    @property
+    def supported(self):
+        relation = self.text[slice(*self.relation_span)].casefold()
+        head = self.text[slice(*self.head_span)].casefold()
+        if not (
+            0 <= self.start < self.end <= len(self.text)
+            and self.start == self.relation_span[0]
+            and self.relation_span[1] < self.head_span[0]
+            and self.head_span[1] == self.end
+            and relation == "in"
+        ):
+            return False
+        if quantity := self.cardinality:
+            return bool(
+                quantity.supported
+                and self.relation_span[1] < quantity.start < quantity.end
+                and quantity.end < self.head_span[0]
+                and self.text[quantity.start : quantity.end] == quantity.text
+                and head == ("attack" if quantity.text == "1" else "attacks")
+            )
+        return head == "attacks"
+
+
+@dataclass(frozen=True)
 class AssertionScope:
     """Local text keeps spans valid through wrappers and inherited relations."""
 

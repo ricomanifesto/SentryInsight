@@ -9,6 +9,8 @@ from .exploitation_contract import (
     TOPIC as TOPIC,
     bind_event,
     has_required_event,
+    event_forms,
+    USE_MORPHOLOGY,
 )
 from .assertion_bindings import CVE_LIST as CVE_LIST, TargetBinding, bind_target
 from .assertion_qualifiers import (
@@ -177,6 +179,11 @@ _NONPERFECT_PRODUCTIONS = (
 )
 
 
+_NONPERFECT_PRODUCTIONS = tuple(
+    replace(rule, events=event_forms(rule.events)) for rule in _NONPERFECT_PRODUCTIONS
+)
+
+
 def _perfect_operator(operators, voice):
     """Bind finite reference time, perfect aspect and a voice-owned complement.
 
@@ -205,7 +212,9 @@ def _perfect_operator(operators, voice):
             return None
     else:
         return None
-    return OperatorProduction(tuple(operators), voice, events, tense, aspect, modal)
+    return OperatorProduction(
+        tuple(operators), voice, event_forms(events), tense, aspect, modal
+    )
 
 
 # Exhaustive conformance inventory, derived from the same bounded transition.
@@ -258,6 +267,7 @@ def operator_tense(operators):
 PARTICIPIAL_PREDICATE_HEADS = frozenset(
     {
         "exploited",
+        "used",
         "weaponized",
         "affected",
         "vulnerable",
@@ -597,6 +607,16 @@ def bind_predicate(
             argument_start += 1
         argument = text[argument_start:end]
     qualifiers = bind_qualifiers(argument, complement=verb)
+    if verb in USE_MORPHOLOGY.values():
+        attack_context = next(
+            (q.attack_context for q in qualifiers.spans if q.attack_context), None
+        )
+        event = bind_event(
+            text,
+            (event_start, event_end),
+            (argument_start, end),
+            attack_context=attack_context,
+        )
     known = event.descriptor is not None
     kind = "context" if event.kind == "context" else "assertion"
     if initial in ASPECT_HEADS and rule is None and kind == "context":
@@ -661,6 +681,38 @@ def bind_predicate(
     ) and (verb not in PARTICIPIAL_PREDICATE_HEADS or qualifiers.complete)
     inherits &= initial not in ASPECT_HEADS or rule is not None
     starts = inherits or (initial in ASPECT_HEADS and has_required_event(text))
+    positioned_qualifiers = []
+    for span in qualifiers.spans:
+        context = span.attack_context
+        if context:
+            quantity = context.cardinality
+            context = replace(
+                context,
+                text=text,
+                start=context.start + argument_start,
+                end=context.end + argument_start,
+                relation_span=tuple(x + argument_start for x in context.relation_span),
+                head_span=tuple(x + argument_start for x in context.head_span),
+                cardinality=(
+                    replace(
+                        quantity,
+                        start=quantity.start + argument_start,
+                        end=quantity.end + argument_start,
+                    )
+                    if quantity
+                    else None
+                ),
+            )
+            if event.attack_context is span.attack_context:
+                event = replace(event, attack_context=context)
+        positioned_qualifiers.append(
+            replace(
+                span,
+                start=span.start + argument_start,
+                end=span.end + argument_start,
+                attack_context=context,
+            )
+        )
     return PredicateFrame(
         operators=tuple(auxiliaries),
         scope=scope,
@@ -672,12 +724,7 @@ def bind_predicate(
         event_binding=event,
         target=target,
         adjunct_span=(argument_start, end),
-        qualifiers=tuple(
-            replace(
-                span, start=span.start + argument_start, end=span.end + argument_start
-            )
-            for span in qualifiers.spans
-        ),
+        qualifiers=tuple(positioned_qualifiers),
         verb=verb,
         kind=kind,
         tense=tense,

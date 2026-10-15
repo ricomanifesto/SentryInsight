@@ -161,6 +161,7 @@ ACTION_FRAMES: dict[str, dict[ArgumentRelation, dict[str, Action]]] = {
     "deploy": {"direct": {"monitoring_method": Action.NONE, "patch": Action.PATCH}},
     "sanitize": {"direct": {"input": Action.NONE}},
     "require": {"direct": {"authentication": Action.NONE}},
+    "enable": {"direct": {"authentication": Action.NONE}},
     "enforce": {
         "direct": dict.fromkeys(("authentication", "access_control"), Action.NONE)
     },
@@ -189,6 +190,7 @@ DIRECTIVE_VALENCIES = {
 } | {verb: {"direct": roles} for verb, roles in PREPARATORY_TARGETS.items()}
 VERBS = frozenset(DIRECTIVE_VALENCIES)
 PASSIVE_PARTICIPLES = {
+    "enabled": "enable",
     "viewed": "view",
     "installed": "install",
     "applied": "apply",

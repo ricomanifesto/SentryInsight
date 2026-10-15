@@ -16,6 +16,8 @@ from .assertion_bindings import (
 from .assertion_bindings import NAME as NAME
 from .cve import extract_cve_ids
 from .relations import (
+    AttackCardinality,
+    AttackContext,
     AssertionScope,
     ScopeOperator,
     ScopeTerm,
@@ -60,6 +62,23 @@ def qualifier_terms(text, spans, *, offset=0, owner="event"):
     """Transfer complete owned qualifier spans without re-parsing their prose."""
     result = []
     for span in spans:
+        if context := span.attack_context:
+            result.append(
+                ScopeTerm(
+                    span.text, span.start + offset, span.end + offset, "domain", owner
+                )
+            )
+            if quantity := context.cardinality:
+                result.append(
+                    ScopeTerm(
+                        quantity.text,
+                        quantity.start + offset,
+                        quantity.end + offset,
+                        "cardinality",
+                        owner,
+                    )
+                )
+            continue
         value = span.text.casefold()
         kind = MODIFIER_KINDS.get(value, span.kind)
         if span.temporal and span.temporal.direction == "current":
@@ -121,6 +140,7 @@ class QualifierSpan:
     object_text: str = ""
     cves: tuple[str, ...] = ()
     temporal: TemporalConstraint | None = None
+    attack_context: AttackContext | None = None
 
 
 @dataclass(frozen=True)
@@ -140,6 +160,11 @@ class QualifierBinding:
 
 def _production(pattern, *, flags=re.I):
     return re.compile("(?:" + pattern.replace(" ", r"\s+") + r")(?=$|[\s,.!?])", flags)
+
+
+ATTACK_CONTEXT = _production(
+    r"(?P<relation>in) (?:(?P<quantity>\S+) )?(?P<head>attacks?)"
+)
 
 
 # Each production binds a role and its entire finite or nominal argument.
@@ -196,7 +221,7 @@ PRODUCTIONS = (
     (
         "context",
         _production(
-            r"in (?P<object>the wild|attacks|prior reporting)|across (?P<region>countries)"
+            r"in (?P<object>the wild|prior reporting)|across (?P<region>countries)"
         ),
     ),
     ("context", _production(rf"(?i:in) (?P<object>{NAME} Platform)", flags=0)),
@@ -316,6 +341,43 @@ def bind_qualifiers(text: str, *, complement: str = "") -> QualifierBinding:
             start += 1
             while start < len(text) and text[start].isspace():
                 start += 1
+        if match := ATTACK_CONTEXT.match(text, start):
+            quantity = (
+                AttackCardinality(
+                    text=match["quantity"],
+                    start=match.start("quantity"),
+                    end=match.end("quantity"),
+                    kind=(
+                        "plurality"
+                        if match["quantity"].casefold() in {"multiple", "several"}
+                        else "exact_positive"
+                    ),
+                )
+                if match["quantity"]
+                else None
+            )
+            context = AttackContext(
+                text,
+                start,
+                match.end(),
+                match.span("relation"),
+                match.span("head"),
+                quantity,
+            )
+            if not context.supported:
+                return QualifierBinding(text, tuple(spans), start)
+            spans.append(
+                QualifierSpan(
+                    "context",
+                    match.group(),
+                    start,
+                    match.end(),
+                    object_text=match["head"],
+                    attack_context=context,
+                )
+            )
+            cursor = match.end()
+            continue
         if text[start : start + 3].casefold() == "by ":
             actor = bind_subject(text[start + 3 :] + " ")
             if actor and actor.kind == "actor":

@@ -40,12 +40,27 @@ def test_existing_complete_productions_are_the_frozen_admission_boundary():
         ).read_text()
     )
     old_nonperfect = [rule for rule in legacy if not is_perfect(rule["operators"])]
+    use_morphology = {"exploit": "use", "exploited": "used", "exploiting": "using"}
+    expected_nonperfect = [
+        {
+            **rule,
+            "events": [
+                *rule["events"],
+                *(
+                    use_morphology[event]
+                    for event in rule["events"]
+                    if event in use_morphology
+                ),
+            ],
+        }
+        for rule in old_nonperfect
+    ]
     nonperfect = [
         asdict(rule) for rule in OPERATOR_PRODUCTIONS if not is_perfect(rule.operators)
     ]
-    assert json.loads(json.dumps(nonperfect)) == old_nonperfect
+    assert json.loads(json.dumps(nonperfect)) == expected_nonperfect
     assert len(OPERATOR_PRODUCTIONS) == 74  # 53 established + 7 * 3 perfect frames.
-    assert sum(len(rule.events) for rule in OPERATOR_PRODUCTIONS) == 117
+    assert sum(len(rule.events) for rule in OPERATOR_PRODUCTIONS) == 191
 
 
 def is_perfect(operators):
@@ -151,7 +166,7 @@ def expected_meaning(rule, event, insertions):
         status = (
             "unknown"
             if restrictions
-            or (perfect and rule.voice == "actor" and event == "exploiting")
+            or (perfect and rule.voice == "actor" and event in {"exploiting", "using"})
             else "not_observed"
         )
     else:
@@ -197,6 +212,8 @@ def predicate(rule, event, insertions):
     tail = " active exploitation" if event == "under" else ""
     if rule.voice == "actor":
         tail += " CVE-2026-1234"
+    if event in {"use", "used", "using"}:
+        tail += " in attacks"
     return " ".join([*tokens, event]) + tail
 
 

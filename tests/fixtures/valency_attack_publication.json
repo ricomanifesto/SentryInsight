@@ -1,0 +1,5512 @@
+{
+  "sources": [
+    {
+      "id": "enable-positive-001",
+      "group": "enable-positive",
+      "text": "Users should enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users should enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-positive-002",
+      "group": "enable-positive",
+      "text": "Enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nEnable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-positive-003",
+      "group": "enable-positive",
+      "text": "Users must enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers must enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users must enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-positive-004",
+      "group": "enable-positive",
+      "text": "Users are advised to enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers are advised to enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users are advised to enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-positive-005",
+      "group": "enable-positive",
+      "text": "The vendor recommends users enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends users enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-positive-006",
+      "group": "enable-positive",
+      "text": "The vendor recommends that users enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends that users enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends that users enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-positive-007",
+      "group": "enable-positive",
+      "text": "The vendor advised users to enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor advised users to enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor advised users to enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-positive-008",
+      "group": "enable-positive",
+      "text": "Users should enable multifactor authentication (MFA).",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable multifactor authentication (MFA).",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users should enable multifactor authentication (MFA)."
+      }
+    },
+    {
+      "id": "enable-positive-009",
+      "group": "enable-positive",
+      "text": "Enable multifactor authentication (MFA).",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nEnable multifactor authentication (MFA).",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Enable multifactor authentication (MFA)."
+      }
+    },
+    {
+      "id": "enable-positive-010",
+      "group": "enable-positive",
+      "text": "Users must enable multifactor authentication (MFA).",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers must enable multifactor authentication (MFA).",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users must enable multifactor authentication (MFA)."
+      }
+    },
+    {
+      "id": "enable-positive-011",
+      "group": "enable-positive",
+      "text": "Users are advised to enable multifactor authentication (MFA).",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers are advised to enable multifactor authentication (MFA).",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users are advised to enable multifactor authentication (MFA)."
+      }
+    },
+    {
+      "id": "enable-positive-012",
+      "group": "enable-positive",
+      "text": "The vendor recommends users enable multifactor authentication (MFA).",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users enable multifactor authentication (MFA).",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends users enable multifactor authentication (MFA)."
+      }
+    },
+    {
+      "id": "enable-positive-013",
+      "group": "enable-positive",
+      "text": "The vendor recommends that users enable multifactor authentication (MFA).",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends that users enable multifactor authentication (MFA).",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends that users enable multifactor authentication (MFA)."
+      }
+    },
+    {
+      "id": "enable-positive-014",
+      "group": "enable-positive",
+      "text": "The vendor advised users to enable multifactor authentication (MFA).",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor advised users to enable multifactor authentication (MFA).",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor advised users to enable multifactor authentication (MFA)."
+      }
+    },
+    {
+      "id": "enable-positive-015",
+      "group": "enable-positive",
+      "text": "Users should enable passkeys.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable passkeys.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users should enable passkeys."
+      }
+    },
+    {
+      "id": "enable-positive-016",
+      "group": "enable-positive",
+      "text": "Enable passkeys.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nEnable passkeys.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Enable passkeys."
+      }
+    },
+    {
+      "id": "enable-positive-017",
+      "group": "enable-positive",
+      "text": "Users must enable passkeys.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers must enable passkeys.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users must enable passkeys."
+      }
+    },
+    {
+      "id": "enable-positive-018",
+      "group": "enable-positive",
+      "text": "Users are advised to enable passkeys.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers are advised to enable passkeys.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users are advised to enable passkeys."
+      }
+    },
+    {
+      "id": "enable-positive-019",
+      "group": "enable-positive",
+      "text": "The vendor recommends users enable passkeys.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users enable passkeys.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends users enable passkeys."
+      }
+    },
+    {
+      "id": "enable-positive-020",
+      "group": "enable-positive",
+      "text": "The vendor recommends that users enable passkeys.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends that users enable passkeys.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends that users enable passkeys."
+      }
+    },
+    {
+      "id": "enable-positive-021",
+      "group": "enable-positive",
+      "text": "The vendor advised users to enable passkeys.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor advised users to enable passkeys.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor advised users to enable passkeys."
+      }
+    },
+    {
+      "id": "enable-positive-022",
+      "group": "enable-positive",
+      "text": "Users should enable multifactor authentication, especially for webmail and VPNs.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable multifactor authentication, especially for webmail and VPNs.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users should enable multifactor authentication, especially for webmail and VPNs."
+      }
+    },
+    {
+      "id": "enable-positive-023",
+      "group": "enable-positive",
+      "text": "Enable multifactor authentication, especially for webmail and VPNs.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nEnable multifactor authentication, especially for webmail and VPNs.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Enable multifactor authentication, especially for webmail and VPNs."
+      }
+    },
+    {
+      "id": "enable-positive-024",
+      "group": "enable-positive",
+      "text": "Users must enable multifactor authentication, especially for webmail and VPNs.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers must enable multifactor authentication, especially for webmail and VPNs.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users must enable multifactor authentication, especially for webmail and VPNs."
+      }
+    },
+    {
+      "id": "enable-positive-025",
+      "group": "enable-positive",
+      "text": "Users are advised to enable multifactor authentication, especially for webmail and VPNs.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers are advised to enable multifactor authentication, especially for webmail and VPNs.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users are advised to enable multifactor authentication, especially for webmail and VPNs."
+      }
+    },
+    {
+      "id": "enable-positive-026",
+      "group": "enable-positive",
+      "text": "The vendor recommends users enable multifactor authentication, especially for webmail and VPNs.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users enable multifactor authentication, especially for webmail and VPNs.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends users enable multifactor authentication, especially for webmail and VPNs."
+      }
+    },
+    {
+      "id": "enable-positive-027",
+      "group": "enable-positive",
+      "text": "The vendor recommends that users enable multifactor authentication, especially for webmail and VPNs.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends that users enable multifactor authentication, especially for webmail and VPNs.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends that users enable multifactor authentication, especially for webmail and VPNs."
+      }
+    },
+    {
+      "id": "enable-positive-028",
+      "group": "enable-positive",
+      "text": "The vendor advised users to enable multifactor authentication, especially for webmail and VPNs.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor advised users to enable multifactor authentication, especially for webmail and VPNs.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor advised users to enable multifactor authentication, especially for webmail and VPNs."
+      }
+    },
+    {
+      "id": "enable-qualified-001",
+      "group": "enable-qualified",
+      "text": "Multifactor authentication should be enabled.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nMultifactor authentication should be enabled.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Multifactor authentication should be enabled."
+      }
+    },
+    {
+      "id": "enable-qualified-002",
+      "group": "enable-qualified",
+      "text": "Passkeys must be enabled.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nPasskeys must be enabled.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Passkeys must be enabled."
+      }
+    },
+    {
+      "id": "enable-qualified-003",
+      "group": "enable-qualified",
+      "text": "Multifactor authentication should not be enabled.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nMultifactor authentication should not be enabled.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Multifactor authentication should not be enabled."
+      }
+    },
+    {
+      "id": "enable-qualified-004",
+      "group": "enable-qualified",
+      "text": "Users should not enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should not enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users should not enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-qualified-005",
+      "group": "enable-qualified",
+      "text": "Users should enable multifactor authentication if exposed.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable multifactor authentication if exposed.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users should enable multifactor authentication if exposed."
+      }
+    },
+    {
+      "id": "enable-qualified-006",
+      "group": "enable-qualified",
+      "text": "If exposed, users should enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nIf exposed, users should enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "If exposed, users should enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-qualified-007",
+      "group": "enable-qualified",
+      "text": "Users should enable multifactor authentication or install the patch.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable multifactor authentication or install the patch.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "Users should enable multifactor authentication or install the patch."
+      }
+    },
+    {
+      "id": "enable-qualified-008",
+      "group": "enable-qualified",
+      "text": "The vendor does not recommend users enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend users enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor does not recommend users enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-qualified-009",
+      "group": "enable-qualified",
+      "text": "The vendor recommends users not enable multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users not enable multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": "The vendor recommends users not enable multifactor authentication."
+      }
+    },
+    {
+      "id": "enable-independent-action-001",
+      "group": "enable-independent-action",
+      "text": "Users should enable multifactor authentication and install the patch.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable multifactor authentication and install the patch.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "error": null,
+        "complete_guidance": "Users should enable multifactor authentication and install the patch."
+      }
+    },
+    {
+      "id": "enable-independent-action-002",
+      "group": "enable-independent-action",
+      "text": "Users should not enable multifactor authentication and should install the patch.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should not enable multifactor authentication and should install the patch.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "error": null,
+        "complete_guidance": "Users should not enable multifactor authentication and should install the patch."
+      }
+    },
+    {
+      "id": "enable-rejected-target-001",
+      "group": "enable-rejected-target",
+      "text": "Users should enable authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-target-002",
+      "group": "enable-rejected-target",
+      "text": "Users should enable authentication services.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable authentication services.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-target-003",
+      "group": "enable-rejected-target",
+      "text": "Users should enable a service for multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable a service for multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-target-004",
+      "group": "enable-rejected-target",
+      "text": "Users should enable multifactor authentication services.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable multifactor authentication services.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-target-005",
+      "group": "enable-rejected-target",
+      "text": "Users should enable an unknown mechanism.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable an unknown mechanism.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-target-006",
+      "group": "enable-rejected-target",
+      "text": "Users should enable the gateway.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable the gateway.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-target-007",
+      "group": "enable-rejected-target",
+      "text": "Users should enable MFA.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable MFA.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-target-008",
+      "group": "enable-rejected-target",
+      "text": "Users should enable two-factor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable two-factor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-target-009",
+      "group": "enable-rejected-target",
+      "text": "Users should enable multifactor authentication and an unknown mechanism.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable multifactor authentication and an unknown mechanism.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-form-001",
+      "group": "enable-rejected-form",
+      "text": "Users should enable.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-form-002",
+      "group": "enable-rejected-form",
+      "text": "Users should enable an unknown mechanism and install the patch.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should enable an unknown mechanism and install the patch.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-form-003",
+      "group": "enable-rejected-form",
+      "text": "Multifactor authentication should have been enabled.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nMultifactor authentication should have been enabled.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "enable-rejected-form-004",
+      "group": "enable-rejected-form",
+      "text": "The vendor recommends enabling multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends enabling multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-001",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 is exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-002",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 was exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-003",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 has been exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-004",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 had been exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-005",
+      "group": "quantified-positive",
+      "text": "Attackers exploit CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploit CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-006",
+      "group": "quantified-positive",
+      "text": "Attackers exploited CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploited CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-007",
+      "group": "quantified-positive",
+      "text": "Attackers are exploiting CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers are exploiting CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-008",
+      "group": "quantified-positive",
+      "text": "Attackers have exploited CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers have exploited CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-009",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 may be exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may be exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-010",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 might have been exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 might have been exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-011",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 is exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-012",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 was exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-013",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 has been exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-014",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 had been exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-015",
+      "group": "quantified-positive",
+      "text": "Attackers exploit CVE-2026-1234 in several attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploit CVE-2026-1234 in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-016",
+      "group": "quantified-positive",
+      "text": "Attackers exploited CVE-2026-1234 in several attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploited CVE-2026-1234 in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-017",
+      "group": "quantified-positive",
+      "text": "Attackers are exploiting CVE-2026-1234 in several attacks.",
+      "sources": [
+        {
+          "content": "Attackers are exploiting CVE-2026-1234 in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-018",
+      "group": "quantified-positive",
+      "text": "Attackers have exploited CVE-2026-1234 in several attacks.",
+      "sources": [
+        {
+          "content": "Attackers have exploited CVE-2026-1234 in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-019",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 may be exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may be exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-020",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 might have been exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 might have been exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-021",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 is exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-022",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 was exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-023",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 has been exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-024",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 had been exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-025",
+      "group": "quantified-positive",
+      "text": "Attackers exploit CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers exploit CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-026",
+      "group": "quantified-positive",
+      "text": "Attackers exploited CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers exploited CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-027",
+      "group": "quantified-positive",
+      "text": "Attackers are exploiting CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers are exploiting CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-028",
+      "group": "quantified-positive",
+      "text": "Attackers have exploited CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers have exploited CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-029",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 may be exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may be exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-030",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 might have been exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 might have been exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-031",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 is exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-032",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 was exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-033",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 has been exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-034",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 had been exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-035",
+      "group": "quantified-positive",
+      "text": "Attackers exploit CVE-2026-1234 in 2 attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploit CVE-2026-1234 in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-036",
+      "group": "quantified-positive",
+      "text": "Attackers exploited CVE-2026-1234 in 2 attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploited CVE-2026-1234 in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-037",
+      "group": "quantified-positive",
+      "text": "Attackers are exploiting CVE-2026-1234 in 2 attacks.",
+      "sources": [
+        {
+          "content": "Attackers are exploiting CVE-2026-1234 in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-038",
+      "group": "quantified-positive",
+      "text": "Attackers have exploited CVE-2026-1234 in 2 attacks.",
+      "sources": [
+        {
+          "content": "Attackers have exploited CVE-2026-1234 in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-039",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 may be exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may be exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-040",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 might have been exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 might have been exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-041",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 is exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-042",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 was exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-043",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 has been exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-044",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 had been exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-045",
+      "group": "quantified-positive",
+      "text": "Attackers exploit CVE-2026-1234 in 12 attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploit CVE-2026-1234 in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-046",
+      "group": "quantified-positive",
+      "text": "Attackers exploited CVE-2026-1234 in 12 attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploited CVE-2026-1234 in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-047",
+      "group": "quantified-positive",
+      "text": "Attackers are exploiting CVE-2026-1234 in 12 attacks.",
+      "sources": [
+        {
+          "content": "Attackers are exploiting CVE-2026-1234 in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-048",
+      "group": "quantified-positive",
+      "text": "Attackers have exploited CVE-2026-1234 in 12 attacks.",
+      "sources": [
+        {
+          "content": "Attackers have exploited CVE-2026-1234 in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-049",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 may be exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may be exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-050",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 might have been exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 might have been exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-051",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 is exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-052",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 was exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-053",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 has been exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-054",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 had been exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-055",
+      "group": "quantified-positive",
+      "text": "Attackers exploit CVE-2026-1234 in 1000 attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploit CVE-2026-1234 in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-056",
+      "group": "quantified-positive",
+      "text": "Attackers exploited CVE-2026-1234 in 1000 attacks.",
+      "sources": [
+        {
+          "content": "Attackers exploited CVE-2026-1234 in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-057",
+      "group": "quantified-positive",
+      "text": "Attackers are exploiting CVE-2026-1234 in 1000 attacks.",
+      "sources": [
+        {
+          "content": "Attackers are exploiting CVE-2026-1234 in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-058",
+      "group": "quantified-positive",
+      "text": "Attackers have exploited CVE-2026-1234 in 1000 attacks.",
+      "sources": [
+        {
+          "content": "Attackers have exploited CVE-2026-1234 in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-059",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 may be exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may be exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-positive-060",
+      "group": "quantified-positive",
+      "text": "CVE-2026-1234 might have been exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 might have been exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-negative-001",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 was not exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was not exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "multiple",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-002",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 is not exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is not exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "multiple",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-003",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 has not been exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has not been exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "multiple",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-004",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 may not be exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may not be exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "multiple",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-005",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 was not exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was not exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "several",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-006",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 is not exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is not exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "several",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-007",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 has not been exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has not been exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "several",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-008",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 may not be exploited in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may not be exploited in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "several",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-009",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 was not exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was not exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "1",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-010",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 is not exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is not exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "1",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-011",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 has not been exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has not been exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "1",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-012",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 may not be exploited in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may not be exploited in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "1",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-013",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 was not exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was not exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "2",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-014",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 is not exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is not exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "2",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-015",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 has not been exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has not been exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "2",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-016",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 may not be exploited in 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may not be exploited in 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "2",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-017",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 was not exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was not exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "12",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-018",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 is not exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is not exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "12",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-019",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 has not been exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has not been exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "12",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-020",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 may not be exploited in 12 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may not be exploited in 12 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "12",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-021",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 was not exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was not exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "1000",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-022",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 is not exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is not exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "1000",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-023",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 has not been exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has not been exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "1000",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-negative-024",
+      "group": "quantified-negative",
+      "text": "CVE-2026-1234 may not be exploited in 1000 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may not be exploited in 1000 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      },
+      "owner_expectation": {
+        "quantifier": "1000",
+        "owner": "event",
+        "kind": "cardinality",
+        "negation_target": "qualified_event",
+        "excludes": []
+      }
+    },
+    {
+      "id": "quantified-scope-001",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 has been exploited in multiple attacks yesterday.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in multiple attacks yesterday.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-002",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 is exploited in several attacks as investigators confirmed yesterday.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is exploited in several attacks as investigators confirmed yesterday.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-003",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 was exploited in 2 attacks as researchers confirm today.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in 2 attacks as researchers confirm today.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-004",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 was exploited in multiple attacks if exposed.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in multiple attacks if exposed.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-005",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 is not known to be exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is not known to be exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-006",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 is known to not be exploited in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is known to not be exploited in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-007",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 is exploited in multiple attacks yesterday.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is exploited in multiple attacks yesterday.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-008",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 was exploited in multiple attacks today.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in multiple attacks today.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-009",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 has been exploited in multiple attacks tomorrow.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in multiple attacks tomorrow.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-scope-010",
+      "group": "quantified-scope",
+      "text": "CVE-2026-1234 was exploited in multiple attacks with an unclassified qualifier.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was exploited in multiple attacks with an unclassified qualifier.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-001",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in 0 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 0 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-002",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in zero attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in zero attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-003",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in no attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in no attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-004",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in -1 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in -1 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-005",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in 1.5 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 1.5 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-006",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in 01 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 01 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-007",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in 1 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 1 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-008",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in 2 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in 2 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-009",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in two attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in two attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-010",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in many attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in many attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-011",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in numerous attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in numerous attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-012",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in at least 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in at least 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-013",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in up to 2 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in up to 2 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-014",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in possibly multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in possibly multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "quantified-rejected-015",
+      "group": "quantified-rejected",
+      "text": "CVE-2026-1234 has been exploited in few attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been exploited in few attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-001",
+      "group": "used-positive",
+      "text": "Attackers use CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers use CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-002",
+      "group": "used-positive",
+      "text": "Attackers used CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers used CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-003",
+      "group": "used-positive",
+      "text": "Attackers are using CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers are using CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-004",
+      "group": "used-positive",
+      "text": "Attackers were using CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers were using CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-005",
+      "group": "used-positive",
+      "text": "Attackers have used CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers have used CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-006",
+      "group": "used-positive",
+      "text": "Attackers had used CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers had used CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-007",
+      "group": "used-positive",
+      "text": "Attackers have been using CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers have been using CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-008",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-009",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 was used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-010",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is being used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is being used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-011",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 has been used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-012",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 had been used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-013",
+      "group": "used-positive",
+      "text": "Attackers may use CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers may use CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-014",
+      "group": "used-positive",
+      "text": "Attackers might have used CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers might have used CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-015",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 could be used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 could be used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-016",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 may have been used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may have been used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-017",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is known to be used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is known to be used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-018",
+      "group": "used-positive",
+      "text": "Attackers continue to use CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers continue to use CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-019",
+      "group": "used-positive",
+      "text": "Attackers have begun using CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers have begun using CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-020",
+      "group": "used-positive",
+      "text": "Attackers use CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers use CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-021",
+      "group": "used-positive",
+      "text": "Attackers used CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers used CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-022",
+      "group": "used-positive",
+      "text": "Attackers are using CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers are using CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-023",
+      "group": "used-positive",
+      "text": "Attackers were using CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers were using CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-024",
+      "group": "used-positive",
+      "text": "Attackers have used CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers have used CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-025",
+      "group": "used-positive",
+      "text": "Attackers had used CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers had used CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-026",
+      "group": "used-positive",
+      "text": "Attackers have been using CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers have been using CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-027",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is used in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is used in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-028",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 was used in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was used in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-029",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is being used in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is being used in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-030",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 has been used in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been used in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-031",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 had been used in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been used in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-032",
+      "group": "used-positive",
+      "text": "Attackers may use CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers may use CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-033",
+      "group": "used-positive",
+      "text": "Attackers might have used CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers might have used CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-034",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 could be used in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 could be used in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-035",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 may have been used in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may have been used in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-036",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is known to be used in multiple attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is known to be used in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-037",
+      "group": "used-positive",
+      "text": "Attackers continue to use CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers continue to use CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-038",
+      "group": "used-positive",
+      "text": "Attackers have begun using CVE-2026-1234 in multiple attacks.",
+      "sources": [
+        {
+          "content": "Attackers have begun using CVE-2026-1234 in multiple attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-039",
+      "group": "used-positive",
+      "text": "Attackers use CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers use CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-040",
+      "group": "used-positive",
+      "text": "Attackers used CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers used CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-041",
+      "group": "used-positive",
+      "text": "Attackers are using CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers are using CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-042",
+      "group": "used-positive",
+      "text": "Attackers were using CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers were using CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-043",
+      "group": "used-positive",
+      "text": "Attackers have used CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers have used CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-044",
+      "group": "used-positive",
+      "text": "Attackers had used CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers had used CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-045",
+      "group": "used-positive",
+      "text": "Attackers have been using CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers have been using CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-046",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is used in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is used in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-047",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 was used in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was used in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-048",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is being used in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is being used in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-049",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 has been used in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been used in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-050",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 had been used in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been used in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-051",
+      "group": "used-positive",
+      "text": "Attackers may use CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers may use CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-052",
+      "group": "used-positive",
+      "text": "Attackers might have used CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers might have used CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-053",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 could be used in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 could be used in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-054",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 may have been used in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may have been used in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-055",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is known to be used in 1 attack.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is known to be used in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-056",
+      "group": "used-positive",
+      "text": "Attackers continue to use CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers continue to use CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-057",
+      "group": "used-positive",
+      "text": "Attackers have begun using CVE-2026-1234 in 1 attack.",
+      "sources": [
+        {
+          "content": "Attackers have begun using CVE-2026-1234 in 1 attack.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-058",
+      "group": "used-positive",
+      "text": "Attackers use CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers use CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-059",
+      "group": "used-positive",
+      "text": "Attackers used CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers used CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-060",
+      "group": "used-positive",
+      "text": "Attackers are using CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers are using CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-061",
+      "group": "used-positive",
+      "text": "Attackers were using CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers were using CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-062",
+      "group": "used-positive",
+      "text": "Attackers have used CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers have used CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-063",
+      "group": "used-positive",
+      "text": "Attackers had used CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers had used CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-064",
+      "group": "used-positive",
+      "text": "Attackers have been using CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers have been using CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-065",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is used in 3 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is used in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-066",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 was used in 3 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was used in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-067",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is being used in 3 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is being used in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-068",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 has been used in 3 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been used in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-069",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 had been used in 3 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 had been used in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-070",
+      "group": "used-positive",
+      "text": "Attackers may use CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers may use CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-071",
+      "group": "used-positive",
+      "text": "Attackers might have used CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers might have used CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-072",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 could be used in 3 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 could be used in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-073",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 may have been used in 3 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may have been used in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-074",
+      "group": "used-positive",
+      "text": "CVE-2026-1234 is known to be used in 3 attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is known to be used in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-075",
+      "group": "used-positive",
+      "text": "Attackers continue to use CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers continue to use CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-positive-076",
+      "group": "used-positive",
+      "text": "Attackers have begun using CVE-2026-1234 in 3 attacks.",
+      "sources": [
+        {
+          "content": "Attackers have begun using CVE-2026-1234 in 3 attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-001",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 was not used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was not used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-002",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 has not been used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has not been used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-003",
+      "group": "used-scope",
+      "text": "Attackers have not been using CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "Attackers have not been using CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-004",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 is not known to be used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is not known to be used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-005",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 is known to not be used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 is known to not be used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-006",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 may not be used in attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 may not be used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-007",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 was not used in several attacks.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was not used in several attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-008",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 was used in attacks if exposed.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was used in attacks if exposed.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-009",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 has been used in attacks yesterday.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 has been used in attacks yesterday.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-scope-010",
+      "group": "used-scope",
+      "text": "CVE-2026-1234 was used in attacks as investigators confirm today.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was used in attacks as investigators confirm today.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-001",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 has been used in zero attacks.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 has been used in zero attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-002",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 was used in repeated attacks.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 was used in repeated attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-003",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 was used in attacks with an unclassified qualifier.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 was used in attacks with an unclassified qualifier.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-004",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 is used in attacks yesterday.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 is used in attacks yesterday.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-005",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 has been used in attacks tomorrow.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 has been used in attacks tomorrow.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-006",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nAttackers used an unknown object in attacks.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nAttackers used an unknown object in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-007",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nAttackers used in attacks.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nAttackers used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-008",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nAttackers used a tool in attacks.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nAttackers used a tool in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-009",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nResearchers used CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nResearchers used CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-010",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 will be used in attacks.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 will be used in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "used-rejected-011",
+      "group": "used-rejected",
+      "text": "## CVE-2026-1234\n\nAttackers uses CVE-2026-1234 in attacks.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nAttackers uses CVE-2026-1234 in attacks.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "error": "unsupported_evidence_relation",
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "ordinary-use-context-001",
+      "group": "ordinary-use-context",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nCVE-2026-1234 was used in a test.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nCVE-2026-1234 was used in a test.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "ordinary-use-context-002",
+      "group": "ordinary-use-context",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nCVE-2026-1234 was used in documentation.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nCVE-2026-1234 was used in documentation.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "ordinary-use-context-003",
+      "group": "ordinary-use-context",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nCVE-2026-1234 was used.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nCVE-2026-1234 was used.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "ordinary-use-context-004",
+      "group": "ordinary-use-context",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers used multifactor authentication.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers used multifactor authentication.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "ordinary-use-context-005",
+      "group": "ordinary-use-context",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nAttackers used a tool for testing.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nAttackers used a tool for testing.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "ordinary-use-context-006",
+      "group": "ordinary-use-context",
+      "text": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe report used attacks as an example.",
+      "sources": [
+        {
+          "content": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe report used attacks as an example.",
+          "title": "Example exploitation advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "relevance-selection-001",
+      "group": "relevance-selection",
+      "text": "CVE-2026-1234 was used in attacks. An unrelated product was patched.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was used in attacks. An unrelated product was patched.",
+          "title": "Example malware advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "relevance-selection-002",
+      "group": "relevance-selection",
+      "text": "An unrelated product was patched. CVE-2026-1234 was used in attacks.",
+      "sources": [
+        {
+          "content": "An unrelated product was patched. CVE-2026-1234 was used in attacks.",
+          "title": "Example malware advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "relevance-selection-003",
+      "group": "relevance-selection",
+      "text": "CVE-2026-1234 was used in attacks. CVE-2026-5678 exploitation status is unknown.",
+      "sources": [
+        {
+          "content": "CVE-2026-1234 was used in attacks. CVE-2026-5678 exploitation status is unknown.",
+          "title": "Example malware advisory"
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "selector-owned-001",
+      "group": "selector-owned",
+      "text": "CVE-2026-1234 was used in attacks.",
+      "sources": [
+        {
+          "title": "CVE-2026-1234 exploitation advisory",
+          "content": "CVE-2026-1234 was used in attacks."
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "selector-owned-002",
+      "group": "selector-owned",
+      "text": "CVE-2026-1234 was used in attacks. Malware was reported.",
+      "sources": [
+        {
+          "title": "Example advisory",
+          "content": "CVE-2026-1234 was used in attacks. Malware was reported."
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "selector-owned-003",
+      "group": "selector-owned",
+      "text": "An unrelated product was patched. CVE-2026-1234 was used in attacks.",
+      "sources": [
+        {
+          "title": "CVE-2026-1234 exploitation advisory",
+          "content": "An unrelated product was patched. CVE-2026-1234 was used in attacks."
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "selector-owned-004",
+      "group": "selector-owned",
+      "text": "CVE-2026-1234 was used in documentation.",
+      "sources": [
+        {
+          "title": "CVE-2026-1234 exploitation advisory",
+          "content": "CVE-2026-1234 was used in documentation."
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "selector-owned-005",
+      "group": "selector-owned",
+      "text": "CVE-2026-1234 may have been used in several attacks.",
+      "sources": [
+        {
+          "title": "CVE-2026-1234 exploitation advisory",
+          "content": "CVE-2026-1234 may have been used in several attacks."
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    },
+    {
+      "id": "selector-owned-006",
+      "group": "selector-owned",
+      "text": "CVE-2026-1234 was not used in multiple attacks.",
+      "sources": [
+        {
+          "title": "CVE-2026-1234 exploitation advisory",
+          "content": "CVE-2026-1234 was not used in multiple attacks."
+        }
+      ],
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "error": null,
+        "complete_guidance": ""
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "enable-positive-001",
+      "case_id": "enable-positive-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "enable-positive-028",
+      "case_id": "enable-positive-028",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "enable-qualified-001",
+      "case_id": "enable-qualified-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "enable-qualified-009",
+      "case_id": "enable-qualified-009",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "enable-independent-action-001",
+      "case_id": "enable-independent-action-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "enable-independent-action-002",
+      "case_id": "enable-independent-action-002",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "enable-rejected-target-001",
+      "case_id": "enable-rejected-target-001",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation"
+    },
+    {
+      "id": "enable-rejected-target-009",
+      "case_id": "enable-rejected-target-009",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation"
+    },
+    {
+      "id": "enable-rejected-form-001",
+      "case_id": "enable-rejected-form-001",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation"
+    },
+    {
+      "id": "enable-rejected-form-004",
+      "case_id": "enable-rejected-form-004",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation"
+    },
+    {
+      "id": "quantified-positive-001",
+      "case_id": "quantified-positive-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "quantified-positive-060",
+      "case_id": "quantified-positive-060",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "quantified-negative-001",
+      "case_id": "quantified-negative-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "quantified-negative-024",
+      "case_id": "quantified-negative-024",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "quantified-scope-001",
+      "case_id": "quantified-scope-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "quantified-scope-010",
+      "case_id": "quantified-scope-010",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation"
+    },
+    {
+      "id": "quantified-rejected-001",
+      "case_id": "quantified-rejected-001",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation"
+    },
+    {
+      "id": "quantified-rejected-015",
+      "case_id": "quantified-rejected-015",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation"
+    },
+    {
+      "id": "used-positive-001",
+      "case_id": "used-positive-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null,
+      "title_override": "CVE-2026-1234 exploitation advisory"
+    },
+    {
+      "id": "used-positive-076",
+      "case_id": "used-positive-076",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null,
+      "title_override": "CVE-2026-1234 exploitation advisory"
+    },
+    {
+      "id": "used-scope-001",
+      "case_id": "used-scope-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null,
+      "title_override": "CVE-2026-1234 exploitation advisory"
+    },
+    {
+      "id": "used-scope-010",
+      "case_id": "used-scope-010",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null,
+      "title_override": "CVE-2026-1234 exploitation advisory"
+    },
+    {
+      "id": "used-rejected-001",
+      "case_id": "used-rejected-001",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation",
+      "title_override": "CVE-2026-1234 exploitation advisory"
+    },
+    {
+      "id": "used-rejected-011",
+      "case_id": "used-rejected-011",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "unsupported_evidence_relation",
+      "title_override": "CVE-2026-1234 exploitation advisory"
+    },
+    {
+      "id": "ordinary-use-context-001",
+      "case_id": "ordinary-use-context-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "ordinary-use-context-006",
+      "case_id": "ordinary-use-context-006",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null
+    },
+    {
+      "id": "relevance-selection-001",
+      "case_id": "relevance-selection-001",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null,
+      "title_override": "CVE-2026-1234 exploitation advisory"
+    },
+    {
+      "id": "relevance-selection-003",
+      "case_id": "relevance-selection-003",
+      "expected_status": "completed",
+      "preserve_full_previous_tree": false,
+      "expected_error": null,
+      "title_override": "CVE-2026-1234 exploitation advisory"
+    },
+    {
+      "id": "mutate-badge",
+      "case_id": "enable-positive-001",
+      "mutation": "badge",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "invalid_generation_plan"
+    },
+    {
+      "id": "mutate-prose",
+      "case_id": "enable-positive-001",
+      "mutation": "prose",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "invalid_generation_plan"
+    },
+    {
+      "id": "mutate-omit",
+      "case_id": "enable-positive-001",
+      "mutation": "omit",
+      "expected_status": "failed",
+      "preserve_full_previous_tree": true,
+      "expected_error": "invalid_generation_plan"
+    },
+    {
+      "id": "selector-owned-001",
+      "case_id": "selector-owned-001",
+      "expected_status": "completed",
+      "expected_error": null,
+      "preserve_full_previous_tree": false
+    },
+    {
+      "id": "selector-owned-002",
+      "case_id": "selector-owned-002",
+      "expected_status": "completed",
+      "expected_error": null,
+      "preserve_full_previous_tree": false
+    },
+    {
+      "id": "selector-owned-003",
+      "case_id": "selector-owned-003",
+      "expected_status": "completed",
+      "expected_error": null,
+      "preserve_full_previous_tree": false
+    },
+    {
+      "id": "selector-owned-004",
+      "case_id": "selector-owned-004",
+      "expected_status": "completed",
+      "expected_error": null,
+      "preserve_full_previous_tree": false
+    },
+    {
+      "id": "selector-owned-005",
+      "case_id": "selector-owned-005",
+      "expected_status": "completed",
+      "expected_error": null,
+      "preserve_full_previous_tree": false
+    },
+    {
+      "id": "selector-owned-006",
+      "case_id": "selector-owned-006",
+      "expected_status": "completed",
+      "expected_error": null,
+      "preserve_full_previous_tree": false
+    }
+  ],
+  "owners": [
+    {
+      "id": "exact-quantified-seed",
+      "sources": [
+        "CVE-2026-1234 has been exploited in multiple attacks."
+      ],
+      "states": {
+        "CVE-2026-1234": "observed"
+      },
+      "titles": [
+        "CVE-2026-1234 exploitation advisory"
+      ],
+      "expected_status": "completed",
+      "failure_preserves_full_tree": false,
+      "action": "none"
+    },
+    {
+      "id": "joint-target",
+      "sources": [
+        "CVE-2026-1234 and CVE-2026-5678 were used in attacks."
+      ],
+      "states": {
+        "CVE-2026-1234": "observed",
+        "CVE-2026-5678": "observed"
+      },
+      "titles": [
+        "CVE-2026-1234 exploitation advisory"
+      ],
+      "expected_status": "completed",
+      "failure_preserves_full_tree": false,
+      "action": "none"
+    },
+    {
+      "id": "separate-cve",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 was used in attacks.\n\n## CVE-2026-5678\n\nCVE-2026-5678 exploitation status is unknown."
+      ],
+      "states": {
+        "CVE-2026-1234": "observed",
+        "CVE-2026-5678": "unknown"
+      },
+      "titles": [
+        "CVE-2026-1234 exploitation advisory"
+      ],
+      "expected_status": "completed",
+      "failure_preserves_full_tree": false,
+      "action": "none"
+    },
+    {
+      "id": "separate-source",
+      "sources": [
+        "CVE-2026-1234 was used in attacks.",
+        "CVE-2026-5678 exploitation status is unknown."
+      ],
+      "states": {
+        "CVE-2026-1234": "observed",
+        "CVE-2026-5678": "unknown"
+      },
+      "titles": [
+        "CVE-2026-1234 exploitation advisory",
+        "CVE-2026-5678 exploitation advisory"
+      ],
+      "expected_status": "completed",
+      "failure_preserves_full_tree": false,
+      "action": "none"
+    },
+    {
+      "id": "unknown-target",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nAttackers used an unknown object in attacks."
+      ],
+      "error": "unsupported_evidence_relation",
+      "titles": [
+        "CVE-2026-1234 exploitation advisory"
+      ],
+      "expected_status": "failed",
+      "failure_preserves_full_tree": true,
+      "action": "none"
+    },
+    {
+      "id": "context-not-borrowed",
+      "sources": [
+        "CVE-2026-1234 was used.",
+        "CVE-2026-5678 was exploited in attacks."
+      ],
+      "states": {
+        "CVE-2026-1234": "unknown",
+        "CVE-2026-5678": "observed"
+      },
+      "titles": [
+        "CVE-2026-1234 exploitation advisory",
+        "CVE-2026-5678 exploitation advisory"
+      ],
+      "expected_status": "completed",
+      "failure_preserves_full_tree": false,
+      "action": "none"
+    },
+    {
+      "id": "cross-scope-plan",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 was used in attacks.\n\n## CVE-2026-5678\n\nCVE-2026-5678 exploitation status is unknown."
+      ],
+      "mutation": "cross_scope",
+      "error": "invalid_generation_plan",
+      "titles": [
+        "CVE-2026-1234 exploitation advisory"
+      ],
+      "expected_status": "failed",
+      "failure_preserves_full_tree": true,
+      "action": "none"
+    },
+    {
+      "id": "legacy-mutation-badge",
+      "sources": [
+        "CVE-2026-1234 exploitation status is unknown."
+      ],
+      "mutation": "badge",
+      "error": "invalid_generation_plan",
+      "titles": [
+        "CVE-2026-1234 exploitation advisory"
+      ],
+      "expected_status": "failed",
+      "failure_preserves_full_tree": true,
+      "action": "none"
+    },
+    {
+      "id": "legacy-mutation-prose",
+      "sources": [
+        "CVE-2026-1234 exploitation status is unknown."
+      ],
+      "mutation": "prose",
+      "error": "invalid_generation_plan",
+      "titles": [
+        "CVE-2026-1234 exploitation advisory"
+      ],
+      "expected_status": "failed",
+      "failure_preserves_full_tree": true,
+      "action": "none"
+    },
+    {
+      "id": "legacy-mutation-omit",
+      "sources": [
+        "CVE-2026-1234 exploitation status is unknown."
+      ],
+      "mutation": "omit",
+      "error": "invalid_generation_plan",
+      "titles": [
+        "CVE-2026-1234 exploitation advisory"
+      ],
+      "expected_status": "failed",
+      "failure_preserves_full_tree": true,
+      "action": "none"
+    }
+  ]
+}
