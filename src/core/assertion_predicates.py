@@ -21,6 +21,7 @@ from .assertion_qualifiers import (
 )
 from .relations import (
     AssertionScope,
+    ObservationConstruction,
     ScopeOperator,
     ScopeTerm,
     TemporalConstraint,
@@ -256,6 +257,7 @@ class PredicateFrame:
     scope: AssertionScope = AssertionScope("")
     temporal: tuple[TemporalConstraint, ...] = ()
     event_binding: EventBinding | None = None
+    observation: ObservationConstruction | None = None
 
     @property
     def capability(self):
@@ -302,6 +304,100 @@ AUXILIARY_WORDS = (
 PREFIX_WORDS = PREDICATE_MODIFIERS | AUXILIARY_WORDS | {"yet", "observed", "first"}
 
 
+def _observation_frame(text, voice, modal, negative):
+    """Reserve a perfect-seen operand before admitting its complete grammar."""
+    start = re.match(
+        r"(?P<aux>has|have|had)\b(?P<middle>(?:\s+[A-Za-z]+)*?)"
+        r"\s+(?P<predicate>seen)\b",
+        text,
+        re.I,
+    )
+    if start is None:
+        return None
+    neg = re.fullmatch(r"\s*(not|never)\s*", start["middle"], re.I)
+    neg_span = (
+        (start.start("middle") + neg.start(1), start.start("middle") + neg.end(1))
+        if neg
+        else None
+    )
+    nominal = re.match(
+        r"\s+(?P<nominal>(?:(?P<activity>active)\s+)?(?P<event>exploitation))"
+        r"(?=$|[\s,.!?])",
+        text[start.end() :],
+        re.I,
+    )
+
+    def span(name):
+        if nominal is None or nominal.start(name) < 0:
+            return (start.end(), start.end())
+        return (start.end() + nominal.start(name), start.end() + nominal.end(name))
+
+    observation = ObservationConstruction(
+        text,
+        start.span("aux"),
+        start.span("predicate"),
+        span("nominal"),
+        span("event"),
+        neg_span,
+        span("activity") if nominal and nominal["activity"] else None,
+    )
+    end = len(text.rstrip(" .!?"))
+    tail_start = span("nominal")[1]
+    qualifiers = bind_qualifiers(text[tail_start:end])
+    temporal = tuple(q.temporal for q in qualifiers.spans if q.temporal)
+    terms = list(qualifier_terms(text, qualifiers.spans, offset=tail_start))
+    if observation.activity_span:
+        left, right = observation.activity_span
+        terms.append(ScopeTerm(text[left:right], left, right, "activity"))
+    operators = (
+        (ScopeOperator(text[slice(*neg_span)], *neg_span, "negation", "event"),)
+        if neg_span
+        else ()
+    )
+    scope = assertion_scope(text, terms, operators, event_tense="past")
+    supported = bool(
+        observation.supported
+        and voice in {"vulnerability", "unscoped"}
+        and not modal
+        and not negative
+        and qualifiers.complete
+        and all(q.kind in {"temporal", "reporter"} for q in qualifiers.spans)
+        and all(
+            t.owner == "reporter" or t.direction in {"past", "context"}
+            for t in temporal
+        )
+        and temporal_compatible(temporal, "past")
+        and scope.supported
+        and not extract_cve_ids(text[tail_start:])
+    )
+    return PredicateFrame(
+        text=text,
+        end=len(text),
+        operator_span=(0, start.start("predicate")),
+        event_span=span("event"),
+        target=TargetBinding("", tail_start, tail_start),
+        adjunct_span=(tail_start, end),
+        qualifiers=tuple(
+            replace(q, start=q.start + tail_start, end=q.end + tail_start)
+            for q in qualifiers.spans
+        ),
+        verb="exploitation",
+        kind="assertion",
+        tense="past",
+        aspect="perfect-observation",
+        finite=True,
+        modal=modal,
+        polarity=observation.polarity,
+        supported=supported,
+        starts_relation=True,
+        inherits_subject=True,
+        operators=(start["aux"].casefold(),),
+        scope=scope,
+        temporal=temporal,
+        observation=observation,
+    )
+
+
 def bind_predicate(
     text: str, *, voice: str = "unscoped", modal: str = "", negative: bool = False
 ) -> PredicateFrame:
@@ -310,6 +406,8 @@ def bind_predicate(
     Coordination consumes this result too. It never has its own operator list
     or lexical scan. A recognized start is not a promise of a supported state.
     """
+    if observation := _observation_frame(text, voice, modal, negative):
+        return observation
     end = len(text.rstrip(" .!?"))
     tokens = list(re.finditer(r"\S+", text[:end]))
     words = [token.group().casefold() for token in tokens]

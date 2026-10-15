@@ -226,6 +226,57 @@ _NOMINAL_PROJECTION = {
 
 
 @dataclass(frozen=True)
+class ObservationConstruction:
+    """A perfect experiential observation owns its event nominal and polarity.
+
+    Spans address the literal predicate text, independent of later source or
+    coordination wrappers. Its reference point never establishes current activity.
+    """
+
+    text: str
+    auxiliary_span: tuple[int, int]
+    predicate_span: tuple[int, int]
+    nominal_span: tuple[int, int]
+    event_span: tuple[int, int]
+    negative_span: tuple[int, int] | None = None
+    activity_span: tuple[int, int] | None = None
+
+    @property
+    def polarity(self):
+        return "negative" if self.negative_span else "affirmative"
+
+    @property
+    def supported(self):
+        spans = [self.auxiliary_span]
+        if self.negative_span:
+            spans.append(self.negative_span)
+        spans.append(self.predicate_span)
+        if self.activity_span:
+            spans.append(self.activity_span)
+        spans.append(self.event_span)
+        if any(not 0 <= start < end <= len(self.text) for start, end in spans):
+            return False
+        values = [self.text[slice(*span)].casefold() for span in spans]
+        return (
+            self.auxiliary_span[0] == 0
+            and values[0] in {"has", "have", "had"}
+            and self.text[slice(*self.predicate_span)].casefold() == "seen"
+            and self.text[slice(*self.event_span)].casefold() == "exploitation"
+            and (not self.negative_span or values[1] in {"not", "never"})
+            and (
+                not self.activity_span
+                or self.text[slice(*self.activity_span)].casefold() == "active"
+            )
+            and self.nominal_span
+            == ((self.activity_span or self.event_span)[0], self.event_span[1])
+            and all(
+                left[1] < right[0] and self.text[left[1] : right[0]].isspace()
+                for left, right in zip(spans, spans[1:])
+            )
+        )
+
+
+@dataclass(frozen=True)
 class OwnedClause:
     text: str = ""
     source_text: str = ""
@@ -243,6 +294,7 @@ class OwnedClause:
     reporting: tuple[str, ...] = ()
     reporter: EvidenceReporter | None = None
     evidence_operation: EvidenceOperation | None = None
+    observation: ObservationConstruction | None = None
     scopes: tuple[AssertionScope, ...] = ()
     temporal: tuple[TemporalConstraint, ...] = ()
     finite: bool = False
@@ -278,6 +330,7 @@ class OwnedClause:
             or not temporal_compatible(self.temporal, self.tense)
             or any(not scope.supported for scope in self.scopes)
             or (self.evidence_operation and not self.evidence_operation.supported)
+            or (self.observation and not self.observation.supported)
             or (
                 self.reporter
                 and self.reporter.polarity not in {"affirmative", "negative"}
@@ -292,6 +345,15 @@ class OwnedClause:
         ):
             return "unknown"
         negative_reporter = bool(self.reporter and self.reporter.polarity == "negative")
+        if self.observation:
+            return (
+                "unknown"
+                if negative_reporter
+                or self.polarity == "negative"
+                or self.observation.polarity == "negative"
+                or self.modal
+                else "observed"
+            )
         if operation := self.evidence_operation:
             # Neither an outer denial nor two nested negatives establishes an
             # event. Confirmation absence is weaker than observation absence.

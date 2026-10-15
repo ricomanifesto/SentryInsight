@@ -947,6 +947,7 @@ def _unit(raw):
         scopes=base.scopes + (frame.scope,),
         tense=frame.tense,
         temporal=base.temporal + frame.temporal,
+        observation=frame.observation,
         object_text=body[slice(*frame.adjunct_span)],
         unsupported=not frame.supported and not frame.requires_inheritance,
         finite=frame.finite,
@@ -1070,6 +1071,33 @@ def _parse_assertions(sentence):
         (frame.start(), frame.end())
         for frame in CAPABILITY_PREREQUISITE.finditer(sentence)
     )
+    # An observation owns its whole nominal, including rejected residuals.
+    # A lexical event noun after a comma is not a new finite relation. Preserve
+    # true independent subjects/finite predicates and the existing conditions.
+    boundaries = list(BOUNDARY.finditer(sentence))
+    for begin in [0, *(boundary.end() for boundary in boundaries)]:
+        candidate = sentence[begin:].lstrip()
+        offset = len(sentence) - len(candidate)
+        owner = _bind_subject(candidate)
+        body_start = owner.end if owner else 0
+        frame = bind_predicate(
+            candidate[body_start:], voice=owner.kind if owner else "unscoped"
+        )
+        if frame.observation is None:
+            continue
+        nominal_start = offset + body_start + frame.observation.predicate_span[1]
+        for boundary in boundaries:
+            if boundary.start() < nominal_start:
+                continue
+            right = sentence[boundary.end() :].strip()
+            if (
+                boundary.group().strip() == ";"
+                or _bind_subject(right)
+                or bind_predicate(right).starts_relation
+                or REQUIRED_ADJUNCT.match(right)
+            ):
+                break
+            protected.append((boundary.start(), boundary.end()))
     parts = bind_condition_boundaries(
         sentence,
         boundary=BOUNDARY,

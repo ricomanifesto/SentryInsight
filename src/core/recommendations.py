@@ -350,11 +350,105 @@ class ReleaseReference:
 
 
 @dataclass(frozen=True)
+class DirectiveAudience:
+    """An explicit literal audience or this command's grammatical addressee."""
+
+    source_text: str
+    text: str
+    span: tuple[int, int] | None
+    person: int
+    number: str
+    kind: Literal["explicit", "implicit-addressee"] = "explicit"
+
+    @property
+    def supported(self):
+        if self.kind == "implicit-addressee":
+            return bool(self.source_text) and (
+                self.text,
+                self.span,
+                self.person,
+                self.number,
+            ) == ("", None, 2, "unspecified")
+        if self.span is None or self.source_text[slice(*self.span)] != self.text:
+            return False
+        people = re.split(r"\s+and\s+", self.text.casefold())
+        people = [re.sub(r"^(?:affected|impacted|it)\s+", "", p) for p in people]
+        return (
+            people == ["you"] and (self.person, self.number) == (2, "unspecified")
+        ) or (
+            bool(people)
+            and set(people) <= set(AUDIENCE.split("|")) - {"you"}
+            and (self.person, self.number) == (3, "plural")
+        )
+
+
+def _audience_owner(text, start, end):
+    literal = text[start:end]
+    prefix = re.match(
+        rf"For {CVE_ID_PATTERN.pattern}(?: and {CVE_ID_PATTERN.pattern})*,\s*",
+        literal,
+        re.I,
+    )
+    if prefix:
+        start += prefix.end()
+        literal = text[start:end]
+    second = literal.casefold() == "you"
+    owner = DirectiveAudience(
+        text,
+        literal,
+        (start, end),
+        2 if second else 3,
+        "unspecified" if second else "plural",
+    )
+    return owner if owner.supported else None
+
+
+@dataclass(frozen=True)
+class DeterminerBinding:
+    text: str
+    span: tuple[int, int]
+    owner: DirectiveAudience
+
+    @property
+    def person(self):
+        return 2 if self.text.casefold() == "your" else 3
+
+    @property
+    def number(self):
+        return "unspecified" if self.person == 2 else "plural"
+
+    @property
+    def supported(self):
+        return (
+            self.text.casefold() in {"their", "your"}
+            and self.owner.supported
+            and (self.person, self.number) == (self.owner.person, self.owner.number)
+        )
+
+
+@dataclass(frozen=True)
 class NominalMember:
     role: str
     span: tuple[int, int]
     release: ReleaseReference | None = None
     negative: bool = False
+    determiner: DeterminerBinding | None = None
+    head_span: tuple[int, int] | None = None
+
+    def shifted(self, offset):
+        def shift(span):
+            return (span[0] + offset, span[1] + offset)
+
+        return replace(
+            self,
+            span=shift(self.span),
+            determiner=(
+                replace(self.determiner, span=shift(self.determiner.span))
+                if self.determiner
+                else None
+            ),
+            head_span=shift(self.head_span) if self.head_span else None,
+        )
 
 
 @dataclass(frozen=True)
@@ -376,6 +470,20 @@ class NominalBinding:
                 raise ValueError("Release roles require a release reference")
             if member.release and self.text[start:end] != member.release.text:
                 raise ValueError("Release reference does not match its nominal owner")
+            if determiner := member.determiner:
+                head = member.head_span
+                if not (
+                    member.role == "system"
+                    and determiner.supported
+                    and start <= determiner.span[0] < determiner.span[1] <= end
+                    and self.text[slice(*determiner.span)] == determiner.text
+                    and head
+                    and determiner.span[1] < head[0] < head[1] <= end
+                    and re.fullmatch(SYSTEM_ARGUMENT, self.text[slice(*head)], re.I)
+                ):
+                    raise ValueError(
+                        "Invalid system determiner or audience source spans"
+                    )
 
     @property
     def roles(self) -> tuple[str, ...]:
@@ -504,8 +612,45 @@ def _bind_directive_argument(
     )
 
 
-def _simple_nominal(text: str, *, coordinated: bool = False) -> NominalBinding | None:
+RESERVED_POSSESSIVE = re.compile(r"^(?:their|your|our|my|his|her|its)\b", re.I)
+
+
+def _simple_nominal(
+    text: str, *, coordinated: bool = False, audience: DirectiveAudience | None = None
+) -> NominalBinding | None:
     """Bind one complete member using the same release and ordinary role owners."""
+    possessive = RESERVED_POSSESSIVE.match(text)
+    # The existing literal asset production has its own closed semantics.
+    # Every other initial possessive must resolve before proper-name matching.
+    if possessive and not re.fullmatch(OBJECT_ROLES["asset"], text, re.I):
+        if audience is None:
+            return None
+        determiner = DeterminerBinding(possessive.group(), possessive.span(), audience)
+        if not determiner.supported:
+            return None
+        prefix = re.match(
+            r"\s+(?:(?:available|latest|security|affected|impacted|vulnerable"
+            + ("" if coordinated else "|supported")
+            + r")\s+)*",
+            text[possessive.end() :],
+            re.I,
+        )
+        start = possessive.end() + prefix.end() if prefix else len(text)
+        if not re.fullmatch(
+            SYSTEM_ARGUMENT, text[start:], re.I
+        ) or RESERVED_POSSESSIVE.match(text[start:]):
+            return None
+        return NominalBinding(
+            text,
+            (
+                NominalMember(
+                    "system",
+                    (0, len(text)),
+                    determiner=determiner,
+                    head_span=(start, len(text)),
+                ),
+            ),
+        )
     negative_prefix = re.match(r"^(?:the\s+)?no\s+", text, re.I)
     start = negative_prefix.end() if negative_prefix else 0
     literal = text[start:]
@@ -537,6 +682,10 @@ def _simple_nominal(text: str, *, coordinated: bool = False) -> NominalBinding |
     )
     start = prefix.end() if prefix else 0
     whole = text[start:]
+    if RESERVED_POSSESSIVE.match(whole) and not re.fullmatch(
+        OBJECT_ROLES["asset"], whole, re.I
+    ):
+        return None
     if match := NUMBERED_RELEASE.fullmatch(whole):
         reference = ReleaseReference(
             whole,
@@ -586,7 +735,10 @@ def _delegated_nominal(text: str, identity: tuple[str, ...]) -> NominalBinding:
 
 
 def _bind_nominal(
-    text: str, version_identity: VersionIdentity | None = None
+    text: str,
+    version_identity: VersionIdentity | None = None,
+    *,
+    audience: DirectiveAudience | None = None,
 ) -> NominalBinding | None:
     """One owner for complete nominal roles, literal identities and polarity."""
     core = text.strip(" .!?")
@@ -597,16 +749,13 @@ def _bind_nominal(
     def owned(binding: NominalBinding) -> NominalBinding:
         return NominalBinding(
             text,
-            tuple(
-                replace(member, span=(offset + member.span[0], offset + member.span[1]))
-                for member in binding.members
-            ),
+            tuple(member.shifted(offset) for member in binding.members),
             binding.negative,
         )
 
     if version_identity and (identity := version_identity(core)):
         return owned(_delegated_nominal(core, identity))
-    if complete := _simple_nominal(core):
+    if complete := _simple_nominal(core, audience=audience):
         return owned(complete)
     correlative = re.fullmatch(r"neither (.+) nor (.+)", core, re.I)
     if correlative:
@@ -614,16 +763,12 @@ def _bind_nominal(
         for index in (1, 2):
             # Retain the existing correlative nominal boundary. It does not
             # delegate new version/list productions from inside each operand.
-            binding = _bind_nominal(correlative[index])
+            binding = _bind_nominal(correlative[index], audience=audience)
             if binding is None:
                 return None
             start = correlative.start(index)
             members.extend(
-                replace(
-                    member,
-                    span=(start + member.span[0], start + member.span[1]),
-                    negative=True,
-                )
+                replace(member.shifted(start), negative=True)
                 for member in binding.members
             )
         return owned(NominalBinding(core, tuple(members), True))
@@ -637,13 +782,10 @@ def _bind_nominal(
         (len(core), len(core)),
     ]:
         part = core[begin:end]
-        binding = _simple_nominal(part, coordinated=True)
+        binding = _simple_nominal(part, coordinated=True, audience=audience)
         if binding is None:
             return None
-        members.extend(
-            replace(member, span=(begin + member.span[0], begin + member.span[1]))
-            for member in binding.members
-        )
+        members.extend(member.shifted(begin) for member in binding.members)
         begin = following
     # Release-member negation is retained even after a destination preposition.
     # Other role-specific conjunction semantics retain their existing contract.
@@ -654,18 +796,25 @@ def _bind_nominal(
 
 
 def _nominal_members(
-    text: str, version_identity: VersionIdentity | None = None
+    text: str,
+    version_identity: VersionIdentity | None = None,
+    *,
+    audience: DirectiveAudience | None = None,
 ) -> tuple[str, ...] | None:
-    binding = _bind_nominal(text, version_identity)
+    binding = _bind_nominal(text, version_identity, audience=audience)
     return binding.roles if binding else None
 
 
 def _bind_object(
-    text: str, depth: int = 0, version_identity: VersionIdentity | None = None
+    text: str,
+    depth: int = 0,
+    version_identity: VersionIdentity | None = None,
+    *,
+    audience: DirectiveAudience | None = None,
 ) -> NominalBinding | None:
     if depth > 2:
         return None
-    if binding := _bind_nominal(text, version_identity):
+    if binding := _bind_nominal(text, version_identity, audience=audience):
         return binding
     if (
         version_identity
@@ -687,20 +836,27 @@ def _bind_object(
             )
         if (
             relation not in {"until", "when", "if", "only"}
+            # The possessive extension owns direct system members only.
+            # Modifier objects keep their existing grammar, without borrowing
+            # a directive audience for an unretained nested nominal binding.
             and _bind_object(tail, depth + 1, version_identity) is None
             and not (
                 version_identity and version_identity(text[modifier.start() :].strip())
             )
         ):
             return None
-    binding = _bind_nominal(core, version_identity)
+    binding = _bind_nominal(core, version_identity, audience=audience)
     return replace(binding, text=text) if binding else None
 
 
 def _object_members(
-    text: str, depth: int = 0, version_identity: VersionIdentity | None = None
+    text: str,
+    depth: int = 0,
+    version_identity: VersionIdentity | None = None,
+    *,
+    audience: DirectiveAudience | None = None,
 ) -> tuple[str, ...] | None:
-    binding = _bind_object(text, depth, version_identity)
+    binding = _bind_object(text, depth, version_identity, audience=audience)
     return binding.roles if binding else None
 
 
@@ -708,9 +864,13 @@ def _bind_argument(
     text: str,
     version_identity: VersionIdentity | None = None,
     release_destinations: tuple[str, ...] = (),
+    *,
+    audience: DirectiveAudience | None = None,
 ) -> DirectiveTarget:
     if release_destinations and text.endswith(" to:") and version_identity:
-        direct = _bind_object(text[:-4], version_identity=version_identity)
+        direct = _bind_object(
+            text[:-4], version_identity=version_identity, audience=audience
+        )
         destinations = tuple(
             _bind_nominal(value, version_identity) for value in release_destinations
         )
@@ -722,7 +882,7 @@ def _bind_argument(
                 direct,
                 tuple(item for item in destinations if item is not None),
             )
-    if binding := _bind_nominal(text):
+    if binding := _bind_nominal(text, audience=audience):
         return DirectiveTarget("direct", direct=binding)
     if classification := _classification_argument(text):
         return DirectiveTarget(
@@ -744,18 +904,24 @@ def _bind_argument(
     if len(parts) == 2:
         return DirectiveTarget(
             "direct_destination",
-            direct=_bind_object(parts[0], version_identity=version_identity),
+            direct=_bind_object(
+                parts[0], version_identity=version_identity, audience=audience
+            ),
             destination=_bind_object(parts[1], version_identity=version_identity),
         )
     return DirectiveTarget(
-        "direct", direct=_bind_object(text, version_identity=version_identity)
+        "direct",
+        direct=_bind_object(text, version_identity=version_identity, audience=audience),
     )
 
 
 def _argument(
-    text: str, version_identity: VersionIdentity | None = None
+    text: str,
+    version_identity: VersionIdentity | None = None,
+    *,
+    audience: DirectiveAudience | None = None,
 ) -> tuple[ArgumentRelation, tuple[str, ...]]:
-    binding = _bind_argument(text, version_identity)
+    binding = _bind_argument(text, version_identity, audience=audience)
     return binding.relation, binding.roles
 
 
@@ -804,6 +970,7 @@ class DirectiveBinding:
     audience_negative: bool = False
     qualifications: tuple[str, ...] = ()
     unsupported: bool = False
+    audience: DirectiveAudience | None = None
 
 
 @dataclass(frozen=True)
@@ -955,6 +1122,7 @@ def _reported_advice(text: str) -> AdviceEnvelope | None:
                 subject=audience["audience"],
                 modal=operator.finite + " to",
                 negative=bool(audience["negative"]),
+                audience=_audience_owner(operand, *audience.span("audience")),
             ),
             reporter,
         )
@@ -965,6 +1133,7 @@ def _reported_advice(text: str) -> AdviceEnvelope | None:
             DirectiveBinding(
                 subject=that["audience"],
                 modal=operator.finite + " that",
+                audience=_audience_owner(operand, *that.span("audience")),
             ),
             reporter,
         )
@@ -1008,7 +1177,9 @@ def _active_binding(
     state = inherited
     if audience:
         remainder = text[audience.end() :].strip()
-        state = DirectiveBinding(subject=audience.group())
+        state = DirectiveBinding(
+            subject=audience.group(), audience=_audience_owner(text, *audience.span())
+        )
         modal = re.search(rf"\b(?:{ADVICE_MODAL})\s+", remainder, re.I)
         if not modal:
             return text, inherited
@@ -1198,6 +1369,23 @@ def bind_directive_frame(
                 predicate_offset + head.start(2) + len(head[2]) - len(head[2].lstrip())
             )
             tail_span = (start, start + len(raw_argument))
+        if verb in {
+            "update",
+            "upgrade",
+            "patch",
+            "mitigate",
+            "investigate",
+            "monitor",
+            "restart",
+        } and not (state.subject or state.modal or state.unsupported or state.audience):
+            # Only an admitted command path can supply a syntactic addressee.
+            # Missing audiences in advice, passive or reported forms cannot.
+            state = replace(
+                state,
+                audience=DirectiveAudience(
+                    text, "", None, 2, "unspecified", "implicit-addressee"
+                ),
+            )
         argument = _bind_directive_argument(raw_argument, reference_target)
         marker = CONDITION.search(argument.target_text)
         patient = (
@@ -1230,7 +1418,9 @@ def bind_directive_frame(
         else argument.target_text
     )
     target_binding = (
-        _bind_argument(target, version_identity, release_destinations)
+        _bind_argument(
+            target, version_identity, release_destinations, audience=state.audience
+        )
         if verb in VERBS
         else DirectiveTarget("direct")
     )
@@ -1327,13 +1517,17 @@ def _directive_segments(
         initial.voice == "active"
         and initial.patient_span
         and verb in VERBS
-        and _nominal_members(complete_target, version_identity)
+        and _nominal_members(
+            complete_target, version_identity, audience=initial.binding.audience
+        )
     ):
         protected.append(
             (initial.patient_span[0], initial.patient_span[0] + len(complete_target))
         )
     if verb in {"upgrade", "update"} and "to " in complete_target:
-        relation, members = _argument(complete_target, version_identity)
+        relation, members = _argument(
+            complete_target, version_identity, audience=initial.binding.audience
+        )
         if relation in {"destination", "direct_destination"} and members:
             span = (
                 initial.patient_span if initial.voice == "active" else initial.tail_span
@@ -1343,7 +1537,11 @@ def _directive_segments(
     if (
         release_destinations
         and argument.target_text.endswith(" to:")
-        and _nominal_members(argument.target_text[:-4], version_identity)
+        and _nominal_members(
+            argument.target_text[:-4],
+            version_identity,
+            audience=initial.binding.audience,
+        )
     ):
         if initial.tail_span:
             protected.append(initial.tail_span)
@@ -1351,15 +1549,18 @@ def _directive_segments(
     # Test candidate boundaries with the same argument/frame owner; an object
     # conjunction cannot be split merely because this is not the first verb.
     boundaries = tuple(COORDINATION.finditer(body))
+    lookahead_owner = initial
     for preceding in boundaries:
         start = preceding.end()
-        candidate = bind_directive_frame(body[start:])
+        if any(begin <= preceding.start() < end for begin, end in protected):
+            continue
+        candidate = bind_directive_frame(body[start:], inherited=lookahead_owner)
         if candidate.binding.unsupported or candidate.verb not in VERBS:
             continue
         for end in sorted(
             {len(body), *(b.start() for b in boundaries if b.start() > start)},
         ):
-            candidate = bind_directive_frame(body[start:end])
+            candidate = bind_directive_frame(body[start:end], inherited=lookahead_owner)
             owning_verb = candidate.verb
             if candidate.binding.unsupported or owning_verb not in VERBS:
                 continue
@@ -1381,7 +1582,9 @@ def _directive_segments(
             # Structural lookahead must not recursively classify version
             # clauses as new advice. It protects closed nominal frames only;
             # the actual directive still delegates releases to their owner.
-            relation, members = _argument(target, None)
+            relation, members = _argument(
+                target, None, audience=candidate.binding.audience
+            )
             if (
                 not candidate.binding.unsupported
                 and members
@@ -1398,6 +1601,7 @@ def _directive_segments(
                 if candidate.patient_span and candidate.voice == "active":
                     offset = start + candidate.patient_span[0]
                     protected.append((offset, offset + len(target)))
+                lookahead_owner = candidate
                 break
     pieces = bind_condition_boundaries(
         body,
@@ -1409,6 +1613,7 @@ def _directive_segments(
         protected=protected,
     )
     result: list[tuple[str, ConditionSegment]] = []
+    owner: DirectiveFrame | None = None
     alternatives = False
     for part in pieces:
         relation = (
@@ -1419,12 +1624,17 @@ def _directive_segments(
         alternatives |= relation == "alternative"
 
         def joins_owned_object():
-            earlier = bind_directive_frame(result[-1][1].predicate, binding=binding)
+            assert owner is not None
+            earlier = owner
             owning_verb, existing = earlier.verb, earlier.argument.target_text
             if owning_verb not in VERBS or earlier.voice == "passive":
                 return False
             combined = _bind_directive_argument(existing + " and " + part.predicate)
-            relation, members = _argument(combined.target_text, version_identity)
+            relation, members = _argument(
+                combined.target_text,
+                version_identity,
+                audience=earlier.binding.audience,
+            )
             return bool(
                 members
                 and _frame_actions(
@@ -1439,11 +1649,12 @@ def _directive_segments(
             )
 
         if (
-            result
+            owner is not None
             and relation in {"conjunctive", "alternative"}
             and _object_members(
                 _bind_directive_argument(part.predicate).target_text,
                 version_identity=version_identity,
+                audience=owner.binding.audience,
             )
             and joins_owned_object()
         ):
@@ -1460,6 +1671,16 @@ def _directive_segments(
             )
         else:
             result.append((relation, part))
+        # Keep the same source-order inheritance edge used by the final parse.
+        # An explicit audience replaces this owner; object members do not.
+        owner = bind_directive_frame(
+            result[-1][1].predicate,
+            inherited=owner,
+            binding=binding if owner is None else None,
+            version_identity=version_identity,
+            reference_target=reference_target,
+            release_destinations=release_destinations,
+        )
     return result, alternatives
 
 
@@ -1590,7 +1811,12 @@ def parse_recommendation(
             else argument
         )
         target_binding = (
-            _bind_argument(target_argument, version_identity, release_destinations)
+            _bind_argument(
+                target_argument,
+                version_identity,
+                release_destinations,
+                audience=binding.audience,
+            )
             if verb in VERBS
             else DirectiveTarget("direct")
         )
