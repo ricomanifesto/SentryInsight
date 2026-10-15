@@ -259,7 +259,6 @@ def recommendation_context(text: str) -> RecommendationContext | None:
 # retains modifiers; unknown objects cannot establish a bare imperative.
 OBJECT_ROLES = {
     "identifier": CVE_ID_PATTERN.pattern,
-    "release": r"versions? \d+(?:\.\d+)*",
     "patch": r"patch(?:es)?|updates?|hotfix(?:es)?|fix(?:es)?|monthly (?:(?-i:[A-Z][A-Za-z0-9-]*) )?updates",
     "mitigation": r"workarounds?|mitigations?",
     "evidence": r"(?:data warehouse |web application )?logs(?: for (?:signs of unauthorized access|attack attempts))?|indicators(?: of compromise)?|suspicious activity|alerts?|incidents?",
@@ -296,6 +295,133 @@ OBJECT_ROLES = {
     "vigilance_watch": r"on the lookout for potential phishing attacks and loan scams stemming from leaked data",
     "message_caution": r"cautious of unexpected messages or calls claiming to be from (?:(?-i:[A-Z][A-Za-z-]*) ?){1,4}",
 }
+NUMBERED_RELEASE = re.compile(
+    r"(?P<head>versions?) (?P<identifier>\d+(?:\.\d+)*)", re.I
+)
+LATEST_RELEASE = re.compile(
+    r"(?:the\s+)?(?P<selector>latest)\s+(?P<head>releases?|versions?)", re.I
+)
+
+
+@dataclass(frozen=True)
+class ReleaseReference:
+    """A complete literal reference; latest never supplies a version number."""
+
+    text: str
+    kind: Literal["numbered", "latest", "delegated"]
+    head_span: tuple[int, int] | None = None
+    selector_span: tuple[int, int] | None = None
+    identifier_span: tuple[int, int] | None = None
+    identifier: str | None = None
+
+    def __post_init__(self):
+        if self.kind == "delegated":
+            valid = bool(self.text) and all(
+                value is None
+                for value in (
+                    self.head_span,
+                    self.selector_span,
+                    self.identifier_span,
+                    self.identifier,
+                )
+            )
+        elif self.kind == "numbered":
+            match = NUMBERED_RELEASE.fullmatch(self.text)
+            valid = bool(
+                match
+                and self.head_span == match.span("head")
+                and self.identifier_span == match.span("identifier")
+                and self.identifier == match["identifier"]
+                and self.selector_span is None
+            )
+        elif self.kind == "latest":
+            match = LATEST_RELEASE.fullmatch(self.text)
+            valid = bool(
+                match
+                and self.head_span == match.span("head")
+                and self.selector_span == match.span("selector")
+                and self.identifier_span is None
+                and self.identifier is None
+            )
+        else:
+            valid = False
+        if not valid:
+            raise ValueError("Invalid release reference identity or source spans")
+
+
+@dataclass(frozen=True)
+class NominalMember:
+    role: str
+    span: tuple[int, int]
+    release: ReleaseReference | None = None
+    negative: bool = False
+
+
+@dataclass(frozen=True)
+class NominalBinding:
+    """One complete nominal operand, with spans relative to its own text."""
+
+    text: str
+    members: tuple[NominalMember, ...]
+    negative: bool = False
+
+    def __post_init__(self):
+        if not self.members:
+            raise ValueError("A nominal binding requires an owned member")
+        for member in self.members:
+            start, end = member.span
+            if not 0 <= start < end <= len(self.text):
+                raise ValueError("Invalid nominal member source span")
+            if (member.role == "release") != (member.release is not None):
+                raise ValueError("Release roles require a release reference")
+            if member.release and self.text[start:end] != member.release.text:
+                raise ValueError("Release reference does not match its nominal owner")
+
+    @property
+    def roles(self) -> tuple[str, ...]:
+        return tuple(member.role for member in self.members)
+
+
+@dataclass(frozen=True)
+class DirectiveTarget:
+    """Direct and destination operands never exchange identity or polarity.
+
+    An already-owned DOM destination list retains separate literal row owners;
+    its members do not acquire offsets in the introductory directive.
+    """
+
+    relation: ArgumentRelation
+    direct: NominalBinding | None = None
+    destination: NominalBinding | tuple[NominalBinding, ...] | None = None
+
+    @property
+    def destinations(self) -> tuple[NominalBinding, ...]:
+        if self.destination is None:
+            return ()
+        if isinstance(self.destination, NominalBinding):
+            return (self.destination,)
+        return self.destination
+
+    @property
+    def roles(self) -> tuple[str, ...]:
+        if self.relation == "destination":
+            return tuple(role for item in self.destinations for role in item.roles)
+        if self.relation == "direct_destination" and (
+            not self.destinations
+            or any(set(item.roles) - {"release"} for item in self.destinations)
+        ):
+            return ()
+        return self.direct.roles if self.direct else ()
+
+    @property
+    def negative(self) -> bool:
+        return bool(
+            self.direct
+            and self.direct.negative
+            or any(item.negative for item in self.destinations)
+        )
+
+
 OBJECT_MODIFIER = re.compile(
     r"\s+\b(?:for|on|with|from|before|after|until|when|if|only)\b", re.I
 )
@@ -378,22 +504,57 @@ def _bind_directive_argument(
     )
 
 
-def _nominal_members(
-    text: str, version_identity: VersionIdentity | None = None
-) -> tuple[str, ...] | None:
-    """Complete noun phrases only; subordinate clauses cannot be subjects."""
-    core = text.strip(" .!?")
-    if version_identity and (identity := version_identity(core)):
-        return tuple(
-            "release" if role == "release_scope" else role for role in identity
+def _simple_nominal(text: str, *, coordinated: bool = False) -> NominalBinding | None:
+    """Bind one complete member using the same release and ordinary role owners."""
+    negative_prefix = re.match(r"^(?:the\s+)?no\s+", text, re.I)
+    start = negative_prefix.end() if negative_prefix else 0
+    literal = text[start:]
+    if match := LATEST_RELEASE.fullmatch(literal):
+        reference = ReleaseReference(
+            literal, "latest", match.span("head"), match.span("selector")
         )
-    whole = re.sub(
-        r"^(?:(?:the|a|an|these|all|any|each|every|no|available|latest|security|supported|affected|impacted|vulnerable)\s+)+",
-        "",
-        core,
-        flags=re.I,
+        return NominalBinding(
+            text,
+            (
+                NominalMember(
+                    "release", (start, len(text)), reference, bool(negative_prefix)
+                ),
+            ),
+            bool(negative_prefix),
+        )
+    # Preserve the existing numeric and non-release prefix grammar. Latest
+    # references above consume their entire finite production before this path.
+    supported = "" if coordinated else "supported|"
+    these = "" if coordinated else "these|"
+    prefix = re.match(
+        r"^(?:(?:the|a|an|"
+        + these
+        + r"all|any|each|every|no|available|latest|security|"
+        + supported
+        + r"affected|impacted|vulnerable)\s+)+",
+        text,
+        re.I,
     )
-    complete = next(
+    start = prefix.end() if prefix else 0
+    whole = text[start:]
+    if match := NUMBERED_RELEASE.fullmatch(whole):
+        reference = ReleaseReference(
+            whole,
+            "numbered",
+            match.span("head"),
+            identifier_span=match.span("identifier"),
+            identifier=match["identifier"],
+        )
+        return NominalBinding(
+            text,
+            (
+                NominalMember(
+                    "release", (start, len(text)), reference, bool(negative_prefix)
+                ),
+            ),
+            bool(negative_prefix),
+        )
+    role = next(
         (
             role
             for role, grammar in OBJECT_ROLES.items()
@@ -401,58 +562,123 @@ def _nominal_members(
         ),
         None,
     )
-    if complete:
-        return (complete,)
+    if role:
+        return NominalBinding(
+            text,
+            (NominalMember(role, (0, len(text)), negative=bool(negative_prefix)),),
+            bool(negative_prefix),
+        )
+    return None
+
+
+def _delegated_nominal(text: str, identity: tuple[str, ...]) -> NominalBinding:
+    members = []
+    for role in identity:
+        role = "release" if role == "release_scope" else role
+        members.append(
+            NominalMember(
+                role,
+                (0, len(text)),
+                ReleaseReference(text, "delegated") if role == "release" else None,
+            )
+        )
+    return NominalBinding(text, tuple(members))
+
+
+def _bind_nominal(
+    text: str, version_identity: VersionIdentity | None = None
+) -> NominalBinding | None:
+    """One owner for complete nominal roles, literal identities and polarity."""
+    core = text.strip(" .!?")
+    if not core:
+        return None
+    offset = len(text) - len(text.lstrip(" .!?"))
+
+    def owned(binding: NominalBinding) -> NominalBinding:
+        return NominalBinding(
+            text,
+            tuple(
+                replace(member, span=(offset + member.span[0], offset + member.span[1]))
+                for member in binding.members
+            ),
+            binding.negative,
+        )
+
+    if version_identity and (identity := version_identity(core)):
+        return owned(_delegated_nominal(core, identity))
+    if complete := _simple_nominal(core):
+        return owned(complete)
     correlative = re.fullmatch(r"neither (.+) nor (.+)", core, re.I)
     if correlative:
-        left, right = (_nominal_members(part) for part in correlative.groups())
-        return left + right if left and right else None
-    # Coordinated objects (logs and traffic) remain objects, not directives.
-    parts = re.split(r"\s+and\s+|,\s*", core, flags=re.I)
-    roles = []
-    for part in parts:
-        part = re.sub(
-            r"^(?:(?:the|a|an|all|any|each|every|no|available|latest|security|affected|impacted|vulnerable)\s+)+",
-            "",
-            part,
-            flags=re.I,
-        )
-        role = next(
-            (
-                role
-                for role, grammar in OBJECT_ROLES.items()
-                if re.fullmatch(grammar, part, re.I)
-            ),
-            None,
-        )
-        if role is None:
+        members = []
+        for index in (1, 2):
+            # Retain the existing correlative nominal boundary. It does not
+            # delegate new version/list productions from inside each operand.
+            binding = _bind_nominal(correlative[index])
+            if binding is None:
+                return None
+            start = correlative.start(index)
+            members.extend(
+                replace(
+                    member,
+                    span=(start + member.span[0], start + member.span[1]),
+                    negative=True,
+                )
+                for member in binding.members
+            )
+        return owned(NominalBinding(core, tuple(members), True))
+    boundaries = list(re.finditer(r"\s+and\s+|,\s*", core, re.I))
+    if not boundaries:
+        return None
+    members = []
+    begin = 0
+    for end, following in [
+        *((m.start(), m.end()) for m in boundaries),
+        (len(core), len(core)),
+    ]:
+        part = core[begin:end]
+        binding = _simple_nominal(part, coordinated=True)
+        if binding is None:
             return None
-        roles.append(role)
-    return tuple(roles)
+        members.extend(
+            replace(member, span=(begin + member.span[0], begin + member.span[1]))
+            for member in binding.members
+        )
+        begin = following
+    # Release-member negation is retained even after a destination preposition.
+    # Other role-specific conjunction semantics retain their existing contract.
+    negative = bool(re.match(r"^(?:the )?no\b", core, re.I)) or any(
+        member.release is not None and member.negative for member in members
+    )
+    return owned(NominalBinding(core, tuple(members), negative))
 
 
-def _object_members(
-    text: str, depth: int = 0, version_identity: VersionIdentity | None = None
+def _nominal_members(
+    text: str, version_identity: VersionIdentity | None = None
 ) -> tuple[str, ...] | None:
+    binding = _bind_nominal(text, version_identity)
+    return binding.roles if binding else None
+
+
+def _bind_object(
+    text: str, depth: int = 0, version_identity: VersionIdentity | None = None
+) -> NominalBinding | None:
     if depth > 2:
         return None
-    # Closed multiword targets own their internal prepositions/conjunctions.
-    # Otherwise the ordinary argument relation parser consumes each modifier.
-    if roles := _nominal_members(text, version_identity):
-        return roles
+    if binding := _bind_nominal(text, version_identity):
+        return binding
     if (
         version_identity
         and (identity := version_identity(text))
         and set(identity) == {"release_scope"}
     ):
-        return tuple("release" for _ in identity)
+        return _delegated_nominal(text, identity)
     modifier = OBJECT_MODIFIER.search(text)
     core = text[: modifier.start()] if modifier else text
     if modifier:
         relation = modifier.group().strip().casefold()
         tail = text[modifier.end() :].strip()
         if relation in {"before", "after"}:
-            # A subordinate activity is context, not a coordinated directive.
             tail = re.sub(
                 r"^(?:installing|applying|upgrading|updating|reviewing|monitoring|investigating|mitigating)\s+",
                 "",
@@ -461,42 +687,76 @@ def _object_members(
             )
         if (
             relation not in {"until", "when", "if", "only"}
-            and _object_members(tail, depth + 1, version_identity) is None
+            and _bind_object(tail, depth + 1, version_identity) is None
             and not (
                 version_identity and version_identity(text[modifier.start() :].strip())
             )
         ):
             return None
-    return _nominal_members(core, version_identity)
+    binding = _bind_nominal(core, version_identity)
+    return replace(binding, text=text) if binding else None
 
 
-def _argument(
-    text: str, version_identity: VersionIdentity | None = None
-) -> tuple[ArgumentRelation, tuple[str, ...]]:
-    # A closed nominal target owns its internal infinitives/prepositions.
-    # Only a remaining relational argument may introduce a destination.
-    if roles := _nominal_members(text):
-        return "direct", roles
-    if _classification_argument(text):
-        return "classification", ("infrastructure",)
+def _object_members(
+    text: str, depth: int = 0, version_identity: VersionIdentity | None = None
+) -> tuple[str, ...] | None:
+    binding = _bind_object(text, depth, version_identity)
+    return binding.roles if binding else None
+
+
+def _bind_argument(
+    text: str,
+    version_identity: VersionIdentity | None = None,
+    release_destinations: tuple[str, ...] = (),
+) -> DirectiveTarget:
+    if release_destinations and text.endswith(" to:") and version_identity:
+        direct = _bind_object(text[:-4], version_identity=version_identity)
+        destinations = tuple(
+            _bind_nominal(value, version_identity) for value in release_destinations
+        )
+        if direct and all(
+            item is not None and set(item.roles) <= {"release"} for item in destinations
+        ):
+            return DirectiveTarget(
+                "direct_destination",
+                direct,
+                tuple(item for item in destinations if item is not None),
+            )
+    if binding := _bind_nominal(text):
+        return DirectiveTarget("direct", direct=binding)
+    if classification := _classification_argument(text):
+        return DirectiveTarget(
+            "classification", direct=_bind_nominal(classification.target)
+        )
     if (
         version_identity
         and (identity := version_identity(text))
         and set(identity) == {"release_scope"}
     ):
-        return "direct", tuple("release" for _ in identity)
+        return DirectiveTarget("direct", direct=_delegated_nominal(text, identity))
     destination = re.match(r"^to\s+(.+)$", text, re.I)
     if destination:
-        roles = _object_members(destination[1], version_identity=version_identity) or ()
-        return "destination", roles
+        return DirectiveTarget(
+            "destination",
+            destination=_bind_object(destination[1], version_identity=version_identity),
+        )
     parts = re.split(r"\s+to\s+", text, maxsplit=1, flags=re.I)
     if len(parts) == 2:
-        destination_roles = _object_members(parts[1], version_identity=version_identity)
-        roles = _object_members(parts[0], version_identity=version_identity) or ()
-        return "direct_destination", (
-            roles if destination_roles and set(destination_roles) <= {"release"} else ()
+        return DirectiveTarget(
+            "direct_destination",
+            direct=_bind_object(parts[0], version_identity=version_identity),
+            destination=_bind_object(parts[1], version_identity=version_identity),
         )
-    return "direct", _object_members(text, version_identity=version_identity) or ()
+    return DirectiveTarget(
+        "direct", direct=_bind_object(text, version_identity=version_identity)
+    )
+
+
+def _argument(
+    text: str, version_identity: VersionIdentity | None = None
+) -> tuple[ArgumentRelation, tuple[str, ...]]:
+    binding = _bind_argument(text, version_identity)
+    return binding.relation, binding.roles
 
 
 @dataclass(frozen=True)
@@ -586,6 +846,7 @@ class DirectiveFrame:
     body: str = ""
     classification_span: tuple[int, int] | None = None
     classification_modifier_span: tuple[int, int] | None = None
+    target_binding: DirectiveTarget | None = None
 
     @property
     def starts_relation(self):
@@ -806,6 +1067,7 @@ def bind_directive_frame(
     binding: DirectiveBinding | None = None,
     version_identity: VersionIdentity | None = None,
     reference_target: ReferenceTarget | None = None,
+    release_destinations: tuple[str, ...] = (),
 ) -> DirectiveFrame:
     """Own one active/passive finite, verb and complete positioned argument.
 
@@ -967,9 +1229,12 @@ def bind_directive_frame(
         if marker
         else argument.target_text
     )
-    relation, members = (
-        _argument(target, version_identity) if verb in VERBS else ("direct", ())
+    target_binding = (
+        _bind_argument(target, version_identity, release_destinations)
+        if verb in VERBS
+        else DirectiveTarget("direct")
     )
+    relation, members = target_binding.relation, target_binding.roles
     classification_span = classification_modifier_span = None
     if relation == "classification" and (
         classified := _classification_argument(target)
@@ -1014,6 +1279,7 @@ def bind_directive_frame(
         body,
         classification_span,
         classification_modifier_span,
+        target_binding,
     )
 
 
@@ -1308,6 +1574,7 @@ def parse_recommendation(
             binding=initial_binding if inherited is None else None,
             version_identity=version_identity,
             reference_target=reference_target,
+            release_destinations=release_destinations,
         )
         body, binding = frame.body, frame.binding
         advice |= frame.required
@@ -1322,20 +1589,18 @@ def parse_recommendation(
             if verb == "restart"
             else argument
         )
-        relation, members = (
-            _argument(target_argument, version_identity)
+        target_binding = (
+            _bind_argument(target_argument, version_identity, release_destinations)
             if verb in VERBS
-            else ("direct", ())
+            else DirectiveTarget("direct")
         )
-        if release_destinations and argument.endswith(" to:") and version_identity:
-            destination_roles = [
-                version_identity(value) for value in release_destinations
-            ]
-            target = _object_members(argument[:-4], version_identity=version_identity)
-            if target and all(
-                roles and set(roles) <= {"release"} for roles in destination_roles
-            ):
-                relation, members = "direct_destination", target
+        relation, members = target_binding.relation, target_binding.roles
+        frame = replace(
+            frame,
+            target_binding=target_binding,
+            argument_relation=relation,
+            object_members=members,
+        )
         object_antecedent = None
         object_conditions = ()
         subset = re.fullmatch(
@@ -1392,7 +1657,7 @@ def parse_recommendation(
             return None
         # Negative objects are owned by their nominal argument; a negation
         # inside a conditional tail cannot become predicate polarity.
-        object_negative = bool(re.match(r"^(?:the )?(?:no|neither)\b", argument, re.I))
+        object_negative = target_binding.negative
         clause = OwnedClause(
             text=raw,
             source_text=text,
