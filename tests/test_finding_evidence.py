@@ -1561,13 +1561,14 @@ def test_recommendation_cannot_discard_source_prohibition(prohibition, fragment)
     with pytest.raises(EvidenceError, match="source-supported|prohibition"):
         validate_finding_evidence(report(**{"Recommended Actions": fragment}), catalog)
     complete = report(**{"Recommended Actions": prohibition})
+    if prohibition == "The vendor does not recommend that you install the update.":
+        complete = complete.replace("**Action**: patch", "**Action**: none")
     if prohibition in {
         "Do not install the update on hosted systems.",
         "Customers should not apply the patch on hosted systems.",
         "Don't install the update on hosted systems.",
         "Avoid the unstable release and do not install the update.",
         "There is no need to install the update on hosted systems.",
-        "The vendor does not recommend that you install the update.",
     }:
         assert_unsupported_complete_guidance(complete, catalog, prohibition)
     else:

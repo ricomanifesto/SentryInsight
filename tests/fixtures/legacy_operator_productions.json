@@ -1,0 +1,1068 @@
+[
+  {
+    "operators": [],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [],
+    "voice": "actor",
+    "events": [
+      "exploited"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "is"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "is"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "are"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "are"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "was"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "was"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "were"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "were"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "is",
+      "being"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "are",
+      "being"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "was",
+      "being"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "were",
+      "being"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "has",
+      "been"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "has",
+      "been"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "have",
+      "been"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "have",
+      "been"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "had",
+      "been"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "had",
+      "been"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "has",
+      "begun"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "has",
+      "begun",
+      "to"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "has",
+      "begun",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "has",
+      "begun",
+      "being"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "have",
+      "begun"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "have",
+      "begun",
+      "to"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "have",
+      "begun",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "have",
+      "begun",
+      "being"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "had",
+      "begun"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "had",
+      "begun",
+      "to"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "had",
+      "begun",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "had",
+      "begun",
+      "being"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "past",
+    "aspect": "initiation",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "may"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "may",
+      "be"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "may",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "may",
+      "have",
+      "been"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "may",
+      "have",
+      "been"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "might"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "might",
+      "be"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "might",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "might",
+      "have",
+      "been"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "might",
+      "have",
+      "been"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "could"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "could",
+      "be"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "could",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "could",
+      "have",
+      "been"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "could",
+      "have",
+      "been"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "would"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "would",
+      "be"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "would",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "would",
+      "have",
+      "been"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "would",
+      "have",
+      "been"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "unspecified",
+    "aspect": "simple",
+    "modal": "possible",
+    "allows_negation": true,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "is",
+      "known",
+      "to",
+      "be"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": 1
+  },
+  {
+    "operators": [
+      "is",
+      "known",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": 1
+  },
+  {
+    "operators": [
+      "are",
+      "known",
+      "to",
+      "be"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": 1
+  },
+  {
+    "operators": [
+      "are",
+      "known",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "current",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": 1
+  },
+  {
+    "operators": [
+      "was",
+      "known",
+      "to",
+      "be"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": 1
+  },
+  {
+    "operators": [
+      "was",
+      "known",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": 1
+  },
+  {
+    "operators": [
+      "were",
+      "known",
+      "to",
+      "be"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploiting"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": 1
+  },
+  {
+    "operators": [
+      "were",
+      "known",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited",
+      "weaponized",
+      "under"
+    ],
+    "tense": "past",
+    "aspect": "simple",
+    "modal": "",
+    "allows_negation": true,
+    "knowledge_head": 1
+  },
+  {
+    "operators": [
+      "continue",
+      "to"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "current",
+    "aspect": "continuative",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "continue",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "current",
+    "aspect": "continuative",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "continues",
+      "to"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "current",
+    "aspect": "continuative",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "continues",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "current",
+    "aspect": "continuative",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "continued",
+      "to"
+    ],
+    "voice": "actor",
+    "events": [
+      "exploit"
+    ],
+    "tense": "past",
+    "aspect": "continuative",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  },
+  {
+    "operators": [
+      "continued",
+      "to",
+      "be"
+    ],
+    "voice": "vulnerability",
+    "events": [
+      "exploited"
+    ],
+    "tense": "past",
+    "aspect": "continuative",
+    "modal": "",
+    "allows_negation": false,
+    "knowledge_head": null
+  }
+]

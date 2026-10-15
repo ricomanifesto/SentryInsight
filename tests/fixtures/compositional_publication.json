@@ -1,0 +1,151 @@
+[
+  {
+    "id": "seed-perfect",
+    "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 in the wild.",
+    "future_status": "completed"
+  },
+  {
+    "id": "seed-preparation",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install the patch.",
+    "future_status": "completed"
+  },
+  {
+    "id": "seed-zero-that",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users install the patch.",
+    "future_status": "completed"
+  },
+  {
+    "id": "legacy-observed",
+    "source": "## CVE-2026-1234\n\nAttackers exploited CVE-2026-1234 yesterday.",
+    "future_status": "completed"
+  },
+  {
+    "id": "legacy-advice",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends that users install the patch.",
+    "future_status": "completed"
+  },
+  {
+    "id": "no-target-across-paragraph",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download.\n\nUsers should install the patch.",
+    "future_status": "failed"
+  },
+  {
+    "id": "no-target-across-cve-section",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download.\n\n## CVE-2026-5678\n\nCVE-2026-5678 exploitation status is unknown.\n\nUsers should install the patch.",
+    "future_status": "failed"
+  },
+  {
+    "id": "no-target-across-audience",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and administrators should install the patch.",
+    "future_status": "failed"
+  },
+  {
+    "id": "two-cve-independent-state",
+    "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 in the wild.\n\n## CVE-2026-5678\n\nCVE-2026-5678 exploitation has not been observed.",
+    "future_status": "completed",
+    "future_state_by_cve": {
+      "CVE-2026-1234": "observed",
+      "CVE-2026-5678": "not_observed"
+    }
+  },
+  {
+    "id": "no-target-across-source",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download.",
+    "other_source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should install the patch.",
+    "future_status": "failed"
+  },
+  {
+    "id": "family-positive-0",
+    "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234.",
+    "future_status": "completed",
+    "expected_status": "observed",
+    "expected_action": "none"
+  },
+  {
+    "id": "family-positive-1",
+    "source": "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234.",
+    "future_status": "completed",
+    "expected_status": "observed",
+    "expected_action": "none"
+  },
+  {
+    "id": "family-positive-2",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited.",
+    "future_status": "completed",
+    "expected_status": "observed",
+    "expected_action": "none"
+  },
+  {
+    "id": "family-positive-3",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized.",
+    "future_status": "completed",
+    "expected_status": "observed",
+    "expected_action": "none"
+  },
+  {
+    "id": "family-positive-4",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack.",
+    "future_status": "completed",
+    "expected_status": "observed",
+    "expected_action": "none"
+  },
+  {
+    "id": "family-positive-5",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation.",
+    "future_status": "completed",
+    "expected_status": "observed",
+    "expected_action": "none"
+  },
+  {
+    "id": "family-positive-6",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation.",
+    "future_status": "completed",
+    "expected_status": "observed",
+    "expected_action": "none"
+  },
+  {
+    "id": "progressive-negative-has",
+    "source": "## CVE-2026-1234\n\nAttacker has not been exploiting CVE-2026-1234.",
+    "future_status": "completed",
+    "expected_status": "unknown",
+    "expected_action": "none"
+  },
+  {
+    "id": "progressive-negative-have",
+    "source": "## CVE-2026-1234\n\nAttackers have not been exploiting CVE-2026-1234.",
+    "future_status": "completed",
+    "expected_status": "unknown",
+    "expected_action": "none"
+  },
+  {
+    "id": "progressive-negative-had",
+    "source": "## CVE-2026-1234\n\nAttackers had not been exploiting CVE-2026-1234.",
+    "future_status": "completed",
+    "expected_status": "unknown",
+    "expected_action": "none"
+  },
+  {
+    "id": "family-rejection-0",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under attack now.",
+    "future_status": "failed",
+    "error": "unsupported_evidence_relation"
+  },
+  {
+    "id": "family-rejection-1",
+    "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation tomorrow.",
+    "future_status": "failed",
+    "error": "unsupported_evidence_relation"
+  },
+  {
+    "id": "family-rejection-2",
+    "source": "## CVE-2026-1234\n\nThey have been exploiting CVE-2026-1234.",
+    "future_status": "failed",
+    "error": "unsupported_evidence_relation"
+  },
+  {
+    "id": "family-rejection-3",
+    "source": "## CVE-2026-1234\n\nAttackers have exploited logs for CVE-2026-1234.",
+    "future_status": "failed",
+    "error": "unsupported_evidence_relation"
+  }
+]

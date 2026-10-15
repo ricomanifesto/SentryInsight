@@ -15,8 +15,6 @@ from test_owned_relation_contract import article
 CVE = "CVE-2026-1234"
 OTHER = "CVE-2026-5678"
 UNSUPPORTED_AUXILIARIES = (
-    "has been",
-    "have been",
     "can be",
     "will be",
     "can have been",
@@ -69,6 +67,8 @@ def test_unclassified_auxiliary_preserves_pipeline_artifacts(
     [
         ("is actively exploited", "active"),
         ("was exploited yesterday", "observed"),
+        ("has been exploited", "observed"),
+        ("have been exploited", "observed"),
         ("is not exploited now", "unknown"),
         ("may have been exploited", "potential"),
     ],
@@ -98,6 +98,8 @@ def test_supported_predicate_state_remains_owned_in_pipeline(
         ("was being", "observed"),
         ("were being", "observed"),
         ("had been", "observed"),
+        ("has been", "observed"),
+        ("have been", "observed"),
         ("may be", "potential"),
         ("might be", "potential"),
         ("could be", "potential"),

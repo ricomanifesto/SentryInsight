@@ -1,0 +1,5245 @@
+{
+  "cases": [
+    {
+      "id": "perfect-have-000",
+      "text": "Attackers have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-have-001",
+      "text": "Attackers have exploited CVE-2026-1234 in the wild.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 in the wild.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-have-002",
+      "text": "Attackers have exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-have-003",
+      "text": "Attackers have exploited CVE-2026-1234 today.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 today.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-has-004",
+      "text": "Attacker has exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-has-005",
+      "text": "Attacker has exploited CVE-2026-1234 in the wild.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234 in the wild.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-has-006",
+      "text": "Attacker has exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-has-007",
+      "text": "Attacker has exploited CVE-2026-1234 today.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234 today.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-had-008",
+      "text": "Attackers had exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-had-009",
+      "text": "Attackers had exploited CVE-2026-1234 in the wild.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234 in the wild.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-had-010",
+      "text": "Attackers had exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-had-011",
+      "text": "Attackers had exploited CVE-2026-1234 today.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234 today.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-012",
+      "text": "Attackers may have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers may have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-013",
+      "text": "Attackers might have exploited CVE-2026-1234 in the wild.",
+      "source": "## CVE-2026-1234\n\nAttackers might have exploited CVE-2026-1234 in the wild.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-014",
+      "text": "Attackers could have exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers could have exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-015",
+      "text": "Attackers may not have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers may not have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-016",
+      "text": "Attackers have not exploited CVE-2026-1234 in the wild.",
+      "source": "## CVE-2026-1234\n\nAttackers have not exploited CVE-2026-1234 in the wild.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-017",
+      "text": "Attackers have not widely exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have not widely exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-018",
+      "text": "Attackers have not successfully exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have not successfully exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-019",
+      "text": "If reports are accurate, attackers have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, attackers have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-qualified-020",
+      "text": "Attackers have exploited CVE-2026-1234 only if the service is enabled.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 only if the service is enabled.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-reject-021",
+      "text": "Attackers have exploit CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploit CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-022",
+      "text": "Attackers have exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-023",
+      "text": "Attackers have been exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploited CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-024",
+      "text": "Attackers had be exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had be exploited CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-025",
+      "text": "Attackers have has exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have has exploited CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-026",
+      "text": "Attackers will have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers will have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-027",
+      "text": "Attackers have exploited CVE-2026-1234 tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-028",
+      "text": "Attackers have exploited CVE-2026-1234 now.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "perfect-reject-029",
+      "text": "Attackers have exploited logs for CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited logs for CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-030",
+      "text": "Attackers have exploited CVE-2026-1234 under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-031",
+      "text": "Logs have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nLogs have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "perfect-reject-032",
+      "text": "They have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nThey have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-accept-033",
+      "text": "Users should download and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Users should download and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-034",
+      "text": "Customers must download and apply the update.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nCustomers must download and apply the update.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Customers must download and apply the update.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-035",
+      "text": "Administrators need to download and install the vendor patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nAdministrators need to download and install the vendor patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Administrators need to download and install the vendor patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-036",
+      "text": "Users should download the patch and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download the patch and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Users should download the patch and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-037",
+      "text": "Users should download the update and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download the update and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Users should download the update and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-038",
+      "text": "Users should download and install the latest release.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install the latest release.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Users should download and install the latest release.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-039",
+      "text": "Users should download the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Users should download the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-040",
+      "text": "Users should download and install the patch immediately.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install the patch immediately.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Users should download and install the patch immediately.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-041",
+      "text": "Users should download and install the patch only if exposed.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install the patch only if exposed.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Users should download and install the patch only if exposed.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-042",
+      "text": "Users should not download and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should not download and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Users should not download and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-043",
+      "text": "Users should download and not install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and not install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Users should download and not install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-accept-044",
+      "text": "Users should download or install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download or install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Users should download or install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "coord-reject-045",
+      "text": "Users should download and run the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and run the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-046",
+      "text": "Users should download and install it.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install it.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-047",
+      "text": "Users should download and install unclassified objects.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install unclassified objects.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-048",
+      "text": "Users should download and install the exploit.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install the exploit.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-049",
+      "text": "Users should download and mystery observers install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and mystery observers install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-050",
+      "text": "Users should download and install the patch with unclassified requirements.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install the patch with unclassified requirements.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-051",
+      "text": "Users should download and install the patch before Friday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install the patch before Friday.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-052",
+      "text": "Users should download and install.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and install.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-053",
+      "text": "Users should download and the patch is installed.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download and the patch is installed.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "coord-reject-054",
+      "text": "Users should download the patch and unclassified predicates apply.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should download the patch and unclassified predicates apply.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-zero-055",
+      "text": "The vendor recommends users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "The vendor recommends users install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-056",
+      "text": "The vendor recommends users review logs and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users review logs and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "The vendor recommends users review logs and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-057",
+      "text": "The vendor recommends users not install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users not install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor recommends users not install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-058",
+      "text": "The vendor recommends users install the patch only if exposed.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users install the patch only if exposed.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor recommends users install the patch only if exposed.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-059",
+      "text": "Researchers recommend administrators install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nResearchers recommend administrators install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Researchers recommend administrators install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-060",
+      "text": "Researchers recommend administrators review logs and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nResearchers recommend administrators review logs and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Researchers recommend administrators review logs and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-061",
+      "text": "Researchers recommend administrators not install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nResearchers recommend administrators not install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Researchers recommend administrators not install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-062",
+      "text": "Researchers recommend administrators install the patch only if exposed.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nResearchers recommend administrators install the patch only if exposed.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Researchers recommend administrators install the patch only if exposed.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-063",
+      "text": "Example recommended customers install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nExample recommended customers install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Example recommended customers install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-064",
+      "text": "Example recommended customers review logs and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nExample recommended customers review logs and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Example recommended customers review logs and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-065",
+      "text": "Example recommended customers not install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nExample recommended customers not install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Example recommended customers not install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-zero-066",
+      "text": "Example recommended customers install the patch only if exposed.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nExample recommended customers install the patch only if exposed.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "Example recommended customers install the patch only if exposed.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-reject-067",
+      "text": "The vendor might recommend users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor might recommend users install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-reject-068",
+      "text": "The vendor recommends mystery observers install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends mystery observers install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-reject-069",
+      "text": "The vendor recommends users installed the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users installed the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-reject-070",
+      "text": "The vendor recommends users can install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users can install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-reject-071",
+      "text": "The vendor recommends users install unclassified objects.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users install unclassified objects.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-reject-072",
+      "text": "The vendor recommends users install the patch with unclassified requirements.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users install the patch with unclassified requirements.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-reject-073",
+      "text": "The vendor recommends users install the patch and unclassified predicates apply.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users install the patch and unclassified predicates apply.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-reject-074",
+      "text": "The vendor does not recommend users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend users install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor does not recommend users install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "advice-reject-075",
+      "text": "The vendor advises users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor advises users install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "advice-reject-076",
+      "text": "The vendor urges users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor urges users install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "legacy-event-077",
+      "text": "Attackers are exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers are exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-078",
+      "text": "Attackers exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-079",
+      "text": "Attackers had been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-080",
+      "text": "CVE-2026-1234 had been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-081",
+      "text": "CVE-2026-1234 may have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-082",
+      "text": "CVE-2026-1234 has been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-083",
+      "text": "CVE-2026-1234 has been exploited yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-084",
+      "text": "CVE-2026-1234 has been exploited if reports are accurate.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited if reports are accurate.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-085",
+      "text": "CVE-2026-1234 will be exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 will be exploited.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "legacy-event-086",
+      "text": "CVE-2026-1234 has begun to be exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has begun to be exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-event-087",
+      "text": "CVE-2026-1234 has not begun to be exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not begun to be exploited.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "legacy-advice-088",
+      "text": "The vendor recommends that users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends that users install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "The vendor recommends that users install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-advice-089",
+      "text": "The vendor recommends users to install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users to install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "The vendor recommends users to install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-advice-090",
+      "text": "The vendor recommends installing the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends installing the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "The vendor recommends installing the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-advice-091",
+      "text": "The vendor did not advise users to install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor did not advise users to install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor did not advise users to install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-advice-092",
+      "text": "The vendor does not recommend that users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend that users install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor does not recommend that users install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-advice-093",
+      "text": "Users should review logs and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should review logs and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "patch",
+        "complete_guidance": "Users should review logs and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "legacy-advice-094",
+      "text": "Users should install the patch before Friday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nUsers should install the patch before Friday.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "cross-095",
+      "text": "Attackers have exploited CVE-2026-1234 in the wild.\n\nUsers should download and install the patch.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 in the wild.\n\nUsers should download and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "patch",
+        "complete_guidance": "Users should download and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "cross-096",
+      "text": "Attackers have exploited CVE-2026-1234 yesterday.\n\nThe vendor recommends users download and install the patch.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 yesterday.\n\nThe vendor recommends users download and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "patch",
+        "complete_guidance": "The vendor recommends users download and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "cross-097",
+      "text": "Attackers may have exploited CVE-2026-1234.\n\nThe vendor recommends users download and install the patch only if exposed.",
+      "source": "## CVE-2026-1234\n\nAttackers may have exploited CVE-2026-1234.\n\nThe vendor recommends users download and install the patch only if exposed.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": "The vendor recommends users download and install the patch only if exposed.",
+        "error": null
+      }
+    },
+    {
+      "id": "cross-098",
+      "text": "Attackers have exploited CVE-2026-1234 tomorrow.\n\nThe vendor recommends users download and install the patch.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 tomorrow.\n\nThe vendor recommends users download and install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "cross-099",
+      "text": "Attackers have exploited CVE-2026-1234.\n\nThe vendor might recommend users download and install the patch.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234.\n\nThe vendor might recommend users download and install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "cross-100",
+      "text": "Attackers have exploited CVE-2026-1234.\n\nUsers should download and install the patch with unclassified requirements.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234.\n\nUsers should download and install the patch with unclassified requirements.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-000",
+      "text": "Attackers have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-001",
+      "text": "CVE-2026-1234 has been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-002",
+      "text": "Attackers have exploited CVE-2026-1234 in the wild.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 in the wild.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-003",
+      "text": "CVE-2026-1234 has been exploited in the wild.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited in the wild.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-004",
+      "text": "Attackers have exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-005",
+      "text": "CVE-2026-1234 has been exploited yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-006",
+      "text": "Attackers have exploited CVE-2026-1234 last week.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 last week.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-007",
+      "text": "CVE-2026-1234 has been exploited last week.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited last week.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-008",
+      "text": "Attackers have exploited CVE-2026-1234 today.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 today.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-009",
+      "text": "CVE-2026-1234 has been exploited today.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited today.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-010",
+      "text": "Attackers have exploited CVE-2026-1234 now.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-011",
+      "text": "CVE-2026-1234 has been exploited now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-012",
+      "text": "If reports are accurate, attackers have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, attackers have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-013",
+      "text": "Attackers have exploited CVE-2026-1234 unless reports are inaccurate.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 unless reports are inaccurate.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-014",
+      "text": "Attackers have exploited CVE-2026-1234 tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-015",
+      "text": "Attackers have exploited CVE-2026-1234 next week.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 next week.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-016",
+      "text": "Attackers have exploited CVE-2026-1234 yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-017",
+      "text": "Attackers have exploited CVE-2026-1234 under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-018",
+      "text": "If reports are accurate, CVE-2026-1234 has been exploited.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 has been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-019",
+      "text": "CVE-2026-1234 has been exploited unless reports are inaccurate.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited unless reports are inaccurate.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-020",
+      "text": "CVE-2026-1234 has been exploited tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-021",
+      "text": "CVE-2026-1234 has been exploited next week.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited next week.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-022",
+      "text": "CVE-2026-1234 has been exploited yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-023",
+      "text": "CVE-2026-1234 has been exploited under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-024",
+      "text": "CVE-2026-1234 may have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-025",
+      "text": "CVE-2026-1234 has not been exploited in the wild.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited in the wild.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-026",
+      "text": "CVE-2026-1234 has not been widely exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not been widely exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-027",
+      "text": "The vendor does not recommend that users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend that users install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor does not recommend that users install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-028",
+      "text": "The vendor does not recommend users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend users install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor does not recommend users install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-029",
+      "text": "The vendor does not recommend that you install the update.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend that you install the update.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor does not recommend that you install the update.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-030",
+      "text": "The vendor did not advise users to install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor did not advise users to install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor did not advise users to install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-031",
+      "text": "The vendor does not recommend installing the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend installing the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor does not recommend installing the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-032",
+      "text": "The vendor recommends that users not install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends that users not install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor recommends that users not install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-033",
+      "text": "The vendor recommends users not install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor recommends users not install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor recommends users not install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-034",
+      "text": "The vendor does not recommend that users not install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend that users not install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor does not recommend that users not install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-035",
+      "text": "The vendor does not recommend users download and install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend users download and install the patch.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": "The vendor does not recommend users download and install the patch.",
+        "error": null
+      }
+    },
+    {
+      "id": "disposition-036",
+      "text": "The vendor does not recommend that mystery observers install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend that mystery observers install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-037",
+      "text": "The vendor does not recommend users install unclassified objects.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend users install unclassified objects.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-038",
+      "text": "The vendor does not recommend users install the patch with unclassified requirements.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor does not recommend users install the patch with unclassified requirements.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "disposition-039",
+      "text": "The vendor might recommend users install the patch.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 exploitation status is unknown.\n\nThe vendor might recommend users install the patch.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-000",
+      "text": "Attacker has exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-001",
+      "text": "Attacker has not exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttacker has not exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-002",
+      "text": "Attacker has not widely exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttacker has not widely exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-003",
+      "text": "If reports are accurate, Attacker has exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, Attacker has exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-004",
+      "text": "Attacker has exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-005",
+      "text": "Attacker has exploited CVE-2026-1234 now.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234 now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-006",
+      "text": "Attacker has exploited CVE-2026-1234 tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234 tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-007",
+      "text": "Attacker has exploited CVE-2026-1234 yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234 yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-008",
+      "text": "Attacker has exploited CVE-2026-1234 under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nAttacker has exploited CVE-2026-1234 under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-009",
+      "text": "Attackers have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-010",
+      "text": "Attackers have not exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have not exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-011",
+      "text": "Attackers have not widely exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have not widely exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-012",
+      "text": "If reports are accurate, Attackers have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, Attackers have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-013",
+      "text": "Attackers have exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-014",
+      "text": "Attackers have exploited CVE-2026-1234 now.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-015",
+      "text": "Attackers have exploited CVE-2026-1234 tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-016",
+      "text": "Attackers have exploited CVE-2026-1234 yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-017",
+      "text": "Attackers have exploited CVE-2026-1234 under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234 under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-018",
+      "text": "Attackers had exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-019",
+      "text": "Attackers had not exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had not exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-020",
+      "text": "Attackers had not widely exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had not widely exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-021",
+      "text": "If reports are accurate, Attackers had exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, Attackers had exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-022",
+      "text": "Attackers had exploited CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-023",
+      "text": "Attackers had exploited CVE-2026-1234 now.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234 now.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-024",
+      "text": "Attackers had exploited CVE-2026-1234 tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234 tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-025",
+      "text": "Attackers had exploited CVE-2026-1234 yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234 yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-026",
+      "text": "Attackers had exploited CVE-2026-1234 under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nAttackers had exploited CVE-2026-1234 under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-027",
+      "text": "Attackers may have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers may have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-028",
+      "text": "Attackers may not have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers may not have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-029",
+      "text": "Attackers might have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers might have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-030",
+      "text": "Attackers might not have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers might not have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-031",
+      "text": "Attackers could have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers could have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-032",
+      "text": "Attackers could not have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers could not have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-033",
+      "text": "Attackers would have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers would have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-034",
+      "text": "Attackers would not have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers would not have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-035",
+      "text": "Attackers have exploited logs for CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have exploited logs for CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-036",
+      "text": "They have exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nThey have exploited CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-037",
+      "text": "Attacker has been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttacker has been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-038",
+      "text": "Attacker has not been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttacker has not been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-039",
+      "text": "Attacker has not widely been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttacker has not widely been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-040",
+      "text": "If reports are accurate, Attacker has been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, Attacker has been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-041",
+      "text": "Attacker has been exploiting CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttacker has been exploiting CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-042",
+      "text": "Attacker has been exploiting CVE-2026-1234 now.",
+      "source": "## CVE-2026-1234\n\nAttacker has been exploiting CVE-2026-1234 now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-043",
+      "text": "Attacker has been exploiting CVE-2026-1234 tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttacker has been exploiting CVE-2026-1234 tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-044",
+      "text": "Attacker has been exploiting CVE-2026-1234 yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttacker has been exploiting CVE-2026-1234 yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-045",
+      "text": "Attacker has been exploiting CVE-2026-1234 under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nAttacker has been exploiting CVE-2026-1234 under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-046",
+      "text": "Attackers have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-047",
+      "text": "Attackers have not been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have not been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-048",
+      "text": "Attackers have not widely been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have not widely been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-049",
+      "text": "If reports are accurate, Attackers have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, Attackers have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-050",
+      "text": "Attackers have been exploiting CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-051",
+      "text": "Attackers have been exploiting CVE-2026-1234 now.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234 now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-052",
+      "text": "Attackers have been exploiting CVE-2026-1234 tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234 tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-053",
+      "text": "Attackers have been exploiting CVE-2026-1234 yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234 yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-054",
+      "text": "Attackers have been exploiting CVE-2026-1234 under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234 under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-055",
+      "text": "Attackers had been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-056",
+      "text": "Attackers had not been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had not been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-057",
+      "text": "Attackers had not widely been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers had not widely been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-058",
+      "text": "If reports are accurate, Attackers had been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, Attackers had been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-059",
+      "text": "Attackers had been exploiting CVE-2026-1234 yesterday.",
+      "source": "## CVE-2026-1234\n\nAttackers had been exploiting CVE-2026-1234 yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-060",
+      "text": "Attackers had been exploiting CVE-2026-1234 now.",
+      "source": "## CVE-2026-1234\n\nAttackers had been exploiting CVE-2026-1234 now.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-061",
+      "text": "Attackers had been exploiting CVE-2026-1234 tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers had been exploiting CVE-2026-1234 tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-062",
+      "text": "Attackers had been exploiting CVE-2026-1234 yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nAttackers had been exploiting CVE-2026-1234 yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-063",
+      "text": "Attackers had been exploiting CVE-2026-1234 under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nAttackers had been exploiting CVE-2026-1234 under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-064",
+      "text": "Attackers may have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers may have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-065",
+      "text": "Attackers may not have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers may not have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-066",
+      "text": "Attackers might have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers might have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-067",
+      "text": "Attackers might not have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers might not have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-068",
+      "text": "Attackers could have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers could have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-069",
+      "text": "Attackers could not have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers could not have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-070",
+      "text": "Attackers would have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers would have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-071",
+      "text": "Attackers would not have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers would not have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-072",
+      "text": "Attackers have been exploiting logs for CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploiting logs for CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-073",
+      "text": "They have been exploiting CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nThey have been exploiting CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-074",
+      "text": "CVE-2026-1234 has been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-075",
+      "text": "CVE-2026-1234 has not been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-076",
+      "text": "CVE-2026-1234 has not widely been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not widely been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-077",
+      "text": "If reports are accurate, CVE-2026-1234 has been exploited.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 has been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-078",
+      "text": "CVE-2026-1234 has been exploited yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-079",
+      "text": "CVE-2026-1234 has been exploited now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-080",
+      "text": "CVE-2026-1234 has been exploited tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-081",
+      "text": "CVE-2026-1234 has been exploited yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-082",
+      "text": "CVE-2026-1234 has been exploited under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-083",
+      "text": "CVE-2026-1234 have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-084",
+      "text": "CVE-2026-1234 have not been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-085",
+      "text": "CVE-2026-1234 have not widely been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not widely been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-086",
+      "text": "If reports are accurate, CVE-2026-1234 have been exploited.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-087",
+      "text": "CVE-2026-1234 have been exploited yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been exploited yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-088",
+      "text": "CVE-2026-1234 have been exploited now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been exploited now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-089",
+      "text": "CVE-2026-1234 have been exploited tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been exploited tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-090",
+      "text": "CVE-2026-1234 have been exploited yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been exploited yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-091",
+      "text": "CVE-2026-1234 have been exploited under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been exploited under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-092",
+      "text": "CVE-2026-1234 had been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-093",
+      "text": "CVE-2026-1234 had not been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-094",
+      "text": "CVE-2026-1234 had not widely been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not widely been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-095",
+      "text": "If reports are accurate, CVE-2026-1234 had been exploited.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 had been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-096",
+      "text": "CVE-2026-1234 had been exploited yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been exploited yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-097",
+      "text": "CVE-2026-1234 had been exploited now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been exploited now.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-098",
+      "text": "CVE-2026-1234 had been exploited tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been exploited tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-099",
+      "text": "CVE-2026-1234 had been exploited yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been exploited yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-100",
+      "text": "CVE-2026-1234 had been exploited under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been exploited under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-101",
+      "text": "CVE-2026-1234 may have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-102",
+      "text": "CVE-2026-1234 may not have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may not have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-103",
+      "text": "CVE-2026-1234 might have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-104",
+      "text": "CVE-2026-1234 might not have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might not have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-105",
+      "text": "CVE-2026-1234 could have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-106",
+      "text": "CVE-2026-1234 could not have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could not have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-107",
+      "text": "CVE-2026-1234 would have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-108",
+      "text": "CVE-2026-1234 would not have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would not have been exploited.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-109",
+      "text": "Logs for CVE-2026-1234 have been exploited.",
+      "source": "## CVE-2026-1234\n\nLogs for CVE-2026-1234 have been exploited.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-110",
+      "text": "CVE-2026-1234 has been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-111",
+      "text": "CVE-2026-1234 has not been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-112",
+      "text": "CVE-2026-1234 has not widely been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not widely been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-113",
+      "text": "If reports are accurate, CVE-2026-1234 has been weaponized.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 has been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-114",
+      "text": "CVE-2026-1234 has been weaponized yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-115",
+      "text": "CVE-2026-1234 has been weaponized now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-116",
+      "text": "CVE-2026-1234 has been weaponized tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-117",
+      "text": "CVE-2026-1234 has been weaponized yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-118",
+      "text": "CVE-2026-1234 has been weaponized under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-119",
+      "text": "CVE-2026-1234 have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-120",
+      "text": "CVE-2026-1234 have not been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-121",
+      "text": "CVE-2026-1234 have not widely been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not widely been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-122",
+      "text": "If reports are accurate, CVE-2026-1234 have been weaponized.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-123",
+      "text": "CVE-2026-1234 have been weaponized yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been weaponized yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-124",
+      "text": "CVE-2026-1234 have been weaponized now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been weaponized now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-125",
+      "text": "CVE-2026-1234 have been weaponized tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been weaponized tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-126",
+      "text": "CVE-2026-1234 have been weaponized yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been weaponized yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-127",
+      "text": "CVE-2026-1234 have been weaponized under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been weaponized under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-128",
+      "text": "CVE-2026-1234 had been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-129",
+      "text": "CVE-2026-1234 had not been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-130",
+      "text": "CVE-2026-1234 had not widely been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not widely been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-131",
+      "text": "If reports are accurate, CVE-2026-1234 had been weaponized.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 had been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-132",
+      "text": "CVE-2026-1234 had been weaponized yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been weaponized yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-133",
+      "text": "CVE-2026-1234 had been weaponized now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been weaponized now.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-134",
+      "text": "CVE-2026-1234 had been weaponized tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been weaponized tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-135",
+      "text": "CVE-2026-1234 had been weaponized yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been weaponized yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-136",
+      "text": "CVE-2026-1234 had been weaponized under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been weaponized under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-137",
+      "text": "CVE-2026-1234 may have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-138",
+      "text": "CVE-2026-1234 may not have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may not have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-139",
+      "text": "CVE-2026-1234 might have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-140",
+      "text": "CVE-2026-1234 might not have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might not have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-141",
+      "text": "CVE-2026-1234 could have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-142",
+      "text": "CVE-2026-1234 could not have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could not have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-143",
+      "text": "CVE-2026-1234 would have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-144",
+      "text": "CVE-2026-1234 would not have been weaponized.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would not have been weaponized.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-145",
+      "text": "Logs for CVE-2026-1234 have been weaponized.",
+      "source": "## CVE-2026-1234\n\nLogs for CVE-2026-1234 have been weaponized.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-146",
+      "text": "CVE-2026-1234 has been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-147",
+      "text": "CVE-2026-1234 has not been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-148",
+      "text": "CVE-2026-1234 has not widely been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not widely been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-149",
+      "text": "If reports are accurate, CVE-2026-1234 has been under attack.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 has been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-150",
+      "text": "CVE-2026-1234 has been under attack yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-151",
+      "text": "CVE-2026-1234 has been under attack now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-152",
+      "text": "CVE-2026-1234 has been under attack tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-153",
+      "text": "CVE-2026-1234 has been under attack yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-154",
+      "text": "CVE-2026-1234 has been under attack under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-155",
+      "text": "CVE-2026-1234 have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-156",
+      "text": "CVE-2026-1234 have not been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-157",
+      "text": "CVE-2026-1234 have not widely been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not widely been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-158",
+      "text": "If reports are accurate, CVE-2026-1234 have been under attack.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-159",
+      "text": "CVE-2026-1234 have been under attack yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under attack yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-160",
+      "text": "CVE-2026-1234 have been under attack now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under attack now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-161",
+      "text": "CVE-2026-1234 have been under attack tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under attack tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-162",
+      "text": "CVE-2026-1234 have been under attack yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under attack yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-163",
+      "text": "CVE-2026-1234 have been under attack under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under attack under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-164",
+      "text": "CVE-2026-1234 had been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-165",
+      "text": "CVE-2026-1234 had not been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-166",
+      "text": "CVE-2026-1234 had not widely been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not widely been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-167",
+      "text": "If reports are accurate, CVE-2026-1234 had been under attack.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 had been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-168",
+      "text": "CVE-2026-1234 had been under attack yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under attack yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-169",
+      "text": "CVE-2026-1234 had been under attack now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under attack now.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-170",
+      "text": "CVE-2026-1234 had been under attack tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under attack tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-171",
+      "text": "CVE-2026-1234 had been under attack yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under attack yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-172",
+      "text": "CVE-2026-1234 had been under attack under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under attack under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-173",
+      "text": "CVE-2026-1234 may have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-174",
+      "text": "CVE-2026-1234 may not have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may not have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-175",
+      "text": "CVE-2026-1234 might have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-176",
+      "text": "CVE-2026-1234 might not have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might not have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-177",
+      "text": "CVE-2026-1234 could have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-178",
+      "text": "CVE-2026-1234 could not have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could not have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-179",
+      "text": "CVE-2026-1234 would have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-180",
+      "text": "CVE-2026-1234 would not have been under attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would not have been under attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-181",
+      "text": "Logs for CVE-2026-1234 have been under attack.",
+      "source": "## CVE-2026-1234\n\nLogs for CVE-2026-1234 have been under attack.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-182",
+      "text": "CVE-2026-1234 has been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-183",
+      "text": "CVE-2026-1234 has not been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-184",
+      "text": "CVE-2026-1234 has not widely been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not widely been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-185",
+      "text": "If reports are accurate, CVE-2026-1234 has been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 has been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-186",
+      "text": "CVE-2026-1234 has been under active exploitation yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-187",
+      "text": "CVE-2026-1234 has been under active exploitation now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-188",
+      "text": "CVE-2026-1234 has been under active exploitation tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-189",
+      "text": "CVE-2026-1234 has been under active exploitation yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-190",
+      "text": "CVE-2026-1234 has been under active exploitation under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-191",
+      "text": "CVE-2026-1234 have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-192",
+      "text": "CVE-2026-1234 have not been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-193",
+      "text": "CVE-2026-1234 have not widely been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not widely been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-194",
+      "text": "If reports are accurate, CVE-2026-1234 have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-195",
+      "text": "CVE-2026-1234 have been under active exploitation yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under active exploitation yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-196",
+      "text": "CVE-2026-1234 have been under active exploitation now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under active exploitation now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-197",
+      "text": "CVE-2026-1234 have been under active exploitation tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under active exploitation tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-198",
+      "text": "CVE-2026-1234 have been under active exploitation yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under active exploitation yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-199",
+      "text": "CVE-2026-1234 have been under active exploitation under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under active exploitation under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-200",
+      "text": "CVE-2026-1234 had been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-201",
+      "text": "CVE-2026-1234 had not been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-202",
+      "text": "CVE-2026-1234 had not widely been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not widely been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-203",
+      "text": "If reports are accurate, CVE-2026-1234 had been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 had been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-204",
+      "text": "CVE-2026-1234 had been under active exploitation yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under active exploitation yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-205",
+      "text": "CVE-2026-1234 had been under active exploitation now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under active exploitation now.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-206",
+      "text": "CVE-2026-1234 had been under active exploitation tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under active exploitation tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-207",
+      "text": "CVE-2026-1234 had been under active exploitation yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under active exploitation yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-208",
+      "text": "CVE-2026-1234 had been under active exploitation under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under active exploitation under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-209",
+      "text": "CVE-2026-1234 may have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-210",
+      "text": "CVE-2026-1234 may not have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may not have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-211",
+      "text": "CVE-2026-1234 might have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-212",
+      "text": "CVE-2026-1234 might not have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might not have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-213",
+      "text": "CVE-2026-1234 could have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-214",
+      "text": "CVE-2026-1234 could not have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could not have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-215",
+      "text": "CVE-2026-1234 would have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-216",
+      "text": "CVE-2026-1234 would not have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would not have been under active exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-217",
+      "text": "Logs for CVE-2026-1234 have been under active exploitation.",
+      "source": "## CVE-2026-1234\n\nLogs for CVE-2026-1234 have been under active exploitation.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-218",
+      "text": "CVE-2026-1234 has been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-219",
+      "text": "CVE-2026-1234 has not been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-220",
+      "text": "CVE-2026-1234 has not widely been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not widely been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-221",
+      "text": "If reports are accurate, CVE-2026-1234 has been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 has been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-222",
+      "text": "CVE-2026-1234 has been under limited, targeted exploitation yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-223",
+      "text": "CVE-2026-1234 has been under limited, targeted exploitation now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-224",
+      "text": "CVE-2026-1234 has been under limited, targeted exploitation tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-225",
+      "text": "CVE-2026-1234 has been under limited, targeted exploitation yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-226",
+      "text": "CVE-2026-1234 has been under limited, targeted exploitation under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-227",
+      "text": "CVE-2026-1234 have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-228",
+      "text": "CVE-2026-1234 have not been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-229",
+      "text": "CVE-2026-1234 have not widely been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have not widely been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-230",
+      "text": "If reports are accurate, CVE-2026-1234 have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-231",
+      "text": "CVE-2026-1234 have been under limited, targeted exploitation yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under limited, targeted exploitation yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-232",
+      "text": "CVE-2026-1234 have been under limited, targeted exploitation now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under limited, targeted exploitation now.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-233",
+      "text": "CVE-2026-1234 have been under limited, targeted exploitation tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under limited, targeted exploitation tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-234",
+      "text": "CVE-2026-1234 have been under limited, targeted exploitation yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under limited, targeted exploitation yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-235",
+      "text": "CVE-2026-1234 have been under limited, targeted exploitation under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 have been under limited, targeted exploitation under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-236",
+      "text": "CVE-2026-1234 had been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-237",
+      "text": "CVE-2026-1234 had not been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-238",
+      "text": "CVE-2026-1234 had not widely been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had not widely been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-239",
+      "text": "If reports are accurate, CVE-2026-1234 had been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nIf reports are accurate, CVE-2026-1234 had been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-240",
+      "text": "CVE-2026-1234 had been under limited, targeted exploitation yesterday.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under limited, targeted exploitation yesterday.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-241",
+      "text": "CVE-2026-1234 had been under limited, targeted exploitation now.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under limited, targeted exploitation now.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-242",
+      "text": "CVE-2026-1234 had been under limited, targeted exploitation tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under limited, targeted exploitation tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-243",
+      "text": "CVE-2026-1234 had been under limited, targeted exploitation yesterday tomorrow.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under limited, targeted exploitation yesterday tomorrow.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-244",
+      "text": "CVE-2026-1234 had been under limited, targeted exploitation under unclassified conditions.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 had been under limited, targeted exploitation under unclassified conditions.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-245",
+      "text": "CVE-2026-1234 may have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-246",
+      "text": "CVE-2026-1234 may not have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 may not have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-247",
+      "text": "CVE-2026-1234 might have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-248",
+      "text": "CVE-2026-1234 might not have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 might not have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-249",
+      "text": "CVE-2026-1234 could have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-250",
+      "text": "CVE-2026-1234 could not have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 could not have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-251",
+      "text": "CVE-2026-1234 would have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "potential",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-252",
+      "text": "CVE-2026-1234 would not have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 would not have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-253",
+      "text": "Logs for CVE-2026-1234 have been under limited, targeted exploitation.",
+      "source": "## CVE-2026-1234\n\nLogs for CVE-2026-1234 have been under limited, targeted exploitation.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-254",
+      "text": "Attackers have been exploited CVE-2026-1234.",
+      "source": "## CVE-2026-1234\n\nAttackers have been exploited CVE-2026-1234.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-255",
+      "text": "CVE-2026-1234 has exploiting.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has exploiting.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-256",
+      "text": "CVE-2026-1234 has been under exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under exploitation.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-257",
+      "text": "CVE-2026-1234 has been under an attack.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under an attack.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      },
+      "assertion_admission": false
+    },
+    {
+      "id": "family-258",
+      "text": "CVE-2026-1234 has been under active exploit.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploit.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-259",
+      "text": "CVE-2026-1234 has been being exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has been being exploited.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-260",
+      "text": "CVE-2026-1234 will have been exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 will have been exploited.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-261",
+      "text": "CVE-2026-1234 has begun to be exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has begun to be exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-262",
+      "text": "CVE-2026-1234 has not begun to be exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not begun to be exploited.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-263",
+      "text": "CVE-2026-1234 continues to be exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 continues to be exploited.",
+      "expected": {
+        "compile": true,
+        "status": "active",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-264",
+      "text": "CVE-2026-1234 continued to be exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 continued to be exploited.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-265",
+      "text": "CVE-2026-1234 has continued to be exploited.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has continued to be exploited.",
+      "expected": {
+        "compile": false,
+        "status": null,
+        "action": null,
+        "complete_guidance": null,
+        "error": "unsupported_evidence_relation"
+      }
+    },
+    {
+      "id": "family-266",
+      "text": "Exploitation of CVE-2026-1234 has been confirmed.",
+      "source": "## CVE-2026-1234\n\nExploitation of CVE-2026-1234 has been confirmed.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-267",
+      "text": "Exploitation of CVE-2026-1234 has not been confirmed.",
+      "source": "## CVE-2026-1234\n\nExploitation of CVE-2026-1234 has not been confirmed.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-268",
+      "text": "Exploitation of CVE-2026-1234 has not been observed.",
+      "source": "## CVE-2026-1234\n\nExploitation of CVE-2026-1234 has not been observed.",
+      "expected": {
+        "compile": true,
+        "status": "not_observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-269",
+      "text": "Active exploitation of CVE-2026-1234 has not been observed.",
+      "source": "## CVE-2026-1234\n\nActive exploitation of CVE-2026-1234 has not been observed.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-270",
+      "text": "CVE-2026-1234 has seen exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has seen exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "observed",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    },
+    {
+      "id": "family-271",
+      "text": "CVE-2026-1234 has not seen exploitation.",
+      "source": "## CVE-2026-1234\n\nCVE-2026-1234 has not seen exploitation.",
+      "expected": {
+        "compile": true,
+        "status": "unknown",
+        "action": "none",
+        "complete_guidance": null,
+        "error": null
+      }
+    }
+  ],
+  "owners": [
+    {
+      "id": "owner-00",
+      "sources": [
+        "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234.",
+        "## CVE-2026-5678\n\nCVE-2026-5678 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        },
+        "CVE-2026-5678": {
+          "status": "not_observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-01",
+      "sources": [
+        "## CVE-2026-1234\n\nAttackers have exploited CVE-2026-1234.",
+        "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "unknown",
+          "unsupported": false,
+          "conflicting": true
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-02",
+      "sources": [
+        "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234.",
+        "## CVE-2026-5678\n\nCVE-2026-5678 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        },
+        "CVE-2026-5678": {
+          "status": "not_observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-03",
+      "sources": [
+        "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234.",
+        "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "unknown",
+          "unsupported": false,
+          "conflicting": true
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-04",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited.",
+        "## CVE-2026-5678\n\nCVE-2026-5678 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        },
+        "CVE-2026-5678": {
+          "status": "not_observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-05",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been exploited.",
+        "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "unknown",
+          "unsupported": false,
+          "conflicting": true
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-06",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized.",
+        "## CVE-2026-5678\n\nCVE-2026-5678 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        },
+        "CVE-2026-5678": {
+          "status": "not_observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-07",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been weaponized.",
+        "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "unknown",
+          "unsupported": false,
+          "conflicting": true
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-08",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack.",
+        "## CVE-2026-5678\n\nCVE-2026-5678 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        },
+        "CVE-2026-5678": {
+          "status": "not_observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-09",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been under attack.",
+        "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "unknown",
+          "unsupported": false,
+          "conflicting": true
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-10",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation.",
+        "## CVE-2026-5678\n\nCVE-2026-5678 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        },
+        "CVE-2026-5678": {
+          "status": "not_observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-11",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been under active exploitation.",
+        "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "unknown",
+          "unsupported": false,
+          "conflicting": true
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-12",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation.",
+        "## CVE-2026-5678\n\nCVE-2026-5678 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        },
+        "CVE-2026-5678": {
+          "status": "not_observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-13",
+      "sources": [
+        "## CVE-2026-1234\n\nCVE-2026-1234 has been under limited, targeted exploitation.",
+        "## CVE-2026-1234\n\nCVE-2026-1234 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "unknown",
+          "unsupported": false,
+          "conflicting": true
+        }
+      },
+      "reason": "All sources for one selected CVE retain contrary evidence; different CVE subjects never transfer their event state."
+    },
+    {
+      "id": "owner-14",
+      "sources": [
+        "## CVE-2026-1234\n\nAttackers have been exploiting CVE-2026-1234; CVE-2026-5678 has not been exploited."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        },
+        "CVE-2026-5678": {
+          "status": "not_observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "Independent clauses keep their distinct positive/negative subjects and targets."
+    },
+    {
+      "id": "owner-15",
+      "sources": [
+        "## CVE-2026-1234\n\nThey have been exploiting CVE-2026-1234.",
+        "## CVE-2026-5678\n\nAttackers have exploited CVE-2026-5678."
+      ],
+      "expected": {
+        "CVE-2026-1234": {
+          "unsupported": true
+        },
+        "CVE-2026-5678": {
+          "status": "observed",
+          "unsupported": false,
+          "conflicting": false
+        }
+      },
+      "reason": "A later source's explicit actor cannot license an unresolved earlier source pronoun."
+    }
+  ]
+}

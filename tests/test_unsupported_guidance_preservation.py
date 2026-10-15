@@ -21,7 +21,6 @@ RECONCILED_GUIDANCE = [
     ),
     ("avoid-prohibition", "Avoid the unstable release and do not install the update."),
     ("no-need", "There is no need to install the update on hosted systems."),
-    ("vendor-negative", "The vendor does not recommend that you install the update."),
     ("cannot", "Customers cannot install the update on hosted systems."),
     ("unable", "Customers are unable to install the update on hosted systems."),
     ("forbidden", "Customers are forbidden to install the update on hosted systems."),

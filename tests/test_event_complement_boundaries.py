@@ -370,8 +370,8 @@ CASES = [
     (
         "CVE-2026-1234 has been under attack.",
         ["CVE-2026-1234"],
-        "unknown",
-        True,
+        "observed",
+        False,
         False,
         False,
         "assertion",

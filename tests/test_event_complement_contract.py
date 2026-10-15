@@ -131,7 +131,11 @@ def event_cases():
                         tense == "past"
                         and any(w in {"now", "currently"} for _, w, _ in terms)
                     )
-                    or (tense == "unspecified" and not (negs or possibility))
+                    or (
+                        tense == "unspecified"
+                        and not (negs or possibility)
+                        and operator not in {"has been", "have been"}
+                    )
                 )
                 restrictions = [
                     (w, owner(g))
@@ -211,6 +215,7 @@ def test_complete_operator_and_modifier_matrix(complement):
             modal=frame.modal,
             polarity=frame.polarity,
             tense=frame.tense,
+            aspect=frame.aspect,
             scopes=(frame.scope,),
             temporal=frame.temporal,
             unsupported=not frame.supported,

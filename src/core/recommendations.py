@@ -36,6 +36,7 @@ class RecommendationDirective:
     clauses: tuple[OwnedClause, ...]
     conditions: tuple[str, ...]
     ambiguous: bool = False
+    envelope: "AdviceEnvelope | None" = None
 
 
 @dataclass(frozen=True)
@@ -178,7 +179,15 @@ ACTION_FRAMES: dict[str, dict[ArgumentRelation, dict[str, Action]]] = {
 ACTION_FRAMES["review"]["direct"].update(
     dict.fromkeys(("credential", "account", "extension"), Action.NONE)
 )
-VERBS = frozenset(ACTION_FRAMES)
+# Valency admits a target; projection decides whether that operation contributes
+# a badge. Preparatory operations need complete targets even though they have no
+# primary action of their own.
+PREPARATORY_TARGETS = {"download": frozenset({"patch", "release"})}
+DIRECTIVE_VALENCIES = {
+    verb: {relation: frozenset(roles) for relation, roles in frames.items()}
+    for verb, frames in ACTION_FRAMES.items()
+} | {verb: {"direct": roles} for verb, roles in PREPARATORY_TARGETS.items()}
+VERBS = frozenset(DIRECTIVE_VALENCIES)
 PASSIVE_PARTICIPLES = {
     "viewed": "view",
     "installed": "install",
@@ -1001,6 +1010,11 @@ def _classification_argument(text: str) -> ClassificationArgument | None:
 
 
 def _frame_actions(clause: OwnedClause) -> dict[str, Action] | None:
+    if clause.verb in PREPARATORY_TARGETS:
+        roles = DIRECTIVE_VALENCIES[clause.verb].get(clause.argument_relation, ())
+        if clause.object_members and set(clause.object_members) <= set(roles):
+            return dict.fromkeys(clause.object_members, Action.NONE)
+        return None
     if clause.object_role == "implicit":
         # Only prohibited/qualified implicit arguments are admitted. Their
         # finite verb constrains its possible actions without asserting one.
@@ -1031,6 +1045,11 @@ class AdviceEnvelope:
     body: str
     binding: DirectiveBinding
     reporter: EvidenceReporter
+    text: str = ""
+    complement: str = ""
+    reporter_span: tuple[int, int] | None = None
+    operator_span: tuple[int, int] | None = None
+    operand_span: tuple[int, int] | None = None
 
 
 @dataclass(frozen=True)
@@ -1038,6 +1057,7 @@ class AdviceOperator:
     finite: str
     end: int
     negative: bool = False
+    governor: str = ""
 
 
 @dataclass(frozen=True)
@@ -1067,6 +1087,7 @@ class DirectiveFrame:
     classification_span: tuple[int, int] | None = None
     classification_modifier_span: tuple[int, int] | None = None
     target_binding: DirectiveTarget | None = None
+    deferred_target: bool = False
 
     @property
     def starts_relation(self):
@@ -1101,6 +1122,18 @@ def _advice_operator(
         match["finite"],
         match.end(),
         bool(match["operator_negative"] or match.groupdict().get("operand_negative")),
+        next(
+            (
+                lemma
+                for lemma, form in (
+                    ("recommend", r"recommend(?:s|ed)?"),
+                    ("advise", r"advise[ds]?"),
+                    ("urge", r"urge[ds]?"),
+                )
+                if re.search(rf"\b{form}$", match["finite"])
+            ),
+            "",
+        ),
     )
 
 
@@ -1157,38 +1190,63 @@ def _reported_advice(text: str) -> AdviceEnvelope | None:
     operator = _advice_operator(text[subject.end() :], "reported") if subject else None
     if subject is None or operator is None:
         return None
-    operand = text[subject.end() + operator.end :]
+    operand_start = subject.end() + operator.end
+    operand = text[operand_start:]
     reporter = EvidenceReporter(
         subject["subject"],
         operator.finite,
         "negative" if operator.negative else "affirmative",
     )
+
+    def envelope(body_start, binding, complement):
+        return AdviceEnvelope(
+            operand[body_start:],
+            binding,
+            reporter,
+            text,
+            complement,
+            subject.span("subject"),
+            (subject.end(), subject.end() + len(operator.finite)),
+            (operand_start + body_start, len(text)),
+        )
+
     audience = re.match(
         rf"(?P<audience>(?:(?:affected|impacted|IT) )?(?:{AUDIENCE})) (?P<negative>not )?to ",
         operand,
         re.I,
     )
     if audience:
-        return AdviceEnvelope(
-            operand[audience.end() :],
+        return envelope(
+            audience.end(),
             DirectiveBinding(
                 subject=audience["audience"],
                 modal=operator.finite + " to",
                 negative=bool(audience["negative"]),
                 audience=_audience_owner(operand, *audience.span("audience")),
             ),
-            reporter,
+            "infinitive",
         )
     that = re.match(rf"that (?P<audience>(?:{AUDIENCE})) ", operand, re.I)
-    if that and reporter.polarity != "negative":
-        return AdviceEnvelope(
-            operand[that.end() :],
+    if that and (reporter.polarity != "negative" or operator.governor == "recommend"):
+        return envelope(
+            that.end(),
             DirectiveBinding(
                 subject=that["audience"],
                 modal=operator.finite + " that",
                 audience=_audience_owner(operand, *that.span("audience")),
             ),
-            reporter,
+            "that",
+        )
+    bare = re.match(rf"(?P<audience>(?:{AUDIENCE})) ", operand, re.I)
+    if bare and operator.governor == "recommend":
+        return envelope(
+            bare.end(),
+            DirectiveBinding(
+                subject=bare["audience"],
+                modal=operator.finite,
+                audience=_audience_owner(operand, *bare.span("audience")),
+            ),
+            "mandative",
         )
     gerund = re.match(
         r"(?P<verb>upgrading|installing|applying|updating|disabling) ", operand
@@ -1496,12 +1554,17 @@ def bind_directive_frame(
         if voice == "active" and patient_span:
             patient = classified.target
             patient_span = (patient_span[0], patient_span[0] + len(patient))
-    unsupported |= required and (
-        not members
-        or _frame_actions(
-            OwnedClause(verb=verb, object_members=members, argument_relation=relation)
+    deferred_target = bool(
+        voice == "active" and verb in PREPARATORY_TARGETS and not argument.target_text
+    )
+    unsupported |= (
+        required
+        and not deferred_target
+        and (
+            not members
+            or not set(members)
+            <= DIRECTIVE_VALENCIES.get(verb, {}).get(relation, frozenset())
         )
-        is None
     )
     return DirectiveFrame(
         text,
@@ -1523,6 +1586,7 @@ def bind_directive_frame(
         classification_span,
         classification_modifier_span,
         target_binding,
+        deferred_target,
     )
 
 
@@ -1737,6 +1801,52 @@ def _directive_segments(
     return result, alternatives
 
 
+def _resolve_preparatory_targets(clauses):
+    """Resolve a deferred target only along its adjacent coordinated frame edge."""
+    result = list(clauses)
+    for index, clause in enumerate(clauses[:-1]):
+        frame = clause.directive_frame
+        following = clauses[index + 1]
+        owner = following.directive_frame
+        if not (
+            frame
+            and frame.deferred_target
+            and not frame.unsupported
+            and owner
+            and not following.unsupported
+            and following.coordination in {"conjunctive", "alternative"}
+            and following.verb in {"install", "apply"}
+            and following.object_members
+            and set(following.object_members) <= PREPARATORY_TARGETS[clause.verb]
+            and owner.voice == frame.voice == "active"
+            and owner.operator_span is None
+            and owner.binding.subject == frame.binding.subject
+            and owner.binding.audience == frame.binding.audience
+            and owner.patient_span
+            and owner.target_binding
+            and owner.argument_relation == "direct"
+        ):
+            continue
+        result[index] = replace(
+            clause,
+            unsupported=False,
+            object_text=owner.patient_text,
+            object_members=following.object_members,
+            object_role=following.object_role,
+            object_antecedent=index + 1,
+            directive_frame=replace(
+                frame,
+                patient_span=None,
+                patient_text=owner.patient_text,
+                patient_owner=owner,
+                target_binding=owner.target_binding,
+                object_members=following.object_members,
+                deferred_target=False,
+            ),
+        )
+    return result
+
+
 def parse_recommendation(
     text: str,
     *,
@@ -1879,6 +1989,7 @@ def parse_recommendation(
             target_binding=target_binding,
             argument_relation=relation,
             object_members=members,
+            unsupported=frame.unsupported or segment.unsupported,
         )
         object_antecedent = None
         object_conditions = ()
@@ -1901,6 +2012,7 @@ def parse_recommendation(
         )
         implicit = bool(
             verb in VERBS
+            and verb not in PREPARATORY_TARGETS
             and verb != "restart"
             and (binding.negative or conditions or own_conditions or qualification)
             and (not argument or CONDITION.fullmatch(argument))
@@ -1993,9 +2105,10 @@ def parse_recommendation(
     return RecommendationDirective(
         text,
         "advice" if advice else "imperative",
-        tuple(clauses),
+        tuple(clauses := _resolve_preparatory_targets(clauses)),
         conditions,
         any(c.unsupported for c in clauses),
+        reported,
     )
 
 

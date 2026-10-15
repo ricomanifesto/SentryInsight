@@ -946,6 +946,7 @@ def _unit(raw):
         polarity=frame.polarity,
         scopes=base.scopes + (frame.scope,),
         tense=frame.tense,
+        aspect=frame.aspect,
         temporal=base.temporal + frame.temporal,
         observation=frame.observation,
         object_text=body[slice(*frame.adjunct_span)],
@@ -1083,6 +1084,10 @@ def _parse_assertions(sentence):
         frame = bind_predicate(
             candidate[body_start:], voice=owner.kind if owner else "unscoped"
         )
+        event = frame.event_binding
+        if event and event.descriptor and event.descriptor.complement:
+            start, end = event.complement_span
+            protected.append((offset + body_start + start, offset + body_start + end))
         if frame.observation is None:
             continue
         nominal_start = offset + body_start + frame.observation.predicate_span[1]
@@ -1196,7 +1201,7 @@ def _parse_assertions(sentence):
             and clause.tense == "unspecified"
             and previous.tense in {"current", "past"}
         ):
-            clause = replace(clause, tense=previous.tense)
+            clause = replace(clause, tense=previous.tense, aspect=previous.aspect)
         if clause.correlative is not None:
             governing_scopes = []
             for scope in clause.scopes:

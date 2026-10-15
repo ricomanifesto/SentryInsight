@@ -98,7 +98,7 @@ def test_target_binding_stops_before_later_independent_clause(target):
 def test_start_decision_keeps_supported_and_unsupported_required_predicates(text):
     frame = assertions.bind_predicate(text)
     assert frame.starts_relation
-    if text.startswith(("has", "can")):
+    if text.startswith("can"):
         assert not frame.supported
 
 

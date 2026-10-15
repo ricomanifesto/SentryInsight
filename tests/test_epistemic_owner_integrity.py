@@ -37,8 +37,8 @@ def projection(s, polarity="affirmative"):
     ).assertion_projection
 
 
-def test_exact_eight_knowledge_heads_stay_in_existing_67_productions():
-    assert len(OPERATOR_PRODUCTIONS) == 67
+def test_exact_eight_knowledge_heads_stay_in_bounded_productions():
+    assert len(OPERATOR_PRODUCTIONS) == 74
     marked = [
         r
         for r in OPERATOR_PRODUCTIONS

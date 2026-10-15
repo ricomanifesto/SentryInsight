@@ -393,7 +393,7 @@ ROWS = [
     {
         "id": "time-unspecified-0-none",
         "text": "CVE-2026-1234 has been exploited.",
-        "expected": "unsupported",
+        "expected": "observed",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -401,7 +401,7 @@ ROWS = [
     {
         "id": "time-unspecified-0-leading-if",
         "text": "If reports are accurate, CVE-2026-1234 has been exploited.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -409,7 +409,7 @@ ROWS = [
     {
         "id": "time-unspecified-0-trailing-unless",
         "text": "CVE-2026-1234 has been exploited unless reports are inaccurate.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -417,7 +417,7 @@ ROWS = [
     {
         "id": "time-unspecified-1-none",
         "text": "CVE-2026-1234 has been exploited yesterday.",
-        "expected": "unsupported",
+        "expected": "observed",
         "group": "event-time",
         "pipeline": True,
         "identities": ["CVE-2026-1234"],
@@ -425,7 +425,7 @@ ROWS = [
     {
         "id": "time-unspecified-1-leading-if",
         "text": "If reports are accurate, CVE-2026-1234 has been exploited yesterday.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -433,7 +433,7 @@ ROWS = [
     {
         "id": "time-unspecified-1-trailing-unless",
         "text": "CVE-2026-1234 has been exploited yesterday unless reports are inaccurate.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -441,7 +441,7 @@ ROWS = [
     {
         "id": "time-unspecified-2-none",
         "text": "CVE-2026-1234 has been exploited last week.",
-        "expected": "unsupported",
+        "expected": "observed",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -449,7 +449,7 @@ ROWS = [
     {
         "id": "time-unspecified-2-leading-if",
         "text": "If reports are accurate, CVE-2026-1234 has been exploited last week.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -457,7 +457,7 @@ ROWS = [
     {
         "id": "time-unspecified-2-trailing-unless",
         "text": "CVE-2026-1234 has been exploited last week unless reports are inaccurate.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -465,7 +465,7 @@ ROWS = [
     {
         "id": "time-unspecified-3-none",
         "text": "CVE-2026-1234 has been exploited now.",
-        "expected": "unsupported",
+        "expected": "observed",
         "group": "event-time",
         "pipeline": True,
         "identities": ["CVE-2026-1234"],
@@ -473,7 +473,7 @@ ROWS = [
     {
         "id": "time-unspecified-3-leading-if",
         "text": "If reports are accurate, CVE-2026-1234 has been exploited now.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -481,7 +481,7 @@ ROWS = [
     {
         "id": "time-unspecified-3-trailing-unless",
         "text": "CVE-2026-1234 has been exploited now unless reports are inaccurate.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -489,7 +489,7 @@ ROWS = [
     {
         "id": "time-unspecified-4-none",
         "text": "CVE-2026-1234 has been exploited today.",
-        "expected": "unsupported",
+        "expected": "observed",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -497,7 +497,7 @@ ROWS = [
     {
         "id": "time-unspecified-4-leading-if",
         "text": "If reports are accurate, CVE-2026-1234 has been exploited today.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],
@@ -505,7 +505,7 @@ ROWS = [
     {
         "id": "time-unspecified-4-trailing-unless",
         "text": "CVE-2026-1234 has been exploited today unless reports are inaccurate.",
-        "expected": "unsupported",
+        "expected": "unknown",
         "group": "event-time",
         "pipeline": False,
         "identities": ["CVE-2026-1234"],

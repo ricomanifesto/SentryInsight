@@ -142,7 +142,7 @@ class TemporalConstraint:
     reporter_tense: str = "unspecified"
 
 
-def temporal_compatible(constraints, event_tense):
+def temporal_compatible(constraints, event_tense, aspect="simple"):
     """Validate owned temporal meaning without guessing a new event state."""
     event_directions = set()
     for constraint in constraints:
@@ -158,7 +158,11 @@ def temporal_compatible(constraints, event_tense):
         )
         if tense not in _EVENT_TENSES:
             return False
-        if (direction, tense) in {("past", "current"), ("current", "past")}:
+        if (direction, tense) in {("past", "current"), ("current", "past")} and not (
+            constraint.owner == "event"
+            and aspect in {"perfect", "perfect_progressive"}
+            and (direction, tense) == ("past", "current")
+        ):
             return False
         if constraint.owner == "event":
             event_directions.add(direction)
@@ -290,6 +294,7 @@ class OwnedClause:
     modal: str = ""
     polarity: Literal["affirmative", "negative"] = "affirmative"
     tense: str = "unspecified"
+    aspect: str = "simple"
     conditions: tuple[str, ...] = ()
     reporting: tuple[str, ...] = ()
     reporter: EvidenceReporter | None = None
@@ -327,7 +332,16 @@ class OwnedClause:
             self.modal not in {"", "possible", "unknown"}
             or self.polarity not in {"affirmative", "negative"}
             or self.tense not in _EVENT_TENSES
-            or not temporal_compatible(self.temporal, self.tense)
+            or self.aspect
+            not in {
+                "simple",
+                "perfect",
+                "perfect_progressive",
+                "initiation",
+                "continuative",
+                "perfect-observation",
+            }
+            or not temporal_compatible(self.temporal, self.tense, self.aspect)
             or any(not scope.supported for scope in self.scopes)
             or (self.evidence_operation and not self.evidence_operation.supported)
             or (self.observation and not self.observation.supported)
@@ -345,6 +359,15 @@ class OwnedClause:
         ):
             return "unknown"
         negative_reporter = bool(self.reporter and self.reporter.polarity == "negative")
+        if self.aspect in {"perfect", "perfect_progressive"}:
+            # Finite present/past is the reference time, not proof that the
+            # event is ongoing. Denying progressive activity does not deny
+            # every occurrence of that event.
+            if self.aspect == "perfect_progressive" and self.polarity == "negative":
+                return "unknown"
+            return _ASSERTION_PROJECTION[
+                (negative_reporter, self.polarity, self.modal)
+            ][1]
         if self.observation:
             return (
                 "unknown"
@@ -411,6 +434,7 @@ class OwnedClause:
                 direct_negative
                 and self.polarity == "negative"
                 and self.tense == "current"
+                and self.aspect not in {"perfect", "perfect_progressive"}
                 and not (self.modal or self.conditions or absence)
                 and not negative_reporter
                 and not self.evidence_operation

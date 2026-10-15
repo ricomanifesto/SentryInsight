@@ -32,7 +32,7 @@ POSSIBILITY_WORDS = ("potentially", "likely", "possibly", "probably", "unlikely"
 BOUNDARY = re.compile(
     r"([;,]\s*(?:and|but|while|whereas)\b|[;,]|\b(?:and|but|while|whereas)\b)", re.I
 )
-CONDITION = re.compile(r"\b(?:if|unless)\b", re.I)
+CONDITION = re.compile(r"\b(?:only\s+if|if|unless)\b", re.I)
 REQUIRED_ADJUNCT = re.compile(
     r"\b(?:if|unless|when|until|once|although|though|only|provided|depending)\b", re.I
 )
@@ -82,9 +82,9 @@ class OperatorProduction:
     knowledge_head: int | None = None
 
 
-# One production owns the entire operator AND grammatical event complement.
-# Coordination consumes the resulting frame; it has no independent grammar.
-OPERATOR_PRODUCTIONS = (
+# These established non-perfect constructions retain their bounded policies.
+# Perfect auxiliaries compose with morphological complements below.
+_NONPERFECT_PRODUCTIONS = (
     OperatorProduction((), "actor", ("exploit",), "current"),
     OperatorProduction((), "actor", ("exploited",), "past"),
     OperatorProduction((), "vulnerability", ("exploited", "weaponized"), "unspecified"),
@@ -113,18 +113,6 @@ OPERATOR_PRODUCTIONS = (
         )
     ),
     *(
-        OperatorProduction((word, "been"), voice, events, tense)
-        for word, tense in (
-            ("has", "unspecified"),
-            ("have", "unspecified"),
-            ("had", "past"),
-        )
-        for voice, events in (
-            ("actor", ("exploiting",)),
-            ("vulnerability", ("exploited", "weaponized", "under")),
-        )
-    ),
-    *(
         OperatorProduction(
             (word, "begun", *complement),
             voice,
@@ -150,8 +138,6 @@ OPERATOR_PRODUCTIONS = (
             ((), "actor", ("exploit",)),
             (("be",), "actor", ("exploiting",)),
             (("be",), "vulnerability", ("exploited", "weaponized", "under")),
-            (("have", "been"), "actor", ("exploiting",)),
-            (("have", "been"), "vulnerability", ("exploited", "weaponized", "under")),
         )
     ),
     *(
@@ -191,13 +177,62 @@ OPERATOR_PRODUCTIONS = (
 )
 
 
+def _perfect_operator(operators, voice):
+    """Bind finite reference time, perfect aspect and a voice-owned complement.
+
+    Modal -> have -> participle and finite-have -> participle share the same
+    transition. Been introduces an existing passive/state or progressive
+    complement; it never licenses an arbitrary following verb.
+    """
+    words = tuple(operators)
+    modal = ""
+    if words and words[0] in {"may", "might", "could", "would"}:
+        modal, words = "possible", words[1:]
+        if not words or words[0] != "have":
+            return None
+    if not words or words[0] not in {"has", "have", "had"}:
+        return None
+    tense = "unspecified" if modal else "past" if words[0] == "had" else "current"
+    complement = words[1:]
+    if not complement and voice == "actor":
+        events, aspect = ("exploited",), "perfect"
+    elif complement == ("been",):
+        if voice == "actor":
+            events, aspect = ("exploiting",), "perfect_progressive"
+        elif voice == "vulnerability":
+            events, aspect = ("exploited", "weaponized", "under"), "perfect"
+        else:
+            return None
+    else:
+        return None
+    return OperatorProduction(tuple(operators), voice, events, tense, aspect, modal)
+
+
+# Exhaustive conformance inventory, derived from the same bounded transition.
+# Recognition does not search this inventory for perfect operator strings.
+OPERATOR_PRODUCTIONS = _NONPERFECT_PRODUCTIONS + tuple(
+    rule
+    for finite in (("has",), ("have",), ("had",))
+    + tuple((modal, "have") for modal in ("may", "might", "could", "would"))
+    for complement, voice in (
+        ((), "actor"),
+        (("been",), "actor"),
+        (("been",), "vulnerability"),
+    )
+    if (rule := _perfect_operator((*finite, *complement), voice)) is not None
+)
+
+
 def operator_production(operators, voice, event):
+    voice = "vulnerability" if voice == "unscoped" else voice
+    if perfect := _perfect_operator(operators, voice):
+        return perfect if event in perfect.events else None
     return next(
         (
             rule
-            for rule in OPERATOR_PRODUCTIONS
+            for rule in _NONPERFECT_PRODUCTIONS
             if rule.operators == tuple(operators)
-            and rule.voice == ("vulnerability" if voice == "unscoped" else voice)
+            and rule.voice == voice
             and event in rule.events
         ),
         None,
@@ -208,10 +243,12 @@ def operator_tense(operators):
     """Closed non-event compositions reuse their already bound operator."""
     if not operators:
         return "unspecified"
+    if perfect := _perfect_operator(operators, "actor"):
+        return perfect.tense
     return next(
         (
             rule.tense
-            for rule in OPERATOR_PRODUCTIONS
+            for rule in _NONPERFECT_PRODUCTIONS
             if rule.operators == tuple(operators)
         ),
         "unspecified",
@@ -551,8 +588,15 @@ def bind_predicate(
         and re.fullmatch(r"in (?:the wild|attacks)", argument, re.I)
     ):
         tense = "current"
-    qualifiers = bind_qualifiers(argument, complement=verb)
     event = bind_event(text, (event_start, event_end), (argument_start, end))
+    if event.descriptor and event.descriptor.complement:
+        # Exact nominal morphology owns its punctuation and intrinsic qualifier;
+        # the ordinary qualifier owner consumes any following temporal/role tail.
+        argument_start = event.complement_span[1]
+        while argument_start < end and text[argument_start].isspace():
+            argument_start += 1
+        argument = text[argument_start:end]
+    qualifiers = bind_qualifiers(argument, complement=verb)
     known = event.descriptor is not None
     kind = "context" if event.kind == "context" else "assertion"
     if initial in ASPECT_HEADS and rule is None and kind == "context":
@@ -565,7 +609,11 @@ def bind_predicate(
             ScopeTerm(text[start:stop], start, stop, event.descriptor.qualifier_kind)
         )
         verb = "exploitation"
-        supported &= rule is not None and event.kind == "complete"
+        supported &= rule is not None and qualifiers.complete
+        if qualifiers.complete and temporal_compatible(
+            tuple(q.temporal for q in qualifiers.spans if q.temporal), tense, aspect
+        ):
+            event = replace(event, kind="complete")
     elif verb == "exploitable":
         supported &= not argument and tuple(auxiliaries) in {
             ("is",),
@@ -590,7 +638,7 @@ def bind_predicate(
         event_tense=tense,
     )
     if kind == "assertion":
-        supported &= scope.supported and temporal_compatible(temporal, tense)
+        supported &= scope.supported and temporal_compatible(temporal, tense, aspect)
     if known and voice == "actor":
         supported &= target.kind != "empty"
     # Target identities are never borrowed from an adjunct or another object.

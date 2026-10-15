@@ -1,8 +1,8 @@
 """Finite operator admission and ownership contract, including every prefix gap."""
 
 from dataclasses import asdict
-import hashlib
 import json
+from pathlib import Path
 
 import pytest
 
@@ -34,15 +34,30 @@ POSSIBLE = {"likely", "possibly", "potentially", "probably", "unlikely"}
 
 
 def test_existing_complete_productions_are_the_frozen_admission_boundary():
-    signature = [
-        {key: value for key, value in asdict(rule).items() if key != "knowledge_head"}
-        for rule in OPERATOR_PRODUCTIONS
+    legacy = json.loads(
+        (
+            Path(__file__).parent / "fixtures/legacy_operator_productions.json"
+        ).read_text()
+    )
+    old_nonperfect = [rule for rule in legacy if not is_perfect(rule["operators"])]
+    nonperfect = [
+        asdict(rule) for rule in OPERATOR_PRODUCTIONS if not is_perfect(rule.operators)
     ]
-    assert len(signature) == 67
-    assert sum(len(rule.events) for rule in OPERATOR_PRODUCTIONS) == 110
-    assert (
-        hashlib.sha256(json.dumps(signature, sort_keys=True).encode()).hexdigest()
-        == "8d33a42eafaa88ba6ce3d546cd4c91cd10e37f0372d840d260494ed6ed2df460"
+    assert json.loads(json.dumps(nonperfect)) == old_nonperfect
+    assert len(OPERATOR_PRODUCTIONS) == 74  # 53 established + 7 * 3 perfect frames.
+    assert sum(len(rule.events) for rule in OPERATOR_PRODUCTIONS) == 117
+
+
+def is_perfect(operators):
+    words = tuple(operators)
+    return bool(
+        words
+        and (
+            words[0] in {"has", "have", "had"}
+            and words[1:] in {(), ("been",)}
+            or words[0] in {"may", "might", "could", "would"}
+            and words[1:] in {("have",), ("have", "been")}
+        )
     )
 
 
@@ -85,6 +100,7 @@ def positions(rule, event):
 def expected_meaning(rule, event, insertions):
     """Independent meaning contract; it never invokes the production projection."""
     inserted = dict(insertions)
+    perfect = is_perfect(rule.operators)
     sequence = []
     for gap in range(len(rule.operators) + 1):
         sequence.extend((word, gap, True) for word in inserted.get(gap, []))
@@ -132,12 +148,21 @@ def expected_meaning(rule, event, insertions):
     elif possible:
         status = "unknown" if event_negative else "potential"
     elif event_negative:
-        status = "unknown" if restrictions else "not_observed"
+        status = (
+            "unknown"
+            if restrictions
+            or (perfect and rule.voice == "actor" and event == "exploiting")
+            else "not_observed"
+        )
     else:
         status = (
-            "active"
-            if rule.tense == "current"
-            else "observed" if rule.tense == "past" else None
+            "observed"
+            if perfect
+            else (
+                "active"
+                if rule.tense == "current"
+                else "observed" if rule.tense == "past" else None
+            )
         )
     excludes = (
         ("active",)
@@ -147,6 +172,7 @@ def expected_meaning(rule, event, insertions):
             and not knowledge_negative
             and not possible
             and rule.tense == "current"
+            and not perfect
             and restrictions
             and all(
                 word in {"actively", "currently", "now"} and role == "event"
@@ -186,6 +212,7 @@ def test_all_existing_negation_modifier_positions_keep_their_owner(rule):
                 modal=frame.modal,
                 polarity=frame.polarity,
                 tense=frame.tense,
+                aspect=frame.aspect,
                 scopes=(frame.scope,),
                 temporal=frame.temporal,
                 unsupported=not frame.supported,
