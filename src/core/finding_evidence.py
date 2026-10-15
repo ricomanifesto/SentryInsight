@@ -134,6 +134,50 @@ class ExploitationAssessment:
     relations: tuple[OwnedClause, ...] = ()
 
 
+def exploitation_state_text(assessment: ExploitationAssessment, subject: str) -> str:
+    if not subject:
+        # A source-owned finding has no CVE noun phrase. Use the existing
+        # nominal productions; source identity is carried by its heading and
+        # Reporting reference, not guessed by the assertion parser.
+        if assessment.conflicting:
+            return (
+                "Reporting contains conflicting evidence. "
+                + (
+                    "Some supplied reporting states that exploitation has not been observed; "
+                    if assessment.negative
+                    else ""
+                )
+                + "the combined exploitation status is unknown."
+            )
+        return {
+            "active": "Supplied reporting confirms active exploitation.",
+            "observed": "Exploitation was observed in prior reporting. Current exploitation activity is not established by the supplied evidence.",
+            "not_observed": "Supplied reporting states exploitation has not been observed.",
+            "potential": "Supplied reporting describes potential exploitation.",
+            "unknown": "Exploitation status is unknown from the supplied evidence.",
+        }[assessment.status]
+    if assessment.conflicting:
+        return (
+            f"Reporting contains conflicting exploitation evidence for {subject}. "
+            + (
+                "Some supplied reporting states that exploitation has not been observed; "
+                if assessment.negative
+                else ""
+            )
+            + "the combined exploitation status is unknown."
+        )
+    prose = {
+        "active": f"Supplied reporting confirms active exploitation of {subject}.",
+        "observed": f"{subject} exploitation was observed in prior reporting. Current exploitation activity is not established by the supplied evidence.",
+        "not_observed": f"Supplied reporting states exploitation has not been observed for {subject}.",
+        "potential": f"Supplied reporting describes potential exploitation of {subject}.",
+        "unknown": f"Exploitation status for {subject} is unknown from the supplied evidence.",
+    }[assessment.status]
+    if assessment.negative and assessment.status != "not_observed":
+        prose += " Some supplied reporting states exploitation has not been observed."
+    return prose
+
+
 def _sentences(text: str) -> list[str]:
     # An initialism's internal/full stop belongs to its token, not a new
     # subject. This is structural punctuation protection, not an abbreviation
@@ -843,6 +887,12 @@ def assess_exploitation(
     negative = [r for r in relations if r.status == "not_observed"]
     conflict = any(
         not wanted or set(p.cves) & set(n.cves) for p in positive for n in negative
+    )
+    conflict |= any(
+        p.status in constraint.assertion_projection.excludes
+        and (not wanted or bool(set(p.cves) & set(constraint.cves)))
+        for p in positive
+        for constraint in relations
     )
     projected = set()
     covered = set()
@@ -1604,6 +1654,39 @@ def _positive_claim(text: str) -> bool:
     )
 
 
+def _validate_scope_claims(statements, assessment, cves, *, field="prose"):
+    """Qualified denials require complete owned wording, even at unknown."""
+    qualified_context = any(
+        r.assertion_projection.qualified_denial for r in assessment.relations
+    )
+    checked = [
+        statement
+        for statement in statements
+        if statement.assertion_projection.qualified_denial
+        or qualified_context
+        and statement.status in {"active", "observed"}
+    ]
+    if not checked:
+        return
+    owned = {_plain(r.source_text) for r in assessment.relations}
+    canonical = {
+        _plain(r.source_text)
+        for r in _rendered_statements(
+            exploitation_state_text(assessment, ", ".join(cves))
+        )
+    }
+    if any(
+        _plain(statement.source_text) not in owned | canonical for statement in checked
+    ):
+        raise EvidenceError(
+            "Unsupported or incomplete qualified exploitation claim in prose",
+            code="unsupported_finding_exploitation_claim",
+            field=field,
+            expected=False,
+            observed=True,
+        )
+
+
 @dataclass(frozen=True)
 class FindingDetails:
     """One source interpretation shared by generation and publication."""
@@ -2018,7 +2101,8 @@ def _validate_finding(
     # field is separated from the report's own narrative claims. Legacy simple
     # findings remain readable; newly compiled records always carry this field.
     context_required = assessment.conflicting or any(
-        set(extract_cve_ids(clause.source_text)) - set(cves)
+        clause.assertion_projection.qualified_denial
+        or set(extract_cve_ids(clause.source_text)) - set(cves)
         for clause in assessment.relations
     )
     if "Source Evidence" in fields:
@@ -2095,15 +2179,14 @@ def _validate_finding(
             code="ambiguous_source_scope",
             field="prose",
         )
-    if any(
-        statement.unsupported
-        for statement in _rendered_statements(title + "\n\n" + narrative)
-    ):
+    statements = _rendered_statements(title + "\n\n" + narrative)
+    if any(statement.unsupported for statement in statements):
         raise EvidenceError(
             "Unsupported rendered exploitation claim relation",
             code="unsupported_evidence_relation",
             field="prose",
         )
+    _validate_scope_claims(statements, assessment, cves)
     if assessment.status != "active":
         nonconfirmed.append((title, cves, assessment.status))
     if assessment.status == "observed" and any(
@@ -2426,6 +2509,17 @@ def validate_finding_evidence(
             raise EvidenceError(
                 "Unsupported exploitation claim relation in summary or cross-finding prose",
                 code="unsupported_evidence_relation",
+                field="summary",
+            )
+        if statement.cves:
+            assessment = assess_exploitation(list(catalog.values()), statement.cves)
+            _validate_scope_claims(
+                [statement], assessment, statement.cves, field="summary"
+            )
+        elif statement.assertion_projection.qualified_denial:
+            raise EvidenceError(
+                "A qualified exploitation claim requires an explicit source owner",
+                code="unsupported_summary_exploitation_claim",
                 field="summary",
             )
         if statement.status not in {"active", "observed"}:

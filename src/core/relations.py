@@ -26,6 +26,70 @@ _ASSERTION_PROJECTION = {
 _EVENT_TENSES = ("current", "past", "unspecified")
 
 
+@dataclass(frozen=True)
+class ScopeTerm:
+    """A positioned modifier belongs to one parsed proposition."""
+
+    text: str
+    start: int
+    end: int
+    kind: str
+    owner: str = "event"
+
+
+@dataclass(frozen=True)
+class ScopeOperator:
+    text: str
+    start: int
+    end: int
+    kind: str
+    target: str
+
+
+@dataclass(frozen=True)
+class AssertionScope:
+    """Local text keeps spans valid through wrappers and inherited relations."""
+
+    text: str
+    terms: tuple[ScopeTerm, ...] = ()
+    operators: tuple[ScopeOperator, ...] = ()
+    event_tense: str = "unspecified"
+
+    @property
+    def restrictions(self):
+        negatives = [o.start for o in self.operators if o.kind == "negation"]
+        return tuple(
+            term
+            for term in self.terms
+            if term.owner != "reporter" and term.kind not in {"domain", "identity"}
+            # "also not" adds a denied proposition; "not also" denies an
+            # additional proposition. Their order is part of the binding.
+            and not (
+                term.kind == "addition" and negatives and term.end <= min(negatives)
+            )
+        )
+
+    @property
+    def supported(self):
+        return (
+            all(
+                0 <= item.start < item.end <= len(self.text)
+                and self.text[item.start : item.end] == item.text
+                for item in (*self.terms, *self.operators)
+            )
+            and all(term.kind != "unclassified" for term in self.terms)
+            and sum(o.kind == "negation" for o in self.operators) <= 1
+            and self.event_tense in _EVENT_TENSES
+        )
+
+
+@dataclass(frozen=True)
+class AssertionProjection:
+    status: str | None
+    excludes: tuple[str, ...] = ()
+    qualified_denial: bool = False
+
+
 TemporalDirection = Literal[
     "past", "current", "window", "future", "context", "relative"
 ]
@@ -142,6 +206,7 @@ class OwnedClause:
     reporting: tuple[str, ...] = ()
     reporter: EvidenceReporter | None = None
     evidence_operation: EvidenceOperation | None = None
+    scopes: tuple[AssertionScope, ...] = ()
     temporal: tuple[TemporalConstraint, ...] = ()
     finite: bool = False
     correlative: tuple[str, str] | None = None
@@ -160,7 +225,7 @@ class OwnedClause:
     directive_frame: "DirectiveFrame | None" = None
 
     @property
-    def assertion_status(self) -> str | None:
+    def _base_assertion_status(self) -> str | None:
         if self.kind != "assertion" or self.unsupported:
             return None
         # Qualification cannot rescue an unrecognized semantic state. Nominal
@@ -170,6 +235,7 @@ class OwnedClause:
             or self.polarity not in {"affirmative", "negative"}
             or self.tense not in _EVENT_TENSES
             or not temporal_compatible(self.temporal, self.tense)
+            or any(not scope.supported for scope in self.scopes)
             or (self.evidence_operation and not self.evidence_operation.supported)
             or (
                 self.reporter
@@ -203,6 +269,63 @@ class OwnedClause:
         return _ASSERTION_PROJECTION[negative_reporter, self.polarity, self.modal][
             _EVENT_TENSES.index(self.tense)
         ]
+
+    @property
+    def assertion_projection(self) -> AssertionProjection:
+        status = self._base_assertion_status
+        if status is None:
+            return AssertionProjection(None)
+        restrictions = tuple(t for s in self.scopes for t in s.restrictions)
+        operators = tuple(o for s in self.scopes for o in s.operators)
+        absence = any(o.kind == "absence" for o in operators)
+        direct_negative = any(o.kind == "negation" for o in operators)
+        negative_reporter = bool(self.reporter and self.reporter.polarity == "negative")
+        negative_operation = bool(
+            self.evidence_operation
+            and (
+                self.evidence_operation.absence
+                or self.evidence_operation.polarity == "negative"
+            )
+        )
+        if absence and direct_negative:
+            return AssertionProjection("unknown", qualified_denial=bool(restrictions))
+        if restrictions and (
+            self.polarity == "negative"
+            or negative_reporter
+            or negative_operation
+            or absence
+        ):
+            # Only an unqualified factual denial of CURRENT EVENT ACTIVITY
+            # excludes active. A current word around a degree, outcome,
+            # disclosure, frequency or other restriction cannot do so.
+            excludes_current = (
+                direct_negative
+                and self.polarity == "negative"
+                and self.tense == "current"
+                and not (self.modal or self.conditions or absence)
+                and not negative_reporter
+                and not self.evidence_operation
+                and not (self.reporter and self.reporter.qualification)
+                and all(
+                    scope.event_tense == "current"
+                    for scope in self.scopes
+                    if any(o.kind == "negation" for o in scope.operators)
+                )
+                and all(
+                    t.owner == "event" and t.kind in {"activity", "current_time"}
+                    for t in restrictions
+                )
+            )
+            return AssertionProjection(
+                "unknown",
+                ("active",) if excludes_current else (),
+                qualified_denial=True,
+            )
+        return AssertionProjection(status)
+
+    @property
+    def assertion_status(self) -> str | None:
+        return self.assertion_projection.status
 
     @property
     def status(self) -> str:

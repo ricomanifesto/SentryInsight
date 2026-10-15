@@ -98,7 +98,7 @@ def rejected(monkeypatch, tmp_path, text):
     [
         ("current", "active"),
         ("past", "observed"),
-        ("negative", "not_observed"),
+        ("negative", "unknown"),
         ("possible", "potential"),
         ("conditional", "unknown"),
     ],
@@ -187,7 +187,7 @@ def test_passive_joint_owner_and_actor_clause_keep_distinct_scope(
     text = f"{CVE} and {OTHER} were exploited yesterday, but The attackers are not exploiting {CVE} now."
     relations = parse_assertions(text)
     assert [r.cves for r in relations] == [(CVE, OTHER), (CVE,)]
-    assert [r.status for r in relations] == ["observed", "not_observed"]
+    assert [r.status for r in relations] == ["observed", "unknown"]
     assert not any(r.unsupported for r in relations)
     findings = publish(monkeypatch, tmp_path, text, [CVE, OTHER], ["unknown"])
     assert len(findings) == 1 and set(findings[0].cve_ids) == {CVE, OTHER}
@@ -245,11 +245,25 @@ def test_subject_identity_cannot_replace_source_ownership_or_hide_conflict(sourc
         f"Threat actors exploited {target}{'' if source_only else ' yesterday'}.",
         f"The attackers are not exploiting {target}{'' if source_only else ' now'}.",
     ]
+    control_ids = {"CVE-2026-9998", "CVE-2026-9999"}
+    if not source_only:
+        # Independent actors keep the existing report-breadth gate active.
+        texts += [
+            f"Attackers are actively exploiting {control}."
+            for control in sorted(control_ids)
+        ]
     catalog = catalog_for(*texts)
     records, report = render(catalog)
+    if not source_only:
+        controls = [r for r in records if control_ids.intersection(r.cves)]
+        assert len(controls) == 2 and all(len(r.cves) == 1 for r in controls)
+        assert {c for r in controls for c in r.cves} == control_ids
+        assert all(r.status == "active" for r in controls)
+        records = [r for r in records if not control_ids.intersection(r.cves)]
+        assert len(records) == 1 and records[0].cves == (CVE,)
     assert all(text in report for text in texts)
     assert [r.status for r in records] == (
-        ["observed", "not_observed"] if source_only else ["unknown"]
+        ["observed", "not_observed"] if source_only else ["observed"]
     )
     damaged = (
         report.replace(
@@ -257,7 +271,7 @@ def test_subject_identity_cannot_replace_source_ownership_or_hide_conflict(sourc
         )
         if source_only
         else report.replace(
-            "**Exploitation Status**: unknown", "**Exploitation Status**: active"
+            "**Exploitation Status**: observed", "**Exploitation Status**: active"
         )
     )
     assert damaged != report

@@ -14,10 +14,26 @@ from .assertion_predicates import (
     FINITE_PREDICATE_HEADS as FINITE_PREDICATE_HEADS,
     bind_predicate,
     bind_target as bind_target,
+    AUXILIARY_WORDS,
+    PREFIX_WORDS,
 )
 from .condition_boundaries import bind_condition_boundaries, leading_assertion_condition
-from .assertion_qualifiers import bind_qualifiers, detach_reporting
-from .relations import EvidenceOperation, EvidenceReporter, OwnedClause
+from .assertion_qualifiers import (
+    TIME_DIRECTIONS,
+    assertion_scope,
+    bind_qualifiers,
+    detach_reporting,
+    modifier_term,
+    qualifier_terms,
+)
+from .relations import (
+    EvidenceOperation,
+    EvidenceReporter,
+    OwnedClause,
+    ScopeOperator,
+    ScopeTerm,
+    TemporalConstraint,
+)
 from .source_document import reporting_envelope
 from .advisory_relations import bind_advisory
 
@@ -195,6 +211,7 @@ def _closed_composition(core):
             kind="assertion" if required_unknown else "context",
             modal="capability" if advisory.complete else "",
             polarity=advisory.frame.polarity if advisory.frame else "affirmative",
+            scopes=(advisory.frame.scope,) if advisory.frame else (),
             conditions=advisory.declaration_conditions + advisory.relative_conditions,
             unsupported=required_unknown,
             context_role="composed:advisory_capability",
@@ -252,7 +269,7 @@ def _closed_composition(core):
             reporter=EvidenceReporter(reported_past["reporter"], "said", "affirmative"),
         )
     patch_event = re.fullmatch(
-        rf"More recently, in [A-Z][a-z]+, it released security updates for two more actively exploited "
+        rf"More recently, in [A-Z][a-z]+, it released security updates for two more (?P<activity>actively) exploited "
         rf"{ENTITY} RCE zero-days \({CVE_LIST}\) that let attackers deploy custom web shells and tunneling malware, "
         rf"steal credentials, gain root access, and spread into victims\' internal networks{END_MARKS}",
         core,
@@ -265,6 +282,13 @@ def _closed_composition(core):
             tense="past",
             finite=True,
             context_role="composed:historical_patch_event",
+            scopes=(
+                assertion_scope(
+                    core,
+                    (modifier_term(core, *patch_event.span("activity")),),
+                    event_tense="past",
+                ),
+            ),
         )
     capability_frame = (
         re.fullmatch(
@@ -282,17 +306,20 @@ def _closed_composition(core):
     )
     if capability_frame:
         return replace(base, modal="capability", context_role="composed:capability")
-    if re.fullmatch(
-        rf"The advisory lists {COUNT} known flaws that it says were (?P<negative>not )?successfully exploited{END_MARKS}",
+    exhaustive = re.fullmatch(
+        rf"The advisory lists {COUNT} known flaws that it says (?P<event>were (?:not )?successfully exploited){END_MARKS}",
         core,
-    ):
+    )
+    if exhaustive:
+        frame = bind_predicate(exhaustive["event"], voice="vulnerability")
         return replace(
             base,
             kind="assertion",
             verb="exploited",
             tense="past",
             finite=True,
-            polarity="negative" if "were not " in core else "affirmative",
+            polarity=frame.polarity,
+            scopes=(frame.scope,),
             context_role="composed:exhaustive_list",
             reporter=EvidenceReporter("The advisory", "says", "affirmative"),
         )
@@ -469,17 +496,34 @@ def _reported_event(text):
         "negative" if match["negative"] else "affirmative",
         "denied report" if denied else "double negation" if match["double"] else "",
     )
+    scopes = event.scopes
+    if match["negative"]:
+        offset = denied.start("event") if denied else 0
+        start, end = match.span("negative")
+        start, end = start + offset, end + offset
+        scopes += (
+            assertion_scope(
+                text,
+                operators=(
+                    ScopeOperator(text[start:end], start, end, "absence", "evidence"),
+                ),
+            ),
+        )
     return replace(
         event,
         text=text,
         reporter=reporter,
+        scopes=scopes,
         unsupported=event.unsupported or event.kind != "assertion",
     )
 
 
 def _prefix(text):
     """Consume a governing operator, not matching words in predicate arguments."""
+    original = text
     modal, negative = "", False
+    operators = []
+    offset = 0
     epistemic = re.match(
         r"^(?:It is )?(unknown|unclear|unconfirmed|unverified|possible)\s+(?:whether|which|that)\s+",
         text,
@@ -488,6 +532,10 @@ def _prefix(text):
     if epistemic:
         modal = "possible" if epistemic[1].lower() == "possible" else "unknown"
         text = text[epistemic.end() :]
+        offset = epistemic.end()
+        operators.append(
+            ScopeOperator(original[:offset], 0, offset, "qualification", "event")
+        )
     absent = re.match(
         r"^(?:There is |There are )?(?:no (?:evidence|signs?|reports?|(?P<nominal>known exploitation|exploitation))|without (?:evidence|reports?))\b\s*(?:(?:that|of)\s+)?",
         text,
@@ -496,11 +544,16 @@ def _prefix(text):
     if absent:
         negative = True
         text = text[absent.end() :]
+        end = offset + absent.end()
+        operators.append(
+            ScopeOperator(original[offset:end], offset, end, "absence", "evidence")
+        )
         if absent["nominal"]:
             # Preserve the assertion's noun head after consuming its negative
             # determiner, so nominal predicates still consume their own tail.
             text = "exploitation " + text
-    return text, modal, negative
+    scopes = (assertion_scope(original, operators=operators),) if operators else ()
+    return text, modal, negative, scopes
 
 
 INTRUSION_FRAMES = (
@@ -545,19 +598,57 @@ def _intrusion(text):
         else "possible" if qualifier and qualifier["possible"] else ""
     )
     qualifiers = bind_qualifiers(suffix)
+    # Only the already accepted terminal operator/modifier sequence belongs
+    # to this event. Words inside its actor or preceding disclosure do not.
+    tokens = list(re.finditer(r"\S+", prefix))
+    positioned = []
+    for token in reversed(tokens):
+        if token.group().casefold() not in PREFIX_WORDS:
+            break
+        positioned.append(token)
+    terms, operators, prefix_time = [], [], []
+    for token in reversed(positioned):
+        word = token.group().casefold()
+        if word in {"not", "never"}:
+            operators.append(
+                ScopeOperator(
+                    token.group(), token.start(), token.end(), "negation", "event"
+                )
+            )
+        elif word not in AUXILIARY_WORDS:
+            terms.append(modifier_term(prefix, token.start(), token.end()))
+            if word in TIME_DIRECTIONS:
+                prefix_time.append(
+                    TemporalConstraint("event", TIME_DIRECTIONS[word], token.group())
+                )
+    prefix_scope = assertion_scope(prefix, terms, operators, event_tense="past")
+    tail_scope = assertion_scope(suffix, qualifier_terms(suffix, qualifiers.spans))
+    # Every governing negation must belong to the completely consumed
+    # terminal operator sequence. An unclassified bridge cannot erase it and
+    # turn this historical relation into an affirmative observation.
+    negation_spans = {
+        (token.start(), token.end())
+        for token in tokens
+        if token.group().casefold() in {"not", "never"}
+    }
+    bound_negations = {(operator.start, operator.end) for operator in operators}
     return OwnedClause(
         text=text,
         cves=cves,
         attribution="explicit",
-        temporal=tuple(q.temporal for q in qualifiers.spans if q.temporal),
+        temporal=tuple(prefix_time)
+        + tuple(q.temporal for q in qualifiers.spans if q.temporal),
+        scopes=(prefix_scope, tail_scope),
         kind="assertion",
         verb="exploited",
         tense="past",
         modal=modal,
-        polarity="negative" if qualifier and qualifier["negative"] else "affirmative",
+        polarity="negative" if operators else "affirmative",
         unsupported=len(frames) != 1
         or len(cves) != 1
         or bool(TOPIC.search(prefix) or TOPIC.search(suffix))
+        or not prefix_scope.supported
+        or negation_spans != bound_negations
         or not qualifiers.complete,
     )
 
@@ -578,13 +669,14 @@ def _unit(raw):
     label = re.match(r"^([^:]+):\s*", core)
     if label and not TOPIC.search(label[1]):
         core = core[label.end() :]
-    core, modal, negative = _prefix(core.strip())
+    core, modal, negative, prefix_scopes = _prefix(core.strip())
     if composed := _closed_composition(core):
         return replace(
             composed,
             text=raw,
             modal=modal or composed.modal,
             polarity="negative" if negative else composed.polarity,
+            scopes=prefix_scopes + composed.scopes,
             reporting=reporting,
             temporal=composed.temporal + reporter_time,
         )
@@ -593,6 +685,7 @@ def _unit(raw):
             reported,
             text=raw,
             modal=modal or reported.modal,
+            scopes=prefix_scopes + reported.scopes,
             reporting=reporting,
             temporal=reported.temporal + reporter_time,
         )
@@ -603,6 +696,9 @@ def _unit(raw):
         attribution="explicit" if cves else "unscoped",
         reporting=reporting,
         temporal=reporter_time,
+        scopes=prefix_scopes,
+        modal=modal,
+        polarity="negative" if negative else "affirmative",
     )
     other = re.fullmatch(
         rf"(?P<reporter>{REPORTER_SUBJECT}) warned of several other "
@@ -623,7 +719,7 @@ def _unit(raw):
         rf"(?:The development comes as )?(?:Three|three|Two|two|The|the) "
         rf"(?:different )?(?:vulnerabilities|flaws) in "
         rf"(?:[A-Z][A-Za-z0-9-]*(?: and)? ){{1,8}}(?:appliances|systems|devices) "
-        rf"\({CVE_LIST}\) (?:have|had) come under active exploitation in the wild[.!?]*",
+        rf"\({CVE_LIST}\) (?:have|had) come under (?P<activity>active) exploitation in the wild[.!?]*",
         core,
     )
     if onset:
@@ -634,6 +730,14 @@ def _unit(raw):
             tense="past",
             finite=True,
             context_role="composed:onset",
+            scopes=base.scopes
+            + (
+                assertion_scope(
+                    core,
+                    (modifier_term(core, *onset.span("activity")),),
+                    event_tense="past",
+                ),
+            ),
         )
     if re.fullmatch(
         r"(?:Current exploitation activity is not established by the supplied evidence|"
@@ -665,10 +769,26 @@ def _unit(raw):
         r"exploitation is (?:unconfirmed|unknown|unclear)[.!?]*", nominal, re.I
     ):
         return replace(base, kind="assertion", verb="exploitation", modal="unknown")
-    if re.fullmatch(
-        r"Recent exploitation activity is concentrated in [^.!?]+[.!?]*", nominal, re.I
-    ):
-        return replace(base, kind="assertion", verb="exploitation", tense="current")
+    recent = re.fullmatch(
+        r"(?P<time>Recent) exploitation activity is concentrated in [^.!?]+[.!?]*",
+        nominal,
+        re.I,
+    )
+    if recent:
+        return replace(
+            base,
+            kind="assertion",
+            verb="exploitation",
+            tense="current",
+            scopes=base.scopes
+            + (
+                assertion_scope(
+                    nominal,
+                    (ScopeTerm(recent["time"], *recent.span("time"), "time"),),
+                    event_tense="current",
+                ),
+            ),
+        )
     if re.fullmatch(r"Opportunistic exploitation[.!?]*", nominal, re.I):
         return base
     if re.fullmatch(
@@ -705,6 +825,27 @@ def _unit(raw):
             if noun["event"]
             else None
         )
+        terms = qualifier_terms(
+            nominal,
+            qualifiers.spans,
+            offset=noun.start("tail"),
+            owner="evidence" if operation else "event",
+        )
+        if certainty:
+            terms = (modifier_term(nominal, *noun.span("qualifier")), *terms)
+        operators = ()
+        if auxiliary == "has not been":
+            start = noun.start("aux") + len("has ")
+            operators = (
+                ScopeOperator(
+                    nominal[start : start + 3],
+                    start,
+                    start + 3,
+                    "evidence_negation",
+                    "evidence",
+                ),
+            )
+        scope = assertion_scope(nominal, terms, operators)
         return replace(
             base,
             kind="assertion",
@@ -716,6 +857,7 @@ def _unit(raw):
                 else tuple(q.temporal for q in qualifiers.spans if q.temporal)
             ),
             evidence_operation=operation,
+            scopes=base.scopes + (scope,),
             modal=modal
             or ("possible" if certainty in {"potential", "possible"} else ""),
             polarity="negative" if negative and not operation else "affirmative",
@@ -762,6 +904,8 @@ def _unit(raw):
             subject=core[:absence_end].strip(),
             verb=absent_nominal["event"],
             polarity="negative",
+            scopes=base.scopes
+            + (assertion_scope(tail, qualifier_terms(tail, qualifiers.spans)),),
             modal=modal,
             object_text=tail,
             temporal=base.temporal
@@ -800,9 +944,9 @@ def _unit(raw):
         verb=frame.verb,
         modal=frame.modal,
         polarity=frame.polarity,
+        scopes=base.scopes + (frame.scope,),
         tense=frame.tense,
-        temporal=base.temporal
-        + tuple(q.temporal for q in frame.qualifiers if q.temporal),
+        temporal=base.temporal + frame.temporal,
         object_text=body[slice(*frame.adjunct_span)],
         unsupported=not frame.supported and not frame.requires_inheritance,
         finite=frame.finite,
@@ -977,9 +1121,12 @@ def _parse_assertions(sentence):
             clause = replace(clause, cves=previous.cves, attribution="coordinated")
         modal = clause.modal
         negative = clause.polarity == "negative"
+        scopes = clause.scopes
         if group is not None:
             modal = group[0] or modal
             negative |= group[1] == "negative"
+            if group[1] == "negative":
+                scopes = group[2] + scopes
         elif relation == "additive":
             if previous.modal == "unknown":
                 modal = "unknown"
@@ -987,11 +1134,24 @@ def _parse_assertions(sentence):
                 modal = previous.modal or modal
             if inherited_subject and not clause.finite:
                 negative |= previous.polarity == "negative"
+                if previous.polarity == "negative":
+                    scopes = previous.scopes + scopes
+        if (
+            relation == "adversative"
+            and inherited_subject
+            and not clause.finite
+            and previous.polarity == "negative"
+            and any(scope.restrictions for scope in previous.scopes)
+        ):
+            # An elided branch supplies no new current finite. Neither the
+            # legacy weaponized default nor guessed past scope can settle it.
+            modal = "unknown"
         clause = replace(
             clause,
             relation=relation,
             modal=modal,
             polarity="negative" if negative else "affirmative",
+            scopes=scopes,
         )
         if (
             inherited_subject
@@ -1001,11 +1161,24 @@ def _parse_assertions(sentence):
         ):
             clause = replace(clause, tense=previous.tense)
         if clause.correlative is not None:
+            governing_scopes = []
+            for scope in clause.scopes:
+                markers = [o.start for o in scope.operators if o.kind == "correlative"]
+                boundary_start = min(markers) if markers else len(scope.text)
+                governing_scopes.append(
+                    assertion_scope(
+                        scope.text,
+                        tuple(t for t in scope.terms if t.end <= boundary_start),
+                        tuple(o for o in scope.operators if o.end <= boundary_start),
+                        event_tense=scope.event_tense,
+                    )
+                )
             groups.append(
                 (
                     clause.correlative[0]
                     or (previous.modal if relation == "additive" else ""),
                     clause.correlative[1],
+                    tuple(governing_scopes),
                 )
             )
         results.append(clause)

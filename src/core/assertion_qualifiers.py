@@ -15,7 +15,87 @@ from .assertion_bindings import (
 )
 from .assertion_bindings import NAME as NAME
 from .cve import extract_cve_ids
-from .relations import TemporalConstraint, TemporalDirection
+from .relations import (
+    AssertionScope,
+    ScopeOperator,
+    ScopeTerm,
+    TemporalConstraint,
+    TemporalDirection,
+)
+
+# Classification of the already accepted modifier vocabulary. Recognition
+# remains with each existing finite production, not this semantic mapping.
+MODIFIER_KINDS = {
+    "actively": "activity",
+    "active": "activity",
+    "widely": "degree",
+    "extensively": "degree",
+    "currently": "current_time",
+    "now": "current_time",
+    "still": "time",
+    "newly": "time",
+    "recently": "time",
+    "yet": "time",
+    "first": "order",
+    "publicly": "disclosure",
+    "successfully": "outcome",
+    "also": "addition",
+    "potentially": "epistemic",
+    "likely": "epistemic",
+    "possibly": "epistemic",
+    "probably": "epistemic",
+    "unlikely": "epistemic",
+    "potential": "epistemic",
+    "possible": "epistemic",
+    "observed": "unclassified",
+}
+
+
+def modifier_term(text, start, end, *, owner="event"):
+    value = text[start:end]
+    return ScopeTerm(value, start, end, MODIFIER_KINDS[value.casefold()], owner)
+
+
+def qualifier_terms(text, spans, *, offset=0, owner="event"):
+    """Transfer complete owned qualifier spans without re-parsing their prose."""
+    result = []
+    for span in spans:
+        value = span.text.casefold()
+        kind = MODIFIER_KINDS.get(value, span.kind)
+        if span.temporal and span.temporal.direction == "current":
+            kind = "current_time"
+        if value in {"in the wild", "in attacks", "in prior reporting"}:
+            kind = "domain"
+        result.append(
+            ScopeTerm(
+                span.text,
+                span.start + offset,
+                span.end + offset,
+                kind,
+                "reporter" if span.kind == "reporter" else owner,
+            )
+        )
+    return tuple(result)
+
+
+def assertion_scope(text, terms=(), operators=(), *, event_tense="unspecified"):
+    """Bind negation to the parsed proposition, preserving each local span."""
+    scope = AssertionScope(text, tuple(terms), tuple(operators), event_tense)
+    target = "qualified_event" if scope.restrictions else "event"
+    return AssertionScope(
+        text,
+        scope.terms,
+        tuple(
+            (
+                ScopeOperator(o.text, o.start, o.end, o.kind, target)
+                if o.kind == "negation"
+                else o
+            )
+            for o in scope.operators
+        ),
+        event_tense,
+    )
+
 
 # The existing temporal owner, now shared by all assertion-tail consumers.
 TIME_UNIT = r"(?:second|minute|hour|day|week|fortnight|month|quarter|year|weekend|night|morning|afternoon|evening)s?"

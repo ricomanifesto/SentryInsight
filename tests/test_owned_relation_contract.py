@@ -53,7 +53,7 @@ def article(content, **metadata):
     [
         ("is actively exploited", "active"),
         ("was actively exploited", "observed"),
-        ("is not actively exploited", "not_observed"),
+        ("is not actively exploited", "unknown"),
         ("may be actively exploited", "potential"),
         ("exploitation status is unknown", "unknown"),
     ],

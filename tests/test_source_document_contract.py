@@ -96,7 +96,7 @@ def test_related_headlines_remain_context_and_cannot_supply_activity():
         ),
         (
             "The vendor had not found evidence that attackers were exploiting CVE-2026-1234 at the time of publication.",
-            "not_observed",
+            "unknown",
         ),
         (
             "The vendor has found evidence that attackers were exploiting CVE-2026-1234 last year.",

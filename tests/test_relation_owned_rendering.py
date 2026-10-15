@@ -57,11 +57,11 @@ def test_complete_context_and_exact_independent_coverage_in_real_pipeline(
     assert result["status"] == "completed", result
     report = (tmp_path / "index.md").read_text()
     artifact = parse_report_artifact(report)
-    expected = {(CVE,): "unknown"}
+    expected = {(CVE,): "observed" if "gained access" in positive else "unknown"}
     if independent:
         expected = {
             (CVE,): "observed" if "gained access" in positive else "active",
-            (OTHER,): "not_observed",
+            (OTHER,): "unknown",
         }
     assert {
         f.cve_ids: f.exploitation_status.value for f in artifact.findings
@@ -75,7 +75,7 @@ def test_complete_context_and_exact_independent_coverage_in_real_pipeline(
     assert all("https://example.test/owned" in line for line in lines)
     html = (tmp_path / "index.html").read_text()
     assert "Source Evidence" in html
-    if not independent:
+    if not independent and "gained access" not in positive:
         assert (
             "conflicting" in report
             and "combined exploitation status is unknown" in report
@@ -121,7 +121,7 @@ def test_attributed_context_cannot_bypass_whole_finding_or_summary_gates(mutatio
         )
     elif mutation == "badge":
         damaged = report.replace(
-            "**Exploitation Status**: unknown", "**Exploitation Status**: active"
+            "**Exploitation Status**: observed", "**Exploitation Status**: active"
         )
     elif mutation == "narrative":
         damaged = report.replace("**Description**:", f"**Description**: {positive}. ")
@@ -145,7 +145,7 @@ def test_context_is_complete_even_when_more_than_three_source_sentences_are_owne
     _, report = render(catalog)
     context = evidence_lines(report)[0]
     assert all(text in context for text in texts)
-    assert "conflicting" in report and "**Exploitation Status**: unknown" in report
+    assert "conflicting" not in report and "**Exploitation Status**: observed" in report
 
 
 def test_genuinely_joint_ownership_stays_one_finding_with_complete_conflicting_sources():
@@ -153,7 +153,7 @@ def test_genuinely_joint_ownership_stays_one_finding_with_complete_conflicting_s
     negative = f"{CVE} and {OTHER} are not exploited now."
     records, report = render(catalog_for(positive, negative))
     assert len(records) == 1 and records[0].cves == (CVE, OTHER)
-    assert records[0].status == "unknown"
+    assert records[0].status == "observed"
     assert len(evidence_lines(report)) == 1
     assert (
         positive in evidence_lines(report)[0] and negative in evidence_lines(report)[0]
@@ -178,7 +178,7 @@ def test_single_and_joint_predicates_in_one_sentence_do_not_collapse_ownership(
     findings = parse_report_artifact(report).findings
     assert len(findings) == 1 and findings[0].cve_ids == (CVE, OTHER)
     assert findings[0].exploitation_status.value == "unknown"
-    assert source in evidence_lines(report)[0] and "conflicting" in report
+    assert source in evidence_lines(report)[0] and "conflicting" not in report
 
 
 def test_incomplete_context_diagnostic_never_discloses_source_text_or_url():

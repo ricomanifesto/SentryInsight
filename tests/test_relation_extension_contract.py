@@ -60,7 +60,7 @@ def test_joint_predicate_is_retained_without_singleton_distribution(predicate, s
     "predicate,status",
     [
         ("were exploited", "observed"),
-        ("were not exploited", "not_observed"),
+        ("were not exploited", "unknown"),
         ("may have been exploited", "potential"),
         ("are actively exploited", "active"),
     ],

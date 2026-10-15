@@ -5,8 +5,21 @@ import re
 
 from .cve import extract_cve_ids
 from .assertion_bindings import CVE_LIST as CVE_LIST, TargetBinding, bind_target
-from .assertion_qualifiers import QualifierSpan, bind_qualifiers
-from .relations import temporal_compatible
+from .assertion_qualifiers import (
+    QualifierSpan,
+    TIME_DIRECTIONS,
+    assertion_scope,
+    bind_qualifiers,
+    modifier_term,
+    qualifier_terms,
+)
+from .relations import (
+    AssertionScope,
+    ScopeOperator,
+    ScopeTerm,
+    TemporalConstraint,
+    temporal_compatible,
+)
 
 POSSIBILITY_WORDS = ("potentially", "likely", "possibly", "probably", "unlikely")
 TOPIC = re.compile(r"\b(?:exploit\w*|weaponiz\w*)\b", re.I)
@@ -232,6 +245,8 @@ class PredicateFrame:
     requires_inheritance: bool = False
     correlative: tuple[str, str] | None = None
     operators: tuple[str, ...] = ()
+    scope: AssertionScope = AssertionScope("")
+    temporal: tuple[TemporalConstraint, ...] = ()
 
     @property
     def capability(self):
@@ -294,9 +309,11 @@ def bind_predicate(
     correlative_operator_count = 0
     tense, aspect, auxiliaries = "unspecified", "simple", []
     supported = True
+    terms, scope_operators, prefix_time = [], [], []
     initial = words[0] if words else ""
     while i < len(words) and words[i] in PREFIX_WORDS:
         word = words[i]
+        token = tokens[i]
         i += 1
         if word in AUXILIARY_WORDS:
             auxiliaries.append(word)
@@ -305,13 +322,33 @@ def bind_predicate(
             and i < len(words)
             and words[i] in {"only", "just", "merely", "simply"}
         ):
+            scope_operators.append(
+                ScopeOperator(
+                    text[token.start() : tokens[i].end()],
+                    token.start(),
+                    tokens[i].end(),
+                    "correlative",
+                    "coordination",
+                )
+            )
             i += 1
             correlative = (modal, "negative" if negative else "affirmative")
             correlative_operator_count = len(auxiliaries)
         elif word in {"not", "never"}:
             negative = True
+            scope_operators.append(
+                ScopeOperator(
+                    token.group(), token.start(), token.end(), "negation", "event"
+                )
+            )
         elif word in POSSIBILITY_WORDS:
             modal = modal or "possible"
+        if word not in AUXILIARY_WORDS and word not in {"not", "never"}:
+            terms.append(modifier_term(text, token.start(), token.end()))
+            if word in TIME_DIRECTIONS:
+                prefix_time.append(
+                    TemporalConstraint("event", TIME_DIRECTIONS[word], token.group())
+                )
         finite |= word in FINITE_PREDICATE_HEADS or word in ASPECT_HEADS
     event_start = tokens[i].start() if i < len(tokens) else end
     event_end = tokens[i].end() if i < len(tokens) else end
@@ -372,6 +409,15 @@ def bind_predicate(
     if verb == "under" and re.fullmatch(
         r"(?:limited, targeted|active) exploitation", argument, re.I
     ):
+        modifier_end = argument_start + argument.lower().index(" exploitation")
+        terms.append(
+            ScopeTerm(
+                text[argument_start:modifier_end],
+                argument_start,
+                modifier_end,
+                "activity" if argument.casefold().startswith("active ") else "degree",
+            )
+        )
         verb, kind = "exploitation", "assertion"
         supported &= rule is not None
     elif verb == "exploitable":
@@ -386,10 +432,17 @@ def bind_predicate(
         supported &= not (known and rule is None)
         supported &= not (known and not qualifiers.complete)
         supported &= not (not known and verb not in CONTEXT and TOPIC.search(text))
+    temporal = tuple(prefix_time) + tuple(
+        q.temporal for q in qualifiers.spans if q.temporal
+    )
+    scope = assertion_scope(
+        text,
+        (*terms, *qualifier_terms(text, qualifiers.spans, offset=argument_start)),
+        scope_operators,
+        event_tense=tense,
+    )
     if kind == "assertion":
-        supported &= temporal_compatible(
-            tuple(q.temporal for q in qualifiers.spans if q.temporal), tense
-        )
+        supported &= scope.supported and temporal_compatible(temporal, tense)
     if known and voice == "actor":
         supported &= target.kind != "empty"
     # Target identities are never borrowed from an adjunct or another object.
@@ -414,6 +467,8 @@ def bind_predicate(
     starts = inherits or (initial in ASPECT_HEADS and bool(TOPIC.search(text)))
     return PredicateFrame(
         operators=tuple(auxiliaries),
+        scope=scope,
+        temporal=temporal,
         text=text,
         end=len(text),
         operator_span=(0, len(text[:event_start].rstrip())),

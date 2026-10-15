@@ -69,7 +69,7 @@ def test_unclassified_auxiliary_preserves_pipeline_artifacts(
     [
         ("is actively exploited", "active"),
         ("was exploited yesterday", "observed"),
-        ("is not exploited now", "not_observed"),
+        ("is not exploited now", "unknown"),
         ("may have been exploited", "potential"),
     ],
 )
@@ -125,15 +125,15 @@ def test_intrusion_cannot_consume_an_independent_negative_predicate(
         ", but ".join((contrary, intrusion) if reverse else (intrusion, contrary)) + "."
     )
     assessment = assess_exploitation([article(source)], [CVE])
-    assert assessment.status == ("observed" if other_cve else "unknown")
-    assert assessment.conflicting is (not other_cve)
+    assert assessment.status == "observed"
+    assert not assessment.conflicting
     assert assessment.positive
     if not other_cve:
-        assert assessment.negative
+        assert not assessment.negative
         assert len(assessment.relations) == 2
     other = assess_exploitation([article(source)], [OTHER])
     if other_cve:
-        assert other.status == "not_observed" and other.negative
+        assert other.status == "unknown" and not other.negative
     result = run_real_pipeline(
         monkeypatch, tmp_path / "index.md", articles=[article(source)]
     )
@@ -144,7 +144,7 @@ def test_intrusion_cannot_consume_an_independent_negative_predicate(
     artifact = json.loads((tmp_path / "current-findings.json").read_text())
     assert set(artifact["cve_ids"]) == expected
     if not other_cve:
-        assert "conflicting" in report
+        assert "conflicting" not in report
 
 
 @pytest.mark.parametrize(

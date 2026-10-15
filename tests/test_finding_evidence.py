@@ -401,7 +401,7 @@ def test_rendered_claims_cannot_hide_in_clauses_or_accessible_text(claim):
         (f"{CVE} might be actively exploited and weaponized in the wild.", "potential"),
         (
             f"{CVE} was not actively exploited and weaponized in the wild.",
-            "not_observed",
+            "unknown",
         ),
         (
             f"{CVE} allows remote code execution and another flaw is actively exploited.",
@@ -482,7 +482,7 @@ def test_adversative_predicates_start_a_new_evidence_assertion(claim, expected):
     result = assess_exploitation([article(claim)], [CVE])
     assert result.status == expected
     if expected == "unknown":
-        assert result.conflicting
+        assert not result.conflicting
 
 
 @pytest.mark.parametrize(

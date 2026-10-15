@@ -143,7 +143,7 @@ SENTENCES = [
     ),
     (
         f"The vendor had not found evidence that attackers were exploiting {A} at the time of publication.",
-        "not_observed",
+        "unknown",
     ),
     (
         f"The vendor has found evidence that attackers are not exploiting {A}.",

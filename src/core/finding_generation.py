@@ -13,7 +13,7 @@ from .finding_evidence import (
     assess_severity,
     severity_context_text,
     EvidenceError,
-    ExploitationAssessment,
+    exploitation_state_text as _state_prose,
     assess_exploitation,
     build_finding_detail_context,
     collect_finding_details,
@@ -61,42 +61,6 @@ def _one_line(text: str) -> str:
 
 def _unique(values):
     return tuple(dict.fromkeys(_one_line(value) for value in values if value.strip()))
-
-
-def _state_prose(assessment: ExploitationAssessment, subject: str) -> str:
-    if not subject:
-        # A source-owned finding has no CVE noun phrase. Use the existing
-        # nominal productions; source identity is carried by its heading and
-        # Reporting reference, not guessed by the assertion parser.
-        if assessment.conflicting:
-            return (
-                "Reporting contains conflicting evidence. Some supplied reporting "
-                "states that exploitation has not been observed; "
-                "the combined exploitation status is unknown."
-            )
-        return {
-            "active": "Supplied reporting confirms active exploitation.",
-            "observed": "Exploitation was observed in prior reporting. Current exploitation activity is not established by the supplied evidence.",
-            "not_observed": "Supplied reporting states exploitation has not been observed.",
-            "potential": "Supplied reporting describes potential exploitation.",
-            "unknown": "Exploitation status is unknown from the supplied evidence.",
-        }[assessment.status]
-    if assessment.conflicting:
-        return (
-            f"Reporting contains conflicting exploitation evidence for {subject}. "
-            "Some supplied reporting states that exploitation has not been observed; "
-            "the combined exploitation status is unknown."
-        )
-    prose = {
-        "active": f"Supplied reporting confirms active exploitation of {subject}.",
-        "observed": f"{subject} exploitation was observed in prior reporting. Current exploitation activity is not established by the supplied evidence.",
-        "not_observed": f"Supplied reporting states exploitation has not been observed for {subject}.",
-        "potential": f"Supplied reporting describes potential exploitation of {subject}.",
-        "unknown": f"Exploitation status for {subject} is unknown from the supplied evidence.",
-    }[assessment.status]
-    if assessment.negative and assessment.status != "not_observed":
-        prose += " Some supplied reporting states exploitation has not been observed."
-    return prose
 
 
 def _severity(texts: Sequence[str]) -> str:
