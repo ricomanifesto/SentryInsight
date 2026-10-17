@@ -94,6 +94,7 @@ jobs:
           # Without the secret, nothing is sent.
           LOGFIRE_TOKEN: ${{ secrets.LOGFIRE_TOKEN }}
           LOGFIRE_ENVIRONMENT: github-actions
+          LOGFIRE_SERVICE_VERSION: ${{ github.sha }}
       
       - name: Validate report content before publishing
         run: |

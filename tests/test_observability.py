@@ -4,6 +4,7 @@ import types
 from pathlib import Path
 from unittest.mock import AsyncMock
 
+import httpx
 import logfire
 import pytest
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
@@ -11,8 +12,20 @@ from opentelemetry.trace import StatusCode
 
 from src.core import workflow
 from src.core.model_config import DEFAULT_MODEL
-from src.core import observability
-from src.core.observability import logfire_options, model_attributes, traced_stage
+from src.core import analyze, observability
+from src.core.analysis_errors import ANALYSIS_ERROR_CLASSES, classify_analysis_error
+from src.core.observability import (
+    ci_attributes,
+    logfire_options,
+    model_attributes,
+    state_attributes,
+    traced_stage,
+)
+from src.core.openrouter_client import (
+    OpenRouterClient,
+    OpenRouterError,
+    OpenRouterUnavailable,
+)
 from src.core.report_validation import ReportValidationIssue
 
 ARTICLE_TEXT = "SECRET_ARTICLE_BODY"
@@ -20,6 +33,7 @@ ARTICLE_TITLE = "SECRET_ARTICLE_TITLE"
 MODEL_PROSE = "SECRET_MODEL_PROSE"
 VALIDATION_MESSAGE = "SECRET_VALIDATION_MESSAGE"
 CREDENTIAL = "sk-or-SECRET_CREDENTIAL"
+PROVIDER_MESSAGE = "SECRET_PROVIDER_MESSAGE"
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -355,3 +369,203 @@ def test_logfire_token_reaches_only_the_generation_step():
     assert "LOGFIRE_TOKEN" not in header
     holders = [step.splitlines()[0] for step in steps if "LOGFIRE_TOKEN" in step]
     assert holders == ["Generate exploitation report"]
+
+
+@pytest.mark.parametrize(
+    ("error", "error_class"),
+    [
+        (
+            OpenRouterError("x", http_status=200, provider_code=503),
+            "model_provider_unavailable",
+        ),
+        (
+            OpenRouterError("x", http_status=200, provider_code=504),
+            "model_provider_unavailable",
+        ),
+        (OpenRouterError("x", http_status=502), "model_provider_unavailable"),
+        (OpenRouterError("x", http_status=529), "model_provider_unavailable"),
+        (OpenRouterError("x", http_status=429), "model_rate_limited"),
+        (
+            OpenRouterError("x", http_status=200, provider_code=429),
+            "model_rate_limited",
+        ),
+        (OpenRouterError("x", http_status=401), "model_auth_rejected"),
+        (OpenRouterError("x", http_status=403), "model_auth_rejected"),
+        (
+            OpenRouterError("x", http_status=503, provider_code=400),
+            "model_request_failed",
+        ),
+        (OpenRouterError("x", http_status=400), "model_request_failed"),
+        (OpenRouterError("x"), "model_request_failed"),
+        (OpenRouterUnavailable("x", retryable=True), "model_request_failed"),
+        (ValueError("x"), "analysis_exception"),
+    ],
+)
+def test_analysis_errors_map_to_the_fixed_vocabulary(error, error_class):
+    assert classify_analysis_error(error)[0] == error_class
+    assert error_class in ANALYSIS_ERROR_CLASSES
+
+
+def test_error_detail_keeps_integers_only():
+    error = OpenRouterError("x", http_status=200, provider_code=503)
+    error.attempts = 3
+    assert classify_analysis_error(error)[1] == {
+        "http_status": 200,
+        "provider_code": 503,
+        "attempts": 3,
+    }
+
+    malformed = OpenRouterError("x", http_status="503", provider_code=True)  # type: ignore[arg-type]
+    malformed.attempts = None
+    assert classify_analysis_error(malformed)[1] == {}
+
+    attributes = state_attributes(
+        {
+            "analysis_results": {
+                "error": PROVIDER_MESSAGE,
+                "error_class": PROVIDER_MESSAGE,
+                "error_detail": {
+                    "http_status": "200",
+                    "provider_code": True,
+                    "attempts": 3,
+                },
+            }
+        }
+    )
+    assert "analysis.error_class" not in attributes
+    assert "model.http_status" not in attributes
+    assert "model.provider_code" not in attributes
+    assert attributes["model.attempts"] == 3
+
+    unexpected = state_attributes(
+        {
+            "analysis_results": {
+                "error": "x",
+                "error_class": ["x"],
+                "error_detail": [503],
+            }
+        }
+    )
+    assert "analysis.error_class" not in unexpected
+    assert not [key for key in unexpected if key.startswith("model.")]
+
+
+def test_provider_failure_records_bounded_detail_without_its_message(
+    capfire, monkeypatch
+):
+    monkeypatch.setattr(asyncio, "sleep", AsyncMock())
+    requests = []
+
+    def provider(request):
+        requests.append(request)
+        return httpx.Response(
+            200,
+            json={
+                "error": {
+                    "code": 503,
+                    "message": PROVIDER_MESSAGE,
+                    "metadata": {"raw": PROVIDER_MESSAGE},
+                }
+            },
+        )
+
+    client = OpenRouterClient(
+        api_key=CREDENTIAL, transport=httpx.MockTransport(provider)
+    )
+
+    async def analysis(_articles, config):
+        return await analyze.analyze_exploitation([], config, model_client=client)
+
+    monkeypatch.setattr(workflow, "analyze_exploitation", analysis)
+    monkeypatch.delenv("SENTRYINSIGHT_MODEL", raising=False)
+    state = report_state("")
+    state["config"] = {"analysis": {"model": DEFAULT_MODEL}}
+
+    result = asyncio.run(traced_stage("analyze", workflow.analyze_articles)(state))
+
+    assert len(requests) == 3
+    assert result["status"] == "failed"
+    assert result["analysis_results"]["error_class"] == "model_provider_unavailable"
+    attributes = spans_by_name(capfire)["sentryinsight.analyze"]["attributes"]
+    assert attributes["analysis.error_class"] == "model_provider_unavailable"
+    assert attributes["model.http_status"] == 200
+    assert attributes["model.provider_code"] == 503
+    assert attributes["model.attempts"] == 3
+    assert attributes["failure.codes"] == [
+        "analysis_failed",
+        "model_provider_unavailable",
+    ]
+    payload = json.dumps(exported(capfire))
+    assert PROVIDER_MESSAGE not in payload
+    assert CREDENTIAL not in payload
+    assert_no_content(capfire)
+
+
+def test_input_budget_failure_records_its_class(capfire, monkeypatch):
+    async def over_budget(_articles, _config):
+        return {
+            "error": MODEL_PROSE,
+            "error_class": "input_budget_exceeded",
+            "error_detail": {},
+            "exploitation_report": "",
+        }
+
+    monkeypatch.setattr(workflow, "analyze_exploitation", over_budget)
+
+    asyncio.run(traced_stage("analyze", workflow.analyze_articles)(report_state("")))
+
+    attributes = spans_by_name(capfire)["sentryinsight.analyze"]["attributes"]
+    assert attributes["failure.codes"] == ["analysis_failed", "input_budget_exceeded"]
+    assert "model.http_status" not in attributes
+    assert_no_content(capfire)
+
+
+def test_ci_attributes_require_well_formed_values():
+    assert ci_attributes(
+        {
+            "GITHUB_RUN_ID": "18712345678",
+            "GITHUB_RUN_ATTEMPT": "2",
+            "GITHUB_EVENT_NAME": "repository_dispatch",
+        }
+    ) == {
+        "ci.run_id": 18712345678,
+        "ci.run_attempt": 2,
+        "ci.event": "repository_dispatch",
+    }
+    assert ci_attributes({}) == {}
+    assert (
+        ci_attributes(
+            {
+                "GITHUB_RUN_ID": "12; " + ARTICLE_TITLE,
+                "GITHUB_RUN_ATTEMPT": "",
+                "GITHUB_EVENT_NAME": "Schedule " + ARTICLE_TITLE,
+            }
+        )
+        == {}
+    )
+
+
+def test_run_span_records_ci_identity_from_the_environment(capfire, monkeypatch):
+    monkeypatch.setenv("GITHUB_RUN_ID", "18712345678")
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", "1")
+    monkeypatch.setenv("GITHUB_EVENT_NAME", "schedule")
+    monkeypatch.setattr(workflow, "load_config", lambda: {})
+
+    asyncio.run(workflow.run_exploitation_analysis())
+
+    attributes = spans_by_name(capfire)["sentryinsight.run"]["attributes"]
+    assert attributes["ci.run_id"] == 18712345678
+    assert attributes["ci.run_attempt"] == 1
+    assert attributes["ci.event"] == "schedule"
+
+
+def test_service_version_is_the_commit_in_the_generation_step_only():
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "generate-report.yml"
+    header, *steps = workflow_file.read_text().split("\n      - name: ")
+
+    assert "LOGFIRE_SERVICE_VERSION" not in header
+    holders = [step for step in steps if "LOGFIRE_SERVICE_VERSION" in step]
+    assert [step.splitlines()[0] for step in holders] == [
+        "Generate exploitation report"
+    ]
+    assert "LOGFIRE_SERVICE_VERSION: ${{ github.sha }}" in holders[0]

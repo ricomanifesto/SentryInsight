@@ -27,11 +27,25 @@ logger = logging.getLogger(__name__)
 
 
 class OpenRouterError(RuntimeError):
-    """Raised when OpenRouter cannot return usable model output."""
+    """Raised when OpenRouter cannot return usable model output.
 
-    def __init__(self, message: str, *, retryable: bool = False) -> None:
+    ``http_status``, ``provider_code`` and ``attempts`` are integers when known
+    and never carry response text.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        retryable: bool = False,
+        http_status: int | None = None,
+        provider_code: int | None = None,
+    ) -> None:
         super().__init__(message)
         self.retryable = retryable
+        self.http_status = http_status
+        self.provider_code = provider_code
+        self.attempts: int | None = None
 
 
 class OpenRouterUnavailable(OpenRouterError):
@@ -115,6 +129,7 @@ class OpenRouterClient:
                         or attempt == MAX_ATTEMPTS
                         or delay > MAX_RETRY_DELAY
                     ):
+                        exc.attempts = attempt
                         logger.error(
                             "OpenRouter attempt %d/%d failed: %s; stopping",
                             attempt,
@@ -184,18 +199,26 @@ class OpenRouterClient:
                     retryable = (
                         response.is_success or retryable
                     ) and provider_code in RETRYABLE_CODES
-            raise OpenRouterError(message, retryable=retryable)
+            raise OpenRouterError(
+                message,
+                retryable=retryable,
+                http_status=response.status_code,
+                provider_code=provider_code,
+            )
 
         if not isinstance(payload, dict):
             raise OpenRouterError(
                 f"OpenRouter response was not a JSON object (HTTP {response.status_code})",
                 retryable=True,
+                http_status=response.status_code,
             )
         try:
             return self._extract_text(payload)
         except OpenRouterError as exc:
             raise OpenRouterError(
-                f"{exc} (HTTP {response.status_code})", retryable=exc.retryable
+                f"{exc} (HTTP {response.status_code})",
+                retryable=exc.retryable,
+                http_status=response.status_code,
             ) from None
 
     def _extract_text(self, payload: dict[str, Any]) -> str:

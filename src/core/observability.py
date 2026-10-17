@@ -9,15 +9,20 @@ messages and tracebacks can carry header values or source content.
 from collections.abc import Awaitable, Callable, Mapping
 import functools
 import os
+import re
 from typing import Any, TypeVar
 
 import logfire
 from logfire.types import ExceptionCallbackHelper
 from opentelemetry.trace import Status, StatusCode
 
+from .analysis_errors import ANALYSIS_ERROR_CLASSES
 from .model_config import resolve_model, validate_model
 
 SERVICE_NAME = "sentryinsight"
+MODEL_DETAIL_FIELDS = ("http_status", "provider_code", "attempts")
+_DIGITS = re.compile(r"[0-9]{1,20}")
+_EVENT_NAME = re.compile(r"[a-z_]{1,64}")
 
 StateT = TypeVar("StateT", bound=Mapping[str, Any])
 
@@ -74,6 +79,22 @@ def model_attributes(config: Mapping[str, Any]) -> dict[str, str]:
     return {"model.id": model}
 
 
+def ci_attributes(environ: Mapping[str, str] = os.environ) -> dict[str, Any]:
+    """Return the GitHub Actions run identity when the values are well formed."""
+    attributes: dict[str, Any] = {}
+    for name, variable in (
+        ("ci.run_id", "GITHUB_RUN_ID"),
+        ("ci.run_attempt", "GITHUB_RUN_ATTEMPT"),
+    ):
+        value = environ.get(variable, "")
+        if _DIGITS.fullmatch(value):
+            attributes[name] = int(value)
+    event = environ.get("GITHUB_EVENT_NAME", "")
+    if _EVENT_NAME.fullmatch(event):
+        attributes["ci.event"] = event
+    return attributes
+
+
 def state_attributes(state: Mapping[str, Any]) -> dict[str, Any]:
     """Summarize workflow state as bounded span attributes."""
     attributes: dict[str, Any] = {
@@ -95,6 +116,16 @@ def state_attributes(state: Mapping[str, Any]) -> dict[str, Any]:
             )
         if "cves_identified" in analysis:
             attributes["analysis.cve_count"] = len(analysis["cves_identified"] or [])
+        error_class = analysis.get("error_class")
+        if isinstance(error_class, str) and error_class in ANALYSIS_ERROR_CLASSES:
+            attributes["analysis.error_class"] = error_class
+        detail = analysis.get("error_detail")
+        if not isinstance(detail, Mapping):
+            detail = {}
+        for field in MODEL_DETAIL_FIELDS:
+            # Integers only: booleans and strings are never recorded.
+            if type(detail.get(field)) is int:
+                attributes[f"model.{field}"] = detail[field]
     failure = state.get("failure")
     if failure:
         attributes["failure.stage"] = failure["stage"]

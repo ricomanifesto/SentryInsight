@@ -26,7 +26,13 @@ from .finding_evidence import (
     grounding_failure_diagnostic,
     validate_finding_evidence,
 )
-from .observability import model_attributes, state_attributes, traced_stage
+from .analysis_errors import ANALYSIS_ERROR_CLASSES
+from .observability import (
+    ci_attributes,
+    model_attributes,
+    state_attributes,
+    traced_stage,
+)
 from .report_artifact import ReportArtifactError, parse_report_artifact
 from .reporting import (
     ReportingGroundingError,
@@ -200,7 +206,11 @@ async def analyze_articles(
         return state
     if analysis_results.get("error"):
         logger.error(f"Analysis failed: {analysis_results['error']}")
-        _record_failure(state, "analysis", ["analysis_failed"])
+        codes = ["analysis_failed"]
+        error_class = analysis_results.get("error_class")
+        if isinstance(error_class, str) and error_class in ANALYSIS_ERROR_CLASSES:
+            codes.append(error_class)
+        _record_failure(state, "analysis", codes)
         state["status"] = "failed"
         return state
 
@@ -491,6 +501,7 @@ async def run_exploitation_analysis():
     with logfire.span(
         "sentryinsight report run", _span_name="sentryinsight.run"
     ) as span:
+        span.set_attributes(ci_attributes())
         # Load configuration
         config = load_config()
 
