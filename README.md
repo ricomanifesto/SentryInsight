@@ -95,6 +95,9 @@ The [frozen-source evaluation pilot](evals/grounding/README.md) compares two pro
 on synthetic article cases, with independent field checks, held-out cases and
 complete trial accounting. Calibration runs make no model calls; live runs require
 an explicit free model route. Evaluation outputs do not publish reports.
+Completed runs can be regraded offline under a separate v2 field contract, with
+original grades preserved and skipped checks distinguished from failures. Narrative
+claims always require separate source review; regrading is not a model improvement.
 
 ## Publishing
 

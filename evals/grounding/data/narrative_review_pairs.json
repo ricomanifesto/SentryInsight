@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "purpose": "Development review anchors, not an automated prose classifier or fresh holdout",
+  "review_status": "agent_authored_requires_human_review",
+  "pairs": [
+    {
+      "case": "explicit-denial",
+      "category": "polarity",
+      "supported": "The supplied source states that CVE-2026-41001 has not been exploited.",
+      "unsupported": "The supplied source confirms active exploitation of CVE-2026-41001.",
+      "reason": "An explicit denial cannot support an affirmative exploitation claim."
+    },
+    {
+      "case": "conditional-exploitation",
+      "category": "component attribution",
+      "supported": "The hypothetical scenario requires the optional Example plugin to be enabled.",
+      "unsupported": "The vulnerability resides in the Example plugin.",
+      "reason": "A prerequisite does not locate the defect in that component."
+    },
+    {
+      "case": "conditional-exploitation",
+      "category": "attack mechanism",
+      "supported": "The source supplies a plugin prerequisite but does not identify an attack mechanism.",
+      "unsupported": "Attackers exploit the vulnerability through the Example plugin.",
+      "reason": "An enabling condition does not establish the exploitation mechanism or an observed attack."
+    },
+    {
+      "case": "qualified-version-exception",
+      "category": "affected versus attacked",
+      "supported": "The CVE is actively exploited. Separately, Example Gateway 5.0 on Windows is affected.",
+      "unsupported": "Observed attacks targeted Example Gateway 5.0 on Windows.",
+      "reason": "Affected-version scope and exploitation status do not establish the versions actually attacked."
+    },
+    {
+      "case": "degree-negation",
+      "category": "prevalence versus likelihood",
+      "supported": "The source says the CVE has not been widely exploited; it does not confirm whether limited exploitation occurred.",
+      "unsupported": "The source says exploitation is unlikely to occur.",
+      "reason": "A statement about prevalence does not establish future likelihood."
+    }
+  ]
+}

@@ -113,3 +113,61 @@ acceptance or unnecessary rejection without manual adjudication.
 The command exits with code 2 for execution errors. Quality failures remain
 experiment results, not a CI approval signal. An incomplete manifest is never a
 finished experiment. No live model-quality score is checked into this pilot.
+
+## Versioned regrading of saved runs
+
+The original commands and `grading.py` retain the v1 contract. To diagnose an
+existing completed run under `grounding-fields-v2`, use a fresh process and a
+new output directory outside the original run:
+
+```sh
+uv run python -m evals.grounding.regrade \
+  --input test-results/eval-comparison \
+  --output test-results/eval-comparison-grading-v2
+```
+
+This command makes no model requests, runs no production validation gate, and
+disables telemetry export. It verifies the frozen source/key/grader hashes,
+dataset and input digests, complete trial identities, raw reports and original
+v1 grades before writing. A checksum records identity, not independent approval
+or protection against coordinated tampering. Incomplete or inconsistent runs
+are rejected; existing destinations are never overwritten. Results retain every
+original graded record, report hash and the original gate receipt. The new
+manifest records input and grading-code hashes and marks completion only after
+a final source/input check.
+
+V2 deliberately changes three grading policies:
+
+- A structural failure leaves dependent checks `not_evaluated`, with a reason.
+  Missing expected findings also prevent dependent field comparison. Summaries
+  show pass, fail and not-evaluated counts against the full planned denominator;
+  model execution errors remain visible. Summaries retain both prompt totals
+  and the original development/holdout breakdown.
+- One redundant `Affected versions:` prefix is ignored in that field. Values,
+  internal punctuation and qualifiers still have to match the answer key.
+- CVE ownership is scoped to each finding's title and structured fields. Extra
+  identifiers elsewhere are listed for narrative review; neither rejection nor
+  affirmation of those identifiers is automatically classified as factual.
+
+Prerequisites remain distinct from unaffected-environment exceptions. Placing a
+source-exact prerequisite in Exceptions is a field-role mismatch, not evidence
+of fabrication. The v1 conditional case rationale said it checked status only,
+although the implementation checked every field. V2 explicitly grades all
+listed fields and retains that strict role policy; it does not change the old
+answer file or retrospectively relabel the old score.
+
+Every returned report has a separate `narrative_review: not_evaluated` result.
+Review titles, descriptions, summaries and other prose against the sources.
+`data/narrative_review_pairs.json` supplies development anchors for polarity,
+component attribution, prerequisites versus mechanisms, affected versus attacked
+versions, and prevalence versus likelihood. These are agent-authored review
+anchors requiring human review, not a trained classifier or an LLM judge.
+Both sides intentionally pass field grading in tests, proving that field-pass
+does not certify prose. Preserve the positive and negative sides when proposing
+validator changes; accepting a supported denial must not admit an unsupported
+affirmative claim.
+
+Regrading changes the measurement, not the model or product behavior. Do not
+compare v1 and v2 scores as a product improvement. Previously inspected holdouts
+are development evidence for subsequent tuning. A new prompt or production-path
+claim needs a frozen rubric, fresh held-out sources and a separate experiment.
