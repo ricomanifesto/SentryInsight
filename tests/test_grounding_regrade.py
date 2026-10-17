@@ -98,6 +98,37 @@ def test_output_cannot_modify_original_run(saved_run):
         regrade_saved_run(saved_run, saved_run / "v2")
 
 
+def test_regrade_preserves_original_split_breakdown(tmp_path):
+    development = next(c for c in load_cases() if c.split == "development")
+    holdout = next(c for c in load_cases() if c.split == "holdout")
+    cases = [development, holdout]
+
+    async def task(inputs):
+        case = next(c for c in cases if c.name == inputs.name)
+        report = case.reference_report
+        if case.split == "holdout" and inputs.variant == "checklist":
+            report = report.replace(
+                "**Exploitation Status**: ", "**Exploitation Status**: invalid "
+            )
+        return report
+
+    saved = tmp_path / "original"
+    asyncio.run(run_evaluation(cases, task=task, output=saved, repetitions=1))
+    summary = regrade_saved_run(saved, tmp_path / "v2")
+    splits = summary["by_variant_and_split"]
+    assert set(splits) == {
+        "baseline/development",
+        "baseline/holdout",
+        "checklist/development",
+        "checklist/holdout",
+    }
+    assert all(item["planned"] == 1 for item in splits.values())
+    assert splits["baseline/holdout"]["field_pass_trials"] == 1
+    assert splits["checklist/development"]["field_pass_trials"] == 1
+    assert splits["checklist/holdout"]["field_pass_trials"] == 0
+    assert summary["by_variant"]["checklist"]["planned"] == 2
+
+
 def test_failure_during_final_verification_leaves_incomplete_receipt(
     saved_run, tmp_path, monkeypatch
 ):

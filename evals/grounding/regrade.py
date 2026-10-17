@@ -169,6 +169,18 @@ def regrade_saved_run(saved: Path, output: Path) -> dict:
             )
             for variant in sorted({row["original"]["variant"] for row in grades})
         },
+        "by_variant_and_split": {
+            f"{variant}/{split}": summarize(
+                [
+                    row
+                    for row in grades
+                    if row["original"]["variant"] == variant
+                    and row["original"]["split"] == split
+                ]
+            )
+            for variant in sorted({row["original"]["variant"] for row in grades})
+            for split in sorted({row["original"]["split"] for row in grades})
+        },
         "limitations": [
             "Regrading existing outputs is not a new model experiment or production validation.",
             "Field scores do not grade narrative correctness; all prose requires source review.",

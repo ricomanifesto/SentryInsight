@@ -141,7 +141,8 @@ V2 deliberately changes three grading policies:
 - A structural failure leaves dependent checks `not_evaluated`, with a reason.
   Missing expected findings also prevent dependent field comparison. Summaries
   show pass, fail and not-evaluated counts against the full planned denominator;
-  model execution errors remain visible.
+  model execution errors remain visible. Summaries retain both prompt totals
+  and the original development/holdout breakdown.
 - One redundant `Affected versions:` prefix is ignored in that field. Values,
   internal punctuation and qualifiers still have to match the answer key.
 - CVE ownership is scoped to each finding's title and structured fields. Extra
