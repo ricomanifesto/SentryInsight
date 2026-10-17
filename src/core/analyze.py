@@ -9,6 +9,7 @@ import tiktoken
 from .model_config import resolve_model, validate_model
 from .model_client import ReportModelClient, build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
+from .analysis_errors import classify_analysis_error
 from .cve import extract_cve_ids
 from .finding_evidence import build_finding_detail_context
 from ..services.article_content import normalize_feed_content
@@ -288,6 +289,8 @@ async def analyze_exploitation(
             "exploitation_report": f"# Error: Invalid Model\n\n{str(e)}",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
+            "error_class": "analysis_exception",
+            "error_detail": {},
         }
 
     # Prepare all article summaries
@@ -431,6 +434,8 @@ Generate a well-formatted exploitation report following the structure above. Be 
     ):
         return {
             "error": "Complete source evidence exceeds analysis input budget; no source text was truncated",
+            "error_class": "input_budget_exceeded",
+            "error_detail": {},
             "exploitation_report": "",
             "date": datetime.now(timezone.utc).date().isoformat(),
         }
@@ -471,9 +476,12 @@ Generate a well-formatted exploitation report following the structure above. Be 
         }
     except Exception as e:
         logger.error(f"Error during exploitation analysis: {e}")
+        error_class, error_detail = classify_analysis_error(e)
         return {
             "exploitation_report": f"# Error Generating Exploitation Report\n\nAn error occurred during analysis: {str(e)}\n\n## Partial Data\n\nCVEs identified: {', '.join(all_cves) if all_cves else 'None'}\n\nAffected systems: {', '.join(all_systems) if all_systems else 'None'}",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
+            "error_class": error_class,
+            "error_detail": error_detail,
             "reporting_sources": serialize_reporting_catalog(reporting_catalog),
         }
