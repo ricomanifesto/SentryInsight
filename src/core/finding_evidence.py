@@ -1043,29 +1043,153 @@ def _version_list_parts(text: str, *, attribution: bool = False) -> list[str]:
     return parts
 
 
+def _unversioned_release_name(text: str) -> bool:
+    # Range words and audience phrases qualify releases; they never name one.
+    return bool(text) and not (
+        re.search(r"\d|\bRTM\b", text, re.I)
+        or VERSION_RANGE_QUALIFIER.match(text)
+        or re.match(rf"(?:{VERSION_AUDIENCE})\b", text, re.I)
+    )
+
+
+def _serial_release_group_end(parts: Sequence[str], start: int) -> int | None:
+    """Return the versioned member closing an "A, B, and C 2.0" release group.
+
+    Commas join unversioned release names only when "and"/"or", optionally
+    after a serial comma, closes the series and its final member carries the
+    version. Without that conjunction the commas may separate list entries.
+    """
+    if not _unversioned_release_name(parts[start].strip()):
+        return None
+    end = start
+    while (
+        end + 2 < len(parts)
+        and parts[end + 1] == ","
+        and _unversioned_release_name(parts[end + 2].strip())
+    ):
+        end += 2
+    if end == start:
+        return None
+    if end + 4 < len(parts) and parts[end + 1] == "," and not parts[end + 2].strip():
+        end += 2
+    if (
+        end + 2 < len(parts)
+        and parts[end + 1].strip().casefold() in {"and", "or"}
+        and re.search(r"\d|\bRTM\b", parts[end + 2], re.I)
+    ):
+        return end + 2
+    return None
+
+
+# All prose before a release group must form one of these introductions.
+# Release names can contain any word, so a single preceding word cannot mark
+# where a name starts; a cut inside a name leaves words no introduction matches.
+# An article after the verb may belong to the name; retain it in the constraint.
+VERSION_GROUP_INTRODUCTION = re.compile(
+    r"(?:(?:(?:the|this|that|these|those|its|a|an)\s+)?"
+    r"(?:flaws?|bugs?|vulnerabilit(?:y|ies)|issues?|weakness(?:es)?|defects?)"
+    rf"|it|{CVE_ID_PATTERN.pattern})"
+    r"\s+(?:affect(?:s|ed)?|impact(?:s|ed)?|include(?:s|d)?)",
+    re.I,
+)
+VERSION_TRAILING_PREDICATE = re.compile(rf"\s+{VERSION_FINITE_PREDICATE}", re.I)
+
+
+def _opens_with_release_group(text: str) -> bool:
+    try:
+        parts = _version_list_parts(text)
+    except EvidenceError:
+        return False
+    return _serial_release_group_end(parts, 0) is not None
+
+
+def _whole_release_group_in(entry: str, sentence: str) -> bool:
+    """Match a release group only as the complete constraint a prose source states.
+
+    A token-bounded substring can start inside the opening release name or stop
+    before a range bound. Without a list cue, the sentence must begin with the
+    group or with a recognized introduction ("The flaw impacts"), and the group
+    must run through every range or audience qualifier the source attaches, up
+    to any following predicate.
+    """
+    entry, sentence = _plain(entry), _plain(sentence)
+    for match in re.finditer(rf"(?<![^\s,;()\[\]{{}}\"']){re.escape(entry)}", sentence):
+        tail = re.match(r"[^\s,;()\[\]{}\"']*", sentence[match.end() :])
+        before = sentence[: match.start()].rstrip()
+        if (tail and tail.group().strip(".!?:")) or (
+            before and not VERSION_GROUP_INTRODUCTION.fullmatch(before)
+        ):
+            continue
+        try:
+            parts = _version_list_parts(sentence[match.start() :])
+        except EvidenceError:
+            continue
+        end = _serial_release_group_end(parts, 0)
+        if end is None:
+            continue
+        for index in range(end + 2, len(parts), 2):
+            fragment = parts[index].strip()
+            if fragment and not (
+                VERSION_RANGE_QUALIFIER.match(fragment)
+                or VERSION_AUDIENCE_QUALIFIER.fullmatch(fragment)
+            ):
+                break
+            if fragment:
+                end = index
+        # The constraint ends before a predicate following its last version.
+        last = parts[end]
+        versions = list(re.finditer(r"\d|\bRTM\b", last, re.I))
+        predicate = VERSION_TRAILING_PREDICATE.search(
+            last, versions[-1].end() if versions else 0
+        )
+        constraint = (
+            "".join(parts[:end]) + last[: predicate.start() if predicate else None]
+        )
+        if len(match.group()) >= len(constraint.rstrip(" .!?")):
+            return True
+    return False
+
+
 def _version_list_entries(text: str) -> list[str]:
     """Split constraints without detaching range tails or product names."""
     parts = _version_list_parts(text)
     entries: list[str] = []
     pending = ""
+    pending_index = consumed = 0
     for index in range(0, len(parts), 2):
         entry = parts[index].strip()
-        if not entry:
+        if index < consumed or not entry:
             continue
         if pending:
-            if parts[index - 1].strip().casefold() not in {"and", "or"}:
+            separator = parts[index - 1].strip().casefold()
+            # Only a series that opens the constraint, starting from a single
+            # release name, can be one group; later commas stay ambiguous.
+            end = (
+                _serial_release_group_end(parts, pending_index)
+                if separator == ","
+                and not entries
+                and pending == parts[pending_index].strip()
+                else None
+            )
+            if end is not None:
+                # Keep the group's exact source text, including its commas.
+                entry = "".join(parts[pending_index : end + 1]).strip()
+                consumed = end + 1
+            elif separator not in {"and", "or"}:
                 raise EvidenceError(
                     "ambiguous affected-version continuation",
                     code="ambiguous_affected_version_continuation",
                     field="Affected Versions",
                 )
-            entry = pending + parts[index - 1] + entry
+            else:
+                entry = pending + parts[index - 1] + entry
             pending = ""
         qualifier = VERSION_RANGE_QUALIFIER.match(entry)
         if entries and (qualifier or VERSION_AUDIENCE_QUALIFIER.fullmatch(entry)):
             entries[-1] += parts[index - 1] + entry
         elif not re.search(r"\d|\bRTM\b", entry, re.I):
             pending = entry
+            pending_index = index
         else:
             entries.append(entry)
     if pending:
@@ -1597,9 +1721,23 @@ def _validate_finding(
         elif name == "Affected Versions":
             # Parsed lists already establish exact complete constraints above.
             # Compare that canonical representation, not raw attribution tags.
-            # Without a list, grounding must enforce source token boundaries.
+            # Without a list, grounding must enforce source token boundaries,
+            # and a release group must be the whole constraint the prose states.
+            group_sources = [
+                text
+                for span in detail_spans
+                if span.role == "body"
+                for text in (span.text, _version_source_text(span.text))
+            ]
             if not known_version_list and any(
-                not _supported_version_text(entry, scoped) for entry in entries
+                not _supported_version_text(entry, scoped)
+                or (
+                    _opens_with_release_group(entry)
+                    and not any(
+                        _whole_release_group_in(entry, text) for text in group_sources
+                    )
+                )
+                for entry in entries
             ):
                 raise EvidenceError(
                     f"{title}: {name} must preserve exact source-supported details",

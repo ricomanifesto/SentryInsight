@@ -908,6 +908,292 @@ def test_conjunction_product_name_can_follow_another_version_entry():
     )
 
 
+PLATFORM_GROUP = (
+    "Example Server Edition for Apache httpd, Nginx, and IIS (excluding FreeBSD) "
+    "versions 2.20 and later, before 8.00 Update 5"
+)
+
+
+def platform_group_source(sentence):
+    return article(
+        f"{CVE} is actively exploited.\n\n{sentence}\n\nHosted users need no action.\n\nInstall the update.",
+        source_links=["https://example.test/vendor"],
+    )
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        f"Affected versions are {PLATFORM_GROUP}.",
+        f"Affected versions: {PLATFORM_GROUP}",
+        f"Versions affected: {PLATFORM_GROUP} ({CVE})",
+        f"The flaw impacts {PLATFORM_GROUP}.",
+    ],
+)
+def test_serial_platform_group_is_one_complete_version_constraint(sentence):
+    catalog = build_reporting_catalog([platform_group_source(sentence)])
+    validate_finding_evidence(report(**{"Affected Versions": PLATFORM_GROUP}), catalog)
+    with pytest.raises(EvidenceError, match="omits|source-supported"):
+        validate_finding_evidence(report(), catalog)
+
+
+@pytest.mark.parametrize(
+    "versions",
+    [
+        PLATFORM_GROUP.replace("httpd, Nginx, and IIS", "httpd and IIS"),
+        PLATFORM_GROUP.replace("Nginx, and IIS", "Nginx, Lighttpd, and IIS"),
+        PLATFORM_GROUP.replace(" (excluding FreeBSD)", ""),
+        PLATFORM_GROUP.replace(" and later", ""),
+        PLATFORM_GROUP.replace(", before 8.00 Update 5", ""),
+        PLATFORM_GROUP.replace("2.20", "2.21"),
+        PLATFORM_GROUP.replace("Update 5", "Update 6"),
+        PLATFORM_GROUP.removeprefix(
+            "Example Server Edition for Apache httpd, Nginx, and "
+        ),
+    ],
+)
+def test_serial_platform_group_constraints_cannot_be_dropped_or_altered(versions):
+    catalog = build_reporting_catalog(
+        [platform_group_source(f"Affected versions are {PLATFORM_GROUP}.")]
+    )
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(report(**{"Affected Versions": versions}), catalog)
+    assert caught.value.code == "missing_affected_version_entries"
+
+
+@pytest.mark.parametrize(
+    "versions",
+    [
+        PLATFORM_GROUP.replace("httpd, Nginx, and IIS", "httpd and IIS"),
+        PLATFORM_GROUP.replace("Nginx, and IIS", "Nginx, Lighttpd, and IIS"),
+        PLATFORM_GROUP.replace(" (excluding FreeBSD)", ""),
+        PLATFORM_GROUP.replace(" and later", ""),
+        PLATFORM_GROUP.replace("2.20", "2.21"),
+        PLATFORM_GROUP.replace("Update 5", "Update 6"),
+    ],
+)
+def test_unlisted_serial_platform_group_still_requires_exact_source_text(versions):
+    catalog = build_reporting_catalog(
+        [platform_group_source(f"The flaw impacts {PLATFORM_GROUP}.")]
+    )
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(report(**{"Affected Versions": versions}), catalog)
+    assert caught.value.code == "affected_version_not_grounded"
+
+
+SERIAL_GROUP_SOURCES = [
+    (f"Affected versions are {PLATFORM_GROUP}.", "missing_affected_version_entries"),
+    (f"The flaw impacts {PLATFORM_GROUP}.", "affected_version_not_grounded"),
+    (f"{PLATFORM_GROUP} are affected.", "affected_version_not_grounded"),
+    (
+        f"The flaw ({CVE}) impacts {PLATFORM_GROUP} ({CVE}).",
+        "affected_version_not_grounded",
+    ),
+]
+
+
+@pytest.mark.parametrize(("sentence", "code"), SERIAL_GROUP_SOURCES)
+def test_serial_platform_group_is_accepted_as_the_whole_source_constraint(
+    sentence, code
+):
+    catalog = build_reporting_catalog([platform_group_source(sentence)])
+    validate_finding_evidence(report(**{"Affected Versions": PLATFORM_GROUP}), catalog)
+
+
+@pytest.mark.parametrize(
+    "versions",
+    [
+        PLATFORM_GROUP.removesuffix(", before 8.00 Update 5"),
+        PLATFORM_GROUP.removesuffix(" Update 5"),
+        PLATFORM_GROUP.removesuffix(" 5"),
+        PLATFORM_GROUP.removesuffix(" and later, before 8.00 Update 5"),
+        PLATFORM_GROUP.removeprefix("Example "),
+        PLATFORM_GROUP.removeprefix("Example Server Edition for "),
+        PLATFORM_GROUP.removeprefix("Example Server Edition for Apache "),
+        PLATFORM_GROUP.removeprefix("Example Server Edition for ").removesuffix(
+            ", before 8.00 Update 5"
+        ),
+    ],
+)
+@pytest.mark.parametrize(("sentence", "code"), SERIAL_GROUP_SOURCES)
+def test_serial_platform_group_cannot_lose_leading_words_or_range_bounds(
+    sentence, code, versions
+):
+    catalog = build_reporting_catalog([platform_group_source(sentence)])
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(report(**{"Affected Versions": versions}), catalog)
+    assert caught.value.code == code
+
+
+PLATFORM_GROUP_TAIL = (
+    "Apache httpd, Nginx, and IIS (excluding FreeBSD) "
+    "versions 2.20 and later, before 8.00 Update 5"
+)
+# Release names can contain words that elsewhere introduce affected releases.
+NAMED_PLATFORM_GROUPS = [
+    (f"Example Server Edition for the {PLATFORM_GROUP_TAIL}", PLATFORM_GROUP_TAIL),
+    (
+        f"Example Can Server for {PLATFORM_GROUP_TAIL}",
+        f"Server for {PLATFORM_GROUP_TAIL}",
+    ),
+    (
+        f"Example Will Edition for {PLATFORM_GROUP_TAIL}",
+        f"Edition for {PLATFORM_GROUP_TAIL}",
+    ),
+    (
+        f"Example Impact Suite for {PLATFORM_GROUP_TAIL}",
+        f"Suite for {PLATFORM_GROUP_TAIL}",
+    ),
+]
+NAMED_GROUP_CONTEXTS = [
+    ("Affected versions are {}.", "missing_affected_version_entries"),
+    ("The flaw impacts {}.", "affected_version_not_grounded"),
+    ("{} are affected.", "affected_version_not_grounded"),
+]
+
+
+@pytest.mark.parametrize(("group", "cut"), NAMED_PLATFORM_GROUPS)
+@pytest.mark.parametrize(("context", "code"), NAMED_GROUP_CONTEXTS)
+def test_whole_release_name_with_introducing_words_is_accepted(
+    context, code, group, cut
+):
+    catalog = build_reporting_catalog([platform_group_source(context.format(group))])
+    validate_finding_evidence(report(**{"Affected Versions": group}), catalog)
+
+
+@pytest.mark.parametrize(("group", "cut"), NAMED_PLATFORM_GROUPS)
+@pytest.mark.parametrize(("context", "code"), NAMED_GROUP_CONTEXTS)
+def test_release_name_cannot_be_cut_after_an_introducing_word(
+    context, code, group, cut
+):
+    catalog = build_reporting_catalog([platform_group_source(context.format(group))])
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(report(**{"Affected Versions": cut}), catalog)
+    assert caught.value.code == code
+
+
+LEADING_ARTICLES = ["The", "A", "An", "the", "a", "an"]
+
+
+@pytest.mark.parametrize("article", LEADING_ARTICLES)
+@pytest.mark.parametrize(("context", "code"), NAMED_GROUP_CONTEXTS)
+def test_complete_release_name_keeps_its_leading_article(article, context, code):
+    group = f"{article} {PLATFORM_GROUP}"
+    catalog = build_reporting_catalog([platform_group_source(context.format(group))])
+    validate_finding_evidence(report(**{"Affected Versions": group}), catalog)
+
+
+@pytest.mark.parametrize("article", LEADING_ARTICLES)
+@pytest.mark.parametrize(("context", "code"), NAMED_GROUP_CONTEXTS)
+def test_release_name_cannot_omit_its_leading_article(article, context, code):
+    group = f"{article} {PLATFORM_GROUP}"
+    catalog = build_reporting_catalog([platform_group_source(context.format(group))])
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(
+            report(**{"Affected Versions": PLATFORM_GROUP}), catalog
+        )
+    assert caught.value.code == code
+
+
+@pytest.mark.parametrize("article", ["the", "a", "an"])
+@pytest.mark.parametrize(
+    "introduction", ["It affects", "This vulnerability affected", f"{CVE} includes"]
+)
+def test_prose_article_stays_attached_to_the_complete_constraint(article, introduction):
+    # A grammatical article and a name's first word are indistinguishable here.
+    # Copying either article keeps the recognized introduction usable and exact.
+    group = f"{article} {PLATFORM_GROUP}"
+    catalog = build_reporting_catalog(
+        [platform_group_source(f"{introduction} {group}.")]
+    )
+    validate_finding_evidence(report(**{"Affected Versions": group}), catalog)
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(
+            report(**{"Affected Versions": PLATFORM_GROUP}), catalog
+        )
+    assert caught.value.code == "affected_version_not_grounded"
+
+
+@pytest.mark.parametrize(
+    "versions",
+    [
+        "Example Server Edition for Apache httpd, Nginx, IIS versions 2.20",
+        "Example Gateway, Example Server 2.3",
+        "Example Gateway, Example Portal, and Example Hub",
+        "Example Server 2.3, Example Gateway, Example Portal, and Example Hub 2.4",
+        "Example Gateway and Example Portal, Example Hub, and Example Server 2.3",
+        "Example Gateway; Example Portal, and Example Server 2.3",
+        "Example Gateway, Example Portal; and Example Server 2.3",
+        "Example Gateway, later, and Example Server 2.3",
+        "Example Gateway, administrators only, and Example Server 2.3",
+        "Example Gateway, users of Example Portal, and Example Server 2.3",
+        PLATFORM_GROUP.replace("httpd, Nginx, and IIS", "httpd; Nginx; IIS"),
+    ],
+)
+def test_unclosed_or_mixed_release_series_remain_ambiguous(versions):
+    for sentence, reported in [
+        (f"Affected versions are {versions}.", PLATFORM_GROUP),
+        (f"Affected versions are {PLATFORM_GROUP}.", versions),
+    ]:
+        catalog = build_reporting_catalog([platform_group_source(sentence)])
+        with pytest.raises(EvidenceError) as caught:
+            validate_finding_evidence(
+                report(**{"Affected Versions": reported}), catalog
+            )
+        assert caught.value.code == "ambiguous_affected_version_continuation"
+
+
+def test_serial_platform_group_keeps_a_following_exclusion_clause():
+    exclusion = "users of Example Server Lite 1.0 are not affected"
+    catalog = build_reporting_catalog(
+        [
+            platform_group_source(
+                f"Affected versions are {PLATFORM_GROUP}, and {exclusion}."
+            )
+        ]
+    )
+    validate_finding_evidence(
+        report(**{"Affected Versions": PLATFORM_GROUP, "Exceptions": exclusion}),
+        catalog,
+    )
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(
+            report(**{"Affected Versions": PLATFORM_GROUP}), catalog
+        )
+    assert caught.value.code == "missing_source_exclusions"
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(
+            report(
+                **{
+                    "Affected Versions": f"{PLATFORM_GROUP}; Example Server Lite 1.0",
+                    "Exceptions": exclusion,
+                }
+            ),
+            catalog,
+        )
+    assert caught.value.code == "unsupported_affected_version_entry"
+
+
+def test_excluded_serial_platform_group_must_be_preserved_in_exceptions():
+    exclusion = (
+        "users of Example Server Lite for Apache httpd, Nginx, and IIS 1.0 "
+        "are not affected"
+    )
+    catalog = build_reporting_catalog(
+        [
+            platform_group_source(
+                f"Affected versions are Example Server 2.3, and {exclusion}."
+            )
+        ]
+    )
+    validate_finding_evidence(report(**{"Exceptions": exclusion}), catalog)
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(
+            report(**{"Exceptions": exclusion.replace(", Nginx,", "")}), catalog
+        )
+    assert caught.value.code == "missing_source_exclusions"
+
+
 @pytest.mark.parametrize(
     "predicate",
     [

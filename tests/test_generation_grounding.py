@@ -384,3 +384,236 @@ def test_joint_scope_includes_details_from_other_sources_naming_one_member():
         finding_evidence.validate_finding_evidence(
             prefix + candidate.replace("; Example Gateway 2.4", ""), catalog
         )
+
+
+PLATFORM_GROUP = (
+    "Example Gateway Edition for Apache httpd, Nginx, and IIS (excluding FreeBSD) "
+    "versions 2.20 and later, before 8.00 Update 5"
+)
+
+
+def platform_group_generation(
+    tmp_path, versions, introduction="Affected versions are ", group=PLATFORM_GROUP
+):
+    workflow = import_workflow_with_stubs()
+    catalog = build_reporting_catalog(
+        [source(f"{CVE} is actively exploited.\n\n{introduction}{group}.")]
+    )
+    candidate = finding(next(iter(catalog)), versions).replace(
+        "- **Exploitation Status**", "- **Severity**: high\n- **Exploitation Status**"
+    )
+    report = (
+        "# Exploitation Report\n\n## Executive Summary\n\n"
+        "Attackers are exploiting an Example Gateway flaw.\n\n"
+        f"## Active Exploitation Details\n\n{candidate}"
+        "## Affected Systems and Products\n\n"
+        "- **Example Gateway**: Server editions for several web servers.\n\n"
+        "## Attack Vectors and Techniques\n\n"
+        "- **Internet-facing service**: Attackers send crafted requests.\n\n"
+        "## Threat Actor Activities\n\n"
+        "- **Unknown actor**: Opportunistic exploitation.\n"
+    )
+    state = {
+        "analysis_results": {
+            "exploitation_report": report,
+            "reporting_sources": serialize_reporting_catalog(catalog),
+        },
+        "articles_fingerprint": "Next fingerprint",
+        "config": {"output_path": str(tmp_path / "index.md")},
+        "status": "started",
+    }
+    return workflow, state
+
+
+def test_complete_platform_group_finding_reaches_publication(tmp_path, monkeypatch):
+    workflow, state = platform_group_generation(tmp_path, PLATFORM_GROUP)
+    rendered = []
+    # Site rendering has its own suite; this boundary checks the grounding gate.
+    monkeypatch.setattr(
+        workflow,
+        "build_site",
+        lambda **kwargs: rendered.append(kwargs["report_path"].read_text()),
+    )
+    result = asyncio.run(workflow.generate_report(state))
+    assert result["status"] == "started"
+    assert "failure" not in result
+    assert f"**Affected Versions**: {PLATFORM_GROUP}\n" in rendered[0]
+    assert (tmp_path / "index.md").read_text() == rendered[0]
+    assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
+        "Next fingerprint\n"
+    )
+
+
+@pytest.mark.parametrize(
+    ("versions", "code"),
+    [
+        (
+            PLATFORM_GROUP.replace("httpd, Nginx, and IIS", "httpd and IIS"),
+            "missing_affected_version_entries",
+        ),
+        (
+            PLATFORM_GROUP.replace(" (excluding FreeBSD)", ""),
+            "missing_affected_version_entries",
+        ),
+        (
+            PLATFORM_GROUP.replace(", before 8.00 Update 5", ""),
+            "missing_affected_version_entries",
+        ),
+        (
+            PLATFORM_GROUP.replace("Nginx, and IIS", "Nginx, IIS"),
+            "ambiguous_affected_version_continuation",
+        ),
+    ],
+)
+def test_incomplete_platform_group_preserves_the_last_publication(
+    versions, code, tmp_path, monkeypatch, caplog
+):
+    assert_last_publication_preserved(
+        platform_group_generation(tmp_path, versions),
+        versions,
+        code,
+        tmp_path,
+        monkeypatch,
+        caplog,
+    )
+
+
+@pytest.mark.parametrize(
+    "introduction", ["Affected versions are ", "The flaw impacts "]
+)
+def test_whole_platform_group_publishes_through_the_site_builder(
+    introduction, tmp_path
+):
+    workflow, state = platform_group_generation(tmp_path, PLATFORM_GROUP, introduction)
+    result = asyncio.run(workflow.generate_report(state))
+    assert result["status"] == "started"
+    assert "failure" not in result
+    published = (tmp_path / "index.md").read_text()
+    assert f"**Affected Versions**: {PLATFORM_GROUP}\n" in published
+    assert PLATFORM_GROUP in (tmp_path / "index.html").read_text()
+    assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
+        "Next fingerprint\n"
+    )
+
+
+@pytest.mark.parametrize(
+    "versions",
+    [
+        PLATFORM_GROUP.removesuffix(", before 8.00 Update 5"),
+        PLATFORM_GROUP.removesuffix(" Update 5"),
+        PLATFORM_GROUP.removeprefix("Example Gateway Edition for "),
+    ],
+)
+def test_truncated_prose_platform_group_preserves_the_last_publication(
+    versions, tmp_path, monkeypatch, caplog
+):
+    assert_last_publication_preserved(
+        platform_group_generation(tmp_path, versions, "The flaw impacts "),
+        versions,
+        "affected_version_not_grounded",
+        tmp_path,
+        monkeypatch,
+        caplog,
+    )
+
+
+NAMED_GROUP_TAIL = PLATFORM_GROUP.removeprefix("Example Gateway Edition for ")
+NAMED_GROUPS = [
+    (f"Example Gateway Edition for the {NAMED_GROUP_TAIL}", NAMED_GROUP_TAIL),
+    (
+        f"Example Can Gateway for {NAMED_GROUP_TAIL}",
+        f"Gateway for {NAMED_GROUP_TAIL}",
+    ),
+]
+
+
+@pytest.mark.parametrize(("group", "cut"), NAMED_GROUPS)
+def test_whole_release_name_with_introducing_words_publishes(group, cut, tmp_path):
+    workflow, state = platform_group_generation(
+        tmp_path, group, "The flaw impacts ", group
+    )
+    result = asyncio.run(workflow.generate_report(state))
+    assert result["status"] == "started"
+    assert "failure" not in result
+    assert f"**Affected Versions**: {group}\n" in (tmp_path / "index.md").read_text()
+    assert group in (tmp_path / "index.html").read_text()
+    assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
+        "Next fingerprint\n"
+    )
+
+
+@pytest.mark.parametrize(("group", "cut"), NAMED_GROUPS)
+def test_release_name_cut_preserves_the_last_publication(
+    group, cut, tmp_path, monkeypatch, caplog
+):
+    assert_last_publication_preserved(
+        platform_group_generation(tmp_path, cut, "The flaw impacts ", group),
+        cut,
+        "affected_version_not_grounded",
+        tmp_path,
+        monkeypatch,
+        caplog,
+    )
+
+
+@pytest.mark.parametrize("article", ["The", "A", "An"])
+def test_complete_release_name_with_leading_article_publishes(article, tmp_path):
+    group = f"{article} {PLATFORM_GROUP}"
+    workflow, state = platform_group_generation(
+        tmp_path, group, "The flaw impacts ", group
+    )
+    result = asyncio.run(workflow.generate_report(state))
+    assert result["status"] == "started"
+    assert "failure" not in result
+    assert f"**Affected Versions**: {group}\n" in (tmp_path / "index.md").read_text()
+    assert group in (tmp_path / "index.html").read_text()
+    assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
+        "Next fingerprint\n"
+    )
+
+
+@pytest.mark.parametrize("article", ["The", "A", "An"])
+def test_omitted_leading_article_preserves_the_last_publication(
+    article, tmp_path, monkeypatch, caplog
+):
+    group = f"{article} {PLATFORM_GROUP}"
+    assert_last_publication_preserved(
+        platform_group_generation(tmp_path, PLATFORM_GROUP, "The flaw impacts ", group),
+        PLATFORM_GROUP,
+        "affected_version_not_grounded",
+        tmp_path,
+        monkeypatch,
+        caplog,
+    )
+
+
+def assert_last_publication_preserved(
+    generation, versions, code, tmp_path, monkeypatch, caplog
+):
+    workflow, state = generation
+    output = tmp_path / "index.md"
+    output.write_text("Last valid report")
+    fingerprint = tmp_path / ".sentryinsight-articles-fingerprint"
+    fingerprint.write_text("Last valid fingerprint")
+    rendered = []
+    monkeypatch.setattr(workflow, "build_site", lambda **kwargs: rendered.append(1))
+    with caplog.at_level("ERROR", logger="src.core.workflow"):
+        result = asyncio.run(workflow.generate_report(state))
+    message = next(
+        record.getMessage()
+        for record in caplog.records
+        if record.getMessage().startswith("Report grounding failed: ")
+    )
+    diagnostic = json.loads(message.split("Report grounding failed: ", 1)[1])
+    assert diagnostic["code"] == code
+    assert diagnostic["field"] == "Affected Versions"
+    assert result["status"] == "failed"
+    assert result["failure"] == {
+        "stage": "finding_evidence",
+        "codes": [code],
+        "field": "Affected Versions",
+    }
+    assert versions not in caplog.text
+    assert not rendered
+    assert output.read_text() == "Last valid report"
+    assert fingerprint.read_text() == "Last valid fingerprint"
