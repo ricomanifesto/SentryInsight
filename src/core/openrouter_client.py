@@ -12,7 +12,7 @@ import logging
 import math
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import Any
+from typing import Any, Callable
 
 import httpx
 
@@ -24,6 +24,8 @@ MAX_ATTEMPTS = 3
 MAX_RETRY_DELAY = 30.0
 RETRYABLE_CODES = {408, 429, 500, 502, 503, 504}
 logger = logging.getLogger(__name__)
+# Called as policy(floor, cap) once a retry is allowed; the result is clamped.
+RetryDelayPolicy = Callable[[float, float], float]
 
 
 class OpenRouterError(RuntimeError):
@@ -63,12 +65,14 @@ class OpenRouterClient:
         base_url: str = OPENROUTER_BASE_URL,
         timeout: float = 120.0,
         transport: httpx.AsyncBaseTransport | None = None,
+        retry_delay_policy: RetryDelayPolicy | None = None,
     ) -> None:
         self.api_key = api_key
         self.max_tokens = max_tokens
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.transport = transport
+        self.retry_delay_policy = retry_delay_policy
 
     async def generate(
         self,
@@ -137,6 +141,11 @@ class OpenRouterClient:
                             exc,
                         )
                         raise
+                    if self.retry_delay_policy is not None:
+                        # Never earlier than the required floor, never past the cap.
+                        chosen = self.retry_delay_policy(delay, MAX_RETRY_DELAY)
+                        if math.isfinite(chosen):
+                            delay = min(max(chosen, delay), MAX_RETRY_DELAY)
                     logger.warning(
                         "OpenRouter attempt %d/%d failed: %s; retrying in %.1fs",
                         attempt,
