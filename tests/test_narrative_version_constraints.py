@@ -24,8 +24,8 @@ def scope_for(text):
     "text,target",
     [
         (ASSERTION + TARGET + ".", TARGET),
-        ("“" + ASSERTION + TARGET + ",” Gateway Project says.", TARGET),
-        ('"' + ASSERTION + TARGET + '," Gateway Project said.', TARGET),
+        ("“" + ASSERTION + TARGET + ",” the vendor says.", TARGET),
+        ('"' + ASSERTION + TARGET + '," the project said.', TARGET),
         (
             "An attack vector targets servers running version 3.2 or earlier.",
             "servers running version 3.2 or earlier",
@@ -196,3 +196,43 @@ def test_target_range_eval_adapter_uses_shared_resolution_offline(
     assert result == resolve_version_references(raw, catalog)
     validate_finding_evidence(result, catalog)
     assert analyze.await_count == 1
+
+
+@pytest.mark.parametrize(
+    "attribution",
+    [
+        "Gateway Project never said",
+        "Gateway Project said",
+        "Gateway Server says",
+        "the vendor never said",
+        "the vendor has not said",
+        "the vendor may have said",
+        "the vendor allegedly said",
+        "Gateway Project has not said",
+        "Gateway Project may have said",
+        "Gateway Project allegedly said",
+        "nobody said",
+        "Nobody said",
+        "No Project said",
+        "Neither Project said",
+        "Gateway Project denies having said",
+        "Gateway Project is rumored to have said",
+    ],
+)
+def test_quotation_attribution_must_not_borrow_reporter_words_as_affirmation(
+    attribution,
+):
+    catalog, scope = scope_for("“" + ASSERTION + TARGET + ",” " + attribution + ".")
+    assert scope["state"] == "blocked"
+    with pytest.raises(EvidenceError):
+        resolve_version_references(
+            report(catalog, cves="None", status="unknown"), catalog
+        )
+
+
+@pytest.mark.parametrize("opening,closing", [("“", '"'), ('"', "”")])
+def test_mismatched_quote_boundaries_do_not_establish_attribution(opening, closing):
+    _, scope = scope_for(
+        opening + ASSERTION + TARGET + "," + closing + " the vendor says."
+    )
+    assert scope["state"] == "blocked"

@@ -1281,9 +1281,12 @@ def _affirmative_target_version_constraint(text: str) -> str | None:
     """
     statement = text.strip().removesuffix(".")
     if statement.startswith(('"', "“")):
+        closing = '"' if statement[0] == '"' else "”"
         quote = re.fullmatch(
-            r'[“"](?P<statement>[^“”"]+),[”"] '
-            r"(?:[a-z][a-z0-9'’.-]* ){1,6}(?:says|said)",
+            re.escape(statement[0])
+            + r'(?P<statement>[^“”"]+),'
+            + re.escape(closing)
+            + r" the (?:vendor|project|maintainer|company) (?:says|said)",
             statement,
             re.I,
         )
