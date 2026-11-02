@@ -1270,56 +1270,6 @@ def _version_entries(text: str) -> list[str]:
     return _version_constraints(text, require_affected=True)[0]
 
 
-def _affirmative_target_version_constraint(text: str, source_block: str) -> str | None:
-    """Recognize a complete affirmative target-range statement, not an excerpt.
-
-    The returned value is an exact source substring. Unknown attribution,
-    qualifiers, mixed advice and negative/uncertain statements stay outside
-    this grammar. In particular, a fixed release never supplies a range bound.
-    Collection and unresolved detection share this decision; publication still
-    requires every complete collected constraint.
-    """
-    # A sentence boundary cannot shed a following qualification, denial or
-    # condition from its original paragraph/list item. Missing block metadata
-    # cannot establish completeness either.
-    if not source_block or _plain(source_block) != _plain(text):
-        return None
-    statement = text.strip().removesuffix(".")
-    if statement.startswith(('"', "“")):
-        closing = '"' if statement[0] == '"' else "”"
-        quote = re.fullmatch(
-            re.escape(statement[0])
-            + r'(?P<statement>[^“”"]+),'
-            + re.escape(closing)
-            + r" the (?:vendor|project|maintainer|company) (?:says|said)",
-            statement,
-            re.I,
-        )
-        if not quote:
-            return None
-        statement = quote["statement"]
-    release = r"v?\d+(?:\.\d+){1,4}"
-    month = (
-        r"Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|"
-        r"Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?"
-    )
-    dated_release = rf"{release}(?: \((?:{month}) \d{{1,2}}, \d{{4}}\))?"
-    match = re.fullmatch(
-        r"(?:(?:the|an|our) (?:(?:incident response|security) )?investigation "
-        r"identified an attack vector targeting|an attack vector targets) "
-        r"(?P<target>(?:instances|servers|devices|installations) running versions? "
-        rf"(?:(?:older|earlier) than {dated_release}|{dated_release} or (?:older|earlier)))",
-        statement,
-        re.I,
-    )
-    if not match:
-        return None
-    target = match["target"]
-    if _version_entries(target) != [target]:
-        return None
-    return target
-
-
 def _version_group_members(text: str) -> str:
     """Remove attribution members without inventing or duplicating connectors."""
     parts = _version_list_parts(text, attribution=True)
@@ -1458,17 +1408,6 @@ def collect_affected_version_constraints(
     range_target: list[str] | None = None
     for span in detail_spans:
         line = _version_source_text(span.text) if span.role == "body" else span.text
-        narrative_constraint = (
-            _affirmative_target_version_constraint(line, span.source_block)
-            if span.role == "body"
-            else None
-        )
-        if narrative_constraint:
-            version_lines.append(narrative_constraint)
-            known_version_list = True
-            list_state = "none"
-            range_target = None
-            continue
         if not line and span.role == "body" and extract_cve_ids(span.text):
             continue
         if span.role != "body":

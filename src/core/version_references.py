@@ -16,7 +16,6 @@ from .finding_evidence import (
     FIELD,
     DetailSpan,
     EvidenceError,
-    _affirmative_target_version_constraint,
     _plain,
     _scoped_detail_spans,
     _version_clauses,
@@ -169,13 +168,6 @@ def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | 
     if span.role != "body":
         return None
     text = _version_source_text(span.text)
-    target = _affirmative_target_version_constraint(text, span.source_block)
-    if target:
-        return (
-            None
-            if any(_plain(target) == _plain(value) for value in constraints)
-            else "unresolved_version_assertion"
-        )
     text = CVSS_SCORE.sub("", text)
     # Scaled quantities are not target software versions. Only suppress their
     # shape, never their original clause: affected assertions and collected
