@@ -385,14 +385,11 @@ def test_fixed_releases_and_severity_scores_do_not_become_affected_ranges(detail
     "detail",
     [
         "A botnet of more than 2.4 million devices lost access to its servers.",
-        "When investigators disrupted the Moonbot 3.1 botnet in July 2025, "
-        "the more than 12 million devices involved were uncertified.",
         "A botnet of 12 million devices has 3 command servers.",
         "A botnet of 12 million devices contacted servers on July 6.",
-        "Investigators disrupted the Moonbot 3.1 botnet.",
     ],
 )
-def test_no_cve_quantity_and_botnet_name_do_not_assert_affected_versions(detail):
+def test_no_cve_scaled_quantities_do_not_assert_affected_versions(detail):
     catalog = build_reporting_catalog(
         [source("Attackers are exploiting devices in active attacks.\n\n" + detail)]
     )
@@ -436,6 +433,11 @@ def test_no_cve_quantity_and_botnet_name_do_not_assert_affected_versions(detail)
         "The Moonbot 3.1 botnet targets Gateway editions released in July 2025.",
         "The Moonbot 3.1 botnet targets the Gateway image distributed on July 8, 2025.",
         "The botnet of 1.3 million devices targets Gateway software released in July 2025.",
+        "Android 8.1 botnet infections were confirmed on televisions running that operating system.",
+        "The Gateway firmware shipped with the Moonbot 3.1 botnet in July 2025 is targeted.",
+        "When investigators disrupted the Moonbot 3.1 botnet in July 2025, "
+        "the more than 12 million devices involved were uncertified.",
+        "Investigators disrupted the Moonbot 3.1 botnet.",
     ],
 )
 def test_non_version_numbers_do_not_hide_unresolved_target_versions(detail):

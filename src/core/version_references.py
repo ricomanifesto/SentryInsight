@@ -56,14 +56,6 @@ CVSS_SCORE = re.compile(
 SCALED_QUANTITY = re.compile(
     r"(?<![\w.])\d+(?:\.\d+)?\s+(?:thousand|million|billion|trillion)\b", re.I
 )
-BOTNET_NAME = re.compile(
-    r"\b[A-Z][A-Za-z0-9_-]*\s+\d+(?:\.\d+)+\s+(?i:botnet)\b"
-    # A date can qualify this named entity directly. Dates elsewhere may
-    # identify targeted software and must remain unresolved numeric evidence.
-    r"(?:\s+(?i:in|on)\s+(?i:January|February|March|April|May|June|July|August|"
-    r"September|October|November|December)\s+"
-    r"(?:\d{1,2}(?:st|nd|rd|th)?,?\s+)?(?:19|20)\d{2}\b)?"
-)
 VERSION_LABEL = re.compile(r"\b(?:versions?|releases?|builds?)\b", re.I)
 FIXED_RELEASE = re.compile(
     r"(?:(?:the (?:flaw|issue|vulnerability) )?(?:was|is|has been) )?"
@@ -111,14 +103,14 @@ def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bo
         return False
     text = _version_source_text(span.text)
     text = CVSS_SCORE.sub("", text)
-    # Numeric quantities and explicitly typed botnet names are not target
-    # software versions. Only suppress their shape, never their original
-    # clause: affected assertions and collected constraints still use text.
+    # Scaled quantities are not target software versions. Only suppress their
+    # shape, never their original clause: affected assertions and collected
+    # constraints still use text. Entity names and dates remain unresolved.
     version_shape = bool(
         VERSION_SHAPE.search(text)
         or BARE_MAJOR_RELEASE.fullmatch(text.strip().rstrip("."))
     )
-    shape_text = BOTNET_NAME.sub("", SCALED_QUANTITY.sub("", text))
+    shape_text = SCALED_QUANTITY.sub("", text)
     if version_shape and shape_text != text:
         # Keep dated releases and any unclassified neighboring number. Only
         # original version shapes enter this refinement; ordinary integer
