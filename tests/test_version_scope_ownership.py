@@ -174,6 +174,35 @@ def test_unowned_affected_version_heading_without_digits_cannot_authorize_absenc
     assert_scope_rejected(catalog, scope_for(catalog))
 
 
+@pytest.mark.parametrize(
+    "heading",
+    [
+        "Gateway 7.0 or earlier is affected",
+        "Versions before 7.0",
+        "Gateway 7 is affected",
+    ],
+)
+def test_unowned_version_assertion_heading_blocks_without_supplying_a_fact(heading):
+    catalog = build_reporting_catalog(
+        [source(f"{CVE_A} is described.\n\n{CVE_B} is described.\n\n## {heading}")]
+    )
+    scope = scope_for(catalog)
+    assert scope["constraints"] == []
+    assert scope["unresolved_references"] == []
+    assert_scope_rejected(catalog, scope)
+
+
+@pytest.mark.parametrize("heading", ["Fixed in Gateway 7", "CVSS score: 9.8"])
+def test_unowned_non_affected_heading_keeps_its_existing_role(heading):
+    catalog = build_reporting_catalog(
+        [source(f"{CVE_A} is described.\n\n{CVE_B} is described.\n\n## {heading}")]
+    )
+    scope = scope_for(catalog)
+    assert scope["state"] == "not_stated"
+    assert scope["constraints"] == []
+    assert scope["unresolved_references"] == []
+
+
 @pytest.mark.parametrize("cache_kind", ["empty", "omitted_peer", "omitted_group"])
 def test_detail_context_cache_cannot_reduce_authoritative_catalog_scope(cache_kind):
     catalog = build_reporting_catalog(

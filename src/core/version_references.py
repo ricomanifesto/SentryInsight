@@ -4,7 +4,7 @@ This is an internal generation protocol. Published reports still contain the
 schema-4 evidence state and must pass source-bound grounding validation.
 """
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import hashlib
 import json
 import re
@@ -266,8 +266,6 @@ def _unaccounted_version_evidence(span: DetailSpan) -> bool:
     if cue and cue.kind == "explicit" or "Affected Versions" in span.fields:
         # A required list without entries/digits is still unresolved evidence.
         return True
-    if span.role != "body":
-        return False
     # This probe does not alter the source used by the existing role parser.
     # Identifier digits alone are not software releases.
     probe = CVE_ID_PATTERN.sub("", span.text).strip().rstrip(".")
@@ -280,7 +278,10 @@ def _unaccounted_version_evidence(span: DetailSpan) -> bool:
     )
     if not (VERSION_SHAPE.search(probe) or bare_release or assertion):
         return False
-    return _version_span_reason(span, []) is not None
+    # A heading cannot supply a fact, but its unresolved version assertion must
+    # still prevent absence. Reuse the text classifier only for this rejection
+    # probe; selected spans and their factual roles remain untouched.
+    return _version_span_reason(replace(span, role="body"), []) is not None
 
 
 def _scope(
