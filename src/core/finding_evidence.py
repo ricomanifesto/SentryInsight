@@ -362,8 +362,34 @@ def _logical_source_blocks(content: str) -> list[str]:
     return blocks
 
 
-def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
-    """Retain detail ownership under CVE headings without asserting exploitation."""
+@dataclass(frozen=True)
+class DetailScope:
+    """Keep selected evidence and unresolved ownership without losing position."""
+
+    scoped: tuple[DetailSpan, ...]
+    unaccounted: tuple[DetailSpan, ...]
+
+
+def _complete_foreign_version_assertion(span: DetailSpan, wanted: set[str]) -> bool:
+    """A foreign mention or prefix cannot certify a whole paragraph's owner."""
+    if not span.source_block or _plain(span.source_block) != _plain(span.text):
+        return False
+    assertion = re.fullmatch(
+        rf"(?P<cve>{CVE_ID_PATTERN.pattern}) (?:affects?|impacts?) "
+        r"[a-z][a-z0-9_+/-]* v?\d+(?:[a-z0-9.*+-]*[a-z0-9*+-])?",
+        span.text.strip().removesuffix("."),
+        re.I,
+    )
+    return bool(assertion and not set(extract_cve_ids(assertion["cve"])) & wanted)
+
+
+def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
+    """Retain scope selection plus evidence whose exclusion is not justified.
+
+    Existing selected output stays compatible. Unaccounted evidence never
+    supplies a new fact; it can only prevent certification of a version scope.
+    Both views retain boundaries so excluded material cannot join a new list.
+    """
     content = str(_value(source, "content"))
     source_cves = set(extract_cve_ids(content))
     wanted = set(cves)
@@ -375,6 +401,7 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     sections: list[tuple[int, set[str], tuple[str, ...]]] = []
     # Boundaries prevent version-list context crossing sources or excluded spans.
     result = [DetailSpan("", "boundary")]
+    unaccounted = [DetailSpan("", "boundary")]
     source_blocks = _logical_source_blocks(content)
     previous_block = None
     preceding: list[str] = []
@@ -403,9 +430,11 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             and source_cves <= wanted
         )
         if heading:
-            result.append(
-                DetailSpan(heading[2], "heading")
-                if owned
+            span = DetailSpan(heading[2], "heading")
+            result.append(span if owned else DetailSpan("", "boundary"))
+            unaccounted.append(
+                span
+                if not owned and (not owner or bool(owner & wanted))
                 else DetailSpan("", "boundary")
             )
             continue
@@ -438,18 +467,31 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                     code="ambiguous_recommendation_scope",
                     field="Recommended Actions",
                 )
-            result.append(
-                DetailSpan(
-                    sentence,
-                    "body",
-                    body_fields,
-                    source_block,
-                    version_context,
+            span = DetailSpan(
+                sentence, "body", body_fields, source_block, version_context
+            )
+            result.append(span if selected else DetailSpan("", "boundary"))
+            conflicting_owner = bool(owner and mentioned and not mentioned <= owner)
+            proven_foreign = (
+                bool(owner and not owner & wanted and not conflicting_owner)
+                if owner
+                else bool(
+                    mentioned
+                    and not mentioned & wanted
+                    and _complete_foreign_version_assertion(span, wanted)
                 )
-                if selected
+            )
+            unaccounted.append(
+                span
+                if conflicting_owner or (not selected and not proven_foreign)
                 else DetailSpan("", "boundary")
             )
-    return result
+    return DetailScope(tuple(result), tuple(unaccounted))
+
+
+def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
+    """Compatibility view of source-selected details, without new assertions."""
+    return list(_partition_detail_spans(source, cves).scoped)
 
 
 def build_finding_detail_context(

@@ -10,14 +10,16 @@ import json
 import re
 from typing import Any, Mapping, Sequence
 
-from .cve import extract_cve_ids
+from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .finding_evidence import (
     ABSENT,
     FIELD,
     DetailSpan,
     EvidenceError,
+    VERSION_FINITE_PREDICATE,
+    VERSION_STATE,
+    _partition_detail_spans,
     _plain,
-    _scoped_detail_spans,
     _version_clauses,
     _version_constraints,
     _version_entries,
@@ -256,6 +258,31 @@ def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bo
     return _version_span_reason(span, constraints) is not None
 
 
+def _unaccounted_version_evidence(span: DetailSpan) -> bool:
+    """Recognize pending evidence without assigning it to a product or CVE."""
+    if span.role == "boundary":
+        return False
+    cue = _version_list_cue(span.text)
+    if cue and cue.kind == "explicit" or "Affected Versions" in span.fields:
+        # A required list without entries/digits is still unresolved evidence.
+        return True
+    if span.role != "body":
+        return False
+    # This probe does not alter the source used by the existing role parser.
+    # Identifier digits alone are not software releases.
+    probe = CVE_ID_PATTERN.sub("", span.text).strip().rstrip(".")
+    bare_release = BARE_MAJOR_RELEASE.fullmatch(probe) and not (
+        re.search(VERSION_FINITE_PREDICATE, probe, re.I)
+    )
+    assertion = re.search(r"\b\d+\b", probe) and (
+        re.search(rf"\b(?:{VERSION_STATE})\b", probe, re.I)
+        or TARGET_ASSERTION.search(probe)
+    )
+    if not (VERSION_SHAPE.search(probe) or bare_release or assertion):
+        return False
+    return _version_span_reason(span, []) is not None
+
+
 def _scope(
     catalog: Mapping[str, ReportingSource],
     cves: tuple[str, ...],
@@ -266,10 +293,21 @@ def _scope(
     failures: set[str] = set()
     unresolved: dict[str, UnresolvedVersionReference] = {}
     known_version_list = False
+    pending_context = False
+    pending_version = False
     for key in keys:
         source = catalog[key]
         try:
-            spans = _scoped_detail_spans(source, cves)
+            partition = _partition_detail_spans(source, cves)
+            spans = partition.scoped
+            pending_context |= any(span.text for span in partition.unaccounted)
+            try:
+                pending_version |= any(
+                    _unaccounted_version_evidence(span)
+                    for span in partition.unaccounted
+                )
+            except EvidenceError:
+                pending_version = True
             included, exclusions, known_list = collect_affected_version_constraints(
                 spans
             )
@@ -307,6 +345,8 @@ def _scope(
                     "version_reference_collision", "Version reference collision"
                 )
             constraints[ref] = item
+    if pending_version or pending_context and (constraints or excluded):
+        failures.add("unowned_version_evidence")
     if excluded & {_plain(item.text) for item in constraints.values()}:
         failures.add("contradictory_version_constraints")
     if unresolved and (cves or constraints or excluded or known_version_list):
@@ -325,11 +365,11 @@ def _scopes(
     catalog: Mapping[str, ReportingSource],
     detail_context: Sequence[Mapping[str, Any]] | None = None,
 ) -> list[VersionScope]:
-    context = (
-        detail_context
-        if detail_context is not None
-        else build_finding_detail_context(catalog)
-    )
+    # A precomputed presentation context is not proof of catalog completeness.
+    # Derive all groups and peer source sets from the retained bodies, even when
+    # a caller supplies an empty, partial or stale cache. Keep the optional
+    # parameter for compatibility with existing generation callers.
+    context = build_finding_detail_context(catalog)
     groups: dict[tuple[tuple[str, ...], str], list[str]] = {}
     for item in context:
         cves = tuple(sorted(item["cves"]))
