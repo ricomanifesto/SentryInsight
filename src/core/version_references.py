@@ -169,7 +169,7 @@ def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | 
     if span.role != "body":
         return None
     text = _version_source_text(span.text)
-    target = _affirmative_target_version_constraint(text)
+    target = _affirmative_target_version_constraint(text, span.source_block)
     if target:
         return (
             None

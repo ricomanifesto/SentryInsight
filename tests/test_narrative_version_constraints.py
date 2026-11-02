@@ -236,3 +236,36 @@ def test_mismatched_quote_boundaries_do_not_establish_attribution(opening, closi
         opening + ASSERTION + TARGET + "," + closing + " the vendor says."
     )
     assert scope["state"] == "blocked"
+
+
+@pytest.mark.parametrize(
+    "boundary,qualifier",
+    [
+        (" ", "Only Windows installations are impacted."),
+        (" ", "This applies only when remote administration is enabled."),
+        ("\n", "Only Windows installations are impacted."),
+        ("\n", "This applies only when remote administration is enabled."),
+        (" ", "The previous statement is incorrect."),
+    ],
+)
+def test_source_block_qualifications_cannot_be_lost_after_sentence_split(
+    boundary, qualifier
+):
+    catalog, scope = scope_for(ASSERTION + TARGET + "." + boundary + qualifier)
+    assert scope["state"] == "blocked"
+    assert scope["constraints"] == []
+    with pytest.raises(EvidenceError):
+        resolve_version_references(
+            report(catalog, cves="None", status="unknown"), catalog
+        )
+
+
+def test_missing_original_block_cannot_authorize_a_new_prose_constraint():
+    from src.core.finding_evidence import (
+        DetailSpan,
+        collect_affected_version_constraints,
+    )
+
+    assert collect_affected_version_constraints(
+        [DetailSpan(ASSERTION + TARGET + ".", "body")]
+    ) == ([], [], False)

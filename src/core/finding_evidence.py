@@ -1270,7 +1270,7 @@ def _version_entries(text: str) -> list[str]:
     return _version_constraints(text, require_affected=True)[0]
 
 
-def _affirmative_target_version_constraint(text: str) -> str | None:
+def _affirmative_target_version_constraint(text: str, source_block: str) -> str | None:
     """Recognize a complete affirmative target-range statement, not an excerpt.
 
     The returned value is an exact source substring. Unknown attribution,
@@ -1279,6 +1279,11 @@ def _affirmative_target_version_constraint(text: str) -> str | None:
     Collection and unresolved detection share this decision; publication still
     requires every complete collected constraint.
     """
+    # A sentence boundary cannot shed a following qualification, denial or
+    # condition from its original paragraph/list item. Missing block metadata
+    # cannot establish completeness either.
+    if not source_block or _plain(source_block) != _plain(text):
+        return None
     statement = text.strip().removesuffix(".")
     if statement.startswith(('"', "“")):
         closing = '"' if statement[0] == '"' else "”"
@@ -1454,7 +1459,7 @@ def collect_affected_version_constraints(
     for span in detail_spans:
         line = _version_source_text(span.text) if span.role == "body" else span.text
         narrative_constraint = (
-            _affirmative_target_version_constraint(line)
+            _affirmative_target_version_constraint(line, span.source_block)
             if span.role == "body"
             else None
         )
