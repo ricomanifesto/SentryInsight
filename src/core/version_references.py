@@ -138,53 +138,30 @@ class VersionScope:
         }
 
 
-def _has_narrative_predicate(text: str) -> bool:
-    """Require a predicate outside release qualifiers, never a modal/month token.
+def _is_event_count_narrative(text: str) -> bool:
+    """Recognize one positive narrative form, never infer prose from a stray verb.
 
-    This is only an eligibility check for explicit uncertainty. Original text
-    still owns constraints and parsing failures. Unclassified relative clauses
-    remain blocked: a verb inside "users who are ..." cannot turn a release row
-    into prose. Conservative rejection is preferable to losing a version list.
+    An attributed event followed by a counted-device observation has explicit
+    clause ownership. Every other unclassified form stays blocked. This does
+    not classify the event's numbered entity or claim affected-version absence.
+    Original text still owns all constraints, qualifications and parse errors.
     """
-    pairs = {"(": ")", "[": "]", "{": "}"}
-    closing: list[str] = []
-    outer: list[str] = []
-    for char in text:
-        if char in pairs:
-            closing.append(pairs[char])
-        elif char in pairs.values():
-            if not closing or closing.pop() != char:
-                return False
-            outer.append(" ")
-            continue
-        if not closing:
-            outer.append(char)
-    if closing:
-        return False
-    prose = "".join(outer)
-    # Generic list clauses are not fully segmented by the version parser.
-    # Never borrow a predicate across a structural delimiter or conjunction.
-    if re.search(r"[;:|—–]|\s-\s|\b(?:and|or)\b", prose, re.I):
-        return False
-    if "," in prose:
-        # The supported temporal frame has one opening adjunct and one main
-        # clause. All other comma structures stay unresolved hard failures.
-        parts = prose.split(",")
-        if len(parts) != 2 or not re.match(
-            r"^\s*(?:when|after|before|while|once|since)\b", parts[0], re.I
-        ):
-            return False
-        prose = parts[1]
-    for predicate in re.finditer(
-        r"\b(?:is|are|was|were|has|have|had)\b(?=\s+\S)", prose, re.I
-    ):
-        if not re.search(
-            r"\b(?:who|whose|which|that|where|when|if|unless|because|after|before|while|once|since)\b",
-            prose[: predicate.start()],
+    return bool(
+        re.fullmatch(
+            r"(?:when|after|before|while|once|since)\s+"
+            r"(?:[a-z][a-z'-]*\s+){1,6}"
+            r"(?:reported|disclosed|described|disrupted|investigated|sued|analyzed|"
+            r"examined|observed|identified|detected|tracked|documented|published)\s+"
+            r"[^,;:|—–\n]+,\s*"
+            r"(?:the\s+)?"
+            r"(?:(?:(?:more|less|fewer) than|at least|at most|about|approximately)\s+)?"
+            r"\d+(?:\.\d+)?\s+(?:(?:thousand|million|billion|trillion)\s+)?"
+            r"(?:devices|systems|hosts|machines|servers|endpoints)\s+"
+            r"(?:involved\s+)?(?:were|are)\s+(?:not\s+)?[a-z][a-z-]*[.!?]?",
+            text.strip(),
             re.I,
-        ):
-            return True
-    return False
+        )
+    )
 
 
 def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | None:
@@ -262,7 +239,7 @@ def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | 
             and not TARGET_ASSERTION.search(text)
             and clauses
             and all(
-                clause.kind == "list" and _has_narrative_predicate(clause.text)
+                clause.kind == "list" and _is_event_count_narrative(clause.text)
                 for _, clause in clauses
             )
             and not excluded

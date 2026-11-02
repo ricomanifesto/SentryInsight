@@ -287,6 +287,13 @@ def test_unresolved_state_does_not_bypass_other_evidence_checks(old, new):
         "Gateway 8.1 where administrators are present",
         "Gateway 8.1 when administrators are present",
         "Gateway 8.1 if administrators are present",
+        "Gateway 8.1 as 12 devices were uncertified.",
+        "Gateway 8.1 provided administrators are present",
+        "Gateway 8.1 whenever administrators are present",
+        "Gateway 8.1 wherever administrators are present",
+        "Gateway 8.1 although administrators are present",
+        "Gateway 8.1 so long as administrators are present",
+        "Gateway 8.1 assuming administrators are present",
         "Gateway 8.1, 12 devices were uncertified.",
         "Gateway 8.1 and 12 devices were uncertified.",
         "Gateway 8.1 or 12 devices were uncertified.",
@@ -305,3 +312,40 @@ def test_release_rows_and_qualifiers_cannot_establish_unresolved_prose(content):
     for value in (ABSENT, "unresolved-version-" + "a" * 32):
         with pytest.raises(EvidenceError):
             resolve_version_references(raw_report(catalog, value), catalog)
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "When analysts reported Moonbot 3.1 in May 2025, 12 devices were uncertified.",
+        "After investigators disrupted Moonbot 3.1, the 50 hosts involved were offline.",
+        "While researchers investigated Campaign 4.2, fewer than 50 endpoints were disconnected.",
+    ],
+)
+def test_bounded_event_and_count_narrative_retains_explicit_uncertainty(content):
+    catalog = build_reporting_catalog([source(content)])
+    [scope] = build_version_reference_context(catalog)
+    assert scope["state"] == "unresolved"
+    assert scope["absence_allowed"] is False
+    refs = "; ".join(ref["id"] for ref in scope["unresolved_references"])
+    rendered = resolve_version_references(raw_report(catalog, refs), catalog)
+    validate_finding_evidence(rendered, catalog)
+
+
+@pytest.mark.parametrize(
+    "main_clause",
+    [
+        "Gateway 8.1 provided administrators are present",
+        "Gateway 8.1, 12 devices were uncertified",
+        "12 devices where administrators are present",
+        "12 Gateway 8.1 devices were uncertified",
+        "12 devices were Gateway 8.1",
+        "12 devices were uncertified; Gateway 8.1",
+    ],
+)
+def test_event_frame_cannot_hide_a_release_or_qualifier_in_its_main_clause(main_clause):
+    content = "When analysts reported Moonbot 3.1, " + main_clause + "."
+    catalog = build_reporting_catalog([source(content)])
+    [scope] = build_version_reference_context(catalog)
+    assert scope["blocked"] is True
+    assert scope["unresolved_allowed"] is False
