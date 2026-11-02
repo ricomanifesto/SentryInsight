@@ -1,0 +1,47 @@
+# Deployment-shaped declaration of the Worker's bindings. Local runs use the
+# installed Miniflare API through local/stack.mjs with the same names; nothing
+# here names an account, a route or a remote binding, and this slice is never
+# deployed. The database id is a placeholder.
+name = "report-control-plane"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+[[d1_databases]]
+binding = "PRODUCT_DB"
+database_name = "report-control-plane"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "report-control-plane-artifacts"
+
+[[queues.producers]]
+binding = "ADMISSIONS"
+queue = "report-admissions"
+
+[[queues.consumers]]
+queue = "report-admissions"
+max_batch_size = 5
+max_batch_timeout = 1
+max_retries = 2
+dead_letter_queue = "report-admissions-dead"
+retry_delay = 5
+
+[[queues.consumers]]
+queue = "report-admissions-dead"
+max_batch_size = 5
+max_batch_timeout = 1
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+CALL_TIMEOUT_MS = "10000"
+CLAIM_MARGIN_MS = "5000"
+SEND_BACKOFF_BASE_MS = "5000"
+ENQUEUED_STALE_MS = "120000"
+PUBLICATION_CLAIM_MS = "30000"
+QUEUE_RETRY_DELAY_S = "5"
+ADMISSIONS_QUEUE_NAME = "report-admissions"
+DEAD_LETTER_QUEUE_NAME = "report-admissions-dead"
