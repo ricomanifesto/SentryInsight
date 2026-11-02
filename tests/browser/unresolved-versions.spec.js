@@ -31,10 +31,13 @@ for (const javaScriptEnabled of [true, false]) {
       status: 200, contentType: "text/html", body: rendered,
     }));
     await page.goto("/synthetic-unresolved.html");
+    await expect(page.getByRole("note")).toBeVisible();
     await expect(page.getByRole("note")).toContainText("1 finding has unresolved affected-version evidence");
+    await expect(page.getByText("Affected versions unresolved.", { exact: true })).toBeVisible();
     await expect(page.locator(".finding-reporting")).toContainText("Affected versions unresolved.");
     await expect(page.locator(".finding-reporting")).toContainText("Review the linked reporting");
     await expect(page.locator(".reporting-source")).toHaveAttribute("href", "https://example.test/one");
+    await expect(page.locator(".reporting-source")).toBeVisible();
     await expect(page.locator("#report-content")).toContainText("Unresolved from supplied sources.");
     await expect(page.locator("#report-content")).not.toContainText("Affected Versions Status");
     const metadata = JSON.parse(await page.locator("#report-metadata").textContent());
