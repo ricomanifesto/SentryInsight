@@ -387,6 +387,8 @@ def test_fixed_releases_and_severity_scores_do_not_become_affected_ranges(detail
         "A botnet of more than 2.4 million devices lost access to its servers.",
         "When investigators disrupted the Moonbot 3.1 botnet in July 2025, "
         "the more than 12 million devices involved were uncertified.",
+        "A botnet of 12 million devices has 3 command servers.",
+        "A botnet of 12 million devices contacted servers on July 6.",
     ],
 )
 def test_no_cve_quantity_and_botnet_name_do_not_assert_affected_versions(detail):
@@ -423,6 +425,11 @@ def test_no_cve_quantity_and_botnet_name_do_not_assert_affected_versions(detail)
         "A campaign affecting 2.4 million devices leaves Gateway 7 vulnerable.",
         "A botnet controls 2.4 million devices running Gateway 7.",
         "Users of Moonbot 3.1 botnet are affected.",
+        "The Moonbot 3.1 botnet targets Gateway releases from July 2025.",
+        "The botnet of 1.3 million devices targets Gateway version July 2025.",
+        "The Moonbot 3.1 botnet targets Gateway July 2025.",
+        "The Moonbot 3.1 botnet targets Gateway releases in July 2025.",
+        "The Moonbot 3.1 botnet targets a Gateway build released in July 2025.",
     ],
 )
 def test_non_version_numbers_do_not_hide_unresolved_target_versions(detail):
