@@ -53,6 +53,15 @@ CVSS_SCORE = re.compile(
     r"\s*(?:of\s+|:\s*)?\d+(?:\.\d+)?\b",
     re.I,
 )
+SCALED_QUANTITY = re.compile(
+    r"(?<![\w.])\d+(?:\.\d+)?\s+(?:thousand|million|billion|trillion)\b", re.I
+)
+BOTNET_NAME = re.compile(r"\b[A-Z][A-Za-z0-9_-]*\s+\d+(?:\.\d+)+(?=\s+(?i:botnet)\b)")
+CALENDAR_DATE = re.compile(
+    r"\b(?:January|February|March|April|May|June|July|August|September|October|"
+    r"November|December)\s+(?:\d{1,2}(?:st|nd|rd|th)?,?\s+)?(?:19|20)\d{2}\b",
+    re.I,
+)
 FIXED_RELEASE = re.compile(
     r"(?:(?:the (?:flaw|issue|vulnerability) )?(?:was|is|has been) )?"
     r"(?:fixed|patched|addressed|resolved) in (.+)",
@@ -99,9 +108,20 @@ def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bo
         return False
     text = _version_source_text(span.text)
     text = CVSS_SCORE.sub("", text)
+    # Numeric quantities and explicitly typed botnet names are not target
+    # software versions. Only suppress their shape, never their original
+    # clause: affected assertions and collected constraints still use text.
+    shape_text = BOTNET_NAME.sub("", SCALED_QUANTITY.sub("", text))
+    classified_numbers = shape_text != text
+    if classified_numbers:
+        shape_text = CALENDAR_DATE.sub("", shape_text)
     version_shape = bool(
-        VERSION_SHAPE.search(text)
-        or BARE_MAJOR_RELEASE.fullmatch(text.strip().rstrip("."))
+        VERSION_SHAPE.search(shape_text)
+        or BARE_MAJOR_RELEASE.fullmatch(shape_text.strip().rstrip("."))
+        # Removing a named botnet's decimal must not hide an adjacent bare
+        # product release. Unclassified residual numbers remain unresolved.
+        or classified_numbers
+        and re.search(r"\d", shape_text)
     )
     # Integer-only assertions still need clause classification. For example,
     # "Gateway 7 is vulnerable" cannot establish absence merely because the

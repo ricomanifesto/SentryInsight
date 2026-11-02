@@ -19,12 +19,12 @@ def source(content, suffix="one"):
     }
 
 
-def report(keys, versions=ABSENT, cves=CVE, exceptions=ABSENT):
+def report(keys, versions=ABSENT, cves=CVE, exceptions=ABSENT, status="active"):
     return f"""## Active Exploitation Details
 
 ### Gateway ({cves})
 - **Description**: A service vulnerability.
-- **Exploitation Status**: active
+- **Exploitation Status**: {status}
 - **Action**: monitor
 - **CVE IDs**: {cves}
 - **Reporting**: {', '.join(keys)}
@@ -379,3 +379,80 @@ def test_fixed_releases_and_severity_scores_do_not_become_affected_ranges(detail
     assert resolve(report(catalog), catalog) == report(catalog)
     with pytest.raises(EvidenceError):
         resolve(report(catalog, "Gateway before 2.3"), catalog)
+
+
+@pytest.mark.parametrize(
+    "detail",
+    [
+        "A botnet of more than 2.4 million devices lost access to its servers.",
+        "When investigators disrupted the Moonbot 3.1 botnet in July 2025, "
+        "the more than 12 million devices involved were uncertified.",
+    ],
+)
+def test_no_cve_quantity_and_botnet_name_do_not_assert_affected_versions(detail):
+    catalog = build_reporting_catalog(
+        [source("Attackers are exploiting devices in active attacks.\n\n" + detail)]
+    )
+    scope = contract(catalog, ())
+    assert scope["blocked"] is False
+    assert scope["absence_allowed"] is True
+    assert scope["constraints"] == []
+    candidate = report(catalog, cves="None", status="unknown")
+    assert resolve(candidate, catalog) == candidate
+    validate_finding_evidence(candidate, catalog)
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(report(catalog, cves="None"), catalog)
+    assert caught.value.code == "unsupported_exploitation_status"
+    with pytest.raises(EvidenceError):
+        resolve(
+            report(
+                catalog, versions="Gateway before 3.1", cves="None", status="unknown"
+            ),
+            catalog,
+        )
+
+
+@pytest.mark.parametrize(
+    "detail",
+    [
+        "The Moonbot 3.1 botnet targets Gateway 7.",
+        "The Moonbot 3.1 botnet targets Gateway 7.2.",
+        "The Moonbot 3.1 botnet targets earlier Gateway releases.",
+        "The Moonbot 3.1 botnet targets Gateway v7.",
+        "The Moonbot 3.1 botnet is vulnerable.",
+        "A campaign affecting 2.4 million devices leaves Gateway 7 vulnerable.",
+        "A botnet controls 2.4 million devices running Gateway 7.",
+        "Users of Moonbot 3.1 botnet are affected.",
+    ],
+)
+def test_non_version_numbers_do_not_hide_unresolved_target_versions(detail):
+    catalog = build_reporting_catalog(
+        [source("Attackers are exploiting devices in active attacks.\n\n" + detail)]
+    )
+    assert contract(catalog, ())["blocked"] is True
+    with pytest.raises(EvidenceError) as caught:
+        resolve(report(catalog, cves="None", status="unknown"), catalog)
+    assert caught.value.code == "unresolved_version_evidence"
+
+
+def test_quantity_near_a_known_version_list_does_not_hide_required_constraint():
+    catalog = build_reporting_catalog(
+        [
+            source(
+                "Attackers are exploiting devices in active attacks.\n\n"
+                "A botnet of 2.4 million devices lost its servers.\n\n"
+                "Affected versions: Gateway 7 (Windows only)"
+            )
+        ]
+    )
+    scope = contract(catalog, ())
+    assert scope["blocked"] is False
+    assert scope["absence_allowed"] is False
+    [constraint] = scope["constraints"]
+    assert constraint["text"] == "Gateway 7 (Windows only)"
+    with pytest.raises(EvidenceError):
+        resolve(report(catalog, cves="None", status="unknown"), catalog)
+    rendered = resolve(
+        report(catalog, constraint["id"], cves="None", status="unknown"), catalog
+    )
+    validate_finding_evidence(rendered, catalog)
