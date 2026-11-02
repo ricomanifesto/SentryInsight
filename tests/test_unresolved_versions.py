@@ -264,3 +264,32 @@ def test_unresolved_state_does_not_bypass_other_evidence_checks(old, new):
     rendered = resolve_version_references(raw_report(catalog, ref), catalog)
     with pytest.raises(EvidenceError):
         validate_finding_evidence(rendered.replace(old, new), catalog)
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "Gateway 8.1 (users who are administrators)",
+        "Gateway 8.1; Gateway 8.2 (users who are administrators)",
+        "Gateway 8.1 (May 2025)",
+        "Gateway 8.1 (June 2025)",
+        "Gateway 8.1; Gateway 8.2 (May 2025)",
+        "Gateway 8.1, and older (May 2025)",
+        "Gateway 8.1 May 2025",
+        "Gateway 8.1 June 2025",
+        "Gateway 8.1 [users who are administrators (May 2025)]",
+        "Gateway 8.1 for users who are administrators",
+        "Gateway 8.1 that is installed on televisions",
+        "Gateway 8.1 (users who are administrators]",
+        "Gateway 8.1; devices were uncertified.",
+    ],
+)
+def test_release_rows_and_qualifiers_cannot_establish_unresolved_prose(content):
+    catalog = build_reporting_catalog([source(content)])
+    [scope] = build_version_reference_context(catalog)
+    assert scope["blocked"] is True
+    assert scope["unresolved_allowed"] is False
+    assert scope["absence_allowed"] is False
+    for value in (ABSENT, "unresolved-version-" + "a" * 32):
+        with pytest.raises(EvidenceError):
+            resolve_version_references(raw_report(catalog, value), catalog)

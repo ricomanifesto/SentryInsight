@@ -14,7 +14,6 @@ from .cve import extract_cve_ids
 from .finding_evidence import (
     ABSENT,
     FIELD,
-    VERSION_FINITE_PREDICATE,
     DetailSpan,
     EvidenceError,
     _plain,
@@ -139,6 +138,40 @@ class VersionScope:
         }
 
 
+def _has_narrative_predicate(text: str) -> bool:
+    """Require a predicate outside release qualifiers, never a modal/month token.
+
+    This is only an eligibility check for explicit uncertainty. Original text
+    still owns constraints and parsing failures. Unclassified relative clauses
+    remain blocked: a verb inside "users who are ..." cannot turn a release row
+    into prose. Conservative rejection is preferable to losing a version list.
+    """
+    pairs = {"(": ")", "[": "]", "{": "}"}
+    closing: list[str] = []
+    outer: list[str] = []
+    for char in text:
+        if char in pairs:
+            closing.append(pairs[char])
+        elif char in pairs.values():
+            if not closing or closing.pop() != char:
+                return False
+            outer.append(" ")
+            continue
+        if not closing:
+            outer.append(char)
+    if closing:
+        return False
+    prose = "".join(outer)
+    for predicate in re.finditer(
+        r"\b(?:is|are|was|were|has|have|had)\b(?=\s+\S)", prose, re.I
+    ):
+        if not re.search(
+            r"\b(?:who|whose|which|that)\b", prose[: predicate.start()], re.I
+        ):
+            return True
+    return False
+
+
 def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | None:
     if span.role != "body":
         return None
@@ -212,9 +245,11 @@ def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | 
             and not span.fields
             and not VERSION_LABEL.search(text)
             and not TARGET_ASSERTION.search(text)
-            and re.search(VERSION_FINITE_PREDICATE, text, re.I)
             and clauses
-            and all(clause.kind == "list" for _, clause in clauses)
+            and all(
+                clause.kind == "list" and _has_narrative_predicate(clause.text)
+                for _, clause in clauses
+            )
             and not excluded
         ):
             # This makes no assertion about the number's entity type. It only
