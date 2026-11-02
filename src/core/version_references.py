@@ -162,11 +162,26 @@ def _has_narrative_predicate(text: str) -> bool:
     if closing:
         return False
     prose = "".join(outer)
+    # Generic list clauses are not fully segmented by the version parser.
+    # Never borrow a predicate across a structural delimiter or conjunction.
+    if re.search(r"[;:|—–]|\s-\s|\b(?:and|or)\b", prose, re.I):
+        return False
+    if "," in prose:
+        # The supported temporal frame has one opening adjunct and one main
+        # clause. All other comma structures stay unresolved hard failures.
+        parts = prose.split(",")
+        if len(parts) != 2 or not re.match(
+            r"^\s*(?:when|after|before|while|once|since)\b", parts[0], re.I
+        ):
+            return False
+        prose = parts[1]
     for predicate in re.finditer(
         r"\b(?:is|are|was|were|has|have|had)\b(?=\s+\S)", prose, re.I
     ):
         if not re.search(
-            r"\b(?:who|whose|which|that)\b", prose[: predicate.start()], re.I
+            r"\b(?:who|whose|which|that|where|when|if|unless|because|after|before|while|once|since)\b",
+            prose[: predicate.start()],
+            re.I,
         ):
             return True
     return False

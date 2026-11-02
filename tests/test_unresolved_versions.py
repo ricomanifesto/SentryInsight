@@ -282,6 +282,18 @@ def test_unresolved_state_does_not_bypass_other_evidence_checks(old, new):
         "Gateway 8.1 that is installed on televisions",
         "Gateway 8.1 (users who are administrators]",
         "Gateway 8.1; devices were uncertified.",
+        "Gateway 8.1; 12 devices were uncertified.",
+        "Gateway 8.1; devices were uncertified in July 2025.",
+        "Gateway 8.1 where administrators are present",
+        "Gateway 8.1 when administrators are present",
+        "Gateway 8.1 if administrators are present",
+        "Gateway 8.1, 12 devices were uncertified.",
+        "Gateway 8.1 and 12 devices were uncertified.",
+        "Gateway 8.1 or 12 devices were uncertified.",
+        "Gateway 8.1 | 12 devices were uncertified.",
+        "Gateway 8.1 — 12 devices were uncertified.",
+        "Gateway 8.1: 12 devices were uncertified.",
+        "When investigators disrupted Moonbot 3.1, Gateway 8.1, 12 devices were uncertified.",
     ],
 )
 def test_release_rows_and_qualifiers_cannot_establish_unresolved_prose(content):
