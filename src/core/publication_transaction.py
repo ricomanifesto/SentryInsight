@@ -22,6 +22,7 @@ class JournalEntry(TypedDict):
 
 
 JOURNAL_DIRECTORY = ".sentryinsight-publication"
+COMPLETED_DIRECTORY = ".sentryinsight-publication-complete"
 CORE = {
     "index.md",
     "index.html",
@@ -82,7 +83,9 @@ def _sync_directory(path: Path) -> None:
         os.close(fd)
 
 
-def _atomic_copy(source: Path, destination: Path) -> None:
+def _atomic_copy(
+    source: Path, destination: Path, *, expected_sha256: str | None = None
+) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     fd, name = tempfile.mkstemp(prefix=".sentryinsight-", dir=destination.parent)
     temporary = Path(name)
@@ -92,6 +95,8 @@ def _atomic_copy(source: Path, destination: Path) -> None:
             os.fchmod(output.fileno(), stat.S_IMODE(source.stat().st_mode))
             output.flush()
             os.fsync(output.fileno())
+        if expected_sha256 is not None and _hash(temporary) != expected_sha256:
+            raise PublicationError("invalid_publication_stage")
         os.replace(temporary, destination)
         _sync_directory(destination.parent)
     finally:
@@ -99,13 +104,16 @@ def _atomic_copy(source: Path, destination: Path) -> None:
 
 
 def ensure_no_pending_publication(root: Path) -> None:
-    journal = root / JOURNAL_DIRECTORY
-    if journal.exists() or journal.is_symlink():
-        raise PublicationError("publication_recovery_required")
+    for name in (JOURNAL_DIRECTORY, COMPLETED_DIRECTORY):
+        journal = root / name
+        if journal.exists() or journal.is_symlink():
+            raise PublicationError("publication_recovery_required")
 
 
-def _load_journal(root: Path) -> tuple[Path, list[dict], list[str]]:
-    journal = root / JOURNAL_DIRECTORY
+def _load_journal(
+    root: Path, *, completed: bool = False
+) -> tuple[Path, list[dict], list[str]]:
+    journal = root / (COMPLETED_DIRECTORY if completed else JOURNAL_DIRECTORY)
     path = journal / "journal.json"
     if journal.is_symlink() or path.is_symlink() or not path.is_file():
         raise PublicationError("publication_recovery_required")
@@ -114,8 +122,9 @@ def _load_journal(root: Path) -> tuple[Path, list[dict], list[str]]:
     data = json.loads(path.read_text())
     if (
         not isinstance(data, dict)
-        or set(data) != {"schema_version", "files", "created_directories"}
+        or set(data) != {"schema_version", "files", "created_directories", "target"}
         or data["schema_version"] != 1
+        or data["target"] not in {"prior", "next"}
     ):
         raise PublicationError("publication_recovery_required")
     entries, directories = data["files"], data["created_directories"]
@@ -143,7 +152,7 @@ def _load_journal(root: Path) -> tuple[Path, list[dict], list[str]]:
             "[a-f0-9]{64}", following
         ):
             raise PublicationError("publication_recovery_required")
-        if prior is not None:
+        if prior is not None and not completed:
             backup = _safe_path(journal / "prior", name)
             if (
                 not isinstance(prior, str)
@@ -153,7 +162,8 @@ def _load_journal(root: Path) -> tuple[Path, list[dict], list[str]]:
             ):
                 raise PublicationError("publication_recovery_required")
         current = _hash(destination) if destination.exists() else None
-        if current not in {prior, following, None}:
+        expected = prior if data["target"] == "prior" else following
+        if current not in ({expected} if completed else {prior, following}):
             raise PublicationError("publication_recovery_required")
     if (
         not CORE <= seen
@@ -169,11 +179,47 @@ def _load_journal(root: Path) -> tuple[Path, list[dict], list[str]]:
     return journal, entries, directories
 
 
+def _cleanup_completed(root: Path) -> bool:
+    """Best-effort cleanup after the commit point; retain its manifest until last."""
+    journal = root / COMPLETED_DIRECTORY
+    try:
+        # Sync the commit rename before discarding any backup. If this fails,
+        # the complete manifest and backups remain and the next run is blocked.
+        _sync_directory(root)
+        if (journal / "prior").exists():
+            shutil.rmtree(journal / "prior")
+        if set(path.name for path in journal.iterdir()) != {"journal.json"}:
+            return False
+        payload = (journal / "journal.json").read_bytes()
+        (journal / "journal.json").unlink()
+        try:
+            journal.rmdir()
+        except OSError:
+            (journal / "journal.json").write_bytes(payload)
+            return False
+        # A completed rename may reappear after a crash if removal is not
+        # durable. Its manifest verifies the already committed bytes on recovery.
+        try:
+            _sync_directory(root)
+        except OSError:
+            pass
+        return True
+    except OSError:
+        return False
+
+
 def recover_publication(root: Path) -> None:
-    """Restore a complete prior set; refuse conflicting edits or damaged backups."""
+    """Restore a pending promotion, or finish cleanup of a committed promotion."""
     root = root.resolve()
     try:
-        journal, entries, directories = _load_journal(root)
+        completed = (root / COMPLETED_DIRECTORY).exists()
+        if completed and (root / JOURNAL_DIRECTORY).exists():
+            raise PublicationError("publication_recovery_required")
+        journal, entries, directories = _load_journal(root, completed=completed)
+        if completed:
+            if not _cleanup_completed(root):
+                raise PublicationError("publication_recovery_required")
+            return
         # All paths and bytes are checked before the first restoration.
         for entry in entries:
             destination = _safe_path(root, entry["path"])
@@ -182,18 +228,38 @@ def recover_publication(root: Path) -> None:
                 if destination.parent.exists():
                     _sync_directory(destination.parent)
             else:
-                _atomic_copy(journal / "prior" / entry["path"], destination)
+                _atomic_copy(
+                    journal / "prior" / entry["path"],
+                    destination,
+                    expected_sha256=entry["prior_sha256"],
+                )
         for name in sorted(directories, key=lambda item: item.count("/"), reverse=True):
             directory = root / name
             if directory.exists() and not any(directory.iterdir()):
                 directory.rmdir()
-        shutil.rmtree(journal)
+        # No failure may remove backups before all restoration has completed.
         _sync_directory(root)
+        payload = json.loads((journal / "journal.json").read_text())
+        payload["target"] = "prior"
+        fd, name = tempfile.mkstemp(prefix=".restored-", dir=journal)
+        temporary = Path(name)
+        try:
+            with os.fdopen(fd, "w") as stream:
+                json.dump(payload, stream, sort_keys=True)
+                stream.flush()
+                os.fsync(stream.fileno())
+            temporary.replace(journal / "journal.json")
+        finally:
+            temporary.unlink(missing_ok=True)
+        _sync_directory(journal)
+        journal.rename(root / COMPLETED_DIRECTORY)
+        if not _cleanup_completed(root):
+            raise PublicationError("publication_recovery_required")
     except (OSError, ValueError, TypeError, KeyError):
         raise PublicationError("publication_recovery_required") from None
 
 
-def promote_artifacts(staged: Path, root: Path) -> None:
+def promote_artifacts(staged: Path, root: Path) -> str:
     """Promote a previously validated stage, restoring every touched file on error."""
     if staged.is_symlink() or root.is_symlink():
         raise PublicationError("invalid_publication_stage")
@@ -245,6 +311,7 @@ def promote_artifacts(staged: Path, root: Path) -> None:
             )
         payload = {
             "schema_version": 1,
+            "target": "next",
             "files": entries,
             "created_directories": sorted(directories),
         }
@@ -269,8 +336,7 @@ def promote_artifacts(staged: Path, root: Path) -> None:
             current = _hash(destination) if destination.exists() else None
             if current != entry["prior_sha256"]:
                 raise PublicationError("publication_recovery_required")
-            _atomic_copy(source, destination)
-        shutil.rmtree(journal)
+            _atomic_copy(source, destination, expected_sha256=entry["next_sha256"])
         _sync_directory(root)
     except (OSError, ValueError):
         if not ready:
@@ -281,3 +347,17 @@ def promote_artifacts(staged: Path, root: Path) -> None:
             raise PublicationError("publication_rolled_back") from None
         recover_publication(root)
         raise PublicationError("publication_rolled_back") from None
+
+    # Commit point: all validated files and their directories are durable and
+    # the complete recovery manifest moves atomically to a committed state.
+    # Cleanup cannot turn this complete publication into a misleading failure.
+    try:
+        journal.rename(root / COMPLETED_DIRECTORY)
+    except OSError:
+        recover_publication(root)
+        raise PublicationError("publication_rolled_back") from None
+    return (
+        "publication_complete"
+        if _cleanup_completed(root)
+        else "publication_cleanup_pending"
+    )

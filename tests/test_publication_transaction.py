@@ -1,6 +1,7 @@
 """A partial local copy must not become a partially published report."""
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -52,7 +53,7 @@ def test_any_copy_or_fingerprint_failure_restores_all_prior_bytes(
     original = publication._atomic_copy
     triggered = False
 
-    def fail_once(source, destination):
+    def fail_once(source, destination, **kwargs):
         nonlocal triggered
         if (
             source.is_relative_to(staged)
@@ -61,9 +62,9 @@ def test_any_copy_or_fingerprint_failure_restores_all_prior_bytes(
         ):
             triggered = True
             if after_replace:
-                original(source, destination)
+                original(source, destination, **kwargs)
             raise OSError("synthetic copy failure")
-        original(source, destination)
+        original(source, destination, **kwargs)
 
     monkeypatch.setattr(publication, "_atomic_copy", fail_once)
     with pytest.raises(publication.PublicationError) as caught:
@@ -80,12 +81,12 @@ def test_rollback_failure_keeps_recovery_material_and_blocks_another_generation(
     original = publication._atomic_copy
     calls = 0
 
-    def fail(source, destination):
+    def fail(source, destination, **kwargs):
         nonlocal calls
         calls += 1
         if calls > 1:
             raise OSError("synthetic persistent storage failure")
-        original(source, destination)
+        original(source, destination, **kwargs)
 
     monkeypatch.setattr(publication, "_atomic_copy", fail)
     with pytest.raises(publication.PublicationError) as caught:
@@ -116,7 +117,7 @@ def test_recovery_preserves_intervening_edits_instead_of_overwriting_them(
     monkeypatch.setattr(
         publication,
         "_atomic_copy",
-        lambda *_: (_ for _ in ()).throw(OSError("failure")),
+        lambda *a, **k: (_ for _ in ()).throw(OSError("failure")),
     )
     with pytest.raises(publication.PublicationError):
         publication.promote_artifacts(staged, root)
@@ -161,7 +162,7 @@ def test_recovery_prevalidates_every_entry_before_restoring_any_bytes(
     monkeypatch.setattr(
         publication,
         "_atomic_copy",
-        lambda *_: (_ for _ in ()).throw(OSError("failure")),
+        lambda *a, **k: (_ for _ in ()).throw(OSError("failure")),
     )
     with pytest.raises(publication.PublicationError):
         publication.promote_artifacts(staged, root)
@@ -186,3 +187,133 @@ def test_recovery_prevalidates_every_entry_before_restoring_any_bytes(
         publication.recover_publication(root)
     assert before == {name: (root / name).read_bytes() for name in CORE}
     assert journal.exists()
+
+
+def test_recovery_refuses_intervening_deletion(tmp_path, monkeypatch):
+    staged, root = trees(tmp_path)
+    original = publication._atomic_copy
+    monkeypatch.setattr(
+        publication,
+        "_atomic_copy",
+        lambda *a, **k: (_ for _ in ()).throw(OSError("failure")),
+    )
+    with pytest.raises(publication.PublicationError):
+        publication.promote_artifacts(staged, root)
+    monkeypatch.setattr(publication, "_atomic_copy", original)
+    (root / "index.md").unlink()
+    with pytest.raises(
+        publication.PublicationError, match="publication_recovery_required"
+    ):
+        publication.recover_publication(root)
+    assert not (root / "index.md").exists()
+
+
+def test_copy_checks_staged_bytes_before_replace(tmp_path, monkeypatch):
+    staged, root = trees(tmp_path)
+    original = publication._atomic_copy
+    changed = False
+
+    def mutate(source, destination, **kwargs):
+        nonlocal changed
+        if source == staged / "index.md" and not changed:
+            changed = True
+            source.write_text("changed after validation")
+        original(source, destination, **kwargs)
+
+    monkeypatch.setattr(publication, "_atomic_copy", mutate)
+    with pytest.raises(publication.PublicationError, match="publication_rolled_back"):
+        publication.promote_artifacts(staged, root)
+    assert changed
+    assert_last_good(root)
+
+
+def test_after_commit_cleanup_failure_is_recoverable_without_rollback(
+    tmp_path, monkeypatch
+):
+    staged, root = trees(tmp_path)
+    original = publication.shutil.rmtree
+
+    def fail_cleanup(path, *args, **kwargs):
+        if Path(path).name == "prior":
+            (Path(path) / "index.md").unlink(missing_ok=True)
+            raise OSError("partial cleanup")
+        original(path, *args, **kwargs)
+
+    monkeypatch.setattr(publication.shutil, "rmtree", fail_cleanup)
+    assert publication.promote_artifacts(staged, root) == "publication_cleanup_pending"
+    assert all((root / name).read_text() == "next " + name for name in CORE)
+    with pytest.raises(
+        publication.PublicationError, match="publication_recovery_required"
+    ):
+        publication.ensure_no_pending_publication(root)
+    monkeypatch.setattr(publication.shutil, "rmtree", original)
+    publication.recover_publication(root)
+    publication.ensure_no_pending_publication(root)
+    assert all((root / name).read_text() == "next " + name for name in CORE)
+
+
+def test_directory_sync_after_commit_does_not_invent_unblocked_failure(
+    tmp_path, monkeypatch
+):
+    staged, root = trees(tmp_path)
+    original = publication._sync_directory
+    failed = False
+
+    def fail(path):
+        nonlocal failed
+        if (
+            path == root
+            and not (root / publication.JOURNAL_DIRECTORY).exists()
+            and not failed
+        ):
+            failed = True
+            raise OSError("post-commit directory sync")
+        original(path)
+
+    monkeypatch.setattr(publication, "_sync_directory", fail)
+    outcome = publication.promote_artifacts(staged, root)
+    assert failed
+    assert outcome == "publication_cleanup_pending"
+    assert all((root / name).read_text() == "next " + name for name in CORE)
+    with pytest.raises(publication.PublicationError):
+        publication.ensure_no_pending_publication(root)
+    publication.recover_publication(root)
+    publication.ensure_no_pending_publication(root)
+
+
+def test_partial_cleanup_after_rollback_keeps_a_resumable_restored_manifest(
+    tmp_path, monkeypatch
+):
+    staged, root = trees(tmp_path)
+    original_copy = publication._atomic_copy
+    original_remove = publication.shutil.rmtree
+    failed = False
+
+    def fail_copy(source, destination, **kwargs):
+        nonlocal failed
+        if source == staged / "index.md" and not failed:
+            failed = True
+            raise OSError("copy failure")
+        original_copy(source, destination, **kwargs)
+
+    def fail_remove(path, *args, **kwargs):
+        if Path(path).name in {"prior", publication.JOURNAL_DIRECTORY}:
+            backup = (
+                Path(path) / "index.md"
+                if Path(path).name == "prior"
+                else Path(path) / "prior/index.md"
+            )
+            backup.unlink(missing_ok=True)
+            raise OSError("partial cleanup")
+        original_remove(path, *args, **kwargs)
+
+    monkeypatch.setattr(publication, "_atomic_copy", fail_copy)
+    monkeypatch.setattr(publication.shutil, "rmtree", fail_remove)
+    with pytest.raises(
+        publication.PublicationError, match="publication_recovery_required"
+    ):
+        publication.promote_artifacts(staged, root)
+    assert all((root / name).read_text() == "last good " + name for name in CORE)
+    monkeypatch.setattr(publication.shutil, "rmtree", original_remove)
+    publication.recover_publication(root)
+    assert_last_good(root)
