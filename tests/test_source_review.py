@@ -128,6 +128,10 @@ def test_plan_fingerprint_binds_metadata_even_when_body_is_unchanged(field):
         lambda a: a.update(link="javascript:alert(1)"),
         lambda a: a.update(cves=["CVE-2026-12"]),
         lambda a: a.update(content_kind="unknown"),
+        lambda a: a.update(content=""),
+        lambda a: a.update(content=" \n\t "),
+        lambda a: a.update(content=None),
+        lambda a: a.pop("content"),
     ],
 )
 def test_invalid_input_is_a_whole_plan_failure_not_an_omitted_source(mutate):
@@ -142,6 +146,14 @@ def test_conflicting_duplicate_metadata_fails_instead_of_overwriting_a_source():
     second = {**first, "cves": [A]}
     with pytest.raises(SourceReviewError):
         prepare_source_review([first, second])
+
+
+def test_structured_identifiers_are_normalized_before_fingerprinting():
+    article = source("An advisory.")
+    assert (
+        prepare_source_review([{**article, "cves": [" cve-2026-1234 ", A]}]).packet
+        == prepare_source_review([{**article, "cves": [A]}]).packet
+    )
 
 
 def test_packet_is_immutable_idempotent_and_contains_metadata_only(tmp_path):
@@ -165,6 +177,27 @@ def test_forged_packet_cannot_be_persisted(tmp_path):
     with pytest.raises(SourceReviewError):
         write_review_packet(packet, tmp_path)
     assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("mode", [0o644, 0o666])
+@pytest.mark.parametrize("race", [False, True])
+def test_existing_packet_permissions_are_checked_on_both_creation_paths(
+    tmp_path, monkeypatch, mode, race
+):
+    packet = prepare_source_review([source(AMBIGUOUS)]).packet
+    path = write_review_packet(packet, tmp_path)
+    path.chmod(mode)
+    if race:
+        original = type(path).exists
+        monkeypatch.setattr(
+            type(path),
+            "exists",
+            lambda current: False if current == path else original(current),
+        )
+    with pytest.raises(SourceReviewError, match="review_packet_permissions_invalid"):
+        write_review_packet(packet, tmp_path)
+    assert path.stat().st_mode & 0o777 == mode
+    assert json.loads(path.read_text()) == packet
 
 
 def test_input_order_does_not_change_the_canonical_plan():

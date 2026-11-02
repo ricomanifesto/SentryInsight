@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import tempfile
 from typing import Any, Mapping, Sequence
 
@@ -64,12 +65,13 @@ def _cve_list(values: Any) -> list[str]:
     _require(isinstance(values, (list, tuple)), "invalid_source_metadata")
     _require(
         all(
-            isinstance(value, str) and re.fullmatch(r"CVE-\d{4}-\d{4,}", value)
+            isinstance(value, str)
+            and re.fullmatch(r"CVE-\d{4}-\d{4,}", value.strip(), re.I)
             for value in values
         ),
         "invalid_source_metadata",
     )
-    return sorted(set(values))
+    return sorted({value.strip().upper() for value in values})
 
 
 def _scope_state(state: str, reasons: Sequence[str]) -> str:
@@ -260,6 +262,27 @@ class SourceReviewPlan:
         return {key: self.catalog[key] for key in self.eligible_keys}
 
 
+def review_articles(
+    plan: SourceReviewPlan, *, eligible_only: bool = True
+) -> list[dict[str, Any]]:
+    """Canonical prompt inputs; preserve complete bodies and normalize metadata."""
+    validate_review_packet(plan.packet)
+    metadata = {row["key"]: row["metadata_cves"] for row in plan.packet["sources"]}
+    catalog = plan.eligible_catalog if eligible_only else plan.catalog
+    return [
+        {
+            "title": source.title,
+            "source": source.publisher,
+            "link": source.url,
+            "content": source.content,
+            "content_kind": source.content_kind,
+            "source_links": list(source.links),
+            "cves": metadata[key],
+        }
+        for key, source in catalog.items()
+    ]
+
+
 def plan_reporting_catalog(
     catalog: Mapping[str, ReportingSource], metadata_cves: Mapping[str, Sequence[str]]
 ) -> SourceReviewPlan:
@@ -271,6 +294,7 @@ def plan_reporting_catalog(
     rows = []
     for key, source in ordered.items():
         extra = _cve_list(metadata_cves[key])
+        _require(bool(source.content.strip()), "missing_source_content")
         _require(source.content_kind in {"article", "feed"}, "invalid_source_metadata")
         prompt_text = "\n".join(
             [source.content, source.title, source.url, *source.links, *extra]
@@ -365,6 +389,19 @@ def packet_bytes(packet: dict[str, Any]) -> bytes:
     return (canonical_json(packet) + "\n").encode()
 
 
+def _verify_existing_packet(path: Path, data: bytes) -> None:
+    _require(not path.is_symlink(), "review_packet_path_invalid")
+    descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+    with os.fdopen(descriptor, "rb") as stream:
+        metadata = os.fstat(stream.fileno())
+        _require(stat.S_ISREG(metadata.st_mode), "review_packet_path_invalid")
+        _require(
+            stat.S_IMODE(metadata.st_mode) == 0o600, "review_packet_permissions_invalid"
+        )
+        _require(stream.read(MAX_PACKET_BYTES + 1) == data, "review_packet_conflict")
+        os.fsync(stream.fileno())
+
+
 def write_review_packet(packet: dict[str, Any], directory: Path) -> Path:
     """Durably create an immutable, mode-0600 metadata packet, never overwrite."""
     data = packet_bytes(packet)
@@ -375,7 +412,7 @@ def write_review_packet(packet: dict[str, Any], directory: Path) -> Path:
         directory.mkdir(parents=True, exist_ok=True)
         _require(not path.is_symlink(), "review_packet_path_invalid")
         if path.exists():
-            _require(path.read_bytes() == data, "review_packet_conflict")
+            _verify_existing_packet(path, data)
             return path
         with tempfile.NamedTemporaryFile(
             dir=directory, prefix=".packet-", delete=False
@@ -387,10 +424,7 @@ def write_review_packet(packet: dict[str, Any], directory: Path) -> Path:
         try:
             os.link(temporary, path)
         except FileExistsError:
-            _require(
-                not path.is_symlink() and path.read_bytes() == data,
-                "review_packet_conflict",
-            )
+            _verify_existing_packet(path, data)
         descriptor = os.open(directory, os.O_RDONLY)
         try:
             os.fsync(descriptor)
