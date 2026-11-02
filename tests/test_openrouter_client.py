@@ -56,6 +56,63 @@ def completion():
     )
 
 
+@pytest.mark.parametrize("content", ["private incomplete report", "", None])
+@pytest.mark.parametrize("complete_choice_first", [False, True])
+def test_output_limit_rejects_partial_response_without_retry_or_content_logs(
+    content, complete_choice_first, no_retry_wait, caplog
+):
+    from src.core.analysis_errors import classify_analysis_error
+
+    choices = [{"finish_reason": "length", "message": {"content": content}}]
+    if complete_choice_first:
+        choices.insert(
+            0,
+            {"finish_reason": "stop", "message": {"content": "private full choice"}},
+        )
+    generate, requests = generate_with_responses(
+        [httpx.Response(200, json={"choices": choices})]
+    )
+
+    with pytest.raises(OpenRouterError, match="output token limit") as raised:
+        asyncio.run(generate())
+
+    assert len(requests) == 1
+    no_retry_wait.assert_not_awaited()
+    assert classify_analysis_error(raised.value) == (
+        "model_output_limit_exceeded",
+        {"http_status": 200, "attempts": 1},
+    )
+    diagnostics = "".join(traceback.format_exception(raised.value)) + caplog.text
+    for private_text in (
+        "private incomplete report",
+        "private full choice",
+        "private article contents",
+        "private system prompt",
+        "secret-key",
+    ):
+        assert private_text not in diagnostics
+
+
+def test_natural_stop_returns_the_complete_response():
+    generate, requests = generate_with_responses(
+        [
+            httpx.Response(
+                200,
+                json={
+                    "choices": [
+                        {
+                            "finish_reason": "stop",
+                            "message": {"content": "Complete report"},
+                        }
+                    ]
+                },
+            )
+        ]
+    )
+    assert asyncio.run(generate()) == "Complete report"
+    assert len(requests) == 1
+
+
 @pytest.mark.parametrize(
     "response",
     [

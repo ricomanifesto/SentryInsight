@@ -183,6 +183,32 @@ def test_known_versions_and_exceptions_cannot_be_reported_absent():
             )
 
 
+def test_complete_finding_cannot_borrow_another_cves_version_range():
+    source = article(
+        f"{CVE} is actively exploited in the wild.\n\n"
+        "CVE-2026-5678 affects Example Server 2.3."
+    )
+    catalog = build_reporting_catalog([source])
+    fields = {
+        "Affected Versions": "Not stated in supplied sources.",
+        "Exceptions": "Not stated in supplied sources.",
+        "Vendor Links": "Not stated in supplied sources.",
+        "Recommended Actions": "Not stated in supplied sources.",
+    }
+    complete_report = report(**fields).replace("**Action**: patch", "**Action**: none")
+    validate_finding_evidence(complete_report, catalog)
+
+    # A complete response can still make an unsupported version claim; output
+    # completeness and source grounding are independent requirements.
+    unsupported_report = complete_report.replace(
+        "**Affected Versions**: Not stated in supplied sources.",
+        "**Affected Versions**: Example Server 2.3",
+    )
+    with pytest.raises(EvidenceError) as caught:
+        validate_finding_evidence(unsupported_report, catalog)
+    assert caught.value.code == "affected_version_not_grounded"
+
+
 @pytest.mark.parametrize(
     "content",
     [

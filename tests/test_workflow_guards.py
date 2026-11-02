@@ -78,6 +78,7 @@ def import_workflow_with_stubs(analysis_result=None):
     [
         "OpenRouter response did not include choices (HTTP 200)",
         "OpenRouter provider error: HTTP 200; provider_code=503",
+        "OpenRouter response reached the output token limit (HTTP 200)",
     ],
 )
 def test_real_graph_stops_after_failed_analysis(

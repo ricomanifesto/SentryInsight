@@ -52,6 +52,10 @@ class OpenRouterUnavailable(OpenRouterError):
     """Raised when the OpenRouter API cannot be reached."""
 
 
+class OpenRouterOutputLimitExceeded(OpenRouterError):
+    """Raised when the model stops at its output limit instead of completing."""
+
+
 class OpenRouterClient:
     """Small async client for OpenRouter chat completions."""
 
@@ -214,6 +218,11 @@ class OpenRouterClient:
             )
         try:
             return self._extract_text(payload)
+        except OpenRouterOutputLimitExceeded as exc:
+            raise OpenRouterOutputLimitExceeded(
+                f"{exc} (HTTP {response.status_code})",
+                http_status=response.status_code,
+            ) from None
         except OpenRouterError as exc:
             raise OpenRouterError(
                 f"{exc} (HTTP {response.status_code})",
@@ -226,6 +235,16 @@ class OpenRouterClient:
         if not isinstance(choices, list) or not choices:
             raise OpenRouterError(
                 "OpenRouter response did not include choices", retryable=True
+            )
+
+        # HTTP 200 only confirms transport success. Reject partial output before
+        # reading it, even when another choice contains a complete response.
+        if any(
+            isinstance(choice, dict) and choice.get("finish_reason") == "length"
+            for choice in choices
+        ):
+            raise OpenRouterOutputLimitExceeded(
+                "OpenRouter response reached the output token limit"
             )
 
         text_parts: list[str] = []

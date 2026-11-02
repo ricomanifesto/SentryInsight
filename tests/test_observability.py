@@ -520,6 +520,55 @@ def test_input_budget_failure_records_its_class(capfire, monkeypatch):
     assert_no_content(capfire)
 
 
+def test_output_limit_records_bounded_failure_before_report_validation(
+    capfire, monkeypatch
+):
+    requests = []
+
+    def provider(request):
+        requests.append(request)
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "length",
+                        "message": {"content": MODEL_PROSE},
+                    }
+                ]
+            },
+        )
+
+    client = OpenRouterClient(
+        api_key=CREDENTIAL, transport=httpx.MockTransport(provider)
+    )
+
+    async def analysis(_articles, config):
+        return await analyze.analyze_exploitation([], config, model_client=client)
+
+    monkeypatch.setattr(workflow, "analyze_exploitation", analysis)
+    monkeypatch.delenv("SENTRYINSIGHT_MODEL", raising=False)
+    state = report_state("")
+    state["config"] = {"analysis": {"model": DEFAULT_MODEL}}
+
+    result = asyncio.run(traced_stage("analyze", workflow.analyze_articles)(state))
+
+    assert len(requests) == 1
+    assert result["status"] == "failed"
+    assert MODEL_PROSE not in json.dumps(result)
+    attributes = spans_by_name(capfire)["sentryinsight.analyze"]["attributes"]
+    assert attributes["analysis.error_class"] == "model_output_limit_exceeded"
+    assert attributes["model.http_status"] == 200
+    assert attributes["model.attempts"] == 1
+    assert "model.provider_code" not in attributes
+    assert attributes["failure.codes"] == [
+        "analysis_failed",
+        "model_output_limit_exceeded",
+    ]
+    assert CREDENTIAL not in json.dumps(exported(capfire))
+    assert_no_content(capfire)
+
+
 def test_ci_attributes_require_well_formed_values():
     assert ci_attributes(
         {
