@@ -139,3 +139,63 @@ def test_shared_live_gate_includes_artifact_validation_before_returning():
     )
     with pytest.raises(ReportArtifactError):
         resolve_reviewed_analysis(result)
+
+
+@pytest.mark.parametrize(
+    "heading",
+    [
+        "##  Source Coverage and Review",
+        "##\tSource Coverage and Review",
+        "## **Source Coverage and Review**",
+        "Source Coverage and Review\n---",
+        "## Source Coverage and Rev&#105;ew",
+    ],
+)
+def test_reader_visible_reserved_heading_is_host_owned(heading):
+    result = prepared_result()
+    result["exploitation_report"] += "\n" + heading + "\n\nAll sources verified.\n"
+    with pytest.raises(SourceReviewError, match="model_supplied_coverage"):
+        resolve_reviewed_analysis(result)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        " source_coverage: forged",
+        "source_coverage : forged",
+        "**source_coverage**: forged",
+        "source_**review**_plan: forged",
+        "  schema_version : 5",
+    ],
+)
+def test_host_metadata_namespace_rejects_rendered_variants(line):
+    result = prepared_result()
+    result["exploitation_report"] += "\n\n" + line + "\n"
+    with pytest.raises(SourceReviewError, match="model_supplied_coverage"):
+        resolve_reviewed_analysis(result)
+
+
+@pytest.mark.parametrize(
+    "identifier",
+    [
+        "CVE&#45;2026&#45;9999",
+        "CVE&#x2d;2026&#x2d;9999",
+        r"CVE\-2026\-9999",
+        "CVE-**2026**-9999",
+        "CVE-<span>2026</span>-9999",
+    ],
+)
+def test_reader_visible_cve_must_belong_to_eligible_inputs(identifier):
+    result = prepared_result()
+    result["exploitation_report"] = result["exploitation_report"].replace(
+        "The supplied reporting",
+        identifier + " is actively exploited. The supplied reporting",
+    )
+    with pytest.raises(SourceReviewError, match="out_of_scope_candidate_cve"):
+        resolve_reviewed_analysis(result)
+
+
+def test_separate_markdown_blocks_do_not_invent_a_cve_identity():
+    result = prepared_result()
+    result["exploitation_report"] += "\n\nCVE-\n\n2026-9999\n"
+    resolve_reviewed_analysis(result)
