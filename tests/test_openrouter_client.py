@@ -4,6 +4,7 @@ import traceback
 import unittest
 from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
+from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import httpx
@@ -111,6 +112,44 @@ def test_natural_stop_returns_the_complete_response():
     )
     assert asyncio.run(generate()) == "Complete report"
     assert len(requests) == 1
+
+
+def test_default_analysis_sends_expanded_output_allowance_to_same_model(monkeypatch):
+    from src.core import model_client
+    from test_analyze_guards import import_analyze_with_stubs
+
+    analyze = import_analyze_with_stubs()
+    config = json.loads(
+        (Path(__file__).resolve().parents[1] / "config/config.json").read_text()
+    )
+    requests = []
+
+    def provider(request):
+        requests.append(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {"finish_reason": "stop", "message": {"content": "Complete report"}}
+                ]
+            },
+        )
+
+    def client_with_mock_transport(**kwargs):
+        return OpenRouterClient(transport=httpx.MockTransport(provider), **kwargs)
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+    monkeypatch.delenv("SENTRYINSIGHT_MODEL", raising=False)
+    monkeypatch.setattr(model_client, "OpenRouterClient", client_with_mock_transport)
+    monkeypatch.setattr(analyze, "build_model_client", model_client.build_model_client)
+
+    result = asyncio.run(analyze.analyze_exploitation([], config))
+
+    assert "error" not in result
+    assert result["exploitation_report"] == "Complete report"
+    [request] = requests
+    assert request["max_tokens"] == 32000
+    assert request["model"] == "nvidia/nemotron-3-ultra-550b-a55b:free"
 
 
 @pytest.mark.parametrize(

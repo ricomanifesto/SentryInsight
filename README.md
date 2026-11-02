@@ -67,6 +67,12 @@ provider token count. When changing models, keep this cap plus `max_tokens`
 comfortably below the new model's context limit. Inputs over the cap fail without truncating source
 evidence or replacing the published report.
 
+`analysis.max_tokens` allows up to 32,000 output tokens, including reasoning
+tokens counted by the provider. OpenRouter responses that reach this limit fail
+with `model_output_limit_exceeded` before report validation, without an automatic
+retry or replacing the published report. A complete response must still pass
+source-grounding and report validation before publication.
+
 To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset. Start the server in one terminal:
 
 ```bash
