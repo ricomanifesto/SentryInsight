@@ -1396,6 +1396,102 @@ def _positive_claim(text: str) -> bool:
     return any(statement.status == "active" for statement in _rendered_statements(text))
 
 
+def collect_affected_version_constraints(
+    detail_spans: Sequence[DetailSpan],
+) -> tuple[list[str], list[str], bool]:
+    """Collect complete source constraints using the publication grammar."""
+    # Version lists are easy to lose even when one supported version remains.
+    version_lines = []
+    excluded_version_lines = []
+    list_state: Literal["none", "pending", "active"] = "none"
+    known_version_list = False
+    range_target: list[str] | None = None
+    for span in detail_spans:
+        line = _version_source_text(span.text) if span.role == "body" else span.text
+        if not line and span.role == "body" and extract_cve_ids(span.text):
+            continue
+        if span.role != "body":
+            list_state = "none"
+            range_target = None
+        cue = _version_list_cue(line)
+        if cue and cue.kind == "pending":
+            list_state = "pending"
+            range_target = None
+            continue
+        if list_state == "pending":
+            release_row = bool(re.search(r"\d|\bRTM\b", line, re.I)) and all(
+                clause.kind == "list" for _, clause in _version_clauses(line)
+            )
+            list_state = "active" if release_row else "none"
+            known_version_list = known_version_list or release_row
+        cumulative_list = not cue and _cumulative_version_list(
+            line, span.version_context
+        )
+        if (
+            not cue
+            and re.search(CUMULATIVE_UPDATE_CUE, line, re.I)
+            and not cumulative_list
+            and not (
+                list_state == "active"
+                and all(clause.kind == "list" for _, clause in _version_clauses(line))
+            )
+        ):
+            list_state = "none"
+            range_target = None
+            continue
+        if cue or cumulative_list:
+            known_version_list = True
+            list_state = "active"
+            if span.role == "heading":
+                continue
+            remainder = re.sub(
+                r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
+                "",
+                line[cue.end :] if cue else line,
+                flags=re.I,
+            ).rstrip(". ")
+            included, excluded = _version_constraints(remainder)
+            excluded_version_lines.extend(excluded)
+            version_lines.extend(
+                entry for entry in included if re.search(r"\d|\bRTM\b", entry)
+            )
+            range_target = (
+                excluded_version_lines
+                if excluded and not included
+                else version_lines if included and not excluded else None
+            )
+            continue
+        if list_state == "active":
+            continuation = re.sub(r"^(?:and|or)\s+", "", line, flags=re.I)
+            if VERSION_RANGE_QUALIFIER.match(continuation):
+                if not range_target:
+                    raise EvidenceError(
+                        "ambiguous affected-version range continuation",
+                        code="ambiguous_affected_version_range_continuation",
+                        field="Affected Versions",
+                    )
+                range_target[-1] = (
+                    range_target[-1].rstrip(". ") + " " + line.rstrip(". ")
+                )
+                continue
+            if re.search(r"\d|\bRTM\b", line):
+                included, excluded = _version_constraints(line)
+                # Advice/information can contain a product version before
+                # its wrapped target. End the list at that typed clause.
+                list_state = "active" if included or excluded else "none"
+                version_lines.extend(included)
+                excluded_version_lines.extend(excluded)
+                range_target = (
+                    excluded_version_lines
+                    if excluded and not included
+                    else version_lines if included and not excluded else None
+                )
+            else:
+                list_state = "none"
+                range_target = None
+    return version_lines, excluded_version_lines, known_version_list
+
+
 def _validate_finding(
     finding: re.Match[str],
     catalog: Mapping[str, ReportingSource],
@@ -1511,95 +1607,9 @@ def _validate_finding(
         )
         for name in DETAIL_CUES
     }
-    # Version lists are easy to lose even when one supported version remains.
-    version_lines = []
-    excluded_version_lines = []
-    list_state: Literal["none", "pending", "active"] = "none"
-    known_version_list = False
-    range_target: list[str] | None = None
-    for span in detail_spans:
-        line = _version_source_text(span.text) if span.role == "body" else span.text
-        if not line and span.role == "body" and extract_cve_ids(span.text):
-            continue
-        if span.role != "body":
-            list_state = "none"
-            range_target = None
-        cue = _version_list_cue(line)
-        if cue and cue.kind == "pending":
-            list_state = "pending"
-            range_target = None
-            continue
-        if list_state == "pending":
-            release_row = bool(re.search(r"\d|\bRTM\b", line, re.I)) and all(
-                clause.kind == "list" for _, clause in _version_clauses(line)
-            )
-            list_state = "active" if release_row else "none"
-            known_version_list = known_version_list or release_row
-        cumulative_list = not cue and _cumulative_version_list(
-            line, span.version_context
-        )
-        if (
-            not cue
-            and re.search(CUMULATIVE_UPDATE_CUE, line, re.I)
-            and not cumulative_list
-            and not (
-                list_state == "active"
-                and all(clause.kind == "list" for _, clause in _version_clauses(line))
-            )
-        ):
-            list_state = "none"
-            range_target = None
-            continue
-        if cue or cumulative_list:
-            known_version_list = True
-            list_state = "active"
-            if span.role == "heading":
-                continue
-            remainder = re.sub(
-                r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
-                "",
-                line[cue.end :] if cue else line,
-                flags=re.I,
-            ).rstrip(". ")
-            included, excluded = _version_constraints(remainder)
-            excluded_version_lines.extend(excluded)
-            version_lines.extend(
-                entry for entry in included if re.search(r"\d|\bRTM\b", entry)
-            )
-            range_target = (
-                excluded_version_lines
-                if excluded and not included
-                else version_lines if included and not excluded else None
-            )
-            continue
-        if list_state == "active":
-            continuation = re.sub(r"^(?:and|or)\s+", "", line, flags=re.I)
-            if VERSION_RANGE_QUALIFIER.match(continuation):
-                if not range_target:
-                    raise EvidenceError(
-                        "ambiguous affected-version range continuation",
-                        code="ambiguous_affected_version_range_continuation",
-                        field="Affected Versions",
-                    )
-                range_target[-1] = (
-                    range_target[-1].rstrip(". ") + " " + line.rstrip(". ")
-                )
-                continue
-            if re.search(r"\d|\bRTM\b", line):
-                included, excluded = _version_constraints(line)
-                # Advice/information can contain a product version before
-                # its wrapped target. End the list at that typed clause.
-                list_state = "active" if included or excluded else "none"
-                version_lines.extend(included)
-                excluded_version_lines.extend(excluded)
-                range_target = (
-                    excluded_version_lines
-                    if excluded and not included
-                    else version_lines if included and not excluded else None
-                )
-            else:
-                list_state = "none"
-                range_target = None
+    version_lines, excluded_version_lines, known_version_list = (
+        collect_affected_version_constraints(detail_spans)
+    )
     reported_versions = {
         _plain(entry)
         for entry in _version_entries(fields.get("Affected Versions", ""))

@@ -26,6 +26,7 @@ from .finding_evidence import (
     grounding_failure_diagnostic,
     validate_finding_evidence,
 )
+from .version_references import PROTOCOL_KEY, resolve_analysis_version_references
 from .analysis_errors import ANALYSIS_ERROR_CLASSES
 from .observability import (
     ci_attributes,
@@ -266,6 +267,12 @@ async def generate_report(
         reporting_catalog = deserialize_reporting_catalog(
             analysis_results.get("reporting_sources", [])
         )
+        # Live analysis supplies host-owned protocol metadata. Existing
+        # canonical report callers still pass the same publication validator.
+        if PROTOCOL_KEY in analysis_results:
+            report = resolve_analysis_version_references(
+                {**analysis_results, "exploitation_report": report}
+            )
         validate_finding_evidence(report, reporting_catalog)
         report = resolve_reporting_keys(report, reporting_catalog)
     except (ReportingGroundingError, EvidenceError) as exc:

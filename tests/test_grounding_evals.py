@@ -137,6 +137,8 @@ def test_run_records_source_bytes_and_configuration(tmp_path):
 def test_model_task_sends_only_neutral_sources_and_enforces_call_budget(
     monkeypatch, tmp_path
 ):
+    import json
+    from test_version_references import report
     from evals.grounding.model_task import (
         FreeModelClient,
         ModelTask,
@@ -147,10 +149,22 @@ def test_model_task_sends_only_neutral_sources_and_enforces_call_budget(
     monkeypatch.setenv("OPENROUTER_API_KEY", "fake-test-key")
     monkeypatch.delenv("SENTRYINSIGHT_MODEL", raising=False)
     seen = []
+    selected = []
 
     async def generate(self, **kwargs):
         seen.append(kwargs)
-        return "# Test report"
+        context = json.loads(
+            kwargs["user_prompt"]
+            .split("BEGIN AFFECTED VERSION REFERENCES\n", 1)[1]
+            .split("\nEND AFFECTED VERSION REFERENCES", 1)[0]
+        )
+        scope = context[0]
+        selected.extend(scope["constraints"])
+        versions = (
+            "; ".join(item["id"] for item in selected)
+            or "Not stated in supplied sources."
+        )
+        return report(scope["source_keys"], versions, cves=", ".join(scope["cves"]))
 
     monkeypatch.setattr(FreeModelClient, "generate", generate)
     task = ModelTask(
@@ -160,7 +174,8 @@ def test_model_task_sends_only_neutral_sources_and_enforces_call_budget(
     )
     case = load_cases()[0]
     result = asyncio.run(task(case.task_input("checklist")))
-    assert result == "# Test report"
+    assert "version-" not in result
+    assert all(item["text"] in result for item in selected)
     prompt = seen[0]["user_prompt"]
     assert case.articles[0].content in prompt
     assert case.name not in prompt

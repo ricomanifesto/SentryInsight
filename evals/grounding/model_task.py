@@ -9,6 +9,7 @@ import httpx
 
 from src.core.analyze import analyze_exploitation
 from src.core.opencode_client import ModelSelection
+from src.core.version_references import resolve_analysis_version_references
 
 from .dataset import TaskInput, digest
 
@@ -159,7 +160,7 @@ class ModelTask:
             )
             if result.get("error") or result.get("skipped"):
                 raise ModelRunError("Report generation did not complete")
-            return result["exploitation_report"]
+            return resolve_analysis_version_references(result)
         finally:
             self.receipts.parent.mkdir(parents=True, exist_ok=True)
             with self.receipts.open("a") as stream:
