@@ -56,11 +56,13 @@ CVSS_SCORE = re.compile(
 SCALED_QUANTITY = re.compile(
     r"(?<![\w.])\d+(?:\.\d+)?\s+(?:thousand|million|billion|trillion)\b", re.I
 )
-BOTNET_NAME = re.compile(r"\b[A-Z][A-Za-z0-9_-]*\s+\d+(?:\.\d+)+(?=\s+(?i:botnet)\b)")
-CALENDAR_DATE = re.compile(
-    r"\b(?:in|on)\s+(?:January|February|March|April|May|June|July|August|September|October|"
-    r"November|December)\s+(?:\d{1,2}(?:st|nd|rd|th)?,?\s+)?(?:19|20)\d{2}\b",
-    re.I,
+BOTNET_NAME = re.compile(
+    r"\b[A-Z][A-Za-z0-9_-]*\s+\d+(?:\.\d+)+\s+(?i:botnet)\b"
+    # A date can qualify this named entity directly. Dates elsewhere may
+    # identify targeted software and must remain unresolved numeric evidence.
+    r"(?:\s+(?i:in|on)\s+(?i:January|February|March|April|May|June|July|August|"
+    r"September|October|November|December)\s+"
+    r"(?:\d{1,2}(?:st|nd|rd|th)?,?\s+)?(?:19|20)\d{2}\b)?"
 )
 VERSION_LABEL = re.compile(r"\b(?:versions?|releases?|builds?)\b", re.I)
 FIXED_RELEASE = re.compile(
@@ -118,7 +120,6 @@ def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bo
     )
     shape_text = BOTNET_NAME.sub("", SCALED_QUANTITY.sub("", text))
     if version_shape and shape_text != text:
-        shape_text = CALENDAR_DATE.sub("", shape_text)
         # Keep dated releases and any unclassified neighboring number. Only
         # original version shapes enter this refinement; ordinary integer
         # quantities must retain their existing clause-classification path.
