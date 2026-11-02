@@ -4,6 +4,7 @@
     "analysis": {
         "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
         "max_tokens": 16000,
+        "max_input_tokens": 200000,
         "temperature": 1,
         "analysis_focus": [
             "zero-day vulnerabilities",

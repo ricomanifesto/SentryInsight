@@ -59,6 +59,14 @@ uv run python main.py
 
 The default model is set in `config/config.json`. `SENTRYINSIGHT_MODEL` overrides it for one environment.
 
+`analysis.max_input_tokens` caps the estimated analysis prompt at 200,000 tokens,
+leaving headroom for complete articles and scoped evidence in the default
+[Nemotron 3 Ultra free model's 1,000,000-token context](https://openrouter.ai/nvidia/nemotron-3-ultra-550b-a55b:free).
+The estimate uses `cl100k_base`, so it is an application limit rather than an exact
+provider token count. When changing models, keep this cap plus `max_tokens`
+comfortably below the new model's context limit. Inputs over the cap fail without truncating source
+evidence or replacing the published report.
+
 To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset. Start the server in one terminal:
 
 ```bash

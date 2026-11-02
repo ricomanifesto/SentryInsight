@@ -153,6 +153,40 @@ def test_input_budget_fails_before_model_call_instead_of_truncating(monkeypatch)
     assert "no source text was truncated" in result["error"]
 
 
+def test_default_config_sends_complete_sources_above_legacy_input_cap():
+    import asyncio
+    import json
+    from pathlib import Path
+    from test_analyze_guards import import_analyze_with_stubs
+
+    analyze = import_analyze_with_stubs()
+    config = json.loads(
+        (Path(__file__).resolve().parents[1] / "config/config.json").read_text()
+    )
+    complete_source = (
+        "Source evidence. " * 50025
+        + "Final qualification: exploitation has not been observed."
+    )
+    captured = []
+
+    class CaptureClient:
+        async def generate(self, **kwargs):
+            captured.append(kwargs["user_prompt"])
+            return "# Exploitation Report\n\nTest response."
+
+    result = asyncio.run(
+        analyze.analyze_exploitation(
+            [{"content": complete_source}], config, model_client=CaptureClient()
+        )
+    )
+
+    assert "error" not in result
+    assert result["analyzed_article_count"] == 1
+    assert len(captured) == 1
+    assert len(analyze.tokenizer.encode(captured[0])) > 100000
+    assert complete_source in captured[0]
+
+
 def test_outer_html_list_items_keep_nested_context_and_sibling_boundaries():
     markup = "<article><ul><li>Do not:<ul><li><p>install the update</p></li><li>restart the service</li></ul></li><li>Contact support.</li></ul></article>"
     expected = "Do not: install the update; restart the service\n\nContact support."
