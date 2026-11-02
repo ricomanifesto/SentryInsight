@@ -1,4 +1,5 @@
 import hashlib
+import re
 
 import pytest
 
@@ -35,6 +36,15 @@ def report(keys, versions=ABSENT, cves=CVE, exceptions=ABSENT, status="active"):
 """
 
 
+def with_version_state(candidate, state):
+    return re.sub(
+        r"^(- \*\*Affected Versions\*\*:.*)$",
+        lambda match: match[1] + "\n- **Affected Versions Status**: " + state,
+        candidate,
+        flags=re.MULTILINE,
+    )
+
+
 def contract(catalog, cves=(CVE,)):
     from src.core.version_references import build_version_reference_context
 
@@ -65,7 +75,7 @@ def test_no_range_scope_has_explicit_absence_without_inferred_fixed_versions():
     assert item["absence_allowed"] is True
     assert item["constraints"] == []
     candidate = report(catalog)
-    assert resolve(candidate, catalog) == candidate
+    assert resolve(candidate, catalog) == with_version_state(candidate, "not_stated")
     validate_finding_evidence(candidate, catalog)
 
 
@@ -325,7 +335,9 @@ def test_actor_identifiers_do_not_become_bare_major_version_numbers():
         ]
     )
     assert contract(catalog)["absence_allowed"] is True
-    assert resolve(report(catalog), catalog) == report(catalog)
+    assert resolve(report(catalog), catalog) == with_version_state(
+        report(catalog), "not_stated"
+    )
 
 
 def test_resolved_versions_do_not_bypass_existing_exclusion_checks():
@@ -376,7 +388,9 @@ def test_fixed_releases_and_severity_scores_do_not_become_affected_ranges(detail
     item = contract(catalog)
     assert item["constraints"] == []
     assert item["absence_allowed"] is True
-    assert resolve(report(catalog), catalog) == report(catalog)
+    assert resolve(report(catalog), catalog) == with_version_state(
+        report(catalog), "not_stated"
+    )
     with pytest.raises(EvidenceError):
         resolve(report(catalog, "Gateway before 2.3"), catalog)
 
@@ -398,7 +412,7 @@ def test_no_cve_scaled_quantities_do_not_assert_affected_versions(detail):
     assert scope["absence_allowed"] is True
     assert scope["constraints"] == []
     candidate = report(catalog, cves="None", status="unknown")
-    assert resolve(candidate, catalog) == candidate
+    assert resolve(candidate, catalog) == with_version_state(candidate, "not_stated")
     validate_finding_evidence(candidate, catalog)
     with pytest.raises(EvidenceError) as caught:
         validate_finding_evidence(report(catalog, cves="None"), catalog)
@@ -444,10 +458,15 @@ def test_non_version_numbers_do_not_hide_unresolved_target_versions(detail):
     catalog = build_reporting_catalog(
         [source("Attackers are exploiting devices in active attacks.\n\n" + detail)]
     )
-    assert contract(catalog, ())["blocked"] is True
+    scope = contract(catalog, ())
+    assert scope["state"] in {"blocked", "unresolved"}
+    assert scope["absence_allowed"] is False
     with pytest.raises(EvidenceError) as caught:
         resolve(report(catalog, cves="None", status="unknown"), catalog)
-    assert caught.value.code == "unresolved_version_evidence"
+    assert caught.value.code in {
+        "unresolved_version_evidence",
+        "unsupported_version_absence",
+    }
 
 
 def test_quantity_near_a_known_version_list_does_not_hide_required_constraint():

@@ -33,6 +33,7 @@ from src.core.reporting import (
     build_reporting_catalog,
     resolve_reporting_keys,
 )
+from src.core.version_state import resolved_report_schema
 
 from .dataset import SourceCase, TaskInput, digest
 from .grading import GRADER_METRICS, grade_report
@@ -83,7 +84,7 @@ def gate_result(inputs: TaskInput, report: str) -> dict[str, Any]:
     if issues:
         return {"passed": False, "code": issues[0].code}
     header = (
-        "---\nschema_version: 3\nreport_date: 2026-01-01\n"
+        f"---\nschema_version: {resolved_report_schema(resolved)}\nreport_date: 2026-01-01\n"
         "generated_at: 2026-01-01T00:00:00Z\n"
         "digest_issue_url: https://ricomanifesto.github.io/"
         "SentryDigest/archive/2026-01-01/\n---\n"

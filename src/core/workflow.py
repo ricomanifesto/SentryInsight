@@ -26,6 +26,7 @@ from .finding_evidence import (
     validate_finding_evidence,
 )
 from .version_references import PROTOCOL_KEY, resolve_analysis_version_references
+from .version_state import resolved_report_schema
 from .analysis_errors import ANALYSIS_ERROR_CLASSES
 from .observability import (
     ci_attributes,
@@ -75,6 +76,7 @@ class ExploitationAnalysisState(TypedDict):
     report_validation_errors: NotRequired[list[str]]
     articles_fingerprint: NotRequired[str]
     failure: NotRequired[WorkflowFailure]
+    unresolved_version_count: NotRequired[int]
 
 
 def _record_failure(
@@ -308,7 +310,7 @@ async def generate_report(
     )
     report_source = (
         "---\n"
-        "schema_version: 3\n"
+        f"schema_version: {resolved_report_schema(report)}\n"
         f"report_date: {report_date}\n"
         f"generated_at: {generated_at}\n"
         "digest_issue_url: https://ricomanifesto.github.io/"
@@ -397,6 +399,12 @@ async def generate_report(
         )
 
     state["report_path"] = output_path
+    state["unresolved_version_count"] = artifact.unresolved_version_count
+    if artifact.unresolved_version_count:
+        logger.info(
+            "Report includes %d finding(s) with unresolved affected-version evidence",
+            artifact.unresolved_version_count,
+        )
     return state
 
 

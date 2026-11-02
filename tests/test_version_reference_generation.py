@@ -8,7 +8,7 @@ from src.core.finding_evidence import ABSENT, EvidenceError
 from src.core.reporting import build_reporting_catalog, serialize_reporting_catalog
 from src.core.version_references import PROTOCOL_KEY, PROTOCOL_VERSION
 from test_analyze_guards import import_analyze_with_stubs
-from test_version_references import CVE, contract, report, source
+from test_version_references import CVE, contract, report, source, with_version_state
 from test_workflow_guards import import_workflow_with_stubs
 
 
@@ -126,7 +126,7 @@ def test_reference_failures_preserve_last_good_and_bounded_diagnostics(
     assert "PRIVATE-SYNTHETIC-CONTENT" not in caplog.text
 
 
-@pytest.mark.parametrize("protocol", [False, 2, "1"])
+@pytest.mark.parametrize("protocol", [False, 1, "2", 3])
 def test_invalid_host_protocol_cannot_fall_back_to_free_text(protocol, tmp_path):
     workflow = import_workflow_with_stubs()
     catalog = build_reporting_catalog([source(f"{CVE} is actively exploited.")])
@@ -226,6 +226,7 @@ def test_adapters_prepare_identical_raw_reports_before_resolving(
     expected = split_overlong_executive_summary(
         remove_source_attribution_section(raw)
     ).replace(reference, "Gateway 2.3")
+    expected = with_version_state(expected, "supported")
     assert "## Source Attribution" not in expected
     monkeypatch.setattr(
         model_task, "analyze_exploitation", AsyncMock(return_value=result)

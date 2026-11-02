@@ -30,11 +30,12 @@ from src.core.report_artifact import (
     parse_report_artifact,
     slugify,
 )
+from src.core.version_state import VersionEvidenceStatus
 
 PUBLIC_ROOT = "https://ricomanifesto.github.io/SentryInsight/"
 CVE_TEXT_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
 STRUCTURED_FINDING_FIELD_PATTERN = re.compile(
-    r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Vendor Links)\*\*:",
+    r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Vendor Links|Affected Versions Status)\*\*:",
     re.IGNORECASE,
 )
 BADGE_LABELS = {
@@ -238,6 +239,12 @@ def _finding_heading_html(finding: Finding, claimed_cves: set[str]) -> str:
 
 
 def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> str:
+    version_notice = (
+        '<p class="vendor-guidance"><strong>Affected versions unresolved.</strong> '
+        "Review the linked reporting before inferring an affected version range.</p>"
+        if finding.affected_versions_status == VersionEvidenceStatus.UNRESOLVED
+        else ""
+    )
     vendor = ""
     if finding.vendor_links:
         links = ", ".join(
@@ -250,7 +257,7 @@ def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> s
     elif finding.affected_versions is not None:
         vendor = '<p class="vendor-guidance"><strong>Vendor guidance:</strong> Not stated in supplied sources.</p>'
     if not finding.reporting or not digest_issue_url:
-        return vendor
+        return version_notice + vendor
     items = []
     for reference in finding.reporting:
         label = f"{reference.publisher} — {reference.title}"
@@ -269,6 +276,7 @@ def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> s
         "<strong>Reporting</strong><ul>"
         + "".join(items)
         + "</ul>"
+        + version_notice
         + vendor
         + "</aside>\n"
     )
@@ -406,6 +414,10 @@ def _finding_json(finding: Finding) -> dict[str, object]:
     value["exploitation_status"] = finding.exploitation_status.value
     value["action"] = finding.action.value
     value["cve_ids"] = list(finding.cve_ids)
+    if finding.affected_versions_status is None:
+        value.pop("affected_versions_status")
+    else:
+        value["affected_versions_status"] = finding.affected_versions_status.value
     return value
 
 
@@ -470,6 +482,16 @@ def _render_report_page(
         "digest_issue_url": artifact.digest_issue_url,
         "findings": [_finding_json(finding) for finding in artifact.findings],
     }
+    if artifact.schema_version >= 4:
+        metadata["unresolved_version_count"] = artifact.unresolved_version_count
+    if artifact.unresolved_version_count:
+        count = artifact.unresolved_version_count
+        subject = "1 finding has" if count == 1 else f"{count} findings have"
+        report_html = (
+            f'<p class="vendor-guidance" role="note"><strong>{subject} unresolved affected-version evidence.</strong> '
+            "Review each finding’s linked reporting before inferring version ranges.</p>"
+            + report_html
+        )
     toc = _toc(headings)
     page_title = f"SentryInsight report for {_date_label(artifact.report_date)}"
     identity = {

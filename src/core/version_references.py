@@ -1,7 +1,7 @@
 """Resolve model-selected version references to source-owned constraints.
 
 This is an internal generation protocol. Published reports still contain the
-ordinary schema-3 field and must pass the existing grounding validator.
+schema-4 evidence state and must pass source-bound grounding validation.
 """
 
 from dataclasses import asdict, dataclass
@@ -14,6 +14,7 @@ from .cve import extract_cve_ids
 from .finding_evidence import (
     ABSENT,
     FIELD,
+    VERSION_FINITE_PREDICATE,
     DetailSpan,
     EvidenceError,
     _plain,
@@ -33,14 +34,15 @@ from .reporting import (
     deserialize_reporting_catalog,
 )
 from .report_validation import prepare_generated_report
+from .version_state import STATE_FIELD, UNRESOLVED, VersionEvidenceStatus
 
-PROTOCOL_VERSION = 1
+PROTOCOL_VERSION = 2
 PROTOCOL_KEY = "version_reference_protocol"
 VERSION_FIELD = re.compile(
     r"^(?P<prefix>-[ \t]+\*\*Affected Versions\*\*:[ \t]*)(?P<value>[^\r\n]*)$",
     re.MULTILINE,
 )
-REFERENCE = re.compile(r"version-[0-9a-f]{32}")
+REFERENCE = re.compile(r"(?:unresolved-version|version)-[0-9a-f]{32}")
 VERSION_SHAPE = re.compile(
     r"\b(?:v\d+|\d+(?:\.(?:\d+|x|\*))+(?:[a-z][\w.-]*)?|\d+[ru]\d[\w.-]*|"
     r"(?:CU|SP)\s*\d+|RTM|(?:versions?|releases?|builds?)\s+[^.!?]*\d|"
@@ -57,6 +59,7 @@ SCALED_QUANTITY = re.compile(
     r"(?<![\w.])\d+(?:\.\d+)?\s+(?:thousand|million|billion|trillion)\b", re.I
 )
 VERSION_LABEL = re.compile(r"\b(?:versions?|releases?|builds?)\b", re.I)
+TARGET_ASSERTION = re.compile(r"\b(?:targets?|targeted|targeting)\b", re.I)
 FIXED_RELEASE = re.compile(
     r"(?:(?:the (?:flaw|issue|vulnerability) )?(?:was|is|has been) )?"
     r"(?:fixed|patched|addressed|resolved) in (.+)",
@@ -78,15 +81,47 @@ class VersionConstraint:
 
 
 @dataclass(frozen=True)
+class UnresolvedVersionReference:
+    id: str
+    source_key: str
+    content_sha256: str
+    span_sha256: str
+    reason: str = "unclassified_numeric_prose"
+
+
+@dataclass(frozen=True)
 class VersionScope:
     cves: tuple[str, ...]
     source_keys: tuple[str, ...]
     constraints: tuple[VersionConstraint, ...]
     blocked: bool
+    unresolved_references: tuple[UnresolvedVersionReference, ...] = ()
+    failure_reasons: tuple[str, ...] = ()
 
     @property
     def absence_allowed(self) -> bool:
-        return not self.blocked and not self.constraints
+        return (
+            not self.blocked and not self.constraints and not self.unresolved_references
+        )
+
+    @property
+    def unresolved_allowed(self) -> bool:
+        return (
+            not self.blocked
+            and not self.cves
+            and not self.constraints
+            and bool(self.unresolved_references)
+        )
+
+    @property
+    def state(self) -> str:
+        if self.blocked:
+            return "blocked"
+        if self.unresolved_allowed:
+            return VersionEvidenceStatus.UNRESOLVED.value
+        if self.constraints:
+            return VersionEvidenceStatus.SUPPORTED.value
+        return VersionEvidenceStatus.NOT_STATED.value
 
     def context(self) -> dict[str, Any]:
         return {
@@ -95,12 +130,18 @@ class VersionScope:
             "constraints": [asdict(item) for item in self.constraints],
             "absence_allowed": self.absence_allowed,
             "blocked": self.blocked,
+            "state": self.state,
+            "unresolved_allowed": self.unresolved_allowed,
+            "unresolved_references": [
+                asdict(item) for item in self.unresolved_references
+            ],
+            "failure_reasons": list(self.failure_reasons),
         }
 
 
-def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bool:
+def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | None:
     if span.role != "body":
-        return False
+        return None
     text = _version_source_text(span.text)
     text = CVSS_SCORE.sub("", text)
     # Scaled quantities are not target software versions. Only suppress their
@@ -124,13 +165,13 @@ def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bo
     # "Gateway 7 is vulnerable" cannot establish absence merely because the
     # sentence is neither a dotted version nor a bare release row.
     if not version_shape and not re.search(r"\b\d+\b", text):
-        return False
+        return None
     # A typed recommendation or fixed-release statement supplies no affected
     # range. Other version-bearing prose remains unresolved, never absence.
     fixed = FIXED_RELEASE.fullmatch(text.strip().rstrip("."))
     try:
         if fixed and _version_entries(fixed[1]):
-            return False
+            return None
         cue = _version_list_cue(text)
         remainder = re.sub(
             r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
@@ -147,21 +188,45 @@ def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bo
                 for _, clause in clauses
             )
         ):
-            return False
-        if not version_shape and not any(
-            clause.kind in {"affected", "unaffected", "audience", "exception"}
-            for _, clause in clauses
+            return None
+        if (
+            not version_shape
+            and not TARGET_ASSERTION.search(text)
+            and not any(
+                clause.kind in {"affected", "unaffected", "audience", "exception"}
+                for _, clause in clauses
+            )
         ):
-            return False
+            return None
         included, excluded = _version_constraints(remainder)
         # Every version-bearing span must contribute to a complete collected
         # constraint. A known list elsewhere cannot hide unresolved prose.
-        return not (included or excluded) or any(
+        unresolved = not (included or excluded) or any(
             not any(_plain(part) in _plain(whole) for whole in constraints)
             for part in [*included, *excluded]
         )
+        if not unresolved:
+            return None
+        if (
+            not cue
+            and not span.fields
+            and not VERSION_LABEL.search(text)
+            and not TARGET_ASSERTION.search(text)
+            and re.search(VERSION_FINITE_PREDICATE, text, re.I)
+            and clauses
+            and all(clause.kind == "list" for _, clause in clauses)
+            and not excluded
+        ):
+            # This makes no assertion about the number's entity type. It only
+            # permits an explicit unresolved state under the scope-level gates.
+            return "unclassified_numeric_prose"
+        return "unresolved_version_assertion"
     except EvidenceError:
-        return True
+        return "version_clause_error"
+
+
+def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bool:
+    return _version_span_reason(span, constraints) is not None
 
 
 def _scope(
@@ -171,7 +236,9 @@ def _scope(
 ) -> VersionScope:
     constraints: dict[str, VersionConstraint] = {}
     excluded: set[str] = set()
-    blocked = False
+    failures: set[str] = set()
+    unresolved: dict[str, UnresolvedVersionReference] = {}
+    known_version_list = False
     for key in keys:
         source = catalog[key]
         try:
@@ -180,16 +247,29 @@ def _scope(
                 spans
             )
         except EvidenceError:
-            blocked = True
+            failures.add("version_collection_error")
             continue
         excluded.update(_plain(value) for value in exclusions)
+        known_version_list |= known_list
         if known_list and not included and not exclusions:
-            blocked = True
-        if any(
-            _unresolved_version_span(span, [*included, *exclusions]) for span in spans
-        ):
-            blocked = True
+            failures.add("empty_version_list")
         content_hash = hashlib.sha256(source.content.encode()).hexdigest()
+        for span in spans:
+            reason = _version_span_reason(span, [*included, *exclusions])
+            if reason == "unclassified_numeric_prose":
+                span_hash = hashlib.sha256(span.text.encode()).hexdigest()
+                identity = json.dumps(
+                    [key, content_hash, cves, span_hash, reason], ensure_ascii=True
+                )
+                ref = (
+                    "unresolved-version-"
+                    + hashlib.sha256(identity.encode()).hexdigest()[:32]
+                )
+                unresolved[ref] = UnresolvedVersionReference(
+                    ref, key, content_hash, span_hash
+                )
+            elif reason:
+                failures.add(reason)
         for value in included:
             text = " ".join(value.split())
             identity = json.dumps([key, content_hash, cves, text], ensure_ascii=True)
@@ -201,8 +281,17 @@ def _scope(
                 )
             constraints[ref] = item
     if excluded & {_plain(item.text) for item in constraints.values()}:
-        blocked = True
-    return VersionScope(cves, tuple(keys), tuple(constraints.values()), blocked)
+        failures.add("contradictory_version_constraints")
+    if unresolved and (cves or constraints or excluded or known_version_list):
+        failures.add("unresolved_scope_not_eligible")
+    return VersionScope(
+        cves,
+        tuple(keys),
+        tuple(constraints.values()),
+        bool(failures),
+        tuple(unresolved.values()),
+        tuple(sorted(failures)),
+    )
 
 
 def _scopes(
@@ -231,6 +320,62 @@ def build_version_reference_context(
     return [scope.context() for scope in _scopes(catalog, detail_context)]
 
 
+def _finding_scope(
+    catalog: Mapping[str, ReportingSource],
+    cves: tuple[str, ...],
+    keys: Sequence[str],
+    scopes: Mapping[tuple[str, ...], VersionScope] | None = None,
+) -> VersionScope:
+    if (
+        not keys
+        or len(set(keys)) != len(keys)
+        or any(key not in catalog for key in keys)
+    ):
+        raise _reject(
+            "invalid_version_reference_source", "Invalid version reference source"
+        )
+    if scopes is None:
+        scopes = {scope.cves: scope for scope in _scopes(catalog) if scope.cves}
+    scope = scopes.get(tuple(cves)) if cves else _scope(catalog, (), keys)
+    if (cves and scope and any(key not in scope.source_keys for key in keys)) or (
+        not cves and any(extract_cve_ids(catalog[key].content) for key in keys)
+    ):
+        raise _reject(
+            "invalid_version_reference_source",
+            "Cited source does not match the version evidence scope",
+        )
+    if scope is None or scope.blocked:
+        raise _reject(
+            "unresolved_version_evidence", "Version evidence scope is unresolved"
+        )
+    return scope
+
+
+def validate_resolved_version_status(
+    fields: Mapping[str, str],
+    catalog: Mapping[str, ReportingSource],
+    *,
+    cves: Sequence[str],
+) -> None:
+    """Recompute source eligibility; a canonical status is not trusted metadata."""
+    keys = tuple(key.strip() for key in fields.get("Reporting", "").split(","))
+    scope = _finding_scope(catalog, tuple(sorted(cves)), keys)
+    state = fields.get(STATE_FIELD)
+    value = fields.get("Affected Versions")
+    if state != scope.state or (
+        state == VersionEvidenceStatus.UNRESOLVED
+        and value != UNRESOLVED
+        or state == VersionEvidenceStatus.NOT_STATED
+        and value != ABSENT
+        or state == VersionEvidenceStatus.SUPPORTED
+        and value in {ABSENT, UNRESOLVED}
+    ):
+        raise _reject(
+            "invalid_version_evidence_state",
+            "Version evidence state does not match the source scope",
+        )
+
+
 def resolve_version_references(
     report: str, catalog: Mapping[str, ReportingSource]
 ) -> str:
@@ -256,30 +401,12 @@ def resolve_version_references(
                     "invalid_version_reference_field",
                     "Expected one version reference field",
                 )
-            if (
-                not keys
-                or len(set(keys)) != len(keys)
-                or any(key not in catalog for key in keys)
-            ):
+            if STATE_FIELD in fields:
                 raise _reject(
-                    "invalid_version_reference_source",
-                    "Invalid version reference source",
+                    "invalid_version_reference_field",
+                    "Version evidence status is host-owned",
                 )
-            scope = scopes.get(cves) if cves else _scope(catalog, (), keys)
-            if (
-                cves and scope and any(key not in scope.source_keys for key in keys)
-            ) or (
-                not cves and any(extract_cve_ids(catalog[key].content) for key in keys)
-            ):
-                raise _reject(
-                    "invalid_version_reference_source",
-                    "Cited source does not match the version evidence scope",
-                )
-            if scope is None or scope.blocked:
-                raise _reject(
-                    "unresolved_version_evidence",
-                    "Version evidence scope is unresolved",
-                )
+            scope = _finding_scope(catalog, cves, keys, scopes)
             field = matches[0]
             tail = finding["body"][field.end() :]
             next_field = FIELD.search(tail)
@@ -307,7 +434,14 @@ def resolve_version_references(
                     raise _reject(
                         "duplicate_version_reference", "Duplicate version reference"
                     )
-                available = {item.id: item for item in scope.constraints}
+                available = {
+                    item.id: item
+                    for item in (
+                        scope.unresolved_references
+                        if scope.unresolved_allowed
+                        else scope.constraints
+                    )
+                }
                 if any(
                     ref not in available or available[ref].source_key not in keys
                     for ref in refs
@@ -316,15 +450,25 @@ def resolve_version_references(
                         "unsupported_version_reference",
                         "Version reference does not match cited source and CVE scope",
                     )
-                selected = [available[ref] for ref in refs]
-                if {_plain(item.text) for item in selected} != {
-                    _plain(item.text) for item in scope.constraints
-                }:
-                    raise _reject(
-                        "missing_version_references",
-                        "Version references omit required source constraints",
-                    )
-                rendered = "; ".join(dict.fromkeys(item.text for item in selected))
+                if scope.unresolved_allowed:
+                    if set(refs) != set(available):
+                        raise _reject(
+                            "missing_version_references",
+                            "Unresolved references omit required source evidence",
+                        )
+                    rendered = UNRESOLVED
+                else:
+                    constraints = {item.id: item for item in scope.constraints}
+                    selected = [constraints[ref] for ref in refs]
+                    if {_plain(item.text) for item in selected} != {
+                        _plain(item.text) for item in scope.constraints
+                    }:
+                        raise _reject(
+                            "missing_version_references",
+                            "Version references omit required source constraints",
+                        )
+                    rendered = "; ".join(dict.fromkeys(item.text for item in selected))
+            rendered += f"\n- **{STATE_FIELD}**: {scope.state}"
             start = (
                 section.start("section") + finding.start("body") + field.start("value")
             )

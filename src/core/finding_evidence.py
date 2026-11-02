@@ -16,6 +16,7 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
+from .version_state import ABSENT, STATE_FIELD, VersionEvidenceStatus
 from .reporting import (
     ACTIVE_SECTION_PATTERN,
     FINDING_PATTERN,
@@ -24,7 +25,6 @@ from .reporting import (
     normalize_reporting_url,
 )
 
-ABSENT = "Not stated in supplied sources."
 DETAIL_FIELDS = (
     "Affected Versions",
     "Exceptions",
@@ -1610,9 +1610,21 @@ def _validate_finding(
     version_lines, excluded_version_lines, known_version_list = (
         collect_affected_version_constraints(detail_spans)
     )
+    unresolved_versions = False
+    if STATE_FIELD in fields:
+        # Import at call time: the source-scope resolver uses the pure parsing
+        # helpers in this module, but never calls this publication validator.
+        from .version_references import validate_resolved_version_status
+
+        validate_resolved_version_status(fields, catalog, cves=cves)
+        unresolved_versions = fields[STATE_FIELD] == VersionEvidenceStatus.UNRESOLVED
     reported_versions = {
         _plain(entry)
-        for entry in _version_entries(fields.get("Affected Versions", ""))
+        for entry in (
+            []
+            if unresolved_versions
+            else _version_entries(fields.get("Affected Versions", ""))
+        )
         if fields.get("Affected Versions") != ABSENT
     }
     if any(_plain(line) not in reported_versions for line in version_lines):
@@ -1647,6 +1659,10 @@ def _validate_finding(
         )
     for name in DETAIL_FIELDS:
         value = fields.get(name, "")
+        if name == "Affected Versions" and unresolved_versions:
+            # The state gate recomputed an eligible source-bound unresolved
+            # scope. Other fields, exclusions and exploitation checks still run.
+            continue
         if not value:
             raise EvidenceError(
                 f"{title}: missing {name}; use {ABSENT!r} when absent",

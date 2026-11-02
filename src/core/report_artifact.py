@@ -11,6 +11,8 @@ from typing import TypeVar
 from markdown_it import MarkdownIt
 
 from .heading_identity import normalize_heading_identity
+from .cve import extract_cve_ids
+from .version_state import ABSENT, STATE_FIELD, UNRESOLVED, VersionEvidenceStatus
 from .reporting import (
     ReportingGroundingError,
     normalize_reporting_url,
@@ -21,7 +23,7 @@ CVE_ID_PATTERN = re.compile(r"^CVE-\d{4}-\d{4,}$", re.IGNORECASE)
 PARTIAL_CVE_PATTERN = re.compile(r"\bCVE-\d{4}-\d{0,3}(?!\d)", re.IGNORECASE)
 HEADING_PATTERN = re.compile(r"^###\s+(.+?)\s*$", re.MULTILINE)
 FIELD_PATTERN = re.compile(
-    r"^-[ \t]+\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Affected Versions|Exceptions|Recommended Actions|Vendor Links)\*\*:[ \t]*(.*?)[ \t]*$",
+    r"^-[ \t]+\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Affected Versions|Affected Versions Status|Exceptions|Recommended Actions|Vendor Links)\*\*:[ \t]*(.*?)[ \t]*$",
     re.MULTILINE,
 )
 DIGEST_ARCHIVE_ROOT = "https://ricomanifesto.github.io/SentryDigest/archive/"
@@ -79,6 +81,7 @@ class Finding:
     exceptions: str | None = None
     recommended_actions: str | None = None
     vendor_links: tuple[str, ...] = ()
+    affected_versions_status: VersionEvidenceStatus | None = None
 
 
 @dataclass(frozen=True)
@@ -90,6 +93,13 @@ class ReportArtifact:
     source: str
     findings: tuple[Finding, ...]
     digest_issue_url: str | None = None
+
+    @property
+    def unresolved_version_count(self) -> int:
+        return sum(
+            finding.affected_versions_status == VersionEvidenceStatus.UNRESOLVED
+            for finding in self.findings
+        )
 
 
 def slugify(value: str) -> str:
@@ -244,7 +254,11 @@ def _active_exploitation_section(body: str) -> str:
 
 
 def _parse_findings(
-    body: str, *, require_reporting: bool, require_details: bool = False
+    body: str,
+    *,
+    require_reporting: bool,
+    require_details: bool = False,
+    require_version_status: bool = False,
 ) -> tuple[Finding, ...]:
     section = _active_exploitation_section(body)
     matches = list(HEADING_PATTERN.finditer(section))
@@ -295,6 +309,28 @@ def _parse_findings(
             except ReportingGroundingError as exc:
                 raise ReportArtifactError(str(exc)) from exc
 
+        cve_ids = _parse_cves(fields["CVE IDs"]) if "CVE IDs" in fields else ()
+        version_status = None
+        if require_version_status:
+            version_status = _parse_enum(
+                VersionEvidenceStatus, STATE_FIELD, fields.get(STATE_FIELD, "")
+            )
+            value = fields.get("Affected Versions")
+            if (
+                version_status == VersionEvidenceStatus.UNRESOLVED
+                and (value != UNRESOLVED or cve_ids or extract_cve_ids(title))
+                or version_status == VersionEvidenceStatus.NOT_STATED
+                and value != ABSENT
+                or version_status == VersionEvidenceStatus.SUPPORTED
+                and value in {ABSENT, UNRESOLVED}
+            ):
+                raise ReportArtifactError(
+                    f"{title}: inconsistent affected-version evidence state"
+                )
+        elif STATE_FIELD in fields:
+            raise ReportArtifactError(
+                "Affected Versions Status requires schema_version 4"
+            )
         slug = slugify(title)
         if slug in seen_slugs:
             raise ReportArtifactError(f"Duplicate finding slug: {slug}")
@@ -312,10 +348,11 @@ def _parse_findings(
                 ),
                 action=_parse_enum(Action, "Action", fields["Action"]),
                 affected_versions=fields.get("Affected Versions"),
+                affected_versions_status=version_status,
                 exceptions=fields.get("Exceptions"),
                 recommended_actions=fields.get("Recommended Actions"),
                 vendor_links=vendor_links,
-                cve_ids=_parse_cves(fields["CVE IDs"]) if "CVE IDs" in fields else (),
+                cve_ids=cve_ids,
                 reporting=(
                     _parse_reporting(fields["Reporting"])
                     if "Reporting" in fields
@@ -335,7 +372,7 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         schema_version = int(_required_metadata(metadata, "schema_version"))
     except ValueError as exc:
         raise ReportArtifactError("schema_version must be an integer") from exc
-    if schema_version not in {1, 2, 3}:
+    if schema_version not in {1, 2, 3, 4}:
         raise ReportArtifactError(f"Unsupported schema_version: {schema_version}")
 
     try:
@@ -353,7 +390,10 @@ def parse_report_artifact(source: str) -> ReportArtifact:
                 f"{expected_digest_url}"
             )
     findings = _parse_findings(
-        body, require_reporting=schema_version >= 2, require_details=schema_version >= 3
+        body,
+        require_reporting=schema_version >= 2,
+        require_details=schema_version >= 3,
+        require_version_status=schema_version >= 4,
     )
     if partial_cve := PARTIAL_CVE_PATTERN.search(body):
         raise ReportArtifactError(
