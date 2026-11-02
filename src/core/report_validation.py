@@ -876,6 +876,19 @@ def has_single_overlong_executive_summary(markdown: str) -> bool:
     return len(paragraph) >= 500 or sentence_count >= 4
 
 
+class ReportPreparationError(ValueError):
+    """A raw report failed policy before any normalization could erase it."""
+
+
+def prepare_generated_report(markdown: str) -> str:
+    """Apply the same policy and normalization order in production and evaluation."""
+    if contains_virtual_event_tag(markdown):
+        raise ReportPreparationError(
+            "Report contains a blocked [Virtual Event] promotion."
+        )
+    return split_overlong_executive_summary(remove_source_attribution_section(markdown))
+
+
 def split_overlong_executive_summary(markdown: str) -> str:
     """Split one overlong summary paragraph without changing its words."""
     if not has_single_overlong_executive_summary(markdown):

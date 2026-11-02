@@ -32,6 +32,7 @@ from .reporting import (
     ReportingSource,
     deserialize_reporting_catalog,
 )
+from .report_validation import prepare_generated_report
 
 PROTOCOL_VERSION = 1
 PROTOCOL_KEY = "version_reference_protocol"
@@ -98,9 +99,14 @@ def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bo
         return False
     text = _version_source_text(span.text)
     text = CVSS_SCORE.sub("", text)
-    if not VERSION_SHAPE.search(text) and not BARE_MAJOR_RELEASE.fullmatch(
-        text.strip().rstrip(".")
-    ):
+    version_shape = bool(
+        VERSION_SHAPE.search(text)
+        or BARE_MAJOR_RELEASE.fullmatch(text.strip().rstrip("."))
+    )
+    # Integer-only assertions still need clause classification. For example,
+    # "Gateway 7 is vulnerable" cannot establish absence merely because the
+    # sentence is neither a dotted version nor a bare release row.
+    if not version_shape and not re.search(r"\b\d+\b", text):
         return False
     # A typed recommendation or fixed-release statement supplies no affected
     # range. Other version-bearing prose remains unresolved, never absence.
@@ -123,6 +129,11 @@ def _unresolved_version_span(span: DetailSpan, constraints: Sequence[str]) -> bo
                 clause.kind in {"recommendation", "information"}
                 for _, clause in clauses
             )
+        ):
+            return False
+        if not version_shape and not any(
+            clause.kind in {"affected", "unaffected", "audience", "exception"}
+            for _, clause in clauses
         ):
             return False
         included, excluded = _version_constraints(remainder)
@@ -321,6 +332,7 @@ def resolve_version_references(
 
 def resolve_analysis_version_references(result: Mapping[str, Any]) -> str:
     """Shared production/evaluation adapter; protocol is host-owned metadata."""
+    report = prepare_generated_report(result["exploitation_report"])
     if (
         type(result.get(PROTOCOL_KEY)) is not int
         or result[PROTOCOL_KEY] != PROTOCOL_VERSION
@@ -329,4 +341,4 @@ def resolve_analysis_version_references(result: Mapping[str, Any]) -> str:
             "invalid_version_reference_protocol", "Missing version reference protocol"
         )
     catalog = deserialize_reporting_catalog(result.get("reporting_sources", []))
-    return resolve_version_references(result["exploitation_report"], catalog)
+    return resolve_version_references(report, catalog)

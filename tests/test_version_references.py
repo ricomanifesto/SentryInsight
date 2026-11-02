@@ -269,6 +269,65 @@ def test_unresolved_range_forms_never_authorize_absence(detail):
         resolve(report(catalog), catalog)
 
 
+@pytest.mark.parametrize("known_list", [False, True])
+@pytest.mark.parametrize(
+    "assertion",
+    [
+        "Gateway 7 is vulnerable.",
+        "Gateway 7 is affected.",
+        "Gateway 7 remains impacted.",
+        "Users of Gateway 7 are affected.",
+    ],
+)
+def test_bare_major_assertions_block_absence_and_incomplete_lists(
+    known_list, assertion
+):
+    prefix = (
+        "Affected versions: Gateway 2.3\n\nA separate observation follows.\n\n"
+        if known_list
+        else ""
+    )
+    catalog = build_reporting_catalog(
+        [source(f"{CVE} is actively exploited.\n\n{prefix}{assertion}")]
+    )
+    scope = contract(catalog)
+    assert scope["blocked"] is True
+    assert scope["absence_allowed"] is False
+    value = "; ".join(item["id"] for item in scope["constraints"]) or ABSENT
+    with pytest.raises(EvidenceError) as caught:
+        resolve(report(catalog, value), catalog)
+    assert caught.value.code == "unresolved_version_evidence"
+
+
+def test_explicit_bare_major_list_retains_its_complete_constraint():
+    catalog = build_reporting_catalog(
+        [
+            source(
+                f"{CVE} is actively exploited.\n\nAffected versions: Gateway 7 (Windows only)"
+            )
+        ]
+    )
+    scope = contract(catalog)
+    assert scope["blocked"] is False
+    [constraint] = scope["constraints"]
+    assert constraint["text"] == "Gateway 7 (Windows only)"
+    rendered = resolve(report(catalog, constraint["id"]), catalog)
+    validate_finding_evidence(rendered, catalog)
+
+
+def test_actor_identifiers_do_not_become_bare_major_version_numbers():
+    catalog = build_reporting_catalog(
+        [
+            source(
+                f"{CVE} is actively exploited.\n\n"
+                "The activity targeting vulnerable devices is tracked as UTA0576."
+            )
+        ]
+    )
+    assert contract(catalog)["absence_allowed"] is True
+    assert resolve(report(catalog), catalog) == report(catalog)
+
+
 def test_resolved_versions_do_not_bypass_existing_exclusion_checks():
     catalog = build_reporting_catalog(
         [
@@ -302,7 +361,13 @@ def test_wrapped_claim_and_duplicate_fields_cannot_hide_behind_a_reference():
 
 @pytest.mark.parametrize(
     "detail",
-    ["Fixed in Gateway 2.3.", "CVSS score: 9.8.", "The flaw has a CVSS score of 9.8."],
+    [
+        "Fixed in Gateway 2.3.",
+        "Fixed in Gateway 7.",
+        "CVSS score: 9.8.",
+        "CVSS score: 7.",
+        "The flaw has a CVSS score of 9.8.",
+    ],
 )
 def test_fixed_releases_and_severity_scores_do_not_become_affected_ranges(detail):
     catalog = build_reporting_catalog(

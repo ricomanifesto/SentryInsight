@@ -188,3 +188,95 @@ def test_eval_adapter_uses_the_same_reference_resolution_offline(
     assert task.requests == 1
     receipt = (tmp_path / "synthetic-receipts.jsonl").read_text()
     assert reference not in receipt and "Gateway before 9.0" not in receipt
+
+
+@pytest.mark.parametrize("outcome", ["success", "protocol", "promotion"])
+def test_adapters_prepare_identical_raw_reports_before_resolving(
+    monkeypatch, tmp_path, outcome
+):
+    from evals.grounding import model_task
+    from evals.grounding.dataset import Article, TaskInput
+    from src.core.finding_evidence import validate_finding_evidence
+    from src.core.report_validation import (
+        ReportPreparationError,
+        remove_source_attribution_section,
+        split_overlong_executive_summary,
+    )
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "synthetic-unused-key")
+    monkeypatch.delenv("SENTRYINSIGHT_MODEL", raising=False)
+    article = source(f"{CVE} is actively exploited.\n\nAffected versions: Gateway 2.3")
+    catalog = build_reporting_catalog([article])
+    reference = contract(catalog)["constraints"][0]["id"]
+    summary = " ".join(
+        ["Defenders should review the available source evidence carefully."] * 8
+    )
+    raw = f"# Exploitation Report\n\n## Executive Summary\n\n{summary}\n\n" + report(
+        catalog, reference
+    )
+    raw += f"\n## Source Attribution\n\nSelected reference: {reference}\n"
+    if outcome == "promotion":
+        raw += "[Virtual Event] A promotion must remain blocked before removal.\n"
+    elif outcome == "protocol":
+        raw = raw.replace(
+            f"**Affected Versions**: {reference}",
+            "**Affected Versions**: Gateway before 9.0",
+        )
+    result = {**analysis(catalog, reference), "exploitation_report": raw}
+    expected = split_overlong_executive_summary(
+        remove_source_attribution_section(raw)
+    ).replace(reference, "Gateway 2.3")
+    assert "## Source Attribution" not in expected
+    monkeypatch.setattr(
+        model_task, "analyze_exploitation", AsyncMock(return_value=result)
+    )
+    task = model_task.ModelTask(
+        model="openrouter/example/model:free",
+        receipts=tmp_path / "synthetic-receipts.jsonl",
+        max_requests=1,
+    )
+    inputs = TaskInput(
+        name="synthetic-preparation",
+        articles=[Article(**article, source_links=[])],
+        variant="baseline",
+    )
+
+    workflow = import_workflow_with_stubs()
+    seen = []
+
+    class ReachedGrounding(Exception):
+        pass
+
+    def inspect(candidate, sources):
+        validate_finding_evidence(candidate, sources)
+        seen.append(candidate)
+        raise ReachedGrounding
+
+    monkeypatch.setattr(workflow, "validate_finding_evidence", inspect)
+    output = tmp_path / "index.md"
+    output.write_text("last good")
+    state = {
+        "analysis_results": result,
+        "config": {"output_path": str(output)},
+        "status": "started",
+    }
+    if outcome == "promotion":
+        production = asyncio.run(workflow.generate_report(state))
+        assert production["failure"]["codes"] == ["virtual_event_promotion"]
+        with pytest.raises(ReportPreparationError, match=r"blocked \[Virtual Event\]"):
+            asyncio.run(task(inputs))
+        assert seen == []
+    elif outcome == "protocol":
+        production = asyncio.run(workflow.generate_report(state))
+        assert production["failure"]["codes"] == ["invalid_version_reference"]
+        with pytest.raises(EvidenceError) as caught:
+            asyncio.run(task(inputs))
+        assert caught.value.code == "invalid_version_reference"
+        assert seen == []
+    else:
+        with pytest.raises(ReachedGrounding):
+            asyncio.run(workflow.generate_report(state))
+        evaluation = asyncio.run(task(inputs))
+        assert seen == [evaluation] == [expected]
+    assert output.read_text() == "last good"
+    assert task.requests == 1

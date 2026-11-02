@@ -17,8 +17,7 @@ from .article_policy import (
 )
 from .report_validation import (
     format_report_validation_issues,
-    remove_source_attribution_section,
-    split_overlong_executive_summary,
+    prepare_generated_report,
     validate_report_content,
 )
 from .finding_evidence import (
@@ -255,13 +254,7 @@ async def generate_report(
 
     # Since the exploitation_report already contains the full formatted report,
     # we should use it directly instead of the template
-    report = remove_source_attribution_section(exploitation_report)
-    normalized_report = split_overlong_executive_summary(report)
-    if normalized_report != report:
-        logger.info(
-            "Split an overlong Executive Summary at a sentence boundary before validation"
-        )
-    report = normalized_report
+    report = exploitation_report
     reporting_catalog = {}
     try:
         reporting_catalog = deserialize_reporting_catalog(
@@ -270,9 +263,9 @@ async def generate_report(
         # Live analysis supplies host-owned protocol metadata. Existing
         # canonical report callers still pass the same publication validator.
         if PROTOCOL_KEY in analysis_results:
-            report = resolve_analysis_version_references(
-                {**analysis_results, "exploitation_report": report}
-            )
+            report = resolve_analysis_version_references(analysis_results)
+        else:
+            report = prepare_generated_report(report)
         validate_finding_evidence(report, reporting_catalog)
         report = resolve_reporting_keys(report, reporting_catalog)
     except (ReportingGroundingError, EvidenceError) as exc:
