@@ -6,17 +6,24 @@ import re
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from markdown_it import MarkdownIt
 
 from .heading_identity import normalize_heading_identity
 from .cve import extract_cve_ids
 from .version_state import ABSENT, STATE_FIELD, UNRESOLVED, VersionEvidenceStatus
+from .source_coverage import (
+    COVERAGE_HEADING,
+    parse_source_coverage,
+    split_source_coverage,
+)
+from .source_review import SourceReviewError
 from .reporting import (
     ReportingGroundingError,
     normalize_reporting_url,
     reporting_fragment,
+    reporting_key,
 )
 
 CVE_ID_PATTERN = re.compile(r"^CVE-\d{4}-\d{4,}$", re.IGNORECASE)
@@ -93,6 +100,7 @@ class ReportArtifact:
     source: str
     findings: tuple[Finding, ...]
     digest_issue_url: str | None = None
+    source_coverage: dict[str, Any] | None = None
 
     @property
     def unresolved_version_count(self) -> int:
@@ -372,7 +380,7 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         schema_version = int(_required_metadata(metadata, "schema_version"))
     except ValueError as exc:
         raise ReportArtifactError("schema_version must be an integer") from exc
-    if schema_version not in {1, 2, 3, 4}:
+    if schema_version not in {1, 2, 3, 4, 5}:
         raise ReportArtifactError(f"Unsupported schema_version: {schema_version}")
 
     try:
@@ -389,13 +397,37 @@ def parse_report_artifact(source: str) -> ReportArtifact:
                 "digest_issue_url must identify the report date SentryDigest archive: "
                 f"{expected_digest_url}"
             )
+    coverage = None
+    finding_body = body
+    if schema_version == 5:
+        try:
+            coverage = parse_source_coverage(
+                _required_metadata(metadata, "source_coverage")
+            )
+            finding_body = split_source_coverage(body, coverage)
+        except SourceReviewError:
+            raise ReportArtifactError("Invalid source coverage") from None
+    elif "source_coverage" in metadata or COVERAGE_HEADING in body:
+        raise ReportArtifactError("Source coverage requires schema_version 5")
     findings = _parse_findings(
-        body,
+        finding_body,
         require_reporting=schema_version >= 2,
         require_details=schema_version >= 3,
         require_version_status=schema_version >= 4,
     )
-    if partial_cve := PARTIAL_CVE_PATTERN.search(body):
+    if coverage is not None:
+        cited = sorted(
+            {
+                reporting_key(reference.url)
+                for finding in findings
+                for reference in finding.reporting
+            }
+        )
+        if cited != coverage["cited_source_keys"]:
+            raise ReportArtifactError(
+                "Source coverage does not match finding references"
+            )
+    if partial_cve := PARTIAL_CVE_PATTERN.search(finding_body):
         raise ReportArtifactError(
             f"Report contains a partial CVE identifier: {partial_cve.group(0)}"
         )
@@ -408,4 +440,5 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         source=source,
         findings=findings,
         digest_issue_url=digest_issue_url,
+        source_coverage=coverage,
     )

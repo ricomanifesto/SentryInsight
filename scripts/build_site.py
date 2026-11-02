@@ -31,6 +31,11 @@ from src.core.report_artifact import (
     slugify,
 )
 from src.core.version_state import VersionEvidenceStatus
+from src.core.source_coverage import (
+    coverage_html,
+    coverage_notice_html,
+    split_source_coverage,
+)
 
 PUBLIC_ROOT = "https://ricomanifesto.github.io/SentryInsight/"
 CVE_TEXT_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
@@ -362,7 +367,12 @@ def _render_markdown(
     artifact: ReportArtifact,
 ) -> tuple[str, list[tuple[int, str, str]]]:
     markdown = MarkdownIt("commonmark", {"html": True})
-    tokens = markdown.parse(artifact.body)
+    body = (
+        split_source_coverage(artifact.body, artifact.source_coverage)
+        if artifact.source_coverage is not None
+        else artifact.body
+    )
+    tokens = markdown.parse(body)
     _strip_raw_html(tokens)
     tokens = _strip_structured_finding_fields(tokens)
     _link_cves(tokens)
@@ -394,6 +404,11 @@ def _render_markdown(
         r"href\s*=\s*['\"]\s*javascript:", rendered, re.IGNORECASE
     ):
         raise SiteBuildError("Rendered report contains active content")
+    if artifact.source_coverage is not None:
+        rendered += coverage_html(artifact.source_coverage)
+        heading_entries.append(
+            (2, "Source Coverage and Review", "source-coverage-and-review")
+        )
     return rendered, heading_entries
 
 
@@ -473,7 +488,7 @@ def _render_report_page(
 ) -> str:
     report_html, headings = _render_markdown(artifact)
     finding_count, complete_cve_count, report_shape = _report_shape(artifact)
-    metadata = {
+    metadata: dict[str, object] = {
         "schema_version": artifact.schema_version,
         "report_date": artifact.report_date.isoformat(),
         "generated_at": _timestamp(artifact.generated_at),
@@ -484,6 +499,9 @@ def _render_report_page(
     }
     if artifact.schema_version >= 4:
         metadata["unresolved_version_count"] = artifact.unresolved_version_count
+    if artifact.source_coverage is not None:
+        metadata["source_coverage"] = artifact.source_coverage
+        report_html = coverage_notice_html(artifact.source_coverage) + report_html
     if artifact.unresolved_version_count:
         count = artifact.unresolved_version_count
         subject = "1 finding has" if count == 1 else f"{count} findings have"
@@ -535,9 +553,16 @@ def _render_report_page(
             "DESKTOP_TOC": toc,
             "MOBILE_TOC": toc,
             "REPORT_HTML": report_html,
-            "REPORT_JSON": html.escape(
-                json.dumps(metadata, separators=(",", ":")), quote=False
-            ).replace("</", "<\\/"),
+            "REPORT_JSON": (
+                json.dumps(metadata, separators=(",", ":"))
+                .replace("&", "\\u0026")
+                .replace("<", "\\u003c")
+                .replace(">", "\\u003e")
+                if artifact.source_coverage is not None
+                else html.escape(
+                    json.dumps(metadata, separators=(",", ":")), quote=False
+                ).replace("</", "<\\/")
+            ),
             "REPORT_IDENTITY_JSON": json.dumps(identity, separators=(",", ":")).replace(
                 "</", "<\\/"
             ),
