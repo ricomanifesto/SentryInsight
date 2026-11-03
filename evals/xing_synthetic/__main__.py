@@ -24,6 +24,7 @@ from typing import Any  # noqa: E402
 from .fixtures import evaluate, prepare_cases, reference_report  # noqa: E402
 from .policy import PilotError, TOKENIZER_SHA, TOKENIZER_URL, TokenBudget  # noqa: E402
 from .runner import run_cases  # noqa: E402
+from .private_review import EncryptedReview, validate_recipient  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -75,6 +76,7 @@ def check_live_environment(expected_sha: str, output: Path) -> None:
 
 
 async def execute(args) -> dict:
+    review = None
     if args.mode == "tokenizer":
         download_tokenizer(args.tokenizer)
         return {"tokenizer_sha256": TOKENIZER_SHA, "model_requests": 0}
@@ -82,11 +84,16 @@ async def execute(args) -> dict:
         if not args.live or args.output is None:
             raise PilotError("live_authorization_missing")
         if args.review_outputs:
-            # A public-repository artifact would share answers before human
-            # review. Keep that route unavailable pending a compliant private
-            # delivery design. Offline/mock retention tests remain possible.
-            raise PilotError("public_review_route_unresolved")
+            validate_recipient(args.review_recipient, args.review_recipient_sha256)
         check_live_environment(args.expected_commit or "", args.output)
+        if args.review_outputs:
+            review = EncryptedReview(
+                args.age_binary,
+                args.review_recipient,
+                args.review_recipient_sha256,
+                os.getenv("GITHUB_RUN_ID", ""),
+            )
+            await review.preflight()
     elif args.live or args.review_outputs or os.getenv("OPENROUTER_API_KEY"):
         raise PilotError("invalid_offline_mode")
     cases = await prepare_cases(TokenBudget(args.tokenizer))
@@ -111,6 +118,7 @@ async def execute(args) -> dict:
         output=args.output,
         candidate_sha=args.expected_commit,
         review_outputs=args.review_outputs,
+        review_recipient=review,
     )
 
 
@@ -125,6 +133,9 @@ def main() -> int:
     parser.add_argument("--expected-commit")
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--review-outputs", action="store_true")
+    parser.add_argument("--review-recipient")
+    parser.add_argument("--review-recipient-sha256")
+    parser.add_argument("--age-binary", type=Path)
     try:
         result = asyncio.run(execute(parser.parse_args()))
         print(json.dumps(result, allow_nan=False))

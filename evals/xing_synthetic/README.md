@@ -85,24 +85,23 @@ hashes, counts, booleans, elapsed time, safe error codes, a constrained response
 ID, and numeric usage/cost when reported. A proposed installer uploads this
 metadata with `retention-days: 7`.
 
-The runner's optional capture path is tested offline: at most six 512-KiB
-plain-text files, including an answer that later fails the grounding gate.
-Truncated, wrong-provider, malformed and secret-echoing responses are not retained.
-**Live `--review-outputs` is blocked.** The installer's reserved boolean
-`retain_synthetic_outputs` input defaults to false; selecting true fails before
-setup or credential access. No answer-upload step is installed.
+The optional [private review route](PRIVATE_REVIEW.md) encrypts at most six
+512-KiB answers directly in memory to one approved native age recipient. It saves
+only ciphertext, including an answer that later fails grounding. Truncated,
+wrong-provider, malformed and secret-echoing responses are not retained. Its
+ciphertext artifact uses one-day retention, and its local reader rejects an
+answer outside its 24-hour review window. No plaintext answer file is created
+by the harness. Capturing or decrypting never marks human review complete.
 
-The original one-day public artifact proposal is unsuitable for human review:
-this repository is public, and signed-in readers can download its artifacts
-before a human has reviewed them. The provider's
-[terms, section 21](https://redpill.ai/terms) call for human review before using
-or sharing outputs. A future private delivery route, such as an artifact
-encrypted to a separately approved user-held recipient key, needs its own design,
-review and execution decision. The proposed upper retention bound is one day for
-that artifact, with at most six answer files and no reasoning trace. It is not
-implemented or enabled here. A human would compare answers with the frozen
-sources and answer file, including narrative claims outside the field oracle.
-Capturing an artifact never marks that review complete.
+The installer defaults to no answer retention. Its approved-recipient SHA-256
+pin is deliberately empty, so requesting encrypted retention currently fails
+before setup or credential access. Enabling it requires approval of the exact
+public recipient and verification that the human reviewer can decrypt locally;
+no real identity is generated, accessed or stored by setup. The public artifact
+proposal is replaced by recipient-encrypted delivery, not public plaintext.
+The [provider terms, section 21](https://redpill.ai/terms) still require human
+review before using or sharing outputs; technical encryption is not a provider
+terms approval or an unattended-production qualification.
 
 The seven-day metadata artifact is also public to signed-in readers. GitHub
 retention is a service deletion policy, not a guarantee of immediate erasure or

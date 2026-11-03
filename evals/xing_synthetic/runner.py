@@ -10,6 +10,7 @@ from typing import Any, Awaitable, Callable
 import httpx
 
 from .fixtures import CASE_NAMES, PreparedCase, evaluate
+from .private_review import EncryptedReview
 from .policy import (
     API,
     MAX_REQUESTS,
@@ -36,6 +37,7 @@ async def run_cases(
     output: Path,
     candidate_sha: str,
     review_outputs: bool = False,
+    review_recipient: EncryptedReview | None = None,
     transport: httpx.AsyncBaseTransport | None = None,
     sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
     clock: Callable[[], float] = time.monotonic,
@@ -48,6 +50,10 @@ async def run_cases(
         raise PilotError("invalid_run_plan")
     if not re.fullmatch(r"[0-9a-f]{40}", candidate_sha):
         raise PilotError("candidate_identity")
+    if review_outputs != (review_recipient is not None):
+        raise PilotError("review_configuration")
+    if review_recipient is not None:
+        await review_recipient.preflight()
     output.mkdir(mode=0o700, parents=True, exist_ok=False)
     (output / "metadata").mkdir(mode=0o700)
     trials: list[dict[str, Any]] = [
@@ -110,6 +116,10 @@ async def run_cases(
                     )
                 raw, safe_metadata = completion(data, secret)
                 trial.update(safe_metadata)
+                if review_recipient is not None:
+                    trial["encrypted_review"] = await review_recipient.seal(
+                        output, case.name, raw, candidate_sha, case.request_sha256
+                    )
                 _, checks = evaluate(case, raw)
                 trial["checks"] = checks
                 if not all(checks.values()):
@@ -126,13 +136,6 @@ async def run_cases(
                 trial["outcome"] = "failed"
                 trial["code"] = "validation_or_internal_error"
             finally:
-                if review_outputs and raw is not None:
-                    review = output / "synthetic-review"
-                    review.mkdir(mode=0o700, exist_ok=True)
-                    path = review / f"{case.name}.txt"
-                    with path.open("x") as stream:
-                        stream.write(raw)
-                    path.chmod(0o600)
                 trial["duration_seconds"] = round(max(0, clock() - started), 3)
                 _write_receipt(output, receipt)
                 # Raw output never enters logs, summaries or metadata artifacts.

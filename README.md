@@ -126,7 +126,8 @@ The script installs locked Python and Node dependencies, runs linting, formattin
 The separate [Xing synthetic evaluation](evals/xing_synthetic/README.md) uses six
 frozen cases and the application's source-review gate. It enforces a free Phala
 ZDR route, stops on the first failure, and cannot promote a report. Synthetic
-output retention is blocked pending a private human-review destination.
+output retention uses recipient encryption and stays disabled until one exact
+reviewer recipient is approved.
 
 The [frozen-source evaluation pilot](evals/grounding/README.md) compares two prompts
 on synthetic article cases, with independent field checks, held-out cases and

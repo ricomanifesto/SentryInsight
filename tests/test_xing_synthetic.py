@@ -126,6 +126,21 @@ class Provider:
         )
 
 
+class CiphertextRecorder:
+    """Runner-boundary stub; native crypto is exercised in private-review tests."""
+
+    async def preflight(self):
+        pass
+
+    async def seal(self, output, case, raw, candidate_sha, request_sha):
+        target = output / "encrypted-review"
+        target.mkdir(mode=0o700, exist_ok=True)
+        path = target / (case + ".age")
+        path.write_bytes(b"synthetic-ciphertext-stub")
+        path.chmod(0o600)
+        return {"file": path.name, "ciphertext_sha256": "b" * 64}
+
+
 def execute(prepared, provider, output, review=False):
     waits = []
 
@@ -139,6 +154,7 @@ def execute(prepared, provider, output, review=False):
             output=output,
             candidate_sha=SHA,
             review_outputs=review,
+            review_recipient=CiphertextRecorder() if review else None,
             transport=httpx.MockTransport(provider.handle),
             sleep=sleep,
             clock=lambda: 100,
@@ -186,13 +202,15 @@ def test_explicit_synthetic_review_is_separate_and_never_marks_human_pass(
     prepared, reports, tmp_path
 ):
     result, _ = execute(prepared, Provider(reports), tmp_path / "review", review=True)
-    paths = sorted((tmp_path / "review/synthetic-review").glob("*.txt"))
+    paths = sorted((tmp_path / "review/encrypted-review").glob("*.age"))
     assert len(paths) == 6
     assert result["synthetic_review_outputs"] is True
     assert result["human_review"] == "not_performed"
     for case, raw in zip(prepared, reports, strict=True):
-        path = tmp_path / "review/synthetic-review" / (case.name + ".txt")
-        assert path.read_text() == raw and path.stat().st_mode & 0o777 == 0o600
+        path = tmp_path / "review/encrypted-review" / (case.name + ".age")
+        assert raw.encode() not in path.read_bytes()
+        assert path.stat().st_mode & 0o777 == 0o600
+    assert not list((tmp_path / "review").rglob("*.txt"))
 
 
 @pytest.mark.parametrize("status", [301, 307, 401, 402, 429, 500, 503])
@@ -455,6 +473,21 @@ def test_oversized_body_is_never_retained_or_retried(prepared, reports, tmp_path
     assert not (tmp_path / "out" / "synthetic-review").exists()
 
 
+def test_encryption_failure_stops_after_one_request(
+    prepared, reports, tmp_path, monkeypatch
+):
+    async def failed(*args, **kwargs):
+        raise policy.PilotError("review_crypto_failed")
+
+    monkeypatch.setattr(CiphertextRecorder, "seal", failed)
+    provider = Provider(reports)
+    result, _ = execute(prepared, provider, tmp_path / "out", review=True)
+    assert len(provider.calls) == 1 and result["automated_passes"] == 0
+    assert result["trials"][0]["code"] == "review_crypto_failed"
+    assert all(t["outcome"] == "not_attempted" for t in result["trials"][1:])
+    assert not list((tmp_path / "out").rglob("*.age"))
+
+
 def test_live_review_capture_is_blocked_before_credentials_or_preparation(
     tmp_path, monkeypatch
 ):
@@ -464,9 +497,14 @@ def test_live_review_capture_is_blocked_before_credentials_or_preparation(
     monkeypatch.setattr(cli, "check_live_environment", forbidden)
     monkeypatch.setattr(cli, "prepare_cases", forbidden)
     args = SimpleNamespace(
-        mode="run", live=True, output=tmp_path / "out", review_outputs=True
+        mode="run",
+        live=True,
+        output=tmp_path / "out",
+        review_outputs=True,
+        review_recipient=None,
+        review_recipient_sha256=None,
     )
-    with pytest.raises(policy.PilotError, match="public_review_route_unresolved"):
+    with pytest.raises(policy.PilotError, match="review_recipient_unapproved"):
         asyncio.run(cli.execute(args))
 
 
