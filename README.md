@@ -25,6 +25,8 @@ Contents links and direct finding links open collapsed findings and focus their 
 
 ## How It Works
 
+Production publishing: [static release guide](publication/README.md).
+
 1. SentryInsight reads the RSS feed from [SentryDigest](https://github.com/ricomanifesto/SentryDigest).
 2. It filters for exploitation-related articles and builds a report with LangGraph.
 3. It uses OpenRouter when `OPENROUTER_API_KEY` is set. Local development can use an OpenCode server instead.
