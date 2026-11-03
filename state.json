@@ -1,0 +1,17 @@
+{
+  "records": [
+    {
+      "at": "2026-11-03T16:24:48.218Z",
+      "kind": "release",
+      "payload_digest": "955439b3f8775cece79c92282b2ff84ca7463726dea43a9e397c27acd8a55be1",
+      "proof": "off",
+      "release_key": "7173502bcdaceb6dee4c9488b265ffeb7ff73394b9fdf26b40a3008c3d0a6904",
+      "release_ref": "eaebf2d06ca3a39a6539e371462dbbb944cd2732",
+      "source_revision": "6c6a5dd956dcd8b9c66a1c2ad98cf7eeda1b7be6",
+      "stage": "released",
+      "tree_digest": "b0edf4e39121e1086b2a4f24608aa0b967d05dc6f1a2ddd4026f7c4f3d6e41db"
+    }
+  ],
+  "schema_version": 1,
+  "site": "SentryInsight"
+}
