@@ -1,0 +1,133 @@
+name: Evaluate Xing Synthetic
+
+on:
+  workflow_dispatch:
+    inputs:
+      retain_synthetic_outputs:
+        description: 'Retain recipient-encrypted synthetic answers for one day (approved recipient required)'
+        type: boolean
+        required: true
+        default: false
+      review_recipient:
+        description: 'Approved public native age1 recipient only; never enter a private identity'
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sentryinsight-xing-synthetic-evaluation
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    if: >-
+      github.repository == 'ricomanifesto/SentryInsight' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      EXPECTED_EVALUATION_COMMIT: a6860a387fe17e86df108eaf9f0f93dd40892cfb
+      # Deliberately empty until the owner approves one existing recipient.
+      # Do not make this pin a dispatch input or repository variable.
+      APPROVED_REVIEW_RECIPIENT_SHA256: ''
+      REVIEW_RECIPIENT: ${{ inputs.review_recipient }}
+      PYTHONDONTWRITEBYTECODE: '1'
+      OTEL_SDK_DISABLED: 'true'
+      LOGFIRE_SEND_TO_LOGFIRE: 'false'
+      LANGSMITH_TRACING: 'false'
+      LANGCHAIN_TRACING_V2: 'false'
+    steps:
+      - name: Check approved recipient before setup or credential access
+        if: inputs.retain_synthetic_outputs
+        run: |
+          python3 - <<'PY'
+          import hashlib, hmac, os, re, sys
+          recipient = os.environ['REVIEW_RECIPIENT']
+          pin = os.environ['APPROVED_REVIEW_RECIPIENT_SHA256']
+          valid = (re.fullmatch(r'age1[023456789acdefghjklmnpqrstuvwxyz]{58}', recipient)
+                   and re.fullmatch(r'[0-9a-f]{64}', pin)
+                   and hmac.compare_digest(hashlib.sha256(recipient.encode()).hexdigest(), pin))
+          if not valid:
+              print('Review recipient is not approved; no model request was made.')
+              sys.exit(2)
+          PY
+
+      - name: Checkout the reviewed evaluation candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: a6860a387fe17e86df108eaf9f0f93dd40892cfb
+          persist-credentials: false
+
+      - name: Set up pinned uv without shared caches
+        uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
+        with:
+          version: '0.12.0'
+          python-version: '3.11'
+          enable-cache: false
+
+      - name: Install frozen evaluation dependencies
+        run: uv sync --group dev --frozen
+
+      - name: Install pinned age and validate native recipient without inference credentials
+        if: inputs.retain_synthetic_outputs
+        run: |
+          .venv/bin/python -m evals.xing_synthetic.private_review setup \
+            --age-binary "$RUNNER_TEMP/xing-age"
+          .venv/bin/python -m evals.xing_synthetic.private_review preflight \
+            --age-binary "$RUNNER_TEMP/xing-age" \
+            --recipient "$REVIEW_RECIPIENT" \
+            --recipient-sha256 "$APPROVED_REVIEW_RECIPIENT_SHA256" \
+            --run-id "$GITHUB_RUN_ID"
+
+      - name: Fetch and verify public tokenizer data without credentials
+        run: |
+          .venv/bin/python -m evals.xing_synthetic tokenizer \
+            --tokenizer "$RUNNER_TEMP/xing-tokenizer.model" \
+            > "$RUNNER_TEMP/xing-tokenizer-receipt.json"
+
+      - name: Calibrate all synthetic cases without model requests
+        run: |
+          .venv/bin/python -m evals.xing_synthetic calibrate \
+            --tokenizer "$RUNNER_TEMP/xing-tokenizer.model" \
+            > "$RUNNER_TEMP/xing-calibration.json"
+
+      - name: Evaluate once with at most six sequential requests
+        id: evaluate
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          RETAIN_SYNTHETIC_OUTPUTS: ${{ inputs.retain_synthetic_outputs }}
+        run: |
+          review_args=()
+          if [[ "$RETAIN_SYNTHETIC_OUTPUTS" == 'true' ]]; then
+            review_args+=(--review-outputs --age-binary "$RUNNER_TEMP/xing-age"
+              --review-recipient "$REVIEW_RECIPIENT"
+              --review-recipient-sha256 "$APPROVED_REVIEW_RECIPIENT_SHA256")
+          fi
+          .venv/bin/python -m evals.xing_synthetic run --live \
+            --expected-commit "$EXPECTED_EVALUATION_COMMIT" \
+            --tokenizer "$RUNNER_TEMP/xing-tokenizer.model" \
+            --output "$RUNNER_TEMP/xing-eval-${GITHUB_RUN_ID}" \
+            "${review_args[@]}" \
+            > "$RUNNER_TEMP/xing-console.json"
+
+      - name: Retain sanitized evaluation metadata for seven days
+        if: always() && steps.evaluate.outcome != 'skipped'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: xing-synthetic-metadata-${{ github.run_id }}
+          path: ${{ runner.temp }}/xing-eval-${{ github.run_id }}/metadata/*.json
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Retain only recipient-encrypted answers for one day
+        if: always() && inputs.retain_synthetic_outputs && steps.evaluate.outcome != 'skipped'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: xing-synthetic-encrypted-review-${{ github.run_id }}
+          path: ${{ runner.temp }}/xing-eval-${{ github.run_id }}/encrypted-review/*.age
+          retention-days: 1
+          if-no-files-found: warn
