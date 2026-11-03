@@ -21,7 +21,7 @@
   },
   "publication": {
     "mode": "prepare",
-    "proof": "off"
+    "proof": "on"
   },
   "artifact_branch": "vercel-production",
   "state_branch": "publication-state",
