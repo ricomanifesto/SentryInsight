@@ -2,7 +2,7 @@
 
 import argparse
 import asyncio
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 import hashlib
 import hmac
 import io
@@ -283,21 +283,14 @@ async def open_review(
     context = _context(candidate_sha, run_id, case, request_sha)
     if not _hex(expected_digest, 64) or not _hex(recipient_sha256, 64):
         raise PilotError("review_context")
-    with path.open("rb") as stream:
+    with _regular_input(path) as stream:
         cipher = stream.read(MAX_CIPHER_BYTES + 1)
     if len(cipher) > MAX_CIPHER_BYTES or not hmac.compare_digest(
         sha256(cipher), expected_digest
     ):
         raise PilotError("review_ciphertext_identity")
     # Restrict user-local input to one native identity; no plugins or SSH keys.
-    with identity.open("rb") as stream:
-        info = os.fstat(stream.fileno())
-        if (
-            not stat.S_ISREG(info.st_mode)
-            or info.st_uid != os.getuid()
-            or info.st_mode & 0o077
-        ):
-            raise PilotError("review_identity_permissions")
+    with _regular_input(identity, owner_only=True) as stream:
         key = stream.read(4097)
         lines = [
             line for line in key.splitlines() if line and not line.startswith(b"#")
@@ -358,6 +351,30 @@ async def open_review(
     except (ValueError, TypeError, KeyError, UnicodeError):
         raise PilotError("review_bundle_rejected") from None
     return bundle
+
+
+@contextmanager
+def _regular_input(path: Path, *, owner_only: bool = False):
+    """Reject special files and symlinks before any potentially blocking read."""
+    fd = None
+    try:
+        try:
+            fd = os.open(
+                path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC
+            )
+            info = os.fstat(fd)
+        except OSError:
+            raise PilotError("review_file_access") from None
+        if not stat.S_ISREG(info.st_mode):
+            raise PilotError("review_file_type")
+        if owner_only and (info.st_uid != os.getuid() or info.st_mode & 0o077):
+            raise PilotError("review_identity_permissions")
+        with os.fdopen(fd, "rb") as stream:
+            fd = None  # The stream owns this descriptor, including on failure.
+            yield stream
+    finally:
+        if fd is not None:
+            os.close(fd)
 
 
 def main() -> int:

@@ -116,6 +116,34 @@ def test_binary_identity_rejects_substitute(tmp_path):
         review.verify_age(path)
 
 
+@pytest.mark.parametrize("kind", ["fifo", "directory", "symlink"])
+def test_special_inputs_rejected_before_read(tmp_path, kind):
+    path = tmp_path / "input"
+    if kind == "fifo":
+        os.mkfifo(path, 0o600)
+    elif kind == "directory":
+        path.mkdir()
+    else:
+        target = tmp_path / "target"
+        target.write_bytes(b"not input")
+        path.symlink_to(target)
+    with pytest.raises(PilotError, match="review_file_(type|access)"):
+        with review._regular_input(path):
+            pytest.fail("Special file must be rejected before exposing a reader")
+
+
+def test_reader_rejects_ciphertext_and_identity_fifo_without_wait(
+    binary, tmp_path, keys
+):
+    _, metadata, path = encrypted(binary, tmp_path)
+    fifo = tmp_path / "pipe"
+    os.mkfifo(fifo, 0o600)
+    with pytest.raises(PilotError, match="review_file_type"):
+        open_answer(binary, fifo, keys[0], metadata)
+    with pytest.raises(PilotError, match="review_file_type"):
+        open_answer(binary, path, fifo, metadata)
+
+
 def test_only_pinned_recipient_can_read_without_plaintext_artifacts(
     binary, tmp_path, keys, capsys, monkeypatch
 ):

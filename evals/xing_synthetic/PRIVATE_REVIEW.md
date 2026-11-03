@@ -104,7 +104,9 @@ uv run python -m evals.xing_synthetic.private_review open \
 
 The reader refuses to operate in Actions or with an inference key in its
 environment. It requires a single native identity file owned by the current
-user and inaccessible to group/others. The open file descriptor is passed to
+user and inaccessible to group/others. Both ciphertext and identity must be
+regular files; symlinks, pipes, devices and directories are rejected using a
+nonblocking open before any read. The open file descriptor is passed to
 age; the identity pathname is not reopened in the subprocess. Complete bounded
 decryption/authentication, context and expiry checks finish before any answer is
 returned. The CLI prints one JSON object locally, escaping terminal control
