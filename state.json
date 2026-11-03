@@ -21,6 +21,23 @@
       "source_revision": "2469455d99fe92e9583cc4e508516302513212e4",
       "stage": "released",
       "tree_digest": "fedaefc7b7887d1402c9911851b3784029a4bf89c94287ddfea676c5045c9998"
+    },
+    {
+      "at": "2026-11-03T16:36:47.125Z",
+      "proof": {
+        "absent": [],
+        "checked_at": "2026-11-03T16:36:46.224Z",
+        "failures": [
+          "origin request failed: fetch failed"
+        ],
+        "ok": false,
+        "origin": "https://sentryinsight.ricomanifesto.com/",
+        "samples": [],
+        "tls": true
+      },
+      "release_key": "69d0e47e1c5de2069bdcfab3b8b29c2fa9c47d159fd7075569f86e1e5b6fb24b",
+      "release_ref": "794e56557a711ca90a3fe12e0aedfbd9f2e0544d",
+      "stage": "verification-failed"
     }
   ],
   "schema_version": 1,
