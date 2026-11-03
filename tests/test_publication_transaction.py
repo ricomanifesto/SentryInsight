@@ -317,3 +317,45 @@ def test_partial_cleanup_after_rollback_keeps_a_resumable_restored_manifest(
     monkeypatch.setattr(publication.shutil, "rmtree", original_remove)
     publication.recover_publication(root)
     assert_last_good(root)
+
+
+def test_ambiguous_commit_rename_checks_its_effect_before_reporting_rollback(
+    tmp_path, monkeypatch
+):
+    staged, root = trees(tmp_path)
+    original = Path.rename
+
+    def rename(path, destination):
+        result = original(path, destination)
+        if path == root / publication.JOURNAL_DIRECTORY:
+            raise OSError("rename completed before failure surfaced")
+        return result
+
+    monkeypatch.setattr(Path, "rename", rename)
+    assert publication.promote_artifacts(staged, root) == "publication_complete"
+    assert all((root / name).read_text() == "next " + name for name in CORE)
+    publication.ensure_no_pending_publication(root)
+
+
+def test_new_nested_directory_entry_is_synced_before_commit(tmp_path, monkeypatch):
+    staged, root = trees(tmp_path)
+    (root / "assets").mkdir()
+    (staged / "assets/vendor").mkdir(parents=True)
+    (staged / "assets/vendor/dompurify.min.js").write_text("synthetic asset")
+    events = []
+    original_sync, original_rename = publication._sync_directory, Path.rename
+
+    def sync(path):
+        events.append(("sync", path))
+        original_sync(path)
+
+    def rename(path, destination):
+        events.append(("rename", path))
+        return original_rename(path, destination)
+
+    monkeypatch.setattr(publication, "_sync_directory", sync)
+    monkeypatch.setattr(Path, "rename", rename)
+    publication.promote_artifacts(staged, root)
+    assert events.index(("sync", root / "assets")) < events.index(
+        ("rename", root / publication.JOURNAL_DIRECTORY)
+    )

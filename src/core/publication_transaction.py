@@ -86,7 +86,10 @@ def _sync_directory(path: Path) -> None:
 def _atomic_copy(
     source: Path, destination: Path, *, expected_sha256: str | None = None
 ) -> None:
+    created = [parent for parent in destination.parents if not parent.exists()]
     destination.parent.mkdir(parents=True, exist_ok=True)
+    for directory in reversed(created):
+        _sync_directory(directory.parent)
     fd, name = tempfile.mkstemp(prefix=".sentryinsight-", dir=destination.parent)
     temporary = Path(name)
     try:
@@ -354,8 +357,17 @@ def promote_artifacts(staged: Path, root: Path) -> str:
     try:
         journal.rename(root / COMPLETED_DIRECTORY)
     except OSError:
-        recover_publication(root)
-        raise PublicationError("publication_rolled_back") from None
+        # An operation can take effect before its caller observes an error.
+        # Inspect the manifest location and hashes instead of repeating it or
+        # describing committed bytes as a rollback.
+        completed = root / COMPLETED_DIRECTORY
+        if completed.exists() and not journal.exists():
+            _load_journal(root, completed=True)
+        elif journal.exists() and not completed.exists():
+            recover_publication(root)
+            raise PublicationError("publication_rolled_back") from None
+        else:
+            raise PublicationError("publication_recovery_required") from None
     return (
         "publication_complete"
         if _cleanup_completed(root)
