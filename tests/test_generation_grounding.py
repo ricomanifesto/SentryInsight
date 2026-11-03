@@ -533,21 +533,11 @@ NAMED_GROUPS = [
 
 
 @pytest.mark.parametrize(("group", "cut"), NAMED_GROUPS)
-def test_whole_release_name_with_introducing_words_publishes(group, cut, tmp_path):
-    workflow, state = platform_group_generation(
-        tmp_path, group, "The flaw impacts ", group
-    )
-    if True:
-        assert_source_requires_review(state, tmp_path)
-        return
-    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
-    assert result["status"] == "started"
-    assert "failure" not in result
-    assert f"**Affected Versions**: {group}\n" in (tmp_path / "index.md").read_text()
-    assert group in (tmp_path / "index.html").read_text()
-    assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
-        state["articles_fingerprint"] + "\n"
-    )
+def test_whole_release_name_with_introducing_words_requires_source_review(
+    group, cut, tmp_path
+):
+    _, state = platform_group_generation(tmp_path, group, "The flaw impacts ", group)
+    assert_source_requires_review(state, tmp_path)
 
 
 @pytest.mark.parametrize(("group", "cut"), NAMED_GROUPS)
@@ -565,22 +555,12 @@ def test_release_name_cut_preserves_the_last_publication(
 
 
 @pytest.mark.parametrize("article", ["The", "A", "An"])
-def test_complete_release_name_with_leading_article_publishes(article, tmp_path):
+def test_complete_release_name_with_leading_article_requires_source_review(
+    article, tmp_path
+):
     group = f"{article} {PLATFORM_GROUP}"
-    workflow, state = platform_group_generation(
-        tmp_path, group, "The flaw impacts ", group
-    )
-    if True:
-        assert_source_requires_review(state, tmp_path)
-        return
-    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
-    assert result["status"] == "started"
-    assert "failure" not in result
-    assert f"**Affected Versions**: {group}\n" in (tmp_path / "index.md").read_text()
-    assert group in (tmp_path / "index.html").read_text()
-    assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
-        state["articles_fingerprint"] + "\n"
-    )
+    _, state = platform_group_generation(tmp_path, group, "The flaw impacts ", group)
+    assert_source_requires_review(state, tmp_path)
 
 
 @pytest.mark.parametrize("article", ["The", "A", "An"])

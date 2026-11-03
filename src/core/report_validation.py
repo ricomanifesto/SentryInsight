@@ -1178,6 +1178,17 @@ def inline_token_plain_text(token) -> str:
     return "".join(output)
 
 
+def markdown_plain_text(markdown: str) -> str:
+    """Reader-visible inline identities with boundaries between separate blocks."""
+    blocks = []
+    for token in MARKDOWN_PARSER.parse(markdown):
+        if token.type == "inline":
+            blocks.append(inline_token_plain_text(token))
+        elif token.type in {"fence", "code_block"}:
+            blocks.append(token.content)
+    return "\n\n".join(blocks)
+
+
 def format_report_validation_issues(
     issues: Iterable[ReportValidationIssue],
 ) -> str:

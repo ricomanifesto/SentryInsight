@@ -67,7 +67,7 @@ def test_existing_unresolved_source_is_held_without_expanding_its_claim_contract
 
 
 @pytest.mark.parametrize(
-    "identity_place", ["content", "title", "link", "source_links", "cves"]
+    "identity_place", ["content", "title", "source", "link", "source_links", "cves"]
 )
 def test_cohort_closure_includes_every_prompt_visible_cve_identity(identity_place):
     held = source(f"{A} is described.\n\n" + AMBIGUOUS, "held")
@@ -250,3 +250,36 @@ def test_reused_packet_directory_is_synced_before_success(tmp_path, monkeypatch)
     monkeypatch.setattr(source_review.os, "fsync", fail_directory)
     with pytest.raises(SourceReviewError, match="review_packet_persistence_failed"):
         source_review.write_review_packet(plan.packet, tmp_path)
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Advisory for CVE-**2026**-1234",
+        "Advisory for CVE&#45;2026&#45;1234",
+        r"Advisory for CVE\-2026\-1234",
+    ],
+)
+@pytest.mark.parametrize("field", ["title", "source", "content"])
+def test_reader_visible_cve_in_held_source_metadata_closes_the_cohort(title, field):
+    held = source(AMBIGUOUS, "held")
+    held[field] = title + ("\n\n" + AMBIGUOUS if field == "content" else "")
+    plan = prepare_source_review(
+        [source("CVE-2026-1234 is actively exploited.", "peer"), held]
+    )
+    assert plan.eligible_keys == ()
+    assert all(row["cves"] == ["CVE-2026-1234"] for row in plan.packet["sources"])
+    assert all(row["state"] == "review_required" for row in plan.packet["sources"])
+
+
+def test_separate_source_metadata_fields_do_not_invent_cve_membership():
+    article = source("A service mentions CVE", "one")
+    article["title"] = "2026-1234 advisory"
+    plan = prepare_source_review([article])
+    assert plan.packet["sources"][0]["cves"] == []
+
+
+def test_separate_markdown_blocks_do_not_invent_cve_membership():
+    article = source("CVE-\n\n2026-1234", "one")
+    plan = prepare_source_review([article])
+    assert plan.packet["sources"][0]["cves"] == []

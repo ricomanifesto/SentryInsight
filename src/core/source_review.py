@@ -11,6 +11,7 @@ import tempfile
 from typing import Any, Mapping, Sequence
 
 from .cve import extract_cve_ids
+from .report_validation import markdown_plain_text
 from .finding_evidence import build_finding_detail_context
 from .reporting import (
     ReportingGroundingError,
@@ -296,8 +297,23 @@ def plan_reporting_catalog(
         extra = _cve_list(metadata_cves[key])
         _require(bool(source.content.strip()), "missing_source_content")
         _require(source.content_kind in {"article", "feed"}, "invalid_source_metadata")
-        prompt_text = "\n".join(
-            [source.content, source.title, source.url, *source.links, *extra]
+        # Scan each prompt field separately: formatting can expose an identity,
+        # but adjacent metadata fields must never synthesize one.
+        prompt_fields = [
+            source.content,
+            source.title,
+            source.publisher,
+            source.url,
+            *source.links,
+            *extra,
+        ]
+        cves = sorted(
+            {
+                cve
+                for field in prompt_fields
+                for representation in (field, markdown_plain_text(field))
+                for cve in extract_cve_ids(representation)
+            }
         )
         rows.append(
             {
@@ -312,7 +328,7 @@ def plan_reporting_catalog(
                 "content_kind": source.content_kind,
                 "links": list(source.links),
                 "metadata_cves": extra,
-                "cves": sorted(set(extract_cve_ids(prompt_text))),
+                "cves": cves,
             }
         )
     full_scopes = _scopes(ordered)
