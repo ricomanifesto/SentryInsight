@@ -20,7 +20,7 @@
     }
   },
   "publication": {
-    "mode": "disabled",
+    "mode": "prepare",
     "proof": "off"
   },
   "artifact_branch": "vercel-production",
