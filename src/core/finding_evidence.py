@@ -362,8 +362,34 @@ def _logical_source_blocks(content: str) -> list[str]:
     return blocks
 
 
-def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
-    """Retain detail ownership under CVE headings without asserting exploitation."""
+@dataclass(frozen=True)
+class DetailScope:
+    """Keep selected evidence and unresolved ownership without losing position."""
+
+    scoped: tuple[DetailSpan, ...]
+    unaccounted: tuple[DetailSpan, ...]
+
+
+def _complete_foreign_version_assertion(span: DetailSpan, wanted: set[str]) -> bool:
+    """A foreign mention or prefix cannot certify a whole paragraph's owner."""
+    if not span.source_block or _plain(span.source_block) != _plain(span.text):
+        return False
+    assertion = re.fullmatch(
+        rf"(?P<cve>{CVE_ID_PATTERN.pattern}) (?:affects?|impacts?) "
+        r"[a-z][a-z0-9_+/-]* v?\d+(?:[a-z0-9.*+-]*[a-z0-9*+-])?",
+        span.text.strip().removesuffix("."),
+        re.I,
+    )
+    return bool(assertion and not set(extract_cve_ids(assertion["cve"])) & wanted)
+
+
+def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
+    """Retain scope selection plus evidence whose exclusion is not justified.
+
+    Existing selected output stays compatible. Unaccounted evidence never
+    supplies a new fact; it can only prevent certification of a version scope.
+    Both views retain boundaries so excluded material cannot join a new list.
+    """
     content = str(_value(source, "content"))
     source_cves = set(extract_cve_ids(content))
     wanted = set(cves)
@@ -375,14 +401,25 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     sections: list[tuple[int, set[str], tuple[str, ...]]] = []
     # Boundaries prevent version-list context crossing sources or excluded spans.
     result = [DetailSpan("", "boundary")]
+    unaccounted = [DetailSpan("", "boundary")]
     source_blocks = _logical_source_blocks(content)
     previous_block = None
     preceding: list[str] = []
+    block_has_recommendation = False
+    block_cves: set[str] = set()
     for line_index, line in enumerate(content.splitlines()):
         source_block = source_blocks[line_index]
         if source_block != previous_block:
             preceding = []
             previous_block = source_block
+            block_has_recommendation = bool(
+                re.search(
+                    DETAIL_CUES["Recommended Actions"],
+                    " ".join(source_block.split()),
+                    re.I,
+                )
+            )
+            block_cves = set(extract_cve_ids(source_block))
         heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
         if heading:
             level = len(heading[1])
@@ -403,9 +440,11 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             and source_cves <= wanted
         )
         if heading:
-            result.append(
-                DetailSpan(heading[2], "heading")
-                if owned
+            span = DetailSpan(heading[2], "heading")
+            result.append(span if owned else DetailSpan("", "boundary"))
+            unaccounted.append(
+                span
+                if not owned and (not owner or bool(owner & wanted))
                 else DetailSpan("", "boundary")
             )
             continue
@@ -414,16 +453,24 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
             # Position matters: later advice cannot change an earlier row's
             # role, even when the same release name occurs more than once.
             preceding.append(sentence)
-            version_context = " ".join(preceding)
+            # Only cumulative-update role classification consumes this prefix.
+            # Retain the exact original prefix when needed, including wrapped
+            # recommendations; ordinary sentences must not each copy an ever
+            # growing paragraph. Keep the prefix for every CVE-bearing span
+            # too: later attribution normalization can expose a cumulative
+            # cue. Do not run that validating normalization before scope
+            # selection, when an unrelated malformed attribution is harmless.
+            needs_context = re.search(
+                CUMULATIVE_UPDATE_CUE, sentence, re.I
+            ) or CVE_ID_PATTERN.search(sentence)
+            version_context = " ".join(preceding) if needs_context else ""
             mentioned = set(extract_cve_ids(sentence))
             selected = mentioned <= wanted if mentioned and wanted else owned
             body_fields = _detail_roles(sentence, version_context) or (
                 sections[-1][2] if sections else ()
             )
             # Recommendation cues can themselves cross a physical line break.
-            if re.search(
-                DETAIL_CUES["Recommended Actions"], " ".join(source_block.split()), re.I
-            ):
+            if block_has_recommendation:
                 body_fields = tuple(
                     dict.fromkeys((*body_fields, "Recommended Actions"))
                 )
@@ -431,25 +478,38 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
                 selected
                 and "Recommended Actions" in body_fields
                 and wanted
-                and not set(extract_cve_ids(source_block)) <= wanted
+                and not block_cves <= wanted
             ):
                 raise EvidenceError(
                     "ambiguous recommendation block CVE scope",
                     code="ambiguous_recommendation_scope",
                     field="Recommended Actions",
                 )
-            result.append(
-                DetailSpan(
-                    sentence,
-                    "body",
-                    body_fields,
-                    source_block,
-                    version_context,
+            span = DetailSpan(
+                sentence, "body", body_fields, source_block, version_context
+            )
+            result.append(span if selected else DetailSpan("", "boundary"))
+            conflicting_owner = bool(owner and mentioned and not mentioned <= owner)
+            proven_foreign = (
+                bool(owner and not owner & wanted and not conflicting_owner)
+                if owner
+                else bool(
+                    mentioned
+                    and not mentioned & wanted
+                    and _complete_foreign_version_assertion(span, wanted)
                 )
-                if selected
+            )
+            unaccounted.append(
+                span
+                if conflicting_owner or (not selected and not proven_foreign)
                 else DetailSpan("", "boundary")
             )
-    return result
+    return DetailScope(tuple(result), tuple(unaccounted))
+
+
+def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
+    """Compatibility view of source-selected details, without new assertions."""
+    return list(_partition_detail_spans(source, cves).scoped)
 
 
 def build_finding_detail_context(

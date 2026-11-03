@@ -17,6 +17,10 @@ __pycache__/
 
 # Logs
 *.log
+.sentryinsight-review/
+.sentryinsight-review-outcome.json
+.sentryinsight-publication/
+.sentryinsight-publication-complete/
 
 # OS files
 .DS_Store

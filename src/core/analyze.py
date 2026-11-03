@@ -3,6 +3,7 @@ import json
 import re
 from typing import List, Dict, Any
 from datetime import datetime, timezone
+from pathlib import Path
 
 import tiktoken
 
@@ -11,26 +12,31 @@ from .model_client import ReportModelClient, build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .analysis_errors import classify_analysis_error
 from .cve import extract_cve_ids
+from .article_prompt import (
+    clean_article_source as clean_article_source,
+    collect_structured_cves as collect_structured_cves,
+    format_article_summary as format_article_summary,
+)
 from .finding_evidence import build_finding_detail_context
 from .version_references import (
     PROTOCOL_KEY,
     PROTOCOL_VERSION,
     build_version_reference_context,
 )
-from ..services.article_content import normalize_feed_content
-from .reporting import (
-    ReportingGroundingError,
-    build_reporting_catalog,
-    reporting_key,
-    serialize_reporting_catalog,
+from .reporting import serialize_reporting_catalog
+from .source_review import (
+    PLAN_KEY,
+    SourceReviewError,
+    prepare_source_review,
+    review_articles,
+    write_review_packet,
 )
+from .publication_transaction import PublicationError, ensure_no_pending_publication
 
 logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
-
-UNKNOWN_SOURCE_SENTINELS = {"unknown source"}
 
 EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r"\b(?:"
@@ -76,15 +82,6 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 
 
-def clean_article_source(value: Any) -> str:
-    if value is None:
-        return ""
-    source = " ".join(str(value).split())
-    if source.casefold() in UNKNOWN_SOURCE_SENTINELS:
-        return ""
-    return source
-
-
 def filter_exploitation_articles(
     articles: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
@@ -102,58 +99,6 @@ def filter_exploitation_articles(
     # Pass all articles to the AI for analysis
     # This gives the AI more context to work with
     return articles
-
-
-def format_article_summary(article: Dict[str, Any]) -> str:
-    def clean_text(value: Any, default: str = "") -> str:
-        if value is None:
-            return default
-        return str(value).strip()
-
-    title = clean_text(article.get("title"), "Untitled article") or "Untitled article"
-    source = clean_article_source(article.get("source"))
-    link = clean_text(article.get("link"))
-    content = (
-        normalize_feed_content(article.get("content") or article.get("summary"))
-        or "No content available"
-    )
-
-    metadata = []
-    if source:
-        metadata.append(f"Source: {source}")
-    if link:
-        metadata.append(f"URL: {link}")
-        try:
-            metadata.append(f"Reporting key: {reporting_key(link)}")
-        except ReportingGroundingError:
-            pass
-    if article_cves := collect_structured_cves(article):
-        metadata.append(f"CVEs: {', '.join(article_cves)}")
-
-    heading = f"**{title}**"
-    if metadata:
-        heading = f"{heading} ({'; '.join(metadata)})"
-
-    links = "\n".join(str(link) for link in article.get("source_links", []))
-    return f"{heading}\nContent coverage: {article.get('content_kind', 'feed')}\n\n{content}\nSource links: {links or 'Not stated in supplied sources.'}\n\n"
-
-
-def collect_structured_cves(article: Dict[str, Any]) -> list[str]:
-    """Collect CVE IDs from structured article metadata."""
-    cves: list[str] = []
-    cves.extend(str(cve).strip() for cve in article.get("cves", []) if str(cve).strip())
-    cves.extend(extract_cve_ids("\n".join(cves)))
-
-    seen: set[str] = set()
-    unique_cves: list[str] = []
-    for cve in cves:
-        normalized_cve = cve.upper()
-        if normalized_cve in seen:
-            continue
-        seen.add(normalized_cve)
-        unique_cves.append(normalized_cve)
-
-    return unique_cves
 
 
 def collect_prompt_cves(article_summary: str) -> list[str]:
@@ -298,18 +243,48 @@ async def analyze_exploitation(
             "error_detail": {},
         }
 
-    # Prepare all article summaries
+    # Normalize and retain the complete host plan before constructing a provider.
+    try:
+        root = Path(config.get("output_path", "index.md")).parent
+        ensure_no_pending_publication(root)
+        plan = prepare_source_review(articles)
+        write_review_packet(plan.packet, root / ".sentryinsight-review")
+    except (SourceReviewError, PublicationError, OSError) as exc:
+        return {
+            "error": "Source review preflight failed",
+            "error_class": "source_review_failed",
+            "error_detail": {},
+            "source_review_code": (
+                exc.code
+                if isinstance(exc, (SourceReviewError, PublicationError))
+                else "review_packet_write_failed"
+            ),
+            "exploitation_report": "",
+        }
+    review_metadata = {
+        PLAN_KEY: plan.packet,
+        "reporting_sources": serialize_reporting_catalog(plan.catalog),
+        "reporting_metadata_cves": {
+            row["key"]: row["metadata_cves"] for row in plan.packet["sources"]
+        },
+    }
+    articles = review_articles(plan)
+    if not articles:
+        return {
+            **review_metadata,
+            "skipped": True,
+            "skip_reason": "source_review_required",
+            "exploitation_report": "",
+            "analyzed_article_count": 0,
+        }
+
+    # Only eligible sources enter the prompt; held sources remain in host metadata.
     all_article_summaries = []
     all_cves = set()
     all_systems = set()
     all_attack_vectors = set()
 
-    reporting_catalog = {}
-    for article in articles:
-        try:
-            reporting_catalog.update(build_reporting_catalog([article]))
-        except ReportingGroundingError as exc:
-            logger.warning("Article cannot be used as reporting evidence: %s", exc)
+    reporting_catalog = plan.eligible_catalog
 
     for article in articles:
         article_summary = format_article_summary(article)
@@ -468,6 +443,7 @@ Generate the report using the structure above, with every finding and its prose 
         config.get("analysis", {}).get("max_input_tokens", 100000)
     ):
         return {
+            **review_metadata,
             "error": "Complete source evidence exceeds analysis input budget; no source text was truncated",
             "error_class": "input_budget_exceeded",
             "error_detail": {},
@@ -492,21 +468,21 @@ Generate the report using the structure above, with every finding and its prose 
         )
 
         return {
+            **review_metadata,
             "exploitation_report": exploitation_report,
             PROTOCOL_KEY: PROTOCOL_VERSION,
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
-            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
         }
     except OpenCodeUnavailable as e:
         logger.warning(f"Skipping exploitation analysis: {e}")
         return {
+            **review_metadata,
             "exploitation_report": "",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
-            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
             "skipped": True,
             "skip_reason": str(e),
         }
@@ -514,10 +490,10 @@ Generate the report using the structure above, with every finding and its prose 
         logger.error(f"Error during exploitation analysis: {e}")
         error_class, error_detail = classify_analysis_error(e)
         return {
+            **review_metadata,
             "exploitation_report": f"# Error Generating Exploitation Report\n\nAn error occurred during analysis: {str(e)}\n\n## Partial Data\n\nCVEs identified: {', '.join(all_cves) if all_cves else 'None'}\n\nAffected systems: {', '.join(all_systems) if all_systems else 'None'}",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
             "error_class": error_class,
             "error_detail": error_detail,
-            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
         }

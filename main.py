@@ -2,6 +2,8 @@
 
 import asyncio
 import logging
+import os
+from pathlib import Path
 
 # Initialize environment variables
 try:
@@ -13,6 +15,7 @@ except ImportError:
 
 from src.core.observability import configure_observability
 from src.core.workflow import run_exploitation_analysis
+from src.core.review_delivery import write_run_outcome
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +42,9 @@ async def main():
     configure_observability()
     logger.info("Starting SentryInsight exploitation report generation")
 
+    result = None
+    # A fixed failure receipt exists even if execution stops before a valid plan.
+    write_run_outcome(None, Path("."))
     try:
         result = await run_exploitation_analysis()
 
@@ -51,6 +57,18 @@ async def main():
     except Exception as e:
         logger.error(f"Error in main function: {e}")
         raise SystemExit(1)
+    finally:
+        root = Path(
+            (result or {}).get("config", {}).get("output_path", "index.md")
+        ).parent
+        outcome = write_run_outcome(result, root)
+        if output_path := os.getenv("GITHUB_OUTPUT"):
+            with open(output_path, "a") as stream:
+                stream.write(
+                    "report_generated="
+                    + str(outcome["report_generated"]).lower()
+                    + "\n"
+                )
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import math
+import re
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any
@@ -67,12 +68,17 @@ class OpenRouterClient:
         base_url: str = OPENROUTER_BASE_URL,
         timeout: float = 120.0,
         transport: httpx.AsyncBaseTransport | None = None,
+        max_attempts: int = MAX_ATTEMPTS,
     ) -> None:
+        if type(max_attempts) is not int or not 1 <= max_attempts <= MAX_ATTEMPTS:
+            raise ValueError("max_attempts must be between 1 and 3")
         self.api_key = api_key
         self.max_tokens = max_tokens
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.transport = transport
+        self.max_attempts = max_attempts
+        self.last_generation: dict[str, str] | None = None
 
     async def generate(
         self,
@@ -85,6 +91,7 @@ class OpenRouterClient:
         """Generate text through the OpenRouter chat completions API."""
         if model is None or model.provider_id != "openrouter":
             raise OpenRouterError("OpenRouter calls require an openrouter/* model")
+        self.last_generation = None
 
         async with httpx.AsyncClient(
             base_url=self.base_url,
@@ -96,7 +103,7 @@ class OpenRouterClient:
                 "X-Title": title,
             },
         ) as client:
-            for attempt in range(1, MAX_ATTEMPTS + 1):
+            for attempt in range(1, self.max_attempts + 1):
                 response = None
                 try:
                     try:
@@ -105,6 +112,22 @@ class OpenRouterClient:
                             json={
                                 "model": model.model_id,
                                 "max_tokens": self.max_tokens,
+                                **(
+                                    {
+                                        "provider": {
+                                            "allow_fallbacks": False,
+                                            "max_price": {
+                                                "prompt": 0,
+                                                "completion": 0,
+                                                "request": 0,
+                                                "image": 0,
+                                            },
+                                        }
+                                    }
+                                    if model.model_id.endswith(":free")
+                                    or model.model_id == "openrouter/free"
+                                    else {}
+                                ),
                                 "messages": [
                                     {"role": "system", "content": system_prompt},
                                     {"role": "user", "content": user_prompt},
@@ -125,26 +148,49 @@ class OpenRouterClient:
                                 ),
                             ),
                         ) from None
-                    return self._response_text(response)
+                    text = self._response_text(response)
+                    resolved_model = response.json().get("model")
+                    if (
+                        not isinstance(resolved_model, str)
+                        or len(resolved_model) > 256
+                        or not re.fullmatch(
+                            r"[A-Za-z0-9._-]+/[A-Za-z0-9._:+-]+", resolved_model
+                        )
+                        or resolved_model != model.model_id
+                    ):
+                        raise OpenRouterError(
+                            "OpenRouter resolved model does not match the requested model",
+                            http_status=response.status_code,
+                        )
+                    self.last_generation = {
+                        "requested_model": model.model_id,
+                        "resolved_model": resolved_model,
+                    }
+                    logger.info(
+                        "OpenRouter model provenance: requested=%s resolved=%s",
+                        model.model_id,
+                        resolved_model,
+                    )
+                    return text
                 except OpenRouterError as exc:
                     delay = self._retry_delay(response, attempt)
                     if (
                         not exc.retryable
-                        or attempt == MAX_ATTEMPTS
+                        or attempt == self.max_attempts
                         or delay > MAX_RETRY_DELAY
                     ):
                         exc.attempts = attempt
                         logger.error(
                             "OpenRouter attempt %d/%d failed: %s; stopping",
                             attempt,
-                            MAX_ATTEMPTS,
+                            self.max_attempts,
                             exc,
                         )
                         raise
                     logger.warning(
                         "OpenRouter attempt %d/%d failed: %s; retrying in %.1fs",
                         attempt,
-                        MAX_ATTEMPTS,
+                        self.max_attempts,
                         exc,
                         delay,
                     )

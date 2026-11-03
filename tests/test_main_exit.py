@@ -3,6 +3,7 @@ import importlib
 import sys
 import types
 import unittest
+import pytest
 from unittest.mock import patch
 
 
@@ -71,3 +72,9 @@ class MainExitTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@pytest.fixture(autouse=True)
+def isolate_entrypoint_receipts(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("GITHUB_OUTPUT", raising=False)

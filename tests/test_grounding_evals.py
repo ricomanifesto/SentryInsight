@@ -138,7 +138,6 @@ def test_model_task_sends_only_neutral_sources_and_enforces_call_budget(
     monkeypatch, tmp_path
 ):
     import json
-    from test_version_references import report
     from evals.grounding.model_task import (
         FreeModelClient,
         ModelTask,
@@ -164,7 +163,10 @@ def test_model_task_sends_only_neutral_sources_and_enforces_call_budget(
             "; ".join(item["id"] for item in selected)
             or "Not stated in supplied sources."
         )
-        return report(scope["source_keys"], versions, cves=", ".join(scope["cves"]))
+        return case.reference_report.replace(
+            "**Affected Versions**: " + case.expected.findings[0].affected_versions,
+            "**Affected Versions**: " + versions,
+        )
 
     monkeypatch.setattr(FreeModelClient, "generate", generate)
     task = ModelTask(

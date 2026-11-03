@@ -138,7 +138,7 @@ jobs:
         run: git checkout -- config/config.json
 
       - name: Validate report content before publishing
-        if: steps.admission.outputs.decision == 'admitted'
+        if: success() && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true'
         run: |
           uv run python scripts/validate_report.py index.md
           uv run python scripts/build_site.py --check
@@ -146,7 +146,7 @@ jobs:
 
       - name: Upload rendered report evidence
         id: generated-report-evidence
-        if: always() && steps.admission.outputs.decision == 'admitted'
+        if: always() && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: generated-report-screenshots-${{ github.run_id }}
@@ -154,7 +154,7 @@ jobs:
           if-no-files-found: error
 
       - name: Add rendered report review summary
-        if: always() && steps.admission.outputs.decision == 'admitted'
+        if: always() && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true'
         env:
           ARTIFACT_URL: ${{ steps.generated-report-evidence.outputs.artifact-url }}
         run: |
@@ -166,9 +166,43 @@ jobs:
             echo "Review the dark logo, report date and counts, finding badges, desktop TOC, and mobile map before using the report."
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Package source review metadata
+        id: source-review-package
+        if: always() && steps.admission.outputs.decision == 'admitted' && steps.generate.outcome != 'skipped'
+        run: uv run python scripts/review_sources.py package --root . --output "$RUNNER_TEMP/source-review-package"
+
+      - name: Upload source review metadata
+        id: source-review-artifact
+        if: always() && steps.source-review-package.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-review-${{ github.run_id }}
+          path: ${{ runner.temp }}/source-review-package
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Add source review summary
+        id: source-review-summary
+        if: always() && steps.source-review-artifact.outcome == 'success'
+        env:
+          ARTIFACT_URL: ${{ steps.source-review-artifact.outputs.artifact-url }}
+        run: |
+          python - <<'PY'
+          import os
+          from urllib.parse import urlsplit
+          url = os.environ['ARTIFACT_URL']
+          parsed = urlsplit(url)
+          expected = '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'] + '/artifacts/'
+          if parsed.scheme != 'https' or parsed.netloc != 'github.com' or not parsed.path.startswith(expected) or not parsed.path[len(expected):].isdigit() or parsed.query or parsed.fragment:
+              raise SystemExit('Review artifact link missing or invalid')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as stream:
+              stream.write('\n## Source coverage and review\n\n[Open validated review metadata](' + url + ')\n\n')
+              stream.write('Held and rejected sources are not published findings. Eligible sources that were not cited are not established as irrelevant. Review metadata is retained for 90 days; expiry does not resolve review items. The outcome receipt identifies whether a new report was generated.\n')
+          PY
+
       - name: Commit and push updated report
         id: publish
-        if: github.ref == 'refs/heads/main' && steps.admission.outputs.decision == 'admitted'
+        if: success() && github.ref == 'refs/heads/main' && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true' && steps.source-review-summary.outcome == 'success'
         env:
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           ADMISSION_FEED: ${{ steps.admission.outputs.feed_url }}
@@ -204,11 +238,14 @@ jobs:
           BINDING: ${{ steps.admission.outputs.binding }}
           GENERATE: ${{ steps.generate.outcome }}
           PUBLISHED: ${{ steps.publish.outputs.published }}
+          REPORT_GENERATED: ${{ steps.generate.outputs.report_generated }}
+          REVIEW_DELIVERED: ${{ steps.source-review-summary.outcome }}
         run: |
           if [ "$GENERATE" = "cancelled" ]; then OUTCOME=cancelled
           elif [ "$GENERATE" != "success" ]; then OUTCOME=failed
           elif [ "$PUBLISHED" = "true" ]; then OUTCOME=published
           elif [ "$PUBLISHED" = "false" ]; then OUTCOME=unchanged
+          elif [ "$REPORT_GENERATED" = "false" ] && [ "$REVIEW_DELIVERED" = "success" ]; then OUTCOME=unchanged
           else OUTCOME=not-published
           fi
           node publication/cli.js complete --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID" --outcome "$OUTCOME" --binding "$BINDING"

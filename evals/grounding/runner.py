@@ -231,7 +231,13 @@ async def run_evaluation(
             "planned": len(selected),
             "recorded": len(selected),
             "completed": len(completed),
-            "execution_errors": len(selected) - len(completed),
+            "execution_errors": sum(
+                row["error_type"] not in {None, "SourceReviewRequired"}
+                for row in selected
+            ),
+            "source_review_required": sum(
+                row["error_type"] == "SourceReviewRequired" for row in selected
+            ),
             "field_pass_trials": sum(all(row["checks"].values()) for row in completed),
             "field_checks": {
                 key: {
@@ -266,6 +272,7 @@ async def run_evaluation(
         },
         "limitations": [
             "Synthetic fixtures; review status is recorded in the dataset.",
+            "Full-case model trials abstain before provider calls when any source requires review; abstentions remain in the denominator and do not measure partial-report quality.",
             "Exact field checks do not establish correctness of arbitrary prose.",
             "Rejection candidates require manual review; gate replay does not publish.",
             "Repeated trials are not independent source cases or population estimates.",

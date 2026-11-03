@@ -12,21 +12,15 @@ from pathlib import Path
 from ..services.fetch import SentryDigestFeedClient
 from .analyze import filter_exploitation_articles, analyze_exploitation
 from .article_policy import (
-    contains_virtual_event_tag,
     exclude_virtual_event_promotions,
 )
 from .report_validation import (
     format_report_validation_issues,
-    prepare_generated_report,
-    validate_report_content,
 )
 from .finding_evidence import (
     EvidenceError,
     grounding_failure_diagnostic,
-    validate_finding_evidence,
 )
-from .version_references import PROTOCOL_KEY, resolve_analysis_version_references
-from .version_state import resolved_report_schema
 from .analysis_errors import ANALYSIS_ERROR_CLASSES
 from .observability import (
     ci_attributes,
@@ -35,14 +29,11 @@ from .observability import (
     traced_stage,
 )
 from .report_artifact import (
-    DIGEST_ARCHIVE_ROOT,
     ReportArtifactError,
     parse_report_artifact,
 )
 from .reporting import (
     ReportingGroundingError,
-    deserialize_reporting_catalog,
-    resolve_reporting_keys,
 )
 from scripts.build_site import (
     ArchiveConflictError,
@@ -52,9 +43,22 @@ from scripts.build_site import (
 )
 from .content_fingerprint import (
     FINGERPRINT_PATH,
-    compute_articles_fingerprint,
     read_stored_fingerprint,
     write_stored_fingerprint,
+)
+
+from .source_review import (
+    PLAN_KEY,
+    SourceReviewError,
+    prepare_source_review,
+    write_review_packet,
+    digest,
+)
+from .reviewed_report import resolve_reviewed_analysis, ReviewedReportValidationError
+from .publication_transaction import (
+    PublicationError,
+    ensure_no_pending_publication,
+    promote_artifacts,
 )
 
 logger = logging.getLogger(__name__)
@@ -81,6 +85,9 @@ class ExploitationAnalysisState(TypedDict):
     articles_fingerprint: NotRequired[str]
     failure: NotRequired[WorkflowFailure]
     unresolved_version_count: NotRequired[int]
+    source_review_plan: NotRequired[dict]
+    report_generated: NotRequired[bool]
+    source_review_count: NotRequired[int]
 
 
 def _record_failure(
@@ -164,19 +171,34 @@ async def filter_articles(
 
     state["filtered_articles"] = filtered
 
-    if filtered:
-        output_path = state["config"].get("output_path", "index.md")
-        fingerprint = compute_articles_fingerprint(filtered)
-        previous_fingerprint = read_stored_fingerprint(
-            _fingerprint_path_for(output_path)
-        )
-        state["articles_fingerprint"] = fingerprint
-        if fingerprint == previous_fingerprint:
-            logger.info(
-                "Source article set is unchanged since the last report — "
-                "skipping analysis to avoid redundant API usage"
+    state["report_generated"] = False
+    output_path = state["config"].get("output_path", "index.md")
+    root = Path(output_path).parent
+    try:
+        ensure_no_pending_publication(root)
+        if filtered:
+            plan = prepare_source_review(filtered)
+            write_review_packet(plan.packet, root / ".sentryinsight-review")
+            state["source_review_plan"] = plan.packet
+            fingerprint = digest(
+                {"generation_schema": 5, "plan_id": plan.packet["plan_id"]}
             )
-            state["status"] = "completed_unchanged"
+            state["articles_fingerprint"] = fingerprint
+            if not plan.eligible_keys:
+                state["status"] = "review_required"
+            elif fingerprint == read_stored_fingerprint(
+                _fingerprint_path_for(output_path)
+            ):
+                logger.info("Source review plan is unchanged; skipping analysis")
+                state["status"] = "completed_unchanged"
+    except (SourceReviewError, PublicationError, OSError) as exc:
+        code = (
+            exc.code
+            if isinstance(exc, (SourceReviewError, PublicationError))
+            else "review_packet_write_failed"
+        )
+        _record_failure(state, "source_review", [code])
+        state["status"] = "failed"
 
     return state
 
@@ -208,7 +230,11 @@ async def analyze_articles(
     state["analysis_results"] = analysis_results
     if analysis_results.get("skipped"):
         logger.warning(f"Analysis skipped: {analysis_results['skip_reason']}")
-        state["status"] = "completed_with_warnings"
+        state["status"] = (
+            "review_required"
+            if analysis_results.get("skip_reason") == "source_review_required"
+            else "completed_with_warnings"
+        )
         return state
     if analysis_results.get("error"):
         logger.error(f"Analysis failed: {analysis_results['error']}")
@@ -228,8 +254,9 @@ async def generate_report(
     state: ExploitationAnalysisState,
 ) -> ExploitationAnalysisState:
     """Generate the exploitation report"""
-    if state.get("status") == "failed":
+    if state.get("status") in {"failed", "review_required", "completed_unchanged"}:
         return state
+    state["report_generated"] = False
 
     logger.info("Generating exploitation report")
 
@@ -245,35 +272,55 @@ async def generate_report(
         state["status"] = "completed_with_warnings"
         return state
 
-    # Extract the exploitation report
-    exploitation_report = analysis_results.get(
-        "exploitation_report", "# No Exploitation Report Generated"
-    )
-    # Normalization must not erase a promotion's only tag and publish its body.
-    if contains_virtual_event_tag(exploitation_report):
-        state["report_validation_errors"] = [
-            "Report contains a blocked [Virtual Event] promotion."
-        ]
-        _record_failure(state, "report_policy", ["virtual_event_promotion"])
-        state["status"] = "failed"
-        return state
-
-    # Since the exploitation_report already contains the full formatted report,
-    # we should use it directly instead of the template
-    report = exploitation_report
+    report = analysis_results.get("exploitation_report", "")
     reporting_catalog = {}
     try:
-        reporting_catalog = deserialize_reporting_catalog(
-            analysis_results.get("reporting_sources", [])
+        # Bind this result to the complete inputs retained by this actual run.
+        if PLAN_KEY not in state:
+            raise SourceReviewError("source_review_plan_missing")
+        plan = prepare_source_review(state["filtered_articles"])
+        if (
+            state[PLAN_KEY] != plan.packet
+            or analysis_results.get(PLAN_KEY) != plan.packet
+        ):
+            raise SourceReviewError("source_review_plan_mismatch")
+        fingerprint = digest(
+            {"generation_schema": 5, "plan_id": plan.packet["plan_id"]}
         )
-        # Live analysis supplies host-owned protocol metadata. Existing
-        # canonical report callers still pass the same publication validator.
-        if PROTOCOL_KEY in analysis_results:
-            report = resolve_analysis_version_references(analysis_results)
-        else:
-            report = prepare_generated_report(report)
-        validate_finding_evidence(report, reporting_catalog)
-        report = resolve_reporting_keys(report, reporting_catalog)
+        if state.get("articles_fingerprint") != fingerprint:
+            raise SourceReviewError("source_review_fingerprint_mismatch")
+        root = Path(config.get("output_path", "index.md")).parent
+        ensure_no_pending_publication(root)
+        write_review_packet(plan.packet, root / ".sentryinsight-review")
+        reporting_catalog = plan.eligible_catalog
+        candidate = resolve_reviewed_analysis(analysis_results)
+        report_source = candidate.source
+        artifact = parse_report_artifact(report_source)
+    except (SourceReviewError, PublicationError, OSError) as exc:
+        code = (
+            exc.code
+            if isinstance(exc, (SourceReviewError, PublicationError))
+            else "review_packet_write_failed"
+        )
+        _record_failure(state, "source_review", [code])
+        state["report_validation_errors"] = [code]
+        state["status"] = "failed"
+        return state
+    except ReviewedReportValidationError as exc:
+        logger.error(
+            "Report validation failed:\n%s", format_report_validation_issues(exc.issues)
+        )
+        state["report_validation_errors"] = [issue.message for issue in exc.issues]
+        stage = (
+            "report_policy"
+            if any(issue.code == "virtual_event_promotion" for issue in exc.issues)
+            else "report_validation"
+        )
+        _record_failure(
+            state, stage, list(dict.fromkeys(issue.code for issue in exc.issues))
+        )
+        state["status"] = "failed"
+        return state
     except (ReportingGroundingError, EvidenceError) as exc:
         diagnostic = grounding_failure_diagnostic(report, reporting_catalog, exc)
         logger.error("Report grounding failed: %s", json.dumps(diagnostic))
@@ -283,49 +330,8 @@ async def generate_report(
         )
         state["status"] = "failed"
         return state
-    validation_issues = validate_report_content(
-        report,
-        expected_cves=analysis_results.get("cves_identified"),
-    )
-    if validation_issues:
-        logger.error(
-            "Report validation failed:\n%s",
-            format_report_validation_issues(validation_issues),
-        )
-        state["report_validation_errors"] = [
-            issue.message for issue in validation_issues
-        ]
-        _record_failure(
-            state,
-            "report_validation",
-            list(dict.fromkeys(issue.code for issue in validation_issues)),
-        )
-        state["status"] = "failed"
-        return state
-
-    report_date = str(
-        analysis_results.get("date") or datetime.now(timezone.utc).date().isoformat()
-    )
-    generated_at = str(
-        analysis_results.get("generated_at")
-        or datetime.now(timezone.utc)
-        .isoformat(timespec="seconds")
-        .replace("+00:00", "Z")
-    )
-    report_source = (
-        "---\n"
-        f"schema_version: {resolved_report_schema(report)}\n"
-        f"report_date: {report_date}\n"
-        f"generated_at: {generated_at}\n"
-        f"digest_issue_url: {DIGEST_ARCHIVE_ROOT}{report_date}/\n"
-        "---\n"
-        f"{report.lstrip()}"
-    )
-    try:
-        artifact = parse_report_artifact(report_source)
-    except ReportArtifactError as exc:
-        logger.error("Report artifact validation failed: %s", exc)
-        state["report_validation_errors"] = [str(exc)]
+    except ReportArtifactError:
+        state["report_validation_errors"] = ["report_artifact_invalid"]
         _record_failure(state, "report_artifact", ["report_artifact_invalid"])
         state["status"] = "failed"
         return state
@@ -370,36 +376,26 @@ async def generate_report(
                 template_path=REPO_ROOT / "site",
             )
 
-            staged_files = sorted(
-                (path for path in staged_root.rglob("*") if path.is_file()),
-                key=lambda path: (
-                    path.relative_to(staged_root) == Path("index.html"),
-                    path.as_posix(),
-                ),
+            write_stored_fingerprint(
+                fingerprint, str(staged_root / Path(FINGERPRINT_PATH).name)
             )
-            for staged_path in staged_files:
-                relative_path = staged_path.relative_to(staged_root)
-                destination = output_file.parent / relative_path
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                temporary_destination = destination.with_name(
-                    f".{destination.name}.sentryinsight.tmp"
+            promotion_status = promote_artifacts(staged_root, output_file.parent)
+            if promotion_status == "publication_cleanup_pending":
+                logger.warning(
+                    "Publication completed; local recovery cleanup is required before another generation"
                 )
-                try:
-                    shutil.copy2(staged_path, temporary_destination)
-                    temporary_destination.replace(destination)
-                finally:
-                    temporary_destination.unlink(missing_ok=True)
-    except (ArchiveConflictError, SiteBuildError, OSError) as exc:
-        logger.error("Static report publication failed: %s", exc)
-        state["report_validation_errors"] = [str(exc)]
-        _record_failure(state, "site_publication", [_publication_failure_code(exc)])
+    except (ArchiveConflictError, SiteBuildError, PublicationError, OSError) as exc:
+        code = _publication_failure_code(exc)
+        logger.error("Static report publication failed: %s", code)
+        state["report_validation_errors"] = [code]
+        _record_failure(state, "site_publication", [code])
         state["status"] = "failed"
         return state
 
-    if state.get("articles_fingerprint"):
-        write_stored_fingerprint(
-            state["articles_fingerprint"], _fingerprint_path_for(output_path)
-        )
+    state["report_generated"] = True
+    state["source_review_count"] = sum(
+        row["state"] != "eligible" for row in plan.packet["sources"]
+    )
 
     state["report_path"] = output_path
     state["unresolved_version_count"] = artifact.unresolved_version_count
@@ -412,6 +408,8 @@ async def generate_report(
 
 
 def _publication_failure_code(exc: Exception) -> str:
+    if isinstance(exc, PublicationError):
+        return exc.code
     if isinstance(exc, ArchiveConflictError):
         return "archive_conflict"
     if isinstance(exc, SiteBuildError):
@@ -425,8 +423,8 @@ async def publish_results(
     """Publish results to GitHub Pages or local file"""
     logger.info("Publishing results")
 
-    if state.get("status") == "failed":
-        logger.warning("Skipping publishing because workflow status is failed")
+    if state.get("status") in {"failed", "review_required", "completed_unchanged"}:
+        logger.info("Skipping publishing for terminal workflow status")
         return state
 
     analysis_results = state["analysis_results"]
@@ -446,7 +444,9 @@ async def publish_results(
         return state
 
     logger.info("Validated static report artifacts are ready for GitHub Pages")
-    state["status"] = "completed"
+    state["status"] = (
+        "completed_with_review" if state.get("source_review_count") else "completed"
+    )
 
     return state
 
@@ -455,7 +455,7 @@ def should_end(state: ExploitationAnalysisState) -> str:
     """Determine if workflow should end."""
     if state.get("status") == "failed":
         return "error"
-    elif state.get("status") == "completed_unchanged":
+    elif state.get("status") in {"completed_unchanged", "review_required"}:
         return "unchanged"
     elif not state.get("filtered_articles"):
         return "no_articles"

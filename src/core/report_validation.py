@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import html
 from html.parser import HTMLParser
 import re
-from typing import Iterable, List
+from typing import Any, Iterable, List
 
 from markdown_it import MarkdownIt
 
@@ -1176,6 +1176,35 @@ def inline_token_plain_text(token) -> str:
             output.append(" ")
 
     return "".join(output)
+
+
+def markdown_references(markdown: str) -> dict[str, Any]:
+    """Resolve CommonMark reference definitions without retaining source text."""
+    if "[" not in markdown:
+        return {}
+    environment: dict[str, Any] = {}
+    MARKDOWN_PARSER.parse(markdown, environment)
+    return environment.get("references", {})
+
+
+def markdown_plain_text(
+    markdown: str, *, inline: bool = False, references: dict[str, Any] | None = None
+) -> str:
+    """Reader-visible identities with field boundaries and reference context."""
+    # A fresh map prevents a body parse from mutating another field's context.
+    environment = {"references": dict(references or {})}
+    tokens = (
+        MARKDOWN_PARSER.parseInline(markdown, environment)
+        if inline
+        else MARKDOWN_PARSER.parse(markdown, environment)
+    )
+    blocks = []
+    for token in tokens:
+        if token.type == "inline":
+            blocks.append(inline_token_plain_text(token))
+        elif token.type in {"fence", "code_block"}:
+            blocks.append(token.content)
+    return "\n\n".join(blocks)
 
 
 def format_report_validation_issues(

@@ -9,7 +9,13 @@ import httpx
 
 from src.core.analyze import analyze_exploitation
 from src.core.opencode_client import ModelSelection
-from src.core.version_references import resolve_analysis_version_references
+from src.core.reviewed_report import resolve_reviewed_analysis
+from src.core.source_review import (
+    PLAN_KEY,
+    SourceReviewError,
+    prepare_source_review,
+    write_review_packet,
+)
 
 from .dataset import TaskInput, digest
 
@@ -25,6 +31,10 @@ CHECKLIST = (
 
 class ModelRunError(RuntimeError):
     """Sanitized model execution failure."""
+
+
+class SourceReviewRequired(ModelRunError):
+    """This full-case trial abstained before any provider request."""
 
 
 class FreeModelClient:
@@ -144,32 +154,63 @@ class ModelTask:
         self.requests = 0
 
     async def __call__(self, inputs: TaskInput) -> str:
+        articles = [article.model_dump() for article in inputs.articles]
+        plan = prepare_source_review(articles)
+        write_review_packet(plan.packet, self.receipts.parent / ".sentryinsight-review")
+        if len(plan.eligible_keys) != len(plan.catalog):
+            self._write_receipt(
+                inputs,
+                {
+                    "outcome": "source_review_required",
+                    "attempts": 0,
+                    "plan_id": plan.packet["plan_id"],
+                },
+            )
+            raise SourceReviewRequired()
         if self.requests >= self.max_requests:
             raise ModelRunError("Request limit reached")
         self.requests += 1  # No await before reservation; at most one call per trial.
         client = FreeModelClient(
-            api_key=self.api_key,
-            variant=inputs.variant,
-            max_tokens=self.max_tokens,
+            api_key=self.api_key, variant=inputs.variant, max_tokens=self.max_tokens
         )
+        outcome = "generation_failed"
         try:
             result = await analyze_exploitation(
-                [article.model_dump() for article in inputs.articles],
-                {"analysis": {"model": self.model, "max_tokens": self.max_tokens}},
+                articles,
+                {
+                    "analysis": {"model": self.model, "max_tokens": self.max_tokens},
+                    "output_path": str(self.receipts.parent / "index.md"),
+                },
                 model_client=client,
             )
             if result.get("error") or result.get("skipped"):
                 raise ModelRunError("Report generation did not complete")
-            return resolve_analysis_version_references(result)
+            if result.get(PLAN_KEY) != plan.packet:
+                raise SourceReviewError("source_review_plan_mismatch")
+            candidate = resolve_reviewed_analysis(result)
+            outcome = "validated"
+            # Keep reporting keys for the existing full-case fixture evaluator;
+            # the shared gate already validated its resolved schema5 artifact.
+            return candidate.grounded_report
         finally:
-            self.receipts.parent.mkdir(parents=True, exist_ok=True)
-            with self.receipts.open("a") as stream:
-                stream.write(
-                    json.dumps(
-                        {
-                            "trial_id": f"{inputs.name}/{inputs.variant}/{inputs.repetition}",
-                            **client.receipt,
-                        }
-                    )
-                    + "\n"
+            self._write_receipt(
+                inputs,
+                {
+                    **client.receipt,
+                    "outcome": outcome,
+                    "plan_id": plan.packet["plan_id"],
+                },
+            )
+
+    def _write_receipt(self, inputs: TaskInput, metadata: dict[str, Any]) -> None:
+        self.receipts.parent.mkdir(parents=True, exist_ok=True)
+        with self.receipts.open("a") as stream:
+            stream.write(
+                json.dumps(
+                    {
+                        "trial_id": f"{inputs.name}/{inputs.variant}/{inputs.repetition}",
+                        **metadata,
+                    }
                 )
+                + "\n"
+            )

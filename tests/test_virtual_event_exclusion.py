@@ -1,3 +1,4 @@
+from review_fixtures import reviewed_state
 import asyncio
 from copy import deepcopy
 from html import escape
@@ -6,7 +7,6 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from src.core.content_fingerprint import compute_articles_fingerprint
 from src.core.report_validation import validate_report_content
 from src.services.fetch import SentryDigestFeedClient
 from src.services import fetch as fetch_module
@@ -259,7 +259,14 @@ def test_workflow_excludes_virtual_event_before_filter_and_fingerprint(
 ):
     workflow = import_workflow_with_stubs()
     clean = news_article()
-    fingerprint = compute_articles_fingerprint([clean])
+    from src.core.source_review import prepare_source_review, digest
+
+    fingerprint = digest(
+        {
+            "generation_schema": 5,
+            "plan_id": prepare_source_review([clean]).packet["plan_id"],
+        }
+    )
     (tmp_path / ".sentryinsight-articles-fingerprint").write_text(fingerprint + "\n")
     relevance_filter = Mock(side_effect=lambda articles: articles)
     monkeypatch.setattr(workflow, "filter_exploitation_articles", relevance_filter)
@@ -376,7 +383,7 @@ def test_all_virtual_event_input_preserves_last_valid_publication(
     else:
         state = asyncio.run(workflow.filter_articles(state))
         assert workflow.should_end(state) == "no_articles"
-    state = asyncio.run(workflow.generate_report(state))
+    state = asyncio.run(workflow.generate_report(reviewed_state(state)))
     state = asyncio.run(workflow.publish_results(state))
 
     analyze.assert_not_awaited()
@@ -416,6 +423,7 @@ def test_generate_report_rejects_virtual_event_before_normalization(
                     "publisher": "Example Source",
                     "title": "Example report",
                     "url": "https://example.test/report",
+                    "content": "A service advisory.",
                 }
             ],
         },
@@ -423,9 +431,12 @@ def test_generate_report_rejects_virtual_event_before_normalization(
         "status": "started",
     }
 
-    result = asyncio.run(workflow.generate_report(state))
+    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
 
     assert result["status"] == "failed"
     assert any("Virtual Event" in error for error in result["report_validation_errors"])
     assert output_path.read_text() == "Last valid report"
-    assert sorted(path.name for path in tmp_path.iterdir()) == ["index.md"]
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
+        ".sentryinsight-review",
+        "index.md",
+    ]
