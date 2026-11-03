@@ -405,11 +405,21 @@ def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
     source_blocks = _logical_source_blocks(content)
     previous_block = None
     preceding: list[str] = []
+    block_has_recommendation = False
+    block_cves: set[str] = set()
     for line_index, line in enumerate(content.splitlines()):
         source_block = source_blocks[line_index]
         if source_block != previous_block:
             preceding = []
             previous_block = source_block
+            block_has_recommendation = bool(
+                re.search(
+                    DETAIL_CUES["Recommended Actions"],
+                    " ".join(source_block.split()),
+                    re.I,
+                )
+            )
+            block_cves = set(extract_cve_ids(source_block))
         heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
         if heading:
             level = len(heading[1])
@@ -443,16 +453,24 @@ def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
             # Position matters: later advice cannot change an earlier row's
             # role, even when the same release name occurs more than once.
             preceding.append(sentence)
-            version_context = " ".join(preceding)
+            # Only cumulative-update role classification consumes this prefix.
+            # Retain the exact original prefix when needed, including wrapped
+            # recommendations; ordinary sentences must not each copy an ever
+            # growing paragraph. Keep the prefix for every CVE-bearing span
+            # too: later attribution normalization can expose a cumulative
+            # cue. Do not run that validating normalization before scope
+            # selection, when an unrelated malformed attribution is harmless.
+            needs_context = re.search(
+                CUMULATIVE_UPDATE_CUE, sentence, re.I
+            ) or CVE_ID_PATTERN.search(sentence)
+            version_context = " ".join(preceding) if needs_context else ""
             mentioned = set(extract_cve_ids(sentence))
             selected = mentioned <= wanted if mentioned and wanted else owned
             body_fields = _detail_roles(sentence, version_context) or (
                 sections[-1][2] if sections else ()
             )
             # Recommendation cues can themselves cross a physical line break.
-            if re.search(
-                DETAIL_CUES["Recommended Actions"], " ".join(source_block.split()), re.I
-            ):
+            if block_has_recommendation:
                 body_fields = tuple(
                     dict.fromkeys((*body_fields, "Recommended Actions"))
                 )
@@ -460,7 +478,7 @@ def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
                 selected
                 and "Recommended Actions" in body_fields
                 and wanted
-                and not set(extract_cve_ids(source_block)) <= wanted
+                and not block_cves <= wanted
             ):
                 raise EvidenceError(
                     "ambiguous recommendation block CVE scope",

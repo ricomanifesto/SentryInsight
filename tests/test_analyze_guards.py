@@ -1,8 +1,11 @@
 import asyncio
+import atexit
 import importlib
 import os
 import sys
 import types
+import tempfile
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 
@@ -44,7 +47,20 @@ def import_analyze_with_stubs():
             "tiktoken": tiktoken_module,
         },
     ):
-        return importlib.import_module("src.core.analyze")
+        module = importlib.import_module("src.core.analyze")
+    module._test_directory = tempfile.TemporaryDirectory()
+    atexit.register(module._test_directory.cleanup)
+    real_analyze = module.analyze_exploitation
+
+    async def isolated_analysis(articles, config, **kwargs):
+        config = {
+            "output_path": str(Path(module._test_directory.name) / "index.md"),
+            **config,
+        }
+        return await real_analyze(articles, config, **kwargs)
+
+    module.analyze_exploitation = isolated_analysis
+    return module
 
 
 class AnalyzeGuardTests(unittest.TestCase):
@@ -87,7 +103,14 @@ class AnalyzeGuardTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
                 analyze.analyze_exploitation(
-                    articles=[],
+                    articles=[
+                        {
+                            "title": "Advisory",
+                            "source": "Example Source",
+                            "link": "https://example.test/report",
+                            "content": "A campaign advisory.",
+                        }
+                    ],
                     config={
                         "analysis": {
                             "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
@@ -114,7 +137,14 @@ class AnalyzeGuardTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             result = asyncio.run(
                 analyze.analyze_exploitation(
-                    articles=[],
+                    articles=[
+                        {
+                            "title": "Advisory",
+                            "source": "Example Source",
+                            "link": "https://example.test/report",
+                            "content": "A campaign advisory.",
+                        }
+                    ],
                     config={
                         "analysis": {
                             "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
@@ -129,41 +159,13 @@ class AnalyzeGuardTests(unittest.TestCase):
 
     def test_article_prompt_omits_empty_source_and_url_fields(self):
         analyze = import_analyze_with_stubs()
-
-        class FakeOpenCodeClient:
-            def __init__(self, **_kwargs):
-                pass
-
-            async def generate(self, **kwargs):
-                user_prompt = kwargs["user_prompt"]
-                self.__class__.user_prompt = user_prompt
-                return "# Exploitation Report\n\nGenerated through OpenCode."
-
-        analyze.build_model_client = lambda **kwargs: FakeOpenCodeClient(**kwargs)
-
-        with patch.dict(os.environ, {}, clear=True):
-            asyncio.run(
-                analyze.analyze_exploitation(
-                    articles=[
-                        {
-                            "title": None,
-                            "source": None,
-                            "link": None,
-                            "summary": "Summary only",
-                        }
-                    ],
-                    config={
-                        "analysis": {
-                            "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
-                        }
-                    },
-                )
-            )
-
-        self.assertIn("**Untitled article**", FakeOpenCodeClient.user_prompt)
-        self.assertIn("Summary only\n", FakeOpenCodeClient.user_prompt)
-        self.assertNotIn("(Source: )", FakeOpenCodeClient.user_prompt)
-        self.assertNotIn("URL: \n", FakeOpenCodeClient.user_prompt)
+        summary = analyze.format_article_summary(
+            {"title": None, "source": None, "link": None, "summary": "Summary only"}
+        )
+        self.assertIn("**Untitled article**", summary)
+        self.assertIn("Summary only\n", summary)
+        self.assertNotIn("(Source: )", summary)
+        self.assertNotIn("URL: \n", summary)
 
     def test_article_summary_omits_unknown_source_sentinel(self):
         analyze = import_analyze_with_stubs()
@@ -208,6 +210,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Vendor patch for CVE-2026-1111",
                             "summary": "Summary text is not used when content is present.",
                             "content": "Exploitation observed for CVE 2026 2222. "
@@ -251,16 +254,19 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Vendor patch for CVE-2026-1111",
                             "summary": "Maintenance update available for administrators.",
                             "link": "https://example.test/CVE-2026-1111",
                         },
                         {
+                            "source": "Example Source",
                             "title": "Patch fixes RCE in CVE-2026-3333",
                             "summary": "Remote code execution issue fixed in a routine update.",
                             "link": "https://example.test/CVE-2026-3333",
                         },
                         {
+                            "source": "Example Source",
                             "title": "Active exploitation of CVE-2026-2222",
                             "summary": "Attackers are exploiting the issue in the wild.",
                             "link": "https://example.test/CVE-2026-2222",
@@ -293,11 +299,13 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "CVE-2026-1111 advisory",
                             "summary": "No evidence that CVE-2026-1111 has been exploited in the wild.",
                             "link": "https://example.test/CVE-2026-1111",
                         },
                         {
+                            "source": "Example Source",
                             "title": "Active exploitation of CVE-2026-2222",
                             "summary": "Attackers are exploiting CVE-2026-2222 in the wild.",
                             "link": "https://example.test/CVE-2026-2222",
@@ -330,6 +338,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Active exploitation of CVE-2026-1111",
                             "summary": (
                                 "Attackers are exploiting CVE-2026-1111 in the wild. "
@@ -365,6 +374,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Vendor zero-day under attack",
                             "summary": (
                                 "CVE-2026-1111 is not yet patched and is being "
@@ -400,6 +410,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Attackers exploit vendor service",
                             "summary": "Attackers exploit CVE-2026-1111 to gain access.",
                             "link": "https://example.test/report",
@@ -432,6 +443,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Unauthenticated zero-day exploited",
                             "summary": (
                                 "Without authentication, attackers are exploiting "
@@ -467,6 +479,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Vendor advisory",
                             "summary": "CVE-2026-1111 is not exploited in the wild.",
                             "link": "https://example.test/report",
@@ -499,6 +512,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Vendor advisory",
                             "summary": (
                                 "CVE-2026-1111 was disclosed without evidence of "
@@ -534,6 +548,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Vendor product exploited in the wild",
                             "summary": "Attackers are exploiting the product.",
                             "link": "https://example.test/advisory",
@@ -567,6 +582,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Vendor product exploited in the wild",
                             "summary": "Attackers are exploiting the product.",
                             "link": "https://example.test/CVE-2026-1111",
@@ -599,6 +615,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Vendor advisory with active exploitation",
                             "summary": (
                                 "Attackers are exploiting CVE-2026-1111 in the wild. "
@@ -635,6 +652,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Two zero-days exploited in the wild",
                             "summary": (
                                 "Attackers are exploiting one listed issue. "
@@ -671,6 +689,7 @@ class AnalyzeGuardTests(unittest.TestCase):
                 analyze.analyze_exploitation(
                     articles=[
                         {
+                            "source": "Example Source",
                             "title": "Two zero-days exploited in the wild",
                             "summary": "Attackers are exploiting both issues.",
                             "link": "https://example.test/advisory",
@@ -772,7 +791,8 @@ class AnalyzeGuardTests(unittest.TestCase):
                             "summary": "Summary only",
                         },
                         {
-                            "title": "Source-only exploitation report",
+                            "title": "Second exploitation report",
+                            "link": "https://example.test/second",
                             "source": "Example Source",
                             "summary": "Summary only",
                         },
@@ -788,19 +808,13 @@ class AnalyzeGuardTests(unittest.TestCase):
         self.assertNotIn("source_attribution_required", result)
         self.assertNotIn("source_attribution_entries", result)
         self.assertNotIn("source_attribution_requirements", result)
+        self.assertEqual(len(result["reporting_sources"]), 2)
         self.assertEqual(
-            result["reporting_sources"],
-            [
-                {
-                    "key": "source-1e8f5cb3245d",
-                    "publisher": "Example Source",
-                    "title": "Example exploitation report",
-                    "url": "https://example.test/report",
-                    "content": "Summary only",
-                    "content_kind": "feed",
-                    "links": (),
-                }
-            ],
+            {row["url"] for row in result["reporting_sources"]},
+            {"https://example.test/report", "https://example.test/second"},
+        )
+        self.assertTrue(
+            all(row["content"] == "Summary only" for row in result["reporting_sources"])
         )
 
 

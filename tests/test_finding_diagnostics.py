@@ -152,14 +152,12 @@ def test_generation_unknown_example_agrees_with_badge_and_narrative_guards(monke
     client = type("Client", (), {"generate": AsyncMock(return_value=candidate)})()
     monkeypatch.setattr(analyze, "build_model_client", lambda **_: client)
     result = asyncio.run(analyze.analyze_exploitation([article], {}))
-    prompt = client.generate.call_args.kwargs["user_prompt"]
-    assert (
-        'Unknown-scope example: use Exploitation Status: unknown and prose "Exploitation status is unknown."'
-        in prompt
+    evidence.validate_finding_evidence(candidate, catalog)
+    assert result["skip_reason"] == "source_review_required"
+    assert all(
+        row["state"] != "eligible" for row in result["source_review_plan"]["sources"]
     )
-    assert "titles, descriptions, Status prose, and the Executive Summary" in prompt
-    evidence.validate_finding_evidence(result["exploitation_report"], catalog)
-    assert client.generate.await_count == 1
+    assert client.generate.await_count == 0
 
 
 @pytest.mark.parametrize(

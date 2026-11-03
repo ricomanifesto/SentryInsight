@@ -138,3 +138,74 @@ claims always require separate source review; regrading is not a model improveme
 - `.github/workflows/deploy-pages.yml` automatically publishes the validated `main` commit. A manual dispatch can publish the selected branch or tag without first checking Validate.
 
 The public Pages package contains only the finished report, archive, assets, sitemap, and the versioned reporting contract.
+
+### Source review and partial coverage
+
+New generation performs source review before contacting the model or deciding
+that inputs are unchanged. Every retained source is classified as eligible,
+review required, or source rejected. A source with ambiguous version ownership
+requires review. Contradictory or incomplete version collections remain source
+failures. Sources sharing a CVE are held together, including otherwise valid
+sources, so removing negative or conflicting evidence cannot change a finding's
+assessment. The eligible subset must reproduce the full-catalog evidence
+assessments exactly.
+
+Only eligible sources enter the model prompt. Every generated finding must pass
+all existing reference, grounding, content, and artifact checks. A failed finding
+fails the whole candidate; the application never removes it to obtain a passing
+report. If all sources are held, no model is called and the last-good report and
+fingerprint stay in place. A valid partial report records every retained source,
+including eligible sources the model did not cite. Those uncited sources are
+labelled **not represented**, not resolved or irrelevant.
+
+Live reports use schema 5 with host-owned `source_coverage` metadata and a
+prominent coverage notice and source disposition table. Review rows are not
+findings and do not contribute to finding or CVE counts. Historical schemas 1–4
+remain readable; their existing unresolved-version state has not been broadened.
+The finding-only `current-findings.json` contract remains schema 1. Static parsing
+verifies coverage structure and digests; it cannot re-establish source semantics
+without the original source bodies. This coverage is not a complete advisory.
+
+Immutable review packets live in `.sentryinsight-review/<plan_id>.json` with mode
+0600. They contain source identity, titles, URLs, source-content hashes, evidence
+decision hashes, CVE cohorts, fixed reason codes, and dispositions. They contain
+no source bodies or model responses. Local packets remain until explicitly
+cleaned up. CI exports only strictly validated metadata, including a terminal
+outcome receipt, and requires a valid review-artifact link before committing a
+new report. CI artifacts are retained for **90 days**; expiry does not mean a
+review item was resolved. Coverage of successful reports also remains in the
+dated report history. There is no automatic review approval command.
+
+Offline tools (none contacts a model):
+
+```bash
+# Input is a complete JSON array of normalized article objects.
+python scripts/review_sources.py preflight articles.json --root /path/to/review
+python scripts/review_sources.py inspect /path/to/review/.sentryinsight-review/PLAN_ID.json
+python scripts/review_sources.py package --root /path/to/review --output /path/to/new-package
+```
+
+Canonical report files, archives, generated site files, and the input fingerprint
+are staged and promoted together using a rollback journal. A pre-commit copy
+failure restores the prior files. If restoration fails or an intervening edit is
+detected, the journal blocks further generation and preserves the available
+recovery material. Do not delete it. After all verified copies and directory
+syncs succeed, an atomic journal rename records the local commit point. A cleanup
+failure after that point keeps the valid new report and a completed manifest;
+it blocks the next generation until cleanup succeeds. Recovery verifies hashes
+and refuses to overwrite intervening edits or deletions:
+
+```bash
+python scripts/review_sources.py recover --root /path/to/report
+```
+
+Recovery restores a pending promotion or finishes cleanup of an already committed
+or restored promotion. It does not publish to GitHub. If CI review-artifact upload
+fails, commit/push is blocked: the disposable runner may contain a validated new
+local report while the public last-good report remains unchanged.
+
+Model-backed evaluation retains its full-case denominator. Any held or rejected
+source causes an explicit `SourceReviewRequired` abstention before a provider
+request is reserved. All-eligible cases pass the same whole-candidate gate as
+production. Existing historical fixture grading remains full-case grading; these
+abstentions do not measure the quality of partial reports.

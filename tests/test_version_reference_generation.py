@@ -1,3 +1,5 @@
+from review_fixtures import reviewed_state, reviewed_analysis
+from src.core import reviewed_report as gate
 import asyncio
 import json
 from unittest.mock import AsyncMock
@@ -12,12 +14,36 @@ from test_version_references import CVE, contract, report, source, with_version_
 from test_workflow_guards import import_workflow_with_stubs
 
 
+def complete_report(body):
+    if not body.startswith("# Exploitation Report"):
+        body = (
+            "# Exploitation Report\n\n## Executive Summary\n\nThe supplied advisory describes a vulnerability.\n\nReview the source details before acting.\n\n"
+            + body
+        )
+    body = body.replace(
+        "- **Exploitation Status**",
+        "- **Severity**: unknown\n- **Exploitation Status**",
+    )
+    if "## Affected Systems and Products" not in body:
+        body += "\n" + "\n".join(
+            "## " + title + "\n\n" + ABSENT + "\n"
+            for title in (
+                "Affected Systems and Products",
+                "Attack Vectors and Techniques",
+                "Threat Actor Activities",
+            )
+        )
+    return body
+
+
 def analysis(catalog, value):
-    return {
-        PROTOCOL_KEY: PROTOCOL_VERSION,
-        "exploitation_report": report(catalog, value),
-        "reporting_sources": serialize_reporting_catalog(catalog),
-    }
+    return reviewed_analysis(
+        {
+            PROTOCOL_KEY: PROTOCOL_VERSION,
+            "exploitation_report": complete_report(report(catalog, value)),
+            "reporting_sources": serialize_reporting_catalog(catalog),
+        }
+    )[0]
 
 
 def test_analysis_supplies_source_owned_contract_and_host_protocol(monkeypatch):
@@ -69,21 +95,23 @@ def test_workflow_resolves_before_unchanged_grounding_and_report_checks(
         seen.append(candidate)
         raise ReachedReportValidation
 
-    monkeypatch.setattr(workflow, "validate_report_content", inspect)
+    monkeypatch.setattr(gate, "validate_report_content", inspect)
     with pytest.raises(ReachedReportValidation):
         asyncio.run(
             workflow.generate_report(
-                {
-                    "analysis_results": analysis(catalog, reference),
-                    "config": {"output_path": str(tmp_path / "index.md")},
-                    "status": "started",
-                }
+                reviewed_state(
+                    {
+                        "analysis_results": analysis(catalog, reference),
+                        "config": {"output_path": str(tmp_path / "index.md")},
+                        "status": "started",
+                    }
+                )
             )
         )
     assert "**Affected Versions**: Gateway 2.3 (Windows only)" in seen[0]
     assert reference not in seen[0]
     assert "https://example.test/one" in seen[0]
-    assert not list(tmp_path.iterdir())
+    assert [path.name for path in tmp_path.iterdir()] == [".sentryinsight-review"]
 
 
 @pytest.mark.parametrize("value", ["Gateway before 9.0", "version-" + "a" * 32])
@@ -100,11 +128,13 @@ def test_reference_failures_preserve_last_good_and_bounded_diagnostics(
     with caplog.at_level("ERROR", logger="src.core.workflow"):
         result = asyncio.run(
             workflow.generate_report(
-                {
-                    "analysis_results": analysis(catalog, value),
-                    "config": {"output_path": str(paths[0])},
-                    "status": "started",
-                }
+                reviewed_state(
+                    {
+                        "analysis_results": analysis(catalog, value),
+                        "config": {"output_path": str(paths[0])},
+                        "status": "started",
+                    }
+                )
             )
         )
     assert result["status"] == "failed"
@@ -132,19 +162,21 @@ def test_invalid_host_protocol_cannot_fall_back_to_free_text(protocol, tmp_path)
     catalog = build_reporting_catalog([source(f"{CVE} is actively exploited.")])
     result = asyncio.run(
         workflow.generate_report(
-            {
-                "analysis_results": {
-                    **analysis(catalog, ABSENT),
-                    PROTOCOL_KEY: protocol,
-                },
-                "config": {"output_path": str(tmp_path / "index.md")},
-                "status": "started",
-            }
+            reviewed_state(
+                {
+                    "analysis_results": {
+                        **analysis(catalog, ABSENT),
+                        PROTOCOL_KEY: protocol,
+                    },
+                    "config": {"output_path": str(tmp_path / "index.md")},
+                    "status": "started",
+                }
+            )
         )
     )
     assert result["status"] == "failed"
     assert result["report_validation_errors"] == ["Missing version reference protocol"]
-    assert not list(tmp_path.iterdir())
+    assert [path.name for path in tmp_path.iterdir()] == [".sentryinsight-review"]
 
 
 @pytest.mark.parametrize("valid", [True, False])
@@ -198,7 +230,6 @@ def test_adapters_prepare_identical_raw_reports_before_resolving(
     from evals.grounding.dataset import Article, TaskInput
     from src.core.finding_evidence import validate_finding_evidence
     from src.core.report_validation import (
-        ReportPreparationError,
         remove_source_attribution_section,
         split_overlong_executive_summary,
     )
@@ -222,6 +253,7 @@ def test_adapters_prepare_identical_raw_reports_before_resolving(
             f"**Affected Versions**: {reference}",
             "**Affected Versions**: Gateway before 9.0",
         )
+    raw = complete_report(raw)
     result = {**analysis(catalog, reference), "exploitation_report": raw}
     expected = split_overlong_executive_summary(
         remove_source_attribution_section(raw)
@@ -253,7 +285,7 @@ def test_adapters_prepare_identical_raw_reports_before_resolving(
         seen.append(candidate)
         raise ReachedGrounding
 
-    monkeypatch.setattr(workflow, "validate_finding_evidence", inspect)
+    monkeypatch.setattr(gate, "validate_finding_evidence", inspect)
     output = tmp_path / "index.md"
     output.write_text("last good")
     state = {
@@ -262,13 +294,13 @@ def test_adapters_prepare_identical_raw_reports_before_resolving(
         "status": "started",
     }
     if outcome == "promotion":
-        production = asyncio.run(workflow.generate_report(state))
+        production = asyncio.run(workflow.generate_report(reviewed_state(state)))
         assert production["failure"]["codes"] == ["virtual_event_promotion"]
-        with pytest.raises(ReportPreparationError, match=r"blocked \[Virtual Event\]"):
+        with pytest.raises(gate.ReviewedReportValidationError):
             asyncio.run(task(inputs))
         assert seen == []
     elif outcome == "protocol":
-        production = asyncio.run(workflow.generate_report(state))
+        production = asyncio.run(workflow.generate_report(reviewed_state(state)))
         assert production["failure"]["codes"] == ["invalid_version_reference"]
         with pytest.raises(EvidenceError) as caught:
             asyncio.run(task(inputs))
@@ -276,7 +308,10 @@ def test_adapters_prepare_identical_raw_reports_before_resolving(
         assert seen == []
     else:
         with pytest.raises(ReachedGrounding):
-            asyncio.run(workflow.generate_report(state))
+            asyncio.run(workflow.generate_report(reviewed_state(state)))
+        monkeypatch.setattr(
+            gate, "validate_finding_evidence", validate_finding_evidence
+        )
         evaluation = asyncio.run(task(inputs))
         assert seen == [evaluation] == [expected]
     assert output.read_text() == "last good"

@@ -194,3 +194,25 @@ def test_schema_five_site_shows_coverage_without_counting_review_rows(
     manifest = json.loads((tmp_path / "current-findings.json").read_text())
     assert manifest["schema_version"] == 1
     assert manifest["finding_count"] == 1
+
+
+@pytest.mark.parametrize(
+    "heading",
+    [
+        "##  Source Coverage and Review",
+        "## **Source Coverage and Review**",
+        "Source Coverage and Review\n---",
+    ],
+)
+def test_static_artifact_cannot_prepend_a_reader_visible_fake_coverage_section(heading):
+    _, coverage, body, header = fixture()
+    forged = (
+        header
+        + body
+        + "\n\n"
+        + heading
+        + "\n\nAll sources verified.\n\n"
+        + coverage_markdown(coverage)
+    )
+    with pytest.raises(ReportArtifactError):
+        parse_report_artifact(forged)

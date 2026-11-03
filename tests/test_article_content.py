@@ -141,7 +141,14 @@ def test_input_budget_fails_before_model_call_instead_of_truncating(monkeypatch)
     monkeypatch.setattr(analyze, "build_model_client", forbidden)
     result = asyncio.run(
         analyze.analyze_exploitation(
-            [{"content": "Long complete source. " * 1000}],
+            [
+                {
+                    "title": "Synthetic",
+                    "source": "Synthetic",
+                    "link": "https://example.test/long",
+                    "content": "Long complete source. " * 1000,
+                }
+            ],
             {
                 "analysis": {
                     "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -153,7 +160,10 @@ def test_input_budget_fails_before_model_call_instead_of_truncating(monkeypatch)
     assert "no source text was truncated" in result["error"]
 
 
-def test_default_config_sends_complete_sources_above_legacy_input_cap():
+@pytest.mark.parametrize("repeats, over_budget", [(12025, False), (50025, True)])
+def test_default_config_budgets_complete_sources_and_evidence_context(
+    repeats, over_budget
+):
     import asyncio
     import json
     from pathlib import Path
@@ -164,7 +174,7 @@ def test_default_config_sends_complete_sources_above_legacy_input_cap():
         (Path(__file__).resolve().parents[1] / "config/config.json").read_text()
     )
     complete_source = (
-        "Source evidence. " * 50025
+        "Source evidence. " * repeats
         + "Final qualification: exploitation has not been observed."
     )
     captured = []
@@ -176,10 +186,24 @@ def test_default_config_sends_complete_sources_above_legacy_input_cap():
 
     result = asyncio.run(
         analyze.analyze_exploitation(
-            [{"content": complete_source}], config, model_client=CaptureClient()
+            [
+                {
+                    "title": "Synthetic",
+                    "source": "Synthetic",
+                    "link": "https://example.test/long",
+                    "content": complete_source,
+                }
+            ],
+            config,
+            model_client=CaptureClient(),
         )
     )
 
+    if over_budget:
+        assert result["error_class"] == "input_budget_exceeded"
+        assert "no source text was truncated" in result["error"]
+        assert captured == []
+        return
     assert "error" not in result
     assert result["analyzed_article_count"] == 1
     assert len(captured) == 1

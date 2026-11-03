@@ -3,6 +3,7 @@ import json
 import re
 from typing import List, Dict, Any
 from datetime import datetime, timezone
+from pathlib import Path
 
 import tiktoken
 
@@ -20,10 +21,17 @@ from .version_references import (
 from ..services.article_content import normalize_feed_content
 from .reporting import (
     ReportingGroundingError,
-    build_reporting_catalog,
     reporting_key,
     serialize_reporting_catalog,
 )
+from .source_review import (
+    PLAN_KEY,
+    SourceReviewError,
+    prepare_source_review,
+    review_articles,
+    write_review_packet,
+)
+from .publication_transaction import PublicationError, ensure_no_pending_publication
 
 logger = logging.getLogger(__name__)
 
@@ -298,18 +306,48 @@ async def analyze_exploitation(
             "error_detail": {},
         }
 
-    # Prepare all article summaries
+    # Normalize and retain the complete host plan before constructing a provider.
+    try:
+        root = Path(config.get("output_path", "index.md")).parent
+        ensure_no_pending_publication(root)
+        plan = prepare_source_review(articles)
+        write_review_packet(plan.packet, root / ".sentryinsight-review")
+    except (SourceReviewError, PublicationError, OSError) as exc:
+        return {
+            "error": "Source review preflight failed",
+            "error_class": "source_review_failed",
+            "error_detail": {},
+            "source_review_code": (
+                exc.code
+                if isinstance(exc, (SourceReviewError, PublicationError))
+                else "review_packet_write_failed"
+            ),
+            "exploitation_report": "",
+        }
+    review_metadata = {
+        PLAN_KEY: plan.packet,
+        "reporting_sources": serialize_reporting_catalog(plan.catalog),
+        "reporting_metadata_cves": {
+            row["key"]: row["metadata_cves"] for row in plan.packet["sources"]
+        },
+    }
+    articles = review_articles(plan)
+    if not articles:
+        return {
+            **review_metadata,
+            "skipped": True,
+            "skip_reason": "source_review_required",
+            "exploitation_report": "",
+            "analyzed_article_count": 0,
+        }
+
+    # Only eligible sources enter the prompt; held sources remain in host metadata.
     all_article_summaries = []
     all_cves = set()
     all_systems = set()
     all_attack_vectors = set()
 
-    reporting_catalog = {}
-    for article in articles:
-        try:
-            reporting_catalog.update(build_reporting_catalog([article]))
-        except ReportingGroundingError as exc:
-            logger.warning("Article cannot be used as reporting evidence: %s", exc)
+    reporting_catalog = plan.eligible_catalog
 
     for article in articles:
         article_summary = format_article_summary(article)
@@ -468,6 +506,7 @@ Generate the report using the structure above, with every finding and its prose 
         config.get("analysis", {}).get("max_input_tokens", 100000)
     ):
         return {
+            **review_metadata,
             "error": "Complete source evidence exceeds analysis input budget; no source text was truncated",
             "error_class": "input_budget_exceeded",
             "error_detail": {},
@@ -492,21 +531,21 @@ Generate the report using the structure above, with every finding and its prose 
         )
 
         return {
+            **review_metadata,
             "exploitation_report": exploitation_report,
             PROTOCOL_KEY: PROTOCOL_VERSION,
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
-            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
         }
     except OpenCodeUnavailable as e:
         logger.warning(f"Skipping exploitation analysis: {e}")
         return {
+            **review_metadata,
             "exploitation_report": "",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),
-            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
             "skipped": True,
             "skip_reason": str(e),
         }
@@ -514,10 +553,10 @@ Generate the report using the structure above, with every finding and its prose 
         logger.error(f"Error during exploitation analysis: {e}")
         error_class, error_detail = classify_analysis_error(e)
         return {
+            **review_metadata,
             "exploitation_report": f"# Error Generating Exploitation Report\n\nAn error occurred during analysis: {str(e)}\n\n## Partial Data\n\nCVEs identified: {', '.join(all_cves) if all_cves else 'None'}\n\nAffected systems: {', '.join(all_systems) if all_systems else 'None'}",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
             "error_class": error_class,
             "error_detail": error_detail,
-            "reporting_sources": serialize_reporting_catalog(reporting_catalog),
         }

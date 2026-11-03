@@ -143,7 +143,19 @@ def test_default_analysis_sends_expanded_output_allowance_to_same_model(monkeypa
     monkeypatch.setattr(model_client, "OpenRouterClient", client_with_mock_transport)
     monkeypatch.setattr(analyze, "build_model_client", model_client.build_model_client)
 
-    result = asyncio.run(analyze.analyze_exploitation([], config))
+    result = asyncio.run(
+        analyze.analyze_exploitation(
+            [
+                {
+                    "title": "Synthetic",
+                    "source": "Synthetic",
+                    "link": "https://example.test/report",
+                    "content": "A service advisory.",
+                }
+            ],
+            config,
+        )
+    )
 
     assert "error" not in result
     assert result["exploitation_report"] == "Complete report"

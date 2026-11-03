@@ -11,6 +11,8 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.trace import StatusCode
 
 from src.core import workflow
+from review_fixtures import reviewed_state
+from src.core.reviewed_report import ReviewedReportValidationError
 from src.core.model_config import DEFAULT_MODEL
 from src.core import analyze, observability
 from src.core.analysis_errors import ANALYSIS_ERROR_CLASSES, classify_analysis_error
@@ -52,18 +54,28 @@ def assert_no_content(capfire):
 
 
 def report_state(report):
-    return {
-        "status": "started",
-        "articles": [{"title": ARTICLE_TITLE, "content": ARTICLE_TEXT}],
-        "filtered_articles": [{"title": ARTICLE_TITLE, "content": ARTICLE_TEXT}],
-        "config": {"output_path": "index.md"},
-        "analysis_results": {
-            "exploitation_report": report,
-            "reporting_sources": [],
-            "cves_identified": ["CVE-2026-0001", "CVE-2026-0002"],
-            "analyzed_article_count": 1,
-        },
-    }
+    return reviewed_state(
+        {
+            "status": "started",
+            "articles": [{"title": ARTICLE_TITLE, "content": ARTICLE_TEXT}],
+            "filtered_articles": [{"title": ARTICLE_TITLE, "content": ARTICLE_TEXT}],
+            "config": {"output_path": "index.md"},
+            "analysis_results": {
+                "exploitation_report": report,
+                "reporting_sources": [
+                    {
+                        "key": "source-1e8f5cb3245d",
+                        "publisher": "Synthetic",
+                        "title": ARTICLE_TITLE,
+                        "url": "https://example.test/report",
+                        "content": ARTICLE_TEXT,
+                    }
+                ],
+                "cves_identified": ["CVE-2026-0001", "CVE-2026-0002"],
+                "analyzed_article_count": 1,
+            },
+        }
+    )
 
 
 def test_stage_span_records_bounded_state_attributes(capfire):
@@ -104,13 +116,13 @@ def test_grounding_failure_records_stage_and_code(capfire):
 
     assert result["status"] == "failed"
     assert result["failure"] == {
-        "stage": "reporting_identity",
-        "codes": ["reporting_identity_rejected"],
+        "stage": "source_review",
+        "codes": ["review_candidate_missing_findings"],
         "field": None,
     }
     attributes = spans_by_name(capfire)["sentryinsight.generate"]["attributes"]
-    assert attributes["failure.stage"] == "reporting_identity"
-    assert attributes["failure.codes"] == ["reporting_identity_rejected"]
+    assert attributes["failure.stage"] == "source_review"
+    assert attributes["failure.codes"] == ["review_candidate_missing_findings"]
     assert "failure.field" not in attributes
     assert attributes["analysis.outcome"] == "analyzed"
     assert attributes["analysis.article_count"] == 1
@@ -132,20 +144,16 @@ def test_virtual_event_failure_records_policy_code(capfire):
 
 
 def test_validation_failure_records_unique_issue_codes(capfire, monkeypatch):
-    monkeypatch.setattr(workflow, "deserialize_reporting_catalog", lambda _rows: {})
-    monkeypatch.setattr(workflow, "validate_finding_evidence", lambda *_args: None)
-    monkeypatch.setattr(
-        workflow, "resolve_reporting_keys", lambda report, _catalog: report
-    )
-    monkeypatch.setattr(
-        workflow,
-        "validate_report_content",
-        lambda *_args, **_kwargs: [
-            ReportValidationIssue("error_marker", VALIDATION_MESSAGE),
-            ReportValidationIssue("active_content", VALIDATION_MESSAGE),
-            ReportValidationIssue("error_marker", VALIDATION_MESSAGE),
-        ],
-    )
+    def fail_validation(_result):
+        raise ReviewedReportValidationError(
+            [
+                ReportValidationIssue("error_marker", VALIDATION_MESSAGE),
+                ReportValidationIssue("active_content", VALIDATION_MESSAGE),
+                ReportValidationIssue("error_marker", VALIDATION_MESSAGE),
+            ]
+        )
+
+    monkeypatch.setattr(workflow, "resolve_reviewed_analysis", fail_validation)
     report = f"# Exploitation Report\n\n{MODEL_PROSE}\n"
 
     result = asyncio.run(
@@ -474,7 +482,9 @@ def test_provider_failure_records_bounded_detail_without_its_message(
     )
 
     async def analysis(_articles, config):
-        return await analyze.analyze_exploitation([], config, model_client=client)
+        return await analyze.analyze_exploitation(
+            _articles, config, model_client=client
+        )
 
     monkeypatch.setattr(workflow, "analyze_exploitation", analysis)
     monkeypatch.delenv("SENTRYINSIGHT_MODEL", raising=False)
@@ -544,7 +554,9 @@ def test_output_limit_records_bounded_failure_before_report_validation(
     )
 
     async def analysis(_articles, config):
-        return await analyze.analyze_exploitation([], config, model_client=client)
+        return await analyze.analyze_exploitation(
+            _articles, config, model_client=client
+        )
 
     monkeypatch.setattr(workflow, "analyze_exploitation", analysis)
     monkeypatch.delenv("SENTRYINSIGHT_MODEL", raising=False)
@@ -618,3 +630,8 @@ def test_service_version_is_the_commit_in_the_generation_step_only():
         "Generate exploitation report"
     ]
     assert "LOGFIRE_SERVICE_VERSION: ${{ github.sha }}" in holders[0]
+
+
+@pytest.fixture(autouse=True)
+def isolate_review_receipts(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)

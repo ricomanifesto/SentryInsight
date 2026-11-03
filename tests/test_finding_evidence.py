@@ -1,3 +1,4 @@
+from review_fixtures import reviewed_state
 import pytest
 
 from src.core.finding_evidence import (
@@ -282,7 +283,7 @@ def test_evidence_failure_preserves_existing_report_and_fingerprint(tmp_path):
         "status": "started",
         "articles_fingerprint": "next",
     }
-    result = asyncio.run(workflow.generate_report(state))
+    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
     assert result["status"] == "failed"
     assert output.read_text() == "Last validated report"
     assert fingerprint.read_text() == "previous"

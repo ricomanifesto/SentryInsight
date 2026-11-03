@@ -2,15 +2,11 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-import re
 from typing import Any, Mapping
-
-from markdown_it import MarkdownIt
 
 from .article_policy import contains_virtual_event_tag
 from .cve import extract_cve_ids
 from .finding_evidence import validate_finding_evidence
-from .heading_identity import normalize_heading_identity
 from .report_artifact import parse_report_artifact
 from .reporting import (
     ACTIVE_SECTION_PATTERN,
@@ -24,11 +20,14 @@ from .reporting import (
 )
 from .report_validation import (
     ReportValidationIssue,
-    inline_token_plain_text,
     prepare_generated_report,
     validate_report_content,
 )
-from .source_coverage import COVERAGE_HEADING, coverage_markdown, make_source_coverage
+from .source_coverage import (
+    coverage_markdown,
+    make_source_coverage,
+    visible_candidate_text,
+)
 from .source_review import (
     PLAN_KEY,
     SourceReviewError,
@@ -53,6 +52,7 @@ class ReviewedReport:
     coverage: dict[str, Any]
     catalog: dict[str, ReportingSource]
     source: str
+    grounded_report: str
 
     @property
     def covered_report(self) -> str:
@@ -90,41 +90,6 @@ def _candidate_reporting_keys(report: str) -> list[str]:
     return sorted(keys)
 
 
-def _visible_candidate_text(report: str, *, reject_host_namespace: bool = False) -> str:
-    """Match rendered inline identities without joining unrelated block text.
-
-    The site uses CommonMark and removes raw HTML tokens. Inline text therefore
-    stays adjacent through emphasis, links and removed tags, while separate
-    blocks retain a boundary. Check both the site's raw heading slug and the
-    visible heading identity so encoded/formatted headings cannot impersonate
-    its host-owned coverage anchor or label.
-    """
-    tokens = MarkdownIt("commonmark", {"html": True}).parse(report)
-    visible = []
-    reserved = normalize_heading_identity(COVERAGE_HEADING)
-    for index, token in enumerate(tokens):
-        if token.type == "inline":
-            visible.append(inline_token_plain_text(token))
-        elif token.type in {"code_block", "fence"}:
-            visible.append(token.content)
-        if reject_host_namespace and token.type == "heading_open":
-            inline = tokens[index + 1]
-            identities = {
-                normalize_heading_identity(inline.content),
-                normalize_heading_identity(inline_token_plain_text(inline)),
-            }
-            if reserved in identities:
-                raise SourceReviewError("model_supplied_coverage")
-    text = "\n\n".join(visible)
-    if reject_host_namespace and re.search(
-        r"^\s*(?:source_coverage|source_review_plan|schema_version)\s*:",
-        report + "\n" + text,
-        re.M | re.I,
-    ):
-        raise SourceReviewError("model_supplied_coverage")
-    return text
-
-
 def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
     """Validate every generated finding and the complete candidate; never drop one."""
     raw = result.get("exploitation_report")
@@ -139,7 +104,7 @@ def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
                 )
             ]
         )
-    _visible_candidate_text(raw, reject_host_namespace=True)
+    visible_candidate_text(raw, reject_host_namespace=True)
     plan = analysis_review_plan(result)
     if not plan.eligible_keys:
         raise SourceReviewError("source_review_required")
@@ -154,7 +119,7 @@ def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
         for cve in row["cves"]
     }
     candidate_cves = set(extract_cve_ids(prepared)) | set(
-        extract_cve_ids(_visible_candidate_text(prepared))
+        extract_cve_ids(visible_candidate_text(prepared))
     )
     if not candidate_cves <= eligible_cves:
         raise SourceReviewError("out_of_scope_candidate_cve")
@@ -205,4 +170,4 @@ def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
         + coverage_markdown(coverage)
     )
     parse_report_artifact(source)
-    return ReviewedReport(resolved, coverage, catalog, source)
+    return ReviewedReport(resolved, coverage, catalog, source, canonical)

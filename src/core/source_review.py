@@ -368,6 +368,11 @@ def plan_reporting_catalog(
 
 
 def prepare_source_review(articles: Sequence[Mapping[str, Any]]) -> SourceReviewPlan:
+    _require(
+        isinstance(articles, (list, tuple))
+        and all(isinstance(article, Mapping) for article in articles),
+        "invalid_review_input_catalog",
+    )
     try:
         catalog = build_reporting_catalog(articles)
         metadata = {}
@@ -413,6 +418,11 @@ def write_review_packet(packet: dict[str, Any], directory: Path) -> Path:
         _require(not path.is_symlink(), "review_packet_path_invalid")
         if path.exists():
             _verify_existing_packet(path, data)
+            descriptor = os.open(directory, os.O_RDONLY)
+            try:
+                os.fsync(descriptor)
+            finally:
+                os.close(descriptor)
             return path
         with tempfile.NamedTemporaryFile(
             dir=directory, prefix=".packet-", delete=False

@@ -15,6 +15,7 @@ ANALYSIS_ERROR_CLASSES = frozenset(
         "model_output_limit_exceeded",
         "input_budget_exceeded",
         "analysis_exception",
+        "source_review_failed",
     }
 )
 PROVIDER_UNAVAILABLE_CODES = frozenset({502, 503, 504, 529})

@@ -5,6 +5,10 @@ import json
 import re
 from typing import Any, Sequence
 
+from markdown_it import MarkdownIt
+from .heading_identity import normalize_heading_identity
+from .report_validation import inline_token_plain_text
+
 from .source_review import (
     SourceReviewError,
     canonical_json,
@@ -13,6 +17,41 @@ from .source_review import (
 )
 
 COVERAGE_HEADING = "## Source Coverage and Review"
+
+
+def visible_candidate_text(report: str, *, reject_host_namespace: bool = False) -> str:
+    """Match rendered inline identities without joining unrelated block text.
+
+    The site uses CommonMark and removes raw HTML tokens. Inline text therefore
+    stays adjacent through emphasis, links and removed tags, while separate
+    blocks retain a boundary. Check both the site's raw heading slug and the
+    visible heading identity so encoded/formatted headings cannot impersonate
+    its host-owned coverage anchor or label.
+    """
+    tokens = MarkdownIt("commonmark", {"html": True}).parse(report)
+    visible = []
+    reserved = normalize_heading_identity(COVERAGE_HEADING)
+    for index, token in enumerate(tokens):
+        if token.type == "inline":
+            visible.append(inline_token_plain_text(token))
+        elif token.type in {"code_block", "fence"}:
+            visible.append(token.content)
+        if reject_host_namespace and token.type == "heading_open":
+            inline = tokens[index + 1]
+            identities = {
+                normalize_heading_identity(inline.content),
+                normalize_heading_identity(inline_token_plain_text(inline)),
+            }
+            if reserved in identities:
+                raise SourceReviewError("model_supplied_coverage")
+    text = "\n\n".join(visible)
+    if reject_host_namespace and re.search(
+        r"^\s*(?:source_coverage|source_review_plan|schema_version)\s*:",
+        report + "\n" + text,
+        re.M | re.I,
+    ):
+        raise SourceReviewError("model_supplied_coverage")
+    return text
 
 
 def _require(condition: bool) -> None:
@@ -150,7 +189,7 @@ def split_source_coverage(body: str, coverage: dict[str, Any]) -> str:
     normalized = body.rstrip()
     _require(normalized.endswith("\n\n" + suffix))
     report = normalized[: -len(suffix)].rstrip()
-    _require(COVERAGE_HEADING not in report)
+    visible_candidate_text(report, reject_host_namespace=True)
     return report + "\n"
 
 

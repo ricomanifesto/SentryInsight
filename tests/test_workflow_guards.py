@@ -1,3 +1,5 @@
+from src.core.source_review import digest, prepare_source_review
+from review_fixtures import reviewed_state
 import asyncio
 import importlib
 import os
@@ -95,7 +97,14 @@ def test_real_graph_stops_after_failed_analysis(
     monkeypatch.setattr(workflow, "StateGraph", StateGraph)
     monkeypatch.setattr(workflow, "START", START)
     monkeypatch.setattr(workflow, "END", END)
-    articles = [{"title": "New exploitation story", "link": "https://example.test/new"}]
+    articles = [
+        {
+            "title": "New exploitation story",
+            "source": "Example",
+            "content": "A campaign advisory.",
+            "link": "https://example.test/new",
+        }
+    ]
     monkeypatch.setattr(
         workflow,
         "SentryDigestFeedClient",
@@ -142,9 +151,9 @@ def test_failed_state_does_not_enter_report_validation(monkeypatch):
         "config": {},
     }
     resolve = unittest.mock.Mock(side_effect=AssertionError("must not validate"))
-    monkeypatch.setattr(workflow, "resolve_reporting_keys", resolve)
+    monkeypatch.setattr(workflow, "resolve_reviewed_analysis", resolve)
 
-    result = asyncio.run(workflow.generate_report(state))
+    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
 
     assert result["status"] == "failed"
     assert result["analysis_results"]["error"] == "original provider error"
@@ -182,7 +191,7 @@ class WorkflowGuardTests(unittest.TestCase):
                 "status": "started",
             }
 
-            result = asyncio.run(workflow.generate_report(state))
+            result = asyncio.run(workflow.generate_report(reviewed_state(state)))
 
             self.assertEqual(result["status"], "failed")
             self.assertIn("report_validation_errors", result)
@@ -203,7 +212,7 @@ class WorkflowGuardTests(unittest.TestCase):
                 "status": "started",
             }
 
-            result = asyncio.run(workflow.generate_report(state))
+            result = asyncio.run(workflow.generate_report(reviewed_state(state)))
 
             self.assertEqual(result["status"], "completed_with_warnings")
             self.assertFalse(output_path.exists())
@@ -270,7 +279,7 @@ Recent exploitation activity is concentrated in edge systems.
                 "status": "started",
             }
 
-            result = asyncio.run(workflow.generate_report(state))
+            result = asyncio.run(workflow.generate_report(reviewed_state(state)))
 
             self.assertNotEqual(result["status"], "failed")
             self.assertNotIn("report_validation_errors", result)
@@ -278,7 +287,7 @@ Recent exploitation activity is concentrated in edge systems.
             self.assertNotIn("## Source Attribution", output_path.read_text())
             self.assertIn("report_date:", output_path.read_text())
             self.assertIn("generated_at:", output_path.read_text())
-            self.assertIn("schema_version: 3", output_path.read_text())
+            self.assertIn("schema_version: 5", output_path.read_text())
             self.assertIn("digest_issue_url:", output_path.read_text())
             self.assertIn("**Reporting**:", output_path.read_text())
             self.assertTrue((Path(tmpdir) / "index.html").exists())
@@ -345,7 +354,7 @@ Recent exploitation activity is concentrated in edge systems.
                 "status": "started",
             }
 
-            result = asyncio.run(workflow.generate_report(state))
+            result = asyncio.run(workflow.generate_report(reviewed_state(state)))
 
             self.assertNotEqual(result["status"], "failed")
             written_report = output_path.read_text()
@@ -379,7 +388,7 @@ Recent exploitation activity is concentrated in edge systems.
 - **Status**: Active exploitation observed.
 - **Severity**: high
 - **Exploitation Status**: active
-- **Action**: patch
+- **Action**: monitor
 - **Reporting**: source-1e8f5cb3245d
 - **Affected Versions**: Not stated in supplied sources.
 - **Exceptions**: Not stated in supplied sources.
@@ -404,8 +413,31 @@ Recent exploitation activity is concentrated in edge systems.
                 "status": "started",
             }
 
-            result = asyncio.run(workflow.generate_report(state))
+            from src.core.reporting import (
+                build_reporting_catalog,
+                serialize_reporting_catalog,
+            )
+            from test_version_references import source
 
+            articles = [
+                source("CVE-2026-1234 is actively exploited.", "good"),
+                source("CVE-2026-1111 is actively exploited.", "missing"),
+            ]
+            catalog = build_reporting_catalog(articles)
+            state["analysis_results"]["reporting_sources"] = (
+                serialize_reporting_catalog(catalog)
+            )
+            state["analysis_results"]["exploitation_report"] = (
+                state["analysis_results"]["exploitation_report"]
+                .replace("source-1e8f5cb3245d", next(iter(catalog)))
+                .replace(
+                    "**Recommended Actions**: Install the update.",
+                    "**Recommended Actions**: Not stated in supplied sources.",
+                )
+            )
+            result = asyncio.run(workflow.generate_report(reviewed_state(state)))
+
+            self.assertIn("missing_expected_cves", result["failure"]["codes"])
             self.assertEqual(result["status"], "failed")
             self.assertIn("report_validation_errors", result)
             self.assertFalse(output_path.exists())
@@ -486,13 +518,22 @@ The next report should not be partially published.
                 "status": "started",
             }
 
+            from test_reviewed_report import prepared_result
+
+            state["analysis_results"] = {
+                **prepared_result(),
+                "date": "2026-08-13",
+                "generated_at": "2026-08-13T13:21:22Z",
+            }
             with patch.object(
                 workflow,
                 "build_site",
                 side_effect=workflow.SiteBuildError("late build failure"),
-            ):
-                result = asyncio.run(workflow.generate_report(state))
+            ) as build:
+                result = asyncio.run(workflow.generate_report(reviewed_state(state)))
 
+            build.assert_called_once()
+            self.assertEqual(result["failure"]["codes"], ["site_build_failed"])
             self.assertEqual(result["status"], "failed")
             self.assertEqual(output_path.read_text(), current_report)
             self.assertFalse((Path(tmpdir) / "reports").exists())
@@ -511,7 +552,6 @@ The next report should not be partially published.
 
     def test_filter_articles_skips_analysis_when_article_set_unchanged(self):
         from src.core.content_fingerprint import (
-            compute_articles_fingerprint,
             write_stored_fingerprint,
         )
 
@@ -519,9 +559,21 @@ The next report should not be partially published.
 
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "index.md"
-            articles = [{"title": "Same story", "link": "https://example.com/a"}]
+            articles = [
+                {
+                    "title": "Same story",
+                    "source": "Example",
+                    "content": "An advisory.",
+                    "link": "https://example.com/a",
+                }
+            ]
             write_stored_fingerprint(
-                compute_articles_fingerprint(articles),
+                digest(
+                    {
+                        "generation_schema": 5,
+                        "plan_id": prepare_source_review(articles).packet["plan_id"],
+                    }
+                ),
                 str(Path(tmpdir) / ".sentryinsight-articles-fingerprint"),
             )
 
@@ -541,7 +593,14 @@ The next report should not be partially published.
 
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "index.md"
-            articles = [{"title": "New story", "link": "https://example.com/new"}]
+            articles = [
+                {
+                    "title": "New story",
+                    "source": "Example",
+                    "content": "An advisory.",
+                    "link": "https://example.com/new",
+                }
+            ]
 
             state = {
                 "articles": articles,
@@ -615,14 +674,14 @@ Recent exploitation activity is concentrated in edge systems.
                     "status": "started",
                 }
 
-                result = asyncio.run(workflow.generate_report(state))
+                result = asyncio.run(workflow.generate_report(reviewed_state(state)))
 
                 self.assertEqual(result["status"], "started")
                 fingerprint_path = Path(".sentryinsight-articles-fingerprint")
                 self.assertTrue(fingerprint_path.exists())
                 self.assertEqual(
                     read_stored_fingerprint(str(fingerprint_path)),
-                    "test-fingerprint-value",
+                    state["articles_fingerprint"],
                 )
             finally:
                 os.chdir(original_cwd)

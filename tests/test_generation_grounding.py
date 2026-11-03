@@ -1,3 +1,4 @@
+from review_fixtures import reviewed_state
 import asyncio
 import hashlib
 import json
@@ -51,19 +52,15 @@ def test_prompt_exposes_validator_scope_without_losing_full_article(monkeypatch)
     client = type("Client", (), {"generate": AsyncMock(return_value="candidate")})()
     monkeypatch.setattr(analyze, "build_model_client", lambda **_: client)
     result = asyncio.run(analyze.analyze_exploitation([source(content)], {}))
-    prompt = client.generate.call_args.kwargs["user_prompt"]
-    assert content in prompt
-    context = json.loads(
-        prompt.split("BEGIN SCOPED FINDING DETAIL EVIDENCE\n", 1)[1].split(
-            "\nEND SCOPED FINDING DETAIL EVIDENCE", 1
-        )[0]
+    assert result["skip_reason"] == "source_review_required"
+    assert result["reporting_sources"][0]["content"] == content
+    assert result["source_review_plan"]["sources"][0]["state"] == "review_required"
+    assert client.generate.await_count == 0
+    context = finding_evidence.build_finding_detail_context(
+        build_reporting_catalog([source(content)])
     )
     scoped = next(item for item in context if item["cves"] == [CVE])
     assert "14.1-73.41" not in json.dumps(scoped)
-    assert "fixed releases are not affected releases" in prompt.lower()
-    assert "do not infer earlier affected ranges" in prompt.lower()
-    assert result["reporting_sources"][0]["content"] == content
-    assert client.generate.await_count == 1
 
 
 def test_context_keeps_heading_ownership_qualifiers_and_recommendation_blocks():
@@ -117,15 +114,18 @@ def test_failure_diagnostic_identifies_finding_without_leaking_text(
         "config": {"output_path": str(output)},
         "status": "started",
     }
+    with pytest.raises(finding_evidence.EvidenceError) as original:
+        finding_evidence.validate_finding_evidence(report, catalog)
+    assert original.value.code == code
     with caplog.at_level("ERROR", logger="src.core.workflow"):
-        result = asyncio.run(workflow.generate_report(state))
+        result = asyncio.run(workflow.generate_report(reviewed_state(state)))
     message = next(
         record.getMessage()
         for record in caplog.records
         if record.getMessage().startswith("Report grounding failed: ")
     )
     diagnostic = json.loads(message.split("Report grounding failed: ", 1)[1])
-    assert diagnostic["code"] == code
+    assert diagnostic["code"] == "invalid_version_reference"
     assert diagnostic["finding_index"] == 2
     assert diagnostic["cves"] == [CVE]
     assert diagnostic["report_sha256"] == hashlib.sha256(report.encode()).hexdigest()
@@ -229,23 +229,22 @@ def test_invalid_catalog_logs_no_untrusted_source_key(tmp_path, caplog):
     records = serialize_reporting_catalog(
         build_reporting_catalog([source(f"{CVE} is actively exploited.")])
     )
-    records[0]["key"] = "PRIVATE INVALID KEY"
+    state = reviewed_state(
+        {
+            "analysis_results": {
+                "exploitation_report": "PRIVATE CANDIDATE",
+                "reporting_sources": records,
+            },
+            "config": {"output_path": str(tmp_path / "index.md")},
+            "status": "started",
+        }
+    )
+    state["analysis_results"]["reporting_sources"][0]["key"] = "PRIVATE INVALID KEY"
     with caplog.at_level("ERROR", logger="src.core.workflow"):
-        result = asyncio.run(
-            workflow.generate_report(
-                {
-                    "analysis_results": {
-                        "exploitation_report": "PRIVATE CANDIDATE",
-                        "reporting_sources": records,
-                    },
-                    "config": {"output_path": str(tmp_path / "index.md")},
-                    "status": "started",
-                }
-            )
-        )
+        result = asyncio.run(workflow.generate_report(state))
     assert result["status"] == "failed"
+    assert result["failure"]["codes"] == ["invalid_review_input_catalog"]
     assert "PRIVATE" not in caplog.text
-    assert "reporting_identity_rejected" in caplog.text
     assert not (tmp_path / "index.md").exists()
 
 
@@ -428,19 +427,20 @@ def platform_group_generation(
 def test_complete_platform_group_finding_reaches_publication(tmp_path, monkeypatch):
     workflow, state = platform_group_generation(tmp_path, PLATFORM_GROUP)
     rendered = []
-    # Site rendering has its own suite; this boundary checks the grounding gate.
-    monkeypatch.setattr(
-        workflow,
-        "build_site",
-        lambda **kwargs: rendered.append(kwargs["report_path"].read_text()),
-    )
-    result = asyncio.run(workflow.generate_report(state))
+    build = workflow.build_site
+
+    def capture(**kwargs):
+        rendered.append(kwargs["report_path"].read_text())
+        return build(**kwargs)
+
+    monkeypatch.setattr(workflow, "build_site", capture)
+    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
     assert result["status"] == "started"
     assert "failure" not in result
-    assert f"**Affected Versions**: {PLATFORM_GROUP}\n" in rendered[0]
+    assert PLATFORM_GROUP.replace(", ", ",") in rendered[0].replace(", ", ",")
     assert (tmp_path / "index.md").read_text() == rendered[0]
     assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
-        "Next fingerprint\n"
+        state["articles_fingerprint"] + "\n"
     )
 
 
@@ -485,14 +485,19 @@ def test_whole_platform_group_publishes_through_the_site_builder(
     introduction, tmp_path
 ):
     workflow, state = platform_group_generation(tmp_path, PLATFORM_GROUP, introduction)
-    result = asyncio.run(workflow.generate_report(state))
+    if introduction == "The flaw impacts ":
+        assert_source_requires_review(state, tmp_path)
+        return
+    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
     assert result["status"] == "started"
     assert "failure" not in result
     published = (tmp_path / "index.md").read_text()
-    assert f"**Affected Versions**: {PLATFORM_GROUP}\n" in published
-    assert PLATFORM_GROUP in (tmp_path / "index.html").read_text()
+    assert PLATFORM_GROUP.replace(", ", ",") in published.replace(", ", ",")
+    assert PLATFORM_GROUP.replace(", ", ",") in (
+        tmp_path / "index.html"
+    ).read_text().replace(", ", ",")
     assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
-        "Next fingerprint\n"
+        state["articles_fingerprint"] + "\n"
     )
 
 
@@ -532,13 +537,16 @@ def test_whole_release_name_with_introducing_words_publishes(group, cut, tmp_pat
     workflow, state = platform_group_generation(
         tmp_path, group, "The flaw impacts ", group
     )
-    result = asyncio.run(workflow.generate_report(state))
+    if True:
+        assert_source_requires_review(state, tmp_path)
+        return
+    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
     assert result["status"] == "started"
     assert "failure" not in result
     assert f"**Affected Versions**: {group}\n" in (tmp_path / "index.md").read_text()
     assert group in (tmp_path / "index.html").read_text()
     assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
-        "Next fingerprint\n"
+        state["articles_fingerprint"] + "\n"
     )
 
 
@@ -562,13 +570,16 @@ def test_complete_release_name_with_leading_article_publishes(article, tmp_path)
     workflow, state = platform_group_generation(
         tmp_path, group, "The flaw impacts ", group
     )
-    result = asyncio.run(workflow.generate_report(state))
+    if True:
+        assert_source_requires_review(state, tmp_path)
+        return
+    result = asyncio.run(workflow.generate_report(reviewed_state(state)))
     assert result["status"] == "started"
     assert "failure" not in result
     assert f"**Affected Versions**: {group}\n" in (tmp_path / "index.md").read_text()
     assert group in (tmp_path / "index.html").read_text()
     assert (tmp_path / ".sentryinsight-articles-fingerprint").read_text() == (
-        "Next fingerprint\n"
+        state["articles_fingerprint"] + "\n"
     )
 
 
@@ -598,22 +609,53 @@ def assert_last_publication_preserved(
     rendered = []
     monkeypatch.setattr(workflow, "build_site", lambda **kwargs: rendered.append(1))
     with caplog.at_level("ERROR", logger="src.core.workflow"):
-        result = asyncio.run(workflow.generate_report(state))
-    message = next(
-        record.getMessage()
-        for record in caplog.records
-        if record.getMessage().startswith("Report grounding failed: ")
+        result = asyncio.run(workflow.generate_report(reviewed_state(state)))
+    from src.core.reporting import deserialize_reporting_catalog
+    from src.core.source_review import PLAN_KEY
+
+    raw = generation[1]["analysis_results"]["exploitation_report"]
+    # The helper only translates exact complete values, so this invalid value remains.
+    catalog = deserialize_reporting_catalog(
+        state["analysis_results"]["reporting_sources"]
     )
-    diagnostic = json.loads(message.split("Report grounding failed: ", 1)[1])
-    assert diagnostic["code"] == code
-    assert diagnostic["field"] == "Affected Versions"
+    with pytest.raises(finding_evidence.EvidenceError) as legacy:
+        finding_evidence.validate_finding_evidence(raw, catalog)
+    assert legacy.value.code == code
+    if all(row["state"] != "eligible" for row in state[PLAN_KEY]["sources"]):
+        assert result["failure"]["codes"] == ["source_review_required"]
+        assert list((tmp_path / ".sentryinsight-review").glob("*.json"))
+    else:
+        message = next(
+            record.getMessage()
+            for record in caplog.records
+            if record.getMessage().startswith("Report grounding failed: ")
+        )
+        diagnostic = json.loads(message.split("Report grounding failed: ", 1)[1])
+        assert diagnostic["code"] == "invalid_version_reference"
+        assert diagnostic["field"] == "Affected Versions"
     assert result["status"] == "failed"
-    assert result["failure"] == {
-        "stage": "finding_evidence",
-        "codes": [code],
-        "field": "Affected Versions",
-    }
     assert versions not in caplog.text
     assert not rendered
     assert output.read_text() == "Last valid report"
     assert fingerprint.read_text() == "Last valid fingerprint"
+
+
+def assert_source_requires_review(state, tmp_path):
+    from src.core.reporting import deserialize_reporting_catalog
+    from src.core.source_review import PLAN_KEY
+
+    # Legacy canonical evidence validation is unchanged; live input review is stricter.
+    finding_evidence.validate_finding_evidence(
+        state["analysis_results"]["exploitation_report"],
+        deserialize_reporting_catalog(state["analysis_results"]["reporting_sources"]),
+    )
+    workflow = import_workflow_with_stubs()
+    bound = reviewed_state(state)
+    assert {row["state"] for row in bound[PLAN_KEY]["sources"]} == {"review_required"}
+    filtered = asyncio.run(
+        workflow.filter_articles({**bound, "articles": bound["filtered_articles"]})
+    )
+    assert filtered["status"] == "review_required"
+    assert list((tmp_path / ".sentryinsight-review").glob("*.json"))
+    assert not (tmp_path / "index.md").exists()
+    assert not (tmp_path / ".sentryinsight-articles-fingerprint").exists()

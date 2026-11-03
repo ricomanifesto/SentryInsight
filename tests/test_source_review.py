@@ -223,3 +223,30 @@ def test_plan_fingerprint_includes_non_version_finding_assessments(monkeypatch):
 
     monkeypatch.setattr(source_review, "build_finding_detail_context", changed)
     assert prepare_source_review(articles).packet["plan_id"] != before
+
+
+@pytest.mark.parametrize(
+    "articles", [None, "source", {"content": "text"}, [None], ["source"]]
+)
+def test_invalid_input_container_has_a_fixed_failure_code(articles):
+    with pytest.raises(SourceReviewError, match="invalid_review_input_catalog"):
+        prepare_source_review(articles)
+
+
+def test_reused_packet_directory_is_synced_before_success(tmp_path, monkeypatch):
+    import os
+    import stat
+    from src.core import source_review
+
+    plan = prepare_source_review([source("An advisory.")])
+    source_review.write_review_packet(plan.packet, tmp_path)
+    original = os.fsync
+
+    def fail_directory(fd):
+        if stat.S_ISDIR(os.fstat(fd).st_mode):
+            raise OSError("directory sync failure")
+        return original(fd)
+
+    monkeypatch.setattr(source_review.os, "fsync", fail_directory)
+    with pytest.raises(SourceReviewError, match="review_packet_persistence_failed"):
+        source_review.write_review_packet(plan.packet, tmp_path)
