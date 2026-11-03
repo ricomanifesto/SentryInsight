@@ -27,6 +27,7 @@ from src.core.openrouter_client import OpenRouterClient, OpenRouterError
 from src.core.opencode_client import ModelSelection
 from src.core.reviewed_report import resolve_reviewed_analysis
 from src.core.source_review import prepare_source_review
+from scripts.verification_diagnostics import validation_diagnostic
 
 MODEL = "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
 MODEL_ID = MODEL.removeprefix("openrouter/")
@@ -148,11 +149,20 @@ async def verify_articles(
         if result.get("error") or result.get("skipped"):
             receipt["outcome"] = "analysis_failed"
             return receipt
+        validation_stage = "unknown_validation_stage"
+
+        def observe_stage(stage: str) -> None:
+            nonlocal validation_stage
+            validation_stage = stage
+
         try:
-            candidate = resolve_reviewed_analysis(result)
-        except Exception:
+            candidate = resolve_reviewed_analysis(result, on_stage=observe_stage)
+        except Exception as error:
             # Exceptions can contain source or generated text. Never export them.
             receipt["outcome"] = "validation_failed"
+            receipt["validation_diagnostic"] = validation_diagnostic(
+                validation_stage, error
+            )
             return receipt
         receipt["outcome"] = "validation_passed"
         receipt["report_sha256"] = hashlib.sha256(candidate.source.encode()).hexdigest()

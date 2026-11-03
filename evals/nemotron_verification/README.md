@@ -61,6 +61,17 @@ execution. Setup logs and generic outcome messages use the repository's existing
 Actions log retention. Artifacts are on the public repository under GitHub's
 existing access rules; they are not private answer-review artifacts.
 
+On report-validation failure, `validation_diagnostic` adds a fixed stage name,
+allowlisted error codes, an allowlisted field name and a bounded finding number
+when available. At most eight report-content issues are inspected; a flag marks
+truncation and repeated codes are collapsed. Unknown codes and unexpected errors
+produce fixed fallback labels. Legacy reporting/artifact exceptions without codes
+receive a category rather than an inferred message. No exception message, class
+name, traceback, title, URL, CVE, source identifier or candidate/source hash is
+added by this diagnostic. Existing receipt fingerprints are unchanged. These
+categories can locate a future rejection but cannot recover a discarded answer.
+Validation rules, retry limits and seven-day artifact retention are unchanged.
+
 A passing trial requires one attempt, HTTP 200, the exact resolved model, a
 complete response, all current evidence/content/artifact validators and the
 expected partial source coverage. The `published` and `production_ready` fields

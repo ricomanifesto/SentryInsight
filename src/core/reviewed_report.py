@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 from .article_policy import contains_virtual_event_tag
 from .cve import extract_cve_ids
@@ -90,8 +90,16 @@ def _candidate_reporting_keys(report: str) -> list[str]:
     return sorted(keys)
 
 
-def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
-    """Validate every generated finding and the complete candidate; never drop one."""
+def resolve_reviewed_analysis(
+    result: Mapping[str, Any], *, on_stage: Callable[[str], None] | None = None
+) -> ReviewedReport:
+    """Validate every finding; optionally observe fixed stage names, never text."""
+
+    def stage(name: str) -> None:
+        if on_stage is not None:
+            on_stage(name)
+
+    stage("candidate_structure")
     raw = result.get("exploitation_report")
     if not isinstance(raw, str):
         raise SourceReviewError("invalid_review_candidate")
@@ -105,9 +113,11 @@ def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
             ]
         )
     visible_candidate_text(raw, reject_host_namespace=True)
+    stage("source_review")
     plan = analysis_review_plan(result)
     if not plan.eligible_keys:
         raise SourceReviewError("source_review_required")
+    stage("reporting_identity")
     prepared = prepare_generated_report(raw)
     cited = _candidate_reporting_keys(prepared)
     if not set(cited) <= set(plan.eligible_keys):
@@ -124,6 +134,7 @@ def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
     if not candidate_cves <= eligible_cves:
         raise SourceReviewError("out_of_scope_candidate_cve")
     catalog = plan.eligible_catalog
+    stage("version_references")
     canonical = resolve_analysis_version_references(
         {
             **result,
@@ -131,8 +142,11 @@ def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
             "reporting_sources": serialize_reporting_catalog(catalog),
         }
     )
+    stage("finding_evidence")
     validate_finding_evidence(canonical, catalog)
+    stage("reporting_identity")
     resolved = resolve_reporting_keys(canonical, catalog)
+    stage("report_content")
     # Import only the pure prompt helpers at call time; analysis itself imports
     # the source planner. Expected IDs are recomputed, never trusted result data.
     from .analyze import (
@@ -150,7 +164,9 @@ def resolve_reviewed_analysis(result: Mapping[str, Any]) -> ReviewedReport:
     issues = validate_report_content(resolved, expected_cves=expected_cves)
     if issues:
         raise ReviewedReportValidationError(issues)
+    stage("source_coverage")
     coverage = make_source_coverage(plan.packet, cited)
+    stage("report_artifact")
     report_date = str(
         result.get("date") or datetime.now(timezone.utc).date().isoformat()
     )

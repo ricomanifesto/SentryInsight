@@ -249,6 +249,11 @@ or production admission records are exported. A passing result is an automated
 screen, not human review or production readiness. Provider data-use terms still
 apply; free pricing does not establish privacy or production-use permission.
 
+Validation failures include an allowlisted stage and error codes, with a bounded
+field/finding location when available. Unknown failures use fixed categories;
+exception messages and answer/source text are never included. This diagnostic
+does not change acceptance rules or reconstruct a previously discarded answer.
+
 The production OpenRouter client applies the same zero-price/no-fallback policy
 for free routes and records the validated requested/resolved model identities in
 its metadata log. Its existing maximum of three transient-error attempts is

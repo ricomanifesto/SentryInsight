@@ -74,6 +74,13 @@ def test_real_validation_accepts_supported_output_and_rejects_unsupported_claim(
         "validation_passed" if valid else "validation_failed"
     )
     assert receipt["live_attempted"] == len(requests) == 1
+    if valid:
+        assert "validation_diagnostic" not in receipt["result"]
+    else:
+        diagnostic = receipt["result"]["validation_diagnostic"]
+        assert diagnostic["stage"] == "version_references"
+        assert diagnostic["codes"] == ["invalid_version_reference"]
+        assert diagnostic["field"] == "Affected Versions"
     assert "test-secret" not in json.dumps(receipt)
     assert content not in json.dumps(receipt)
     assert Path("index.md").read_text() == "last-good report"
