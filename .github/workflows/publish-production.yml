@@ -1,0 +1,103 @@
+name: Publish Production
+
+# The only publisher of the production artifact branch. It publishes a main
+# commit after Validate succeeded for that exact commit, or any other chosen
+# source after running the same validation gate itself. The report generation
+# workflow calls it to resume the current release when a run pushed nothing.
+# The GitHub Pages deployment remains as the mirror. While publication is
+# disabled in publication/site.json the publisher only builds and validates.
+
+on:
+  workflow_call:
+    inputs:
+      invocation:
+        type: string
+        required: true
+  workflow_run:
+    workflows: ["Validate"]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      invocation:
+        description: 'publish, resume, rollback or resolve'
+        type: choice
+        options: [publish, resume, rollback, resolve]
+        default: resume
+      source_sha:
+        description: 'Full source commit to publish (publish)'
+        required: false
+      release_key:
+        description: 'Target release key (rollback) or the tip release key (resolve)'
+        required: false
+      reason:
+        description: 'Rollback reason'
+        required: false
+      attestation:
+        description: 'Operator attestation (resolve)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-production
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: inputs.invocation != '' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || inputs.source_sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install locked dependencies
+        run: uv sync --group dev --frozen
+
+      - name: Run repository gate
+        if: github.event_name != 'workflow_run' && (inputs.invocation || 'publish') == 'publish'
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          bash scripts/local_validation.sh
+
+      - name: Configure Git
+        run: |
+          git config user.name 'GitHub Actions'
+          git config user.email 'actions@github.com'
+
+      - name: Run publisher
+        env:
+          INVOCATION: ${{ inputs.invocation || 'publish' }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.source_sha || github.sha }}
+          RELEASE_KEY: ${{ inputs.release_key }}
+          REASON: ${{ inputs.reason }}
+          ATTESTATION: ${{ inputs.attestation }}
+        run: |
+          source .venv/bin/activate
+          case "$INVOCATION" in
+            publish) set -- --source "$SOURCE_SHA" ;;
+            resume) set -- ;;
+            rollback) set -- --target "$RELEASE_KEY" --reason "$REASON" ;;
+            resolve) set -- --release "$RELEASE_KEY" --attestation "$ATTESTATION" ;;
+            *) echo "Unknown invocation $INVOCATION" >&2; exit 1 ;;
+          esac
+          node publication/cli.js "$INVOCATION" "$@"

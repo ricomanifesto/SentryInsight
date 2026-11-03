@@ -34,7 +34,11 @@ from .observability import (
     state_attributes,
     traced_stage,
 )
-from .report_artifact import ReportArtifactError, parse_report_artifact
+from .report_artifact import (
+    DIGEST_ARCHIVE_ROOT,
+    ReportArtifactError,
+    parse_report_artifact,
+)
 from .reporting import (
     ReportingGroundingError,
     deserialize_reporting_catalog,
@@ -313,8 +317,7 @@ async def generate_report(
         f"schema_version: {resolved_report_schema(report)}\n"
         f"report_date: {report_date}\n"
         f"generated_at: {generated_at}\n"
-        "digest_issue_url: https://ricomanifesto.github.io/"
-        f"SentryDigest/archive/{report_date}/\n"
+        f"digest_issue_url: {DIGEST_ARCHIVE_ROOT}{report_date}/\n"
         "---\n"
         f"{report.lstrip()}"
     )

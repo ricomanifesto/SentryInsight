@@ -24,6 +24,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
+from src.core.public_site import emitted_origin
 from src.core.report_artifact import (
     Finding,
     ReportArtifact,
@@ -32,7 +33,7 @@ from src.core.report_artifact import (
 )
 from src.core.version_state import VersionEvidenceStatus
 
-PUBLIC_ROOT = "https://ricomanifesto.github.io/SentryInsight/"
+PUBLIC_ROOT = emitted_origin("SentryInsight")
 CVE_TEXT_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
 STRUCTURED_FINDING_FIELD_PATTERN = re.compile(
     r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Vendor Links|Affected Versions Status)\*\*:",
@@ -528,7 +529,7 @@ def _render_report_page(
             ),
             "REPORT_SHAPE": report_shape,
             "DIGEST_ISSUE_URL": artifact.digest_issue_url
-            or "https://ricomanifesto.github.io/SentryDigest/",
+            or emitted_origin("SentryDigest"),
             "THEME_BOOTSTRAP": (template_path / "theme-bootstrap.js")
             .read_text()
             .strip(),

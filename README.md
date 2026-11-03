@@ -133,6 +133,18 @@ claims always require separate source review; regrading is not a model improveme
 
 - `.github/workflows/generate-report.yml` runs after a SentryDigest update, once daily as a backup, or by manual trigger.
 - `.github/workflows/validate.yml` checks pull requests and pushes to `main`.
-- `.github/workflows/deploy-pages.yml` automatically publishes the validated `main` commit. A manual dispatch can publish the selected branch or tag without first checking Validate.
+- `.github/workflows/deploy-pages.yml` automatically publishes the validated `main` commit. A manual dispatch can publish the selected branch or tag without first checking Validate; it still runs the report content gate (`scripts/validate_report.py`) before packaging, and a failure leaves the deployed site unchanged.
 
 The public Pages package contains only the finished report, archive, assets, sitemap, and the versioned reporting contract.
+
+## Static Artifact
+
+`scripts/build_static_artifact.py` builds that same package for one commit without changing the packager. It checks that every packager input on disk equals the commit, runs that commit's `scripts/validate_report.py` and then its packager on a copy of those inputs, requires every JSON and XML file to parse, and writes `builds/<sha256>/artifact/` plus a prebuilt `deploy/.vercel/output/` layout whose config is only `{"version": 3}`. `current.json` names the accepted build. A failed, interrupted or concurrent build leaves the accepted build in place.
+
+```bash
+uv run python scripts/build_static_artifact.py --revision "$(git rev-parse HEAD)" --output <store> --receipts <receipts-dir>
+STATIC_ARTIFACT_STORE=<store> STATIC_ARTIFACT_SOURCE=. uv run python -m pytest tests/static_artifact_acceptance.py -p no:cacheprovider
+STATIC_ARTIFACT_STORE=<store> npx playwright test -c playwright.artifact.config.js
+```
+
+The store and the receipts directory must be outside the repository. The builder and its loopback server are covered by the normal test suite.

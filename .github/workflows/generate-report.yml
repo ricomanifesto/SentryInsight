@@ -13,6 +13,11 @@ on:
   
   # Allow manual triggering
   workflow_dispatch:
+    inputs:
+      readmit:
+        description: 'Re-admit after an uncertain earlier generation (true/false)'
+        required: false
+        default: 'false'
 
 concurrency:
   group: sentryinsight-report-generation
@@ -21,6 +26,8 @@ concurrency:
 jobs:
   generate-report:
     runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -78,7 +85,37 @@ jobs:
       - name: Run local validation
         run: bash scripts/local_validation.sh
       
+      # Admission before any model call: SentryDigest release events are bound
+      # to the release's commit-addressed feed snapshot; duplicate, stale and
+      # unbindable events stop here; an earlier generation whose outcome is
+      # unknown must be recovered or explicitly re-admitted first.
+      - name: Admit generation
+        id: admission
+        env:
+          READMIT: ${{ github.event.inputs.readmit || 'false' }}
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          node publication/cli.js admit --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH" \
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --readmit "$READMIT"
+
+      - name: Bind generator input to the admitted feed snapshot
+        if: steps.admission.outputs.decision == 'admitted' && steps.admission.outputs.feed_url != ''
+        env:
+          FEED_URL: ${{ steps.admission.outputs.feed_url }}
+        run: |
+          node -e "const fs = require('fs'); const p = 'config/config.json'; const c = JSON.parse(fs.readFileSync(p, 'utf8')); c.feed_url = process.env.FEED_URL; fs.writeFileSync(p, JSON.stringify(c, null, 4) + '\n');"
+
+      - name: Record generation start
+        id: invoked
+        if: steps.admission.outputs.decision == 'admitted'
+        env:
+          ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
+        run: node publication/cli.js invoked --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID"
+
       - name: Generate exploitation report
+        id: generate
+        if: steps.admission.outputs.decision == 'admitted'
         run: uv run python main.py
         env:
           # Report generation calls OpenRouter directly (free model default);
@@ -96,7 +133,12 @@ jobs:
           LOGFIRE_ENVIRONMENT: github-actions
           LOGFIRE_SERVICE_VERSION: ${{ github.sha }}
       
+      - name: Restore generator configuration
+        if: always() && steps.admission.outputs.feed_url != ''
+        run: git checkout -- config/config.json
+
       - name: Validate report content before publishing
+        if: steps.admission.outputs.decision == 'admitted'
         run: |
           uv run python scripts/validate_report.py index.md
           uv run python scripts/build_site.py --check
@@ -104,7 +146,7 @@ jobs:
 
       - name: Upload rendered report evidence
         id: generated-report-evidence
-        if: always()
+        if: always() && steps.admission.outputs.decision == 'admitted'
         uses: actions/upload-artifact@v4
         with:
           name: generated-report-screenshots-${{ github.run_id }}
@@ -112,7 +154,7 @@ jobs:
           if-no-files-found: error
 
       - name: Add rendered report review summary
-        if: always()
+        if: always() && steps.admission.outputs.decision == 'admitted'
         env:
           ARTIFACT_URL: ${{ steps.generated-report-evidence.outputs.artifact-url }}
         run: |
@@ -125,7 +167,11 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit and push updated report
-        if: github.ref == 'refs/heads/main'
+        id: publish
+        if: github.ref == 'refs/heads/main' && steps.admission.outputs.decision == 'admitted'
+        env:
+          ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
+          ADMISSION_FEED: ${{ steps.admission.outputs.feed_url }}
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
@@ -136,8 +182,45 @@ jobs:
           git add -f .sentryinsight-articles-fingerprint || true
           if git diff --cached --quiet; then
             echo "No report changes to commit"
+            echo "published=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "Update exploitation report [automated]"
+          # The trailers let a later run recover this exact admission.
+          printf 'Update exploitation report [automated]\n\nAdmission-Key: %s\nAdmission-Feed: %s\n' "$ADMISSION_KEY" "${ADMISSION_FEED:-none}" > "$RUNNER_TEMP/report-commit-message.txt"
+          git commit -F "$RUNNER_TEMP/report-commit-message.txt"
           git pull --rebase origin main
           git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git HEAD:main
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+      # The outcome is recorded whenever generation started and the run is
+      # still able to report it. A cancelled or failed generation may leave
+      # paid work outstanding, so admission keeps it uncertain until a report
+      # is recovered or an operator readmits; a runner lost mid-generation
+      # likewise leaves the admission uncertain.
+      - name: Record generation outcome
+        if: always() && steps.invoked.outcome == 'success'
+        env:
+          ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
+          BINDING: ${{ steps.admission.outputs.binding }}
+          GENERATE: ${{ steps.generate.outcome }}
+          PUBLISHED: ${{ steps.publish.outputs.published }}
+        run: |
+          if [ "$GENERATE" = "cancelled" ]; then OUTCOME=cancelled
+          elif [ "$GENERATE" != "success" ]; then OUTCOME=failed
+          elif [ "$PUBLISHED" = "true" ]; then OUTCOME=published
+          elif [ "$PUBLISHED" = "false" ]; then OUTCOME=unchanged
+          else OUTCOME=not-published
+          fi
+          node publication/cli.js complete --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID" --outcome "$OUTCOME" --binding "$BINDING"
+
+  # A pushed report is published after Validate succeeds for it. Otherwise
+  # the single publisher resumes the current release (state record, proof),
+  # so an interrupted publication recovers without promoting new source.
+  resume-publication:
+    needs: generate-report
+    if: always() && needs.generate-report.outputs.published != 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-production.yml
+    with:
+      invocation: resume

@@ -18,6 +18,7 @@ from .reporting import (
     normalize_reporting_url,
     reporting_fragment,
 )
+from .public_site import accepted_origins, emitted_origin
 
 CVE_ID_PATTERN = re.compile(r"^CVE-\d{4}-\d{4,}$", re.IGNORECASE)
 PARTIAL_CVE_PATTERN = re.compile(r"\bCVE-\d{4}-\d{0,3}(?!\d)", re.IGNORECASE)
@@ -26,7 +27,12 @@ FIELD_PATTERN = re.compile(
     r"^-[ \t]+\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Affected Versions|Affected Versions Status|Exceptions|Recommended Actions|Vendor Links)\*\*:[ \t]*(.*?)[ \t]*$",
     re.MULTILINE,
 )
-DIGEST_ARCHIVE_ROOT = "https://ricomanifesto.github.io/SentryDigest/archive/"
+# Dated SentryDigest archive roots: the emitted one for new metadata, and every
+# configured one accepted so historical reports validate unchanged.
+DIGEST_ARCHIVE_ROOT = f"{emitted_origin('SentryDigest')}archive/"
+DIGEST_ARCHIVE_ROOTS = tuple(
+    f"{origin}archive/" for origin in accepted_origins("SentryDigest")
+)
 
 
 class ReportArtifactError(ValueError):
@@ -384,7 +390,10 @@ def parse_report_artifact(source: str) -> ReportArtifact:
     if schema_version >= 2:
         digest_issue_url = _required_metadata(metadata, "digest_issue_url")
         expected_digest_url = f"{DIGEST_ARCHIVE_ROOT}{report_date.isoformat()}/"
-        if digest_issue_url != expected_digest_url:
+        accepted_digest_urls = {
+            f"{root}{report_date.isoformat()}/" for root in DIGEST_ARCHIVE_ROOTS
+        }
+        if digest_issue_url not in accepted_digest_urls:
             raise ReportArtifactError(
                 "digest_issue_url must identify the report date SentryDigest archive: "
                 f"{expected_digest_url}"
