@@ -9,7 +9,7 @@
 
 SentryInsight reads security news and publishes a report about vulnerabilities that are being exploited or need urgent review.
 
-**[Read the latest exploitation report](https://ricomanifesto.github.io/SentryInsight/)**
+**[Read the latest exploitation report](https://sentryinsight.ricomanifesto.com/)**
 
 ## What the Report Answers
 
@@ -19,7 +19,7 @@ SentryInsight reads security news and publishes a report about vulnerabilities t
 - Which CVEs and source articles support the finding?
 - What should a defender review next?
 
-Each published report is available as a web page and Markdown file. Older reports remain in the [dated archive](https://ricomanifesto.github.io/SentryInsight/reports/).
+Each published report is available as a web page and Markdown file. Older reports remain in the [dated archive](https://sentryinsight.ricomanifesto.com/reports/).
 
 Contents links and direct finding links open collapsed findings and focus their disclosure controls, including when revisiting the same finding.
 
