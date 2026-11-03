@@ -256,6 +256,7 @@ def test_reused_packet_directory_is_synced_before_success(tmp_path, monkeypatch)
     "title",
     [
         "Advisory for CVE-**2026**-1234",
+        "<div>CVE-**2026**-1234</div>",
         "Advisory for CVE&#45;2026&#45;1234",
         r"Advisory for CVE\-2026\-1234",
     ],

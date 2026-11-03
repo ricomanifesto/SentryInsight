@@ -297,21 +297,24 @@ def plan_reporting_catalog(
         extra = _cve_list(metadata_cves[key])
         _require(bool(source.content.strip()), "missing_source_content")
         _require(source.content_kind in {"article", "feed"}, "invalid_source_metadata")
-        # Scan each prompt field separately: formatting can expose an identity,
-        # but adjacent metadata fields must never synthesize one.
-        prompt_fields = [
-            source.content,
-            source.title,
-            source.publisher,
-            source.url,
-            *source.links,
-            *extra,
+        # Titles and publisher metadata appear inline in the prompt. Parse them
+        # with inline semantics, retaining block boundaries only for the body.
+        # Never concatenate metadata fields to synthesize an identity.
+        prompt_fields = [(source.content, False)] + [
+            (field, True)
+            for field in (
+                source.title,
+                source.publisher,
+                source.url,
+                *source.links,
+                *extra,
+            )
         ]
         cves = sorted(
             {
                 cve
-                for field in prompt_fields
-                for representation in (field, markdown_plain_text(field))
+                for field, inline in prompt_fields
+                for representation in (field, markdown_plain_text(field, inline=inline))
                 for cve in extract_cve_ids(representation)
             }
         )

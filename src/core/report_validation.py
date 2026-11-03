@@ -1178,10 +1178,15 @@ def inline_token_plain_text(token) -> str:
     return "".join(output)
 
 
-def markdown_plain_text(markdown: str) -> str:
-    """Reader-visible inline identities with boundaries between separate blocks."""
+def markdown_plain_text(markdown: str, *, inline: bool = False) -> str:
+    """Reader-visible identities using a field's block or inline presentation."""
+    tokens = (
+        MARKDOWN_PARSER.parseInline(markdown)
+        if inline
+        else MARKDOWN_PARSER.parse(markdown)
+    )
     blocks = []
-    for token in MARKDOWN_PARSER.parse(markdown):
+    for token in tokens:
         if token.type == "inline":
             blocks.append(inline_token_plain_text(token))
         elif token.type in {"fence", "code_block"}:
