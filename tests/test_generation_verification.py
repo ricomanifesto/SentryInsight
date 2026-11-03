@@ -14,7 +14,8 @@ from scripts.verify_report_generation import (
 )
 from src.core.openrouter_client import OpenRouterClient, OpenRouterError
 from src.core.opencode_client import parse_model_selection
-from src.core.public_site import emitted_origin
+from src.core.public_site import accepted_origins
+from src.core import reviewed_report
 from src.core.report_artifact import parse_report_artifact
 from src.core.reviewed_report import resolve_reviewed_analysis
 from test_reviewed_report import prepared_result
@@ -143,9 +144,13 @@ def test_attempt_bound_cannot_expand_the_production_allowance(attempts):
         OpenRouterClient(api_key="synthetic-key", max_attempts=attempts)
 
 
-def test_reviewed_report_emits_current_origin_and_accepts_historical_origin():
+@pytest.mark.parametrize("origin", accepted_origins("SentryDigest"))
+def test_reviewed_report_emits_current_origin_and_accepts_historical_origin(
+    origin, monkeypatch
+):
+    monkeypatch.setattr(reviewed_report, "DIGEST_ARCHIVE_ROOT", origin + "archive/")
     candidate = resolve_reviewed_analysis(prepared_result())
-    current = emitted_origin("SentryDigest") + "archive/2026-11-02/"
+    current = origin + "archive/2026-11-02/"
     assert parse_report_artifact(candidate.source).digest_issue_url == current
     historical = candidate.source.replace(
         current, "https://ricomanifesto.github.io/SentryDigest/archive/2026-11-02/"
