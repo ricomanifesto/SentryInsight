@@ -25,6 +25,7 @@ dev = [
     "pydantic-evals[logfire]>=2.55.0,<3",
     "pytest",
     "ruff",
+    "sentencepiece==0.2.1",
     "ty",
 ]
 
