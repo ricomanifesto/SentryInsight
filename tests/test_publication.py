@@ -141,13 +141,13 @@ def test_digest_issue_url_is_accepted_under_exactly_one_configured_root():
 
 def test_report_metadata_and_site_urls_come_from_the_emitted_origins():
     from scripts import build_site
+    from src.core import reviewed_report
 
     assert build_site.PUBLIC_ROOT == _emitted("SentryInsight")
-    # The generation workflow module needs the full model environment to
-    # import; its URL boundary is checked in source instead.
-    source = (ROOT / "src" / "core" / "workflow.py").read_text()
+    assert reviewed_report.DIGEST_ARCHIVE_ROOT == f"{_emitted('SentryDigest')}archive/"
+    # Composition now owns the metadata boundary; the runtime delegates to it.
+    source = (ROOT / "src" / "core" / "reviewed_report.py").read_text()
     assert "ricomanifesto.github.io" not in source
-    assert "    DIGEST_ARCHIVE_ROOT,\n" in source
     assert 'f"digest_issue_url: {DIGEST_ARCHIVE_ROOT}{report_date}/\\n"' in source
 
 
