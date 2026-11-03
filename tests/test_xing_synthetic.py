@@ -4,6 +4,7 @@ import asyncio
 from copy import deepcopy
 import json
 import socket
+from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -454,6 +455,21 @@ def test_oversized_body_is_never_retained_or_retried(prepared, reports, tmp_path
     assert not (tmp_path / "out" / "synthetic-review").exists()
 
 
+def test_live_review_capture_is_blocked_before_credentials_or_preparation(
+    tmp_path, monkeypatch
+):
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Must reject public output retention before preparation")
+
+    monkeypatch.setattr(cli, "check_live_environment", forbidden)
+    monkeypatch.setattr(cli, "prepare_cases", forbidden)
+    args = SimpleNamespace(
+        mode="run", live=True, output=tmp_path / "out", review_outputs=True
+    )
+    with pytest.raises(policy.PilotError, match="public_review_route_unresolved"):
+        asyncio.run(cli.execute(args))
+
+
 def test_total_deadline_stops_without_another_attempt(
     prepared, reports, tmp_path, monkeypatch
 ):
@@ -470,3 +486,46 @@ def test_total_deadline_stops_without_another_attempt(
     assert result["trials"][0]["outcome"] == "failed"
     assert all(t["outcome"] == "not_attempted" for t in result["trials"][1:])
     assert SECRET not in json.dumps(result)
+
+
+@pytest.mark.parametrize(
+    "change,code",
+    [
+        (
+            lambda r: r.update(error={"code": 503, "message": SECRET}),
+            "provider_error_envelope",
+        ),
+        (
+            lambda r: r["choices"][0].update(error={"message": SECRET}),
+            "provider_error_envelope",
+        ),
+        (
+            lambda r: r["usage"]["completion_tokens_details"].update(
+                reasoning_tokens=32001
+            ),
+            "provider_output_budget",
+        ),
+        (
+            lambda r: r["usage"]["completion_tokens_details"].update(
+                reasoning_tokens=1001
+            ),
+            "inconsistent_usage",
+        ),
+        (lambda r: r["usage"].update(total_tokens=6001), "inconsistent_usage"),
+    ],
+)
+def test_explicit_provider_failure_or_inconsistent_usage_cannot_advance(
+    prepared, reports, tmp_path, change, code
+):
+    def mutate(data):
+        change(data)
+        return data
+
+    provider = Provider(reports, mutate=mutate)
+    result, _ = execute(prepared, provider, tmp_path / "out", review=True)
+    assert len(provider.calls) == 1 and result["attempted"] == 1
+    assert result["automated_passes"] == 0 and not result["complete"]
+    assert result["trials"][0]["code"] == code
+    assert all(t["outcome"] == "not_attempted" for t in result["trials"][1:])
+    assert SECRET not in json.dumps(result)
+    assert not (tmp_path / "out" / "synthetic-review").exists()

@@ -85,22 +85,31 @@ hashes, counts, booleans, elapsed time, safe error codes, a constrained response
 ID, and numeric usage/cost when reported. A proposed installer uploads this
 metadata with `retention-days: 7`.
 
-Optional `--review-outputs`: accepted transport content is also saved as at most
-six bounded plain-text files for human review, including an answer that later
-fails the grounding gate. Truncated, wrong-provider, malformed and secret-echoing
-responses are not retained. The proposed manual workflow exposes a boolean
-`retain_synthetic_outputs` input, false by default, and uploads these files with
-`retention-days: 1`. A human should compare the text with the frozen sources and
-answer file, including narrative claims outside the automated field oracle.
+The runner's optional capture path is tested offline: at most six 512-KiB
+plain-text files, including an answer that later fails the grounding gate.
+Truncated, wrong-provider, malformed and secret-echoing responses are not retained.
+**Live `--review-outputs` is blocked.** The installer's reserved boolean
+`retain_synthetic_outputs` input defaults to false; selecting true fails before
+setup or credential access. No answer-upload step is installed.
+
+The original one-day public artifact proposal is unsuitable for human review:
+this repository is public, and signed-in readers can download its artifacts
+before a human has reviewed them. The provider's
+[terms, section 21](https://redpill.ai/terms) call for human review before using
+or sharing outputs. A future private delivery route, such as an artifact
+encrypted to a separately approved user-held recipient key, needs its own design,
+review and execution decision. The proposed upper retention bound is one day for
+that artifact, with at most six answer files and no reasoning trace. It is not
+implemented or enabled here. A human would compare answers with the frozen
+sources and answer file, including narrative claims outside the field oracle.
 Capturing an artifact never marks that review complete.
 
-The repository is public: GitHub Actions artifacts are downloadable by signed-in
-users with repository read access. Treat the optional files as public synthetic
-outputs. GitHub retention is a service deletion policy, not a guarantee of
-immediate erasure or deletion of downloaded copies. Runner temporary files last
-until the hosted runner is disposed. Workflow logs retain commands/status under
-the repository's existing log-retention setting; the installer redirects CLI
-results to temporary files and does not print answer text or usage receipts.
+The seven-day metadata artifact is also public to signed-in readers. GitHub
+retention is a service deletion policy, not a guarantee of immediate erasure or
+deletion of downloaded copies. Runner temporary files last until the hosted
+runner is disposed. Workflow logs retain commands/status under the repository's
+existing log-retention setting; the installer redirects CLI results to temporary
+files and does not print answer text or usage receipts.
 
 These local controls do not establish the broker's effective account privacy
 settings or remove legal/abuse-retention exceptions. Public ZDR metadata and

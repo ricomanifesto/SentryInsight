@@ -81,6 +81,11 @@ async def execute(args) -> dict:
     if args.mode == "run":
         if not args.live or args.output is None:
             raise PilotError("live_authorization_missing")
+        if args.review_outputs:
+            # A public-repository artifact would share answers before human
+            # review. Keep that route unavailable pending a compliant private
+            # delivery design. Offline/mock retention tests remain possible.
+            raise PilotError("public_review_route_unresolved")
         check_live_environment(args.expected_commit or "", args.output)
     elif args.live or args.review_outputs or os.getenv("OPENROUTER_API_KEY"):
         raise PilotError("invalid_offline_mode")

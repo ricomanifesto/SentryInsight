@@ -222,6 +222,8 @@ def completion(data: dict, secret: str) -> tuple[str, dict]:
         choices = data["choices"]
         if len(choices) != 1:
             raise PilotError("response_shape", safe)
+        if data.get("error") is not None or choices[0].get("error") is not None:
+            raise PilotError("provider_error_envelope", safe)
         finish = choices[0].get("finish_reason")
         safe["finish_reason"] = (
             finish
@@ -239,6 +241,24 @@ def completion(data: dict, secret: str) -> tuple[str, dict]:
             raise PilotError("provider_input_budget", safe)
         if (safe_usage["completion_tokens"] or 0) > MAX_OUTPUT:
             raise PilotError("provider_output_budget", safe)
+        if reasoning is not None and reasoning > MAX_OUTPUT:
+            raise PilotError("provider_output_budget", safe)
+        prompt, answer, total = (
+            safe_usage["prompt_tokens"],
+            safe_usage["completion_tokens"],
+            safe_usage["total_tokens"],
+        )
+        if (
+            (reasoning is not None and answer is not None and reasoning > answer)
+            or (total is not None and total > MAX_INPUT + MAX_OUTPUT)
+            or (
+                prompt is not None
+                and answer is not None
+                and total is not None
+                and total != prompt + answer
+            )
+        ):
+            raise PilotError("inconsistent_usage", safe)
         if finish != "stop":
             raise PilotError("incomplete_completion", safe)
         message = choices[0]["message"]
