@@ -123,6 +123,11 @@ The script installs locked Python and Node dependencies, runs linting, formattin
 
 ## Report Evaluations
 
+The separate [Xing synthetic evaluation](evals/xing_synthetic/README.md) uses six
+frozen cases and the application's source-review gate. It enforces a free Phala
+ZDR route, stops on the first failure, and cannot promote a report. Its optional
+one-day synthetic-output review artifact requires an explicit execution choice.
+
 The [frozen-source evaluation pilot](evals/grounding/README.md) compares two prompts
 on synthetic article cases, with independent field checks, held-out cases and
 complete trial accounting. Calibration runs make no model calls; live runs require
