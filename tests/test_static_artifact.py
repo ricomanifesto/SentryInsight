@@ -30,6 +30,7 @@ PACKAGER_INPUTS = (
     "contracts",
     "scripts",
     "src",
+    "publication/site.json",
 )
 GIT_ENV = {
     **os.environ,
