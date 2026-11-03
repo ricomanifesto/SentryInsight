@@ -11,7 +11,8 @@ import tempfile
 from typing import Any, Mapping, Sequence
 
 from .cve import extract_cve_ids
-from .report_validation import markdown_plain_text
+from .report_validation import markdown_plain_text, markdown_references
+from .article_prompt import canonical_source_article, format_article_summary
 from .finding_evidence import build_finding_detail_context
 from .reporting import (
     ReportingGroundingError,
@@ -271,17 +272,55 @@ def review_articles(
     metadata = {row["key"]: row["metadata_cves"] for row in plan.packet["sources"]}
     catalog = plan.eligible_catalog if eligible_only else plan.catalog
     return [
-        {
-            "title": source.title,
-            "source": source.publisher,
-            "link": source.url,
-            "content": source.content,
-            "content_kind": source.content_kind,
-            "source_links": list(source.links),
-            "cves": metadata[key],
-        }
+        canonical_source_article(source, metadata[key])
         for key, source in catalog.items()
     ]
+
+
+def _source_cve_identities(
+    catalog: Mapping[str, ReportingSource], metadata_cves: Mapping[str, Sequence[str]]
+) -> dict[str, list[str]]:
+    """Bound each identity to a field under shared and isolated prompt context.
+
+    CommonMark references may be defined by another source. Use the exact shared
+    presentation to find those definitions, but never concatenate fields while
+    extracting identities. Also retain each source's isolated interpretation so
+    an unrelated unclosed block cannot hide its own definitions.
+    """
+    summaries = {
+        key: format_article_summary(
+            canonical_source_article(source, metadata_cves[key])
+        )
+        for key, source in catalog.items()
+    }
+    shared_references = markdown_references("".join(summaries.values()))
+    identities = {}
+    for key, source in catalog.items():
+        local_references = markdown_references(summaries[key])
+        contexts = [shared_references]
+        if local_references != shared_references:
+            contexts.append(local_references)
+        fields = [(source.content, False)] + [
+            (field, True)
+            for field in (
+                source.title,
+                source.publisher,
+                source.url,
+                *source.links,
+                *metadata_cves[key],
+            )
+        ]
+        cves = set()
+        for field, inline in fields:
+            cves.update(extract_cve_ids(field))
+            for references in contexts:
+                cves.update(
+                    extract_cve_ids(
+                        markdown_plain_text(field, inline=inline, references=references)
+                    )
+                )
+        identities[key] = sorted(cves)
+    return identities
 
 
 def plan_reporting_catalog(
@@ -292,32 +331,13 @@ def plan_reporting_catalog(
     _require(len(catalog) <= MAX_SOURCES, "review_input_limit_exceeded")
     ordered = {key: catalog[key] for key in sorted(catalog)}
     full_context = build_finding_detail_context(ordered)
+    normalized_metadata = {key: _cve_list(metadata_cves[key]) for key in ordered}
+    identities = _source_cve_identities(ordered, normalized_metadata)
     rows = []
     for key, source in ordered.items():
-        extra = _cve_list(metadata_cves[key])
+        extra = normalized_metadata[key]
         _require(bool(source.content.strip()), "missing_source_content")
         _require(source.content_kind in {"article", "feed"}, "invalid_source_metadata")
-        # Titles and publisher metadata appear inline in the prompt. Parse them
-        # with inline semantics, retaining block boundaries only for the body.
-        # Never concatenate metadata fields to synthesize an identity.
-        prompt_fields = [(source.content, False)] + [
-            (field, True)
-            for field in (
-                source.title,
-                source.publisher,
-                source.url,
-                *source.links,
-                *extra,
-            )
-        ]
-        cves = sorted(
-            {
-                cve
-                for field, inline in prompt_fields
-                for representation in (field, markdown_plain_text(field, inline=inline))
-                for cve in extract_cve_ids(representation)
-            }
-        )
         rows.append(
             {
                 "key": key,
@@ -331,7 +351,7 @@ def plan_reporting_catalog(
                 "content_kind": source.content_kind,
                 "links": list(source.links),
                 "metadata_cves": extra,
-                "cves": cves,
+                "cves": identities[key],
             }
         )
     full_scopes = _scopes(ordered)
@@ -358,6 +378,12 @@ def plan_reporting_catalog(
     validate_review_packet(packet)
     plan = SourceReviewPlan(ordered, packet)
     eligible = set(plan.eligible_keys)
+    # Removing a definition/context provider must not change a retained identity.
+    _require(
+        _source_cve_identities(plan.eligible_catalog, normalized_metadata)
+        == {key: identities[key] for key in plan.eligible_keys},
+        "review_selection_changed_evidence",
+    )
     # Exclusion must not strengthen a retained interpretation or lose a peer.
     _require(
         all(

@@ -12,18 +12,18 @@ from .model_client import ReportModelClient, build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .analysis_errors import classify_analysis_error
 from .cve import extract_cve_ids
+from .article_prompt import (
+    clean_article_source as clean_article_source,
+    collect_structured_cves as collect_structured_cves,
+    format_article_summary as format_article_summary,
+)
 from .finding_evidence import build_finding_detail_context
 from .version_references import (
     PROTOCOL_KEY,
     PROTOCOL_VERSION,
     build_version_reference_context,
 )
-from ..services.article_content import normalize_feed_content
-from .reporting import (
-    ReportingGroundingError,
-    reporting_key,
-    serialize_reporting_catalog,
-)
+from .reporting import serialize_reporting_catalog
 from .source_review import (
     PLAN_KEY,
     SourceReviewError,
@@ -37,8 +37,6 @@ logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
-
-UNKNOWN_SOURCE_SENTINELS = {"unknown source"}
 
 EXPLOITATION_RELEVANCE_PATTERN = re.compile(
     r"\b(?:"
@@ -84,15 +82,6 @@ NEGATED_EXPLOITATION_PATTERN = re.compile(
 )
 
 
-def clean_article_source(value: Any) -> str:
-    if value is None:
-        return ""
-    source = " ".join(str(value).split())
-    if source.casefold() in UNKNOWN_SOURCE_SENTINELS:
-        return ""
-    return source
-
-
 def filter_exploitation_articles(
     articles: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
@@ -110,58 +99,6 @@ def filter_exploitation_articles(
     # Pass all articles to the AI for analysis
     # This gives the AI more context to work with
     return articles
-
-
-def format_article_summary(article: Dict[str, Any]) -> str:
-    def clean_text(value: Any, default: str = "") -> str:
-        if value is None:
-            return default
-        return str(value).strip()
-
-    title = clean_text(article.get("title"), "Untitled article") or "Untitled article"
-    source = clean_article_source(article.get("source"))
-    link = clean_text(article.get("link"))
-    content = (
-        normalize_feed_content(article.get("content") or article.get("summary"))
-        or "No content available"
-    )
-
-    metadata = []
-    if source:
-        metadata.append(f"Source: {source}")
-    if link:
-        metadata.append(f"URL: {link}")
-        try:
-            metadata.append(f"Reporting key: {reporting_key(link)}")
-        except ReportingGroundingError:
-            pass
-    if article_cves := collect_structured_cves(article):
-        metadata.append(f"CVEs: {', '.join(article_cves)}")
-
-    heading = f"**{title}**"
-    if metadata:
-        heading = f"{heading} ({'; '.join(metadata)})"
-
-    links = "\n".join(str(link) for link in article.get("source_links", []))
-    return f"{heading}\nContent coverage: {article.get('content_kind', 'feed')}\n\n{content}\nSource links: {links or 'Not stated in supplied sources.'}\n\n"
-
-
-def collect_structured_cves(article: Dict[str, Any]) -> list[str]:
-    """Collect CVE IDs from structured article metadata."""
-    cves: list[str] = []
-    cves.extend(str(cve).strip() for cve in article.get("cves", []) if str(cve).strip())
-    cves.extend(extract_cve_ids("\n".join(cves)))
-
-    seen: set[str] = set()
-    unique_cves: list[str] = []
-    for cve in cves:
-        normalized_cve = cve.upper()
-        if normalized_cve in seen:
-            continue
-        seen.add(normalized_cve)
-        unique_cves.append(normalized_cve)
-
-    return unique_cves
 
 
 def collect_prompt_cves(article_summary: str) -> list[str]:

@@ -284,3 +284,124 @@ def test_separate_markdown_blocks_do_not_invent_cve_membership():
     article = source("CVE-\n\n2026-1234", "one")
     plan = prepare_source_review([article])
     assert plan.packet["sources"][0]["cves"] == []
+
+
+@pytest.mark.parametrize("field", ["title", "source", "content"])
+@pytest.mark.parametrize("definition_source", ["held", "separate"])
+@pytest.mark.parametrize(
+    "identifier,label",
+    [
+        ("CVE-[2026][ref]-1234", "ref"),
+        ("CVE-[2026][]-1234", "2026"),
+        ("CVE-[2026]-1234", "2026"),
+        ("CVE-[2026][ReF  Name]-1234", "ref name"),
+    ],
+)
+def test_reference_context_closes_cve_cohorts(
+    field, definition_source, identifier, label
+):
+    held = source(AMBIGUOUS, "held")
+    held[field] = identifier + ("\n\n" + AMBIGUOUS if field == "content" else "")
+    separate = source("A separate advisory.", "separate")
+    provider = held if definition_source == "held" else separate
+    provider["content"] += f"\n\n[{label}]: https://example.test/reference"
+    plan = prepare_source_review(
+        [source(f"{A} is actively exploited.", "peer"), held, separate]
+    )
+    rows = by_url(plan)
+    assert A in rows["held"]["cves"]
+    assert rows["held"]["state"] == rows["peer"]["state"] == "review_required"
+    assert plan.eligible_keys == (rows["separate"]["key"],)
+
+
+def test_removing_a_reference_provider_cannot_change_an_eligible_source_identity():
+    held = source(AMBIGUOUS + "\n\n[ref]: https://example.test/reference", "held")
+    peer = source("A service advisory.", "peer")
+    peer["title"] = "CVE-[2026][ref]-1234"
+    with pytest.raises(SourceReviewError, match="review_selection_changed_evidence"):
+        prepare_source_review([peer, held])
+
+
+@pytest.mark.parametrize(
+    "definition", ["", "```\n[ref]: https://example.test/reference\n```"]
+)
+def test_missing_or_code_only_reference_definition_does_not_invent_a_cve(definition):
+    held = source(AMBIGUOUS + "\n\n" + definition, "held")
+    held["title"] = "CVE-[2026][ref]-1234"
+    plan = prepare_source_review([source(f"{A} is actively exploited.", "peer"), held])
+    rows = by_url(plan)
+    assert rows["held"]["cves"] == []
+    assert plan.eligible_keys == (rows["peer"]["key"],)
+
+
+def test_shared_reference_environment_preserves_first_definition_and_is_not_mutated():
+    from src.core.report_validation import markdown_plain_text, markdown_references
+
+    refs = markdown_references(
+        "[ref]: https://example.test/first\n\n[ref]: https://example.test/second"
+    )
+    before = copy.deepcopy(refs)
+    assert refs["REF"]["href"] == "https://example.test/first"
+    assert (
+        markdown_plain_text("CVE-[2026][ref]-1234", inline=True, references=refs) == A
+    )
+    markdown_plain_text(
+        "[new]: https://example.test/new\n\n[ref]: https://example.test/third",
+        references=refs,
+    )
+    assert refs == before
+    assert (
+        markdown_plain_text("CVE-[2026][new]-1234", inline=True, references=refs) != A
+    )
+
+
+def ordered_sources(*contents):
+    from src.core.reporting import reporting_key
+
+    articles = [
+        source("An advisory.", f"ordered-{index}") for index in range(len(contents))
+    ]
+    articles.sort(key=lambda article: reporting_key(article["link"]))
+    for article, content in zip(articles, contents):
+        article["content"] = content
+    return articles
+
+
+@pytest.mark.parametrize("held_prefix", ["", "```\n\n"])
+def test_unclosed_neighbor_block_cannot_hide_shared_or_isolated_reference_context(
+    held_prefix,
+):
+    articles = ordered_sources(
+        "An ordinary source.\n\n```",
+        held_prefix + AMBIGUOUS + "\n\n[ref]: https://example.test/reference",
+        f"{A} is actively exploited.",
+    )
+    articles[1]["title"] = "CVE-[2026][ref]-1234"
+    plan = prepare_source_review(articles)
+    rows = plan.packet["sources"]
+    assert rows[1]["state"] == rows[2]["state"] == "review_required"
+    assert A in rows[1]["cves"]
+    assert prepare_source_review(list(reversed(articles))).packet == plan.packet
+
+
+def test_removing_first_definition_is_safe_only_when_remaining_reference_preserves_identity():
+    from src.core.article_prompt import format_article_summary
+    from src.core.report_validation import markdown_references
+    from src.core.source_review import review_articles
+
+    articles = ordered_sources(
+        AMBIGUOUS + "\n\n[ref]: https://example.test/first",
+        "A service advisory.\n\n[ref]: https://example.test/second",
+    )
+    articles[1]["title"] = "CVE-[2026][ref]-1234"
+    plan = prepare_source_review(articles)
+    full = markdown_references(
+        "".join(map(format_article_summary, review_articles(plan, eligible_only=False)))
+    )
+    selected = markdown_references(
+        "".join(map(format_article_summary, review_articles(plan)))
+    )
+    assert full["REF"]["href"] == "https://example.test/first"
+    assert selected["REF"]["href"] == "https://example.test/second"
+    assert plan.packet["sources"][1]["cves"] == [A]
+    assert plan.eligible_keys == (plan.packet["sources"][1]["key"],)
