@@ -1,0 +1,24 @@
+{
+  "name": "synthetic-active-with-held-source",
+  "articles": [
+    {
+      "title": "Synthetic Example advisory 1",
+      "source": "Fictional Security Bulletin",
+      "link": "https://example.test/advisories/source-01-01",
+      "content": "CVE-2026-41001 is actively exploited.\n\nAffected versions: Example Gateway 1.2.\n\nCustomers should install the patch.",
+      "content_kind": "article",
+      "source_links": [
+        "https://vendor.example.test/advisories/41001"
+      ]
+    },
+    {
+      "title": "Synthetic ambiguous advisory",
+      "source": "Fictional Security Bulletin",
+      "link": "https://example.test/advisories/withheld",
+      "content": "An attack vector targets instances running version 3.2 or earlier.",
+      "content_kind": "article",
+      "source_links": []
+    }
+  ],
+  "calibration_response": "# Exploitation Report\n\n## Executive Summary\n\nThe supplied synthetic advisory states that CVE-2026-41001 is actively exploited.\n\nCustomers should install the patch.\n\n## Active Exploitation Details\n\n### Example Gateway (CVE-2026-41001)\n- **Description**: A vulnerability described by the supplied synthetic advisory.\n- **Severity**: unknown\n- **Exploitation Status**: active\n- **Action**: patch\n- **CVE IDs**: CVE-2026-41001\n- **Reporting**: source-1c0c9e871590\n- **Affected Versions**: version-71841d46af47ebc043156fad6820c826\n- **Exceptions**: Not stated in supplied sources.\n- **Recommended Actions**: Customers should install the patch.\n- **Vendor Links**: https://vendor.example.test/advisories/41001\n\n## Affected Systems and Products\n\nExample Gateway 1.2.\n\n## Attack Vectors and Techniques\n\nNot stated in supplied sources.\n\n## Threat Actor Activities\n\nNot stated in supplied sources.\n"
+}

@@ -253,3 +253,6 @@ The production OpenRouter client applies the same zero-price/no-fallback policy
 for free routes and records the validated requested/resolved model identities in
 its metadata log. Its existing maximum of three transient-error attempts is
 unchanged. The separate verification command restricts that limit to one.
+
+For a fixed synthetic trial through Actions without publishing a report, see
+[the one-request verification guide](evals/nemotron_verification/README.md).

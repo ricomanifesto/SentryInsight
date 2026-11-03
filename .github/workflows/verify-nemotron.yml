@@ -1,0 +1,84 @@
+name: Verify Nemotron Without Publication
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_commit:
+        description: 'Exact reviewed full main commit approved for this single trial'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sentryinsight-nemotron-verification
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: >-
+      github.repository == 'ricomanifesto/SentryInsight' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' && github.run_attempt == 1 &&
+      github.sha == inputs.expected_commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      OTEL_SDK_DISABLED: 'true'
+      LOGFIRE_SEND_TO_LOGFIRE: 'false'
+      LANGSMITH_TRACING: 'false'
+      LANGCHAIN_TRACING_V2: 'false'
+    steps:
+      - name: Checkout the exact reviewed source without persistent credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up pinned uv without shared caches
+        uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
+        with:
+          version: '0.12.0'
+          python-version: '3.11'
+          enable-cache: false
+
+      - name: Install frozen dependencies without inference credentials
+        run: uv sync --group dev --frozen
+
+      - name: Select the ephemeral tokenizer cache
+        run: printf 'TIKTOKEN_CACHE_DIR=%s/nemotron-tokenizer\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+
+      - name: Fetch hash-verified public tokenizer data without credentials
+        run: |
+          .venv/bin/python -B - <<'PY'
+          import tiktoken
+          from scripts.verify_nemotron_once import require_tokenizer_cache
+          tiktoken.get_encoding('cl100k_base')
+          require_tokenizer_cache()
+          PY
+
+      - name: Calibrate the fixed synthetic case without a provider request
+        run: |
+          .venv/bin/python -B scripts/verify_nemotron_once.py \
+            --output "$RUNNER_TEMP/nemotron-verification/calibration.json"
+
+      - name: Make one unpublished synthetic trial request
+        id: trial
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: |
+          .venv/bin/python -B scripts/verify_nemotron_once.py --live \
+            --expected-commit "$EXPECTED_COMMIT" \
+            --output "$RUNNER_TEMP/nemotron-verification/live.json"
+
+      - name: Retain sanitized metadata for seven days
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: nemotron-verification-${{ github.run_id }}
+          path: ${{ runner.temp }}/nemotron-verification/*.json
+          retention-days: 7
+          if-no-files-found: warn
