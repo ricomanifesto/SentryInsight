@@ -1,0 +1,4 @@
+{
+  "buildCommand": "node _publication/build.js",
+  "framework": null
+}

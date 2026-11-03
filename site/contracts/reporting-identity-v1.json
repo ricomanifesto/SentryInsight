@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "contract": "sentry-reporting-identity",
+  "contract_version": 1,
+  "accepted": [
+    {
+      "name": "canonical",
+      "input": "https://example.com/security/advisory",
+      "normalized": "https://example.com/security/advisory",
+      "source_key": "source-cc16b55febdc",
+      "reporting_fragment": "reporting-cc16b55febdc"
+    },
+    {
+      "name": "case-default-port-fragment",
+      "input": " HTTPS://EXAMPLE.COM:443/security/advisory#reader ",
+      "normalized": "https://example.com/security/advisory",
+      "source_key": "source-cc16b55febdc",
+      "reporting_fragment": "reporting-cc16b55febdc"
+    },
+    {
+      "name": "http-default-port",
+      "input": "http://EXAMPLE.com:80",
+      "normalized": "http://example.com/",
+      "source_key": "source-2a1b402420ef",
+      "reporting_fragment": "reporting-2a1b402420ef"
+    },
+    {
+      "name": "non-default-port",
+      "input": "https://Example.com:8443/path",
+      "normalized": "https://example.com:8443/path",
+      "source_key": "source-82753c422e83",
+      "reporting_fragment": "reporting-82753c422e83"
+    },
+    {
+      "name": "query-fragment",
+      "input": "https://example.com/search?q=cve#section",
+      "normalized": "https://example.com/search?q=cve",
+      "source_key": "source-8fc41882c3e7",
+      "reporting_fragment": "reporting-8fc41882c3e7"
+    },
+    {
+      "name": "empty-query",
+      "input": "https://example.com/path?",
+      "normalized": "https://example.com/path?",
+      "source_key": "source-cc2a0af6e54f",
+      "reporting_fragment": "reporting-cc2a0af6e54f"
+    },
+    {
+      "name": "unicode-idn-path",
+      "input": "https://bücher.example/über",
+      "normalized": "https://xn--bcher-kva.example/%C3%BCber",
+      "source_key": "source-97b2f6ea6a39",
+      "reporting_fragment": "reporting-97b2f6ea6a39"
+    },
+    {
+      "name": "punycode-percent-path",
+      "input": "https://xn--bcher-kva.example/%C3%BCber",
+      "normalized": "https://xn--bcher-kva.example/%C3%BCber",
+      "source_key": "source-97b2f6ea6a39",
+      "reporting_fragment": "reporting-97b2f6ea6a39"
+    },
+    {
+      "name": "idn-uts46",
+      "input": "https://faß.de/path",
+      "normalized": "https://xn--fa-hia.de/path",
+      "source_key": "source-0ee6050d80cf",
+      "reporting_fragment": "reporting-0ee6050d80cf"
+    },
+    {
+      "name": "dot-segments",
+      "input": "https://example.com/a/../b",
+      "normalized": "https://example.com/b",
+      "source_key": "source-d7fe568b31ae",
+      "reporting_fragment": "reporting-d7fe568b31ae"
+    },
+    {
+      "name": "encoded-dot-segments",
+      "input": "https://example.com/a/%2e%2e/b",
+      "normalized": "https://example.com/b",
+      "source_key": "source-d7fe568b31ae",
+      "reporting_fragment": "reporting-d7fe568b31ae"
+    },
+    {
+      "name": "backslash-path",
+      "input": "https://example.com/a\\b",
+      "normalized": "https://example.com/a/b",
+      "source_key": "source-ed1d4137647b",
+      "reporting_fragment": "reporting-ed1d4137647b"
+    },
+    {
+      "name": "percent-encoding-case",
+      "input": "https://example.com/%7euser/%2fadmin",
+      "normalized": "https://example.com/%7euser/%2fadmin",
+      "source_key": "source-ac0ddefd3084",
+      "reporting_fragment": "reporting-ac0ddefd3084"
+    },
+    {
+      "name": "encoded-path-query-fragment",
+      "input": "https://example.com/a%2Fb?x=%7E#frag",
+      "normalized": "https://example.com/a%2Fb?x=%7E",
+      "source_key": "source-89174d3b6e47",
+      "reporting_fragment": "reporting-89174d3b6e47"
+    },
+    {
+      "name": "ipv6-default-port",
+      "input": "https://[2001:db8::1]:443/a",
+      "normalized": "https://[2001:db8::1]/a",
+      "source_key": "source-0de259d5e13b",
+      "reporting_fragment": "reporting-0de259d5e13b"
+    },
+    {
+      "name": "ipv6-non-default-port",
+      "input": "http://[2001:db8::1]:8080/a",
+      "normalized": "http://[2001:db8::1]:8080/a",
+      "source_key": "source-f71649dbed57",
+      "reporting_fragment": "reporting-f71649dbed57"
+    }
+  ],
+  "rejected": [
+    { "name": "blank", "input": "" },
+    { "name": "relative", "input": "/security/advisory" },
+    { "name": "unsafe-scheme", "input": "javascript:alert(1)" },
+    { "name": "unsupported-scheme", "input": "ftp://example.com/advisory" },
+    { "name": "credentials", "input": "https://user:secret@example.com/advisory" },
+    { "name": "invalid-port", "input": "https://example.com:99999/advisory" }
+  ]
+}

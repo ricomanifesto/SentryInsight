@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="SentryInsight icon">
+  <defs>
+    <linearGradient id="sisbg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="512" y2="512">
+      <stop offset="0" stop-color="#ef4444"/>
+      <stop offset="1" stop-color="#991b1b"/>
+    </linearGradient>
+    <mask id="sistshield">
+      <path fill="#ffffff" d="M256 58 C312 86 368 102 420 108 V264 C420 372 354 430 256 462 C158 430 92 372 92 264 V108 C144 102 200 86 256 58 Z"/>
+      <path fill="#000000" d="M124 266 Q256 150 388 266 Q256 382 124 266 Z"/>
+      <circle cx="256" cy="266" r="58" fill="#ffffff"/>
+    </mask>
+  </defs>
+  <rect width="512" height="512" rx="115" fill="url(#sisbg)"/>
+  <g transform="translate(256 256) scale(0.92) translate(-256 -256)">
+    <rect width="512" height="512" fill="#ffffff" mask="url(#sistshield)"/>
+  </g>
+</svg>

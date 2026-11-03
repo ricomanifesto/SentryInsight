@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "reports": [
+    {
+      "report_date": "2026-10-05",
+      "generated_at": "2026-10-05T18:28:10Z",
+      "html_path": "2026-10-05.html",
+      "markdown_path": "2026-10-05.md",
+      "finding_count": 7,
+      "cve_count": 3
+    },
+    {
+      "report_date": "2026-10-04",
+      "generated_at": "2026-10-04T11:03:23Z",
+      "html_path": "2026-10-04.html",
+      "markdown_path": "2026-10-04.md",
+      "finding_count": 10,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-10-03",
+      "generated_at": "2026-10-03T22:05:44Z",
+      "html_path": "2026-10-03.html",
+      "markdown_path": "2026-10-03.md",
+      "finding_count": 8,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-10-02",
+      "generated_at": "2026-10-02T18:27:44Z",
+      "html_path": "2026-10-02.html",
+      "markdown_path": "2026-10-02.md",
+      "finding_count": 10,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-10-01",
+      "generated_at": "2026-10-01T21:25:57Z",
+      "html_path": "2026-10-01.html",
+      "markdown_path": "2026-10-01.md",
+      "finding_count": 8,
+      "cve_count": 3
+    },
+    {
+      "report_date": "2026-09-30",
+      "generated_at": "2026-09-30T21:21:16Z",
+      "html_path": "2026-09-30.html",
+      "markdown_path": "2026-09-30.md",
+      "finding_count": 10,
+      "cve_count": 4
+    },
+    {
+      "report_date": "2026-09-29",
+      "generated_at": "2026-09-29T21:19:38Z",
+      "html_path": "2026-09-29.html",
+      "markdown_path": "2026-09-29.md",
+      "finding_count": 7,
+      "cve_count": 1
+    },
+    {
+      "report_date": "2026-09-28",
+      "generated_at": "2026-09-28T21:19:41Z",
+      "html_path": "2026-09-28.html",
+      "markdown_path": "2026-09-28.md",
+      "finding_count": 17,
+      "cve_count": 4
+    },
+    {
+      "report_date": "2026-09-27",
+      "generated_at": "2026-09-27T21:11:37Z",
+      "html_path": "2026-09-27.html",
+      "markdown_path": "2026-09-27.md",
+      "finding_count": 10,
+      "cve_count": 5
+    },
+    {
+      "report_date": "2026-09-26",
+      "generated_at": "2026-09-26T20:55:25Z",
+      "html_path": "2026-09-26.html",
+      "markdown_path": "2026-09-26.md",
+      "finding_count": 9,
+      "cve_count": 4
+    },
+    {
+      "report_date": "2026-09-25",
+      "generated_at": "2026-09-25T21:24:28Z",
+      "html_path": "2026-09-25.html",
+      "markdown_path": "2026-09-25.md",
+      "finding_count": 14,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-09-24",
+      "generated_at": "2026-09-24T21:24:42Z",
+      "html_path": "2026-09-24.html",
+      "markdown_path": "2026-09-24.md",
+      "finding_count": 18,
+      "cve_count": 1
+    },
+    {
+      "report_date": "2026-09-23",
+      "generated_at": "2026-09-23T21:25:58Z",
+      "html_path": "2026-09-23.html",
+      "markdown_path": "2026-09-23.md",
+      "finding_count": 18,
+      "cve_count": 9
+    },
+    {
+      "report_date": "2026-09-22",
+      "generated_at": "2026-09-22T21:10:16Z",
+      "html_path": "2026-09-22.html",
+      "markdown_path": "2026-09-22.md",
+      "finding_count": 17,
+      "cve_count": 8
+    },
+    {
+      "report_date": "2026-09-21",
+      "generated_at": "2026-09-21T20:00:17Z",
+      "html_path": "2026-09-21.html",
+      "markdown_path": "2026-09-21.md",
+      "finding_count": 18,
+      "cve_count": 3
+    },
+    {
+      "report_date": "2026-09-20",
+      "generated_at": "2026-09-20T15:57:29Z",
+      "html_path": "2026-09-20.html",
+      "markdown_path": "2026-09-20.md",
+      "finding_count": 21,
+      "cve_count": 5
+    },
+    {
+      "report_date": "2026-09-19",
+      "generated_at": "2026-09-19T20:25:49Z",
+      "html_path": "2026-09-19.html",
+      "markdown_path": "2026-09-19.md",
+      "finding_count": 15,
+      "cve_count": 5
+    },
+    {
+      "report_date": "2026-09-18",
+      "generated_at": "2026-09-18T20:46:46Z",
+      "html_path": "2026-09-18.html",
+      "markdown_path": "2026-09-18.md",
+      "finding_count": 18,
+      "cve_count": 3
+    },
+    {
+      "report_date": "2026-09-17",
+      "generated_at": "2026-09-17T21:12:49Z",
+      "html_path": "2026-09-17.html",
+      "markdown_path": "2026-09-17.md",
+      "finding_count": 11,
+      "cve_count": 3
+    },
+    {
+      "report_date": "2026-09-16",
+      "generated_at": "2026-09-16T11:15:29Z",
+      "html_path": "2026-09-16.html",
+      "markdown_path": "2026-09-16.md",
+      "finding_count": 13,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-09-15",
+      "generated_at": "2026-09-15T21:09:09Z",
+      "html_path": "2026-09-15.html",
+      "markdown_path": "2026-09-15.md",
+      "finding_count": 11,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-09-14",
+      "generated_at": "2026-09-14T12:27:27Z",
+      "html_path": "2026-09-14.html",
+      "markdown_path": "2026-09-14.md",
+      "finding_count": 14,
+      "cve_count": 5
+    },
+    {
+      "report_date": "2026-09-13",
+      "generated_at": "2026-09-13T20:37:20Z",
+      "html_path": "2026-09-13.html",
+      "markdown_path": "2026-09-13.md",
+      "finding_count": 8,
+      "cve_count": 6
+    },
+    {
+      "report_date": "2026-09-12",
+      "generated_at": "2026-09-12T20:27:13Z",
+      "html_path": "2026-09-12.html",
+      "markdown_path": "2026-09-12.md",
+      "finding_count": 7,
+      "cve_count": 5
+    },
+    {
+      "report_date": "2026-09-11",
+      "generated_at": "2026-09-11T23:11:17Z",
+      "html_path": "2026-09-11.html",
+      "markdown_path": "2026-09-11.md",
+      "finding_count": 15,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-09-10",
+      "generated_at": "2026-09-10T23:05:08Z",
+      "html_path": "2026-09-10.html",
+      "markdown_path": "2026-09-10.md",
+      "finding_count": 7,
+      "cve_count": 1
+    },
+    {
+      "report_date": "2026-09-09",
+      "generated_at": "2026-09-09T20:48:22Z",
+      "html_path": "2026-09-09.html",
+      "markdown_path": "2026-09-09.md",
+      "finding_count": 11,
+      "cve_count": 4
+    },
+    {
+      "report_date": "2026-09-08",
+      "generated_at": "2026-09-08T23:21:00Z",
+      "html_path": "2026-09-08.html",
+      "markdown_path": "2026-09-08.md",
+      "finding_count": 8,
+      "cve_count": 1
+    },
+    {
+      "report_date": "2026-09-07",
+      "generated_at": "2026-09-07T13:04:41Z",
+      "html_path": "2026-09-07.html",
+      "markdown_path": "2026-09-07.md",
+      "finding_count": 10,
+      "cve_count": 5
+    },
+    {
+      "report_date": "2026-09-06",
+      "generated_at": "2026-09-06T15:19:59Z",
+      "html_path": "2026-09-06.html",
+      "markdown_path": "2026-09-06.md",
+      "finding_count": 8,
+      "cve_count": 5
+    },
+    {
+      "report_date": "2026-09-04",
+      "generated_at": "2026-09-04T11:12:10Z",
+      "html_path": "2026-09-04.html",
+      "markdown_path": "2026-09-04.md",
+      "finding_count": 8,
+      "cve_count": 4
+    },
+    {
+      "report_date": "2026-08-19",
+      "generated_at": "2026-08-19T12:59:31Z",
+      "html_path": "2026-08-19.html",
+      "markdown_path": "2026-08-19.md",
+      "finding_count": 12,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-08-18",
+      "generated_at": "2026-08-18T18:55:02Z",
+      "html_path": "2026-08-18.html",
+      "markdown_path": "2026-08-18.md",
+      "finding_count": 21,
+      "cve_count": 3
+    },
+    {
+      "report_date": "2026-08-17",
+      "generated_at": "2026-08-17T21:37:02Z",
+      "html_path": "2026-08-17.html",
+      "markdown_path": "2026-08-17.md",
+      "finding_count": 13,
+      "cve_count": 7
+    },
+    {
+      "report_date": "2026-08-16",
+      "generated_at": "2026-08-16T21:26:31Z",
+      "html_path": "2026-08-16.html",
+      "markdown_path": "2026-08-16.md",
+      "finding_count": 7,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-08-15",
+      "generated_at": "2026-08-15T01:33:41Z",
+      "html_path": "2026-08-15.html",
+      "markdown_path": "2026-08-15.md",
+      "finding_count": 18,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-08-14",
+      "generated_at": "2026-08-14T20:40:49Z",
+      "html_path": "2026-08-14.html",
+      "markdown_path": "2026-08-14.md",
+      "finding_count": 7,
+      "cve_count": 2
+    },
+    {
+      "report_date": "2026-08-13",
+      "generated_at": "2026-08-13T21:54:18Z",
+      "html_path": "2026-08-13.html",
+      "markdown_path": "2026-08-13.md",
+      "finding_count": 14,
+      "cve_count": 4
+    }
+  ]
+}
