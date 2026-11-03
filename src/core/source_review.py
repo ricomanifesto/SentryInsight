@@ -294,12 +294,22 @@ def _source_cve_identities(
         for key, source in catalog.items()
     }
     shared_references = markdown_references("".join(summaries.values()))
+    local_references = {
+        key: markdown_references(summary) for key, summary in summaries.items()
+    }
+    # An unrelated open block must not hide a valid definition supplied by a
+    # different source. Retain that conservative interpretation as well, using
+    # only definitions recognized in actual shared or isolated source contexts.
+    available_references = dict(shared_references)
+    for references in local_references.values():
+        for label, definition in references.items():
+            available_references.setdefault(label, definition)
     identities = {}
     for key, source in catalog.items():
-        local_references = markdown_references(summaries[key])
         contexts = [shared_references]
-        if local_references != shared_references:
-            contexts.append(local_references)
+        for references in (local_references[key], available_references):
+            if references not in contexts:
+                contexts.append(references)
         fields = [(source.content, False)] + [
             (field, True)
             for field in (

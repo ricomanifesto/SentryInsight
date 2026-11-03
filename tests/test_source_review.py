@@ -405,3 +405,18 @@ def test_removing_first_definition_is_safe_only_when_remaining_reference_preserv
     assert selected["REF"]["href"] == "https://example.test/second"
     assert plan.packet["sources"][1]["cves"] == [A]
     assert plan.eligible_keys == (plan.packet["sources"][1]["key"],)
+
+
+def test_unrelated_open_block_cannot_hide_a_reference_defined_by_another_source():
+    articles = ordered_sources(
+        AMBIGUOUS + "\n\n```",
+        AMBIGUOUS,
+        "A separate advisory.\n\n[ref]: https://example.test/reference",
+        f"{A} is actively exploited.",
+    )
+    articles[1]["title"] = "CVE-[2026][ref]-1234"
+    plan = prepare_source_review(articles)
+    rows = plan.packet["sources"]
+    assert rows[1]["cves"] == [A]
+    assert rows[1]["state"] == rows[3]["state"] == "review_required"
+    assert plan.eligible_keys == (rows[2]["key"],)
