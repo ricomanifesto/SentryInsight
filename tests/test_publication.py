@@ -215,7 +215,9 @@ def test_publisher_runs_after_validation_or_through_the_manual_gate():
         workflow,
     )
     assert "workflow_dispatch:" in workflow
-    assert re.search(r"^  workflow_call:\n    inputs:\n      invocation:\n", workflow, re.M)
+    assert re.search(
+        r"^  workflow_call:\n    inputs:\n      invocation:\n", workflow, re.M
+    )
     assert re.search(r"^permissions:\n  contents: write\n", workflow, re.M)
     assert "group: publish-production\n  cancel-in-progress: false" in workflow
     assert "inputs.invocation != ''" in workflow
@@ -322,7 +324,9 @@ def test_generation_is_admitted_bound_and_recorded():
 
 
 def _commit_message_template(workflow: str) -> str:
-    match = re.search(r"printf '([^']+)' \"\$ADMISSION_KEY\" \"\$\{ADMISSION_FEED:-none\}\"", workflow)
+    match = re.search(
+        r"printf '([^']+)' \"\$ADMISSION_KEY\" \"\$\{ADMISSION_FEED:-none\}\"", workflow
+    )
     assert match, "report commit message template not found"
     return match.group(1)
 
@@ -345,22 +349,44 @@ def test_report_commits_carry_exact_recoverable_admission_trailers(tmp_path):
         "GIT_COMMITTER_EMAIL": "fixture@example.invalid",
         "PATH": __import__("os").environ["PATH"],
     }
-    feed = "https://raw.githubusercontent.com/ricomanifesto/SentryDigest/" + "2" * 40 + "/site/feed.xml"
+    feed = (
+        "https://raw.githubusercontent.com/ricomanifesto/SentryDigest/"
+        + "2" * 40
+        + "/site/feed.xml"
+    )
 
     def commit(key: str, feed_url: str, text: str) -> str:
         (repo / "index.md").write_text(text)
         message = repo / "message.txt"
         subprocess.run(
-            ["bash", "-c", f"printf '{template}' \"$1\" \"${{2:-none}}\" > message.txt", "_", key, feed_url],
-            cwd=repo, env=env, check=True,
+            [
+                "bash",
+                "-c",
+                f'printf \'{template}\' "$1" "${{2:-none}}" > message.txt',
+                "_",
+                key,
+                feed_url,
+            ],
+            cwd=repo,
+            env=env,
+            check=True,
         )
         subprocess.run(["git", "add", "index.md"], cwd=repo, env=env, check=True)
-        subprocess.run(["git", "commit", "-q", "-F", str(message)], cwd=repo, env=env, check=True)
+        subprocess.run(
+            ["git", "commit", "-q", "-F", str(message)], cwd=repo, env=env, check=True
+        )
         return subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=repo, env=env, capture_output=True, text=True, check=True
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
         ).stdout.strip()
 
-    subprocess.run(["git", "init", "-q", "--initial-branch=main"], cwd=repo, env=env, check=True)
+    subprocess.run(
+        ["git", "init", "-q", "--initial-branch=main"], cwd=repo, env=env, check=True
+    )
     commit("run:12", "", "scheduled report\n")
     bound = commit("digest:" + "3" * 40, feed, "event report\n")
     script = (
@@ -374,7 +400,10 @@ def test_report_commits_carry_exact_recoverable_admission_trailers(tmp_path):
     )
     result = subprocess.run(
         ["node", "-e", script, str(ROOT), str(repo), feed],
-        env=env, capture_output=True, text=True, check=False,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout) == [None, True, None, bound]
