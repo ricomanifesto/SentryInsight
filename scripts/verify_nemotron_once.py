@@ -206,6 +206,11 @@ async def run_trial(calibration, api_key, *, inner=None):
         receipt = await verify_articles(
             load_case()["articles"], client=VerificationClient(api_key, boundary)
         )
+        if (
+            receipt.get("outcome") == "validation_passed"
+            and receipt.get("provider", {}).get("http_status") != 200
+        ):
+            receipt["outcome"] = "verification_failed"
     except Exception:
         receipt = {"outcome": "verification_failed"}
     return {

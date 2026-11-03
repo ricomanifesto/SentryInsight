@@ -98,6 +98,24 @@ def test_provider_errors_consume_one_attempt_without_retry_or_raw_error(code):
     assert "private marker" not in json.dumps(receipt)
 
 
+def test_valid_content_with_http_201_does_not_pass_trial():
+    calibration = asyncio.run(trial.calibrate())
+    content = trial.load_case()["calibration_response"]
+    calls = []
+
+    def provider(request):
+        calls.append(request)
+        return httpx.Response(201, json=reply(content).json())
+
+    receipt = asyncio.run(
+        trial.run_trial(calibration, "test-secret", inner=httpx.MockTransport(provider))
+    )
+    assert receipt["result"]["outcome"] == "verification_failed"
+    assert receipt["result"]["provider"]["http_status"] == 201
+    assert receipt["live_attempted"] == len(calls) == 1
+    assert receipt["published"] is receipt["production_ready"] is False
+
+
 def test_changed_prompt_is_refused_before_network():
     calibration = asyncio.run(trial.calibrate())
     calibration["request_sha256"] = "0" * 64
