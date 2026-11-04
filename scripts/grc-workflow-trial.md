@@ -135,7 +135,7 @@ it does not prove that the production parser itself fell back or that a model's
 answer was semantically incompatible.
 
 Only the analysis recognition boundary may emit the closed refusal codes
-`gate_wrapper` (recognizable unsupported Article wrapper or Markdown fence),
+`gate_wrapper` (unsupported explicit Article declaration or Markdown fence),
 `gate_format` (canonical row grammar), `gate_binding` (source title binding),
 `gate_duplicate` (repeated source), `gate_score` (score bounds),
 `gate_supplier` (missing required positive control), `gate_parsed_shape`
@@ -144,6 +144,14 @@ These codes describe the observed guard, with no compared values, source titles,
 reason text or raw answer. Other guards retain `check_refused`; unknown codes,
 wrong stage/phase combinations and extra envelope fields are refused. This
 refinement cannot identify the rejected subcondition in an older receipt.
+
+After an exact canonical row and explicit `Reason:` commentary are considered,
+the gate refuses a standalone `Article` token followed by a number or colon
+anywhere on a line, regardless of surrounding table cells, tags, bullets or
+prose prefixes. Triple-backtick and triple-tilde fences are refused separately.
+This is rejection only: markup is never stripped into an accepted row. Other
+notes without such a declaration remain commentary; the gate does not interpret
+arbitrary prose, encoded text or general markup semantics.
 
 Response close, sender-client exit and child reap are bounded to five seconds. An earlier failure
 stays primary if cleanup also fails; a close-only failure after valid metadata

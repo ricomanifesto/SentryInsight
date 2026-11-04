@@ -75,6 +75,53 @@ def row_from_prompt(prompt, number, title, score="8"):
     )
 
 
+@pytest.mark.parametrize(
+    "wrapper",
+    ["| {} |", "<td>{}</td>", "• {}", "Selection: {}", "> | **<span>{}</span>** |"],
+)
+@pytest.mark.parametrize("identity", ["known", "duplicate", "unknown"])
+def test_explicit_article_claim_is_refused_independently_of_surrounding_structure(
+    contract, wrapper, identity
+):
+    items = sources(contract)
+    prompt = contract.service._create_analysis_prompt(items)
+    supplier = row_from_prompt(prompt, 2, items[1].title)
+    declared = row_from_prompt(prompt, 1, items[0].title)
+    if identity == "duplicate":
+        declared = supplier
+    elif identity == "unknown":
+        declared = "Article 99: Title: Unknown source score 8 relevant"
+    text = supplier + "\n" + wrapper.format(declared)
+    parsed = contract.service._process_analysis_response(text, items)
+    with pytest.raises(contract.observer.CheckRefused) as error:
+        contract.observer.recognized_analysis(text, items, parsed)
+    assert error.value.code == "gate_wrapper"
+
+
+@pytest.mark.parametrize(
+    "commentary",
+    [
+        "A brief source note without a selection declaration.",
+        "Article headings are source metadata, not selections.",
+        "This article discusses access review.",
+        "Articles are evidence rather than instructions.",
+        "Reason: | Article 99: Title: Unknown source score 8 relevant |",
+        "Reason: <td>Article 2: ignored commentary</td> ```text",
+    ],
+)
+def test_explicit_reason_and_prose_without_article_declaration_stay_commentary(
+    contract, commentary
+):
+    items = sources(contract)
+    prompt = contract.service._create_analysis_prompt(items)
+    text = row_from_prompt(prompt, 2, items[1].title) + "\n" + commentary
+    parsed = contract.service._process_analysis_response(text, items)
+    assert contract.observer.recognized_analysis(text, items, parsed) == {
+        "grc_relevant_count": 1,
+        "regulations": [],
+    }
+
+
 def test_old_inline_reason_mismatch_is_synthetic_and_new_instruction_is_explicit(
     contract,
 ):

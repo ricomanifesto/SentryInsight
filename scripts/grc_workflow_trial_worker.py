@@ -75,21 +75,19 @@ def recognized_analysis(text, articles, parsed):
         line = line.strip()
         if line.startswith("Reason:"):
             continue
-        if not line.startswith("Article "):
-            # Detect only recognizable unsupported row wrappers for rejection.
-            # Never repair a wrapper into an accepted canonical row.
-            fence = line.lstrip(" \t-+*>_\"'0123456789.()[]#")
-            require(not fence.startswith(("```", "~~~")), "gate_wrapper")
-            candidate = line.lstrip(" \t-+*>_`\"'0123456789.()[]#~")
-            if re.match(r"article(?:\s|[0-9:])", candidate, re.IGNORECASE):
-                raise CheckRefused("gate_wrapper")
-            continue
         match = re.fullmatch(
             r"Article ([12]):\s*Title:\s*(.*?)\s+score\s+(10|[0-9](?:\.[0-9]+)?)\s+relevant[.]?",
             line,
         )
         if match is None:
-            raise CheckRefused("gate_format")
+            # Refuse explicit declarations anywhere, independently of their
+            # surrounding markup/prose. Never strip or parse them into rows.
+            require(re.search(r"`{3,}|~{3,}", line) is None, "gate_wrapper")
+            if re.search(r"(?<!\w)article\s*(?:\d|:)", line, re.IGNORECASE):
+                raise CheckRefused(
+                    "gate_format" if line.startswith("Article ") else "gate_wrapper"
+                )
+            continue
         index = int(match[1]) - 1
         require(index not in rows, "gate_duplicate")
         require(match[2] == articles[index].title, "gate_binding")

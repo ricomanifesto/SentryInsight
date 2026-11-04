@@ -116,18 +116,19 @@ def test_gate_envelope_never_admits_unknown_or_raw_fields(mutation):
     assert SENTINEL not in str(error.value) + json.dumps(error.value.diagnostic)
 
 
-@pytest.mark.parametrize("style", ["heading", "fence"])
+@pytest.mark.parametrize("style", ["heading", "fence", "table"])
 def test_real_worker_gate_code_stops_after_one_fully_accounted_post(
     tmp_path, layout, prepared, style, capsys
 ):
     answer = cases.reply(layout, 0)
     content = answer["choices"][0]["message"]["content"]
     rows = content.splitlines()
-    content = (
-        rows[1] + "\n# " + rows[0]
-        if style == "heading"
-        else "```text\n" + content + "\n```"
-    )
+    if style == "heading":
+        content = rows[1] + "\n# " + rows[0]
+    elif style == "table":
+        content = rows[1] + "\n| Article 99: Title: Unknown source score 8 relevant |"
+    else:
+        content = "```text\n" + content + "\n```"
     answer["choices"][0]["message"]["content"] = content
     seen = []
 
