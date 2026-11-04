@@ -638,6 +638,9 @@ def test_sender_context_exit_keeps_returned_receipt_and_primary(
     )
     assert closes == [True] and result["operations"] == original["operations"]
     assert result["states"] == original["states"] and result["outcome"] == "stopped"
+    assert result["diagnostics"]["last"] == trial.diagnostics.record(
+        "trial", "sender_close", "unknown_failure"
+    )
     if prior_failure:
         assert result["diagnostics"]["failure"] == original["diagnostics"]["failure"]
         assert result["diagnostics"]["secondary"][-1]["phase"] == "sender_close"
@@ -751,6 +754,9 @@ def test_control_context_exit_keeps_receipt_and_writes_only_after_cleanup(
     result = json.loads((directory / "trial.json").read_bytes())
     assert len(writes) == 1 and result["operations"] == original["operations"]
     assert result["states"] == original["states"] and result["actual_cost"] is None
+    assert result["diagnostics"]["last"] == trial.diagnostics.record(
+        "control", "control_close", "unknown_failure"
+    )
     if prior_failure:
         assert result["diagnostics"]["failure"] == original["diagnostics"]["failure"]
         assert result["diagnostics"]["secondary"][-1]["phase"] == "control_close"

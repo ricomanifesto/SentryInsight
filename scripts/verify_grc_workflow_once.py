@@ -989,6 +989,7 @@ def report_fence_result(receipt, unchanged, error=None):
 
 
 def merge_receipt_failure(receipt, failure):
+    observed = failure.diagnostic
     previous = receipt["diagnostics"]["failure"]
     if previous is not None:
         failure = TrialFailure(
@@ -997,7 +998,7 @@ def merge_receipt_failure(receipt, failure):
             + [failure.diagnostic]
             + failure.secondary,
         )
-    receipt["diagnostics"] = diagnostics.details(failure.diagnostic, failure)
+    receipt["diagnostics"] = diagnostics.details(observed, failure)
     receipt["outcome"] = "stopped"
 
 
