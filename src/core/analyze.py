@@ -235,9 +235,8 @@ async def analyze_exploitation(
         validate_model(model_name)
         model_selection = parse_model_selection(model_name)
         route = (
-            selected_route(model_selection.model_id)
+            selected_route(model_selection.model_id, model_selection.provider_id)
             if model_selection
-            and model_selection.provider_id.casefold() == "openrouter"
             else None
         )
         if route is not None:

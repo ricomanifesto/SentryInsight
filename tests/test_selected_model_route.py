@@ -10,7 +10,11 @@ import httpx
 import pytest
 
 from src.core.model_client import build_model_client
-from src.core.opencode_client import OpenCodeClient, parse_model_selection
+from src.core.opencode_client import (
+    ModelSelection,
+    OpenCodeClient,
+    parse_model_selection,
+)
 from src.core.openrouter_client import OpenRouterClient
 from src.core.model_route import (
     KIMI_ROUTE,
@@ -274,6 +278,66 @@ def test_analyzer_rejects_selected_raw_cap_before_coercion_and_preflight(
         )
     )
     assert "output allowance is invalid" in result["error"]
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize(
+    "owner,identifier",
+    [
+        ("moonshotai", "kimi-k3.1-pro"),
+        ("moonshotai", "kimi-k3.1-pro:online"),
+        ("anthropic", "moonshotai/kimi-k3.1-pro"),
+        ("anthropic", "kimi-k3.1-pro"),
+        (" openrouter ", "moonshotai/kimi-k3.1-pro"),
+        ("openrouter", " moonshotai/kimi-k3.1-pro"),
+        ("openrouter", "moonshotai/kimi-k3.1-pro "),
+        ("openrouter", "moonshotai / kimi-k3.1-pro"),
+        ("openrouter", "openrouter/moonshotai/kimi-k3.1-pro"),
+    ],
+)
+def test_canonical_family_ownership_is_enforced_at_every_entrypoint(
+    tmp_path, owner, identifier
+):
+    from src.core.analyze import analyze_exploitation
+
+    model = ModelSelection(provider_id=owner, model_id=identifier)
+
+    class UntouchedBudget:
+        async def reserve(self, *_args):
+            raise AssertionError("budget touched")
+
+    class UnownedClient:
+        async def generate(self, **kwargs):
+            raise AssertionError("selected source prompt escaped")
+
+    with patch(
+        "src.core.model_client.os.getenv", side_effect=AssertionError("key access")
+    ):
+        with pytest.raises(ModelRouteError):
+            build_model_client(timeout=120, max_tokens=32000, model=model)
+    for client in (
+        OpenCodeClient(),
+        OpenRouterClient(
+            api_key=OFFLINE_KEY,
+            attempt_budget=UntouchedBudget(),
+            transport=httpx.MockTransport(lambda _: pytest.fail("POST")),
+        ),
+    ):
+        with pytest.raises(ModelRouteError):
+            asyncio.run(
+                client.generate(system_prompt="system", user_prompt="user", model=model)
+            )
+    result = asyncio.run(
+        analyze_exploitation(
+            [],
+            {
+                "output_path": str(tmp_path / "index.md"),
+                "analysis": {"model": owner + "/" + identifier, "max_tokens": 32000},
+            },
+            model_client=UnownedClient(),
+        )
+    )
+    assert result.get("error")
     assert not list(tmp_path.iterdir())
 
 

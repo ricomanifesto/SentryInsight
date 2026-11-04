@@ -141,9 +141,9 @@ class OpenRouterClient:
         model: ModelSelection | None = None,
         title: str = "Report generation",
     ) -> str:
+        route = selected_route(model.model_id, model.provider_id) if model else None
         if model is None or model.provider_id != "openrouter":
             raise OpenRouterError("OpenRouter calls require an openrouter/* model")
-        route = selected_route(model.model_id)
         if route is not None:
             route.require_offline(
                 self.activation, self.transport, self.api_key, self.base_url

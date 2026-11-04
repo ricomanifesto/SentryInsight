@@ -45,11 +45,7 @@ def build_model_client(
     Uses OpenRouter directly when ``OPENROUTER_API_KEY`` is set; otherwise uses
     a local OpenCode server.
     """
-    route = (
-        selected_route(model.model_id)
-        if model and model.provider_id.casefold() == "openrouter"
-        else None
-    )
+    route = selected_route(model.model_id, model.provider_id) if model else None
     if route is not None:
         # The selected paid profile has no live activation path. This check
         # precedes any environment credential lookup or gateway selection.

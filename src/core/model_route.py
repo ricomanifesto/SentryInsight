@@ -81,13 +81,30 @@ KIMI_ROUTE = ModelRoutePolicy(
 )
 
 
-def selected_route(model_id: str) -> ModelRoutePolicy | None:
-    if model_id == KIMI_ROUTE.model_id:
-        return KIMI_ROUTE
-    lowered = model_id.casefold()
-    if lowered.startswith(KIMI_ROUTE.model_id):
-        raise ModelRouteError("Selected model variants and aliases are disabled")
-    return None
+def selected_route(
+    model_id: str, provider_id: str = "openrouter"
+) -> ModelRoutePolicy | None:
+    """Recognize family ownership for refusal; only exact canonical IDs opt in.
+
+    Normalization never turns a malformed/native/aliased request into an
+    accepted route. It prevents those forms from escaping into legacy clients.
+    """
+
+    def normalized(value):
+        return "/".join(part.strip().casefold() for part in value.split("/"))
+
+    # Family names identify ownership even when a caller supplies a native or
+    # wrong provider. Only the raw canonical pair below can receive the policy.
+    family_names = (KIMI_ROUTE.model_id.split("/", 1)[1],)
+    parts = normalized(provider_id).split("/") + normalized(model_id).split("/")
+    family = any(part.startswith(name) for part in parts for name in family_names)
+    if not family:
+        return None
+    if provider_id != "openrouter" or model_id != KIMI_ROUTE.model_id:
+        raise ModelRouteError(
+            "Selected model requires its exact canonical OpenRouter identity; other forms are disabled"
+        )
+    return KIMI_ROUTE
 
 
 def validate_completion(payload: dict, model_id: str, max_tokens: int) -> dict | None:

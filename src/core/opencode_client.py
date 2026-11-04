@@ -77,11 +77,7 @@ class OpenCodeClient:
         """Generate text through an OpenCode server session."""
         from .model_route import ModelRouteError, selected_route
 
-        if (
-            model is not None
-            and model.provider_id.casefold() == "openrouter"
-            and selected_route(model.model_id)
-        ):
+        if model is not None and selected_route(model.model_id, model.provider_id):
             raise ModelRouteError(
                 "Selected paid model route is disabled through the gateway"
             )

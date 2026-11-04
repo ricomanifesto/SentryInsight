@@ -584,10 +584,10 @@ async def rehearse(tokenizer_cache, *, selected=False):
                     "service_tier": "default",
                     "reasoning": {"effort": "low", "exclude": True},
                     "max_tokens": 32000,
-                    "synthetic_input_reserve": 16000,
+                    "synthetic_input_reserve": 20000,
                     "conservative_input_bound": results[0]["conservative_input_bound"],
                     "synthetic_input_fits": results[0]["conservative_input_bound"]
-                    <= 16000,
+                    <= 20000,
                     "request_sha256": results[0]["request_sha256"],
                     "wire_request_sha256": results[0]["wire_request_sha256"],
                     "wire_request_bytes": results[0]["wire_request_bytes"],
