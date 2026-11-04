@@ -134,6 +134,17 @@ envelopes are protocol failures, not evidence of a recognition cause. A
 it does not prove that the production parser itself fell back or that a model's
 answer was semantically incompatible.
 
+Only the analysis recognition boundary may emit the closed refusal codes
+`gate_wrapper` (recognizable unsupported Article wrapper or Markdown fence),
+`gate_format` (canonical row grammar), `gate_binding` (source title binding),
+`gate_duplicate` (repeated source), `gate_score` (score bounds),
+`gate_supplier` (missing required positive control), `gate_parsed_shape`
+(parser result/summary mismatch), or `gate_categories` (closed category fields).
+These codes describe the observed guard, with no compared values, source titles,
+reason text or raw answer. Other guards retain `check_refused`; unknown codes,
+wrong stage/phase combinations and extra envelope fields are refused. This
+refinement cannot identify the rejected subcondition in an older receipt.
+
 Response close, sender-client exit and child reap are bounded to five seconds. An earlier failure
 stays primary if cleanup also fails; a close-only failure after valid metadata
 stops before derivation. Cancellation/timeout preserves sending/uncertain holds.

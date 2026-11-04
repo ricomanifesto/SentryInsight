@@ -51,7 +51,19 @@ PHASES = frozenset(
         "control_close",
     }
 )
-CODES = frozenset(
+GATE_CODES = frozenset(
+    {
+        "gate_wrapper",
+        "gate_format",
+        "gate_binding",
+        "gate_duplicate",
+        "gate_score",
+        "gate_supplier",
+        "gate_parsed_shape",
+        "gate_categories",
+    }
+)
+CODES = GATE_CODES | frozenset(
     {
         "in_progress",
         "ok",
@@ -88,13 +100,20 @@ WORKER_PHASES = frozenset(
         "worker_host_validation",
     }
 )
-WORKER_CODES = frozenset({"unknown_failure", "timeout", "cancelled", "check_refused"})
+WORKER_CODES = GATE_CODES | frozenset(
+    {"unknown_failure", "timeout", "cancelled", "check_refused"}
+)
 
 
 def record(stage, phase, code):
     if type(stage) is not str or type(phase) is not str or type(code) is not str:
         raise ValueError("Diagnostic record refused")
     if stage not in STAGES or phase not in PHASES or code not in CODES:
+        raise ValueError("Diagnostic record refused")
+    if code in GATE_CODES and (stage, phase) != (
+        "analysis",
+        "worker_recognition_gate",
+    ):
         raise ValueError("Diagnostic record refused")
     return {"stage": stage, "phase": phase, "code": code}
 

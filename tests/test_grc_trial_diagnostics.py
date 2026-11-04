@@ -143,7 +143,7 @@ def test_worker_recognition_refusal_is_not_an_inferred_production_fallback_cause
     result = run(tmp_path, layout, prepared, handler)
     assert len(seen) == 1
     assert result["diagnostics"]["failure"] == trial.diagnostics.record(
-        "analysis", "worker_recognition_gate", "check_refused"
+        "analysis", "worker_recognition_gate", "gate_wrapper"
     )
     assert_private(tmp_path, result, capsys)
 

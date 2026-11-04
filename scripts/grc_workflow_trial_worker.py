@@ -31,8 +31,11 @@ RESPONSE_LIMIT = 524288
 
 
 class CheckRefused(ValueError):
-    def __init__(self):
+    def __init__(self, code="check_refused"):
         super().__init__("Fictional workflow refused")
+        if code not in diagnostics.GATE_CODES | {"check_refused"}:
+            raise ValueError("Diagnostic record refused")
+        self.code = code
 
 
 class WorkerTrace:
@@ -41,17 +44,20 @@ class WorkerTrace:
 
     def capture(self, error):
         if self.primary is None:
-            code = (
-                "check_refused"
-                if isinstance(error, CheckRefused)
-                else diagnostics.code_for(error)
-            )
+            code = diagnostics.code_for(error)
+            if isinstance(error, CheckRefused):
+                code = "check_refused"
+                if (self.stage, self.phase) == (
+                    "analysis",
+                    "worker_recognition_gate",
+                ):
+                    code = error.code
             self.primary = diagnostics.record(self.stage, self.phase, code)
 
 
-def require(value):
+def require(value, code="check_refused"):
     if not value:
-        raise CheckRefused()
+        raise CheckRefused(code)
 
 
 def deny(*_args, **_kwargs):
@@ -73,33 +79,35 @@ def recognized_analysis(text, articles, parsed):
             # Detect only recognizable unsupported row wrappers for rejection.
             # Never repair a wrapper into an accepted canonical row.
             fence = line.lstrip(" \t-+*>_\"'0123456789.()[]#")
-            require(not fence.startswith(("```", "~~~")))
+            require(not fence.startswith(("```", "~~~")), "gate_wrapper")
             candidate = line.lstrip(" \t-+*>_`\"'0123456789.()[]#~")
             if re.match(r"article(?:\s|[0-9:])", candidate, re.IGNORECASE):
-                raise CheckRefused()
+                raise CheckRefused("gate_wrapper")
             continue
         match = re.fullmatch(
             r"Article ([12]):\s*Title:\s*(.*?)\s+score\s+(10|[0-9](?:\.[0-9]+)?)\s+relevant[.]?",
             line,
         )
         if match is None:
-            raise CheckRefused()
+            raise CheckRefused("gate_format")
         index = int(match[1]) - 1
-        require(
-            index not in rows
-            and match[2] == articles[index].title
-            and 1 <= float(match[3]) <= 10
-        )
+        require(index not in rows, "gate_duplicate")
+        require(match[2] == articles[index].title, "gate_binding")
+        require(1 <= float(match[3]) <= 10, "gate_score")
         rows[index] = match[2]
-    require(1 in rows)  # The supplier source is the positive control.
-    require(set(parsed) == {"grc_articles", "summary", "analysis"})
+    require(1 in rows, "gate_supplier")  # The supplier is the positive control.
+    require(
+        type(parsed) is dict and set(parsed) == {"grc_articles", "summary", "analysis"},
+        "gate_parsed_shape",
+    )
     require(
         parsed["summary"]
         == {
             "total_articles": 2,
             "grc_relevant_count": len(rows),
             "confidence_score": 0.8,
-        }
+        },
+        "gate_parsed_shape",
     )
     require(
         parsed["grc_articles"]
@@ -110,31 +118,44 @@ def recognized_analysis(text, articles, parsed):
                 "summary": "GRC-relevant content identified",
             }
             for title in rows.values()
-        ]
+        ],
+        "gate_parsed_shape",
     )
     analysis = parsed["analysis"]
     require(
-        set(analysis)
+        type(analysis) is dict
+        and set(analysis)
         == {
             "regulations_mentioned",
             "frameworks_referenced",
             "industries_affected",
             "risk_categories",
             "regulatory_bodies",
-        }
+        },
+        "gate_categories",
     )
     regulations = analysis["regulations_mentioned"]
-    require(type(regulations) is list and len(regulations) == len(set(regulations)))
-    require(all(value in REGULATIONS for value in regulations))
     require(
-        set(analysis["frameworks_referenced"])
-        == set(value for value in regulations if "ISO" in value or "NIST" in value)
+        type(regulations) is list
+        and all(type(value) is str for value in regulations)
+        and len(regulations) == len(set(regulations)),
+        "gate_categories",
+    )
+    require(all(value in REGULATIONS for value in regulations), "gate_categories")
+    frameworks = analysis["frameworks_referenced"]
+    require(
+        type(frameworks) is list
+        and all(type(value) is str for value in frameworks)
+        and set(frameworks)
+        == set(value for value in regulations if "ISO" in value or "NIST" in value),
+        "gate_categories",
     )
     require(
         all(
             analysis[name] == []
             for name in ("industries_affected", "risk_categories", "regulatory_bodies")
-        )
+        ),
+        "gate_categories",
     )
     return {"grc_relevant_count": len(rows), "regulations": regulations}
 
