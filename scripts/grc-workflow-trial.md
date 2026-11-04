@@ -95,6 +95,10 @@ New trial receipts use `schema_version: 2`; diagnostic records have their own
 `version: 1`. Each record contains only fixed `stage`, `phase` and `code` enums.
 The receipt separates the last observation, first failure and at most three
 secondary cleanup/persistence failures from authoritative request states. It
+tracks the latest observation independently of the capped secondary list and
+preserves it through wrapped failures; reaching the cap cannot make `last`
+revert to the first failure or an older retained cleanup record. The first
+failure and retained secondary order remain unchanged.
 records owned boundaries before risky work where possible: response validation
 and close, worker launch/I/O/protocol, derived-body validation, plan binding,
 replay/host validation, and source/report fences. Unknown exceptions remain

@@ -73,6 +73,7 @@ def test_response_close_evidence_and_dual_fault_primary_precedence(
     )
     if invalid:
         assert result["diagnostics"]["secondary"][0]["phase"] == "response_close"
+        assert result["diagnostics"]["last"]["phase"] == "response_close"
     assert_private(tmp_path, result, capsys)
 
 
@@ -460,6 +461,12 @@ def test_worker_process_failures_have_fixed_envelopes_and_preserve_cleanup_prima
         assert len(error.value.secondary) == 2 and all(
             row["phase"] == "worker_cleanup" for row in error.value.secondary
         )
+        assert (
+            trial.diagnostics.details(error.value.diagnostic, error.value)["last"][
+                "phase"
+            ]
+            == "worker_cleanup"
+        )
     assert_private(
         tmp_path,
         {"diagnostics": trial.diagnostics.details(error.value.diagnostic, error.value)},
@@ -577,6 +584,12 @@ def test_scratch_cleanup_failure_preserves_primary_and_is_not_retried(
     if body_failed:
         assert error.value.diagnostic == primary.diagnostic
         assert error.value.secondary[-1]["phase"] == "worker_scratch_cleanup"
+        assert (
+            trial.diagnostics.details(error.value.diagnostic, error.value)["last"][
+                "phase"
+            ]
+            == "worker_scratch_cleanup"
+        )
     else:
         assert error.value.diagnostic == trial.diagnostics.record(
             "analysis", "worker_scratch_cleanup", "unknown_failure"
@@ -687,6 +700,10 @@ def test_sender_exit_cannot_replace_raised_primary_before_receipt(
         )
     assert error.value.diagnostic == primary.diagnostic
     assert error.value.secondary[-1]["phase"] == "sender_close"
+    assert (
+        trial.diagnostics.details(error.value.diagnostic, error.value)["last"]["phase"]
+        == "sender_close"
+    )
     assert_private(
         tmp_path,
         {"diagnostics": trial.diagnostics.details(error.value.diagnostic, error.value)},
@@ -767,3 +784,26 @@ def test_control_context_exit_keeps_receipt_and_writes_only_after_cleanup(
     assert SENTINEL not in (directory / "trial.json").read_text()
     output = capsys.readouterr()
     assert SENTINEL not in output.out + output.err and "Traceback" not in output.err
+
+
+def test_latest_observation_survives_secondary_cap_and_wrapping():
+    primary = trial.diagnostics.record(
+        "analysis", "response_validation", "response_refused"
+    )
+    failure = trial.diagnostics.Error(primary)
+    for phase in (
+        "response_close",
+        "worker_cleanup",
+        "worker_scratch_cleanup",
+        "sender_close",
+        "control_close",
+    ):
+        failure.add_secondary(
+            trial.diagnostics.record("trial", phase, "unknown_failure")
+        )
+    assert failure.diagnostic == primary and len(failure.secondary) == 3
+    assert failure.secondary[-1]["phase"] == "worker_scratch_cleanup"
+    wrapped = trial.stopped(failure, "trial", "context")
+    assert trial.diagnostics.details(wrapped.diagnostic, wrapped)[
+        "last"
+    ] == trial.diagnostics.record("trial", "control_close", "unknown_failure")

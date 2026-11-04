@@ -34,7 +34,9 @@ def stopped(error, stage, phase, refused_code=None):
     if isinstance(error, TrialFailure):
         return error
     if isinstance(error, diagnostics.Error):
-        return TrialFailure(error.diagnostic, error.secondary)
+        failure = TrialFailure(error.diagnostic, error.secondary)
+        failure.observed = diagnostics.validate(error.observed)
+        return failure
     code = diagnostics.code_for(error)
     if isinstance(error, httpx.TimeoutException):
         code = "timeout"
@@ -978,18 +980,7 @@ def report_fence_result(receipt, unchanged, error=None):
             diagnostics.record("control", "report_fence", "report_fence_refused")
         )
     )
-    observed = failure.diagnostic
-    previous = receipt["diagnostics"]["failure"]
-    if previous is not None:
-        failure = TrialFailure(
-            previous, receipt["diagnostics"]["secondary"] + [failure.diagnostic]
-        )
-    receipt["diagnostics"] = diagnostics.details(observed, failure)
-    receipt["outcome"] = "stopped"
-
-
-def merge_receipt_failure(receipt, failure):
-    observed = failure.diagnostic
+    observed = failure.observed
     previous = receipt["diagnostics"]["failure"]
     if previous is not None:
         failure = TrialFailure(
@@ -998,6 +989,22 @@ def merge_receipt_failure(receipt, failure):
             + [failure.diagnostic]
             + failure.secondary,
         )
+    failure.observed = diagnostics.validate(observed)
+    receipt["diagnostics"] = diagnostics.details(observed, failure)
+    receipt["outcome"] = "stopped"
+
+
+def merge_receipt_failure(receipt, failure):
+    observed = failure.observed
+    previous = receipt["diagnostics"]["failure"]
+    if previous is not None:
+        failure = TrialFailure(
+            previous,
+            receipt["diagnostics"]["secondary"]
+            + [failure.diagnostic]
+            + failure.secondary,
+        )
+    failure.observed = diagnostics.validate(observed)
     receipt["diagnostics"] = diagnostics.details(observed, failure)
     receipt["outcome"] = "stopped"
 

@@ -109,12 +109,16 @@ class Error(RuntimeError):
     def __init__(self, diagnostic, secondary=()):
         super().__init__("Closed trial stopped")
         self.diagnostic = validate(diagnostic)
-        self.secondary = [validate(value) for value in secondary][:3]
+        values = [validate(value) for value in secondary]
+        self.secondary = values[:3]
+        self.observed = values[-1] if values else self.diagnostic
         self.claim_recorded = False
 
     def add_secondary(self, value):
+        value = validate(value)
+        self.observed = value
         if len(self.secondary) < 3:
-            self.secondary.append(validate(value))
+            self.secondary.append(value)
 
 
 def code_for(error):
@@ -128,7 +132,7 @@ def code_for(error):
 def details(last, failure=None):
     return {
         "version": VERSION,
-        "last": validate(last),
+        "last": validate(failure.observed if failure is not None else last),
         "failure": validate(failure.diagnostic) if failure is not None else None,
         "secondary": (
             [validate(row) for row in failure.secondary] if failure is not None else []
