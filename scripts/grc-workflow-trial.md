@@ -99,7 +99,7 @@ tracks the latest observation independently of the capped secondary list and
 preserves it through wrapped failures; reaching the cap cannot make `last`
 revert to the first failure or an older retained cleanup record. The first
 failure and retained secondary order remain unchanged.
-records owned boundaries before risky work where possible: response validation
+The runner records owned boundaries before risky work where possible: response validation
 and close, worker launch/I/O/protocol, derived-body validation, plan binding,
 replay/host validation, and source/report fences. Unknown exceptions remain
 `unknown_failure`; their text, class, traceback, headers and bodies are discarded.
