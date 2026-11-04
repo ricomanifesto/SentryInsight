@@ -146,3 +146,37 @@ def test_real_worker_gate_code_stops_after_one_fully_accounted_post(
     assert SENTINEL not in (tmp_path / "claim.json").read_text()
     captured = capsys.readouterr()
     assert SENTINEL not in captured.out + captured.err
+
+
+def test_ordered_contract_reserved_row_stops_actual_two_stage_host_workflow(
+    tmp_path, layout, prepared, capsys
+):
+    answer = cases.reply(layout, 0)
+    rows = answer["choices"][0]["message"]["content"].splitlines()
+    answer["choices"][0]["message"]["content"] = (
+        rows[1] + "\nArticle X: Title: Risk summary score 8 relevant"
+    )
+    seen = []
+
+    def handler(request):
+        stage = len(seen)
+        seen.append(request)
+        return cases.streamed(
+            deepcopy(answer) if stage == 0 else cases.reply(layout, 1)
+        )
+
+    result = cases.run(tmp_path, layout, prepared, handler, lambda: SENTINEL)
+    assert len(seen) == 1 and result["states"]["plan"] == "pending"
+    claim = json.loads((tmp_path / "claim.json").read_text())
+    assert claim["requests"]["plan"]["wire_sha256"] is None
+    assert claim["requests"]["plan"]["canonical_payload_sha256"] is None
+    assert result["outcome"] == "stopped"
+    assert result["host"] is None
+    assert result["published"] is False and result["production_ready"] is False
+    assert result["diagnostics"]["failure"] == trial.diagnostics.record(
+        "analysis", "worker_recognition_gate", "gate_format"
+    )
+    assert result["operations"][0]["usage"]["cost"] == 0.007
+    assert SENTINEL not in json.dumps(result) + json.dumps(claim)
+    captured = capsys.readouterr()
+    assert SENTINEL not in captured.out + captured.err

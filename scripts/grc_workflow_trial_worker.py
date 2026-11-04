@@ -80,13 +80,13 @@ def recognized_analysis(text, articles, parsed):
             line,
         )
         if match is None:
+            # The literal row prefix stays reserved even for malformed IDs.
+            require(not line.startswith("Article "), "gate_format")
             # Refuse explicit declarations anywhere, independently of their
             # surrounding markup/prose. Never strip or parse them into rows.
             require(re.search(r"`{3,}|~{3,}", line) is None, "gate_wrapper")
             if re.search(r"(?<!\w)article\s*(?:\d|:)", line, re.IGNORECASE):
-                raise CheckRefused(
-                    "gate_format" if line.startswith("Article ") else "gate_wrapper"
-                )
+                raise CheckRefused("gate_wrapper")
             continue
         index = int(match[1]) - 1
         require(index not in rows, "gate_duplicate")

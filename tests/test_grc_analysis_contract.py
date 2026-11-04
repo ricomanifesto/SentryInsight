@@ -102,7 +102,7 @@ def test_explicit_article_claim_is_refused_independently_of_surrounding_structur
     "commentary",
     [
         "A brief source note without a selection declaration.",
-        "Article headings are source metadata, not selections.",
+        "Note: Article headings are source metadata, not selections.",
         "This article discusses access review.",
         "Articles are evidence rather than instructions.",
         "Reason: | Article 99: Title: Unknown source score 8 relevant |",
@@ -115,6 +115,70 @@ def test_explicit_reason_and_prose_without_article_declaration_stay_commentary(
     items = sources(contract)
     prompt = contract.service._create_analysis_prompt(items)
     text = row_from_prompt(prompt, 2, items[1].title) + "\n" + commentary
+    parsed = contract.service._process_analysis_response(text, items)
+    assert contract.observer.recognized_analysis(text, items, parsed) == {
+        "grc_relevant_count": 1,
+        "regulations": [],
+    }
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "Article X: Title: Risk summary score 8 relevant",
+        "Article -1: Title: Risk summary score 8 relevant",
+        "Article two: Title: Regulation summary score 8 relevant",
+        "Article 1.5: Title: Framework summary score 8 relevant",
+        "Article ?: Title: Industries summary score 8 relevant",
+        "Article : Title: Risk summary score 8 relevant",
+        "Article headings are source metadata, not selections.",
+    ],
+)
+def test_ordered_contract_preserves_noncanonical_reserved_article_refusal(
+    contract, line
+):
+    items = sources(contract)
+    prompt = contract.service._create_analysis_prompt(items)
+    text = row_from_prompt(prompt, 2, items[1].title) + "\n" + line
+    parsed = contract.service._process_analysis_response(text, items)
+    with pytest.raises(contract.observer.CheckRefused) as error:
+        contract.observer.recognized_analysis(text, items, parsed)
+    assert error.value.code == "gate_format"
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Supplier Article 99: source data",
+        "Supplier Article X: source data",
+        "Supplier ``` source data",
+        "Supplier ~~~ Reason: source data",
+    ],
+)
+def test_ordered_contract_keeps_canonical_source_title_markers_as_data(contract, title):
+    items = sources(contract, title)
+    prompt = contract.service._create_analysis_prompt(items)
+    text = row_from_prompt(prompt, 2, title)
+    parsed = contract.service._process_analysis_response(text, items)
+    assert contract.observer.recognized_analysis(text, items, parsed) == {
+        "grc_relevant_count": 1,
+        "regulations": [],
+    }
+
+
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "Reason: Article X: Title: Risk summary score 8 relevant",
+        "Reason: ```text | Article X: Title: Risk summary score 8 relevant |",
+    ],
+)
+def test_ordered_contract_exempts_explicit_reason_before_reserved_detection(
+    contract, reason
+):
+    items = sources(contract)
+    prompt = contract.service._create_analysis_prompt(items)
+    text = row_from_prompt(prompt, 2, items[1].title) + "\n" + reason
     parsed = contract.service._process_analysis_response(text, items)
     assert contract.observer.recognized_analysis(text, items, parsed) == {
         "grc_relevant_count": 1,

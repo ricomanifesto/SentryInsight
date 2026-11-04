@@ -145,13 +145,18 @@ reason text or raw answer. Other guards retain `check_refused`; unknown codes,
 wrong stage/phase combinations and extra envelope fields are refused. This
 refinement cannot identify the rejected subcondition in an older receipt.
 
-After an exact canonical row and explicit `Reason:` commentary are considered,
-the gate refuses a standalone `Article` token followed by a number or colon
-anywhere on a line, regardless of surrounding table cells, tags, bullets or
-prose prefixes. Triple-backtick and triple-tilde fences are refused separately.
-This is rejection only: markup is never stripped into an accepted row. Other
-notes without such a declaration remain commentary; the gate does not interpret
-arbitrary prose, encoded text or general markup semantics.
+Validation order preserves the reserved row prefix: explicit `Reason:` lines are
+commentary; exact canonical rows undergo source/duplicate/score checks, with
+their source-owned titles treated as data even when they contain marker words
+or fences. Every other line starting with literal `Article ` refuses as
+`gate_format`, including malformed identities or notes; label ordinary notes
+without that reserved prefix. Additively, an explicit `Article` token followed
+by a number or colon anywhere else on a line refuses, regardless of surrounding
+table cells, tags, bullets or prose prefixes. Triple-backtick and triple-tilde
+fences are refused separately. This is rejection only: markup is never stripped
+into an accepted row. Other notes without a reserved declaration remain
+commentary; arbitrary prose, encoded text and general markup semantics are not
+interpreted.
 
 Response close, sender-client exit and child reap are bounded to five seconds. An earlier failure
 stays primary if cleanup also fails; a close-only failure after valid metadata
