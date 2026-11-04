@@ -1,5 +1,10 @@
 # Fixed fictional Vertex Argon trial
 
+Historical sender contract below. This branch's current registered workflow is
+the separately approved-scope [full GRC workflow trial](grc-workflow-trial.md).
+It cannot invoke this consumed one-plan allocation or a Kimi allocation. The
+historical senders and receipts are preserved; this note grants no new inference.
+
 This temporary branch now invokes one additional approved Vertex-only Argon request. Prior runs `41777105615` at `26234bd3f1cd7e580c739c019c50bf217ed13d84` and `41778423600` at `f72903e6b4d1370f988044df00abe6286fcce1a1` consumed the Kimi and AIStudio allocations. Their receipts/history remain intact. The prior AIStudio404 charge is unknown; it is never treated as zero or retried through AIStudio.
 
 The registered manual `verify-nemotron.yml` workflow invokes only `continue_vertex_trial_once.py`, with no model/provider selector or send loop. Its first durable claim binds both consumed prior runs/heads, the Vertex request/source/fixture hashes and the conservative $0.360 + $0.124 + $0.124 = $0.608 admission bound under the existing $2 ceiling. Neither consumed allocation can rearm. Actual combined cost remains unknown; this run records only its new operation's returned usage/cost.

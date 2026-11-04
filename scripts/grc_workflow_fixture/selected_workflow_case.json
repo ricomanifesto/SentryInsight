@@ -1,0 +1,6 @@
+{
+  "feed_url": "https://digest.example.test/rss.xml",
+  "feed_home": "https://digest.example.test/",
+  "published": "Wed, 04 Nov 2026 12:00:00 GMT",
+  "analysis_response": "Article 1: Title: Fictional compliance notice score 8 relevant\nArticle 2: Title: Fictional supplier access incident score 8 relevant\nRisks: supplier access governance.\nNo binding duties or effective dates are established by the fictional consultation."
+}

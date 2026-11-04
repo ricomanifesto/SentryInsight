@@ -193,7 +193,7 @@ def test_vertex_failure_stops_with_no_repeat(
         assert receipt["actual_cost"] is None
 
 
-def test_workflow_invokes_only_vertex_entry():
+def test_current_workflow_cannot_invoke_consumed_vertex_entry():
     import yaml
 
     workflow = yaml.load(
@@ -203,7 +203,8 @@ def test_workflow_invokes_only_vertex_entry():
     commands = "\n".join(
         step.get("run", "") for step in workflow["jobs"]["verify"]["steps"]
     )
-    assert "continue_vertex_trial_once" in commands
+    assert "verify_grc_workflow_once" in commands
+    assert "continue_vertex_trial_once" not in commands
     assert "continue_argon_trial_once" not in commands
     assert "verify_selected_models_once.py" not in commands
 

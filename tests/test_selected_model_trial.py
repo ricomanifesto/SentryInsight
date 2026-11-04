@@ -500,18 +500,19 @@ def test_branch_workflow_has_only_fixed_read_only_nonpublishing_authority():
         assert guard in job["if"]
     secret_steps = [row for row in job["steps"] if "secrets." in json.dumps(row)]
     assert len(secret_steps) == 1 and secret_steps[0]["id"] == "trial"
-    assert "continue_vertex_trial_once.py" in secret_steps[0]["run"]
+    assert "verify_grc_workflow_once.py" in secret_steps[0]["run"]
+    assert "continue_vertex_trial_once.py" not in secret_steps[0]["run"]
     assert "verify_selected_models_once.py" not in secret_steps[0]["run"]
     checkouts = [
         row
         for row in job["steps"]
         if row.get("uses", "").startswith("actions/checkout@")
     ]
-    assert len(checkouts) == 3
+    assert len(checkouts) == 2
     assert all(row["with"]["persist-credentials"] == "false" for row in checkouts)
     assert {row["with"]["ref"] for row in checkouts} == {
         "${{ github.sha }}",
-        *(s.source_sha for s in CASES.values()),
+        "a1c61bb5199829d4e95439991b8e547e09ef48af",
     }
     artifact = job["steps"][-1]["with"]
     assert artifact["retention-days"] == "7" and "*" not in artifact["path"]

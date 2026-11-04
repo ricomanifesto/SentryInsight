@@ -1,0 +1,326 @@
+#!/usr/bin/env python3
+"""Secret-free, denied-network execution of the real fictional GRC workflow."""
+
+from __future__ import annotations
+
+import asyncio
+import base64
+from contextlib import ExitStack, redirect_stdout
+import hashlib
+import importlib
+import io
+import json
+import logging
+import os
+from pathlib import Path
+import re
+import runpy
+import socket
+import sys
+from unittest.mock import patch
+
+import httpx
+
+WORKFLOW_SHA = "2a3cc73b1be3bee1a783e2e8520b23909fe3555bfba6bcfdfd66004ae4653c56"
+CASE_SHA = "f21bbf7ad30e72e485ecfb6ae6ce078fcd98959d4f0d3c5a28eab0f2b3955b08"
+REGULATIONS = ("GDPR", "SOX", "PCI-DSS", "ISO 27001", "NIST", "CCPA")
+RESPONSE_LIMIT = 524288
+
+
+def require(value):
+    if not value:
+        raise ValueError("Fictional workflow refused")
+
+
+def deny(*_args, **_kwargs):
+    raise RuntimeError("Offline worker forbids network")
+
+
+class Captured(BaseException):
+    """Stop before returning an unsupplied model response."""
+
+
+def recognized_analysis(text, articles, parsed):
+    """Do not mistake the legacy parser's fallback-to-all for model compatibility."""
+    rows = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("Article "):
+            continue
+        match = re.fullmatch(
+            r"Article ([12]):\s*Title:\s*(.*?)\s+score\s+(10|[0-9](?:\.[0-9]+)?)\s+relevant[.]?",
+            line,
+        )
+        if match is None:
+            raise ValueError("Fictional workflow refused")
+        index = int(match[1]) - 1
+        require(
+            index not in rows
+            and match[2] == articles[index].title
+            and 1 <= float(match[3]) <= 10
+        )
+        rows[index] = match[2]
+    require(1 in rows)  # The supplier source is the positive control.
+    require(set(parsed) == {"grc_articles", "summary", "analysis"})
+    require(
+        parsed["summary"]
+        == {
+            "total_articles": 2,
+            "grc_relevant_count": len(rows),
+            "confidence_score": 0.8,
+        }
+    )
+    require(
+        parsed["grc_articles"]
+        == [
+            {
+                "title": title,
+                "relevance_score": 7.0,
+                "summary": "GRC-relevant content identified",
+            }
+            for title in rows.values()
+        ]
+    )
+    analysis = parsed["analysis"]
+    require(
+        set(analysis)
+        == {
+            "regulations_mentioned",
+            "frameworks_referenced",
+            "industries_affected",
+            "risk_categories",
+            "regulatory_bodies",
+        }
+    )
+    regulations = analysis["regulations_mentioned"]
+    require(type(regulations) is list and len(regulations) == len(set(regulations)))
+    require(all(value in REGULATIONS for value in regulations))
+    require(
+        set(analysis["frameworks_referenced"])
+        == set(value for value in regulations if "ISO" in value or "NIST" in value)
+    )
+    require(
+        all(
+            analysis[name] == []
+            for name in ("industries_affected", "risk_categories", "regulatory_bodies")
+        )
+    )
+    return {"grc_relevant_count": len(rows), "regulations": regulations}
+
+
+async def run_workflow(source, mode, responses):
+    sys.path.insert(0, str(source / "agent"))
+    from loguru import logger
+
+    logger.disable("")
+    adapter = runpy.run_path(str(source / "scripts/rehearse_selected_model_offline.py"))
+    # This separately pinned project's modules resolve only in its interpreter.
+    workflow = importlib.import_module("core.workflow")
+    validate_rendered_report = importlib.import_module(
+        "core.report_plan"
+    ).validate_rendered_report
+    GRCAnalysisConfig = importlib.import_module("models.api").GRCAnalysisConfig
+    model_service = importlib.import_module("services.model_service")
+    route = importlib.import_module("services.model_route")
+    ARGON_ROUTE, RouteActivation = route.ARGON_ROUTE, route.RouteActivation
+
+    require(ARGON_ROUTE.endpoint == "google-vertex/global")
+    case_raw = (source / "agent/tests/fixtures/selected_model_case.json").read_bytes()
+    require(hashlib.sha256(case_raw).hexdigest() == CASE_SHA)
+    case = adapter["validate_case"]()
+    workflow_raw = (
+        Path(__file__).parent / "grc_workflow_fixture/selected_workflow_case.json"
+    ).read_bytes()
+    require(hashlib.sha256(workflow_raw).hexdigest() == WORKFLOW_SHA)
+    fixture = json.loads(workflow_raw)
+    captured, derived, feed_calls = [], [], []
+
+    def respond(request):
+        index = len(captured)
+        require(index < 2 and request.method == "POST")
+        require(str(request.url) == "https://openrouter.ai/api/v1/chat/completions")
+        payload = json.loads(request.content)
+        text = "\n".join(row["content"] for row in payload["messages"])
+        require(fixture["analysis_response"] not in text)
+        require(json.dumps(case["calibration_plan"]) not in text)
+        captured.append(request.content)
+        if index >= len(responses):
+            raise Captured()
+        return httpx.Response(200, content=responses[index])
+
+    async def fetch(url):
+        require(url == fixture["feed_url"] and not feed_calls)
+        feed_calls.append(url)
+        return {
+            "title": case["feed_info"]["title"],
+            "link": fixture["feed_home"],
+            "last_updated": fixture["published"],
+            "entries": [
+                {
+                    "title": row["title"],
+                    "link": row["url"],
+                    "description": row["snippet"],
+                    "content": "",
+                    "published": fixture["published"],
+                }
+                for row in case["analysis_data"]["source_evidence"]
+            ],
+        }
+
+    async def enrich(articles):
+        return articles
+
+    real_service = model_service.GRCModelService
+    real_parser = real_service._process_analysis_response
+
+    def parse(self, text, articles):
+        parsed = real_parser(self, text, articles)
+        recognized_analysis(text, articles, parsed)
+        derived.append(parsed)
+        return parsed
+
+    def fields():
+        # The workflow may reconcile model selections with its deterministic
+        # local signals before building the plan. Read its actual processed map.
+        return {
+            "grc_relevant_count": derived[0]["summary"]["grc_relevant_count"],
+            "regulations": derived[0]["analysis"]["regulations_mentioned"],
+        }
+
+    def create_service(**kwargs):
+        require(kwargs["model_name"] == "openrouter/" + ARGON_ROUTE.model_id)
+        require(kwargs["max_tokens"] == 8000)
+        return real_service(
+            **kwargs,
+            activation=RouteActivation.OFFLINE,
+            transport=httpx.MockTransport(respond),
+        )
+
+    with ExitStack() as stack:
+        stack.enter_context(
+            patch.object(workflow, "datetime", adapter["FixedDatetime"])
+        )
+        stack.enter_context(
+            patch.object(model_service, "datetime", adapter["FixedDatetime"])
+        )
+        stack.enter_context(patch.object(workflow.rss_service, "fetch_feed", fetch))
+        stack.enter_context(
+            patch.object(workflow.rss_service, "enrich_articles", enrich)
+        )
+        stack.enter_context(patch.object(workflow, "GRCModelService", create_service))
+        stack.enter_context(
+            patch.object(real_service, "_process_analysis_response", parse)
+        )
+        if mode == "calibrate":
+            responses[:] = [
+                json.dumps(
+                    {
+                        "model": ARGON_ROUTE.model_id,
+                        "choices": [
+                            {"finish_reason": "stop", "message": {"content": answer}}
+                        ],
+                    }
+                ).encode()
+                for answer in (
+                    fixture["analysis_response"],
+                    json.dumps(case["calibration_plan"]),
+                )
+            ]
+        try:
+            result = await workflow.run_grc_analysis_endpoint(
+                fixture["feed_url"],
+                GRCAnalysisConfig(
+                    model="openrouter/" + ARGON_ROUTE.model_id, max_tokens=8000
+                ),
+            )
+        except Captured:
+            require(mode in {"prepare", "derive"})
+            require(len(captured) == (1 if mode == "prepare" else 2))
+            require(mode == "prepare" or len(derived) == 1)
+            return {
+                "wires": [base64.b64encode(raw).decode() for raw in captured],
+                "derived": fields() if derived else None,
+            }
+        require(
+            mode in {"calibrate", "replay"} and len(captured) == 2 and len(derived) == 1
+        )
+        require(
+            result.status == "completed"
+            and result.report is not None
+            and result.metadata is not None
+        )
+        metadata, report = result.metadata, result.report
+        require(
+            metadata.analysis_mode == "model"
+            and metadata.resolved_model == ARGON_ROUTE.model_id
+        )
+        require(len(metadata.source_articles) == 2)
+        plan = metadata.report_plan
+        require(plan is not None and plan["regulatory_changes"] == [])
+        controls = plan["control_implications"]
+        require(
+            any(
+                row["control_id"] == "third_party_risk" and row["source_ids"] == [2]
+                for row in controls
+            )
+        )
+        validate_rendered_report(report.content, plan, metadata.source_articles)
+        host = {
+            "outcome": "passed",
+            "stage": "host_rendered",
+            "source_count": 2,
+            "grounded_control_findings": len(controls),
+            "regulatory_changes": 0,
+            "rendered_sha256": hashlib.sha256(report.content.encode()).hexdigest(),
+        }
+        return {
+            "wires": [base64.b64encode(raw).decode() for raw in captured],
+            "derived": fields(),
+            "host": host,
+        }
+
+
+def main():
+    os.umask(0o077)
+    logging.disable(logging.CRITICAL)
+    try:
+        mode, source_path = sys.argv[1:]
+        require(mode in {"prepare", "calibrate", "derive", "replay"})
+        require(sys.flags.safe_path and sys.flags.no_user_site)
+        require(not sys.flags.ignore_environment and sys.flags.hash_randomization == 0)
+        require(os.environ.get("PYTHONHASHSEED") == "0")
+        require(not os.environ.get("OPENROUTER_API_KEY"))
+        raw = sys.stdin.buffer.read(2 * RESPONSE_LIMIT * 2 + 1)
+        require(len(raw) <= 2 * RESPONSE_LIMIT * 2)
+        encoded = json.loads(raw)
+        require(
+            type(encoded) is list
+            and len(encoded)
+            == {"prepare": 0, "calibrate": 0, "derive": 1, "replay": 2}[mode]
+        )
+        responses = [base64.b64decode(value, validate=True) for value in encoded]
+        require(all(0 < len(value) <= RESPONSE_LIMIT for value in responses))
+        with ExitStack() as stack:
+            for name in ("connect", "connect_ex", "sendto", "sendmsg"):
+                if hasattr(socket.socket, name):
+                    stack.enter_context(patch.object(socket.socket, name, deny))
+            for name in ("create_connection", "getaddrinfo"):
+                stack.enter_context(patch.object(socket, name, deny))
+            stack.enter_context(
+                patch.object(httpx.HTTPTransport, "handle_request", deny)
+            )
+            stack.enter_context(
+                patch.object(httpx.AsyncHTTPTransport, "handle_async_request", deny)
+            )
+            with redirect_stdout(io.StringIO()):
+                value = asyncio.run(
+                    run_workflow(Path(source_path).resolve(), mode, responses)
+                )
+        sys.stdout.buffer.write(json.dumps(value, sort_keys=True).encode())
+        return 0
+    except BaseException:
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

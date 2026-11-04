@@ -1,10 +1,10 @@
-name: Verify Vertex Argon Without Publication
+name: Verify Fictional GRC Workflow Nonpublishing
 
 on:
   workflow_dispatch:
     inputs:
       expected_commit:
-        description: 'Exact reviewed test executor commit approved for this single trial'
+        description: 'Exact reviewed executor commit for one separately approved two-stage trial'
         type: string
         required: true
 
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: selected-model-fictional-trial-20261104
+  group: grc-fictional-workflow-trial-20261104
   cancel-in-progress: false
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
       github.run_attempt == 1 && github.sha == inputs.expected_commit &&
       github.actor == 'ricomanifesto' && github.triggering_actor == 'ricomanifesto'
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 25
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       OTEL_SDK_DISABLED: 'true'
@@ -39,18 +39,11 @@ jobs:
           path: executor
           persist-credentials: false
 
-      - name: Checkout the exact accepted Sentry source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: 4833a2907cff7690a333d9c80825c8339a270e2d
-          path: sources/sentry
-          persist-credentials: false
-
-      - name: Checkout the exact accepted GRC source
+      - name: Checkout the fixed deployed GRC source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ricomanifesto/GRCInsight
-          ref: 800d2f572dc1b4d2a26f4c74fe9b08f33e455c6a
+          ref: a1c61bb5199829d4e95439991b8e547e09ef48af
           path: sources/grc
           persist-credentials: false
 
@@ -61,57 +54,45 @@ jobs:
           python-version: '3.11.11'
           enable-cache: false
 
-      - name: Install each source's frozen dependencies without inference credentials
-        run: |
-          uv sync --project sources/sentry --group dev --frozen
-          uv sync --project sources/grc/agent --group dev --frozen
+      - name: Install frozen GRC dependencies without inference credentials
+        run: uv sync --project sources/grc/agent --group dev --frozen
 
-      - name: Prepare private scratch and hash-verified public tokenizer
+      - name: Prepare private metadata directory
         run: |
-          sources/sentry/.venv/bin/python -B - <<'PY'
+          sources/grc/agent/.venv/bin/python -I -B - <<'PY'
           import os
           from pathlib import Path
           os.umask(0o077)
-          root = Path(os.environ['RUNNER_TEMP'])
-          (root / 'selected-model-trial').mkdir(mode=0o700)
-          with open(os.environ['GITHUB_ENV'], 'a') as output:
-              output.write(f'TIKTOKEN_CACHE_DIR={root / "selected-model-tokenizer"}\n')
-          PY
-          TIKTOKEN_CACHE_DIR="$RUNNER_TEMP/selected-model-tokenizer" sources/sentry/.venv/bin/python -B - <<'PY'
-          import sys
-          sys.path.insert(0, 'sources/sentry')
-          import tiktoken
-          from scripts.verify_nemotron_once import require_tokenizer_cache
-          tiktoken.get_encoding('cl100k_base')
-          require_tokenizer_cache()
+          (Path(os.environ['RUNNER_TEMP']) / 'grc-full-trial').mkdir(mode=0o700)
           PY
 
-      - name: Reproduce the exact fictional Vertex Argon request without provider access
+      - name: Reproduce the complete fictional workflow without provider access
         run: |
-          sources/sentry/.venv/bin/python -B - <<'PYTHON'
+          sources/grc/agent/.venv/bin/python -I -B - <<'PY'
           import sys
           sys.path.insert(0, 'executor')
-          from scripts.continue_vertex_trial_once import calibrate_ci
+          from scripts.verify_grc_workflow_once import calibrate_ci
           calibrate_ci()
-          PYTHON
+          PY
 
-      - name: Send only the Vertex Argon request once and replay locally
+      - name: Send only the two fixed-scope GRC stages and replay privately
         id: trial
+        if: runner.debug != '1'
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           EXPECTED_COMMIT: ${{ inputs.expected_commit }}
         run: |
-          sources/sentry/.venv/bin/python -B executor/scripts/continue_vertex_trial_once.py \
+          sources/grc/agent/.venv/bin/python -I -B executor/scripts/verify_grc_workflow_once.py \
             --expected-commit "$EXPECTED_COMMIT"
 
       - name: Retain only sanitized metadata for seven days
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: selected-model-trial-${{ github.run_id }}
+          name: grc-full-trial-${{ github.run_id }}
           path: |
-            ${{ runner.temp }}/selected-model-trial/calibration.json
-            ${{ runner.temp }}/selected-model-trial/claim.json
-            ${{ runner.temp }}/selected-model-trial/trial.json
+            ${{ runner.temp }}/grc-full-trial/calibration.json
+            ${{ runner.temp }}/grc-full-trial/claim.json
+            ${{ runner.temp }}/grc-full-trial/trial.json
           retention-days: 7
           if-no-files-found: warn

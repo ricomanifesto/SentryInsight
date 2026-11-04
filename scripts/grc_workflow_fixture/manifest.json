@@ -1,0 +1,99 @@
+{
+  "source_commit": "a1c61bb5199829d4e95439991b8e547e09ef48af",
+  "source_tree": "3ce97d6557220431cc434a1b66ce6d52b869f2d1",
+  "local_equivalent_commit": "2e46c3110479d74fcba744ee899e14e91d68d195",
+  "source_fixture_sha256": "f21bbf7ad30e72e485ecfb6ae6ce078fcd98959d4f0d3c5a28eab0f2b3955b08",
+  "workflow_fixture_sha256": "2a3cc73b1be3bee1a783e2e8520b23909fe3555bfba6bcfdfd66004ae4653c56",
+  "model": "google/gemini-4-argon",
+  "provider_only": "google-vertex/global",
+  "stages": [
+    {
+      "stage": "analysis",
+      "canonical_payload_sha256": "604b76b05da093be1c978042d0f4f55cb224fc2e20f0db3c1deb33f0c95d8c06",
+      "calibration_wire_sha256": "69628f60f627330e870b5096010b3fcc35fffbbc215f3cf280c49d021bd17728",
+      "wire_bytes": 2363,
+      "complete_input_bound": 6110,
+      "input_reserve": 8000,
+      "max_tokens": 8000,
+      "reserve_microusd": 96000,
+      "request_keys": [
+        "max_tokens",
+        "messages",
+        "model",
+        "provider",
+        "reasoning",
+        "service_tier",
+        "stream"
+      ],
+      "response_schema_sha256": null
+    },
+    {
+      "stage": "plan",
+      "canonical_payload_sha256": "eec4c52ba8f669cc1e62b2830118eea03d6c7298f00af5d1768fa33c647d0825",
+      "calibration_wire_sha256": "574f1936ea907956414c96a19c34721a0183819acc7d1c850a0248f282f0219f",
+      "wire_bytes": 17299,
+      "complete_input_bound": 21046,
+      "input_reserve": 24000,
+      "max_tokens": 8000,
+      "reserve_microusd": 128000,
+      "request_keys": [
+        "max_tokens",
+        "messages",
+        "model",
+        "provider",
+        "reasoning",
+        "response_format",
+        "service_tier",
+        "stream"
+      ],
+      "response_schema_sha256": "e98af51a1cae1079af9e617b9827d5fd6793626c6e350c7475069db75b3edadb"
+    }
+  ],
+  "total_reservation_microusd": 224000,
+  "actual_cost": null,
+  "first_source_fields": [
+    "title",
+    "url",
+    "content_first_500_characters",
+    "published"
+  ],
+  "second_fixed_fields": [
+    "system_prompt",
+    "report_feed_dates_title",
+    "total_count_2",
+    "source_ids_titles_links",
+    "bounded_source_snippets_and_article_evidence",
+    "unknown_effective_dates",
+    "strict_selection_schema"
+  ],
+  "second_variable_fields": {
+    "grc_relevant_count": [
+      1,
+      2
+    ],
+    "regulations": [
+      "GDPR",
+      "SOX",
+      "PCI-DSS",
+      "ISO 27001",
+      "NIST",
+      "CCPA"
+    ]
+  },
+  "raw_first_answer_inserted_in_second_prompt": false,
+  "child_hash_seed": "0",
+  "ordinary_activation": "DISABLED/OFFLINE only",
+  "new_execution_approval_required": true,
+  "retention_disclosure": "Vertex SafetyRetention may retain flagged prompts up to90days for safety without training; ZDR filter is not zero retention",
+  "excluded": [
+    "Kimi",
+    "real_or_private_articles",
+    "credentials",
+    "calibration_answers_in_prompts",
+    "URL_fetches",
+    "telemetry",
+    "tools_search_presets",
+    "publisher_DDB_AWS",
+    "raw_provider_bodies_in_artifacts"
+  ]
+}
