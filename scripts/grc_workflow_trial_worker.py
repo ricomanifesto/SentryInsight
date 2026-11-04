@@ -67,7 +67,14 @@ def recognized_analysis(text, articles, parsed):
     rows = {}
     for line in text.splitlines():
         line = line.strip()
+        if line.startswith("Reason:"):
+            continue
         if not line.startswith("Article "):
+            # Detect only recognizable unsupported row wrappers for rejection.
+            # Never repair a wrapper into an accepted canonical row.
+            candidate = line.lstrip(" \t-+*>_`\"'0123456789.()[]")
+            if re.match(r"article(?:\s|[0-9:])", candidate, re.IGNORECASE):
+                raise CheckRefused()
             continue
         match = re.fullmatch(
             r"Article ([12]):\s*Title:\s*(.*?)\s+score\s+(10|[0-9](?:\.[0-9]+)?)\s+relevant[.]?",
@@ -284,19 +291,19 @@ async def run_workflow(source, mode, responses, trace):
         require(
             mode in {"calibrate", "replay"} and len(captured) == 2 and len(derived) == 1
         )
-        require(
-            result.status == "completed"
-            and result.report is not None
-            and result.metadata is not None
-        )
+        require(result.status == "completed")
         metadata, report = result.metadata, result.report
+        if metadata is None or report is None:
+            raise CheckRefused()
         require(
             metadata.analysis_mode == "model"
             and metadata.resolved_model == ARGON_ROUTE.model_id
         )
         require(len(metadata.source_articles) == 2)
         plan = metadata.report_plan
-        require(plan is not None and plan["regulatory_changes"] == [])
+        if plan is None:
+            raise CheckRefused()
+        require(plan["regulatory_changes"] == [])
         controls = plan["control_implications"]
         require(
             any(

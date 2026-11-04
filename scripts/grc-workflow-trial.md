@@ -16,7 +16,13 @@ fallback, repair or claim reset exists.
 The existing Sentry Actions OpenRouter secret enters only the outer sender step.
 It never enters the GRC checkout, worker, dependency setup, command arguments or
 artifacts. No AWS credential, account/key-status call, publisher or database is
-used. The source is fixed to the deployed GRC commit and tree in the manifest.
+used. The source is fixed to the proposed GRC commit and tree in the manifest.
+The analysis-contract source is now a **proposed candidate**, distinct
+from deployed GRC main. The manifest and checkout pin commit
+`9b79f50986b60aa12bccbbf91de0c910a5c482ad`; production-main/report fences remain
+`a1c61bb5199829d4e95439991b8e547e09ef48af`. Publication and deployment are separate facts, not attested by this source
+manifest. This prepared workflow cannot check out the candidate remotely until
+separately authorized source-branch publication makes that exact commit available.
 Ordinary selected routes still require OFFLINE activation, an exact MockTransport
 and a synthetic key.
 
@@ -31,8 +37,14 @@ The first POST sends only two fictional notices and the public legacy TEXT
 analysis prompt. The recognized-analysis gate requires an exact source-bound
 supplier row and refuses the parser's fallback-to-all behavior. Bullet/Markdown
 or unrecognized rows fail this closed compatibility test; they are not normalized
-into a claimed original-parser success. The first prompt and production parser
-are unchanged. This is a known legacy-format limitation.
+into a claimed original-parser success. The proposed analysis prompt and real parser
+share the explicitly advertised canonical TEXT row and separate Reason:
+commentary contract. The real parser handles canonical rows before section
+keywords and preserves exact titles containing score or Title:. Known wrapped
+or noncanonical Article-like rows are rejected, including when mixed with a
+valid supplier row; they are never normalized into success. Arbitrary prose is
+not understood or reclassified by this guard. Legacy free-form parser handling
+and its fallback remain outside the supported closed-test language.
 
 The actual parser and workflow derive the second prompt. Only the reconciled
 GRC-relevant count (1 or 2) and six closed regulation names may vary from the
@@ -88,6 +100,14 @@ sources/grc/agent/.venv/bin/python -I -B executor/scripts/verify_grc_workflow_on
 This is test preparation, not proof of recurring production readiness. Recurring
 paid generation still needs server-owned admission, aggregate spending policy,
 real-source retention approval and separate publication/schedule decisions.
+
+Later delivery must keep source publication, test execution and production
+release separate: publish the reviewed GRC candidate branch only when authorized,
+then the reviewed temporary executor branch, and obtain a new exact two-POST
+grant before a single manual dispatch. No main merge or Lambda deployment is
+required for that branch test. Merging the GRC agent change to main would trigger
+the normal Lambda image workflow for both functions and needs its own release
+decision. No publication, PR, tracker or dispatch is authorized by this document.
 
 ## Future diagnostic output
 

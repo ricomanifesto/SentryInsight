@@ -512,7 +512,7 @@ def test_branch_workflow_has_only_fixed_read_only_nonpublishing_authority():
     assert all(row["with"]["persist-credentials"] == "false" for row in checkouts)
     assert {row["with"]["ref"] for row in checkouts} == {
         "${{ github.sha }}",
-        "a1c61bb5199829d4e95439991b8e547e09ef48af",
+        "9b79f50986b60aa12bccbbf91de0c910a5c482ad",
     }
     artifact = job["steps"][-1]["with"]
     assert artifact["retention-days"] == "7" and "*" not in artifact["path"]

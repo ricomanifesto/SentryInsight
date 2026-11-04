@@ -1,7 +1,6 @@
 {
-  "source_commit": "a1c61bb5199829d4e95439991b8e547e09ef48af",
-  "source_tree": "3ce97d6557220431cc434a1b66ce6d52b869f2d1",
-  "local_equivalent_commit": "2e46c3110479d74fcba744ee899e14e91d68d195",
+  "source_commit": "9b79f50986b60aa12bccbbf91de0c910a5c482ad",
+  "source_tree": "f91dc5c4118856c47c08519e313111ebb5e68e19",
   "source_fixture_sha256": "f21bbf7ad30e72e485ecfb6ae6ce078fcd98959d4f0d3c5a28eab0f2b3955b08",
   "workflow_fixture_sha256": "2a3cc73b1be3bee1a783e2e8520b23909fe3555bfba6bcfdfd66004ae4653c56",
   "model": "google/gemini-4-argon",
@@ -9,10 +8,10 @@
   "stages": [
     {
       "stage": "analysis",
-      "canonical_payload_sha256": "604b76b05da093be1c978042d0f4f55cb224fc2e20f0db3c1deb33f0c95d8c06",
-      "calibration_wire_sha256": "69628f60f627330e870b5096010b3fcc35fffbbc215f3cf280c49d021bd17728",
-      "wire_bytes": 2363,
-      "complete_input_bound": 6110,
+      "canonical_payload_sha256": "e15a02379c03e0aa5f530ce6cf4235d63314d8fdccb495f83bd81ecd73796925",
+      "calibration_wire_sha256": "5971bf1ad2115b54500ec47c50bc5c28b7afe51e020406e2d7867e6a9e178685",
+      "wire_bytes": 2850,
+      "complete_input_bound": 6597,
       "input_reserve": 8000,
       "max_tokens": 8000,
       "reserve_microusd": 96000,
@@ -95,5 +94,8 @@
     "tools_search_presets",
     "publisher_DDB_AWS",
     "raw_provider_bodies_in_artifacts"
-  ]
+  ],
+  "source_status": "proposed test candidate; production main is fenced separately",
+  "production_main_fence": "a1c61bb5199829d4e95439991b8e547e09ef48af",
+  "analysis_row_policy": "exact source-bound canonical row; separate Reason commentary; known unsupported Article wrappers rejected, not repaired"
 }

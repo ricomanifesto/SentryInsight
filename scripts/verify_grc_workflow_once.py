@@ -59,27 +59,27 @@ def retain_failure(claim, failure, stage, http_status=None):
 INPUT_RESERVES = (8000, 24000)
 OUTPUT_TOKENS = 8000
 RESERVATIONS = (96000, 128000)
-SOURCE_COMMIT = "a1c61bb5199829d4e95439991b8e547e09ef48af"
-LOCAL_EQUIVALENT = "2e46c3110479d74fcba744ee899e14e91d68d195"
-SOURCE_TREE = "3ce97d6557220431cc434a1b66ce6d52b869f2d1"
+SOURCE_COMMIT = "9b79f50986b60aa12bccbbf91de0c910a5c482ad"
+SOURCE_TREE = "f91dc5c4118856c47c08519e313111ebb5e68e19"
+DEPLOYED_GRC_MAIN = "a1c61bb5199829d4e95439991b8e547e09ef48af"
 CASE_SHA = "f21bbf7ad30e72e485ecfb6ae6ce078fcd98959d4f0d3c5a28eab0f2b3955b08"
 WORKFLOW_SHA = "2a3cc73b1be3bee1a783e2e8520b23909fe3555bfba6bcfdfd66004ae4653c56"
 MODEL = "google/gemini-4-argon"
 PROVIDER = "google-vertex/global"
 REGULATIONS = ("GDPR", "SOX", "PCI-DSS", "ISO 27001", "NIST", "CCPA")
 CANONICAL = (
-    "604b76b05da093be1c978042d0f4f55cb224fc2e20f0db3c1deb33f0c95d8c06",
+    "e15a02379c03e0aa5f530ce6cf4235d63314d8fdccb495f83bd81ecd73796925",
     "eec4c52ba8f669cc1e62b2830118eea03d6c7298f00af5d1768fa33c647d0825",
 )
 WIRE = (
-    "69628f60f627330e870b5096010b3fcc35fffbbc215f3cf280c49d021bd17728",
+    "5971bf1ad2115b54500ec47c50bc5c28b7afe51e020406e2d7867e6a9e178685",
     "574f1936ea907956414c96a19c34721a0183819acc7d1c850a0248f282f0219f",
 )
-WIRE_BYTES = (2363, 17299)
+WIRE_BYTES = (2850, 17299)
 RESPONSE_LIMIT = 524288
 REMOTE_MAIN = {
     "SentryInsight": base.REMOTE_MAIN["SentryInsight"],
-    "GRCInsight": SOURCE_COMMIT,
+    "GRCInsight": DEPLOYED_GRC_MAIN,
 }
 
 
@@ -116,8 +116,7 @@ def git(source, *args):
 def source_snapshot(layout):
     source = layout.source
     base.require(
-        git(source, "rev-parse", "HEAD").decode().strip()
-        in {SOURCE_COMMIT, LOCAL_EQUIVALENT},
+        git(source, "rev-parse", "HEAD").decode().strip() == SOURCE_COMMIT,
         "source_refused",
     )
     base.require(
@@ -502,6 +501,8 @@ class WorkflowClaim(base.Claim):
             "ceiling_microusd": 224000,
             "reserved_microusd": 224000,
             "source_commit": SOURCE_COMMIT,
+            "source_kind": "proposed_candidate",
+            "production_main_fence": DEPLOYED_GRC_MAIN,
             "source_tree": SOURCE_TREE,
             "source_fixture_sha256": CASE_SHA,
             "workflow_fixture_sha256": WORKFLOW_SHA,
@@ -871,6 +872,8 @@ async def execute(
         "run_id": context.run_id,
         "executor_commit": context.commit,
         "source_commit": SOURCE_COMMIT,
+        "source_kind": "proposed_candidate",
+        "production_main_fence": DEPLOYED_GRC_MAIN,
         "source_tree": SOURCE_TREE,
         "source_fixture_sha256": CASE_SHA,
         "workflow_fixture_sha256": WORKFLOW_SHA,

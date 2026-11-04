@@ -39,11 +39,11 @@ jobs:
           path: executor
           persist-credentials: false
 
-      - name: Checkout the fixed deployed GRC source
+      - name: Checkout the proposed GRC analysis candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ricomanifesto/GRCInsight
-          ref: a1c61bb5199829d4e95439991b8e547e09ef48af
+          ref: 9b79f50986b60aa12bccbbf91de0c910a5c482ad
           path: sources/grc
           persist-credentials: false
 
