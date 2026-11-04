@@ -471,9 +471,7 @@ async def run_scenario(name, root, seed, *, selected=False):
         == (
             "completed_with_review"
             if successful
-            else "review_required"
-            if name == "all_held"
-            else "failed"
+            else "review_required" if name == "all_held" else "failed"
         )
     )
     require(
