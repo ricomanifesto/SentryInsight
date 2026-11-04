@@ -173,16 +173,13 @@ def test_default_analysis_sends_expanded_output_allowance_to_same_model(monkeypa
 @pytest.mark.parametrize(
     "response",
     [
-        httpx.Response(200, json={}),
-        httpx.Response(200, json={"choices": None}),
-        httpx.Response(200, json={"choices": []}),
-        httpx.Response(200, json=[]),
-        httpx.Response(200, text="private invalid JSON"),
         httpx.Response(200, json={"error": {"code": 429, "message": "private"}}),
         httpx.Response(200, json={"error": {"code": "503"}}),
-        *[httpx.Response(code) for code in (408, 429, 500, 502, 503, 504)],
+        *[
+            httpx.Response(code, json={"error": {"code": code}})
+            for code in (408, 429, 500, 502, 503, 504)
+        ],
         httpx.ConnectError("secret connection detail"),
-        httpx.ReadTimeout("private timeout details"),
     ],
 )
 def test_retryable_failure_recovers(response, no_retry_wait):
@@ -196,9 +193,8 @@ def test_retryable_failure_recovers(response, no_retry_wait):
 @pytest.mark.parametrize(
     "response, diagnostic",
     [
-        (httpx.Response(200, json={}), "did not include choices"),
-        (httpx.Response(503), "HTTP 503"),
-        (httpx.ReadTimeout("secret timeout"), "OpenRouter API unavailable"),
+        (httpx.Response(503, json={"error": {"code": 503}}), "HTTP 503"),
+        (httpx.ConnectTimeout("secret timeout"), "OpenRouter API unavailable"),
     ],
 )
 def test_retry_exhaustion_is_bounded(response, diagnostic, no_retry_wait, caplog):
@@ -279,7 +275,12 @@ def test_transient_provider_error_diagnostics_do_not_log_payload(caplog):
 @pytest.mark.parametrize("status", [200, 429, 503])
 def test_retry_after_is_honored(status, no_retry_wait):
     generate, requests = generate_with_responses(
-        [httpx.Response(status, headers={"Retry-After": "5"}, json={}), completion()]
+        [
+            httpx.Response(
+                status, headers={"Retry-After": "5"}, json={"error": {"code": 503}}
+            ),
+            completion(),
+        ]
     )
 
     assert asyncio.run(generate()) == "Generated report"
@@ -289,7 +290,11 @@ def test_retry_after_is_honored(status, no_retry_wait):
 
 def test_long_retry_after_stops_instead_of_retrying_early(no_retry_wait):
     generate, requests = generate_with_responses(
-        [httpx.Response(429, headers={"Retry-After": "3600"})]
+        [
+            httpx.Response(
+                429, headers={"Retry-After": "3600"}, json={"error": {"code": 429}}
+            )
+        ]
     )
 
     with pytest.raises(OpenRouterError, match="HTTP 429"):
@@ -304,7 +309,11 @@ def test_retry_after_http_date_is_honored(no_retry_wait):
     retry_at = now + timedelta(seconds=20)
     generate, _ = generate_with_responses(
         [
-            httpx.Response(503, headers={"Retry-After": format_datetime(retry_at)}),
+            httpx.Response(
+                503,
+                headers={"Retry-After": format_datetime(retry_at)},
+                json={"error": {"code": 503}},
+            ),
             completion(),
         ]
     )
@@ -317,13 +326,14 @@ def test_retry_after_http_date_is_honored(no_retry_wait):
 
 
 @pytest.mark.parametrize("error", [{}, {"message": "private provider details"}])
-def test_http_transient_error_without_provider_code_retries(error):
+def test_http_transient_error_without_provider_code_stays_uncertain(error):
     generate, requests = generate_with_responses(
         [httpx.Response(503, json={"error": error}), completion()]
     )
 
-    assert asyncio.run(generate()) == "Generated report"
-    assert len(requests) == 2
+    with pytest.raises(OpenRouterError):
+        asyncio.run(generate())
+    assert len(requests) == 1
 
 
 def test_permanent_http_status_overrides_transient_provider_code(no_retry_wait):
@@ -359,7 +369,12 @@ def test_local_protocol_error_is_not_retried(no_retry_wait):
 @pytest.mark.parametrize("retry_after", ["invalid private value", "NaN", "-1"])
 def test_invalid_retry_after_uses_bounded_backoff(retry_after, no_retry_wait):
     generate, _ = generate_with_responses(
-        [httpx.Response(429, headers={"Retry-After": retry_after}), completion()]
+        [
+            httpx.Response(
+                429, headers={"Retry-After": retry_after}, json={"error": {"code": 429}}
+            ),
+            completion(),
+        ]
     )
 
     assert asyncio.run(generate()) == "Generated report"
@@ -514,3 +529,22 @@ class OpenRouterClientTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        httpx.Response(200, json={}),
+        httpx.Response(200, json={"choices": None}),
+        httpx.Response(200, json={"choices": []}),
+        httpx.Response(200, json=[]),
+        httpx.Response(200, text="private invalid JSON"),
+        httpx.ReadTimeout("private timeout details"),
+    ],
+)
+def test_ambiguous_provider_completion_is_not_replayed(response, no_retry_wait):
+    generate, requests = generate_with_responses([response, completion()])
+    with pytest.raises(OpenRouterError):
+        asyncio.run(generate())
+    assert len(requests) == 1
+    no_retry_wait.assert_not_awaited()

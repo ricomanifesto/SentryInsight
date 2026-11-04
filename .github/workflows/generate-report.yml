@@ -121,6 +121,9 @@ jobs:
           # Report generation calls OpenRouter directly (free model default);
           # no local OpenCode gateway is needed in CI.
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SENTRYINSIGHT_ATTEMPT_STORE: admission
+          SENTRYINSIGHT_ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
+          SENTRYINSIGHT_FAILURE_RECEIPT: ${{ runner.temp }}/sentryinsight-failure.json
           SENTRYINSIGHT_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3-ultra-550b-a55b:free' }}
           # Pass VT Intelligence API key under multiple common env names
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
@@ -133,6 +136,23 @@ jobs:
           LOGFIRE_ENVIRONMENT: github-actions
           LOGFIRE_SERVICE_VERSION: ${{ github.sha }}
       
+      - name: Export bounded failure or completion metadata
+        id: failure-receipt
+        if: always() && steps.generate.outcome != 'skipped' && steps.invoked.outcome == 'success'
+        run: |
+          .venv/bin/python -B scripts/export_failure_receipt.py \
+            --source "$RUNNER_TEMP/sentryinsight-failure.json" \
+            --output "$RUNNER_TEMP/failure-diagnostics/outcome.json"
+
+      - name: Retain bounded generation diagnostics for seven days
+        if: always() && steps.failure-receipt.outcome == 'success'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: generation-diagnostics-${{ github.run_id }}
+          path: ${{ runner.temp }}/failure-diagnostics/outcome.json
+          retention-days: 7
+          if-no-files-found: error
+
       - name: Restore generator configuration
         if: always() && steps.admission.outputs.feed_url != ''
         run: git checkout -- config/config.json

@@ -19,6 +19,7 @@ __pycache__/
 *.log
 .sentryinsight-review/
 .sentryinsight-review-outcome.json
+.sentryinsight-failure.json
 .sentryinsight-publication/
 .sentryinsight-publication-complete/
 

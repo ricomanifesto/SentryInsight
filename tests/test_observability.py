@@ -144,7 +144,9 @@ def test_virtual_event_failure_records_policy_code(capfire):
 
 
 def test_validation_failure_records_unique_issue_codes(capfire, monkeypatch):
-    def fail_validation(_result):
+    def fail_validation(_result, *, on_stage=None):
+        if on_stage is not None:
+            on_stage("report_content")
         raise ReviewedReportValidationError(
             [
                 ReportValidationIssue("error_marker", VALIDATION_MESSAGE),

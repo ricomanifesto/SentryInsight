@@ -116,7 +116,7 @@ async function main() {
   const config = readSiteConfig(REPO_ROOT);
   const git = createGit(REPO_ROOT);
 
-  if (['admit', 'invoked', 'complete'].includes(command)) {
+  if (['admit', 'invoked', 'complete', 'request-reserve', 'request-finish'].includes(command)) {
     const admission = createAdmission({
       repoRoot: REPO_ROOT,
       remote: REMOTE,
@@ -136,6 +136,17 @@ async function main() {
         }));
       },
     });
+    if (command === 'request-reserve' || command === 'request-finish') {
+      if (git.run(['rev-parse', 'HEAD']).trim() !== options.revision) throw new Error('request source revision mismatch');
+      const args = { admissionKey: options.key, runId: options.run_id, revision: options.revision,
+        requestSha256: options.request_sha256, limit: Number(options.limit) };
+      const result = command === 'request-reserve' ? await admission.reserveRequest(args)
+        : await admission.finishRequest({ ...args, attempt: Number(options.attempt), token: options.token, disposition: options.disposition, retryAfterSeconds: Number(options.retry_after) });
+      // The Python bridge consumes this bounded response. Do not copy opaque
+      // reservation handles into Actions outputs or step summaries.
+      process.stdout.write(`${JSON.stringify(result)}\n`);
+      return;
+    }
     if (command === 'admit') {
       const payload = JSON.parse(fs.readFileSync(options.event_path, 'utf8')).client_payload ?? null;
       const decision = await admission.admit({

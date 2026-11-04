@@ -29,6 +29,7 @@ const { sha256 } = require('./canonical');
 const { createGit } = require('./git');
 const { LAYOUT, SHA1, SHA256, releaseKeyOf } = require('./release');
 const { createStore } = require('./store');
+const { createRequestBudget } = require('./request-budget');
 
 const DIGEST_REPOSITORY = 'ricomanifesto/SentryDigest';
 const SNAPSHOT_FEED_PATH = `${LAYOUT.payloadPrefix}feed.xml`;
@@ -351,7 +352,14 @@ function createAdmission({
     return appended[0].stage;
   }
 
-  return { admit, complete, invoked, readState: () => store.read() };
+  const requests = createRequestBudget({ store, now, requireOwner(records, key, run) {
+    const latest = latestByKey(records).get(key);
+    if (!latest || latest.stage !== 'invoked' || latest.run_id !== run) throw new Error('request admission not owned');
+    const admittedIndex = records.findLastIndex((r) => r.admission_key === key && r.stage === 'admitted');
+    if (admittedIndex < 0 || records[admittedIndex].run_id !== run) throw new Error('request episode not owned');
+    return admittedIndex;
+  } });
+  return { admit, complete, invoked, ...requests, readState: () => store.read() };
 }
 
 module.exports = { CONCLUSIVE_OUTCOMES, DIGEST_REPOSITORY, SNAPSHOT_FEED_PATH, createAdmission, findAdmissionReport, snapshotFeedUrl };

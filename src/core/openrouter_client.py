@@ -1,38 +1,32 @@
-"""Direct OpenRouter chat-completions client for report generation.
-
-Used when an ``OPENROUTER_API_KEY`` is configured (for example in CI) so report
-generation does not depend on a locally running OpenCode gateway. Exposes the
-same ``generate`` contract as :class:`~src.core.opencode_client.OpenCodeClient`.
-"""
+"""Direct OpenRouter client with one admission-backed budget for every send."""
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import logging
 import math
 import re
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import Any
+from typing import Any, Callable
 
 import httpx
 
+from .attempt_budget import AttemptBudget, MemoryAttemptBudget
 from .opencode_client import ModelSelection
+from .retry_policy import MAX_ATTEMPTS, MAX_RETRY_DELAY, retry_decision
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 OPENROUTER_API_KEY_ENV_VAR = "OPENROUTER_API_KEY"
-MAX_ATTEMPTS = 3
-MAX_RETRY_DELAY = 30.0
 RETRYABLE_CODES = {408, 429, 500, 502, 503, 504}
+_PERMANENT_CODES = {400, 401, 402, 403, 404, 413, 422}
 logger = logging.getLogger(__name__)
 
 
 class OpenRouterError(RuntimeError):
-    """Raised when OpenRouter cannot return usable model output.
-
-    ``http_status``, ``provider_code`` and ``attempts`` are integers when known
-    and never carry response text.
-    """
+    """Fixed diagnostic message plus bounded provider and attempt metadata."""
 
     def __init__(
         self,
@@ -41,25 +35,29 @@ class OpenRouterError(RuntimeError):
         retryable: bool = False,
         http_status: int | None = None,
         provider_code: int | None = None,
+        request_state: str = "uncertain",
     ) -> None:
         super().__init__(message)
         self.retryable = retryable
         self.http_status = http_status
         self.provider_code = provider_code
+        self.request_state = request_state
         self.attempts: int | None = None
 
 
 class OpenRouterUnavailable(OpenRouterError):
-    """Raised when the OpenRouter API cannot be reached."""
+    """Transport could not deliver a usable response."""
+
+
+class OpenRouterModelMismatch(OpenRouterError):
+    """Resolved model differs from the requested model."""
 
 
 class OpenRouterOutputLimitExceeded(OpenRouterError):
-    """Raised when the model stops at its output limit instead of completing."""
+    """Provider returned partial output after reaching the output limit."""
 
 
 class OpenRouterClient:
-    """Small async client for OpenRouter chat completions."""
-
     def __init__(
         self,
         *,
@@ -69,6 +67,8 @@ class OpenRouterClient:
         timeout: float = 120.0,
         transport: httpx.AsyncBaseTransport | None = None,
         max_attempts: int = MAX_ATTEMPTS,
+        attempt_budget: AttemptBudget | None = None,
+        on_request: Callable[[dict], None] | None = None,
     ) -> None:
         if type(max_attempts) is not int or not 1 <= max_attempts <= MAX_ATTEMPTS:
             raise ValueError("max_attempts must be between 1 and 3")
@@ -78,7 +78,48 @@ class OpenRouterClient:
         self.timeout = timeout
         self.transport = transport
         self.max_attempts = max_attempts
+        self.attempt_budget = attempt_budget or MemoryAttemptBudget()
+        self.on_request = on_request
         self.last_generation: dict[str, str] | None = None
+        self.last_request: dict = {}
+
+    def _payload(self, system_prompt, user_prompt, model_id):
+        payload = {
+            "model": model_id,
+            "max_tokens": self.max_tokens,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+        }
+        if model_id.endswith(":free") or model_id == "openrouter/free":
+            payload["provider"] = {
+                "allow_fallbacks": False,
+                "max_price": {"prompt": 0, "completion": 0, "request": 0, "image": 0},
+            }
+        return payload
+
+    def _snapshot(self):
+        if self.on_request is not None:
+            self.on_request(self.last_request)
+
+    async def _complete_attempt(self, reservation, disposition, delay):
+        self.last_request["state"] = disposition
+        # A failed snapshot leaves the ledger reservation unresolved. Sending
+        # another request cannot be justified by a missing local receipt.
+        self._snapshot()
+        try:
+            await self.attempt_budget.finish(
+                reservation,
+                disposition,
+                retry_after=(
+                    delay if disposition in {"not_sent", "retryable_rejection"} else 0
+                ),
+            )
+        except BaseException:
+            self.last_request["state"] = "uncertain"
+            self._snapshot()
+            raise
 
     async def generate(
         self,
@@ -88,11 +129,13 @@ class OpenRouterClient:
         model: ModelSelection | None = None,
         title: str = "Report generation",
     ) -> str:
-        """Generate text through the OpenRouter chat completions API."""
         if model is None or model.provider_id != "openrouter":
             raise OpenRouterError("OpenRouter calls require an openrouter/* model")
         self.last_generation = None
-
+        payload = self._payload(system_prompt, user_prompt, model.model_id)
+        request_sha256 = hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
         async with httpx.AsyncClient(
             base_url=self.base_url,
             timeout=self.timeout,
@@ -103,100 +146,118 @@ class OpenRouterClient:
                 "X-Title": title,
             },
         ) as client:
-            for attempt in range(1, self.max_attempts + 1):
+            while True:
+                reservation = await self.attempt_budget.reserve(
+                    request_sha256, self.max_attempts
+                )
+                attempt = reservation["attempt"]
+                self.last_request = {
+                    "state": "reserved",
+                    "attempts": attempt,
+                    "limit": self.max_attempts,
+                    "request_sha256": request_sha256,
+                    "http_status": None,
+                    "provider_code": None,
+                    "usage": None,
+                }
+                # This must succeed before entering the network operation.
+                self._snapshot()
                 response = None
+                error = None
+                disposition = "uncertain"
+                delay = 0.0
+                text = ""
                 try:
                     try:
-                        response = await client.post(
-                            "/chat/completions",
-                            json={
-                                "model": model.model_id,
-                                "max_tokens": self.max_tokens,
-                                **(
-                                    {
-                                        "provider": {
-                                            "allow_fallbacks": False,
-                                            "max_price": {
-                                                "prompt": 0,
-                                                "completion": 0,
-                                                "request": 0,
-                                                "image": 0,
-                                            },
-                                        }
-                                    }
-                                    if model.model_id.endswith(":free")
-                                    or model.model_id == "openrouter/free"
-                                    else {}
-                                ),
-                                "messages": [
-                                    {"role": "system", "content": system_prompt},
-                                    {"role": "user", "content": user_prompt},
-                                ],
-                            },
-                        )
+                        response = await client.post("/chat/completions", json=payload)
                     except httpx.TransportError as exc:
-                        # Local protocol/configuration errors are not transient.
-                        # Suppress the original exception, which may contain secrets.
+                        unsent = isinstance(
+                            exc,
+                            (
+                                httpx.ConnectError,
+                                httpx.ConnectTimeout,
+                                httpx.PoolTimeout,
+                            ),
+                        )
                         raise OpenRouterUnavailable(
                             "OpenRouter API unavailable",
-                            retryable=isinstance(
-                                exc,
-                                (
-                                    httpx.NetworkError,
-                                    httpx.TimeoutException,
-                                    httpx.RemoteProtocolError,
-                                ),
-                            ),
+                            retryable=unsent,
+                            request_state="not_sent" if unsent else "uncertain",
                         ) from None
+                    self.last_request.update(
+                        http_status=response.status_code, usage=self._usage(response)
+                    )
                     text = self._response_text(response)
-                    resolved_model = response.json().get("model")
+                    resolved = response.json().get("model")
                     if (
-                        not isinstance(resolved_model, str)
-                        or len(resolved_model) > 256
-                        or not re.fullmatch(
-                            r"[A-Za-z0-9._-]+/[A-Za-z0-9._:+-]+", resolved_model
-                        )
-                        or resolved_model != model.model_id
+                        not isinstance(resolved, str)
+                        or len(resolved) > 256
+                        or re.fullmatch(r"[A-Za-z0-9._-]+/[A-Za-z0-9._:+-]+", resolved)
+                        is None
+                        or resolved != model.model_id
                     ):
-                        raise OpenRouterError(
+                        raise OpenRouterModelMismatch(
                             "OpenRouter resolved model does not match the requested model",
                             http_status=response.status_code,
+                            request_state="permanent_rejection",
                         )
                     self.last_generation = {
                         "requested_model": model.model_id,
-                        "resolved_model": resolved_model,
+                        "resolved_model": resolved,
                     }
-                    logger.info(
-                        "OpenRouter model provenance: requested=%s resolved=%s",
-                        model.model_id,
-                        resolved_model,
-                    )
-                    return text
-                except OpenRouterError as exc:
+                    disposition = "response_received"
+                except OpenRouterError as failure:
+                    error = failure
+                    disposition = failure.request_state
+                    self.last_request["provider_code"] = failure.provider_code
                     delay = self._retry_delay(response, attempt)
-                    if (
-                        not exc.retryable
-                        or attempt == self.max_attempts
-                        or delay > MAX_RETRY_DELAY
+                    if disposition in {"not_sent", "retryable_rejection"} and (
+                        not math.isfinite(delay) or delay > MAX_RETRY_DELAY
                     ):
-                        exc.attempts = attempt
-                        logger.error(
-                            "OpenRouter attempt %d/%d failed: %s; stopping",
-                            attempt,
-                            self.max_attempts,
-                            exc,
-                        )
-                        raise
-                    logger.warning(
-                        "OpenRouter attempt %d/%d failed: %s; retrying in %.1fs",
+                        disposition = "deferred_rejection"
+                finally:
+                    # Unexpected exceptions and cancellation retain uncertainty.
+                    # A lost completion acknowledgement never permits a send.
+                    await self._complete_attempt(reservation, disposition, delay)
+                if error is None:
+                    return text
+                error.attempts = attempt
+                advice = retry_decision(
+                    disposition, attempts=attempt, limit=self.max_attempts, delay=delay
+                )
+                if not error.retryable or advice["action"] != "retry_after":
+                    logger.error(
+                        "OpenRouter attempt %d/%d failed: %s; stopping",
                         attempt,
                         self.max_attempts,
-                        exc,
-                        delay,
+                        error,
                     )
-                    await asyncio.sleep(delay)
+                    raise error
+                logger.warning(
+                    "OpenRouter attempt %d/%d failed: %s; retrying in %.1fs",
+                    attempt,
+                    self.max_attempts,
+                    error,
+                    delay,
+                )
+                await asyncio.sleep(delay)
 
-        raise AssertionError("OpenRouter retry loop exhausted without a result")
+    @staticmethod
+    def _usage(response: httpx.Response) -> dict | None:
+        try:
+            payload = response.json()
+        except ValueError:
+            return None
+        if not isinstance(payload, dict) or type(payload.get("usage")) is not dict:
+            return None
+        raw = payload["usage"]
+        return {
+            key: value
+            for key in ("prompt_tokens", "completion_tokens", "total_tokens", "cost")
+            if type(value := raw.get(key)) in (int, float)
+            and 0 <= value <= 2**63
+            and math.isfinite(value)
+        }
 
     @staticmethod
     def _retry_delay(response: httpx.Response | None, attempt: int) -> float:
@@ -222,44 +283,44 @@ class OpenRouterClient:
             payload = response.json()
         except ValueError:
             payload = None
-
         has_error = isinstance(payload, dict) and "error" in payload
-        provider_code = None
-        if has_error and isinstance(payload["error"], dict):
-            code = payload["error"].get("code")
-            # Arbitrary messages, metadata and string codes can echo requests.
-            if (
-                isinstance(code, str)
-                and code.isascii()
-                and code.isdigit()
-                and len(code) == 3
-            ):
-                code = int(code)
-            if type(code) is int and 100 <= code <= 599:
-                provider_code = code
-
         if not response.is_success or has_error:
+            code = None
+            raw_error = payload.get("error") if isinstance(payload, dict) else None
+            if isinstance(raw_error, dict):
+                candidate = raw_error.get("code")
+                if type(candidate) is str and re.fullmatch(r"[0-9]{3}", candidate):
+                    candidate = int(candidate)
+                if type(candidate) is int and 100 <= candidate <= 599:
+                    code = candidate
+            transient_status = (
+                response.is_success or response.status_code in RETRYABLE_CODES
+            )
+            explicit_transient = (
+                has_error
+                and transient_status
+                and code in RETRYABLE_CODES
+                and "choices" not in payload
+                and "usage" not in payload
+            )
+            state = "uncertain"
+            if explicit_transient:
+                state = "retryable_rejection"
+            elif response.status_code in _PERMANENT_CODES or code in _PERMANENT_CODES:
+                state = "permanent_rejection"
             message = f"OpenRouter chat completion failed: HTTP {response.status_code}"
-            retryable = response.status_code in RETRYABLE_CODES
             if has_error:
-                message += f"; provider_code={provider_code or 'unknown'}"
-                # Known provider codes classify HTTP 200 errors too. If no code
-                # is supplied, retain the HTTP status as the only safe evidence.
-                if provider_code is not None:
-                    retryable = (
-                        response.is_success or retryable
-                    ) and provider_code in RETRYABLE_CODES
+                message += f"; provider_code={code or 'unknown'}"
             raise OpenRouterError(
                 message,
-                retryable=retryable,
+                retryable=explicit_transient,
+                request_state=state,
                 http_status=response.status_code,
-                provider_code=provider_code,
+                provider_code=code,
             )
-
         if not isinstance(payload, dict):
             raise OpenRouterError(
                 f"OpenRouter response was not a JSON object (HTTP {response.status_code})",
-                retryable=True,
                 http_status=response.status_code,
             )
         try:
@@ -268,12 +329,13 @@ class OpenRouterClient:
             raise OpenRouterOutputLimitExceeded(
                 f"{exc} (HTTP {response.status_code})",
                 http_status=response.status_code,
+                request_state="permanent_rejection",
             ) from None
         except OpenRouterError as exc:
             raise OpenRouterError(
                 f"{exc} (HTTP {response.status_code})",
-                retryable=exc.retryable,
                 http_status=response.status_code,
+                request_state=exc.request_state,
             ) from None
 
     def _extract_text(self, payload: dict[str, Any]) -> str:

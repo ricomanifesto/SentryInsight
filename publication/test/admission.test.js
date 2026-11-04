@@ -545,3 +545,112 @@ test('a real published release event is admitted, and a mixed identity against i
   assert.equal(rejected.decision, 'rejected-inconsistent');
   assert.equal(rejected.exit_code, 1);
 });
+
+const requestIdentity = (key, runId = '800', extra = {}) => ({
+  admissionKey: key, runId, revision: 'a'.repeat(40), requestSha256: 'b'.repeat(64), limit: 3, ...extra,
+});
+async function requestWorld(t) {
+  const world = consumerWorld(t);
+  const claim = await world.admission().admit({ eventName: 'workflow_dispatch', payload: {}, runId: '800', runAttempt: '1' });
+  await world.admission().invoked({ admissionKey: claim.admission_key, runId: '800' });
+  return { world, bound: requestIdentity(claim.admission_key) };
+}
+
+test('request budget survives new callers and caps all attempts, not each process', async (t) => {
+  const { world, bound } = await requestWorld(t);
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const reservation = await world.admission().reserveRequest(bound);
+    assert.equal(reservation.attempt, attempt);
+    await world.admission().finishRequest({ ...bound, ...reservation, disposition: 'retryable_rejection', retryAfterSeconds: 0 });
+  }
+  await assert.rejects(world.admission().reserveRequest(bound), /exhausted/);
+  assert.equal((await world.records()).filter((r) => r.stage === 'request_reserved').length, 3);
+});
+
+test('only one concurrent caller reserves an attempt and missing completion stays held', async (t) => {
+  const { world, bound } = await requestWorld(t);
+  const results = await Promise.allSettled([world.admission().reserveRequest(bound), world.admission().reserveRequest(bound)]);
+  assert.equal(results.filter((r) => r.status === 'fulfilled').length, 1);
+  assert.equal(results.filter((r) => r.status === 'rejected').length, 1);
+  await assert.rejects(world.admission().reserveRequest(bound), /held/);
+  assert.equal((await world.records()).filter((r) => r.stage === 'request_reserved').length, 1);
+});
+
+test('request identity, total cap, run ownership and source cannot change after reservation', async (t) => {
+  const { world, bound } = await requestWorld(t);
+  const reservation = await world.admission().reserveRequest(bound);
+  await world.admission().finishRequest({ ...bound, ...reservation, disposition: 'retryable_rejection', retryAfterSeconds: 0 });
+  for (const extra of [{ requestSha256: 'c'.repeat(64) }, { revision: 'd'.repeat(40) }, { limit: 2 }, { runId: '801' }]) {
+    await assert.rejects(world.admission().reserveRequest({ ...bound, ...extra }), /identity|owned/);
+  }
+});
+
+test('terminal, uncertain and deferred request dispositions never permit replay', async (t) => {
+  for (const disposition of ['response_received', 'permanent_rejection', 'uncertain', 'deferred_rejection']) {
+    await t.test(disposition, async (sub) => {
+      const { world, bound } = await requestWorld(sub);
+      const reservation = await world.admission().reserveRequest(bound);
+      await world.admission().finishRequest({ ...bound, ...reservation, disposition, retryAfterSeconds: 0 });
+      await assert.rejects(world.admission().reserveRequest(bound), /held/);
+      await assert.rejects(world.admission().finishRequest({ ...bound, ...reservation, disposition: 'retryable_rejection', retryAfterSeconds: 0 }), /not owned/);
+    });
+  }
+});
+
+test('request Retry-After survives a restart and cannot be ignored', async (t) => {
+  const { world, bound } = await requestWorld(t);
+  let at = new Date('2026-11-03T00:00:00Z');
+  const actor = () => world.admission({ now: () => at });
+  const reservation = await actor().reserveRequest(bound);
+  await actor().finishRequest({ ...bound, ...reservation, disposition: 'retryable_rejection', retryAfterSeconds: 20 });
+  await assert.rejects(actor().reserveRequest(bound), /delay not elapsed/);
+  at = new Date('2026-11-03T00:00:21Z');
+  assert.equal((await actor().reserveRequest(bound)).attempt, 2);
+});
+
+test('stale reservation tokens and invalid finish metadata cannot release budget', async (t) => {
+  const { world, bound } = await requestWorld(t);
+  const reservation = await world.admission().reserveRequest(bound);
+  for (const extra of [{ token: 'c'.repeat(32) }, { attempt: 2 }, { disposition: 'private-answer' }, { retryAfterSeconds: Infinity }]) {
+    await assert.rejects(world.admission().finishRequest({ ...bound, ...reservation, disposition: 'retryable_rejection', retryAfterSeconds: 0, ...extra }));
+  }
+  await assert.rejects(world.admission().reserveRequest(bound), /held/);
+});
+
+test('later workflow or explicit readmission does not reset prior request budget', async (t) => {
+  const { world, bound } = await requestWorld(t);
+  await world.admission().reserveRequest(bound);
+  const next = await world.admission().admit({ eventName: 'workflow_dispatch', payload: {}, runId: '801', runAttempt: '1' });
+  assert.equal(next.decision, 'uncertain');
+  await assert.rejects(world.admission().reserveRequest({ ...bound, runId: '801' }), /owned/);
+  await world.admission().admit({ eventName: 'workflow_dispatch', payload: {}, runId: '802', runAttempt: '1', readmit: true });
+  await assert.rejects(world.admission().reserveRequest(bound), /owned/);
+});
+
+test('trusted readmission creates a new digest episode without reviving stale request tokens', async (t) => {
+  const world = consumerWorld(t);
+  const digest = { sha: '8'.repeat(40), ref: 'refs/heads/main' };
+  const original = await world.admission().admit(dispatch(digest, 800));
+  await world.admission().invoked({ admissionKey: original.admission_key, runId: '800' });
+  const oldBound = requestIdentity(original.admission_key);
+  const oldReservation = await world.admission().reserveRequest(oldBound);
+  // This is the real workflow shape: explicit manual readmission, followed by a
+  // later Digest delivery, not an invented caller ID or a reset inside a client.
+  const manual = await world.admission().admit({ eventName: 'workflow_dispatch', payload: {}, runId: '801', runAttempt: '1', readmit: true });
+  assert.equal(manual.decision, 'admitted');
+  await world.admission().invoked({ admissionKey: manual.admission_key, runId: '801' });
+  await world.admission().complete({ admissionKey: manual.admission_key, runId: '801', outcome: 'unchanged' });
+  const admitted = await world.admission().admit(dispatch(digest, 802));
+  assert.equal(admitted.decision, 'admitted');
+  await world.admission().invoked({ admissionKey: admitted.admission_key, runId: '802' });
+  const bound = requestIdentity(admitted.admission_key, '802');
+  const fresh = await world.admission().reserveRequest(bound);
+  assert.equal(fresh.attempt, 1);
+  await assert.rejects(world.admission().finishRequest({ ...oldBound, ...oldReservation, disposition: 'retryable_rejection', retryAfterSeconds: 0 }), /not owned/);
+  await assert.rejects(world.admission().finishRequest({ ...bound, ...oldReservation, disposition: 'retryable_rejection', retryAfterSeconds: 0 }), /not owned/);
+  await world.admission().finishRequest({ ...bound, ...fresh, disposition: 'retryable_rejection', retryAfterSeconds: 0 });
+  await world.admission().invoked({ admissionKey: bound.admissionKey, runId: '802' });
+  assert.equal((await world.admission().reserveRequest(bound)).attempt, 2);
+  const records = await world.records();
+  assert.ok(records.some((r) => r.stage === 'request_reserved' && r.token === oldReservation.token));
+});

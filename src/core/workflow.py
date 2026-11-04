@@ -55,6 +55,7 @@ from .source_review import (
     digest,
 )
 from .reviewed_report import resolve_reviewed_analysis, ReviewedReportValidationError
+from .validation_diagnostics import validation_diagnostic, sanitize_diagnostic
 from .publication_transaction import (
     PublicationError,
     ensure_no_pending_publication,
@@ -84,6 +85,7 @@ class ExploitationAnalysisState(TypedDict):
     report_validation_errors: NotRequired[list[str]]
     articles_fingerprint: NotRequired[str]
     failure: NotRequired[WorkflowFailure]
+    failure_diagnostic: NotRequired[dict]
     unresolved_version_count: NotRequired[int]
     source_review_plan: NotRequired[dict]
     report_generated: NotRequired[bool]
@@ -97,6 +99,7 @@ def _record_failure(
     field: str | None = None,
 ) -> None:
     state["failure"] = {"stage": stage, "codes": codes, "field": field}
+    state["failure_diagnostic"] = sanitize_diagnostic(state["failure"])
 
 
 # Load configuration
@@ -197,7 +200,10 @@ async def filter_articles(
             if isinstance(exc, (SourceReviewError, PublicationError))
             else "review_packet_write_failed"
         )
-        _record_failure(state, "source_review", [code])
+        stage = (
+            "site_publication" if isinstance(exc, PublicationError) else "source_review"
+        )
+        _record_failure(state, stage, [code])
         state["status"] = "failed"
 
     return state
@@ -274,6 +280,12 @@ async def generate_report(
 
     report = analysis_results.get("exploitation_report", "")
     reporting_catalog = {}
+    validation_stage = "source_review"
+
+    def observe_stage(stage: str) -> None:
+        nonlocal validation_stage
+        validation_stage = stage
+
     try:
         # Bind this result to the complete inputs retained by this actual run.
         if PLAN_KEY not in state:
@@ -293,7 +305,7 @@ async def generate_report(
         ensure_no_pending_publication(root)
         write_review_packet(plan.packet, root / ".sentryinsight-review")
         reporting_catalog = plan.eligible_catalog
-        candidate = resolve_reviewed_analysis(analysis_results)
+        candidate = resolve_reviewed_analysis(analysis_results, on_stage=observe_stage)
         report_source = candidate.source
         artifact = parse_report_artifact(report_source)
     except (SourceReviewError, PublicationError, OSError) as exc:
@@ -302,7 +314,12 @@ async def generate_report(
             if isinstance(exc, (SourceReviewError, PublicationError))
             else "review_packet_write_failed"
         )
-        _record_failure(state, "source_review", [code])
+        stage = (
+            "site_publication" if isinstance(exc, PublicationError) else "source_review"
+        )
+        _record_failure(state, stage, [code])
+        if isinstance(exc, SourceReviewError):
+            state["failure_diagnostic"] = validation_diagnostic(validation_stage, exc)
         state["report_validation_errors"] = [code]
         state["status"] = "failed"
         return state
@@ -319,6 +336,7 @@ async def generate_report(
         _record_failure(
             state, stage, list(dict.fromkeys(issue.code for issue in exc.issues))
         )
+        state["failure_diagnostic"] = validation_diagnostic(validation_stage, exc)
         state["status"] = "failed"
         return state
     except (ReportingGroundingError, EvidenceError) as exc:
@@ -328,11 +346,13 @@ async def generate_report(
         _record_failure(
             state, diagnostic["stage"], [diagnostic["code"]], diagnostic["field"]
         )
+        state["failure_diagnostic"] = validation_diagnostic(validation_stage, exc)
         state["status"] = "failed"
         return state
-    except ReportArtifactError:
+    except ReportArtifactError as exc:
         state["report_validation_errors"] = ["report_artifact_invalid"]
         _record_failure(state, "report_artifact", ["report_artifact_invalid"])
+        state["failure_diagnostic"] = validation_diagnostic(validation_stage, exc)
         state["status"] = "failed"
         return state
 

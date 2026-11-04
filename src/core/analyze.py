@@ -452,6 +452,7 @@ Generate the report using the structure above, with every finding and its prose 
         }
 
     # Call the AI model
+    client = None
     try:
         client = (
             model_client
@@ -470,6 +471,7 @@ Generate the report using the structure above, with every finding and its prose 
         return {
             **review_metadata,
             "exploitation_report": exploitation_report,
+            "request_metadata": getattr(client, "last_request", None),
             PROTOCOL_KEY: PROTOCOL_VERSION,
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
@@ -492,6 +494,7 @@ Generate the report using the structure above, with every finding and its prose 
         return {
             **review_metadata,
             "exploitation_report": f"# Error Generating Exploitation Report\n\nAn error occurred during analysis: {str(e)}\n\n## Partial Data\n\nCVEs identified: {', '.join(all_cves) if all_cves else 'None'}\n\nAffected systems: {', '.join(all_systems) if all_systems else 'None'}",
+            "request_metadata": getattr(client, "last_request", None),
             "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
             "error_class": error_class,

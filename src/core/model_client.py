@@ -9,10 +9,13 @@ same ``generate`` contract.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Protocol
 
 from .opencode_client import ModelSelection, OpenCodeClient
 from .openrouter_client import OPENROUTER_API_KEY_ENV_VAR, OpenRouterClient
+from .attempt_budget import AdmissionAttemptBudget, AttemptBudgetError
+from .failure_receipt import ENV_PATH, record_request
 
 
 class ReportModelClient(Protocol):
@@ -35,6 +38,21 @@ def build_model_client(
     a local OpenCode server.
     """
     api_key = os.getenv(OPENROUTER_API_KEY_ENV_VAR, "").strip()
+    durable = os.getenv("SENTRYINSIGHT_ATTEMPT_STORE")
+    if durable and (durable != "admission" or not api_key or not os.getenv(ENV_PATH)):
+        raise AttemptBudgetError()
     if api_key:
-        return OpenRouterClient(api_key=api_key, max_tokens=max_tokens, timeout=timeout)
+        budget = AdmissionAttemptBudget.from_environment() if durable else None
+        receipt_path = Path(os.environ[ENV_PATH]) if durable else None
+        return OpenRouterClient(
+            api_key=api_key,
+            max_tokens=max_tokens,
+            timeout=timeout,
+            attempt_budget=budget,
+            on_request=(
+                (lambda value: record_request(receipt_path, value))
+                if receipt_path is not None
+                else None
+            ),
+        )
     return OpenCodeClient(timeout=timeout)

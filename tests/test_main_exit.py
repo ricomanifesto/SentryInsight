@@ -78,3 +78,21 @@ if __name__ == "__main__":
 def isolate_entrypoint_receipts(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("GITHUB_OUTPUT", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+
+
+def test_ci_entrypoint_refuses_missing_durable_admission(monkeypatch, tmp_path):
+    from src.core.failure_receipt import read_receipt
+
+    events = []
+    main_module = import_main_with_workflow(
+        result={"status": "completed"}, events=events
+    )
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    monkeypatch.delenv("SENTRYINSIGHT_ATTEMPT_STORE", raising=False)
+    with pytest.raises(SystemExit):
+        asyncio.run(main_module.main())
+    assert "workflow" not in events
+    receipt = read_receipt(tmp_path / ".sentryinsight-failure.json")
+    assert receipt["diagnostic"]["codes"] == ["request_budget_unresolved"]
+    assert receipt["retry"]["action"] == "reconcile"

@@ -1,5 +1,9 @@
 # SentryInsight
 
+Generation failures retain bounded reasons and share a durable request-attempt
+budget. See [failure receipts and recovery](FAILURE_RECOVERY.md) for retry
+eligibility, privacy, retention and uncertain-request handling.
+
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/logo-lockup-dark.png">

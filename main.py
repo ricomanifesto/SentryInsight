@@ -16,6 +16,12 @@ except ImportError:
 from src.core.observability import configure_observability
 from src.core.workflow import run_exploitation_analysis
 from src.core.review_delivery import write_run_outcome
+from src.core.failure_receipt import (
+    ENV_PATH,
+    make_receipt,
+    write_receipt,
+    finish_receipt,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +49,23 @@ async def main():
     logger.info("Starting SentryInsight exploitation report generation")
 
     result = None
+    diagnostic_path = Path(os.environ.get(ENV_PATH, ".sentryinsight-failure.json"))
+    write_receipt(diagnostic_path, make_receipt(None, started=True))
     # A fixed failure receipt exists even if execution stops before a valid plan.
     write_run_outcome(None, Path("."))
     try:
+        if (
+            os.environ.get("GITHUB_ACTIONS") == "true"
+            and os.environ.get("SENTRYINSIGHT_ATTEMPT_STORE") != "admission"
+        ):
+            result = {
+                "status": "failed",
+                "failure": {
+                    "stage": "analysis",
+                    "codes": ["request_budget_unresolved"],
+                },
+            }
+            raise SystemExit(1)
         result = await run_exploitation_analysis()
 
         if not result or result.get("status") == "failed":
@@ -58,6 +78,7 @@ async def main():
         logger.error(f"Error in main function: {e}")
         raise SystemExit(1)
     finally:
+        finish_receipt(diagnostic_path, result)
         root = Path(
             (result or {}).get("config", {}).get("output_path", "index.md")
         ).parent

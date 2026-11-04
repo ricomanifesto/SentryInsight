@@ -4,7 +4,12 @@ Classes come from a fixed vocabulary and detail values are integers, so neither
 can carry provider messages, prompts or model output.
 """
 
-from .openrouter_client import OpenRouterError, OpenRouterOutputLimitExceeded
+from .openrouter_client import (
+    OpenRouterError,
+    OpenRouterOutputLimitExceeded,
+    OpenRouterModelMismatch,
+)
+from .attempt_budget import AttemptBudgetError
 
 ANALYSIS_ERROR_CLASSES = frozenset(
     {
@@ -16,6 +21,8 @@ ANALYSIS_ERROR_CLASSES = frozenset(
         "input_budget_exceeded",
         "analysis_exception",
         "source_review_failed",
+        "request_budget_unresolved",
+        "model_identity_mismatch",
     }
 )
 PROVIDER_UNAVAILABLE_CODES = frozenset({502, 503, 504, 529})
@@ -25,6 +32,8 @@ AUTH_REJECTED_CODES = frozenset({401, 403})
 
 def classify_analysis_error(error: BaseException) -> tuple[str, dict[str, int]]:
     """Return an error class and integer-only detail; never message text."""
+    if isinstance(error, AttemptBudgetError):
+        return "request_budget_unresolved", {}
     if not isinstance(error, OpenRouterError):
         return "analysis_exception", {}
     detail = {
@@ -36,6 +45,8 @@ def classify_analysis_error(error: BaseException) -> tuple[str, dict[str, int]]:
         )
         if type(value) is int
     }
+    if isinstance(error, OpenRouterModelMismatch):
+        return "model_identity_mismatch", detail
     if isinstance(error, OpenRouterOutputLimitExceeded):
         return "model_output_limit_exceeded", detail
     # HTTP 200 responses can still carry a provider error code.
