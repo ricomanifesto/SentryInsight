@@ -31,7 +31,7 @@ RESPONSE_LIMIT = 4 * 1024 * 1024
 CEILING_MICROUSD = 2_000_000
 REMOTE_MAIN = {
     "SentryInsight": "1e8e9d082b29f4d64d5f75138d360cc894a33032",
-    "GRCInsight": "72c2b9aee2ca467846cb8cd661b2e22cd6bb9045",
+    "GRCInsight": "e8357ea399538df0b638f0eb58074ba9b80a62ab",
 }
 
 
