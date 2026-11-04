@@ -31,7 +31,7 @@ RESPONSE_LIMIT = 4 * 1024 * 1024
 CEILING_MICROUSD = 2_000_000
 REMOTE_MAIN = {
     "SentryInsight": "1e8e9d082b29f4d64d5f75138d360cc894a33032",
-    "GRCInsight": "a6b4b6819504ab4bf3fca21287e5983dc89d61f2",
+    "GRCInsight": "72c2b9aee2ca467846cb8cd661b2e22cd6bb9045",
 }
 
 
@@ -295,7 +295,7 @@ async def _worker(
 ) -> bytes:
     python = layout.sentry_python if case is Case.SENTRY else layout.grc_python
     source = layout.sentry if case is Case.SENTRY else layout.grc
-    limit = 65536 if mode == "prepare" else 16384
+    limit = 65536 if mode in {"prepare", "prepare_vertex"} else 16384
     require(len(response) <= 6 * 1024 * 1024, "worker_input_refused")
     with tempfile.TemporaryDirectory(prefix="selected-model-worker-") as directory:
         scratch = Path(directory)

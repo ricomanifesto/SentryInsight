@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import ExitStack
+from dataclasses import replace
 import hashlib
 import importlib
 import json
@@ -144,6 +145,14 @@ async def grc(source, scratch, captured, response):
 
     def handler(request):
         require(not captured)
+        require(
+            request.method == "POST"
+            and str(request.url) == "https://openrouter.ai/api/v1/chat/completions"
+        )
+        require(
+            json.loads(request.content)["provider"]["only"]
+            == [model_route.ARGON_ROUTE.endpoint]
+        )
         captured.append(request.content)
         return (
             httpx.Response(200, content=response)
@@ -205,17 +214,33 @@ async def grc(source, scratch, captured, response):
         }
 
 
+async def grc_vertex(source, scratch, captured, response):
+    """The sole test rebind changes only the endpoint, inside a denied-network worker."""
+    sys.path.insert(0, str(source / "agent"))
+    model_route = importlib.import_module("services.model_route")
+    require(model_route.ARGON_ROUTE.endpoint == "google-ai-studio")
+    policy = replace(model_route.ARGON_ROUTE, endpoint="google-vertex/global")
+    with patch.object(model_route, "ARGON_ROUTE", policy):
+        return await grc(source, scratch, captured, response)
+
+
 def main():
     os.umask(0o077)
     logging.disable(logging.CRITICAL)
     try:
         mode, case, path = sys.argv[1:]
-        require(mode in {"prepare", "validate"} and case in {"sentry", "grc"})
+        vertex = mode in {"prepare_vertex", "validate_vertex"}
+        require(
+            (vertex and case == "grc")
+            or (mode in {"prepare", "validate"} and case in {"sentry", "grc"})
+        )
         source = Path(path).resolve()
         scratch = Path(os.environ["TRIAL_WORKER_SCRATCH"]).resolve()
         require(Path.cwd() == scratch and not os.environ.get("OPENROUTER_API_KEY"))
         response = (
-            sys.stdin.buffer.read(4 * 1024 * 1024 + 1) if mode == "validate" else None
+            sys.stdin.buffer.read(4 * 1024 * 1024 + 1)
+            if mode in {"validate", "validate_vertex"}
+            else None
         )
         require(response is None or 0 < len(response) <= 4 * 1024 * 1024)
         captured = []
@@ -232,20 +257,20 @@ def main():
                 patch.object(httpx.AsyncHTTPTransport, "handle_async_request", deny)
             )
             result = asyncio.run(
-                (sentry if case == "sentry" else grc)(
+                (grc_vertex if vertex else (sentry if case == "sentry" else grc))(
                     source, scratch, captured, response
                 )
             )
         require(len(captured) == 1)
         output = (
             captured[0]
-            if mode == "prepare"
+            if mode in {"prepare", "prepare_vertex"}
             else json.dumps(result, sort_keys=True).encode()
         )
         sys.stdout.buffer.write(output)
         return 0
     except QualityRejected:
-        if len(sys.argv) > 1 and sys.argv[1] == "validate":
+        if len(sys.argv) > 1 and sys.argv[1] in {"validate", "validate_vertex"}:
             sys.stdout.write('{"outcome":"failed","stage":"host_rejected"}')
             return 0
         return 1

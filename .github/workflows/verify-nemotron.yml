@@ -1,4 +1,4 @@
-name: Verify Remaining Argon Without Publication
+name: Verify Vertex Argon Without Publication
 
 on:
   workflow_dispatch:
@@ -86,22 +86,22 @@ jobs:
           require_tokenizer_cache()
           PY
 
-      - name: Reproduce the exact remaining fictional Argon request without provider access
+      - name: Reproduce the exact fictional Vertex Argon request without provider access
         run: |
           sources/sentry/.venv/bin/python -B - <<'PYTHON'
           import sys
           sys.path.insert(0, 'executor')
-          from scripts.continue_argon_trial_once import calibrate_ci
+          from scripts.continue_vertex_trial_once import calibrate_ci
           calibrate_ci()
           PYTHON
 
-      - name: Send only the remaining Argon request once and replay locally
+      - name: Send only the Vertex Argon request once and replay locally
         id: trial
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           EXPECTED_COMMIT: ${{ inputs.expected_commit }}
         run: |
-          sources/sentry/.venv/bin/python -B executor/scripts/continue_argon_trial_once.py \
+          sources/sentry/.venv/bin/python -B executor/scripts/continue_vertex_trial_once.py \
             --expected-commit "$EXPECTED_COMMIT"
 
       - name: Retain only sanitized metadata for seven days

@@ -500,7 +500,7 @@ def test_branch_workflow_has_only_fixed_read_only_nonpublishing_authority():
         assert guard in job["if"]
     secret_steps = [row for row in job["steps"] if "secrets." in json.dumps(row)]
     assert len(secret_steps) == 1 and secret_steps[0]["id"] == "trial"
-    assert "continue_argon_trial_once.py" in secret_steps[0]["run"]
+    assert "continue_vertex_trial_once.py" in secret_steps[0]["run"]
     assert "verify_selected_models_once.py" not in secret_steps[0]["run"]
     checkouts = [
         row
