@@ -1,7 +1,7 @@
 # Fixed fictional Vertex Argon trial
 
 Historical sender contract below. This branch's current registered workflow is
-the separately approved-scope [full GRC workflow trial](grc-workflow-trial.md).
+the proposed, separately approval-gated [full GRC workflow trial](grc-workflow-trial.md).
 It cannot invoke this consumed one-plan allocation or a Kimi allocation. The
 historical senders and receipts are preserved; this note grants no new inference.
 
