@@ -8,6 +8,7 @@ from pathlib import Path
 import tiktoken
 
 from .model_config import resolve_model, validate_model
+from .model_route import ModelRouteError, selected_route
 from .model_client import ReportModelClient, build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .analysis_errors import classify_analysis_error
@@ -229,10 +230,22 @@ async def analyze_exploitation(
 
     # Initialize the AI model through OpenCode.
     model_name = resolve_model(config)
-    max_tokens = int(config.get("analysis", {}).get("max_tokens", 4000))
+    raw_max_tokens = config.get("analysis", {}).get("max_tokens", 4000)
     try:
         validate_model(model_name)
         model_selection = parse_model_selection(model_name)
+        route = (
+            selected_route(model_selection.model_id)
+            if model_selection
+            and model_selection.provider_id.casefold() == "openrouter"
+            else None
+        )
+        if route is not None:
+            route.validate_output(raw_max_tokens)
+        if route is not None and model_client is not None:
+            raise ModelRouteError(
+                "Selected paid model route is disabled for injected clients"
+            )
     except ValueError as e:
         logger.error(f"Invalid model configuration: {e}")
         return {
@@ -242,6 +255,8 @@ async def analyze_exploitation(
             "error_class": "analysis_exception",
             "error_detail": {},
         }
+
+    max_tokens = int(raw_max_tokens)
 
     # Normalize and retain the complete host plan before constructing a provider.
     try:
@@ -458,7 +473,9 @@ Generate the report using the structure above, with every finding and its prose 
             model_client
             if model_client is not None
             else build_model_client(
-                timeout=max(120.0, float(max_tokens) / 20), max_tokens=max_tokens
+                timeout=max(120.0, float(max_tokens) / 20),
+                max_tokens=max_tokens,
+                model=model_selection,
             )
         )
         exploitation_report = await client.generate(

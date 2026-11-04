@@ -280,11 +280,12 @@ def compare_pages_package(output, root):
     }
 
 
-async def run_scenario(name, root, seed):
+async def run_scenario(name, root, seed, *, selected=False):
     import httpx
     from src.core import analyze, model_client, reviewed_report, workflow
     from src.core.failure_receipt import make_receipt, record_request, write_receipt
     from src.core.openrouter_client import OpenRouterClient
+    from src.core.model_route import KIMI_ROUTE, RouteActivation
     from src.core.report_artifact import parse_report_artifact
 
     from scripts.verify_nemotron_once import load_case
@@ -314,6 +315,9 @@ async def run_scenario(name, root, seed):
     before = public_snapshot(output)
     admission = LocalAdmission(root / "admission")
     config = json.loads((ROOT / "config/config.json").read_bytes())
+    model_id = KIMI_ROUTE.model_id if selected else MODEL_ID
+    if selected:
+        config["analysis"]["model"] = "openrouter/" + model_id
     config["output_path"] = str(output / "index.md")
     require(config["analysis"]["max_input_tokens"] == 200000)
     receipt_path = root / "failure.json"
@@ -338,12 +342,19 @@ async def run_scenario(name, root, seed):
             request.method == "POST"
             and str(request.url) == "https://openrouter.ai/api/v1/chat/completions"
         )
-        require(set(payload) == {"model", "max_tokens", "provider", "messages"})
+        fields = {"model", "max_tokens", "provider", "messages"}
+        if selected:
+            fields |= {"stream", "service_tier", "reasoning"}
+        require(set(payload) == fields)
         require(
-            payload["model"] == MODEL_ID
+            payload["model"] == model_id
             and payload["max_tokens"] == 32000
-            and payload["provider"] == POLICY
+            and payload["provider"]
+            == (KIMI_ROUTE.provider_payload() if selected else POLICY)
         )
+        if selected:
+            require(payload["service_tier"] == "default" and payload["stream"] is False)
+            require(payload["reasoning"] == {"effort": "low", "exclude": True})
         require(
             [message["role"] for message in payload["messages"]] == ["system", "user"]
         )
@@ -353,10 +364,16 @@ async def run_scenario(name, root, seed):
         requests.append(
             {
                 "sha256": digest(payload),
+                "wire_sha256": sha256(request.content),
+                "wire_bytes": len(request.content),
                 "message_tokens_cl100k": sum(
                     len(analyze.tokenizer.encode(message["content"]))
                     for message in payload["messages"]
                 ),
+                "input_bytes_with_reserve": len(
+                    json.dumps(payload["messages"], ensure_ascii=True).encode()
+                )
+                + 4096,
             }
         )
         if name == "uncertain_transport":
@@ -373,7 +390,7 @@ async def run_scenario(name, root, seed):
                 "model": (
                     "synthetic/unexpected:free"
                     if name == "model_identity_mismatch"
-                    else MODEL_ID
+                    else model_id
                 ),
                 "choices": [{"finish_reason": finish, "message": {"content": answer}}],
             },
@@ -391,6 +408,15 @@ async def run_scenario(name, root, seed):
         return actual
 
     stages = []
+    actual_factory = model_client.build_model_client
+
+    def offline_factory(**kwargs):
+        if selected:
+            kwargs.update(
+                activation=RouteActivation.OFFLINE,
+                transport=httpx.MockTransport(provider),
+            )
+        return actual_factory(**kwargs)
 
     async def invoke():
         state = None
@@ -414,6 +440,7 @@ async def run_scenario(name, root, seed):
         patch.object(workflow, "SentryDigestFeedClient", Feed),
         patch.dict(os.environ, {"OPENROUTER_API_KEY": "offline-synthetic-key"}),
         patch.object(model_client, "OpenRouterClient", client_with_mock_transport),
+        patch.object(analyze, "build_model_client", offline_factory),
         patch.object(analyze, "datetime", FixedDatetime),
         patch.object(reviewed_report, "datetime", FixedDatetime),
     ):
@@ -435,7 +462,7 @@ async def run_scenario(name, root, seed):
         for client in selected_clients
         if client.last_generation is not None
     }
-    require(validated_models <= {MODEL_ID})
+    require(validated_models <= {model_id})
     bounded = make_receipt(state, environ={})
     successful = name in {"partial_success", "transient_then_success"}
     require(bool(state.get("report_generated")) == successful)
@@ -444,7 +471,9 @@ async def run_scenario(name, root, seed):
         == (
             "completed_with_review"
             if successful
-            else "review_required" if name == "all_held" else "failed"
+            else "review_required"
+            if name == "all_held"
+            else "failed"
         )
     )
     require(
@@ -472,7 +501,7 @@ async def run_scenario(name, root, seed):
             and (output / "current-findings.json").is_file()
         )
         package = compare_pages_package(output, root)
-    return {
+    result = {
         "scenario": name,
         "status": state["status"],
         "stages": stages,
@@ -482,7 +511,7 @@ async def run_scenario(name, root, seed):
         "input_tokens_cl100k_including_256_reserve": (
             requests[0]["message_tokens_cl100k"] + 256 if requests else None
         ),
-        "requested_model": MODEL_ID,
+        "requested_model": model_id,
         "resolved_model": next(iter(validated_models), None),
         "finish_reason": finishes[-1] if finishes else None,
         "request": bounded["request"],
@@ -496,10 +525,17 @@ async def run_scenario(name, root, seed):
         "scratch_artifact_count": len(after),
         "scratch_tree_sha256": digest(after),
         "last_good_preserved": before == after if seed is not None else None,
-    }, output
+    }
+    if selected:
+        result["conservative_input_bound"] = (
+            requests[0]["input_bytes_with_reserve"] if requests else None
+        )
+        result["wire_request_sha256"] = requests[0]["wire_sha256"] if requests else None
+        result["wire_request_bytes"] = requests[0]["wire_bytes"] if requests else None
+    return result, output
 
 
-async def rehearse(tokenizer_cache):
+async def rehearse(tokenizer_cache, *, selected=False):
     logging.disable(logging.CRITICAL)
     with tempfile.TemporaryDirectory(prefix="sentryinsight-offline-") as directory:
         scratch = Path(directory)
@@ -512,13 +548,15 @@ async def rehearse(tokenizer_cache):
             results = []
             seed = None
             for name in SCENARIOS:
-                result, output = await run_scenario(name, scratch / name, seed)
+                result, output = await run_scenario(
+                    name, scratch / name, seed, selected=selected
+                )
                 results.append(result)
                 if seed is None:
                     seed = output
             after = tracked_snapshot()
             require(before == after)
-            return {
+            receipt = {
                 "schema_version": 1,
                 "code_commit": command(["git", "rev-parse", "HEAD"], ROOT),
                 "rehearsal_source_sha256": sha256(Path(__file__).read_bytes()),
@@ -537,15 +575,55 @@ async def rehearse(tokenizer_cache):
                 "scenarios": results,
                 "github_permissions_verified": False,
             }
+            if selected:
+                from src.core.model_route import KIMI_ROUTE
+
+                receipt["synthetic_payload"] = {
+                    "requested_model": KIMI_ROUTE.model_id,
+                    "provider": KIMI_ROUTE.provider_payload(),
+                    "service_tier": "default",
+                    "reasoning": {"effort": "low", "exclude": True},
+                    "max_tokens": 32000,
+                    "synthetic_input_reserve": 16000,
+                    "conservative_input_bound": results[0]["conservative_input_bound"],
+                    "synthetic_input_fits": results[0]["conservative_input_bound"]
+                    <= 16000,
+                    "request_sha256": results[0]["request_sha256"],
+                    "wire_request_sha256": results[0]["wire_request_sha256"],
+                    "wire_request_bytes": results[0]["wire_request_bytes"],
+                    "keys": sorted(
+                        {
+                            "model",
+                            "max_tokens",
+                            "provider",
+                            "messages",
+                            "reasoning",
+                            "service_tier",
+                            "stream",
+                        }
+                    ),
+                    "message_keys": ["content", "role"],
+                    "message_roles": ["system", "user"],
+                    "text_only": True,
+                    "fixture_sha256": CASE_SHA256,
+                    "excluded": ["held_source", "mock_calibration_answer"],
+                    "future_test_max_attempts": 1,
+                    "ordinary_episode_max_attempts": 3,
+                    "provider_eligibility_verified": False,
+                }
+            return receipt
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--offline-only", required=True, action="store_true")
     parser.add_argument("--tokenizer-cache", required=True, type=Path)
+    parser.add_argument("--selected-model-offline", action="store_true")
     args = parser.parse_args()
     try:
-        receipt = asyncio.run(rehearse(args.tokenizer_cache))
+        receipt = asyncio.run(
+            rehearse(args.tokenizer_cache, selected=args.selected_model_offline)
+        )
         encoded = json.dumps(receipt, sort_keys=True, separators=(",", ":"))
         require(len(encoded.encode()) < 24576)
         print(encoded)

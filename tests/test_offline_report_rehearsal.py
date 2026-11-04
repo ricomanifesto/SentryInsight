@@ -270,3 +270,26 @@ def test_missing_cache_cannot_trigger_an_implicit_download(tmp_path):
         "published": False,
     }
     assert list(tmp_path.iterdir()) == []
+
+
+def test_selected_kimi_uses_real_graph_and_same_durable_budget(tokenizer_cache):
+    completed = run_cli(tokenizer_cache, "--selected-model-offline")
+    assert completed.returncode == 0, completed.stderr
+    receipt = json.loads(completed.stdout)
+    scenarios = {row["scenario"]: row for row in receipt["scenarios"]}
+    valid = scenarios["partial_success"]
+    assert valid["requested_model"] == "moonshotai/kimi-k3.1-pro"
+    assert valid["report_generated"] is True
+    assert valid["coverage_counts"]["review_required_sources"] == 1
+    assert scenarios["transient_cap"]["mock_requests"] == 3
+    assert scenarios["uncertain_transport"]["restart_blocked"] is True
+    assert receipt["synthetic_payload"]["max_tokens"] == 32000
+    assert receipt["synthetic_payload"]["text_only"] is True
+    assert receipt["live_requests"] == 0
+    for marker in (
+        "Customers should",
+        "calibration_response",
+        "example.test",
+        "Authorization",
+    ):
+        assert marker not in completed.stdout

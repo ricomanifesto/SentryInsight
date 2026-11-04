@@ -75,6 +75,16 @@ class OpenCodeClient:
         title: str = "Report generation",
     ) -> str:
         """Generate text through an OpenCode server session."""
+        from .model_route import ModelRouteError, selected_route
+
+        if (
+            model is not None
+            and model.provider_id.casefold() == "openrouter"
+            and selected_route(model.model_id)
+        ):
+            raise ModelRouteError(
+                "Selected paid model route is disabled through the gateway"
+            )
         auth = self._auth()
         try:
             async with httpx.AsyncClient(

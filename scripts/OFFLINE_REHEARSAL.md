@@ -65,6 +65,31 @@ candidate validation. This command reuses the graph to add actual writing,
 rendering, promotion and durable admission checks, without creating a second
 report pipeline or changing production defaults.
 
+## Selected Kimi route rehearsal
+
+Add `--selected-model-offline` to exercise the fixed
+`moonshotai/kimi-k3.1-pro` policy against the same fictional fixture and real
+graph. The ordinary selected paid route remains disabled. The offline factory
+requires the exact mock transport and a synthetic key; it cannot select a live
+transport or the OpenCode gateway. Unsupported model variants and injected
+clients cannot bypass this boundary.
+
+The policy accepts text only, pins `moonshotai/mxfp4` and the standard tier,
+disables fallbacks, requires supported parameters, and requests no data
+collection and ZDR filtering. Applicable rate ceilings are $2/M input and $10/M
+combined reasoning/visible output, with zero per-request pricing. These filters
+do not verify provider eligibility, effective account privacy settings or ZDR.
+The Markdown contract, 200k input estimate, 32k combined output limit, existing
+three-attempt durable admission budget and uncertain-outcome holds remain.
+
+The selected receipt adds payload field names, requested policy and a request
+hash. It records the complete-message UTF-8 size plus a conservative framing
+reserve separately from the existing cl100k estimate; neither attests to the
+provider tokenizer. A future synthetic trial would require a separately bounded
+single attempt. This command has no live mode and grants no trial or production
+activation. Source text, held-source content and the mock answer are absent from
+the receipt. The handwritten mock answer never enters the outgoing prompt.
+
 ## Free model selection parity
 
 No production selection change is needed. At the inspected SentryInsight commit
