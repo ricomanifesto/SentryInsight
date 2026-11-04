@@ -72,7 +72,9 @@ def recognized_analysis(text, articles, parsed):
         if not line.startswith("Article "):
             # Detect only recognizable unsupported row wrappers for rejection.
             # Never repair a wrapper into an accepted canonical row.
-            candidate = line.lstrip(" \t-+*>_`\"'0123456789.()[]")
+            fence = line.lstrip(" \t-+*>_\"'0123456789.()[]#")
+            require(not fence.startswith(("```", "~~~")))
+            candidate = line.lstrip(" \t-+*>_`\"'0123456789.()[]#~")
             if re.match(r"article(?:\s|[0-9:])", candidate, re.IGNORECASE):
                 raise CheckRefused()
             continue

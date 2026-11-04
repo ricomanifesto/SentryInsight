@@ -173,6 +173,17 @@ def test_advertised_row_preserves_reserved_and_instruction_like_titles(contract,
         ("mixed_uppercase", False),
         ("mixed_nested_quote", False),
         ("mixed_nested_bullet", False),
+        ("heading", False),
+        ("mixed_heading", False),
+        ("mixed_unknown_heading", False),
+        ("mixed_duplicate_heading", False),
+        ("mixed_nested_heading", False),
+        ("fence", False),
+        ("tilde_fence", False),
+        ("mixed_fence", False),
+        ("mixed_nested_fence", False),
+        ("fenced_duplicate", False),
+        ("fenced_unknown", False),
         ("mixed_unknown", False),
         ("mixed_duplicate", False),
     ],
@@ -253,6 +264,34 @@ def test_generated_prompt_real_parser_observer_format_matrix(contract, style, ac
         text = two + "\n> > " + one
     elif style == "mixed_nested_bullet":
         text = two + "\n- - " + one
+    elif style == "heading":
+        text = "# " + two
+    elif style == "mixed_heading":
+        text = two + "\n# " + one
+    elif style == "mixed_unknown_heading":
+        text = two + "\n## " + one.replace("Article 1:", "Article 99:")
+    elif style == "mixed_duplicate_heading":
+        text = two + "\n# " + two
+    elif style == "mixed_nested_heading":
+        text = two + "\n> ### " + one
+    elif style == "fence":
+        text = "```text\n" + one + "\n" + two + "\n```"
+    elif style == "tilde_fence":
+        text = "~~~text\n" + one + "\n" + two + "\n~~~"
+    elif style == "mixed_fence":
+        text = two + "\n```text\n# " + one + "\n```"
+    elif style == "mixed_nested_fence":
+        text = two + "\n> ```text\n# " + one + "\n> ```"
+    elif style == "fenced_duplicate":
+        text = "```text\n" + two + "\n" + two + "\n```"
+    elif style == "fenced_unknown":
+        text = (
+            "```text\n"
+            + two
+            + "\n# "
+            + one.replace("Article 1:", "Article 99:")
+            + "\n```"
+        )
     elif style == "mixed_unknown":
         text = two + "\n" + one.replace("Article 1:", "Article 99:")
     elif style == "mixed_duplicate":

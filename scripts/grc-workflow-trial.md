@@ -45,6 +45,9 @@ or noncanonical Article-like rows are rejected, including when mixed with a
 valid supplier row; they are never normalized into success. Arbitrary prose is
 not understood or reclassified by this guard. Legacy free-form parser handling
 and its fallback remain outside the supported closed-test language.
+Markdown Article headings and backtick/tilde fence markers are also rejected,
+including mixed or nested wrappers containing valid, duplicate or unknown source
+claims. Explicit Reason: commentary remains commentary, not a row or fence.
 
 The actual parser and workflow derive the second prompt. Only the reconciled
 GRC-relevant count (1 or 2) and six closed regulation names may vary from the
