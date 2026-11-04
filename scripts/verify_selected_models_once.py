@@ -350,7 +350,12 @@ class Claim:
     def __init__(self, path: Path, context: Context):
         self.path = path
         self.fd = -1
-        self.value: dict = {
+        self.value = self._initial_value(context)
+        require(self.value["reserved_microusd"] <= CEILING_MICROUSD, "budget_refused")
+        self._open()
+
+    def _initial_value(self, context: Context) -> dict:
+        return {
             "run_id": context.run_id,
             "commit": context.commit,
             "ref": context.ref,
@@ -372,7 +377,9 @@ class Claim:
                 for case, spec in CASES.items()
             },
         }
-        require(self.value["reserved_microusd"] <= CEILING_MICROUSD, "budget_refused")
+
+    def _open(self):
+        path = self.path
         try:
             parent = path.parent.lstat()
             require(

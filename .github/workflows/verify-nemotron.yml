@@ -1,4 +1,4 @@
-name: Verify Selected Models Without Publication
+name: Verify Remaining Argon Without Publication
 
 on:
   workflow_dispatch:
@@ -86,28 +86,23 @@ jobs:
           require_tokenizer_cache()
           PY
 
-      - name: Reproduce both exact fictional requests without provider access
+      - name: Reproduce the exact remaining fictional Argon request without provider access
         run: |
-          sources/sentry/.venv/bin/python -B executor/scripts/verify_selected_models_once.py --offline-only \
-            --sentry-source sources/sentry --grc-source sources/grc \
-            --sentry-python "$GITHUB_WORKSPACE/sources/sentry/.venv/bin/python" \
-            --grc-python "$GITHUB_WORKSPACE/sources/grc/agent/.venv/bin/python" \
-            --tokenizer "$TIKTOKEN_CACHE_DIR" \
-            --output "$RUNNER_TEMP/selected-model-trial/calibration.json"
+          sources/sentry/.venv/bin/python -B - <<'PYTHON'
+          import sys
+          sys.path.insert(0, 'executor')
+          from scripts.continue_argon_trial_once import calibrate_ci
+          calibrate_ci()
+          PYTHON
 
-      - name: Send each approved fictional request once and replay locally
+      - name: Send only the remaining Argon request once and replay locally
         id: trial
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           EXPECTED_COMMIT: ${{ inputs.expected_commit }}
         run: |
-          sources/sentry/.venv/bin/python -B executor/scripts/verify_selected_models_once.py --live \
-            --expected-commit "$EXPECTED_COMMIT" \
-            --sentry-source sources/sentry --grc-source sources/grc \
-            --sentry-python "$GITHUB_WORKSPACE/sources/sentry/.venv/bin/python" \
-            --grc-python "$GITHUB_WORKSPACE/sources/grc/agent/.venv/bin/python" \
-            --tokenizer "$TIKTOKEN_CACHE_DIR" \
-            --output "$RUNNER_TEMP/selected-model-trial/trial.json"
+          sources/sentry/.venv/bin/python -B executor/scripts/continue_argon_trial_once.py \
+            --expected-commit "$EXPECTED_COMMIT"
 
       - name: Retain only sanitized metadata for seven days
         if: always()

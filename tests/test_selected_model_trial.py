@@ -500,6 +500,8 @@ def test_branch_workflow_has_only_fixed_read_only_nonpublishing_authority():
         assert guard in job["if"]
     secret_steps = [row for row in job["steps"] if "secrets." in json.dumps(row)]
     assert len(secret_steps) == 1 and secret_steps[0]["id"] == "trial"
+    assert "continue_argon_trial_once.py" in secret_steps[0]["run"]
+    assert "verify_selected_models_once.py" not in secret_steps[0]["run"]
     checkouts = [
         row
         for row in job["steps"]
@@ -557,3 +559,170 @@ def test_unknown_replay_execution_stops_before_second_post(
         json.loads((tmp_path / "claim.json").read_text())["states"]["grc"] == "pending"
     )
     assert "untrusted child detail" not in json.dumps(receipt)
+
+
+@pytest.fixture(scope="module")
+def argon_prepared(layout):
+    from scripts.continue_argon_trial_once import prepare_argon
+
+    return prepare_argon(layout)
+
+
+def test_argon_first_durable_claim_marks_prior_consumed_and_never_rearms(
+    tmp_path, monkeypatch
+):
+    from scripts.continue_argon_trial_once import ArgonClaim, PRIOR_RUN, PRIOR_EXECUTOR
+
+    snapshots = []
+    original = Claim._save
+
+    def save(claim):
+        snapshots.append(json.loads(json.dumps(claim.value)))
+        original(claim)
+
+    monkeypatch.setattr(Claim, "_save", save)
+    with ArgonClaim(
+        tmp_path / "claim.json", Context("a" * 40, "54321", context_env()["GITHUB_REF"])
+    ) as claim:
+        assert snapshots[0]["states"] == {
+            "sentry": "consumed_prior_run",
+            "grc": "pending",
+        }
+        assert snapshots[0]["prior_run_id"] == PRIOR_RUN == "41777105615"
+        assert (
+            snapshots[0]["prior_executor_commit"]
+            == PRIOR_EXECUTOR
+            == "26234bd3f1cd7e580c739c019c50bf217ed13d84"
+        )
+        assert snapshots[0]["reserved_microusd"] == 484000
+        for case in (Case.SENTRY,):
+            with pytest.raises(TrialError):
+                claim.start(case)
+            with pytest.raises(TrialError):
+                claim.finish(case, "response_received")
+        claim.start(Case.GRC)
+        claim.finish(Case.GRC, "response_received")
+    assert all(row["states"]["sentry"] == "consumed_prior_run" for row in snapshots)
+
+
+def test_argon_only_preparation_never_invokes_kimi_worker(layout, monkeypatch):
+    import scripts.continue_argon_trial_once as continuation
+    import scripts.verify_selected_models_once as base
+
+    called = []
+    worker = base._worker
+
+    async def guard(layout, case, mode, response=b""):
+        called.append((case, mode))
+        assert case is Case.GRC
+        return await worker(layout, case, mode, response)
+
+    monkeypatch.setattr(base, "_worker", guard)
+    result = continuation.prepare_argon(layout)
+    assert called == [(Case.GRC, "prepare")]
+    assert result.spec is CASES[Case.GRC]
+
+
+def test_argon_continuation_posts_only_exact_remaining_body(
+    tmp_path, argon_prepared, layout
+):
+    from scripts.continue_argon_trial_once import execute_argon
+
+    seen = []
+
+    def read_key():
+        claim = json.loads((tmp_path / "claim.json").read_text())
+        assert claim["states"] == {"sentry": "consumed_prior_run", "grc": "pending"}
+        return "synthetic-test-key"
+
+    def handler(request):
+        seen.append(request)
+        assert len(seen) == 1 and request.content == argon_prepared.wire
+        assert json.loads(request.content)["model"] == "google/gemini-4-argon"
+        return httpx.Response(200, json=fake_response(Case.GRC, layout))
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        receipt = execute_argon(
+            argon_prepared,
+            layout,
+            Context("a" * 40, "54321", context_env()["GITHUB_REF"]),
+            tmp_path / "claim.json",
+            read_key,
+            client,
+        )
+    assert len(seen) == 1 and len(receipt["cases"]) == 1
+    assert receipt["cases"][0]["host"]["outcome"] == "passed"
+    assert (
+        receipt["actual_cost"] == 0.018
+        and receipt["cost_scope"] == "this_continuation_only"
+    )
+    assert receipt["upper_estimate_usd"] == 0.484
+    assert receipt["prior_run_id"] == "41777105615"
+    assert "synthetic-test-key" not in json.dumps(receipt)
+
+
+@pytest.mark.parametrize(
+    "failure", ["401", "timeout", "null_tier", "missing_cost", "bad_replay"]
+)
+def test_argon_continuation_failure_has_no_retry_or_kimi(
+    tmp_path, argon_prepared, layout, monkeypatch, failure
+):
+    from scripts.continue_argon_trial_once import execute_argon
+    import scripts.verify_selected_models_once as base
+
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        if failure == "401":
+            return httpx.Response(401, text="raw error must stay private")
+        if failure == "timeout":
+            raise httpx.ReadTimeout("raw error must stay private")
+        response = fake_response(Case.GRC, layout)
+        if failure == "null_tier":
+            response["service_tier"] = None
+        if failure == "missing_cost":
+            del response["usage"]["cost"]
+        return httpx.Response(200, json=response)
+
+    async def bad_worker(*_args):
+        raise TrialError("worker_failed")
+
+    if failure == "bad_replay":
+        monkeypatch.setattr(base, "_worker", bad_worker)
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        receipt = execute_argon(
+            argon_prepared,
+            layout,
+            Context("a" * 40, "54321", context_env()["GITHUB_REF"]),
+            tmp_path / "claim.json",
+            lambda: "synthetic-test-key",
+            client,
+        )
+    assert len(seen) == 1 and receipt["cases"][0]["outcome"] != "passed"
+    assert (
+        json.loads((tmp_path / "claim.json").read_text())["states"]["sentry"]
+        == "consumed_prior_run"
+    )
+    assert "raw error must stay private" not in json.dumps(receipt)
+
+
+def test_argon_continuation_refuses_kimi_or_mutation_before_key(
+    tmp_path, prepared, layout
+):
+    from scripts.continue_argon_trial_once import execute_argon
+
+    for value in (prepared[Case.SENTRY], replace(prepared[Case.GRC], wire=b"invalid")):
+        with httpx.Client(
+            transport=httpx.MockTransport(lambda _: pytest.fail(reason="POST"))
+        ) as client:
+            with pytest.raises(TrialError):
+                execute_argon(
+                    value,
+                    layout,
+                    Context("a" * 40, "54321", context_env()["GITHUB_REF"]),
+                    tmp_path / "claim.json",
+                    lambda: pytest.fail(reason="key"),
+                    client,
+                )
+    assert not (tmp_path / "claim.json").exists()
