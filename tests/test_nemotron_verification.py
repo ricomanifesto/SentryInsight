@@ -195,7 +195,9 @@ def test_workflow_has_no_automatic_trigger_or_publication_authority():
     job = workflow["jobs"]["verify"]
     assert "github.sha == inputs.expected_commit" in job["if"]
     assert "github.run_attempt == 1" in job["if"]
-    assert "github.ref == 'refs/heads/main'" in job["if"]
+    assert (
+        "github.ref == 'refs/heads/test/selected-model-fixtures-20261104'" in job["if"]
+    )
     steps = job["steps"]
     assert steps[0]["with"]["persist-credentials"] == "false"
     secret_steps = [step for step in steps if "secrets." in json.dumps(step)]
