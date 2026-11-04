@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import base64
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 import json
 import math
@@ -22,6 +23,36 @@ import httpx
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts import verify_selected_models_once as base  # noqa: E402
+from scripts import grc_trial_diagnostics as diagnostics  # noqa: E402
+
+
+class TrialFailure(diagnostics.Error, base.TrialError):
+    """Only fixed diagnostic fields can cross an owned failure boundary."""
+
+
+def stopped(error, stage, phase, refused_code=None):
+    if isinstance(error, TrialFailure):
+        return error
+    if isinstance(error, diagnostics.Error):
+        return TrialFailure(error.diagnostic, error.secondary)
+    code = diagnostics.code_for(error)
+    if isinstance(error, httpx.TimeoutException):
+        code = "timeout"
+    elif isinstance(error, base.TrialError) and refused_code is not None:
+        code = refused_code
+    return TrialFailure(diagnostics.record(stage, phase, code))
+
+
+def retain_failure(claim, failure, stage, http_status=None):
+    if failure.claim_recorded or claim.persistence_unknown:
+        return
+    try:
+        claim.record_failure(failure, stage, http_status)
+        failure.claim_recorded = True
+    except BaseException as error:
+        secondary = stopped(error, stage, "claim_persistence")
+        failure.add_secondary(secondary.diagnostic)
+
 
 INPUT_RESERVES = (8000, 24000)
 OUTPUT_TOKENS = 8000
@@ -118,6 +149,83 @@ def source_snapshot(layout):
     }
 
 
+def worker_envelope(value, mode):
+    stage = {
+        "prepare": "trial",
+        "calibrate": "calibration",
+        "derive": "analysis",
+        "replay": "plan",
+    }[mode]
+    try:
+        if (
+            type(value) is not dict
+            or type(value.get("diagnostic_version")) is not int
+            or value["diagnostic_version"] != diagnostics.VERSION
+        ):
+            raise ValueError()
+        if set(value) == {"diagnostic_version", "error"}:
+            item = diagnostics.validate(value["error"])
+            if (
+                item["stage"] != stage
+                or item["phase"] not in diagnostics.WORKER_PHASES
+                or item["code"] not in diagnostics.WORKER_CODES
+            ):
+                raise ValueError()
+            raise TrialFailure(item)
+        if set(value) != {"diagnostic_version", "result", "diagnostic"}:
+            raise ValueError()
+        if diagnostics.validate(value["diagnostic"]) != diagnostics.record(
+            stage, "worker_complete", "ok"
+        ):
+            raise ValueError()
+        result = value["result"]
+        keys = {"wires", "derived"} | (
+            {"host"} if mode in {"calibrate", "replay"} else set()
+        )
+        if type(result) is not dict or set(result) != keys:
+            raise ValueError()
+        return result
+    except TrialFailure:
+        raise
+    except BaseException:
+        raise TrialFailure(
+            diagnostics.record(stage, "worker_protocol", "invalid_worker_envelope")
+        ) from None
+
+
+def worker_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Worker protocol refused")
+        result[key] = value
+    return result
+
+
+@contextmanager
+def worker_scratch(stage):
+    try:
+        directory = tempfile.TemporaryDirectory(prefix="grc-closed-worker-")
+    except BaseException as error:
+        raise stopped(error, stage, "worker_scratch_create") from None
+    failure = None
+    try:
+        yield Path(directory.name)
+    except BaseException as error:
+        failure = stopped(error, stage, "worker_io")
+    finally:
+        try:
+            directory.cleanup()
+        except BaseException as error:
+            cleanup = stopped(error, stage, "worker_scratch_cleanup")
+            if failure is None:
+                failure = cleanup
+            else:
+                failure.add_secondary(cleanup.diagnostic)
+    if failure is not None:
+        raise failure from None
+
+
 async def worker(layout, mode, responses=()):
     base.require(mode in {"prepare", "calibrate", "derive", "replay"}, "worker_refused")
     base.require(
@@ -129,25 +237,33 @@ async def worker(layout, mode, responses=()):
         all(type(raw) is bytes and 0 < len(raw) <= RESPONSE_LIMIT for raw in responses),
         "worker_refused",
     )
+    stage = {
+        "prepare": "trial",
+        "calibrate": "calibration",
+        "derive": "analysis",
+        "replay": "plan",
+    }[mode]
     data = base.canonical([base64.b64encode(raw).decode() for raw in responses])
-    with tempfile.TemporaryDirectory(prefix="grc-closed-worker-") as directory:
-        scratch = Path(directory)
-        process = await asyncio.create_subprocess_exec(
-            str(layout.python),
-            "-s",
-            "-P",
-            "-B",
-            str(ROOT / "scripts/grc_workflow_trial_worker.py"),
-            mode,
-            str(layout.source.resolve()),
-            cwd=scratch,
-            env=worker_environment(scratch),
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.DEVNULL,
-        )
+    process = None
+    phase = "worker_launch"
+    with worker_scratch(stage) as scratch:
         try:
             async with asyncio.timeout(90):
+                process = await asyncio.create_subprocess_exec(
+                    str(layout.python),
+                    "-s",
+                    "-P",
+                    "-B",
+                    str(ROOT / "scripts/grc_workflow_trial_worker.py"),
+                    mode,
+                    str(layout.source.resolve()),
+                    cwd=scratch,
+                    env=worker_environment(scratch),
+                    stdin=asyncio.subprocess.PIPE,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.DEVNULL,
+                )
+                phase = "worker_io"
                 assert process.stdin is not None and process.stdout is not None
                 process.stdin.write(data)
                 await process.stdin.drain()
@@ -155,17 +271,43 @@ async def worker(layout, mode, responses=()):
                 output = bytearray()
                 while block := await process.stdout.read(4096):
                     output.extend(block)
-                    base.require(len(output) <= 100000, "worker_output_refused")
+                    if len(output) > 100000:
+                        raise TrialFailure(
+                            diagnostics.record(
+                                stage, "worker_protocol", "worker_output_refused"
+                            )
+                        )
+                phase = "worker_wait"
                 await process.wait()
-                base.require(process.returncode == 0, "worker_unavailable")
-                value = json.loads(output)
-                base.require(type(value) is dict, "worker_unavailable")
-                return value
-        except BaseException:
-            if process.returncode is None:
-                process.kill()
-            await process.wait()
-            raise base.TrialError("worker_unavailable") from None
+                if process.returncode != 0:
+                    raise TrialFailure(
+                        diagnostics.record(stage, phase, "worker_exit_failed")
+                    )
+                phase = "worker_protocol"
+                try:
+                    value = json.loads(output, object_pairs_hook=worker_object)
+                except BaseException:
+                    raise TrialFailure(
+                        diagnostics.record(stage, phase, "invalid_worker_envelope")
+                    ) from None
+                return worker_envelope(value, mode)
+        except BaseException as error:
+            failure = stopped(error, stage, phase)
+            if process is not None and process.returncode is None:
+                try:
+                    process.kill()
+                except BaseException as cleanup:
+                    failure.add_secondary(
+                        stopped(cleanup, stage, "worker_cleanup").diagnostic
+                    )
+                try:
+                    async with asyncio.timeout(5):
+                        await process.wait()
+                except BaseException as cleanup:
+                    failure.add_secondary(
+                        stopped(cleanup, stage, "worker_cleanup").diagnostic
+                    )
+            raise failure from None
 
 
 def worker_environment(scratch):
@@ -261,13 +403,21 @@ def validate_prepared(value):
 
 
 async def prepare(layout):
-    before = source_snapshot(layout)
-    value = await worker(layout, "calibrate")
-    prepared = Prepared(decoded_wires(value, 2))
-    validate_prepared(prepared)
-    base.validate_host_metadata(base.Case.GRC, value.get("host"))
-    base.require(before == source_snapshot(layout), "source_changed")
-    return prepared
+    phase = "calibration_source"
+    try:
+        before = source_snapshot(layout)
+        phase = "calibration_worker"
+        value = await worker(layout, "calibrate")
+        phase = "calibration_payload"
+        prepared = Prepared(decoded_wires(value, 2))
+        validate_prepared(prepared)
+        phase = "calibration_host"
+        base.validate_host_metadata(base.Case.GRC, value.get("host"))
+        phase = "calibration_source"
+        base.require(before == source_snapshot(layout), "source_changed")
+        return prepared
+    except BaseException as error:
+        raise stopped(error, "calibration", phase, "calibration_refused") from None
 
 
 def validate_derived(prepared, value):
@@ -312,8 +462,36 @@ def validate_derived(prepared, value):
 
 
 class WorkflowClaim(base.Claim):
+    def __init__(self, path, context):
+        self.persistence_unknown = False
+        self.close_failure = None
+        self.active_diagnostic = diagnostics.record(
+            "trial", "claim_create", "in_progress"
+        )
+        self.saved_failure = None
+        try:
+            super().__init__(path, context)
+        except BaseException as error:
+            if self.persistence_unknown:
+                failure = TrialFailure(
+                    diagnostics.record("trial", "claim_create", "persistence_unknown")
+                )
+            else:
+                failure = stopped(error, "trial", "claim_create", "claim_unavailable")
+            if self.close_failure is not None:
+                failure.add_secondary(self.close_failure.diagnostic)
+            raise failure from None
+
+    def close(self):
+        try:
+            super().close()
+        except BaseException as error:
+            self.fd = -1  # An uncertain close must not be retried on a reused fd.
+            self.close_failure = stopped(error, "trial", "claim_close")
+
     def _initial_value(self, context):
         return {
+            "diagnostics": diagnostics.details(self.active_diagnostic),
             "run_id": context.run_id,
             "commit": context.commit,
             "ref": context.ref,
@@ -342,13 +520,52 @@ class WorkflowClaim(base.Claim):
         }
 
     def _save(self):
-        base.require(
-            self.value["historical_allocations"] == "consumed_not_reused"
-            and self.value["reserved_microusd"] == 224000
-            and self.value["ceiling_microusd"] == 224000,
-            "claim_refused",
+        if self.persistence_unknown:
+            raise TrialFailure(
+                diagnostics.record(
+                    self.active_diagnostic["stage"],
+                    self.active_diagnostic["phase"],
+                    "persistence_unknown",
+                )
+            )
+        try:
+            base.require(
+                self.value["historical_allocations"] == "consumed_not_reused"
+                and self.value["reserved_microusd"] == 224000
+                and self.value["ceiling_microusd"] == 224000,
+                "claim_refused",
+            )
+            super()._save()
+        except BaseException:
+            self.persistence_unknown = True
+            raise TrialFailure(
+                diagnostics.record(
+                    self.active_diagnostic["stage"],
+                    self.active_diagnostic["phase"],
+                    "persistence_unknown",
+                )
+            ) from None
+
+    def checkpoint(self, stage, phase):
+        self.active_diagnostic = diagnostics.record(stage, phase, "in_progress")
+        self.value["diagnostics"] = diagnostics.details(
+            self.active_diagnostic, self.saved_failure
         )
-        super()._save()
+        self._save()
+
+    def record_failure(self, failure, stage, http_status=None):
+        # This is also the sole uncertainty save after a failed/cancelled POST.
+        # A previous save failure latches _save and must never be retried.
+        if self.persistence_unknown:
+            return
+        self.saved_failure = failure
+        self.active_diagnostic = failure.diagnostic
+        self.value["diagnostics"] = diagnostics.details(self.active_diagnostic, failure)
+        if stage in {"analysis", "plan"} and self.value["states"][stage] == "sending":
+            self.value["states"][stage] = (
+                "http_error" if http_status not in (None, 200) else "uncertain"
+            )
+        self._save()
 
     def start_stage(self, stage):
         base.require(type(stage) is int and stage in (0, 1), "claim_refused")
@@ -468,27 +685,34 @@ def response_metadata(raw, stage):
 
 
 async def post_once(client, wire, key, stage, row, claim):
-    claim.start_stage(stage)  # fsync sending before the only possible POST.
-    request = httpx.Request(
-        "POST",
-        base.ENDPOINT,
-        content=wire,
-        headers={
-            "Authorization": "Bearer " + key,
-            "Content-Type": "application/json",
-            "Accept-Encoding": "identity",
-            "X-Title": "Fixed fictional GRC workflow verification",
-        },
-        extensions={"timeout": httpx.Timeout(360).as_dict()},
-    )
-    response = None
+    name = ("analysis", "plan")[stage]
+    phase, response, failure, result = "request_send", None, None, None
     try:
+        claim.checkpoint(name, phase)
+        claim.start_stage(stage)  # fsync sending before the only possible POST.
+        request = httpx.Request(
+            "POST",
+            base.ENDPOINT,
+            content=wire,
+            headers={
+                "Authorization": "Bearer " + key,
+                "Content-Type": "application/json",
+                "Accept-Encoding": "identity",
+                "X-Title": "Fixed fictional GRC workflow verification",
+            },
+            extensions={"timeout": httpx.Timeout(360).as_dict()},
+        )
         async with asyncio.timeout(360):
             response = await client.send(
                 request, stream=True, follow_redirects=False, auth=None
             )
+            phase = "response_status"
+            claim.checkpoint(name, phase)
             row["http_status"] = response.status_code
-            base.require(response.status_code == 200, "http_error")
+            if response.status_code != 200:
+                raise TrialFailure(diagnostics.record(name, phase, "http_rejected"))
+            phase = "response_read"
+            claim.checkpoint(name, phase)
             base.require(
                 response.headers.get("content-encoding", "identity").casefold()
                 == "identity",
@@ -498,35 +722,68 @@ async def post_once(client, wire, key, stage, row, claim):
             async for block in response.aiter_raw(chunk_size=65536):
                 raw.extend(block)
                 base.require(len(raw) <= RESPONSE_LIMIT, "response_too_large")
+            phase = "response_validation"
+            claim.checkpoint(name, phase)
             claim.finish_stage(stage, "response_received")
             row.update(response_metadata(bytes(raw), stage))
-            return bytes(raw)
-    except BaseException:
-        if claim.value["states"][("analysis", "plan")[stage]] == "sending":
-            claim.finish_stage(
-                stage,
-                "http_error" if row["http_status"] not in (None, 200) else "uncertain",
-            )
-        raise base.TrialError("request_or_accounting_stopped") from None
-    finally:
-        if response is not None:
-            await response.aclose()
+            result = bytes(raw)
+    except BaseException as error:
+        refused = {
+            "response_read": "response_read_refused",
+            "response_validation": "response_refused",
+        }.get(phase)
+        failure = stopped(error, name, phase, refused)
+    if response is not None:
+        if failure is None:
+            try:
+                claim.checkpoint(name, "response_close")
+            except BaseException as error:
+                failure = stopped(error, name, "response_close")
+        try:
+            async with asyncio.timeout(5):
+                await response.aclose()
+        except BaseException as error:
+            cleanup = stopped(error, name, "response_close")
+            if failure is None:
+                failure = cleanup
+            else:
+                failure.add_secondary(cleanup.diagnostic)
+    if failure is not None:
+        retain_failure(claim, failure, name, row["http_status"])
+        raise failure from None
+    return result
 
 
 async def execute(
     prepared, layout, context, claim_path, read_key: Callable[[], str], client
 ):
-    validate_prepared(prepared)
-    before = source_snapshot(layout)
+    try:
+        validate_prepared(prepared)
+    except BaseException as error:
+        raise stopped(
+            error, "trial", "calibration_payload", "calibration_refused"
+        ) from None
+    try:
+        before = source_snapshot(layout)
+    except BaseException as error:
+        raise stopped(error, "trial", "source_guard", "source_refused") from None
     rows, responses = [], []
-    outcome, host = "stopped", None
+    outcome, host, primary = "stopped", None, None
+    last = diagnostics.record("trial", "claim_create", "in_progress")
     with WorkflowClaim(claim_path, context) as claim:
-        key = read_key()
-        base.require(type(key) is str and bool(key.strip()), "credential_unavailable")
+        try:
+            claim.checkpoint("trial", "context")
+            key = read_key()
+            base.require(
+                type(key) is str and bool(key.strip()), "credential_unavailable"
+            )
+        except BaseException as error:
+            raise stopped(error, "trial", "context") from None
         wire = prepared.wires[0]
         for stage in range(2):
+            name = ("analysis", "plan")[stage]
             row = {
-                "stage": ("analysis", "plan")[stage],
+                "stage": name,
                 "requested_model": MODEL,
                 "requested_provider": PROVIDER,
                 "wire_sha256": base.sha(wire),
@@ -536,17 +793,29 @@ async def execute(
                 "outcome": "stopped",
             }
             rows.append(row)
+            phase, refused = "source_guard", "source_refused"
             try:
+                claim.checkpoint(name, phase)
                 base.require(before == source_snapshot(layout), "source_changed")
                 raw = await post_once(client, wire, key, stage, row, claim)
                 responses.append(raw)
                 if stage == 0:
+                    phase, refused = "derive_worker", None
+                    claim.checkpoint(name, phase)
                     derived = await worker(layout, "derive", responses)
+                    phase, refused = "derived_body_validation", "derived_body_refused"
+                    claim.checkpoint(name, phase)
                     wire = validate_derived(prepared, derived)
+                    phase, refused = "plan_binding", None
+                    claim.checkpoint(name, phase)
                     claim.bind_plan(wire)
                     row["outcome"] = "recognized_analysis_passed"
                 else:
+                    phase, refused = "replay_worker", None
+                    claim.checkpoint(name, phase)
                     replay = await worker(layout, "replay", responses)
+                    phase, refused = "host_validation", "host_refused"
+                    claim.checkpoint(name, phase)
                     base.require(
                         decoded_wires(replay, 2) == (prepared.wires[0], wire),
                         "replay_refused",
@@ -565,13 +834,37 @@ async def execute(
                     base.require(host["outcome"] == "passed", "host_refused")
                     row["outcome"] = "host_rendered"
                     outcome = "passed"
-            except BaseException:
+                last = diagnostics.record(name, "complete", "ok")
+                row["diagnostic"] = last
+            except BaseException as error:
+                primary = stopped(error, name, phase, refused)
+                retain_failure(claim, primary, name, row["http_status"])
+                row["diagnostic"] = primary.diagnostic
+                last = primary.diagnostic
                 break
-        base.require(before == source_snapshot(layout), "source_changed")
-        states = dict(claim.value["states"])
+        try:
+            if primary is None:
+                claim.checkpoint("trial", "final_source_guard")
+            base.require(before == source_snapshot(layout), "source_changed")
+        except BaseException as error:
+            failure = stopped(error, "trial", "final_source_guard", "source_refused")
+            if primary is None:
+                primary = failure
+                retain_failure(claim, primary, "trial")
+            else:
+                primary.add_secondary(failure.diagnostic)
+            last, outcome = failure.diagnostic, "stopped"
+        states = None if claim.persistence_unknown else dict(claim.value["states"])
+        persistence = "unknown" if claim.persistence_unknown else "confirmed"
+    if claim.close_failure is not None:
+        if primary is None:
+            primary = claim.close_failure
+        else:
+            primary.add_secondary(claim.close_failure.diagnostic)
+        last, outcome = claim.close_failure.diagnostic, "stopped"
     costs = [row["usage"]["cost"] if row["usage"] is not None else None for row in rows]
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "scope": "grc_full_fictional_workflow_only",
         "run_id": context.run_id,
         "executor_commit": context.commit,
@@ -581,7 +874,9 @@ async def execute(
         "workflow_fixture_sha256": WORKFLOW_SHA,
         "reserved_microusd": 224000,
         "states": states,
+        "claim_persistence": persistence,
         "operations": rows,
+        "diagnostics": diagnostics.details(last, primary),
         "actual_cost": (
             sum(costs)
             if len(costs) == 2 and all(value is not None for value in costs)
@@ -638,10 +933,10 @@ def ci_layout():
 
 
 def calibrate_ci():
-    prepared = asyncio.run(prepare(ci_layout()))
-    base.write_metadata(
-        Path(os.environ["RUNNER_TEMP"]) / "grc-full-trial/calibration.json",
-        {
+    directory = Path(os.environ["RUNNER_TEMP"]) / "grc-full-trial"
+    try:
+        prepared = asyncio.run(prepare(ci_layout()))
+        value = {
             "outcome": "calibration_passed",
             "wire_sha256": list(WIRE),
             "canonical_payload_sha256": list(CANONICAL),
@@ -649,9 +944,99 @@ def calibrate_ci():
             "input_reserves": INPUT_RESERVES,
             "output_tokens_each": OUTPUT_TOKENS,
             "reserved_microusd": 224000,
-        },
-    )
+            "diagnostics": diagnostics.details(
+                diagnostics.record("calibration", "complete", "ok")
+            ),
+        }
+    except BaseException as error:
+        failure = stopped(error, "calibration", "calibration_worker")
+        value = {
+            "outcome": "calibration_stopped",
+            "live_requests": 0,
+            "diagnostics": diagnostics.details(failure.diagnostic, failure),
+        }
+        try:
+            base.write_metadata(directory / "calibration.json", value)
+        except BaseException:
+            pass
+        raise SystemExit(1) from None
+    try:
+        base.write_metadata(directory / "calibration.json", value)
+    except BaseException:
+        raise SystemExit(1) from None
     return prepared
+
+
+def report_fence_result(receipt, unchanged, error=None):
+    receipt["remote_reports_unchanged"] = unchanged
+    if unchanged is True and error is None:
+        return
+    failure = (
+        stopped(error, "control", "report_fence")
+        if error is not None
+        else TrialFailure(
+            diagnostics.record("control", "report_fence", "report_fence_refused")
+        )
+    )
+    observed = failure.diagnostic
+    previous = receipt["diagnostics"]["failure"]
+    if previous is not None:
+        failure = TrialFailure(
+            previous, receipt["diagnostics"]["secondary"] + [failure.diagnostic]
+        )
+    receipt["diagnostics"] = diagnostics.details(observed, failure)
+    receipt["outcome"] = "stopped"
+
+
+def merge_receipt_failure(receipt, failure):
+    previous = receipt["diagnostics"]["failure"]
+    if previous is not None:
+        failure = TrialFailure(
+            previous,
+            receipt["diagnostics"]["secondary"]
+            + [failure.diagnostic]
+            + failure.secondary,
+        )
+    receipt["diagnostics"] = diagnostics.details(failure.diagnostic, failure)
+    receipt["outcome"] = "stopped"
+
+
+async def run_sender(prepared, layout, context, directory, read_key):
+    sender, receipt, failure = None, None, None
+    phase = "sender_open"
+    try:
+        sender = httpx.AsyncClient(
+            transport=httpx.AsyncHTTPTransport(retries=0, trust_env=False),
+            trust_env=False,
+            timeout=360,
+        )
+        active = await sender.__aenter__()
+        phase = "sender_execution"
+        receipt = await execute(
+            prepared, layout, context, directory / "claim.json", read_key, active
+        )
+    except BaseException as error:
+        failure = stopped(error, "trial", phase)
+    finally:
+        if sender is not None:
+            try:
+                async with asyncio.timeout(5):
+                    await sender.__aexit__(None, None, None)
+            except BaseException as error:
+                cleanup = stopped(error, "trial", "sender_close")
+                if failure is None:
+                    failure = cleanup
+                else:
+                    failure.add_secondary(cleanup.diagnostic)
+    if receipt is not None:
+        if failure is not None:
+            merge_receipt_failure(receipt, failure)
+        return receipt
+    if failure is not None:
+        raise failure from None
+    raise TrialFailure(
+        diagnostics.record("trial", "sender_execution", "unknown_failure")
+    )
 
 
 def main():
@@ -659,6 +1044,8 @@ def main():
     parser.add_argument("--expected-commit", required=True)
     args = parser.parse_args()
     os.umask(0o077)
+    phase, context, directory = "context", None, None
+    control, receipt, failure = None, None, None
     try:
         context = base.validate_context(os.environ, args.expected_commit)
         base.require(os.environ.get("RUNNER_DEBUG") != "1", "debug_refused")
@@ -680,58 +1067,93 @@ def main():
                 "remote_fence_unavailable",
             )
 
-        with httpx.Client(
+        control = httpx.Client(
             transport=httpx.HTTPTransport(retries=0, trust_env=False),
             trust_env=False,
             timeout=30,
             headers={"Accept-Encoding": "identity"},
             event_hooks={"response": [identity_encoding]},
-        ) as control:
-            history = base.public_json(
-                control,
-                f"repos/{base.REPOSITORY}/actions/workflows/verify-nemotron.yml/runs",
-                {
-                    "event": "workflow_dispatch",
-                    "head_sha": context.commit,
-                    "per_page": 100,
-                },
+        )
+        control.__enter__()
+        history = base.public_json(
+            control,
+            f"repos/{base.REPOSITORY}/actions/workflows/verify-nemotron.yml/runs",
+            {"event": "workflow_dispatch", "head_sha": context.commit, "per_page": 100},
+        )
+        base.validate_prior_runs(context, history)
+        phase = "report_fence"
+        before = remote_snapshot(control)
+        phase = "calibration_worker"
+        prepared = asyncio.run(prepare(layout))
+        phase = "sender_execution"
+        receipt = asyncio.run(
+            run_sender(
+                prepared,
+                layout,
+                context,
+                directory,
+                lambda: os.environ.get("OPENROUTER_API_KEY", ""),
             )
-            base.validate_prior_runs(context, history)
-            before = remote_snapshot(control)
-            prepared = asyncio.run(prepare(layout))
-
-            async def send():
-                async with httpx.AsyncClient(
-                    transport=httpx.AsyncHTTPTransport(retries=0, trust_env=False),
-                    trust_env=False,
-                    timeout=360,
-                ) as sender:
-                    return await execute(
-                        prepared,
-                        layout,
-                        context,
-                        directory / "claim.json",
-                        lambda: os.environ.get("OPENROUTER_API_KEY", ""),
-                        sender,
-                    )
-
-            receipt = asyncio.run(send())
+        )
+        phase = "report_fence"
+        try:
+            report_fence_result(receipt, before == remote_snapshot(control))
+        except BaseException as error:
+            report_fence_result(receipt, None, error)
+        receipt["remote_report_snapshot_sha256"] = base.sha(base.canonical(before))
+    except BaseException as error:
+        failure = stopped(error, "trial", phase)
+    finally:
+        if control is not None:
             try:
-                receipt["remote_reports_unchanged"] = before == remote_snapshot(control)
-            except Exception:
-                receipt["remote_reports_unchanged"] = None
-            receipt["remote_report_snapshot_sha256"] = base.sha(base.canonical(before))
+                control.__exit__(None, None, None)
+            except BaseException as error:
+                cleanup = stopped(error, "control", "control_close")
+                if failure is None:
+                    failure = cleanup
+                else:
+                    failure.add_secondary(cleanup.diagnostic)
+    if receipt is not None:
+        if failure is not None:
+            merge_receipt_failure(receipt, failure)
+    elif failure is not None:
+        receipt = {
+            "schema_version": 2,
+            "outcome": "stopped",
+            "states": None,
+            "claim_persistence": "unknown",
+            "actual_cost": None,
+            "operations": [],
+            "published": False,
+            "production_ready": False,
+            "diagnostics": diagnostics.details(failure.diagnostic, failure),
+        }
+    if receipt is not None and context is not None and directory is not None:
+        try:
+            import stat
+
+            parent = directory.lstat()
+            if not (
+                stat.S_ISDIR(parent.st_mode)
+                and stat.S_IMODE(parent.st_mode) == 0o700
+                and parent.st_uid == os.getuid()
+                and directory.resolve() == directory
+            ):
+                raise ValueError()
+            # Only one independent write, after all owned client cleanup. Never
+            # replace a precise receipt with an empty generic cleanup fallback.
             base.write_metadata(directory / "trial.json", receipt)
-        return (
-            0
-            if receipt["outcome"] == "passed" and receipt["remote_reports_unchanged"]
-            else 1
-        )
-    except BaseException:
-        print(
-            "GRC trial stopped; inspect sanitized state before any separately approved action."
-        )
-        return 1
+            if (
+                receipt["outcome"] == "passed"
+                and receipt.get("remote_reports_unchanged") is True
+            ):
+                return 0
+        except BaseException:
+            pass
+    print(
+        "GRC trial stopped; inspect sanitized state before any separately approved action."
+    )
+    return 1
 
 
 if __name__ == "__main__":

@@ -21,15 +21,37 @@ from unittest.mock import patch
 
 import httpx
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import grc_trial_diagnostics as diagnostics  # noqa: E402
+
 WORKFLOW_SHA = "2a3cc73b1be3bee1a783e2e8520b23909fe3555bfba6bcfdfd66004ae4653c56"
 CASE_SHA = "f21bbf7ad30e72e485ecfb6ae6ce078fcd98959d4f0d3c5a28eab0f2b3955b08"
 REGULATIONS = ("GDPR", "SOX", "PCI-DSS", "ISO 27001", "NIST", "CCPA")
 RESPONSE_LIMIT = 524288
 
 
+class CheckRefused(ValueError):
+    def __init__(self):
+        super().__init__("Fictional workflow refused")
+
+
+class WorkerTrace:
+    def __init__(self, stage="worker"):
+        self.stage, self.phase, self.primary = stage, "worker_context", None
+
+    def capture(self, error):
+        if self.primary is None:
+            code = (
+                "check_refused"
+                if isinstance(error, CheckRefused)
+                else diagnostics.code_for(error)
+            )
+            self.primary = diagnostics.record(self.stage, self.phase, code)
+
+
 def require(value):
     if not value:
-        raise ValueError("Fictional workflow refused")
+        raise CheckRefused()
 
 
 def deny(*_args, **_kwargs):
@@ -52,7 +74,7 @@ def recognized_analysis(text, articles, parsed):
             line,
         )
         if match is None:
-            raise ValueError("Fictional workflow refused")
+            raise CheckRefused()
         index = int(match[1]) - 1
         require(
             index not in rows
@@ -108,7 +130,8 @@ def recognized_analysis(text, articles, parsed):
     return {"grc_relevant_count": len(rows), "regulations": regulations}
 
 
-async def run_workflow(source, mode, responses):
+async def run_workflow(source, mode, responses, trace):
+    trace.phase = "worker_import"
     sys.path.insert(0, str(source / "agent"))
     from loguru import logger
 
@@ -136,6 +159,7 @@ async def run_workflow(source, mode, responses):
     captured, derived, feed_calls = [], [], []
 
     def respond(request):
+        trace.phase = "worker_request_capture"
         index = len(captured)
         require(index < 2 and request.method == "POST")
         require(str(request.url) == "https://openrouter.ai/api/v1/chat/completions")
@@ -145,7 +169,9 @@ async def run_workflow(source, mode, responses):
         require(json.dumps(case["calibration_plan"]) not in text)
         captured.append(request.content)
         if index >= len(responses):
+            trace.phase = "worker_derived_capture"
             raise Captured()
+        trace.phase = "worker_workflow"
         return httpx.Response(200, content=responses[index])
 
     async def fetch(url):
@@ -174,9 +200,20 @@ async def run_workflow(source, mode, responses):
     real_parser = real_service._process_analysis_response
 
     def parse(self, text, articles):
-        parsed = real_parser(self, text, articles)
-        recognized_analysis(text, articles, parsed)
+        trace.phase = "worker_analysis_parser"
+        try:
+            parsed = real_parser(self, text, articles)
+        except BaseException as error:
+            trace.capture(error)
+            raise
+        trace.phase = "worker_recognition_gate"
+        try:
+            recognized_analysis(text, articles, parsed)
+        except BaseException as error:
+            trace.capture(error)
+            raise
         derived.append(parsed)
+        trace.phase = "worker_workflow"
         return parsed
 
     def fields():
@@ -227,6 +264,7 @@ async def run_workflow(source, mode, responses):
                 )
             ]
         try:
+            trace.phase = "worker_workflow"
             result = await workflow.run_grc_analysis_endpoint(
                 fixture["feed_url"],
                 GRCAnalysisConfig(
@@ -234,6 +272,7 @@ async def run_workflow(source, mode, responses):
                 ),
             )
         except Captured:
+            trace.phase = "worker_derived_capture"
             require(mode in {"prepare", "derive"})
             require(len(captured) == (1 if mode == "prepare" else 2))
             require(mode == "prepare" or len(derived) == 1)
@@ -241,6 +280,7 @@ async def run_workflow(source, mode, responses):
                 "wires": [base64.b64encode(raw).decode() for raw in captured],
                 "derived": fields() if derived else None,
             }
+        trace.phase = "worker_host_validation"
         require(
             mode in {"calibrate", "replay"} and len(captured) == 2 and len(derived) == 1
         )
@@ -283,13 +323,21 @@ async def run_workflow(source, mode, responses):
 def main():
     os.umask(0o077)
     logging.disable(logging.CRITICAL)
+    trace = WorkerTrace()
     try:
         mode, source_path = sys.argv[1:]
         require(mode in {"prepare", "calibrate", "derive", "replay"})
+        trace.stage = {
+            "prepare": "trial",
+            "calibrate": "calibration",
+            "derive": "analysis",
+            "replay": "plan",
+        }[mode]
         require(sys.flags.safe_path and sys.flags.no_user_site)
         require(not sys.flags.ignore_environment and sys.flags.hash_randomization == 0)
         require(os.environ.get("PYTHONHASHSEED") == "0")
         require(not os.environ.get("OPENROUTER_API_KEY"))
+        trace.phase = "worker_input"
         raw = sys.stdin.buffer.read(2 * RESPONSE_LIMIT * 2 + 1)
         require(len(raw) <= 2 * RESPONSE_LIMIT * 2)
         encoded = json.loads(raw)
@@ -314,12 +362,24 @@ def main():
             )
             with redirect_stdout(io.StringIO()):
                 value = asyncio.run(
-                    run_workflow(Path(source_path).resolve(), mode, responses)
+                    run_workflow(Path(source_path).resolve(), mode, responses, trace)
                 )
-        sys.stdout.buffer.write(json.dumps(value, sort_keys=True).encode())
+        output = {
+            "diagnostic_version": diagnostics.VERSION,
+            "result": value,
+            "diagnostic": diagnostics.record(trace.stage, "worker_complete", "ok"),
+        }
+        sys.stdout.buffer.write(json.dumps(output, sort_keys=True).encode())
         return 0
-    except BaseException:
-        return 1
+    except BaseException as error:
+        trace.capture(error)
+        sys.stdout.buffer.write(
+            json.dumps(
+                {"diagnostic_version": diagnostics.VERSION, "error": trace.primary},
+                sort_keys=True,
+            ).encode()
+        )
+        return 0
 
 
 if __name__ == "__main__":

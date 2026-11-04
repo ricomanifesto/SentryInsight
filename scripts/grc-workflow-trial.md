@@ -88,3 +88,43 @@ sources/grc/agent/.venv/bin/python -I -B executor/scripts/verify_grc_workflow_on
 This is test preparation, not proof of recurring production readiness. Recurring
 paid generation still needs server-owned admission, aggregate spending policy,
 real-source retention approval and separate publication/schedule decisions.
+
+## Future diagnostic output
+
+New trial receipts use `schema_version: 2`; diagnostic records have their own
+`version: 1`. Each record contains only fixed `stage`, `phase` and `code` enums.
+The receipt separates the last observation, first failure and at most three
+secondary cleanup/persistence failures from authoritative request states. It
+records owned boundaries before risky work where possible: response validation
+and close, worker launch/I/O/protocol, derived-body validation, plan binding,
+replay/host validation, and source/report fences. Unknown exceptions remain
+`unknown_failure`; their text, class, traceback, headers and bodies are discarded.
+
+Worker success and error envelopes have exact, disjoint key sets and versioned,
+allowlisted records. Malformed, mixed, oversized, duplicate-field or unknown
+envelopes are protocol failures, not evidence of a recognition cause. A
+`worker_recognition_gate` refusal describes this test's stricter closed gate;
+it does not prove that the production parser itself fell back or that a model's
+answer was semantically incompatible.
+
+Response close, sender-client exit and child reap are bounded to five seconds. An earlier failure
+stays primary if cleanup also fails; a close-only failure after valid metadata
+stops before derivation. Cancellation/timeout preserves sending/uncertain holds.
+Scratch-directory, claim-descriptor and outer control-client cleanup failures
+also retain the first failure rather than replacing it. A returned receipt keeps
+its operation/state evidence if client exit later fails. The independent trial
+artifact is written only once, after control-client cleanup, so a late close
+cannot replace a precise receipt with an empty generic fallback.
+A claim save failure latches persistence as unknown: the runner never retries
+that save through diagnostic recording, finish, binding or cleanup. Its trial
+`states` become null with `claim_persistence: unknown`, because partially written
+or mutated in-memory values are not durable-state proof. A safe independent
+metadata write may preserve the failure; if the output directory is unsafe or
+unavailable, only the fixed stop message remains. No claim is reset or rearmed.
+
+Historical schema-1 receipts and their null/unknown costs remain unchanged.
+Absent diagnostic fields mean unavailable evidence, not a default recognition
+or formatting cause. The original stopped run cannot be classified after its
+discarded answer merely because future diagnostics are more precise. Any new
+request still needs a fresh exact grant; this diagnostic change adds no retry,
+inference, payload or production activation authority.
