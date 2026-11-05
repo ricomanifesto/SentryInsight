@@ -3,6 +3,7 @@
 
 import argparse
 from copy import deepcopy
+from contextlib import contextmanager, ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
@@ -11,6 +12,7 @@ import logging
 import os
 from pathlib import Path
 import sys
+import socket
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,11 +67,54 @@ async def prepare(raw, scratch):
         require(cache.is_dir() and sha((cache / CACHE_FILE).read_bytes()) == CACHE_SHA)
     except OSError:
         raise ValueError("Closed canary refused") from None
+    # This closed offline operation owns its process environment while running.
+    # No inherited model override, credential, gateway or exporter survives to
+    # an application import. Direct callers receive the same fence as the CLI.
+    with capture_environment(cache):
+        return await _prepare_owned(raw, scratch)
+
+
+def deny_network(*_args, **_kwargs):
+    raise ValueError("Closed canary refused")
+
+
+@contextmanager
+def capture_environment(cache):
+    environment = {
+        "PATH": os.defpath,
+        "TIKTOKEN_CACHE_DIR": str(cache.resolve()),
+        "OTEL_SDK_DISABLED": "true",
+        "LOGFIRE_SEND_TO_LOGFIRE": "false",
+        "LANGSMITH_TRACING": "false",
+        "LANGCHAIN_TRACING_V2": "false",
+    }
+    with ExitStack() as stack:
+        previous_logging = logging.root.manager.disable
+        logging.disable(logging.CRITICAL)
+        stack.callback(logging.disable, previous_logging)
+        stack.enter_context(patch.dict(os.environ, environment, clear=True))
+        for name in ("connect", "connect_ex", "sendto", "sendmsg"):
+            if hasattr(socket.socket, name):
+                stack.enter_context(patch.object(socket.socket, name, deny_network))
+        for name in ("create_connection", "getaddrinfo"):
+            stack.enter_context(patch.object(socket, name, deny_network))
+        import httpx
+
+        stack.enter_context(
+            patch.object(httpx.HTTPTransport, "handle_request", deny_network)
+        )
+        stack.enter_context(
+            patch.object(httpx.AsyncHTTPTransport, "handle_async_request", deny_network)
+        )
+        yield
+
+
+async def _prepare_owned(raw, scratch):
     import httpx
     from src.services import fetch
     from src.services.article_content import normalize_feed_content
     from src.core import analyze, model_client, reviewed_report, workflow
-    from src.core.model_route import KIMI_ROUTE, RouteActivation
+    from src.core.model_route import KIMI_ROUTE, OFFLINE_KEY, RouteActivation
 
     original = model_client.OpenRouterClient
     actual_factory = model_client.build_model_client
@@ -129,9 +174,22 @@ async def prepare(raw, scratch):
         return httpx.Response(400, json={"error": {"code": 400}})
 
     def constructor(**kwargs):
+        require(
+            kwargs.get("api_key") == OFFLINE_KEY
+            and kwargs.get("activation") is RouteActivation.OFFLINE
+            and type(kwargs.get("transport")) is httpx.MockTransport
+            and kwargs.get("max_tokens") == 32000
+        )
         return original(**kwargs, max_attempts=1)
 
     def factory(**kwargs):
+        selection = kwargs.get("model")
+        require(
+            selection is not None
+            and selection.provider_id == "openrouter"
+            and selection.model_id == KIMI_ROUTE.model_id
+            and kwargs.get("max_tokens") == 32000
+        )
         return actual_factory(
             **kwargs,
             activation=RouteActivation.OFFLINE,
