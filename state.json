@@ -74,6 +74,26 @@
         "version": 1
       },
       "stage": "spend_reserved"
+    },
+    {
+      "admission_key": "run:42022367409",
+      "at": "2026-11-05T11:52:15.685Z",
+      "attempt": 1,
+      "limit": 1,
+      "request_sha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
+      "revision": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+      "run_id": "42022367409",
+      "stage": "request_reserved",
+      "token": "0e22331bebaad8623047c25ae3915657"
+    },
+    {
+      "at": "2026-11-05T11:52:15.685Z",
+      "attempt": 1,
+      "generationToken": "7a580cb8b65a694b502a96a1c3a860d6",
+      "operation": "report",
+      "requestSha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
+      "stage": "spend_sending",
+      "token": "0e22331bebaad8623047c25ae3915657"
     }
   ],
   "schema_version": 1,
