@@ -136,6 +136,50 @@
       "at": "2026-11-05T18:42:12.607Z",
       "run_id": "42086668758",
       "stage": "invoked"
+    },
+    {
+      "admissionKey": "run:42086668758",
+      "at": "2026-11-05T18:42:14.447Z",
+      "day": "2026-11-05",
+      "generationToken": "296fc461b0ec6c1b822c35a932fd2b79",
+      "revision": "7f66d791f67fbec401ce4a5af9441370d21ad71d",
+      "runId": "42086668758",
+      "sourceSha256": "b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9",
+      "stage": "pilot_daily"
+    },
+    {
+      "amountMicrousd": 7251456,
+      "at": "2026-11-05T18:42:14.447Z",
+      "binding": {
+        "admissionKey": "run:42086668758",
+        "revision": "7f66d791f67fbec401ce4a5af9441370d21ad71d",
+        "runAttempt": "1",
+        "runId": "42086668758",
+        "sourceSha256": "b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9"
+      },
+      "generationToken": "296fc461b0ec6c1b822c35a932fd2b79",
+      "physicalLimit": 1,
+      "policy": {
+        "enabled": true,
+        "expiresAt": "2026-12-01T00:00:00.000Z",
+        "generationMicrousd": 7251456,
+        "id": "sentry-calendar-pilot-v1",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "operations": [
+          {
+            "id": "report",
+            "maxAttempts": 3,
+            "maxOutputTokens": 32000
+          }
+        ],
+        "periodEnd": "2026-12-01T00:00:00.000Z",
+        "periodMicrousd": 20000000,
+        "periodStart": "2026-11-01T00:00:00.000Z",
+        "provider": "moonshotai/mxfp4",
+        "revision": "7f66d791f67fbec401ce4a5af9441370d21ad71d",
+        "version": 1
+      },
+      "stage": "spend_reserved"
     }
   ],
   "schema_version": 1,
