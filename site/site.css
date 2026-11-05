@@ -9,6 +9,14 @@
   --focus: #176b87;
   --urgent-text: #9f1239;
   --badge-bg: #eef3f5;
+  --sev-critical-text: #a4161a;
+  --sev-critical-bg: #fde4e4;
+  --sev-high-text: #9a3412;
+  --sev-high-bg: #ffead5;
+  --sev-medium-text: #7c4a03;
+  --sev-medium-bg: #fdf0c4;
+  --sev-low-text: #1e4f8f;
+  --sev-low-bg: #e0ecfb;
   --text-small: 0.875rem;
   --page-gutter: max(18px, calc((100% - 1180px) / 2));
 }
@@ -24,6 +32,14 @@
   --focus: #b4e4ef;
   --urgent-text: #fecdd3;
   --badge-bg: #22313a;
+  --sev-critical-text: #fecaca;
+  --sev-critical-bg: #4a1519;
+  --sev-high-text: #fed7aa;
+  --sev-high-bg: #45230f;
+  --sev-medium-text: #fde68a;
+  --sev-medium-bg: #3d3109;
+  --sev-low-text: #bfdbfe;
+  --sev-low-bg: #162b48;
 }
 
 * { box-sizing: border-box; }
@@ -197,10 +213,22 @@ button { font: inherit; }
   white-space: nowrap;
 }
 .badge + .badge::before { content: "·"; margin: 0 6px; color: var(--muted); }
-.finding-heading[data-severity="critical"][data-exploitation-status="active"] .badge-severity {
-  background: transparent;
-  color: var(--urgent-text);
-}
+/* Severity is a colored pill; other badges stay quiet text. */
+.badge-severity { padding: 2px 8px; border-radius: 999px; background: var(--badge-bg); }
+.badge-severity[data-value="critical"] { background: var(--sev-critical-bg); color: var(--sev-critical-text); }
+.badge-severity[data-value="high"] { background: var(--sev-high-bg); color: var(--sev-high-text); }
+.badge-severity[data-value="medium"] { background: var(--sev-medium-bg); color: var(--sev-medium-text); }
+.badge-severity[data-value="low"] { background: var(--sev-low-bg); color: var(--sev-low-text); }
+.badge-severity[data-value="unknown"] { font-weight: 600; }
+.badge-exploitation-status[data-value="active"] { color: var(--urgent-text); }
+.badge[title] { cursor: help; }
+.badge-legend { margin: 0 0 18px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.badge-legend summary { cursor: pointer; font-weight: 700; }
+.badge-legend-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 4px 24px; margin-top: 10px; }
+.badge-legend-heading { margin: 8px 0 6px; font-size: var(--text-small); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.badge-legend dl { margin: 0; }
+.badge-legend dt { margin: 8px 0 2px; }
+.badge-legend dd { margin: 0; color: var(--muted); font-size: var(--text-small); line-height: 1.4; }
 .cve-chip {
   min-height: 0;
   padding: 0;
@@ -226,6 +254,14 @@ button { font: inherit; }
   text-decoration: none;
 }
 .heading-anchor:hover { background: var(--badge-bg); color: var(--text); }
+/* The copy-link control appears on hover or keyboard focus, not as a
+   permanent trailing "#" on every finding. Touch devices use the heading. */
+.finding-heading .heading-anchor { opacity: 0; transition: opacity 120ms ease; }
+.finding-heading:hover .heading-anchor,
+.finding-heading:focus-within .heading-anchor,
+.heading-anchor:focus-visible { opacity: 1; }
+@media (hover: none) { .finding-heading .heading-anchor { display: none; } }
+.cve-link { white-space: nowrap; }
 .finding-body {
   margin: 0 0 14px;
   padding: 8px 0 20px;
@@ -279,7 +315,7 @@ button { font: inherit; }
   .mobile-toc { display: block; }
   .finding-heading { grid-template-columns: 1fr; }
   .finding-supporting { justify-content: flex-start; padding: 0 0 8px; }
-  .badge, .cve-chip { white-space: normal; }
+  .badge { white-space: normal; }
 }
 
 @media (max-width: 520px) {

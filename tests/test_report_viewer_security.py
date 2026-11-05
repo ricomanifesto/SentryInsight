@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from src.core.report_artifact import parse_report_artifact
+from scripts.build_site import _display_title
 
 REPORT = Path("index.md")
 REPORT_PAGE = Path("index.html")
@@ -278,7 +279,8 @@ def test_report_has_clean_desktop_and_mobile_section_maps():
     assert 'class="desktop-toc"' in page
     assert "Critical Patch" not in page
     assert "▼" not in page
-    first_title = html.escape(artifact.findings[0].title)
+    # Section maps show the title without a suffix repeating its CVE chips.
+    first_title = html.escape(_display_title(artifact.findings[0]))
     assert page.count(f">{first_title}</a>") == 2
 
 

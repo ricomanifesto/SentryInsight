@@ -135,7 +135,11 @@ def test_site_builder_renders_each_finding_classification_once_in_initial_html(
     assert "<strong>Action</strong>" not in html
     assert "<strong>CVE IDs</strong>" not in html
     assert ">Critical</span>" in html
-    assert ">Active exploitation</span>" in html
+    assert ">Exploited in the wild</span>" in html
+    assert (
+        'title="A source directly confirms attackers are exploiting this CVE."' in html
+    )
+    assert html.count('class="badge-legend"') == 1
     assert ">Patch</span>" in html
     assert 'target="_blank" rel="noopener noreferrer"' in html
 
@@ -233,7 +237,8 @@ def test_site_builder_generates_clean_desktop_and_mobile_section_maps(tmp_path):
     assert html.count('href="#example-vulnerability-cve-2026-1234"') == 3
     assert 'aria-label="Report sections"' in html
     assert "<summary>On this page</summary>" in html
-    toc_label = "Example vulnerability (CVE-2026-1234)"
+    # The CVE suffix repeats the linked CVE chip, so labels drop it.
+    toc_label = "Example vulnerability"
     assert f">{toc_label}</a>" in html
     assert f">{toc_label} Critical" not in html
 
@@ -437,3 +442,48 @@ def test_vendor_advisory_remains_a_link_instead_of_an_embedded_nvd_cve(tmp_path)
     )
     html = (build_fixture(tmp_path, source) / "index.html").read_text()
     assert 'href="https://vendor.example/security/CVE-2026-1234"' in html
+
+
+def test_titles_drop_only_a_cve_suffix_that_repeats_the_chips():
+    from scripts.build_site import _display_title
+
+    class F:
+        def __init__(self, title, cves):
+            self.title, self.cve_ids = title, tuple(cves)
+
+    a, b = "CVE-2026-1234", "CVE-2026-5678"
+    assert _display_title(F(f"Gateway RCE — {a}", [a])) == "Gateway RCE"
+    assert _display_title(F(f"Gateway RCE ({a})", [a])) == "Gateway RCE"
+    assert _display_title(F(f"Gateway — {a}, {b}", [a, b])) == "Gateway"
+    # A suffix naming a CVE the finding does not carry stays visible.
+    assert _display_title(F(f"Gateway — {b}", [a])) == f"Gateway — {b}"
+    assert _display_title(F("Gateway RCE", [a])) == "Gateway RCE"
+    assert _display_title(F(a, [a])) == a
+
+
+def test_single_asterisks_stay_literal_while_bold_labels_render():
+    from markdown_it import MarkdownIt
+
+    from scripts.build_site import _literal_single_asterisks
+
+    markdown = MarkdownIt("commonmark")
+    tokens = markdown.parse(
+        '- **Description**: "*sshole" accounts with hash "*" in /etc/shadow'
+    )
+    _literal_single_asterisks(tokens)
+    rendered = markdown.renderer.render(tokens, markdown.options, {})
+    assert "<strong>Description</strong>" in rendered
+    assert "<em>" not in rendered
+    assert "&quot;*sshole&quot; accounts with hash &quot;*&quot; in" in rendered
+
+
+def test_vendor_links_are_labelled_by_host():
+    from scripts.build_site import _vendor_link_labels
+
+    assert _vendor_link_labels(
+        [
+            "https://www.zyxel.com/advisory-1",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-1234",
+            "https://www.zyxel.com/advisory-2",
+        ]
+    ) == ["zyxel.com", "nvd.nist.gov", "zyxel.com (2)"]

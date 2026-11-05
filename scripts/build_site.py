@@ -17,6 +17,7 @@ from dataclasses import asdict
 from datetime import timezone
 from pathlib import Path
 from typing import TypedDict
+from urllib.parse import urlsplit
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
@@ -40,6 +41,14 @@ from src.core.source_coverage import (
 
 PUBLIC_ROOT = emitted_origin("SentryInsight")
 CVE_TEXT_PATTERN = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
+# A trailing "— CVE-…" or "(CVE-…)" in a finding title repeats the linked CVE
+# chips beside it, and the title sits inside a button where it cannot link.
+TITLE_CVE_SUFFIX_PATTERN = re.compile(
+    r"\s*(?:[—–-]\s*|\(\s*)"
+    r"(CVE-\d{4}-\d{4,}(?:\s*(?:,|/|&|and)\s*CVE-\d{4}-\d{4,})*)"
+    r"\s*\)?\s*$",
+    re.IGNORECASE,
+)
 STRUCTURED_FINDING_FIELD_PATTERN = re.compile(
     r"^\*\*(Severity|Exploitation Status|Action|CVE IDs?|Reporting|Vendor Links|Affected Versions Status)\*\*:",
     re.IGNORECASE,
@@ -53,11 +62,11 @@ BADGE_LABELS = {
         "unknown": "Severity unknown",
     },
     "exploitation_status": {
-        "active": "Active exploitation",
-        "observed": "Observed",
-        "potential": "Potential",
-        "not_observed": "Not observed",
-        "unknown": "Status unknown",
+        "active": "Exploited in the wild",
+        "observed": "Exploitation observed",
+        "potential": "Exploitable, no attacks seen",
+        "not_observed": "No exploitation seen",
+        "unknown": "Exploitation unknown",
     },
     "action": {
         "patch": "Patch",
@@ -66,6 +75,35 @@ BADGE_LABELS = {
         "monitor": "Monitor",
         "none": "No action listed",
     },
+}
+# Plain-language meanings, matching the generation and evidence rules.
+BADGE_DESCRIPTIONS = {
+    "severity": {
+        "critical": "The source rates it critical or gives a CVSS score of 9.0 or higher.",
+        "high": "The source rates it high or gives a CVSS score from 7.0 to 8.9.",
+        "medium": "The source rates it medium or gives a CVSS score from 4.0 to 6.9.",
+        "low": "The source rates it low or gives a CVSS score below 4.0.",
+        "unknown": "No source states a severity or CVSS score.",
+    },
+    "exploitation_status": {
+        "active": "A source directly confirms attackers are exploiting this CVE.",
+        "observed": "A source reports exploitation telemetry, but of limited scope.",
+        "potential": "A proof of concept or likely risk exists, but no source confirms attacks.",
+        "not_observed": "A source explicitly says exploitation has not been seen.",
+        "unknown": "The sources do not establish whether it is being exploited.",
+    },
+    "action": {
+        "patch": "A fix is available: apply it.",
+        "mitigate": "A source gives a workaround to apply.",
+        "investigate": "Check your environment for signs of compromise.",
+        "monitor": "Watch for updates; no other action is supported yet.",
+        "none": "The sources support no specific action.",
+    },
+}
+LEGEND_HEADINGS = {
+    "severity": "Severity",
+    "exploitation_status": "Exploitation",
+    "action": "Action",
 }
 
 
@@ -113,6 +151,46 @@ def _strip_raw_html(tokens: list[Token]) -> None:
             token.content = ""
         if token.children:
             _strip_raw_html(token.children)
+
+
+def _literal_single_asterisks(tokens: list[Token]) -> None:
+    """Keep single ``*`` as text: reports quote password hashes and wildcards.
+
+    Generated prose only uses ``**bold**`` labels. A lone asterisk such as
+    ``"*"`` or ``*sshole`` otherwise pairs with a later one and italicizes,
+    and drops, the text between them.
+    """
+    for token in tokens:
+        if not token.children:
+            continue
+        for index, child in enumerate(token.children):
+            if child.type in {"em_open", "em_close"} and child.markup == "*":
+                text = Token("text", "", 0)
+                text.content = "*"
+                token.children[index] = text
+
+
+def _display_title(finding: Finding) -> str:
+    """Drop a trailing CVE suffix that only repeats the finding's CVE chips."""
+    match = TITLE_CVE_SUFFIX_PATTERN.search(finding.title)
+    if not match or not finding.cve_ids:
+        return finding.title
+    suffix_cves = {cve.upper() for cve in CVE_TEXT_PATTERN.findall(match.group(1))}
+    if not suffix_cves <= set(finding.cve_ids):
+        return finding.title
+    return finding.title[: match.start()].rstrip() or finding.title
+
+
+def _vendor_link_labels(urls) -> list[str]:
+    """Label each vendor link by its host, numbering repeated hosts."""
+    labels = []
+    seen: dict[str, int] = {}
+    for url in urls:
+        host = urlsplit(url).hostname or "Vendor advisory"
+        host = host.removeprefix("www.")
+        seen[host] = seen.get(host, 0) + 1
+        labels.append(host if seen[host] == 1 else f"{host} ({seen[host]})")
+    return labels
 
 
 def _link_cves(tokens: list[Token]) -> None:
@@ -198,10 +276,33 @@ def _controlled_html(content: str, *, block: bool = False) -> Token:
 
 def _badge(dimension: str, value: str) -> str:
     label = BADGE_LABELS[dimension][value]
+    description = BADGE_DESCRIPTIONS[dimension][value]
     class_name = dimension.replace("_", "-")
     return (
-        f'<span class="badge badge-{class_name}" data-value="{html.escape(value)}">'
+        f'<span class="badge badge-{class_name}" data-value="{html.escape(value)}" '
+        f'title="{html.escape(description)}">'
         f"{html.escape(label)}</span>"
+    )
+
+
+def _badge_legend_html() -> str:
+    """A visible key: badge tooltips are unavailable on touch devices."""
+    groups = []
+    for dimension, heading in LEGEND_HEADINGS.items():
+        class_name = dimension.replace("_", "-")
+        rows = "".join(
+            f'<dt><span class="badge-key badge badge-{class_name}" data-value="{html.escape(value)}">'
+            f"{html.escape(label)}</span></dt>"
+            f"<dd>{html.escape(BADGE_DESCRIPTIONS[dimension][value])}</dd>"
+            for value, label in BADGE_LABELS[dimension].items()
+        )
+        groups.append(
+            f'<div class="badge-legend-group"><p class="badge-legend-heading">{html.escape(heading)}</p>'
+            f"<dl>{rows}</dl></div>"
+        )
+    return (
+        '<details class="badge-legend"><summary>What the labels mean</summary>'
+        '<div class="badge-legend-body">' + "".join(groups) + "</div></details>\n"
     )
 
 
@@ -226,7 +327,7 @@ def _finding_heading_html(finding: Finding, claimed_cves: set[str]) -> str:
         'aria-hidden="true"></span>'
         for cve in handoff_cves
     )
-    title = html.escape(finding.title)
+    title = html.escape(_display_title(finding))
     heading_id = html.escape(finding.slug)
     return (
         f"{cve_handoff_targets}"
@@ -254,8 +355,11 @@ def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> s
     vendor = ""
     if finding.vendor_links:
         links = ", ".join(
-            f'<a href="{html.escape(url)}" target="_blank" rel="noopener noreferrer">Vendor advisory {index}</a>'
-            for index, url in enumerate(finding.vendor_links, start=1)
+            f'<a href="{html.escape(url)}" target="_blank" rel="noopener noreferrer">'
+            f"{html.escape(label)}</a>"
+            for url, label in zip(
+                finding.vendor_links, _vendor_link_labels(finding.vendor_links)
+            )
         )
         vendor = (
             f'<p class="vendor-guidance"><strong>Vendor guidance:</strong> {links}</p>'
@@ -295,6 +399,7 @@ def _enhance_finding_tokens(
     enhanced: list[Token] = []
     finding_body_open = False
     claimed_cves: set[str] = set()
+    legend_emitted = False
     index = 0
     while index < len(tokens):
         token = tokens[index]
@@ -310,6 +415,9 @@ def _enhance_finding_tokens(
             inline = tokens[index + 1]
             finding = findings.get(slugify(inline.content.strip()))
             if finding is not None:
+                if not legend_emitted:
+                    enhanced.append(_controlled_html(_badge_legend_html(), block=True))
+                    legend_emitted = True
                 token.attrSet("class", "finding-heading")
                 token.attrSet("data-expanded", "true")
                 enhanced.extend(
@@ -376,12 +484,19 @@ def _render_markdown(
     tokens = markdown.parse(body)
     _strip_raw_html(tokens)
     tokens = _strip_structured_finding_fields(tokens)
+    _literal_single_asterisks(tokens)
     _link_cves(tokens)
     tokens = _without_source_title(tokens)
 
-    heading_entries = _heading_entries(tokens)
-
     findings = {finding.slug: finding for finding in artifact.findings}
+    heading_entries = [
+        (
+            level,
+            _display_title(findings[slug]) if slug in findings else title,
+            slug,
+        )
+        for level, title, slug in _heading_entries(tokens)
+    ]
     for index, token in enumerate(tokens):
         if token.type != "heading_open" or token.tag not in {"h2", "h3"}:
             continue
