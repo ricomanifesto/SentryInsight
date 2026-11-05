@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "enabled": true,
-  "execution_date": "2026-11-06",
+  "execution_date": "2026-11-05",
   "source_role": "reviewed_canary_candidate",
   "production_main": "5fc68212f1a9772ab56872ad20ad94ccc8322f3e",
   "production_report_sha256": "698f2cb475a43e6c273900df1ea9ac38451bf9535e6a99c3663b9c411567bde9",
   "feed_sha256": "f3a601d5927c3e77668c840b9adaa08da3100f1d8e3c33f23123457e37cb0414",
-  "source_pack_sha256": "49249448a22817be7864e77413510cc72fbbb93f3aeaafd2a71dec8535b12407",
+  "source_pack_sha256": "b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9",
   "wire_sha256": "a260b0a92a35926c8201e80c9b44fd4edbeb84c00b05f600c1856de57a4ca440",
   "canonical_request_sha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
   "max_output_tokens": 32000,
@@ -21,7 +21,18 @@
     }
   },
   "billing_basis": "verified_openrouter_credit_only",
-  "data_approval_sha256": "fabfc6610161e7e92466f2e0ba59954517a1e7a23c00be26e7b44fa6b0c8f16e",
+  "data_approval_sha256": "840fe520c883c8cb92929b7285f90feed8b008512386a05a4265fa456374cba5",
   "metadata_audience_approved": true,
-  "output_fate": "conditional_publish"
+  "output_fate": "conditional_publish",
+  "daily_replacement": {
+    "version": 1,
+    "kind": "replace_original_nov5_canary",
+    "original_run_id": "42022367409",
+    "original_day": "2026-11-05",
+    "original_source": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+    "prior_history_sha256": "15fa3cbc17a03657683b78e7f3eac44d23fb606d5cdbd8d341a3de56139d8894",
+    "prior_record_count": 10,
+    "original_daily_sha256": "fbb879840a9715dce333b342fed0d680c491a24b556ff6794058feae202a2be7",
+    "supersedes_manifest_sha256": "f6e48b09f930f5871dadae0c2755b22412878b008d84908dd8f240c765f8a70b"
+  }
 }

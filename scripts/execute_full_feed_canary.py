@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts.prepare_full_feed_canary import (  # noqa: E402
     Prepared,
+    canonical,
     require,
     sha,
     verify_feed,
@@ -48,7 +49,19 @@ from scripts.canary_process import (  # noqa: E402
     run_private,
 )  # noqa: E402
 
-DATE = "2026-11-06"
+DATE = "2026-11-05"
+REPLACEMENT_SCOPE = "840fe520c883c8cb92929b7285f90feed8b008512386a05a4265fa456374cba5"
+DAILY_REPLACEMENT = {
+    "version": 1,
+    "kind": "replace_original_nov5_canary",
+    "original_run_id": "42022367409",
+    "original_day": "2026-11-05",
+    "original_source": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+    "prior_history_sha256": "15fa3cbc17a03657683b78e7f3eac44d23fb606d5cdbd8d341a3de56139d8894",
+    "prior_record_count": 10,
+    "original_daily_sha256": "fbb879840a9715dce333b342fed0d680c491a24b556ff6794058feae202a2be7",
+    "supersedes_manifest_sha256": "f6e48b09f930f5871dadae0c2755b22412878b008d84908dd8f240c765f8a70b",
+}
 REF = "refs/heads/canary/sentry-full-feed-20261105"
 MANIFEST = ROOT / "config/full-feed-canary.json"
 PUBLIC_REPORTS = (
@@ -159,7 +172,7 @@ def authority(raw, digest, context, prepared, expected_commit, expected_manifest
     require(
         set(raw)
         == set(
-            "schema_version enabled execution_date source_role production_main production_report_sha256 feed_sha256 source_pack_sha256 wire_sha256 canonical_request_sha256 max_output_tokens whole_hold_microusd physical_limit pilot billing_basis data_approval_sha256 metadata_audience_approved output_fate".split()
+            "schema_version enabled execution_date source_role production_main production_report_sha256 feed_sha256 source_pack_sha256 wire_sha256 canonical_request_sha256 max_output_tokens whole_hold_microusd physical_limit pilot billing_basis data_approval_sha256 metadata_audience_approved output_fate daily_replacement".split()
         )
     )
     require(
@@ -167,6 +180,9 @@ def authority(raw, digest, context, prepared, expected_commit, expected_manifest
         and re.fullmatch(r"[a-f0-9]{64}", digest) is not None
     )
     require(raw["execution_date"] == DATE == now.date().isoformat())
+    require(type(raw["daily_replacement"]) is dict)
+    require(canonical(raw["daily_replacement"]) == canonical(DAILY_REPLACEMENT))
+    require(raw["data_approval_sha256"] == REPLACEMENT_SCOPE)
     require(
         context.get("GITHUB_ACTIONS") == "true"
         and context.get("GITHUB_REPOSITORY") == "ricomanifesto/SentryInsight"

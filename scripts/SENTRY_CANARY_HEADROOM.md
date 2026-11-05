@@ -1,6 +1,6 @@
 # Closed receive-window recovery preparation
 
-This is local preparation, not a renewed request grant. The November 5 source,
+This is local preparation, not a renewed request grant. The original November 5 source,
 request, manifest, financial records and failed run remain immutable. The old
 request's exact local exception and final charge remain unknown. It has no report;
 its original token/day remain consumed and the entire $7.251456 hold stays counted.
@@ -74,7 +74,8 @@ never authorizes retry.
 1600 matches the existing 32,000-output/20-tokens-per-second heuristic. It is a
 local ceiling, not a provider throughput, completion or billing guarantee. The
 output cap, requested model/provider/tier, source bytes, prices, reasoning/privacy
-request controls, one physical send and financial policy are unchanged here.
+request controls, one physical send and monthly financial terms are unchanged.
+The explicit closed daily exception is described below.
 Requested `zdr:true` and `data_collection:deny` remain unchanged. OpenRouter's
 provider/endpoint and account Safety Retention policy, plus legal/CSAM exceptions,
 qualify what those controls establish; catalog membership alone is not proof of
@@ -109,30 +110,55 @@ An unknown ACK is reconciled read-only, never dispatched again automatically.
 
 ## Pending bundle, no executable grant
 
-The intended source release is a normal fast-forward of the existing historical
+The proposed replacement is a normal fast-forward of the existing historical
 branch `canary/sentry-full-feed-20261105` and its draft PR191. Do not merge the
-temporary application/workflow branch into main. The separate November 6 scope re-derives the date-dependent source binding
-through the actual host and has an inert checkpoint plus an exact proposed
-activation delta for future approval. It is a fresh generation of the same fixed public
-30-source snapshot (25 eligible, five held), not a claim to newest news.
+temporary application/workflow branch into main. It would explicitly supersede
+the already approved, still unexecuted November 6 sequence, not add another request. The published b800
+source and its approved scope remain preserved; this local child needs the exact
+new daily-policy, release and spend approval before any action.
+
+The replacement re-derives November 5 processing-day metadata through the actual
+host using the same public 30-source snapshot (25 eligible, five held). It is not
+newest news. Its wire remains byte-identical. A new source revision, dated scope,
+manifest and fresh original physical token must be bound; the old grant is never
+relabelled or rearmed.
+
+The runner-specific `OriginalCanaryReplacementDaily` validates the exact full
+original ten-record prefix under the runtime canonical encoding, its one original
+daily row, and exactly three later records: the fixed-target readmission and this
+new manual run's admitted/invoked records. Every reservation CAS decision repeats
+those checks. Source, scope, trusted code revision, owners and same-day chronology
+are fixed. No other history, extra day row, repeat replacement or changed original
+record is accepted.
+
+Only for the delegated daily-collision check, a new array omits that single exact
+approved old daily row. The actual stored array is immutable and complete;
+financial replay receives all records, including the old uncertain full hold.
+The existing atomic append of a fresh `pilot_daily` and `spend_reserved` consumes
+the one replacement allowance. No new journal stage or generic override is added.
+The ordinary daily policy remains unchanged and still refuses a second same-day
+run. Later ordinary readers understand the existing record schema.
 
 The November pilot start/opening/marker and $20 cap remain unchanged. The old full
-hold plus a fresh identical hold would total $14.502912, absent other liabilities;
-that arithmetic is not permission. No same-day extra allowance or financial
-reconciliation is implemented. Earliest ordinary fresh day is November 6 UTC,
-after a separately approved readmission and all exact context/date/source gates.
+hold plus the new identical hold totals $14.502912, absent other liabilities;
+that arithmetic is not permission. A third unresolved whole hold would exceed
+the cap and must refuse. Readmission changes no day/token/money record. New
+initialization, refund, retry, fallback and automatic unknown-write adoption are
+not part of the replacement. The fixed job/date/UTC-day gates still require all
+headroom before reservation, key access, send and promotion, and never extend
+past November 5. The old November 6 command cannot match the new branch head.
 
 Future coordinator-owned commands, with exact approved hashes substituted, are:
 
 ```sh
 # Separate NO-MODEL action; verify exact new row and unchanged old prefix afterward.
 gh workflow run verify-nemotron.yml --ref canary/sentry-full-feed-20261105 \
-  -f expected_commit=APPROVED_SOURCE_SHA -f expected_manifest=APPROVED_NOV6_MANIFEST_SHA256 \
+  -f expected_commit=APPROVED_SOURCE_SHA -f expected_manifest=APPROVED_REPLACEMENT_MANIFEST_SHA256 \
   -f readmit_original=true \
   -f expected_readmission=APPROVED_READMISSION_MANIFEST_SHA256
 # Separate fresh one-shot; never initialize or readmit during this action.
 gh workflow run verify-nemotron.yml --ref canary/sentry-full-feed-20261105 \
-  -f expected_commit=APPROVED_SOURCE_SHA -f expected_manifest=APPROVED_NOV6_MANIFEST_SHA256
+  -f expected_commit=APPROVED_SOURCE_SHA -f expected_manifest=APPROVED_REPLACEMENT_MANIFEST_SHA256
 ```
 
 Both are proposals, not instructions to execute now. No source publication,

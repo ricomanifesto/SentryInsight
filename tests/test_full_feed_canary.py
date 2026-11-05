@@ -12,12 +12,14 @@ def test_feed_mutation_refuses_before_host_or_transport():
         verify_feed(b"<rss>different source</rss>")
 
 
+def test_ci_snapshot_is_committed_and_exact_without_external_fixture_environment():
+    verify_feed((Path(__file__).parent / "fixtures/full-feed-canary.xml").read_bytes())
+
+
 def test_actual_frozen_full_feed_uses_actual_prompt_and_quarantine(tmp_path):
-    feed = os.environ.get("SENTRY_FROZEN_FEED")
-    if not feed:
-        pytest.skip(
-            "Exact external public feed packet is supplied for canary preparation"
-        )
+    feed = os.environ.get("SENTRY_FROZEN_FEED") or str(
+        Path(__file__).parent / "fixtures/full-feed-canary.xml"
+    )
     value = asyncio.run(prepare(Path(feed).read_bytes(), tmp_path))
     assert value.metadata["input_sources"] == 30
     assert value.metadata["eligible_sources"] == 25
@@ -35,9 +37,9 @@ def test_actual_frozen_full_feed_uses_actual_prompt_and_quarantine(tmp_path):
 def test_ambient_credentials_model_gateway_and_tracing_cannot_escape_capture(
     tmp_path, monkeypatch, override
 ):
-    feed = os.environ.get("SENTRY_FROZEN_FEED")
-    if not feed:
-        pytest.skip("Exact external public packet required")
+    feed = os.environ.get("SENTRY_FROZEN_FEED") or str(
+        Path(__file__).parent / "fixtures/full-feed-canary.xml"
+    )
     import httpx
     from src.core.opencode_client import OpenCodeClient
 
@@ -99,9 +101,9 @@ def test_capture_resolves_real_submodules_instead_of_orphan_package_aliases(
     import src.core as core
     import src.services as services
 
-    feed = os.environ.get("SENTRY_FROZEN_FEED")
-    if not feed:
-        pytest.skip("Exact external public packet required")
+    feed = os.environ.get("SENTRY_FROZEN_FEED") or str(
+        Path(__file__).parent / "fixtures/full-feed-canary.xml"
+    )
     actual_workflow = importlib.import_module("src.core.workflow")
     actual_analyze = importlib.import_module("src.core.analyze")
     actual_fetch = importlib.import_module("src.services.fetch")
@@ -122,9 +124,9 @@ def test_capture_owns_direct_workflow_analysis_bindings_and_restores_them(
     import importlib
 
     workflow = importlib.import_module("src.core.workflow")
-    feed = os.environ.get("SENTRY_FROZEN_FEED")
-    if not feed:
-        pytest.skip("Exact external public packet required")
+    feed = os.environ.get("SENTRY_FROZEN_FEED") or str(
+        Path(__file__).parent / "fixtures/full-feed-canary.xml"
+    )
     calls = []
 
     async def stale_analysis(*_args, **_kwargs):

@@ -1,19 +1,16 @@
-# Closed Sentry November 6 fixed-snapshot proposal
+# Closed Sentry November 5 replacement proposal
 
-This scope is a fresh generation of the SAME frozen public 30-entry snapshot,
-not a claim of newest news. It requires a new exact approval and a fresh November 6
-UTC-day allocation. The November 5 grant was consumed without a report: its
-original token/day remain consumed and its entire $7.251456 hold stays counted.
-Neither this scope nor the fixed NO-MODEL readmission action classifies or refunds
-that old charge. Historical source, receipts and journal records are preserved.
+This local candidate would REPLACE the already approved, still unexecuted November 6 one-shot, not authorize
+an extra request. It requires exact new daily-policy, release and spend approval.
+The already-published b800 source and November 6 scope remain preserved. No action
+is authorized by this prepared manifest. The November 5 original token/day remain
+consumed and its full $7.251456 hold remains counted, with no charge reclassification.
 
-The locally prepared scope has an inert checkpoint and a separately reviewable
-proposed activation delta. Source/manifest values are reviewable inputs, not an
-operator dispatch approval. The exact source/ref/date, initialized ledger,
-production-main/report fences and durable original permit must still pass before
-provider-key access. See [timing and readmission ownership](SENTRY_CANARY_HEADROOM.md).
-Ordinary selected application clients remain OFFLINE/mock-only; recurring
-report generation stays paused.
+The replacement uses the SAME frozen public 30-entry snapshot, not newest news.
+It binds one fresh first-attempt run/token, the exact source/ref/dated manifest,
+initialized ledger and unchanged main/report fences before provider-key access.
+Ordinary application selected routes remain OFFLINE/mock-only; generation stays
+paused. See [timing and replacement ownership](SENTRY_CANARY_HEADROOM.md).
 
 The existing registered `verify-nemotron.yml` path is intentionally rewritten on
 the canary branch for this Sentry-only case.
@@ -45,10 +42,10 @@ The exact prepared JSON request body is 54,033 bytes: SHA256
 Its decoded canonical JSON SHA256 is
 `93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649`.
 These hashes exclude HTTP headers and TLS framing. The source-pack SHA256 is
-`49249448a22817be7864e77413510cc72fbbb93f3aeaafd2a71dec8535b12407`.
-The old pack was `b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9`.
+`b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9`.
+The preserved November 6 pack was `49249448a22817be7864e77413510cc72fbbb93f3aeaafd2a71dec8535b12407`.
 Actual old/new captures prove the only pack changes are the legacy fetch parser
-`date` fallback, November 5 to November 6, when `dc_date` is absent. Original
+`date` fallback, November 6 back to November 5, when `dc_date` is absent. Original
 `published` fields, titles, URLs and source bodies are unchanged. The fallback
 is processing-day metadata, not publication evidence. The complete wire and
 canonical request hashes above were re-derived and are byte-identical; the
@@ -78,20 +75,21 @@ row for the original invocation, under its pinned full history/tip. It is mutual
 exclusive with the canary, receives no model secret and cannot change any money,
 request, token or day record. An unknown write stops for read-only reconciliation.
 The coordinator verifies the exact append and old prefix before a separately
-approved November 6 canary. No automatic readmission, retry or wallet is created.
+approved replacement canary. No automatic readmission, retry or wallet is created.
 See the [fixed action contract](SENTRY_CANARY_HEADROOM.md).
 The fixed pilot begins November 5 with a $20 November UTC allocation and zero
 already-incurred spend within that new scope. Earlier separately authorized
 fictional tests are excluded, preserving their known/unknown costs and consumed
 grants; this is not zero account spend or an account/key cap. The opening-basis
-hash binds that prospective scope. One daily claim and the whole
+hash binds that prospective scope. One fresh replacement daily claim and the whole
 $7.251456 hold are atomic. The SAME original physical token is acknowledged
 before the one POST, with limit one. The ordinary three-slot full hold is kept;
 there is no undisclosed smaller canary policy. A model-context/rate assumption
 bounds one physical request at $2.417152; it is not an external billing warranty.
 
-Readmission, new workflow runs, cancellation and source revisions cannot reset
-the day or mint another token. Unknown writes/sends remain held, block automatic
+The fixed replacement consumes exactly one new same-day slot via an explicit
+runner-only exception. Readmission, new runs, cancellation and source revisions
+cannot reset either consumed slot or mint a further token. Unknown writes/sends remain held, block automatic
 replay and can block rollover. A trusted reconciliation is separate. The existing
 Sentry key is unchanged; its current limit and available credits are unverified; no purchase, top-up, key change or account lookup is
 performed. A 401/402/404 does not authorize another attempt or imply zero cost.
@@ -199,3 +197,11 @@ the future receive ceiling to 1600 seconds; it cannot change historical outcomes
 Historical generic receipts remain unclassified:
 new codes cannot retroactively establish why an earlier call failed. The prior
 one-shot grant remains consumed; this diagnostic change authorizes no call.
+
+The exact public feed is also checked in as `tests/fixtures/full-feed-canary.xml`
+with SHA256 `f3a601d5927c3e77668c840b9adaa08da3100f1d8e3c33f23123457e37cb0414`.
+Owning capture/replay tests use it when no explicit frozen-file override is set;
+CI therefore executes these positive/negative paths instead of skipping them.
+The existing validation command discovers every publication `*.test.js`, including
+the real-prefix daily-exception/financial/CAS proofs. No network fixture fetch is
+needed; the real canary feed hash and source URL remain unchanged.

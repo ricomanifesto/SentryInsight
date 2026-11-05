@@ -187,7 +187,7 @@ def test_live_context_requires_exact_first_manual_main_attempt(
         trial.require_live_context(commit, output)
 
 
-def test_canary_workflow_has_only_closed_manual_authority_and_proposed_next_day_scope():
+def test_canary_workflow_has_only_closed_manual_authority_and_proposed_replacement_scope():
     path = Path(".github/workflows/verify-nemotron.yml")
     workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
     assert set(workflow["on"]) == {"workflow_dispatch"}
@@ -211,7 +211,7 @@ def test_canary_workflow_has_only_closed_manual_authority_and_proposed_next_day_
     assert steps[-1]["with"]["path"].endswith("sentry-canary-metadata.json")
     manifest = json.loads(Path("config/full-feed-canary.json").read_bytes())
     assert manifest["enabled"] is True
-    assert manifest["execution_date"] == "2026-11-06"
+    assert manifest["execution_date"] == "2026-11-05"
     assert manifest["production_main"] == "5fc68212f1a9772ab56872ad20ad94ccc8322f3e"
     assert manifest["pilot"] == {
         "month": "2026-11",
@@ -225,7 +225,7 @@ def test_canary_workflow_has_only_closed_manual_authority_and_proposed_next_day_
     assert (
         manifest["billing_basis"] == "verified_openrouter_credit_only"
         and manifest["data_approval_sha256"]
-        == "fabfc6610161e7e92466f2e0ba59954517a1e7a23c00be26e7b44fa6b0c8f16e"
+        == "840fe520c883c8cb92929b7285f90feed8b008512386a05a4265fa456374cba5"
     )
     assert manifest["output_fate"] == "conditional_publish"
     assert (

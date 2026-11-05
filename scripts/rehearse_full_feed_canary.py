@@ -24,7 +24,7 @@ from scripts.prepare_full_feed_canary import (  # noqa: E402
     require,
 )
 
-DATE = "2026-11-06"
+DATE = "2026-11-05"
 MODEL = "moonshotai/kimi-k3.1-pro"
 
 

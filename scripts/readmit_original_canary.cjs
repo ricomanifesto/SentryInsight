@@ -51,7 +51,7 @@ function noAdoptionGit(git,expectedTip=PRIOR){
 }
 
 function approved(raw,context,at=new Date()){
-  need(raw?.enabled===true&&raw.schema_version===1&&raw.execution_date==='2026-11-06'&&at.toISOString().slice(0,10)===raw.execution_date);
+  need(raw?.enabled===true&&raw.schema_version===1&&raw.execution_date==='2026-11-05'&&at.toISOString().slice(0,10)===raw.execution_date);
   need(raw.target_admission_key===TARGET&&raw.target_run_id===ORIGINAL&&raw.history_sha256===HISTORY&&raw.prior_tip===PRIOR);
   need(raw.original_source==='4a18f5d42022170694d5d6e2f411a4bfc4903e2c'&&raw.production_main==='5fc68212f1a9772ab56872ad20ad94ccc8322f3e');
   need(/^[a-f0-9]{64}$/.test(raw.approval_scope_sha256||''));

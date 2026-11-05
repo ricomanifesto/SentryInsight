@@ -59,11 +59,11 @@ node scripts/bootstrap_canary_ledger.cjs \
 
 This section preserves the historical November 5 first-use route and its $20
 November Sentry pilot, prospective zero opening and public metadata audience.
-The ledger is already initialized. The separately prepared November 6 fixed-snapshot
+The ledger is already initialized. Any separately approved replacement or later fixed-snapshot
 scope must reuse that same marker/opening and must NOT initialize again or choose
 a new namespace. Its only proposed operator step is the fixed NO-MODEL readmission
 described in [the recovery guide](../scripts/SENTRY_CANARY_HEADROOM.md).
-The initializer below is not a November 6 release instruction.
+The initializer below is not a replacement release instruction.
 The registered job enforces the fixed owner, ref, head, first attempt and nondebug
 context. The command additionally requires the exact manifest digest, current UTC
 date, clean checkout, fixed repository origin and production main at

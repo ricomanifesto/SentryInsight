@@ -13,7 +13,7 @@ from scripts.prepare_full_feed_canary import prepare
 class ExecutionClock(datetime):
     @classmethod
     def now(cls, tz=None):
-        return cls(2026, 11, 6, 3, 4, 5, tzinfo=timezone.utc)
+        return cls(2026, 11, 5, 3, 4, 5, tzinfo=timezone.utc)
 
 
 class FrozenInputs(tuple):
@@ -38,9 +38,9 @@ def synthetic_clock(monkeypatch, tmp_path):
 
 @pytest.fixture(scope="module")
 def prepared(tmp_path_factory):
-    feed = os.environ.get("SENTRY_FROZEN_FEED")
-    if not feed:
-        pytest.skip("Exact external public packet required")
+    feed = os.environ.get("SENTRY_FROZEN_FEED") or str(
+        Path(__file__).parent / "fixtures/full-feed-canary.xml"
+    )
     raw = Path(feed).read_bytes()
     return FrozenInputs(
         (raw, asyncio.run(prepare(raw, tmp_path_factory.mktemp("prepared"))))
@@ -53,7 +53,7 @@ def settings(prepared):
         enabled=True,
         metadata_audience_approved=True,
         billing_basis="verified_openrouter_credit_only",
-        data_approval_sha256="e" * 64,
+        data_approval_sha256=canary.REPLACEMENT_SCOPE,
         pilot={
             "month": "2026-11",
             "activationStart": "2026-11-05T00:00:00.000Z",
@@ -97,7 +97,7 @@ def test_authority_fails_closed_before_any_adapter(prepared, field, value):
             prepared[1],
             "a" * 40,
             "d" * 64,
-            datetime(2026, 11, 6, tzinfo=timezone.utc),
+            datetime(2026, 11, 5, tzinfo=timezone.utc),
         )
 
 
@@ -122,7 +122,7 @@ def test_context_is_closed(prepared, field, value):
             prepared[1],
             context["GITHUB_SHA"],
             "d" * 64,
-            datetime(2026, 11, 6, tzinfo=timezone.utc),
+            datetime(2026, 11, 5, tzinfo=timezone.utc),
         )
 
 
@@ -285,7 +285,7 @@ async def exercise(
             "workflow_id": 406270829,
             "run_attempt": 1,
             "status": "in_progress",
-            "created_at": "2026-11-06T03:04:05Z",
+            "created_at": "2026-11-05T03:04:05Z",
         },
         context,
         canary.DATE,

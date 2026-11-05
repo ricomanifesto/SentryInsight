@@ -11,7 +11,7 @@ from scripts.rehearse_full_feed_canary import rehearse
 class ExecutionClock(datetime):
     @classmethod
     def now(cls, tz=None):
-        value = cls(2026, 11, 6, 3, 4, 5, tzinfo=timezone.utc)
+        value = cls(2026, 11, 5, 3, 4, 5, tzinfo=timezone.utc)
         return value if tz is not None else value.replace(tzinfo=None)
 
 
@@ -25,9 +25,9 @@ def synthetic_execution_clock(monkeypatch):
 
 
 def feed_bytes():
-    path = os.environ.get("SENTRY_FROZEN_FEED")
-    if not path:
-        pytest.skip("Exact external public packet required")
+    path = os.environ.get("SENTRY_FROZEN_FEED") or str(
+        Path(__file__).parent / "fixtures/full-feed-canary.xml"
+    )
     return Path(path).read_bytes()
 
 
@@ -46,8 +46,8 @@ def test_whole_feed_same_reply_reaches_actual_host_and_scratch_package(tmp_path)
     assert result["published"] is False
     assert result["financial_settled"] is False
     assert result["pages_package"]["matches_promoted_artifacts"] is True
-    assert result["generated_at"] == "2026-11-06T03:04:05+00:00"
-    assert result["generated_at"] != "2026-11-06T12:00:00+00:00"
+    assert result["generated_at"] == "2026-11-05T03:04:05+00:00"
+    assert result["generated_at"] != "2026-11-05T12:00:00+00:00"
 
 
 @pytest.mark.parametrize(

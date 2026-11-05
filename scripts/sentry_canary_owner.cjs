@@ -5,6 +5,7 @@ const fs = require('node:fs'), path = require('node:path'), cp = require('node:c
 const readline = require('node:readline'), crypto = require('node:crypto');
 const { createAdmission } = require('../publication/kit/admission');
 const { DailyPilot } = require('../publication/kit/daily-pilot');
+const { OriginalCanaryReplacementDaily, validateReplacement } = require('./original_canary_daily.cjs');
 const { readSiteConfig } = require('../publication/kit/config');
 const { initializationIdentity } = require('../publication/kit/store');
 const ROOT = path.resolve(__dirname, '..');
@@ -20,7 +21,8 @@ function approved(raw, context, at = new Date()) {
   need(raw.max_output_tokens===32000 && raw.whole_hold_microusd===7251456 && raw.physical_limit===1);
   need(raw.schema_version===1 && raw.source_role==='reviewed_canary_candidate');
   for(const name of ['source_pack_sha256','canonical_request_sha256','wire_sha256'])need(/^[a-f0-9]{64}$/.test(raw[name]||''));
-  need(raw.execution_date==='2026-11-06' && at.toISOString().slice(0,10)===raw.execution_date);
+  need(raw.execution_date==='2026-11-05' && at.toISOString().slice(0,10)===raw.execution_date);
+  validateReplacement(raw.daily_replacement,{revision:context.GITHUB_SHA,sourceSha256:raw.source_pack_sha256,scopeSha256:raw.data_approval_sha256});
   need(/^[a-f0-9]{64}$/.test(raw.data_approval_sha256||'') && raw.pilot!==null);
   exact(raw.pilot,['month','activationStart','opening']);need(raw.pilot.month==='2026-11' && raw.pilot.opening!==null);
   need(['nonpublish','conditional_publish'].includes(raw.output_fate));
@@ -78,7 +80,7 @@ if(require.main===module) (async()=>{
   need(git(['rev-parse','HEAD'])===process.env.GITHUB_SHA && git(['status','--porcelain'])==='');
   need(git(['remote','get-url','origin'])==='https://github.com/ricomanifesto/SentryInsight.git');
   need(git(['ls-remote','origin','refs/heads/main']).split(/\s+/)[0]===raw.production_main);
-  const daily=new DailyPilot(raw.pilot);
+  const daily=new OriginalCanaryReplacementDaily(raw.pilot,raw.daily_replacement,{revision:process.env.GITHUB_SHA,sourceSha256:raw.source_pack_sha256,scopeSha256:raw.data_approval_sha256});
   const admission=createAdmission({repoRoot:ROOT,remote:'origin',config:readSiteConfig(ROOT),consumer:'SentryInsight',fetchUrl:fail,
     requiredInitialization:ledgerIdentity(raw),
     productionDailyPilot:daily,productionSpendPolicy:daily.policy(process.env.GITHUB_SHA)});
