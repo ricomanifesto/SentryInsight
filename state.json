@@ -115,6 +115,12 @@
       "receipt": null,
       "stage": "spend_finished",
       "token": "0e22331bebaad8623047c25ae3915657"
+    },
+    {
+      "admission_key": "run:42022367409",
+      "at": "2026-11-05T18:27:18.852Z",
+      "run_id": "42084347310",
+      "stage": "readmitted"
     }
   ],
   "schema_version": 1,
