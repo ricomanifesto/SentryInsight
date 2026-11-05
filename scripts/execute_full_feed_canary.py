@@ -52,6 +52,86 @@ CONTEXT = (
     "GITHUB_RUN_ATTEMPT",
 )
 
+SEND_FAILURES = frozenset(
+    "http_redirect http_unauthorized http_payment_required http_forbidden "
+    "http_not_found http_timeout_status http_rate_limited http_client_error "
+    "http_server_error http_unexpected_status send_deadline_exceeded "
+    "send_connect_timeout send_read_timeout send_write_timeout send_pool_timeout "
+    "send_timeout send_timeout_unknown send_connect_error send_read_error "
+    "send_write_error send_network_error send_protocol_error send_transport_error "
+    "send_cancelled send_unknown_failure response_encoding_refused "
+    "response_body_limit response_close_failed response_decode_failed".split()
+)
+
+
+class SendFailure(ValueError):
+    """Fixed evidence only, never exception text or an outcome/refund claim."""
+
+    def __init__(self, code, secondary=()):
+        require(type(code) is str and code in SEND_FAILURES)
+        require(
+            type(secondary) is tuple and secondary in ((), ("response_close_unknown",))
+        )
+        super().__init__("Closed canary transport refused")
+        self.code, self.secondary = code, secondary
+
+
+def status_failure(status):
+    if type(status) is not int:
+        return "http_unexpected_status"
+    known = {
+        401: "http_unauthorized",
+        402: "http_payment_required",
+        403: "http_forbidden",
+        404: "http_not_found",
+        408: "http_timeout_status",
+        429: "http_rate_limited",
+    }
+    if status in known:
+        return known[status]
+    for first, last, code in (
+        (300, 399, "http_redirect"),
+        (400, 499, "http_client_error"),
+        (500, 599, "http_server_error"),
+    ):
+        if first <= status <= last:
+            return code
+    return "http_unexpected_status"
+
+
+def transport_failure(error, *, own_deadline=False, close_only=False):
+    import httpx
+
+    if (
+        type(error) is SendFailure
+        and type(error.code) is str
+        and error.code in SEND_FAILURES
+    ):
+        return error.code
+    if isinstance(error, asyncio.CancelledError):
+        return "send_deadline_exceeded" if own_deadline else "send_cancelled"
+    if close_only:
+        return "response_close_failed"
+    for kind, code in (
+        (httpx.ConnectTimeout, "send_connect_timeout"),
+        (httpx.ReadTimeout, "send_read_timeout"),
+        (httpx.WriteTimeout, "send_write_timeout"),
+        (httpx.PoolTimeout, "send_pool_timeout"),
+        (httpx.TimeoutException, "send_timeout"),
+        (httpx.ConnectError, "send_connect_error"),
+        (httpx.ReadError, "send_read_error"),
+        (httpx.WriteError, "send_write_error"),
+        (httpx.CloseError, "response_close_failed"),
+        (httpx.NetworkError, "send_network_error"),
+        (httpx.ProtocolError, "send_protocol_error"),
+        (httpx.DecodingError, "response_decode_failed"),
+        (httpx.TransportError, "send_transport_error"),
+        (TimeoutError, "send_timeout_unknown"),
+    ):
+        if isinstance(error, kind):
+            return code
+    return "send_unknown_failure"
+
 
 @dataclass(frozen=True)
 class Authority:
@@ -229,25 +309,65 @@ async def report_fence(client, approved):
 async def post_once(client, wire, key):
     # Only the closed prepared bytes are accepted by the caller. No json kwargs,
     # model selection, URL, tools, retries or mutable provider policy interface.
-    async with asyncio.timeout(180):
-        async with client.stream(
-            "POST",
-            "https://openrouter.ai/api/v1/chat/completions",
-            content=wire,
-            headers={
-                "Authorization": "Bearer " + key,
-                "Content-Type": "application/json",
-                "Accept-Encoding": "identity",
-            },
-        ) as response:
-            require(
-                response.status_code == 200
-                and response.headers.get("content-encoding") in (None, "identity")
-            )
-            raw = bytearray()
-            async for chunk in response.aiter_raw():
-                require(len(raw) + len(chunk) <= 2 * 1024 * 1024)
-                raw.extend(chunk)
+    deadline = asyncio.timeout(180)
+    primary = boundary = None
+    body_complete = False
+    try:
+        async with deadline:
+            try:
+                async with client.stream(
+                    "POST",
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    content=wire,
+                    headers={
+                        "Authorization": "Bearer " + key,
+                        "Content-Type": "application/json",
+                        "Accept-Encoding": "identity",
+                    },
+                ) as response:
+                    try:
+                        if response.status_code != 200:
+                            raise SendFailure(status_failure(response.status_code))
+                        if response.headers.get("content-encoding") not in (
+                            None,
+                            "identity",
+                        ):
+                            raise SendFailure("response_encoding_refused")
+                        raw = bytearray()
+                        async for chunk in response.aiter_raw():
+                            if len(raw) + len(chunk) > 2 * 1024 * 1024:
+                                raise SendFailure("response_body_limit")
+                            raw.extend(chunk)
+                        body_complete = True
+                    except BaseException as error:
+                        primary = error
+                        raise
+            except BaseException as error:
+                boundary = error
+                raise
+    except BaseException as error:
+        # Only the owned context's cancellation-to-TimeoutError conversion
+        # establishes its deadline. External cancellation/unowned TimeoutError
+        # must not be relabeled just because elapsed wall time looks similar.
+        owned = (
+            deadline.expired()
+            and isinstance(error, TimeoutError)
+            and isinstance(boundary, asyncio.CancelledError)
+        )
+        observed = (
+            primary
+            if primary is not None
+            else boundary if boundary is not None else error
+        )
+        code = transport_failure(
+            observed, own_deadline=owned, close_only=primary is None and body_complete
+        )
+        secondary = (
+            ("response_close_unknown",)
+            if primary is not None and boundary is not primary
+            else ()
+        )
+        raise SendFailure(code, secondary) from None
     return bytes(raw)
 
 
@@ -385,9 +505,11 @@ async def execute(
         posted = True
         response = await post_once(sender, prepared.wire, key)
         key = None
+        phase = "response_decode"
+        body = decode_response(response)
+        require(type(body) is dict)
         phase = "accounting"
         receipt = financial_receipt(response)
-        body = decode_response(response)
         require(body["usage"].get("is_byok") is False)
         receipt["costCoverage"] = "complete"
         phase = "host_replay"
@@ -432,8 +554,21 @@ async def execute(
                 "outcome": "published" if commit else "not-published",
             }
         )
-    except BaseException:
+    except BaseException as error:
         failure = "closed_check_refused"
+        if type(error) is SendFailure:
+            if type(error.code) is str and error.code in SEND_FAILURES:
+                failure = error.code
+            else:
+                failure = "send_unknown_failure"
+            if type(error.secondary) is tuple and error.secondary == (
+                "response_close_unknown",
+            ):
+                cleanup.extend(error.secondary)
+        elif phase == "response_decode":
+            failure = "response_decode_refused"
+        elif phase == "accounting":
+            failure = "accounting_refused"
         # Finish once only if no finish was entered. Unknown owner ACK latches;
         # it must never be retried as a diagnostic or new reservation.
         if (

@@ -156,6 +156,7 @@ async def exercise(
     publisher_unknown=False,
     cleanup_unknown=False,
     duplicate_field=None,
+    sender_override=None,
 ):
     import httpx
     from scripts.rehearse_full_feed_canary import calibration, complete_body
@@ -209,6 +210,8 @@ async def exercise(
         assert request.content == prepared[1].wire
         if transport_error:
             raise httpx.ReadTimeout("credential-private-sentinel")
+        if sender_override is not None:
+            return await sender_override(request)
         return httpx.Response(200, stream=Body(response_bytes))
 
     async def control(request):

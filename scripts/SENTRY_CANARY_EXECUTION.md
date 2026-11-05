@@ -154,3 +154,29 @@ Synthetic acceptance uses the existing pinned environment, OS/network denial,
 mock issuer/client/publisher adapters and the actual offline host. It proves the
 closed sequencing and failure behavior, not live Git authentication, account
 billing, provider eligibility or a fresh serving report.
+
+## Bounded failure evidence
+
+Future schema-1 receipts retain fixed `failure` codes for observed HTTP status
+categories, HTTPX timeout/network/protocol failures, cancellation, response
+encoding/size/known close failures, strict JSON decoding and accounting refusal.
+The allowlist is defined in the closed sender; it never includes exception text,
+class names, headers, URLs, keys or response content. HTTP status names do not
+establish a credential cause, balance, delivered request or zero charge.
+
+`send_deadline_exceeded` requires the owned 180-second context's actual
+cancellation-to-timeout conversion. Elapsed wall time alone cannot establish it.
+An unowned builtin timeout remains `send_timeout_unknown`; observed cancellation
+remains distinct. An arbitrary iteration failure, including an unclassified
+HTTPX automatic-close failure, remains `send_unknown_failure`. A known first
+status/read failure survives a later close failure; the latter adds only fixed
+`response_close_unknown` secondary evidence. Existing client/owner/scratch
+cleanup codes remain secondary and do not erase the primary result.
+
+The added `response_decode` phase precedes the unchanged financial checks.
+Neither a reason code nor `request_entered:true` proves provider receipt,
+accounting, completion or report quality. Missing response/accounting keeps the
+entire original hold; no diagnostic path retries, refunds, rearms a token or
+changes the request/deadline. Historical generic receipts remain unclassified:
+new codes cannot retroactively establish why an earlier call failed. The prior
+one-shot grant remains consumed; this diagnostic change authorizes no call.
