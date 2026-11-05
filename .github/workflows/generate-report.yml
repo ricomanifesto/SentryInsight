@@ -93,9 +93,14 @@ jobs:
         id: admission
         env:
           READMIT: ${{ github.event.inputs.readmit || 'false' }}
+          GENERATION_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3.5-super-vl:free' }}
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
+          # A free route has zero-price ceilings and no paid fallback, so an
+          # earlier failed or interrupted free generation leaves no spend to
+          # reconcile. Readmission still recovers a report that run pushed.
+          case "$GENERATION_MODEL" in *:free) READMIT=true ;; esac
           node publication/cli.js admit --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH" \
             --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --readmit "$READMIT"
 
