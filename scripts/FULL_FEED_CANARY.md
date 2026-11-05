@@ -58,3 +58,8 @@ conditional promotion or draft-disposal fate, and publication/execution approval
 The disposable fixture must never be substituted for that persistent authority.
 Ordinary selected clients remain OFFLINE-only; this rehearsal is not recurring
 production activation or proof that the stale serving report has recovered.
+
+The separately proposed [closed persistent execution route](SENTRY_CANARY_EXECUTION.md)
+now defines that future adapter. Its committed activation/opening/billing/data
+and audience gates remain missing; the offline rehearsal is still the default
+and supplies no real execution authority.

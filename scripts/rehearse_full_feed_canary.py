@@ -47,7 +47,9 @@ class BudgetOwner:
     """A single process owns handles across real local-file Git CAS transitions."""
 
     def __init__(self, directory):
-        node = shutil.which("node", path=environment()["PATH"])
+        # Resolve the trusted installed toolchain before sealing the child env;
+        # hosted runners may install Node outside the system executable paths.
+        node = shutil.which("node")
         if node is None:
             raise ValueError("Closed canary refused")
         self.process = subprocess.Popen(

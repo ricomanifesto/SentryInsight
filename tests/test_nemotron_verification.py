@@ -187,30 +187,42 @@ def test_live_context_requires_exact_first_manual_main_attempt(
         trial.require_live_context(commit, output)
 
 
-def test_workflow_has_no_automatic_trigger_or_publication_authority():
+def test_canary_workflow_has_only_closed_manual_authority_and_defaults_disabled():
     path = Path(".github/workflows/verify-nemotron.yml")
     workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
     assert set(workflow["on"]) == {"workflow_dispatch"}
-    assert workflow["permissions"] == {"contents": "read"}
-    job = workflow["jobs"]["verify"]
+    assert workflow["permissions"] == {"contents": "write"}
+    job = workflow["jobs"]["canary"]
     assert "github.sha == inputs.expected_commit" in job["if"]
     assert "github.run_attempt == 1" in job["if"]
-    assert "github.ref == 'refs/heads/main'" in job["if"]
+    assert "github.actor == 'ricomanifesto'" in job["if"]
+    assert "github.ref == 'refs/heads/canary/sentry-full-feed-20261105'" in job["if"]
     steps = job["steps"]
-    assert steps[0]["with"]["persist-credentials"] == "false"
     secret_steps = [step for step in steps if "secrets." in json.dumps(step)]
     assert len(secret_steps) == 1
     assert secret_steps[0]["id"] == "trial"
+    assert "steps.gate.outputs.ready == 'true'" in secret_steps[0]["if"]
+    assert "runner.debug != '1'" in secret_steps[0]["if"]
     assert (
         secret_steps[0]["env"]["OPENROUTER_API_KEY"]
         == "${{ secrets.OPENROUTER_API_KEY }}"
     )
     assert steps[-1]["with"]["retention-days"] == "7"
+    assert steps[-1]["with"]["path"].endswith("sentry-canary-metadata.json")
+    manifest = json.loads(Path("config/full-feed-canary.json").read_bytes())
+    assert manifest["enabled"] is False and manifest["pilot"] is None
+    assert manifest["metadata_audience_approved"] is False
+    assert (
+        manifest["billing_basis"] is None and manifest["data_approval_sha256"] is None
+    )
+    assert manifest["output_fate"] == "nonpublish"
+    assert (
+        json.loads(Path("vercel.json").read_bytes())["git"]["deploymentEnabled"]
+        is False
+    )
     commands = "\n".join(step.get("run", "") for step in steps)
-    assert "publication/cli" not in commands
-    assert "git push" not in commands
-    assert "main.py" not in commands
-    assert not any("publish-production" in step.get("uses", "") for step in steps)
+    assert "--execute-approved-canary" in commands and "--preflight-only" in commands
+    assert "main.py" not in commands and "git push" not in commands
 
 
 def test_unexpected_transport_endpoint_cannot_forward_a_credential():
