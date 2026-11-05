@@ -239,6 +239,14 @@
       "outcome": "completed",
       "releasedMicrousd": 7187346,
       "stage": "spend_settled"
+    },
+    {
+      "admission_key": "run:42086668758",
+      "at": "2026-11-05T18:44:03.656Z",
+      "binding": "none",
+      "outcome": "not-published",
+      "run_id": "42086668758",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
