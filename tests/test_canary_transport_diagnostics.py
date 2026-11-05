@@ -206,14 +206,14 @@ def test_response_boundaries_and_cleanup_primary_precedence(fault, expected):
 
 
 def test_only_the_owned_expired_window_is_labeled_deadline(monkeypatch):
-    original = asyncio.timeout
+    original = asyncio.timeout_at
     configured = []
 
     def expire(value):
-        configured.append(value)
+        configured.append(value - asyncio.get_running_loop().time())
         return original(0)
 
-    monkeypatch.setattr(canary.asyncio, "timeout", expire)
+    monkeypatch.setattr(canary.asyncio, "timeout_at", expire)
 
     async def sender(_request):
         await asyncio.sleep(0)
@@ -226,4 +226,4 @@ def test_only_the_owned_expired_window_is_labeled_deadline(monkeypatch):
     with pytest.raises(ValueError) as failure:
         asyncio.run(run())
     assert getattr(failure.value, "code", None) == "send_deadline_exceeded"
-    assert configured == [180]
+    assert len(configured) == 1 and 1599 < configured[0] <= 1600

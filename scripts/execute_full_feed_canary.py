@@ -2,6 +2,8 @@
 """One closed, disabled-by-default Sentry canary; no ordinary LIVE model switch."""
 
 import argparse
+import base64
+import inspect
 import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -14,25 +16,36 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts.prepare_full_feed_canary import (  # noqa: E402
     Prepared,
-    _prepare_owned,
-    capture_environment,
-    prepare,
     require,
     sha,
     verify_feed,
 )
 from scripts.rehearse_full_feed_canary import (  # noqa: E402
-    BudgetOwner,
     ReplayPermit,
     environment,
     financial_receipt,
     decode_response,
 )
+
+from scripts.canary_deadline import (  # noqa: E402
+    BudgetError,
+    PhaseDeadline,
+    RECEIVE_SECONDS,
+    clock_path,
+    load_clock,
+)
+from scripts.canary_process import (  # noqa: E402
+    ProcessFailure,
+    spawn,
+    stop,
+    run_private,
+)  # noqa: E402
 
 DATE = "2026-11-05"
 REF = "refs/heads/canary/sentry-full-feed-20261105"
@@ -259,30 +272,131 @@ def source_fence(approved):
     )
 
 
-class PersistentOwner(BudgetOwner):
-    def __init__(self, approved):
-        # The reviewed workflow installs the repository's existing Node24
-        # toolchain before secret injection. Its PATH is trusted job setup;
-        # the spawned process still receives only the filtered child env.
+class PersistentOwner:
+    """One async owned process; an unknown exchange latches before any reuse."""
+
+    def __init__(self, approved, deadline):
         node = shutil.which("node")
         require(node is not None)
-        if node is None:
-            raise ValueError("Closed canary refused")
-        child = environment()
-        child["GIT_ALLOW_PROTOCOL"] = "https"
-        child.update(approved.context)
-        self.process = subprocess.Popen(
-            [node, str(ROOT / "scripts/sentry_canary_owner.cjs")],
-            cwd=ROOT,
-            env=child,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-        )
+        self.argv = [node, str(ROOT / "scripts/sentry_canary_owner.cjs")]
+        self.env = environment()
+        self.env["GIT_ALLOW_PROTOCOL"] = "https"
+        self.env.update(approved.context)
+        self.deadline = deadline
+        self.process = None
         self.blocked = False
+
+    async def exchange(self, value):
+        require(not self.blocked)
+        try:
+            async with self.deadline.capped(20).timeout():
+                if self.process is None:
+                    self.process = await spawn(self.argv, env=self.env, cwd=ROOT)
+                require(
+                    self.process.stdin is not None and self.process.stdout is not None
+                )
+                self.process.stdin.write(
+                    json.dumps(value, separators=(",", ":")).encode() + b"\n"
+                )
+                await self.process.stdin.drain()
+                raw = await self.process.stdout.readline()
+                require(0 < len(raw) <= 8192 and raw.endswith(b"\n"))
+                result = decode_response(raw)
+                require(type(result) is dict and set(result) == {"ok"})
+                return result["ok"]
+        except BaseException:
+            self.blocked = True
+            raise ValueError("Closed canary owner refused") from None
+
+    async def close(self):
+        if self.process is not None:
+            await stop(self.process)
+
+
+async def worker(value, deadline):
+    child = environment()
+    child["GIT_ALLOW_PROTOCOL"] = "https"
+    if os.environ.get("TIKTOKEN_CACHE_DIR"):
+        child["TIKTOKEN_CACHE_DIR"] = os.environ["TIKTOKEN_CACHE_DIR"]
+    raw = await run_private(
+        [sys.executable, "-I", "-B", str(ROOT / "scripts/canary_host_worker.py")],
+        json.dumps(value, separators=(",", ":")).encode(),
+        deadline,
+        env=child,
+        cwd=ROOT,
+        limit=8 * 1024 * 1024,
+    )
+    result = decode_response(raw)
+    require(type(result) is dict and set(result) == {"ok"})
+    return result["ok"]
+
+
+def approved_value(approved):
+    return {
+        "manifest": approved.manifest,
+        "manifest_sha256": approved.manifest_sha256,
+        "context": approved.context,
+    }
+
+
+async def owned_source_fence(approved, deadline):
+    require(
+        await worker(
+            {"mode": "source_fence", "approved": approved_value(approved)}, deadline
+        )
+        == {"verified": True}
+    )
+
+
+async def owned_replay(raw_feed, prepared, response, permit, output, scratch, deadline):
+    from scripts.canary_host_worker import packed
+
+    return await worker(
+        {
+            "mode": "replay",
+            "feed": base64.b64encode(raw_feed).decode(),
+            "prepared": packed(prepared),
+            "response": base64.b64encode(response).decode(),
+            "permit": permit,
+            "output": str(output),
+            "scratch": str(scratch),
+        },
+        deadline,
+    )
+
+
+async def owned_publish(output, approved, scratch, deadline):
+    value = await worker(
+        {
+            "mode": "publish",
+            "approved": approved_value(approved),
+            "output": str(output),
+            "scratch": str(scratch),
+        },
+        deadline,
+    )
+    require(
+        type(value) is dict
+        and set(value) == {"commit"}
+        and re.fullmatch("[a-f0-9]{40}", value["commit"]) is not None
+    )
+    return value["commit"]
+
+
+async def emit_receipt(result, path, deadline):
+    require(
+        await worker({"mode": "emit", "receipt": str(path), "result": result}, deadline)
+        == {"recorded": True}
+    )
 
 
 async def bounded_get(client, url):
+    whole = PhaseDeadline(time.monotonic_ns() + 15_000_000_000)
+    async with whole.timeout():
+        return await _bounded_get(client, url)
+
+
+async def _bounded_get(client, url):
     async with client.stream(
         "GET", url, headers={"Accept-Encoding": "identity"}
     ) as response:
@@ -291,10 +405,9 @@ async def bounded_get(client, url):
             and response.headers.get("content-encoding") in (None, "identity")
         )
         value = bytearray()
-        async with asyncio.timeout(15):
-            async for chunk in response.aiter_raw():
-                require(len(value) + len(chunk) <= 2 * 1024 * 1024)
-                value.extend(chunk)
+        async for chunk in response.aiter_raw():
+            require(len(value) + len(chunk) <= 2 * 1024 * 1024)
+            value.extend(chunk)
     return bytes(value)
 
 
@@ -306,10 +419,13 @@ async def report_fence(client, approved):
         )
 
 
-async def post_once(client, wire, key):
+async def post_once(client, wire, key, *, seconds=RECEIVE_SECONDS, phase_deadline=None):
     # Only the closed prepared bytes are accepted by the caller. No json kwargs,
     # model selection, URL, tools, retries or mutable provider policy interface.
-    deadline = asyncio.timeout(180)
+    phase_deadline = phase_deadline or PhaseDeadline(
+        time.monotonic_ns() + int(seconds * 1_000_000_000)
+    )
+    deadline = phase_deadline.timeout()
     primary = boundary = None
     body_complete = False
     try:
@@ -436,7 +552,10 @@ async def execute(
     sender=None,
     control=None,
     key_reader=None,
-    publisher=promote_report,
+    publisher=None,
+    budget,
+    source_checker=owned_source_fence,
+    replayer=owned_replay,
 ):
     """Trusted closed-job seam; tests inject fakes, public CLI fixes all adapters."""
     import httpx
@@ -446,7 +565,8 @@ async def execute(
         isinstance(prepared, Prepared)
         and sha(prepared.wire) == approved.manifest["wire_sha256"]
     )
-    source_fence(approved)
+    setup_deadline = budget.phase("setup")
+    await source_checker(approved, setup_deadline)
     own_control = control is None
     own_sender = sender is None
     control = control or httpx.AsyncClient(
@@ -461,10 +581,16 @@ async def execute(
     phase = "report_fence"
     failure = None
     cleanup = []
+    post_deadline = None
     try:
-        await report_fence(control, approved)
-        require(datetime.now(timezone.utc).date().isoformat() == DATE)
-        owner = owner_factory(approved)
+        async with setup_deadline.timeout():
+            await report_fence(control, approved)
+        budget.before_reserve(now=datetime.now(timezone.utc))
+        owner = (
+            PersistentOwner(approved, setup_deadline)
+            if owner_factory is PersistentOwner
+            else owner_factory(approved)
+        )
         phase = "financial_begin"
         permit = await owner.exchange(
             {
@@ -486,7 +612,7 @@ async def execute(
         # No key lookup/transport construction occurs before all fences and the
         # existing durable money/day/original-token acknowledgement.
         phase = "credential"
-        require(datetime.now(timezone.utc).date().isoformat() == DATE)
+        budget.before_send(now=datetime.now(timezone.utc))
         key = key_reader() if key_reader else os.environ.get("OPENROUTER_API_KEY", "")
         require(
             type(key) is str
@@ -498,12 +624,19 @@ async def execute(
             transport=httpx.AsyncHTTPTransport(retries=0, trust_env=False),
             trust_env=False,
             follow_redirects=False,
-            timeout=180,
+            timeout=RECEIVE_SECONDS,
         )
         phase = "send"
         require(datetime.now(timezone.utc).date().isoformat() == DATE)
+        budget.before_send(now=datetime.now(timezone.utc))
+        receive_deadline = budget.phase("receive")
         posted = True
-        response = await post_once(sender, prepared.wire, key)
+        response = await post_once(
+            sender, prepared.wire, key, phase_deadline=receive_deadline
+        )
+        post_deadline = budget.phase("post")
+        if isinstance(owner, PersistentOwner):
+            owner.deadline = post_deadline
         key = None
         phase = "response_decode"
         body = decode_response(response)
@@ -513,40 +646,29 @@ async def execute(
         require(body["usage"].get("is_byok") is False)
         receipt["costCoverage"] = "complete"
         phase = "host_replay"
-        cache = Path(os.environ["TIKTOKEN_CACHE_DIR"])
         output = scratch / "validated"
-        output.mkdir()
-        from scripts.rehearse_report_offline import (
-            public_snapshot,
-            compare_pages_package,
+        host = await replayer(
+            raw_feed, prepared, response, replay.value, output, scratch, post_deadline
         )
-
-        for relative in public_snapshot(ROOT):
-            target = output / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(ROOT / relative, target)
-        with capture_environment(cache):
-            host = await _prepare_owned(
-                raw_feed,
-                output,
-                replay=response,
-                expected=prepared,
-                attempt_budget=replay,
-            )
-            require(type(host) is dict)
-            host_ok = host["host_validated"]
-            if host_ok:
-                compare_pages_package(output, scratch)
+        require(type(host) is dict and type(host.get("host_validated")) is bool)
+        host_ok = host["host_validated"]
         phase = "financial_finish"
         financial = await owner.exchange({"operation": "finish", "receipt": receipt})
         require(financial["financial_settled"] is True)
         if host_ok and approved.manifest["output_fate"] == "conditional_publish":
             phase = "promotion_fence"
             require(datetime.now(timezone.utc).date().isoformat() == DATE)
-            source_fence(approved)
-            await report_fence(control, approved)
+            await source_checker(approved, post_deadline)
+            async with post_deadline.timeout():
+                await report_fence(control, approved)
             phase = "promotion"
-            commit = publisher(output, approved, scratch)
+            post_deadline.remaining()
+            require(datetime.now(timezone.utc).date().isoformat() == DATE)
+            commit = (
+                publisher(output, approved, scratch)
+                if publisher
+                else await owned_publish(output, approved, scratch, post_deadline)
+            )
         phase = "admission_complete"
         await owner.exchange(
             {
@@ -565,6 +687,10 @@ async def execute(
                 "response_close_unknown",
             ):
                 cleanup.extend(error.secondary)
+        elif isinstance(error, BudgetError):
+            failure = "time_budget_refused"
+        elif isinstance(error, ProcessFailure):
+            failure = error.code
         elif phase == "response_decode":
             failure = "response_decode_refused"
         elif phase == "accounting":
@@ -583,26 +709,47 @@ async def execute(
             }
         ):
             try:
-                financial = await owner.exchange(
-                    {"operation": "finish", "receipt": receipt}
-                )
+                if post_deadline is None:
+                    post_deadline = budget.phase("post")
+                stop_deadline = post_deadline
+                if isinstance(owner, PersistentOwner):
+                    owner.deadline = stop_deadline
+                async with stop_deadline.timeout():
+                    financial = await owner.exchange(
+                        {"operation": "finish", "receipt": receipt}
+                    )
             except BaseException:
                 pass
     finally:
         key = None
+        try:
+            cleanup_deadline = budget.phase("cleanup")
+        except BaseException:
+            cleanup_deadline = None
         if owner is not None:
             try:
-                owner.close()
+                closed = owner.close()
+                if inspect.isawaitable(closed):
+                    if cleanup_deadline is None:
+                        raise BudgetError()
+                    async with cleanup_deadline.capped(3).timeout():
+                        await closed
             except BaseException:
                 cleanup.append("owner_close_unknown")
         if own_sender and sender is not None:
             try:
-                await asyncio.wait_for(sender.aclose(), 3)
+                if cleanup_deadline is None:
+                    raise BudgetError()
+                async with cleanup_deadline.capped(3).timeout():
+                    await sender.aclose()
             except BaseException:
                 cleanup.append("sender_close_unknown")
         if own_control:
             try:
-                await asyncio.wait_for(control.aclose(), 3)
+                if cleanup_deadline is None:
+                    raise BudgetError()
+                async with cleanup_deadline.capped(3).timeout():
+                    await control.aclose()
             except BaseException:
                 cleanup.append("control_close_unknown")
         if cleanup and failure is None:
@@ -639,7 +786,23 @@ async def run(args):
         os.environ.get("RUNNER_DEBUG") != "1"
         and os.environ.get("ACTIONS_STEP_DEBUG", "").casefold() != "true"
     )
-    prepared = await prepare(args.feed_file.read_bytes(), args.scratch / "capture")
+    context = {name: os.environ.get(name, "") for name in CONTEXT}
+    budget = load_clock(clock_path(), context, DATE)
+    args.budget = budget
+    setup_deadline = budget.phase("setup")
+    from scripts.canary_host_worker import unpacked
+
+    raw_feed = args.feed_file.read_bytes()
+    prepared = unpacked(
+        await worker(
+            {
+                "mode": "prepare",
+                "feed": base64.b64encode(raw_feed).decode(),
+                "scratch": str(args.scratch / "capture"),
+            },
+            setup_deadline,
+        )
+    )
     context = {name: os.environ.get(name, "") for name in CONTEXT}
     approved = authority(
         raw,
@@ -650,7 +813,8 @@ async def run(args):
         args.expected_manifest,
         datetime.now(timezone.utc),
     )
-    source_fence(approved)
+    await owned_source_fence(approved, setup_deadline)
+    budget.before_reserve(now=datetime.now(timezone.utc))
     if args.preflight_only:
         return {
             "ready": True,
@@ -658,7 +822,7 @@ async def run(args):
             "request_entered": False,
             "manifest_sha256": approved.manifest_sha256,
         }
-    return await execute(approved, args.feed_file.read_bytes(), prepared, args.scratch)
+    return await execute(approved, raw_feed, prepared, args.scratch, budget=budget)
 
 
 def main():
@@ -681,9 +845,9 @@ def _main():
     parser.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args()
     result: dict
-    scratch = tempfile.TemporaryDirectory(prefix="closed-sentry-canary-")
+    scratch = Path(tempfile.mkdtemp(prefix="closed-sentry-canary-"))
     try:
-        args.scratch = Path(scratch.name)
+        args.scratch = scratch
         result = asyncio.run(run(args))
     except BaseException:
         result = {
@@ -693,7 +857,13 @@ def _main():
         }
     finally:
         try:
-            scratch.cleanup()
+            if hasattr(args, "budget"):
+                cleanup_deadline = args.budget.phase("cleanup")
+            else:
+                cleanup_deadline = PhaseDeadline(time.monotonic_ns() + 3_000_000_000)
+            asyncio.run(
+                worker({"mode": "cleanup", "scratch": str(scratch)}, cleanup_deadline)
+            )
         except BaseException:
             result.setdefault("secondary", []).append("scratch_cleanup_unknown")
             if not result.get("failure"):
@@ -701,8 +871,7 @@ def _main():
     # Exactly this sanitized file is the only Actions artifact. Logs have their
     # separate ordinary repository retention; never output a model body/error.
     try:
-        args.receipt.parent.mkdir(parents=True, exist_ok=True)
-        args.receipt.write_text(json.dumps(result, sort_keys=True) + "\n")
+        asyncio.run(emit_receipt(result, args.receipt, cleanup_deadline))
         if result.get("ready") is True and args.preflight_only:
             if os.environ.get("GITHUB_OUTPUT"):
                 with open(os.environ["GITHUB_OUTPUT"], "a") as stream:

@@ -11,6 +11,15 @@ on:
         description: Exact independently reviewed canary manifest SHA256
         type: string
         required: true
+      readmit_original:
+        description: Separately approved fixed original invocation readmission, without inference
+        type: boolean
+        default: false
+        required: false
+      expected_readmission:
+        description: Exact separately approved readmission manifest SHA256
+        type: string
+        required: false
       initialize_ledger:
         description: Separately approved one-time ledger initialization, without inference
         type: boolean
@@ -29,7 +38,7 @@ concurrency:
 jobs:
   initialize_ledger:
     if: >-
-      inputs.initialize_ledger &&
+      inputs.initialize_ledger && !inputs.readmit_original &&
       github.repository == 'ricomanifesto/SentryInsight' &&
       github.actor == 'ricomanifesto' &&
       github.event_name == 'workflow_dispatch' &&
@@ -61,16 +70,50 @@ jobs:
           node scripts/bootstrap_canary_ledger.cjs \
             --expected-commit "$EXPECTED_COMMIT" --expected-manifest "$EXPECTED_MANIFEST" \
             --initialize-public-ledger
-  canary:
+  readmit_original:
     if: >-
-      !inputs.initialize_ledger &&
+      inputs.readmit_original && !inputs.initialize_ledger &&
       github.repository == 'ricomanifesto/SentryInsight' &&
       github.actor == 'ricomanifesto' &&
       github.event_name == 'workflow_dispatch' &&
       github.ref == 'refs/heads/canary/sentry-full-feed-20261105' &&
       github.run_attempt == 1 && github.sha == inputs.expected_commit
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 3
+    steps:
+      - name: Checkout the exact separately approved NO-MODEL source
+        if: runner.debug != '1'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+      - name: Fix the Git destination
+        if: runner.debug != '1'
+        run: git remote set-url origin https://github.com/ricomanifesto/SentryInsight.git
+      - name: Set up the existing publication Node toolchain
+        if: runner.debug != '1'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Readmit only the original invocation, without inference or refund
+        if: runner.debug != '1'
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          EXPECTED_READMISSION: ${{ inputs.expected_readmission }}
+        run: >-
+          python3 -I -B scripts/readmit_original_canary.py
+          --expected-commit "$EXPECTED_COMMIT"
+          --expected-readmission "$EXPECTED_READMISSION"
+  canary:
+    if: >-
+      !inputs.initialize_ledger && !inputs.readmit_original &&
+      github.repository == 'ricomanifesto/SentryInsight' &&
+      github.actor == 'ricomanifesto' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/canary/sentry-full-feed-20261105' &&
+      github.run_attempt == 1 && github.sha == inputs.expected_commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       OTEL_SDK_DISABLED: 'true'
@@ -87,6 +130,8 @@ jobs:
           persist-credentials: true
       - name: Fix the Git destination without copying a credential
         run: git remote set-url origin https://github.com/ricomanifesto/SentryInsight.git
+      - name: Establish one verified public run clock before setup or credentials
+        run: python3 -I -B scripts/anchor_canary_clock.py
       - name: Set up the existing publication Node toolchain without inference credentials
         uses: actions/setup-node@v6
         with:
@@ -99,34 +144,10 @@ jobs:
           enable-cache: false
       - name: Install frozen dependencies without inference credentials
         run: uv sync --group dev --frozen
-      - name: Prepare only fixed public source and verified tokenizer
+      - name: Prepare and calibrate under the original setup deadline
         env:
           TIKTOKEN_CACHE_DIR: ${{ runner.temp }}/sentry-canary-tokenizer
-        run: |
-          .venv/bin/python -I -B - <<'PY'
-          import asyncio
-          import os
-          from pathlib import Path
-          import sys
-          import httpx
-          import tiktoken
-          sys.path.insert(0, str(Path.cwd()))
-          from scripts.prepare_full_feed_canary import FEED_URL, verify_feed
-          from scripts.execute_full_feed_canary import bounded_get
-          async def main():
-              async with httpx.AsyncClient(trust_env=False, follow_redirects=False, timeout=15) as client:
-                  raw = await bounded_get(client, FEED_URL)
-              verify_feed(raw)
-              Path(os.environ['RUNNER_TEMP'], 'sentry-canary-feed.xml').write_bytes(raw)
-          asyncio.run(main())
-          tiktoken.get_encoding('cl100k_base')
-          PY
-      - name: Calibrate the actual host with the closed offline fixture
-        env:
-          TIKTOKEN_CACHE_DIR: ${{ runner.temp }}/sentry-canary-tokenizer
-        run: |
-          .venv/bin/python -I -B scripts/rehearse_full_feed_canary.py --offline-only \
-            --feed-file "$RUNNER_TEMP/sentry-canary-feed.xml"
+        run: .venv/bin/python -I -B scripts/canary_setup.py
       - name: Preflight the closed authority before secret injection
         id: gate
         if: runner.debug != '1'
@@ -152,8 +173,13 @@ jobs:
             --feed-file "$RUNNER_TEMP/sentry-canary-feed.xml" \
             --expected-commit "$EXPECTED_COMMIT" --expected-manifest "$EXPECTED_MANIFEST" \
             --receipt "$RUNNER_TEMP/sentry-canary-metadata.json"
-      - name: Retain only allowlisted operational metadata for seven days
+      - name: Check the fixed remaining artifact allowance
+        id: artifact_gate
         if: always()
+        run: python3 -I -B scripts/canary_setup.py --artifact-gate
+      - name: Retain only allowlisted operational metadata for seven days
+        if: always() && steps.artifact_gate.outputs.retain == 'true'
+        timeout-minutes: 1
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: sentry-full-feed-canary-${{ github.run_id }}

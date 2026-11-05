@@ -132,7 +132,7 @@ def test_disabled_cli_run_never_prepares_or_reads_key(tmp_path, monkeypatch):
     def forbidden(*_args, **_kwargs):
         raise AssertionError("credential-private-sentinel")
 
-    monkeypatch.setattr(canary, "prepare", forbidden)
+    monkeypatch.setattr(canary, "worker", forbidden)
     args = Namespace(feed_file=tmp_path / "absent", scratch=tmp_path)
     assert asyncio.run(canary.run(args)) == {
         "ready": False,
@@ -157,6 +157,8 @@ async def exercise(
     cleanup_unknown=False,
     duplicate_field=None,
     sender_override=None,
+    after_begin=None,
+    custom_replayer=None,
 ):
     import httpx
     from scripts.rehearse_full_feed_canary import calibration, complete_body
@@ -234,6 +236,8 @@ async def exercise(
                 if grant_failure:
                     self.blocked = True
                     raise ValueError("credential-private-sentinel")
+                if after_begin is not None:
+                    after_begin()
                 return {
                     "token": "unowned" if bad_permit else "b" * 32,
                     "attempt": 1,
@@ -267,6 +271,57 @@ async def exercise(
             raise ValueError("credential-private-sentinel")
         return "c" * 40
 
+    from scripts.canary_deadline import anchor_run
+    import time
+
+    budget = anchor_run(
+        {
+            "id": 800,
+            "repository": {"full_name": context["GITHUB_REPOSITORY"]},
+            "actor": {"login": "ricomanifesto"},
+            "event": "workflow_dispatch",
+            "head_sha": "a" * 40,
+            "head_branch": canary.REF.removeprefix("refs/heads/"),
+            "workflow_id": 406270829,
+            "run_attempt": 1,
+            "status": "in_progress",
+            "created_at": "2026-11-05T03:04:05Z",
+        },
+        context,
+        canary.DATE,
+        now=ExecutionClock.now(timezone.utc),
+        mono_ns=time.monotonic_ns(),
+    )
+
+    async def source_checker(approved, _deadline):
+        canary.source_fence(approved)
+
+    async def replayer(feed, expected, reply, permit, output, scratch, _deadline):
+        from scripts.prepare_full_feed_canary import _prepare_owned, capture_environment
+        from scripts.rehearse_full_feed_canary import ReplayPermit
+        from scripts.rehearse_report_offline import (
+            public_snapshot,
+            compare_pages_package,
+        )
+        import shutil
+
+        output.mkdir()
+        for relative in public_snapshot(canary.ROOT):
+            target = output / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(canary.ROOT / relative, target)
+        with capture_environment(Path(os.environ["TIKTOKEN_CACHE_DIR"])):
+            host = await _prepare_owned(
+                feed,
+                output,
+                replay=reply,
+                expected=expected,
+                attempt_budget=ReplayPermit(permit),
+            )
+            if host["host_validated"]:
+                compare_pages_package(output, scratch)
+        return host
+
     async with (
         httpx.AsyncClient(transport=httpx.MockTransport(sender)) as outbound,
         httpx.AsyncClient(transport=httpx.MockTransport(control)) as inbound,
@@ -281,6 +336,9 @@ async def exercise(
             control=inbound,
             key_reader=read_key,
             publisher=publish,
+            budget=budget,
+            source_checker=source_checker,
+            replayer=custom_replayer or replayer,
         )
     assert "credential-private-sentinel" not in json.dumps(result)
     return events, result
@@ -432,15 +490,14 @@ def test_duplicate_response_keys_never_settle_or_promote(
 
 
 def test_cli_cleanup_preserves_disabled_observation(tmp_path, monkeypatch, capsys):
-    class Scratch:
-        name = str(tmp_path / "scratch")
+    original_worker = canary.worker
 
-        def cleanup(self):
-            raise ValueError("credential-private-sentinel")
+    async def fault(value, deadline):
+        if value["mode"] == "cleanup":
+            raise OSError("credential-private-sentinel")
+        return await original_worker(value, deadline)
 
-    monkeypatch.setattr(
-        canary.tempfile, "TemporaryDirectory", lambda **_kwargs: Scratch()
-    )
+    monkeypatch.setattr(canary, "worker", fault)
     target = tmp_path / "receipt.json"
     monkeypatch.setattr(
         canary.sys,
@@ -480,7 +537,10 @@ def test_cli_receipt_io_failure_is_safe_and_does_not_retry(
         calls.append(method)
         raise OSError("credential-private-sentinel")
 
-    monkeypatch.setattr(Path, method, forbidden)
+    async def failed_emit(*_args):
+        forbidden()
+
+    monkeypatch.setattr(canary, "emit_receipt", failed_emit)
     monkeypatch.setattr(
         canary.sys,
         "argv",

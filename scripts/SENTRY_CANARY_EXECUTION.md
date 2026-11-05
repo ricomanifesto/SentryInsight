@@ -1,4 +1,9 @@
-# Closed Sentry full-feed canary — November 5, 2026
+# Closed Sentry full-feed canary — historical November 5 scope
+
+The November 5 grant has been consumed. No additional send is authorized.
+The local [timing and fixed readmission preparation](SENTRY_CANARY_HEADROOM.md)
+preserves this manifest and all original request hashes; a fresh November 6
+scope is a separate approval-gated proposal.
 
 The committed manifest records the approved November 5 one-shot scope: the
 prospective November Sentry pilot, credit-only billing basis, exact public data,
@@ -164,7 +169,7 @@ The allowlist is defined in the closed sender; it never includes exception text,
 class names, headers, URLs, keys or response content. HTTP status names do not
 establish a credential cause, balance, delivered request or zero charge.
 
-`send_deadline_exceeded` requires the owned 180-second context's actual
+`send_deadline_exceeded` requires the owned receive context's actual
 cancellation-to-timeout conversion. Elapsed wall time alone cannot establish it.
 An unowned builtin timeout remains `send_timeout_unknown`; observed cancellation
 remains distinct. An arbitrary iteration failure, including an unclassified
@@ -177,6 +182,8 @@ The added `response_decode` phase precedes the unchanged financial checks.
 Neither a reason code nor `request_entered:true` proves provider receipt,
 accounting, completion or report quality. Missing response/accounting keeps the
 entire original hold; no diagnostic path retries, refunds, rearms a token or
-changes the request/deadline. Historical generic receipts remain unclassified:
+changes financial state or grants a new request. This local timing slice changes
+the future receive ceiling to 1600 seconds; it cannot change historical outcomes.
+Historical generic receipts remain unclassified:
 new codes cannot retroactively establish why an earlier call failed. The prior
 one-shot grant remains consumed; this diagnostic change authorizes no call.
