@@ -3,7 +3,7 @@
 
 import argparse
 from copy import deepcopy
-from contextlib import contextmanager, ExitStack
+from contextlib import contextmanager, ExitStack, nullcontext
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
@@ -71,7 +71,10 @@ async def prepare(raw, scratch):
     # No inherited model override, credential, gateway or exporter survives to
     # an application import. Direct callers receive the same fence as the CLI.
     with capture_environment(cache):
-        return await _prepare_owned(raw, scratch)
+        result = await _prepare_owned(raw, scratch)
+        if not isinstance(result, Prepared):
+            raise ValueError("Closed canary refused")
+        return result
 
 
 def deny_network(*_args, **_kwargs):
@@ -109,7 +112,9 @@ def capture_environment(cache):
         yield
 
 
-async def _prepare_owned(raw, scratch):
+async def _prepare_owned(
+    raw, scratch, *, replay=None, expected=None, attempt_budget=None
+):
     import httpx
     from src.services import fetch
     from src.services.article_content import normalize_feed_content
@@ -170,7 +175,11 @@ async def _prepare_owned(raw, scratch):
             body["service_tier"] == "default"
             and body["reasoning"] == {"effort": "low", "exclude": True}
         )
+        if expected is not None:
+            require(request.content == expected.wire and pack == expected.pack)
         capture.append(bytes(request.content))
+        if replay is not None:
+            return httpx.Response(200, content=replay)
         return httpx.Response(400, json={"error": {"code": 400}})
 
     def constructor(**kwargs):
@@ -180,7 +189,7 @@ async def _prepare_owned(raw, scratch):
             and type(kwargs.get("transport")) is httpx.MockTransport
             and kwargs.get("max_tokens") == 32000
         )
-        return original(**kwargs, max_attempts=1)
+        return original(**kwargs, max_attempts=1, attempt_budget=attempt_budget)
 
     def factory(**kwargs):
         selection = kwargs.get("model")
@@ -218,7 +227,11 @@ async def _prepare_owned(raw, scratch):
             patch.object(model_client, "OpenRouterClient", constructor),
             patch.object(analyze, "build_model_client", factory),
             patch.object(analyze, "datetime", FixedClock),
-            patch.object(reviewed_report, "datetime", FixedClock),
+            (
+                patch.object(reviewed_report, "datetime", FixedClock)
+                if replay is None
+                else nullcontext()
+            ),
             patch.object(workflow, "datetime", FixedClock),
         ):
             async for update in workflow.create_exploitation_analysis_graph().astream(
@@ -234,7 +247,23 @@ async def _prepare_owned(raw, scratch):
                 final = next(iter(update.values()))
     finally:
         logging.disable(previous_logging)
-    require(len(capture) == 1 and final is not None and final["status"] == "failed")
+    require(len(capture) == 1 and final is not None)
+    if final is None:
+        raise ValueError("Closed canary refused")
+    if replay is not None:
+        from src.core.validation_diagnostics import sanitize_diagnostic
+
+        return {
+            "host_replay_requests": len(capture),
+            "host_validated": bool(final.get("report_generated")),
+            "status": final["status"],
+            "diagnostic": (
+                sanitize_diagnostic(final.get("failure_diagnostic"))
+                if final.get("failure_diagnostic")
+                else None
+            ),
+        }
+    require(final["status"] == "failed")
     wire = capture[0]
     payload = json.loads(wire)
     counts = {"eligible": 0, "review_required": 0}

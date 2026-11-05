@@ -173,3 +173,9 @@ report production. Its stdout is hashes/counts only. This capture issues no
 financial grant and is not yet a complete execution/promotion adapter. Real
 source transmission, activated authority, billing proof and explicit output fate
 remain required before a real request.
+
+The joined [full-feed rehearsal](../scripts/FULL_FEED_CANARY.md) proves the
+one-token-to-same-reply host boundary with the actual local-file CAS primitives.
+Its wallet/opening is explicitly fictional and disposable, never a replacement
+for the existing persistent admission ledger. No live path is exposed by that
+rehearsal; execution and promotion authority remain separately gated.
