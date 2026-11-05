@@ -155,3 +155,21 @@ this is not a one-send canary executor. A later one-send/no-retry rehearsal must
 prove that separate restriction and cannot silently substitute a smaller hold.
 Real-data transmission, billing basis, public ledger visibility, transport wiring,
 report publication and resumption remain separate release gates.
+
+## Closed one-shot preparation
+
+The internal reserveOneShotGeneration method keeps the ordinary 7,251,456
+microUSD hold but durably lowers the SAME original physical reservation limit to
+one. It creates no second attempt counter or smaller financial policy. A retryable
+or unknown first outcome cannot obtain another token, including after restart.
+The ordinary daily reserve remains three attempts. The exact actual provider
+label Moonshot AI is retained when present; missing metadata stays unavailable
+and reported cost alone does not establish complete billing liability.
+
+The offline full-feed capture helper uses the actual feed parser, source review,
+quarantine, model factory and prompt builder. It rejects any changed frozen feed,
+performs no article fetching and supplies only a mock HTTP400 to stop before
+report production. Its stdout is hashes/counts only. This capture issues no
+financial grant and is not yet a complete execution/promotion adapter. Real
+source transmission, activated authority, billing proof and explicit output fate
+remain required before a real request.

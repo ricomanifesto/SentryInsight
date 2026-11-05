@@ -1,0 +1,242 @@
+#!/usr/bin/env python3
+"""Closed, offline-only full-feed prompt capture through the actual host graph."""
+
+import argparse
+from copy import deepcopy
+from dataclasses import dataclass
+from datetime import datetime, timezone
+import hashlib
+import json
+import logging
+import os
+from pathlib import Path
+import sys
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+FEED_SHA = "f3a601d5927c3e77668c840b9adaa08da3100f1d8e3c33f23123457e37cb0414"
+FEED_REVISION = "9495aeda2c7639f1e0c3e29ca72af746e1f88a51"
+FEED_URL = f"https://raw.githubusercontent.com/ricomanifesto/SentryDigest/{FEED_REVISION}/feed.xml"
+CACHE_FILE = "9b5ad71b2ce5302211f9c61530b329a4922fc6a4"
+CACHE_SHA = "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+
+
+def sha(value):
+    return hashlib.sha256(value).hexdigest()
+
+
+def canonical(value):
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode()
+
+
+def require(value):
+    if not value:
+        raise ValueError("Closed canary refused")
+
+
+def verify_feed(raw):
+    require(type(raw) is bytes and len(raw) == 31105 and sha(raw) == FEED_SHA)
+
+
+class FixedClock(datetime):
+    @classmethod
+    def now(cls, tz=None):
+        value = cls(2026, 11, 5, 12, tzinfo=timezone.utc)
+        return value if tz is not None else value.replace(tzinfo=None)
+
+
+@dataclass(frozen=True, repr=False)
+class Prepared:
+    pack: bytes
+    wire: bytes
+    metadata: dict
+
+
+async def prepare(raw, scratch):
+    verify_feed(raw)
+    location = os.environ.get("TIKTOKEN_CACHE_DIR")
+    if not isinstance(location, str) or not location:
+        raise ValueError("Closed canary refused")
+    cache = Path(location)
+    try:
+        require(cache.is_dir() and sha((cache / CACHE_FILE).read_bytes()) == CACHE_SHA)
+    except OSError:
+        raise ValueError("Closed canary refused") from None
+    import httpx
+    from src.services import fetch
+    from src.services.article_content import normalize_feed_content
+    from src.core import analyze, model_client, reviewed_report, workflow
+    from src.core.model_route import KIMI_ROUTE, RouteActivation
+
+    original = model_client.OpenRouterClient
+    actual_factory = model_client.build_model_client
+    capture = []
+
+    def feed_reply(request):
+        require(str(request.url) == FEED_URL)
+        return httpx.Response(
+            200, content=raw, headers={"content-type": "application/xml"}
+        )
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(feed_reply)
+    ) as feed_client:
+        parser = fetch.SentryDigestFeedClient(FEED_URL)
+        with patch.object(fetch, "datetime", FixedClock):
+            articles = await parser._fetch_articles_with_client(feed_client)
+    for article in articles:
+        content = (
+            normalize_feed_content(article.get("content"))
+            or "# " + article.get("title", "") + "\n"
+        )
+        if not article.get("content") and article.get("summary"):
+            content += normalize_feed_content(article["summary"]) + "\n"
+        article.update(content=content, content_kind="feed", source_links=[])
+    require(len(articles) == 30)
+    pack = canonical(
+        {"feed_sha256": FEED_SHA, "feed_revision": FEED_REVISION, "articles": articles}
+    )
+    plan = analyze.prepare_source_review(articles)
+
+    class FrozenFeed:
+        def __init__(self, _url):
+            pass
+
+        async def fetch_articles(self):
+            return deepcopy(articles)
+
+        async def enrich_article_content(self, values):
+            require(canonical(values) == canonical(articles))
+            return values
+
+    def response(request):
+        require(not capture)
+        require(
+            request.method == "POST"
+            and str(request.url) == "https://openrouter.ai/api/v1/chat/completions"
+        )
+        body = json.loads(request.content)
+        require(body["model"] == KIMI_ROUTE.model_id and body["max_tokens"] == 32000)
+        require(body["provider"] == KIMI_ROUTE.provider_payload())
+        require(
+            body["service_tier"] == "default"
+            and body["reasoning"] == {"effort": "low", "exclude": True}
+        )
+        capture.append(bytes(request.content))
+        return httpx.Response(400, json={"error": {"code": 400}})
+
+    def constructor(**kwargs):
+        return original(**kwargs, max_attempts=1)
+
+    def factory(**kwargs):
+        return actual_factory(
+            **kwargs,
+            activation=RouteActivation.OFFLINE,
+            transport=httpx.MockTransport(response),
+        )
+
+    config = json.loads((ROOT / "config/config.json").read_bytes())
+    config["analysis"]["model"] = "openrouter/" + KIMI_ROUTE.model_id
+    config["feed_url"] = FEED_URL
+    scratch = Path(scratch)
+    scratch.mkdir(parents=True, exist_ok=True)
+    config["output_path"] = str(scratch / "index.md")
+    final = None
+    disabled = {
+        "OTEL_SDK_DISABLED": "true",
+        "LOGFIRE_SEND_TO_LOGFIRE": "false",
+        "LANGSMITH_TRACING": "false",
+        "LANGCHAIN_TRACING_V2": "false",
+    }
+    previous_logging = logging.root.manager.disable
+    logging.disable(logging.CRITICAL)
+    try:
+        with (
+            patch.dict(os.environ, disabled),
+            patch.object(workflow, "SentryDigestFeedClient", FrozenFeed),
+            patch.object(model_client, "OpenRouterClient", constructor),
+            patch.object(analyze, "build_model_client", factory),
+            patch.object(analyze, "datetime", FixedClock),
+            patch.object(reviewed_report, "datetime", FixedClock),
+            patch.object(workflow, "datetime", FixedClock),
+        ):
+            async for update in workflow.create_exploitation_analysis_graph().astream(
+                {
+                    "config": config,
+                    "status": "started",
+                    "articles": [],
+                    "filtered_articles": [],
+                    "analysis_results": {},
+                },
+                stream_mode="updates",
+            ):
+                final = next(iter(update.values()))
+    finally:
+        logging.disable(previous_logging)
+    require(len(capture) == 1 and final is not None and final["status"] == "failed")
+    wire = capture[0]
+    payload = json.loads(wire)
+    counts = {"eligible": 0, "review_required": 0}
+    for source in plan.packet["sources"]:
+        counts[source["state"]] = counts.get(source["state"], 0) + 1
+    metadata = {
+        "schema_version": 1,
+        "offline_only": True,
+        "production_ready": False,
+        "feed_sha256": FEED_SHA,
+        "feed_revision": FEED_REVISION,
+        "source_pack_sha256": sha(pack),
+        "source_review_sha256": sha(canonical(plan.packet)),
+        "input_sources": len(articles),
+        "eligible_sources": counts["eligible"],
+        "held_sources": counts["review_required"],
+        "wire_sha256": sha(wire),
+        "canonical_request_sha256": sha(canonical(payload)),
+        "wire_bytes": len(wire),
+        "message_tokens_cl100k": sum(
+            len(analyze.tokenizer.encode(row["content"])) for row in payload["messages"]
+        ),
+        "max_tokens": 32000,
+        "requested_model": KIMI_ROUTE.model_id,
+        "provider_only": ["moonshotai/mxfp4"],
+        "mock_capture_requests": 1,
+        "external_requests": 0,
+        "article_fetches": 0,
+        "published": False,
+        "output_fate": "approval_required_before_any_real_send",
+        "financial_grant_issued": False,
+    }
+    return Prepared(pack, wire, metadata)
+
+
+def main():
+    import asyncio
+    import tempfile
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--offline-only", required=True, action="store_true")
+    parser.add_argument("--feed-file", required=True, type=Path)
+    args = parser.parse_args()
+    try:
+        with tempfile.TemporaryDirectory(prefix="sentry-canary-capture-") as directory:
+            value = asyncio.run(prepare(args.feed_file.read_bytes(), Path(directory)))
+        print(json.dumps(value.metadata, sort_keys=True))
+    except BaseException:
+        print(
+            json.dumps(
+                {
+                    "outcome": "refused",
+                    "phase": "offline_capture",
+                    "external_requests": 0,
+                    "published": False,
+                }
+            )
+        )
+        raise SystemExit(1) from None
+
+
+if __name__ == "__main__":
+    main()

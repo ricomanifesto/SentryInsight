@@ -1,5 +1,5 @@
 const SITE = 'SentryInsight', MODEL = 'moonshotai/kimi-k3.1-pro', PROVIDER = 'moonshotai/mxfp4';
-const PROVIDER_LABEL = 'MoonshotAI', IDS = ['report'], OUTPUT_MAX = 32000, ATTEMPTS = 3;
+const PROVIDER_LABEL = 'Moonshot AI', IDS = ['report'], OUTPUT_MAX = 32000, ATTEMPTS = 3;
 const ATTEMPT_FACTORY = require('./request-budget').createRequestBudget;
 // Internal, unwired spending primitive. Constructor policy is trusted job data,
 // never HTTP/model/workflow input. The store is public operational metadata.
@@ -85,12 +85,13 @@ function checkedReceipt(value, op) {
   const complete = value.costCoverage === 'complete' && ['model', 'promptTokens', 'completionTokens', 'reasoningTokens', 'totalTokens', 'costMicrousd'].every((name) => value[name] !== null);
   return { receipt: copy(value), complete };
 }
+function physicalCeiling(g, op) { return Math.min(op.maxAttempts, g.physicalLimit ?? op.maxAttempts); }
 function terminal(g) {
   for (const op of g.policy.operations) {
     const sends = g.sends.filter((s) => s.operation === op.id);
     const last = sends.at(-1);
     if (!last || !last.finished || !last.finished.complete || last.finished.outcome === 'uncertain') return null;
-    if (last.finished.outcome === 'rejected' || (last.finished.outcome === 'retryable' && sends.length === op.maxAttempts)) return 'refused';
+    if (last.finished.outcome === 'rejected' || (last.finished.outcome === 'retryable' && sends.length === physicalCeiling(g, op))) return 'refused';
     if (last.finished.outcome !== 'accepted') return null;
   }
   return 'completed';
@@ -101,12 +102,14 @@ function replay(records) {
     if (typeof row.stage !== 'string' || !row.stage.startsWith('spend_')) continue;
     need(P.has(row.stage)); utc(row.at);
     if (row.stage === 'spend_reserved') {
-      keys(row, ['stage', 'at', 'binding', 'policy', 'generationToken', 'amountMicrousd']);
+      const oneShot = Object.hasOwn(row, 'physicalLimit');
+      keys(row, ['stage', 'at', 'binding', 'policy', 'generationToken', 'amountMicrousd', ...(oneShot ? ['physicalLimit'] : [])]);
+      need(!oneShot || row.physicalLimit === 1);
       const bound = binding(row.binding), policy = new ProductionSpendPolicy(row.policy).value;
       need(policy.enabled && bound.revision === policy.revision && matches(row.generationToken, /^[a-f0-9]{32}$/));
       need(![...generations.values()].some((g) => g.binding.admissionKey === bound.admissionKey));
       need(!generations.has(row.generationToken) && row.amountMicrousd === reserveAmount(policy));
-      generations.set(row.generationToken, { binding: bound, policy, amount: row.amountMicrousd, sends: [], settled: null });
+      generations.set(row.generationToken, { binding: bound, policy, amount: row.amountMicrousd, sends: [], settled: null, physicalLimit: oneShot ? 1 : null });
       continue;
     }
     const g = generations.get(row.generationToken); need(g && !g.settled);
@@ -117,7 +120,7 @@ function replay(records) {
       const index = g.policy.operations.findIndex((op) => op.id === row.operation); need(index >= 0);
       for (const previous of g.policy.operations.slice(0, index)) need(g.sends.filter((s) => s.operation === previous.id).at(-1)?.finished?.outcome === 'accepted');
       const op = g.policy.operations[index], sends = g.sends.filter((s) => s.operation === op.id), last = sends.at(-1);
-      need(!terminal(g) && row.attempt === sends.length + 1 && row.attempt <= op.maxAttempts);
+      need(!terminal(g) && row.attempt === sends.length + 1 && row.attempt <= physicalCeiling(g, op));
       if (last) need(last.finished?.complete && last.finished.outcome === 'retryable' && last.requestSha256 === row.requestSha256);
       g.sends.push({ ...row, finished: null });
     } else if (row.stage === 'spend_finished') {
@@ -177,7 +180,9 @@ class ProductionSpendBudget {
       this.#blocked = true; throw new SpendError('persistence_unknown');
     }
   }
-  async reserveGeneration(input) {
+  reserveGeneration(input) { return this.#reserve(input, null); }
+  reserveOneShotGeneration(input) { return this.#reserve(input, 1); }
+  async #reserve(input, physicalLimit) {
     this.#active(); const bound = binding(input); need(bound.revision === this.#policy.revision);
     const generationToken = randomBytes(16).toString('hex'), amount = reserveAmount(this.#policy);
     const result = await this.#append((records) => {
@@ -198,7 +203,7 @@ class ProductionSpendBudget {
         }
       }
       need(amount <= this.#policy.generationMicrousd && sum(used, amount) <= this.#policy.periodMicrousd);
-      return { append: [...daily.append, { stage: 'spend_reserved', binding: bound, policy: this.#policy, generationToken, amountMicrousd: amount }], value: freeze({ ...bound, generationToken }) };
+      return { append: [...daily.append, { stage: 'spend_reserved', binding: bound, policy: this.#policy, generationToken, amountMicrousd: amount, ...(physicalLimit === 1 ? { physicalLimit: 1 } : {}) }], value: freeze({ ...bound, generationToken }) };
     });
     this.#owned.add(generationToken); return result;
   }
@@ -209,7 +214,7 @@ class ProductionSpendBudget {
       this.#active(); const g = this.#generation(records, handle), op = g.policy.operations.find((v) => v.id === input.operation); need(op);
       const sends = g.sends.filter((s) => s.operation === op.id), attempt = sends.length + 1;
       const row = { stage: 'spend_sending', generationToken: handle.generationToken, operation: op.id, attempt, token, requestSha256: input.requestSha256 };
-      const attemptRecords = this.#attempts ? this.#attempts.reserveDecision(records, { admissionKey: handle.admissionKey, runId: handle.runId, revision: handle.revision, requestSha256: input.requestSha256, limit: op.maxAttempts }, token).append : [];
+      const attemptRecords = this.#attempts ? this.#attempts.reserveDecision(records, { admissionKey: handle.admissionKey, runId: handle.runId, revision: handle.revision, requestSha256: input.requestSha256, limit: physicalCeiling(g, op) }, token).append : [];
       replay([...records, { ...row, at: this.#now().toISOString() }]);
       return { append: [...attemptRecords, row], value: freeze({ generationToken: handle.generationToken, token }) };
     });
@@ -223,7 +228,7 @@ class ProductionSpendBudget {
       const outcome = checked.complete ? input.outcome : 'uncertain';
       const row = { stage: 'spend_finished', generationToken: handle.generationToken, token: s.token, outcome, receipt: checked.receipt };
       const dispositions = { accepted: 'response_received', rejected: 'permanent_rejection', retryable: 'retryable_rejection', uncertain: 'uncertain' };
-      const attemptRecords = this.#attempts ? this.#attempts.finishDecision(records, { admissionKey: handle.admissionKey, runId: handle.runId, revision: handle.revision, requestSha256: s.requestSha256, limit: op.maxAttempts, attempt: s.attempt, token: s.token, disposition: dispositions[outcome], retryAfterSeconds: 0 }).append : [];
+      const attemptRecords = this.#attempts ? this.#attempts.finishDecision(records, { admissionKey: handle.admissionKey, runId: handle.runId, revision: handle.revision, requestSha256: s.requestSha256, limit: physicalCeiling(g, op), attempt: s.attempt, token: s.token, disposition: dispositions[outcome], retryAfterSeconds: 0 }).append : [];
       replay([...records, { ...row, at: this.#now().toISOString() }]);
       return { append: [...attemptRecords, row], value: { recorded: true, outcome } };
     });
