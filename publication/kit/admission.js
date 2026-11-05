@@ -29,6 +29,7 @@ const { sha256 } = require('./canonical');
 const { createGit } = require('./git');
 const { LAYOUT, SHA1, SHA256, releaseKeyOf } = require('./release');
 const { createStore } = require('./store');
+const { ProductionSpendBudget } = require('./production-spend');
 const { createRequestBudget } = require('./request-budget');
 
 const DIGEST_REPOSITORY = 'ricomanifesto/SentryDigest';
@@ -155,6 +156,8 @@ function createAdmission({
   now = () => new Date(),
   gitEnv = process.env,
   hooks = {},
+  productionSpendPolicy,
+  productionDailyPilot,
 }) {
   if (consumer !== config.site || consumer === 'SentryDigest') throw new Error(`${consumer} is not this consumer site`);
   const git = createGit(repoRoot, { env: gitEnv });
@@ -352,14 +355,16 @@ function createAdmission({
     return appended[0].stage;
   }
 
-  const requests = createRequestBudget({ store, now, requireOwner(records, key, run) {
+  function requireOwner(records, key, run) {
     const latest = latestByKey(records).get(key);
     if (!latest || latest.stage !== 'invoked' || latest.run_id !== run) throw new Error('request admission not owned');
     const admittedIndex = records.findLastIndex((r) => r.admission_key === key && r.stage === 'admitted');
     if (admittedIndex < 0 || records[admittedIndex].run_id !== run) throw new Error('request episode not owned');
     return admittedIndex;
-  } });
-  return { admit, complete, invoked, ...requests, readState: () => store.read() };
+  }
+  const requests = createRequestBudget({ store, now, requireOwner });
+  const productionSpend = new ProductionSpendBudget({ store, requireOwner, policy: productionSpendPolicy, dailyGate: productionDailyPilot, now });
+  return { admit, complete, invoked, reserveRequest: requests.reserveRequest, finishRequest: requests.finishRequest, productionSpend, readState: () => store.read() };
 }
 
 module.exports = { CONCLUSIVE_OUTCOMES, DIGEST_REPOSITORY, SNAPSHOT_FEED_PATH, createAdmission, findAdmissionReport, snapshotFeedUrl };

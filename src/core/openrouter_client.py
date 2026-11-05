@@ -17,6 +17,7 @@ import httpx
 from .attempt_budget import AttemptBudget, MemoryAttemptBudget
 from .opencode_client import ModelSelection
 from .retry_policy import MAX_ATTEMPTS, MAX_RETRY_DELAY, retry_decision
+from .model_route import RouteActivation, selected_route, validate_completion
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 OPENROUTER_API_KEY_ENV_VAR = "OPENROUTER_API_KEY"
@@ -69,6 +70,7 @@ class OpenRouterClient:
         max_attempts: int = MAX_ATTEMPTS,
         attempt_budget: AttemptBudget | None = None,
         on_request: Callable[[dict], None] | None = None,
+        activation: RouteActivation = RouteActivation.DISABLED,
     ) -> None:
         if type(max_attempts) is not int or not 1 <= max_attempts <= MAX_ATTEMPTS:
             raise ValueError("max_attempts must be between 1 and 3")
@@ -80,6 +82,7 @@ class OpenRouterClient:
         self.max_attempts = max_attempts
         self.attempt_budget = attempt_budget or MemoryAttemptBudget()
         self.on_request = on_request
+        self.activation = activation
         self.last_generation: dict[str, str] | None = None
         self.last_request: dict = {}
 
@@ -97,6 +100,15 @@ class OpenRouterClient:
                 "allow_fallbacks": False,
                 "max_price": {"prompt": 0, "completion": 0, "request": 0, "image": 0},
             }
+        route = selected_route(model_id)
+        if route is not None:
+            payload.update(
+                provider=route.provider_payload(),
+                service_tier="default",
+                reasoning={"effort": "low", "exclude": True},
+                stream=False,
+            )
+            route.validate_input(payload)
         return payload
 
     def _snapshot(self):
@@ -129,8 +141,13 @@ class OpenRouterClient:
         model: ModelSelection | None = None,
         title: str = "Report generation",
     ) -> str:
+        route = selected_route(model.model_id, model.provider_id) if model else None
         if model is None or model.provider_id != "openrouter":
             raise OpenRouterError("OpenRouter calls require an openrouter/* model")
+        if route is not None:
+            route.require_offline(
+                self.activation, self.transport, self.api_key, self.base_url
+            )
         self.last_generation = None
         payload = self._payload(system_prompt, user_prompt, model.model_id)
         request_sha256 = hashlib.sha256(
@@ -200,6 +217,10 @@ class OpenRouterClient:
                             "OpenRouter resolved model does not match the requested model",
                             http_status=response.status_code,
                             request_state="permanent_rejection",
+                        )
+                    if route is not None:
+                        self.last_request["usage"] = validate_completion(
+                            response.json(), model.model_id, self.max_tokens
                         )
                     self.last_generation = {
                         "requested_model": model.model_id,
