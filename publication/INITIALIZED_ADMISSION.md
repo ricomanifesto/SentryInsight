@@ -57,12 +57,16 @@ node scripts/bootstrap_canary_ledger.cjs \
   --initialize-public-ledger
 ```
 
-The committed manifest has no pilot/opening or metadata-audience approval, so this
-command currently refuses before Git/auth access. It never enables the sender.
-The command requires a clean exact checkout, the fixed repository origin and the
-manifest's production-main fence. It uses only the checkout's existing authorized
-Git authentication; it does not obtain a provider credential or add access. The
-future initializer dispatch and public write remain separately approved.
+The committed one-shot manifest binds November 5 UTC, the $20 November Sentry
+pilot, its approved prospective zero opening and public metadata audience. It does
+not establish that source publication or initialization has occurred. Execute only
+after the exact source/main release and manual dispatch have been confirmed.
+The registered job enforces the fixed owner, ref, head, first attempt and nondebug
+context. The command additionally requires the exact manifest digest, current UTC
+date, clean checkout, fixed repository origin and production main at
+`5fc68212f1a9772ab56872ad20ad94ccc8322f3e`; an existing target ref refuses.
+It uses only the checkout's existing authorized Git authentication, without a
+provider credential or added access, and never starts the separate sender job.
 Child Git processes receive fixed minimal controls, no model/AWS key, proxy,
 arbitrary Git environment, HOME override or interactive credential prompt.
 
