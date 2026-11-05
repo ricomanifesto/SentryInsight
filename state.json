@@ -1730,6 +1730,17 @@
       "release_key": "f14d0d9cdc7f5b1fe530eb40f9f0e72c7623646a9078f57f1e6b794d3444d7dc",
       "release_ref": "ef3bd937b5c7fe7389696b9355763d690a6b12bd",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-05T23:07:22.143Z",
+      "kind": "release",
+      "payload_digest": "3c721fc9297c5cf149e54280b9f90906ec899e2d2518fed58916987e677f3ee4",
+      "proof": "on",
+      "release_key": "120ef0a190f11b7ea35b8fb7bae61809b8dc98d6c8ce43da52bc7b782f7416ca",
+      "release_ref": "a26a867baa0b127571404097769b86626d651404",
+      "source_revision": "7a9175c8b77456db517d07ea18ee03cc1ae256a0",
+      "stage": "released",
+      "tree_digest": "9aabcadb787355a12b480b69c905ed1822a1e266698a2de77847dc467623e582"
     }
   ],
   "schema_version": 1,
