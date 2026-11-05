@@ -338,7 +338,14 @@ class PersistentOwner:
 
 
 async def worker(value, deadline):
+    # Hosted runners install Node outside the sealed child PATH. Resolve the
+    # trusted toolchain here, as PersistentOwner does, and expose only its
+    # directory so child rehearsals find the same Node without inheriting PATH.
+    node = shutil.which("node")
+    if node is None:
+        raise ValueError("Closed canary refused")
     child = environment()
+    child["PATH"] = os.pathsep.join((os.path.dirname(node), child["PATH"]))
     child["GIT_ALLOW_PROTOCOL"] = "https"
     if os.environ.get("TIKTOKEN_CACHE_DIR"):
         child["TIKTOKEN_CACHE_DIR"] = os.environ["TIKTOKEN_CACHE_DIR"]
