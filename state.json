@@ -7,6 +7,15 @@
       "scope_sha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7",
       "site": "SentryInsight",
       "stage": "admission_store_initialized"
+    },
+    {
+      "admission_key": "run:42022367409",
+      "at": "2026-11-05T11:52:11.874Z",
+      "binding": "none",
+      "event": "workflow_dispatch",
+      "run_attempt": "1",
+      "run_id": "42022367409",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
