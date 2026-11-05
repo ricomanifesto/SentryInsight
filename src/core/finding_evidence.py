@@ -1842,6 +1842,53 @@ def _validate_finding(
             )
 
 
+def validate_vendor_links(report: str, catalog: Mapping[str, ReportingSource]) -> None:
+    """Every vendor link must be a supplied link of the finding's cited sources.
+
+    This is source identity, not grounding, so advisory grounding still runs
+    it for every finding. Strict validation applies the same rule in place.
+    """
+    section = ACTIVE_SECTION_PATTERN.search(report)
+    if not section:
+        return
+    for index, finding in enumerate(
+        FINDING_PATTERN.finditer(section.group("section")), start=1
+    ):
+        fields = dict(FIELD.findall(finding.group("body")))
+        value = fields.get("Vendor Links", "").strip()
+        if not value or value == ABSENT:
+            continue
+        keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
+        links = {link for key in keys if key in catalog for link in catalog[key].links}
+        code = None
+        try:
+            normalized = [
+                normalize_reporting_url(entry.strip()) for entry in value.split(";")
+            ]
+        except ReportingGroundingError:
+            code = "invalid_vendor_link"
+        else:
+            if any(entry not in links for entry in normalized):
+                code = "unsupported_vendor_link"
+        if code is not None:
+            error = EvidenceError(
+                "Unsupported vendor link",
+                code=code,
+                field="Vendor Links",
+                expected=True,
+                observed=False,
+            )
+            error.finding_index = index
+            error.cves = tuple(
+                extract_cve_ids(
+                    fields.get("CVE IDs", "") + " " + finding.group("heading")
+                )
+            )
+            error.source_keys = tuple(key for key in keys if key in catalog)
+            error.finding_sha256 = hashlib.sha256(finding.group().encode()).hexdigest()
+            raise error
+
+
 def validate_finding_evidence(
     report: str, catalog: Mapping[str, ReportingSource]
 ) -> None:

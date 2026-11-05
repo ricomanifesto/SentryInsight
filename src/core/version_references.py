@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass, replace
 import hashlib
 import json
 import re
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .finding_evidence import (
@@ -444,10 +444,36 @@ def validate_resolved_version_status(
         )
 
 
+def _unresolved_fallback(finding, section, fields):
+    """Advisory grounding: mark one clean version field unresolved, or refuse."""
+    matches = list(VERSION_FIELD.finditer(finding["body"]))
+    if len(matches) != 1 or STATE_FIELD in fields:
+        return None
+    field = matches[0]
+    tail = finding["body"][field.end() :]
+    next_field = FIELD.search(tail)
+    if tail[: next_field.start() if next_field else len(tail)].strip():
+        return None
+    base = section.start("section") + finding.start("body")
+    return (
+        base + field.start("value"),
+        base + field.end("value"),
+        f"{UNRESOLVED}\n- **{STATE_FIELD}**: {VersionEvidenceStatus.UNRESOLVED.value}",
+    )
+
+
 def resolve_version_references(
-    report: str, catalog: Mapping[str, ReportingSource]
+    report: str,
+    catalog: Mapping[str, ReportingSource],
+    *,
+    on_reject: Callable[[EvidenceError], None] | None = None,
 ) -> str:
-    """Resolve only an exact reference protocol; never repair free-text claims."""
+    """Resolve only an exact reference protocol; never repair free-text claims.
+
+    With ``on_reject`` (advisory grounding), a finding whose references do not
+    resolve is reported to the callback and rendered as unresolved instead of
+    failing the whole report. It never claims absence or invents versions.
+    """
     section = ACTIVE_SECTION_PATTERN.search(report)
     if not section:
         raise _reject("missing_finding_section", "Missing finding section")
@@ -547,7 +573,13 @@ def resolve_version_references(
             exc.cves = cves
             exc.source_keys = tuple(key for key in keys if key in catalog)
             exc.finding_sha256 = hashlib.sha256(finding.group().encode()).hexdigest()
-            raise
+            if on_reject is None:
+                raise
+            fallback = _unresolved_fallback(finding, section, fields)
+            if fallback is None:
+                raise
+            on_reject(exc)
+            replacements.append(fallback)
     if not replacements:
         raise _reject("missing_finding_section", "No finding version references")
     for start, end, value in reversed(replacements):
@@ -559,7 +591,11 @@ def resolve_version_references(
     return report
 
 
-def resolve_analysis_version_references(result: Mapping[str, Any]) -> str:
+def resolve_analysis_version_references(
+    result: Mapping[str, Any],
+    *,
+    on_reject: Callable[[EvidenceError], None] | None = None,
+) -> str:
     """Shared production/evaluation adapter; protocol is host-owned metadata."""
     report = prepare_generated_report(result["exploitation_report"])
     if (
@@ -570,4 +606,4 @@ def resolve_analysis_version_references(result: Mapping[str, Any]) -> str:
             "invalid_version_reference_protocol", "Missing version reference protocol"
         )
     catalog = deserialize_reporting_catalog(result.get("reporting_sources", []))
-    return resolve_version_references(report, catalog)
+    return resolve_version_references(report, catalog, on_reject=on_reject)

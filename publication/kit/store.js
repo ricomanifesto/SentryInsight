@@ -8,6 +8,18 @@ const { CompareAndSetLost } = require('./git');
 
 const STATE_FILE = 'state.json';
 const MAX_ATTEMPTS = 8;
+const INITIALIZED = 'admission_store_initialized';
+const INITIALIZED_GUARD = canonicalJson({ git: { deploymentEnabled: false } });
+
+function stateFiles(site, records, existingGuard = null) {
+  const files = new Map([[STATE_FILE, Buffer.from(canonicalJson({ schema_version: 1, site, records }))]]);
+  // commitFiles creates a fresh tree, so every write must keep the
+  // branch-local hosting guard: the one already on the branch, or the one an
+  // initialized ledger requires.
+  if (existingGuard) files.set('vercel.json', existingGuard);
+  else if (records.some((row) => row?.stage === INITIALIZED)) files.set('vercel.json', Buffer.from(INITIALIZED_GUARD));
+  return files;
+}
 
 function createStore({ git, remote, branch, site, now = () => new Date(), message = 'Record publication state' }) {
   async function read() {
@@ -34,10 +46,8 @@ function createStore({ git, remote, branch, site, now = () => new Date(), messag
       const at = now().toISOString();
       const stamped = additions.map((record) => ({ ...record, at }));
       const next = [...records, ...stamped];
-      const commit = git.commitFiles(
-        new Map([[STATE_FILE, Buffer.from(canonicalJson({ schema_version: 1, site, records: next }))]]),
-        { parent: tip, message },
-      );
+      const guard = tip ? git.showFile(tip, 'vercel.json') : null;
+      const commit = git.commitFiles(stateFiles(site, next, guard), { parent: tip, message });
       try {
         git.pushBranch(remote, commit, branch, tip);
         return { records: next, value, appended: stamped };

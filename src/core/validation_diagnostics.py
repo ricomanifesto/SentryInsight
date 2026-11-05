@@ -85,6 +85,20 @@ def _known(value: object, allowed: frozenset[str], fallback: str) -> str:
     return value if type(value) is str and value in allowed else fallback
 
 
+EVIDENCE_STATES = frozenset(
+    {"active", "observed", "potential", "not_observed", "unknown", "missing"}
+)
+
+
+def _bounded_value(value: object) -> str | int | bool | None:
+    """Only categorical states, booleans and bounded counts; never text."""
+    if value is None or type(value) is bool:
+        return value
+    if type(value) is int:
+        return value if 0 <= value <= MAX_FINDING_INDEX else "invalid"
+    return value if type(value) is str and value in EVIDENCE_STATES else "invalid"
+
+
 def validation_diagnostic(stage: str, error: Exception) -> dict:
     """Return only fixed labels, bounded integers and a truncation flag.
 
@@ -96,12 +110,17 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
     field = None
     finding_index = None
     truncated = False
+    expected = observed = None
     if isinstance(error, EvidenceError):
         codes = [_known(error.code, EVIDENCE_CODES, UNKNOWN_CODE)]
         field = _known(error.field, FIELDS, "") or None
         index = error.finding_index
         if type(index) is int and 0 <= index <= MAX_FINDING_INDEX:
             finding_index = index
+        # A targeted repair needs the categorical mismatch, not any text.
+        if codes != [UNKNOWN_CODE]:
+            expected = _bounded_value(error.expected)
+            observed = _bounded_value(error.observed)
     elif isinstance(error, SourceReviewError):
         codes = [_known(error.code, SOURCE_CODES, UNKNOWN_CODE)]
     elif isinstance(error, ReviewedReportValidationError):
@@ -129,6 +148,8 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
         "field": field,
         "finding_index": finding_index,
         "issues_truncated": truncated,
+        "expected": expected,
+        "observed": observed,
     }
 
 
@@ -199,4 +220,6 @@ def sanitize_diagnostic(value: object) -> dict:
         ),
         "issues_truncated": len(codes) > MAX_ISSUES
         or value.get("issues_truncated") is True,
+        "expected": _bounded_value(value.get("expected")),
+        "observed": _bounded_value(value.get("observed")),
     }

@@ -90,6 +90,7 @@ class ExploitationAnalysisState(TypedDict):
     source_review_plan: NotRequired[dict]
     report_generated: NotRequired[bool]
     source_review_count: NotRequired[int]
+    grounding_advisories: NotRequired[list[dict]]
 
 
 def _record_failure(
@@ -305,7 +306,14 @@ async def generate_report(
         ensure_no_pending_publication(root)
         write_review_packet(plan.packet, root / ".sentryinsight-review")
         reporting_catalog = plan.eligible_catalog
-        candidate = resolve_reviewed_analysis(analysis_results, on_stage=observe_stage)
+        advisory = config.get("analysis", {}).get("grounding") == "advisory"
+        candidate = resolve_reviewed_analysis(
+            analysis_results, on_stage=observe_stage, advisory=advisory
+        )
+        for reason in candidate.advisories:
+            # Bounded categories only; the report publishes despite these.
+            logger.warning("Report grounding advisory: %s", json.dumps(reason))
+        state["grounding_advisories"] = list(candidate.advisories)
         report_source = candidate.source
         artifact = parse_report_artifact(report_source)
     except (SourceReviewError, PublicationError, OSError) as exc:

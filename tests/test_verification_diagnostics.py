@@ -205,6 +205,8 @@ def test_arbitrary_error_attributes_cannot_expand_disclosure(index):
         "field": None,
         "finding_index": None,
         "issues_truncated": False,
+        "expected": None,
+        "observed": None,
     }
 
 

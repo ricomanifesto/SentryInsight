@@ -6,7 +6,11 @@ from typing import Any, Callable, Mapping
 
 from .article_policy import contains_virtual_event_tag
 from .cve import extract_cve_ids
-from .finding_evidence import validate_finding_evidence
+from .finding_evidence import (
+    EvidenceError,
+    validate_finding_evidence,
+    validate_vendor_links,
+)
 from .report_artifact import DIGEST_ARCHIVE_ROOT, parse_report_artifact
 from .reporting import (
     ACTIVE_SECTION_PATTERN,
@@ -20,6 +24,7 @@ from .reporting import (
 )
 from .report_validation import (
     ReportValidationIssue,
+    blocking_issues,
     prepare_generated_report,
     validate_report_content,
 )
@@ -53,6 +58,9 @@ class ReviewedReport:
     catalog: dict[str, ReportingSource]
     source: str
     grounded_report: str
+    # Bounded reasons for accuracy checks that advisory grounding logged
+    # instead of blocking. Empty under strict grounding.
+    advisories: tuple[dict, ...] = ()
 
     @property
     def covered_report(self) -> str:
@@ -91,13 +99,30 @@ def _candidate_reporting_keys(report: str) -> list[str]:
 
 
 def resolve_reviewed_analysis(
-    result: Mapping[str, Any], *, on_stage: Callable[[str], None] | None = None
+    result: Mapping[str, Any],
+    *,
+    on_stage: Callable[[str], None] | None = None,
+    advisory: bool = False,
 ) -> ReviewedReport:
-    """Validate every finding; optionally observe fixed stage names, never text."""
+    """Validate every finding; optionally observe fixed stage names, never text.
+
+    ``advisory`` keeps site-safety, structure and source-identity checks
+    blocking, but records accuracy rejections (unresolvable versions,
+    ungrounded finding evidence, out-of-scope CVEs, report-quality issues) as
+    bounded reasons in ``advisories`` and publishes the report.
+    """
+    from .validation_diagnostics import validation_diagnostic
+
+    advisories: list[dict] = []
+    current = {"stage": "candidate_structure"}
 
     def stage(name: str) -> None:
+        current["stage"] = name
         if on_stage is not None:
             on_stage(name)
+
+    def advise(error: Exception) -> None:
+        advisories.append(validation_diagnostic(current["stage"], error))
 
     stage("candidate_structure")
     raw = result.get("exploitation_report")
@@ -132,7 +157,9 @@ def resolve_reviewed_analysis(
         extract_cve_ids(visible_candidate_text(prepared))
     )
     if not candidate_cves <= eligible_cves:
-        raise SourceReviewError("out_of_scope_candidate_cve")
+        if not advisory:
+            raise SourceReviewError("out_of_scope_candidate_cve")
+        advise(SourceReviewError("out_of_scope_candidate_cve"))
     catalog = plan.eligible_catalog
     stage("version_references")
     canonical = resolve_analysis_version_references(
@@ -140,10 +167,19 @@ def resolve_reviewed_analysis(
             **result,
             "exploitation_report": prepared,
             "reporting_sources": serialize_reporting_catalog(catalog),
-        }
+        },
+        on_reject=advise if advisory else None,
     )
     stage("finding_evidence")
-    validate_finding_evidence(canonical, catalog)
+    if advisory:
+        # Source identity stays blocking even when grounding is advisory.
+        validate_vendor_links(canonical, catalog)
+    try:
+        validate_finding_evidence(canonical, catalog)
+    except EvidenceError as exc:
+        if not advisory:
+            raise
+        advise(exc)
     stage("reporting_identity")
     resolved = resolve_reporting_keys(canonical, catalog)
     stage("report_content")
@@ -162,6 +198,15 @@ def resolve_reviewed_analysis(
         )
     }
     issues = validate_report_content(resolved, expected_cves=expected_cves)
+    if advisory:
+        blocking = blocking_issues(issues)
+        if len(blocking) < len(issues):
+            advise(
+                ReviewedReportValidationError(
+                    [issue for issue in issues if issue not in blocking]
+                )
+            )
+        issues = blocking
     if issues:
         raise ReviewedReportValidationError(issues)
     stage("source_coverage")
@@ -186,4 +231,6 @@ def resolve_reviewed_analysis(
         + coverage_markdown(coverage)
     )
     parse_report_artifact(source)
-    return ReviewedReport(resolved, coverage, catalog, source, canonical)
+    return ReviewedReport(
+        resolved, coverage, catalog, source, canonical, tuple(advisories)
+    )

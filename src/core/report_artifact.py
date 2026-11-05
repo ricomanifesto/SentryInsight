@@ -11,7 +11,6 @@ from typing import Any, TypeVar
 from markdown_it import MarkdownIt
 
 from .heading_identity import normalize_heading_identity
-from .cve import extract_cve_ids
 from .version_state import ABSENT, STATE_FIELD, UNRESOLVED, VersionEvidenceStatus
 from .source_coverage import (
     COVERAGE_HEADING,
@@ -330,9 +329,11 @@ def _parse_findings(
                 VersionEvidenceStatus, STATE_FIELD, fields.get(STATE_FIELD, "")
             )
             value = fields.get("Affected Versions")
+            # Advisory grounding may leave any finding's versions unresolved,
+            # including a CVE finding; the value must still be the fixed text.
             if (
                 version_status == VersionEvidenceStatus.UNRESOLVED
-                and (value != UNRESOLVED or cve_ids or extract_cve_ids(title))
+                and value != UNRESOLVED
                 or version_status == VersionEvidenceStatus.NOT_STATED
                 and value != ABSENT
                 or version_status == VersionEvidenceStatus.SUPPORTED

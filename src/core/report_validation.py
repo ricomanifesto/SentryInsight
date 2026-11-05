@@ -114,6 +114,25 @@ class ReportValidationIssue:
     message: str
 
 
+# Report-quality checks that advisory grounding logs instead of blocking.
+# Safety (active content, error markers, empty output) and the structure the
+# renderer depends on always block.
+ADVISORY_CONTENT_CODES = frozenset(
+    {
+        "missing_expected_cves",
+        "executive_summary_readability",
+        "underpopulated_threat_actor_activities",
+    }
+)
+
+
+def blocking_issues(
+    issues: List["ReportValidationIssue"],
+) -> List["ReportValidationIssue"]:
+    """Issues that still block publication under advisory grounding."""
+    return [issue for issue in issues if issue.code not in ADVISORY_CONTENT_CODES]
+
+
 class ActiveContentHTMLParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)

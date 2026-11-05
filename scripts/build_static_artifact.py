@@ -37,6 +37,7 @@ DEFAULT_LIMITS: dict[str, int] = {
 PACKAGER = "scripts/package_pages.py"
 SNAPSHOT_FILES = frozenset(
     {
+        "config/config.json",
         "contracts/reporting-identity-v1.json",
         "index.md",
         "publication/site.json",
@@ -48,7 +49,9 @@ SNAPSHOT_FILES = frozenset(
 SNAPSHOT_PREFIXES = ("assets/", "site/", "src/")
 # The public site configuration exists only from the revision that introduced
 # it; earlier revisions build without it.
-OPTIONAL_INPUTS = frozenset({"publication/site.json"})
+# The configuration selects advisory grounding for the report gate; without it
+# the gate stays strict.
+OPTIONAL_INPUTS = frozenset({"publication/site.json", "config/config.json"})
 REQUIRED_INPUTS = (
     "index.md",
     "site/archive.html",

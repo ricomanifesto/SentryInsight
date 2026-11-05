@@ -23,6 +23,7 @@ from scripts.package_pages import EXPECTED_TOP_LEVEL, package_pages
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGER_INPUTS = (
+    "config",
     "index.md",
     "reports",
     "site",
