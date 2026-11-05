@@ -1,10 +1,27 @@
 """One mock physical request, original CAS token and actual host reply replay."""
 
 import asyncio
+from datetime import datetime, timezone
 import os
 from pathlib import Path
 import pytest
 from scripts.rehearse_full_feed_canary import rehearse
+
+
+class ExecutionClock(datetime):
+    @classmethod
+    def now(cls, tz=None):
+        value = cls(2026, 11, 5, 3, 4, 5, tzinfo=timezone.utc)
+        return value if tz is not None else value.replace(tzinfo=None)
+
+
+@pytest.fixture(autouse=True)
+def synthetic_execution_clock(monkeypatch):
+    from scripts import rehearse_full_feed_canary as bridge
+    from src.core import reviewed_report
+
+    monkeypatch.setattr(bridge, "datetime", ExecutionClock)
+    monkeypatch.setattr(reviewed_report, "datetime", ExecutionClock)
 
 
 def feed_bytes():
@@ -29,6 +46,8 @@ def test_whole_feed_same_reply_reaches_actual_host_and_scratch_package(tmp_path)
     assert result["published"] is False
     assert result["financial_settled"] is False
     assert result["pages_package"]["matches_promoted_artifacts"] is True
+    assert result["generated_at"] == "2026-11-05T03:04:05+00:00"
+    assert result["generated_at"] != "2026-11-05T12:00:00+00:00"
 
 
 @pytest.mark.parametrize(
@@ -64,6 +83,22 @@ def test_stale_manifest_stops_before_a_grant_or_send(tmp_path):
                 feed_bytes(), tmp_path, now=datetime(2026, 11, 6, tzinfo=timezone.utc)
             )
         )
+    assert not (tmp_path / "financial").exists()
+
+
+def test_expired_wall_clock_without_an_override_stops_before_grant(
+    tmp_path, monkeypatch
+):
+    from scripts import rehearse_full_feed_canary as bridge
+
+    class ExpiredClock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return cls(2026, 11, 6, tzinfo=timezone.utc)
+
+    monkeypatch.setattr(bridge, "datetime", ExpiredClock)
+    with pytest.raises(ValueError, match="Closed canary refused"):
+        asyncio.run(rehearse(feed_bytes(), tmp_path))
     assert not (tmp_path / "financial").exists()
 
 
