@@ -232,6 +232,17 @@ async def _prepare_owned(
         with (
             patch.dict(os.environ, disabled),
             patch.object(workflow, "SentryDigestFeedClient", FrozenFeed),
+            # A warm process may retain workflow's direct references after an
+            # analysis-module replacement. Own the canonical pair together,
+            # restoring the caller's references on every exit.
+            patch.object(
+                workflow, "analyze_exploitation", analyze.analyze_exploitation
+            ),
+            patch.object(
+                workflow,
+                "filter_exploitation_articles",
+                analyze.filter_exploitation_articles,
+            ),
             patch.object(model_client, "OpenRouterClient", constructor),
             patch.object(analyze, "build_model_client", factory),
             patch.object(analyze, "datetime", FixedClock),

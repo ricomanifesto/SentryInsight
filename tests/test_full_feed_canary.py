@@ -113,3 +113,46 @@ def test_capture_resolves_real_submodules_instead_of_orphan_package_aliases(
     result = asyncio.run(prepare(Path(feed).read_bytes(), tmp_path))
     assert result.metadata["mock_capture_requests"] == 1
     assert result.metadata["eligible_sources"] == 25
+
+
+@pytest.mark.parametrize("fault", [False, True])
+def test_capture_owns_direct_workflow_analysis_bindings_and_restores_them(
+    tmp_path, monkeypatch, fault
+):
+    import importlib
+
+    workflow = importlib.import_module("src.core.workflow")
+    feed = os.environ.get("SENTRY_FROZEN_FEED")
+    if not feed:
+        pytest.skip("Exact external public packet required")
+    calls = []
+
+    async def stale_analysis(*_args, **_kwargs):
+        calls.append("stale_analysis")
+        return {"error": "synthetic obsolete analysis"}
+
+    def stale_filter(_articles):
+        calls.append("stale_filter")
+        return []
+
+    monkeypatch.setattr(workflow, "analyze_exploitation", stale_analysis)
+    monkeypatch.setattr(workflow, "filter_exploitation_articles", stale_filter)
+    if fault:
+
+        def fail():
+            raise RuntimeError("synthetic graph failure")
+
+        monkeypatch.setattr(workflow, "create_exploitation_analysis_graph", fail)
+        with pytest.raises(RuntimeError):
+            asyncio.run(prepare(Path(feed).read_bytes(), tmp_path))
+    else:
+        result = asyncio.run(prepare(Path(feed).read_bytes(), tmp_path))
+        assert result.metadata["mock_capture_requests"] == 1
+        assert result.metadata["eligible_sources"] == 25
+        assert (
+            result.metadata["wire_sha256"]
+            == "a260b0a92a35926c8201e80c9b44fd4edbeb84c00b05f600c1856de57a4ca440"
+        )
+    assert calls == []
+    assert workflow.analyze_exploitation is stale_analysis
+    assert workflow.filter_exploitation_articles is stale_filter
