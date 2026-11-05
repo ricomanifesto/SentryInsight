@@ -22,11 +22,18 @@ class FrozenInputs(tuple):
 
 
 @pytest.fixture(autouse=True)
-def synthetic_clock(monkeypatch):
+def synthetic_clock(monkeypatch, tmp_path):
     from src.core import reviewed_report
 
     monkeypatch.setattr(canary, "datetime", ExecutionClock)
     monkeypatch.setattr(reviewed_report, "datetime", ExecutionClock)
+    # Negative controls must not depend on a committed one-shot approval being
+    # absent. Positive cases explicitly populate their synthetic authority.
+    disabled = json.loads(canary.MANIFEST.read_bytes())
+    disabled["enabled"] = False
+    manifest = tmp_path / "disabled-canary.json"
+    manifest.write_text(json.dumps(disabled))
+    monkeypatch.setattr(canary, "MANIFEST", manifest)
 
 
 @pytest.fixture(scope="module")

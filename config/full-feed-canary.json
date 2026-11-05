@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "execution_date": "2026-11-05",
   "source_role": "reviewed_canary_candidate",
-  "production_main": "1e8e9d082b29f4d64d5f75138d360cc894a33032",
+  "production_main": "5fc68212f1a9772ab56872ad20ad94ccc8322f3e",
   "production_report_sha256": "698f2cb475a43e6c273900df1ea9ac38451bf9535e6a99c3663b9c411567bde9",
   "feed_sha256": "f3a601d5927c3e77668c840b9adaa08da3100f1d8e3c33f23123457e37cb0414",
   "source_pack_sha256": "b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9",
@@ -12,9 +12,16 @@
   "max_output_tokens": 32000,
   "whole_hold_microusd": 7251456,
   "physical_limit": 1,
-  "pilot": null,
-  "billing_basis": null,
-  "data_approval_sha256": null,
-  "metadata_audience_approved": false,
-  "output_fate": "nonpublish"
+  "pilot": {
+    "month": "2026-11",
+    "activationStart": "2026-11-05T00:00:00.000Z",
+    "opening": {
+      "amountMicrousd": 0,
+      "basisSha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7"
+    }
+  },
+  "billing_basis": "verified_openrouter_credit_only",
+  "data_approval_sha256": "807bc04bc3a6e4dad1f05a093bc4f6f80afeaa92840506e7858b1102d0a5207c",
+  "metadata_audience_approved": true,
+  "output_fate": "conditional_publish"
 }

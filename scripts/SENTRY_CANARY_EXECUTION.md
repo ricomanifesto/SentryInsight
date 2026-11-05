@@ -1,10 +1,12 @@
-# Proposed closed Sentry full-feed canary
+# Closed Sentry full-feed canary — November 5, 2026
 
-This temporary execution route is prepared for review. The committed manifest is
-**disabled**, with no active pilot, opening liability, billing basis, data grant
-or operational-metadata audience approval. It cannot read a provider key or send
-an inference in that state. This is separate from ordinary model activation:
-selected application clients remain OFFLINE and mock-only.
+The committed manifest records the approved November 5 one-shot scope: the
+prospective November Sentry pilot, credit-only billing basis, exact public data,
+public operational-metadata audience and conditional output fate. Source changes
+alone do not initialize state or execute a request. Exact source/main/report/date,
+manual-context and durable ownership checks still precede provider-key access.
+This is separate from ordinary activation: selected application clients remain
+OFFLINE and mock-only, and recurring generation stays paused.
 
 The existing registered `verify-nemotron.yml` path is intentionally rewritten on
 the canary branch for this Sentry-only case.
@@ -62,8 +64,11 @@ exclusive with the default canary job. These are two separately approved manual
 dispatches, with acknowledged root/marker read-only verification between them;
 initialization never automatically starts inference. Its bounded stdout is kept
 in ordinary Actions logs, not the canary's seven-day artifact.
-The real pilot activation and opening remain absent in source. Once separately
-approved, the Sentry quota is $20 per UTC month; one daily claim and the whole
+The fixed pilot begins November 5 with a $20 November UTC allocation and zero
+already-incurred spend within that new scope. Earlier separately authorized
+fictional tests are excluded, preserving their known/unknown costs and consumed
+grants; this is not zero account spend or an account/key cap. The opening-basis
+hash binds that prospective scope. One daily claim and the whole
 $7.251456 hold are atomic. The SAME original physical token is acknowledged
 before the one POST, with limit one. The ordinary three-slot full hold is kept;
 there is no undisclosed smaller canary policy. A model-context/rate assumption
@@ -76,7 +81,7 @@ Sentry key is unchanged; its current limit and available credits are unverified;
 performed. A 401/402/404 does not authorize another attempt or imply zero cost.
 
 Settlement requires complete coherent model/usage/cost within the fixed limits,
-a separately established credit-only billing basis, and explicit
+the established scoped credit-only billing basis, and explicit
 `usage.is_byok: false`. OpenRouter cost alone is not proof of all upstream spend.
 Absent/true BYOK status or incomplete accounting keeps the full hold and refuses
 promotion. Returned null/missing provider/tier is unavailable attestation, not
@@ -92,7 +97,7 @@ key lookup and real transport construction. Child Git/Node processes receive an
 explicit environment without the model key, AWS credentials, proxies or tracing
 secrets. The existing ephemeral Actions checkout Git credential is used for CAS;
 no new credential is created. The prepared workflow requests `contents: write`,
-which needs explicit approval along with the public financial-metadata audience.
+approved only for the fixed ledger and conditional report-only publication.
 Policy, day and bounded usage records on the Git branch are public and durable.
 
 Credentials have process-lifetime memory only, with no cryptographic zeroization
@@ -107,9 +112,9 @@ unknown, exits nonzero and never retries the metadata or ledger mutation. Saniti
 also enters ordinary Actions logs under repository-configured retention; there
 is no claim that logs share the seven-day artifact period.
 
-Default fate is **nonpublish**: scratch output is removed, and any later live
-report needs a new separately authorized request. An explicitly approved
-`conditional_publish` fate rechecks main and both old serving hashes, then makes
+The reusable executor supports nonpublish with scratch deletion. This exact
+approved manifest selects **conditional_publish**: it rechecks main and both old
+serving hashes, then makes
 one report-only fast-forward main commit from the exact validated scratch tree.
 No application source/workflow is merged. A failed/unknown push is never retried,
 rebased or rolled back automatically. A push using the checkout GITHUB_TOKEN normally does not trigger on:push
@@ -121,10 +126,10 @@ commit is not yet verified serving publication; the receipt retains that
 distinction. Public valid report/archive
 retention is normal publication retention, not the diagnostic seven-day period.
 
-## Future commands; execution approval is still required
+## Coordinator-owned manual commands
 
-After exact source, manifest values, data/privacy, billing, audience, permission
-and output-fate review, the supported dispatch shape is:
+After independent exact-head review and the matching production-main/source
+publication fences, the supported canary dispatch shape is:
 
 ```sh
 gh workflow run verify-nemotron.yml \
@@ -133,7 +138,8 @@ gh workflow run verify-nemotron.yml \
   -f expected_manifest=REVIEWED_MANIFEST_SHA256
 ```
 
-Do not execute this preparation command while the required grants are absent.
+Do not execute against a different head, date, manifest or production main.
+The production-main fence is exact; this source change does not move that ref.
 The main workflow file is already registered; the reviewed branch version can
 be dispatched without merging this temporary route into main. Dependency setup
 uses the existing frozen Python lock, Node24 and public tokenizer data before

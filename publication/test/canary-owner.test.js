@@ -30,7 +30,7 @@ test('paid ledger identity pins stable approved opening scope rather than run or
   const w=fixture(),identity=ledgerIdentity(w.raw);
   assert.equal(identity.scope_sha256,w.raw.pilot.opening.basisSha256);
   assert.deepEqual(ledgerIdentity({...w.raw,production_main:'b'.repeat(40)}),identity);
-  for(const raw of [source,{...w.raw,metadata_audience_approved:false},{...w.raw,pilot:null},
+  for(const raw of [{...source,pilot:null},{...w.raw,metadata_audience_approved:false},{...w.raw,pilot:null},
     {...w.raw,pilot:{...w.raw.pilot,opening:null}}])assert.throws(()=>ledgerIdentity(raw));
 });
 test('producer returns the trusted spending token and settles before completion',async()=>{

@@ -198,7 +198,7 @@ test('closed bootstrap command binds reviewed source, fixed target and approved 
     now: () => new Date('2026-11-05T03:04:05.000Z') };
   for (const extra of [{ confirm: false }, { expectedCommit: 'b'.repeat(40) }, { expectedManifest: 'c'.repeat(64) },
     { now: () => new Date('2026-11-06T00:00:00.000Z') },
-    { manifestBytes: Buffer.from(JSON.stringify(source)), expectedManifest: sha256(JSON.stringify(source)) }]) {
+    { manifestBytes: Buffer.from(JSON.stringify({...source, pilot: null})), expectedManifest: sha256(JSON.stringify({...source, pilot: null})) }]) {
     await assert.rejects(initialize({ ...inputs, ...extra })); assert.equal(w.state.initialPushes.length, 0);
   }
   const result = await initialize(inputs); assert.equal(result.status, 'initialized');
@@ -206,7 +206,7 @@ test('closed bootstrap command binds reviewed source, fixed target and approved 
   assert.equal(result.initialization_id, initializationIdentity(site, scopeSha256).initialization_id);
   assert.equal(JSON.stringify(result).includes('private-sentinel'), false);
 });
-test('committed bootstrap CLI refuses before Git with fixed secret-free output', () => {
+test('wrong-head bootstrap CLI refuses with fixed secret-free output', () => {
   const bytes = fs.readFileSync(path.resolve(__dirname, '../../config/full-feed-canary.json'));
   const result = childProcess.spawnSync(process.execPath, [path.resolve(__dirname, '../../scripts/bootstrap_canary_ledger.cjs'),
     '--expected-commit', 'a'.repeat(40), '--expected-manifest', sha256(bytes), '--initialize-public-ledger'],

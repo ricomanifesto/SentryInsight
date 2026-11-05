@@ -17,7 +17,7 @@ on:
         default: false
         required: false
 
-# Prepared only. The committed manifest is disabled with no active pilot/opening.
+# One-day exact-manifest authority only; no ordinary or recurring activation.
 # This registered path is reused ONLY on the reviewed canary branch, never main.
 permissions:
   contents: write # Admission CAS and separately approved report-only push.

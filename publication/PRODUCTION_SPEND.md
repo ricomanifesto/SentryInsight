@@ -131,9 +131,11 @@ before any produced decision is treated as a known pre-mutation refusal.
 
 `DailyPilot` prepares the approved 20,000,000 microUSD per UTC-calendar-month
 Sentry allocation and the existing 7,251,456 whole-generation hold (32k combined
-output, three shared physical attempts). No actual activation date or month is
-configured. Missing activation or opening information returns a disabled policy.
-The internal constructor has no CLI/workflow input or paid transport path.
+output, three shared physical attempts). Ordinary production composition supplies
+no activation. Missing activation or opening information returns a disabled policy.
+The separately reviewed closed canary branch can bind its approved dated manifest;
+that one-shot route does not activate ordinary or recurring model clients. The
+internal constructor itself has no paid transport path.
 
 The daily claim and opening charge append atomically with the existing generation
 reservation. The claimed UTC day never resets after cancellation, failure,
