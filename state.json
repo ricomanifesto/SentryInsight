@@ -200,6 +200,37 @@
       "requestSha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
       "stage": "spend_sending",
       "token": "731c958325965e6d95086e07291b7c10"
+    },
+    {
+      "admission_key": "run:42086668758",
+      "at": "2026-11-05T18:43:59.336Z",
+      "attempt": 1,
+      "disposition": "response_received",
+      "limit": 1,
+      "request_sha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
+      "retry_after": 0,
+      "revision": "7f66d791f67fbec401ce4a5af9441370d21ad71d",
+      "run_id": "42086668758",
+      "stage": "request_finished",
+      "token": "731c958325965e6d95086e07291b7c10"
+    },
+    {
+      "at": "2026-11-05T18:43:59.336Z",
+      "generationToken": "296fc461b0ec6c1b822c35a932fd2b79",
+      "outcome": "accepted",
+      "receipt": {
+        "completionTokens": 3947,
+        "costCoverage": "complete",
+        "costMicrousd": 64110,
+        "model": "moonshotai/kimi-k3.1-pro",
+        "promptTokens": 12320,
+        "provider": "Moonshot AI",
+        "reasoningTokens": 940,
+        "serviceTier": null,
+        "totalTokens": 16267
+      },
+      "stage": "spend_finished",
+      "token": "731c958325965e6d95086e07291b7c10"
     }
   ],
   "schema_version": 1,
