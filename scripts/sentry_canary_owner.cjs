@@ -1,4 +1,4 @@
-// Closed, disabled-by-default canary owner over the EXISTING admission branch.
+// Closed, disabled-by-default canary owner requiring initialized admission state.
 // No provider key is accepted by this process, its environment or protocol.
 'use strict';
 const fs = require('node:fs'), path = require('node:path'), cp = require('node:child_process');
@@ -6,6 +6,7 @@ const readline = require('node:readline'), crypto = require('node:crypto');
 const { createAdmission } = require('../publication/kit/admission');
 const { DailyPilot } = require('../publication/kit/daily-pilot');
 const { readSiteConfig } = require('../publication/kit/config');
+const { initializationIdentity } = require('../publication/kit/store');
 const ROOT = path.resolve(__dirname, '..');
 const fail = () => { throw new Error('Canary authority unavailable'); };
 const need = (v) => { if (!v) fail(); };
@@ -28,6 +29,11 @@ function approved(raw, context, at = new Date()) {
     && context.GITHUB_REF==='refs/heads/canary/sentry-full-feed-20261105' && context.GITHUB_RUN_ATTEMPT==='1'
     && /^[0-9]{1,20}$/.test(context.GITHUB_RUN_ID||'') && /^[a-f0-9]{40}$/.test(context.GITHUB_SHA||'')
     && context.GITHUB_SHA===context.EXPECTED_COMMIT);
+}
+function ledgerIdentity(raw) {
+  need(raw?.schema_version===1 && raw.metadata_audience_approved===true && raw.pilot && raw.pilot.opening);
+  new DailyPilot(raw.pilot);
+  return initializationIdentity('SentryInsight',raw.pilot.opening.basisSha256);
 }
 async function makeOwner(raw, context, dependencies) {
   approved(raw,context,dependencies.now || new Date());
@@ -59,7 +65,7 @@ async function makeOwner(raw, context, dependencies) {
   let blocked=false;
   return async(value)=>{need(!blocked);try{return await step(value);}catch(_){blocked=true;fail();}};
 }
-module.exports={makeOwner,approved};
+module.exports={makeOwner,approved,ledgerIdentity};
 if(require.main===module) (async()=>{
   // Check disabled/static/context fences BEFORE Git/auth or admission access.
   const bytes=fs.readFileSync(path.join(ROOT,'config/full-feed-canary.json'));
@@ -74,6 +80,7 @@ if(require.main===module) (async()=>{
   need(git(['ls-remote','origin','refs/heads/main']).split(/\s+/)[0]===raw.production_main);
   const daily=new DailyPilot(raw.pilot);
   const admission=createAdmission({repoRoot:ROOT,remote:'origin',config:readSiteConfig(ROOT),consumer:'SentryInsight',fetchUrl:fail,
+    requiredInitialization:ledgerIdentity(raw),
     productionDailyPilot:daily,productionSpendPolicy:daily.policy(process.env.GITHUB_SHA)});
   const act=await makeOwner(raw,process.env,{admission,manifestSha256:crypto.createHash('sha256').update(bytes).digest('hex')});
   let blocked=false;

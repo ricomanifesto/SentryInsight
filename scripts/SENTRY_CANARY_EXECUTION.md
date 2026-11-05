@@ -49,8 +49,13 @@ HTTP, transport, accounting and permission uncertainty stops the operation.
 
 ## Persistent financial and physical ownership
 
-The job reuses the existing `publication-admission` Git CAS state and its actual
-admission/daily/spending primitives. It never starts a fresh financial wallet.
+The job reuses the admission/daily/spending implementation over the fixed
+`publication-admission` Git CAS branch. Existing persisted financial history is
+not assumed. A separately approved [one-time initialization](../publication/INITIALIZED_ADMISSION.md)
+must precede the first paid run; the sender cannot create or re-seed this branch.
+Every paid read and CAS retry requires its stable first marker and hosting guard.
+Missing, unavailable, foreign or recreated unmarked state stops before a token or
+model-key access. The initialization marker grants no money, day or send allowance.
 The real pilot activation and opening remain absent in source. Once separately
 approved, the Sentry quota is $20 per UTC month; one daily claim and the whole
 $7.251456 hold are atomic. The SAME original physical token is acknowledged

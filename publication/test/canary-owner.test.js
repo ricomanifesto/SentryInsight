@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),test=require('node:test');
-const {makeOwner,approved}=require('../../scripts/sentry_canary_owner.cjs');
+const {makeOwner,approved,ledgerIdentity}=require('../../scripts/sentry_canary_owner.cjs');
 const source=require('../../config/full-feed-canary.json');
 function fixture({uncertain=false,lost=false}={}) {
   const events=[];
@@ -25,6 +25,13 @@ async function owner(w){return makeOwner(w.raw,w.context,{admission:w.admission,
 test('disabled/expired authority never touches admission',async()=>{
   const w=fixture();await assert.rejects(makeOwner({...w.raw,enabled:false},w.context,{admission:w.admission,now:w.now}));
   assert.throws(()=>approved(w.raw,w.context,new Date('2026-11-06T00:00:00.000Z')));assert.deepEqual(w.events,[]);
+});
+test('paid ledger identity pins stable approved opening scope rather than run or revision',()=>{
+  const w=fixture(),identity=ledgerIdentity(w.raw);
+  assert.equal(identity.scope_sha256,w.raw.pilot.opening.basisSha256);
+  assert.deepEqual(ledgerIdentity({...w.raw,production_main:'b'.repeat(40)}),identity);
+  for(const raw of [source,{...w.raw,metadata_audience_approved:false},{...w.raw,pilot:null},
+    {...w.raw,pilot:{...w.raw.pilot,opening:null}}])assert.throws(()=>ledgerIdentity(raw));
 });
 test('producer returns the trusted spending token and settles before completion',async()=>{
   const w=fixture(),act=await owner(w);const permit=await act(begin);assert.equal(permit.token,'2'.repeat(32));assert.equal(permit.limit,1);

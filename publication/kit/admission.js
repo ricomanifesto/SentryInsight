@@ -158,10 +158,11 @@ function createAdmission({
   hooks = {},
   productionSpendPolicy,
   productionDailyPilot,
+  requiredInitialization = null,
 }) {
   if (consumer !== config.site || consumer === 'SentryDigest') throw new Error(`${consumer} is not this consumer site`);
   const git = createGit(repoRoot, { env: gitEnv });
-  const store = createStore({ git, remote, branch: stateBranch, site: consumer, now, message: 'Record generation admission' });
+  const store = createStore({ git, remote, branch: stateBranch, site: consumer, now, message: 'Record generation admission', requiredInitialization });
   const digestOrigin = config.origins.SentryDigest.production;
 
   async function skip(base, decision, extra = {}) {

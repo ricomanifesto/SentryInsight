@@ -99,6 +99,11 @@ answers, reasoning, credentials, private account state and exception text are
 excluded. Error messages are fixed. Tests use synthetic data/local file remotes
 and deny all network access; no provider, account, credential or cloud action occurs.
 
+The closed canary additionally requires an explicitly initialized, fixed ledger;
+it cannot use the legacy free store's empty-on-missing behavior. Its marker and
+separate first-use command are described in [initialized admission](INITIALIZED_ADMISSION.md).
+This does not establish that a remote ledger already exists or authorize its creation.
+
 A future paid path could reuse a trusted GitHub admission/job context while the
 public GRC API stays free-only. Go/async Lambda execution would need a separately
 authenticated durable grant/ledger integration. Neither runtime is silently chosen
