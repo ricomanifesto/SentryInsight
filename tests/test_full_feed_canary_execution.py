@@ -495,3 +495,32 @@ def test_cli_receipt_io_failure_is_safe_and_does_not_retry(
     assert result["outcome"] == "disabled" and result["request_entered"] is False
     assert result["receipt_emission"] == "unknown"
     assert "credential-private-sentinel" not in captured.out + captured.err
+
+
+def test_main_restores_exact_prior_logging_state(tmp_path, monkeypatch, capsys):
+    import logging
+
+    previous = logging.root.manager.disable
+    logging.disable(logging.WARNING)
+    monkeypatch.setattr(
+        canary.sys,
+        "argv",
+        [
+            "canary",
+            "--preflight-only",
+            "--feed-file",
+            str(tmp_path / "absent"),
+            "--expected-commit",
+            "a" * 40,
+            "--expected-manifest",
+            "d" * 64,
+            "--receipt",
+            str(tmp_path / "metadata.json"),
+        ],
+    )
+    try:
+        canary.main()
+        assert logging.root.manager.disable == logging.WARNING
+    finally:
+        logging.disable(previous)
+    capsys.readouterr()

@@ -89,3 +89,27 @@ def test_current_path_denies_real_http_and_socket_even_with_hostile_environment(
         with httpx.Client(trust_env=False) as client:
             with pytest.raises(ValueError, match="Closed canary refused"):
                 client.get("https://hostile.invalid")
+
+
+def test_capture_resolves_real_submodules_instead_of_orphan_package_aliases(
+    tmp_path, monkeypatch
+):
+    import importlib
+    import types
+    import src.core as core
+    import src.services as services
+
+    feed = os.environ.get("SENTRY_FROZEN_FEED")
+    if not feed:
+        pytest.skip("Exact external public packet required")
+    actual_workflow = importlib.import_module("src.core.workflow")
+    actual_analyze = importlib.import_module("src.core.analyze")
+    actual_fetch = importlib.import_module("src.services.fetch")
+    stale = types.SimpleNamespace(**vars(actual_workflow))
+    stale.create_exploitation_analysis_graph = lambda: object()
+    monkeypatch.setattr(core, "workflow", stale)
+    monkeypatch.setattr(core, "analyze", types.SimpleNamespace(**vars(actual_analyze)))
+    monkeypatch.setattr(services, "fetch", types.SimpleNamespace(**vars(actual_fetch)))
+    result = asyncio.run(prepare(Path(feed).read_bytes(), tmp_path))
+    assert result.metadata["mock_capture_requests"] == 1
+    assert result.metadata["eligible_sources"] == 25

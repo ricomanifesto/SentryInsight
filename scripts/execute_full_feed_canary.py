@@ -527,7 +527,15 @@ async def run(args):
 
 
 def main():
+    previous = logging.root.manager.disable
     logging.disable(logging.CRITICAL)
+    try:
+        return _main()
+    finally:
+        logging.disable(previous)
+
+
+def _main():
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group(required=True)
     modes.add_argument("--preflight-only", action="store_true")

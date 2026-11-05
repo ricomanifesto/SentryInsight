@@ -7,6 +7,7 @@ from contextlib import contextmanager, ExitStack, nullcontext
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
+import importlib
 import json
 import logging
 import os
@@ -116,9 +117,16 @@ async def _prepare_owned(
     raw, scratch, *, replay=None, expected=None, attempt_budget=None
 ):
     import httpx
-    from src.services import fetch
+
+    fetch = importlib.import_module("src.services.fetch")
     from src.services.article_content import normalize_feed_content
-    from src.core import analyze, model_client, reviewed_report, workflow
+
+    # Qualified lazy imports resolve canonical modules rather than orphaned
+    # package attributes left by a caller's temporary import context.
+    analyze = importlib.import_module("src.core.analyze")
+    model_client = importlib.import_module("src.core.model_client")
+    reviewed_report = importlib.import_module("src.core.reviewed_report")
+    workflow = importlib.import_module("src.core.workflow")
     from src.core.model_route import KIMI_ROUTE, OFFLINE_KEY, RouteActivation
 
     original = model_client.OpenRouterClient
