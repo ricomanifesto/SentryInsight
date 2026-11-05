@@ -31,6 +31,7 @@ from scripts.rehearse_full_feed_canary import (  # noqa: E402
     ReplayPermit,
     environment,
     financial_receipt,
+    decode_response,
 )
 
 DATE = "2026-11-05"
@@ -386,7 +387,7 @@ async def execute(
         key = None
         phase = "accounting"
         receipt = financial_receipt(response)
-        body = json.loads(response)
+        body = decode_response(response)
         require(body["usage"].get("is_byok") is False)
         receipt["costCoverage"] = "complete"
         phase = "host_replay"
@@ -495,7 +496,7 @@ async def execute(
 
 async def run(args):
     bytes_manifest = MANIFEST.read_bytes()
-    raw = json.loads(bytes_manifest)
+    raw = decode_response(bytes_manifest)
     # A disabled source manifest is the default, not an environment LIVE flag.
     if raw.get("enabled") is not True:
         return {"ready": False, "outcome": "disabled", "request_entered": False}
@@ -556,13 +557,20 @@ def main():
                 result["failure"] = "cleanup_unknown"
     # Exactly this sanitized file is the only Actions artifact. Logs have their
     # separate ordinary repository retention; never output a model body/error.
-    args.receipt.parent.mkdir(parents=True, exist_ok=True)
-    args.receipt.write_text(json.dumps(result, sort_keys=True) + "\n")
+    try:
+        args.receipt.parent.mkdir(parents=True, exist_ok=True)
+        args.receipt.write_text(json.dumps(result, sort_keys=True) + "\n")
+        if result.get("ready") is True and args.preflight_only:
+            if os.environ.get("GITHUB_OUTPUT"):
+                with open(os.environ["GITHUB_OUTPUT"], "a") as stream:
+                    stream.write("ready=true\n")
+    except BaseException:
+        # Metadata emission is not the authoritative CAS state. Never retry a
+        # possibly partial write or replace the primary in-memory observation.
+        result["receipt_emission"] = "unknown"
+        print(json.dumps(result, sort_keys=True))
+        raise SystemExit(1) from None
     print(json.dumps(result, sort_keys=True))
-    if result.get("ready") is True and args.preflight_only:
-        if os.environ.get("GITHUB_OUTPUT"):
-            with open(os.environ["GITHUB_OUTPUT"], "a") as stream:
-                stream.write("ready=true\n")
     if result.get("failure") or result.get("outcome") == "held_or_unknown":
         raise SystemExit(1)
 

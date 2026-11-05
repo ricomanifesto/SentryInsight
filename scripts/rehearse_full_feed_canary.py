@@ -170,12 +170,36 @@ def complete_body(answer):
     )
 
 
+def decode_response(raw, *, decimal_numbers=False):
+    """Reject ambiguous raw JSON before any identity/accounting decision."""
+
+    def unique(pairs):
+        value = {}
+        for key, item in pairs:
+            require(key not in value)
+            value[key] = item
+        return value
+
+    def invalid_constant(_value):
+        raise ValueError("Closed canary refused")
+
+    try:
+        return json.loads(
+            raw,
+            object_pairs_hook=unique,
+            parse_float=Decimal if decimal_numbers else float,
+            parse_constant=invalid_constant,
+        )
+    except (ValueError, TypeError, RecursionError):
+        raise ValueError("Closed canary refused") from None
+
+
 def financial_receipt(raw):
     from src.core.model_route import validate_completion
 
-    body = json.loads(raw, parse_float=Decimal)
+    body = decode_response(raw, decimal_numbers=True)
     # Actual host validator receives ordinary decoded JSON separately below.
-    validate_completion(json.loads(raw), MODEL, 32000)
+    validate_completion(decode_response(raw), MODEL, 32000)
     require(body.get("provider") in (None, "Moonshot AI"))
     usage = body["usage"]
     require(

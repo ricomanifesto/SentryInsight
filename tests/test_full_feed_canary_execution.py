@@ -148,6 +148,7 @@ async def exercise(
     finish_unknown=False,
     publisher_unknown=False,
     cleanup_unknown=False,
+    duplicate_field=None,
 ):
     import httpx
     from scripts.rehearse_full_feed_canary import calibration, complete_body
@@ -171,17 +172,37 @@ async def exercise(
             self.value = value
 
         async def __aiter__(self):
-            yield self.value
+            marker = (
+                self.value.find(('"' + duplicate_field + '"').encode())
+                if duplicate_field
+                else -1
+            )
+            middle = marker + 4 if marker >= 0 else len(self.value) // 2
+            yield self.value[:middle]
+            yield self.value[middle:]
 
     response = json.loads(complete_body(calibration(prepared[1])))
     response["usage"]["is_byok"] = is_byok
+    response_bytes = json.dumps(response).encode()
+    if duplicate_field is not None:
+        replacements = {
+            "is_byok": (b'"is_byok": false', b'"is_byok": true, "is_byok": false'),
+            "cost": (b'"cost": 0.044', b'"cost": 9.0, "cost": 0.044'),
+            "model": (
+                b'"model": "moonshotai/kimi-k3.1-pro"',
+                b'"model": "wrong/identity", "model": "moonshotai/kimi-k3.1-pro"',
+            ),
+        }
+        old, new = replacements[duplicate_field]
+        assert old in response_bytes
+        response_bytes = response_bytes.replace(old, new, 1)
 
     async def sender(request):
         events.append("post")
         assert request.content == prepared[1].wire
         if transport_error:
             raise httpx.ReadTimeout("credential-private-sentinel")
-        return httpx.Response(200, stream=Body(json.dumps(response).encode()))
+        return httpx.Response(200, stream=Body(response_bytes))
 
     async def control(request):
         events.append("fence")
@@ -381,6 +402,25 @@ def test_cleanup_preserves_the_primary_send_failure(prepared, tmp_path, monkeypa
     assert result["secondary"] == ["owner_close_unknown"]
 
 
+@pytest.mark.parametrize("field", ["is_byok", "cost", "model"])
+def test_duplicate_response_keys_never_settle_or_promote(
+    prepared, tmp_path, monkeypatch, field
+):
+    events, result = asyncio.run(
+        exercise(
+            prepared,
+            tmp_path,
+            monkeypatch,
+            duplicate_field=field,
+            fate="conditional_publish",
+        )
+    )
+    assert events.count("post") == events.count("begin") == events.count("finish") == 1
+    assert result["financial_state"] == "held_or_unknown"
+    assert result["host_validated"] is False
+    assert "publish" not in events and "complete" not in events
+
+
 def test_cli_cleanup_preserves_disabled_observation(tmp_path, monkeypatch, capsys):
     class Scratch:
         name = str(tmp_path / "scratch")
@@ -418,3 +458,40 @@ def test_cli_cleanup_preserves_disabled_observation(tmp_path, monkeypatch, capsy
         "credential-private-sentinel"
         not in captured.out + captured.err + target.read_text()
     )
+
+
+@pytest.mark.parametrize("method", ["mkdir", "write_text"])
+def test_cli_receipt_io_failure_is_safe_and_does_not_retry(
+    tmp_path, monkeypatch, capsys, method
+):
+    calls = []
+
+    def forbidden(*_args, **_kwargs):
+        calls.append(method)
+        raise OSError("credential-private-sentinel")
+
+    monkeypatch.setattr(Path, method, forbidden)
+    monkeypatch.setattr(
+        canary.sys,
+        "argv",
+        [
+            "canary",
+            "--preflight-only",
+            "--feed-file",
+            str(tmp_path / "absent"),
+            "--expected-commit",
+            "a" * 40,
+            "--expected-manifest",
+            "d" * 64,
+            "--receipt",
+            str(tmp_path / "metadata.json"),
+        ],
+    )
+    with pytest.raises(SystemExit) as stopped:
+        canary.main()
+    captured = capsys.readouterr()
+    assert stopped.value.code == 1 and calls == [method]
+    result = json.loads(captured.out)
+    assert result["outcome"] == "disabled" and result["request_entered"] is False
+    assert result["receipt_emission"] == "unknown"
+    assert "credential-private-sentinel" not in captured.out + captured.err

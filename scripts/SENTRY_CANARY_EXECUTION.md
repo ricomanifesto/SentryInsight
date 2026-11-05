@@ -61,7 +61,7 @@ bounds one physical request at $2.417152; it is not an external billing warranty
 Readmission, new workflow runs, cancellation and source revisions cannot reset
 the day or mint another token. Unknown writes/sends remain held, block automatic
 replay and can block rollover. A trusted reconciliation is separate. The existing
-uncapped key is unchanged; no purchase, top-up, key change or account lookup is
+Sentry key is unchanged; its current limit and available credits are unverified; no purchase, top-up, key change or account lookup is
 performed. A 401/402/404 does not authorize another attempt or imply zero cost.
 
 Settlement requires complete coherent model/usage/cost within the fixed limits,
@@ -89,7 +89,10 @@ guarantee. The same response is replayed in memory through the actual host using
 original token, with no second external call. Complete source/version grounding,
 coverage, rendering and Pages packaging must pass. Failed raw bodies, prompts,
 answers, reasoning, headers and exceptions are never logs or artifacts. Only the
-explicit allowlisted JSON receipt is uploaded for seven days. Sanitized stdout
+explicit allowlisted JSON receipt is uploaded for seven days. Raw duplicate JSON
+keys are refused before accounting, host replay, settlement or promotion. A
+receipt-output failure emits only the safe in-memory result with emission marked
+unknown, exits nonzero and never retries the metadata or ledger mutation. Sanitized stdout
 also enters ordinary Actions logs under repository-configured retention; there
 is no claim that logs share the seven-day artifact period.
 
