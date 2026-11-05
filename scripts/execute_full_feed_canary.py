@@ -607,6 +607,7 @@ async def execute(
     receipt = None
     posted = False
     host_ok = False
+    host_reason = None
     financial = None
     commit = None
     phase = "report_fence"
@@ -683,6 +684,11 @@ async def execute(
         )
         require(type(host) is dict and type(host.get("host_validated")) is bool)
         host_ok = host["host_validated"]
+        if not host_ok:
+            # Bounded categories only: the reason a targeted repair would use.
+            from src.core.validation_diagnostics import sanitize_diagnostic
+
+            host_reason = sanitize_diagnostic(host.get("diagnostic"))
         phase = "financial_finish"
         financial = await owner.exchange({"operation": "finish", "receipt": receipt})
         require(financial["financial_settled"] is True)
@@ -805,6 +811,7 @@ async def execute(
         "secondary": cleanup,
         "request_entered": posted,
         "host_validated": host_ok,
+        "host_diagnostic": host_reason,
         "financial_state": (
             "settled"
             if financial and financial.get("financial_settled")

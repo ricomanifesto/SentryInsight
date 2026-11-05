@@ -594,3 +594,57 @@ def test_main_restores_exact_prior_logging_state(tmp_path, monkeypatch, capsys):
     finally:
         logging.disable(previous)
     capsys.readouterr()
+
+
+def test_rejected_host_result_retains_only_the_bounded_reason(
+    prepared, tmp_path, monkeypatch
+):
+    from src.core.finding_evidence import EvidenceError
+    from src.core.validation_diagnostics import validation_diagnostic
+
+    private = "PRIVATE-MARKER https://private.example/secret"
+    error = EvidenceError(
+        private,
+        code="affected_version_not_grounded",
+        field="Affected Versions",
+        expected=True,
+        observed=False,
+    )
+    error.finding_index = 1
+    reason = validation_diagnostic("finding_evidence", error)
+    reason["observed"] = private  # A compromised host value is re-bounded.
+
+    async def rejected(*_args):
+        return {
+            "host_validated": False,
+            "host_replay_requests": 1,
+            "status": "failed",
+            "diagnostic": reason,
+        }
+
+    events, result = asyncio.run(
+        exercise(
+            prepared,
+            tmp_path,
+            monkeypatch,
+            custom_replayer=rejected,
+            fate="conditional_publish",
+        )
+    )
+    assert result["host_validated"] is False and "publish" not in events
+    assert result["host_diagnostic"] == {
+        "schema_version": 1,
+        "stage": "finding_evidence",
+        "codes": ["affected_version_not_grounded"],
+        "field": "Affected Versions",
+        "finding_index": 1,
+        "issues_truncated": False,
+        "expected": True,
+        "observed": "invalid",
+    }
+    assert private not in json.dumps(result)
+
+
+def test_validated_host_result_has_no_reason(prepared, tmp_path, monkeypatch):
+    _events, result = asyncio.run(exercise(prepared, tmp_path, monkeypatch))
+    assert result["host_validated"] is True and result["host_diagnostic"] is None
