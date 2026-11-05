@@ -1,0 +1,14 @@
+{
+  "records": [
+    {
+      "at": "2026-11-05T11:50:04.729Z",
+      "initialization_id": "aa6541f2d11d9f8f4aef8cee5e4a027ec9966e57688c58748813b3293456a457",
+      "schema_version": 1,
+      "scope_sha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7",
+      "site": "SentryInsight",
+      "stage": "admission_store_initialized"
+    }
+  ],
+  "schema_version": 1,
+  "site": "SentryInsight"
+}
