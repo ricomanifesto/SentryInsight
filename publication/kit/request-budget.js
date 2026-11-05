@@ -62,45 +62,43 @@ function createRequestBudget({ store, requireOwner, now = () => new Date() }) {
     return { attempt, reservation, completion };
   }
 
-  async function reserveRequest(options) {
+  function reserveDecision(records, options, token) {
     const bound = boundedIdentity(options);
+    if (typeof token !== 'string' || !/^[a-f0-9]{32}$/.test(token)) throw new Error('invalid request token');
+    const state = replay(records, bound);
+    if (state.attempt >= bound.limit || (state.reservation
+        && (!state.completion || !RETRY_STATES.has(state.completion.disposition)))) {
+      throw new Error('request budget held or exhausted');
+    }
+    if (state.completion) {
+      const availableAt = Date.parse(state.completion.at) + state.completion.retry_after * 1000;
+      if (now().getTime() < availableAt) throw new Error('request retry delay not elapsed');
+    }
+    const attempt = state.attempt + 1;
+    return { append: [{ stage: 'request_reserved', ...bound, attempt, token }],
+      value: { attempt, limit: bound.limit, request_sha256: bound.request_sha256, token } };
+  }
+
+  function finishDecision(records, options) {
+    const bound = boundedIdentity(options);
+    if (!validCompletion(options.disposition, options.retryAfterSeconds)) throw new Error('invalid request disposition');
+    const state = replay(records, bound);
+    if (!state.reservation || state.completion || options.attempt !== state.attempt
+        || options.token !== state.reservation.token) throw new Error('request reservation not owned');
+    return { append: [{ stage: 'request_finished', ...bound, attempt: state.attempt,
+      token: state.reservation.token, disposition: options.disposition, retry_after: options.retryAfterSeconds }], value: { recorded: true } };
+  }
+
+  async function reserveRequest(options) {
     const token = randomBytes(16).toString('hex');
-    const result = await store.append((records) => {
-      const state = replay(records, bound);
-      if (state.attempt >= bound.limit || (state.reservation
-          && (!state.completion || !RETRY_STATES.has(state.completion.disposition)))) {
-        throw new Error('request budget held or exhausted');
-      }
-      if (state.completion) {
-        const availableAt = Date.parse(state.completion.at) + state.completion.retry_after * 1000;
-        if (now().getTime() < availableAt) throw new Error('request retry delay not elapsed');
-      }
-      const attempt = state.attempt + 1;
-      return {
-        append: [{ stage: 'request_reserved', ...bound, attempt, token }],
-        value: { attempt, limit: bound.limit, request_sha256: bound.request_sha256, token },
-      };
-    });
-    return result.value;
+    return (await store.append((records) => reserveDecision(records, options, token))).value;
   }
 
   async function finishRequest(options) {
-    const bound = boundedIdentity(options);
-    if (!validCompletion(options.disposition, options.retryAfterSeconds)) throw new Error('invalid request disposition');
-    await store.append((records) => {
-      const state = replay(records, bound);
-      if (!state.reservation || state.completion || options.attempt !== state.attempt
-          || options.token !== state.reservation.token) throw new Error('request reservation not owned');
-      return [{
-        stage: 'request_finished', ...bound, attempt: state.attempt,
-        token: state.reservation.token, disposition: options.disposition,
-        retry_after: options.retryAfterSeconds,
-      }];
-    });
-    return { recorded: true };
+    return (await store.append((records) => finishDecision(records, options))).value;
   }
 
-  return { reserveRequest, finishRequest };
+  return { reserveRequest, finishRequest, reserveDecision, finishDecision };
 }
 
 module.exports = { createRequestBudget };

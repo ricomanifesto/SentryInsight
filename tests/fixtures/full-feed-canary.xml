@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[SentryDigest]]></title>
+        <description><![CDATA[A fresh, scannable cybersecurity brief from trusted sources]]></description>
+        <link>https://ricomanifesto.github.io/SentryDigest/</link>
+        <image>
+            <url>https://ricomanifesto.github.io/SentryDigest/assets/icon-512.png</url>
+            <title>SentryDigest</title>
+            <link>https://ricomanifesto.github.io/SentryDigest/</link>
+        </image>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Thu, 05 Nov 2026 00:29:04 GMT</lastBuildDate>
+        <atom:link href="https://ricomanifesto.github.io/SentryDigest/feed.xml" rel="self" type="application/rss+xml"/>
+        <pubDate>Thu, 05 Nov 2026 00:29:04 GMT</pubDate>
+        <language><![CDATA[en]]></language>
+        <ttl>180</ttl>
+        <comment>News aggregated from: Dark Reading, Bleeping Computer, The Hacker News</comment>
+        <item>
+            <title><![CDATA[Critical Rails Bug Threatens to Derail Vulnerable Servers]]></title>
+            <description><![CDATA[An attacker could write arbitrary files and read sensitive files via images uploaded to the Rails Active Storage ImageMagick integration, possibly positioning a threat actor for lateral movement.]]></description>
+            <link>https://www.darkreading.com/application-security/critical-rails-bug-derail-vulnerable-servers</link>
+            <guid isPermaLink="false">https://www.darkreading.com/application-security/critical-rails-bug-derail-vulnerable-servers</guid>
+            <category><![CDATA[Dark Reading]]></category>
+            <dc:creator><![CDATA[Dark Reading]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 21:48:18 GMT</pubDate>
+            <dc:source>Dark Reading</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Vercel rolls out new protection against stolen session cookie attacks]]></title>
+            <description><![CDATA[Vercel is gradually rolling out Device Bound Session Credentials (DBSC) on its platform as a key defense against information stealer malware…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/vercel-rolls-out-new-protection-against-stolen-session-cookie-attacks/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/vercel-rolls-out-new-protection-against-stolen-session-cookie-attacks/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 21:31:18 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Zyxel fixes zero-day exploited to hack nearly 1,000 network switches]]></title>
+            <description><![CDATA[Zyxel has patched a zero-day vulnerability in its GS1900 series network switches that hackers exploited to compromise nearly 1,000 devices worldwide and steal configuration files and credentials…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/zyxel-fixes-zero-day-exploited-to-hack-nearly-1-000-network-switches/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/zyxel-fixes-zero-day-exploited-to-hack-nearly-1-000-network-switches/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 20:58:19 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[DreamHost confirms data breach exposed FTP logins and webmail sessions]]></title>
+            <description><![CDATA[DreamHost is warning of a data breach after attackers gained access to its File Manager platform for two months and stole customers' FTP/SFTP usernames and passwords…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/dreamhost-confirms-data-breach-exposed-ftp-logins-and-webmail-sessions/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/dreamhost-confirms-data-breach-exposed-ftp-logins-and-webmail-sessions/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 19:05:19 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Cyberattack disrupts blood storage refrigeration systems in France]]></title>
+            <description><![CDATA[France's national blood service has confirmed that a cyberattack targeting a refrigeration equipment provider raised temperature and defrost settings at three of its facilities, threatening stored blood products…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/cyberattack-disrupts-blood-storage-refrigeration-systems-in-france/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/cyberattack-disrupts-blood-storage-refrigeration-systems-in-france/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 18:02:56 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Debian and Ubuntu APT Flaw Lets MitM Attackers Swap Verified Packages and Run Code as Root]]></title>
+            <description><![CDATA[A flaw in APT, the package manager for Debian and Ubuntu, allows an attacker who can modify package downloads to swap a checked package for their own. The attacker's code then runs as root, according to advisories that Debian, Ubuntu, and APT's developers published on November 4. The attack needs APT to retry failed downloads, which it does by default from Debian 12 and…]]></description>
+            <link>https://thehackernews.com/2026/11/debian-and-ubuntu-apt-flaw-lets-mitm.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/debian-and-ubuntu-apt-flaw-lets-mitm.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 17:00:46 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[SonicWall Won't Patch EoL GMS Flaws That Could Expose Files, Alter Database Records]]></title>
+            <description><![CDATA[SonicWall has warned of two vulnerabilities impacting end-of-life Global Management System (GMS) systems that it said will not be patched. Details of the security flaws, which affect SonicWall GMS 9.5.2 and earlier versions, are below - CVE-2026-109593 (CVSS score: 9.1) - An unauthenticated file read vulnerability that could allow an attacker with network access to read internal GMS files…]]></description>
+            <link>https://thehackernews.com/2026/11/sonicwall-wont-patch-eol-gms-flaws-that.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/sonicwall-wont-patch-eol-gms-flaws-that.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 17:00:38 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[NIKKE PC game launcher hacked to spread remote access, data-stealing malware]]></title>
+            <description><![CDATA[The developers of Goddess of Victory: NIKKE have confirmed that hackers tampered with the game's PC launcher scripts in a supply-chain attack, distributing malware capable of stealing credentials and cryptocurrency wallet data…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/nikke-pc-game-launcher-hacked-to-spread-remote-access-data-stealing-malware/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/nikke-pc-game-launcher-hacked-to-spread-remote-access-data-stealing-malware/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 16:58:46 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Google, Partners Disrupt 1.3 Million-Device-Strong XCPE Botnet]]></title>
+            <description><![CDATA[Google alleges that Android device manufacturer Videostrong ran the operation, which infected set-top boxes and IoT devices with a backdoor to create infrastructure for criminal activity.]]></description>
+            <link>https://www.darkreading.com/endpoint-security/google-13-million-device-strong-xcpe-botnet</link>
+            <guid isPermaLink="false">https://www.darkreading.com/endpoint-security/google-13-million-device-strong-xcpe-botnet</guid>
+            <category><![CDATA[Dark Reading]]></category>
+            <dc:creator><![CDATA[Dark Reading]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 16:24:08 GMT</pubDate>
+            <dc:source>Dark Reading</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Researchers Uncover Prompt Adware Hidden in OpenAI Codex Jailbreak Toolkit]]></title>
+            <description><![CDATA[Cybersecurity researchers have disclosed details of an OpenAI Codex jailbreak bundle that's designed to modify an artificial intelligence (AI) agent's trusted instructions to insert advertisements for a third-party AI gateway. The phenomenon has been codenamed prompt adware by Check Point Research. Called Haiou (meaning Seagull in Chinese), the jailbreak modifies OpenAI Codex's configuration…]]></description>
+            <link>https://thehackernews.com/2026/11/researchers-uncover-prompt-adware.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/researchers-uncover-prompt-adware.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 16:06:43 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[mSecure password manager hack prompts password reset warnings]]></title>
+            <description><![CDATA[mSeven Software is warning current and former mSecure password manager customers to change passwords, reset two-factor authentication, and remove passkeys following a cyberattack that reportedly exposed an encrypted customer database…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/msecure-password-manager-hack-prompts-password-reset-warnings/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/msecure-password-manager-hack-prompts-password-reset-warnings/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 16:00:18 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Google Calendar phishing campaign hijacks sessions, bypasses MFA]]></title>
+            <description><![CDATA[A phishing campaign used Google Calendar invites, trusted redirects, and fake login pages to hijack corporate Google sessions and bypass MFA protections. Material Security examines how Operation CloudFire tracked the attacks, blocked malicious messages, and helped take down nearly 900 domains used by the attackers…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/google-calendar-phishing-campaign-hijacks-sessions-bypasses-mfa/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/google-calendar-phishing-campaign-hijacks-sessions-bypasses-mfa/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 15:00:10 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[SonicWall warns of unpatched flaws in end-of-life GMS software]]></title>
+            <description><![CDATA[SonicWall warned customers of two security flaws affecting end-of-life Global Management System (GMS) systems that will not be patched…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/sonicwall-warns-of-unpatched-flaws-in-end-of-life-gms-software/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/sonicwall-warns-of-unpatched-flaws-in-end-of-life-gms-software/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 14:42:25 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[APT29-Linked Hackers Hijack Web Analytics Script to Deliver iOS and Android Exploits]]></title>
+            <description><![CDATA[The Russia-linked threat actor known as APT29 is said to be behind a large-scale watering hole campaign targeting iOS and Android users through compromised websites, fake domains, and a supply chain attack involving a Ukrainian web analytics service called Plerdy SEO Tracker. "The injected JavaScript code collects browser and device attributes," Sekoia researchers Amaury-Jacques Garçon and…]]></description>
+            <link>https://thehackernews.com/2026/11/apt29-linked-hackers-hijack-web.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/apt29-linked-hackers-hijack-web.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 14:27:52 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Incidents Move Too Fast for Pen & Paper]]></title>
+            <description><![CDATA[Organizations may not be ready for completely autonomous communication processes, but there are places where automating information updates would alleviate pressure.]]></description>
+            <link>https://www.darkreading.com/cybersecurity-operations/incidents-move-fast-pen-paper</link>
+            <guid isPermaLink="false">https://www.darkreading.com/cybersecurity-operations/incidents-move-fast-pen-paper</guid>
+            <category><![CDATA[Dark Reading]]></category>
+            <dc:creator><![CDATA[Dark Reading]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 14:17:00 GMT</pubDate>
+            <dc:source>Dark Reading</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[US charges two Canadians accused of hacking US universities]]></title>
+            <description><![CDATA[A federal grand jury indicted two Canadians suspected of hacking multiple US universities and using the compromised systems to mine for cryptocurrency…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/us-charges-two-canadians-accused-of-hacking-us-universities/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/us-charges-two-canadians-accused-of-hacking-us-universities/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 13:13:20 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[CISA flags WordPress RCE flaw as actively exploited in attacks]]></title>
+            <description><![CDATA[The US Cybersecurity and Infrastructure Security Agency (CISA) warned federal agencies that attackers have started exploiting a recently patched high-severity WordPress vulnerability in the wild…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/cisa-flags-wordpress-rce-flaw-as-actively-exploited-in-attacks/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/cisa-flags-wordpress-rce-flaw-as-actively-exploited-in-attacks/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 12:11:05 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Critical Rails Flaw Lets Attackers Write Server Files via Crafted ImageMagick Uploads]]></title>
+            <description><![CDATA[A critical flaw in Ruby on Rails could allow an unauthenticated attacker to write arbitrary files on an app's server by uploading a crafted file if the app processes uploads using ImageMagick. The Rails project disclosed the flaw in an advisory and fixed it in versions 8.1.4.1 and 8.0.5.2. The flaw is in Active Storage, the part of Rails that handles file uploads. Some apps store…]]></description>
+            <link>https://thehackernews.com/2026/11/critical-rails-flaw-lets-attackers.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/critical-rails-flaw-lets-attackers.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 12:07:04 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Xen Hypervisor Flaws Let One Malicious VM Read and Write Any Other VM's Memory]]></title>
+            <description><![CDATA[Two flaws in the Xen hypervisor allow a malicious guest virtual machine (VM) to read and write the memory of other VMs on the same host, including dom0. Dom0 is the VM that, by default, has full permissions and manages the others. Patches are out, and there is no known mitigation, the Xen Project said in an advisory on November 3. All Xen versions from 4.6 onward are vulnerable…]]></description>
+            <link>https://thehackernews.com/2026/11/xen-hypervisor-flaws-let-one-malicious.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/xen-hypervisor-flaws-let-one-malicious.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 11:46:27 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Radio With No Radar: Why Agent Runtime Security Fails Without the Layers Beneath It]]></title>
+            <description><![CDATA[Nearly every agent security pitch now ends on the same promise: the product stops the bad action in real time. The promise holds for one kind of agent, the kind whose traffic passes through a gateway the enterprise owns. Most agents never touch one. One recent case shows what that gap looks like in practice. An employee asked an AI assistant to trigger a mass-email automation. The automation…]]></description>
+            <link>https://thehackernews.com/2026/11/radio-with-no-radar-why-agent-runtime.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/radio-with-no-radar-why-agent-runtime.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 11:34:20 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[China-Aligned Hackers Hijack Sogou Input Method DNS Requests to Deploy DarkVigil Backdoor]]></title>
+            <description><![CDATA[A China-aligned threat actor known as SlippyNunchucks has been attributed to a Domain Name System (DNS) hijacking operation abusing insecure HTTP communications in Windows versions of Sogou Input Method as part of a surveillance campaign designed to deploy an implant called DarkVigil (aka FDMTP). The campaign, observed starting July 1, 2026, is assessed to have targeted organizations and…]]></description>
+            <link>https://thehackernews.com/2026/11/china-aligned-hackers-hijack-sogou.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/china-aligned-hackers-hijack-sogou.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 11:24:31 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Hackers use n-day exploits in zero-click attacks on iOS, Android devices]]></title>
+            <description><![CDATA[A large-scale watering hole attack associated with Russian hackers has been targeting iOS and Android users visiting compromised sites or fake ones impersonating legitimate portals…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/hackers-use-n-day-exploits-in-zero-click-attacks-on-ios-android-devices/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/hackers-use-n-day-exploits-in-zero-click-attacks-on-ios-android-devices/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 09:39:54 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Russian Police Arrest 3 Suspected VasyGrek Hackers, Dismantle Criminal Infrastructure]]></title>
+            <description><![CDATA[Russian authorities have arrested three suspected members of a threat group known as VasyGrek and dismantled its criminal infrastructure. Also known as Fluffy Wolf, the threat actor has a history of targeting Russian and international companies since 2016. The Ministry of Internal Affairs of the Russian Federation (MVD) said members of the group are "suspected of embezzling funds from the…]]></description>
+            <link>https://thehackernews.com/2026/11/russian-police-arrest-3-suspected.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/russian-police-arrest-3-suspected.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 08:17:11 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Google Issues Patches for Critical Android Flaw That Could Allow RCE Without User Interaction]]></title>
+            <description><![CDATA[A critical Android flaw could allow an attacker to run code on a phone without any user action remotely, Google said in its November security bulletin. The flaw, CVE-2026-58868, affects Android 14 through 17. Phones get the fix with security patch level 2026-11-01 or later, which phone makers and carriers send on their own schedules. As of November 4, Google's bulletin did not report…]]></description>
+            <link>https://thehackernews.com/2026/11/google-patches-critical-android-flaw.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/google-patches-critical-android-flaw.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 07:46:15 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[CISA Confirms Hackers Exploiting WordPress Core Flaw During Software Upgrades]]></title>
+            <description><![CDATA[The U.S. Cybersecurity and Infrastructure Security Agency (CISA) has added a security flaw in WordPress Core to the Known Exploited Vulnerabilities (KEV) catalog, citing evidence of active exploitation. The high-severity vulnerability, tracked as CVE-2026-119977 (CVSS score: 8.1), is a case of Time-of-check Time-of-use (TOCTOU) race condition that could be exploited to achieve arbitrary code…]]></description>
+            <link>https://thehackernews.com/2026/11/cisa-confirms-hackers-exploiting.html</link>
+            <guid isPermaLink="false">https://thehackernews.com/2026/11/cisa-confirms-hackers-exploiting.html</guid>
+            <category><![CDATA[The Hacker News]]></category>
+            <dc:creator><![CDATA[The Hacker News]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 05:43:11 GMT</pubDate>
+            <dc:source>The Hacker News</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Philippine Migrant Worker Data Likely Leaked in 69GB Government Breach]]></title>
+            <description><![CDATA[An unknown operator appears to have exfiltrated SQL Server backups from the Philippine Overseas Employment Administration in under a half hour.]]></description>
+            <link>https://www.darkreading.com/cyberattacks-data-breaches/philippine-migrant-worker-data-69gb-government-breach</link>
+            <guid isPermaLink="false">https://www.darkreading.com/cyberattacks-data-breaches/philippine-migrant-worker-data-69gb-government-breach</guid>
+            <category><![CDATA[Dark Reading]]></category>
+            <dc:creator><![CDATA[Dark Reading]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 02:00:00 GMT</pubDate>
+            <dc:source>Dark Reading</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Phishing-Resistant Isn't Enough; Yubico Takes Aim at Identity-Verification Gap]]></title>
+            <description><![CDATA[The new YubiID service bridges identity verification with credential enrollment and recovery across existing identity platforms, closing a phishing-resistant authentication gap. Plus: post-quantum YubiKey beta.]]></description>
+            <link>https://www.darkreading.com/identity-access-management-security/beyond-phishing-resistant-yubico-identity-verification-gap</link>
+            <guid isPermaLink="false">https://www.darkreading.com/identity-access-management-security/beyond-phishing-resistant-yubico-identity-verification-gap</guid>
+            <category><![CDATA[Dark Reading]]></category>
+            <dc:creator><![CDATA[Dark Reading]]></dc:creator>
+            <pubDate>Wed, 04 Nov 2026 01:05:40 GMT</pubDate>
+            <dc:source>Dark Reading</dc:source>
+            <dc:date>2026-11-04</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Hackers hijack cPGuard autoupdate to deploy backdoor, steal data]]></title>
+            <description><![CDATA[Attackers have compromised the update infrastructure for the cPGuard web security suite to distribute a backdoor and a data-stealing script…]]></description>
+            <link>https://www.bleepingcomputer.com/news/security/hackers-hijack-cpguard-autoupdate-to-deploy-backdoor-steal-data/</link>
+            <guid isPermaLink="false">https://www.bleepingcomputer.com/news/security/hackers-hijack-cpguard-autoupdate-to-deploy-backdoor-steal-data/</guid>
+            <category><![CDATA[Bleeping Computer]]></category>
+            <dc:creator><![CDATA[Bleeping Computer]]></dc:creator>
+            <pubDate>Tue, 03 Nov 2026 22:18:50 GMT</pubDate>
+            <dc:source>Bleeping Computer</dc:source>
+            <dc:date>2026-11-03</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Fresh European Fridge Attacks Put Cold-Chain Security in Focus]]></title>
+            <description><![CDATA[Beyond food storage, the same combination of Internet connectivity, remote access, and inadequate security practices can put temperature-controlled infrastructure across other critical sectors at risk.]]></description>
+            <link>https://www.darkreading.com/ics-ot-security/fresh-european-fridge-attacks-cold-chain-security</link>
+            <guid isPermaLink="false">https://www.darkreading.com/ics-ot-security/fresh-european-fridge-attacks-cold-chain-security</guid>
+            <category><![CDATA[Dark Reading]]></category>
+            <dc:creator><![CDATA[Dark Reading]]></dc:creator>
+            <pubDate>Tue, 03 Nov 2026 22:16:49 GMT</pubDate>
+            <dc:source>Dark Reading</dc:source>
+            <dc:date>2026-11-03</dc:date>
+        </item>
+        <item>
+            <title><![CDATA[Germany Busts 'Crime-as-a-Service' Investment Fraud Outfit]]></title>
+            <description><![CDATA[Authorities seized more than 100 servers and arrested seven as part of a crackdown on a fraud network spanning more than 50 countries.]]></description>
+            <link>https://www.darkreading.com/cybersecurity-operations/germany-crime-service-investment-fraud</link>
+            <guid isPermaLink="false">https://www.darkreading.com/cybersecurity-operations/germany-crime-service-investment-fraud</guid>
+            <category><![CDATA[Dark Reading]]></category>
+            <dc:creator><![CDATA[Dark Reading]]></dc:creator>
+            <pubDate>Tue, 03 Nov 2026 21:57:12 GMT</pubDate>
+            <dc:source>Dark Reading</dc:source>
+            <dc:date>2026-11-03</dc:date>
+        </item>
+    </channel>
+</rss>

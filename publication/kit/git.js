@@ -9,7 +9,7 @@ const path = require('node:path');
 
 class CompareAndSetLost extends Error {}
 
-function createGit(repoRoot, { env = process.env } = {}) {
+function createGit(repoRoot, { env = process.env, timeoutMs } = {}) {
   const run = (args, { input, encoding = 'utf8', extraEnv = {}, allowFailure = false } = {}) => {
     const result = childProcess.spawnSync('git', args, {
       cwd: repoRoot,
@@ -17,6 +17,7 @@ function createGit(repoRoot, { env = process.env } = {}) {
       input,
       encoding: encoding === 'buffer' ? undefined : encoding,
       maxBuffer: 512 * 1024 * 1024,
+      timeout: timeoutMs,
     });
     if (result.status !== 0) {
       if (allowFailure) return null;
@@ -79,6 +80,14 @@ function createGit(repoRoot, { env = process.env } = {}) {
       }
     },
     // Compare-and-set branch update on the remote.
+    // Initialization has a distinct one-attempt contract: expected absent,
+    // no automatic readback/adoption after a failed acknowledgement.
+    pushInitialBranch(remote, commit, branch) {
+      const result = run(['push', '--quiet', '--porcelain', `--force-with-lease=refs/heads/${branch}:`, remote,
+        `${commit}:refs/heads/${branch}`], { allowFailure: true });
+      if (result === null) throw new Error('Admission initialization unknown');
+      return commit;
+    },
     pushBranch(remote, commit, branch, expected) {
       const lease = `--force-with-lease=refs/heads/${branch}:${expected || ''}`;
       const result = run(['push', '--quiet', '--porcelain', lease, remote, `${commit}:refs/heads/${branch}`], { allowFailure: true });

@@ -1,29 +1,119 @@
-name: Verify Nemotron Without Publication
+name: Closed Sentry Full-Feed Canary
 
 on:
   workflow_dispatch:
     inputs:
       expected_commit:
-        description: 'Exact reviewed full main commit approved for this single trial'
+        description: Exact independently reviewed canary-branch head
         type: string
         required: true
+      expected_manifest:
+        description: Exact independently reviewed canary manifest SHA256
+        type: string
+        required: true
+      readmit_original:
+        description: Separately approved fixed original invocation readmission, without inference
+        type: boolean
+        default: false
+        required: false
+      expected_readmission:
+        description: Exact separately approved readmission manifest SHA256
+        type: string
+        required: false
+      initialize_ledger:
+        description: Separately approved one-time ledger initialization, without inference
+        type: boolean
+        default: false
+        required: false
 
+# One-day exact-manifest authority only; no ordinary or recurring activation.
+# This registered path is reused ONLY on the reviewed canary branch, never main.
 permissions:
-  contents: read
+  contents: write # Admission CAS and separately approved report-only push.
 
 concurrency:
-  group: sentryinsight-nemotron-verification
+  group: sentryinsight-report-generation
   cancel-in-progress: false
 
 jobs:
-  verify:
+  initialize_ledger:
     if: >-
+      inputs.initialize_ledger && !inputs.readmit_original &&
       github.repository == 'ricomanifesto/SentryInsight' &&
+      github.actor == 'ricomanifesto' &&
       github.event_name == 'workflow_dispatch' &&
-      github.ref == 'refs/heads/main' && github.run_attempt == 1 &&
-      github.sha == inputs.expected_commit
+      github.ref == 'refs/heads/canary/sentry-full-feed-20261105' &&
+      github.run_attempt == 1 && github.sha == inputs.expected_commit
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 5
+    steps:
+      - name: Checkout the exact reviewed initializer source
+        if: runner.debug != '1'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+      - name: Fix the Git destination without copying a credential
+        if: runner.debug != '1'
+        run: git remote set-url origin https://github.com/ricomanifesto/SentryInsight.git
+      - name: Set up the existing publication Node toolchain
+        if: runner.debug != '1'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Initialize only the separately approved fixed public ledger
+        if: runner.debug != '1'
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          EXPECTED_MANIFEST: ${{ inputs.expected_manifest }}
+        run: |
+          node scripts/bootstrap_canary_ledger.cjs \
+            --expected-commit "$EXPECTED_COMMIT" --expected-manifest "$EXPECTED_MANIFEST" \
+            --initialize-public-ledger
+  readmit_original:
+    if: >-
+      inputs.readmit_original && !inputs.initialize_ledger &&
+      github.repository == 'ricomanifesto/SentryInsight' &&
+      github.actor == 'ricomanifesto' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/canary/sentry-full-feed-20261105' &&
+      github.run_attempt == 1 && github.sha == inputs.expected_commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Checkout the exact separately approved NO-MODEL source
+        if: runner.debug != '1'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+      - name: Fix the Git destination
+        if: runner.debug != '1'
+        run: git remote set-url origin https://github.com/ricomanifesto/SentryInsight.git
+      - name: Set up the existing publication Node toolchain
+        if: runner.debug != '1'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Readmit only the original invocation, without inference or refund
+        if: runner.debug != '1'
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          EXPECTED_READMISSION: ${{ inputs.expected_readmission }}
+        run: >-
+          python3 -I -B scripts/readmit_original_canary.py
+          --expected-commit "$EXPECTED_COMMIT"
+          --expected-readmission "$EXPECTED_READMISSION"
+  canary:
+    if: >-
+      !inputs.initialize_ledger && !inputs.readmit_original &&
+      github.repository == 'ricomanifesto/SentryInsight' &&
+      github.actor == 'ricomanifesto' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/canary/sentry-full-feed-20261105' &&
+      github.run_attempt == 1 && github.sha == inputs.expected_commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       OTEL_SDK_DISABLED: 'true'
@@ -31,54 +121,68 @@ jobs:
       LANGSMITH_TRACING: 'false'
       LANGCHAIN_TRACING_V2: 'false'
     steps:
-      - name: Checkout the exact reviewed source without persistent credentials
+      - name: Checkout the exact reviewed temporary source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
-          persist-credentials: false
-
-      - name: Set up pinned uv without shared caches
+          # Ephemeral job Git authority is needed by the existing persistent CAS.
+          # Checkout removes its credential at job end; no new credential is made.
+          persist-credentials: true
+      - name: Fix the Git destination without copying a credential
+        run: git remote set-url origin https://github.com/ricomanifesto/SentryInsight.git
+      - name: Establish one verified public run clock before setup or credentials
+        run: python3 -I -B scripts/anchor_canary_clock.py
+      - name: Set up the existing publication Node toolchain without inference credentials
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Set up pinned dependencies without inference credentials
         uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
         with:
           version: '0.12.0'
           python-version: '3.11'
           enable-cache: false
-
       - name: Install frozen dependencies without inference credentials
         run: uv sync --group dev --frozen
-
-      - name: Select the ephemeral tokenizer cache
-        run: printf 'TIKTOKEN_CACHE_DIR=%s/nemotron-tokenizer\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
-
-      - name: Fetch hash-verified public tokenizer data without credentials
+      - name: Prepare and calibrate under the original setup deadline
+        env:
+          TIKTOKEN_CACHE_DIR: ${{ runner.temp }}/sentry-canary-tokenizer
+        run: .venv/bin/python -I -B scripts/canary_setup.py
+      - name: Preflight the closed authority before secret injection
+        id: gate
+        if: runner.debug != '1'
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          EXPECTED_MANIFEST: ${{ inputs.expected_manifest }}
+          TIKTOKEN_CACHE_DIR: ${{ runner.temp }}/sentry-canary-tokenizer
         run: |
-          .venv/bin/python -B - <<'PY'
-          import tiktoken
-          from scripts.verify_nemotron_once import require_tokenizer_cache
-          tiktoken.get_encoding('cl100k_base')
-          require_tokenizer_cache()
-          PY
-
-      - name: Calibrate the fixed synthetic case without a provider request
-        run: |
-          .venv/bin/python -B scripts/verify_nemotron_once.py \
-            --output "$RUNNER_TEMP/nemotron-verification/calibration.json"
-
-      - name: Make one unpublished synthetic trial request
+          .venv/bin/python -I -B scripts/execute_full_feed_canary.py --preflight-only \
+            --feed-file "$RUNNER_TEMP/sentry-canary-feed.xml" \
+            --expected-commit "$EXPECTED_COMMIT" --expected-manifest "$EXPECTED_MANIFEST" \
+            --receipt "$RUNNER_TEMP/sentry-canary-metadata.json"
+      - name: Consume the single approved canary allocation
         id: trial
+        if: steps.gate.outputs.ready == 'true' && runner.debug != '1'
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          EXPECTED_MANIFEST: ${{ inputs.expected_manifest }}
+          TIKTOKEN_CACHE_DIR: ${{ runner.temp }}/sentry-canary-tokenizer
         run: |
-          .venv/bin/python -B scripts/verify_nemotron_once.py --live \
-            --expected-commit "$EXPECTED_COMMIT" \
-            --output "$RUNNER_TEMP/nemotron-verification/live.json"
-
-      - name: Retain sanitized metadata for seven days
+          .venv/bin/python -I -B scripts/execute_full_feed_canary.py --execute-approved-canary \
+            --feed-file "$RUNNER_TEMP/sentry-canary-feed.xml" \
+            --expected-commit "$EXPECTED_COMMIT" --expected-manifest "$EXPECTED_MANIFEST" \
+            --receipt "$RUNNER_TEMP/sentry-canary-metadata.json"
+      - name: Check the fixed remaining artifact allowance
+        id: artifact_gate
         if: always()
+        run: python3 -I -B scripts/canary_setup.py --artifact-gate
+      - name: Retain only allowlisted operational metadata for seven days
+        if: always() && steps.artifact_gate.outputs.retain == 'true'
+        timeout-minutes: 1
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: nemotron-verification-${{ github.run_id }}
-          path: ${{ runner.temp }}/nemotron-verification/*.json
+          name: sentry-full-feed-canary-${{ github.run_id }}
+          path: ${{ runner.temp }}/sentry-canary-metadata.json
           retention-days: 7
           if-no-files-found: warn

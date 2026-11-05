@@ -187,30 +187,57 @@ def test_live_context_requires_exact_first_manual_main_attempt(
         trial.require_live_context(commit, output)
 
 
-def test_workflow_has_no_automatic_trigger_or_publication_authority():
+def test_canary_workflow_has_only_closed_manual_authority_and_proposed_replacement_scope():
     path = Path(".github/workflows/verify-nemotron.yml")
     workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
     assert set(workflow["on"]) == {"workflow_dispatch"}
-    assert workflow["permissions"] == {"contents": "read"}
-    job = workflow["jobs"]["verify"]
+    assert workflow["permissions"] == {"contents": "write"}
+    job = workflow["jobs"]["canary"]
     assert "github.sha == inputs.expected_commit" in job["if"]
     assert "github.run_attempt == 1" in job["if"]
-    assert "github.ref == 'refs/heads/main'" in job["if"]
+    assert "github.actor == 'ricomanifesto'" in job["if"]
+    assert "github.ref == 'refs/heads/canary/sentry-full-feed-20261105'" in job["if"]
     steps = job["steps"]
-    assert steps[0]["with"]["persist-credentials"] == "false"
     secret_steps = [step for step in steps if "secrets." in json.dumps(step)]
     assert len(secret_steps) == 1
     assert secret_steps[0]["id"] == "trial"
+    assert "steps.gate.outputs.ready == 'true'" in secret_steps[0]["if"]
+    assert "runner.debug != '1'" in secret_steps[0]["if"]
     assert (
         secret_steps[0]["env"]["OPENROUTER_API_KEY"]
         == "${{ secrets.OPENROUTER_API_KEY }}"
     )
     assert steps[-1]["with"]["retention-days"] == "7"
+    assert steps[-1]["with"]["path"].endswith("sentry-canary-metadata.json")
+    manifest = json.loads(Path("config/full-feed-canary.json").read_bytes())
+    assert manifest["enabled"] is True
+    assert manifest["execution_date"] == "2026-11-05"
+    assert manifest["production_main"] == "5fc68212f1a9772ab56872ad20ad94ccc8322f3e"
+    assert manifest["pilot"] == {
+        "month": "2026-11",
+        "activationStart": "2026-11-05T00:00:00.000Z",
+        "opening": {
+            "amountMicrousd": 0,
+            "basisSha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7",
+        },
+    }
+    assert manifest["metadata_audience_approved"] is True
+    assert (
+        manifest["billing_basis"] == "verified_openrouter_credit_only"
+        and manifest["data_approval_sha256"]
+        == "840fe520c883c8cb92929b7285f90feed8b008512386a05a4265fa456374cba5"
+    )
+    assert manifest["output_fate"] == "conditional_publish"
+    assert (
+        manifest["whole_hold_microusd"] == 7251456 and manifest["physical_limit"] == 1
+    )
+    assert (
+        json.loads(Path("vercel.json").read_bytes())["git"]["deploymentEnabled"]
+        is False
+    )
     commands = "\n".join(step.get("run", "") for step in steps)
-    assert "publication/cli" not in commands
-    assert "git push" not in commands
-    assert "main.py" not in commands
-    assert not any("publish-production" in step.get("uses", "") for step in steps)
+    assert "--execute-approved-canary" in commands and "--preflight-only" in commands
+    assert "main.py" not in commands and "git push" not in commands
 
 
 def test_unexpected_transport_endpoint_cannot_forward_a_credential():
@@ -222,6 +249,46 @@ def test_unexpected_transport_endpoint_cannot_forward_a_credential():
     with pytest.raises(ValueError, match="boundary"):
         asyncio.run(transport.handle_async_request(request))
     assert not calls
+
+
+def test_initializer_workflow_is_separate_from_model_authority():
+    workflow = yaml.load(
+        Path(".github/workflows/verify-nemotron.yml").read_text(),
+        Loader=yaml.BaseLoader,
+    )
+    option = workflow["on"]["workflow_dispatch"]["inputs"]["initialize_ledger"]
+    assert option["type"] == "boolean" and option["default"] == "false"
+    assert "!inputs.initialize_ledger" in workflow["jobs"]["canary"]["if"]
+    job = workflow["jobs"]["initialize_ledger"]
+    for guard in [
+        "inputs.initialize_ledger",
+        "github.sha == inputs.expected_commit",
+        "github.run_attempt == 1",
+        "github.actor == 'ricomanifesto'",
+        "github.ref == 'refs/heads/canary/sentry-full-feed-20261105'",
+    ]:
+        assert guard in job["if"]
+    assert workflow["permissions"] == {"contents": "write"}
+    text = json.dumps(job)
+    for forbidden in [
+        "secrets.",
+        "OPENROUTER_API_KEY",
+        "upload-artifact",
+        "setup-uv",
+        "--execute-approved-canary",
+    ]:
+        assert forbidden not in text
+    for step in job["steps"]:
+        assert step["if"] == "runner.debug != '1'"
+    checkout = job["steps"][0]
+    assert checkout["with"]["ref"] == "${{ github.sha }}"
+    assert checkout["with"]["persist-credentials"] == "true"
+    command = "\n".join(step.get("run", "") for step in job["steps"])
+    assert (
+        "bootstrap_canary_ledger.cjs" in command
+        and "--initialize-public-ledger" in command
+    )
+    assert "--expected-manifest" in command and "--expected-commit" in command
 
 
 def test_request_policy_cannot_gain_paid_or_other_model_fallbacks():

@@ -1,0 +1,122 @@
+{
+  "records": [
+    {
+      "at": "2026-11-05T11:50:04.729Z",
+      "initialization_id": "aa6541f2d11d9f8f4aef8cee5e4a027ec9966e57688c58748813b3293456a457",
+      "schema_version": 1,
+      "scope_sha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7",
+      "site": "SentryInsight",
+      "stage": "admission_store_initialized"
+    },
+    {
+      "admission_key": "run:42022367409",
+      "at": "2026-11-05T11:52:11.874Z",
+      "binding": "none",
+      "event": "workflow_dispatch",
+      "run_attempt": "1",
+      "run_id": "42022367409",
+      "stage": "admitted"
+    },
+    {
+      "admission_key": "run:42022367409",
+      "at": "2026-11-05T11:52:13.162Z",
+      "run_id": "42022367409",
+      "stage": "invoked"
+    },
+    {
+      "amountMicrousd": 0,
+      "at": "2026-11-05T11:52:14.427Z",
+      "basisSha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7",
+      "periodEnd": "2026-12-01T00:00:00.000Z",
+      "periodStart": "2026-11-01T00:00:00.000Z",
+      "stage": "pilot_opening"
+    },
+    {
+      "admissionKey": "run:42022367409",
+      "at": "2026-11-05T11:52:14.427Z",
+      "day": "2026-11-05",
+      "generationToken": "7a580cb8b65a694b502a96a1c3a860d6",
+      "revision": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+      "runId": "42022367409",
+      "sourceSha256": "b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9",
+      "stage": "pilot_daily"
+    },
+    {
+      "amountMicrousd": 7251456,
+      "at": "2026-11-05T11:52:14.427Z",
+      "binding": {
+        "admissionKey": "run:42022367409",
+        "revision": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+        "runAttempt": "1",
+        "runId": "42022367409",
+        "sourceSha256": "b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9"
+      },
+      "generationToken": "7a580cb8b65a694b502a96a1c3a860d6",
+      "physicalLimit": 1,
+      "policy": {
+        "enabled": true,
+        "expiresAt": "2026-12-01T00:00:00.000Z",
+        "generationMicrousd": 7251456,
+        "id": "sentry-calendar-pilot-v1",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "operations": [
+          {
+            "id": "report",
+            "maxAttempts": 3,
+            "maxOutputTokens": 32000
+          }
+        ],
+        "periodEnd": "2026-12-01T00:00:00.000Z",
+        "periodMicrousd": 20000000,
+        "periodStart": "2026-11-01T00:00:00.000Z",
+        "provider": "moonshotai/mxfp4",
+        "revision": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+        "version": 1
+      },
+      "stage": "spend_reserved"
+    },
+    {
+      "admission_key": "run:42022367409",
+      "at": "2026-11-05T11:52:15.685Z",
+      "attempt": 1,
+      "limit": 1,
+      "request_sha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
+      "revision": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+      "run_id": "42022367409",
+      "stage": "request_reserved",
+      "token": "0e22331bebaad8623047c25ae3915657"
+    },
+    {
+      "at": "2026-11-05T11:52:15.685Z",
+      "attempt": 1,
+      "generationToken": "7a580cb8b65a694b502a96a1c3a860d6",
+      "operation": "report",
+      "requestSha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
+      "stage": "spend_sending",
+      "token": "0e22331bebaad8623047c25ae3915657"
+    },
+    {
+      "admission_key": "run:42022367409",
+      "at": "2026-11-05T11:55:17.100Z",
+      "attempt": 1,
+      "disposition": "uncertain",
+      "limit": 1,
+      "request_sha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
+      "retry_after": 0,
+      "revision": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+      "run_id": "42022367409",
+      "stage": "request_finished",
+      "token": "0e22331bebaad8623047c25ae3915657"
+    },
+    {
+      "at": "2026-11-05T11:55:17.100Z",
+      "generationToken": "7a580cb8b65a694b502a96a1c3a860d6",
+      "outcome": "uncertain",
+      "receipt": null,
+      "stage": "spend_finished",
+      "token": "0e22331bebaad8623047c25ae3915657"
+    }
+  ],
+  "schema_version": 1,
+  "site": "SentryInsight"
+}

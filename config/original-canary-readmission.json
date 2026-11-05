@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "enabled": true,
+  "execution_date": "2026-11-05",
+  "target_admission_key": "run:42022367409",
+  "target_run_id": "42022367409",
+  "prior_tip": "b1d9eedc0d54eacad63fb86e9d24e495a0bdee27",
+  "history_sha256": "15fa3cbc17a03657683b78e7f3eac44d23fb606d5cdbd8d341a3de56139d8894",
+  "original_source": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
+  "production_main": "5fc68212f1a9772ab56872ad20ad94ccc8322f3e",
+  "opening_scope_sha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7",
+  "approval_scope_sha256": "586ca5567f833e13bcbd9512b8be2737ac0d0909806273e262c3bc237a5aad12"
+}
