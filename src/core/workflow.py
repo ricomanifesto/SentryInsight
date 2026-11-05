@@ -1,4 +1,4 @@
-from typing import Dict, Any, NotRequired, TypedDict, cast
+from typing import Any, Dict, Mapping, NotRequired, TypedDict, cast
 from langgraph.graph import START, END, StateGraph
 import logfire
 import logging
@@ -93,6 +93,10 @@ class ExploitationAnalysisState(TypedDict):
     grounding_advisories: NotRequired[list[dict]]
 
 
+def _advisory_grounding(config: Mapping[str, Any]) -> bool:
+    return config.get("analysis", {}).get("grounding") == "advisory"
+
+
 def _record_failure(
     state: ExploitationAnalysisState,
     stage: str,
@@ -181,7 +185,9 @@ async def filter_articles(
     try:
         ensure_no_pending_publication(root)
         if filtered:
-            plan = prepare_source_review(filtered)
+            plan = prepare_source_review(
+                filtered, advisory=_advisory_grounding(state["config"])
+            )
             write_review_packet(plan.packet, root / ".sentryinsight-review")
             state["source_review_plan"] = plan.packet
             fingerprint = digest(
@@ -291,7 +297,8 @@ async def generate_report(
         # Bind this result to the complete inputs retained by this actual run.
         if PLAN_KEY not in state:
             raise SourceReviewError("source_review_plan_missing")
-        plan = prepare_source_review(state["filtered_articles"])
+        advisory = _advisory_grounding(config)
+        plan = prepare_source_review(state["filtered_articles"], advisory=advisory)
         if (
             state[PLAN_KEY] != plan.packet
             or analysis_results.get(PLAN_KEY) != plan.packet
@@ -306,7 +313,6 @@ async def generate_report(
         ensure_no_pending_publication(root)
         write_review_packet(plan.packet, root / ".sentryinsight-review")
         reporting_catalog = plan.eligible_catalog
-        advisory = config.get("analysis", {}).get("grounding") == "advisory"
         candidate = resolve_reviewed_analysis(
             analysis_results, on_stage=observe_stage, advisory=advisory
         )

@@ -420,3 +420,55 @@ def test_unrelated_open_block_cannot_hide_a_reference_defined_by_another_source(
     assert rows[1]["cves"] == [A]
     assert rows[1]["state"] == rows[3]["state"] == "review_required"
     assert plan.eligible_keys == (rows[2]["key"],)
+
+
+def test_advisory_policy_admits_soft_held_sources_and_their_cohort():
+    inputs = [
+        source(f"{A} is described.\n\n{AMBIGUOUS}", "held"),
+        source(f"{A} is also described.", "peer"),
+        source(NARRATIVE, "unresolved"),
+        source("An independent advisory.", "independent"),
+    ]
+    strict = prepare_source_review(inputs)
+    assert len(strict.eligible_keys) == 1
+    plan = prepare_source_review(inputs, advisory=True)
+    rows = by_url(plan)
+    assert plan.packet["policy_version"] == 2
+    assert {row["state"] for row in rows.values()} == {"eligible"}
+    # Reasons stay recorded; only the disposition changes.
+    assert (
+        rows["held"]["reason_codes"]
+        == strict.packet["sources"][
+            [r["key"] for r in strict.packet["sources"]].index(rows["held"]["key"])
+        ]["reason_codes"]
+    )
+    assert validate_review_packet(plan.packet) == plan.packet
+    assert plan.packet["plan_id"] != strict.packet["plan_id"]
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "Affected versions:",
+        "Affected versions: Gateway 7\n\n"
+        "Affected versions: users of Gateway 7 are not affected",
+    ],
+)
+def test_advisory_policy_still_rejects_hard_source_failures(content):
+    plan = prepare_source_review(
+        [source(content, "bad"), source("An advisory.", "ok")], advisory=True
+    )
+    bad = by_url(plan)["bad"]
+    assert bad["state"] == "source_rejected"
+    assert bad["key"] not in plan.eligible_catalog
+
+
+def test_packet_cannot_change_policy_without_matching_dispositions():
+    plan = prepare_source_review([source(AMBIGUOUS, "held")], advisory=True)
+    forged = copy.deepcopy(plan.packet)
+    forged["policy_version"] = 1
+    with pytest.raises(SourceReviewError):
+        validate_review_packet(forged)
+    forged["policy_version"] = 3
+    with pytest.raises(SourceReviewError):
+        validate_review_packet(forged)

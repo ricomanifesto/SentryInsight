@@ -34,6 +34,7 @@ from .source_coverage import (
     visible_candidate_text,
 )
 from .source_review import (
+    ADVISORY_POLICY_VERSION,
     PLAN_KEY,
     SourceReviewError,
     SourceReviewPlan,
@@ -67,7 +68,9 @@ class ReviewedReport:
         return self.report.rstrip() + "\n\n" + coverage_markdown(self.coverage)
 
 
-def analysis_review_plan(result: Mapping[str, Any]) -> SourceReviewPlan:
+def analysis_review_plan(
+    result: Mapping[str, Any], *, advisory: bool = False
+) -> SourceReviewPlan:
     """Host metadata is mandatory; there is no legacy live-generation fallback."""
     if PLAN_KEY not in result or "reporting_metadata_cves" not in result:
         raise SourceReviewError("source_review_plan_missing")
@@ -79,7 +82,12 @@ def analysis_review_plan(result: Mapping[str, Any]) -> SourceReviewPlan:
         catalog = deserialize_reporting_catalog(result.get("reporting_sources", []))
     except (ReportingGroundingError, TypeError, KeyError):
         raise SourceReviewError("invalid_review_input_catalog") from None
-    plan = plan_reporting_catalog(catalog, metadata)
+    # An advisory resolver also accepts a strict plan (a subset of what it
+    # would admit); a strict resolver never accepts an advisory plan.
+    planned_advisory = supplied["policy_version"] == ADVISORY_POLICY_VERSION
+    if planned_advisory and not advisory:
+        raise SourceReviewError("source_review_plan_mismatch")
+    plan = plan_reporting_catalog(catalog, metadata, advisory=planned_advisory)
     if plan.packet != supplied:
         raise SourceReviewError("source_review_plan_mismatch")
     return plan
@@ -139,7 +147,7 @@ def resolve_reviewed_analysis(
         )
     visible_candidate_text(raw, reject_host_namespace=True)
     stage("source_review")
-    plan = analysis_review_plan(result)
+    plan = analysis_review_plan(result, advisory=advisory)
     if not plan.eligible_keys:
         raise SourceReviewError("source_review_required")
     stage("reporting_identity")

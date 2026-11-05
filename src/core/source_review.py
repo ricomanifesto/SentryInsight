@@ -24,6 +24,12 @@ from .reporting import (
 from .version_references import _scopes
 
 POLICY_VERSION = 1
+# Advisory grounding admits sources held only for soft version-evidence
+# reasons. Their unresolved versions render as unresolved after generation;
+# hard reasons still reject. The packet records the policy it was planned
+# under, so archived strict packets keep validating unchanged.
+ADVISORY_POLICY_VERSION = 2
+POLICY_VERSIONS = frozenset({POLICY_VERSION, ADVISORY_POLICY_VERSION})
 PLAN_KEY = "source_review_plan"
 SOFT_REASONS = frozenset(
     {"unowned_version_evidence", "unresolved_version_assertion", "version_clause_error"}
@@ -76,13 +82,18 @@ def _cve_list(values: Any) -> list[str]:
     return sorted({value.strip().upper() for value in values})
 
 
-def _scope_state(state: str, reasons: Sequence[str]) -> str:
+def _scope_state(
+    state: str, reasons: Sequence[str], policy_version: int = POLICY_VERSION
+) -> str:
     _require(set(reasons) <= SOFT_REASONS | HARD_REASONS, "unknown_review_reason")
+    held = (
+        "eligible" if policy_version == ADVISORY_POLICY_VERSION else "review_required"
+    )
     if state == "blocked":
         _require(bool(reasons), "invalid_review_scope")
-        return "source_rejected" if set(reasons) & HARD_REASONS else "review_required"
+        return "source_rejected" if set(reasons) & HARD_REASONS else held
     _require(not reasons and state in {"supported", "not_stated", "unresolved"})
-    return "review_required" if state == "unresolved" else "eligible"
+    return held if state == "unresolved" else "eligible"
 
 
 def _cohorts(rows: Sequence[Mapping[str, Any]]) -> list[list[str]]:
@@ -104,14 +115,19 @@ def _cohorts(rows: Sequence[Mapping[str, Any]]) -> list[list[str]]:
 
 
 def _apply_dispositions(
-    rows: list[dict[str, Any]], scopes: list[dict[str, Any]]
+    rows: list[dict[str, Any]],
+    scopes: list[dict[str, Any]],
+    policy_version: int = POLICY_VERSION,
 ) -> None:
     for row in rows:
         owned = [scope for scope in scopes if row["key"] in scope["source_keys"]]
         _require(bool(owned), "missing_review_scope")
         row["scope_ids"] = sorted(scope["id"] for scope in owned)
         row["direct_state"] = max(
-            (_scope_state(scope["state"], scope["reason_codes"]) for scope in owned),
+            (
+                _scope_state(scope["state"], scope["reason_codes"], policy_version)
+                for scope in owned
+            ),
             key=STATES.__getitem__,
         )
         row["reason_codes"] = sorted(
@@ -145,7 +161,7 @@ def validate_review_packet(packet: Any) -> dict[str, Any]:
     _require(type(packet["schema_version"]) is int and packet["schema_version"] == 1)
     _require(
         type(packet["policy_version"]) is int
-        and packet["policy_version"] == POLICY_VERSION
+        and packet["policy_version"] in POLICY_VERSIONS
     )
     _require(
         isinstance(packet["sources"], list) and len(packet["sources"]) <= MAX_SOURCES
@@ -232,7 +248,7 @@ def validate_review_packet(packet: Any) -> dict[str, Any]:
         )
         _require(scope["reason_codes"] == sorted(set(scope["reason_codes"])))
         _require(isinstance(scope["state"], str))
-        _scope_state(scope["state"], scope["reason_codes"])
+        _scope_state(scope["state"], scope["reason_codes"], packet["policy_version"])
         _require(
             isinstance(scope["evidence_sha256"], str)
             and bool(HEX.fullmatch(scope["evidence_sha256"]))
@@ -240,7 +256,7 @@ def validate_review_packet(packet: Any) -> dict[str, Any]:
         _require(scope["id"] == digest({k: v for k, v in scope.items() if k != "id"}))
         ids.append(scope["id"])
     _require(ids == sorted(set(ids)))
-    _apply_dispositions(rows, scopes)
+    _apply_dispositions(rows, scopes, packet["policy_version"])
     _require(rows == packet["sources"])
     _require(
         packet["plan_id"] == digest({k: v for k, v in packet.items() if k != "plan_id"})
@@ -334,9 +350,16 @@ def _source_cve_identities(
 
 
 def plan_reporting_catalog(
-    catalog: Mapping[str, ReportingSource], metadata_cves: Mapping[str, Sequence[str]]
+    catalog: Mapping[str, ReportingSource],
+    metadata_cves: Mapping[str, Sequence[str]],
+    *,
+    advisory: bool = False,
 ) -> SourceReviewPlan:
-    """Recompute from retained source bodies; never accept a cached disposition."""
+    """Recompute from retained source bodies; never accept a cached disposition.
+
+    ``advisory`` admits sources held only for soft version-evidence reasons.
+    """
+    policy_version = ADVISORY_POLICY_VERSION if advisory else POLICY_VERSION
     _require(set(catalog) == set(metadata_cves), "invalid_source_metadata")
     _require(len(catalog) <= MAX_SOURCES, "review_input_limit_exceeded")
     ordered = {key: catalog[key] for key in sorted(catalog)}
@@ -377,10 +400,10 @@ def plan_reporting_catalog(
         item["id"] = digest(item)
         decisions.append(item)
     decisions.sort(key=lambda item: item["id"])
-    _apply_dispositions(rows, decisions)
+    _apply_dispositions(rows, decisions, policy_version)
     packet: dict[str, Any] = {
         "schema_version": 1,
-        "policy_version": POLICY_VERSION,
+        "policy_version": policy_version,
         "sources": rows,
         "scopes": decisions,
     }
@@ -422,7 +445,9 @@ def plan_reporting_catalog(
     return plan
 
 
-def prepare_source_review(articles: Sequence[Mapping[str, Any]]) -> SourceReviewPlan:
+def prepare_source_review(
+    articles: Sequence[Mapping[str, Any]], *, advisory: bool = False
+) -> SourceReviewPlan:
     _require(
         isinstance(articles, (list, tuple))
         and all(isinstance(article, Mapping) for article in articles),
@@ -439,7 +464,7 @@ def prepare_source_review(articles: Sequence[Mapping[str, Any]]) -> SourceReview
                 "conflicting_source_metadata",
             )
             metadata[key] = values
-        return plan_reporting_catalog(catalog, metadata)
+        return plan_reporting_catalog(catalog, metadata, advisory=advisory)
     except ReportingGroundingError:
         raise SourceReviewError("invalid_source_identity") from None
 

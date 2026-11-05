@@ -247,7 +247,10 @@ async def analyze_exploitation(
     try:
         root = Path(config.get("output_path", "index.md")).parent
         ensure_no_pending_publication(root)
-        plan = prepare_source_review(articles)
+        plan = prepare_source_review(
+            articles,
+            advisory=config.get("analysis", {}).get("grounding") == "advisory",
+        )
         write_review_packet(plan.packet, root / ".sentryinsight-review")
     except (SourceReviewError, PublicationError, OSError) as exc:
         return {

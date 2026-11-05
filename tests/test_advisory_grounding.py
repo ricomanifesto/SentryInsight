@@ -205,3 +205,15 @@ def test_production_publisher_snapshot_carries_the_grounding_mode():
 
     assert "config/config.json" in SNAPSHOT_FILES
     assert "config/config.json" in OPTIONAL_INPUTS
+
+
+def test_strict_resolver_refuses_an_advisory_review_plan():
+    from src.core.reviewed_report import analysis_review_plan
+    from src.core.source_review import prepare_source_review
+
+    result = prepared_result()
+    articles = [source("A service advisory.", "good")]
+    plan = prepare_source_review(articles, advisory=True)
+    result[PLAN_KEY] = plan.packet
+    with pytest.raises(SourceReviewError, match="source_review_plan_mismatch"):
+        analysis_review_plan(result)
