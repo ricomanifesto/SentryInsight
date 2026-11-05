@@ -53,7 +53,10 @@ The public feed GET and both report GETs bound headers, complete body and close.
 Preparation, actual host replay/render/package, Git fences and the single
 publisher attempt run in owned process groups with bounded private pipes and
 absolute phase expiry. Timeout/cancellation terminates only those groups and
-boundedly reaps them. A spawn acknowledgement race is cleaned up before returning.
+reaps them within that same phase. Each worker reserves its final two seconds
+for shutdown inside the caller window; it refuses to start without that room.
+Expiry still synchronously signals the owned group, but never starts a fresh reap
+wait. A spawn acknowledgement race is cleaned up within the original phase.
 Each phase object is retained; relative waits cannot recharge it. Node admission
 exchanges have a 20-second ACK ceiling under the same phase; an unknown exchange
 latches and cannot be repeated. Killing a local Git process does not prove that
@@ -121,7 +124,8 @@ Future coordinator-owned commands, with exact approved hashes substituted, are:
 ```sh
 # Separate NO-MODEL action; verify exact new row and unchanged old prefix afterward.
 gh workflow run verify-nemotron.yml --ref canary/sentry-full-feed-20261105 \
-  -f expected_commit=APPROVED_SOURCE_SHA -f readmit_original=true \
+  -f expected_commit=APPROVED_SOURCE_SHA -f expected_manifest=APPROVED_NOV6_MANIFEST_SHA256 \
+  -f readmit_original=true \
   -f expected_readmission=APPROVED_READMISSION_MANIFEST_SHA256
 # Separate fresh one-shot; never initialize or readmit during this action.
 gh workflow run verify-nemotron.yml --ref canary/sentry-full-feed-20261105 \

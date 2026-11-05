@@ -40,3 +40,27 @@ def test_closed_timing_and_no_model_job_share_no_secret_or_automatic_trigger():
         ]
         is False
     )
+
+
+def test_no_model_documented_command_satisfies_all_required_dispatch_inputs():
+    import re
+    import yaml
+
+    workflow = yaml.load(
+        Path(".github/workflows/verify-nemotron.yml").read_text(),
+        Loader=yaml.BaseLoader,
+    )
+    required = {
+        name
+        for name, item in workflow["on"]["workflow_dispatch"]["inputs"].items()
+        if item.get("required") == "true"
+    }
+    text = Path("scripts/SENTRY_CANARY_HEADROOM.md").read_text().replace("\\\n", " ")
+    commands = [
+        line
+        for line in text.splitlines()
+        if line.startswith("gh workflow run verify-nemotron.yml")
+    ]
+    assert len(commands) == 2
+    for command in commands:
+        assert required <= set(re.findall(r"-f ([a-z_]+)=", command))

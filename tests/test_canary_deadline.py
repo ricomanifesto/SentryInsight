@@ -179,3 +179,9 @@ def test_delayed_timeout_construction_cannot_start_expired_work(monkeypatch):
 
     asyncio.run(run())
     assert reached == []
+
+
+def test_same_day_forward_clock_shift_cannot_spend_the_old_day_allowance():
+    value = budget()
+    with pytest.raises(ValueError):
+        value.before_send(now=NOW.replace(hour=23, minute=59), mono_ns=0)

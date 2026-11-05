@@ -3,7 +3,6 @@
 import asyncio
 import os
 import signal
-import time
 
 from scripts.canary_deadline import PhaseDeadline
 
@@ -21,17 +20,25 @@ class ProcessFailure(ValueError):
         self.code = code
 
 
-async def stop(process):
-    """Kill only the group created by this owner, including its Git children."""
+def kill_group(process):
+    """Signalling has no await; even expiry cannot skip killing our own group."""
     try:
         os.killpg(process.pid, signal.SIGKILL)
     except ProcessLookupError:
         pass
-    async with PhaseDeadline(time.monotonic_ns() + 2_000_000_000).timeout():
+    if process.stdin is not None:
+        process.stdin.close()
+
+
+async def stop(process, deadline):
+    async with deadline.timeout():
+        # Drain only private pipes after killing the group; discard all bytes.
+        # Waiting on returncode alone can leave pipe transports unclosed.
+        await process.communicate()
         await process.wait()
 
 
-async def spawn(argv, *, env, cwd):
+async def spawn(argv, *, env, cwd, deadline):
     task = asyncio.create_task(
         asyncio.create_subprocess_exec(
             *argv,
@@ -46,13 +53,35 @@ async def spawn(argv, *, env, cwd):
     try:
         return await asyncio.shield(task)
     except BaseException:
-        # Do not lose a process whose creation completed concurrently with
-        # cancellation. The subprocess API owns cleanup until it returns one.
+        process = None
         try:
-            process = await asyncio.wait_for(asyncio.shield(task), 2)
-            await stop(process)
+            async with deadline.timeout():
+                process = await asyncio.shield(task)
         except BaseException:
-            task.cancel()
+            if task.done() and not task.cancelled():
+                try:
+                    process = task.result()
+                except BaseException:
+                    pass
+            else:
+                # The subprocess API owns cleanup until it returns a Process.
+                # If it returns concurrently with cancellation, synchronously
+                # kill that owned group without another unreserved await.
+                def kill_late(done):
+                    try:
+                        kill_group(done.result())
+                    except BaseException:
+                        pass
+
+                task.add_done_callback(kill_late)
+                task.cancel()
+        if process is not None:
+            kill_group(process)
+            try:
+                async with deadline.timeout():
+                    await stop(process, deadline)
+            except BaseException:
+                pass
         raise
 
 
@@ -62,8 +91,10 @@ async def run_private(argv, value, deadline: PhaseDeadline, *, env, cwd, limit):
     primary = None
     raw = bytearray()
     try:
-        async with deadline.timeout():
-            process = await spawn(argv, env=env, cwd=cwd)
+        # Shutdown/reap belongs INSIDE the supplied phase, never a fresh tail.
+        work = PhaseDeadline(deadline.deadline_ns - 2_000_000_000)
+        async with work.timeout():
+            process = await spawn(argv, env=env, cwd=cwd, deadline=deadline)
             if process.stdin is None or process.stdout is None:
                 raise ProcessFailure("worker_protocol")
 
@@ -89,7 +120,9 @@ async def run_private(argv, value, deadline: PhaseDeadline, *, env, cwd, limit):
     finally:
         if process is not None:
             try:
-                await stop(process)
+                kill_group(process)
+                async with deadline.timeout():
+                    await stop(process, deadline)
             except BaseException:
                 if primary is None:
                     primary = ProcessFailure("worker_cleanup")
@@ -98,7 +131,9 @@ async def run_private(argv, value, deadline: PhaseDeadline, *, env, cwd, limit):
             raise primary
         if isinstance(primary, ProcessFailure):
             raise primary from None
-        if isinstance(primary, TimeoutError):
+        from scripts.canary_deadline import BudgetError
+
+        if isinstance(primary, (TimeoutError, BudgetError)):
             raise ProcessFailure("worker_deadline") from None
         if isinstance(primary, BaseExceptionGroup):
             if any(

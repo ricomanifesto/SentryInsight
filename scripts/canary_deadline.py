@@ -196,10 +196,14 @@ class DeadlineBudget:
         return (min(self.job_deadline_ns, self.day_deadline_ns) - current) / NS
 
     def gate(self, seconds, *, now=None, mono_ns=None):
-        need(
-            utc(now or datetime.now(timezone.utc)).date().isoformat()
-            == self.execution_date
-        )
+        wall = utc(now or datetime.now(timezone.utc))
+        need(wall.date().isoformat() == self.execution_date)
+        next_day = datetime.strptime(self.execution_date, "%Y-%m-%d").replace(
+            tzinfo=timezone.utc
+        ) + timedelta(days=1)
+        # A forward wall-clock change may shorten the UTC allowance; it can
+        # never extend the already anchored monotonic job/day deadlines.
+        need((next_day - wall).total_seconds() >= seconds)
         need(self.remaining(mono_ns) >= seconds)
 
     def before_reserve(self, *, now=None, mono_ns=None):

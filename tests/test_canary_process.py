@@ -124,11 +124,28 @@ def test_cleanup_failure_never_replaces_primary_protocol_failure(monkeypatch):
 
     original = owner.stop
 
-    async def fail_after_reap(process):
-        await original(process)
+    async def fail_after_reap(process, phase):
+        await original(process, phase)
         raise RuntimeError("private-pipe-sentinel")
 
     monkeypatch.setattr(owner, "stop", fail_after_reap)
     with pytest.raises(ProcessFailure) as error:
         run("print('x'*9000)")
     assert error.value.code == "worker_protocol"
+
+
+def test_delayed_reap_cannot_consume_the_reserved_artifact_tail(monkeypatch):
+    from scripts import canary_process as owner
+
+    original = owner.stop
+
+    async def delayed(process, *args):
+        await asyncio.sleep(2.4)
+        await original(process, *args)
+
+    monkeypatch.setattr(owner, "stop", delayed)
+    started = time.monotonic()
+    with pytest.raises(ProcessFailure) as error:
+        run("import time;time.sleep(10)", timeout=2.1)
+    assert error.value.code == "worker_deadline"
+    assert time.monotonic() - started < 2.4

@@ -44,6 +44,7 @@ from scripts.canary_process import (  # noqa: E402
     ProcessFailure,
     spawn,
     stop,
+    kill_group,
     run_private,
 )  # noqa: E402
 
@@ -289,9 +290,15 @@ class PersistentOwner:
     async def exchange(self, value):
         require(not self.blocked)
         try:
-            async with self.deadline.capped(20).timeout():
+            ack_deadline = self.deadline.capped(20)
+            async with ack_deadline.timeout():
                 if self.process is None:
-                    self.process = await spawn(self.argv, env=self.env, cwd=ROOT)
+                    self.process = await spawn(
+                        self.argv,
+                        env=self.env,
+                        cwd=ROOT,
+                        deadline=ack_deadline,
+                    )
                 require(
                     self.process.stdin is not None and self.process.stdout is not None
                 )
@@ -310,7 +317,8 @@ class PersistentOwner:
 
     async def close(self):
         if self.process is not None:
-            await stop(self.process)
+            kill_group(self.process)
+            await stop(self.process, self.deadline)
 
 
 async def worker(value, deadline):
@@ -728,12 +736,24 @@ async def execute(
             cleanup_deadline = None
         if owner is not None:
             try:
-                closed = owner.close()
-                if inspect.isawaitable(closed):
+                if isinstance(owner, PersistentOwner):
                     if cleanup_deadline is None:
+                        if owner.process is not None:
+                            kill_group(owner.process)
                         raise BudgetError()
-                    async with cleanup_deadline.capped(3).timeout():
-                        await closed
+                    owner.deadline = cleanup_deadline.capped(3)
+                    await owner.close()
+                else:
+                    closed = owner.close()
+                    if inspect.isawaitable(closed):
+                        try:
+                            if cleanup_deadline is None:
+                                raise BudgetError()
+                            async with cleanup_deadline.capped(3).timeout():
+                                await closed
+                        finally:
+                            if inspect.iscoroutine(closed):
+                                closed.close()
             except BaseException:
                 cleanup.append("owner_close_unknown")
         if own_sender and sender is not None:
