@@ -1992,6 +1992,17 @@
       "release_key": "78fca83f699b960368b5206d01f4cd533bc55e0aba9b5429a68b1f8d57989ce2",
       "release_ref": "9b0bd1d2582f5f4369a36bb39a43dbb3ec1b607e",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-05T23:57:32.093Z",
+      "kind": "release",
+      "payload_digest": "ea2c5cd5a00560195b61d13b0ed69fe074cf05a7951c9f0f4f07a757dd76e16e",
+      "proof": "on",
+      "release_key": "7c1487b27b0c2484462d055c26f6c3db322499c8c179b4ecb7877e14b540244b",
+      "release_ref": "b84a4ba60ce76f56127d5d5210021126955a6298",
+      "source_revision": "19103c0391ee10b3b7b09b920828ac70f0575e5f",
+      "stage": "released",
+      "tree_digest": "e471d20acd8950ded8e0c77159b1386bf2a7c59b29c49c0bad467f776a0b2e31"
     }
   ],
   "schema_version": 1,
