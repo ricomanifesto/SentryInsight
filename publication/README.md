@@ -90,3 +90,6 @@ node --test --test-concurrency=1 publication/test/*.test.js
 
 The tests use temporary local repositories and a file-transport remote; they
 make no network calls.
+
+The [disabled internal spending primitive](PRODUCTION_SPEND.md) documents the
+CAS/ownership contract and the remaining trusted runtime and billing assumptions.

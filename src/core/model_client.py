@@ -12,10 +12,13 @@ import os
 from pathlib import Path
 from typing import Protocol
 
+import httpx
+
 from .opencode_client import ModelSelection, OpenCodeClient
 from .openrouter_client import OPENROUTER_API_KEY_ENV_VAR, OpenRouterClient
 from .attempt_budget import AdmissionAttemptBudget, AttemptBudgetError
 from .failure_receipt import ENV_PATH, record_request
+from .model_route import ENDPOINT_BASE, OFFLINE_KEY, RouteActivation, selected_route
 
 
 class ReportModelClient(Protocol):
@@ -30,13 +33,31 @@ class ReportModelClient(Protocol):
 
 
 def build_model_client(
-    *, timeout: float, max_tokens: int
+    *,
+    timeout: float,
+    max_tokens: int,
+    model: ModelSelection | None = None,
+    activation: RouteActivation = RouteActivation.DISABLED,
+    transport: httpx.AsyncBaseTransport | None = None,
 ) -> OpenCodeClient | OpenRouterClient:
     """Return the model client selected by the environment.
 
     Uses OpenRouter directly when ``OPENROUTER_API_KEY`` is set; otherwise uses
     a local OpenCode server.
     """
+    route = selected_route(model.model_id, model.provider_id) if model else None
+    if route is not None:
+        # The selected paid profile has no live activation path. This check
+        # precedes any environment credential lookup or gateway selection.
+        route.validate_output(max_tokens)
+        route.require_offline(activation, transport, OFFLINE_KEY, ENDPOINT_BASE)
+        return OpenRouterClient(
+            api_key=OFFLINE_KEY,
+            max_tokens=max_tokens,
+            timeout=timeout,
+            activation=activation,
+            transport=transport,
+        )
     api_key = os.getenv(OPENROUTER_API_KEY_ENV_VAR, "").strip()
     durable = os.getenv("SENTRYINSIGHT_ATTEMPT_STORE")
     if durable and (durable != "admission" or not api_key or not os.getenv(ENV_PATH)):
