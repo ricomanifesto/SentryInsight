@@ -64,11 +64,11 @@ test('every fixed read refuses another tip before any commit',()=>{
   const git=noAdoptionGit({fetchBranch(){return 'b'.repeat(40);}},'a'.repeat(40));
   assert.throws(()=>git.fetchBranch('origin','publication-admission'),/Original readmission refused/);
 });
-test('committed sidecar is inert and exact target/context gates are independent',()=>{
+test('disabled sidecar and exact target/context gates are independent',()=>{
   const raw=JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname,'../../config/original-canary-readmission.json')));
   const context={GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'ricomanifesto/SentryInsight',GITHUB_ACTOR:'ricomanifesto',GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_REF:'refs/heads/canary/sentry-full-feed-20261105',GITHUB_RUN_ATTEMPT:'1',GITHUB_SHA:'a'.repeat(40),EXPECTED_COMMIT:'a'.repeat(40),GITHUB_RUN_ID:'900'};
   const now=new Date('2026-11-06T00:00:00Z');
-  assert.throws(()=>approved(raw,context,now));
+  assert.throws(()=>approved({...raw,enabled:false,approval_scope_sha256:null},context,now));
   const positive={...raw,enabled:true,approval_scope_sha256:'f'.repeat(64)};
   approved(positive,context,now);
   for(const [key,value]of [['target_run_id','901'],['history_sha256','b'.repeat(64)],['prior_tip','c'.repeat(40)],['execution_date','2026-11-05']])assert.throws(()=>approved({...positive,[key]:value},context,now));

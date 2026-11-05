@@ -38,7 +38,7 @@ def test_closed_timing_and_no_model_job_share_no_secret_or_automatic_trigger():
         json.loads(Path("config/original-canary-readmission.json").read_bytes())[
             "enabled"
         ]
-        is False
+        is True
     )
 
 

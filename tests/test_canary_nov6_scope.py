@@ -38,11 +38,14 @@ def test_next_day_uses_original_pilot_start_not_a_new_opening(prepared, monkeypa
         )
 
 
-def test_future_manifest_cannot_reuse_old_execution_authority():
+def test_proposed_future_manifest_cannot_reuse_old_execution_authority():
     value = json.loads(Path("config/full-feed-canary.json").read_bytes())
-    assert value["execution_date"] == "2026-11-06" and value["enabled"] is False
-    assert value["metadata_audience_approved"] is False
-    assert value["data_approval_sha256"] is None
+    assert value["execution_date"] == "2026-11-06" and value["enabled"] is True
+    assert value["metadata_audience_approved"] is True
+    assert (
+        value["data_approval_sha256"]
+        == "fabfc6610161e7e92466f2e0ba59954517a1e7a23c00be26e7b44fa6b0c8f16e"
+    )
     assert value["pilot"]["activationStart"] == "2026-11-05T00:00:00.000Z"
     assert (
         value["pilot"]["opening"]["basisSha256"]
@@ -85,3 +88,27 @@ def test_rederived_pack_changes_only_legacy_processing_date_not_feed_or_wire(
         assert before.pop("date") == "2026-11-05"
         assert after.pop("date") == "2026-11-06"
     assert old_pack == new_pack
+
+
+def test_activation_preserves_the_hashed_inert_scope():
+    import hashlib
+
+    # Derived from the two inert fd17b5f blobs; runtime tests require no Git
+    # ancestor fetch, so this also works in normal shallow CI checkouts.
+    for relative, excluded, expected in (
+        (
+            "config/full-feed-canary.json",
+            ["data_approval_sha256", "enabled", "metadata_audience_approved"],
+            "01309bb4d4d87f56ecbc0516f18cd032bd827f76876df7797712c989342c616e",
+        ),
+        (
+            "config/original-canary-readmission.json",
+            ["approval_scope_sha256", "enabled"],
+            "07c30d80766f603e18863e078fd7803df75bcbbd5f36150b7ff3fceb7150777c",
+        ),
+    ):
+        value = json.loads(Path(relative).read_bytes())
+        retained = {key: item for key, item in value.items() if key not in excluded}
+        raw = json.dumps(retained, sort_keys=True, separators=(",", ":")).encode()
+        assert hashlib.sha256(raw).hexdigest() == expected
+        assert value["enabled"] is True

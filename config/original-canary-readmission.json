@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "execution_date": "2026-11-06",
   "target_admission_key": "run:42022367409",
   "target_run_id": "42022367409",
@@ -9,5 +9,5 @@
   "original_source": "4a18f5d42022170694d5d6e2f411a4bfc4903e2c",
   "production_main": "5fc68212f1a9772ab56872ad20ad94ccc8322f3e",
   "opening_scope_sha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7",
-  "approval_scope_sha256": null
+  "approval_scope_sha256": "70c59f36d07ccea8a6b20610eeae7b1026630e6d4cbae60c3fb3c06cfa3247b2"
 }

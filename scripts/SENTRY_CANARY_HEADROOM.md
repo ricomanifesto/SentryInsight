@@ -82,7 +82,10 @@ a strict endpoint retention tier. No account setting is inspected or changed.
 
 ## Separately gated fixed NO-MODEL action
 
-`config/original-canary-readmission.json` is disabled with no approval-scope hash.
+`config/original-canary-readmission.json` has an inert checkpoint and a separate
+proposed activation value bound to the exact reviewable scope hash. Neither
+source state is itself external permission to dispatch. The proposal requires
+matching exact operator approval before either action.
 Its only possible target is the original invocation `42022367409`, with the exact
 original owner and frozen ten-record journal history. It uses the existing
 `readmitted` stage and existing initialized ledger; it creates no new wallet,

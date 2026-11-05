@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "execution_date": "2026-11-06",
   "source_role": "reviewed_canary_candidate",
   "production_main": "5fc68212f1a9772ab56872ad20ad94ccc8322f3e",
@@ -21,7 +21,7 @@
     }
   },
   "billing_basis": "verified_openrouter_credit_only",
-  "data_approval_sha256": null,
-  "metadata_audience_approved": false,
+  "data_approval_sha256": "fabfc6610161e7e92466f2e0ba59954517a1e7a23c00be26e7b44fa6b0c8f16e",
+  "metadata_audience_approved": true,
   "output_fate": "conditional_publish"
 }
