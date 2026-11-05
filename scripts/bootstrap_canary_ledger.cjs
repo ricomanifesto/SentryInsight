@@ -16,14 +16,24 @@ async function initialize({ git, manifestBytes, expectedCommit, expectedManifest
     && /^[a-f0-9]{64}$/.test(expectedManifest || '') && sha256(manifestBytes) === expectedManifest);
   const raw = JSON.parse(manifestBytes.toString('utf8'));
   need(raw.source_role === 'reviewed_canary_candidate' && /^[a-f0-9]{40}$/.test(raw.production_main || ''));
+  const at = now ? now() : new Date();
+  need(raw.execution_date === '2026-11-05' && at.toISOString().slice(0, 10) === raw.execution_date);
   const identity = ledgerIdentity(raw);
   need(git.run(['rev-parse', 'HEAD']) === expectedCommit && git.run(['status', '--porcelain']) === '');
   need(git.run(['remote', 'get-url', 'origin']) === 'https://github.com/ricomanifesto/SentryInsight.git');
   need(git.run(['ls-remote', 'origin', 'refs/heads/main']).split(/\s+/)[0] === raw.production_main);
   const result = await bootstrapStore({ git, remote: 'origin', branch: BRANCH, site: 'SentryInsight',
-    scopeSha256: identity.scope_sha256, now });
+    scopeSha256: identity.scope_sha256, now: () => at });
   return { status: 'initialized', root_oid: result.rootOid, marker_sha256: result.markerSha256,
     initialization_id: identity.initialization_id };
+}
+
+function bootstrapGitEnvironment() {
+  return { PATH: '/usr/bin:/bin:/opt/homebrew/bin', GIT_CONFIG_GLOBAL: '/dev/null',
+    GIT_CONFIG_SYSTEM: '/dev/null', GIT_NO_LAZY_FETCH: '1', GIT_ALLOW_PROTOCOL: 'https',
+    GIT_TERMINAL_PROMPT: '0', GIT_AUTHOR_NAME: 'SentryInsight admission',
+    GIT_AUTHOR_EMAIL: 'actions@users.noreply.github.com', GIT_COMMITTER_NAME: 'SentryInsight admission',
+    GIT_COMMITTER_EMAIL: 'actions@users.noreply.github.com' };
 }
 
 async function main(args = process.argv.slice(2)) {
@@ -33,11 +43,7 @@ async function main(args = process.argv.slice(2)) {
       && args[4] === '--initialize-public-ledger');
     // Retain only fixed Git controls. No model/AWS key, HOME, proxy, debug or
     // arbitrary command configuration is forwarded to any child process.
-    const env = { PATH: '/usr/bin:/bin:/opt/homebrew/bin', GIT_CONFIG_GLOBAL: '/dev/null',
-      GIT_CONFIG_SYSTEM: '/dev/null', GIT_NO_LAZY_FETCH: '1', GIT_ALLOW_PROTOCOL: 'https',
-      GIT_TERMINAL_PROMPT: '0', GIT_AUTHOR_NAME: 'SentryInsight admission',
-      GIT_AUTHOR_EMAIL: 'actions@users.noreply.github.com', GIT_COMMITTER_NAME: 'SentryInsight admission',
-      GIT_COMMITTER_EMAIL: 'actions@users.noreply.github.com' };
+    const env = bootstrapGitEnvironment();
     result = await initialize({ git: createGit(ROOT, { env, timeoutMs: 30000 }),
       manifestBytes: fs.readFileSync(path.join(ROOT, 'config/full-feed-canary.json')),
       expectedCommit: args[1], expectedManifest: args[3], confirm: true });
@@ -52,7 +58,7 @@ async function main(args = process.argv.slice(2)) {
   }
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }
-module.exports = { initialize, main };
+module.exports = { initialize, main, bootstrapGitEnvironment };
 if (require.main === module) {
   process.stdout.on('error', () => { process.exitCode = 1; });
   main().catch(() => { process.exitCode = 1; });

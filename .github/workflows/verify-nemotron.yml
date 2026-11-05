@@ -11,19 +11,59 @@ on:
         description: Exact independently reviewed canary manifest SHA256
         type: string
         required: true
+      initialize_ledger:
+        description: Separately approved one-time ledger initialization, without inference
+        type: boolean
+        default: false
+        required: false
 
 # Prepared only. The committed manifest is disabled with no active pilot/opening.
 # This registered path is reused ONLY on the reviewed canary branch, never main.
 permissions:
-  contents: write # Existing admission CAS and separately approved report-only push.
+  contents: write # Admission CAS and separately approved report-only push.
 
 concurrency:
   group: sentryinsight-report-generation
   cancel-in-progress: false
 
 jobs:
+  initialize_ledger:
+    if: >-
+      inputs.initialize_ledger &&
+      github.repository == 'ricomanifesto/SentryInsight' &&
+      github.actor == 'ricomanifesto' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/canary/sentry-full-feed-20261105' &&
+      github.run_attempt == 1 && github.sha == inputs.expected_commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout the exact reviewed initializer source
+        if: runner.debug != '1'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+      - name: Fix the Git destination without copying a credential
+        if: runner.debug != '1'
+        run: git remote set-url origin https://github.com/ricomanifesto/SentryInsight.git
+      - name: Set up the existing publication Node toolchain
+        if: runner.debug != '1'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Initialize only the separately approved fixed public ledger
+        if: runner.debug != '1'
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          EXPECTED_MANIFEST: ${{ inputs.expected_manifest }}
+        run: |
+          node scripts/bootstrap_canary_ledger.cjs \
+            --expected-commit "$EXPECTED_COMMIT" --expected-manifest "$EXPECTED_MANIFEST" \
+            --initialize-public-ledger
   canary:
     if: >-
+      !inputs.initialize_ledger &&
       github.repository == 'ricomanifesto/SentryInsight' &&
       github.actor == 'ricomanifesto' &&
       github.event_name == 'workflow_dispatch' &&

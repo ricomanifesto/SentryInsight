@@ -194,8 +194,10 @@ test('closed bootstrap command binds reviewed source, fixed target and approved 
     if (args[0] === 'ls-remote') return `${raw.production_main}\trefs/heads/main`;
     throw new Error('private-sentinel');
   };
-  const inputs = { git: w.git, manifestBytes: bytes, expectedCommit: head, expectedManifest: sha256(bytes), confirm: true, now };
+  const inputs = { git: w.git, manifestBytes: bytes, expectedCommit: head, expectedManifest: sha256(bytes), confirm: true,
+    now: () => new Date('2026-11-05T03:04:05.000Z') };
   for (const extra of [{ confirm: false }, { expectedCommit: 'b'.repeat(40) }, { expectedManifest: 'c'.repeat(64) },
+    { now: () => new Date('2026-11-06T00:00:00.000Z') },
     { manifestBytes: Buffer.from(JSON.stringify(source)), expectedManifest: sha256(JSON.stringify(source)) }]) {
     await assert.rejects(initialize({ ...inputs, ...extra })); assert.equal(w.state.initialPushes.length, 0);
   }

@@ -56,6 +56,12 @@ must precede the first paid run; the sender cannot create or re-seed this branch
 Every paid read and CAS retry requires its stable first marker and hosting guard.
 Missing, unavailable, foreign or recreated unmarked state stops before a token or
 model-key access. The initialization marker grants no money, day or send allowance.
+The registered manual workflow has a separate `initialize_ledger=true` job using
+only checkout Git authority, without a model key or artifact. It is mutually
+exclusive with the default canary job. These are two separately approved manual
+dispatches, with acknowledged root/marker read-only verification between them;
+initialization never automatically starts inference. Its bounded stdout is kept
+in ordinary Actions logs, not the canary's seven-day artifact.
 The real pilot activation and opening remain absent in source. Once separately
 approved, the Sentry quota is $20 per UTC month; one daily claim and the whole
 $7.251456 hold are atomic. The SAME original physical token is acknowledged

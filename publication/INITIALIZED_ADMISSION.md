@@ -26,7 +26,29 @@ integration/root-directory behavior and possible build/preview attempts must be
 disclosed or checked before a public push. No Vercel setting is changed here.
 
 After separately approving the exact source/manifest, opening-scope assertion,
-public metadata audience and first branch creation, the one-time command is:
+public metadata audience and first branch creation, the concrete operator route
+is TWO separate manual dispatches of the existing registered workflow. First:
+
+```sh
+gh workflow run verify-nemotron.yml --repo ricomanifesto/SentryInsight \
+  --ref canary/sentry-full-feed-20261105 \
+  -f expected_commit=REVIEWED_FULL_COMMIT \
+  -f expected_manifest=REVIEWED_MANIFEST_SHA256 -f initialize_ledger=true
+```
+
+Only the initializer job is eligible. It requires the fixed owner/repository,
+canary ref, exact head, first attempt and non-debug steps. Its fixed command also
+refuses outside the manifest's execution date. The job uses the pinned checkout's
+existing ephemeral `GITHUB_TOKEN` Git configuration and Node24. It has no provider
+key, Python/model/dependency/source-fetch step or artifact upload. Checkout removes
+its credential at job end. No credential is exported, copied into this program,
+added to global configuration or persisted by the initializer. Its minimal child
+environment still permits repository-local conditional includes used by checkout;
+synthetic tests qualify the [pinned checkout's local-include mechanism](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/src/git-auth-helper.ts#L330-L348),
+not actual GitHub write permission.
+Desktop global credential helpers are not assumed to work.
+
+The command executed inside that authenticated checkout is:
 
 ```sh
 node scripts/bootstrap_canary_ledger.cjs \
@@ -39,8 +61,8 @@ The committed manifest has no pilot/opening or metadata-audience approval, so th
 command currently refuses before Git/auth access. It never enables the sender.
 The command requires a clean exact checkout, the fixed repository origin and the
 manifest's production-main fence. It uses only the checkout's existing authorized
-Git authentication; it does not obtain a provider credential or add access. Any
-future authenticated job/command and public write remain separately approved.
+Git authentication; it does not obtain a provider credential or add access. The
+future initializer dispatch and public write remain separately approved.
 Child Git processes receive fixed minimal controls, no model/AWS key, proxy,
 arbitrary Git environment, HOME override or interactive credential prompt.
 
@@ -55,9 +77,19 @@ perform separately authorized read-only reconciliation of the exact candidate
 before any operator decision. Do not repeat initialization, change namespaces or
 treat an uncertain outcome as permission.
 
-Record the acknowledged root OID and marker SHA privately. The Git branch and
-later financial metadata are public and durable; command stdout follows its
-chosen execution environment's retention. The marker is provenance, not caller
+After an acknowledged result, the operator must separately verify the exact
+remote root and marker read-only and record their identity privately. Only then,
+under its separate inference/output approval, dispatch the same reviewed workflow
+with `initialize_ledger=false` (the default). Only the canary job is then eligible;
+it performs the existing checks before its one possible POST. There is no job
+dependency, initialize-on-missing path or automatic progression from initialization
+to inference. Unknown initialization stops this sequence without another dispatch
+or write until separately reconciled.
+
+The Git branch and later financial metadata are public and durable. Initializer
+stdout is allowlisted root/marker/status metadata in ordinary GitHub Actions logs
+under repository-configured retention; it has no seven-day artifact. The canary's
+existing sanitized artifact policy is separate. The marker is provenance, not caller
 authentication or protection from an authorized writer deliberately rewriting
 history. Initialization does not invoke a model, account/key, publisher or
 deployment API. A hosting integration may still observe its public Git push as
@@ -67,5 +99,5 @@ Synthetic checks use disposable local Git remotes and no credentials:
 
 ```sh
 node --test --test-concurrency=1 publication/test/initialized-store.test.js \
-  publication/test/canary-owner.test.js
+  publication/test/canary-owner.test.js publication/test/bootstrap-auth.test.js
 ```

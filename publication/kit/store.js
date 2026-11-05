@@ -1,5 +1,5 @@
-// Append-only operational records on a dedicated branch that the provider
-// never builds. Each append re-reads the branch, lets the caller decide what
+// Append-only operational records on a dedicated branch.
+// Each append re-reads the branch, lets the caller decide what
 // to add from the current records, and pushes a child commit with
 // compare-and-set; a lost race re-reads and decides again. Records are
 // non-secret and separate from report evidence and the served payload.

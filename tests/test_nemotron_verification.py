@@ -236,6 +236,46 @@ def test_unexpected_transport_endpoint_cannot_forward_a_credential():
     assert not calls
 
 
+def test_initializer_workflow_is_separate_from_model_authority():
+    workflow = yaml.load(
+        Path(".github/workflows/verify-nemotron.yml").read_text(),
+        Loader=yaml.BaseLoader,
+    )
+    option = workflow["on"]["workflow_dispatch"]["inputs"]["initialize_ledger"]
+    assert option["type"] == "boolean" and option["default"] == "false"
+    assert "!inputs.initialize_ledger" in workflow["jobs"]["canary"]["if"]
+    job = workflow["jobs"]["initialize_ledger"]
+    for guard in [
+        "inputs.initialize_ledger",
+        "github.sha == inputs.expected_commit",
+        "github.run_attempt == 1",
+        "github.actor == 'ricomanifesto'",
+        "github.ref == 'refs/heads/canary/sentry-full-feed-20261105'",
+    ]:
+        assert guard in job["if"]
+    assert workflow["permissions"] == {"contents": "write"}
+    text = json.dumps(job)
+    for forbidden in [
+        "secrets.",
+        "OPENROUTER_API_KEY",
+        "upload-artifact",
+        "setup-uv",
+        "--execute-approved-canary",
+    ]:
+        assert forbidden not in text
+    for step in job["steps"]:
+        assert step["if"] == "runner.debug != '1'"
+    checkout = job["steps"][0]
+    assert checkout["with"]["ref"] == "${{ github.sha }}"
+    assert checkout["with"]["persist-credentials"] == "true"
+    command = "\n".join(step.get("run", "") for step in job["steps"])
+    assert (
+        "bootstrap_canary_ledger.cjs" in command
+        and "--initialize-public-ledger" in command
+    )
+    assert "--expected-manifest" in command and "--expected-commit" in command
+
+
 def test_request_policy_cannot_gain_paid_or_other_model_fallbacks():
     calls = []
     transport = trial.NvidiaBoundary(
