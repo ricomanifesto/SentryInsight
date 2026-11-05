@@ -6,7 +6,7 @@ function fixture({uncertain=false,lost=false}={}) {
   const raw={...source,enabled:true,metadata_audience_approved:true,billing_basis:'verified_openrouter_credit_only',data_approval_sha256:'e'.repeat(64),
     pilot:{month:'2026-11',activationStart:'2026-11-05T00:00:00.000Z',opening:{amountMicrousd:0,basisSha256:'f'.repeat(64)}}};
   const context={GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'ricomanifesto/SentryInsight',GITHUB_ACTOR:'ricomanifesto',GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_REF:'refs/heads/canary/sentry-full-feed-20261105',GITHUB_RUN_ATTEMPT:'1',GITHUB_RUN_ID:'800',GITHUB_SHA:'a'.repeat(40),EXPECTED_COMMIT:'a'.repeat(40)};
-  const now=new Date('2026-11-05T03:04:05.000Z');
+  const now=new Date('2026-11-06T03:04:05.000Z');
   const admission={
     async admit(){events.push('admit');return {decision:'admitted'};},
     async invoked(){events.push('invoked');},
@@ -24,7 +24,7 @@ const begin={operation:'begin',manifestSha256:'d'.repeat(64),sourceSha256:source
 async function owner(w){return makeOwner(w.raw,w.context,{admission:w.admission,manifestSha256:'d'.repeat(64),now:w.now});}
 test('disabled/expired authority never touches admission',async()=>{
   const w=fixture();await assert.rejects(makeOwner({...w.raw,enabled:false},w.context,{admission:w.admission,now:w.now}));
-  assert.throws(()=>approved(w.raw,w.context,new Date('2026-11-06T00:00:00.000Z')));assert.deepEqual(w.events,[]);
+  assert.throws(()=>approved(w.raw,w.context,new Date('2026-11-07T00:00:00.000Z')));assert.deepEqual(w.events,[]);
 });
 test('paid ledger identity pins stable approved opening scope rather than run or revision',()=>{
   const w=fixture(),identity=ledgerIdentity(w.raw);

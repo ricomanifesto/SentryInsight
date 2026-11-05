@@ -183,7 +183,7 @@ test('native bootstrap does not replace an existing ref or retry an expected-abs
   assert.equal(command(w.remote, 'rev-parse', 'refs/heads/publication-admission'), original);
 });
 test('closed bootstrap command binds reviewed source, fixed target and approved opening scope', async () => {
-  const raw = { ...source, metadata_audience_approved: true,
+  const raw = { ...source, execution_date: '2026-11-05', metadata_audience_approved: true,
     pilot: { month: '2026-11', activationStart: '2026-11-05T00:00:00.000Z', opening: { amountMicrousd: 0, basisSha256: scopeSha256 } } };
   const bytes = Buffer.from(JSON.stringify(raw)), head = 'a'.repeat(40), w = fixture(), calls = [];
   w.git.run = (args) => {

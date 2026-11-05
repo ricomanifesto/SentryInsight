@@ -48,7 +48,7 @@ from scripts.canary_process import (  # noqa: E402
     run_private,
 )  # noqa: E402
 
-DATE = "2026-11-05"
+DATE = "2026-11-06"
 REF = "refs/heads/canary/sentry-full-feed-20261105"
 MANIFEST = ROOT / "config/full-feed-canary.json"
 PUBLIC_REPORTS = (
@@ -214,7 +214,7 @@ def authority(raw, digest, context, prepared, expected_commit, expected_manifest
     )
     require(
         activation.tzinfo is not None
-        and activation.date().isoformat() == DATE
+        and activation.date().isoformat() == "2026-11-05"
         and activation <= now
     )
     require(raw["metadata_audience_approved"] is True)

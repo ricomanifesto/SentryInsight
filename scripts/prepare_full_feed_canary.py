@@ -47,7 +47,7 @@ def verify_feed(raw):
 class FixedClock(datetime):
     @classmethod
     def now(cls, tz=None):
-        value = cls(2026, 11, 5, 12, tzinfo=timezone.utc)
+        value = cls(2026, 11, 6, 12, tzinfo=timezone.utc)
         return value if tz is not None else value.replace(tzinfo=None)
 
 

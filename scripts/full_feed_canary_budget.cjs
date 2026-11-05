@@ -40,7 +40,7 @@ async function act(value) {
   if (!admission) {
     exact(value, ['operation','revision','sourceSha256','requestSha256','now']); need(value.operation === 'begin');
     need(/^[a-f0-9]{40}$/.test(value.revision) && /^[a-f0-9]{64}$/.test(value.sourceSha256) && /^[a-f0-9]{64}$/.test(value.requestSha256));
-    const time = new Date(value.now); need(time.toISOString() === value.now && value.now.slice(0,10) === '2026-11-05');
+    const time = new Date(value.now); need(time.toISOString() === value.now && value.now.slice(0,10) === '2026-11-06');
     const pilot = new DailyPilot({ month:'2026-11', activationStart:'2026-11-05T00:00:00.000Z', opening:{amountMicrousd:0,basisSha256:'0'.repeat(64)} });
     admission = createAdmission({ repoRoot: worker, remote:'origin', config:readSiteConfig(path.resolve(__dirname,'..')), consumer:'SentryInsight', fetchUrl:deny, now:()=>time, productionDailyPilot:pilot, productionSpendPolicy:pilot.policy(value.revision) });
     const owner = {admissionKey:'run:800',runId:'800',runAttempt:'1',revision:value.revision,sourceSha256:value.sourceSha256};

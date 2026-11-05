@@ -13,7 +13,7 @@ from scripts.prepare_full_feed_canary import prepare
 class ExecutionClock(datetime):
     @classmethod
     def now(cls, tz=None):
-        return cls(2026, 11, 5, 3, 4, 5, tzinfo=timezone.utc)
+        return cls(2026, 11, 6, 3, 4, 5, tzinfo=timezone.utc)
 
 
 class FrozenInputs(tuple):
@@ -97,7 +97,7 @@ def test_authority_fails_closed_before_any_adapter(prepared, field, value):
             prepared[1],
             "a" * 40,
             "d" * 64,
-            datetime(2026, 11, 5, tzinfo=timezone.utc),
+            datetime(2026, 11, 6, tzinfo=timezone.utc),
         )
 
 
@@ -122,7 +122,7 @@ def test_context_is_closed(prepared, field, value):
             prepared[1],
             context["GITHUB_SHA"],
             "d" * 64,
-            datetime(2026, 11, 5, tzinfo=timezone.utc),
+            datetime(2026, 11, 6, tzinfo=timezone.utc),
         )
 
 
@@ -285,7 +285,7 @@ async def exercise(
             "workflow_id": 406270829,
             "run_attempt": 1,
             "status": "in_progress",
-            "created_at": "2026-11-05T03:04:05Z",
+            "created_at": "2026-11-06T03:04:05Z",
         },
         context,
         canary.DATE,

@@ -20,7 +20,7 @@ function approved(raw, context, at = new Date()) {
   need(raw.max_output_tokens===32000 && raw.whole_hold_microusd===7251456 && raw.physical_limit===1);
   need(raw.schema_version===1 && raw.source_role==='reviewed_canary_candidate');
   for(const name of ['source_pack_sha256','canonical_request_sha256','wire_sha256'])need(/^[a-f0-9]{64}$/.test(raw[name]||''));
-  need(raw.execution_date==='2026-11-05' && at.toISOString().slice(0,10)===raw.execution_date);
+  need(raw.execution_date==='2026-11-06' && at.toISOString().slice(0,10)===raw.execution_date);
   need(/^[a-f0-9]{64}$/.test(raw.data_approval_sha256||'') && raw.pilot!==null);
   exact(raw.pilot,['month','activationStart','opening']);need(raw.pilot.month==='2026-11' && raw.pilot.opening!==null);
   need(['nonpublish','conditional_publish'].includes(raw.output_fate));

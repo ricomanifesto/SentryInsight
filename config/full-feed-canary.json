@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "enabled": true,
-  "execution_date": "2026-11-05",
+  "enabled": false,
+  "execution_date": "2026-11-06",
   "source_role": "reviewed_canary_candidate",
   "production_main": "5fc68212f1a9772ab56872ad20ad94ccc8322f3e",
   "production_report_sha256": "698f2cb475a43e6c273900df1ea9ac38451bf9535e6a99c3663b9c411567bde9",
   "feed_sha256": "f3a601d5927c3e77668c840b9adaa08da3100f1d8e3c33f23123457e37cb0414",
-  "source_pack_sha256": "b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9",
+  "source_pack_sha256": "49249448a22817be7864e77413510cc72fbbb93f3aeaafd2a71dec8535b12407",
   "wire_sha256": "a260b0a92a35926c8201e80c9b44fd4edbeb84c00b05f600c1856de57a4ca440",
   "canonical_request_sha256": "93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649",
   "max_output_tokens": 32000,
@@ -21,7 +21,7 @@
     }
   },
   "billing_basis": "verified_openrouter_credit_only",
-  "data_approval_sha256": "807bc04bc3a6e4dad1f05a093bc4f6f80afeaa92840506e7858b1102d0a5207c",
-  "metadata_audience_approved": true,
+  "data_approval_sha256": null,
+  "metadata_audience_approved": false,
   "output_fate": "conditional_publish"
 }

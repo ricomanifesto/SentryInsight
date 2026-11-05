@@ -108,9 +108,9 @@ An unknown ACK is reconciled read-only, never dispatched again automatically.
 
 The intended source release is a normal fast-forward of the existing historical
 branch `canary/sentry-full-feed-20261105` and its draft PR191. Do not merge the
-temporary application/workflow branch into main. A separate local child must
-rederive November 6 date-dependent prompt/wire/source bindings and remain inert
-until exact approval. It is a fresh generation of the same fixed public
+temporary application/workflow branch into main. The separate November 6 scope re-derives the date-dependent source binding
+through the actual host and has an inert checkpoint plus an exact proposed
+activation delta for future approval. It is a fresh generation of the same fixed public
 30-source snapshot (25 eligible, five held), not a claim to newest news.
 
 The November pilot start/opening/marker and $20 cap remain unchanged. The old full
@@ -136,7 +136,7 @@ Both are proposals, not instructions to execute now. No source publication,
 readmission, request, account operation, scheduling or deployment occurred during
 this local preparation. Exact source/manifest/ref/date, public payload and metadata
 audience, retention, conditional output fate and normal CI/runner effects require
-the parent approval bundle.
+the explicit approval bundle.
 
 A conditional report-only main push must still be based on verified `5fc6821`.
 The checkout GITHUB_TOKEN push normally suppresses push workflows. Inspect actual

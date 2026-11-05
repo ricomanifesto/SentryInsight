@@ -57,10 +57,13 @@ node scripts/bootstrap_canary_ledger.cjs \
   --initialize-public-ledger
 ```
 
-The committed one-shot manifest binds November 5 UTC, the $20 November Sentry
-pilot, its approved prospective zero opening and public metadata audience. It does
-not establish that source publication or initialization has occurred. Execute only
-after the exact source/main release and manual dispatch have been confirmed.
+This section preserves the historical November 5 first-use route and its $20
+November Sentry pilot, prospective zero opening and public metadata audience.
+The ledger is already initialized. The separately prepared November 6 fixed-snapshot
+scope must reuse that same marker/opening and must NOT initialize again or choose
+a new namespace. Its only proposed operator step is the fixed NO-MODEL readmission
+described in [the recovery guide](../scripts/SENTRY_CANARY_HEADROOM.md).
+The initializer below is not a November 6 release instruction.
 The registered job enforces the fixed owner, ref, head, first attempt and nondebug
 context. The command additionally requires the exact manifest digest, current UTC
 date, clean checkout, fixed repository origin and production main at

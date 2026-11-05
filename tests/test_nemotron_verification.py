@@ -187,7 +187,7 @@ def test_live_context_requires_exact_first_manual_main_attempt(
         trial.require_live_context(commit, output)
 
 
-def test_canary_workflow_has_only_closed_manual_authority_and_exact_one_shot_approval():
+def test_canary_workflow_has_only_closed_manual_authority_and_inert_next_day_scope():
     path = Path(".github/workflows/verify-nemotron.yml")
     workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
     assert set(workflow["on"]) == {"workflow_dispatch"}
@@ -210,8 +210,8 @@ def test_canary_workflow_has_only_closed_manual_authority_and_exact_one_shot_app
     assert steps[-1]["with"]["retention-days"] == "7"
     assert steps[-1]["with"]["path"].endswith("sentry-canary-metadata.json")
     manifest = json.loads(Path("config/full-feed-canary.json").read_bytes())
-    assert manifest["enabled"] is True
-    assert manifest["execution_date"] == "2026-11-05"
+    assert manifest["enabled"] is False
+    assert manifest["execution_date"] == "2026-11-06"
     assert manifest["production_main"] == "5fc68212f1a9772ab56872ad20ad94ccc8322f3e"
     assert manifest["pilot"] == {
         "month": "2026-11",
@@ -221,11 +221,10 @@ def test_canary_workflow_has_only_closed_manual_authority_and_exact_one_shot_app
             "basisSha256": "f6f4a755142ca658dcc2d9abdf830a456515ffe51f51de9ee057b4862228f9c7",
         },
     }
-    assert manifest["metadata_audience_approved"] is True
+    assert manifest["metadata_audience_approved"] is False
     assert (
         manifest["billing_basis"] == "verified_openrouter_credit_only"
-        and manifest["data_approval_sha256"]
-        == "807bc04bc3a6e4dad1f05a093bc4f6f80afeaa92840506e7858b1102d0a5207c"
+        and manifest["data_approval_sha256"] is None
     )
     assert manifest["output_fate"] == "conditional_publish"
     assert (

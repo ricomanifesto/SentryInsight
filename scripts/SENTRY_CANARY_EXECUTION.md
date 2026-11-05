@@ -1,17 +1,19 @@
-# Closed Sentry full-feed canary — historical November 5 scope
+# Closed Sentry November 6 fixed-snapshot proposal
 
-The November 5 grant has been consumed. No additional send is authorized.
-The local [timing and fixed readmission preparation](SENTRY_CANARY_HEADROOM.md)
-preserves this manifest and all original request hashes; a fresh November 6
-scope is a separate approval-gated proposal.
+This scope is a fresh generation of the SAME frozen public 30-entry snapshot,
+not a claim of newest news. It requires a new exact approval and a fresh November 6
+UTC-day allocation. The November 5 grant was consumed without a report: its
+original token/day remain consumed and its entire $7.251456 hold stays counted.
+Neither this scope nor the fixed NO-MODEL readmission action classifies or refunds
+that old charge. Historical source, receipts and journal records are preserved.
 
-The committed manifest records the approved November 5 one-shot scope: the
-prospective November Sentry pilot, credit-only billing basis, exact public data,
-public operational-metadata audience and conditional output fate. Source changes
-alone do not initialize state or execute a request. Exact source/main/report/date,
-manual-context and durable ownership checks still precede provider-key access.
-This is separate from ordinary activation: selected application clients remain
-OFFLINE and mock-only, and recurring generation stays paused.
+The locally prepared scope has an inert checkpoint and a separately reviewable
+proposed activation delta. Source/manifest values are reviewable inputs, not an
+operator dispatch approval. The exact source/ref/date, initialized ledger,
+production-main/report fences and durable original permit must still pass before
+provider-key access. See [timing and readmission ownership](SENTRY_CANARY_HEADROOM.md).
+Ordinary selected application clients remain OFFLINE/mock-only; recurring
+report generation stays paused.
 
 The existing registered `verify-nemotron.yml` path is intentionally rewritten on
 the canary branch for this Sentry-only case.
@@ -43,7 +45,15 @@ The exact prepared JSON request body is 54,033 bytes: SHA256
 Its decoded canonical JSON SHA256 is
 `93de9d2adc4d7bbbaa12759a54291b750e9e8d47c22c75d3de1c14ad06a40649`.
 These hashes exclude HTTP headers and TLS framing. The source-pack SHA256 is
-`b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9`.
+`49249448a22817be7864e77413510cc72fbbb93f3aeaafd2a71dec8535b12407`.
+The old pack was `b74eb002a01d5676653ea06f4336e968f2fb012f3e78555b33ebaa5ce6808ce9`.
+Actual old/new captures prove the only pack changes are the legacy fetch parser
+`date` fallback, November 5 to November 6, when `dc_date` is absent. Original
+`published` fields, titles, URLs and source bodies are unchanged. The fallback
+is processing-day metadata, not publication evidence. The complete wire and
+canonical request hashes above were re-derived and are byte-identical; the
+prompt does not use that fallback field. This equality does not reuse the old
+grant: date, pack, revision/run, manifest and daily/physical ownership are fresh.
 The source review is 25 eligible/5 held; the cl100k estimate is 12,128 message
 tokens. That estimator is not a provider-token or billing guarantee.
 
@@ -56,19 +66,20 @@ HTTP, transport, accounting and permission uncertainty stops the operation.
 
 ## Persistent financial and physical ownership
 
-The job reuses the admission/daily/spending implementation over the fixed
-`publication-admission` Git CAS branch. Existing persisted financial history is
-not assumed. A separately approved [one-time initialization](../publication/INITIALIZED_ADMISSION.md)
-must precede the first paid run; the sender cannot create or re-seed this branch.
-Every paid read and CAS retry requires its stable first marker and hosting guard.
-Missing, unavailable, foreign or recreated unmarked state stops before a token or
-model-key access. The initialization marker grants no money, day or send allowance.
-The registered manual workflow has a separate `initialize_ledger=true` job using
-only checkout Git authority, without a model key or artifact. It is mutually
-exclusive with the default canary job. These are two separately approved manual
-dispatches, with acknowledged root/marker read-only verification between them;
-initialization never automatically starts inference. Its bounded stdout is kept
-in ordinary Actions logs, not the canary's seven-day artifact.
+The job reuses the admission/daily/spending implementation over the SAME fixed
+`publication-admission` Git CAS branch and already-established first marker.
+Every paid read and CAS retry requires that marker and its hosting guard.
+Missing, unavailable, foreign or recreated unmarked state stops before a token
+or model-key access. There is no initialization in this proposal: the historical
+November 5 initializer is preserved for provenance and must not be invoked again.
+
+A separate exact NO-MODEL manual action may append only the standard readmitted
+row for the original invocation, under its pinned full history/tip. It is mutually
+exclusive with the canary, receives no model secret and cannot change any money,
+request, token or day record. An unknown write stops for read-only reconciliation.
+The coordinator verifies the exact append and old prefix before a separately
+approved November 6 canary. No automatic readmission, retry or wallet is created.
+See the [fixed action contract](SENTRY_CANARY_HEADROOM.md).
 The fixed pilot begins November 5 with a $20 November UTC allocation and zero
 already-incurred spend within that new scope. Earlier separately authorized
 fictional tests are excluded, preserving their known/unknown costs and consumed
@@ -117,15 +128,16 @@ unknown, exits nonzero and never retries the metadata or ledger mutation. Saniti
 also enters ordinary Actions logs under repository-configured retention; there
 is no claim that logs share the seven-day artifact period.
 
-The reusable executor supports nonpublish with scratch deletion. This exact
-approved manifest selects **conditional_publish**: it rechecks main and both old
+The reusable executor supports nonpublish with scratch deletion. The proposed exact
+output fate is **conditional_publish**: it rechecks main and both old
 serving hashes, then makes
 one report-only fast-forward main commit from the exact validated scratch tree.
 No application source/workflow is merged. A failed/unknown push is never retried,
 rebased or rolled back automatically. A push using the checkout GITHUB_TOKEN normally does not trigger on:push
 workflows. The coordinator must separately run the already-existing manual Pages
-deployment under explicit approval, verify its actual checkout SHA, and verify
-Vercel through its existing publication route separately. This sender adds no
+deployment under explicit approval, verify its actual checkout SHA, and run the existing Publish Production manual `publish` with `source_sha`
+set to that same exact report commit, unless an actual matching deployment
+already ran. Verify both surfaces and their descriptors/receipts separately. This sender adds no
 actions:write permission, workflow dispatch or second credential. A pushed
 commit is not yet verified serving publication; the receipt retains that
 distinction. Public valid report/archive
