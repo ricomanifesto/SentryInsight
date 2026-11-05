@@ -231,6 +231,14 @@
       },
       "stage": "spend_finished",
       "token": "731c958325965e6d95086e07291b7c10"
+    },
+    {
+      "actualMicrousd": 64110,
+      "at": "2026-11-05T18:44:01.507Z",
+      "generationToken": "296fc461b0ec6c1b822c35a932fd2b79",
+      "outcome": "completed",
+      "releasedMicrousd": 7187346,
+      "stage": "spend_settled"
     }
   ],
   "schema_version": 1,
