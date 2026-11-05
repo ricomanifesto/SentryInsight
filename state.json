@@ -361,6 +361,12 @@
       "run_id": "42110361332",
       "stage": "skipped",
       "uncertain_key": "run:42104584634"
+    },
+    {
+      "admission_key": "run:42104584634",
+      "at": "2026-11-05T21:24:33.195Z",
+      "run_id": "42111802407",
+      "stage": "readmitted"
     }
   ],
   "schema_version": 1,
