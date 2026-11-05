@@ -134,7 +134,8 @@ def test_default_analysis_sends_expanded_output_allowance_to_same_model(monkeypa
         return httpx.Response(
             200,
             json={
-                "model": FREE_MODEL.removeprefix("openrouter/"),
+                # The provider echoes the configured production model.
+                "model": requests[-1]["model"],
                 "choices": [
                     {"finish_reason": "stop", "message": {"content": "Complete report"}}
                 ],
@@ -167,7 +168,7 @@ def test_default_analysis_sends_expanded_output_allowance_to_same_model(monkeypa
     assert result["exploitation_report"] == "Complete report"
     [request] = requests
     assert request["max_tokens"] == 32000
-    assert request["model"] == "nvidia/nemotron-3-ultra-550b-a55b:free"
+    assert request["model"] == "nvidia/nemotron-3.5-super-vl:free"
 
 
 @pytest.mark.parametrize(

@@ -77,7 +77,7 @@ For direct OpenRouter access:
 
 ```bash
 export OPENROUTER_API_KEY=...
-export SENTRYINSIGHT_MODEL=openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
+export SENTRYINSIGHT_MODEL=openrouter/nvidia/nemotron-3.5-super-vl:free
 uv run python main.py
 ```
 
@@ -85,7 +85,7 @@ The default model is set in `config/config.json`. `SENTRYINSIGHT_MODEL` override
 
 `analysis.max_input_tokens` caps the estimated analysis prompt at 200,000 tokens,
 leaving headroom for complete articles and scoped evidence in the default
-[Nemotron 3 Ultra free model's 1,000,000-token context](https://openrouter.ai/nvidia/nemotron-3-ultra-550b-a55b:free).
+[Nemotron 3.5 Super free model's 1,000,000-token context](https://openrouter.ai/nvidia/nemotron-3.5-super-vl:free).
 The estimate uses `cl100k_base`, so it is an application limit rather than an exact
 provider token count. When changing models, keep this cap plus `max_tokens`
 comfortably below the new model's context limit. Inputs over the cap fail without truncating source

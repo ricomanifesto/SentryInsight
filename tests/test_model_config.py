@@ -23,7 +23,7 @@ class ModelConfigTests(unittest.TestCase):
     def test_default_model_uses_free_openrouter_report_model(self):
         self.assertEqual(
             DEFAULT_MODEL,
-            "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
+            "openrouter/nvidia/nemotron-3.5-super-vl:free",
         )
 
     def test_resolves_model_from_config(self):

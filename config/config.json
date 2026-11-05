@@ -2,7 +2,7 @@
     "feed_url": "https://ricomanifesto.github.io/SentryDigest/feed.xml",
     "output_path": "index.md",
     "analysis": {
-        "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
+        "model": "openrouter/nvidia/nemotron-3.5-super-vl:free",
         "grounding": "advisory",
         "max_tokens": 32000,
         "max_input_tokens": 200000,
