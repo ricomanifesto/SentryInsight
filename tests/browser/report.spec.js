@@ -19,6 +19,29 @@ async function readReportMetadata(page) {
 }
 
 
+// The CVE hand-off applies to every rendered report. A news day can produce a
+// current report without CVEs, so use the newest rendered report that has a
+// CVE finding: the current report when it has one, otherwise the archive.
+async function cveHandoffTarget(page) {
+  await page.goto("/index.html");
+  const current = (await readReportMetadata(page)).findings.find(
+    (candidate) => candidate.cve_ids.length > 0,
+  );
+  if (current) return { path: "/index.html", finding: current };
+  const archive = await (await page.request.get("/reports/index.json")).json();
+  for (const entry of archive.reports) {
+    if (!entry.cve_count) continue;
+    const path = `/reports/${entry.html_path}`;
+    await page.goto(path);
+    const finding = (await readReportMetadata(page)).findings.find(
+      (candidate) => candidate.cve_ids.length > 0,
+    );
+    if (finding) return { path, finding };
+  }
+  return { path: null, finding: null };
+}
+
+
 function reportShape(metadata) {
   const findingLabel = metadata.finding_count === 1 ? "finding" : "findings";
   const cveLabel = metadata.complete_cve_count === 1 ? "CVE" : "CVEs";
@@ -179,14 +202,12 @@ test("uses independent accessible finding controls", async ({ page }) => {
 
 test("receives a CVE handoff at the matching finding and focuses its control", async ({ page }) => {
   const failures = collectPageFailures(page);
-  await page.goto("/index.html");
-  const metadata = await readReportMetadata(page);
-  const finding = metadata.findings.find((candidate) => candidate.cve_ids.length > 0);
+  const { path, finding } = await cveHandoffTarget(page);
   expect(finding).toBeTruthy();
   const cve = finding.cve_ids[0];
   const fragment = `#${cve.toLowerCase()}`;
 
-  await page.goto(`/index.html${fragment}`);
+  await page.goto(`${path}${fragment}`);
 
   const heading = page.locator(`h3#${finding.slug}`);
   const disclosure = heading.locator("button.finding-disclosure");
@@ -205,13 +226,11 @@ test("receives a CVE handoff at the matching finding and focuses its control", a
 test("lands a CVE handoff beside its finding without JavaScript", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
-  await page.goto("/index.html");
-  const metadata = await readReportMetadata(page);
-  const finding = metadata.findings.find((candidate) => candidate.cve_ids.length > 0);
+  const { path, finding } = await cveHandoffTarget(page);
   expect(finding).toBeTruthy();
   const cve = finding.cve_ids[0];
 
-  await page.goto(`/index.html#${cve.toLowerCase()}`);
+  await page.goto(`${path}#${cve.toLowerCase()}`);
 
   await expect(page).toHaveURL(new RegExp(`#${cve.toLowerCase()}$`, "i"));
   await expect(page.locator(`#${cve.toLowerCase()}`)).toHaveCount(1);
