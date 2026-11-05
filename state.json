@@ -351,6 +351,16 @@
       "run_id": "42110225698",
       "stage": "skipped",
       "uncertain_key": "run:42104584634"
+    },
+    {
+      "admission_key": "run:42110361332",
+      "at": "2026-11-05T21:17:12.063Z",
+      "decision": "uncertain",
+      "event": "workflow_dispatch",
+      "run_attempt": "1",
+      "run_id": "42110361332",
+      "stage": "skipped",
+      "uncertain_key": "run:42104584634"
     }
   ],
   "schema_version": 1,
