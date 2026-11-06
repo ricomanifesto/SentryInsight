@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -111,6 +112,34 @@ def test_site_builder_emits_one_handoff_target_for_a_cve_shared_by_findings(
 
     assert html.count('id="cve-2026-1234" class="cve-handoff-target"') == 1
     assert html.count('href="https://nvd.nist.gov/vuln/detail/CVE-2026-1234"') == 2
+
+
+@pytest.mark.parametrize(
+    "title", ["CVE-2026-1234", "cve-2026-1234", "CVE-2026-12345678"]
+)
+@pytest.mark.parametrize("later_finding", [False, True])
+def test_cve_only_headings_preserve_unique_handoff_and_navigation_targets(
+    tmp_path, title, later_finding
+):
+    original_title = (
+        "Vulnerability without an assigned CVE"
+        if later_finding
+        else "Example vulnerability (CVE-2026-1234)"
+    )
+    report = REPORT.replace(f"### {original_title}\n", f"### {title}\n")
+    artifact = parse_report_artifact(report)
+    finding = artifact.findings[int(later_finding)]
+    output_path = build_fixture(tmp_path, report)
+    page = (output_path / "index.html").read_text()
+
+    ids = re.findall(r'\bid="([^"]+)"', page)
+    assert len(ids) == len(set(ids))
+    assert page.count(f'id="{title.lower()}" class="cve-handoff-target"') == 1
+    assert finding.slug != title.lower()
+    assert page.count(f'id="{finding.slug}"') == 1
+    assert page.count(f'class="finding-link" href="#{finding.slug}"') == 2
+    assert f'aria-controls="{finding.slug}-details"' in page
+    assert page.count(f'id="{finding.slug}-details"') == 1
 
 
 def test_site_builder_renders_each_finding_classification_once_in_initial_html(

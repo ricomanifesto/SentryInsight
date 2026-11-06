@@ -120,6 +120,10 @@ def slugify(value: str) -> str:
     slug = normalize_heading_identity(value)
     if not slug:
         raise ReportArtifactError("Heading cannot produce an empty slug")
+    # Bare CVE fragments belong to the stable cross-site handoff targets.
+    # A model may use only a CVE as its finding title; keep that heading distinct.
+    if CVE_ID_PATTERN.fullmatch(slug):
+        return f"finding-{slug}"
     return slug
 
 

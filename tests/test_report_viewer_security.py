@@ -280,8 +280,10 @@ def test_report_has_clean_desktop_and_mobile_section_maps():
     assert "Critical Patch" not in page
     assert "▼" not in page
     # Section maps show the title without a suffix repeating its CVE chips.
-    first_title = html.escape(_display_title(artifact.findings[0]))
-    assert page.count(f">{first_title}</a>") == 2
+    for finding in artifact.findings:
+        title = html.escape(_display_title(finding))
+        link = f'<a class="finding-link" href="#{finding.slug}">{title}</a>'
+        assert page.count(link) == 2
 
 
 def test_styles_guard_mobile_overflow_focus_and_print_layouts():
