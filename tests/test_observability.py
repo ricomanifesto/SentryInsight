@@ -116,12 +116,12 @@ def test_grounding_failure_records_stage_and_code(capfire):
 
     assert result["status"] == "failed"
     assert result["failure"] == {
-        "stage": "source_review",
+        "stage": "reporting_identity",
         "codes": ["review_candidate_missing_findings"],
         "field": None,
     }
     attributes = spans_by_name(capfire)["sentryinsight.generate"]["attributes"]
-    assert attributes["failure.stage"] == "source_review"
+    assert attributes["failure.stage"] == "reporting_identity"
     assert attributes["failure.codes"] == ["review_candidate_missing_findings"]
     assert "failure.field" not in attributes
     assert attributes["analysis.outcome"] == "analyzed"

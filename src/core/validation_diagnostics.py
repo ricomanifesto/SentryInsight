@@ -4,7 +4,10 @@ from src.core.finding_evidence import EvidenceError
 from src.core.report_artifact import ReportArtifactError
 from src.core.report_validation import ReportValidationIssue
 from src.core.reporting import ReportingGroundingError
-from src.core.reviewed_report import ReviewedReportValidationError
+from src.core.reviewed_report import (
+    ReportingSelectionError,
+    ReviewedReportValidationError,
+)
 from src.core.source_review import SourceReviewError
 
 STAGES = frozenset(
@@ -46,6 +49,8 @@ SOURCE_CODES = frozenset("""
     quarantined_or_unknown_reporting_source review_candidate_missing_findings
     source_review_plan_mismatch source_review_plan_missing source_review_required
     source_review_fingerprint_mismatch
+    invalid_reporting_field_count invalid_reporting_source_syntax
+    unknown_reporting_source quarantined_reporting_source duplicate_reporting_source
     """.split())
 EVIDENCE_CODES = frozenset("""
     finding_evidence_rejected duplicate_version_reference
@@ -123,6 +128,11 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
             observed = _bounded_value(error.observed)
     elif isinstance(error, SourceReviewError):
         codes = [_known(error.code, SOURCE_CODES, UNKNOWN_CODE)]
+        if isinstance(error, ReportingSelectionError):
+            field = "Reporting"
+            index = error.finding_index
+            if type(index) is int and 0 <= index <= MAX_FINDING_INDEX:
+                finding_index = index
     elif isinstance(error, ReviewedReportValidationError):
         issues = error.issues
         if type(issues) is list and issues:

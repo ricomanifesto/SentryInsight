@@ -331,6 +331,8 @@ async def generate_report(
         stage = (
             "site_publication" if isinstance(exc, PublicationError) else "source_review"
         )
+        if isinstance(exc, SourceReviewError):
+            stage = validation_stage
         _record_failure(state, stage, [code])
         if isinstance(exc, SourceReviewError):
             state["failure_diagnostic"] = validation_diagnostic(validation_stage, exc)
