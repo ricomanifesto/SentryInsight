@@ -866,6 +866,12 @@
       "run_attempt": "1",
       "run_id": "42294460793",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:17c73c3f07cb280a203834b22bb39a9a477ad1d7",
+      "at": "2026-11-06T21:13:27.133Z",
+      "run_id": "42294460793",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
