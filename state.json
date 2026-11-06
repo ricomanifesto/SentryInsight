@@ -918,6 +918,12 @@
       "run_attempt": "1",
       "run_id": "42303201351",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "run:42303201351",
+      "at": "2026-11-06T22:18:51.641Z",
+      "run_id": "42303201351",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
