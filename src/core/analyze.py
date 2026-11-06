@@ -336,6 +336,7 @@ Generate a report following this EXACT structure with professional markdown form
 [For each relevant vulnerability, including uncertain or explicitly not observed exploitation, create a subsection:
 
 ### Vulnerability Name
+[Use a concise descriptive vulnerability name from the supplied evidence, including the product and flaw type when stated. Never use only CVE IDs as the heading. Keep the complete IDs in the CVE IDs field. Do not invent a flaw type or exploitation claim.]
 - **Description**: Detailed description of the vulnerability
 - **Impact**: What attackers can achieve
 - **Status**: Current exploitation status and patch availability

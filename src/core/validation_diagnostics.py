@@ -80,6 +80,7 @@ CONTENT_CODES = frozenset("""
     executive_summary_readability malformed_markdown missing_expected_cves
     missing_section noncanonical_section_heading removed_source_attribution
     underpopulated_threat_actor_activities virtual_event_promotion
+    missing_descriptive_finding_title
     """.split())
 MAX_ISSUES = 8
 MAX_FINDING_INDEX = 1_000_000

@@ -65,6 +65,11 @@ for (const [name, options] of Object.entries(viewports)) {
     await page.goto("/");
     const metadata = await readReportMetadata(page);
     await expect(page.locator("button.finding-disclosure")).toHaveCount(metadata.finding_count);
+    for (const title of await page.locator(".finding-title").all()) {
+      await expect(title).toBeVisible();
+      const name = (await title.innerText()).replace(/CVE-\d{4}-\d{4,}/gi, "");
+      expect(name).toMatch(/\p{L}/u);
+    }
     expect(await horizontalOverflow(page)).toBeLessThanOrEqual(1);
     await capture(page, testInfo, `current-${name}`);
 
@@ -130,5 +135,13 @@ test("an archived CVE anchor lands beside its finding", async ({ page, request }
   const finding = metadata.findings.find((candidate) => candidate.cve_ids.length > 0);
   await page.goto(`/reports/${archived.html_path}#${finding.cve_ids[0].toLowerCase()}`);
   await expect(page.locator(`#${finding.cve_ids[0].toLowerCase()}`)).toHaveCount(1);
+  await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport();
+  const disclosure = page.locator(`h3#${finding.slug} button.finding-disclosure`);
+  await disclosure.click();
+  await expect(disclosure).toHaveAttribute("aria-expanded", "false");
+  const oldFragment = `finding-${finding.cve_ids[0].toLowerCase()}`;
+  await page.evaluate((fragment) => { window.location.hash = fragment; }, oldFragment);
+  await expect(page.locator(`#${oldFragment}`)).toHaveCount(1);
+  await expect(disclosure).toHaveAttribute("aria-expanded", "true");
   await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport();
 });

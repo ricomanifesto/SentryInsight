@@ -59,6 +59,7 @@ def main() -> int:
     issues = validate_report_content(
         report_path.read_text(),
         expected_cves=args.expected_cve if args.expected_cve else None,
+        require_descriptive_titles=True,
     )
     if advisory_grounding(Path(args.config)):
         blocking = blocking_issues(issues)

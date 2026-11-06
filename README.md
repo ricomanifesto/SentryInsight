@@ -268,6 +268,15 @@ retaining the rejected key or raw answer. The prompt repeats the complete admitt
 key list after source evidence. Rejection preserves the last good report and
 archive; it does not trigger another model request.
 
+New report publication requires descriptive vulnerability headings rather than
+only CVE identifiers. Generation is instructed to name the product and flaw type
+only when supported by the supplied evidence. The generator and CLI publication
+gate both reject identifier-only headings, including under advisory grounding,
+with `missing_descriptive_finding_title`. Historical artifact parsing remains
+compatible; CVE handoff targets remain separate from descriptive heading links.
+Previously copied CVE-only heading links remain aliases that reveal the renamed
+finding, including when its details are collapsed.
+
 The production OpenRouter client applies the same zero-price/no-fallback policy
 for free routes and records the validated requested/resolved model identities in
 its metadata log. Its existing maximum of three transient-error attempts is

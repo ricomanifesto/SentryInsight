@@ -258,7 +258,9 @@ def resolve_reviewed_analysis(
             format_article_summary(article)
         )
     }
-    issues = validate_report_content(resolved, expected_cves=expected_cves)
+    issues = validate_report_content(
+        resolved, expected_cves=expected_cves, require_descriptive_titles=True
+    )
     if advisory:
         blocking = blocking_issues(issues)
         if len(blocking) < len(issues):

@@ -990,10 +990,37 @@ def has_underpopulated_threat_actor_activities(markdown: str) -> bool:
 def validate_report_content(
     markdown: str,
     expected_cves: Iterable[str] | None = None,
+    *,
+    require_descriptive_titles: bool = False,
 ) -> List[ReportValidationIssue]:
     """Return validation issues that should block publishing."""
     issues: List[ReportValidationIssue] = []
     content = markdown.strip()
+
+    if require_descriptive_titles:
+        tokens = MARKDOWN_PARSER.parse(content)
+        in_findings = False
+        for index, token in enumerate(tokens[:-1]):
+            if token.type != "heading_open" or token.level != 0:
+                continue
+            if token.tag in {"h1", "h2"}:
+                in_findings = (
+                    token.tag == "h2"
+                    and inline_token_plain_text(tokens[index + 1])
+                    == "Active Exploitation Details"
+                )
+            if not in_findings or token.tag != "h3":
+                continue
+            title = inline_token_plain_text(tokens[index + 1])
+            name = re.sub(r"\bCVE-\d{4}-\d{4,}\b", "", title, flags=re.IGNORECASE)
+            name = re.sub(r"\b(?:and|or|cves?)\b", "", name, flags=re.IGNORECASE)
+            if not any(character.isalpha() for character in name):
+                issues.append(
+                    ReportValidationIssue(
+                        code="missing_descriptive_finding_title",
+                        message="Finding heading must name the vulnerability, not only its CVE IDs.",
+                    )
+                )
 
     if not content:
         return [

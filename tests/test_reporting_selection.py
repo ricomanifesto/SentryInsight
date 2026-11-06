@@ -142,6 +142,8 @@ def test_prompt_ends_with_exact_admitted_source_contract(tmp_path):
     assert reporting_key(articles[1]["link"]) not in client.prompt
     assert "Affected versions:" not in client.prompt
     assert "plain keys" in client.prompt
+    assert "Never use only CVE IDs as the heading" in client.prompt
+    assert "Do not invent a flaw type or exploitation claim" in client.prompt
 
 
 def test_identity_failure_preserves_last_good_tree_and_reports_actual_stage(

@@ -142,6 +142,23 @@ def test_cve_only_headings_preserve_unique_handoff_and_navigation_targets(
     assert page.count(f'id="{finding.slug}-details"') == 1
 
 
+def test_descriptive_headings_keep_former_cve_only_bookmark_targets(tmp_path):
+    output = build_fixture(tmp_path)
+    page = (output / "index.html").read_text()
+    assert page.count('id="finding-cve-2026-1234"') == 1
+    assert page.count('id="finding-cve-2026-12345678"') == 1
+    ids = re.findall(r'\bid="([^"]+)"', page)
+    assert len(ids) == len(set(ids))
+
+
+def test_bookmark_alias_cannot_steal_a_section_heading_id(tmp_path):
+    report = REPORT + "\n## Finding CVE-2026-1234\n\nSupporting notes.\n"
+    output = build_fixture(tmp_path, report)
+    page = (output / "index.html").read_text()
+    assert page.count('id="finding-cve-2026-1234"') == 1
+    assert '<h2 id="finding-cve-2026-1234">' in page
+
+
 def test_site_builder_renders_each_finding_classification_once_in_initial_html(
     tmp_path,
 ):

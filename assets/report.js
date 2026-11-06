@@ -108,7 +108,7 @@
     let id;
     try { id = decodeURIComponent(window.location.hash.slice(1)); }
     catch { return; }
-    revealFinding(document.getElementById(id));
+    revealFinding(document.getElementById(id)?.closest("h3.finding-heading"));
   }
 
   function receiveCveHandoff(metadata) {

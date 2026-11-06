@@ -306,7 +306,9 @@ def _badge_legend_html() -> str:
     )
 
 
-def _finding_heading_html(finding: Finding, claimed_cves: set[str]) -> str:
+def _finding_heading_html(
+    finding: Finding, claimed_cves: set[str], heading_ids: set[str]
+) -> str:
     badges = "".join(
         (
             _badge("severity", finding.severity.value),
@@ -326,6 +328,14 @@ def _finding_heading_html(finding: Finding, claimed_cves: set[str]) -> str:
         f'<span id="{html.escape(cve.lower())}" class="cve-handoff-target" '
         'aria-hidden="true"></span>'
         for cve in handoff_cves
+    )
+    # Keep links copied while a report used CVE-only headings. Existing real
+    # headings own their IDs; shared CVEs get only one fallback alias.
+    cve_handoff_targets += "".join(
+        f'<span id="finding-{html.escape(cve.lower())}" class="cve-handoff-target" '
+        'aria-hidden="true"></span>'
+        for cve in handoff_cves
+        if f"finding-{cve.lower()}" not in heading_ids
     )
     title = html.escape(_display_title(finding))
     heading_id = html.escape(finding.slug)
@@ -399,6 +409,12 @@ def _enhance_finding_tokens(
     enhanced: list[Token] = []
     finding_body_open = False
     claimed_cves: set[str] = set()
+    heading_ids = {
+        heading_id
+        for token in tokens
+        if token.type == "heading_open"
+        and isinstance(heading_id := token.attrGet("id"), str)
+    }
     legend_emitted = False
     index = 0
     while index < len(tokens):
@@ -423,7 +439,9 @@ def _enhance_finding_tokens(
                 enhanced.extend(
                     (
                         token,
-                        _controlled_html(_finding_heading_html(finding, claimed_cves)),
+                        _controlled_html(
+                            _finding_heading_html(finding, claimed_cves, heading_ids)
+                        ),
                         tokens[index + 2],
                         _controlled_html(
                             f'<div id="{html.escape(finding.slug)}-details" '
