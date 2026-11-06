@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from src.core.report_artifact import parse_report_artifact
+from src.core.public_site import emitted_origin
 from scripts.build_site import _display_title
 
 REPORT = Path("index.md")
@@ -16,7 +17,7 @@ SITEMAP = Path("sitemap.xml")
 SITE_CSS = Path("assets/site.css")
 SITE_JS = Path("assets/report.js")
 DOMPURIFY_JS = Path("assets/vendor/dompurify.min.js")
-PUBLIC_SITE_URL = "https://ricomanifesto.github.io/SentryInsight/"
+PUBLIC_SITE_URL = emitted_origin("SentryInsight")
 PUBLIC_ARCHIVE_URL = f"{PUBLIC_SITE_URL}reports/"
 PUBLIC_DESCRIPTION = "Current exploitation intelligence for rapid defensive triage."
 
@@ -201,7 +202,11 @@ def test_report_exposes_method_maintainer_and_computed_shape_to_readers():
     assert f"{len(artifact.findings)} {finding_label}" in page
     assert f"{len(unique_cves)} {cve_label}" in page
     assert "AI-assisted" in page
-    assert f'href="{artifact.digest_issue_url}"' in page
+    digest_url = (
+        f"{emitted_origin('SentryDigest')}archive/"
+        f"{artifact.report_date.isoformat()}/"
+    )
+    assert f'href="{digest_url}"' in page
     assert page.count('class="finding-reporting"') == len(artifact.findings)
     reporting_count = sum(len(finding.reporting) for finding in artifact.findings)
     assert page.count('class="reporting-source"') == reporting_count
