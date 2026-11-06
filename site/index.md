@@ -15,7 +15,7 @@ Under the supplied evidence assessment, exploitation statuses for these findings
 
 ## Active Exploitation Details
 
-### CVE-2016-6210
+### OpenSSH username enumeration (CVE-2016-6210)
 - **Description**: A username enumeration weakness in OpenSSH introduced by a 2016 patch that changed how OpenSSH handles accounts without usable password hashes, causing password hashing to be performed even for accounts configured with an asterisk (*) to block password logins; this behavior is the root-cause condition behind the *sshole/SSHole authentication bypass on musl-based systems.
 - **Impact**: Enables identification of valid usernames and, in combination with musl crypt() behavior on oversized passwords, authentication to accounts that should block password logins.
 - **Status**: Historical flaw; remediated by OpenSSH 10.6p2 and distribution patches; patch available.
@@ -30,7 +30,7 @@ Under the supplied evidence assessment, exploitation statuses for these findings
 - **Recommended Actions**: The vulnerability has been fixed in OpenSSH 10.6p2, and Alpine Linux administrators are advised to update their OpenSSH packages using apk upgrade openssh.; Admins who can't immediately install the update can mitigate the issue by turning off SSH password authentication with PasswordAuthentication no in their SSH server configuration and restarting SSH.; Affected users are advised to install OpenSSH 10.6p2 or their distribution's patched package, and then restart sshd.
 - **Vendor Links**: https://sshhole.com/; https://www.openssh.org/releasenotes.html; https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/
 
-### CVE-2026-123158
+### SSHole OpenSSH authentication bypass (CVE-2026-123158)
 - **Description**: SSHole (or *sshole), an OpenSSH authentication bypass impacting Linux systems that run OpenSSH on the musl C library with PAM disabled, including Alpine Linux's default OpenSSH server configuration; an unauthenticated attacker supplies an oversized password to access accounts configured without usable passwords without stealing credentials or SSH keys.
 - **Impact**: Successful authentication to password-disabled accounts with the account's existing permissions; potential access to deployment credentials, application secrets, connected infrastructure, lateral movement, or service disruption.
 - **Status**: Patch available (OpenSSH 10.6p2 / distribution patched packages); exploitation status assessed as unknown per the supplied evidence.
@@ -45,7 +45,7 @@ Under the supplied evidence assessment, exploitation statuses for these findings
 - **Recommended Actions**: Affected users are advised to install OpenSSH 10.6p2 or their distribution's patched package, and then restart sshd.; Look in /var/log/messages for sshd lines reading Accepted password for an account that has no password (alpine, root, or any key-only user).; Review doas use and recently created users, files and authorized keys on exposed machines. If you cannot rule out a login, treat the machine as compromised.
 - **Vendor Links**: https://previdian.com/CVE-2026-123158; https://nvd.nist.gov/vuln/detail/cve-2026-123158; https://sshhole.com/; https://www.openssh.org/releasenotes.html; https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/
 
-### CVE-2026-83844
+### Microsoft Paint remote code execution (CVE-2026-83844)
 - **Description**: A remote code execution flaw in Windows Paint, an out-of-bounds read that could let an attacker run code over a network; Microsoft rates it Important with a CVSS score of 8.1, and a successful attack requires a deep understanding of the target system.
 - **Impact**: Remote code execution on the target system; no sign-in or user assistance required for the network-based attack.
 - **Status**: Fix available in Microsoft Store (build 11.2609.401.0); not delivered through Windows Update; flaw was not known to be exploited or publicly disclosed when published October 13; not in CISA KEV at time of reporting.
@@ -75,7 +75,7 @@ Under the supplied evidence assessment, exploitation statuses for these findings
 - **Recommended Actions**: QNAP advises users to update Plex Media Server to the latest version available through the QNAP App Center, currently 1.43.3.10861, to protect against Plex2Shell attacks.; Users who do not need to access Plex remotely should disable the related features and stop forwarding port 32400.; Those who need remote access are advised to connect via VPN.; Users should treat their NAS devices and all personal content as compromised if they're running a vulnerable Plex server that is exposed on the public web.; The recommended action is to check for the signs of compromise shared in the security bulletin, perform a clean reinstall of the OS (QTS or QuTS hero), and then reset Plex and NAS credentials.
 - **Vendor Links**: https://zmain.info/blog/plex2shell; https://www.qnap.com/en/security-news/2026/qnap-security-notice-plex-media-server-vulnerabilities-plex2shell-update-to-1-43-3-10861-or-later-immediately; https://www.qnap.com/en/how-to/faq/article/plex2shell-check-and-remediation-faq-for-qnap-nas-users
 
-### CVE-2026-111497
+### Brotli vulnerability (CVE-2026-111497)
 - **Description**: A critical vulnerability in Brotli (CVSS score: 9.2) discovered by OpenAI's GPT-6 Cyber model as part of security research; one of 81 previously unknown high-severity vulnerabilities found alongside Firefox issues and Linux kernel exploits.
 - **Impact**: Vulnerability in the Brotli library; specific exploit impact not detailed in the supplied source.
 - **Status**: Discovered via AI-assisted security research; no patch or fix information stated in the supplied source.
@@ -90,7 +90,7 @@ Under the supplied evidence assessment, exploitation statuses for these findings
 - **Recommended Actions**: Not stated in supplied sources.
 - **Vendor Links**: https://openai.com/index/introducing-gpt-6-cyber/
 
-### CVE-2026-116606
+### Barracuda Email Security Gateway authorization bypass (CVE-2026-116606)
 - **Description**: An authorization bypass in Barracuda's Email Security Gateway; an unauthenticated attacker can restore a crafted configuration backup and change the appliance's global settings; Mandiant rates it 9.3 out of 10.
 - **Impact**: Pre-authentication authorization bypass on the Email Security Gateway; when chained with CVE-2026-111560, enables remote command execution as root with no login required.
 - **Status**: Patch available; neither flaw appears in CISA's Known Exploited Vulnerabilities catalog as of this week; no public report ties either to an attack.
@@ -105,7 +105,7 @@ Under the supplied evidence assessment, exploitation statuses for these findings
 - **Recommended Actions**: Apply the patch for each affected product, or upgrade to the fixed firmware listed above.; If you cannot patch at once, limit the appliance's administration interface to trusted internal networks.; If you have turned automatic patching off, switch it back on.
 - **Vendor Links**: https://trust.barracuda.com/security/pre-authentication-authorization-bypass-command-injection; https://labs.watchtowr.com/barracuda-networks-is-your-new-best-friend-barracuda-email-security-gateway-pre-auth-remote-root-rce-cve-2026-116606-cve-2026-111560/
 
-### CVE-2026-111560
+### Barracuda command injection (CVE-2026-111560)
 - **Description**: A command injection flaw in Barracuda products; it runs commands as root but normally needs an administrator account; on the Email Security Gateway the authorization bypass (CVE-2026-116606) gives an attacker that access; Mandiant rates it 8.6 out of 10.
 - **Impact**: Remote command execution as root on the Email Security Gateway when chained with the authorization bypass; reaches five other products but still requires an administrator account on those.
 - **Status**: Patch available; neither flaw appears in CISA's Known Exploited Vulnerabilities catalog as of this week; no public report ties either to an attack.
@@ -120,7 +120,7 @@ Under the supplied evidence assessment, exploitation statuses for these findings
 - **Recommended Actions**: Apply the patch for each affected product, or upgrade to the fixed firmware listed above.; If you cannot patch at once, limit the appliance's administration interface to trusted internal networks.; If you have turned automatic patching off, switch it back on.
 - **Vendor Links**: https://trust.barracuda.com/security/pre-authentication-authorization-bypass-command-injection; https://labs.watchtowr.com/barracuda-networks-is-your-new-best-friend-barracuda-email-security-gateway-pre-auth-remote-root-rce-cve-2026-116606-cve-2026-111560/
 
-### CVE-2023-2868
+### Historical Barracuda Email Security Gateway flaw (CVE-2023-2868)
 - **Description**: A different Barracuda Email Security Gateway flaw exploited as a zero-day in 2023 by a group tracked as UNC4841; unrelated to the CVE-2026-116606/CVE-2026-111560 pair patched in 2026.
 - **Impact**: Historical zero-day exploitation of Barracuda Email Security Gateway by UNC4841 in 2023.
 - **Status**: Historical flaw; nothing ties the new patched pair to any attacker; unrelated to current flaws.
@@ -135,7 +135,7 @@ Under the supplied evidence assessment, exploitation statuses for these findings
 - **Recommended Actions**: Not stated in supplied sources.
 - **Vendor Links**: https://trust.barracuda.com/security/pre-authentication-authorization-bypass-command-injection
 
-### CVE-2026-98432
+### Linux kernel MPTCP remote code execution (CVE-2026-98432)
 - **Description**: A critical Linux kernel vulnerability in the IPv4 TCP networking code that allows remote unauthenticated attackers to execute commands as root on servers running Multipath TCP (MPTCP) listeners; disclosed by Veeam as affecting some Veeam components.
 - **Impact**: Remote unauthenticated command execution as root on servers running MPTCP listeners.
 - **Status**: Veeam has fixed the flaw for some impacted components and is pushing the patched kernel to affected systems as a private fix or through the Veeam Updater; exploitation status unknown.
