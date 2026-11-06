@@ -948,6 +948,14 @@
       "run_id": "42303201351",
       "stage": "request_finished",
       "token": "8086d2d48d13c0c2d03c88010b3c6810"
+    },
+    {
+      "admission_key": "run:42303201351",
+      "at": "2026-11-06T22:22:29.592Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "42303201351",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
