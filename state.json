@@ -849,6 +849,14 @@
       "run_id": "42269114309",
       "stage": "request_finished",
       "token": "baee04ad83ff43e4715c2504fd78d307"
+    },
+    {
+      "admission_key": "digest:b584958aea5f8801c06128f389b06c9c1c2a2730",
+      "at": "2026-11-06T18:22:52.383Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "42269114309",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
