@@ -789,6 +789,19 @@
       "run_id": "42240825148",
       "stage": "request_reserved",
       "token": "c1c3752c1bf8b8d422197bae2be4fc2f"
+    },
+    {
+      "admission_key": "digest:536be9ff33b0709dba16b962453b8bed998f6c81",
+      "at": "2026-11-06T15:20:06.237Z",
+      "attempt": 1,
+      "disposition": "response_received",
+      "limit": 3,
+      "request_sha256": "840dfbee0107e473f198e91c59f306389d2b333eeb5c554344a7884685c51541",
+      "retry_after": 0,
+      "revision": "eebe787f30fb337bc5557eedf17d51534485fd05",
+      "run_id": "42240825148",
+      "stage": "request_finished",
+      "token": "c1c3752c1bf8b8d422197bae2be4fc2f"
     }
   ],
   "schema_version": 1,
