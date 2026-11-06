@@ -857,6 +857,15 @@
       "outcome": "published",
       "run_id": "42269114309",
       "stage": "completed"
+    },
+    {
+      "admission_key": "digest:17c73c3f07cb280a203834b22bb39a9a477ad1d7",
+      "at": "2026-11-06T21:13:25.107Z",
+      "binding": "none",
+      "event": "repository_dispatch",
+      "run_attempt": "1",
+      "run_id": "42294460793",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
