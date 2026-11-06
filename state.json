@@ -500,6 +500,13 @@
       "run_id": "42137237091",
       "stage": "request_finished",
       "token": "4605a464496276c5538a9c0dde60933d"
+    },
+    {
+      "admission_key": "digest:f6fccd2dd1c55156a2fc56b10524f97fbcb54dde",
+      "at": "2026-11-06T00:37:45.842Z",
+      "outcome": "failed",
+      "run_id": "42137237091",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
