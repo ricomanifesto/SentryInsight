@@ -755,6 +755,14 @@
       "run_id": "42216501036",
       "stage": "request_finished",
       "token": "ea3ea2edda539e7f3b7ed31899198134"
+    },
+    {
+      "admission_key": "digest:33f9239d09773a14b5ae56be1bdf6835b454d05c",
+      "at": "2026-11-06T12:24:52.996Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "42216501036",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
