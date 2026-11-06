@@ -716,6 +716,15 @@
       "at": "2026-11-06T12:21:00.833Z",
       "run_id": "42216501036",
       "stage": "readmitted"
+    },
+    {
+      "admission_key": "digest:33f9239d09773a14b5ae56be1bdf6835b454d05c",
+      "at": "2026-11-06T12:21:02.817Z",
+      "binding": "none",
+      "event": "repository_dispatch",
+      "run_attempt": "1",
+      "run_id": "42216501036",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
