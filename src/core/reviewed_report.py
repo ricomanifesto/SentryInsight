@@ -16,6 +16,7 @@ from .reporting import (
     ACTIVE_SECTION_PATTERN,
     FINDING_PATTERN,
     REPORTING_FIELD_PATTERN,
+    REPORTING_KEY_PATTERN,
     ReportingGroundingError,
     ReportingSource,
     deserialize_reporting_catalog,
@@ -93,17 +94,72 @@ def analysis_review_plan(
     return plan
 
 
-def _candidate_reporting_keys(report: str) -> list[str]:
+class ReportingSelectionError(SourceReviewError):
+    """A categorical identity rejection with no source or candidate text."""
+
+    def __init__(self, code: str, finding_index: int):
+        super().__init__(code)
+        self.finding_index = finding_index
+
+
+def _prepare_reporting_selection(
+    report: str, plan: SourceReviewPlan
+) -> tuple[str, list[str]]:
+    """Canonicalize exact code-wrapped identities, then enforce admission.
+
+    Never infer an identity from URLs, labels, substrings or nearby evidence.
+    Every downstream validator receives the same canonical Reporting fields.
+    """
     section = ACTIVE_SECTION_PATTERN.search(report)
     if not section:
         raise SourceReviewError("review_candidate_missing_findings")
-    keys = set()
-    for finding in FINDING_PATTERN.finditer(section.group("section")):
-        for field in REPORTING_FIELD_PATTERN.finditer(finding.group("body")):
-            keys.update(key.strip() for key in field["value"].split(","))
-    if not keys:
+    cited: set[str] = set()
+    eligible = set(plan.eligible_keys)
+    finding_index = 0
+
+    def prepare(finding):
+        nonlocal finding_index
+        finding_index += 1
+        body = finding["body"]
+        fields = list(REPORTING_FIELD_PATTERN.finditer(body))
+
+        def reject(code):
+            raise ReportingSelectionError(code, finding_index)
+
+        if len(fields) != 1:
+            reject("invalid_reporting_field_count")
+        field = fields[0]
+        keys = []
+        for token in field["value"].split(","):
+            key = token.strip()
+            if key.startswith("`") and key.endswith("`"):
+                key = key[1:-1]
+            if not REPORTING_KEY_PATTERN.fullmatch(key):
+                reject("invalid_reporting_source_syntax")
+            if key not in plan.catalog:
+                reject("unknown_reporting_source")
+            if key not in eligible:
+                reject("quarantined_reporting_source")
+            if key in keys:
+                reject("duplicate_reporting_source")
+            keys.append(key)
+        cited.update(keys)
+        return (
+            finding["heading"]
+            + body[: field.start("value")]
+            + ", ".join(keys)
+            + body[field.end("value") :]
+        )
+
+    canonical = FINDING_PATTERN.sub(prepare, section["section"])
+    if not cited:
         raise SourceReviewError("review_candidate_missing_findings")
-    return sorted(keys)
+    return (
+        report[: section.start("section")]
+        + canonical
+        + report[section.end("section") :],
+        sorted(cited),
+    )
 
 
 def resolve_reviewed_analysis(
@@ -151,10 +207,7 @@ def resolve_reviewed_analysis(
     if not plan.eligible_keys:
         raise SourceReviewError("source_review_required")
     stage("reporting_identity")
-    prepared = prepare_generated_report(raw)
-    cited = _candidate_reporting_keys(prepared)
-    if not set(cited) <= set(plan.eligible_keys):
-        raise SourceReviewError("quarantined_or_unknown_reporting_source")
+    prepared, cited = _prepare_reporting_selection(prepare_generated_report(raw), plan)
     eligible_cves = {
         cve
         for row in plan.packet["sources"]

@@ -258,6 +258,16 @@ field/finding location when available. Unknown failures use fixed categories;
 exception messages and answer/source text are never included. This diagnostic
 does not change acceptance rules or reconstruct a previously discarded answer.
 
+Reporting identities are checked against the admitted source plan before factual
+validation. A single pair of inline-code backticks around an exact admitted key
+is normalized without changing its identity; URLs, labels, partial keys and
+unknown or quarantined sources are never substituted. Duplicate keys and missing
+or repeated Reporting fields reject the whole candidate. Identity diagnostics
+distinguish these categories and include the one-based finding number, without
+retaining the rejected key or raw answer. The prompt repeats the complete admitted
+key list after source evidence. Rejection preserves the last good report and
+archive; it does not trigger another model request.
+
 The production OpenRouter client applies the same zero-price/no-fallback policy
 for free routes and records the validated requested/resolved model identities in
 its metadata log. Its existing maximum of three transient-error attempts is
