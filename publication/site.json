@@ -6,17 +6,17 @@
     "SentryDigest": {
       "legacy": "https://ricomanifesto.github.io/SentryDigest/",
       "production": "https://sentrydigest.ricomanifesto.com/",
-      "emitted": "legacy"
+      "emitted": "production"
     },
     "SentryInsight": {
       "legacy": "https://ricomanifesto.github.io/SentryInsight/",
       "production": "https://sentryinsight.ricomanifesto.com/",
-      "emitted": "legacy"
+      "emitted": "production"
     },
     "GRCInsight": {
       "legacy": "https://ricomanifesto.github.io/GRCInsight/",
       "production": "https://grcinsight.ricomanifesto.com/",
-      "emitted": "legacy"
+      "emitted": "production"
     }
   },
   "publication": {

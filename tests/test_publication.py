@@ -407,3 +407,33 @@ def test_report_commits_carry_exact_recoverable_admission_trailers(tmp_path):
     )
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout) == [None, True, None, bound]
+
+
+def test_projection_rewrites_legacy_urls_preserving_paths_queries_and_fragments():
+    from src.core.public_site import rewrite_public_urls
+
+    for site, origin in PRODUCTION.items():
+        suffix = "archive/2026-08-13/?source=archive#reporting-example"
+        assert rewrite_public_urls(f"{PAGES}/{site}/{suffix}") == origin + suffix
+        assert rewrite_public_urls(origin + suffix) == origin + suffix
+    for unrelated in (
+        "https://ricomanifesto.github.io/EngineeringDigest/feed.xml",
+        "https://ricomanifesto.github.io/SentryDigestEvil/archive/",
+        "https://example.com/article#reporting-example",
+    ):
+        assert rewrite_public_urls(unrelated) == unrelated
+
+
+def test_generated_pages_relocate_links_without_changing_report_sources(tmp_path):
+    from scripts.build_site import build_site
+
+    report = tmp_path / "index.md"
+    report.write_text(CURRENT_REPORT)
+    before = report.read_bytes()
+    build_site(report_path=report, output_path=tmp_path, template_path=ROOT / "site")
+    html = (tmp_path / "index.html").read_text()
+    assert "ricomanifesto.github.io" not in html
+    assert 'href="https://sentrydigest.ricomanifesto.com/archive/' in html
+    assert report.read_bytes() == before
+    archive_html = (tmp_path / "reports" / "index.html").read_text()
+    assert 'href="https://sentryinsight.ricomanifesto.com/reports/"' in archive_html

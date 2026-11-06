@@ -39,3 +39,15 @@ def emitted_origin(site: str) -> str:
 def accepted_origins(site: str) -> tuple[str, ...]:
     entry = _origins()[site]
     return (entry["legacy"], entry["production"])
+
+
+def rewrite_public_urls(text: str) -> str:
+    """Project retained legacy links onto the configured serving origins.
+
+    Only the exact, configured URL roots are changed. Paths, query strings,
+    fragments, and the immutable source reports remain untouched.
+    """
+    for site in SITES:
+        entry = _origins()[site]
+        text = text.replace(entry["legacy"], emitted_origin(site))
+    return text

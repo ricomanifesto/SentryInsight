@@ -24,7 +24,9 @@ from scripts.build_static_artifact import CurrentBuild, read_current_build
 from scripts.package_pages import package_pages
 from scripts.serve_static_artifact import create_artifact_server
 
-PUBLIC_ROOT = "https://ricomanifesto.github.io/SentryInsight/"
+from src.core.public_site import emitted_origin
+
+PUBLIC_ROOT = emitted_origin("SentryInsight")
 STORE = os.environ.get("STATIC_ARTIFACT_STORE")
 SOURCE = os.environ.get("STATIC_ARTIFACT_SOURCE")
 CONTENT_TYPES = {

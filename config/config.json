@@ -1,5 +1,5 @@
 {
-    "feed_url": "https://ricomanifesto.github.io/SentryDigest/feed.xml",
+    "feed_url": "https://sentrydigest.ricomanifesto.com/feed.xml",
     "output_path": "index.md",
     "analysis": {
         "model": "openrouter/nvidia/nemotron-3.5-super-vl:free",

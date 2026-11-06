@@ -25,7 +25,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
-from src.core.public_site import emitted_origin
+from src.core.public_site import emitted_origin, rewrite_public_urls
 from src.core.report_artifact import (
     Finding,
     ReportArtifact,
@@ -607,7 +607,7 @@ def _template(path: Path, values: dict[str, str]) -> str:
     unresolved = re.findall(r"{{[A-Z0-9_]+}}", rendered)
     if unresolved:
         raise SiteBuildError(f"Unresolved template values: {', '.join(unresolved)}")
-    return rendered
+    return rewrite_public_urls(rendered)
 
 
 def _render_report_page(

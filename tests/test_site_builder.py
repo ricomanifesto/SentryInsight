@@ -197,7 +197,7 @@ def test_site_builder_renders_computed_report_shape_and_human_provenance(tmp_pat
     assert "2 findings · 2 CVEs" in html
     assert 'class="report-method"' in html
     assert "AI-assisted" in html
-    assert 'href="https://ricomanifesto.github.io/SentryDigest/"' in html
+    assert 'href="https://sentrydigest.ricomanifesto.com/"' in html
     assert 'href="https://ricomanifesto.com/"' in html
     assert "Verify NVD and vendor guidance before action." in html
     assert 'class="site-footer"' in html
@@ -211,7 +211,7 @@ def test_site_builder_publishes_a_minimal_current_finding_manifest(tmp_path):
         "schema_version": 1,
         "report_date": "2026-08-13",
         "generated_at": "2026-08-13T13:21:22Z",
-        "report_url": "https://ricomanifesto.github.io/SentryInsight/",
+        "report_url": "https://sentryinsight.ricomanifesto.com/",
         "finding_count": 2,
         "complete_cve_count": 2,
         "cve_ids": ["CVE-2026-1234", "CVE-2026-12345678"],
@@ -230,11 +230,11 @@ def test_site_builder_renders_input_grounded_reporting_and_dated_digest_handoffs
         'target="_blank" rel="noopener noreferrer"' in html
     )
     assert (
-        'href="https://ricomanifesto.github.io/SentryDigest/archive/2026-08-13/'
+        'href="https://sentrydigest.ricomanifesto.com/archive/2026-08-13/'
         '#reporting-cc16b55febdc">Digest context</a>' in html
     )
     assert (
-        'href="https://ricomanifesto.github.io/SentryDigest/archive/2026-08-13/">'
+        'href="https://sentrydigest.ricomanifesto.com/archive/2026-08-13/">'
         "Sentry Digest issue for this report date</a>" in html
     )
     assert "<strong>Reporting</strong>:" not in html
@@ -397,10 +397,10 @@ def test_second_rollover_accumulates_ordered_history_and_pluralizes(tmp_path):
     sitemap = ET.parse(output_path / "sitemap.xml")
     locations = [node.text for node in sitemap.findall("s:url/s:loc", namespace)]
     assert locations == [
-        "https://ricomanifesto.github.io/SentryInsight/",
-        "https://ricomanifesto.github.io/SentryInsight/reports/",
-        "https://ricomanifesto.github.io/SentryInsight/reports/2026-08-14.html",
-        "https://ricomanifesto.github.io/SentryInsight/reports/2026-08-13.html",
+        "https://sentryinsight.ricomanifesto.com/",
+        "https://sentryinsight.ricomanifesto.com/reports/",
+        "https://sentryinsight.ricomanifesto.com/reports/2026-08-14.html",
+        "https://sentryinsight.ricomanifesto.com/reports/2026-08-13.html",
     ]
 
 
