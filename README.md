@@ -97,6 +97,11 @@ with `model_output_limit_exceeded` before report validation, without an automati
 retry or replacing the published report. A complete response must still pass
 source-grounding and report validation before publication.
 
+Each OpenRouter response logs one `OpenRouter usage:` line with prompt, cached,
+completion and reasoning tokens, cost, request latency, the observed output
+rate and the fraction of `max_tokens` used. The same counts and latency are kept
+in the generation diagnostics receipt. No prompt or response text is logged.
+
 ### Optional article triage
 
 `analysis.triage` can ask a non-generative decision model
@@ -136,6 +141,28 @@ no extra model call. It never holds article titles, text, URLs or provider
 messages. The report workflow retains it with the seven-day generation
 diagnostics. Set `mode` back to `off` to roll back.
 
+`scripts/accumulate_triage.py` folds exported triage receipts offline into a
+ledger of counts and URL hashes keyed by unique article hash across runs;
+`legacy_full` runs add no decisions and re-folding a run is a no-op. It joins
+the ledger with the hashes of published Reporting links from `index.md` and
+`reports/` (receipts hash the raw feed link and reports publish its normalized
+form, so only canonical links match) and reports Hoeffding bounds on the
+would-drop rate and the cited-miss rate. Given a caller-supplied plan of
+tolerances, `delta` and checkpoints, it returns `continue`, `stop_sufficient`
+or `stop_violation` under a union bound that splits `delta` across the
+checkpoints and both rates; without a plan it reports half-widths only. With
+`--ledger`, the plan and each checkpoint's observation are stored when first
+reached, so later updates cannot change the plan or re-evaluate a reached
+checkpoint. It reads no configuration and makes no network or model calls.
+
+`scripts/compare_paired_outcomes.py` compares report validity between two arms
+run on the same frozen feeds, such as triage off and enabled. The arms share
+their inputs, so marginal validity rates are not independent samples. It
+counts the feeds whose outcome changed between arms, applies the exact
+two-sided sign test to those discordant pairs, and tallies failure codes per
+arm. It reports `no_evidence_of_difference` unless the test clears `--alpha`.
+It prints counts and codes only.
+
 To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset. Start the server in one terminal:
 
 ```bash
@@ -165,6 +192,12 @@ bash scripts/local_validation.sh
 ```
 
 The script installs locked Python and Node dependencies, runs linting, formatting, type checks, and tests, verifies the report and packaged Pages files, and exercises the current and archived pages in Chromium. Browser checks cover accessibility, responsive layouts, stable CVE links, and light and dark themes.
+
+Report generation reuses this gate's result instead of repeating it: when Validate
+has already succeeded for a push of the exact checked-out `main` commit, the
+generation run only checks the committed report and site. A missing, pending or
+failed Validate run, or any lookup error, runs the full gate. After generation,
+the new report is packaged again before its browser checks and screenshots.
 
 ## Report Evaluations
 

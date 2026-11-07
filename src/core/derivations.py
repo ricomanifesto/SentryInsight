@@ -1,14 +1,15 @@
 """Run-scoped memoization of pure source derivations.
 
-Detail context, version scopes and span partitions are pure functions of the
-retained source content. One run re-derives them for the same catalog many
-times: source review at filter, analysis and generation time, the eligible
-subset check, and once per finding during publication validation. Within one
-derivation scope each result is computed once per exact input and reused.
+Detail context and version scopes are pure functions of the retained source
+content. One run re-derives them for the same catalog many times: source
+review at filter, analysis and generation time, the eligible subset check, and
+once per finding during publication validation. Within one derivation scope
+each result is computed once per exact input and reused. Per-source span
+partitions and sentence indexes return immutable values and use a bounded
+process-wide cache in ``finding_evidence`` instead.
 
 Keys are the complete inputs (frozen ``ReportingSource`` values in catalog
-order, or the exact content string and CVE tuple), so a changed byte, order or
-field is a different key. Nothing is cached outside an active scope, results
+order), so a changed byte, order or field is a different key. Nothing is cached outside an active scope, results
 never outlive the outermost scope, and a derivation that raises is not cached.
 Callers receive values that cannot alias the cached copy.
 """

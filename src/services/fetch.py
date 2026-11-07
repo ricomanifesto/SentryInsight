@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import List, Dict, Any
 import httpx
@@ -12,6 +13,9 @@ from ..core.article_policy import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Article pages come from a few publisher hosts; stay browser-polite.
+ARTICLE_FETCH_CONCURRENCY = 6
 
 
 class SentryDigestFeedClient:
@@ -91,6 +95,10 @@ class SentryDigestFeedClient:
         """
         Enrich articles with full content
 
+        Article pages are fetched concurrently (bounded by
+        ``ARTICLE_FETCH_CONCURRENCY``) over one pooled client; results keep the
+        input order and each article keeps its own feed-content fallback.
+
         Args:
             articles: List of article dictionaries
 
@@ -99,66 +107,92 @@ class SentryDigestFeedClient:
         """
         logger.info(f"Enriching {len(articles)} articles with content")
 
-        # List to store enriched articles
-        enriched_articles = []
-
-        # Process each article
-        for article in articles:
-            if is_virtual_event_promotion(article):
-                continue
-            logger.info(f"Enriching article: {article.get('title', '')}")
-
-            # Skip if the article already has content
-            if article.get("content_kind") == "article" and article.get("content"):
-                enriched_articles.append(article)
-                continue
-
-            # Keep the complete feed body if static article retrieval fails.
-            full_content = normalize_feed_content(article.get("content"))
-            if not full_content:
-                full_content = "# " + article.get("title", "") + "\n"
-
-            # Add summary if available
-            if not article.get("content") and article.get("summary"):
-                full_content += normalize_feed_content(article["summary"]) + "\n"
-
-            article["content_kind"] = "feed"
-            article["source_links"] = []
-            article_link = article.get("link", "")
-            if not article_link:
-                article["content"] = full_content
-                enriched_articles.append(article)
-                continue
-
-            # Use async fetch for full article content
-            try:
-                timeout = httpx.Timeout(10.0, connect=5.0)
-                async with httpx.AsyncClient(
-                    timeout=timeout, follow_redirects=True
-                ) as client:
-                    logger.info(f"Fetching full content for: {article_link}")
-                    response = await client.get(article_link)
-
-                    if response.status_code == 200:
-                        extracted = extract_article_content(response.text, article_link)
-                        article["content"] = extracted.text or full_content
-                        article["content_kind"] = (
-                            "article" if extracted.text else "feed"
-                        )
-                        article["source_links"] = list(extracted.links)
-                    else:
-                        # Use what we have if we can't fetch the full article
-                        logger.warning(
-                            f"Could not fetch full content: {response.status_code}"
-                        )
-                        article["content"] = full_content
-            except Exception as e:
-                logger.warning(f"Error fetching full content: {e}")
-                # Fall back to summary if error occurs
-                article["content"] = full_content
-
-            if not is_virtual_event_promotion(article):
-                enriched_articles.append(article)
+        prepared = [self._prepare_article(article) for article in articles]
+        pending = [
+            (article, fallback)
+            for article, fallback in prepared
+            if article is not None and fallback is not None
+        ]
+        dropped: set[int] = set()
+        # Open a client only when some article still needs its page.
+        if pending:
+            semaphore = asyncio.Semaphore(ARTICLE_FETCH_CONCURRENCY)
+            timeout = httpx.Timeout(10.0, connect=5.0)
+            async with httpx.AsyncClient(
+                timeout=timeout, follow_redirects=True
+            ) as client:
+                kept = await asyncio.gather(
+                    *(
+                        self._fetch_article(client, semaphore, article, fallback)
+                        for article, fallback in pending
+                    )
+                )
+            dropped = {
+                id(article) for (article, _), keep in zip(pending, kept) if not keep
+            }
+        enriched_articles = [
+            article
+            for article, _ in prepared
+            if article is not None and id(article) not in dropped
+        ]
 
         logger.info(f"Enriched {len(enriched_articles)} articles with content")
         return enriched_articles
+
+    def _prepare_article(
+        self, article: Dict[str, Any]
+    ) -> tuple[Dict[str, Any] | None, str | None]:
+        """Return the article (None if excluded) and its fallback when it needs a fetch."""
+        if is_virtual_event_promotion(article):
+            return None, None
+        logger.info(f"Enriching article: {article.get('title', '')}")
+
+        # Skip if the article already has content
+        if article.get("content_kind") == "article" and article.get("content"):
+            return article, None
+
+        # Keep the complete feed body if static article retrieval fails.
+        full_content = normalize_feed_content(article.get("content"))
+        if not full_content:
+            full_content = "# " + article.get("title", "") + "\n"
+
+        # Add summary if available
+        if not article.get("content") and article.get("summary"):
+            full_content += normalize_feed_content(article["summary"]) + "\n"
+
+        article["content_kind"] = "feed"
+        article["source_links"] = []
+        if not article.get("link", ""):
+            article["content"] = full_content
+            return article, None
+        return article, full_content
+
+    async def _fetch_article(
+        self,
+        client: Any,
+        semaphore: asyncio.Semaphore,
+        article: Dict[str, Any],
+        full_content: str,
+    ) -> bool:
+        """Fill article-owned content in place; False if it is now excluded."""
+        article_link = article["link"]
+        try:
+            async with semaphore:
+                logger.info(f"Fetching full content for: {article_link}")
+                response = await client.get(article_link)
+
+            if response.status_code == 200:
+                extracted = extract_article_content(response.text, article_link)
+                article["content"] = extracted.text or full_content
+                article["content_kind"] = "article" if extracted.text else "feed"
+                article["source_links"] = list(extracted.links)
+            else:
+                # Use what we have if we can't fetch the full article
+                logger.warning(f"Could not fetch full content: {response.status_code}")
+                article["content"] = full_content
+        except Exception as e:
+            logger.warning(f"Error fetching full content: {e}")
+            # Fall back to summary if error occurs
+            article["content"] = full_content
+
+        return not is_virtual_event_promotion(article)

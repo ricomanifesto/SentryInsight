@@ -54,3 +54,28 @@ import src.services.fetch
     )
 
     assert result.returncode == 0, result.stderr
+
+
+def test_offline_triage_accumulator_imports_do_not_load_tokenizer_data():
+    script = """
+import tiktoken
+
+
+def refuse(*_args, **_kwargs):
+    raise SystemExit("importing the accumulator loaded tokenizer data")
+
+
+tiktoken.get_encoding = refuse
+
+import scripts.accumulate_triage
+import src.core.triage_accumulator
+"""
+
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
