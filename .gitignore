@@ -20,6 +20,7 @@ __pycache__/
 .sentryinsight-review/
 .sentryinsight-review-outcome.json
 .sentryinsight-failure.json
+.sentryinsight-triage.json
 .sentryinsight-publication/
 .sentryinsight-publication-complete/
 

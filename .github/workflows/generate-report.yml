@@ -98,8 +98,12 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           # A free route has zero-price ceilings and no paid fallback, so an
-          # earlier failed or interrupted free generation leaves no spend to
-          # reconcile. Readmission still recovers a report that run pushed.
+          # earlier failed or interrupted free generation leaves no generation
+          # spend to reconcile. Readmission still recovers a report that run
+          # pushed. Optional article triage (analysis.triage.mode shadow or
+          # enabled) makes separate paid decision calls of a few cents at most;
+          # each run records that spend, or a missing usage receipt, in its
+          # triage receipt, and readmission does not reconcile it.
           case "$GENERATION_MODEL" in *:free) READMIT=true ;; esac
           node publication/cli.js admit --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH" \
             --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --readmit "$READMIT"
@@ -129,6 +133,7 @@ jobs:
           SENTRYINSIGHT_ATTEMPT_STORE: admission
           SENTRYINSIGHT_ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           SENTRYINSIGHT_FAILURE_RECEIPT: ${{ runner.temp }}/sentryinsight-failure.json
+          SENTRYINSIGHT_TRIAGE_RECEIPT: ${{ runner.temp }}/sentryinsight-triage.json
           SENTRYINSIGHT_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3.5-super-vl:free' }}
           # Pass VT Intelligence API key under multiple common env names
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
@@ -147,14 +152,18 @@ jobs:
         run: |
           .venv/bin/python -B scripts/export_failure_receipt.py \
             --source "$RUNNER_TEMP/sentryinsight-failure.json" \
-            --output "$RUNNER_TEMP/failure-diagnostics/outcome.json"
+            --output "$RUNNER_TEMP/failure-diagnostics/outcome.json" \
+            --triage-source "$RUNNER_TEMP/sentryinsight-triage.json" \
+            --triage-output "$RUNNER_TEMP/failure-diagnostics/triage.json"
 
       - name: Retain bounded generation diagnostics for seven days
         if: always() && steps.failure-receipt.outcome == 'success'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: generation-diagnostics-${{ github.run_id }}
-          path: ${{ runner.temp }}/failure-diagnostics/outcome.json
+          path: |
+            ${{ runner.temp }}/failure-diagnostics/outcome.json
+            ${{ runner.temp }}/failure-diagnostics/triage.json
           retention-days: 7
           if-no-files-found: error
 

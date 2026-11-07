@@ -97,6 +97,45 @@ with `model_output_limit_exceeded` before report validation, without an automati
 retry or replacing the published report. A complete response must still pass
 source-grounding and report validation before publication.
 
+### Optional article triage
+
+`analysis.triage` can ask a non-generative decision model
+(`typesafe/jev-1.13` through OpenRouter's decisions endpoint) whether each
+article discusses a specific vulnerability's exploitation state before source
+review. The default `mode` is `off`: no decision client is constructed, no
+triage receipt is written and generation is unchanged.
+
+| Mode | Behavior |
+| --- | --- |
+| `off` | No decision call. Every eligible article enters source review, as before. |
+| `shadow` | Decide and record per article; keep every article. Records are counterfactual selections. |
+| `enabled` | Drop only articles confidently labeled `not_exploitation`; keep everything else. |
+
+The rubric selects on whether a specific vulnerability's exploitation state is
+discussed, including explicit denial, never on whether it is exploited. Each
+question reads the title, the first 1,500 characters of article text and the
+CVE identifiers found anywhere in the article. A complete valid result keeps
+every `insufficient_evidence` decision and every decision whose chosen label is
+below `min_probability` (default 0.95), including when every article is
+uncertain. Any configuration, key, timeout, transport, limit or response
+failure keeps the complete article set (`legacy_full`) and never fails the run.
+Decision calls are bounded (12 articles and 24,000 bytes per request, three in
+flight, 128 KiB response cap, `timeout_seconds` default 8, no retries) and do
+not consume the report request's attempt budget. Because triage runs before
+source review, the review packet, plan identity and unchanged-feed skip
+describe the triaged set.
+
+Shadow and enabled modes make paid decision calls even when the report route is
+free. Each run writes a triage receipt to `SENTRYINSIGHT_TRIAGE_RECEIPT`
+(default `.sentryinsight-triage.json`) and logs it. The receipt holds
+positions, URL SHA-256 hashes, raw labels, probabilities, confidence and
+dispositions, plus provider-reported input tokens and cost, which stay `null`
+when the provider omits them. It also records the estimated prompt tokens for
+the full and the triaged set, so shadow runs measure the prompt reduction with
+no extra model call. It never holds article titles, text, URLs or provider
+messages. The report workflow retains it with the seven-day generation
+diagnostics. Set `mode` back to `off` to roll back.
+
 To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset. Start the server in one terminal:
 
 ```bash
@@ -113,7 +152,7 @@ Set `OPENCODE_BASE_URL` if the server is not listening on `http://127.0.0.1:4096
 
 Report generation fetches live feeds and calls the configured model service. Local validation does neither.
 
-Set `LOGFIRE_TOKEN` to send a trace of each generation run to [Pydantic Logfire](https://logfire.pydantic.dev/docs/). The trace has one span per workflow stage, with counts, outcomes and failure codes. Without the token nothing is exported. Spans never include article text or titles, prompts, model output or validation messages, and recorded exceptions keep only their type. In GitHub Actions the run span also records the workflow run ID, attempt and triggering event, the commit is reported as the service version, and a failed model call records a fixed error class with its HTTP status, provider code and attempt count. The report workflow reads the optional `LOGFIRE_TOKEN` repository secret in the generation step only.
+Set `LOGFIRE_TOKEN` to send a trace of each generation run to [Pydantic Logfire](https://logfire.pydantic.dev/docs/). The trace has one span per workflow stage, with counts, outcomes and failure codes. Without the token nothing is exported. Spans never include article text or titles, prompts, model output or validation messages, and recorded exceptions keep only their type. In GitHub Actions the run span also records the workflow run ID, attempt and triggering event, the commit is reported as the service version, and a failed model call records a fixed error class with its HTTP status, provider code and attempt count. When article triage is in shadow or enabled mode, the filter and later spans also record its mode, status, fallback reason, article and disposition counts, decision input tokens and cost, and both prompt-token estimates. The report workflow reads the optional `LOGFIRE_TOKEN` repository secret in the generation step only.
 
 ## Validation
 

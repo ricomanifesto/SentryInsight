@@ -6,6 +6,11 @@
         "grounding": "advisory",
         "max_tokens": 32000,
         "max_input_tokens": 200000,
+        "triage": {
+            "mode": "off",
+            "min_probability": 0.95,
+            "timeout_seconds": 8
+        },
         "temperature": 1,
         "analysis_focus": [
             "zero-day vulnerabilities",

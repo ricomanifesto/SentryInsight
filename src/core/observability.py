@@ -126,12 +126,50 @@ def state_attributes(state: Mapping[str, Any]) -> dict[str, Any]:
             # Integers only: booleans and strings are never recorded.
             if type(detail.get(field)) is int:
                 attributes[f"model.{field}"] = detail[field]
+    attributes.update(triage_attributes(state.get("triage")))
     failure = state.get("failure")
     if failure:
         attributes["failure.stage"] = failure["stage"]
         attributes["failure.codes"] = list(failure["codes"])
         if failure.get("field"):
             attributes["failure.field"] = failure["field"]
+    return attributes
+
+
+TRIAGE_LABEL_FIELDS = ("mode", "status", "reason", "policy_version")
+TRIAGE_COUNT_FIELDS = (
+    "article_count",
+    "kept_count",
+    "would_drop_count",
+    "input_tokens",
+    "usage_missing",
+    "elapsed_ms",
+    "prompt_tokens_full",
+    "prompt_tokens_triaged",
+)
+_TRIAGE_LABEL = re.compile(r"[a-z0-9_.-]{1,40}")
+
+
+def triage_attributes(summary: Any) -> dict[str, Any]:
+    """Bounded triage counts and codes; never article identity or text."""
+    if not isinstance(summary, Mapping):
+        return {}
+    attributes: dict[str, Any] = {}
+    for name in TRIAGE_LABEL_FIELDS:
+        value = summary.get(name)
+        if isinstance(value, str) and _TRIAGE_LABEL.fullmatch(value):
+            attributes[f"triage.{name}"] = value
+    for name in TRIAGE_COUNT_FIELDS:
+        if type(value := summary.get(name)) is int:
+            attributes[f"triage.{name}"] = value
+    dispositions = summary.get("dispositions")
+    if isinstance(dispositions, Mapping):
+        for name in ("uncertain_kept", "insufficient_evidence_kept", "legacy_full"):
+            if type(value := dispositions.get(name)) is int:
+                attributes[f"triage.{name}"] = value
+    cost = summary.get("cost")
+    if type(cost) is float and cost >= 0:
+        attributes["triage.cost"] = cost
     return attributes
 
 

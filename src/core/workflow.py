@@ -14,6 +14,7 @@ from .analyze import filter_exploitation_articles, analyze_exploitation
 from .article_policy import (
     exclude_virtual_event_promotions,
 )
+from .exploitation_triage import run_triage
 from .report_validation import (
     format_report_validation_issues,
 )
@@ -91,6 +92,7 @@ class ExploitationAnalysisState(TypedDict):
     report_generated: NotRequired[bool]
     source_review_count: NotRequired[int]
     grounding_advisories: NotRequired[list[dict]]
+    triage: NotRequired[dict]
 
 
 def _advisory_grounding(config: Mapping[str, Any]) -> bool:
@@ -176,6 +178,14 @@ async def filter_articles(
     articles = exclude_virtual_event_promotions(state["articles"])
     state["articles"] = articles
     filtered = exclude_virtual_event_promotions(filter_exploitation_articles(articles))
+    # Optional decision-model triage runs before source review, so the review
+    # packet, plan_id and unchanged-skip fingerprint describe the triaged set.
+    # Off mode returns the input unchanged and constructs no client.
+    filtered, triage_summary = await run_triage(filtered, state["config"])
+    if triage_summary is not None:
+        state["triage"] = triage_summary
+        if triage_summary["mode"] == "enabled" and articles and not filtered:
+            logger.warning("Article triage kept no articles; analysis is skipped")
 
     state["filtered_articles"] = filtered
 
