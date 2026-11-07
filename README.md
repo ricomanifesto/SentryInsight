@@ -97,6 +97,11 @@ with `model_output_limit_exceeded` before report validation, without an automati
 retry or replacing the published report. A complete response must still pass
 source-grounding and report validation before publication.
 
+Each OpenRouter response logs one `OpenRouter usage:` line with prompt, cached,
+completion and reasoning tokens, cost, request latency, the observed output
+rate and the fraction of `max_tokens` used. The same counts and latency are kept
+in the generation diagnostics receipt. No prompt or response text is logged.
+
 ### Optional article triage
 
 `analysis.triage` can ask a non-generative decision model
@@ -179,6 +184,12 @@ bash scripts/local_validation.sh
 ```
 
 The script installs locked Python and Node dependencies, runs linting, formatting, type checks, and tests, verifies the report and packaged Pages files, and exercises the current and archived pages in Chromium. Browser checks cover accessibility, responsive layouts, stable CVE links, and light and dark themes.
+
+Report generation reuses this gate's result instead of repeating it: when Validate
+has already succeeded for a push of the exact checked-out `main` commit, the
+generation run only checks the committed report and site. A missing, pending or
+failed Validate run, or any lookup error, runs the full gate. After generation,
+the new report is packaged again before its browser checks and screenshots.
 
 ## Report Evaluations
 

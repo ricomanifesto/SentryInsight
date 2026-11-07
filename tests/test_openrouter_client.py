@@ -549,3 +549,52 @@ def test_ambiguous_provider_completion_is_not_replayed(response, no_retry_wait):
         asyncio.run(generate())
     assert len(requests) == 1
     no_retry_wait.assert_not_awaited()
+
+
+def test_usage_records_reasoning_tokens_latency_and_cap_headroom_without_text(caplog):
+    client = OpenRouterClient(
+        api_key="secret-key",
+        max_tokens=32000,
+        transport=httpx.MockTransport(
+            lambda _request: httpx.Response(
+                200,
+                json={
+                    "model": FREE_MODEL.removeprefix("openrouter/"),
+                    "choices": [{"message": {"content": "private report body"}}],
+                    "usage": {
+                        "prompt_tokens": 62963,
+                        "completion_tokens": 30000,
+                        "total_tokens": 92963,
+                        "cost": 0,
+                        "completion_tokens_details": {"reasoning_tokens": 4000},
+                        "prompt_tokens_details": {"cached_tokens": "invalid"},
+                    },
+                },
+            )
+        ),
+    )
+
+    with caplog.at_level("INFO", logger="src.core.openrouter_client"):
+        asyncio.run(
+            client.generate(
+                system_prompt="private system prompt",
+                user_prompt="private article contents",
+                model=parse_model_selection(FREE_MODEL),
+            )
+        )
+
+    assert client.last_request["usage"] == {
+        "prompt_tokens": 62963,
+        "completion_tokens": 30000,
+        "reasoning_tokens": 4000,
+        "total_tokens": 92963,
+        "cost": 0,
+    }
+    elapsed = client.last_request["elapsed_seconds"]
+    assert type(elapsed) is float and elapsed >= 0
+    [line] = [r.getMessage() for r in caplog.records if "OpenRouter usage" in r.message]
+    summary = json.loads(line.split(": ", 1)[1])
+    assert summary["reasoning_tokens"] == 4000
+    assert summary["cached_tokens"] is None
+    assert summary["max_tokens_used_fraction"] == 0.938
+    assert "private" not in caplog.text and "secret-key" not in caplog.text

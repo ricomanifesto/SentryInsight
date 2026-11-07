@@ -469,3 +469,34 @@ def test_actual_workflow_failures_keep_fixed_reasons(
         assert receipt["retry"]["action"] == "recover_publication"
     assert last_good.read_text() == original
     assert "private-filesystem-marker" not in str(receipt)
+
+
+def test_receipt_keeps_bounded_token_breakdown_and_latency():
+    from src.core.failure_receipt import sanitize_request
+
+    request = {
+        **request_state(),
+        "usage": {
+            "prompt_tokens": 62963,
+            "cached_tokens": 0,
+            "completion_tokens": 30000,
+            "reasoning_tokens": 4000,
+            "cost": 0,
+            "content": "private text",
+        },
+        "elapsed_seconds": 161.7,
+    }
+    sanitized = sanitize_request(request)
+    assert sanitized["usage"] == {
+        "prompt_tokens": 62963,
+        "cached_tokens": 0,
+        "completion_tokens": 30000,
+        "reasoning_tokens": 4000,
+        "cost": 0,
+    }
+    assert sanitized["elapsed_seconds"] == 161.7
+    for bad in (float("nan"), -1, 10**6, "161.7", True):
+        assert (
+            sanitize_request({**request, "elapsed_seconds": bad})["elapsed_seconds"]
+            is None
+        )

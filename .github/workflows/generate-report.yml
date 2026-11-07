@@ -82,9 +82,36 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev --frozen
 
+      # The full suite validates code, not feed input. Validate already runs it
+      # on every push to main, so a successful push run for this exact commit
+      # is reused. A missing, pending or failed run, an API error or a checkout
+      # that is not GITHUB_SHA falls back to the full suite.
+      - name: Find Validate result for this commit
+        id: validated
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
+        run: |
+          passed=false
+          if [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]; then
+            count=$(gh api \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/validate.yml/runs?head_sha=$GITHUB_SHA&event=push&branch=main&status=success&per_page=1" \
+              --jq '.total_count' 2>/dev/null || true)
+            case "$count" in ''|*[!0-9]*) count=0 ;; esac
+            if [ "$count" -gt 0 ]; then passed=true; fi
+          fi
+          echo "passed=$passed" >> "$GITHUB_OUTPUT"
+          echo "Validate succeeded for $GITHUB_SHA: $passed"
+
       - name: Run local validation
+        if: steps.validated.outputs.passed != 'true'
         run: bash scripts/local_validation.sh
-      
+
+      - name: Smoke-check committed report and site
+        if: steps.validated.outputs.passed == 'true'
+        run: |
+          uv run python -B scripts/validate_report.py index.md
+          uv run python -B scripts/build_site.py --check
+
       # Admission before any model call: SentryDigest release events are bound
       # to the release's commit-addressed feed snapshot; duplicate, stale and
       # unbindable events stop here; an earlier generation whose outcome is
@@ -176,6 +203,9 @@ jobs:
         run: |
           uv run python scripts/validate_report.py index.md
           uv run python scripts/build_site.py --check
+          # Browser tests and evidence screenshots serve test-results/pages;
+          # package the newly generated report, not the pre-generation one.
+          uv run python -B scripts/package_pages.py --output test-results/pages
           npm run test:browser
 
       - name: Upload rendered report evidence

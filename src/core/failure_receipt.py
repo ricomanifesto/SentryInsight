@@ -12,6 +12,16 @@ from .retry_policy import REQUEST_STATES, retry_decision
 from .validation_diagnostics import UNKNOWN_CODE, sanitize_diagnostic
 
 ENV_PATH = "SENTRYINSIGHT_FAILURE_RECEIPT"
+# Mirrors the OpenRouter client's allowlist; duplicated to keep this module
+# free of provider-client imports.
+USAGE_KEYS = (
+    "prompt_tokens",
+    "cached_tokens",
+    "completion_tokens",
+    "reasoning_tokens",
+    "total_tokens",
+    "cost",
+)
 MAX_BYTES = 8192
 STATUSES = frozenset(
     {
@@ -75,7 +85,7 @@ def sanitize_request(value: object) -> dict:
     if type(usage) is dict:
         usage = {
             key: number
-            for key in ("prompt_tokens", "completion_tokens", "total_tokens", "cost")
+            for key in USAGE_KEYS
             if type(number := usage.get(key)) in (int, float)
             and 0 <= number <= 2**63
             and math.isfinite(number)
@@ -93,6 +103,13 @@ def sanitize_request(value: object) -> dict:
         "http_status": _integer(raw.get("http_status"), 100, 599),
         "provider_code": _integer(raw.get("provider_code"), 100, 599),
         "usage": usage,
+        "elapsed_seconds": (
+            elapsed
+            if type(elapsed := raw.get("elapsed_seconds")) in (int, float)
+            and math.isfinite(elapsed)
+            and 0 <= elapsed <= 86400
+            else None
+        ),
     }
 
 
