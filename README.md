@@ -155,6 +155,14 @@ checkpoints and both rates; without a plan it reports half-widths only. With
 reached, so later updates cannot change the plan or re-evaluate a reached
 checkpoint. It reads no configuration and makes no network or model calls.
 
+`scripts/compare_paired_outcomes.py` compares report validity between two arms
+run on the same frozen feeds, such as triage off and enabled. The arms share
+their inputs, so marginal validity rates are not independent samples. It
+counts the feeds whose outcome changed between arms, applies the exact
+two-sided sign test to those discordant pairs, and tallies failure codes per
+arm. It reports `no_evidence_of_difference` unless the test clears `--alpha`.
+It prints counts and codes only.
+
 To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset. Start the server in one terminal:
 
 ```bash
