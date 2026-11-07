@@ -136,6 +136,18 @@ no extra model call. It never holds article titles, text, URLs or provider
 messages. The report workflow retains it with the seven-day generation
 diagnostics. Set `mode` back to `off` to roll back.
 
+`scripts/accumulate_triage.py` folds exported triage receipts offline into a
+ledger of counts and URL hashes keyed by unique article hash across runs;
+`legacy_full` runs add no decisions and re-folding a run is a no-op. It joins
+the ledger with the hashes of published Reporting links from `index.md` and
+`reports/` (receipts hash the raw feed link and reports publish its normalized
+form, so only canonical links match) and reports Hoeffding bounds on the
+would-drop rate and the cited-miss rate. Given a caller-supplied plan of
+tolerances, `delta` and checkpoints, it returns `continue`, `stop_sufficient`
+or `stop_violation` under a union bound across checkpoints; without a plan it
+reports half-widths only. It reads no configuration and makes no network or
+model calls.
+
 To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset. Start the server in one terminal:
 
 ```bash
