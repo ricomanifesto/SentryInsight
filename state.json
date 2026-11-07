@@ -1197,6 +1197,16 @@
       "run_id": "42385244330",
       "stage": "request_finished",
       "token": "d56a11fda0e8e8a6f1577288004a6fca"
+    },
+    {
+      "admission_key": "digest:e80989be9ef72f3b6052e1070fb8c19a8c96f3fb",
+      "at": "2026-11-07T15:20:40.912Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "917c2ccb94c745b736bf3743f34ac6b868d413940e262f2f8a2692b702d8d1bd",
+      "outcome": "published",
+      "release_key": "800fa5fcf227b64cf3478a248f85e1738a58ec32c2b21eee71cded7fed4a35ee",
+      "run_id": "42385244330",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
