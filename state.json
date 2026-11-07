@@ -1089,6 +1089,14 @@
       "run_id": "42347616165",
       "stage": "request_finished",
       "token": "18bc7cc8f862bc15fd6f71dc057e14a9"
+    },
+    {
+      "admission_key": "run:42347616165",
+      "at": "2026-11-07T06:41:02.900Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "42347616165",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
