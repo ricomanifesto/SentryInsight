@@ -6,6 +6,7 @@ from typing import Any, Callable, Mapping
 
 from .article_policy import contains_virtual_event_tag
 from .cve import extract_cve_ids
+from .derivations import derivation_scope
 from .finding_evidence import (
     EvidenceError,
     validate_finding_evidence,
@@ -175,6 +176,16 @@ def resolve_reviewed_analysis(
     ungrounded finding evidence, out-of-scope CVEs, report-quality issues) as
     bounded reasons in ``advisories`` and publishes the report.
     """
+    with derivation_scope():
+        return _resolve_reviewed_analysis(result, on_stage=on_stage, advisory=advisory)
+
+
+def _resolve_reviewed_analysis(
+    result: Mapping[str, Any],
+    *,
+    on_stage: Callable[[str], None] | None,
+    advisory: bool,
+) -> ReviewedReport:
     from .validation_diagnostics import validation_diagnostic
 
     advisories: list[dict] = []

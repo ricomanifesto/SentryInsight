@@ -15,6 +15,7 @@ from typing import Any, Literal, Mapping, Sequence
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
+from .derivations import derivation_scope, memoized
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .version_state import ABSENT, STATE_FIELD, VersionEvidenceStatus
 from .reporting import (
@@ -384,13 +385,22 @@ def _complete_foreign_version_assertion(span: DetailSpan, wanted: set[str]) -> b
 
 
 def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
+    """Partition one source for a CVE scope; memoized per exact content and CVEs."""
+    content = str(_value(source, "content"))
+    return memoized(
+        "detail_partition",
+        (content, tuple(cves)),
+        lambda: _derive_partition_detail_spans(content, cves),
+    )
+
+
+def _derive_partition_detail_spans(content: str, cves: Sequence[str]) -> DetailScope:
     """Retain scope selection plus evidence whose exclusion is not justified.
 
     Existing selected output stays compatible. Unaccounted evidence never
     supplies a new fact; it can only prevent certification of a version scope.
     Both views retain boundaries so excluded material cannot join a new list.
     """
-    content = str(_value(source, "content"))
     source_cves = set(extract_cve_ids(content))
     wanted = set(cves)
     has_cve_sections = any(
@@ -512,7 +522,34 @@ def _scoped_detail_spans(source: Any, cves: Sequence[str]) -> list[DetailSpan]:
     return list(_partition_detail_spans(source, cves).scoped)
 
 
+def _copy_detail_context(context: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Copy every mutable container; span values are strings and tuples."""
+    copied = []
+    for item in context:
+        entry = {
+            **item,
+            "cves": list(item["cves"]),
+            "exploitation": dict(item["exploitation"]),
+        }
+        if "spans" in item:
+            entry["spans"] = [dict(span) for span in item["spans"]]
+        copied.append(entry)
+    return copied
+
+
 def build_finding_detail_context(
+    catalog: Mapping[str, ReportingSource],
+) -> list[dict[str, Any]]:
+    """Detail context for a catalog; memoized per exact sources in catalog order."""
+    return memoized(
+        "detail_context",
+        tuple(catalog.items()),
+        lambda: _derive_finding_detail_context(catalog),
+        _copy_detail_context,
+    )
+
+
+def _derive_finding_detail_context(
     catalog: Mapping[str, ReportingSource],
 ) -> list[dict[str, Any]]:
     """Show generation the same per-CVE detail scope used by publication.
@@ -1674,9 +1711,14 @@ def _validate_finding(
     if STATE_FIELD in fields:
         # Import at call time: the source-scope resolver uses the pure parsing
         # helpers in this module, but never calls this publication validator.
-        from .version_references import validate_resolved_version_status
+        from .version_references import (
+            cve_scope_index,
+            validate_resolved_version_status,
+        )
 
-        validate_resolved_version_status(fields, catalog, cves=cves)
+        validate_resolved_version_status(
+            fields, catalog, cves=cves, scopes=cve_scope_index(catalog)
+        )
         unresolved_versions = fields[STATE_FIELD] == VersionEvidenceStatus.UNRESOLVED
     reported_versions = {
         _plain(entry)
@@ -1890,6 +1932,13 @@ def validate_vendor_links(report: str, catalog: Mapping[str, ReportingSource]) -
 
 
 def validate_finding_evidence(
+    report: str, catalog: Mapping[str, ReportingSource]
+) -> None:
+    with derivation_scope():
+        _validate_finding_evidence(report, catalog)
+
+
+def _validate_finding_evidence(
     report: str, catalog: Mapping[str, ReportingSource]
 ) -> None:
     section = ACTIVE_SECTION_PATTERN.search(report)

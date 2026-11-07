@@ -11,6 +11,7 @@ import re
 from typing import Any, Callable, Mapping, Sequence
 
 from .cve import CVE_ID_PATTERN, extract_cve_ids
+from .derivations import derivation_scope, memoized
 from .finding_evidence import (
     ABSENT,
     FIELD,
@@ -369,7 +370,14 @@ def _scopes(
     # A precomputed presentation context is not proof of catalog completeness.
     # Derive all groups and peer source sets from the retained bodies, even when
     # a caller supplies an empty, partial or stale cache. Keep the optional
-    # parameter for compatibility with existing generation callers.
+    # parameter for compatibility with existing generation callers. Scopes are
+    # immutable values, memoized per exact sources in catalog order.
+    return memoized(
+        "version_scopes", tuple(catalog.items()), lambda: _derive_scopes(catalog), list
+    )
+
+
+def _derive_scopes(catalog: Mapping[str, ReportingSource]) -> list[VersionScope]:
     context = build_finding_detail_context(catalog)
     groups: dict[tuple[tuple[str, ...], str], list[str]] = {}
     for item in context:
@@ -379,6 +387,18 @@ def _scopes(
         if key not in groups.setdefault(group, []):
             groups[group].append(key)
     return [_scope(catalog, cves, keys) for (cves, _), keys in groups.items()]
+
+
+def cve_scope_index(
+    catalog: Mapping[str, ReportingSource],
+) -> dict[tuple[str, ...], VersionScope]:
+    """CVE-keyed version scopes of the complete catalog, derived once per scope."""
+    return memoized(
+        "cve_scope_index",
+        tuple(catalog.items()),
+        lambda: {scope.cves: scope for scope in _scopes(catalog) if scope.cves},
+        dict,
+    )
 
 
 def build_version_reference_context(
@@ -403,7 +423,7 @@ def _finding_scope(
             "invalid_version_reference_source", "Invalid version reference source"
         )
     if scopes is None:
-        scopes = {scope.cves: scope for scope in _scopes(catalog) if scope.cves}
+        scopes = cve_scope_index(catalog)
     scope = scopes.get(tuple(cves)) if cves else _scope(catalog, (), keys)
     if (cves and scope and any(key not in scope.source_keys for key in keys)) or (
         not cves and any(extract_cve_ids(catalog[key].content) for key in keys)
@@ -424,10 +444,15 @@ def validate_resolved_version_status(
     catalog: Mapping[str, ReportingSource],
     *,
     cves: Sequence[str],
+    scopes: Mapping[tuple[str, ...], VersionScope] | None = None,
 ) -> None:
-    """Recompute source eligibility; a canonical status is not trusted metadata."""
+    """Recompute source eligibility; a canonical status is not trusted metadata.
+
+    ``scopes`` is the CVE-keyed index derived from this same complete catalog
+    (``cve_scope_index``); a caller validating many findings passes it once.
+    """
     keys = tuple(key.strip() for key in fields.get("Reporting", "").split(","))
-    scope = _finding_scope(catalog, tuple(sorted(cves)), keys)
+    scope = _finding_scope(catalog, tuple(sorted(cves)), keys, scopes)
     state = fields.get(STATE_FIELD)
     value = fields.get("Affected Versions")
     if state != scope.state or (
@@ -474,10 +499,20 @@ def resolve_version_references(
     resolve is reported to the callback and rendered as unresolved instead of
     failing the whole report. It never claims absence or invents versions.
     """
+    with derivation_scope():
+        return _resolve_version_references(report, catalog, on_reject=on_reject)
+
+
+def _resolve_version_references(
+    report: str,
+    catalog: Mapping[str, ReportingSource],
+    *,
+    on_reject: Callable[[EvidenceError], None] | None,
+) -> str:
     section = ACTIVE_SECTION_PATTERN.search(report)
     if not section:
         raise _reject("missing_finding_section", "Missing finding section")
-    scopes = {scope.cves: scope for scope in _scopes(catalog) if scope.cves}
+    scopes = cve_scope_index(catalog)
     replacements = []
     for index, finding in enumerate(FINDING_PATTERN.finditer(section["section"]), 1):
         fields = dict(FIELD.findall(finding["body"]))

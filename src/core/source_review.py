@@ -11,6 +11,7 @@ import tempfile
 from typing import Any, Mapping, Sequence
 
 from .cve import extract_cve_ids
+from .derivations import derivation_scope
 from .report_validation import markdown_plain_text, markdown_references
 from .article_prompt import canonical_source_article, format_article_summary
 from .finding_evidence import build_finding_detail_context
@@ -358,7 +359,18 @@ def plan_reporting_catalog(
     """Recompute from retained source bodies; never accept a cached disposition.
 
     ``advisory`` admits sources held only for soft version-evidence reasons.
+    Derivations are shared within one scope, keyed by exact source content.
     """
+    with derivation_scope():
+        return _plan_reporting_catalog(catalog, metadata_cves, advisory=advisory)
+
+
+def _plan_reporting_catalog(
+    catalog: Mapping[str, ReportingSource],
+    metadata_cves: Mapping[str, Sequence[str]],
+    *,
+    advisory: bool,
+) -> SourceReviewPlan:
     policy_version = ADVISORY_POLICY_VERSION if advisory else POLICY_VERSION
     _require(set(catalog) == set(metadata_cves), "invalid_source_metadata")
     _require(len(catalog) <= MAX_SOURCES, "review_input_limit_exceeded")

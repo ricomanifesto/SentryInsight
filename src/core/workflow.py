@@ -23,6 +23,7 @@ from .finding_evidence import (
     grounding_failure_diagnostic,
 )
 from .analysis_errors import ANALYSIS_ERROR_CLASSES
+from .derivations import derivation_scope
 from .observability import (
     ci_attributes,
     model_attributes,
@@ -589,7 +590,10 @@ async def run_exploitation_analysis():
 
         # Run the graph
         try:
-            final_state = await graph.ainvoke(initial_state)
+            # One derivation scope per run: every stage reuses source-derived
+            # evidence for identical content instead of recomputing it.
+            with derivation_scope():
+                final_state = await graph.ainvoke(initial_state)
         except Exception as e:
             logger.error(f"Error during workflow execution: {e}")
             span.set_attributes(
