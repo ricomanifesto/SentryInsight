@@ -2,7 +2,7 @@
   "schema_version": 1,
   "report_date": "2026-11-06",
   "generated_at": "2026-11-06T22:21:58Z",
-  "report_url": "https://ricomanifesto.github.io/SentryInsight/",
+  "report_url": "https://sentryinsight.ricomanifesto.com/",
   "finding_count": 9,
   "complete_cve_count": 12,
   "cve_ids": [
