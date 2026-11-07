@@ -8,6 +8,7 @@ source confirmations are not guaranteed to be recognized in every phrasing.
 """
 
 from dataclasses import dataclass
+from functools import lru_cache
 import hashlib
 import re
 from typing import Any, Literal, Mapping, Sequence
@@ -252,15 +253,32 @@ def _value(source: Any, field: str, default=""):
     )
 
 
+@lru_cache(maxsize=256)
+def _sentence_cve_index(
+    content: str,
+) -> tuple[frozenset[str], tuple[tuple[str, frozenset[str]], ...]]:
+    """Source CVEs plus non-heading sentences with the CVEs each one names.
+
+    A pure function of the content; exploitation assessment asks for the same
+    source once per CVE scope, so the split and CVE scan are computed once.
+    """
+    return frozenset(extract_cve_ids(content)), tuple(
+        (sentence, frozenset(extract_cve_ids(sentence)))
+        for sentence in _sentences(content)
+        if not sentence.startswith("#")
+    )
+
+
 def _scoped_sentences(source: Any, cves: Sequence[str]) -> list[tuple[str, bool]]:
     content = str(_value(source, "content"))
-    source_cves = set(extract_cve_ids(content))
+    source_cves, sentences = _sentence_cve_index(content)
     wanted = set(cves)
     result = []
-    for sentence in _sentences(content):
-        if sentence.startswith("#"):
-            continue
-        mentioned = set(extract_cve_ids(sentence))
+    # A source naming none of the wanted CVEs cannot contribute: every sentence
+    # either names a foreign CVE or relies on source_cves == wanted.
+    if not source_cves & wanted:
+        return result
+    for sentence, mentioned in sentences:
         # A sentence about two vulnerabilities is ambiguous, even if one matches.
         if mentioned and (not mentioned <= wanted or not mentioned & wanted):
             continue
@@ -342,6 +360,12 @@ def _validate_recommendation_statements(
 
 def _logical_source_blocks(content: str) -> list[str]:
     """Map physical lines to original paragraphs or outer list items."""
+    return list(_logical_source_block_map(content))
+
+
+@lru_cache(maxsize=256)
+def _logical_source_block_map(content: str) -> tuple[str, ...]:
+    # Pure in the content: one CommonMark parse serves every CVE scope.
     lines = content.splitlines()
     blocks = list(lines)
     item_depth = 0
@@ -359,7 +383,7 @@ def _logical_source_blocks(content: str) -> list[str]:
             block = "\n".join(lines[start:end]).strip()
             for index in range(start, end):
                 blocks[index] = block
-    return blocks
+    return tuple(blocks)
 
 
 @dataclass(frozen=True)
@@ -390,7 +414,14 @@ def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
     supplies a new fact; it can only prevent certification of a version scope.
     Both views retain boundaries so excluded material cannot join a new list.
     """
-    content = str(_value(source, "content"))
+    return _partition_content_spans(str(_value(source, "content")), tuple(cves))
+
+
+@lru_cache(maxsize=512)
+def _partition_content_spans(content: str, cves: tuple[str, ...]) -> DetailScope:
+    # Pure in (content, cves) and immutable: source review rebuilds the same
+    # scopes for the full and eligible catalogs and again at each workflow stage.
+    # An EvidenceError is not cached and is raised again on every call.
     source_cves = set(extract_cve_ids(content))
     wanted = set(cves)
     has_cve_sections = any(

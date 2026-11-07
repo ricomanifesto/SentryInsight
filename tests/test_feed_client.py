@@ -132,3 +132,51 @@ def test_default_feed_client_closes_after_failure(monkeypatch):
         raise AssertionError("fetch_articles should propagate the transport failure")
 
     assert TrackingFeedClient.exit_calls == 1
+
+
+def test_enrichment_fetches_concurrently_over_one_client_and_keeps_order(monkeypatch):
+    class ConcurrentArticleClient:
+        instances = 0
+        in_flight = 0
+        peak = 0
+
+        def __init__(self, *_args, **_kwargs):
+            type(self).instances += 1
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_args):
+            return None
+
+        async def get(self, url):
+            cls = type(self)
+            cls.in_flight += 1
+            cls.peak = max(cls.peak, cls.in_flight)
+            index = int(url.rsplit("/", 1)[-1])
+            # Later articles answer first; results must still follow input order.
+            await asyncio.sleep(0.001 * (20 - index))
+            cls.in_flight -= 1
+            return SimpleNamespace(
+                status_code=200,
+                text=f"<article><p>Body {index}</p></article>",
+            )
+
+    monkeypatch.setattr(fetch_module.httpx, "AsyncClient", ConcurrentArticleClient)
+    articles = [
+        {"title": f"Story {i}", "link": f"https://example.com/{i}", "content": ""}
+        for i in range(20)
+    ]
+
+    result = asyncio.run(
+        SentryDigestFeedClient("https://example.com/feed.xml").enrich_article_content(
+            articles
+        )
+    )
+
+    assert [article["content"] for article in result] == [
+        f"Body {i}" for i in range(20)
+    ]
+    assert all(article["content_kind"] == "article" for article in result)
+    assert ConcurrentArticleClient.instances == 1
+    assert 1 < ConcurrentArticleClient.peak <= fetch_module.ARTICLE_FETCH_CONCURRENCY
