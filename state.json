@@ -1050,6 +1050,15 @@
       "outcome": "published",
       "run_id": "42335620346",
       "stage": "completed"
+    },
+    {
+      "admission_key": "run:42347616165",
+      "at": "2026-11-07T06:37:45.984Z",
+      "binding": "none",
+      "event": "schedule",
+      "run_attempt": "1",
+      "run_id": "42347616165",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
