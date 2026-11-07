@@ -147,7 +147,17 @@ def main(argv: list[str] | None = None) -> int:
             published = sorted(published_hashes_from_reports(options.root))
         joined = acc.join_must_keep(ledger, published)
         plan = load_json(options.plan) if options.plan is not None else None
-        result = acc.bounds(joined, plan)
+        stored_plan = ledger.get("plan")
+        if stored_plan is not None:
+            if plan is not None and plan != stored_plan:
+                raise acc.TriageAccumulatorError(
+                    "Ledger already holds a pre-registered plan; it cannot change"
+                )
+            plan = stored_plan
+        result = acc.bounds(joined, plan, ledger.get("frozen"))
+        if plan is not None:
+            ledger["plan"] = plan
+            ledger["frozen"] = result["frozen"]
 
         if options.ledger is not None:
             write_ledger(options.ledger, ledger, replace=previous is not None)

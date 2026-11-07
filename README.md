@@ -144,9 +144,11 @@ the ledger with the hashes of published Reporting links from `index.md` and
 form, so only canonical links match) and reports Hoeffding bounds on the
 would-drop rate and the cited-miss rate. Given a caller-supplied plan of
 tolerances, `delta` and checkpoints, it returns `continue`, `stop_sufficient`
-or `stop_violation` under a union bound across checkpoints; without a plan it
-reports half-widths only. It reads no configuration and makes no network or
-model calls.
+or `stop_violation` under a union bound that splits `delta` across the
+checkpoints and both rates; without a plan it reports half-widths only. With
+`--ledger`, the plan and each checkpoint's observation are stored when first
+reached, so later updates cannot change the plan or re-evaluate a reached
+checkpoint. It reads no configuration and makes no network or model calls.
 
 To use a local OpenCode server instead, leave `OPENROUTER_API_KEY` unset. Start the server in one terminal:
 

@@ -109,3 +109,34 @@ def test_unknown_receipt_schema_is_refused(repo, capsys):
     code, out, err = run(capsys, "--receipts", receipts, "--root", root)
     assert code == 2 and out == ""
     assert "schema_version" in err
+
+
+def test_plan_is_registered_in_the_ledger_and_cannot_change(repo, capsys):
+    root, receipts, tmp = repo
+    ledger = tmp / "ledger.json"
+    plan = {
+        "epsilon_drop": 0.5,
+        "epsilon_miss": 0.2,
+        "delta": 0.05,
+        "checkpoints": [1, 2],
+    }
+    plan_path = write(tmp / "plan.json", plan)
+    base = ("--receipts", receipts, "--root", root, "--ledger", ledger)
+    assert run(capsys, *base, "--plan", plan_path)[0] == 0
+    stored = json.loads(ledger.read_text())
+    assert stored["plan"] == plan
+    assert stored["frozen"]["drop"] == [
+        {"checkpoint": 1, "events": 1},
+        {"checkpoint": 2, "events": 1},
+    ]
+
+    # Updates reuse the stored plan and keep reached looks frozen.
+    write(receipts / "run-2.json", receipt([(triage.url_sha256(OTHER), DROP)]))
+    code, out, _ = run(capsys, *base, "--update")
+    assert code == 0
+    assert json.loads(ledger.read_text())["frozen"] == stored["frozen"]
+    assert json.loads(out)["bounds"]["frozen"] == stored["frozen"]
+
+    changed = write(tmp / "changed.json", {**plan, "epsilon_miss": 0.5})
+    code, _, err = run(capsys, *base, "--update", "--plan", changed)
+    assert code == 2 and "pre-registered" in err

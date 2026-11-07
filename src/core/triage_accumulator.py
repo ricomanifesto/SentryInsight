@@ -19,6 +19,7 @@ LEDGER_VERSION = 1
 RECEIPT_SCHEMA_VERSION = 1
 DECIDED_MODES = ("shadow", "enabled")
 NO_PLAN_DELTA = 0.05
+RATES = ("drop", "miss")
 _COUNT_KEYS = (
     "runs_decided",
     "runs_legacy_full",
@@ -98,8 +99,14 @@ def validate_ledger(ledger: Any) -> dict[str, Any]:
         "conflicting",
         *_COUNT_KEYS,
     }
-    if not isinstance(ledger, dict) or set(ledger) != expected:
+    optional = {"plan", "frozen"}
+    if not isinstance(ledger, dict) or set(ledger) - optional != expected:
         raise TriageAccumulatorError("Ledger has an unexpected shape")
+    present = optional & set(ledger)
+    if present and present != optional:
+        raise TriageAccumulatorError("Ledger plan and frozen looks go together")
+    if present:
+        _check_frozen(ledger["frozen"], _check_plan(ledger["plan"]))
     if ledger["ledger_version"] != LEDGER_VERSION:
         raise TriageAccumulatorError("Unsupported ledger_version")
     if ledger["receipt_schema_version"] != RECEIPT_SCHEMA_VERSION:
@@ -257,15 +264,67 @@ def _check_plan(plan: Any) -> dict[str, Any]:
     return dict(plan)
 
 
-def _ordered_outcomes(ledger: Mapping[str, Any]) -> tuple[list[bool], list[bool]]:
+def _ordered_outcomes(ledger: Mapping[str, Any]) -> dict[str, list[bool]]:
     hashes = ledger["hashes"]
     decided = sorted(hashes, key=lambda digest: hashes[digest]["first_seen"])
-    drops = [_is_would_drop(hashes[digest]["seen"]) for digest in decided]
-    misses = [
-        _is_would_drop(hashes[digest]["seen"])
-        for digest in ledger.get("cited_hashes", [])
-    ]
-    return drops, misses
+    return {
+        "drop": [_is_would_drop(hashes[digest]["seen"]) for digest in decided],
+        "miss": [
+            _is_would_drop(hashes[digest]["seen"])
+            for digest in ledger.get("cited_hashes", [])
+        ],
+    }
+
+
+def _check_frozen(frozen: Any, plan: Mapping[str, Any]) -> dict[str, list[dict]]:
+    """Frozen looks are, per rate, a prefix of the plan's checkpoints."""
+    if not isinstance(frozen, dict) or set(frozen) != set(RATES):
+        raise TriageAccumulatorError("Frozen checkpoints have an unexpected shape")
+    for rate in RATES:
+        looks = frozen[rate]
+        if not isinstance(looks, list) or len(looks) > len(plan["checkpoints"]):
+            raise TriageAccumulatorError("Frozen checkpoints have an unexpected shape")
+        for look, checkpoint in zip(looks, plan["checkpoints"]):
+            if not isinstance(look, dict) or set(look) != {"checkpoint", "events"}:
+                raise TriageAccumulatorError("Frozen checkpoints are invalid")
+            events: Any = look.get("events")
+            if (
+                look.get("checkpoint") != checkpoint
+                or type(events) is not int
+                or not 0 <= events <= checkpoint
+            ):
+                raise TriageAccumulatorError("Frozen checkpoints are invalid")
+    return frozen
+
+
+def freeze_checkpoints(
+    ledger: Mapping[str, Any],
+    plan: Mapping[str, Any],
+    frozen: Mapping[str, Any] | None = None,
+) -> dict[str, list[dict[str, int]]]:
+    """Record each checkpoint's observation the first time it is reached.
+
+    A frozen look is never recomputed: later runs that change a hash's
+    outcome, or later citations that reorder the cited sample, only affect
+    checkpoints not yet reached. Pass the frozen looks from a stored ledger
+    so repeated updates spend the pre-registered budget only once per look.
+    """
+    checked = _check_plan(plan)
+    result = (
+        {rate: [] for rate in RATES}
+        if frozen is None
+        else copy.deepcopy(_check_frozen(frozen, checked))
+    )
+    outcomes = _ordered_outcomes(ledger)
+    for rate in RATES:
+        looks = result[rate]
+        for checkpoint in checked["checkpoints"][len(looks) :]:
+            if len(outcomes[rate]) < checkpoint:
+                break
+            looks.append(
+                {"checkpoint": checkpoint, "events": sum(outcomes[rate][:checkpoint])}
+            )
+    return result
 
 
 def _interval(rate: float, lower: float, upper: float) -> dict[str, float]:
@@ -276,50 +335,57 @@ def _interval(rate: float, lower: float, upper: float) -> dict[str, float]:
     }
 
 
-def bounds(ledger: Mapping[str, Any], plan: Mapping[str, Any] | None = None) -> dict:
+def bounds(
+    ledger: Mapping[str, Any],
+    plan: Mapping[str, Any] | None = None,
+    frozen: Mapping[str, Any] | None = None,
+) -> dict:
     """Bound the would-drop and cited-miss rates, with a pre-registered verdict.
 
-    With a plan, each checkpoint ``c`` uses the first ``c`` unique hashes in
-    first-seen order at ``delta / len(checkpoints)``, so all looks together
-    hold at ``delta``. The drop rate gets a two-sided bound; the miss rate a
-    one-sided bound in each direction (only one direction can be wrong for a
-    given true rate). Without a plan, only half-widths at ``delta`` 0.05 are
-    reported and no tolerance is inferred.
+    With a plan, checkpoint ``c`` uses the first ``c`` unique hashes in
+    first-seen order (cited hashes for the miss rate), frozen when first
+    reached. ``delta`` is split evenly over the checkpoints and then over the
+    two monitored rates, so every look at both rates together holds at
+    ``delta``. The drop rate gets a two-sided bound; the miss rate a one-sided
+    bound in each direction (for a given true rate only one direction can be
+    wrong). Without a plan, only half-widths at ``delta`` 0.05 are reported
+    and no tolerance is inferred.
     """
-    drops, misses = _ordered_outcomes(ledger)
+    outcomes = _ordered_outcomes(ledger)
     if plan is None:
         result: dict[str, Any] = {"verdict": "no_plan", "delta": NO_PLAN_DELTA}
-        for name, outcomes, width in (
-            ("drop", drops, two_sided_half_width),
-            ("miss", misses, one_sided_half_width),
+        for name, width in (
+            ("drop", two_sided_half_width),
+            ("miss", one_sided_half_width),
         ):
-            n = len(outcomes)
+            n = len(outcomes[name])
             result[name] = {
                 "n": n,
-                "rate": sum(outcomes) / n if n else None,
+                "rate": sum(outcomes[name]) / n if n else None,
                 "half_width": width(n, NO_PLAN_DELTA) if n else None,
                 "sided": "two" if name == "drop" else "one",
             }
         return result
 
     checked = _check_plan(plan)
+    looks = freeze_checkpoints(ledger, checked, frozen)
     per_checkpoint = checked["delta"] / len(checked["checkpoints"])
-    checkpoints = []
+    per_rate = per_checkpoint / len(RATES)
+    rows: dict[int, dict[str, Any]] = {
+        c: {"checkpoint": c, "drop": None, "miss": None} for c in checked["checkpoints"]
+    }
     violation = sufficient = False
-    for c in checked["checkpoints"]:
-        row: dict[str, Any] = {"checkpoint": c, "drop": None, "miss": None}
-        if len(drops) >= c:
-            rate = sum(drops[:c]) / c
-            width = two_sided_half_width(c, per_checkpoint)
-            row["drop"] = _interval(rate, width, width)
-            violation |= row["drop"]["lower"] > checked["epsilon_drop"]
-        if len(misses) >= c:
-            rate = sum(misses[:c]) / c
-            width = one_sided_half_width(c, per_checkpoint)
-            row["miss"] = _interval(rate, width, width)
-            violation |= row["miss"]["lower"] > checked["epsilon_miss"]
-            sufficient |= row["miss"]["upper"] <= checked["epsilon_miss"]
-        checkpoints.append(row)
+    for look in looks["drop"]:
+        c = look["checkpoint"]
+        width = two_sided_half_width(c, per_rate)
+        rows[c]["drop"] = _interval(look["events"] / c, width, width)
+        violation |= rows[c]["drop"]["lower"] > checked["epsilon_drop"]
+    for look in looks["miss"]:
+        c = look["checkpoint"]
+        width = one_sided_half_width(c, per_rate)
+        rows[c]["miss"] = _interval(look["events"] / c, width, width)
+        violation |= rows[c]["miss"]["lower"] > checked["epsilon_miss"]
+        sufficient |= rows[c]["miss"]["upper"] <= checked["epsilon_miss"]
     if violation:
         verdict = "stop_violation"
     elif sufficient:
@@ -330,9 +396,11 @@ def bounds(ledger: Mapping[str, Any], plan: Mapping[str, Any] | None = None) -> 
         "verdict": verdict,
         "delta": checked["delta"],
         "per_checkpoint_delta": per_checkpoint,
+        "per_rate_delta": per_rate,
         "epsilon_drop": checked["epsilon_drop"],
         "epsilon_miss": checked["epsilon_miss"],
-        "drop_n": len(drops),
-        "miss_n": len(misses),
-        "checkpoints": checkpoints,
+        "drop_n": len(outcomes["drop"]),
+        "miss_n": len(outcomes["miss"]),
+        "frozen": looks,
+        "checkpoints": list(rows.values()),
     }

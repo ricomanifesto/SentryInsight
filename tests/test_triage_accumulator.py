@@ -271,14 +271,22 @@ PLAN = {
 }
 
 
-def test_checkpoint_union_bound_uses_delta_over_checkpoint_count():
-    result = acc.bounds(ledger_with(120, 0, 100, 0), PLAN)
+def test_pinned_per_checkpoint_delta_and_half_width():
+    # Five checkpoints at delta 0.05 give 0.01 per checkpoint, and the
+    # one-sided half-width at n=100 for that delta is about 0.152.
+    result = acc.bounds(acc.empty_ledger(), PLAN)
     assert result["per_checkpoint_delta"] == pytest.approx(0.01)
+    assert acc.one_sided_half_width(100, 0.01) == pytest.approx(0.152, abs=5e-4)
+
+
+def test_union_bound_splits_each_checkpoint_across_both_rates():
+    result = acc.bounds(ledger_with(120, 0, 100, 0), PLAN)
+    assert result["per_rate_delta"] == pytest.approx(0.005)
     rows = {row["checkpoint"]: row for row in result["checkpoints"]}
-    assert rows[100]["miss"]["upper"] == pytest.approx(0.152, abs=5e-4)
-    assert rows[100]["miss"]["upper"] == pytest.approx(math.sqrt(math.log(100) / 200))
+    # Hoeffding at delta / (2 * checkpoints): sqrt(ln(1 / 0.005) / (2 * 100)).
+    assert rows[100]["miss"]["upper"] == pytest.approx(math.sqrt(math.log(200) / 200))
+    assert rows[100]["drop"]["upper"] == pytest.approx(math.sqrt(math.log(400) / 200))
     assert rows[200]["miss"] is None and rows[200]["drop"] is None
-    assert rows[100]["drop"]["upper"] == pytest.approx(math.sqrt(math.log(200) / 200))
 
 
 def test_verdict_stop_sufficient_when_miss_upper_bound_meets_tolerance():
@@ -344,3 +352,50 @@ def test_no_plan_on_an_empty_ledger_has_no_widths():
 def test_invalid_plans_are_refused(plan):
     with pytest.raises(acc.TriageAccumulatorError, match="Plan"):
         acc.bounds(acc.empty_ledger(), plan)
+
+
+def test_frozen_looks_are_not_recomputed_when_outcomes_change():
+    first = receipt([(h(f"k{i}"), KEEP) for i in range(25)])
+    ledger = acc.join_must_keep(acc.fold_receipts([first]), [])
+    frozen = acc.freeze_checkpoints(ledger, PLAN)
+    assert frozen == {"drop": [{"checkpoint": 25, "events": 0}], "miss": []}
+
+    # A later run drops every early hash; the reached look keeps its sample.
+    later = receipt([(h(f"k{i}"), DROP) for i in range(25)], elapsed_ms=99)
+    updated = acc.join_must_keep(acc.fold_receipts([first, later]), [])
+    assert acc.freeze_checkpoints(updated, PLAN, frozen) == frozen
+    assert acc.bounds(updated, PLAN, frozen)["verdict"] == "continue"
+    # Without the stored looks the same data would read as a violation.
+    assert acc.bounds(updated, PLAN)["verdict"] == "stop_violation"
+
+
+def test_frozen_looks_only_grow_and_are_idempotent():
+    ledger = ledger_with(60, 0, 30, 0)
+    frozen = acc.freeze_checkpoints(ledger, PLAN)
+    assert [look["checkpoint"] for look in frozen["drop"]] == [25, 50]
+    assert [look["checkpoint"] for look in frozen["miss"]] == [25]
+    assert acc.freeze_checkpoints(ledger, PLAN, frozen) == frozen
+    grown = acc.freeze_checkpoints(ledger_with(120, 0, 60, 0), PLAN, frozen)
+    assert grown["drop"][:2] == frozen["drop"]
+    assert [look["checkpoint"] for look in grown["drop"]] == [25, 50, 100]
+
+
+@pytest.mark.parametrize(
+    "frozen",
+    [
+        {"drop": [{"checkpoint": 50, "events": 0}], "miss": []},
+        {"drop": [{"checkpoint": 25, "events": 26}], "miss": []},
+        {"drop": []},
+    ],
+)
+def test_invalid_frozen_looks_are_refused(frozen):
+    with pytest.raises(acc.TriageAccumulatorError, match="Frozen"):
+        acc.bounds(acc.empty_ledger(), PLAN, frozen)
+
+
+def test_ledger_plan_and_frozen_looks_are_validated_together():
+    ledger = acc.fold_receipts([receipt([(h("a"), KEEP)])])
+    with_plan = {**ledger, "plan": PLAN, "frozen": {"drop": [], "miss": []}}
+    assert acc.validate_ledger(with_plan) is with_plan
+    with pytest.raises(acc.TriageAccumulatorError, match="together"):
+        acc.validate_ledger({**ledger, "plan": PLAN})
