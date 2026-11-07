@@ -5,6 +5,9 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import html5lib
+import pytest
+
 from src.core.report_artifact import parse_report_artifact
 from src.core.public_site import emitted_origin
 from scripts.build_site import _display_title
@@ -157,22 +160,78 @@ def test_triage_badges_can_only_project_source_owned_allowed_values():
     assert Path("config/ui.json").exists() is False
 
 
+def assert_static_script_boundary(page: str) -> None:
+    """Inspect executable surfaces, not security-report prose or JSON data."""
+    document = html5lib.parse(page, namespaceHTMLElements=False)
+    sources = []
+    for script in document.iter():
+        if not isinstance(script.tag, str):
+            continue
+        tag = script.tag.rsplit("}", 1)[-1]
+        if tag == "link":
+            for forbidden in ("marked", "jsdelivr", "unpkg"):
+                assert forbidden not in script.get("href", "").casefold()
+            continue
+        if tag != "script":
+            continue
+        # Foreign-content scripts (for example SVG) are executable too.
+        assert script.tag == "script"
+        script_type = script.get("type", "").strip().casefold()
+        source = script.get("src")
+        if script_type in {"application/json", "application/ld+json"}:
+            assert source is None
+            json.loads(script.text or "")
+            continue
+        if source is not None:
+            assert re.fullmatch(
+                r"assets/(?:vendor/dompurify\.min|report)\.js(?:\?v=[a-f0-9]+)?", source
+            )
+            sources.append(source.split("?", 1)[0])
+        for forbidden in ("marked", "jsdelivr", "unpkg"):
+            assert forbidden not in (script.text or "").casefold()
+    assert sorted(sources) == ["assets/report.js", "assets/vendor/dompurify.min.js"]
+
+
+def test_static_script_boundary_allows_library_names_in_report_content():
+    page = REPORT_PAGE.read_text().replace(
+        "</body>",
+        "<p>Exploitation is marked unknown. Reports may mention jsDelivr, unpkg, "
+        "or the marked.parse API.</p>"
+        '<script type="application/json">{"title":"marked via unpkg or jsDelivr",'
+        '"api":"marked.parse"}</script>'
+        "</body>",
+    )
+    assert_static_script_boundary(page)
+
+
+@pytest.mark.parametrize(
+    "runtime_script",
+    [
+        '<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>',
+        '<script src="https://unpkg.com/marked/marked.min.js"></script>',
+        '<script src="assets/marked.min.js"></script>',
+        '<link rel="preload" as="script" href="https://unpkg.com/marked">',
+        '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/example/style.css">',
+        "<svg><script>window.marked.parse(report)</script></svg>",
+        '<svg><script href="https://unpkg.com/marked"></script></svg>',
+        "<script>window.marked.parse(report)</script>",
+        '<script type="module">import marked from "marked";</script>',
+        '<script type="application/json" src="https://unpkg.com/marked"></script>',
+        '<script src="assets/report.js">window.marked.parse(report)</script>',
+    ],
+)
+def test_static_script_boundary_rejects_runtime_markdown(runtime_script):
+    page = REPORT_PAGE.read_text().replace("</body>", runtime_script + "</body>")
+    with pytest.raises(AssertionError):
+        assert_static_script_boundary(page)
+
+
 def test_static_builder_replaces_runtime_markdown_and_bundles_sanitization():
     page = REPORT_PAGE.read_text()
     builder = Path("scripts/build_site.py").read_text()
     package = json.loads(Path("package.json").read_text())
 
-    # Report prose can contain these words ("where marked unknown"), so only
-    # loaded resources and script bodies are checked for the removed runtime.
-    lowered = page.casefold()
-    resources = " ".join(
-        re.findall(r"<(?:script|link)\b[^>]*>", lowered)
-        + re.findall(r"<script\b[^>]*>(.*?)</script>", lowered, re.DOTALL)
-    )
-    assert "marked" not in resources
-    assert "jsdelivr" not in resources
-    assert "unpkg" not in resources
-    assert not re.search(r"\bmarked\.(?:parse|use|setoptions)\b", lowered)
+    assert_static_script_boundary(page)
     assert 'src="assets/vendor/dompurify.min.js?' in page
     assert "DOMPurify.sanitize" in SITE_JS.read_text()
     assert package["dependencies"]["dompurify"] == "3.4.13"
