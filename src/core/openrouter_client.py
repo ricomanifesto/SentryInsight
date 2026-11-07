@@ -262,7 +262,15 @@ class OpenRouterClient:
         Generation time is dominated by output decoding, so the log records
         what bounds it: output and reasoning tokens, the observed output rate
         and how close the response came to ``max_tokens``. No text is logged.
+        Diagnostics never change the request outcome, so a failure here is
+        swallowed.
         """
+        try:
+            self._write_usage_log()
+        except Exception:  # noqa: BLE001 - logging must not alter delivery
+            pass
+
+    def _write_usage_log(self) -> None:
         usage = self.last_request.get("usage") or {}
         elapsed = self.last_request.get("elapsed_seconds")
         completion = usage.get("completion_tokens")
@@ -301,8 +309,8 @@ class OpenRouterClient:
         flat: dict[str, Any] = dict(raw)
         for key, (parent, child) in nested.items():
             details = raw.get(parent)
-            if type(details) is dict:
-                flat[key] = details.get(child)
+            if type(details) is dict and child in details:
+                flat[key] = details[child]
         return {
             key: value
             for key in USAGE_KEYS
