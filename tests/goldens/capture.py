@@ -3,10 +3,15 @@
 The committed ``derivations.json`` holds SHA-256 digests of the review packet,
 plan identity and generation prompt for every evaluation case under both
 review policies, the resolved report and parsed artifact (or failure stage and
-code) for each case's reference report, and the parsed artifact of every
-archived report. Regenerate only for an intended contract change:
+code) for each case's reference report, and the parsed artifact of each frozen
+archived report. The frozen archive set is the names already in the golden:
+normal generation keeps adding dated reports under ``reports/``, and those new
+files are not fixtures. Regenerate only for an intended contract change:
 
     PYTHONPATH=.:tests uv run --frozen python -B tests/goldens/capture.py --write
+
+``--write`` keeps the frozen archive set; ``--refreeze-archives`` replaces it
+with every report currently under ``reports/``.
 """
 
 from __future__ import annotations
@@ -15,7 +20,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
 GOLDEN = Path(__file__).with_name("derivations.json")
@@ -61,7 +66,19 @@ def _resolution(result: dict[str, Any], *, advisory: bool) -> dict[str, Any]:
     }
 
 
-def capture() -> dict[str, Any]:
+def capture_archives(reports: Path, names: Iterable[str]) -> dict[str, Any]:
+    """Digest each named archived report; a missing frozen archive is an error."""
+    return {
+        name: {
+            "markdown_sha256": sha256((reports / name).read_bytes()),
+            "artifact_sha256": artifact_digest((reports / name).read_text()),
+        }
+        for name in sorted(names)
+    }
+
+
+def capture(archive_names: Iterable[str] | None = None) -> dict[str, Any]:
+    """Capture every golden; ``archive_names`` None means every current report."""
     cases: dict[str, Any] = {}
     prompts: list[str] = []
     for case in load_cases():
@@ -91,13 +108,10 @@ def capture() -> dict[str, Any]:
             "advisory": _resolution(result, advisory=True),
         }
         cases[case.name] = entry
-    archive = {
-        path.name: {
-            "markdown_sha256": sha256(path.read_bytes()),
-            "artifact_sha256": artifact_digest(path.read_text()),
-        }
-        for path in sorted((ROOT / "reports").glob("*.md"))
-    }
+    reports = ROOT / "reports"
+    if archive_names is None:
+        archive_names = [path.name for path in reports.glob("*.md")]
+    archive = capture_archives(reports, archive_names)
     return {
         "eval_cases": cases,
         "eval_prompt_set_sha256": sha256("".join(map(sha256, prompts))),
@@ -106,7 +120,10 @@ def capture() -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    data = json.dumps(capture(), indent=2, sort_keys=True) + "\n"
+    frozen = None
+    if "--refreeze-archives" not in sys.argv and GOLDEN.exists():
+        frozen = json.loads(GOLDEN.read_text())["archived_reports"]
+    data = json.dumps(capture(frozen), indent=2, sort_keys=True) + "\n"
     if "--write" in sys.argv:
         GOLDEN.write_text(data)
     else:
