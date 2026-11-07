@@ -162,9 +162,17 @@ def test_static_builder_replaces_runtime_markdown_and_bundles_sanitization():
     builder = Path("scripts/build_site.py").read_text()
     package = json.loads(Path("package.json").read_text())
 
-    assert "marked" not in page.casefold()
-    assert "jsdelivr" not in page.casefold()
-    assert "unpkg" not in page.casefold()
+    # Report prose can contain these words ("where marked unknown"), so only
+    # loaded resources and script bodies are checked for the removed runtime.
+    lowered = page.casefold()
+    resources = " ".join(
+        re.findall(r"<(?:script|link)\b[^>]*>", lowered)
+        + re.findall(r"<script\b[^>]*>(.*?)</script>", lowered, re.DOTALL)
+    )
+    assert "marked" not in resources
+    assert "jsdelivr" not in resources
+    assert "unpkg" not in resources
+    assert not re.search(r"\bmarked\.(?:parse|use|setoptions)\b", lowered)
     assert 'src="assets/vendor/dompurify.min.js?' in page
     assert "DOMPurify.sanitize" in SITE_JS.read_text()
     assert package["dependencies"]["dompurify"] == "3.4.13"
