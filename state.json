@@ -3444,6 +3444,126 @@
       "source_revision": "ae5a340f951f08f6a76c21f9ef8e62ce91c8b54c",
       "stage": "released",
       "tree_digest": "82657a0404cec6e52e1201ba2d8c2cb82d41a66f8efd9b9ba5c818896ef36745"
+    },
+    {
+      "at": "2026-11-07T04:12:43.230Z",
+      "proof": {
+        "absent": [
+          {
+            "path": "_publication/build.js",
+            "status": 404
+          },
+          {
+            "path": "vercel.json",
+            "status": 404
+          }
+        ],
+        "checked_at": "2026-11-07T04:12:42.705Z",
+        "failures": [],
+        "listing_digest": "d3bc889cce22ab32dc094f1f61f717f45464bd0f0b5f1f3586c9cc7e3523c11b",
+        "ok": true,
+        "origin": "https://sentryinsight.ricomanifesto.com/",
+        "receipt": {
+          "environment": "production",
+          "git_commit_sha": "f39ab5d8e10fa604eaf9f0b75e47d7dfaba229b4",
+          "git_ref": "vercel-production",
+          "production_host": "sentryinsight.ricomanifesto.com",
+          "release_key": "73f4c31428f5ae013cdb908f5b2f28b8f335031c95f36f43d6836b8de2d5f68e",
+          "repository": "ricomanifesto/SentryInsight",
+          "schema_version": 1
+        },
+        "samples": [
+          {
+            "headers": {
+              "age": "28",
+              "cache-control": "public, max-age=0, must-revalidate",
+              "content-type": "text/html; charset=utf-8",
+              "etag": "W/\"798f142f5fda4766661cafe7080bccb7\""
+            },
+            "ok": true,
+            "path": "index.html",
+            "status": 200,
+            "url": "https://sentryinsight.ricomanifesto.com/"
+          },
+          {
+            "headers": {
+              "age": "0",
+              "cache-control": "public, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"57727f4785b59f4f11409e97e106f5df\""
+            },
+            "ok": true,
+            "path": "current-findings.json",
+            "status": 200,
+            "url": "https://sentryinsight.ricomanifesto.com/current-findings.json"
+          },
+          {
+            "headers": {
+              "age": "20",
+              "cache-control": "public, max-age=0, must-revalidate",
+              "content-type": "text/html; charset=utf-8",
+              "etag": "W/\"6dd74e40e442f4f2bb70a0d27f60b71a\""
+            },
+            "ok": true,
+            "path": "reports/2026-11-06.html",
+            "status": 200,
+            "url": "https://sentryinsight.ricomanifesto.com/reports/2026-11-06.html"
+          },
+          {
+            "headers": {
+              "age": "20",
+              "cache-control": "public, max-age=0, must-revalidate",
+              "content-type": "application/xml; charset=utf-8",
+              "etag": "W/\"e3e16a41e0b9f693f792d67b546044b4\""
+            },
+            "ok": true,
+            "path": "sitemap.xml",
+            "status": 200,
+            "url": "https://sentryinsight.ricomanifesto.com/sitemap.xml"
+          },
+          {
+            "headers": {
+              "age": "27",
+              "cache-control": "public, max-age=0, must-revalidate",
+              "content-type": "text/css; charset=utf-8",
+              "etag": "W/\"ad3d315e5277226053db1c60ebcf510f\""
+            },
+            "ok": true,
+            "path": "assets/site.css",
+            "status": 200,
+            "url": "https://sentryinsight.ricomanifesto.com/assets/site.css"
+          },
+          {
+            "headers": {
+              "age": "20",
+              "cache-control": "public, max-age=0, must-revalidate",
+              "content-type": "text/plain; charset=utf-8",
+              "etag": "W/\"17e8f7ad27fe03adafc08076c186205e\""
+            },
+            "ok": true,
+            "path": "_release/served-inventory.txt",
+            "status": 200
+          },
+          {
+            "headers": {
+              "age": "0",
+              "cache-control": "public, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"81b9c16055dd4e843d19bae6a38865a8\""
+            },
+            "ok": true,
+            "path": "_release/descriptor.json",
+            "status": 200
+          }
+        ],
+        "served_digest": "d794c7da78d6c755ca2ee09e3967d65baabcd8d01a20730ae44b9a74fa3f53d1",
+        "served_file_count": 108,
+        "served_release_key": "73f4c31428f5ae013cdb908f5b2f28b8f335031c95f36f43d6836b8de2d5f68e",
+        "tls": true
+      },
+      "release_key": "73f4c31428f5ae013cdb908f5b2f28b8f335031c95f36f43d6836b8de2d5f68e",
+      "release_ref": "f39ab5d8e10fa604eaf9f0b75e47d7dfaba229b4",
+      "stage": "serving"
     }
   ],
   "schema_version": 1,
