@@ -3040,6 +3040,17 @@
       "release_key": "a464bd6b2ec845abe79fffcf8a213639f3003b982a638f7266fa6d4c62ca2c22",
       "release_ref": "5581d40e46021912ed0e30e9b109590b1573a8f7",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-07T00:04:03.284Z",
+      "kind": "release",
+      "payload_digest": "d1e53462e834479ffdd909cdf06d76159fc4521ee91805bd7e9cd1e4aa016fbb",
+      "proof": "on",
+      "release_key": "29efdf41adc484318fa86901d66c12c554f721cb7caa785bbdf4482c890967ac",
+      "release_ref": "db76b2b483b91bdeddbd970b209487d3946852d7",
+      "source_revision": "682e662345fd9451049276e79aea70cc4ea8cbac",
+      "stage": "released",
+      "tree_digest": "940f7ccf9a700950f47e503b22b8754233ad45373f20fb93aac083dc94c66e93"
     }
   ],
   "schema_version": 1,
