@@ -1228,6 +1228,17 @@
       "at": "2026-11-07T18:19:25.826Z",
       "run_id": "42400428081",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:e23c24d8c84ee3a2a12b0bf395170bdc3e027de6",
+      "at": "2026-11-07T18:19:40.100Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "87e75c933fafc2dc7c27f2fc24dc0b29a8852f138119759bb5f76a1f2657f0ce",
+      "revision": "2b844f18aaa08f2a25ad5b74bd310e6b97fcf81f",
+      "run_id": "42400428081",
+      "stage": "request_reserved",
+      "token": "06d9bb90fbe484ae33d73765fd208a66"
     }
   ],
   "schema_version": 1,
