@@ -1429,6 +1429,13 @@
       "run_id": "42506822231",
       "stage": "request_finished",
       "token": "31f3040a0cdd0eda9b2f0721d6af1c5d"
+    },
+    {
+      "admission_key": "digest:327ca9eb368af625012925be228b7d18d52c4d86",
+      "at": "2026-11-08T17:52:07.608Z",
+      "outcome": "failed",
+      "run_id": "42506822231",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
