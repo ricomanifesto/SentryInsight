@@ -14,9 +14,6 @@ from .finding_evidence import (
 )
 from .report_artifact import DIGEST_ARCHIVE_ROOT, parse_report_artifact
 from .reporting import (
-    ACTIVE_SECTION_PATTERN,
-    FINDING_PATTERN,
-    REPORTING_FIELD_PATTERN,
     REPORTING_KEY_PATTERN,
     ReportingGroundingError,
     ReportingSource,
@@ -24,6 +21,7 @@ from .reporting import (
     resolve_reporting_keys,
     serialize_reporting_catalog,
 )
+from .report_findings import report_findings
 from .report_validation import (
     ReportValidationIssue,
     blocking_issues,
@@ -111,21 +109,18 @@ def _prepare_reporting_selection(
     Never infer an identity from URLs, labels, substrings or nearby evidence.
     Every downstream validator receives the same canonical Reporting fields.
     """
-    section = ACTIVE_SECTION_PATTERN.search(report)
-    if not section:
+    table = report_findings(report)
+    if not table.has_section:
         raise SourceReviewError("review_candidate_missing_findings")
     cited: set[str] = set()
     eligible = set(plan.eligible_keys)
-    finding_index = 0
 
-    def prepare(finding):
-        nonlocal finding_index
-        finding_index += 1
-        body = finding["body"]
-        fields = list(REPORTING_FIELD_PATTERN.finditer(body))
+    def prepare(row):
+        body = row.body
+        fields = row.reporting_fields
 
         def reject(code):
-            raise ReportingSelectionError(code, finding_index)
+            raise ReportingSelectionError(code, row.index)
 
         if len(fields) != 1:
             reject("invalid_reporting_field_count")
@@ -146,21 +141,16 @@ def _prepare_reporting_selection(
             keys.append(key)
         cited.update(keys)
         return (
-            finding["heading"]
+            row.heading
             + body[: field.start("value")]
             + ", ".join(keys)
             + body[field.end("value") :]
         )
 
-    canonical = FINDING_PATTERN.sub(prepare, section["section"])
+    canonical = table.render((row.start, row.end, prepare(row)) for row in table.rows)
     if not cited:
         raise SourceReviewError("review_candidate_missing_findings")
-    return (
-        report[: section.start("section")]
-        + canonical
-        + report[section.end("section") :],
-        sorted(cited),
-    )
+    return canonical, sorted(cited)
 
 
 def resolve_reviewed_analysis(

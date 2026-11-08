@@ -10,23 +10,17 @@ from typing import Any, Iterable, Mapping
 from urllib.parse import quote, urlsplit
 
 from ..services.article_content import normalize_feed_content
+from .report_findings import (  # noqa: F401 - the finding grammar's public names
+    ACTIVE_SECTION_PATTERN,
+    FINDING_PATTERN,
+    REPORTING_FIELD_PATTERN,
+    FindingRow,
+    report_findings,
+)
 
 import idna
 
 REPORTING_KEY_PATTERN = re.compile(r"^source-[0-9a-f]{12}$")
-REPORTING_FIELD_PATTERN = re.compile(
-    r"^(?P<prefix>-[ \t]+\*\*Reporting\*\*:[ \t]*)(?P<value>.*?)[ \t]*$",
-    re.MULTILINE,
-)
-ACTIVE_SECTION_PATTERN = re.compile(
-    r"(?P<prefix>^##\s+Active Exploitation Details\s*$\n)"
-    r"(?P<section>.*?)(?=^##\s+|\Z)",
-    re.MULTILINE | re.DOTALL,
-)
-FINDING_PATTERN = re.compile(
-    r"(?P<heading>^###\s+.+?\s*$\n)(?P<body>.*?)(?=^###\s+|\Z)",
-    re.MULTILINE | re.DOTALL,
-)
 
 
 class ReportingGroundingError(ValueError):
@@ -203,12 +197,10 @@ def _markdown_label(source: ReportingSource) -> str:
     return label.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
 
 
-def _resolve_finding(
-    block: re.Match[str], catalog: Mapping[str, ReportingSource]
-) -> str:
-    body = block.group("body")
-    fields = list(REPORTING_FIELD_PATTERN.finditer(body))
-    title = block.group("heading").removeprefix("###").strip()
+def _resolve_finding(row: FindingRow, catalog: Mapping[str, ReportingSource]) -> str:
+    body = row.body
+    fields = row.reporting_fields
+    title = row.title
     if len(fields) != 1:
         raise ReportingGroundingError(f"{title}: expected exactly one Reporting field")
     value = fields[0].group("value").strip()
@@ -231,25 +223,18 @@ def _resolve_finding(
     resolved_body = (
         body[: field.start()] + field.group("prefix") + links + body[field.end() :]
     )
-    return block.group("heading") + resolved_body
+    return row.heading + resolved_body
 
 
 def resolve_reporting_keys(report: str, catalog: Mapping[str, ReportingSource]) -> str:
     """Resolve model-selected keys; URLs and labels always come from inputs."""
-    section_match = ACTIVE_SECTION_PATTERN.search(report)
-    if not section_match:
+    table = report_findings(report)
+    if not table.has_section:
         raise ReportingGroundingError("Missing Active Exploitation Details section")
-    section = section_match.group("section")
-    findings = list(FINDING_PATTERN.finditer(section))
-    if not findings:
+    if not table.rows:
         raise ReportingGroundingError(
             "No findings are available for reporting evidence"
         )
-    resolved_section = FINDING_PATTERN.sub(
-        lambda match: _resolve_finding(match, catalog), section
-    )
-    return (
-        report[: section_match.start("section")]
-        + resolved_section
-        + report[section_match.end("section") :]
+    return table.render(
+        (row.start, row.end, _resolve_finding(row, catalog)) for row in table.rows
     )

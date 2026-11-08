@@ -29,9 +29,8 @@ from .finding_evidence import (
     build_finding_detail_context,
     collect_affected_version_constraints,
 )
+from .report_findings import FindingRow, report_findings
 from .reporting import (
-    ACTIVE_SECTION_PATTERN,
-    FINDING_PATTERN,
     ReportingSource,
     deserialize_reporting_catalog,
 )
@@ -469,20 +468,19 @@ def validate_resolved_version_status(
         )
 
 
-def _unresolved_fallback(finding, section, fields):
+def _unresolved_fallback(row: FindingRow, fields):
     """Advisory grounding: mark one clean version field unresolved, or refuse."""
-    matches = list(VERSION_FIELD.finditer(finding["body"]))
+    matches = list(VERSION_FIELD.finditer(row.body))
     if len(matches) != 1 or STATE_FIELD in fields:
         return None
     field = matches[0]
-    tail = finding["body"][field.end() :]
+    tail = row.body[field.end() :]
     next_field = FIELD.search(tail)
     if tail[: next_field.start() if next_field else len(tail)].strip():
         return None
-    base = section.start("section") + finding.start("body")
     return (
-        base + field.start("value"),
-        base + field.end("value"),
+        row.body_start + field.start("value"),
+        row.body_start + field.end("value"),
         f"{UNRESOLVED}\n- **{STATE_FIELD}**: {VersionEvidenceStatus.UNRESOLVED.value}",
     )
 
@@ -509,22 +507,18 @@ def _resolve_version_references(
     *,
     on_reject: Callable[[EvidenceError], None] | None,
 ) -> str:
-    section = ACTIVE_SECTION_PATTERN.search(report)
-    if not section:
+    table = report_findings(report)
+    if not table.has_section:
         raise _reject("missing_finding_section", "Missing finding section")
     scopes = cve_scope_index(catalog)
     replacements = []
-    for index, finding in enumerate(FINDING_PATTERN.finditer(section["section"]), 1):
-        fields = dict(FIELD.findall(finding["body"]))
-        cves = tuple(
-            sorted(
-                extract_cve_ids(fields.get("CVE IDs", "") + " " + finding["heading"])
-            )
-        )
-        keys = tuple(key.strip() for key in fields.get("Reporting", "").split(","))
+    for row in table.rows:
+        fields = row.fields()
+        cves = tuple(sorted(row.cves))
+        keys = row.cited_keys
         try:
-            pairs = FIELD.findall(finding["body"])
-            matches = list(VERSION_FIELD.finditer(finding["body"]))
+            pairs = row.pairs
+            matches = list(VERSION_FIELD.finditer(row.body))
             if len(pairs) != len(fields) or len(matches) != 1:
                 raise _reject(
                     "invalid_version_reference_field",
@@ -537,7 +531,7 @@ def _resolve_version_references(
                 )
             scope = _finding_scope(catalog, cves, keys, scopes)
             field = matches[0]
-            tail = finding["body"][field.end() :]
+            tail = row.body[field.end() :]
             next_field = FIELD.search(tail)
             if tail[: next_field.start() if next_field else len(tail)].strip():
                 raise _reject(
@@ -598,27 +592,28 @@ def _resolve_version_references(
                         )
                     rendered = "; ".join(dict.fromkeys(item.text for item in selected))
             rendered += f"\n- **{STATE_FIELD}**: {scope.state}"
-            start = (
-                section.start("section") + finding.start("body") + field.start("value")
+            replacements.append(
+                (
+                    row.body_start + field.start("value"),
+                    row.body_start + field.end("value"),
+                    rendered,
+                )
             )
-            end = section.start("section") + finding.start("body") + field.end("value")
-            replacements.append((start, end, rendered))
         except EvidenceError as exc:
-            exc.finding_index = index
+            exc.finding_index = row.index
             exc.cves = cves
             exc.source_keys = tuple(key for key in keys if key in catalog)
-            exc.finding_sha256 = hashlib.sha256(finding.group().encode()).hexdigest()
+            exc.finding_sha256 = row.sha256
             if on_reject is None:
                 raise
-            fallback = _unresolved_fallback(finding, section, fields)
+            fallback = _unresolved_fallback(row, fields)
             if fallback is None:
                 raise
             on_reject(exc)
             replacements.append(fallback)
     if not replacements:
         raise _reject("missing_finding_section", "No finding version references")
-    for start, end, value in reversed(replacements):
-        report = report[:start] + value + report[end:]
+    report = table.render(replacements)
     if REFERENCE.search(report):
         raise _reject(
             "misplaced_version_reference", "Version reference outside its field"

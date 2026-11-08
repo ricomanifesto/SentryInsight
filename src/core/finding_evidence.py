@@ -20,9 +20,8 @@ from markdown_it.token import Token
 from .derivations import derivation_scope, memoized
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .version_state import ABSENT, STATE_FIELD, VersionEvidenceStatus
+from .report_findings import FIELD, FindingRow, report_findings
 from .reporting import (
-    ACTIVE_SECTION_PATTERN,
-    FINDING_PATTERN,
     ReportingGroundingError,
     ReportingSource,
     normalize_reporting_url,
@@ -34,7 +33,6 @@ DETAIL_FIELDS = (
     "Recommended Actions",
     "Vendor Links",
 )
-FIELD = re.compile(r"^-\s+\*\*([^*]+)\*\*:\s*(.*?)\s*$", re.MULTILINE)
 VERSION_LIST_CUE = r"\b(?:affected (?:versions?|releases?)|versions? (?:are )?(?:impacted|affected)|supported releases?)\b"
 CUMULATIVE_UPDATE_CUE = r"\bcumulative updates?\b"
 DETAIL_CUES = {
@@ -1710,13 +1708,13 @@ def collect_affected_version_constraints(
 
 
 def _validate_finding(
-    finding: re.Match[str],
+    row: FindingRow,
     catalog: Mapping[str, ReportingSource],
     nonconfirmed: list[tuple[str, list[str]]],
 ) -> None:
-    title = finding.group("heading").removeprefix("###").strip()
-    body = finding.group("body")
-    pairs = FIELD.findall(body)
+    title = row.title
+    body = row.body
+    pairs = row.pairs
     fields = dict(pairs)
     if len(pairs) != len(fields):
         raise EvidenceError(
@@ -2010,17 +2008,12 @@ def validate_vendor_links(report: str, catalog: Mapping[str, ReportingSource]) -
     This is source identity, not grounding, so advisory grounding still runs
     it for every finding. Strict validation applies the same rule in place.
     """
-    section = ACTIVE_SECTION_PATTERN.search(report)
-    if not section:
-        return
-    for index, finding in enumerate(
-        FINDING_PATTERN.finditer(section.group("section")), start=1
-    ):
-        fields = dict(FIELD.findall(finding.group("body")))
+    for row in report_findings(report).rows:
+        fields = row.fields()
         value = fields.get("Vendor Links", "").strip()
         if not value or value == ABSENT:
             continue
-        keys = [key.strip() for key in fields.get("Reporting", "").split(",")]
+        keys = row.cited_keys
         links = {link for key in keys if key in catalog for link in catalog[key].links}
         code = None
         try:
@@ -2040,15 +2033,18 @@ def validate_vendor_links(report: str, catalog: Mapping[str, ReportingSource]) -
                 expected=True,
                 observed=False,
             )
-            error.finding_index = index
-            error.cves = tuple(
-                extract_cve_ids(
-                    fields.get("CVE IDs", "") + " " + finding.group("heading")
-                )
-            )
-            error.source_keys = tuple(key for key in keys if key in catalog)
-            error.finding_sha256 = hashlib.sha256(finding.group().encode()).hexdigest()
+            _identify(error, row, catalog)
             raise error
+
+
+def _identify(
+    error: EvidenceError, row: FindingRow, catalog: Mapping[str, ReportingSource]
+) -> None:
+    """Attach the rejected finding's bounded identity: index, scope and digest."""
+    error.finding_index = row.index
+    error.cves = row.cves
+    error.source_keys = tuple(key for key in row.cited_keys if key in catalog)
+    error.finding_sha256 = row.sha256
 
 
 def validate_finding_evidence(
@@ -2061,8 +2057,8 @@ def validate_finding_evidence(
 def _validate_finding_evidence(
     report: str, catalog: Mapping[str, ReportingSource]
 ) -> None:
-    section = ACTIVE_SECTION_PATTERN.search(report)
-    if not section:
+    table = report_findings(report)
+    if not table.has_section:
         raise EvidenceError(
             "Missing finding evidence section",
             code="missing_finding_section",
@@ -2070,30 +2066,16 @@ def _validate_finding_evidence(
             observed=False,
         )
     nonconfirmed = []
-    for index, finding in enumerate(
-        FINDING_PATTERN.finditer(section.group("section")), start=1
-    ):
+    for row in table.rows:
         try:
-            _validate_finding(finding, catalog, nonconfirmed)
+            _validate_finding(row, catalog, nonconfirmed)
         except EvidenceError as exc:
-            fields = dict(FIELD.findall(finding.group("body")))
-            exc.finding_index = index
-            exc.cves = tuple(
-                extract_cve_ids(
-                    fields.get("CVE IDs", "") + " " + finding.group("heading")
-                )
-            )
-            exc.source_keys = tuple(
-                key.strip()
-                for key in fields.get("Reporting", "").split(",")
-                if key.strip() in catalog
-            )
-            exc.finding_sha256 = hashlib.sha256(finding.group().encode()).hexdigest()
+            _identify(exc, row, catalog)
             raise
     # Free-standing aggregate claims cannot safely inherit the heading's state.
     # Require explicit CVEs for confirmed claims outside finding bodies whenever
     # the report contains mixed evidence states.
-    outside = report[: section.start()] + report[section.end() :]
+    outside = table.outside()
     for statement in _rendered_statements(outside):
         if statement.status != "active":
             continue
