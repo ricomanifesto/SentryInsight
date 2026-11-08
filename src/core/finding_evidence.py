@@ -8,7 +8,8 @@ source confirmations are not guaranteed to be recognized in every phrasing.
 """
 
 from dataclasses import dataclass
-from functools import lru_cache
+import copy
+from functools import cached_property, lru_cache
 import hashlib
 import re
 from typing import Any, Literal, Mapping, Sequence
@@ -254,32 +255,16 @@ def _value(source: Any, field: str, default=""):
     )
 
 
-@lru_cache(maxsize=256)
-def _sentence_cve_index(
-    content: str,
-) -> tuple[frozenset[str], tuple[tuple[str, frozenset[str]], ...]]:
-    """Source CVEs plus non-heading sentences with the CVEs each one names.
-
-    A pure function of the content; exploitation assessment asks for the same
-    source once per CVE scope, so the split and CVE scan are computed once.
-    """
-    return frozenset(extract_cve_ids(content)), tuple(
-        (sentence, frozenset(extract_cve_ids(sentence)))
-        for sentence in _sentences(content)
-        if not sentence.startswith("#")
-    )
-
-
 def _scoped_sentences(source: Any, cves: Sequence[str]) -> list[tuple[str, bool]]:
-    content = str(_value(source, "content"))
-    source_cves, sentences = _sentence_cve_index(content)
+    evidence = source_evidence(str(_value(source, "content")))
+    source_cves = evidence.cve_set
     wanted = set(cves)
     result = []
     # A source naming none of the wanted CVEs cannot contribute: every sentence
     # either names a foreign CVE or relies on source_cves == wanted.
     if not source_cves & wanted:
         return result
-    for sentence, mentioned in sentences:
+    for sentence, mentioned in evidence.sentences:
         # A sentence about two vulnerabilities is ambiguous, even if one matches.
         if mentioned and (not mentioned <= wanted or not mentioned & wanted):
             continue
@@ -361,30 +346,7 @@ def _validate_recommendation_statements(
 
 def _logical_source_blocks(content: str) -> list[str]:
     """Map physical lines to original paragraphs or outer list items."""
-    return list(_logical_source_block_map(content))
-
-
-@lru_cache(maxsize=256)
-def _logical_source_block_map(content: str) -> tuple[str, ...]:
-    # Pure in the content: one CommonMark parse serves every CVE scope.
-    lines = content.splitlines()
-    blocks = list(lines)
-    item_depth = 0
-    for token in MarkdownIt("commonmark").parse(content):
-        owns_block = False
-        if token.type == "list_item_open":
-            owns_block = item_depth == 0
-            item_depth += 1
-        elif token.type == "list_item_close":
-            item_depth -= 1
-        elif token.type in {"paragraph_open", "fence", "code_block"}:
-            owns_block = item_depth == 0
-        if owns_block and token.map:
-            start, end = token.map
-            block = "\n".join(lines[start:end]).strip()
-            for index in range(start, end):
-                blocks[index] = block
-    return tuple(blocks)
+    return list(source_evidence(content).blocks)
 
 
 @dataclass(frozen=True)
@@ -395,17 +357,209 @@ class DetailScope:
     unaccounted: tuple[DetailSpan, ...]
 
 
-def _complete_foreign_version_assertion(span: DetailSpan, wanted: set[str]) -> bool:
-    """A foreign mention or prefix cannot certify a whole paragraph's owner."""
+# Evidence tables. One source body is derived once into rows whose columns do
+# not depend on the CVE scope being asked about: logical blocks from a single
+# CommonMark parse, sentences with the CVEs they name, and heading/body
+# rows with their section owner, detail roles and version-list context. Every
+# CVE scope is then a filter over the same rows, so the role grammar runs once
+# per sentence instead of once per sentence per scope.
+
+
+@dataclass(frozen=True)
+class SpanRow:
+    """A heading or body sentence with every scope-independent column.
+
+    ``owner`` holds the CVEs of the enclosing heading section. ``block_cves``
+    are named anywhere in the paragraph or list item owning a body row.
+    ``foreign_assertion`` holds the CVEs of a complete ``CVE affects product
+    vN`` block, computed only for unowned rows that name a CVE. ``role_error``
+    records a grammar rejection of this row; no later rows are derived.
+    """
+
+    span: DetailSpan
+    owner: frozenset[str]
+    cves: frozenset[str] = frozenset()
+    block_cves: frozenset[str] = frozenset()
+    foreign_assertion: frozenset[str] | None = None
+    role_error: EvidenceError | None = None
+
+
+class SourceEvidence:
+    """Evidence table of one source body; each column is derived at most once."""
+
+    def __init__(self, content: str):
+        self.content = content
+
+    @cached_property
+    def cves(self) -> tuple[str, ...]:
+        """CVEs the body names, in source order."""
+        return tuple(extract_cve_ids(self.content))
+
+    @cached_property
+    def cve_set(self) -> frozenset[str]:
+        return frozenset(self.cves)
+
+    @cached_property
+    def sentences(self) -> tuple[tuple[str, frozenset[str]], ...]:
+        """Non-heading sentences of the whole body with the CVEs each names."""
+        return tuple(
+            (sentence, frozenset(extract_cve_ids(sentence)))
+            for sentence in _sentences(self.content)
+            if not sentence.startswith("#")
+        )
+
+    @cached_property
+    def blocks(self) -> tuple[str, ...]:
+        """The original paragraph or outer list item owning each physical line."""
+        lines = self.content.splitlines()
+        blocks = list(lines)
+        item_depth = 0
+        for token in MarkdownIt("commonmark").parse(self.content):
+            owns_block = False
+            if token.type == "list_item_open":
+                owns_block = item_depth == 0
+                item_depth += 1
+            elif token.type == "list_item_close":
+                item_depth -= 1
+            elif token.type in {"paragraph_open", "fence", "code_block"}:
+                owns_block = item_depth == 0
+            if owns_block and token.map:
+                start, end = token.map
+                block = "\n".join(lines[start:end]).strip()
+                for index in range(start, end):
+                    blocks[index] = block
+        return tuple(blocks)
+
+    @cached_property
+    def joint_scopes(self) -> tuple[tuple[str, ...], ...]:
+        """Multi-CVE scopes named together by one block or one of its sentences.
+
+        Paragraph and list blocks own complete recommendations whose
+        qualifications can span several sentences, so a block is a joint scope
+        as well as each sentence in it.
+        """
+        joint: dict[tuple[str, ...], None] = {}
+        for block in dict.fromkeys(self.blocks):
+            for text in [block, *_sentences(block)]:
+                cves = tuple(sorted(extract_cve_ids(text)))
+                if len(cves) > 1:
+                    joint[cves] = None
+        return tuple(joint)
+
+    @cached_property
+    def has_cve_sections(self) -> bool:
+        return any(
+            extract_cve_ids(match[2])
+            for line in self.content.splitlines()
+            if (match := re.match(r"^(#{1,6})\s+(.+)", line.strip()))
+        )
+
+    @cached_property
+    def spans(self) -> tuple[SpanRow, ...]:
+        """Heading and body-sentence rows in source order."""
+        rows: list[SpanRow] = []
+        sections: list[tuple[int, frozenset[str], tuple[str, ...]]] = []
+        previous_block = None
+        preceding: list[str] = []
+        block_has_recommendation = False
+        block_cves: frozenset[str] = frozenset()
+        for line, source_block in zip(self.content.splitlines(), self.blocks):
+            if source_block != previous_block:
+                preceding = []
+                previous_block = source_block
+                block_has_recommendation = bool(
+                    re.search(
+                        DETAIL_CUES["Recommended Actions"],
+                        " ".join(source_block.split()),
+                        re.I,
+                    )
+                )
+                block_cves = frozenset(extract_cve_ids(source_block))
+            heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
+            if heading:
+                level = len(heading[1])
+                while sections and sections[-1][0] >= level:
+                    sections.pop()
+                mentioned = frozenset(extract_cve_ids(heading[2]))
+                inherited = sections[-1][1] if sections else frozenset()
+                inherited_fields = sections[-1][2] if sections and not mentioned else ()
+                fields = _heading_detail_roles(heading[2]) or inherited_fields
+                sections.append((level, mentioned or inherited, fields))
+                rows.append(SpanRow(DetailSpan(heading[2], "heading"), sections[-1][1]))
+                continue
+            owner = sections[-1][1] if sections else frozenset()
+            body_line = re.sub(r"^\s*(?:[-+*]|\d+[.)])\s+", "", line)
+            for sentence in _sentences(body_line):
+                # Position matters: later advice cannot change an earlier row's
+                # role, even when the same release name occurs more than once.
+                preceding.append(sentence)
+                # Only cumulative-update role classification consumes this
+                # prefix. Retain the exact original prefix when needed,
+                # including wrapped recommendations; ordinary sentences must
+                # not each copy an ever growing paragraph. Keep the prefix for
+                # every CVE-bearing span too: later attribution normalization
+                # can expose a cumulative cue. Do not run that validating
+                # normalization here, where an unrelated malformed attribution
+                # is harmless until a scope selects it.
+                needs_context = re.search(
+                    CUMULATIVE_UPDATE_CUE, sentence, re.I
+                ) or CVE_ID_PATTERN.search(sentence)
+                version_context = " ".join(preceding) if needs_context else ""
+                mentioned = frozenset(extract_cve_ids(sentence))
+                try:
+                    body_fields = _detail_roles(sentence, version_context) or (
+                        sections[-1][2] if sections else ()
+                    )
+                except EvidenceError as error:
+                    # Every scan of this body stops here, so later rows are
+                    # never read; keep the rejection for the filter to raise.
+                    span = DetailSpan(
+                        sentence, "body", (), source_block, version_context
+                    )
+                    # Drop the traceback: the table outlives this frame.
+                    error = error.with_traceback(None)
+                    rows.append(
+                        SpanRow(span, owner, mentioned, block_cves, role_error=error)
+                    )
+                    return tuple(rows)
+                # Recommendation cues can themselves cross a physical line break.
+                if block_has_recommendation:
+                    body_fields = tuple(
+                        dict.fromkeys((*body_fields, "Recommended Actions"))
+                    )
+                span = DetailSpan(
+                    sentence, "body", body_fields, source_block, version_context
+                )
+                foreign = (
+                    _foreign_version_assertion(span)
+                    if mentioned and not owner
+                    else None
+                )
+                rows.append(SpanRow(span, owner, mentioned, block_cves, foreign))
+        return tuple(rows)
+
+
+@lru_cache(maxsize=256)
+def source_evidence(content: str) -> SourceEvidence:
+    """The evidence table of exact source content, shared by every scope and run."""
+    return SourceEvidence(content)
+
+
+def _foreign_version_assertion(span: DetailSpan) -> frozenset[str] | None:
+    """CVEs of a whole block that only asserts ``CVE affects product vN``.
+
+    A foreign mention or prefix cannot certify a whole paragraph's owner, so a
+    span that is not its complete block, or says anything else, yields None.
+    """
     if not span.source_block or _plain(span.source_block) != _plain(span.text):
-        return False
+        return None
     assertion = re.fullmatch(
         rf"(?P<cve>{CVE_ID_PATTERN.pattern}) (?:affects?|impacts?) "
         r"[a-z][a-z0-9_+/-]* v?\d+(?:[a-z0-9.*+-]*[a-z0-9*+-])?",
         span.text.strip().removesuffix("."),
         re.I,
     )
-    return bool(assertion and not set(extract_cve_ids(assertion["cve"])) & wanted)
+    return frozenset(extract_cve_ids(assertion["cve"])) if assertion else None
 
 
 def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
@@ -418,124 +572,70 @@ def _partition_detail_spans(source: Any, cves: Sequence[str]) -> DetailScope:
     return _partition_content_spans(str(_value(source, "content")), tuple(cves))
 
 
+BOUNDARY = DetailSpan("", "boundary")
+
+
 @lru_cache(maxsize=512)
 def _partition_content_spans(content: str, cves: tuple[str, ...]) -> DetailScope:
-    # Pure in (content, cves) and immutable, so one process-wide cache serves
-    # every run; the run-scoped memo is for catalog-level derivations that
-    # return mutable values. An EvidenceError is not cached and is raised again.
-    source_cves = set(extract_cve_ids(content))
+    # A scope is a filter over the source's evidence rows: only ownership,
+    # selection and the recommendation-scope check depend on the CVEs asked
+    # about. Pure in (content, cves) and immutable, so one process-wide cache
+    # serves every run. An EvidenceError is not cached and is raised again.
+    evidence = source_evidence(content)
     wanted = set(cves)
-    has_cve_sections = any(
-        extract_cve_ids(match[2])
-        for line in content.splitlines()
-        if (match := re.match(r"^(#{1,6})\s+(.+)", line.strip()))
+    source_owned = bool(
+        not evidence.has_cve_sections
+        and evidence.cve_set
+        and evidence.cve_set <= wanted
     )
-    sections: list[tuple[int, set[str], tuple[str, ...]]] = []
     # Boundaries prevent version-list context crossing sources or excluded spans.
-    result = [DetailSpan("", "boundary")]
-    unaccounted = [DetailSpan("", "boundary")]
-    source_blocks = _logical_source_blocks(content)
-    previous_block = None
-    preceding: list[str] = []
-    block_has_recommendation = False
-    block_cves: set[str] = set()
-    for line_index, line in enumerate(content.splitlines()):
-        source_block = source_blocks[line_index]
-        if source_block != previous_block:
-            preceding = []
-            previous_block = source_block
-            block_has_recommendation = bool(
-                re.search(
-                    DETAIL_CUES["Recommended Actions"],
-                    " ".join(source_block.split()),
-                    re.I,
-                )
-            )
-            block_cves = set(extract_cve_ids(source_block))
-        heading = re.match(r"^(#{1,6})\s+(.+)", line.strip())
-        if heading:
-            level = len(heading[1])
-            while sections and sections[-1][0] >= level:
-                sections.pop()
-            mentioned = set(extract_cve_ids(heading[2]))
-            inherited = sections[-1][1] if sections else set()
-            inherited_fields = sections[-1][2] if sections and not mentioned else ()
-            fields = _heading_detail_roles(heading[2]) or inherited_fields
-            sections.append((level, mentioned or inherited, fields))
-        owner = sections[-1][1] if sections else set()
+    result = [BOUNDARY]
+    unaccounted = [BOUNDARY]
+    for row in evidence.spans:
+        span, owner = row.span, row.owner
         owned = not wanted or bool(
-            owner
-            and owner <= wanted
-            or not owner
-            and not has_cve_sections
-            and source_cves
-            and source_cves <= wanted
+            owner and owner <= wanted or not owner and source_owned
         )
-        if heading:
-            span = DetailSpan(heading[2], "heading")
-            result.append(span if owned else DetailSpan("", "boundary"))
+        if span.role == "heading":
+            result.append(span if owned else BOUNDARY)
             unaccounted.append(
-                span
-                if not owned and (not owner or bool(owner & wanted))
-                else DetailSpan("", "boundary")
+                span if not owned and (not owner or bool(owner & wanted)) else BOUNDARY
             )
             continue
-        body_line = re.sub(r"^\s*(?:[-+*]|\d+[.)])\s+", "", line)
-        for sentence in _sentences(body_line):
-            # Position matters: later advice cannot change an earlier row's
-            # role, even when the same release name occurs more than once.
-            preceding.append(sentence)
-            # Only cumulative-update role classification consumes this prefix.
-            # Retain the exact original prefix when needed, including wrapped
-            # recommendations; ordinary sentences must not each copy an ever
-            # growing paragraph. Keep the prefix for every CVE-bearing span
-            # too: later attribution normalization can expose a cumulative
-            # cue. Do not run that validating normalization before scope
-            # selection, when an unrelated malformed attribution is harmless.
-            needs_context = re.search(
-                CUMULATIVE_UPDATE_CUE, sentence, re.I
-            ) or CVE_ID_PATTERN.search(sentence)
-            version_context = " ".join(preceding) if needs_context else ""
-            mentioned = set(extract_cve_ids(sentence))
-            selected = mentioned <= wanted if mentioned and wanted else owned
-            body_fields = _detail_roles(sentence, version_context) or (
-                sections[-1][2] if sections else ()
+        if row.role_error is not None:
+            # The grammar rejected this sentence's roles; rows before it may
+            # still reject the scope first, exactly as a sequential scan does.
+            raise copy.copy(row.role_error)
+        mentioned = row.cves
+        selected = mentioned <= wanted if mentioned and wanted else owned
+        if (
+            selected
+            and "Recommended Actions" in span.fields
+            and wanted
+            and not row.block_cves <= wanted
+        ):
+            raise EvidenceError(
+                "ambiguous recommendation block CVE scope",
+                code="ambiguous_recommendation_scope",
+                field="Recommended Actions",
             )
-            # Recommendation cues can themselves cross a physical line break.
-            if block_has_recommendation:
-                body_fields = tuple(
-                    dict.fromkeys((*body_fields, "Recommended Actions"))
-                )
-            if (
-                selected
-                and "Recommended Actions" in body_fields
-                and wanted
-                and not block_cves <= wanted
-            ):
-                raise EvidenceError(
-                    "ambiguous recommendation block CVE scope",
-                    code="ambiguous_recommendation_scope",
-                    field="Recommended Actions",
-                )
-            span = DetailSpan(
-                sentence, "body", body_fields, source_block, version_context
+        result.append(span if selected else BOUNDARY)
+        conflicting_owner = bool(owner and mentioned and not mentioned <= owner)
+        proven_foreign = (
+            bool(owner and not owner & wanted and not conflicting_owner)
+            if owner
+            else bool(
+                mentioned
+                and not mentioned & wanted
+                and row.foreign_assertion is not None
+                and not row.foreign_assertion & wanted
             )
-            result.append(span if selected else DetailSpan("", "boundary"))
-            conflicting_owner = bool(owner and mentioned and not mentioned <= owner)
-            proven_foreign = (
-                bool(owner and not owner & wanted and not conflicting_owner)
-                if owner
-                else bool(
-                    mentioned
-                    and not mentioned & wanted
-                    and _complete_foreign_version_assertion(span, wanted)
-                )
-            )
-            unaccounted.append(
-                span
-                if conflicting_owner or (not selected and not proven_foreign)
-                else DetailSpan("", "boundary")
-            )
+        )
+        unaccounted.append(
+            span
+            if conflicting_owner or (not selected and not proven_foreign)
+            else BOUNDARY
+        )
     return DetailScope(tuple(result), tuple(unaccounted))
 
 
@@ -584,17 +684,13 @@ def _derive_finding_detail_context(
     assessments = {}
     scopes = {}
     for source in catalog.values():
-        scopes.update(dict.fromkeys((cve,) for cve in extract_cve_ids(source.content)))
+        evidence = source_evidence(source.content)
+        scopes.update(dict.fromkeys((cve,) for cve in evidence.cves))
         # Actual source ownership supplies joint scopes, not a powerset of all
-        # article CVEs. Paragraph/list blocks also own complete recommendations
-        # whose qualifications can span several sentences.
-        for block in dict.fromkeys(_logical_source_blocks(source.content)):
-            for text in [block, *_sentences(block)]:
-                joint = tuple(sorted(extract_cve_ids(text)))
-                if len(joint) > 1:
-                    scopes[joint] = None
+        # article CVEs.
+        scopes.update(dict.fromkeys(evidence.joint_scopes))
     for source in catalog.values():
-        source_cves = set(extract_cve_ids(source.content))
+        source_cves = source_evidence(source.content).cve_set
         relevant_scopes = [scope for scope in scopes if source_cves & set(scope)]
         # A joint finding also includes other sources naming any member, even
         # if those sources do not themselves introduce the combined scope.
