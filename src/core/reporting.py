@@ -235,6 +235,7 @@ def resolve_reporting_keys(report: str, catalog: Mapping[str, ReportingSource]) 
         raise ReportingGroundingError(
             "No findings are available for reporting evidence"
         )
+    # A list, not a generator: a callback's exception propagates unchanged.
     return table.render(
-        (row.start, row.end, _resolve_finding(row, catalog)) for row in table.rows
+        [(row.start, row.end, _resolve_finding(row, catalog)) for row in table.rows]
     )

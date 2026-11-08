@@ -147,7 +147,8 @@ def _prepare_reporting_selection(
             + body[field.end("value") :]
         )
 
-    canonical = table.render((row.start, row.end, prepare(row)) for row in table.rows)
+    # A list, not a generator: a callback's exception propagates unchanged.
+    canonical = table.render([(row.start, row.end, prepare(row)) for row in table.rows])
     if not cited:
         raise SourceReviewError("review_candidate_missing_findings")
     return canonical, sorted(cited)
