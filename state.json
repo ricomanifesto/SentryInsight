@@ -1288,6 +1288,19 @@
       "run_id": "42455382244",
       "stage": "request_reserved",
       "token": "8b2bfe478d900e9e5c58d4c695db7e3e"
+    },
+    {
+      "admission_key": "run:42455382244",
+      "at": "2026-11-08T06:38:52.009Z",
+      "attempt": 1,
+      "disposition": "response_received",
+      "limit": 3,
+      "request_sha256": "0876e1c596337ef981e8191058f9cf20a0660b2a22d70938182ca61202dc20cb",
+      "retry_after": 0,
+      "revision": "7274f81a3e1bfda4819407cb0e977a6d2b174f02",
+      "run_id": "42455382244",
+      "stage": "request_finished",
+      "token": "8b2bfe478d900e9e5c58d4c695db7e3e"
     }
   ],
   "schema_version": 1,
