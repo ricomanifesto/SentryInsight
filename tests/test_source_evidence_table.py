@@ -126,3 +126,22 @@ def test_a_scope_filter_raises_in_the_same_order_as_a_sequential_scan(monkeypatc
         raised.append(rejected.value)
     assert {error.code for error in raised} == {"ambiguous_affected_version_polarity"}
     assert raised[0] is not raised[1] is not rows[-1].role_error
+
+
+def test_a_recorded_rejection_keeps_no_caller_frames(monkeypatch):
+    content = _unique("Poison sentence.")
+    original = evidence_module._detail_roles
+
+    def poisoned(text, context=""):
+        if text.startswith("Poison"):
+            raise EvidenceError("rejected", code="ambiguous_affected_version_polarity")
+        return original(text, context)
+
+    monkeypatch.setattr(evidence_module, "_detail_roles", poisoned)
+    try:
+        raise RuntimeError("unrelated failure being handled")
+    except RuntimeError:
+        rows = source_evidence(content).spans
+    stored = rows[0].role_error
+    assert stored is not None
+    assert (stored.__traceback__, stored.__context__, stored.__cause__) == (None,) * 3

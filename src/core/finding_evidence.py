@@ -516,8 +516,10 @@ class SourceEvidence:
                     span = DetailSpan(
                         sentence, "body", (), source_block, version_context
                     )
-                    # Drop the traceback: the table outlives this frame.
+                    # The table outlives this frame and any exception being
+                    # handled by the caller; keep none of their frames alive.
                     error = error.with_traceback(None)
+                    error.__context__ = error.__cause__ = None
                     rows.append(
                         SpanRow(span, owner, mentioned, block_cves, role_error=error)
                     )
