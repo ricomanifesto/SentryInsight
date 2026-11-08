@@ -5660,6 +5660,17 @@
       "release_key": "8ad4c30de5d6426c6969ca5478daab9bf0d807979a20673d7aad33f55c91181b",
       "release_ref": "c987df4036b06070a42d202d95cdb253370cc740",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-08T20:31:39.157Z",
+      "kind": "release",
+      "payload_digest": "21b55e4565293b99de0f3c89dddcd2c40c37132f42eebea56377ada5a826c605",
+      "proof": "on",
+      "release_key": "23156d5324c9b6e7814bb831e01d95f9d3aec2b0a5baf19a0baac321af1d9dfb",
+      "release_ref": "f6afa58a0f2b6c178a354ffe2ea6056adb9519b7",
+      "source_revision": "7c9c33dfb98e3296b521b3afc93ba76be1922059",
+      "stage": "released",
+      "tree_digest": "44a1b4c6782b5cddbf100c30fe12f319a7bba8045f22da836c0014649244ba24"
     }
   ],
   "schema_version": 1,
