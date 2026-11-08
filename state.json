@@ -1498,6 +1498,12 @@
       "run_attempt": "1",
       "run_id": "42520639826",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "run:42520639826",
+      "at": "2026-11-08T20:33:07.884Z",
+      "run_id": "42520639826",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
