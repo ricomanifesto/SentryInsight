@@ -107,8 +107,10 @@ in the generation diagnostics receipt. No prompt or response text is logged.
 `analysis.triage` can ask a non-generative decision model
 (`typesafe/jev-1.13` through OpenRouter's decisions endpoint) whether each
 article discusses a specific vulnerability's exploitation state before source
-review. The default `mode` is `off`: no decision client is constructed, no
-triage receipt is written and generation is unchanged.
+review. An absent `analysis.triage` block or `mode` key means `off`: no
+decision client is constructed, no triage receipt is written and generation
+is unchanged. The committed production configuration (`config/config.json`)
+sets `mode` to `enabled`.
 
 | Mode | Behavior |
 | --- | --- |
@@ -139,7 +141,8 @@ when the provider omits them. It also records the estimated prompt tokens for
 the full and the triaged set, so shadow runs measure the prompt reduction with
 no extra model call. It never holds article titles, text, URLs or provider
 messages. The report workflow retains it with the seven-day generation
-diagnostics. Set `mode` back to `off` to roll back.
+diagnostics. Set `mode` to `shadow` (decide and record, drop nothing) or
+`off` to roll back.
 
 `scripts/accumulate_triage.py` folds exported triage receipts offline into a
 ledger of counts and URL hashes keyed by unique article hash across runs;
