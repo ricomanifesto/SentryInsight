@@ -1301,6 +1301,14 @@
       "run_id": "42455382244",
       "stage": "request_finished",
       "token": "8b2bfe478d900e9e5c58d4c695db7e3e"
+    },
+    {
+      "admission_key": "run:42455382244",
+      "at": "2026-11-08T06:39:29.127Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "42455382244",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
