@@ -11,6 +11,7 @@ from .model_client import ReportModelClient, build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
 from .analysis_errors import classify_analysis_error
 from .cve import extract_cve_ids
+from .derivations import derivation_scope
 from .article_prompt import (
     clean_article_source as clean_article_source,
     collect_structured_cves as collect_structured_cves,
@@ -220,6 +221,16 @@ async def analyze_exploitation(
     Returns:
         Exploitation analysis report
     """
+    with derivation_scope():
+        return await _analyze_exploitation(articles, config, model_client=model_client)
+
+
+async def _analyze_exploitation(
+    articles: List[Dict[str, Any]],
+    config: Dict[str, Any],
+    *,
+    model_client: ReportModelClient | None,
+) -> Dict[str, Any]:
     logger.info(f"Analyzing exploitation in {len(articles)} articles")
 
     # Initialize the AI model through OpenCode.
