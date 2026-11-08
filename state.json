@@ -1324,6 +1324,13 @@
       "at": "2026-11-08T10:37:43.366Z",
       "run_id": "42470685744",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "run:42470685744",
+      "at": "2026-11-08T10:37:54.798Z",
+      "outcome": "failed",
+      "run_id": "42470685744",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
