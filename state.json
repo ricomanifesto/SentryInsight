@@ -5005,6 +5005,17 @@
       "release_key": "725a37cfefc62c9fd60e7c7ff65433e9d0f167361c4eb07da358432d833d44ed",
       "release_ref": "cb4d5055e768101615e4c25110fde3de7b5ff82a",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-08T10:09:15.353Z",
+      "kind": "release",
+      "payload_digest": "2f1a908dfcfe985b4276f6989ac6c6d664f38a03bb001e9039310a3cd8e8b8a6",
+      "proof": "on",
+      "release_key": "1877aa3a020ec530c62a2e861a33cf39f9497b3caa1eb283c711556fa0d8b009",
+      "release_ref": "bce763a7ce3cfb7d1e4eb6a6ea146877dcbb210f",
+      "source_revision": "ea669d674e8191617aa46fed57d72dc404978507",
+      "stage": "released",
+      "tree_digest": "df6610feb5163707b77fe331ff43d9f39fdb8e5c68354854c7e8424c0c16cd14"
     }
   ],
   "schema_version": 1,
