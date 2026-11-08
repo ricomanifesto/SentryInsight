@@ -1,6 +1,7 @@
 """Exclude explicitly tagged promotions without rewriting source records."""
 
 from collections.abc import Iterable, Mapping
+from functools import lru_cache
 import html
 from html.parser import HTMLParser
 import re
@@ -49,8 +50,13 @@ class _RenderedTextParser(HTMLParser):
             self.parts.append("\n")
 
 
+@lru_cache(maxsize=1024)
 def contains_virtual_event_tag(text: str) -> bool:
-    """Match the bracketed marker in source or rendered Markdown/HTML text."""
+    """Match the bracketed marker in source or rendered Markdown/HTML text.
+
+    A pure function of the text, so each distinct title, summary or body is
+    rendered once however many stages re-check the same article.
+    """
     decoded = html.unescape(text)
     # A second pass handles escaped Markdown preserved inside raw HTML blocks.
     for _ in range(2):
