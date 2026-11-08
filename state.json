@@ -1528,6 +1528,14 @@
       "run_id": "42520639826",
       "stage": "request_finished",
       "token": "c95686831f6c78ca65ed4337b0f4b38c"
+    },
+    {
+      "admission_key": "run:42520639826",
+      "at": "2026-11-08T20:36:50.666Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "42520639826",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
