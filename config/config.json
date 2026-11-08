@@ -7,7 +7,7 @@
         "max_tokens": 32000,
         "max_input_tokens": 200000,
         "triage": {
-            "mode": "shadow",
+            "mode": "enabled",
             "min_probability": 0.95,
             "timeout_seconds": 8
         },
