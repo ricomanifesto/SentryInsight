@@ -86,7 +86,7 @@ The body is strict JSON, at most 64 KiB:
 This records that the producer's deployment of a source commit completed.
 
 - **Kept once:** the first observation of each `(pipeline, source_commit, target)` is kept.
-- **Attached in either order:** it attaches a `published` publication to every completed projected run of that commit, whichever of the two arrives second.
+- **Attached in either order:** it attaches a `published` publication to every completed projected run of that commit, whichever of the two arrives second. Each run gets its own publication, identified by target and operation, even when runs share an identical artifact.
 - **Responses:** `200` when it attached to at least one run; `202` when it is stored and waiting for its run.
 - **Commits without a report:** a deployment of such a commit stays an unattached observation.
 

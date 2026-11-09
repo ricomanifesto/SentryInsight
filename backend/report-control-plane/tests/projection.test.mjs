@@ -114,6 +114,18 @@ test("an observed deployment attaches whether it arrives before or after the run
   assert.equal((await env.q("SELECT * FROM events WHERE operation_id = ? AND kind = 'publication_observed'", lateId)).length, 1);
 });
 
+test("two runs with identical report bytes each keep their own observed publication", async () => {
+  const shared = commit("identical-report");
+  const files = { "index.md": "# Identical\n" };
+  const actions = await projectRun({ revision: "actions:9001:1", articles: [article(8401, "Enriched text.")], files, sourceCommit: shared });
+  const rebuild = await projectRun({ revision: `rebuild:${shared}`, articles: [article(8401, "Feed text.")], files, sourceCommit: shared, executionId: "rebuild-identical" });
+  const ids = [actions.response.body.operation.operation_id, rebuild.response.body.operation.operation_id];
+  assert.equal((await env.row(ids[0])).artifact_sha256, (await env.row(ids[1])).artifact_sha256, "one artifact, stored once");
+  assert.deepEqual((await observe(shared, "production")).body.runs.sort(), [...ids].sort());
+  const records = await latest();
+  for (const id of ids) assert.deepEqual(records.get(runId(id)).publications.map((p) => [p.target, p.state]), [["production", "published"]]);
+});
+
 test("a failed run, a changed revision and an interrupted projection are recorded truthfully", async () => {
   const failed = await projectRun({ revision: "actions:1201:1", articles: [article(8201)], outcome: "failed", reason: "generation_failed" });
   assert.equal(failed.response.status, 201);

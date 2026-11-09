@@ -18,7 +18,7 @@ import { PROJECTION_LIMITS, SCHEMAS } from "./config.js";
 import { checkArtifact, manifestBytes, Rejected } from "./completion.js";
 import { event, isConstraintError, now, operation, rowsChanged } from "./db.js";
 import { fault } from "./faults.js";
-import { HEX64, ID_TOKEN, REASON, SOURCE_REVISION, TOKEN, artifactDigest, operationId as deriveOperationId, publicationId } from "./identity.js";
+import { HEX64, ID_TOKEN, REASON, SOURCE_REVISION, TOKEN, artifactDigest, operationId as deriveOperationId, observedPublicationId } from "./identity.js";
 import { RequestRefused, parseAdmission, validPublishedAt } from "./request.js";
 import { JsonRefused, decodeStrictJson } from "./strict-json.js";
 import { sha256Hex } from "./util.js";
@@ -167,7 +167,7 @@ async function attachObservations(db, op) {
 }
 
 async function recordPublication(db, op, observation) {
-  const id = await publicationId(observation.target, op.artifact_sha256);
+  const id = await observedPublicationId(observation.target, op.operation_id);
   const at = now();
   const receipt = JSON.stringify({ authority: "observed", observed_at: observation.observed_at, source_commit: observation.source_commit });
   const [inserted] = await db.batch([

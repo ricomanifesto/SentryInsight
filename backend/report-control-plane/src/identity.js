@@ -21,6 +21,13 @@ export function publicationId(target, artifactSha256) {
   return sha256Hex(`report-control-plane/publication/1\n${target}\n${artifactSha256}`);
 }
 
+// An observed deployment belongs to each projected run it is attached to, so
+// two runs with identical report bytes each keep their own publication; the
+// artifact itself is still stored once.
+export function observedPublicationId(target, operationId) {
+  return sha256Hex(`report-control-plane/observed-publication/1\n${target}\n${operationId}`);
+}
+
 // A relative ASCII path of safe segments, or null.
 export function pathSegments(path) {
   if (typeof path !== "string" || path.length === 0 || path.length > PATH_LIMIT) return null;

@@ -15,7 +15,7 @@
 // does; the Worker reads both change counts and treats any other combination
 // as an invariant violation.
 
-import { allOrNone, now, record } from "./db.js";
+import { allOrNone, now, record, rotatingBatch } from "./db.js";
 import { fault } from "./faults.js";
 import { publicationId } from "./identity.js";
 import { observePublication, postPublication } from "./publisher-client.js";
@@ -330,10 +330,15 @@ export async function publish(env, settings, operation, target) {
 // publisher has a receipt for. Never makes an effect itself.
 export async function repairPublications(env, settings, limit) {
   const db = env.PRODUCT_DB;
-  const { results } = await db
-    .prepare(`SELECT * FROM publications WHERE state IN ('claimed', 'unresolved', 'superseded') ORDER BY candidate_seq LIMIT ?`)
-    .bind(limit)
-    .all();
+  // Rotates through candidates (rotatingBatch), so publications that stay
+  // unobservable cannot keep newer ones from being settled.
+  const results = await rotatingBatch(
+    db,
+    "repair",
+    `SELECT rowid AS cursor_key, * FROM publications WHERE state IN ('claimed', 'unresolved', 'superseded')
+       AND rowid > ? AND rowid <= ? ORDER BY rowid LIMIT ?`,
+    limit,
+  );
   let settled = 0;
   for (const p of results) {
     const t = await targetRow(db, p.target);
