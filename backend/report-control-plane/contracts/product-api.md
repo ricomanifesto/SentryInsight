@@ -15,7 +15,7 @@ Every route except `/healthz` takes `Authorization: Bearer <token>`. Callers are
 | Route | Role | Effect |
 |---|---|---|
 | `POST /v1/operations` | admit | admit a request (below); `201` new, `200` identical repeat, `409 source_revision_conflict`, `422 <reason>`, `413` |
-| `GET /v1/operations/{id}` | read | operation, its publications and their targets' last-good |
+| `GET /v1/operations/{id}` | read | operation, its publications and their targets' last-good. The publications are the same as the export's: a publisher publication is listed on every completed run with its artifact, an observed one only on its own run. Projection responses return the same view |
 | `POST /v1/operations/{id}/publish` | publish | body `{"target"}`; `200` published, `202` in progress or unresolved, `409` refused or held |
 | `POST /v1/operations/{id}/retry` | admit | from `dead_letter` only: a new delivery generation, at most 3 rounds |
 | `POST /v1/reconcile` | operate | run the sweeper once |

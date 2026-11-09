@@ -247,6 +247,12 @@ test("an observation stays on its own run; a publisher publication is true of ev
   assert.equal(after.get(runId(idB)).report_published, false);
   assert.equal(after.get(runId(idB)).record_version, before.get(runId(idB)).record_version, "B's record did not change");
   assert.ok(after.get(runId(idA)).record_version > before.get(runId(idA)).record_version);
+  // Operation status and projection responses read the same run publications.
+  const statusOf = async (id) => (await env.status(id)).body.publications.map((p) => [p.target, p.state]);
+  assert.deepEqual(await statusOf(idA), [["production", "published"]]);
+  assert.deepEqual(await statusOf(idB), [], "B's status does not list A's observation");
+  const replayB = await projectRun({ revision: "scope-b", articles: [article(8502)], files, sourceCommit: commit("scope-b"), upload: false });
+  assert.deepEqual([replayB.response.status, replayB.response.body.publications], [200, []], "nor does B's projection response");
 
   // Two execute-path runs converge on one artifact; one publish publishes it
   // for both, and both records advance in the same commit as the publication.
@@ -260,5 +266,6 @@ test("an observation stays on its own run; a publisher publication is true of ev
     assert.deepEqual(now.get(runId(id)).publications.map((p) => [p.target, p.state]), [["site-converged", "published"]], id);
     assert.equal(now.get(runId(id)).report_published, true);
     assert.ok(now.get(runId(id)).record_version > prior.get(runId(id)).record_version, `${id} version advanced`);
+    assert.deepEqual((await env.status(id)).body.publications.map((p) => [p.target, p.state]), [["site-converged", "published"]], `${id} status`);
   }
 });

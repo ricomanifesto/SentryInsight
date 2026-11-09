@@ -32,6 +32,26 @@ function targetRow(db, target) {
   return db.prepare("SELECT * FROM targets WHERE target = ?").bind(target).first();
 }
 
+// The publications of one run, the single definition every reader uses.
+// A publisher publication is of an artifact, so it belongs to every completed
+// run with that artifact; an observed one belongs to its own run and target
+// only. The export change-log triggers (migration 0004) fan out the same way.
+const RUN_PUBLICATION_ORDERS = {
+  target: "p.target, p.publication_id",
+  candidate: "p.candidate_seq, p.publication_id",
+};
+export function runPublications(db, operationId, order = "target") {
+  return db
+    .prepare(
+      `SELECT p.* FROM publications p
+       WHERE (p.authority = 'observed' AND p.operation_id = ?)
+          OR (p.authority = 'publisher' AND p.artifact_sha256 =
+               (SELECT artifact_sha256 FROM operations WHERE operation_id = ? AND state = 'completed'))
+       ORDER BY ${RUN_PUBLICATION_ORDERS[order]}`,
+    )
+    .bind(operationId, operationId);
+}
+
 export function publicationView(p) {
   if (p === null) return null;
   const receipt = p.receipt ? JSON.parse(p.receipt) : null;

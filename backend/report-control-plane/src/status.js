@@ -1,7 +1,7 @@
 // Sanitized product status: states, versions, ids, digests, counts and fixed
 // reason tokens. No paths, hosts or upstream messages.
 
-import { publicationView, targetView } from "./publication.js";
+import { publicationView, runPublications, targetView } from "./publication.js";
 
 export function operationView(row) {
   return {
@@ -36,7 +36,9 @@ export function operationView(row) {
 
 export async function operationStatus(db, row) {
   const [{ results: publications }, { results: articles }] = await Promise.all([
-    db.prepare("SELECT * FROM publications WHERE artifact_sha256 = ? ORDER BY candidate_seq").bind(row.artifact_sha256 ?? "").all(),
+    // The same run publications as the export: shared by artifact only when
+    // the publisher made them, an observation only on its own run.
+    runPublications(db, row.operation_id, "candidate").all(),
     db.prepare("SELECT count(*) AS n FROM operation_articles WHERE operation_id = ?").bind(row.operation_id).all(),
   ]);
   const targets = [];

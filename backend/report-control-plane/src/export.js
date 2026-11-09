@@ -18,6 +18,7 @@
 
 import { SCHEMAS } from "./config.js";
 import { HEX64 } from "./identity.js";
+import { runPublications } from "./publication.js";
 import { contentKind } from "./request.js";
 import { JsonRefused, decodeStrictJson } from "./strict-json.js";
 import { sha256Hex } from "./util.js";
@@ -130,21 +131,11 @@ function runStatements(db, operationId) {
     db
       .prepare("SELECT a.* FROM operations o JOIN artifacts a ON a.artifact_sha256 = o.artifact_sha256 WHERE o.operation_id = ?")
       .bind(operationId),
-    // A publisher publication is of an artifact, so it belongs to every
-    // completed run with that artifact; an observed one belongs to its own run
-    // only. The change-log triggers fan out the same way. Which publication is
-    // a target's current last-good changes with another operation's events, so
+    // The run's publications (runPublications). Which publication is a
+    // target's current last-good changes with another operation's events, so
     // it is not part of this record; a consumer orders a target's published
     // runs by admission_seq.
-    db
-      .prepare(
-        `SELECT p.* FROM publications p
-         WHERE (p.authority = 'observed' AND p.operation_id = ?)
-            OR (p.authority = 'publisher' AND p.artifact_sha256 =
-                 (SELECT artifact_sha256 FROM operations WHERE operation_id = ? AND state = 'completed'))
-         ORDER BY p.target, p.publication_id`,
-      )
-      .bind(operationId, operationId),
+    runPublications(db, operationId),
     db
       .prepare(
         `SELECT source_revision, refused_fingerprint, observed_at FROM identity_conflicts
