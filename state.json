@@ -1908,6 +1908,14 @@
       "run_id": "42649758741",
       "stage": "request_finished",
       "token": "37505d8dc3c36c47717578447a209628"
+    },
+    {
+      "admission_key": "run:42649758741",
+      "at": "2026-11-09T16:01:57.394Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "42649758741",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
