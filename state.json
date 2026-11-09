@@ -1630,6 +1630,13 @@
       "run_id": "42575007885",
       "stage": "request_finished",
       "token": "5a7dbd28f86c31a1959a80b19670d27f"
+    },
+    {
+      "admission_key": "run:42575007885",
+      "at": "2026-11-09T06:48:58.545Z",
+      "outcome": "failed",
+      "run_id": "42575007885",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
