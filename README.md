@@ -218,6 +218,11 @@ claims always require separate source review; regrading is not a model improveme
 - `.github/workflows/validate.yml` checks pull requests and pushes to `main`.
 - `.github/workflows/deploy-pages.yml` automatically publishes the validated `main` commit. A manual dispatch can publish the selected branch or tag without first checking Validate; it still runs the report content gate (`scripts/validate_report.py`) before packaging, and a failure leaves the deployed site unchanged.
 
+- **Report history (inactive until configured):**
+  - After the outcome is recorded, `generate-report.yml` also records the finished run in the report history store (`backend/report-control-plane/`, [projection contract](backend/report-control-plane/contracts/projection.md)).
+  - `.github/workflows/record-report-history.yml` runs after Publish Production succeeds, and once daily, with read-only repository access. It reads the release descriptor the production origin serves and records that source commit as an observed publication.
+  - Both steps are skipped while the `CONTROL_PLANE_URL` repository variable is unset. They never change a run's outcome or a publication; a failure only annotates the run.
+
 The public Pages package contains only the finished report, archive, assets, sitemap, and the versioned reporting contract.
 
 ## Static Artifact
